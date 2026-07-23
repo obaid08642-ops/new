@@ -118,7 +118,14 @@
 - **المزود:** `src/screens/shared/InsuranceRequestsScreen.tsx` (طابور + قرار ثلاثي بمعاينة copay) مسجلة في **اللوحات الست** (doctor/facility/lab/nursing/pharmacy/radiology) مع نقاط دخول · `.gitignore` أُضيف (كان مفقودًا).
 - **المريض:** `booking-pending.tsx` (انتظار قبول المزود: استطلاع 5ث + مهلة 15د + إلغاء/استرداد حقيقي + توجيه تلقائي بالمعرّف الحقيقي) · `clinic-confirm.tsx` (BR-3: QR حقيقي عبر `react-native-qrcode-svg` + اتجاهات/اتصال/محادثة + سياسة استرداد) · `summary.tsx` (ملخص الاستشارة + زر متابعة) · إزالة `APT001` الثابت من booking-success/payments-success · **إصلاح كراش `AR` غير المعرف** في appointment-detail (مودال PENDING_COPAY) · دمج الأشعة في `diagnostics/orders.tsx` و`my-results.tsx` (bookings/mine + reports/mine + حالات REPORT_READY).
 **ديون M4 المسجلة:** خصم المتابعة يُمرر كبارامتر فقط — الربط الفعلي بمحرك quote في M5/M6 · ازدواج مخطط RadiologyBooking (modules/radiology/schemas مقابل schemas/) يُدمج M7 · عارض نصي لتقرير الأشعة السريري عند غياب PDF.
-**بنود M4 الأصلية المتبقية (تُستكمل مع M5):** مسار العلاج الطبيعي للمريض · الإسعاف المجدول · شاشة عروض الصيدليات (broadcast موجود backend) · facility beds/surgeries stubs (من 2.3).
+**بنود M4 الأصلية المتبقية (تُستكمل مع M6):** مسار العلاج الطبيعي للمريض · الإسعاف المجدول · شاشة عروض الصيدليات (broadcast موجود backend) · facility beds/surgeries stubs (من 2.3).
+
+### ✅ M5 — صفحات الأدمن التشغيلية (مكتملة، فرع m5-admin-pages، tsc=0 + next build ✓)
+- **Backend:** دمج طابور السحوبات (فجوة حقيقية: سحوبات المزود `ProviderWithdrawal` كانت غير مرئية للأدمن — `GET /admin/finance/withdrawals/pending` يدمج المجموعتين + `execute/reject` للمصدرين) · `AdminInsuranceController` جديد (`GET /admin/insurance/requests|stats`) · تحصين `/support/admin/*` بـ `@Roles(ADMIN)` (كانت مفتوحة لأي موثّق!).
+- **AdminGuard مركزي:** قائمة 16 صفحة/4 أقسام — كان 7 روابط + sidebar مزدوج في 3 صفحات (أُزيل التكرار).
+- **صفحات جديدة (5):** sos-monitor (استطلاع 10ث + إسناد مستشفى + إنهاء) · insurance-queue (إحصاءات + طلبات + مستردات باعتماد/رفض) · commissions (مؤشرات + تفصيل بالنسب) · support-tickets (thread + رد + حالات) · rbac (مصفوفة BR-7: 15 دورًا × 27 صلاحية — مرآة common/permissions.ts).
+- **محدَّثة:** payouts (رفض + مصدر موحد).
+**بقايا M5 المؤجلة:** Feature Flags UI · كوبونات/CMS · Broadcast · قائمة سوداء · ترجمات (M6) · اعتماد كتالوج معامل/أشعة · خريطة طلبات حية · تعديل أدوار ديناميكي (M6).
 
 ### ✅ M2 — سد فجوات الباك إند (مكتملة، فرع m2-backend-apis، tsc=0 + nest build ✓)
 **وحدتان جديدتان + تعديل 4 وحدات قائمة:**
@@ -217,7 +224,7 @@
 | M2 | سد فجوات API + نظام التقييمات + تأمين nursing | ✅ **مكتملة** — 33+ مسارًا جديدًا (فرع m2-backend-apis) |
 | M3 | التأمين (BR-2) + المحرك المالي + الاسترداد + quote | ✅ **مكتملة backend** (فرع m3-insurance-finance) — الربط بالشاشات في M4 |
 | M4 | التدفقات الممتدة وربط الشاشات (انتظار القبول، ختامية العيادة BR-3، ملخص الاستشارة، قرار التأمين للمزود، أشعة المريض) | ✅ **مكتملة** (فرع m4-extended-flows) — بقايا مؤجلة مع M5 |
-| M5 | صفحات الأدمن الـ 14 المفقودة (backend جاهز لأغلبها) | ⏳ |
+| M5 | صفحات الأدمن التشغيلية (SOS، تأمين/مستردات، سحوبات، عمولات، RBAC، دعم + تنقل موحد) | ✅ **مكتملة** (فرع m5-admin-pages) — بقايا CMS/Flags مع M6 |
 | M6 | أمن وامتثال (نفاذ/NPHIES/ZATCA/pen-test) | ⏳ |
 | M7 | جودة: 60% تغطية حرجة · 10 E2E ذهبية · CI للأربعة · صفر @ts-nocheck حرج · أداء | ⏳ |
 | M8 | إطلاق تدريجي (pilot ← مدينة ← عام) | ⏳ |
