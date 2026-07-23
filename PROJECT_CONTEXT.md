@@ -112,6 +112,14 @@
 - **العمولات/الأستاذ:** `POST /finance/ledger/accrue` (idempotent لكل طلب — نسب افتراضية: استشارة 15% · صيدلية 10% · معمل/أشعة/عيادة 12% · منزلي/تمريض/طبيعي 18%) · `GET /finance/ledger/provider/summary` · `GET /admin/finance/ledger/summary`.
 **المتبقي من M3:** ربط الشاشات (copay/approval-pending/claim-tracking + شاشة قرار المزود) في M4 · تنفيذ الاسترداد الفعلي عبر moyasar.refundPayment عند APPROVED (يحتاج payment_id الحقيقي — موثق) · ربط accrue بأحداث الدفع الفعلية.
 
+### ✅ M4 — التدفقات الممتدة وربط الشاشات (مكتملة، فرع m4-extended-flows، tsc=0 للمشاريع الثلاثة)
+> حادثة: `InsuranceRequestsScreen.tsx` فُقد عند إعادة تشغيل بيئة العمل قبل الرفع — أُعيد بناؤه كاملًا من عقد M3 الموثقة هنا. **القاعدة: لا يُنهى أي ملف جديد دون رفعه للفرع فورًا أو تدوينه هنا.**
+- **Backend:** `ConsultationSummary` (schema + `POST/GET /care/appointments/:id/summary` — كتابة الطبيب تُقفل الموعد COMPLETED · نافذة متابعة 7 أيام افتراضيًا) · alias `GET /insurance/claims/my`.
+- **المزود:** `src/screens/shared/InsuranceRequestsScreen.tsx` (طابور + قرار ثلاثي بمعاينة copay) مسجلة في **اللوحات الست** (doctor/facility/lab/nursing/pharmacy/radiology) مع نقاط دخول · `.gitignore` أُضيف (كان مفقودًا).
+- **المريض:** `booking-pending.tsx` (انتظار قبول المزود: استطلاع 5ث + مهلة 15د + إلغاء/استرداد حقيقي + توجيه تلقائي بالمعرّف الحقيقي) · `clinic-confirm.tsx` (BR-3: QR حقيقي عبر `react-native-qrcode-svg` + اتجاهات/اتصال/محادثة + سياسة استرداد) · `summary.tsx` (ملخص الاستشارة + زر متابعة) · إزالة `APT001` الثابت من booking-success/payments-success · **إصلاح كراش `AR` غير المعرف** في appointment-detail (مودال PENDING_COPAY) · دمج الأشعة في `diagnostics/orders.tsx` و`my-results.tsx` (bookings/mine + reports/mine + حالات REPORT_READY).
+**ديون M4 المسجلة:** خصم المتابعة يُمرر كبارامتر فقط — الربط الفعلي بمحرك quote في M5/M6 · ازدواج مخطط RadiologyBooking (modules/radiology/schemas مقابل schemas/) يُدمج M7 · عارض نصي لتقرير الأشعة السريري عند غياب PDF.
+**بنود M4 الأصلية المتبقية (تُستكمل مع M5):** مسار العلاج الطبيعي للمريض · الإسعاف المجدول · شاشة عروض الصيدليات (broadcast موجود backend) · facility beds/surgeries stubs (من 2.3).
+
 ### ✅ M2 — سد فجوات الباك إند (مكتملة، فرع m2-backend-apis، tsc=0 + nest build ✓)
 **وحدتان جديدتان + تعديل 4 وحدات قائمة:**
 1. **`modules/provider-ops/`** (جديدة): نظام التقييمات الكامل (ProviderReview schema + create/list/reply + تجميع متوسط على الملف) ← `GET /provider/reviews` · `POST /provider/reviews/:id/reply` · `POST /reviews` · `GET /reviews?target_id` — محفظة المزود الحقيقية `GET /provider/wallet` (رصيد+ملخص) · `/wallet/transactions` · `/wallet/withdraw` (حقيقي بمجموعة ProviderWithdrawal وحالة PENDING_ADMIN_APPROVAL — كان stub!) · `/wallet/withdrawals` — `GET /provider/stats/today` (عدّادات حية من 5 مجموعات) — `PUT /provider/working-hours` · `POST /provider/schedule/settings` · `POST /provider/consultation/end`.
@@ -208,7 +216,7 @@
 | M1 | توصيل المريض | ✅ مكتملة ومرفوعة (الفحص tsc أخضر) |
 | M2 | سد فجوات API + نظام التقييمات + تأمين nursing | ✅ **مكتملة** — 33+ مسارًا جديدًا (فرع m2-backend-apis) |
 | M3 | التأمين (BR-2) + المحرك المالي + الاسترداد + quote | ✅ **مكتملة backend** (فرع m3-insurance-finance) — الربط بالشاشات في M4 |
-| M4 | التدفقات الممتدة (أشعة للمريض، إسعاف+سائق، مستشفيات/facility، علاج طبيعي، نفسية، تغذية، أمومة، توصيل) | ⏳ |
+| M4 | التدفقات الممتدة وربط الشاشات (انتظار القبول، ختامية العيادة BR-3، ملخص الاستشارة، قرار التأمين للمزود، أشعة المريض) | ✅ **مكتملة** (فرع m4-extended-flows) — بقايا مؤجلة مع M5 |
 | M5 | صفحات الأدمن الـ 14 المفقودة (backend جاهز لأغلبها) | ⏳ |
 | M6 | أمن وامتثال (نفاذ/NPHIES/ZATCA/pen-test) | ⏳ |
 | M7 | جودة: 60% تغطية حرجة · 10 E2E ذهبية · CI للأربعة · صفر @ts-nocheck حرج · أداء | ⏳ |
