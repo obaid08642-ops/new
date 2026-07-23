@@ -79,3 +79,24 @@ backend `tsc --noEmit` = 0 (على نسخة بناء /tmp بعد إعادة تث
 ## 4) التحقق والتسليم
 backend tsc=0 · patient tsc=0 · زيبات backend+patient محدثة · دفع على فرع `m6-seo-enterprise`.
 **متبقي M6:** ER-10 المتبقي (تحليل استعلامات N+1) · SEO-2 · توسعة i18n للمحتوى في الباك إند (name_ar/en معمم) · نفاذ/Nafath SSO (تقييم).
+
+---
+
+# الدفعة الرابعة (24/07) — SEO-2 المقالات + تقييم نفاذ + استرجاع مفقود M3
+
+## 1) SEO-2 — منصة المقالات الصحية (ER-2)
+- **مخطط `Article` جديد:** عنوان/مقتطف/نص (ar+en) · فئة · وسوم · غلاف · مؤلف · حالة DRAFT/PUBLISHED · slug فريد · seo_description override · عدّاد مشاهدات · فهرس مركب (status+published_at).
+- **موديول `articles`:** عام — `GET /articles` (منشورة فقط + بحث/فئة/تصفح) · `/articles/categories` · `/articles/:slug` (+views) · أدمن CMS — `GET/POST /admin/articles` · PATCH · publish/unpublish · حذف ناعم (Roles ADMIN).
+- **دمج كامل في SEO:** نوع `article` في resolve (منشورة فقط) + meta + JSON-LD `Article` (headline/datePublished/author) + **sitemap.xml** (أولوية 0.6/أسبوعي) + مشاركة deep link.
+- **الويب:** عرض المقال في `/s/article/:slug` (غلاف/فئة/نص/مؤلف/تاريخ) + دليل `/articles` (SSR) + بطاقة في الرئيسية + robots.txt.
+- **زرع 3 مقالات بداية** (قلب/تغذية أطفال/سكري) — `scripts/seed-articles.ts` ← القسم يعمل E2E فورًا.
+
+## 2) استرجاع مفقود: سكربت شركات التأمين (M3)
+اكتُشف أن `scripts/seed-insurance-companies.ts` فُقد من مساحة العمل قبل تغليف M3 — **أُعيد إنشاؤه** (10 شركات سعودية، upsert idempotent). درس مكرر: التحقق بالحجم قبل كل تسليم مطبق الآن.
+
+## 3) تقييم نفاذ/Nafath — موثق في السياق (§4ج-2)
+ليس OIDC قياسيًا — بروتوكول DGA خاص (request/random/موافقة بيومترية/status webhook) ويتطلب اعتماد كيان رسمي. **القرار:** التصميم جاهز (موديول nafath: KYC مزودين + توثيق مرضى) — التنفيذ عند الحصول على الاعتماد (بند M8 خارجي).
+
+## 4) التحقق والتسليم
+backend tsc=0 · admin tsc=0 + next build ✓ (`/articles` SSR ظاهرة في الإخراج) · زيبات backend+admin محدثة · فرع `m6-seo-enterprise`.
+**M6 مغلقة.** المتبقي موثق: تحليل N+1 (M7) · i18n محتوى الباك إند المعمم (M7) · نفاذ (اعتماد خارجي) · ZATCA-2 (اعتماد خارجي) · إحصاء التسليم UI.
