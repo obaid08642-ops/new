@@ -258,7 +258,13 @@
 - **بُني:** صفحة كيان SSR `/s/[type]/[slug]` (JSON-LD + OG + canonical + KB دوائية كاملة) · 5 أدلة SSR (doctors/medicines/facilities/lab-services/home-care-services) · رئيسية عامة بدل redirect · robots.txt · توسعة medicine.schema بـ 18 حقل ER-4 · إصلاح robots v2←v1 · deep links موحدة `nabdplus://s/...` · NotificationHandler بعقد screen+params + whitelist · ملتقط روابط `/s/...` داخل التطبيق.
 - **قرار معماري موثق:** الويب العام يُقدَّم من نفس تطبيق Next.js (web-admin) — لا يوجد مشروع ويب خامس؛ يُفصَل لاحقًا عند الحاجة (M8).
 - **مطلوب عند النشر (M8):** ملفا `apple-app-site-association` و`assetlinks.json` على النطاق + ضبط NABD_PUBLIC_URL/NEXT_PUBLIC_SITE_URL/INDEXNOW_KEY.
-**متبقي M6:** ER-8 backend (retry/مجدولة/تسليم) · ER-9 جرد اتصالات (TURN/presence/receipts) · ER-10/11 أداء+أمن · ER-5 i18n المحتوى · ZATCA/نفاذ · BR-6 واجهات · SEO-2 (مقالات/أنواع إضافية).
+**متبقي M6:** ER-10 أداء · ER-5 i18n المحتوى · ZATCA/نفاذ · BR-6 واجهات · SEO-2 (مقالات/أنواع إضافية) · إحصاء التسليم في واجهة الأدمن.
+
+### M6 — الدفعة 2 (مكتملة 24/07): إشعارات + اتصالات + أمن
+- **ER-8 backend:** طابور BullMQ `notifications-delivery` (retry ×4 أسّي + جدولة + fallback مباشر) · حقول delivery/status/scheduled_at في المخطط · حالة لكل قناة · عقد حمولة `{type,screen,params,action}` · توجيه Expo/FCM حسب الرمز · مسارا admin/schedule + admin/delivery-stats.
+- **ER-9:** الجرد: LiveKit/Coturn/Presence/typing/مرفقات/صوتيات موجودة ✓ — الفجوة المسدودة: `mark_seen`→`message_seen` (إيصالات قراءة لحظية).
+- **ER-11 ثغرتان:** بوابة Socket كانت تقبل userId بلا تحقق ← JWT إلزامي (fallback تطوير فقط) + CORS `*` ← ALLOWED_ORIGINS.
+**عقد الاتصال بالسوكت:** `io(URL, {auth:{token}})` — تطبيق المريض متوافق مسبقًا؛ المزود يجب التأكد منه عند M7.
 
 
 | M7 | جودة: 60% تغطية حرجة · 10 E2E ذهبية · CI للأربعة · صفر @ts-nocheck حرج · أداء | ⏳ |

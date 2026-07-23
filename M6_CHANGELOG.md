@@ -32,3 +32,26 @@ ER-8 backend: Retry Queue + مجدولة + حالة تسليم · ER-9: جرد �
 
 ## 6) التسليم
 زيبات محدثة: backend · Napd-admin · nabd_plus + فرع `m6-seo-enterprise` + تحديث PROJECT_CONTEXT.
+
+---
+
+# الدفعة الثانية (24/07) — ER-8 الإشعارات + ER-9 الاتصالات + ER-11 أمن
+
+## 1) ER-8 — بنية تسليم الإشعارات (الفجوات كانت: لا retry، لا جدولة، لا حالة تسليم، لا عقد شاشة في الحمولة)
+- **مخطط Notification:** حقول `delivery` (حالة لكل قناة: SENT/FAILED + attempts + last_error + sent_at) · `scheduled_at` · `status` (PENDING/SCHEDULED/SENT/PARTIAL/FAILED مفهرس).
+- **طابور BullMQ `notifications-delivery`** + `NotificationDeliveryProcessor`: إعادة محاولة ×4 بتراجع أسّي (30ث) · جدولة عبر delay · `removeOnComplete/Fail` · **fallback تسليم مباشر** إن تعذر الاتصال بـ Redis (لا ينكسر إنشاء الإشعار).
+- **`deliverById`:** تسجيل حالة لكل قناة (push/sms/whatsapp/email) وحساب الحالة الكلية؛ رمي خطأ عند فشل كل القنوات ← يفعّل إعادة المحاولة.
+- **`sendPush` مُعاد:** حمولة العقد `data={type, screen, params, action}` (يقرأها NotificationHandler في التطبيق من دفعة 1) + **توجيه الرموز حسب نوعها**: Expo (`ExponentPushToken` ← exp.host API) وFCM (multicast/topic) — كل منهما يُرجع نجاحًا فعليًا.
+- **مسارات أدمن جديدة:** `POST /notifications/admin/schedule` · `GET /notifications/admin/delivery-stats`.
+
+## 2) ER-9 — جرد الاتصالات: الموجود مسبقًا غطّى معظم البنود
+LiveKit ✓ · Coturn ببيانات مؤقتة ✓ · Socket.IO ✓ · JWT للمكالمات ✓ · Presence ✓ · typing ✓ · مرفقات/صوتيات (type: text/image/voice/file) ✓ · unread counters ✓.
+**الفجوة المسدودة:** إيصالات قراءة لحظية — حدث `mark_seen` → بث `message_seen` للطرف الآخر في `chat.gateway`.
+
+## 3) ER-11 — ثغرتان أمنيتان في بوابة Socket (حقيقيتان)
+- **انتحال الهوية:** كان `userId` يُؤخذ من handshake دون أي تحقق ← الآن **JWT إلزامي** (`auth.token` أو Authorization header) مع fallback للتطوير فقط. تطبيق المريض يرسل التوكن مسبقًا ✓.
+- **CORS:** كان `origin: '*'` ← قائمة ALLOWED_ORIGINS البيئية (نفس سياسة HTTP).
+
+## 4) التحقق والتسليم
+backend `tsc --noEmit` = 0 (على نسخة بناء /tmp بعد إعادة تثبيت الحزم) · زيب backend محدث · دفع على نفس فرع `m6-seo-enterprise`.
+**متبقي M6:** ER-10 أداء · ER-5 i18n المحتوى · ZATCA/نفاذ · BR-6 واجهات · SEO-2 · إحصاء التسليم في واجهة الأدمن.
