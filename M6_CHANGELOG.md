@@ -55,3 +55,27 @@ LiveKit ✓ · Coturn ببيانات مؤقتة ✓ · Socket.IO ✓ · JWT لل
 ## 4) التحقق والتسليم
 backend `tsc --noEmit` = 0 (على نسخة بناء /tmp بعد إعادة تثبيت الحزم) · زيب backend محدث · دفع على نفس فرع `m6-seo-enterprise`.
 **متبقي M6:** ER-10 أداء · ER-5 i18n المحتوى · ZATCA/نفاذ · BR-6 واجهات · SEO-2 · إحصاء التسليم في واجهة الأدمن.
+
+---
+
+# الدفعة الثالثة (24/07) — BR-6 i18n + ZATCA + ER-10 فهارس
+
+## 1) BR-6/ER-5 — توحيد مصدر الترجمة (كان نظامان متوازيان!)
+- الجرد كشف: `i18n/index.ts` يحوي القاموس الكامل الحقيقي (6 لغات: ar/en/ur/hi/bn/fil مع fallback عربي + autoTranslate لمحتوى الـ API) بينما `LanguageManager` (i18n-js) يقرأ 6 ملفات JSON شبه فارغة (252 بايت!) — مصدران متباعدان.
+- **الإصلاح:** LanguageManager أصبح يقرأ نفس القاموس المضمّن (مصدر واحد) · تصدير `translations` من index.ts · مبدّل اللغة في الإعدادات يعمل مسبقًا ✓ · RTL لـ ar/ur ✓.
+- **دين مسجل:** ترجمة النصوص الثابتة داخل الشاشات (t() rollout) مهمة ممتدة M7 — المعيار: لا نص ثابت جديد (BR-8).
+
+## 2) ZATCA المرحلة 1 — فوترة إلكترونية مبسطة (موديول billing جديد)
+- مخطط `EInvoice` (رقم تسلسلي سنوي INV-YYYY-NNNNNN عبر عداد ذري) + خدمة + مسارات:
+  - `GET /billing/invoice/:kind/:bookingId` — إصدار/استرجاع فاتورة لحجز مدفوع (ملكية أو أدمن) — يدعم order/appointment/lab/radiology/home_care.
+  - `GET /billing/my` · `GET /billing/admin/list` (أدمن).
+- **QR متوافق ZATCA**: TLV (tags 1–5: اسم البائع/الرقم الضريبي/التاريخ/الإجمالي/الضريبة) base64 · استخراج VAT 15% من الإجمالي الشامل · بيانات البائع من env (`ZATCA_SELLER_NAME`/`ZATCA_VAT_NUMBER`).
+- **دين مسجل:** المرحلة 2 (Fatoora clearance · UBL XML · توقيع تشفيري) تتطلب حلًا معتمدًا — مسار شهادة منفصل.
+- النماذج المشتركة تُجلب من اتصال mongoose المشترك (لا إعادة تسجيل — يتجنب OverwriteModelError).
+
+## 3) ER-10 — فهارس المسارات الساخنة
+- الجرد: معظم الفهارس موجودة (order/notification/insurance/slot-uniqueness). **أُضيف:** `Appointment {patient_id:1, slot_start:-1}` (مواعيدي الأحدث) و`{doctor_id:1, status:1, slot_start:-1}` (جدول المزود).
+
+## 4) التحقق والتسليم
+backend tsc=0 · patient tsc=0 · زيبات backend+patient محدثة · دفع على فرع `m6-seo-enterprise`.
+**متبقي M6:** ER-10 المتبقي (تحليل استعلامات N+1) · SEO-2 · توسعة i18n للمحتوى في الباك إند (name_ar/en معمم) · نفاذ/Nafath SSO (تقييم).

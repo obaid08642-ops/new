@@ -258,7 +258,12 @@
 - **بُني:** صفحة كيان SSR `/s/[type]/[slug]` (JSON-LD + OG + canonical + KB دوائية كاملة) · 5 أدلة SSR (doctors/medicines/facilities/lab-services/home-care-services) · رئيسية عامة بدل redirect · robots.txt · توسعة medicine.schema بـ 18 حقل ER-4 · إصلاح robots v2←v1 · deep links موحدة `nabdplus://s/...` · NotificationHandler بعقد screen+params + whitelist · ملتقط روابط `/s/...` داخل التطبيق.
 - **قرار معماري موثق:** الويب العام يُقدَّم من نفس تطبيق Next.js (web-admin) — لا يوجد مشروع ويب خامس؛ يُفصَل لاحقًا عند الحاجة (M8).
 - **مطلوب عند النشر (M8):** ملفا `apple-app-site-association` و`assetlinks.json` على النطاق + ضبط NABD_PUBLIC_URL/NEXT_PUBLIC_SITE_URL/INDEXNOW_KEY.
-**متبقي M6:** ER-10 أداء · ER-5 i18n المحتوى · ZATCA/نفاذ · BR-6 واجهات · SEO-2 (مقالات/أنواع إضافية) · إحصاء التسليم في واجهة الأدمن.
+**متبقي M6:** ER-10 المتبقي (N+1) · SEO-2 · i18n المحتوى في الباك إند · نفاذ/Nafath (تقييم) · إحصاء التسليم في واجهة الأدمن.
+
+### M6 — الدفعة 3 (مكتملة 24/07): BR-6 + ZATCA + فهارس
+- **BR-6:** توحيد مصدر الترجمة — LanguageManager كان يقرأ JSONs فارغة بينما القاموس الحقيقي في index.ts ← الآن مصدر واحد (6 لغات + fallback عربي). دين: t() rollout داخل الشاشات (M7).
+- **ZATCA-1:** موديول billing — فاتورة إلكترونية لكل حجز مدفوع + QR TLV (tags1-5) + رقم تسلسلي سنوي ذري + `GET /billing/invoice/:kind/:id` · `/billing/my` · `/billing/admin/list`. بيانات البائع: ZATCA_SELLER_NAME/ZATCA_VAT_NUMBER env. **دين: المرحلة 2 (UBL/توقيع/Fatoora) تتطلب حلًا معتمدًا.**
+- **ER-10:** فهرسان للمواعيد (patient_id+slot_start · doctor_id+status+slot_start).
 
 ### M6 — الدفعة 2 (مكتملة 24/07): إشعارات + اتصالات + أمن
 - **ER-8 backend:** طابور BullMQ `notifications-delivery` (retry ×4 أسّي + جدولة + fallback مباشر) · حقول delivery/status/scheduled_at في المخطط · حالة لكل قناة · عقد حمولة `{type,screen,params,action}` · توجيه Expo/FCM حسب الرمز · مسارا admin/schedule + admin/delivery-stats.
