@@ -356,6 +356,17 @@
 - **بذر حي مثبت:** 10 شركات تأمين + 3 مقالات عبر السكربتات الفعلية على قاعدة الاختبار.
 - حدود الاختبار: لا محاكي موبايل (الشاشات تُختبر عبر عقود API لا نقرات UI)، ولا بوابات خارجية حقيقية (Moyasar/FCM/LiveKit/SMS تحتاج حسابات).
 
+
+### ح) وثيقة Communication Infrastructure (FINAL_A1 — رفعها المستخدم 24/07) — CI-1..CI-10
+مبدأ حاكم: **ممنوع منصات اتصال مدفوعة** (Agora/Twilio/OneSignal/Vonage/Pusher/Firebase RTDB/Stream/Sendbird) — كل شيء منصة داخلية؛ FCM/APNs بوابات نقل فقط بلا منطق فيها.
+- CI-1 إشعارات: 30+ نوعًا (شات/صوت/صورة/مكالمات واردة وفائتة/طلبات/حجوزات/مدفوعات/استرداد/وصفات/تذكيرات/تسويق/أمان/ولاء) + تعمل والتطبيق مغلق/مقفل + Deep Link دقيق لكل نوع (أغلبها منفذ M6: عقد screen+params + whitelist + BullMQ) — **النواقص: APNs مباشر، أنواع المكالمات، مركز أدمن الكامل (بث مجزأ: دولة/مدينة/جنس/عمر/لغة/اهتمامات/غير نشط/VIP/شركة تأمين + مجدول/متكرر/مسودة + تحليلات فتح/CTR/أجهزة)، محرك الأتمتة (سلة مهجورة/حجز ناقص/تذكير X ساعة/نصائح يومية بتوقيت عشوائي)**.
+- CI-2 شات: خاص لكل الأطراف + نص/صورة/فيديو/صوت/ملفات/موقع + رد/تمرير/حذف/تعديل + typing/delivered/seen/unread/presence/offline queue (أغلبها موجود M6؛ ينقص: forward/edit/delete UI، offline queue).
+- CI-3 مذكرات صوتية: رفع/بث/موجة/سرعة/خلفية/تشفير (الرفع موجود؛ الموجة/التشفير ينقصان).
+- CI-4/CI-5 مكالمات: LiveKit **Self-Hosted على VPS خاص + coturn خاص — ممنوع LiveKit Cloud** + JWT من NestJS (موجود) + سيناريوهات (مشغول/فائت/إعادة/ICE restart/غرفة انتظار/تسجيل جاهز) — الجاهزية معمارية، النشر M8.
+- CI-7 بريد: **Resend أساسي + Amazon SES تلقائي احتياطي** بلا تغيير كود + DLQ + قوالب (OTP/ترحيب/حجز/فاتورة/تسويق) — **النواقص: failover التلقائي والقوالب**.
+- CI-8 OTP: **افتراضيًا بريد + Push**؛ SMS اختياري معطل افتراضيًا خلف Provider Interface — **يتطلب ضبط: الوضع الحالي SMS-أولوية؛ يُعكس**.
+- CI-9/CI-10: NestJS+Redis+Mongo+BullMQ+Socket.IO+Cron+JWT+RBAC+Audit+RateLimit+Cache+EventBus — كلها موجودة؛ الأداء production-grade بلا demo/mock.
+
 ## 6. معلومات تشغيلية سريعة
 
 - **فحص الباك إند:** `rsync` إلى `/tmp/build-be` ← `npm install --legacy-peer-deps` ← `npx tsc --noEmit` (يتجاوز 667 حزمة، ~4 دقائق).
@@ -386,3 +397,30 @@
 8. تبويب التمريض المخفي في المريض (`href: null`) — يُظهر بعد اكتمال ربط home-care في M2.
 9. `insurance/claims/submit` موجود لكن محرك التأمين الكامل M3.
 10. نتائج التدقيق الأصلية في `تقرير_التدقيق_الشامل_منصة_نبضة_بلس.md` تحتمل إيجابيات كاذبة في عدّادات "المفقود" (سبب: استخراج أول كنترولر فقط) — الأرقام المصححة في 2.2/2.3 أعلاه هي المرجع.
+
+## 8. جلسة 24/07 — الاختبار الحي الشامل (65/65) + GEO + تشطيبات M7
+
+### بيئة الاختبار الحية الداخلية (أُجيب بها على طلب المستخدم)
+- **مكدس حقيقي كامل**: MongoDB حقيقي (mongodb-memory-server :27077) + **Redis حقيقي v7.0.15** (:6388 — حُلّت مشكلة glibc بجلب حزم bookworm) + الباك إند من `dist/` إنتاجية على :4099.
+- الحزمة مُشحَّنة داخل الريبو: `nabdah-backend/e2e/` (boot.js + matrix.js + README) — نتيجتها المرجعية **65 ناجح / 0 فاشل / 0 متخطى**.
+
+### أخطاء إنتاجية حقيقية كشفها الاختبار الحي وأُصلحت
+1. **NoSQL injection** في auth (identifier كائن) → تحقق نوعي صارم 400 في login/verify2fa/verifyOtp/resetPassword/register.
+2. **CreateOrderDto بلا decorators** مع whitelist+forbidNonWhitelisted → **كل طلبات الصيدلية كانت مرفوضة 400 في الإنتاج** → أضيفت decorators كاملة.
+3. **تصادم نموذجين `RefundRequest`** (patient-ux vs insurance-engine) — Mongoose سلّم الوحدتين أول مخطط مُترجم → محرك الاسترداد بنوافذ السياسة كان يُفرّغ refund_percent عند الحفظ → أُعيدت تسمية نموذج patient-ux إلى `PatientUxRefund` مع بقاء المجموعة.
+4. **insurance_status enum** — الخدمة تكتب 'pending'/'none' والمخطط PENDING فقط → توحيد أحرف كبيرة + إضافة NONE.
+5. **assertProvider النظامي** (13 ملفًا) — مقارنة بدور 'provider' غير الموجود → دالة `isProviderRole()` في common/enums.
+6. **push.module + unified-bookings** يقرآن REDIS_URL فقط ويتجاهلان REDIS_HOST/PORT → دالة `redisUrlFromEnv()` الموحدة.
+7. **RedisService إعادة كتابة كاملة** — بديل ذاكري مرن عند انقطاع Redis (كل العمليات + getClient shim)؛ سابقًا كانت الطلبات تنهار 500 وتسقط العملية كلها (BullMQ unhandled rejection).
+8. **بوابة socket.gateway الميتة** (بث بلا JWT) — حُذفت؛ البث الحقيقي عبر ChatGateway المصادق.
+9. **notifications.create** يتطلب title_key/body_key ولا يقبل title/body من بث الأدمن → يقبل كليهما + 400 واضحة؛ admin/schedule كان يرمي Error عامة → BadRequestException.
+10. **فجوة تكامل لوحة الأدمن**: الواجهة تستدعي `GET /admin/users` و`POST /admin/users/:id/ban` وغير موجودين → نُفذا (ترقيم/بحث/دور + ban/unban مع منع حظر الأدمن).
+11. **sitemap 'doctor'** كان يدرج الصيدليات (بلا فلتر type) → `type: 'doctor'`.
+12. **GEO**: `GET /seo/llms.txt` (llmstxt.org) يتولد من البيانات الحية (أطباء/أدوية/تحاليل/تمريض/مقالات) + إشارة في robots.txt — **اختبار O3 يمر حيًا**.
+13. OTP بلا قناة مُعدّة كان يختفي صامتًا (2FA مستحيل في التطوير) → console.warn في غير الإنتاج يعرض الرمز.
+
+### بوابات الجودة بعد كل ما سبق
+- tsc: 0 أخطاء · jest: **184/184** · nest build: نجاح · مصفوفة E2E: **65/65**.
+
+### M8 المتبقي (بيئة staging حقيقية)
+- أسرار حقيقية (قائمة `متغيرات_البيئة_المطلوبة.md`) · نشر LiveKit+coturn self-hosted (CI-4) · failover Resend→SES (CI-7) · عكس أولوية OTP إلى بريد+Push (CI-8) · APNs مباشر · محرك بث الأدمن بالتقسيم · QA أجهزة · اعتمادات خارجية (Nafath/ZATCA-2/AASA/NPHIES).

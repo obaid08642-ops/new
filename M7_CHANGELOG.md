@@ -119,3 +119,33 @@ nest build   : success (dist/main.js)
 - بذر حي مثبت: 10 شركات تأمين + 3 مقالات (تظهر في sitemap وSEO meta).
 - **الرفع:** فرع `m7-quality` مدفوع إلى github.com/obaid08642-ops/new بنجاح (الزيبات الأربعة + السجلات + السياق).
 - وثيقة المتغيرات: `متغيرات_البيئة_المطلوبة.md` (مستخرجة من الكود: ~70 متغيرًا مصنفة إلزامي/ميزة/اختياري).
+
+---
+
+## ملحق 24/07 — الاختبار الحي الشامل (65/65) وإصلاحاته
+
+### المنهج
+بُنيت بيئة اختبار حقيقية داخلية (MongoDB + Redis حقيقيان + dist إنتاجية) وشُغّلت مصفوفة 65 سيناريو حيًا تغطي: كل أنواع الاستشارات × كل طرق الدفع، دورة التأمين كاملة، الصيدلية، التحاليل/الأشعة/التمريض، جهة المزود، لوحة الأدمن (بما فيها الحظر)، الإشعارات المجدولة، السوكيت بـ JWT، مكالمات LiveKit، SEO/GEO، ونوافذ الاسترداد.
+
+**النتيجة النهائية: 65 ناجح / 0 فاشل / 0 متخطى** (الحزمة في `nabdah-backend/e2e/`).
+
+### الملفات المعدلة في هذه الجلسة
+| الملف | الإصلاح |
+|---|---|
+| `src/modules/auth/auth.service.ts` | تحصين NoSQL injection (assertString) + بديل OTP للتطوير |
+| `src/common/enums.ts` | `PROVIDER_ROLES` + `isProviderRole()` |
+| 13 ملفًا provider/pharmacy/custom-services | assertProvider ← isProviderRole |
+| `src/modules/orders/dto/create-order.dto.ts` | decorators كاملة (كان كل الطلبات مرفوضة) |
+| `src/modules/orders/orders.service.ts` + `src/schemas/order.schema.ts` | توحيد insurance_status (NONE/PENDING كبيرة) |
+| `src/modules/patient-ux/patient-ux.module.ts` | نموذج `PatientUxRefund` (حل تصادم RefundRequest) |
+| `src/modules/insurance-engine/insurance-engine.module.ts` | سبب الاسترداد إلزامي 400 بدل 500 |
+| `src/modules/redis/redis.service.ts` | إعادة كتابة كاملة — بديل ذاكري مرن + `redisUrlFromEnv()` |
+| `src/modules/push/push.module.ts` + `unified-bookings.service.ts` | توحيد قراءة بيئة Redis |
+| `src/modules/socket/socket.gateway.ts` | **حذف** (بوابة ميتة بلا مصادقة) |
+| `src/modules/notifications/notifications.service.ts` + controller | قبول title/body + 400 واضحة |
+| `src/modules/admin/admin.controller.ts` | `GET /admin/users` + `POST /admin/users/:id/ban|unban` |
+| `src/modules/seo/seo.service.ts` + controller | فلتر type:'doctor' في sitemap + **llms.txt** حي |
+| 3 ملفات spec | مزامنة مع التغييرات (184/184 خضراء) |
+| `e2e/` (جديد) | حزمة الاختبار الحي: boot.js + matrix.js + README |
+
+### بوابات: tsc=0 · jest=184/184 · build=نجاح · E2E=65/65
