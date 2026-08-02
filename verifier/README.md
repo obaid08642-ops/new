@@ -87,3 +87,13 @@
 - مفاتيح JWT الاحتياطية الضعيفة: chat.gateway كان يتحقق بسر علني ثابت عند غياب JWT_SECRET، وprovider.module كان يوقّع بـ 'change-me' → كلاهما يفشل بإغلاق في الإنتاج ويشاركان سر التطوير الموحد (auth.guard أيضًا).
 - فهرس boot-time لمجموعة family_messages الجديدة (group_id + created_at).
 **تأكيدات:** 64 كنترولر: 61 محروس، اثنان عامّان بحق (مجسّات system-health، وويب هوك المدفوعات الموقّع). موجود ويعمل: helmet، قائمة CORS بيضاء، مُقيّد معدل عام (200/دقيقة)، OTP في Redis بمهلة وحد 5 محاولات، bcrypt(12) لكلمات المرور.
+
+## Run بعد R10 (commit 44c00b7) — LiveKit + إلغاء ازدواجية المحادثة + تحققات البنية
+**ما تغيّر:**
+- LiveKit: التطبيقات تشير إلى wss://livekit.nabd.plus والنطاق غير موجود (NXDOMAIN) — مكالمات الفيديو كانت ستفشل كلياً. النقطة الصحيحة wss://live.nabd.plus (تعمل عبر Cloudflare، HTTP 200). صُحّحت في 5 ملفات (مريض env + شاشتان، مزود fallback + env.example).
+- محادثة العائلة: تبيّن أن وحدة compat تخدم /family/chat/messages أصلاً (مجموعة familychatmessages، مغلّف {data}) — أُلغيت المسارات المكررة التي أضافها R8 في family.controller وبقيت الشاشة المعاد بناؤها بعد محاذاتها للمغلّف.
+**تحققات حية (بلا وصول SSH):**
+- الإنتاج يعمل بنسخة قديمة: /health/emergency-contacts POST و/emergency/sos/cancel يرجعان 404 (مسارات R4/R5 غير منشورة بعد) — النشر معلّق فقط على مفتاح nabd_deploy_key المفقود من هذه البيئة.
+- FCM: google-services للتطبيقين متطابقان ومشروع واحد مسجّل فيه الحزمتان؛ الباك إند متعدد المشاريع عبر FCM_PROJECT_ID(_2) — قيم المفاتيح على السيرفر تُفحص بعد SSH.
+- R2 CDN: حي (pub-8fac6a8c9296b585e3a5f71a1a2baa89.r2.dev — 401 على الجذر طبيعي).
+- الأدمن الحي: admin.nabd.plus يخدم Next.js (web-admin) بإثبات __NEXT_DATA__ — مجلد frontend/ القديم (CRA) لم يُحذف شيء منه؛ كل شاشاته الأربع لها مكافئ في web-admin (audit-logs، nursing-portal…).
