@@ -97,3 +97,18 @@
 - FCM: google-services للتطبيقين متطابقان ومشروع واحد مسجّل فيه الحزمتان؛ الباك إند متعدد المشاريع عبر FCM_PROJECT_ID(_2) — قيم المفاتيح على السيرفر تُفحص بعد SSH.
 - R2 CDN: حي (pub-8fac6a8c9296b585e3a5f71a1a2baa89.r2.dev — 401 على الجذر طبيعي).
 - الأدمن الحي: admin.nabd.plus يخدم Next.js (web-admin) بإثبات __NEXT_DATA__ — مجلد frontend/ القديم (CRA) لم يُحذف شيء منه؛ كل شاشاته الأربع لها مكافئ في web-admin (audit-logs، nursing-portal…).
+
+## Run بعد R11 (commit e349410) — النشر الإنتاجي الفعلي + إصلاحات البناء
+**النشر:** تم نشر الباك إند المعدّل فعلياً على السيرفر (OVH 57.131.133.208:/opt/nabdah) عبر SSH بالمفتاح المرفوع؛ نسخة احتياطية من src قبل المزامنة (backups/src-pre-r10-*.tar.gz) ثم rsync ثم إعادة بناء صورة backend وتشغيلها — الحاوية healthy وكل الحاويات التسع تعمل.
+**إصلاحات البناء الصارم (nest build/tsc على السيرفر أصرم من فحوص transpile المحلية — 4 تكرارات حتى الأخضر):**
+- enums: إضافة EmergencyState.CANCELLED (من R4) كسرت اكتمال Record في EMERGENCY_TRANSITIONS → أُضيفت الانتقالات (CANCELLED هدف من كل الحالات النشطة، ومن CANCELLED إلى CLOSED فقط).
+- radiology.controller: 8 توابع مكررة (تعارض TS2393) أزيلت — كتلة R3 كررت مسارات موجودة.
+- TS2742 في facility-ops/home-care/health: توصيفات Promise<any[]> صريحة وقوالب as any عند $push.
+- tsconfig.build.json جديد يستثني spec/scripts من بناء الإنتاج + nest-cli tsConfigPath؛ Dockerfile.backend على السيرفر كان لا ينسخه (sed fix موثق) — يجب إبقاء هذا السطر في أي إعادة بناء.
+- insurance.service.spec أُعيدت كتابتها لسلوك R6b الصادق (AiGateway mock، eligible:false بدون وثيقة)؛ analytics.service.spec حُذف (كان يختبر خدمة محذوفة).
+**إصلاحات وظيفية حرجة اكتشفها النشر:**
+- DoctorReferralsController لم يكن مسجلاً في أي Module إطلاقاً — واجهة إحالات المزود (inbox/issue) كانت 404 منذ الأبد! سُجّل في care.module مع مخططي EncounterReferral وDoctorProfileExtended.
+- notifications FCM: الكود يقرأ FIREBASE_* فقط بينما السيرفر يضبط FCM_* → fallback ثنائي الاتجاه (FIREBASE_* || FCM_*) — الإشعارات الأصلية كانت معطّلة فعلياً على الإنتاج.
+- Moyasar refund: fallback 'sk_test_dummy' → MOYASAR_SECRET_KEY || MOYASAR_SECRET مع رفض صريح عند الغياب.
+**تحقق حي بعد النشر:** liveness 200؛ 401 «Missing token» (الحارس العام يعمل) على: /health/emergency-contacts POST، /emergency/sos/cancel، /notifications/read-all، /facility/announcements، /family/chat/messages، /provider/doctor-referrals/my-referrals/:id — كل المسارات الجديدة منشورة ومحروسة.
+**تدقيق متغيرات البيئة (وجود فقط، بلا كشف قيم):** FCM وR2/S3 وCloudinary وLiveKit (wss://live.nabd.plus) وResend وGemini/OpenAI وCORS كلها مضبوطة. **بنود مالك معلّقة:** ZATCA_VAT_NUMBER غير مضبوط (الفوترة الإنتاجية تفشل بإغلاق حسب تصميم R6b)؛ MOYASAR_WEBHOOK_SECRET غير مضبوط (تحقق توقيع الويب هوك يُتخطى — ويب هوك المدفوعات غير موثّق حالياً).
