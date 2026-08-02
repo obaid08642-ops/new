@@ -112,3 +112,17 @@
 - Moyasar refund: fallback 'sk_test_dummy' → MOYASAR_SECRET_KEY || MOYASAR_SECRET مع رفض صريح عند الغياب.
 **تحقق حي بعد النشر:** liveness 200؛ 401 «Missing token» (الحارس العام يعمل) على: /health/emergency-contacts POST، /emergency/sos/cancel، /notifications/read-all، /facility/announcements، /family/chat/messages، /provider/doctor-referrals/my-referrals/:id — كل المسارات الجديدة منشورة ومحروسة.
 **تدقيق متغيرات البيئة (وجود فقط، بلا كشف قيم):** FCM وR2/S3 وCloudinary وLiveKit (wss://live.nabd.plus) وResend وGemini/OpenAI وCORS كلها مضبوطة. **بنود مالك معلّقة:** ZATCA_VAT_NUMBER غير مضبوط (الفوترة الإنتاجية تفشل بإغلاق حسب تصميم R6b)؛ MOYASAR_WEBHOOK_SECRET غير مضبوط (تحقق توقيع الويب هوك يُتخطى — ويب هوك المدفوعات غير موثّق حالياً).
+
+## Run بعد R12–R15 (commits 4768d86 + 6d1502b) — EPIC 1: المحرك المالي الكامل + النشر الإنتاجي
+**النطاق:** تدقيق وإصلاح المنظومة المالية End-to-End (20 قسماً من ملف المالك): المدفوعات، الاسترداد، الإلغاء، الإرجاع، المحفظة، الكوبونات، الولاء، العمولات، الحسابات المعلّقة (Escrow)، الرصيد السالب، السندات المالية غير القابلة للتعديل، كشف الاحتيال، التقارير، الفواتير، والموافقات الإدارية (maker-checker).
+**المنهج:** 21 ملاحظة (F1–F21) بما فيها 7 حرجة P0 — كلها أُصلحت في الكود الحقيقي بلا افتراضات. التفاصيل الكاملة في تقرير EPIC1 (انظر مخرجات الجلسة).
+**أخطر ما أُغلق:**
+- شحن المحفظة كان يصكّ مالاً بلا بوابة دفع (F1) → الآن intent عبر Moyasar + تأكيد ذري (pending_payment→credited مرة واحدة).
+- إنشاء الدفع كان يثق بالمبلغ القادم من العميل (F2) → المبلغ يُحسب من قاعدة البيانات مع تحقق ملكية.
+- إلغاء الطلب لم يكن يسترد المال إطلاقاً (F9 — شرط state=='PAID' مستحيل لأن الـ enum بلا PAID) → مصفوفة إلغاء كاملة تعتمد payment_status.
+- تنفيذ السحب لم يكن يسجّل قيد payout (F23 — نفس المال قابل للصرف مرتين) → قيد idempotent + تحقق من الرصيد المتاح.
+- شاشة دفع الصيدلية في تطبيق المريض كانت تعرض نجاحاً مزيفاً بعد 1.5 ثانية مهما كانت النتيجة (F4) → تدفق Moyasar حقيقي (intent → صفحة مستضافة → تحقق دوري).
+- الإجمالي كان يؤخذ من العميل (F22) → يُحسب في الخادم مع كوبون/نقاط/محفظة.
+**النشر (R15):** 6 محاولات بناء فاشلة كشفت سلسلة أعطال متداخلة: npm يصاب بعطل «Exit handler never called» ويخرج برمز 0 (فمرّرت طبقات تالفة)، والسبب الجذري أن lockfile أُعيد توليده محلياً فحمل 13 رابطاً لمرآة داخلية غير قابلة للوصول من الإنتاج — أُصلحت إلى registry.npmjs.org فاكتمل npm ci في 34 ثانية. كما أصلح tsc الصارم 9 أخطاء أنواع (round2 غير معرّف، shorthand points، قوالب casts). البناء النهائي: node_modules + dist في حاويات عادية مع كاش npm دائم، وDockerfile.backend يكتفي بنسخ المخرجات الموثّقة.
+**تحقق حي بعد النشر:** الحاوية healthy بلا أخطاء إقلاع؛ 18 مساراً مالياً جديداً كلها 401 «Missing token» (موجودة ومحروسة): coupons/validate، loyalty/redeem-quote، provider/balance، admin/finance-engine (reports/approvals/commission-rules/refunds/fraud/provider-balance)، wallet/topup(+confirm+get)، billing/invoice pdf+email، pharmacy/returns/eligibility، payments/capture، provider/payouts/balance، coupons (admin) — وغير الموجود 404. مكتبة qrcode داخل الصورة (فواتير ZATCA QR).
+**بنود مالك معلّقة (لم تتغير):** ZATCA_VAT_NUMBER وMOYASAR_WEBHOOK_SECRET غير مضبوطين على السيرفر.
