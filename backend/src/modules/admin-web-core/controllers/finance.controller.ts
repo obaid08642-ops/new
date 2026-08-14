@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Param } from '@nestjs/common';
+import { Controller, Get, Post, Param, ServiceUnavailableException, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CommissionLedger } from '../schemas/commission-ledger.schema';
 import { WithdrawalRequest } from '../schemas/withdrawal-request.schema';
+import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 
 @Controller('admin/finance')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class FinanceController {
   constructor(
     @InjectModel(CommissionLedger.name) private commissionModel: Model<CommissionLedger>,
@@ -25,9 +29,6 @@ export class FinanceController {
 
   @Post('withdrawals/:id/execute')
   async executePayout(@Param('id') id: string) {
-    // Invokes third-party banking captured integration via Moyasar API nodes, 
-    // shifts the ledger status inside database models to completed, deductions are finalized.
-    const withdrawal = await this.withdrawalModel.findByIdAndUpdate(id, { status: 'completed' }, { new: true });
-    return { success: true, message: 'Payout executed successfully', withdrawal };
+    throw new ServiceUnavailableException('Payout execution is disabled until a verified payout provider, immutable settlement ledger, and reconciliation workflow are integrated.');
   }
 }

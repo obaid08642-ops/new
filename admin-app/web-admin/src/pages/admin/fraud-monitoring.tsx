@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchWithAdminGuard } from '@/utils/api';
+import { fetchWithAdminGuard, getAdminApiBase } from '@/utils/api';
 
 interface FraudAlert {
   id: string;
@@ -30,16 +30,16 @@ export default function FraudMonitoring() {
     const fetchGovernanceData = async () => {
       try {
         setIsLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+        const API_BASE = getAdminApiBase();
         // Fetch Fraud Alerts
-        const alertsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/fraud-alerts`);
+        const alertsRes = await fetchWithAdminGuard(`${API_BASE}/admin/governance/fraud-alerts`);
         if (alertsRes.ok) {
           const alertsData = await alertsRes.json();
           setAlerts(alertsData.data || []);
         }
 
         // Fetch ABAC Audit Logs
-        const logsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/audit-logs`);
+        const logsRes = await fetchWithAdminGuard(`${API_BASE}/admin/governance/audit-logs`);
         if (logsRes.ok) {
           const logsData = await logsRes.json();
           setLogs(logsData.data || []);

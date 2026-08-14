@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { AdminGuard } from '../../components/AdminGuard';
+import { fetchWithAdminGuard, getAdminApiBase } from '@/utils/api';
 
 interface PayoutRequest {
   id: string;
@@ -24,11 +25,8 @@ export default function PayoutApprovalPage() {
   const fetchPayouts = async () => {
     try {
       setLoading(true);
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const token = localStorage.getItem('admin_token');
-      const res = await fetch(`${API_BASE}/api/v1/admin/finance/withdrawals/pending`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/admin/finance/withdrawals/pending`);
       if (res.ok) {
         const json = await res.json();
         setPayouts(json.data || []);
@@ -43,15 +41,13 @@ export default function PayoutApprovalPage() {
   const handleExecutePayout = async (id: string) => {
     if (!window.confirm('هل أنت متاكد من تنفيذ تحويل المستحقات المالية لهذا المزود؟ لا يمكن التراجع عن هذه العملية بعد التحويل.')) return;
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const token = localStorage.getItem('admin_token');
-      const res = await fetch(`${API_BASE}/api/v1/admin/finance/withdrawals/${id}/execute`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
       if (res.ok) {
-        alert('تم إرسال أمر السحب لشبكة Moyasar وتحويل مستحقات المزود بنجاح');
+        alert('تم إرسال طلب تنفيذ السحب إلى مزود الصرف وتسجيله للتسوية.');
         fetchPayouts();
+      } else {
+        alert('تنفيذ السحب الآلي غير متاح حتى يتم ربط مزود صرف وتسوية موثقة.');
       }
     } catch (e) {
       alert('خطأ أثناء تحويل السحب');
@@ -104,13 +100,13 @@ export default function PayoutApprovalPage() {
                 {payouts.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                     <td className="p-4 font-mono text-teal-600 font-semibold">{item.id}</td>
-                    <td className="p-4 font-medium">{item.providerName || 'طبيب / منشأة'}</td>
+                    <td className="p-4 font-medium">{item.providerName || 'غير متاح'}</td>
                     <td className="p-4 font-bold text-emerald-600 text-base">{item.amount} ر.س</td>
                     <td className="p-4">
-                      <div className="text-xs text-slate-900 font-semibold">{item.bankName || 'مصرف الراجحي'}</div>
-                      <div className="text-xs font-mono text-slate-500">{item.iban || 'SA0380000000000000000000'}</div>
+                      <div className="text-xs text-slate-900 font-semibold">{item.bankName || 'غير متاح'}</div>
+                      <div className="text-xs font-mono text-slate-500">{item.iban || 'غير متاح'}</div>
                     </td>
-                    <td className="p-4 text-xs text-slate-500">{new Date(item.createdAt || Date.now()).toLocaleDateString('ar-SA')}</td>
+                    <td className="p-4 text-xs text-slate-500">{item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-SA') : 'غير متاح'}</td>
                     <td className="p-4">
                       <span className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold">
                         بانتظار التحويل

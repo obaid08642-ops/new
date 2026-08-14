@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchWithAdminGuard } from '@/utils/api';
+import { fetchWithAdminGuard, getAdminApiBase } from '@/utils/api';
 
 interface Provider {
   id: string;
@@ -36,16 +36,16 @@ export default function ProviderModeration() {
     const fetchModerationData = async () => {
       try {
         setIsLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+        const API_BASE = getAdminApiBase();
         // Fetch pending onboarding providers
-        const providersRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/pending`);
+        const providersRes = await fetchWithAdminGuard(`${API_BASE}/providers/pending`);
         if (providersRes.ok) {
           const providersData = await providersRes.json();
           setPendingProviders(providersData.data || []);
         }
 
         // Fetch pending delta mutations
-        const deltasRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/pending-deltas`);
+        const deltasRes = await fetchWithAdminGuard(`${API_BASE}/admin/extended-operations/pending-deltas`);
         if (deltasRes.ok) {
           const deltasData = await deltasRes.json();
           setPendingDeltas(deltasData.data || []);
@@ -62,8 +62,8 @@ export default function ProviderModeration() {
 
   const handleApprove = async (id: string) => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/${id}/approve`, { method: 'POST' });
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/providers/${id}/approve`, { method: 'POST' });
       if (res.ok) {
         alert('تم الاعتماد بنجاح. تمت إضافة الأوزان لمحرك البحث، إرسال إيميل الترحيب، وتسجيل الحدث.');
         setPendingProviders(prev => prev.filter(p => p.id !== id));
@@ -78,8 +78,8 @@ export default function ProviderModeration() {
   const handleSuspend = async () => {
     if (!suspendReason) return alert('يرجى إدخال سبب الإيقاف');
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/${selectedProvider?.id}/suspend`, { 
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/providers/${selectedProvider?.id}/suspend`, {
         method: 'POST', 
         body: JSON.stringify({ reason: suspendReason }) 
       });
@@ -98,11 +98,8 @@ export default function ProviderModeration() {
 
   const handleCommitDelta = async (id: string) => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/commit-delta/${id}`, { 
-        method: 'PATCH',
-        body: JSON.stringify({ adminId: 'admin-master-001' })
-      });
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/admin/extended-operations/commit-delta/${id}`, { method: 'PATCH' });
       if (res.ok) {
         alert('تم ترحيل واعتماد التعديلات للنظام الحي بنجاح.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));
@@ -115,10 +112,17 @@ export default function ProviderModeration() {
   };
 
   const handleRejectDelta = async (id: string) => {
-    // Rejection logic: purges delta cache table and notifies provider
-    alert('تم مسح التعديلات وإبلاغ المزود بالرفض.');
-    setPendingDeltas(prev => prev.filter(d => d.id !== id));
-    setSelectedDelta(null);
+    try {
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/admin/extended-operations/reject-delta/${id}`, { method: 'PATCH' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      alert('تم رفض التعديلات وحفظ القرار خادمياً.');
+      setPendingDeltas(prev => prev.filter(d => d.id !== id));
+      setSelectedDelta(null);
+    } catch (e) {
+      console.error(e);
+      alert('تعذر حفظ رفض التعديلات.');
+    }
   };
 
   return (

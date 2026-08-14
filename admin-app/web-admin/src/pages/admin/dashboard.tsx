@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { fetchWithAdminGuard } from '@/utils/api';
+import { fetchWithAdminGuard, getAdminApiBase } from '@/utils/api';
 
 interface HealthData {
   status: 'ok' | 'error' | 'maintenance';
   info: {
     database: { status: 'up' | 'down' };
-    redis: { status: 'up' | 'down', memoryUsage: string };
-    containers: { status: 'up' | 'down', uptime: string };
+    redis: { status: 'up' | 'down' };
+    coreApi: { status: 'up' | 'down' };
   };
 }
 
@@ -25,11 +25,11 @@ export default function MasterDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+        const API_BASE = getAdminApiBase();
         // Fetch System Health (Liveness/Readiness)
         const [livenessRes, readinessRes] = await Promise.all([
-          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/liveness`),
-          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/readiness`)
+          fetchWithAdminGuard(`${API_BASE}/system-health/liveness`),
+          fetchWithAdminGuard(`${API_BASE}/system-health/readiness`)
         ]);
         
         if (livenessRes.ok && readinessRes.ok) {
@@ -39,9 +39,9 @@ export default function MasterDashboard() {
           setHealthData({
             status: livenessJson.status === 'ok' && readinessJson.status === 'ok' ? 'ok' : 'error',
             info: {
-              database: { status: livenessJson.services.database === 'connected' ? 'up' : 'down' },
-              redis: { status: livenessJson.services.redis === 'connected' ? 'up' : 'down', memoryUsage: '14MB / 256MB' },
-              containers: { status: 'up', uptime: `${readinessJson.uptime}s` }
+              database: { status: livenessJson.info?.mongodb?.status === 'up' ? 'up' : 'down' },
+              redis: { status: livenessJson.info?.redis?.status === 'up' ? 'up' : 'down' },
+              coreApi: { status: readinessJson.status === 'ok' ? 'up' : 'down' }
             }
           });
         }
@@ -60,7 +60,7 @@ export default function MasterDashboard() {
     };
 
     fetchData();
-    // Simulate polling every 30 seconds
+    // Poll the server telemetry contract every 30 seconds.
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -98,19 +98,19 @@ export default function MasterDashboard() {
             <span className={`w-3 h-3 rounded-full ${healthData?.info.redis.status === 'up' ? 'bg-green-500' : 'bg-slate-300'}`}></span>
           </div>
           <div className="mt-4">
-            <p className="text-2xl font-bold text-slate-900">{healthData?.info.redis.memoryUsage || '---'}</p>
-            <p className="text-sm text-slate-500 mt-1">معدل الاستهلاك</p>
+            <p className="text-2xl font-bold text-slate-900">{healthData?.info.redis.status === 'up' ? 'متصل' : 'قيد الانتظار'}</p>
+            <p className="text-sm text-slate-500 mt-1">يُعرض اتصال الخدمة فقط؛ تفاصيل الاستهلاك غير متاحة هنا.</p>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-slate-700">الخوادم (Microservices Uptime)</h3>
-            <span className={`w-3 h-3 rounded-full ${healthData?.info.containers.status === 'up' ? 'bg-green-500' : 'bg-slate-300'}`}></span>
+            <h3 className="font-semibold text-slate-700">واجهة التطبيق الأساسية</h3>
+            <span className={`w-3 h-3 rounded-full ${healthData?.info.coreApi.status === 'up' ? 'bg-green-500' : 'bg-slate-300'}`}></span>
           </div>
           <div className="mt-4">
-            <p className="text-2xl font-bold text-slate-900">{healthData?.info.containers.uptime || '---'}</p>
-            <p className="text-sm text-slate-500 mt-1">مدة التشغيل</p>
+            <p className="text-2xl font-bold text-slate-900">{healthData?.info.coreApi.status === 'up' ? 'جاهزة' : 'قيد الانتظار'}</p>
+            <p className="text-sm text-slate-500 mt-1">نتيجة فحص الجاهزية من الخادم.</p>
           </div>
         </div>
       </div>

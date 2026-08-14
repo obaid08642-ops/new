@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { AdminGuard } from '../../components/AdminGuard';
+import { apiFetch } from '@/utils/api';
 
 interface AuditLogItem {
   id: string;
@@ -14,6 +15,7 @@ interface AuditLogItem {
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLogs();
@@ -22,17 +24,12 @@ export default function AuditLogsPage() {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const token = localStorage.getItem('admin_token');
-      const res = await fetch(`${API_BASE}/api/v1/admin/governance/audit-logs`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setLogs(json.data || []);
-      }
+      setError(null);
+      const json = await apiFetch('/admin/governance/audit-logs');
+      setLogs(Array.isArray(json.data) ? json.data : []);
     } catch (e) {
       console.error('Failed to fetch audit logs', e);
+      setError('تعذر تحميل سجل التدقيق من الخادم.');
     } finally {
       setLoading(false);
     }
@@ -60,11 +57,13 @@ export default function AuditLogsPage() {
 
         {loading ? (
           <div className="p-12 text-center text-slate-500">جاري تحميل سجل التدقيق...</div>
+        ) : error ? (
+          <div className="bg-red-50 rounded-2xl p-8 text-center border border-red-200 text-red-800">{error}</div>
         ) : logs.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
             <div className="text-4xl mb-3">🔍</div>
-            <h3 className="text-lg font-bold text-slate-800">لا توجد عمليات غير طبيعية مسجلة</h3>
-            <p className="text-slate-500 text-sm mt-1">نظام الحوكمة والتحكم بالصلاحيات ABAC يراقب الاستدعاءات الأمنية على مدار الساعة.</p>
+            <h3 className="text-lg font-bold text-slate-800">لا توجد سجلات تدقيق متاحة حالياً</h3>
+            <p className="text-slate-500 text-sm mt-1">تعني النتيجة الفارغة أن الخادم لم يعد سجلات للمرشح الحالي، ولا تثبت سلامة النظام أو غياب الأحداث.</p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -81,8 +80,8 @@ export default function AuditLogsPage() {
               <tbody className="divide-y divide-slate-100 text-sm">
                 {logs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 text-xs font-mono text-slate-500">{new Date(log.createdAt || Date.now()).toLocaleString('ar-SA')}</td>
-                    <td className="p-4 font-medium text-slate-900">{log.adminId || 'Super Admin'}</td>
+                    <td className="p-4 text-xs font-mono text-slate-500">{log.createdAt ? new Date(log.createdAt).toLocaleString('ar-SA') : 'غير متاح'}</td>
+                    <td className="p-4 font-medium text-slate-900">{log.adminId || 'غير متاح'}</td>
                     <td className="p-4 font-semibold text-slate-800">{log.action}</td>
                     <td className="p-4 text-slate-600">{log.target}</td>
                     <td className="p-4">

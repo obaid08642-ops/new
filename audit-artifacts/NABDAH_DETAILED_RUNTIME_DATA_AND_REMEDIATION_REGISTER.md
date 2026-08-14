@@ -58,6 +58,7 @@
 | ORD-020 | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts` | تقوية إدخال | صار بدء wizard المزوّد يرفض غياب الاسم بدلاً من إنشاء مستخدم أو ملف باسم الهاتف أو `Provider` | `backend: npm run build` ناجح | قواعد تحقق كاملة للوثائق والعنوان والترخيص والفئات والخدمات والتأمين، ثم E2E للموافقة الإدارية |
 | ORD-021 | `backend/src/modules/patient-ux/patient-ux.module.ts` | تقوية مالية | طلب الاسترداد يشتق المبلغ من سجل دفع خادمي فقط، ويرفض عند غياب المبلغ؛ وأوقفت الموافقة الإدارية المحلية التي كانت تغيّر حالة الدفع بلا refund لدى مزود دفع | `backend: npm run build` ناجح | ledger غير قابل للتلاعب، refund API موثق من مزود الدفع، webhook موثّق، وتسوية وحالة معلقة/ناجحة/فاشلة |
 | ORD-022 | `backend/src/modules/payments/payments.module.ts` | تقوية BOLA/مالية | تحقق الدفع وإعادة المحاولة يثبتان ملكية المريض أو الإدارة قبل القراءة/الإلغاء؛ الاسترداد محصور بالمدير وبالمبلغ الكامل المتبقي من سجل المعاملة، لا مبلغ جزئي يرسله العميل | `backend: npm run build` ناجح | اختبارات BOLA بهويتين sandbox وwebhook مزود دفع وتدقيق تسوية واسترداد حي |
+| ORD-023 | `admin-app/web-admin/*` و`backend/src/modules/admin-web-core/*` | تقوية إدارة/مالية | أزيل fallback `localhost` والهوية الإدارية الثابتة، وصارت إدارة المزوّدين والمالية والحوكمة والتحليلات محروسة بـJWT/RBAC؛ حُذفت صحة Redis/الحاويات المصطنعة، وحُجبت الدفعات وSLA ومفتاح الصيانة وقرارات النزاع التي لا تملك عقد تنفيذ أو ledger | `backend: npm run build` و`web-admin: NODE_ENV=production npm run build` ناجحان | عقود مخزن إعدادات وتوزيع، مزود payouts وتسوية، workflows نزاع/استرداد، وسجل تدقيق غير قابل للتعديل ثم E2E أدوار staging |
 
 | بوابة التحقق | النتيجة الحالية | القيد الصريح |
 |---|---|---|
@@ -66,6 +67,7 @@
 | `provider-app: npm test -- --runInBand` | 3/3 ناجحة | تغطي workflows محددة فقط وليست E2E |
 | `admin-app/frontend: npm run build` | ناجح | لا يثبت APIs الإدارة |
 | `admin-app/web-admin: NODE_ENV=production npm run build` | ناجح | لا يثبت حراسة الدور عبر API حي |
+| `backend: npm test -- patient-ux.service.spec.ts --runInBand` | 10/10 ناجحة | تغطي عقد مبلغ الاسترداد وحظر القرار المحلي، لا webhook أو BOLA حي |
 | `patient-app: npm run lint` | **فشل: 96 أخطاء و1026 تحذيراً** | مشكلات تاريخية، منها رموز JSX غير معرّفة ومتغيرات غير مستخدمة؛ بوابة الإصدار غير مغلقة |
 
 ## 2B. دفعة التوطين والوضع الداكن — 14 أغسطس 2026
@@ -193,6 +195,7 @@
 | BE-020 | `src/modules/doctors/doctors.module.ts` | `OnModuleInit` كان يزرع دليل أطباء بأسماء وتقييمات وأسعار ومواقع وجداول ثابتة | أزيلت من التشغيل العادي | يبدأ فقط في اختبار صريح بالحاجزين البيئيين؛ دليل المرضى يعتمد لاحقاً على ملفات مزودين معتمدة |
 | BE-021 | `src/modules/patient-ux/patient-ux.module.ts` | طلب استرداد يقبل `amount` من العميل، وموافقة إدارية تضع الدفع `refunded` بلا مزود دفع | أزيلت محلياً | المبلغ يشتق من سجل الطلب فقط، والموافقة على الاسترداد تعيد `503` حتى ربطها بعملية مزود دفع وledger |
 | BE-022 | `src/modules/payments/payments.module.ts` | تحقق معاملة بلا ملكية، وإعادة محاولة تلغي معاملات مورد قبل فحص المالك، واسترداد يقبل مبلغاً من الطلب وأدواراً عديدة | أزيلت محلياً | التحقق/retry يتطلبان المريض المالك أو admin، والاسترداد admin-only وبالمبلغ المتبقي الكامل من السجل؛ يلزم BOLA وsandbox/webhook للتحقق الحي |
+| BE-023 | `src/modules/admin-web-core/controllers/{analytics,finance,provider-moderation,admin-extended-operations,admin-config,admin-governance}.ts` | مسارات إدارة مكشوفة أو ذات نجاح محلي: تعديل مزود، بيانات مالية، صحة، SLA، صيانة، تحليلات؛ وبعضها يقبل هوية admin من الطلب | أزيلت أو حُجبت محلياً | كل مسارات الإدارة في هذه الوحدة تتطلب JWT/RBAC؛ لا payout أو SLA أو kill-switch أو قرار نزاع ناجح بلا تكامل مزود/ledger/config propagation/audit؛ يلزم E2E بهوية admin وغير admin |
 
 ## 8. البيانات الوهمية أو البدائل المتبقية — الإدارة
 
@@ -202,9 +205,10 @@
 | ADM-002 | `source_files/Part3.jsx:365` | حدث `fake_prescription` وبيانات احتيال ثابتة | تاريخي غير منشور | حذف أو تحويله إلى test fixture خارج الشجرة المنشورة |
 | ADM-003 | `frontend/src/App_old.js:2584-2597` | زر/طلب seed-demo | مفتوح — إدارة قديمة | إزالة زر seed من الإنتاج أو حصره بـ staging guard وaudit approval |
 | ADM-004 | `frontend/src/App_old.js:314,2343` | تعليق استبدال MOCK وfallback demo | مفتوح — إدارة قديمة | فصل أو إيقاف اللوحة القديمة؛ لا تعرض fallback تشغيلي |
-| ADM-005 | `web-admin/src/utils/api.ts:26` وصفحات الإدارة | fallback `http://localhost:8002` | مفتوح — تهيئة | إلزام `NEXT_PUBLIC_API_URL` خارج development وفشل آمن عند غيابه |
-| ADM-006 | `web-admin/src/pages/admin/dashboard.tsx:63` | polling موصوف كمحاكاة | مراجعة مطلوبة | إما polling حقيقي بعقد metrics أو تسمية دقيقة ومنع مؤشرات ثابتة |
+| ADM-005 | `web-admin/src/utils/api.ts` وصفحات الإدارة | fallback `http://localhost:8002` | **معالج محلياً** | تعتمد الصفحات الآن `getAdminApiBase`/`apiFetch` الذي يفشل آمناً عند غياب `NEXT_PUBLIC_API_URL` ويحظر localhost في production |
+| ADM-006 | `web-admin/src/pages/admin/dashboard.tsx` ومتحكم صحة إدارة الويب السابق | telemetry Redis/الحاويات/uptime بقيم ثابتة ومتحكم صحة مكرر | **معالج محلياً** | حُذف المتحكم المكرر واستخدمت الواجهة فحص Terminus المركزي؛ تعرض اتصال MongoDB/Redis وreadiness فقط، لا أرقام استهلاك أو uptime غير مقاسة |
 | ADM-007 | `frontend/src/components/NursingPortal.js` | بيانات تمريض تجريبية تاريخية في المسارات المعالجة | **معالج جزئياً** | API أو حالة خطأ صريحة؛ E2E إدارة وتمريض مطلوب |
+| ADM-008 | `web-admin/src/pages/admin/{payouts,disputes,config-portal,provider-moderation}.tsx` و`admin-web-core` | أزرار صرف/استرداد/صيانة/رفض تعديل قد تعلن نجاحاً محلياً أو ترسل `adminId` ثابتاً | **معالج محلياً** | صرف واسترداد/نزاع وSLA وصيانة محجوبة بـ503 أو قراءة فقط حتى عقود المزود وledger وconfig/audit؛ رفض delta يكتب قراراً خادمياً محروساً |
 
 ## 9. قائمة جميع التعديلات المنفذة على المصدر منذ بدء العمل
 

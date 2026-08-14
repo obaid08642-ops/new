@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Param } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Provider } from '../schemas/provider.schema';
-
+import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
 @Controller('providers')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class ProviderModerationController {
   constructor(
     @InjectModel(Provider.name) private providerModel: Model<Provider>,

@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AnalyticsController } from './controllers/analytics.controller';
 import { FinanceController } from './controllers/finance.controller';
 import { ProviderModerationController } from './controllers/provider-moderation.controller';
-import { SystemHealthController } from './controllers/system-health.controller';
 import { AdminConfigController } from './controllers/admin-config.controller';
 import { AdminGovernanceController } from './controllers/admin-governance.controller';
 import { AdminExtendedOperationsController } from './controllers/admin-extended-operations.controller';
@@ -36,7 +35,6 @@ import { WithdrawalRequest, WithdrawalRequestSchema } from './schemas/withdrawal
     AnalyticsController,
     FinanceController,
     ProviderModerationController,
-    SystemHealthController,
     AdminConfigController,
     AdminGovernanceController,
     AdminExtendedOperationsController
