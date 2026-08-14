@@ -118,7 +118,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
                 <>
                  {(activeTab === 'home' || activeTab === 'orders') && <PharmacyHomeTab onNavigate={go} onSwitchTab={setTab} />}
                  {activeTab === 'b2b' && <B2BSupplyRequestScreen onBack={() => setTab('orders')} />}
-                 {activeTab === 'dispatch' && <DispatchWorkflowScreen onBack={() => setTab('orders')} onNavigate={go} />}
+                 {activeTab === 'dispatch' && <DispatchWorkflowScreen onBack={() => setTab('orders')} initialOrder={null} />}
                  {activeTab === 'settings' && <SettingsScreen onBack={() => setTab('orders')} />}
                  <NBottomNav tabs={tabs} active={activeTab === 'home' ? 'orders' : activeTab} onPress={setTab} />
                 </>
@@ -133,6 +133,8 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
        }}
      </Stack.Screen>
 
+     <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen orderId={route.params?.param?.id} initialOrder={route.params?.param?.order || null} onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="dispatch">{({ navigation, route }: any) => <DispatchWorkflowScreen onBack={() => navigation.goBack()} initialOrder={route.params?.param?.order || null} />}</Stack.Screen>
      <Stack.Screen name="shortage">{({ navigation }: any) => <ShortageReportScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="b2b_supply">{({ navigation }: any) => <B2BSupplyRequestScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="scanner">{({ navigation }: any) => <SmartBarcodeScannerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -248,10 +250,11 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
         show(AR ? 'تم قبول الطلب بنجاح!' : 'Order accepted successfully!', 'success');
         setBroadcasts(prev => prev.filter(b => b.id !== orderId));
         // OTC Bypass: Go straight to preparation (dispatch), else Basket Review
+        const order = res.data?.order || null;
         if (isOtc) {
-          onNavigate('dispatch', { id: orderId });
+          onNavigate('dispatch', { id: orderId, order });
         } else {
-          onNavigate('order_detail', { id: orderId });
+          onNavigate('order_detail', { id: orderId, order });
         }
       }
     } catch (e: any) {
@@ -699,282 +702,126 @@ function PharmacyWalletScreen({ onBack, onNavigate }: any) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// RETURNS RMA SCREEN (Module 9 - Patient Returns)
-// ══════════════════════════════════════════════════════════════════════════════
-function ReturnsRMAScreen({ onBack }: any) {
-  const { theme } = useTheme();
-  const { lang } = useLang();
-  const { show } = useToast();
-  const AR = lang === 'ar';
-
-  const [returnStatus, setReturnStatus] = useState('PENDING'); // PENDING | APPROVED | REJECTED
-  const [rejectReason, setRejectReason] = useState('');
-
-  const decideReturn = async (approved: boolean) => {
-    if (!approved && !rejectReason.trim()) {
-      show(AR ? 'يجب إدخال سبب الرفض' : 'Rejection reason is mandatory', 'error');
-      return;
-    }
-    try {
-      await client.post('/provider/pharmacy/returns/RET-421/decide', { approved, reason: rejectReason });
-      setReturnStatus(approved ? 'APPROVED' : 'REJECTED');
-      show(AR ? 'تم اتخاذ القرار بنجاح' : 'Decision recorded successfully', 'success');
-      onBack();
-    } catch (e) {
-      show(AR ? 'فشل تنفيذ القرار' : 'Failed to record decision', 'error');
-    }
-  };
-
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'مراجعة المرتجعات (RMA)' : 'Returns Management'} onBack={onBack} />
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <OrderTimeline />
-        <NCard style={{ marginBottom: 16, padding: 16 }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'طلب إرجاع #RET-421' : 'Return Request #RET-421'}
-          </Text>
-          <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: 16 }}>
-            {AR ? 'المريض: أحمد العتيبي' : 'Patient: Ahmed Alotaibi'}
-          </Text>
-          <View style={{ backgroundColor: theme.surface2, padding: 12, borderRadius: 8, marginBottom: 16 }}>
-            <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'السبب المذكور من المريض:' : 'Patient Reason:'}
-            </Text>
-            <Text style={{ color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? '"العلبة وصلت مكسورة والسائل متسرب."' : '"The box arrived broken and liquid was leaking."'}
-            </Text>
-          </View>
-          <View style={{ height: 150, backgroundColor: theme.surface2, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: theme.border, borderStyle: 'dashed' }}>
-            <Text style={{ fontSize: 40 }}>📸</Text>
-            <Text style={{ color: theme.textSub, marginTop: 8 }}>{AR ? 'صورة المرفق (Photo Evidence)' : 'Attached Photo Evidence'}</Text>
-          </View>
-
-          {returnStatus === 'PENDING' ? (
-            <View>
-              <TextInput placeholder={AR ? 'سبب الرفض (إلزامي في حال الرفض)...' : 'Rejection reason (Mandatory if rejecting)...'} value={rejectReason} onChangeText={setRejectReason} multiline style={{ height: 80, marginBottom: 16, backgroundColor: theme.surface, padding: 12, borderRadius: 8, color: theme.text }} />
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12 }}>
-                <NBtn label={AR ? 'قبول الإرجاع' : 'Approve Return'} onPress={() => decideReturn(true)} style={{ flex: 1 }} />
-                <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" onPress={() => decideReturn(false)} style={{ flex: 1 }} />
-              </View>
-            </View>
-          ) : (
-            <View style={{ padding: 12, backgroundColor: returnStatus === 'APPROVED' ? theme.success + '20' : theme.danger + '20', borderRadius: 8 }}>
-              <Text style={{ color: returnStatus === 'APPROVED' ? theme.success : theme.danger, fontWeight: 'bold', textAlign: 'center' }}>
-                {returnStatus === 'APPROVED' ? (AR ? 'تم قبول الإرجاع وإصدار استرداد مالي' : 'Return Approved & Refund Issued') : (AR ? 'تم رفض طلب الإرجاع' : 'Return Request Rejected')}
-              </Text>
-            </View>
-          )}
-        </NCard>
-      </ScrollView>
-    </View>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
 // DISPATCH & DELIVERY SCREEN (Screen 3 - Workflows)
 // ══════════════════════════════════════════════════════════════════════════════
-function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
+function DispatchWorkflowScreen({ onBack, initialOrder }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
-
-  const [deliveryMode, setDeliveryMode] = useState<'OWN'|'PICKUP'|'MAP'>('OWN');
-  const [driverName, setDriverName] = useState('');
-  const [driverPhone, setDriverPhone] = useState('');
-
-  const confirmDispatch = async () => {
-    try {
-      await client.post('/provider/pharmacy/orders/123/dispatch', { driver: driverName, phone: driverPhone });
-      show(AR ? 'تم خروج الطلب للتوصيل' : 'Order out for delivery', 'success');
-      setDeliveryMode('MAP');
-    } catch(e) {
-      show(AR ? 'فشل التحديث' : 'Failed to update', 'error');
-    }
+  const orderId = typeof initialOrder?.id === 'string' ? initialOrder.id : '';
+  const deliveryMode = initialOrder?.delivery_mode === 'PICKUP' ? 'PICKUP' : 'DELIVERY';
+  const reportUnavailable = () => {
+    show(
+      AR
+        ? 'إسناد مندوب وتأكيد التوصيل غير متاحين حتى تُهيأ خدمة توصيل مخزنة ومتصلة بهذا الطلب.'
+        : 'Driver assignment and delivery confirmation are unavailable until a persisted delivery service is configured for this order.',
+      'info',
+    );
   };
 
   return (
     <NScroll>
       <NHeader title={AR ? 'إدارة التوصيل والاستلام' : 'Dispatch & Delivery'} onBack={onBack} />
-      
       <View style={{ padding: 16 }}>
-        <OrderTimeline />
-        <NBtn label={AR ? 'مراجعة المرتجعات المفتوحة (RMA)' : 'Review Open Returns (RMA)'} variant="secondary" onPress={() => onNavigate('returns_rma')} style={{ marginBottom: 24 }} />
-
-        {deliveryMode !== 'MAP' && (
-          <NCard style={{ marginBottom: 16 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text, marginBottom: 16, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'خروج الطلب: #123' : 'Dispatch Order: #123'}
-            </Text>
-            
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, marginBottom: 16 }}>
-              <NBtn label={AR ? 'توصيل عبر الصيدلية' : 'Own Delivery'} variant={deliveryMode === 'OWN' ? 'primary' : 'outline'} onPress={() => setDeliveryMode('OWN')} style={{ flex: 1 }} />
-              <NBtn label={AR ? 'استلام من الفرع' : 'Branch Pickup'} variant={deliveryMode === 'PICKUP' ? 'primary' : 'outline'} onPress={() => setDeliveryMode('PICKUP')} style={{ flex: 1 }} />
-            </View>
-
-            {deliveryMode === 'OWN' && (
-              <View style={{ gap: 12 }}>
-                <NInput label={AR ? 'اسم المندوب' : 'Driver Name'} value={driverName} onChange={(v: string) => setDriverName(v)} />
-                <NInput label={AR ? 'رقم الهاتف' : 'Driver Phone'} value={driverPhone} onChange={(v: string) => setDriverPhone(v)} kbType="phone-pad" />
-                <NBtn label={AR ? 'تأكيد الخروج للتوصيل' : 'Confirm Dispatch'} onPress={confirmDispatch} style={{ marginTop: 8 }} />
-              </View>
-            )}
-
-            {deliveryMode === 'PICKUP' && (
-              <View style={{ padding: 16, backgroundColor: theme.surface2, borderRadius: 8, alignItems: 'center' }}>
-                <Text style={{ fontSize: 32, marginBottom: 8 }}>🏪</Text>
-                <Text style={{ color: theme.text, fontWeight: 'bold', textAlign: 'center' }}>
-                  {AR ? 'الطلب جاهز للاستلام في الفرع.' : 'Order is ready for pickup at the branch.'}
-                </Text>
-                <NBtn label={AR ? 'إرسال إشعار للمريض' : 'Notify Patient'} onPress={() => show(AR ? 'تم تنبيه المريض' : 'Patient notified', 'success')} style={{ marginTop: 12 }} />
-              </View>
-            )}
-          </NCard>
-        )}
-
-        {deliveryMode === 'MAP' && (
-          <View>
-            <View style={{ height: 250, backgroundColor: theme.surface2, justifyContent: 'center', alignItems: 'center', marginBottom: SP.lg, borderRadius: 12 }}>
-              <Text style={{ fontSize: 40 }}>🗺</Text>
-              <Text style={{ color: theme.textSub, marginTop: SP.sm }}>{AR ? 'خريطة تتبع المندوب (GPS Live)' : 'Rider Tracking Map (GPS Live)'}</Text>
-            </View>
-
-            <NCard style={{ marginBottom: SP.md }}>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'بيانات المندوب' : 'Rider Info'}
+        {!orderId ? (
+          <NEmpty icon="truck" title={AR ? 'لم يُحدد طلب للتوصيل' : 'No order selected for dispatch'} sub={AR ? 'افتح التوصيل من طلب مقبول يحمل معرفاً حقيقياً.' : 'Open dispatch from an accepted order that carries a persisted identifier.'} />
+        ) : (
+          <>
+            <OrderTimeline order={initialOrder} />
+            <NCard style={{ marginBottom: 16 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
+                {AR ? `الطلب: ${orderId}` : `Order: ${orderId}`}
               </Text>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center', marginTop: SP.sm }}>
-                <NAvatar name={driverName || "عمر"} size={40} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{driverName || (AR ? 'عمر القحطاني' : 'Omar Alqahtani')}</Text>
-                  <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{driverPhone || '050XXXXXXX'} · {AR ? 'مركبة الصيدلية' : 'Pharmacy Vehicle'}</Text>
-                </View>
-                <TouchableOpacity style={{ padding: SP.sm, backgroundColor: theme.primaryLight, borderRadius: 20 }}>
-                  <Text style={{ fontSize: 20 }}>📞</Text>
-                </TouchableOpacity>
-              </View>
-            </NCard>
-
-            <NCard style={{ marginBottom: SP.xl }}>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
-                {AR ? 'إثبات التوصيل (POD)' : 'Proof of Delivery (POD)'}
-              </Text>
-              <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', fontSize: FS.sm }}>
-                {AR ? 'الطلب قيد التوصيل. سيقوم المندوب برفع صورة للأكياس عند الباب.' : 'Order out for delivery. Rider will upload a photo at the door.'}
+              <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
+                {deliveryMode === 'PICKUP' ? (AR ? 'الاستلام من الفرع' : 'Branch pickup') : (AR ? 'التوصيل إلى العنوان' : 'Delivery to address')}
               </Text>
             </NCard>
-
-            <NBtn label={AR ? 'محاكاة: تم التوصيل' : 'Simulate: Delivered'} onPress={() => { show(AR ? 'تم تأكيد التوصيل بنجاح' : 'Delivery Confirmed', 'success'); setDeliveryMode('OWN'); }} />
-          </View>
+            <NCard>
+              <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>
+                {AR ? 'خدمة التوصيل قيد التهيئة' : 'Delivery service pending configuration'}
+              </Text>
+              <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: 16 }}>
+                {AR ? 'لا يمكن تعيين مندوب أو إعلان التسليم قبل توفر عقد توصيل محفوظ يربط المندوب وإثبات التسليم بهذا الطلب.' : 'A driver cannot be assigned and delivery cannot be confirmed until a persisted delivery contract links a driver and proof of delivery to this order.'}
+              </Text>
+              <NBtn label={AR ? 'عرض سبب عدم الإتاحة' : 'Why this is unavailable'} variant="outline" onPress={reportUnavailable} />
+            </NCard>
+          </>
         )}
       </View>
     </NScroll>
   );
 }
 
-function OrderTimeline() {
+function OrderTimeline({ order }: { order: any }) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const AR = lang === 'ar';
-  
-  const events = [
-    { time: '10:30 AM', desc: AR ? 'تم رفع الوصفة الطبية' : 'Prescription Uploaded', active: true },
-    { time: '10:31 AM', desc: AR ? 'صيدلية الأمل قبلت الطلب' : 'Pharmacy Accepted', active: true },
-    { time: '10:35 AM', desc: AR ? 'تم تعديل السلة وبانتظار الدفع' : 'Basket Updated, Awaiting Payment', active: true },
-    { time: '10:36 AM', desc: AR ? 'تم سداد المبلغ (كاش/فيزا)' : 'Payment Completed', active: false },
-    { time: '10:45 AM', desc: AR ? 'الطلب جاهز ومع المندوب' : 'Order Ready for Dispatch', active: false },
-  ];
+  const entries = Array.isArray(order?.timeline) && order.timeline.length > 0
+    ? order.timeline.map((entry: any) => ({
+      key: `${entry.ts || entry.at || ''}-${entry.event || ''}`,
+      at: entry.ts || entry.at,
+      description: entry.event || entry.description || (AR ? 'تحديث للطلب' : 'Order updated'),
+      actor: entry.by || entry.by_role || '',
+    }))
+    : (Array.isArray(order?.state_history) ? order.state_history.map((entry: any) => ({
+      key: `${entry.at || ''}-${entry.to || ''}`,
+      at: entry.at,
+      description: entry.reason || [entry.from, entry.to].filter(Boolean).join(' → ') || (AR ? 'تحديث للحالة' : 'Status updated'),
+      actor: entry.by_role || entry.by_user_id || '',
+    })) : []);
+  const formatTime = (value: unknown) => {
+    if (!value) return '—';
+    const date = new Date(String(value));
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString(AR ? 'ar-SA' : 'en-US');
+  };
 
   return (
     <View style={{ backgroundColor: theme.surface2, padding: 16, borderRadius: 12, marginBottom: 16 }}>
       <Text style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, marginBottom: 16, textAlign: AR ? 'right' : 'left' }}>
         {AR ? 'السجل الزمني للطلب (Timeline)' : 'Order Timeline'}
       </Text>
-      {events.map((e, idx) => (
-        <View key={idx} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 12 }}>
-          <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: e.active ? theme.primary : theme.border, marginLeft: AR ? 12 : 0, marginRight: AR ? 0 : 12 }} />
+      {entries.length === 0 ? (
+        <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لا توجد أحداث مسجلة لهذا الطلب بعد.' : 'No persisted events have been recorded for this order yet.'}</Text>
+      ) : entries.map((entry: any) => (
+        <View key={entry.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 12 }}>
+          <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: theme.primary, marginLeft: AR ? 12 : 0, marginRight: AR ? 0 : 12 }} />
           <View style={{ flex: 1 }}>
-            <Text style={{ color: e.active ? theme.text : theme.textSub, fontWeight: e.active ? 'bold' : 'normal', textAlign: AR ? 'right' : 'left' }}>{e.desc}</Text>
+            <Text style={{ color: theme.text, fontWeight: 'bold', textAlign: AR ? 'right' : 'left' }}>{entry.description}</Text>
+            {entry.actor ? <Text style={{ color: theme.textSub, fontSize: 12, textAlign: AR ? 'right' : 'left' }}>{entry.actor}</Text> : null}
           </View>
-          <Text style={{ color: theme.textSub, fontSize: 12 }}>{e.time}</Text>
+          <Text style={{ color: theme.textSub, fontSize: 12 }}>{formatTime(entry.at)}</Text>
         </View>
       ))}
     </View>
   );
 }
 
-function OrderDetailScreen({ orderId, onBack }: any) {
+function OrderDetailScreen({ orderId, initialOrder, onBack }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
-  const [basket, setBasket] = useState<{id:string, name:string, requestedQty:number, price:number, available:boolean, is_substitute:boolean, substituted_from?:string}[]>([
-    { id: '1', name: 'Panadol Advance 500mg', requestedQty: 2, price: 15, available: true, is_substitute: false },
-    { id: '2', name: 'Amoxicillin 250mg', requestedQty: 1, price: 45, available: false, is_substitute: false },
-  ]);
-
-  const [insuranceStatus, setInsuranceStatus] = useState('PENDING'); // PENDING | APPROVED | REJECTED
-  const [copay, setCopay] = useState(0);
-  
-  // NPHIES Form State
-  const [showNPHIES, setShowNPHIES] = useState(false);
-  const [nphiesData, setNphiesData] = useState({ policyNo: '', authCode: '' });
-
-  // Substitute Modal State
-  const [showSubModal, setShowSubModal] = useState(false);
-  const [subTargetId, setSubTargetId] = useState<string|null>(null);
-  const [subSearch, setSubSearch] = useState('');
-
-  const toggleAvailability = (id: string) => {
-    setBasket(prev => prev.map(item => item.id === id ? { ...item, available: !item.available } : item));
-  };
-
-  const evaluateInsurance = async () => {
-    if (!nphiesData.policyNo || !nphiesData.authCode) {
-      show(AR ? 'يرجى إدخال رقم البوليصة وكود التفويض' : 'Please enter Policy No and Auth Code', 'error');
-      return;
-    }
-    try {
-      const res = await client.post(`/provider/pharmacy/orders/${orderId}/insurance`, { ...nphiesData });
-      setInsuranceStatus('APPROVED');
-      setCopay(15);
-      setShowNPHIES(false);
-      show(AR ? 'تم قبول التأمين! المريض سيدفع 15 ريال' : 'Insurance Approved! Copay: 15', 'success');
-    } catch (e) {
-      show(AR ? 'مرفوض من التأمين' : 'Insurance Rejected', 'error');
-      setInsuranceStatus('REJECTED');
-    }
-  };
-
-  const applySubstitute = (subName: string, subPrice: number) => {
-    setBasket(prev => prev.map(item => {
-      if (item.id === subTargetId) {
-        return { ...item, name: subName, price: subPrice, available: true, is_substitute: true, substituted_from: item.name };
-      }
-      return item;
-    }));
-    setShowSubModal(false);
-    show(AR ? 'تمت إضافة البديل' : 'Substitute added', 'success');
-  };
-
-  const submitBasket = async () => {
-    try {
-      await client.post(`/provider/pharmacy/orders/${orderId}/submit-basket`, { basket, insuranceStatus, copay });
-      show(AR ? 'تم إرسال السلة للمريض للمراجعة' : 'Basket sent to patient for review', 'success');
-      onBack();
-    } catch (e) {
-      show(AR ? 'حدث خطأ' : 'Error submitting basket', 'error');
-    }
-  };
+  const basket = Array.isArray(initialOrder?.items) ? initialOrder.items : [];
+  const insuranceStatus = initialOrder?.insurance_status || 'PENDING';
+  const copay = Number(initialOrder?.insurance_copay || 0);
+  const isLoadedOrder = Boolean(orderId && initialOrder);
+  const unavailableMessage = () => show(
+    AR
+      ? 'تعديل العناصر، طلب التفويض التأميني، وإرسال السلة غير متاحة حتى يُنشر عقد مراجعة سلة وتأمين مخزن لمزوّد الصيدلية.'
+      : 'Item edits, insurance authorization, and basket submission are unavailable until persisted pharmacy-provider contracts are deployed.',
+    'info',
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'تفاصيل الطلب: ' + orderId : 'Order Detail: ' + orderId} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        
-        {/* NPHIES Insurance Gateway */}
+        {!isLoadedOrder ? (
+          <NEmpty icon="document" title={AR ? 'بيانات الطلب غير متاحة' : 'Order data unavailable'} sub={AR ? 'افتح التفاصيل من طلب وارد أو مقبول يحوي بياناته المخزنة.' : 'Open details from an incoming or accepted order that includes persisted data.'} />
+        ) : <>
+        <OrderTimeline order={initialOrder} />
         <NCard style={{ marginBottom: 16, borderColor: insuranceStatus === 'APPROVED' ? theme.success : theme.border, borderWidth: 2 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
             {AR ? 'بوابة التأمين (NPHIES)' : 'NPHIES Insurance Gateway'}
@@ -984,17 +831,8 @@ function OrderDetailScreen({ orderId, onBack }: any) {
               <Text style={{ color: theme.textSub }}>{AR ? 'حالة التأمين:' : 'Status:'} <Text style={{ fontWeight: 'bold', color: insuranceStatus === 'APPROVED' ? theme.success : theme.warn }}>{insuranceStatus}</Text></Text>
               {insuranceStatus === 'APPROVED' && <Text style={{ color: theme.text, marginTop: 4 }}>{AR ? 'مبلغ التحمل (Co-Pay):' : 'Co-Pay:'} {copay} {AR ? 'ر.س' : 'SAR'}</Text>}
             </View>
-            {insuranceStatus !== 'APPROVED' && (
-              <NBtn label={AR ? 'إدخال بيانات NPHIES' : 'Enter NPHIES Data'} onPress={() => setShowNPHIES(!showNPHIES)} size="sm" />
-            )}
+            <NBtn label={AR ? 'حالة التكامل' : 'Integration status'} onPress={unavailableMessage} size="sm" variant="outline" />
           </View>
-          {showNPHIES && insuranceStatus !== 'APPROVED' && (
-            <View style={{ marginTop: 16, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 16, gap: 12 }}>
-              <NInput label={AR ? 'رقم البوليصة (Policy No)' : 'Policy No'} value={nphiesData.policyNo} onChange={(v: string) => setNphiesData({...nphiesData, policyNo: v})} />
-              <NInput label={AR ? 'كود التفويض (Auth Code)' : 'Auth Code'} value={nphiesData.authCode} onChange={(v: string) => setNphiesData({...nphiesData, authCode: v})} />
-              <NBtn label={AR ? 'تحقق من الأهلية واعتماد' : 'Verify & Approve'} onPress={evaluateInsurance} />
-            </View>
-          )}
         </NCard>
 
         {/* Basket Matrix */}
@@ -1002,55 +840,32 @@ function OrderDetailScreen({ orderId, onBack }: any) {
           {AR ? 'مصفوفة السلة (Basket Matrix)' : 'Basket Matrix'}
         </Text>
         
-        {basket.map((item, idx) => (
-          <NCard key={item.id} style={{ marginBottom: 12, padding: 12, opacity: item.available ? 1 : 0.6 }}>
+        {basket.length === 0 ? (
+          <NEmpty icon="inventory" title={AR ? 'لا توجد عناصر مخزنة في الطلب' : 'No persisted order items'} sub={AR ? 'لن يعرض التطبيق أدوية افتراضية عند غياب عناصر الطلب.' : 'The app does not show default medicines when order items are absent.'} />
+        ) : basket.map((item: any, idx: number) => (
+          <NCard key={item.medicine_id || idx} style={{ marginBottom: 12, padding: 12, opacity: item.unavailable ? 0.6 : 1 }}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>{item.name}</Text>
-                <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{item.requestedQty}x • {item.price} {AR ? 'ر.س' : 'SAR'}</Text>
+                <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>{item.name_ar || item.name_en || (AR ? 'دواء بلا اسم' : 'Unnamed medicine')}</Text>
+                <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{item.qty || 1}x • {item.price ?? '—'} {AR ? 'ر.س' : 'SAR'}</Text>
                 {item.is_substitute && <Text style={{ color: theme.warn, fontSize: 12, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>{AR ? 'بديل عن: ' : 'Substitute for: '}{item.substituted_from}</Text>}
               </View>
-              <Switch value={item.available} onValueChange={() => toggleAvailability(item.id)} trackColor={{ true: theme.success }} />
+              <NBadge label={item.unavailable ? (AR ? 'غير متاح' : 'Unavailable') : (AR ? 'متاح' : 'Available')} variant={item.unavailable ? 'warning' : 'success'} />
             </View>
-            {!item.available && !item.is_substitute && (
+            {item.unavailable && !item.is_substitute && (
               <View style={{ marginTop: 12 }}>
-                <NBtn label={AR ? 'اقتراح بديل للمريض' : 'Suggest Substitute'} variant="outline" size="sm" onPress={() => { setSubTargetId(item.id); setShowSubModal(true); }} />
+                <NBtn label={AR ? 'حالة تعديل البديل' : 'Substitution status'} variant="outline" size="sm" onPress={unavailableMessage} />
               </View>
             )}
           </NCard>
         ))}
-
+        </>}
       </ScrollView>
 
       {/* Action Footer */}
       <View style={{ padding: 16, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border }}>
-        <NBtn label={AR ? 'اعتماد السلة وإرسالها للمريض' : 'Submit Basket to Patient'} onPress={submitBasket} />
+        <NBtn label={AR ? 'حالة مراجعة السلة' : 'Basket review status'} onPress={unavailableMessage} variant="outline" />
       </View>
-
-      {/* Substitute Bottom Sheet Modal */}
-      <Modal visible={showSubModal} animationType="slide" transparent>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: theme.bg, padding: 24, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: 500 }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text, marginBottom: 16, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'اقتراح بديل' : 'Suggest Substitute'}
-            </Text>
-            <NInput placeholder={AR ? 'ابحث في المخزون...' : 'Search inventory...'} value={subSearch} onChange={(v: string) => setSubSearch(v)} />
-            <ScrollView style={{ marginTop: 16 }}>
-              {[
-                { name: 'Augmentin 250mg', price: 55 },
-                { name: 'Klamoks 250mg', price: 40 },
-                { name: 'Megamox 250mg', price: 42 }
-              ].filter(x => x.name.toLowerCase().includes(subSearch.toLowerCase())).map((sub, i) => (
-                <TouchableOpacity key={i} style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }} onPress={() => applySubstitute(sub.name, sub.price)}>
-                  <Text style={{ color: theme.text, fontWeight: 'bold' }}>{sub.name}</Text>
-                  <Text style={{ color: theme.primary }}>{sub.price} {AR ? 'ر.س' : 'SAR'}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setShowSubModal(false)} style={{ marginTop: 16 }} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -1078,31 +893,19 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
         </Text>
       </View>
       <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111' }}>
-        <NBtn label={AR ? 'محاكاة مسح دواء' : 'Simulate Drug Scan'} onPress={() => { show(AR ? 'تم التعرف: Paracetamol 500mg' : 'Detected: Paracetamol 500mg', 'success'); onBack(); }} />
+        <NBtn label={AR ? 'حالة تكامل الكاميرا' : 'Camera integration status'} variant="outline" onPress={() => show(AR ? 'مسح المخزون غير متاح حتى تُربط الكاميرا بعقد مخزون محفوظ والتحقق من الباركود.' : 'Inventory scanning is unavailable until the camera is connected to a persisted inventory and barcode-verification contract.', 'info')} />
       </View>
     </View>
   );
 }
 
 function BroadcastOrderScreen({ onBack }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'طلبات البث المباشر الفورية' : 'Live Broadcast Orders'} onBack={onBack} />
       <NScroll pad>
-        <NCard style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: theme.primary }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>طلب وصفة #B-9901</Text>
-            <NBadge label={AR ? 'بث حي' : 'Live Broadcast'} variant="warning" />
-          </View>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'الأدوية: Amoxil 500mg, Panadol Extra · المسافة: 1.8 كم' : 'Drugs: Amoxil 500mg, Panadol · Distance: 1.8km'}
-          </Text>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
-            <NBtn label={AR ? 'قبول الطلب وتجهيز الدواء ⚡' : 'Accept Order ⚡'} size="sm" onPress={() => show(AR ? 'تم قبول الطلب وتنبيه المريض' : 'Order accepted', 'success')} style={{ flex: 1 }} />
-            <NBtn label={AR ? 'اعتذار' : 'Decline'} size="sm" variant="outline" onPress={onBack} />
-          </View>
-        </NCard>
+        <NEmpty icon="radar" title={AR ? 'لا توجد قائمة بث موصولة' : 'No connected broadcast list'} sub={AR ? 'تُعرض الطلبات الواردة فقط من قائمة الطلبات المحفوظة المرتبطة بعقد API.' : 'Incoming orders are shown only through the persisted API-backed order queue.'} />
       </NScroll>
     </View>
   );
@@ -1110,25 +913,11 @@ function BroadcastOrderScreen({ onBack }: any) {
 
 function OrderHistoryScreen({ onBack }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  const history = [
-    { id: 'ORD-9841', patient: 'محمد القحطاني', total: 185, status: 'DELIVERED', date: '2026-07-21' },
-    { id: 'ORD-9812', patient: 'أمل المطيري', total: 95, status: 'COMPLETED', date: '2026-07-20' },
-  ];
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'سجل الطلبات السابقة' : 'Order History'} onBack={onBack} />
       <NScroll pad>
-        {history.map(o => (
-          <NCard key={o.id} style={{ marginBottom: SP.sm }}>
-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{o.patient} ({o.id})</Text>
-              <NBadge label={AR ? 'مكتمل' : 'Completed'} variant="success" />
-            </View>
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? `الإجمالي: ${o.total} ر.س · التاريخ: ${o.date}` : `Total: ${o.total} SAR · Date: ${o.date}`}
-            </Text>
-          </NCard>
-        ))}
+        <NEmpty icon="document" title={AR ? 'سجل الطلبات غير متاح بعد' : 'Order history is not available yet'} sub={AR ? 'لا يوجد عقد سجل تاريخي خاص بمزوّد الصيدلية، لذلك لا يعرض التطبيق طلبات أو مرضى افتراضيين.' : 'No pharmacy-provider history contract is published, so the app does not show fabricated orders or patient data.'} />
       </NScroll>
     </View>
   );
@@ -1142,70 +931,10 @@ function ActiveInventoryScreen({ onBack }: any) {
   const { lang } = useLang();
   const AR = lang === 'ar';
 
-  const [search, setSearch] = useState('');
-  const [inventory, setInventory] = useState([
-    { id: '1', name: 'Panadol Advance 500mg', stock: 45, online: true, expiry: '2025-12-01', price: 15 },
-    { id: '2', name: 'Augmentin 1g', stock: 5, online: true, expiry: '2023-11-15', price: 85 }, // Near Expiry
-    { id: '3', name: 'Cataflam 50mg', stock: 0, online: false, expiry: '2024-05-20', price: 20 }, // Out of stock
-  ]);
-
-  const updateStock = (id: string, delta: number) => {
-    setInventory(prev => prev.map(item => item.id === id ? { ...item, stock: Math.max(0, item.stock + delta) } : item));
-  };
-  const toggleOnline = (id: string) => {
-    setInventory(prev => prev.map(item => item.id === id ? { ...item, online: !item.online } : item));
-  };
-
-  const filtered = inventory.filter(x => x.name.toLowerCase().includes(search.toLowerCase()));
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'إدارة المخزون' : 'Active Inventory'} onBack={onBack} />
-      <View style={{ padding: 16 }}>
-        <NInput placeholder={AR ? 'ابحث عن منتج...' : 'Search product...'} value={search} onChange={(v: string) => setSearch(v)} />
-      </View>
-      <FlatList
-        data={filtered}
-        keyExtractor={item => item.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-        renderItem={({ item }) => {
-          const isExpiring = new Date(item.expiry) < new Date(new Date().setMonth(new Date().getMonth() + 3));
-          return (
-            <NCard style={{ marginBottom: 12, borderColor: isExpiring ? theme.warn : theme.border, borderWidth: isExpiring ? 2 : 1 }}>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{item.name}</Text>
-                  <Text style={{ color: theme.primary, fontWeight: 'bold', textAlign: AR ? 'right' : 'left' }}>{item.price} {AR ? 'ر.س' : 'SAR'}</Text>
-                  {isExpiring && (
-                    <Text style={{ color: theme.warn, fontSize: 12, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                      {AR ? '⚠️ تنبيه صلاحية: ' : '⚠️ Expiring soon: '}{item.expiry}
-                    </Text>
-                  )}
-                </View>
-                <View style={{ alignItems: 'center', gap: 4 }}>
-                  <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'متوفر أونلاين' : 'Online'}</Text>
-                  <Switch value={item.online} onValueChange={() => toggleOnline(item.id)} trackColor={{ true: theme.success }} />
-                </View>
-              </View>
-
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, borderTopWidth: 1, borderTopColor: theme.surface2, paddingTop: 12 }}>
-                <Text style={{ color: item.stock === 0 ? theme.danger : theme.textSub }}>
-                  {AR ? 'المخزون الحالي: ' : 'Current Stock: '}<Text style={{ fontWeight: 'bold', color: item.stock === 0 ? theme.danger : theme.text }}>{item.stock}</Text>
-                </Text>
-                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface2, borderRadius: 8, padding: 4 }}>
-                  <TouchableOpacity onPress={() => updateStock(item.id, -1)} style={{ width: 32, height: 32, backgroundColor: theme.surface, borderRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ color: theme.text, fontSize: 20 }}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={{ fontWeight: 'bold', color: theme.text, width: 30, textAlign: 'center' }}>{item.stock}</Text>
-                  <TouchableOpacity onPress={() => updateStock(item.id, 1)} style={{ width: 32, height: 32, backgroundColor: theme.primary, borderRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ color: '#FFF', fontSize: 20 }}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </NCard>
-          );
-        }}
-      />
+      <NEmpty icon="inventory" title={AR ? 'كتالوج المخزون غير متاح بعد' : 'Inventory catalog is not available yet'} sub={AR ? 'عقد البحث الحالي لا يوفر قائمة مخزون صيدلية كاملة قابلة للعرض أو التعديل، لذلك أُزيلت الكميات والأسعار التجريبية.' : 'The current search contract does not expose a complete pharmacy inventory list for display or editing, so sample medicines, prices, and quantities were removed.'} />
     </View>
   );
 }
@@ -1218,46 +947,10 @@ function PharmacyChatScreen({ onBack }: any) {
   const { lang } = useLang();
   const AR = lang === 'ar';
 
-  const [msgs, setMsgs] = useState([
-    { id: '1', text: AR ? 'مرحباً دكتور، هل يوجد بديل لبانادول الأزرق؟' : 'Hi, any substitute for Blue Panadol?', byPatient: true },
-    { id: '2', text: AR ? 'نعم متوفر بانادول أدفانس، هل أضيفه لطلبك؟' : 'Yes, Panadol Advance. Should I add it?', byPatient: false },
-  ]);
-  const [input, setInput] = useState('');
-
-  const send = () => {
-    if (!input.trim()) return;
-    setMsgs([...msgs, { id: Date.now().toString(), text: input, byPatient: false }]);
-    setInput('');
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'محادثة المريض' : 'Patient Chat'} onBack={onBack} />
-      <FlatList
-        data={msgs}
-        keyExtractor={x => x.id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 20 }}
-        renderItem={({ item }) => (
-          <View style={{ alignSelf: item.byPatient ? (AR ? 'flex-end' : 'flex-start') : (AR ? 'flex-start' : 'flex-end'), backgroundColor: item.byPatient ? theme.surface2 : theme.primaryLight, padding: 12, borderRadius: 12, marginBottom: 8, maxWidth: '80%' }}>
-            <Text style={{ color: theme.text }}>{item.text}</Text>
-          </View>
-        )}
-      />
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', padding: 12, borderTopWidth: 1, borderTopColor: theme.border, alignItems: 'center', gap: 8 }}>
-        <TouchableOpacity style={{ padding: 8, backgroundColor: theme.surface2, borderRadius: 20 }}>
-          <Text style={{ fontSize: 20 }}>📷</Text>
-        </TouchableOpacity>
-        <TextInput 
-          placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
-          placeholderTextColor={theme.textSub}
-          value={input}
-          onChangeText={setInput}
-          style={{ flex: 1, backgroundColor: theme.surface, color: theme.text, borderRadius: 20, paddingHorizontal: 16, height: 40, textAlign: AR ? 'right' : 'left' }}
-        />
-        <TouchableOpacity style={{ padding: 10, backgroundColor: theme.primary, borderRadius: 20 }} onPress={send}>
-          <Text style={{ color: '#FFF', fontSize: 16 }}>📤</Text>
-        </TouchableOpacity>
-      </View>
+      <NEmpty icon="chat" title={AR ? 'المحادثات غير متاحة حالياً' : 'Messaging is not available yet'} sub={AR ? 'أزيلت الرسائل التجريبية. سيظهر التواصل فقط بعد تهيئة خدمة رسائل مخزنة ومربوطة بطلب فعلي.' : 'Sample messages were removed. Conversation will appear only after a persisted messaging service is configured for an actual order.'} />
     </View>
   );
 }
