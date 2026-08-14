@@ -1,7 +1,14 @@
 // @ts-nocheck
 // app/nutrition/water-tracker.tsx — Connected to POST /nutrition/water & GET /nutrition/water
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

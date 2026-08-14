@@ -2,8 +2,14 @@
 // app/pharmacy/filters.tsx — فلاتر الصيدلية المتقدمة (مربوطة بالـ Backend)
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform
 } from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';

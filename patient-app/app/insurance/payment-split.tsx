@@ -3,8 +3,14 @@
 // الشاشة الأهم — تقسيم الدفع: حصة المريض + حصة الشركة + اختيار طريقة الدفع
 import React, { useState, useEffect } from 'react';
 import {
-  View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Animated, Alert,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar,
+  Animated
 } from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -276,7 +282,7 @@ export default function InsurancePaymentSplitScreen() {
           {paymentMethod === 'cash' && (
             <View style={[styles.cashNote, { backgroundColor: '#FEF3C7' } ]}>
               <AppText variant="bodySM">
-                ℹ️ عند الدفع كاش في المستشفى، ستحصل على إيصال. يمكنك بعدها طلب استرداد من شركة التأمين
+                عند الدفع كاش في المستشفى، ستحصل على إيصال. يمكنك بعدها طلب استرداد من شركة التأمين
               </AppText>
             </View>
           )}

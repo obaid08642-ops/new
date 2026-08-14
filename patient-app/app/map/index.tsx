@@ -6,14 +6,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   Animated,
   StatusBar,
   Platform,
   Keyboard,
   Linking,
-  FlatList,
+  FlatList
 } from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

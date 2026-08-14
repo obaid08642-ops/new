@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-import { apiFetch } from '../../src/utils/api';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +34,7 @@ export default function AIMealPlannerScreen() {
   const [step, setStep] = useState<'setup' | 'generating' | 'plan'>('setup');
   const [selectedGoals, setSelectedGoals] = useState<string[]>(['diabetes']);
   const [selectedDay, setSelectedDay] = useState('السبت');
-  const [calories, setCalories] = useState(2100);
+  const [calories, setCalories] = useState(0);
   const [weeklyPlan, setWeeklyPlan] = useState<any>({});
   const [insights, setInsights] = useState<any[]>([]);
 
@@ -42,43 +42,11 @@ export default function AIMealPlannerScreen() {
     setSelectedGoals(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   };
 
-  const generatePlan = async () => {
-    setStep('generating');
-    try {
-      const res = await apiFetch<any>('/ai/generate-diet-plan', {
-        method: 'POST',
-        body: JSON.stringify({
-          goal: selectedGoals[0] || 'maintain',
-          gender: 'male',
-          weight: 75,
-          height: 175,
-          age: 30,
-          targetWeight: 75,
-          activity: 'moderate',
-          diet: 'عادي',
-          allergies: '',
-        }),
-      });
-
-      if (res && res.meals) {
-        setCalories(res.calories || 2000);
-        const mappedDay = res.meals.map((m: any) => ({
-          meal: m.time.split(' ')[0] || 'وجبة',
-          items: m.items,
-          cals: m.cal || 400,
-          emoji: m.time.includes('فطور') || m.time.includes('الفطور') ? '' : m.time.includes('غداء') || m.time.includes('الغداء') ? '' : '',
-        }));
-        const newPlan: any = {};
-        ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'].forEach(day => {
-          newPlan[day] = mappedDay;
-        });
-        setWeeklyPlan(newPlan);
-        setInsights(res.insights || []);
-      }
-      setStep('plan');
-    } catch (e) {
-      setStep('plan');
-    }
+  const generatePlan = () => {
+    Alert.alert(
+      'الخدمة غير متاحة حالياً',
+      'لن ينشئ التطبيق خطة غذائية أو سعرات أو توصيات مخصصة قبل توفر عقد خدمة موثق يعتمد ملف المستخدم ومدخلاته الصحية صراحةً.',
+    );
   };
 
   const dayMeals = weeklyPlan[selectedDay] || [];

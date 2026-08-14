@@ -1,6 +1,14 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, StatusBar, TouchableOpacity, TextInput, FlatList, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  TouchableOpacity,
+  FlatList
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';

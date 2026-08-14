@@ -1,7 +1,13 @@
 // @ts-nocheck
 // Body target — BMI + body fat + goal setting — Connected to GET/POST /nutrition/profile
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  StatusBar
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';

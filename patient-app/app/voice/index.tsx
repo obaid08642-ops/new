@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import {
   AppText,
   Card,
@@ -32,7 +33,7 @@ const COMMANDS = [
   },
   {
     icon: "medication",
-    text: "اطلب بنادول من الصيدلية",
+    text: "اطلب دواءً موصوفاً من الصيدلية",
     action: "order_medicine",
     category: "صيدلية",
   },
@@ -69,17 +70,6 @@ const SUGGESTIONS = [
   "أقرب صيدلية مفتوحة",
   "تذكير دوائي القادم",
 ];
-
-const RESPONSES: Record<string, string> = {
-  book_doctor:
-    "جاري البحث عن أطباء القلب المتاحين... وجدت 3 مواعيد متاحة غداً!",
-  order_medicine: "تم إضافة بنادول إلى سلة الصيدلية. هل تريد إتمام الطلب؟",
-  book_lab: "وجدت موعداً لتحليل صورة الدم غداً الساعة 8 صباحاً في مختبر الدقة.",
-  emergency: " جاري الاتصال بالإسعاف 997 الآن...",
-  book_nurse: "وجدت ممرضاً متاحاً اليوم بعد الظهر. هل تريد تأكيد الحجز؟",
-  show_appointments:
-    "لديك موعدان اليوم:\n• 2:00 م — د. أحمد السيد (قلب)\n• 5:30 م — تحليل سكر",
-};
 
 type VoiceState = "idle" | "listening" | "processing" | "responded";
 
@@ -146,38 +136,17 @@ export default function VoiceAssistantScreen() {
   }, [state]);
 
   const handlePress = () => {
-    if (state === "idle" || state === "responded") {
-      setState("listening");
-      setTranscript("");
-      setResponse("");
-      // Simulate voice recognition after 2.5s
-      setTimeout(() => {
-        const cmd = COMMANDS[Math.floor(Math.random() * COMMANDS.length)];
-        setTranscript(cmd.text);
-        setState("processing");
-        setTimeout(() => {
-          const resp = RESPONSES[cmd.action] || "تم تنفيذ الأمر بنجاح!";
-          setResponse(resp);
-          setState("responded");
-          setHistory((h) => [...h, { user: cmd.text, ai: resp }].slice(-5));
-          // Auto-navigate for some actions
-          if (cmd.action === "emergency") {
-            setTimeout(() => router.push("/emergency/sos"), 1500);
-          }
-        }, 1200);
-      }, 2500);
-    } else if (state === "listening") {
-      setState("idle");
-    }
+    setState("idle");
+    Alert.alert(
+      "الخدمة غير متاحة حالياً",
+      "لن يحاكي التطبيق التعرف الصوتي أو ينشئ حجزاً أو طلباً أو اتصال طوارئ قبل ربط خدمة صوت وعقود تنفيذ مصادق عليها.",
+    );
   };
 
   const useSuggestion = (text: string) => {
-    setState("processing");
     setTranscript(text);
-    setTimeout(() => {
-      setResponse("جاري التنفيذ...");
-      setState("responded");
-    }, 1000);
+    setState("idle");
+    Alert.alert("الخدمة غير متاحة حالياً", "هذه العبارة لا تنفذ أي إجراء حتى يتوفر مسار صوتي موثق.");
   };
 
   const waveHeight = (anim: Animated.Value) =>

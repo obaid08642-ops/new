@@ -3,8 +3,10 @@
  * Single access point; never call expo-location/camera/etc. directly in screens.
  */
 import {
-  Alert, Linking, Platform,
+  Linking,
+  Platform
 } from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';

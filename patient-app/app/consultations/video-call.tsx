@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
   Alert
-} from "react-native";
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "../../src/context/AppContext";
 import { resolveColor } from "../../src/theme/colors";

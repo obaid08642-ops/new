@@ -1,9 +1,18 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  ActivityIndicator, Animated, Modal, Dimensions, Image, Alert
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Animated,
+  Modal,
+  Dimensions,
+  Image
 } from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';

@@ -6,13 +6,13 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
   ScrollView,
   Keyboard,
   Platform,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+  ActivityIndicator
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, PROVIDER_DEFAULT, Region } from "react-native-maps";
 import * as Location from "expo-location";

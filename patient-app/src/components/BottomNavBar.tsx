@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  LayoutAnimation,
+  Platform,
+  UIManager
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { BlurView } from 'expo-blur';
 import { router, usePathname } from 'expo-router';
 import { useApp } from '../context/AppContext';

@@ -2,9 +2,17 @@
 // app/insurance/hub.tsx — CHI WebView DOM Scraper + Full Backend Integration
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  View, StyleSheet, ScrollView, TouchableOpacity,
-  Dimensions, StatusBar, Modal, Alert, ActivityIndicator, TextInput,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  StatusBar,
+  Modal,
+  ActivityIndicator,
+  TextInput
 } from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { WebView } from 'react-native-webview';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';

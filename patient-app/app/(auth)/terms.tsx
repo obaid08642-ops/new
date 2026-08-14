@@ -2,11 +2,11 @@
 import React from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-} from "react-native";
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useApp } from "../../src/context/AppContext";

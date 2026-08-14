@@ -1,0 +1,42 @@
+# ترحيل TextInput الخام إلى الغلاف المترجم
+
+- الملفات المرحّلة: **37**.
+- استثني ملف OTP ذي الاستعمال غير JSX للمراجعة اليدوية.
+
+- app/(auth)/login.tsx
+- app/(auth)/register.tsx
+- app/(tabs)/consultations/index.tsx
+- app/(tabs)/diagnostics.tsx
+- app/(tabs)/nursing.tsx
+- app/(tabs)/pharmacy.tsx
+- app/ai/chat-doctor.tsx
+- app/ai/triage.tsx
+- app/community/post-detail.tsx
+- app/consultations/chat-with-doctor.tsx
+- app/consultations/post-call-rating.tsx
+- app/diagnostics/packages.tsx
+- app/family/chat.tsx
+- app/health/edit-profile.tsx
+- app/insurance/add-policy.tsx
+- app/insurance/coverage-check.tsx
+- app/insurance/network-providers.tsx
+- app/map/index.tsx
+- app/maternity/baby-growth.tsx
+- app/mental-health/mood-journal.tsx
+- app/nutrition/log-meal.tsx
+- app/pharmacy/chat-with-pharmacist.tsx
+- app/pharmacy/custom-item.tsx
+- app/pharmacy/filters.tsx
+- app/pharmacy/manual-order.tsx
+- app/pharmacy/pharmacist-chat.tsx
+- app/returns/new-request.tsx
+- app/reviews/index.tsx
+- app/search/index.tsx
+- app/settings/feedback.tsx
+- app/settings/security.tsx
+- app/shared/location-picker.tsx
+- app/support/chat.tsx
+- src/components/ui.tsx
+- src/design-system/components/Input.tsx
+- src/design-system/components/OTPInput.tsx
+- src/design-system/components/SearchBar.tsx

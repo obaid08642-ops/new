@@ -1,7 +1,15 @@
 // @ts-nocheck
 // family/chat.tsx — Family chat (text + voice messages + share reports)
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, TextInput, FlatList } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+  FlatList
+} from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';

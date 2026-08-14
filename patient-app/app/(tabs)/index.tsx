@@ -1,6 +1,15 @@
 // @ts-nocheck
 import React, { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Image, Animated } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  Image,
+  Animated
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useApp } from '../../src/context/AppContext';

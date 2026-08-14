@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useApp } from '../../context/AppContext';
 
 export function ActionableOrderScreen({ route, navigation }: any) {

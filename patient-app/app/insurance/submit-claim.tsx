@@ -1,7 +1,13 @@
 // @ts-nocheck
 // app/insurance/submit-claim.tsx — Connected to insurance module
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, StatusBar, Alert } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  StatusBar
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";

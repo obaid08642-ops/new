@@ -1,6 +1,14 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';

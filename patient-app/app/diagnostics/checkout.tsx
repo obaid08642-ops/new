@@ -104,7 +104,7 @@ export default function DiagnosticsCheckout() {
         {/* Safety Questionnaire (Only for Radiology) */}
         {isRadiology && (
           <Animated.View entering={FadeInDown.duration(400).delay(50)} style={styles.section}>
-            <AppText variant="h3" color={colors.textPrimary} style={styles.sectionTitle}>🛡️ استبيان السلامة الإلزامي</AppText>
+            <AppText variant="h3" color={colors.textPrimary} style={styles.sectionTitle}>استبيان السلامة الإلزامي</AppText>
             <View style={[styles.paymentBox, { backgroundColor: colors.surface, borderColor: isLocked ? '#F44336' : colors.border, padding: 16 } ]}>
               
               <View style={styles.switchRow}>

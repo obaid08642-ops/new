@@ -6,9 +6,9 @@ import {
   ScrollView,
   StatusBar,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";

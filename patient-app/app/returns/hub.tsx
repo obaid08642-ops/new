@@ -283,7 +283,7 @@ export default function ReturnsHubScreen() {
                 >
                   <View style={styles.returnBottomLeft}>
                     <AppText variant="caption" color={colors.textSecondary}>
-                      ⏱️ {item.timeline}
+                      {item.timeline}
                     </AppText>
                     <AppText variant="caption" color={colors.textTertiary}>
                       إلى: {item.refundMethod}

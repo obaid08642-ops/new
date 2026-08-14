@@ -8,9 +8,15 @@
  */
 import React, { useRef, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  Animated, Alert, Platform,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Animated,
+  Platform
 } from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';

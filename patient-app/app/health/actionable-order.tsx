@@ -1,6 +1,13 @@
 // @ts-nocheck
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BorderRadius as R, Spacing as SP } from '../../src/theme';
 import { useApp } from '../../src/context/AppContext';

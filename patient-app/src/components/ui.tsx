@@ -2,9 +2,17 @@
 // مكتبة عناصر واجهة موحّدة — Premium reusable components (RTL-first)
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, TextInput, StyleSheet,
-  ActivityIndicator, ViewStyle, TextStyle, StyleProp, Image,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  ViewStyle,
+  TextStyle,
+  StyleProp,
+  Image
 } from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors, useApp } from '../context/AppContext';
 import { autoTranslate } from '../i18n';
@@ -403,8 +411,8 @@ export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) 
         
         <View style={[styles_dc.bottomBar, { backgroundColor: colors.primary }]}>
           <View style={{ alignItems: 'flex-start', gap: 2 }}>
-            <AppText variant="labelSM" color="#fff" style={{ fontWeight: '800' }}>⭐ {doctor.rating} ({doctor.reviews})</AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.85)" style={{ fontWeight: '400' }}>🕒 {doctor.slot}</AppText>
+            <AppText variant="labelSM" color="#fff" style={{ fontWeight: '800' }}>{doctor.rating} ({doctor.reviews})</AppText>
+            <AppText variant="caption" color="rgba(255,255,255,0.85)" style={{ fontWeight: '400' }}>{doctor.slot}</AppText>
           </View>
           <TouchableOpacity onPress={onBook} activeOpacity={0.8} style={[styles_dc.bookBtn, { backgroundColor: colors.surface }]}>
             <AppText variant="labelSM" color={colors.primary} style={{ fontWeight: '800' }}>احجز {doctor.price} ر.س</AppText>

@@ -9,9 +9,9 @@ import {
   TouchableOpacity,
   Dimensions,
   StatusBar,
-  TextInput,
-  Alert,
-} from "react-native";
+  TextInput
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from "expo-router";
 import { Svg, Path, Circle, G } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
@@ -25,7 +25,6 @@ import {
   Button,
   IconButton,
 } from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
 
 const { width } = Dimensions.get("window");
 
@@ -151,85 +150,11 @@ export default function SymptomCheckerScreen() {
     );
   };
 
-  const handleAnalyze = async () => {
-    setStep("analyzing");
-    try {
-      const symptomLabels = selectedSymptoms.map((id) => {
-        const item = SYMPTOMS_LIBRARY.find((x) => x.id === id);
-        return item ? item.label : id;
-      });
-      const symptomsText = `الأعراض: ${symptomLabels.join("، ")}. الشدة: ${severity || "غير محددة"}. المدة: ${duration || "غير محددة"}.`;
-
-      const res = await apiFetch<any>("/ai/triage", {
-        method: "POST",
-        body: JSON.stringify({
-          symptoms: symptomsText,
-          age: 30,
-          gender: "male",
-          lang: "ar",
-        }),
-      });
-
-      if (res) {
-        const u = res.urgency || "routine";
-        const formatted = {
-          conditions: [
-            {
-              name: Array.isArray(res.specialty_suggestions)
-                ? res.specialty_suggestions[0]
-                : res.specialty_suggestions || "طب عام",
-              probability: 85,
-              severity:
-                u === "emergency"
-                  ? "severe"
-                  : u === "urgent"
-                    ? "moderate"
-                    : "mild",
-              emoji: u === "emergency" ? "" : u === "urgent" ? "" : "",
-              description:
-                res.reasoning ||
-                "تم تحليل الأعراض بنجاح وإرشادكم للتخصص الأنسب.",
-            },
-          ],
-          recommendedSpecialty: {
-            name: Array.isArray(res.specialty_suggestions)
-              ? res.specialty_suggestions[0]
-              : res.specialty_suggestions || "طب عام",
-            icon: "consultations",
-            urgency:
-              u === "emergency"
-                ? "طوارئ فورية "
-                : u === "urgent"
-                  ? "خلال 24 ساعة"
-                  : "زيارة روتينية ",
-          },
-          urgencyLevel: u,
-          tips:
-            u === "emergency"
-              ? [
-                  "يرجى التوجه للطوارئ فوراً",
-                  "تجنب المجهود البدني",
-                  "تحدث مع مسعف إذا أمكن",
-                ]
-              : [
-                  "اشرب سوائل كافية",
-                  "استشر طبيباً للحصول على تشخيص دقيق",
-                  "استرح جيداً",
-                ],
-        };
-        setAnalysisResult(formatted);
-        setStep("result");
-      } else {
-        throw new Error("No response");
-      }
-    } catch (err) {
-      console.log("Error analyzing symptoms:", err);
-      Alert.alert(
-        "خطأ",
-        "فشل الاتصال بخدمة فحص الأعراض. يرجى المحاولة لاحقاً.",
-      );
-      setStep("details");
-    }
+  const handleAnalyze = () => {
+    Alert.alert(
+      "الخدمة غير متاحة حالياً",
+      "لن يعرض التطبيق نتيجة أو احتمالاً طبياً قبل ربط خدمة فرز سريري موثقة ببيانات المستخدم وعقد استجابة معتمد.",
+    );
   };
 
   if (step === "analyzing") {
@@ -482,7 +407,7 @@ export default function SymptomCheckerScreen() {
                     styles.viewToggleBtn,
                     bodyView === v && { backgroundColor: colors.accent },]} >
                   <AppText variant="bodySM">
-                    {v === "front" ? "الأمام 🫀" : "الخلف "}
+                    {v === "front" ? "الأمام" : "الخلف "}
                   </AppText>
                 </TouchableOpacity>
               ))}

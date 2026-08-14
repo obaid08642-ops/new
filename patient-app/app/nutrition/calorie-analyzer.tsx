@@ -6,9 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -48,10 +48,10 @@ export default function CalorieAnalyzerScreen() {
   };
 
   const analyzeByPhoto = () => {
-    // In production: expo-image-picker → AI vision API
-    // We can simulate passing base64, but for now we query the backend with placeholder text
-    setQuery("كبسة لحم مع سلطة وزبادي");
-    analyzeByText();
+    Alert.alert(
+      "الخدمة غير متاحة حالياً",
+      "لن يحلل التطبيق صورة طعام قبل ربط اختيار الصور ورفعها الآمن بعقد تحليل بصري مصرح به.",
+    );
   };
 
   const addToLog = async () => {
@@ -72,7 +72,7 @@ export default function CalorieAnalyzerScreen() {
       });
       router.push("/nutrition/daily-tracker");
     } catch (e) {
-      router.push("/nutrition/daily-tracker");
+      Alert.alert("خطأ", "تعذر حفظ الوجبة في السجل. لم يتم إنشاء إدخال جديد.");
     } finally {
       setAnalyzing(false);
     }

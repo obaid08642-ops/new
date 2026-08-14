@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar, Modal, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  StatusBar,
+  Modal,
+  TouchableWithoutFeedback
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

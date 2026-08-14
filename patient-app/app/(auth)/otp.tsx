@@ -1,6 +1,16 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,7 +33,7 @@ export default function OtpScreen() {
   const phone = (params.phone as string) || '';
   const mode = (params.mode as string) || 'login';
 
-  const isRTL = lang === 'ar' || lang === 'ur' || true;
+  const isRTL = lang === 'ar' || lang === 'ur';
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digits for our backend
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -96,12 +106,19 @@ export default function OtpScreen() {
           userData = regRes.user;
         } else if (isGuest && !token) {
           try {
+            const fullName = params.full_name as string | undefined;
+            const password = params.password as string | undefined;
+            if (!fullName || !password) {
+              Alert.alert('خطأ', 'تعذر تحويل حساب الضيف لأن بيانات التسجيل غير مكتملة.');
+              setLoading(false);
+              return;
+            }
             const convertRes = await apiFetch<any>('/auth/convert-guest', {
               method: 'POST',
               body: JSON.stringify({
-                full_name: (params.full_name as string) || 'مريض نبض',
+                full_name: fullName,
                 phone: phone,
-                password: (params.password as string) || 'Password@123',
+                password,
                 email: emailParam,
               }),
             });

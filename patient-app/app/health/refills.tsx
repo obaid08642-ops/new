@@ -1,12 +1,20 @@
 // @ts-nocheck
 // app/health/refills.tsx
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { apiFetch } from '../../src/utils/api';
+import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
 
 // INITIAL_REFILLS removed
 
@@ -22,15 +30,17 @@ export default function ChronicRefillsHubScreen() {
     apiFetch('/medical-profile')
       .then(res => {
         if (res && res.long_term_medications) {
-          const mapped = res.long_term_medications.map((m: any, i: number) => ({
-            id: m._id || String(i),
-            name: m.name_ar || m.name || 'دواء مزمن',
-            remainingDays: Math.floor(Math.random() * 25) + 1, // Simulated for UI presentation based on real med
-            totalDays: 30,
-            quantity: Math.floor(Math.random() * 50) + 5,
-            originalQty: 60,
-            price: Math.floor(Math.random() * 100) + 20,
-          }));
+          const mapped = res.long_term_medications
+            .map((m: any) => ({
+              id: m._id || m.id,
+              name: m.name_ar || m.name,
+              remainingDays: Number(m.remaining_days ?? m.remainingDays),
+              totalDays: Number(m.supply_days ?? m.totalDays),
+              quantity: Number(m.remaining_quantity ?? m.quantity),
+              originalQty: Number(m.dispensed_quantity ?? m.originalQty),
+              price: Number(m.price),
+            }))
+            .filter((m: any) => m.id && m.name && Number.isFinite(m.remainingDays) && Number.isFinite(m.totalDays) && m.totalDays > 0);
           setRefills(mapped);
         }
       })
@@ -43,38 +53,8 @@ export default function ChronicRefillsHubScreen() {
     if (!med) return;
 
     Alert.alert(
-      'تأكيد إعادة الصرف التلقائي',
-      `هل ترغب في طلب عبوة جديدة من "${med.name}" بقيمة ${med.price} ر.س؟ سيتم الدفع تلقائياً من محفظتك وتوصيلها لعنوانك المسجل.`,
-      [
-        { text: 'إلغاء', style: 'cancel' },
-        {
-          text: 'أعد الطلب الآن',
-          onPress: () => {
-            setLoadingId(id);
-            setTimeout(() => {
-              setLoadingId(null);
-              // Update remaining pills locally to simulate refill
-              setRefills(prev => prev.map(r => {
-                if (r.id === id) {
-                  return { ...r, remainingDays: r.totalDays, quantity: r.originalQty };
-                }
-                return r;
-              }));
-
-              Alert.alert(
-                'تم الطلب بنجاح!',
-                `تمت الموافقة وتجهيز طلب دواء "${med.name}". سيصلك مندوب الصيدلية خلال 30 دقيقة.`,
-                [
-                  {
-                    text: 'تتبع الطلب',
-                    onPress: () => router.push('/notifications')
-                  }
-                ]
-              );
-            }, 1500);
-          }
-        }
-      ]
+      'الخدمة غير متاحة حالياً',
+      'لن ينشئ التطبيق طلب إعادة صرف أو سعراً أو موعد توصيل قبل ربط عقد صيدلية ومخزون ودفع خادمي مصرح به.',
     );
   };
 
@@ -153,9 +133,6 @@ export default function ChronicRefillsHubScreen() {
     </View>
   );
 }
-
-import { SectionHeader } from '../../src/components/ui';
-import { apiFetch } from '../../src/utils/api';
 
 const st = StyleSheet.create({
   container: { flex: 1 },

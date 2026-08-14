@@ -1,6 +1,14 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import {
+  View,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useApp } from '../../src/context/AppContext';
 import { lightColors, darkColors, resolveColor } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';

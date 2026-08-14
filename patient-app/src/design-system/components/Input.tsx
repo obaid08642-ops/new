@@ -4,9 +4,15 @@
  */
 import React, { useState, useRef, useCallback, forwardRef } from 'react';
 import {
-  View, TextInput, TouchableOpacity, StyleSheet,
-  StyleProp, ViewStyle, TextInputProps, Animated,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+  TextInputProps,
+  Animated
 } from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { useApp } from '../../context/AppContext';
 import { Spacing, BorderRadius } from '../tokens';
 import { DSText } from './Text';

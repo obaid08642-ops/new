@@ -1,6 +1,15 @@
 // @ts-nocheck
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Modal, Platform } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  Modal,
+  Platform
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';

@@ -1,0 +1,58 @@
+# ترحيل Alert الخام إلى الغلاف المترجم
+
+- الملفات المرحّلة: **53**.
+- استثنيت الملفات الأربعة ذات استعمال Alert غير القياسي للمراجعة اليدوية.
+
+- app/(auth)/forgot-password.tsx
+- app/(auth)/otp.tsx
+- app/(auth)/reset-password.tsx
+- app/(tabs)/pharmacy.tsx
+- app/ai/chat-doctor.tsx
+- app/ai/prescription-translator.tsx
+- app/ai/skin-analysis.tsx
+- app/ai/symptom-checker.tsx
+- app/ai/triage.tsx
+- app/community/post-detail.tsx
+- app/consultations/doctor-profile.tsx
+- app/diagnostics/booking-confirm.tsx
+- app/diagnostics/insurance-upload.tsx
+- app/diagnostics/lab-comparison.tsx
+- app/diagnostics/order/[id].tsx
+- app/diagnostics/sample-tracking.tsx
+- app/emergency/sos.tsx
+- app/family/permissions.tsx
+- app/health/refills.tsx
+- app/health/reminders.tsx
+- app/insurance/add-policy.tsx
+- app/insurance/coverage-check.tsx
+- app/insurance/hub.tsx
+- app/insurance/payment-split.tsx
+- app/insurance/submit-claim.tsx
+- app/loyalty/referrals.tsx
+- app/loyalty/rewards.tsx
+- app/maternity/hub.tsx
+- app/mental-health/mood-journal.tsx
+- app/nutrition/ai-plan-builder.tsx
+- app/nutrition/body-target.tsx
+- app/nutrition/calorie-analyzer.tsx
+- app/nutrition/daily-tracker.tsx
+- app/nutrition/log-meal.tsx
+- app/nutrition/water-tracker.tsx
+- app/offers/[id].tsx
+- app/pharmacy/cart.tsx
+- app/pharmacy/chat-with-pharmacist.tsx
+- app/pharmacy/checkout.tsx
+- app/pharmacy/drug-not-found.tsx
+- app/pharmacy/payment.tsx
+- app/pharmacy/product-detail.tsx
+- app/pharmacy/scan-prescription.tsx
+- app/pharmacy/waiting-for-pharmacy.tsx
+- app/programs/active.tsx
+- app/reports/passport.tsx
+- app/reports/timeline.tsx
+- app/reports/view-report.tsx
+- app/settings/security.tsx
+- app/shared/location-picker.tsx
+- app/wallet/cards.tsx
+- app/wearables/hub.tsx
+- src/services/PermissionsManager.ts

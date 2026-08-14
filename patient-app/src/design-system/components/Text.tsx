@@ -6,6 +6,7 @@
 import React from 'react';
 import { Text, TextProps, StyleSheet } from 'react-native';
 import { useApp } from '../../context/AppContext';
+import { autoTranslate } from '../../i18n';
 import { Typography, getTextAlign } from '../tokens';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ export function DSText({
       ]}
       {...rest}
     >
-      {children}
+      {autoTranslate(children, lang)}
     </Text>
   );
 }

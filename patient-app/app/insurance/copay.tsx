@@ -1,6 +1,13 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useApp } from '../../src/context/AppContext';
 import { lightColors, darkColors } from '../../src/theme/colors';

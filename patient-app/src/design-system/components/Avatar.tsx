@@ -4,8 +4,13 @@
  */
 import React, { useState } from 'react';
 import {
-  View, Image, StyleSheet, StyleProp, ViewStyle, Text,
+  View,
+  Image,
+  StyleSheet,
+  StyleProp,
+  ViewStyle
 } from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useApp } from '../../context/AppContext';
 import { BorderRadius, Typography } from '../tokens';
 import { DSBadge } from './Badge';

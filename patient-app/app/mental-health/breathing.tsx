@@ -94,7 +94,7 @@ export default function BreathingScreen() {
         <TouchableOpacity onPress={() => router.back()} style={[styles.hBtn, { backgroundColor: colors.s, borderColor: colors.bd }]}>
           <Icon name="back" size={22} color={colors.n} />
         </TouchableOpacity>
-        <AppText variant="bodySM">تمارين التنفس 🫁</AppText>
+        <AppText variant="bodySM">تمارين التنفس</AppText>
         <View style={{ width: 36 }}/>
       </View>
 

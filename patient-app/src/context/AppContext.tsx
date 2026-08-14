@@ -9,6 +9,7 @@ import React, {
 import { useColorScheme as useDeviceColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme';
+import { i18nManager } from '../i18n/LanguageManager';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -82,6 +83,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const normalizedLang = savedLang === 'tl' ? 'fil' : savedLang;
         if (normalizedLang && LANGUAGES.some((language) => language.code === normalizedLang)) {
           setLangState(normalizedLang);
+          i18nManager.setLanguage(normalizedLang as LangCode, false).catch(() => undefined);
           if (normalizedLang !== savedLang) {
             AsyncStorage.setItem(STORAGE_LANG, normalizedLang).catch(() => undefined);
           }
@@ -116,6 +118,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const setLang = useCallback((l: LangCode) => {
     setLangState(l);
+    i18nManager.setLanguage(l, false).catch(() => undefined);
     AsyncStorage.setItem(STORAGE_LANG, l).catch((_err) => {
       /* handled */
     });

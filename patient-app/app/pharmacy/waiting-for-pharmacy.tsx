@@ -14,9 +14,9 @@ import {
   StyleSheet,
   Animated,
   Easing,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";

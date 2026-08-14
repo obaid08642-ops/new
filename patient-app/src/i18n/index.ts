@@ -1,6 +1,27 @@
 import { LangCode } from '../context/AppContext';
 import { generatedStaticTranslations } from './generatedStaticTranslations';
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const generatedTemplateEntries = Object.entries(generatedStaticTranslations)
+  .filter(([source]) => source.includes('${') && !/[<>]|\b(?:const|return|function)\b/.test(source))
+  .map(([source, translations]) => {
+    const fragments = source.split(/\$\{[^}]+\}/g);
+    const pattern = `^${fragments.map(escapeRegExp).join('(.*?)')}$`;
+    return { regex: new RegExp(pattern), translations };
+  });
+
+function translateGeneratedTemplate(text: string, lang: LangCode): string | null {
+  if (lang === 'ar') return null;
+  for (const entry of generatedTemplateEntries) {
+    const match = text.match(entry.regex);
+    const translated = entry.translations[lang];
+    if (!match || !translated) continue;
+    let captureIndex = 1;
+    return translated.replace(/\$\{[^}]+\}/g, () => match[captureIndex++] ?? '');
+  }
+  return null;
+}
+
 type TranslationKeys = {
   home: string; consultations: string; pharmacy: string; diagnostics: string; health: string;
   settings: string; profile: string; search: string; save: string; cancel: string; back: string;
@@ -307,7 +328,11 @@ export function autoTranslate(text: any, lang: LangCode): any {
       return generated[lang] ?? text;
     }
 
-    // 3. Exact match in translations.ar values
+    // 3. Match generated source templates against runtime values while preserving the dynamic segments.
+    const templateTranslation = translateGeneratedTemplate(trimmed, lang);
+    if (templateTranslation) return templateTranslation;
+
+    // 4. Exact match in translations.ar values
     for (const key in translations.ar) {
       const k = key as keyof TranslationKeys;
       if (translations.ar[k] === trimmed) {

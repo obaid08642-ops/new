@@ -5,10 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  Switch,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,105 +19,16 @@ import {
   IconButton,
   SectionHeader,
 } from "../../src/components/ui";
-import { apiFetch } from "../../src/utils/api";
 
 export default function WearablesHubScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
 
-  const [devices, setDevices] = useState({
-    watch: false,
-    bp: false,
-    cgm: false,
-    scale: false,
-  });
-
-  const [syncing, setSyncing] = useState(false);
-  const [syncedMsg, setSyncedMsg] = useState(false);
-
-  const toggleDevice = (key: "watch" | "bp" | "cgm" | "scale") => {
-    setDevices((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleSyncData = async () => {
-    // Check if at least one device is connected
-    const anyConnected = Object.values(devices).some((v) => v);
-    if (!anyConnected) {
-      Alert.alert("تنبيه", "الرجاء ربط جهاز واحد على الأقل للمزامنة.");
-      return;
-    }
-
-    try {
-      setSyncing(true);
-      setSyncedMsg(false);
-
-      // Sync device readings with backend
-      if (devices.watch) {
-        // Heart rate & Sleep
-        await apiFetch("/health/vitals", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "heart_rate",
-            value: 72 + Math.floor(Math.random() * 15),
-            source: "device",
-          }),
-        });
-        await apiFetch("/health/sleep", {
-          method: "POST",
-          body: JSON.stringify({
-            sleep_score: 82 + Math.floor(Math.random() * 10),
-            duration_hours: 7.5,
-            source: "device",
-          }),
-        });
-      }
-
-      if (devices.bp) {
-        // Blood pressure
-        await apiFetch("/health/vitals", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "bp",
-            value: "122/80",
-            value_secondary: 80,
-            source: "device",
-          }),
-        });
-      }
-
-      if (devices.cgm) {
-        // Continuous glucose monitor
-        await apiFetch("/health/vitals", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "glucose",
-            value: 95 + Math.floor(Math.random() * 20),
-            source: "device",
-          }),
-        });
-      }
-
-      if (devices.scale) {
-        // Weight
-        await apiFetch("/health/vitals", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "weight",
-            value: 74.5,
-            source: "device",
-          }),
-        });
-      }
-
-      // Simulate a small delay for a premium user experience
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setSyncedMsg(true);
-    } catch (err) {
-      console.error(err);
-      Alert.alert("خطأ", "حدث خطأ أثناء مزامنة البيانات.");
-    } finally {
-      setSyncing(false);
-    }
+  const showUnavailable = () => {
+    Alert.alert(
+      "الربط غير متاح حالياً",
+      "لن يربط التطبيق جهازاً أو يحفظ قراءات حيوية محلية قبل توفر تكامل مصنع الجهاز وموافقة المستخدم وعقد مزامنة موثق.",
+    );
   };
 
   return (
@@ -162,11 +71,7 @@ export default function WearablesHubScreen() {
               مزامنة ضربات القلب ومؤشرات النوم
             </AppText>
           </View>
-          <Switch
-            value={devices.watch}
-            onValueChange={() => toggleDevice("watch")}
-            trackColor={{ false: colors.border, true: colors.primary }}
-          />
+          <Button label="غير متاح" variant="outline" full={false} onPress={showUnavailable} />
         </Card>
 
         {/* Blood Pressure Monitor */}
@@ -186,11 +91,7 @@ export default function WearablesHubScreen() {
               تسجيل قراءات ضغط الدم تلقائياً
             </AppText>
           </View>
-          <Switch
-            value={devices.bp}
-            onValueChange={() => toggleDevice("bp")}
-            trackColor={{ false: colors.border, true: colors.primary }}
-          />
+          <Button label="غير متاح" variant="outline" full={false} onPress={showUnavailable} />
         </Card>
 
         {/* CGM */}
@@ -210,11 +111,7 @@ export default function WearablesHubScreen() {
               مراقبة سكر الدم على مدار الساعة
             </AppText>
           </View>
-          <Switch
-            value={devices.cgm}
-            onValueChange={() => toggleDevice("cgm")}
-            trackColor={{ false: colors.border, true: colors.primary }}
-          />
+          <Button label="غير متاح" variant="outline" full={false} onPress={showUnavailable} />
         </Card>
 
         {/* Smart Scale */}
@@ -234,38 +131,17 @@ export default function WearablesHubScreen() {
               تتبع الوزن ومؤشر كتلة الجسم
             </AppText>
           </View>
-          <Switch
-            value={devices.scale}
-            onValueChange={() => toggleDevice("scale")}
-            trackColor={{ false: colors.border, true: colors.primary }}
-          />
+          <Button label="غير متاح" variant="outline" full={false} onPress={showUnavailable} />
         </Card>
 
         {/* Sync trigger */}
         <View style={{ marginTop: 16, gap: 10 }}>
-          {syncedMsg && (
-            <Card style={{ backgroundColor: colors.successSurface }}>
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  gap: 8,
-                  alignItems: "center",
-                }}
-              >
-                <Icon name="check_circle" size={20} color={colors.success} />
-                <AppText variant="bodySM" color={colors.success}>
-                  تمت مزامنة القراءات الحيوية بنجاح إلى ملفك الصحي!
-                </AppText>
-              </View>
-            </Card>
-          )}
 
           <Button
             label={syncing ? "جاري المزامنة..." : "مزامنة القراءات الآن"}
             variant="gradient"
             size="lg"
-            loading={syncing}
-            onPress={handleSyncData}
+            onPress={showUnavailable}
           />
         </View>
       </ScrollView>

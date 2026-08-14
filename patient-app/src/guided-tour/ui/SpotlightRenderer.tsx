@@ -1,5 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  StyleSheet
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useApp } from '../../context/AppContext';
 
 export const SpotlightRenderer = ({ targetLayout, step, onNext, onSkip }: any) => {

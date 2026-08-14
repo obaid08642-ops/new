@@ -1,29 +1,20 @@
 // @ts-nocheck
 // app/programs/active.tsx
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
-
-const FALLBACK_PROGRAMS = [
-  {
-    id: 'diabetes',
-    title: 'برنامج إدارة السكري المكثف',
-    duration: '6 أشهر',
-    completedSessions: 0,
-    totalSessions: 6,
-    nextSessionDate: 'غير محدد',
-    nextSessionTime: '09:00 ص',
-    nextSessionTitle: 'الاستشارة التأسيسية لغدد الصماء',
-    milestoneReward: '150 نقطة نبض',
-    rewardDesc: 'عند إكمال الجلسة الرابعة بنجاح ورشاقة!',
-    sessionsList: []
-  }
-];
 
 export default function ActiveProgramsScreen() {
   const router = useRouter();
@@ -41,22 +32,20 @@ export default function ActiveProgramsScreen() {
     try {
       setLoading(true);
       const res = await apiFetch('/medical/programs/active');
-      if (res && res.length > 0) {
+      if (Array.isArray(res) && res.length > 0) {
         setPrograms(res);
         if (!res.find((p: any) => p.id === activeTab)) {
           setActiveTab(res[0].id);
         }
-      } else {
-        setPrograms(FALLBACK_PROGRAMS);
-      }
+      } else setPrograms([]);
     } catch (e) {
-      setPrograms(FALLBACK_PROGRAMS);
+      setPrograms([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const selectedProg = programs.find(p => p.id === activeTab) || programs[0] || FALLBACK_PROGRAMS[0];
+  const selectedProg = programs.find(p => p.id === activeTab) || programs[0];
 
   const handleMarkCompleted = (sessionId: number) => {
     Alert.alert(
@@ -73,12 +62,7 @@ export default function ActiveProgramsScreen() {
                 body: JSON.stringify({ programType: activeTab, sessionId: sessionId.toString() })
               });
               
-              if (res) {
-                setPrograms(res);
-                if (sessionId === 4) {
-                  Alert.alert('تهانينا! ', `لقد ربحت ${selectedProg.milestoneReward} لمتابعتك التزامك بالبرنامج.`);
-                }
-              }
+              if (Array.isArray(res)) setPrograms(res);
             } catch (err) {
               console.error(err);
               Alert.alert('خطأ', 'تعذر تحديث الجلسة، حاول مرة أخرى');
@@ -88,6 +72,19 @@ export default function ActiveProgramsScreen() {
       ]
     );
   };
+
+  if (!selectedProg) {
+    return (
+      <View style={[st.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 12 }]}>
+        <Icon name="calendar" size={36} color={colors.primary} />
+        <AppText variant="h5" align="center">لا توجد برامج علاجية نشطة</AppText>
+        <AppText variant="bodySM" color={colors.textSecondary} align="center">
+          {loading ? 'جاري تحميل البرامج من ملفك الطبي...' : 'لن يعرض التطبيق برنامجاً أو تقدماً احتياطياً عند غياب البيانات الموثقة.'}
+        </AppText>
+        <Button label="العودة" variant="outline" onPress={() => router.back()} />
+      </View>
+    );
+  }
 
   return (
     <View style={[st.container, { backgroundColor: colors.background } ]}>

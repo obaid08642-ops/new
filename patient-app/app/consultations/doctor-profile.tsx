@@ -9,9 +9,9 @@ import {
   Dimensions,
   FlatList,
   Share,
-  Image,
-  Alert,
+  Image
 } from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeIn, FadeInRight } from 'react-native-reanimated';

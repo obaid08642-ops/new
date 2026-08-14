@@ -7,9 +7,9 @@ import {
   ScrollView,
   Clipboard,
   Share,
-  Alert,
-  StatusBar,
-} from "react-native";
+  StatusBar
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";

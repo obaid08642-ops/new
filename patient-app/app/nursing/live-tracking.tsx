@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Linking,
-} from "react-native";
+  Linking
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useApp } from "../../src/context/AppContext";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { BlurView } from "expo-blur";

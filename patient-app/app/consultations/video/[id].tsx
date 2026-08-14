@@ -1,6 +1,11 @@
 // @ts-nocheck
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useApp } from "../../../src/context/AppContext";
 import { lightColors, darkColors } from "../../../src/theme/colors";
 

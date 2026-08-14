@@ -4,9 +4,14 @@
  */
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
-  View, TextInput, TouchableOpacity, Animated,
-  StyleSheet, StyleProp, ViewStyle,
+  View,
+  TouchableOpacity,
+  Animated,
+  StyleSheet,
+  StyleProp,
+  ViewStyle
 } from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { useApp } from '../../context/AppContext';
 import { BorderRadius, Spacing } from '../tokens';
 import { Icon } from '../Icon';

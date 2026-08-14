@@ -5,9 +5,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator
+} from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { AppText } from "../../src/components/ui";
 import { useApp } from "../../src/context/AppContext";
 import Icon from "@expo/vector-icons/MaterialIcons";

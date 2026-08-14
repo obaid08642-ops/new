@@ -1,6 +1,17 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Dimensions, ImageBackground, Modal, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ImageBackground,
+  Modal,
+  TouchableWithoutFeedback
+} from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { useRouter } from 'expo-router';
 import { useApp } from '../../src/context/AppContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

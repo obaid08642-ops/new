@@ -5,9 +5,9 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -67,7 +67,7 @@ export default function ReviewsScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
             <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
-          <AppText variant="bodySM">تقييم الخدمة ⭐</AppText>
+          <AppText variant="bodySM">تقييم الخدمة</AppText>
           <View style={{ width: 36 }} />
         </View>
         <AppText variant="bodySM">
@@ -190,7 +190,7 @@ export default function ReviewsScreen() {
           style={{ opacity: overallRating === 0 ? 0.5 : 1 }}
         >
           <View style={styles.submitBtn}>
-            <AppText variant="bodySM">إرسال التقييم ⭐</AppText>
+            <AppText variant="bodySM">إرسال التقييم</AppText>
           </View>
         </TouchableOpacity>
       </ScrollView>

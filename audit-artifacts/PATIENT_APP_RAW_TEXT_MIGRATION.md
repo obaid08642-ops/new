@@ -1,0 +1,51 @@
+# ترحيل Text الخام إلى الغلاف المترجم
+
+- الملفات المرحّلة: **46**.
+- استُبعدت المكونات ذات استخدام Text غير JSX للمراجعة اليدوية.
+
+- app/(auth)/forgot-password.tsx
+- app/(auth)/login.tsx
+- app/(auth)/otp.tsx
+- app/(auth)/privacy.tsx
+- app/(auth)/register.tsx
+- app/(auth)/terms.tsx
+- app/(auth)/welcome.tsx
+- app/(tabs)/consultations/index.tsx
+- app/(tabs)/index.tsx
+- app/(tabs)/nursing.tsx
+- app/(tabs)/pharmacy.tsx
+- app/consultations/chat-with-doctor.tsx
+- app/consultations/clinic/[id].tsx
+- app/consultations/clinic-location.tsx
+- app/consultations/doctor/[id].tsx
+- app/consultations/home-visit-tracking.tsx
+- app/consultations/offer/[id].tsx
+- app/consultations/post-call-rating.tsx
+- app/consultations/video/[id].tsx
+- app/consultations/video-call.tsx
+- app/consultations/virtual-waiting-room.tsx
+- app/consultations/waiting-room.tsx
+- app/health/actionable-order.tsx
+- app/insurance/copay.tsx
+- app/nursing/live-tracking.tsx
+- app/nursing/nurse-profile.tsx
+- app/nursing/service-details.tsx
+- app/pharmacy/cart.tsx
+- app/pharmacy/checkout.tsx
+- app/pharmacy/filters.tsx
+- app/pharmacy/manual-order.tsx
+- app/pharmacy/order-confirm.tsx
+- app/pharmacy/order-history.tsx
+- app/pharmacy/order-tracking.tsx
+- app/pharmacy/payment.tsx
+- app/pharmacy/pharmacist-chat.tsx
+- app/pharmacy/product-detail.tsx
+- app/pharmacy/scan-prescription.tsx
+- app/search/index.tsx
+- src/components/BottomNavBar.tsx
+- src/components/Header.tsx
+- src/design-system/components/Avatar.tsx
+- src/features/consultation/InsuranceCopayScreen.tsx
+- src/features/medical-orders/ActionableOrderScreen.tsx
+- src/guided-tour/ui/SpotlightRenderer.tsx
+- src/navigation/guards/AdminGuard.tsx

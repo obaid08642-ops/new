@@ -29,7 +29,7 @@ export function ConsultationsProvider({ children }: { children: ReactNode }) {
           id: a._id || a.id,
           docName: a.doctor_name || a.provider_name || 'طبيب',
           spec: a.specialty || a.specialty_ar || '',
-          emoji: '👨‍⚕️',
+          emoji: '',
           date: a.appointment_date ? new Date(a.appointment_date).toLocaleDateString('ar-SA') : '',
           time: a.start_time || '',
           type: a.consultation_type || 'online',

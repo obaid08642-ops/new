@@ -105,7 +105,7 @@ export default function LoyaltyChallengesScreen() {
               <View style={styles.challengeHeader}>
                 <View style={styles.challengeLeft}>
                   <View style={[styles.rewardBadge, { backgroundColor: color + '20' } ]}>
-                    <AppText variant="bodySM" style={[styles.rewardPts, { color } ]}>+{item.reward_points} ⭐</AppText>
+                    <AppText variant="bodySM" style={[styles.rewardPts, { color } ]}>+{item.reward_points}</AppText>
                   </View>
                   {joined ? (
                     <View style={[styles.statusBadge, { backgroundColor: item.completed ? '#DCFCE7' : '#EBF3FF' } ]}>

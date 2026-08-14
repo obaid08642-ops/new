@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Alert,
-  Linking,
-} from "react-native";
+  Linking
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

@@ -1077,7 +1077,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "1:00 PM",
     "ur": "1:00 دوپہر",
     "hi": "1:00 दोपहर",
-    "bn": "1:00 বিকাল",
+    "bn": "1:00 দুপুর",
     "fil": "1:00 PM"
   },
   "2 جم": {
@@ -1728,7 +1728,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "I have severe chest pain, a heavy feeling in my chest, and shortness of breath.",
     "ur": "مجھے سینے میں شدید درد، بھاری پن اور سانس لینے میں تکلیف محسوس ہو رہی ہے۔",
     "hi": "मुझे तेज़ सीने का दर्द, सीने में भारीपन और सांस फूलना महसूस हो रहा है।",
-    "bn": "আমার তীব্র বেদনা আছে, বুকে ভার অনুভব করছি এবং শ্বাসকষ্ট হচ্ছে।",
+    "bn": "বুকে তীব্র ব্যথা ও ভার অনুভব করছি এবং শ্বাসকষ্ট হচ্ছে।",
     "fil": "May malubhang sakit ako, pakiramdam ng bigat sa dibdib, at hirap sa paghinga."
   },
   "أشعر بدوخة شديدة وعطش مستمر ومستوى السكر غير مستقر": {
@@ -1803,7 +1803,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "أطعمة غنية بفيتامين D: سمك السلمون، البيض، الحليب المدعم": {
     "en": "Foods rich in vitamin D: salmon, eggs, fortified milk",
-    "ur": "وٹامن D سے بھرپور غذائیں: سمیلَن (سالمن) مچھلی، انڈے، فورٹیفائیڈ دودھ",
+    "ur": "وٹامن D سے بھرپور غذائیں: سالمن مچھلی، انڈے، فورٹیفائیڈ دودھ",
     "hi": "विटामिन D से समृद्ध खाद्य पदार्थ: सैल्मन, अंडे, फोर्टिफाइड दूध",
     "bn": "ভিটামিন D সমৃদ্ধ খাবার: স্যালমন মাছ, ডিম, ফোর্টিফাইড দুধ",
     "fil": "Mga pagkaing mayaman sa bitamina D: salmon, itlog, pinatibay na gatas"
@@ -1915,9 +1915,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "أسرع تقنية لتهدئة الذعر الآن": {
     "en": "Quickest way to calm a panic attack right now",
-    "ur": "پanic اٹیک کو فوراً پرسکون کرنے کا سب سے تیز طریقہ",
+    "ur": "ابھی پینک اٹیک کو پرسکون کرنے کا سب سے تیز طریقہ",
     "hi": "पैनिक अटैक को तुरंत शांत करने का सबसे तेज़ तरीका",
-    "bn": "এখনই প্যানিক অ্যাটাক শান্ত করার সবচেয়ে দ্রুত উপায়",
+    "bn": "এখনই প্যানিক অ্যাটাককে শান্ত করার সবচেয়ে দ্রুত উপায়",
     "fil": "Pinakamabilis na paraan para agad mapatahimik ang panic attack ngayon"
   },
   "أسنان": {
@@ -2028,7 +2028,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   "أخبر الموظف فوراً عن أي أدوية مزمنة تأخذها": {
     "en": "Tell the staff immediately about any chronic medications you are taking.",
     "ur": "کسی بھی دائمی دوا کے بارے میں فوراً عملے کو بتائیں جو آپ لے رہے ہیں۔",
-    "hi": "कृपया किसी भी पुरानी दवा के बारे में तुरंत स्टाफ़ को बताएं जो आप ले रहे हैं।",
+    "hi": "आप जो भी दीर्घकालिक दवाएँ ले रहे हैं, उसके बारे में तुरंत स्टाफ़ को बताएं।",
     "bn": "আপনি যে কোনো দীর্ঘমেয়াদি ওষুধ নিচ্ছেন তা সঙ্গে সঙ্গে কর্মীদের জানান।",
     "fil": "Sabihin agad sa staff ang anumang pang-matagalang gamot na iniinom mo."
   },
@@ -2146,7 +2146,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "ألم صدر": {
     "en": "Chest pain",
-    "ur": "چھاتی کا درد",
+    "ur": "سینے میں درد",
     "hi": "छाती में दर्द",
     "bn": "বুকের ব্যথা",
     "fil": "Sakit sa dibdib"
@@ -2443,7 +2443,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "کبھی بھی",
     "hi": "कभी भी",
     "bn": "যেকোনো সময়",
-    "fil": "Kailanman"
+    "fil": "Anumang oras"
   },
   "إثنين": {
     "en": "Monday",
@@ -2485,7 +2485,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "مزمن اور شدید درد کا انتظام اور علاج",
     "hi": "तीव्र और पुरानी दर्द का प्रबंधन और उपचार",
     "bn": "দীর্ঘস্থায়ী ও তীব্র ব্যথার পরিচালনা ও চিকিৎসা",
-    "fil": "Pamamahala at paggamot ng talamak at matinding pananakit"
+    "fil": "Pamamahala at paggamot ng talamak at biglaang pananakit"
   },
   "إدمان": {
     "en": "Addiction",
@@ -3118,11 +3118,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Ibigay ang iniresetang gamot at tiyakin ang tamang dosis"
   },
   "إعطاء الأدوية والمضادات الحيوية عبر الوريد": {
-    "en": "Administer medications and intravenous antibiotics",
-    "ur": "وریدی (IV) ادویات اور اینٹی بایوٹکس دینا",
-    "hi": "दवाइयाँ और अंतःशिरा (IV) एंटीबायोटिक्स देना",
-    "bn": "ওষুধ এবং অন্তঃশিরা (IV) অ্যান্টিবায়োটিক দেওয়া",
-    "fil": "Magbigay ng mga gamot at IV (intravenous) antibiotics"
+    "en": "Administer medications and antibiotics intravenously",
+    "ur": "وریدی (IV) کے ذریعے ادویات اور اینٹی بایوٹکس دینا",
+    "hi": "दवाइयों और एंटीबायोटिक्स को अंतःशिरा (IV) द्वारा देना",
+    "bn": "ওষুধ এবং অ্যান্টিবায়োটিক অন্তঃশিরায় (IV) দ্বারা দেওয়া",
+    "fil": "Magbigay ng mga gamot at antibiotiko sa pamamagitan ng IV (intravenous)"
   },
   "إعطاء التطعيمات والتحصينات في المنزل": {
     "en": "Administer vaccinations and immunizations at home",
@@ -3385,7 +3385,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "ابدئي بتجهيز حقيبة الولادة والتسوق لمستلزمات الرضيع.": {
     "en": "Start packing your hospital bag and shopping for baby supplies.",
-    "ur": "حملہ کے بیگ کی تیاری شروع کریں اور بچے کی اشیاء کی خریداری کریں۔",
+    "ur": "زچگی کا بیگ پیک کرنا شروع کریں اور بچے کے لوازمات کی خریداری کریں۔",
     "hi": "अपना अस्पताल बैग पैक करना और शिशु सामान की खरीदारी शुरू करें।",
     "bn": "হাসপাতালের ব্যাগ প্যাক করা এবং নবজাতক সামগ্রীর কেনাকাটা শুরু করুন।",
     "fil": "Simulan ang pag-empake ng hospital bag at pamimili para sa mga gamit ng sanggol."
@@ -3462,10 +3462,10 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "اتصال صادر": {
     "en": "Outgoing call",
-    "ur": "صادرہ کال",
+    "ur": "خارج ہونے والی کال",
     "hi": "बाहर जाने वाली कॉल",
     "bn": "বাহিরে যাওয়া কল",
-    "fil": "Papuntang tawag"
+    "fil": "Lumabas na tawag"
   },
   "اتصال مباشر": {
     "en": "Direct call",
@@ -3476,7 +3476,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "اتصال وارد": {
     "en": "Incoming call",
-    "ur": "واردہ کال",
+    "ur": "آنے والی کال",
     "hi": "आने वाली कॉल",
     "bn": "আসা কল",
     "fil": "Papapasok na tawag"
@@ -3587,9 +3587,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Maghanap ng provider..."
   },
   "ابحث عن معالج مناسب": {
-    "en": "Find a suitable therapist",
+    "en": "Search for a suitable therapist",
     "ur": "مناسب معالج تلاش کریں",
-    "hi": "उपयुक्त चिकित्सक खोजें",
+    "hi": "उपयुक्त थेरेपिस्ट खोजें",
     "bn": "উপযুক্ত থেরাপিস্ট খুঁজুন",
     "fil": "Maghanap ng angkop na therapist"
   },
@@ -3674,7 +3674,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Sleep on your left side to support blood flow to the placenta.",
     "ur": "پلیسنٹا تک خون کے بہاؤ کی حمایت کے لیے بائیں جانب سوئیں۔",
     "hi": "प्लेसेंटा तक रक्त प्रवाह में मदद के लिए बाईं ओर सोएँ।",
-    "bn": "প্লাসেন্টায় রক্তপ্রবাহে সহায়তার জন্য বামে্য পাশে ঘুমান।",
+    "bn": "প্লাসেন্টায় রক্তপ্রবাহকে সমর্থন করতে বাম পাশে ঘুমান।",
     "fil": "Matulog sa iyong kaliwang tagiliran upang suportahan ang daloy ng dugo papunta sa placenta."
   },
   "احرصي على ترطيب الجسم.": {
@@ -3688,8 +3688,8 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Practice breathing and relaxation exercises.",
     "ur": "سانس لینے اور آرام کی مشقیں کریں۔",
     "hi": "साँस लेने और विश्राम के व्यायाम करें।",
-    "bn": "শ্বাস‑প্রশ্বাস ও рел্যাক্সেশন ব্যায়াম করুন।",
-    "fil": "Magsanay ng mga breathing at relaxation exercises."
+    "bn": "শ্বাস-প্রশ্বাস ও শিথিলকরণ (রিল্যাক্সেশন) ব্যায়াম অনুশীলন করুন।",
+    "fil": "Magsanay ng mga ehersisyo sa paghinga at pagpapahinga."
   },
   "احرصي على تناول الحليب المدعم.": {
     "en": "Have fortified milk.",
@@ -4004,7 +4004,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "از دور طبی مشاورت (ٹیلی ہیلتھ)",
     "hi": "दूरस्थ परामर्श (टेलीहेल्थ)",
     "bn": "দূরবর্তী পরামর্শ (টেলিহেলথ)",
-    "fil": "Remote consultation (telehealth)"
+    "fil": "Malayuang konsultasyon (telehealth)"
   },
   "استشارة قلب": {
     "en": "Cardiology consultation",
@@ -4042,7 +4042,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Kumonsulta sa iyong dermatologist para sa mas maingat na follow‑up."
   },
   "استشيري طبيبتك حول فيتامينات الثلث الثاني.": {
-    "en": "Ask your doctor about second‑trimester vitamins.",
+    "en": "Ask your female doctor about second‑trimester vitamins.",
     "ur": "اپنی خاتون ڈاکٹر سے دوسرے سہ ماہی کے وٹامنز کے بارے میں پوچھیں۔",
     "hi": "दूसरे तिमाही के विटामिन के बारे में अपनी महिला डॉक्टर से सलाह लें।",
     "bn": "দ্বিতীয় ত্রৈমাসিকের ভিটামিন সম্পর্কে আপনার নারী চিকিৎসকের সঙ্গে পরামর্শ করুন।",
@@ -4269,7 +4269,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Pull down to close",
     "ur": "بند کرنے کے لیے نیچے کی طرف کھینچیں۔",
     "hi": "बंद करने के लिए नीचे खींचें।",
-    "bn": "বন্দ করার জন্য নিচে টানুন।",
+    "bn": "বন্ধ করার জন্য নিচে টানুন।",
     "fil": "Hatakin pababa para isara"
   },
   "اسحب للأسفل لإغلاق هذه الورقة": {
@@ -4379,10 +4379,10 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "اضطرابات أكل": {
     "en": "Eating disorders",
-    "ur": "کھانے کی خرابی",
-    "hi": "भोजन विकार",
-    "bn": "খাবারের সমস্যা",
-    "fil": "Mga problema sa pagkain"
+    "ur": "خوراک سے متعلق عوارض",
+    "hi": "भोजन संबंधी विकार",
+    "bn": "খাদ্যজনিত ব্যাধি",
+    "fil": "Mga kaguluhan sa pagkain"
   },
   "اضغط للتحدث": {
     "en": "Press to speak",
@@ -5059,7 +5059,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   "الاستجابة الحركية والقلبية المباشرة لصوت الأم والوالد": {
     "en": "Immediate motor and heart response to mother's and father's voice",
     "ur": "ماں اور والد کی آواز پر فوری حرکی اور قلبی ردعمل",
-    "hi": "मां और पिता की आवाज़ पर त्वरित गतिशील और हृदयीय प्रतिक्रिया",
+    "hi": "मां और पिता की आवाज़ पर त्वरित मोटर और हृदय संबंधी प्रतिक्रिया",
     "bn": "মা ও বাবার কণ্ঠে তাত্ক্ষণিক মোটর ও হৃদযন্ত্রীয় প্রতিক্রিয়া",
     "fil": "Agarang kilos at tugon ng puso sa boses ng nanay at tatay"
   },
@@ -5078,11 +5078,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Paunang konsultasyon sa endokrinolohiya"
   },
   "الاستمرار بدون تسجيل": {
-    "en": "Continue without recording",
-    "ur": "ریکارڈنگ کے بغیر جاری رکھیں",
-    "hi": "रिकॉर्ड किए बिना जारी रखें",
-    "bn": "রেকর্ড না করে চালিয়ে যান",
-    "fil": "Magpatuloy nang hindi nire-record"
+    "en": "Continue without registering",
+    "ur": "رجسٹریشن کے بغیر جاری رکھیں",
+    "hi": "पंजीकरण किए बिना जारी रखें",
+    "bn": "নিবন্ধন না করে চালিয়ে যান",
+    "fil": "Magpatuloy nang hindi nagparehistro"
   },
   "الاستمرار في روتين النوم الحالي يُعطي نتائج ممتازة": {
     "en": "Continuing the current sleep routine yields excellent results",
@@ -6290,9 +6290,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "الرياض، المملكة العربية السعودية": {
     "en": "Riyadh, Kingdom of Saudi Arabia",
-    "ur": "الرياض، مملکتِ سعودی عرب",
-    "hi": "الرياض, سऊदी अरब (Kingdom of Saudi Arabia)",
-    "bn": "রিয়াদ, সৌদি আরব (Kingdom of Saudi Arabia)",
+    "ur": "ریاض، مملکتِ سعودی عرب",
+    "hi": "रियाद, सऊदी अरब",
+    "bn": "রিয়াদ, সৌদি আরব",
     "fil": "Riyadh, Kingdom of Saudi Arabia"
   },
   "الزيارة في المركز": {
@@ -6409,7 +6409,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "الطلبات والمعاملات": {
     "en": "Orders & transactions",
-    "ur": "درخواستیں اور لین دین",
+    "ur": "آرڈرز اور لین دین",
     "hi": "ऑर्डर और लेनदेन",
     "bn": "অর্ডার এবং লেনদেন",
     "fil": "Mga order at transaksiyon"
@@ -6632,11 +6632,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Mga Tuntunin at Kondisyon"
   },
   "الشعور بأولى حركات الجنين الخفيفة (الرفرفة)": {
-    "en": "Feeling the baby's first light movements (fluttering)",
-    "ur": "جنین کی پہلی ہلکی حرکتوں کا احساس (ہلکی پرپراہٹ)",
+    "en": "Feeling the first light fetal movements (fluttering)",
+    "ur": "جنین کی پہلی ہلکی حرکات کا احساس (ہلکی پھڑپھڑاہٹ)",
     "hi": "भ्रूण की पहली हल्की हरकतों का अनुभव (फड़फड़ाहट)",
-    "bn": "ভ্রূণের প্রথম হালকা গতি অনুভব (ফড়ফড়ানো)",
-    "fil": "Maramdaman ang unang magagaan na paggalaw ng sanggol (banayad na pag-alog)"
+    "bn": "ভ্রূণের প্রথম হালকা আন্দোলন অনুভব করা (ফড়ফড়ানো)",
+    "fil": "Maramdaman ang unang magagaan na paggalaw ng sanggol sa sinapupunan (banayad na pag-alog)"
   },
   "الشكل": {
     "en": "Shape",
@@ -6737,11 +6737,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Pamilya"
   },
   "العالمية": {
-    "en": "العالمية",
-    "ur": "العالمية",
-    "hi": "العالمية",
-    "bn": "العالمية",
-    "fil": "العالمية"
+    "en": "International",
+    "ur": "بین الاقوامی",
+    "hi": "अंतरराष्ट्रीय",
+    "bn": "আন্তর্জাতিক",
+    "fil": "Internasyonal"
   },
   "العالمية فردي A": {
     "en": "العالمية فردي A",
@@ -6772,11 +6772,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "العالمية مؤسسات D"
   },
   "العربية": {
-    "en": "العربية",
-    "ur": "العربية",
-    "hi": "العربية",
-    "bn": "العربية",
-    "fil": "العربية"
+    "en": "Arabic",
+    "ur": "عربی",
+    "hi": "अरबी",
+    "bn": "আরবি",
+    "fil": "Arabe"
   },
   "العربية السعودية للتأمين": {
     "en": "العربية السعودية للتأمين",
@@ -6892,7 +6892,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "العمليات الجراحية للرضع والأطفال": {
     "en": "Infant and pediatric surgery",
-    "ur": "نوزائدہ اور بچوں کی سرجریاں",
+    "ur": "نوزائیدہ اور بچوں کی سرجریاں",
     "hi": "नवजात और बच्चों की शल्यक्रियाएँ",
     "bn": "শিশু ও নবজাতক সার্জারি",
     "fil": "Pag-opera para sa sanggol at mga bata"
@@ -6927,7 +6927,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "العناية بالأنبوب الأنفي المعدي": {
     "en": "Nasogastric tube care",
-    "ur": "ناک سے پیٹ تک ٹیوب کی دیکھ بھال (نازوفیجیل ٹیوب)",
+    "ur": "ناک سے معدے تک ٹیوب کی دیکھ بھال (نیسوگاسٹرک ٹیوب)",
     "hi": "नासोगैस्ट्रिक ट्यूब की देखभाल",
     "bn": "নাসোগ্যাস্ট্রিক টিউবের যত্ন",
     "fil": "Pag-aalaga sa nasogastric tube"
@@ -6955,7 +6955,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "العودة لتسجيل الدخول": {
     "en": "Back to sign in",
-    "ur": "واپس لاگ ان کریں",
+    "ur": "سائن ان پر واپس جائیں",
     "hi": "साइन इन पर वापस जाएँ",
     "bn": "সাইন ইন-এ ফিরে যান",
     "fil": "Bumalik sa pag-sign in"
@@ -7762,8 +7762,8 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Obstetrics & Gynecology",
     "ur": "زنانہ امراض و ولادت",
     "hi": "स्त्री रोग एवं प्रसूति",
-    "bn": "নারী ও প্রসূতি",
-    "fil": "Kababaihan at Panganganak"
+    "bn": "স্ত্রীরোগ ও প্রসূতি",
+    "fil": "Obstetrika at Ginekolohiya"
   },
   "النشاط البدني": {
     "en": "Physical activity",
@@ -7871,8 +7871,8 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Ngayon, Linggo, 16 Hunyo"
   },
   "امتلاء البشرة والجلد بالدهون ليصبح أقل تجعداً": {
-    "en": "Skin becomes fuller with fat, making it less wrinkled.",
-    "ur": "جلد چربی سے بھر کر ہموار اور کم شکن ہو جاتی ہے۔",
+    "en": "The skin fills with fat, becoming less wrinkled.",
+    "ur": "جلد چربی سے بھر کر کم جھریدار ہو جاتی ہے۔",
     "hi": "त्वचा वसा से भरकर अधिक भरी और कम झुर्रियों वाली हो जाती है।",
     "bn": "ত্বক চর্বি দিয়ে ভরে পূর্ণতর হয়ে কম ভাঁজ হয়।",
     "fil": "Pinupuno ng taba ang balat kaya nagmumukhang mas buo at mas kaunti ang kulubot."
@@ -7941,10 +7941,10 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Sumali sa umiiral na pamilya."
   },
   "انغراس الكيسة الأريمية وتثبيت الحمل أولياً": {
-    "en": "Blastocyst implantation and early pregnancy establishment.",
+    "en": "Blastocyst implantation and early establishment of pregnancy.",
     "ur": "بلاستو سِسٹ کی انغراس اور ابتدائی حمل کا استقرار۔",
     "hi": "ब्लास्टोसिस्ट के लगने और प्रारंभिक गर्भ स्थिरीकरण।",
-    "bn": "ব্লাস্টোসিস্টের অনুক্রম এবং প্রাথমিক গর্ভস্থিরতা।",
+    "bn": "ব্লাস্টোসিস্টের ইমপ্লানটেশন এবং প্রাথমিকভাবে গর্ভধারণের স্থায়ীকরণ।",
     "fil": "Pag-implant ng blastocyst at paunang pagtatatag ng pagbubuntis."
   },
   "انفتاح جفون العينين وتطور الجهاز العصبي البصري": {
@@ -8062,7 +8062,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   "بانتظار وصول العينات إلى المختبر": {
     "en": "Waiting for samples to arrive at the lab",
     "ur": "نمونوں کے لیب میں پہنچنے کا انتظار",
-    "hi": "नमूनों के प्रयोगशाला में पहुँचने की प्रतीक्षा",
+    "hi": "प्रयोगशाला में नमूनों के पहुँचने की प्रतीक्षा",
     "bn": "নমুনা পরীক্ষাগারে পৌঁছানোর অপেক্ষায়",
     "fil": "Naghihintay na makarating ang mga sample sa laboratoryo"
   },
@@ -8148,7 +8148,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "خشخاش کا بیج",
     "hi": "खसखस का दाना",
     "bn": "খসখসের বীজ",
-    "fil": "Ulingang buto (poppy seed)"
+    "fil": "Buto ng poppy (poppy seed)"
   },
   "بذرة السمسم": {
     "en": "Sesame seed",
@@ -8169,14 +8169,14 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "خشخاش کا بیج",
     "hi": "खसखस का दाना",
     "bn": "খসখসের বীজ",
-    "fil": "Ulingang buto (poppy seed)"
+    "fil": "Buto ng poppy (poppy seed)"
   },
   "بذرة خشخاش كبيرة": {
     "en": "Large poppy seed",
     "ur": "بڑا خشخاش کا بیج",
     "hi": "बड़ा खसखस का दाना",
     "bn": "বড় খসখসের বীজ",
-    "fil": "Malaking ulingang buto (large poppy seed)"
+    "fil": "Malaking buto ng poppy (large poppy seed)"
   },
   "بذرة سمسم": {
     "en": "Sesame seed",
@@ -8504,7 +8504,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Skull bones remain unfused to allow overlap during labor.",
     "ur": "کھوپڑی کی ہڈیاں جڑی ہوئی نہیں ہیں تاکہ ولادت کے دوران وہ ایک دوسرے کے اوپر آ سکیں۔",
     "hi": "खोपड़ी की हड्डियाँ जुड़ी नहीं हैं ताकि प्रसव के दौरान वे एक‑दूसरे के ऊपर आ सकें।",
-    "bn": "খোপড়ির হাড়গুলো একসাথে জোড়া হয়নি, যাতে প্রসবের সময় সেগুলো একে অপরের উপর চাপ দিতে পারে।",
+    "bn": "খোপড়ির হাড়গুলো একত্রে সংযুক্ত হয়নি যাতে প্রসবের সময় সেগুলো একে অপরের উপর ওভারল্যাপ করতে পারে।",
     "fil": "Nanatiling hindi nagsasama ang mga buto ng bungo upang makapag‑overlap habang nanganganak."
   },
   "بلانك × 3": {
@@ -8740,9 +8740,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "تجنبي الجلوس الطويل دون حركة لتفادي جلطات الساق وتورم القدمين.": {
     "en": "Avoid prolonged sitting without movement to prevent leg clots and foot swelling.",
-    "ur": "بےحرکت طویل بیٹھنے سے گریز کریں تاکہ ٹانگوں میں خون کے لوتھڑے اور پاؤں کی سوجن نہ ہو۔",
-    "hi": "बिना हिले‑डुले लंबे समय तक बैठने से बचें—यह टांगों में रक्त के थक्के और पैरों में सूजन रोकने में मदद करता है।",
-    "bn": "চলাফেরা ছাড়া দীর্ঘক্ষণ বসে থাকা এড়িয়ে চলুন — এতে পায়ের শিরায় রক্ত জমা এবং পায়ের ফোলা দেখা দিতে পারে।",
+    "ur": "بےحرکت طویل بیٹھنے سے گریز کریں تاکہ ٹانگوں میں خون کے لوتھڑے اور پاؤں کی سوجن سے بچا جا سکے۔",
+    "hi": "बिना हिले‑डुले लंबे समय तक बैठने से बचें — यह टांगों में रक्त के थक्के और पैरों में सूजन रोकने में मदद करता है।",
+    "bn": "চলাফেরা ছাড়া দীর্ঘক্ষণ বসে থাকা এড়িয়ে চলুন যাতে পায়ের শিরায় রক্ত জমা (থ্রম্বোসিস) এবং পায়ের ফুলে যাওয়া প্রতিরোধ করা যায়।",
     "fil": "Iwasan ang matagal na pag-upo nang hindi gumagalaw upang maiwasan ang pamumuo ng dugo sa mga binti at pamamaga ng paa."
   },
   "تجنبي الروائح النفاذة التي تثير الغثيان.": {
@@ -9182,9 +9182,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   "تحدد الرسوم في العرض": {
     "en": "Fees are specified in the quote",
     "ur": "فیسیں کوٹیشن میں درج ہوتی ہیں",
-    "hi": "शुल्क कोटेशन में निर्धारित होते हैं",
+    "hi": "शुल्क कोटेशन میں निर्धारित होते हैं",
     "bn": "ফিস কোটেশনে নির্ধারিত হয়",
-    "fil": "Tinatawag ang mga bayarin sa quote"
+    "fil": "Nakasaad ang mga bayarin sa quote"
   },
   "تحدياتي": {
     "en": "My challenges",
@@ -9390,11 +9390,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Pagsusuri ng balat"
   },
   "تحليل البشرة ️": {
-    "en": "Skin analysis",
-    "ur": "جلد کا تجزیہ",
-    "hi": "त्वचा विश्लेषण",
-    "bn": "ত্বকের বিশ্লেষণ",
-    "fil": "Pagsusuri ng balat"
+    "en": "Skin analysis ️",
+    "ur": "جلد کا تجزیہ ️",
+    "hi": "त्वचा विश्लेषण ️",
+    "bn": "ত্বকের বিশ্লেষণ ️",
+    "fil": "Pagsusuri ng balat ️"
   },
   "تحليل التداخلات المعروفة": {
     "en": "Known interactions analysis",
@@ -9537,11 +9537,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Pagpaplano ng pagkain"
   },
   "تخطيط قلب منزلي": {
-    "en": "At‑home heart plan",
-    "ur": "گھر پر دل کا منصوبہ",
-    "hi": "घर पर दिल की योजना",
-    "bn": "বাড়িতে হার্ট পরিকল্পনা",
-    "fil": "Plano sa puso para sa bahay"
+    "en": "At-home ECG",
+    "ur": "گھر پر ای سی جی (الیکٹروکارڈیوگرام)",
+    "hi": "घर पर ईसीजी (इलेक्ट्रोकार्डियोग्राम)",
+    "bn": "বাড়িতে ইসিজি (ইলেক্ট্রোকার্ডিওগ্রাম)",
+    "fil": "ECG sa bahay (electrocardiogram)"
   },
   "تذكير الأدوية": {
     "en": "Medication reminders",
@@ -9712,11 +9712,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Paglalagay at pag-aalaga ng nasogastric feeding tube"
   },
   "تساقط زغب الشعر الجنيني الناعم وبقاء طلاء الفيرنكس": {
-    "en": "Shedding of fine fetal lanugo hair with remaining vernix coating",
+    "en": "Shedding of fine fetal lanugo hair with persistence of vernix coating",
     "ur": "باریک جنینی لانُگو بالوں کا جھڑنا اور وارنکس (چکنائی نما تہہ) کا باقی رہ جانا",
     "hi": "भ्रूण की महीन लैनुगो के झड़ने और वर्निक्स (तैलीय परत) का बने रहना",
-    "bn": "ভ্রুণীয় সূক্ষ্ম ল্যানুগোর ঝরা এবং ভর্নিক্স (তেল-জাতীয় আবরণ) অবশিষ্ট থাকা",
-    "fil": "Pagkalagas ng maliliit na lanugo na buhok ng sanggol at pag-iral ng vernix (maikling protective coating)"
+    "bn": "ভ্রুণীয় সূক্ষ্ম ল্যানুগোর ঝরা এবং ভর্নিক্স (তৈলীয় আবরণ) অবশিষ্ট থাকা",
+    "fil": "Pagkalagas ng pinong lanugo na buhok ng sanggol sa sinapupunan at nananatiling vernix (proteksiyon na patong)"
   },
   "تساقط كافة الشعر الناعم والطلاء الدهني في السائل الأمنيوسي": {
     "en": "All fine hair and greasy coating shed into the amniotic fluid",
@@ -9897,7 +9897,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Diagnosis and treatment of sleep disorders",
     "ur": "نیند کے خلل/عوارض کی تشخیص اور علاج",
     "hi": "नींद विकारों का निदान और उपचार",
-    "bn": "ঘুমের অসংগঠনের নির্ণয় ও চিকিৎসা",
+    "bn": "ঘুমের ব্যাধির নির্ণয় ও চিকিৎসা",
     "fil": "Pagsusuri at paggamot ng mga problema sa pagtulog"
   },
   "تشخيص وعلاج الأمراض الشائعة والحالات العامة": {
@@ -9916,7 +9916,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "تشخيص وعلاج الأورام السرطانية": {
     "en": "Diagnosis and treatment of cancer",
-    "ur": "کینسر/سرطانی غدود کا تشخیص اور علاج",
+    "ur": "کینسر/سرطانی ٹیومرز کی تشخیص اور علاج",
     "hi": "कैंसर का निदान और उपचार",
     "bn": "ক্যান্সারের নির্ণয় ও চিকিৎসা",
     "fil": "Pagsusuri at paggamot ng kanser"
@@ -10261,7 +10261,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Hearing becomes more complete — can hear your heartbeat and external sounds",
     "ur": "سماعت میں بہتری؛ وہ آپ کی دھڑکن اور بیرونی آوازیں سن سکتا ہے",
     "hi": "संपूर्ण सुनने की क्षमता विकसित होती है; आपके दिल की धड़कन और बाहरी आवाज़ें सुन सकता है",
-    "bn": "সম্পূর্ণ শ্রবণ দক্ষতা গড়ে ওঠে—আপনি যে হৃদস্পন্দন শুনেন এবং বাইরের আওয়াজও শুনতে পারে",
+    "bn": "শ্রবণ আরও পরিপূর্ণ হয় — ভ্রূণ আপনার হৃদস্পন্দন এবং বাইরের শব্দ শুনতে পারে",
     "fil": "Nag-de-develop ang buong pandinig — maaaring marinig ang pintig ng puso mo at mga panlabas na tunog"
   },
   "تطور القدرة على الإبصار وتمييز الضوء المتسرب": {
@@ -10412,7 +10412,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Mga tagubilin"
   },
   "تعليمات قبل السحب": {
-    "en": "Instructions before the draw",
+    "en": "Instructions before sample collection",
     "ur": "نمونے لینے سے پہلے ہدایات",
     "hi": "नमूना लेने से पहले निर्देश",
     "bn": "নমূনা সংগ্রহের আগে নির্দেশনা",
@@ -10885,7 +10885,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "ہمیں آپ کی درخواست کامیابی کے ساتھ موصول ہو گئی ہے اور تصدیق جاری ہے۔",
     "hi": "हमने आपका अनुरोध सफलतापूर्वक प्राप्त कर लिया है और सत्यापन चल रहा है।",
     "bn": "আপনার অনুরোধ সফলভাবে গ্রহণ করা হয়েছে এবং যাচাই চলছে।",
-    "fil": "Natanggap namin ang iyong kahilingan nang matagumpay at kasalukuyang bino-beripika."
+    "fil": "Natanggap namin ang iyong kahilingan nang matagumpay at kasalukuyang sinusuri ito."
   },
   "تم": {
     "en": "Done",
@@ -11673,7 +11673,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "تنغرس البويضة المخصبة (الكيسة الأريمية) في بطانة الرحم الغنية بالدم.": {
     "en": "The fertilized egg (blastocyst) implants in the blood-rich uterine lining.",
-    "ur": "مدمجہ بایا (بلاسٹو سِسٹ) خون سے بھرپور رحم کی اندرونی پرت میں لگ جاتی ہے۔",
+    "ur": "مخصب شدہ انڈہ (بلاسٹوسِسٹ) خون سے بھرپور رحم کی اندرونی پرت میں لگ جاتا ہے۔",
     "hi": "निषेचित अंडा (ब्लास्टोसिस्ट) रक्त-समृद्ध गर्भाशय की परत में लग जाता है।",
     "bn": "নিষিক্ত ডিম (ব্লাস্টোসিস্ট) রক্তসমৃদ্ধ জরায়ুর স্তরে আটকায়।",
     "fil": "Ang pinalaseng itlog (blastocyst) ay dumikit sa makapal, may dugo na lining ng matris."
@@ -11911,10 +11911,10 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "جلسات العلاج التنفسي والبخار (نيبولايزر)": {
     "en": "Respiratory and steam (nebulizer) therapy sessions",
-    "ur": "سانس کی اور نیبولائزر (بھاپ) تھراپی سیشنز",
+    "ur": "سانس اور بھاپ (نیبولائزر) تھراپی کے سیشن",
     "hi": "श्वसन और भाप (नीबुलाइज़र) थेरेपी सत्र",
     "bn": "শ্বাসপ্রশ্বাস ও বাষ্প (নেবুলাইজার) থেরাপি সেশন",
-    "fil": "Mga sesyon ng respiratory at steam (nebulizer) therapy"
+    "fil": "Mga sesyon ng therapy para sa paghinga at singaw (nebulizer)"
   },
   "جلسات تأمل صوتية": {
     "en": "Audio meditation sessions",
@@ -12092,11 +12092,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Magtalik nang regular sa mga araw ng pagkamayabong."
   },
   "حافظي على هدوئك وتجنبي التوتر لأنه يؤثر على نبض الجنين.": {
-    "en": "Stay calm and avoid stress because it affects the baby's heartbeat.",
-    "ur": "پرسکون رہیں اور تناؤ سے بچیں کیونکہ یہ بچے کی دل کی دھڑکن پر اثر ڈال سکتا ہے۔",
-    "hi": "शांत रहें और तनाव से बचें क्योंकि यह शिशु की धड़कन पर असर कर सकता है।",
-    "bn": "শান্ত থাকুন এবং চাপ এড়িয়ে চলুন কারণ এটি শিশুর হৃদস্পন্দনে প্রভাব ফেলতে পারে।",
-    "fil": "Manatiling kalmado at iwasan ang stress dahil nakakaapekto ito sa tibok ng sanggol."
+    "en": "Stay calm and avoid stress because it can affect the fetal heartbeat.",
+    "ur": "پرسکون رہیں اور تناؤ سے بچیں کیونکہ یہ جنین کی نبض پر اثر ڈال سکتا ہے۔",
+    "hi": "शांत रहें और तनाव से बचें क्योंकि यह भ्रूण की धड़कन पर असर डाल सकता है।",
+    "bn": "শান্ত থাকুন এবং চাপ এড়িয়ে চলুন কারণ এটি গর্ভস্থ শিশুর হৃদস্পন্দনে প্রভাব ফেলতে পারে।",
+    "fil": "Manatiling kalmado at iwasan ang stress dahil maaaring makaapekto ito sa tibok ng puso ng sanggol sa sinapupunan."
   },
   "حالة": {
     "en": "Status",
@@ -12198,7 +12198,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "جراحة أوعية دموية": {
     "en": "Vascular Surgery",
-    "ur": "رگوں کی سرجری",
+    "ur": "عروقی سرجری",
     "hi": "रक्त वाहिका शल्यक्रिया",
     "bn": "রক্তনালী শল্যচিকিৎসা",
     "fil": "Vascular surgery"
@@ -13282,11 +13282,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Dr. محمد أحمد الكردي"
   },
   "د. محمد أحمد — استشارة فيديو 2:00 م": {
-    "en": "Dr. محمد أحمد — Video consultation 2:00 م",
+    "en": "Dr. محمد أحمد — Video consultation 2:00 PM",
     "ur": "ڈاکٹر محمد أحمد — ویڈیو مشاورت 2:00 م",
-    "hi": "डॉ. محمد أحمد — वीडियो परामर्श 2:00 م",
-    "bn": "ডা. محمد أحمد — ভিডিও পরামর্শ 2:00 م",
-    "fil": "Dr. محمد أحمد — Konsultasyong video 2:00 م"
+    "hi": "डॉ. محمد أحمد — वीडियो परामर्श 2:00 PM",
+    "bn": "ডা. محمد أحمد — ভিডিও পরামর্শ 2:00 PM",
+    "fil": "Dr. محمد أحمد — Konsultasyong video 2:00 PM"
   },
   "دائم (مزمن)": {
     "en": "Chronic (long-term)",
@@ -13940,11 +13940,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Pagtaas ng timbang"
   },
   "زيارة الفرع": {
-    "en": "Visit branch",
+    "en": "Branch visit",
     "ur": "شاخ کا دورہ",
     "hi": "शाखा का दौरा",
     "bn": "শাখা পরিদর্শন",
-    "fil": "Bisitahin ang sangay"
+    "fil": "Pagbisita sa sangay"
   },
   "زيارة المختبر": {
     "en": "Lab visit",
@@ -14325,11 +14325,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Sulaiman Al-Otaibi"
   },
   "سماعة الهاتف": {
-    "en": "Phone headset",
-    "ur": "فون ہیڈسیٹ",
-    "hi": "फोन हेडसेट",
-    "bn": "ফোন হেডসেট",
-    "fil": "Headset ng telepono"
+    "en": "Phone receiver",
+    "ur": "فون کا ریسیور",
+    "hi": "फोन रिसीवर",
+    "bn": "ফোন রিসিভার",
+    "fil": "Receiver ng telepono"
   },
   "سمك": {
     "en": "Fish",
@@ -14423,11 +14423,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Nasa daan na ang ambulansya"
   },
   "سيبحث عن الدواء أو البديل المناسب": {
-    "en": "We'll search for the medication or a suitable alternative.",
-    "ur": "ہم آپ کی دوا یا اس کا مناسب متبادل تلاش کریں گے۔",
-    "hi": "हम दवा या उपयुक्त विकल्प खोजेंगे।",
-    "bn": "আমরা ওষুধ বা একটি উপযুক্ত বিকল্প খুঁজে বের করব।",
-    "fil": "Hahanapin namin ang gamot o isang angkop na alternatibo."
+    "en": "It will search for the medication or a suitable alternative.",
+    "ur": "یہ دوا یا اس کا مناسب متبادل تلاش کرے گا۔",
+    "hi": "यह दवा या कोई उपयुक्त विकल्प खोजेगा।",
+    "bn": "এটি ওষুধ বা একটি উপযুক্ত বিকল্প খুঁজবে।",
+    "fil": "Hahanapin nito ang gamot o isang angkop na alternatibo."
   },
   "سيتم إرسال موقعك الحالي وطلب إسعاف فوري. هل أنت متأكد؟": {
     "en": "Your current location will be sent and an immediate ambulance will be requested. Are you sure?",
@@ -14845,9 +14845,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   "ضخ القلب لحوالي 25 لتر من الدم يومياً": {
     "en": "The heart pumps about 25 liters of blood per day.",
     "ur": "دل روزانہ تقریباً 25 لیٹر خون پمپ کرتا ہے۔",
-    "hi": "हृदय प्रतिदिन लगभग 25 लीटर खून पंप करता है।",
+    "hi": "हृदय प्रतिदिन लगभग 25 लीटर रक्त पंप करता है।",
     "bn": "হৃদয় প্রতিদিন প্রায় 25 লিটার রক্ত পাম্প করে।",
-    "fil": "Pumupuspos ang puso ng humigit-kumulang 25 litro ng dugo bawat araw."
+    "fil": "Ang puso ay pumipiga ng humigit-kumulang 25 litro ng dugo bawat araw."
   },
   "ضربات القلب": {
     "en": "Heartbeats",
@@ -15035,7 +15035,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Ahmed's family",
     "ur": "احمد کا خاندان",
     "hi": "अहमद का परिवार",
-    "bn": "আহমদের পরিবার",
+    "bn": "আহমেদের পরিবার",
     "fil": "Pamilya ni Ahmed"
   },
   "عائلتي": {
@@ -15054,8 +15054,8 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "عالي": {
     "en": "High",
-    "ur": "زیادہ",
-    "hi": "हाई",
+    "ur": "اعلی",
+    "hi": "उच्च",
     "bn": "উচ্চ",
     "fil": "Mataas"
   },
@@ -15551,7 +15551,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "عيادة الباطنة": {
     "en": "Internal Medicine Clinic",
-    "ur": "اینڈوکرائن/اندرونیاتی کلینک",
+    "ur": "اندرونیاتی کلینک",
     "hi": "इंटर्नल मेडिसिन क्लिनिक",
     "bn": "ইন্টার্নাল মেডিসিন ক্লিনিক",
     "fil": "Klinika ng Internal Medicine"
@@ -15760,11 +15760,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Pagsusuri para sa Hepatitis C"
   },
   "فحص الثدي بالأشعة للكشف المبكر عن الأورام": {
-    "en": "Mammogram (breast X-ray) for early tumor detection",
-    "ur": "میموگرافی (چھاتی کا ایکسرے) برائے جلدی ٹیومر کی نشاندہی",
-    "hi": "स्तन मैमोग्राम (एक्स-रे) — ट्यूमर के जल्दी पता लगाने के लिए",
-    "bn": "স্তন রেডিওগ্রাফি (ম্যামোগ্রাম) — টিউমার দ্রুত শনাক্ত করার জন্য",
-    "fil": "Mammogram (breast X-ray) para sa maagang pagtuklas ng bukol"
+    "en": "Mammogram (breast X-ray) for early detection of tumors",
+    "ur": "میموگرافی (چھاتی کا ایکسرے) — ٹیومرز کا ابتدائی پتہ لگانے کے لیے",
+    "hi": "स्तन मैमोग्राम (स्तन एक्स-रे) — ट्यूमर का प्रारम्भिक पता लगाने के लिए",
+    "bn": "স্তন ম্যামোগ্রাম (এক্স-রে) — টিউমারগুলির প্রাথমিক সনাক্তকরণের জন্য",
+    "fil": "Mammogram (breast X-ray) para sa maagang pagtuklas ng mga bukol"
   },
   "فحص الحمل (دم)": {
     "en": "Pregnancy test (blood)",
@@ -16020,7 +16020,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "عند إكمال الجلسة الرابعة بنجاح ورشاقة!": {
     "en": "After successfully completing the fourth session — feel more agile!",
-    "ur": "چوتھی سیشن کامیابی کے ساتھ مکمل کرنے کے بعد — زیادہ چست محسوس کریں!",
+    "ur": "چوتھا سیشن کامیابی سے مکمل کرنے کے بعد — زیادہ چست محسوس کریں!",
     "hi": "चौथे सत्र को सफलतापूर्वक पूरा करने के बाद — अधिक चुस्त महसूस करें!",
     "bn": "চতুর্থ সেশন সফলভাবে সম্পন্ন করার পরে — আরও চটপটে বোধ করুন!",
     "fil": "Matapos matagumpay na kumpletuhin ang ika-apat na session — makaramdam ng mas maliksi!"
@@ -16642,11 +16642,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Isang tableta dalawang beses araw-araw"
   },
   "قرع الجوز": {
-    "en": "Walnut squash",
-    "ur": "اخروٹ والا قرع",
-    "hi": "अखरोट वाला कद्दू",
-    "bn": "আখরোট কুমড়া",
-    "fil": "Walnut squash"
+    "en": "Butternut squash",
+    "ur": "بٹرنٹ اسکواش",
+    "hi": "बटरनट स्क्वैश",
+    "bn": "বাটারনাট স্কোয়াশ",
+    "fil": "Butternut squash"
   },
   "قرع شتوي": {
     "en": "Winter squash",
@@ -16846,7 +16846,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "قلب وأوعية دموية": {
     "en": "Heart and blood vessels",
-    "ur": "دل اور خون کی شریانیں",
+    "ur": "دل اور خون کی نالیاں",
     "hi": "हृदय और रक्त वाहिकाएँ",
     "bn": "হৃদয় ও রক্তনালী",
     "fil": "Puso at mga daluyan ng dugo"
@@ -17324,7 +17324,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Beginner",
     "ur": "ابتدائی",
     "hi": "शुरुआती",
-    "bn": "শুরুর",
+    "bn": "শিক্ষানবিশ",
     "fil": "Baguhan"
   },
   "متابعة": {
@@ -18529,7 +18529,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "ur": "جنرل ہسپتال",
     "hi": "जनरल अस्पताल",
     "bn": "জেনারেল হাসপাতাল",
-    "fil": "Pampublikong ospital"
+    "fil": "Pangkalahatang ospital"
   },
   "مستشفى نبض بلس هو منشأة طبية حديثة تقدم أعلى مستويات الرعاية الصحية باستخدام أحدث التقنيات وأفضل الكوادر الطبية في جميع التخصصات.": {
     "en": "نبض بلس Hospital is a modern medical facility offering the highest standards of care using the latest technology and the best medical professionals across all specialties.",
@@ -18549,7 +18549,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "نبض بلس Hospital and Clinics",
     "ur": "نبض بلس ہسپتال اور کلینکس",
     "hi": "نبض بلس अस्पताल और क्लिनिक्स",
-    "bn": "نبض বلس হাসপাতাল ও ক্লিনিক",
+    "bn": "نبض بلس হাসপাতাল ও ক্লিনিক",
     "fil": "نبض بلس Hospital and Clinics"
   },
   "مستشفيات": {
@@ -18654,7 +18654,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "en": "Antibiotics",
     "ur": "اینٹی بایوٹکس",
     "hi": "एंटीबायोटिक्स",
-    "bn": "অ্যান্টিবায়োটিক",
+    "bn": "অ্যান্টিবায়োটিকস",
     "fil": "Mga antibiyotiko"
   },
   "مطابقة المعالج بالـ AI": {
@@ -18932,7 +18932,7 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "ملاحظات للمندوب (اختياري)": {
     "en": "Notes for the representative (optional)",
-    "ur": "نمائندے کے لیے نوٹس (اختیاری)",
+    "ur": "نمائندہ کے لیے نوٹس (اختیاری)",
     "hi": "प्रतिनिधि के लिए नोट्स (वैकल्पिक)",
     "bn": "প্রতিনিধির জন্য নোট (ঐচ্ছিক)",
     "fil": "Mga tala para sa kinatawan (opsyonal)"
@@ -19267,18 +19267,18 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Lokasyon ng tatanggap mula sa kahilingan"
   },
   "ميتفورمين 500 ملجم": {
-    "en": "ميتفورمين 500 ملجم",
-    "ur": "ميتفورمين 500 ملجم",
-    "hi": "ميتفورمين 500 ملجم",
-    "bn": "ميتفورمين 500 ملجم",
-    "fil": "ميتفورمين 500 ملجم"
+    "en": "Metformin 500 mg",
+    "ur": "میٹفارمین 500 ملی گرام",
+    "hi": "मेटफॉर्मिन 500 मिलीग्राम",
+    "bn": "মেটফর্মিন 500 মিলিগ্রাম",
+    "fil": "Metformin 500 mg"
   },
   "ميتفورمين 500mg": {
-    "en": "ميتفورمين 500mg",
-    "ur": "ميتفورمين 500mg",
-    "hi": "ميتفورمين 500mg",
-    "bn": "ميتفورمين 500mg",
-    "fil": "ميتفورمين 500mg"
+    "en": "Metformin 500 mg",
+    "ur": "میٹفارمین 500 ملی گرام",
+    "hi": "मेटफॉर्मिन 500 मिलीग्राम",
+    "bn": "মেটফর্মিন 500 মিলিগ্রাম",
+    "fil": "Metformin 500 mg"
   },
   "ميدغلف": {
     "en": "ميدغلف",
@@ -20296,10 +20296,10 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Nagsisimula nang tumibok ang unang puso, at nabubuo ang maliliit na usbong na magiging mga galamay."
   },
   "يبدأ القلب الصغير بالتشكل والنبض، وتتكون براعم الأطراف الأولى.": {
-    "en": "The small heart is beginning to form and beat, and the first limb buds develop.",
+    "en": "The small heart begins to form and beat, and the first limb buds develop.",
     "ur": "چھوٹا سا دل بننا اور دھڑکنا شروع ہو رہا ہے، اور ابتدائی براعمِ اطراف تشکیل پا رہی ہیں۔",
     "hi": "छोटा हृदय बनना और धड़कना शुरू कर रहा है, और पहले अंगों के अंकुर विकसित हो रहे हैं।",
-    "bn": "ছোট হৃদয় গঠন ও ধুকপুক করা শুরু করছে, এবং প্রথম অঙ্গ-উদ্ভিদগুলো গঠিত হচ্ছে।",
+    "bn": "ছোট হৃদয় গঠন ও ধুকপুক করা শুরু করছে, এবং প্রথম অঙ্গ-কুঁচি গঠিত হচ্ছে।",
     "fil": "Nagsisimula nang mabuo at tumibok ang munting puso, at lumilitaw ang mga unang usbong ng mga galamay."
   },
   "يبدأ بالاستجابة للأصوات الخارجية ويسمع نبضات قلبك بوضوح.": {
@@ -20492,95 +20492,95 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "٠${data.wait_time}:٠٠"
   },
   "٠١٢٣٤٥٦٧٨٩": {
-    "en": "٠١٢٣٤٥٦٧٨٩",
+    "en": "0123456789",
     "ur": "٠١٢٣٤٥٦٧٨٩",
-    "hi": "٠١٢٣٤٥٦٧٨٩",
-    "bn": "٠١٢٣٤٥٦٧٨٩",
-    "fil": "٠١٢٣٤٥٦٧٨٩"
+    "hi": "०१२३४५६७८९",
+    "bn": "০১২৩৪৫৬৭৮৯",
+    "fil": "0123456789"
   },
   "٠٢:٣٠": {
-    "en": "٠٢:٣٠",
+    "en": "02:30",
     "ur": "٠٢:٣٠",
-    "hi": "٠٢:٣٠",
-    "bn": "٠٢:٣٠",
-    "fil": "٠٢:٣٠"
+    "hi": "०२:३०",
+    "bn": "০২:৩০",
+    "fil": "02:30"
   },
   "٠٤:٠٠ م": {
-    "en": "٠٤:٠٠ م",
+    "en": "04:00 PM",
     "ur": "٠٤:٠٠ م",
-    "hi": "٠٤:٠٠ م",
-    "bn": "٠٤:٠٠ م",
-    "fil": "٠٤:٠٠ م"
+    "hi": "०४:०० अपराह्न",
+    "bn": "০৪:০০ অপরাহ্ন",
+    "fil": "04:00 PM"
   },
   "٠٤:٣٠ م": {
-    "en": "٠٤:٣٠ م",
+    "en": "04:30 PM",
     "ur": "٠٤:٣٠ م",
-    "hi": "٠٤:٣٠ م",
-    "bn": "٠٤:٣٠ م",
-    "fil": "٠٤:٣٠ م"
+    "hi": "०४:३० अपराह्न",
+    "bn": "০৪:৩০ অপরাহ্ন",
+    "fil": "04:30 PM"
   },
   "٠٥:٠٠ م": {
-    "en": "٠٥:٠٠ م",
+    "en": "05:00 PM",
     "ur": "٠٥:٠٠ م",
-    "hi": "٠٥:٠٠ م",
-    "bn": "٠٥:٠٠ م",
-    "fil": "٠٥:٠٠ م"
+    "hi": "०५:०० अपराह्न",
+    "bn": "০৫:০০ অপরাহ্ন",
+    "fil": "05:00 PM"
   },
   "٠٥:٣٠ م": {
-    "en": "٠٥:٣٠ م",
+    "en": "05:30 PM",
     "ur": "٠٥:٣٠ م",
-    "hi": "٠٥:٣٠ م",
-    "bn": "٠٥:٣٠ م",
-    "fil": "٠٥:٣٠ م"
+    "hi": "०५:३० अपराह्न",
+    "bn": "০৫:৩০ অপরাহ্ন",
+    "fil": "05:30 PM"
   },
   "٠٦:٠٠ م": {
-    "en": "٠٦:٠٠ م",
+    "en": "06:00 PM",
     "ur": "٠٦:٠٠ م",
-    "hi": "٠٦:٠٠ م",
-    "bn": "٠٦:٠٠ م",
-    "fil": "٠٦:٠٠ م"
+    "hi": "०६:०० अपराह्न",
+    "bn": "০৬:০০ অপরাহ্ন",
+    "fil": "06:00 PM"
   },
   "٠٦:٣٠ م": {
-    "en": "٠٦:٣٠ م",
+    "en": "06:30 PM",
     "ur": "٠٦:٣٠ م",
-    "hi": "٠٦:٣٠ م",
-    "bn": "٠٦:٣٠ م",
-    "fil": "٠٦:٣٠ م"
+    "hi": "०६:३० अपराह्न",
+    "bn": "০৬:৩০ অপরাহ্ন",
+    "fil": "06:30 PM"
   },
   "٠٨:٠٠ ص": {
-    "en": "٠٨:٠٠ ص",
+    "en": "08:00 AM",
     "ur": "٠٨:٠٠ ص",
-    "hi": "٠٨:٠٠ ص",
-    "bn": "٠٨:٠٠ ص",
-    "fil": "٠٨:٠٠ ص"
+    "hi": "०८:०० पूर्वाह्न",
+    "bn": "০৮:০০ পূর্বাহ্ন",
+    "fil": "08:00 AM"
   },
   "٠٨:٣٠ ص": {
-    "en": "٠٨:٣٠ ص",
+    "en": "08:30 AM",
     "ur": "٠٨:٣٠ ص",
-    "hi": "٠٨:٣٠ ص",
-    "bn": "٠٨:٣٠ ص",
-    "fil": "٠٨:٣٠ ص"
+    "hi": "०८:३० पूर्वाह्न",
+    "bn": "০৮:৩০ পূর্বাহ্ন",
+    "fil": "08:30 AM"
   },
   "٠٩:٠٠ ص": {
-    "en": "٠٩:٠٠ ص",
+    "en": "09:00 AM",
     "ur": "٠٩:٠٠ ص",
-    "hi": "٠٩:٠٠ ص",
-    "bn": "٠٩:٠٠ ص",
-    "fil": "٠٩:٠٠ ص"
+    "hi": "०९:०० पूर्वाह्न",
+    "bn": "০৯:০০ পূর্বাহ্ন",
+    "fil": "09:00 AM"
   },
   "٠٩:٣٠ ص": {
-    "en": "٠٩:٣٠ ص",
+    "en": "09:30 AM",
     "ur": "٠٩:٣٠ ص",
-    "hi": "٠٩:٣٠ ص",
-    "bn": "٠٩:٣٠ ص",
-    "fil": "٠٩:٣٠ ص"
+    "hi": "०९:३० पूर्वाह्न",
+    "bn": "০৯:৩০ পূর্বাহ্ন",
+    "fil": "09:30 AM"
   },
   "١:٠٠ م": {
-    "en": "١:٠٠ م",
+    "en": "01:00 PM",
     "ur": "١:٠٠ م",
-    "hi": "١:٠٠ م",
-    "bn": "١:٠٠ م",
-    "fil": "١:٠٠ م"
+    "hi": "०१:०० अपराह्न",
+    "bn": "০১:০০ অপরাহ্ন",
+    "fil": "01:00 PM"
   },
   "يرجى إدخال معرف مستلم صحيح": {
     "en": "Please enter a valid recipient ID.",
@@ -20660,25 +20660,25 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Ngayon, nakakabago ang fetus ng mga ekspresyon ng mukha at nakakagawa ng simpleng galaw."
   },
   "يستطيع الجنين الآن فتح وإغلاق عينيه والتمييز بين الضوء والظلام.": {
-    "en": "Your baby can now open and close its eyes and can tell light from dark.",
+    "en": "The fetus can now open and close its eyes and distinguish between light and dark.",
     "ur": "اب جنین اپنی آنکھیں کھول اور بند کر سکتا ہے اور روشنی اور تاریکی میں فرق کر سکتا ہے۔",
     "hi": "अब भ्रूण अपनी आँखें खोल और बंद कर सकता है और रोशनी और अंधकार में फर्क कर सकता है।",
-    "bn": "এখন ভ্রূণ তার চোখ খোলা এবং বন্ধ করতে পারে এবং আলো ও অন্ধকার আলাদা করতে পারে।",
-    "fil": "Ngayon, nakakabukas at nakakasingil ng mga mata ang fetus at nakikilala ang liwanag at dilim."
+    "bn": "এখন ভ্রূণ তার চোখ খুলতে এবং বন্ধ করতে পারে এবং আলো ও অন্ধকার আলাদা করতে পারে।",
+    "fil": "Ngayon, kayang buksan at isara ng fetus ang mga mata at makilala ang liwanag mula sa dilim."
   },
   "يستطيع الجنين فتح وإغلاق فمه والبلع، وتتكون الأسنان اللبنية تحت اللثة.": {
     "en": "The fetus can open and close its mouth and swallow; baby teeth are forming under the gums.",
     "ur": "جنین اپنا منہ کھول اور بند کر سکتا ہے اور نگل سکتا ہے؛ دودھ کے دانت مسوڑھوں کے نیچے بن رہے ہیں۔",
     "hi": "भ्रूण अपना मुँह खोल और बंद कर सकता है और निगल सकता है; दूध के दांत मसूड़ों के नीचे बन रहे हैं।",
-    "bn": "ভ্রূণ মুখ খোলা ও বন্ধ করতে এবং নিঃশ্বাস/গিলতে পারে; দুধের দাঁত মাড়ির নিচে গঠিত হচ্ছে।",
-    "fil": "Nakakabukas at nakakasarado ng bibig ang fetus at nakakalunok; nabubuo na ang mga baby teeth sa ilalim ng gums."
+    "bn": "ভ্রূণ তার মুখ খুলতে ও বন্ধ করতে পারে এবং গিলতে পারে; দুধের দাঁত মাড়ির নিচে গঠিত হচ্ছে।",
+    "fil": "Nakakabukas at nakakasarado ng bibig ang fetus at nakakalunok; nabubuo na ang mga gatas na ngipin sa ilalim ng gilagid."
   },
   "يستقر في وضعية الولادة النهائية أسفل الحوض، ويستعد للقائك.": {
     "en": "The baby settles into the final birth position low in your pelvis and is getting ready to meet you.",
-    "ur": "آپ کا بچہ حوض کے نچلے حصے میں پیدائش کی آخری پوزیشن میں آ جاتا ہے اور آپ سے ملنے کی تیاری کر رہا ہے۔",
+    "ur": "بچہ پیدائش کی آخری پوزیشن میں آپ کے نچلے پیلوِس (حوض) میں آ کر بیٹھ جاتا ہے اور آپ سے ملنے کی تیاری کر رہا ہے۔",
     "hi": "बच्चा श्रोणि के निचले हिस्से में जन्म की अंतिम स्थिति में आ जाता है और आपसे मिलने के लिए तैयार हो रहा है।",
-    "bn": "শিশুটি জঠরের নিচে জন্মের চূড়ান্ত অবস্থানে ঠিক হয়ে যায় এবং আপনাকে দেখার জন্য প্রস্তুত হচ্ছে।",
-    "fil": "Ang iyong baby ay pumapasok sa huling posisyon ng panganganak sa ibaba ng pelvis at naghahanda nang makilala ka."
+    "bn": "শিশুটি আপনার পেলভিসের নিম্নভাগে জন্মের চূড়ান্ত অবস্থায় অবস্থান করে এবং আপনাকে দেখার জন্য প্রস্তুত হচ্ছে।",
+    "fil": "Pumapasok ang baby sa huling posisyon para sa panganganak sa mababang bahagi ng iyong pelvis at naghahanda nang makilala ka."
   },
   "يستمر الجنين بابتلاع السائل الأمينوسي لتدريب جهازه الهضمي.": {
     "en": "Your baby continues to swallow amniotic fluid to practice its digestive system.",
@@ -20695,11 +20695,11 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
     "fil": "Patuloy na nagsasanay ang fetus sa paghinga sa pamamagitan ng paglanghap ng amniotic fluid."
   },
   "يشعر بالضوء الخارجي من خلال جفونه المغلقة، وتتطور حاسة التذوق.": {
-    "en": "Your baby can sense outside light through closed eyelids, and the sense of taste is developing.",
-    "ur": "وہ بند پلکوں کے ذریعے باہر کی روشنی محسوس کرتا ہے، اور ذائقہ کی حس ترقی کر رہی ہے۔",
-    "hi": "वह बंद पलकें होते हुए भी बाहर की रोशनी महसूस कर सकता है, और स्वाद की इन्द्रिय विकसित हो रही है।",
-    "bn": "বন্ধ পলকের মধ্যেও বাইরে থেকে আলো অনুভব করে, এবং স্বাদ ইন্দ্রিয় উন্নয়ন করছে।",
-    "fil": "Nakakaramdam siya ng panlabas na liwanag kahit nakaalit ang mga talukap, at umuunlad ang kanyang pandama sa panlasa."
+    "en": "The baby can sense outside light through closed eyelids, and the sense of taste is developing.",
+    "ur": "وہ بند پلکوں کے ذریعے باہر کی روشنی محسوس کرتا ہے، اور ذائقے کی حس ترقی کر رہی ہے۔",
+    "hi": "वह बंद पलकें होते हुए भी बाहर की रोशनी महसूस कर सकता है, और स्वाद का स्पर्श विकसित हो रहा है।",
+    "bn": "বন্ধ পলকের মধ্য দিয়েও বাইরে থেকে আলো অনুভব করে, এবং স্বাদের ইন্দ্রিয় ধীরে ধীরে বিকশিত হচ্ছে।",
+    "fil": "Nakakaramdam ang sanggol ng panlabas na liwanag kahit nakapikit ang kanyang mga talukap, at umuunlad ang kanyang pandama sa panlasa."
   },
   "يصل الجنين لكيلوغرام واحد تقريباً، وتزداد حركته قوة ووضوحاً.": {
     "en": "The baby weighs about 1 kilogram and its movements are becoming stronger and more noticeable.",
@@ -20717,9 +20717,9 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "يضيق المساحة داخل الرحم وتصبح حركاته أكثر كتداً بدلاً من الركل.": {
     "en": "Space inside the uterus becomes limited, and the baby's movements feel more like rolls or stretches rather than kicks.",
-    "ur": "رحم کے اندر جگہ تنگ ہو جاتی ہے اور اس کی حرکتیں ٹھکروں کی بجائے زیادہ گھومنے یا پھیلنے جیسی محسوس ہوتی ہیں۔",
-    "hi": "गर्भाशय के अंदर स्थान संकुचित हो जाता है और हरकतें लात मारने के बजाय रोल या फैलने जैसी लगती हैं।",
-    "bn": "রুমের ভেতরের স্থান সংকুচিত হয়ে যায় এবং তার নড়াচড়া লাথি মারার বদলে বেশি করে ঘূর্ণন বা প্রসারণের মতো মনে হয়।",
+    "ur": "رحم کے اندر جگہ تنگ ہو جاتی ہے، اور اس کی حرکتیں لَٹکنے یا پھیلنے جیسی محسوس ہوتی ہیں بجائے لَاتھ مارنے کے۔",
+    "hi": "गर्भाशय के अंदर स्थान संकुचित हो जाता है और हरकतें लात मारने की बजाय रोल या फैलने जैसी लगती हैं।",
+    "bn": "গর্ভাশয়ের ভিতরের স্থান সংকুচিত হয়ে যায় এবং তার নড়াচড়া লাথি মারার বদলে ঘুরা বা প্রসারণের মতো মনে হয়।",
     "fil": "Nagiging masikip ang espasyo sa loob ng sinapupunan, at ang kilos ng baby ay mas nagmumukhang pag-ikot o pag-uunat kaysa pag-sipa."
   },
   "١٠ - ١٢ ساعة": {
@@ -20906,10 +20906,10 @@ export const generatedStaticTranslations: Record<string, Record<GeneratedLocale,
   },
   "يكتسب الجنين وزناً سريعاً وتصبح أطرافه ممتلئة وبشرته وردية وناعمة.": {
     "en": "The fetus is gaining weight quickly; its limbs are becoming plump and its skin pink and smooth.",
-    "ur": "جنین تیزی سے وزن حاصل کر رہا ہے؛ اس کے اعضاء بھرے ہو رہے ہیں اور اس کی جلد گلابی اور ہموار ہو رہی ہے۔",
-    "hi": "गर्भस्थ शिशु तेजी से वजन बढ़ा रहा है; उसकी अंगभूत हिस्से भरे हुए हो रहे हैं और उसकी त्वचा गुलाबी व मुलायम हो रही है।",
-    "bn": "ভ্রূণ দ্রুত ওজোন বাড়াচ্ছে; তার অঙ্গগুলো ভরাট হচ্ছে এবং ত্বক গোলাপি ও মসৃণ হচ্ছে।",
-    "fil": "Mabilis tumataas ang timbang ng fetus; pumupuno ang mga bahagi ng katawan at nagiging rosas at malambot ang balat."
+    "ur": "جنین تیزی سے وزن حاصل کر رہا ہے؛ اس کے بازو اور ٹانگیں بھر رہی ہیں اور اس کی جلد گلابی اور ہموار ہو رہی ہے۔",
+    "hi": "गर्भस्थ शिशु तेजी से वजन बढ़ा रहा है; उसके अंग (बाहें और पाँव) भर रहे हैं और उसकी त्वचा गुलाबी व मुलायम हो रही है।",
+    "bn": "ভ্রূণ দ্রুত ওজন বাড়াচ্ছে; তার অঙ্গগুলো ভরাট হচ্ছে এবং ত্বক গোলাপি ও মসৃণ হয়ে উঠছে।",
+    "fil": "Mabilis tumataas ang timbang ng fetus; pumupuno ang mga galamay nito at nagiging kulay-rosas at makinis ang balat."
   },
   "يكتسب المزيد من الوزن بسرعة، ويصل الكبد والكلى لعملهما الكامل.": {
     "en": "The fetus gains more weight quickly, and the liver and kidneys reach full function.",

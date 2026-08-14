@@ -1,6 +1,23 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+  TextInput,
+  Image,
+  ActivityIndicator,
+  Platform,
+  StatusBar,
+  KeyboardAvoidingView,
+  Modal,
+  I18nManager,
+  Dimensions
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '../../src/components/ui';
 import { useApp } from '../../src/context/AppContext';

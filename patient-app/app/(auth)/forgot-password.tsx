@@ -6,10 +6,10 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  TouchableOpacity,
-  Text,
-} from "react-native";
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";

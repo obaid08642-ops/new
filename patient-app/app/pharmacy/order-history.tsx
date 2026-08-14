@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  RefreshControl,
-  Text,
-} from "react-native";
+  RefreshControl
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";

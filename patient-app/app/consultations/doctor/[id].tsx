@@ -1,6 +1,17 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { View, Share, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, Modal } from 'react-native';
+import {
+  View,
+  Share,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+  Modal
+} from 'react-native';
+import { LocalizedText as Text } from '@/components/LocalizedText';
 
 import { useApp } from '../../../src/context/AppContext';
 import { router, useLocalSearchParams } from 'expo-router';

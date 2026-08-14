@@ -1,6 +1,15 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, I18nManager, Dimensions } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  I18nManager,
+  Dimensions
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { AppText } from '../../../src/components/ui';
 import { useApp } from '../../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';

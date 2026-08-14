@@ -7,9 +7,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Share,
-  Alert,
-} from "react-native";
+  Share
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import QRCode from "react-native-qrcode-svg";

@@ -1,7 +1,15 @@
 // @ts-nocheck
 // app/nutrition/daily-tracker.tsx — Connected to /nutrition/daily-summary, /nutrition/meals, /nutrition/water
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+  RefreshControl
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';

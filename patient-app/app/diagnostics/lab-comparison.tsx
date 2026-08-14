@@ -4,9 +4,9 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
+  StyleSheet
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { AppText } from "../../src/components/ui";
 import { useApp } from "../../src/context/AppContext";
 import Icon from "@expo/vector-icons/MaterialIcons";

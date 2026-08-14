@@ -6,9 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+  TouchableOpacity
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Sharing from "expo-sharing";

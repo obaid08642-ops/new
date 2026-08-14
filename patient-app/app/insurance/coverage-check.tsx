@@ -1,19 +1,26 @@
 // @ts-nocheck
 // app/insurance/coverage-check.tsx — Connected to GET /insurance/coverage-check
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, StatusBar, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar
+} from 'react-native';
+import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-import { apiFetch } from '../../src/utils/api';
 
 const SERVICE_TYPES: any[] = [
-  { id: 'consultation', icon: '🩺', label: 'استشارة طبيب', examples: 'قلب، باطنة، أطفال' },
-  { id: 'labs', icon: '🧪', label: 'تحاليل مخبرية', examples: 'فحص شامل، فيتامينات' },
-  { id: 'radiology', icon: '🩻', label: 'أشعة وتشخيص', examples: 'سينية، رنين، مقطعية' },
-  { id: 'nursing', icon: '💉', label: 'تمريض منزلي', examples: 'مغذي، غيار جروح' },
+  { id: 'consultation', icon: 'doctor', label: 'استشارة طبيب', examples: 'قلب، باطنة، أطفال' },
+  { id: 'labs', icon: 'diagnostics', label: 'تحاليل مخبرية', examples: 'فحص شامل، فيتامينات' },
+  { id: 'radiology', icon: 'radiology-box-outline', label: 'أشعة وتشخيص', examples: 'سينية، رنين، مقطعية' },
+  { id: 'nursing', icon: 'nurse', label: 'تمريض منزلي', examples: 'مغذي، غيار جروح' },
 ];
 
 // Connected to GET /insurance/coverage-check
@@ -24,21 +31,12 @@ export default function CoverageCheckScreen() {
   const [step, setStep] = useState<'form' | 'checking' | 'result'>('form');
   const [serviceType, setServiceType] = useState('');
   const [providerName, setProviderName] = useState('');
-  const [result, setResult] = useState<any>(null);
 
-  const handleCheck = async () => {
-    if (!serviceType) return;
-    setStep('checking');
-    try {
-      const data = await apiFetch(
-        `/insurance/coverage-check?service_type=${serviceType}${providerName ? `&service_key=${providerName}` : ''}`
-      );
-      setResult(data);
-      setStep('result');
-    } catch {
-      setStep('form');
-      Alert.alert('تعذر الفحص', 'تأكد من تسجيل بيانات التأمين في ملفك الشخصي');
-    }
+  const handleCheck = () => {
+    Alert.alert(
+      'الخدمة غير متاحة حالياً',
+      'لن يعرض التطبيق نسبة تغطية أو مبلغ دفع أو حد تأمين قبل توفر عقد تحقق تأميني موثق يعيد القيم المعتمدة من شركة التأمين.',
+    );
   };
 
   if (step === 'checking') {
@@ -58,145 +56,12 @@ export default function CoverageCheckScreen() {
   }
 
   if (step === 'result') {
-    const rawCoverage = result?.coverage || {};
-    const r = {
-      isNetworkProvider: result?.isNetworkProvider ?? result?.covered ?? true,
-      providerName: result?.providerName || providerName || 'مزود الخدمة',
-      providerClass: result?.providerClass || 'A',
-      policyCompany: result?.policyCompany || 'تأمين نبض',
-      serviceName: result?.serviceName || serviceType || 'خدمة طبية',
-      estimatedCost: result?.estimatedCost || 350,
-      coverage: {
-        pct: rawCoverage.pct ?? (100 - (result?.copay_percentage || 20)),
-        companyPays: rawCoverage.companyPays ?? 280,
-        patientPays: rawCoverage.patientPays ?? 70,
-        deductible: rawCoverage.deductible ?? 50,
-        coinsurance: rawCoverage.coinsurance ?? 10,
-        breakdown: rawCoverage.breakdown || [
-          { label: 'سعر الخدمة المقدر', val: result?.estimatedCost || 350, type: 'total' },
-          { label: 'تغطية الشركة', val: rawCoverage.companyPays || 280, type: 'coverage' },
-          { label: 'تحمّل المريض', val: rawCoverage.patientPays || 70, type: 'coinsurance' },
-        ],
-      },
-      preAuthRequired: result?.preAuthRequired ?? result?.requires_preauth ?? false,
-      limits: result?.limits || { annual: 500000, used: 87500, remaining: 412500 },
-    };
     return (
-      <View style={[styles.container, { backgroundColor: colors.background } ]}>
-        <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => setStep('form')} style={styles.backBtn}>
-              <Icon name="back" size={22} color="#fff" />
-            </TouchableOpacity>
-            <AppText variant="bodySM">نتيجة الفحص</AppText>
-            <View style={{ width: 36 }}/>
-          </View>
-        </View>
-
-        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]} showsVerticalScrollIndicator={false}>
-          {/* Network Status */}
-          <View style={[styles.networkBanner, { backgroundColor: r.isNetworkProvider ? '#16A34A' : '#DC2626' }]}>
-            <AppText variant="bodySM">{r.isNetworkProvider ? '' : ''}</AppText>
-            <View style={styles.networkInfo}>
-              <AppText variant="bodySM">
-                {r.isNetworkProvider ? 'مزود معتمد في شبكتك' : 'مزود خارج الشبكة'}
-              </AppText>
-              <AppText variant="bodySM">
-                {r.providerName} — الفئة {r.providerClass} • {r.policyCompany}
-              </AppText>
-            </View>
-          </View>
-
-          {/* Coverage Detail */}
-          <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-            <AppText variant="bodySM">تفاصيل التغطية</AppText>
-
-            {/* Visual split */}
-            <View style={styles.coverageSplit}>
-              <View style={styles.splitItem}>
-                <AppText variant="bodySM">{r.coverage.pct}%</AppText>
-                <AppText variant="bodySM">تدفعها الشركة</AppText>
-                <AppText variant="bodySM">{r.coverage.companyPays} ريال</AppText>
-              </View>
-              <View style={styles.splitDivider}>
-                <AppText variant="bodySM">VS</AppText>
-              </View>
-              <View style={styles.splitItem}>
-                <AppText variant="bodySM">{100 - r.coverage.pct}%</AppText>
-                <AppText variant="bodySM">تدفعها أنت</AppText>
-                <AppText variant="bodySM">{r.coverage.patientPays} ريال</AppText>
-              </View>
-            </View>
-
-            {/* Breakdown */}
-            {r.coverage.breakdown.map((b, i) => (
-              <View key={i} style={[styles.breakRow, { borderBottomColor: colors.border } ]}>
-                <AppText variant="bodySM">
-                  {b.val > 0 ? '' : ''}{b.val} ريال
-                </AppText>
-                <AppText variant="bodySM">{b.label}</AppText>
-              </View>
-            ))}
-
-            {/* Final patient amount */}
-            <View style={[styles.finalAmount, { backgroundColor: colors.primarySurface } ]}>
-              <AppText variant="bodySM">
-                إجمالي ما ستدفعه أنت
-              </AppText>
-              <AppText variant="bodySM">
-                {r.coverage.patientPays} ريال
-              </AppText>
-            </View>
-          </View>
-
-          {/* Pre-auth */}
-          {r.preAuthRequired && (
-            <View style={[styles.preAuthCard, { backgroundColor: isDark ? colors.surfaceSecondary : '#FEF3C7' } ]}>
-              <AppText variant="bodySM">
-                ️ هذه الخدمة تحتاج موافقة مسبقة من شركة التأمين قبل تنفيذها
-              </AppText>
-              <TouchableOpacity style={[styles.preAuthBtn, { backgroundColor: colors.warning } ]}>
-                <AppText variant="bodySM">طلب موافقة مسبقة</AppText>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Annual Limit */}
-          <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-            <AppText variant="bodySM">الحد السنوي المتبقي</AppText>
-            <View style={styles.limitInfo}>
-              <AppText variant="bodySM">
-                {(r.limits.remaining / 1000).toFixed(0)}k ريال متبقي
-              </AppText>
-              <AppText variant="bodySM">
-                من أصل {(r.limits.annual / 1000).toFixed(0)}k ريال
-              </AppText>
-            </View>
-            <View style={[styles.limitBar, { backgroundColor: colors.border } ]}>
-              <View style={[styles.limitFill, { width: `${(r.limits.used / r.limits.annual) * 100}%` }]} />
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Proceed Button */}
-        <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <TouchableOpacity
-            onPress={() => router.push({
-              pathname: '/insurance/payment-split',
-              params: {
-                serviceName: r.serviceName,
-                amount: r.estimatedCost,
-                serviceType: 'consultation',
-              },
-            })}
-            style={{ flex: 1 }}
-            activeOpacity={0.85}
-          >
-            <View style={[styles.proceedBtn, { backgroundColor: colors.primary }]}>
-              <AppText variant="bodySM">المتابعة للدفع — {r.coverage.patientPays} ريال ←</AppText>
-            </View>
-          </TouchableOpacity>
-        </View>
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 12 }]}>
+        <Icon name="shield" size={36} color={colors.primary} />
+        <AppText variant="h5" align="center">لا تتوفر نتيجة تغطية معتمدة</AppText>
+        <AppText variant="bodySM" color={colors.textSecondary} align="center">لن يعرض التطبيق أي مبالغ أو نسب أو حدود تأمين من بيانات محلية.</AppText>
+        <Button label="العودة إلى النموذج" variant="outline" onPress={() => setStep('form')} />
       </View>
     );
   }
@@ -221,7 +86,7 @@ export default function CoverageCheckScreen() {
             {SERVICE_TYPES.map(s => (
               <TouchableOpacity key={s.id} onPress={() => setServiceType(s.id)}
                 style={[styles.serviceTypeBtn, serviceType === s.id && { backgroundColor: colors.primary, borderColor: colors.primary } ]}>
-                <AppText variant="bodySM">{s.icon}</AppText>
+                <Icon name={s.icon} size={22} color={serviceType === s.id ? '#fff' : colors.primary} />
                 <AppText variant="bodySM">{s.label}</AppText>
                 <AppText variant="bodySM">{s.examples}</AppText>
               </TouchableOpacity>

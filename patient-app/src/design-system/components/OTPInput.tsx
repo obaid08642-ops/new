@@ -4,10 +4,16 @@
  */
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
-  View, TextInput, StyleSheet, NativeSyntheticEvent,
-  TextInputKeyPressEventData, StyleProp, ViewStyle,
-  Clipboard, Platform,
+  View,
+  StyleSheet,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
+  StyleProp,
+  ViewStyle,
+  Clipboard,
+  Platform
 } from 'react-native';
+import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { useApp } from '../../context/AppContext';
 import { BorderRadius, Spacing, Animation } from '../tokens';
 import { DSText } from './Text';
