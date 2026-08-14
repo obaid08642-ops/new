@@ -1,7 +1,7 @@
 // @ts-nocheck
 // app/emergency/sos-active.tsx
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -15,46 +15,33 @@ export default function SosActiveScreen() {
   const { colors, isDark } = useApp();
 
   const [eta, setEta] = useState<number | null>(null);
-  const [dispatchStatus, setDispatchStatus] = useState('جاري تحديد مركبة الطوارئ...');
-  const [paramedic, setParamedic] = useState<any>(null);
+  const [dispatchStatus, setDispatchStatus] = useState('لم يتم استلام حالة طوارئ نشطة بعد.');
+  const [emergency, setEmergency] = useState<any>(null);
 
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await apiFetch('/emergency/sos/status');
-        const data = Array.isArray(res) ? res[0] : res?.data || res;
+        const res = await apiFetch('/emergency/my-active');
+        const data = res?.data || res;
         if (data) {
-          setEta(data.eta_minutes || data.eta || null);
-          setDispatchStatus(data.status_text || 'تم تحديد المسار والتحرك فورا');
-          if (data.paramedic) setParamedic(data.paramedic);
+          setEmergency(data);
+          setEta(Number.isFinite(Number(data.eta_minutes ?? data.eta)) ? Number(data.eta_minutes ?? data.eta) : null);
+          setDispatchStatus(data.status_text || data.state || 'تم إنشاء طلب الاستغاثة.');
+        } else {
+          setEmergency(null);
+          setEta(null);
+          setDispatchStatus('لا توجد استغاثة نشطة مرتبطة بحسابك.');
         }
-      } catch (e) {
-        console.log('Error fetching SOS status', e);
+      } catch {
+        setEmergency(null);
+        setEta(null);
+        setDispatchStatus('تعذر تحميل حالة الاستغاثة.');
       }
     };
     fetchStatus();
     const interval = setInterval(fetchStatus, 10000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleCancelSOS = () => {
-    Alert.alert(
-      'تأكيد إلغاء الاستغاثة',
-      'هل أنت متأكد من إلغاء نداء الطوارئ؟ سيتم إعلام سيارة الإسعاف بالتوقف.',
-      [
-        { text: 'تراجع', style: 'cancel' },
-        {
-          text: 'نعم، إلغاء النداء',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('تم الإلغاء', 'تم إلغاء نداء الاستغاثة بنجاح وإشعار فرق الطوارئ.', [
-              { text: 'حسناً', onPress: () => router.push('/(tabs)/index' as any) }
-            ]);
-          }
-        }
-      ]
-    );
-  };
 
   return (
     <View style={[st.container, { backgroundColor: colors.background } ]}>
@@ -64,34 +51,20 @@ export default function SosActiveScreen() {
       <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: '#F0695C' } ]}>
         <View style={{ width: 40 }}/>
         <AppText variant="h4" color="#fff">طوارئ نشطة SOS</AppText>
-        <IconButton icon="close" bg="rgba(255,255,255,0.25)" color="#fff" onPress={handleCancelSOS} />
+        <IconButton icon="back" bg="rgba(255,255,255,0.25)" color="#fff" onPress={() => router.back()} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: insets.bottom + 120 }}>
-        {/* Animated Map Simulation Card */}
+        {/* Live dispatch data — a map is shown only when an actual map provider is configured. */}
         <Card style={st.mapCard}>
           <AppText variant="caption" color={colors.textTertiary} align="center">
-            خريطة التتبع المباشر لمركبة الإسعاف
+            حالة موقع الاستغاثة
           </AppText>
-
-          {/* Fake Map Graphic */}
-          <View style={st.mapGraphic}>
-            {/* Map Roads lines */}
-            <View style={st.mapRoadHoriz} />
-            <View style={st.mapRoadVert} />
-
-            {/* User GPS Location marker */}
-            <View style={st.userMarker}>
-              <View style={st.pulseRing} />
-              <Icon name="locationFilled" size={24} color="#F0695C" />
-            </View>
-
-            <View style={[st.ambulanceMarker, { top: 60, left: (eta ?? 8) * 20 + 30 } ]}>
-              <Icon name="emergency" size={28} color="#23B5CE" />
-            </View>
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 28, gap: 10 }}>
+            <Icon name="locationFilled" size={32} color={emergency?.location ? '#F0695C' : colors.textTertiary} />
+            <AppText variant="bodySM" align="center">{emergency?.location?.address || (emergency?.location ? 'تم استلام موقع الاستغاثة.' : 'لم يُشارك موقع مؤكد لهذه الاستغاثة بعد.')}</AppText>
+            <Badge label={emergency?.location ? 'موقع مستلم من الطلب' : 'الموقع غير متاح'} color={emergency?.location ? colors.success : colors.warning} />
           </View>
-
-          <Badge label="تحديث مباشر لموقع GPS الخاص بك" color={colors.success} style={{ alignSelf: 'center', marginTop: 12 }}/>
         </Card>
 
         {/* ETA & Status Card */}
@@ -103,7 +76,7 @@ export default function SosActiveScreen() {
             </View>
             <View style={{ alignItems: 'flex-end', flex: 1, marginRight: 16 }}>
               <AppText variant="h6">{dispatchStatus}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>سيارة الإسعاف #0812 — مستشفى النخبة</AppText>
+              <AppText variant="caption" color={colors.textSecondary}>{emergency?.assigned_ambulance_id ? `مركبة مخصصة: ${emergency.assigned_ambulance_id}` : emergency?.assigned_hospital_id ? `جهة مخصصة: ${emergency.assigned_hospital_id}` : 'لم يتم تعيين مركبة أو جهة بعد.'}</AppText>
             </View>
           </View>
         </Card>
@@ -114,10 +87,10 @@ export default function SosActiveScreen() {
             <Icon name="doctor" size={32} color={colors.primary} />
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
-            <AppText variant="h6">المسعف: {paramedic?.name || 'فريق الطوارئ'}</AppText>
-            <AppText variant="caption" color={colors.textTertiary}>{paramedic?.team_name || 'فريق العناية المركزة المتنقلة'}</AppText>
+            <AppText variant="h6">تفاصيل فريق الطوارئ</AppText>
+            <AppText variant="caption" color={colors.textTertiary}>{emergency?.assigned_ambulance_id ? 'تم تعيين مركبة؛ ستظهر تفاصيل الطاقم عند مشاركتها من غرفة العمليات.' : 'لم تتم مشاركة تفاصيل الطاقم بعد.'}</AppText>
           </View>
-          <IconButton icon="call" bg={colors.primarySurface} color={colors.primary} onPress={() => Alert.alert('اتصال بالمسعف', 'جاري الاتصال بالمسعف فيصل العتيبي...')} />
+          {emergency?.paramedic_phone ? <IconButton icon="call" bg={colors.primarySurface} color={colors.primary} onPress={() => Linking.openURL(`tel:${emergency.paramedic_phone}`)} /> : null}
         </Card>
 
         {/* Info advice card */}
@@ -137,8 +110,7 @@ export default function SosActiveScreen() {
       {/* Footer buttons */}
       <View style={[st.footer, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight } ]}>
         <View style={{ flexDirection: 'row-reverse', gap: 10 }}>
-          <Button label="اتصال بغرفة العمليات " variant="primary" size="lg" style={{ flex: 1.2 }} onPress={() => Alert.alert('اتصال الطوارئ', 'جاري الاتصال بالهلال الأحمر والعمليات الصحية...')} />
-          <Button label="إلغاء الطلب" variant="outline" size="lg" style={{ flex: 0.8 }} onPress={handleCancelSOS} />
+          <Button label="العودة للرئيسية" variant="primary" size="lg" style={{ flex: 1 }} onPress={() => router.push('/(tabs)/index' as any)} />
         </View>
       </View>
     </View>
@@ -149,12 +121,6 @@ const st = StyleSheet.create({
   container: { flex: 1 },
   hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 16 },
   mapCard: { padding: 12 },
-  mapGraphic: { height: 200, backgroundColor: '#E2E8F0', borderRadius: 16, position: 'relative', overflow: 'hidden' },
-  mapRoadHoriz: { position: 'absolute', top: 90, left: 0, right: 0, height: 20, backgroundColor: '#CBD5E1' },
-  mapRoadVert: { position: 'absolute', left: 100, top: 0, bottom: 0, width: 20, backgroundColor: '#CBD5E1' },
-  userMarker: { position: 'absolute', top: 80, left: 90, zIndex: 10 },
-  pulseRing: { position: 'absolute', top: -10, left: -10, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(239,68,68,0.25)', borderWidth: 1.5, borderColor: '#F0695C' },
-  ambulanceMarker: { position: 'absolute', zIndex: 10 },
   statusCard: { padding: 16 },
   avatarLarge: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
   footer: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 }

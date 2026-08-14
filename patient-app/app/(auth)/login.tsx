@@ -29,7 +29,7 @@ export default function LoginScreen() {
   const { isDark, lang } = useApp() as any;
   const insets = useSafeAreaInsets();
   
-  const isRTL = lang === 'ar' || lang === 'ur' || true; // Force RTL for Arabic
+  const isRTL = lang === 'ar' || lang === 'ur';
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -91,16 +91,16 @@ export default function LoginScreen() {
         method: 'POST',
         body: JSON.stringify({ provider, token }),
       });
-      const jwtToken = res?.token || 'dummy_jwt_token';
+      const jwtToken = res?.token ?? res?.access_token;
+      if (!jwtToken) throw new Error('لم يُرجع خادم المصادقة رمز جلسة صالحاً');
+      const decoded = decodeJwt(jwtToken);
+      if (!decoded?.id || decoded.role !== 'patient') {
+        throw new Error('هذا الحساب غير مصرح له باستخدام تطبيق المريض');
+      }
       try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       
-      const decoded = decodeJwt(jwtToken);
-      if (decoded?.role !== 'patient') {
-        router.replace('/(auth)/provider-info' as any);
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.replace('/(tabs)');
     } catch (err: any) {
       setErrorMessage(err.message || `فشل تسجيل الدخول بواسطة ${provider}`);
     } finally {
@@ -144,12 +144,12 @@ export default function LoginScreen() {
     
     setLoading(true);
     try {
-        const fullPhone = phone.startsWith('+') ? phone : `+966${phone.replace(/^0+/, '')}`;
+        const identifier = phone.trim();
         const res = await apiFetch('/auth/login', {
           method: 'POST',
-          body: JSON.stringify({ phone: fullPhone, password }),
+          body: JSON.stringify({ identifier, password }),
         });
-        const token = res?.token;
+        const token = res?.token ?? res?.access_token;
 
       if (!token) {
         setAttempts(prev => {
@@ -168,12 +168,10 @@ export default function LoginScreen() {
       setLockoutUntil(null);
 
       const decoded = decodeJwt(token);
-      const userRole = decoded?.role || 'patient';
-      if (userRole !== 'patient') {
-        router.replace('/(auth)/provider-info' as any);
-      } else {
-        router.replace('/(tabs)');
+      if (!decoded?.id || decoded.role !== 'patient') {
+        throw new Error('هذا الحساب غير مصرح له باستخدام تطبيق المريض');
       }
+      router.replace('/(tabs)');
     } catch (err: any) { 
       setErrorMessage(err.message || 'فشل تسجيل الدخول، حاول مجدداً');
       setAttempts(prev => {

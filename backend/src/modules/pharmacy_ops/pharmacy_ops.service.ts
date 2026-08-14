@@ -73,6 +73,29 @@ export class PharmacyOpsService {
     const medMap = new Map(meds.map((m) => [m.id, m]));
     return inv.map((i) => ({ ...i.toObject(), medicine: medMap.get(i.medicine_id) }));
   }
+
+  async lookupVerifiedMedicineByBarcode(barcode: string) {
+    const normalizedBarcode = barcode?.trim();
+    if (!normalizedBarcode) throw new NotFoundException('barcode_required');
+    const medicine: any = await this.medModel.findOne({
+      barcode: normalizedBarcode,
+      verified: true,
+      is_deleted: { $ne: true },
+    }, { _id: 0, __v: 0 }).lean();
+    if (!medicine) throw new NotFoundException('medicine_not_found');
+    return {
+      id: medicine.id,
+      barcode: medicine.barcode,
+      name: medicine.name_ar || medicine.name_en,
+      name_ar: medicine.name_ar,
+      name_en: medicine.name_en,
+      dose: medicine.dosage_ar || medicine.dosage_en || null,
+      brand: medicine.brand || null,
+      price: medicine.price ?? null,
+      requiresRx: Boolean(medicine.requires_prescription),
+    };
+  }
+
   async updateStock(pharmacy: any, medicine_id: string, stock_qty: number, is_available = true) {
     const inv = await this.invModel.findOneAndUpdate(
       { pharmacy_id: pharmacy.id, medicine_id },

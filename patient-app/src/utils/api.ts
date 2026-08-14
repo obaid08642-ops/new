@@ -5,8 +5,9 @@ import { STORAGE_KEYS } from '../constants';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-const rawBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8002/api/v1';
-const rawFastApiUrl = process.env.EXPO_PUBLIC_FASTAPI_BASE_URL || 'http://localhost:8000/api';
+const isDevelopment = typeof __DEV__ !== 'undefined' && __DEV__;
+const rawBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || (isDevelopment ? 'http://localhost:8002/api/v1' : '');
+const rawFastApiUrl = process.env.EXPO_PUBLIC_FASTAPI_BASE_URL || (isDevelopment ? 'http://localhost:8000/api' : '');
 
 const getCleanUrl = (url: string) => {
   if (url.includes('localhost') || url.includes('127.0.0.1')) {
@@ -26,7 +27,7 @@ const getCleanUrl = (url: string) => {
 
 export const BASE_URL = getCleanUrl(rawBaseUrl);
 export const FASTAPI_BASE_URL = getCleanUrl(rawFastApiUrl);
-export const R2_PUBLIC_URL = process.env.EXPO_PUBLIC_CDN_URL || 'https://pub-8fac6a8c9296b585e3a5f71a1a2baa89.r2.dev';
+export const R2_PUBLIC_URL = process.env.EXPO_PUBLIC_CDN_URL || '';
 
 async function getToken(): Promise<string | null> {
   try {
@@ -42,6 +43,9 @@ async function getToken(): Promise<string | null> {
 
 export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = await getToken();
+  if (!endpoint.startsWith('http') && !BASE_URL) {
+    throw new Error('API_BASE_URL_NOT_CONFIGURED');
+  }
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
   
   const headers = new Headers(options.headers);

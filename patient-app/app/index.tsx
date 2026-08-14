@@ -21,22 +21,21 @@ export default function Index() {
 
   const checkAppState = async () => {
     try {
-      // Force clear for demonstration so user sees Welcome screen automatically
-      await AsyncStorage.clear();
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN).catch(
-        () => {},
-      );
-
       let token: string | null = null;
+      try {
+        token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
+      } catch {
+        token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      }
 
       const isGuest = await AsyncStorage.getItem(
         STORAGE_KEYS.GUEST_MODE ?? "@nabdah_guest",
       );
 
-      if (!token && !isGuest) {
-        router.replace("/(auth)/welcome");
-      } else {
+      if (token || isGuest) {
         router.replace("/(tabs)");
+      } else {
+        router.replace("/(auth)/welcome");
       }
     } catch {
       router.replace("/(auth)/welcome");

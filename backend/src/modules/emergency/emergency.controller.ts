@@ -19,6 +19,12 @@ export class EmergencyController {
     return this.svc.active();
   }
 
+  @Get('my-active')
+  @Roles(UserRole.PATIENT)
+  myActive(@CurrentUser() user: any) {
+    return this.svc.activeForPatient(user.id);
+  }
+
   @Get(':id')
   @Roles(UserRole.ADMIN)
   one(@Param('id') id: string) {

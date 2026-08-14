@@ -55,8 +55,7 @@ export default function Home() {
     };
     if (m[screen]) router.push(m[screen]);
     else {
-      // Fallback for unbuilt features
-      alert(lang === 'ar' ? 'الخدمة ستتوفر قريباً' : 'Coming Soon');
+      alert(lang === 'ar' ? 'هذا المسار غير متاح في الإصدار الحالي.' : 'This route is unavailable in the current release.');
     }
   };
   const colors = isDark ? darkColors : lightColors;
@@ -67,7 +66,7 @@ export default function Home() {
 
   const [offers, setOffers] = useState<any[]>([]);
   const [upcomingAppt, setUpcomingAppt] = useState<any>(null);
-  const [profile, setProfile] = useState<any>({ name: lang === 'ar' ? 'أحمد السالم' : 'Ahmed Alsalem' });
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     async function loadHomeData() {
@@ -79,7 +78,7 @@ export default function Home() {
         ]);
         if (offersRes) setOffers(Array.isArray(offersRes) ? offersRes : offersRes?.data || []);
         if (apptRes) setUpcomingAppt(Array.isArray(apptRes) ? apptRes[0] : apptRes?.data?.[0] || apptRes);
-        if (profRes) setProfile(profRes.data || profRes || { name: lang === 'ar' ? 'أحمد السالم' : 'Ahmed Alsalem' });
+        if (profRes) setProfile(profRes.data || profRes || null);
       } catch (err) {
         console.error(err);
       }
@@ -147,7 +146,7 @@ export default function Home() {
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 2 }}>
           <View>
             <Text style={{ fontSize: 11, color: colors.t3, marginBottom: 3, textAlign: isRTL ? 'right' : 'left' }}>{lang === 'ar' ? 'مساء الخير' : 'Good evening'}</Text>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: colors.n, textAlign: isRTL ? 'right' : 'left' }}>{profile.name}</Text>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: colors.n, textAlign: isRTL ? 'right' : 'left' }}>{profile?.name || (lang === 'ar' ? 'مستخدم نبض' : 'Nabdah user')}</Text>
           </View>
           
           <View style={{ position: 'relative', width: 58, height: 58 }}>

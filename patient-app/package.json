@@ -107,8 +107,6 @@
   },
   "private": true,
   "overrides": {
-    "ajv": "^8.17.1",
-    "ajv-keywords": "^5.1.0",
     "schema-utils": "^4.2.0",
     "semver": "^7.6.3",
     "json5": "^2.2.3",
@@ -119,8 +117,6 @@
     "word-wrap": "^1.2.5"
   },
   "resolutions": {
-    "ajv": "^8.17.1",
-    "ajv-keywords": "^5.1.0",
     "schema-utils": "^4.2.0",
     "semver": "^7.6.3",
     "json5": "^2.2.3",

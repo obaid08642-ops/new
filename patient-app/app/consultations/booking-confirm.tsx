@@ -3,13 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SegmentedControl, SectionHeader } from '../../src/components/ui';
 import { INSURANCE_COMPANIES, INSURANCE_CATEGORIES } from '../../src/constants/insurance';
-import { STORAGE_KEYS, API_BASE_URL } from '../../src/constants';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { apiFetch } from '../../src/utils/api';
 import { Alert } from 'react-native';
@@ -76,25 +73,12 @@ export default function BookingConfirmScreen() {
       const checkCoverage = async () => {
         setLoadingCoverage(true);
         try {
-          let token = null;
-          try {
-            token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-          } catch {
-            token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-          }
-          if (!token) return;
-          const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
-          const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId || 'dr-mohamed-alkurdi'}&service_type=consultation`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setCoverage(data);
-          }
+          if (!params.doctorId) throw new Error('معرف الطبيب مطلوب للتحقق من التغطية');
+          const data = await apiFetch(`/insurance/coverage-check?provider_id=${encodeURIComponent(String(params.doctorId))}&service_type=consultation`);
+          setCoverage(data);
         } catch (err) {
           console.log('Error checking coverage', err);
+          setCoverage(null);
         } finally {
           setLoadingCoverage(false);
         }

@@ -5,7 +5,7 @@
  * - Polls GET /orders/:orderId/tracking every 30 seconds.
  * - Displays dynamic timeline steps based on backend status.
  * - Shows pharmacy info and chat button.
- * - Graceful fallback for testing.
+ * - Shows an explicit unavailable state if live tracking cannot be retrieved.
  */
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
@@ -50,8 +50,9 @@ export default function OrderTrackingScreen() {
   const isRTL = lang === 'ar' || lang === 'ur';
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
-  const [steps, setSteps] = useState<TrackingStep[]>(buildSteps('preparing'));
+  const [steps, setSteps] = useState<TrackingStep[]>([]);
   const [orderData, setOrderData] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const orderIdStr = Array.isArray(orderId) ? orderId[0] : orderId;
 
@@ -61,14 +62,14 @@ export default function OrderTrackingScreen() {
       if (!orderIdStr) return;
       try {
         const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
-        if (data) {
-          setOrderData(data);
-          setSteps(buildSteps(data.state, data.updated_at));
-        }
-      } catch {
-        // Use demo state for testing
-        setSteps(buildSteps('preparing'));
-        setOrderData({ pharmacy_name: 'صيدلية النهدي – فرع العليا', pharmacy_distance: '٢.٣ كم', estimated_arrival: '٢٠ دقيقة', total: 117.50 });
+        if (!data?.state) throw new Error('لا توجد حالة تتبع صالحة لهذا الطلب');
+        setOrderData(data);
+        setSteps(buildSteps(data.state, data.updated_at));
+        setErrorMessage(null);
+      } catch (error: any) {
+        setSteps([]);
+        setOrderData(null);
+        setErrorMessage(error?.message || 'تعذر تحميل تتبع الطلب. لا يمكن عرض بيانات تقديرية.');
       }
     };
 
@@ -78,9 +79,20 @@ export default function OrderTrackingScreen() {
   }, [orderIdStr]);
 
   const orderNum = orderIdStr ? `#${orderIdStr.slice(-6).toUpperCase()}` : '#------';
-  const pharmacyName = orderData?.pharmacy_name || 'صيدلية النهدي – فرع العليا';
-  const estimatedTime = orderData?.estimated_arrival || '٢٠–٣٠ دقيقة';
-  const total = orderData?.total || 0;
+  const pharmacyName = orderData?.pharmacy_name ?? 'غير متاح';
+  const estimatedTime = orderData?.estimated_arrival ?? 'غير متاح';
+  const total = Number(orderData?.total ?? 0);
+
+  if (!orderData) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <Text style={{ fontFamily: 'Cairo-Bold', color: colors.n, textAlign: 'center' }}>{errorMessage || 'تعذر تحميل تتبع الطلب.'}</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 18, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 12, backgroundColor: '#23B5CE' }}>
+          <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>العودة</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 } ]}>

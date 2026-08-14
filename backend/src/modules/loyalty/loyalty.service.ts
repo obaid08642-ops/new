@@ -199,17 +199,7 @@ export class LoyaltyService {
   // ── Rewards ────────────────────────────────────────────────────────────────
 
   async listRewards() {
-    let rewards = await this.rewardM.find({ active: true, stock: { $gt: 0 } }).sort({ points_required: 1 }).lean();
-    if (rewards.length === 0) {
-      const mockRewards = [
-        { id: uuidv4(), title_ar: 'خصم 50 ريال', title_en: '50 SAR Discount', points_required: 500, reward_type: 'coupon', value: 50, active: true, stock: 100 },
-        { id: uuidv4(), title_ar: 'استشارة مجانية', title_en: 'Free Consultation', points_required: 1500, reward_type: 'service', active: true, stock: 50 },
-        { id: uuidv4(), title_ar: 'توصيل مجاني ×5', title_en: '5x Free Delivery', points_required: 300, reward_type: 'service', active: true, stock: 200 },
-      ];
-      await this.rewardM.insertMany(mockRewards);
-      rewards = await this.rewardM.find({ active: true, stock: { $gt: 0 } }).sort({ points_required: 1 }).lean();
-    }
-    return rewards;
+    return this.rewardM.find({ active: true, stock: { $gt: 0 } }).sort({ points_required: 1 }).lean();
   }
 
   async claimReward(userId: string, rewardId: string) {

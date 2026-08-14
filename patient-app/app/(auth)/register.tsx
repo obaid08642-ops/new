@@ -54,7 +54,7 @@ export default function RegisterScreen() {
   const { isDark, lang } = useApp() as any;
   const insets = useSafeAreaInsets();
   
-  const isRTL = lang === 'ar' || lang === 'ur' || true; // Force RTL
+  const isRTL = lang === 'ar' || lang === 'ur';
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', confirmPw: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -112,16 +112,16 @@ export default function RegisterScreen() {
         method: 'POST',
         body: JSON.stringify({ provider, token }),
       });
-      const jwtToken = res?.token || 'dummy_jwt_token';
+      const jwtToken = res?.token ?? res?.access_token;
+      if (!jwtToken) throw new Error('لم يُرجع خادم المصادقة رمز جلسة صالحاً');
+      const decoded = decodeJwt(jwtToken);
+      if (!decoded?.id || decoded.role !== 'patient') {
+        throw new Error('هذا الحساب غير مصرح له باستخدام تطبيق المريض');
+      }
       try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       
-      const decoded = decodeJwt(jwtToken);
-      if (decoded?.role !== 'patient') {
-        router.replace('/(auth)/provider-info' as any);
-      } else {
-        router.replace('/(tabs)');
-      }
+      router.replace('/(tabs)');
     } catch (err: any) {
       setErrorMessage(err.message || `فشل التسجيل بواسطة ${provider}`);
     } finally {

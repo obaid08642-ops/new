@@ -297,52 +297,6 @@ export class ProvidersService {
     return o;
   }
 
-  /** Idempotent demo-data seeder for lab/radiology/home_care/hospital. Skips existing. */
-  async seedDemoProviders() {
-    const inserted: any[] = [];
-    const skipped: any[] = [];
-    const cities = ['الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة'];
-    const insurances = ['Bupa', 'Tawuniya', 'MedGulf', 'AlRajhi', 'SAICO'];
-    const sets: any = {
-      lab: [['مختبر الرياض الطبي', 'Riyadh Medical Lab'], ['مختبر الفيصل', 'Al Faisal Lab'], ['البرج الذهبي', 'Golden Tower Lab'], ['الياسمين الطبي', 'Yasmin Medical Lab'], ['الرعاية المتقدمة', 'Advanced Care Lab']],
-      radiology: [['مركز الأشعة المتقدم', 'Advanced Imaging'], ['الرياض للأشعة', 'Riyadh Imaging Center'], ['شعاع الطبي', 'Shoaa Medical Imaging'], ['الفجر للأشعة', 'Al Fajr Imaging'], ['الصفوة الطبية', 'Al Safwa Medical']],
-      home_care: [['تمريض المنزل', 'Home Nursing SA'], ['الرعاية المنزلية', 'Care At Home'], ['تمريض راحة', 'Comfort Nursing']],
-      hospital: [['مستشفى الأمل', 'Al Amal Hospital'], ['الحياة الطبي', 'Al Hayat Medical'], ['الشفاء الجامعي', 'Shifaa University']],
-    };
-    for (const type of Object.keys(sets)) {
-      for (let i = 0; i < sets[type].length; i++) {
-        const [name_ar, name_en] = sets[type][i];
-        const exists = await this.providerModel.findOne({ name_ar, type });
-        if (exists) { skipped.push({ type, name_ar }); continue; }
-        const doc = await this.providerModel.create({
-          user_id: `system-seed-${type}-${i}`,
-          type: type as any,
-          status: ProviderStatus.ACTIVE,
-          name_ar, name_en,
-          license_number: `LIC-${type.toUpperCase()}-${1000 + i}`,
-          license_verified: true,
-          city: cities[i % cities.length], district: `حي ${cities[i % cities.length]}`,
-          location: { lat: 24.7 + Math.random() * 0.5, lng: 46.6 + Math.random() * 0.5 },
-          rating: 4.2 + Math.random() * 0.7,
-          reviews_count: 30 + Math.floor(Math.random() * 250),
-          coverage_radius_km: 15,
-          home_visit_supported: i % 2 === 0,
-          home_visit_radius_km: 20,
-          accepts_cash: true,
-          accepts_insurance: true,
-          accepted_insurance: insurances.slice(0, 2 + (i % 3)),
-          test_categories: type === 'lab' ? ['hematology', 'chemistry', 'immunology', 'microbiology'] : type === 'radiology' ? ['xray', 'ultrasound', 'mri', 'ct'] : [],
-          equipment_list: type === 'radiology' ? ['MRI 1.5T', 'CT Scan', 'Ultrasound', 'X-Ray'] : [],
-          working_hours: ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday'].map((day) => ({ day, open: '08:00', close: '22:00', closed: false })).concat([{ day: 'friday', open: '14:00', close: '22:00', closed: false }]),
-          onboarding_completed: true,
-          approved_at: new Date(),
-          approved_by: 'system-seed',
-        });
-        inserted.push({ id: doc.id, type, name_ar });
-      }
-    }
-  }
-
   async updateProviderConfig(providerId: string, payload: any) {
     return (this.providerModel as any).findByIdAndUpdate(providerId, payload, { new: true });
   }

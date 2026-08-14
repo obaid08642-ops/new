@@ -208,18 +208,20 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
     return sound ? () => { sound.unloadAsync(); } : undefined;
   }, [sound]);
 
-  // Simulated WebSocket connection for Live Radar (Polling fallback)
+  // Poll the persisted provider inbox until a realtime contract is configured.
   useEffect(() => {
     if (!isOnline) return;
 
     const fetchBroadcasts = () => {
-      client.get('/pharmacy/orders/incoming') // Dummy endpoint
+      client.get('/provider/pharmacy/orders/incoming')
         .then(res => {
           const newOrders = res.data || [];
-          if (newOrders.length > broadcasts.length) playAlarm(); // Trigger alarm on new order
-          setBroadcasts(newOrders);
+          setBroadcasts(previousOrders => {
+            if (newOrders.length > previousOrders.length) void playAlarm();
+            return newOrders;
+          });
         })
-        .catch(() => {});
+        .catch(() => setBroadcasts([]));
     };
 
     fetchBroadcasts();
@@ -260,10 +262,13 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
 
   const confirmReject = async (reasonId: string) => {
     try {
-      await client.post(`/api/v1/pharmacy/orders/${rejectOrderId}/reject`, { reason: reasonId });
+      if (!rejectOrderId) throw new Error('order_id_missing');
+      await client.post(`/provider/pharmacy/orders/${rejectOrderId}/reject`, { reason: reasonId });
       setBroadcasts(prev => prev.filter(b => b.id !== rejectOrderId));
       show(AR ? 'تم رفض الطلب' : 'Order rejected', 'info');
-    } catch(e) {}
+    } catch(e) {
+      show(AR ? 'تعذر رفض الطلب. لم تتغير حالته.' : 'The order could not be rejected; its status did not change.', 'error');
+    }
     setShowRejectModal(false);
   };
 
@@ -293,12 +298,12 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                   <View>
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text }}>{b.patient_name || 'مريض'}</Text>
+                      <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text }}>{b.patient_name || (AR ? 'بيانات المريض محمية' : 'Patient details protected')}</Text>
                       {b.is_otc && <NBadge label="🛒 OTC" variant="warning" />}
                     </View>
-                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{b.distance} كم • منذ دقيقة</Text>
+                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{typeof b.distance === 'number' ? `${b.distance} ${AR ? 'كم' : 'km'}` : (AR ? 'المسافة غير متاحة' : 'Distance unavailable')}</Text>
                   </View>
-                  <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.primary }}>{b.total} ر.س</Text>
+                  <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.primary }}>{b.total == null ? '—' : `${b.total} ${AR ? 'ر.س' : 'SAR'}`}</Text>
                 </View>
                 <NDivider style={{ marginBottom: 12 }} />
                 <View style={{ marginBottom: 16 }}>
@@ -335,22 +340,12 @@ function PharmacyChatTab() {
   const { lang } = useLang();
   const AR = lang === 'ar';
   const insets = useSafeAreaInsets();
-  const CHATS = [
-    { id: '1', name: 'ياسر القحطاني', last: AR ? 'هل الدواء البديل متوفر؟' : 'Is the alternative available?', time: '12:30', unread: 1 }
-  ];
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={[s.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, paddingTop: Math.max(insets.top, 16) }]}>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الرسائل' : 'Chats'}</Text>
       </View>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {CHATS.map(c => (
-          <NCard key={c.id} style={{ marginBottom: 12, padding: 16 }}>
-            <Text style={{ fontWeight: FW.bold, color: theme.text }}>{c.name}</Text>
-            <Text style={{ color: theme.textSub }}>{c.last}</Text>
-          </NCard>
-        ))}
-      </ScrollView>
+      <NEmpty icon="chat" title={AR ? 'لا توجد محادثات حالياً' : 'No chats yet'} sub={AR ? 'ستظهر المحادثات عند تهيئة خدمة رسائل مرتبطة بطلب فعلي.' : 'Chats will appear when a persisted order-messaging service is configured.'} />
     </View>
   );
 }
@@ -501,25 +496,20 @@ function B2BSupplyRequestScreen({ onBack }: any) {
   const [isRecording, setIsRecording] = useState(false);
 
   const submitB2B = async (method: string) => {
+    if (method !== 'manual' || !b2bText.trim()) {
+      show(AR ? 'يتطلب هذا المسار نص طلب فعلياً. رفع الصوت والصورة غير مهيأ بعد بعقد تخزين ومعالجة.' : 'This flow requires an actual text request. Audio and image ingestion are not configured with a storage and processing contract.', 'error');
+      return;
+    }
     try {
       await client.post('/provider/pharmacy/b2b/voice-to-order', { 
         method,
-        query: method === 'manual' ? b2bText : 'dummy_data'
+        query: b2bText.trim()
       });
       show(AR ? 'تم إرسال طلب التوريد بنجاح! سيقوم الذكاء الاصطناعي بتحليله.' : 'B2B order sent! AI is processing it.', 'success');
       setB2bText('');
       setIsRecording(false);
     } catch (e) {
       show(AR ? 'فشل إرسال الطلب' : 'Failed to send B2B order', 'error');
-    }
-  };
-
-  const submitReturn = async (itemId: string) => {
-    try {
-      await client.post('/provider/pharmacy/returns', { item_id: itemId, reason: 'EXPIRED' });
-      show(AR ? 'تم رفع طلب الاسترجاع للوكيل' : 'Return request sent to supplier', 'success');
-    } catch (e) {
-      show(AR ? 'فشل رفع طلب الاسترجاع' : 'Failed to submit return', 'error');
     }
   };
 
@@ -569,7 +559,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                 </View>
                 {isRecording && <Text style={{ color: theme.danger, fontWeight: 'bold', marginBottom: 16 }}>00:14</Text>}
                 {!isRecording ? (
-                  <NBtn label={AR ? 'بدء التسجيل' : 'Start Recording'} onPress={() => setIsRecording(true)} />
+                  <NBtn label={AR ? 'بدء التسجيل' : 'Start Recording'} onPress={() => submitB2B('voice')} />
                 ) : (
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, width: '100%' }}>
                     <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => setIsRecording(false)} style={{ flex: 1 }} />
@@ -597,18 +587,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
             <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
               {AR ? 'إدارة المرتجعات (الأدوية منتهية الصلاحية)' : 'Returns Manager (Expired Meds)'}
             </Text>
-            {[
-              { id: 'R1', name: 'Aspirin Protect 100mg', batch: 'BX-2023', expiry: '2023-11-01' },
-              { id: 'R2', name: 'Cataflam 50mg', batch: 'CT-991', expiry: '2023-12-15' }
-            ].map(item => (
-              <View key={item.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: 12, borderRadius: 8, marginBottom: 12 }}>
-                <View>
-                  <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>{item.name}</Text>
-                  <Text style={{ color: theme.danger, fontSize: 12, textAlign: AR ? 'right' : 'left' }}>{AR ? 'انتهت الصلاحية: ' : 'Expired: '}{item.expiry}</Text>
-                </View>
-                <NBtn label={AR ? 'طلب استرجاع' : 'Return'} size="sm" variant="outline" onPress={() => submitReturn(item.id)} />
-              </View>
-            ))}
+            <NEmpty icon="inventory" title={AR ? 'لا توجد مرتجعات مثبتة' : 'No persisted returns'} sub={AR ? 'ستظهر المرتجعات عند توفير عقد مخزون وطلبات استرجاع مخزن.' : 'Returns will appear after a persisted inventory and return-request contract is configured.'} />
           </NCard>
         )}
       </ScrollView>
@@ -621,24 +600,25 @@ function PharmacyWalletScreen({ onBack, onNavigate }: any) {
   const { show } = useToast();
   const AR = lang === 'ar';
 
-  const walletData = {
-    totalSales: 12500,
-    online: 4500,
-    cod: 3000,
-    insurance: 5000,
-    appCommission: 1250,
-    withdrawable: 8250,
-    duesToApp: 1850,
-    autoSuspendThreshold: 2000
-  };
+  const walletData: any = null;
+  if (!walletData) {
+    return (
+      <NScroll>
+        <NHeader title={AR ? 'المحفظة والتقارير المالية' : 'Wallet & Financials'} onBack={onBack} />
+        <NEmpty icon="account_balance_wallet" title={AR ? 'المحفظة غير متاحة حالياً' : 'Wallet unavailable'} sub={AR ? 'أُزيلت الأرصدة والأرقام التجريبية. يتطلب العرض والسحب وتصدير التقارير عقد محفظة مالي مخزن ومزوّد دفع مهيأ.' : 'Sample balances were removed. Display, withdrawals, and report export require a persisted financial-wallet contract and configured payment provider.'} />
+      </NScroll>
+    );
+  }
   const isSuspended = walletData.duesToApp >= walletData.autoSuspendThreshold;
   const isWarning = walletData.duesToApp >= (walletData.autoSuspendThreshold * 0.8) && !isSuspended;
 
   const handleExportShiftReport = async () => {
     try {
       await client.post('/pharmacy/reports/eod');
-    } catch(e) {}
-    show(AR ? 'تم تصدير تقرير الوردية بنجاح' : 'Shift report exported successfully', 'success');
+      show(AR ? 'تم طلب تقرير الوردية' : 'Shift report request submitted', 'success');
+    } catch(e) {
+      show(AR ? 'تعذر تصدير تقرير الوردية' : 'Unable to export shift report', 'error');
+    }
   };
 
   return (

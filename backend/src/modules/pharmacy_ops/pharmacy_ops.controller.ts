@@ -45,3 +45,15 @@ export class PharmacyOpsController {
     return this.svc.setInsuranceStatus(u, id, b.status, b.reason);
   }
 }
+
+@Controller('patient/pharmacy')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.PATIENT)
+export class PatientMedicineLookupController {
+  constructor(private svc: PharmacyOpsService) {}
+
+  @Get('medicines/barcode/:barcode')
+  lookupBarcode(@Param('barcode') barcode: string) {
+    return this.svc.lookupVerifiedMedicineByBarcode(barcode);
+  }
+}

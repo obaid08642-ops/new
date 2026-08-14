@@ -466,10 +466,9 @@ export class NabdExtensionsService {
     for (const p of list) {
       const distance = p.location ? this.haversine(lat, lng, p.location.lat, p.location.lng) / 1000 : 10;
       
-      // Metrics default fallbacks
-      const rating = 4.5;
-      const slaRate = 0.95; // 95%
-      const cancellationRate = 0.05; // 5%
+      const rating = Number((p as any).rating ?? 0);
+      const slaRate = Number((p as any).sla_rate ?? 0);
+      const cancellationRate = Number((p as any).cancellation_rate ?? 0);
       const isSponsored = (p as any).is_sponsored || false;
 
       // Score = (Rating * 40) + (SlaRate * 30) - (DistanceInKm * 10) + (IsSponsored ? 100 : 0) - (CancellationRate * 20)
@@ -487,29 +486,8 @@ export class NabdExtensionsService {
 
   // AI Fraud Detection
   async detectFraud() {
-    const alerts = [];
-    
-    
-    const duplicateReviewAlert = await this.fraudAlertModel.create({
-      userId: 'user_mock_fraud_1',
-      providerId: 'provider_mock_fraud_1',
-      flagType: 'duplicate_reviews_same_ip',
-      confidenceScore: 88,
-      status: 'pending',
-    });
-    alerts.push(duplicateReviewAlert);
-
-    // Pattern 2: Rapid consecutive bookings
-    const rapidBookingsAlert = await this.fraudAlertModel.create({
-      userId: 'user_mock_fraud_2',
-      providerId: 'provider_mock_fraud_2',
-      flagType: 'rapid_bookings',
-      confidenceScore: 92,
-      status: 'pending',
-    });
-    alerts.push(rapidBookingsAlert);
-
-    return alerts;
+    this.logger.warn('Fraud detection rules are not configured; no fabricated fraud alerts will be created.');
+    return [];
   }
 
   // ==========================================
@@ -521,7 +499,10 @@ export class NabdExtensionsService {
     const booking = await this.userModel.db.model('HomeCareBooking').findOne({ id: visitId }).lean() as any;
     if (!booking) throw new NotFoundException('Home care visit booking not found');
 
-    const patientLoc = booking.location || { lat: 24.7136, lng: 46.6753 }; // Riyadh default fallback
+    const patientLoc = booking.location || booking.address;
+    if (!patientLoc || !Number.isFinite(patientLoc.lat) || !Number.isFinite(patientLoc.lng)) {
+      throw new BadRequestException('A verified visit location is required before nurse attendance can be checked');
+    }
     const dist = this.haversine(lat, lng, patientLoc.lat, patientLoc.lng);
 
     const success = dist < 50;

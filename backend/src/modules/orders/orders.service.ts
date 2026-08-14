@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as PDFDocument from 'pdfkit';
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, OrderDocument, PharmacyBid } from '../../schemas/order.schema';
@@ -288,12 +288,16 @@ export class OrdersService {
 
     // REAL REFUND LOGIC (Moyasar Integration)
     if ((order.state as string) === 'PAID' && (order as any).payment_id && (order as any).payment_id.startsWith('pi_')) {
+      const paymentSecret = process.env.MOYASAR_SECRET_KEY;
+      if (!paymentSecret) {
+        throw new ServiceUnavailableException('Payment refunds are unavailable because the payment gateway is not configured');
+      }
       try {
         const amount_in_halalas = Math.round((order.total || 0) * 100);
         await axios.post(
           `https://api.moyasar.com/v1/payments/${(order as any).payment_id}/refund`,
           { amount: amount_in_halalas, reason: reason || 'User requested cancellation' },
-          { auth: { username: process.env.MOYASAR_SECRET_KEY || 'sk_test_dummy', password: '' } }
+          { auth: { username: paymentSecret, password: '' } }
         );
         // Mark as refunded
         await this.orderModel.updateOne({ id: orderId }, { refund_status: 'REFUNDED' });

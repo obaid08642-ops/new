@@ -6,28 +6,32 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { apiFetch } from '../../src/utils/api';
 
 export default function BarcodeScannerScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [scanning, setScanning] = useState(true);
   const [result, setResult] = useState<any>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // In production: use expo-camera barcode scanning
-  const simulateScan = () => {
+  const handleBarcodeScanned = async ({ data }: { data: string }) => {
+    if (!scanning) return;
     setScanning(false);
-    setResult({
-      barcode: '6281100410015',
-      name: 'بنادول إكسترا',
-      dose: '500mg',
-      brand: 'GSK',
-      price: 15,
-      available: true,
-      requiresRx: false,
-    });
+    setErrorMessage(null);
+    try {
+      const medicine = await apiFetch(`/patient/pharmacy/medicines/barcode/${encodeURIComponent(data)}`);
+      setResult(medicine);
+    } catch (error: any) {
+      setResult(null);
+      setErrorMessage(error?.message || 'لم يتم العثور على دواء موثق لهذا الباركود.');
+    }
   };
 
   const handleAddToCart = () => {
+    if (!result?.id) return;
     router.push({ pathname: '/pharmacy/product-detail', params: { id: result.barcode, name: result.name } });
   };
 
@@ -42,21 +46,23 @@ export default function BarcodeScannerScreen() {
         <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
       </View>
 
-      {/* Camera view placeholder */}
-      {scanning ? (
+      {!permission ? (
+        <View style={st.cameraArea}><AppText variant="bodySM" color="#fff">جاري التحقق من إذن الكاميرا…</AppText></View>
+      ) : !permission.granted ? (
         <View style={st.cameraArea}>
-          <View style={st.scanFrame}>
-            <View style={[st.corner, st.tl]} />
-            <View style={[st.corner, st.tr]} />
-            <View style={[st.corner, st.bl]} />
-            <View style={[st.corner, st.br]} />
+          <AppText variant="bodySM" color="#fff" align="center">يلزم إذن الكاميرا لمسح الباركود.</AppText>
+          <Button label="السماح بالكاميرا" variant="outline" icon="photo_camera" onPress={requestPermission} style={{ marginTop: 20, borderColor: 'rgba(255,255,255,0.4)' }}/>
+        </View>
+      ) : scanning ? (
+        <View style={st.cameraArea}>
+          <CameraView style={st.camera} onBarcodeScanned={handleBarcodeScanned} barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'qr'] }} />
+          <View pointerEvents="none" style={st.scanFrame}>
+            <View style={[st.corner, st.tl]} /><View style={[st.corner, st.tr]} />
+            <View style={[st.corner, st.bl]} /><View style={[st.corner, st.br]} />
           </View>
           <AppText variant="bodySM" color="rgba(255,255,255,0.8)" align="center" style={{ marginTop: 24 }}>
             وجّه الكاميرا نحو باركود أو QR code الدواء
           </AppText>
-
-          {/* Simulate scan button for demo */}
-          <Button label="محاكاة المسح (تجريبي)" variant="outline" icon="qr_code_scanner" onPress={simulateScan} style={{ marginTop: 20, borderColor: 'rgba(255,255,255,0.4)' }}/>
 
           {/* Manual entry */}
           <TouchableOpacity onPress={() => router.push('/pharmacy/drug-not-found')} style={{ marginTop: 16 }}>
@@ -65,7 +71,7 @@ export default function BarcodeScannerScreen() {
         </View>
       ) : (
         <View style={[st.resultArea, { backgroundColor: colors.background } ]}>
-          {result && (
+          {result ? (
             <Card style={{ gap: 12, marginTop: 40 }}>
               <View style={{ alignItems: 'center', gap: 10 }}>
                 <View style={[st.foundIcon, { backgroundColor: colors.successSurface } ]}>
@@ -82,10 +88,10 @@ export default function BarcodeScannerScreen() {
                   <AppText variant="h5">{result.name}</AppText>
                   <AppText variant="bodySM" color={colors.textTertiary}>{result.brand} · {result.dose}</AppText>
                   <View style={{ flexDirection: 'row-reverse', gap: 6 }}>
-                    <Badge label={result.available ? 'متوفر' : 'غير متوفر'} color={result.available ? colors.success : colors.error} />
+                    <Badge label="دواء موثق" color={colors.success} />
                     {result.requiresRx && <Badge label="يتطلب وصفة" color={colors.warning} />}
                   </View>
-                  <AppText variant="h4" color={colors.primary}>{result.price} ر.س</AppText>
+                  <AppText variant="h4" color={colors.primary}>{result.price == null ? 'السعر غير متاح' : `${result.price} ر.س`}</AppText>
                 </View>
               </View>
 
@@ -95,6 +101,12 @@ export default function BarcodeScannerScreen() {
                 <Button label="عرض التفاصيل وإضافة للسلة" variant="gradient" icon="shopping_cart" onPress={handleAddToCart} />
                 <Button label="مسح دواء آخر" variant="outline" icon="qr_code_scanner" onPress={() => { setScanning(true); setResult(null); }} />
               </View>
+            </Card>
+          ) : (
+            <Card style={{ gap: 14, marginTop: 40, alignItems: 'center' }}>
+              <Icon name="error" size={40} color={colors.error} />
+              <AppText variant="bodyMD" align="center">{errorMessage || 'تعذر التحقق من الباركود.'}</AppText>
+              <Button label="المسح مرة أخرى" variant="outline" icon="qr_code_scanner" onPress={() => { setScanning(true); setErrorMessage(null); }} />
             </Card>
           )}
         </View>
@@ -107,7 +119,8 @@ const st = StyleSheet.create({
   c: { flex: 1 },
   hdr: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12 },
   cameraArea: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-  scanFrame: { width: 250, height: 250, position: 'relative' },
+  camera: { ...StyleSheet.absoluteFillObject },
+  scanFrame: { width: 250, height: 250, position: 'relative', zIndex: 2 },
   corner: { position: 'absolute', width: 40, height: 40, borderColor: '#10B981', borderWidth: 3 },
   tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 12 },
   tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 12 },

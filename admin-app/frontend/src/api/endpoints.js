@@ -1,16 +1,9 @@
 /**
- * Nabd Admin — API Endpoints Skeleton
+ * Nabd Admin — API Endpoints
  *
  * هذا الملف منظم على هيئة مجموعات (groups) تطابق الـ Sidebar groups.
- * كل دالة فاضية الآن وتُرجع MOCK data من mockApi.
- * عند إرسالك للـ APIs الحقيقية، نستبدل كل دالة بـ client.get/post/put/delete.
- *
- * مثال للاستبدال:
- *   listProviders: () => client.get("/providers")
- *   approveProvider: (id) => client.post(`/providers/${id}/approve`)
- *
- * Token-saving note: لا نلمس MOCK data في Part1 الآن — كل شاشة تشتغل بـ MOCK
- * مباشرة، وعند الربط الحقيقي سنضيف useEffect + setState لاستدعاء هذه الدوال.
+ * الدوال أدناه ترسل طلبات فعلية عبر العميل المركزي؛ ويجب التحقق من كل عقد
+ * على staging قبل تفعيل تدفق إداري حساس في الإنتاج.
  */
 import client from "./client";
 

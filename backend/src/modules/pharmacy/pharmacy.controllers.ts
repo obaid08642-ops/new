@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, NotImplementedException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
@@ -39,6 +39,11 @@ export class ProviderPharmacyController {
     private providerOrders: PharmacyOrdersProviderService,
   ) {}
 
+  @Get('orders/incoming')
+  async incomingOrders(@CurrentUser() u: any) {
+    return this.providerOrders.incomingOrders(u);
+  }
+
   @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
     if (u?.role !== 'provider') throw new ForbiddenException();
     return this.allocs.listForProvider(u, status);
@@ -64,6 +69,11 @@ export class ProviderPharmacyController {
   @Post('orders/:id/accept')
   async acceptOrder(@CurrentUser() u: any, @Param('id') id: string) {
     return this.providerOrders.acceptOrder(u, id);
+  }
+
+  @Post('orders/:id/reject')
+  async rejectOrder(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { reason?: string }) {
+    return this.providerOrders.rejectOrder(u, id, body?.reason || 'provider_rejected');
   }
 
   @Post('orders/:id/submit-basket')
@@ -210,14 +220,16 @@ export class PatientShortageController {
 export class AIB2BProcurementController {
   @Post('voice-to-order')
   async voiceToOrder(@CurrentUser() u: any, @Body() b: any) {
-    // LLM Parsing logic mock
-    return { success: true, items: [{ generic_name: 'Panadol', quantity: 10 }] };
+    void u;
+    void b;
+    throw new NotImplementedException('Voice-to-order is unavailable until a validated parsing provider is configured.');
   }
 
   @Post('prescription-ocr')
   async ocrToOrder(@CurrentUser() u: any, @Body() b: any) {
-    // OCR Vision parsing mock
-    return { success: true, items: [{ generic_name: 'Amoxicillin', quantity: 5 }] };
+    void u;
+    void b;
+    throw new NotImplementedException('Prescription OCR is unavailable until a validated OCR provider is configured.');
   }
 }
 

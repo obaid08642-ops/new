@@ -696,24 +696,15 @@ function ResultEntry({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  return v<low?'low':v>high?'high':'normal';
  };
 
- const handlePdfUpload = async () => {
- setPdfUploading(true);
- try {
-   await client.post(`/labs/samples/${sample.id}/upload-report`, { file: 'lab_report_signature.pdf' });
-   setPdfFile('lab_report_signature.pdf');
-   show(AR ? ' تم إرفاق ملف الـ PDF بنجاح!' : ' PDF report attached successfully!', 'success');
- } catch (e: any) {
-   show(e.message, 'error');
- } finally {
-   setPdfUploading(false);
- }
- };
+	 const handlePdfUpload = async () => {
+	 show(AR ? 'رفع ملف التقرير غير متاح حتى يتم ربط منتقي الملفات بعقد تخزين آمن.' : 'Report upload is unavailable until a document picker is connected to a secure storage contract.', 'error');
+	 };
 
  return (
  <NScroll>
  <NHeader title={AR?'إدخال النتائج':'Enter Results'} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
- <NAvatar name={sample?.patient??'مريض'} size={44} />
+	 <NAvatar name={sample?.patient??'—'} size={44} />
  <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{sample?.patient??'—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
  </NCard>
 
@@ -777,7 +768,7 @@ function ResultEntry({ sample, onBack }:{ sample:any; onBack:()=>void }) {
           <NBtn label={AR?'رفض العينة (إعادة سحب)':'Reject Sample (Recollect)'} variant="danger" onPress={() => setShowReject(true)} style={{marginBottom:SP.md}} />
           <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm}}>
             <NBtn label={AR?'رفع PDF':'Upload PDF'} variant="outline" loading={pdfUploading} onPress={handlePdfUpload} style={{flex:1}} />
-            <NBtn label={AR?'حفظ كمسودة (للفني)':'Save Draft (Tech)'} variant="secondary" onPress={() => show(AR?'تم الحفظ كمسودة':'Draft Saved', 'success')} style={{flex:2}} />
+	 <NBtn label={AR?'حفظ كمسودة (للفني)':'Save Draft (Tech)'} variant="secondary" onPress={() => show(AR?'حفظ المسودة غير متاح حتى يتم توفير عقد نتائج مخزن.':'Draft saving is unavailable until a persisted results contract is provided.', 'error')} style={{flex:2}} />
           </View>
         </NCard>
 
@@ -831,13 +822,13 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [sendTo, setSendTo] = useState<'patient'|'both'>('both');
  const [loading, setLoading] = useState(false);
- const RESULTS = [
- {name:'WBC',value:'7.2',ref:'4.5–11.0',st:'normal'},{name:'RBC',value:'4.8',ref:'4.5–5.5',st:'normal'},
- {name:'HGB',value:'11.2',ref:'12.0–17.0',st:'low'},{name:'HCT',value:'38',ref:'36–54',st:'normal'},
- {name:'PLT',value:'220',ref:'150–400',st:'normal'},
- ];
+	 const RESULTS = Array.isArray(sample?.results) ? sample.results : [];
 
- const handleConfirmSend = async () => {
+	 const handleConfirmSend = async () => {
+	 if (!sample?.id || RESULTS.length === 0) {
+	   show(AR ? 'لا توجد نتائج مخزنة قابلة للنشر لهذه العينة.' : 'There are no persisted results available to publish for this sample.', 'error');
+	   return;
+	 }
  setLoading(true);
  try {
  await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { results: RESULTS, send_to: sendTo });
@@ -856,8 +847,8 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <NHeader title={AR?'مراجعة النتيجة':'Review Result'} onBack={onBack} />
  <NCard style={{marginBottom:SP.xl}}>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center',marginBottom:SP.lg}}>
- <NAvatar name={sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')} size={48} />
- <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
+	 <NAvatar name={sample?.patient_name || '—'} size={48} />
+	 <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || '—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
  </View>
  {/* Table header */}
  <View style={{flexDirection:'row',backgroundColor:'#9C27B010',borderRadius:R.sm,padding:SP.sm,marginBottom:SP.sm}}>
@@ -866,7 +857,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الطبيعي':'Ref'}</Text>
  <Text style={{flex:1,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0',textAlign:'center'}}> </Text>
  </View>
- {RESULTS.map((r,i)=>(
+	 {RESULTS.length === 0 ? <NEmpty icon="science" title={AR ? 'لا توجد نتائج مخزنة' : 'No persisted results'} sub={AR ? 'لا يمكن معاينة أو نشر نتيجة قبل حفظها على الخادم.' : 'A result cannot be previewed or published before it is stored by the server.'} /> : RESULTS.map((r,i)=>(
  <View key={i} style={{flexDirection:'row',paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border,alignItems:'center'}}>
  <Text style={{flex:3,fontSize:FS.sm,color:theme.text}}>{r.name}</Text>
  <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.st==='low'?'#FF9800':r.st==='high'?'#F44336':theme.text}}>{r.value}</Text>

@@ -1,11 +1,11 @@
-import { Controller, Post, Get, Query, Body, Param, BadRequestException, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Query, Body, Param, BadRequestException, ForbiddenException, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RadiologyBookingState } from '../../../schemas/radiology.schema';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
-import { Public } from '../../../common/auth.guard';
-
+import { CurrentUser, JwtAuthGuard } from '../../../common/auth.guard';
 @Controller('radiology/provider')
+@UseGuards(JwtAuthGuard)
 export class RadiologyProviderController {
   constructor(
     @InjectModel('RadiologyCenterBooking') private radBookingModel: Model<RadiologyBooking>,
@@ -13,12 +13,12 @@ export class RadiologyProviderController {
     @InjectModel('RadiologyMachine') private radMachineModel: Model<any>
   ) {}
 
-  @Public()
   @Get('queue')
-  async getProviderQueue(@Query('provider_id') providerId: string) {
-    const pId = providerId || 'rad-center-1';
+  async getProviderQueue(@CurrentUser() user: any, @Query('provider_id') providerId?: string) {
+    const pId = this.resolveProviderId(user, providerId);
     // Return pending acceptance and active scans
     const bookings = await this.radBookingModel.find({
+      radiology_center_id: pId,
       $or: [
         { status: 'PENDING_ACCEPTANCE' },
         { status: 'ACCEPTED' },
@@ -29,20 +29,19 @@ export class RadiologyProviderController {
     return bookings;
   }
 
-  @Public()
   @Post(':id/respond')
   @HttpCode(HttpStatus.OK)
   async respondBooking(
+    @CurrentUser() user: any,
     @Param('id') bookingId: string,
-    @Body() body: { accept: boolean; provider_id: string }
+    @Body() body: { accept: boolean }
   ) {
-    const { accept, provider_id } = body;
-    const booking = await this.radBookingModel.findOne({ id: bookingId });
+    const { accept } = body;
+    const booking = await this.radBookingModel.findOne(this.bookingScope(user, bookingId));
     if (!booking) throw new BadRequestException('Booking not found');
 
     if (accept) {
       booking.status = 'ACCEPTED';
-      (booking as any).radiology_center_id = provider_id;
     } else {
       booking.status = 'CANCELLED';
       (booking as any).rejection_reason = 'Rejected by Radiology Center';
@@ -51,10 +50,10 @@ export class RadiologyProviderController {
     return { success: true, status: booking.status };
   }
 
-  @Public()
   @Post('allocate-machine/:id')
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
+    @CurrentUser() user: any,
     @Param('id') bookingId: string,
     @Body() body: { machineId: string }
   ) {
@@ -63,6 +62,7 @@ export class RadiologyProviderController {
     // Check if machine is already busy for this period to block conflicts
     // In a real app we'd check time slots, here we check active statuses
     const conflict = await this.radBookingModel.findOne({
+      radiology_center_id: this.resolveProviderId(user),
       allocated_machine_id: machineId,
       status: { $in: ['ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] }
     });
@@ -75,7 +75,7 @@ export class RadiologyProviderController {
     }
 
     const booking = await this.radBookingModel.findOneAndUpdate(
-      { id: bookingId },
+      this.bookingScope(user, bookingId),
       { $set: { allocated_machine_id: machineId, status: 'CHECKED_IN' } },
       { new: true }
     );
@@ -85,16 +85,16 @@ export class RadiologyProviderController {
     return { success: true, data: booking, message: 'تم تخصيص وحجز جهاز الفحص بنجاح للطلب.' };
   }
 
-  @Public()
   @Post('finalize-scan/:id')
   async finalizeScan(
+    @CurrentUser() user: any,
     @Param('id') bookingId: string,
     @Body() body: { reportText: string; files: string[]; pdfUrl: string }
   ) {
     const { reportText, files, pdfUrl } = body;
 
     const booking = await this.radBookingModel.findOneAndUpdate(
-      { id: bookingId },
+      this.bookingScope(user, bookingId),
       {
         $set: {
           clinical_impression_report: reportText,
@@ -108,20 +108,16 @@ export class RadiologyProviderController {
 
     if (!booking) throw new BadRequestException('Radiology booking ID not found.');
 
-    // TRIGGER THE REFERRING DOCTOR CALLBACK IN THE SYSTEM
-    // Automatically notifies the referring physician that scan results are ready for immediate medical review
     return { 
       success: true, 
-      parent_appointment_id: 'APT-1234', // mock parent appointment
-      message: 'تم حفظ تقرير الأشعة والصور الطبية بنجاح، وتفعيل إشعار العودة الآلي للطبيب المعالج.' 
+      parent_appointment_id: (booking as any).parent_appointment_id?.toString?.() ?? null,
+      message: 'تم حفظ تقرير الأشعة والصور الطبية بنجاح.'
     };
   }
 
-  // ---- Financial Endpoint (Zero Placeholder) ----
-  @Public()
   @Get('wallet')
-  async getWallet(@Query('provider_id') providerId: string) {
-    const pId = providerId || 'rad-center-1';
+  async getWallet(@CurrentUser() user: any, @Query('provider_id') providerId?: string) {
+    const pId = this.resolveProviderId(user, providerId);
     
     // Sum total completed/published for gross revenue and insurance
     const completedBookings = await this.radBookingModel.find({
@@ -155,17 +151,16 @@ export class RadiologyProviderController {
     };
   }
 
-  // ---- Catalog Endpoint (Zero Placeholder) ----
-  @Public()
   @Get('catalog')
-  async getCatalog(@Query('provider_id') providerId: string) {
+  async getCatalog(@CurrentUser() user: any) {
+    this.resolveProviderId(user);
     const services = await this.radServiceModel.find({ active: true });
     return services;
   }
 
-  @Public()
   @Post('catalog/:id')
-  async updateCatalogItem(@Param('id') serviceId: string, @Body() body: any) {
+  async updateCatalogItem(@CurrentUser() user: any, @Param('id') serviceId: string, @Body() body: any) {
+    if (!this.isAdmin(user)) throw new ForbiddenException('Radiology catalog changes require administrative approval');
     const updated = await this.radServiceModel.findOneAndUpdate(
       { id: serviceId },
       { $set: body },
@@ -174,19 +169,16 @@ export class RadiologyProviderController {
     return updated;
   }
 
-  // ---- Inventory Endpoint (Zero Placeholder) ----
-  @Public()
   @Get('inventory')
-  async getInventory(@Query('provider_id') providerId: string) {
-    const pId = providerId || 'rad-center-1';
+  async getInventory(@CurrentUser() user: any, @Query('provider_id') providerId?: string) {
+    const pId = this.resolveProviderId(user, providerId);
     const machines = await this.radMachineModel.find({ provider_id: pId, is_active: true });
     return machines;
   }
 
-  @Public()
   @Post('inventory')
-  async addMachine(@Body() body: any) {
-    const pId = body.provider_id || 'rad-center-1';
+  async addMachine(@CurrentUser() user: any, @Body() body: any) {
+    const pId = this.resolveProviderId(user);
     const machine = new this.radMachineModel({
       provider_id: pId,
       name: body.name,
@@ -195,5 +187,28 @@ export class RadiologyProviderController {
     });
     await machine.save();
     return machine;
+  }
+
+  private bookingScope(user: any, bookingId: string) {
+    const scope: Record<string, unknown> = { id: bookingId };
+    if (!this.isAdmin(user)) scope.radiology_center_id = this.resolveProviderId(user);
+    return scope;
+  }
+
+  private resolveProviderId(user: any, requestedProviderId?: string): string {
+    if (this.isAdmin(user)) {
+      if (!requestedProviderId) throw new BadRequestException('provider_id is required for administrative radiology operations');
+      return requestedProviderId;
+    }
+    if (user?.role !== 'radiology' && user?.provider_type !== 'radiology') {
+      throw new ForbiddenException('Radiology provider access is required');
+    }
+    const providerId = user?.provider_account_id || user?.provider_profile_id || user?.id;
+    if (!providerId) throw new ForbiddenException('Radiology provider identity is missing from the token');
+    return String(providerId);
+  }
+
+  private isAdmin(user: any): boolean {
+    return user?.role === 'admin' || user?.role === 'super_admin';
   }
 }

@@ -73,6 +73,13 @@ export class EmergencyService {
     ).sort({ createdAt: -1 });
   }
 
+  async activeForPatient(patientId: string) {
+    return this.model.findOne(
+      { patient_id: patientId, state: { $nin: [EmergencyState.RESOLVED, EmergencyState.CLOSED] } },
+      { _id: 0, __v: 0 },
+    ).sort({ createdAt: -1 });
+  }
+
   async getById(id: string) {
     const e = await this.model.findOne({ id }, { _id: 0, __v: 0 });
     if (!e) throw new NotFoundException();

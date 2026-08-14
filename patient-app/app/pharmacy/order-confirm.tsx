@@ -27,29 +27,18 @@ export default function OrderConfirmScreen() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [approving, setApproving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // ─── Fetch order details ─────────────────────────────────────────────────────
   useEffect(() => {
     (async () => {
       try {
+        if (!orderId) throw new Error('معرف الطلب مفقود');
         const data = await apiFetch(`/orders/${orderId}`);
         setOrder(data);
-      } catch {
-        // Fallback demo order for testing
-        setOrder({
-          id: orderId,
-          pharmacy_name: 'صيدلية النهدي – فرع العليا',
-          pharmacy_distance: '٢.٣ كم',
-          items: [
-            { name: 'بانادول إكسترا 500 مجم', qty: 1, price: 12.50, available: true },
-            { name: 'فيتامين سي 1000 مجم', qty: 2, price: 45.00, available: true },
-          ],
-          subtotal: 102.50,
-          delivery_fee: 15,
-          total: 117.50,
-          estimated_time: '٢٥–٣٥ دقيقة',
-          missing_items: [],
-        });
+      } catch (error: any) {
+        setOrder(null);
+        setErrorMessage(error?.message || 'تعذر تحميل تفاصيل الطلب. لا يمكن عرض أو اعتماد بيانات غير مؤكدة.');
       } finally {
         setLoading(false);
       }
@@ -58,17 +47,25 @@ export default function OrderConfirmScreen() {
 
   const handleApprove = async () => {
     setApproving(true);
+    setErrorMessage(null);
     try {
       await apiFetch(`/orders/${orderId}/approve-basket`, { method: 'POST' });
-    } catch {}
-    router.push({ pathname: '/pharmacy/payment', params: { orderId, total: order?.total || 0 } });
+      router.push({ pathname: '/pharmacy/payment', params: { orderId, total: order?.total || 0 } });
+    } catch (error: any) {
+      setErrorMessage(error?.message || 'تعذر اعتماد الطلب. لم يتم الانتقال إلى الدفع.');
+    } finally {
+      setApproving(false);
+    }
   };
 
   const handleReject = async () => {
+    setErrorMessage(null);
     try {
       await apiFetch(`/orders/${orderId}/reject-basket`, { method: 'POST', body: JSON.stringify({ reason: 'patient-rejected-price' }) });
-    } catch {}
-    router.replace({ pathname: '/pharmacy/waiting-for-pharmacy', params: { orderId } });
+      router.replace({ pathname: '/pharmacy/waiting-for-pharmacy', params: { orderId } });
+    } catch (error: any) {
+      setErrorMessage(error?.message || 'تعذر رفض العرض. لم يتغير الطلب.');
+    }
   };
 
   if (loading) {
@@ -80,7 +77,16 @@ export default function OrderConfirmScreen() {
     );
   }
 
-  if (!order) return null;
+  if (!order) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <Text style={{ fontFamily: 'Cairo-Bold', color: colors.n, textAlign: 'center' }}>{errorMessage || 'تعذر تحميل تفاصيل الطلب.'}</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 18, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 12, backgroundColor: '#23B5CE' }}>
+          <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>العودة</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const allAvailable = order.missing_items?.length === 0;
 
@@ -162,6 +168,7 @@ export default function OrderConfirmScreen() {
 
       {/* Action Buttons */}
       <View style={[styles.footer, { backgroundColor: colors.s, borderTopColor: colors.bd, paddingBottom: insets.bottom + 16 } ]}>
+        {errorMessage && <Text style={{ fontFamily: 'Cairo-Regular', color: '#C2413A', textAlign: 'center', marginBottom: 10 }}>{errorMessage}</Text>}
         <TouchableOpacity
           style={[styles.approveBtn, { backgroundColor: approving ? colors.bd : '#23B5CE' }]}
           onPress={handleApprove}

@@ -39,6 +39,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
 import { ProviderModule } from '../provider/provider.module';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { OrdersModule } from '../orders/orders.module';
 import { DrugRejectionLogRepository } from "./services/repositories/drugrejectionlog.repository";
 import { DrugShortageFlagRepository } from "./services/repositories/drugshortageflag.repository";
 import { MedicineRepository } from "./services/repositories/medicine.repository";
@@ -62,6 +63,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     NotificationsModule,
     ProviderModule,
     WorkflowEngineModule,
+    OrdersModule,
     MongooseModule.forFeature([
       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'PharmacyAllocation', schema: PharmacyAllocationSchema },

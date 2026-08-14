@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { NotImplementedException } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
@@ -105,10 +106,10 @@ export class ProvidersController {
     return this.svc.suspend(id, admin, body?.reason || '');
   }
 
-  /** Admin: seed sample lab/radiology/home_care/hospital providers (idempotent — skips existing). */
+  /** Disabled in runtime; test seeding must run from an isolated environment script. */
   @Post('admin/seed-demo')
   @Roles(UserRole.ADMIN)
   seedDemo() {
-    return this.svc.seedDemoProviders();
+    throw new NotImplementedException('Runtime demo-provider seeding is disabled. Use the isolated test seed script in staging only.');
   }
 }

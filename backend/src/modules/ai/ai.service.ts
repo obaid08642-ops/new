@@ -1,17 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as xlsx from 'xlsx';
 
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
-  private genAI: GoogleGenerativeAI;
+  private genAI: GoogleGenerativeAI | null;
   
   constructor() {
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy_key');
+    const apiKey = process.env.GEMINI_API_KEY;
+    this.genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
   }
 
   private getModel(modelName = "gemini-1.5-pro-latest") {
+    if (!this.genAI) {
+      throw new ServiceUnavailableException('AI features are unavailable because GEMINI_API_KEY is not configured');
+    }
     return this.genAI.getGenerativeModel({ model: modelName });
   }
 
