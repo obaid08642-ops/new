@@ -40,6 +40,9 @@ export class DoctorsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      return;
+    }
     const count = await this.doctors.countDocuments();
     if (count === 0) {
       for (const d of SEED_DOCTORS) await this.doctors.create({ ...d, weekly_schedule: DEFAULT_SCHEDULE });

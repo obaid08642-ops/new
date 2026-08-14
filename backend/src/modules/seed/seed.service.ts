@@ -38,6 +38,10 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      this.logger.log('Automatic seed skipped; test seeding requires NODE_ENV=test and ALLOW_TEST_SEED=true.');
+      return;
+    }
     try {
       await this.seedSystemConfig();
       await this.seedMedicines();

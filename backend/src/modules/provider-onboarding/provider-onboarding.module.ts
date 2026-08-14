@@ -41,13 +41,14 @@ export class ProviderOnboardingService {
   async start(body: { phone: string; password?: string; full_name?: string; email?: string; type: ProviderType }) {
     if (!body.type || !Object.values(ProviderType).includes(body.type)) throw new BadRequestException('invalid_type');
     if (!body.phone) throw new BadRequestException('phone_required');
+    if (!body.full_name?.trim()) throw new BadRequestException('full_name_required');
     let user = await this.userModel.findOne({ phone: body.phone });
     if (!user) {
       if (!body.password) throw new BadRequestException('password_required_for_new_user');
       const hash = await bcrypt.hash(body.password, 8);
       try {
         user = await this.userModel.create({
-          phone: body.phone, full_name: body.full_name || body.phone,
+          phone: body.phone, full_name: body.full_name.trim(),
           email: body.email, password_hash: hash,
           role: this.typeToRole(body.type), active: true,
         });
@@ -62,7 +63,7 @@ export class ProviderOnboardingService {
     if (!profile) {
       profile = await this.providerModel.create({
         user_id: user.id, account_id: user.id, type: body.type, status: ProviderStatus.PENDING,
-        name_ar: body.full_name || 'Provider', onboarding_step: 1,
+        name_ar: body.full_name.trim(), onboarding_step: 1,
       });
     } else if (profile.type !== body.type) {
       profile.type = body.type; profile.onboarding_step = 1;

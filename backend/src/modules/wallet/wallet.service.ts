@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Inject, ServiceUnavailableException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { WalletDocument, WalletTransactionDocument } from '../../schemas/wallet.schema';
@@ -21,7 +21,7 @@ export class WalletService {
       wallet = await this.walletModel.create({
         ownerId,
         ownerType,
-        balance: 1000, // Default signup credit for sandbox testing
+        balance: 0,
       });
     }
     return wallet;
@@ -166,20 +166,8 @@ export class WalletService {
     return wallet.savedCards || [];
   }
 
-  async addCard(ownerId: string, ownerType: 'patient' | 'provider', cardData: any) {
-    const wallet = await this.getOrCreateWallet(ownerId, ownerType);
-    const newCard = {
-      id: uuid(),
-      type: cardData.type || 'visa',
-      last4: cardData.cardNumber?.slice(-4) || '0000',
-      holderName: cardData.holderName || 'Card Holder',
-      expiry: cardData.expiry || '12/30',
-      isDefault: wallet.savedCards?.length === 0,
-      gradient: cardData.type === 'mada' ? ['#1E293B', '#475569'] : ['#23B5CE', '#8FD4E3'],
-    };
-    wallet.savedCards.push(newCard);
-    await wallet.save();
-    return wallet.savedCards;
+  async addCard(_ownerId: string, _ownerType: 'patient' | 'provider', _cardData: any): Promise<never> {
+    throw new ServiceUnavailableException('Card storage is disabled until a PCI-compliant payment tokenization provider is integrated.');
   }
 
   async removeCard(ownerId: string, ownerType: 'patient' | 'provider', cardId: string) {
@@ -192,11 +180,7 @@ export class WalletService {
     return wallet.savedCards;
   }
 
-  async getSpendingData(ownerId: string, ownerType: 'patient' | 'provider') {
-    return [
-      { category: 'صيدلية', amount: 350, color: '#16A34A' },
-      { category: 'استشارات', amount: 800, color: '#23B5CE' },
-      { تحاليل: 'مختبر', amount: 200, color: '#7A6BEA' }
-    ];
+  async getSpendingData(_ownerId: string, _ownerType: 'patient' | 'provider') {
+    return [];
   }
 }

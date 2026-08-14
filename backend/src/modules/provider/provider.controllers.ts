@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject, ServiceUnavailableException } from '@nestjs/common';
 import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
 import { ProviderOperatorsService } from './services/provider-operators.service';
@@ -285,8 +285,8 @@ export class ProviderDashboardController {
   }
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: any) { return this.dash.setAvailability(u, body); }
-  @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
-  @Post('seed/reset') seedReset(@CurrentUser() u: any) { return this.seedSvc.resetSeed(u); }
+  @Post('seed') seed() { throw new ServiceUnavailableException('Provider seed data is disabled outside an isolated test environment.'); }
+  @Post('seed/reset') seedReset() { throw new ServiceUnavailableException('Provider seed data is disabled outside an isolated test environment.'); }
 }
 
 

@@ -35,6 +35,10 @@ export class HomeCareModule implements OnModuleInit {
   private readonly logger = new Logger('HomeCareSeed');
   constructor(@InjectModel('HomeCareService') private readonly svcModel: Model<any>) {}
   async onModuleInit() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      this.logger.log('Home-care seed skipped; test seeding requires NODE_ENV=test and ALLOW_TEST_SEED=true.');
+      return;
+    }
     const existing = await this.svcModel.countDocuments();
     if (existing >= HOME_CARE_SEED.length) return;
     const docs = HOME_CARE_SEED.map((x: any) => ({ ...x, active: true }));

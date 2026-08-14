@@ -1,4 +1,4 @@
-import { Controller, Post, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, UseGuards, Req, ServiceUnavailableException } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -16,15 +16,6 @@ export class CartController {
 
   @Get('prescription')
   async getPrescription(@Req() req) {
-    return {
-      doctor: 'د. محمد أحمد الكردي',
-      specialty: 'استشاري قلب',
-      date: '15 يونيو 2026',
-      medications: [
-        { id: '1', name: 'بنادول إكسترا', dose: '500mg', qty: 14, price: 18, requiresRx: false },
-        { id: '2', name: 'أملوديبين', dose: '5mg', qty: 30, price: 32, requiresRx: true },
-        { id: '3', name: 'فيتامين D3', dose: '2000IU', qty: 90, price: 45, requiresRx: false },
-      ]
-    };
+    throw new ServiceUnavailableException('Prescription cart retrieval is disabled until it is derived from a patient-owned prescription and server-priced pharmacy catalog.');
   }
 }
