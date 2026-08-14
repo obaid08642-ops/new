@@ -216,7 +216,7 @@ export default function RegisterScreen() {
         <AuthField 
           label={'الاسم الكامل'} 
           icon="person" 
-          placeholder={'أحمد السالم'} 
+          placeholder={'أدخل اسمك الكامل'}
           value={form.name} 
           onChangeText={(t: string) => setForm({...form, name: t})} 
           isDark={isDark} isRTL={isRTL} focusedInput={focusedInput} setFocusedInput={setFocusedInput}

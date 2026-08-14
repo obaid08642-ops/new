@@ -30,15 +30,6 @@ const CATEGORIES = [
   { id: 'مزمنة', label: 'أمراض مزمنة', icon: 'heart-pulse' },
 ];
 
-const FALLBACK_MEDICINES = [
-  { id: 'm1', name: 'بانادول إكسترا 500 مجم', d: 'مسكن آلام وخافض حرارة فعّال للصداع والرشح', price: 12.50, cat: 'مسكنات', rx: false, icon: 'pill', iconColor: '#23B5CE', iconBg: '#DEF5F9', form: 'tablet', brand: 'جلاكسو سميث (GSK)', slug: 'medications' },
-  { id: 'm2', name: 'أوجمنتين 1 جرام', d: 'مضاد حيوي واسع المجال – يستلزم وصفة طبية', price: 78.00, cat: 'مضادات', rx: true, icon: 'biotech', iconColor: '#F0695C', iconBg: '#FEEFED', form: 'tablet', brand: 'جلاكسو سميث (GSK)', slug: 'medications' },
-  { id: 'm3', name: 'فيتامين سي 1000 مجم فوار', d: 'مكمل غذائي لتعزيز المناعة والوقاية من البرد', price: 45.00, cat: 'فيتامينات', rx: false, icon: 'test-tube', iconColor: '#2BB89C', iconBg: '#E2F7F2', form: 'tablet', brand: 'أبوت', slug: 'vitamins' },
-  { id: 'm4', name: 'بروفين 400 مجم', d: 'مسكن ومضاد للالتهابات لعلاج الآلام العضلية', price: 15.00, cat: 'مسكنات', rx: false, icon: 'pill', iconColor: '#F0A526', iconBg: '#FEF4E0', form: 'tablet', brand: 'فايزر', slug: 'medications' },
-  { id: 'm5', name: 'فيتامين د3 2000 وحدة', d: 'يدعم صحة العظام والمناعة – جرعة شهرية', price: 32.00, cat: 'فيتامينات', rx: false, icon: 'weather-sunny', iconColor: '#F58634', iconBg: '#FEF0E4', form: 'capsule', brand: 'نوفارتس', slug: 'vitamins' },
-  { id: 'm6', name: 'أملوديبين 5 مجم', d: 'لعلاج ضغط الدم وأمراض القلب – وصفة طبية', price: 55.00, cat: 'مزمنة', rx: true, icon: 'heart-pulse', iconColor: '#E8568E', iconBg: '#FCE8F1', form: 'tablet', brand: 'تبوك الدوائية', slug: 'medications' },
-];
-
 export default function PharmacyTab() {
   const insets = useSafeAreaInsets();
   const { isDark, lang } = useApp() as any;
@@ -122,10 +113,9 @@ export default function PharmacyTab() {
         if (params.filter_sort)       q.append('sort', params.filter_sort);
 
         const data = await apiFetch(`/medicines?${q.toString()}`);
-        if (Array.isArray(data) && data.length > 0) setMedicines(data);
-        else setMedicines(FALLBACK_MEDICINES);
+        setMedicines(Array.isArray(data) ? data : []);
       } catch {
-        setMedicines(FALLBACK_MEDICINES);
+        setMedicines([]);
       } finally {
         setLoading(false);
       }

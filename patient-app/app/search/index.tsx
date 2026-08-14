@@ -37,7 +37,8 @@ export default function Search() {
 
   const catList = lang === 'ar' ? cats : catsEn;
   const map = lang === 'ar' ? catMap : catMapEn;
-  const recent = lang === 'ar' ? ['بانادول', 'طبيب أطفال', 'تحليل سكر'] : ['Panadol', 'Pediatrician', 'Blood Sugar'];
+  // Search history is not rendered until a server-backed, user-owned history contract is available.
+  const recent: string[] = [];
 
   const currentCatName = catList[searchCat];
   const filterType = map[currentCatName];
@@ -99,7 +100,7 @@ export default function Search() {
           ))}
         </ScrollView>
 
-        {searchCat === 0 && (
+        {searchCat === 0 && recent.length > 0 && (
           <View style={{ marginBottom: 16 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: colors.t2, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>
               {lang === 'ar' ? 'عمليات بحث سابقة' : 'Recent Searches'}

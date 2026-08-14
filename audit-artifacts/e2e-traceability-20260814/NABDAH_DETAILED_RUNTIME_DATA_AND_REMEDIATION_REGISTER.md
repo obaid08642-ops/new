@@ -68,6 +68,7 @@
 | LOC-003 | `app/mental-health/breathing.tsx` و`src/features/{consultation,medical-orders}/*` و`src/guided-tour/ui/SpotlightRenderer.tsx` | إصلاح محلي | نقلت أسطح ونصوص وحدود الشاشات ذات الأولوية إلى ألوان `AppContext` واستبدلت رموز emoji في شاشة التنفس بأيقونات متجهية | تصدير Expo iOS ناجح | فحص بصري على جهاز، وحالات تكبير الخط والتباين والوصول |
 | LOC-004 | `app/{diagnostics/lab-comparison,diagnostics/packages,health/actionable-order}.tsx` | إصلاح محلي | أزيل تثبيت `Colors.light` والأسطح الشفافة المعيبة؛ أُصلح `theme` خارج نطاقه في شاشة الأوامر الطبية والذي كان مرشحاً لعطل وقت تشغيل | لا `Colors.light` متبقٍ في `patient-app/app/`؛ تصدير Expo iOS ناجح | فحص المسارات ببيانات حقيقية وعقود صيدلية/تحاليل على staging |
 | LOC-005 | `PATIENT_APP_DARK_MODE_AUDIT.md` | دليل قياس | جرد ساكن لـ477 ملفاً: من 12 ملفاً غير ظاهر ربطها بالسمة و8 أولويات أبيض/أسود، إلى 6 ملفات و2 استثناءين مقصودين (`room/[id]` لفيديو أسود ثابت و`src/theme/index.ts` لتعريف الرموز) | إعادة تشغيل مولد التدقيق بعد التعديلات | لا يعوض route-by-route visual QA؛ 168 ملفاً فيها ألوان صريحة يجب مراجعة دلالتها عند المرور البصري |
+| LOC-006 | `PATIENT_APP_UNLOCALIZED_LITERAL_AUDIT.md` | فجوة مثبتة | جرد تالٍ كشف 1073 سطراً مرشحاً في 181 ملفاً من نصوص عربية لا يثبت التحليل الساكن مرورها عبر `AppText`/`autoTranslate` | تقرير Markdown قابل للتكرار | تحويل النصوص الخام إلى مفاتيح، ثم مراجعة بشرية وRTL/LTR على جهاز؛ لا يجوز ادعاء اكتمال جميع الشاشات قبل ذلك |
 
 ## 3. ما استُبدل بعقود وبيانات حقيقية
 
@@ -126,6 +127,10 @@
 | PAT-017 | `src/core/platform/auth/SessionManager.ts:73` | تدوير token placeholder | مفتوح — هوية | endpoint refresh rotation وrevoke وsecure storage |
 | PAT-018 | `src/config/chatSecurity.ts:139` و`src/utils/security.ts:161` و`guided-tour/engines/AnalyticsCollector.ts:24` | إرسال تدقيق/تحليلات محاكى أو مؤجل | مفتوح — تدقيق | API سجل تدقيق مصادق مع privacy policy وretention |
 | PAT-019 | `RealtimeClient.ts:30` و`SocketContext.tsx:11` | fallback عناوين localhost في وقت التشغيل | مفتوح — تهيئة | عولج `AppContext` و`ConfigManager` في الدفعات السابقة؛ يبقى منع fallback في عملاء الوقت الحقيقي وإلزام متغير بيئة صحيح |
+| PAT-020 | `app/health/health-id.tsx` و`app/profile/index.tsx` | اسم ومعلومات صحية وجهات اتصال وQR ونقاط ثابتة | أزيلت محلياً | بطاقة الهوية تقرأ `/users/me/profile` وتعرض حالة فارغة/خطأ؛ الملف يقرأ الاسم من `state.auth.user`؛ تحتاج الحقول غير المتعاقد عليها API موثق وQR موقع |
+| PAT-021 | `app/(tabs)/pharmacy.tsx` و`app/search/index.tsx` | أدوية وأسعار وسجل بحث محليون، منها بانادول | أزيلت محلياً | لا fallback منتجات أو أسعار أو اقتراحات سجل ثابتة؛ يتطلب الكتالوج والسجل عقدي API مملوكين |
+| PAT-022 | `app/community/live-session.tsx` و`app/nutrition/exercise-plan.tsx` | بث وتعليقات وخطة تمارين صحية محاكية، منها «أحمد م.» و«باي كيرل» | أزيلت محلياً | تعرض الشاشات عدم إتاحة صريحاً؛ يلزم عقد LiveKit/مراسلة وخطة صحية معتمدة قبل التفعيل |
+| PAT-023 | `src/constants/insurance.ts` و`src/constants/index.ts` | كتالوج شركات وخطط تأمين ثابت في العميل | مفتوح — مرجع بيانات | لا دليل أنه يطابق قاعدة البيانات أو صلاحيات التأمين؛ يلزم API مرجعي `name_ar/name_en` وخطط مرتبطة بشركة وتغطية، ثم حذف/تقليل الكتالوج المكرر |
 
 ## 6. البيانات الوهمية أو البدائل المتبقية — تطبيق مزود الخدمة
 

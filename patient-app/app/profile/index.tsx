@@ -5,13 +5,14 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react
 import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../src/store/slices/authSlice';
+import { useAppSelector } from '../../src/store/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, Avatar } from '../../src/components/ui';
+import { AppText, Card, Button, IconButton, Avatar } from '../../src/components/ui';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 
-const MENU: { icon: IconName; label: string; route: string; color: string; badge?: string }[] = [
+const MENU: { icon: IconName; label: string; route: string; color: string }[] = [
   { icon: 'favorite', label: 'صحتي', route: '/(tabs)/health', color: '#E11D48' },
   { icon: 'medication', label: 'أدويتي', route: '/health/medications', color: '#16A34A' },
   { icon: 'prescriptions', label: 'وصفاتي', route: '/health/prescriptions', color: '#7A6BEA' },
@@ -22,7 +23,7 @@ const MENU: { icon: IconName; label: string; route: string; color: string; badge
   { icon: 'shield', label: 'التأمين الطبي', route: '/profile/insurance', color: '#4F46E5' },
   { icon: 'location', label: 'عناويني', route: '/profile/addresses', color: '#DB2777' },
   { icon: 'users', label: 'عائلتي', route: '/health/family-hub', color: '#0D9488' },
-  { icon: 'trophy', label: 'النقاط', route: '/loyalty/hub', color: '#F59E0B', badge: '1,250' },
+  { icon: 'trophy', label: 'النقاط', route: '/loyalty/hub', color: '#F59E0B' },
   { icon: 'settings', label: 'الإعدادات', route: '/settings', color: '#64748B' },
 ];
 
@@ -34,7 +35,9 @@ export default function ProfileScreen() {
   };
   const insets = useSafeAreaInsets();
   const { isGuest } = useGuestGuard();
-  const { colors, isDark } = useApp();
+  const { colors } = useApp();
+  const user = useAppSelector((state: any) => state.auth.user);
+  const userName = user?.full_name || user?.name || 'الحساب غير مكتمل';
 
   return (
     <View style={[st.c, { backgroundColor: colors.background } ]}>
@@ -45,7 +48,7 @@ export default function ProfileScreen() {
           <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12, flex: 1, paddingRight: 12 }}>
             <Avatar size={36} icon="user" bg={colors.surfaceSecondary} iconColor={colors.textPrimary} />
             <View style={{ alignItems: 'flex-end', flex: 1 }}>
-              <AppText variant="h4" color={colors.textPrimary}>{isGuest ? 'مرحباً بك، زائر' : 'أحمد محمد العتيبي'}</AppText>
+              <AppText variant="h4" color={colors.textPrimary}>{isGuest ? 'مرحباً بك، زائر' : userName}</AppText>
             </View>
           </View>
           <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
@@ -78,11 +81,6 @@ export default function ProfileScreen() {
               style={st.gridItem}
             >
               <Card padding={0} style={{ alignItems: 'center', paddingVertical: 16, gap: 8, overflow: 'visible' }}>
-                {item.badge && (
-                  <View style={{ position: 'absolute', top: -6, right: -6, zIndex: 10 }}>
-                    <Badge label={item.badge} color="#fff" bg={item.color} style={{ paddingHorizontal: 4, paddingVertical: 2 }}/>
-                  </View>
-                )}
                 <View style={[st.gridIcon, { backgroundColor: item.color + '18' } ]}>
                   <Icon name={item.icon} size={24} color={item.color} />
                 </View>
