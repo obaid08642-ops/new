@@ -16,3 +16,5 @@
 يبقى `expo lint` لتطبيق المريض محجوباً بتعارض تاريخي في سلسلة ESLint/AJV، ويجب علاجه قبل بوابة الإصدار. لا يغير هذا الفرع `main` ولا ينشر أي تغيير. يلزم نشر staging وتشغيل اختبار E2E قبل اعتماد أي دمج أو إصدار.
 
 يرافق هذه الحزمة التقرير النهائي في `audit-artifacts/e2e-traceability-20260814/NABDAH_FINAL_REMEDIATION_REPORT.md` وخطة الاختبارات اللاحقة في `audit-artifacts/e2e-traceability-20260814/POST_REMEDIATION_E2E_EXECUTION_PLAN.md`.
+
+ولمراجعة أثر أي عنصر ثابت أو وهمي دون اختصار، يحتوي المجلد نفسه على `NABDAH_DETAILED_RUNTIME_DATA_AND_REMEDIATION_REGISTER.md`، الذي يفرق بين الاستبدال الحقيقي والإزالة الآمنة والفجوة العقدية، وعلى `NABDAH_RUNTIME_STATIC_CANDIDATE_INDEX.md`، وهو فهرس آلي كامل بالملف والسطر لكل مرشح تشغيلي بعد تنقيح المقتطفات من بيانات الاعتماد وبيانات الاختبار الحساسة.
