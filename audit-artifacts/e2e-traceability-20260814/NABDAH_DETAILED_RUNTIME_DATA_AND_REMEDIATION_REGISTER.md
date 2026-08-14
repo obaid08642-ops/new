@@ -29,6 +29,34 @@
 | **مفتوح — يحتاج hardening** | يوجد مسار أو تخزين فعلي لكن التفويض أو الملكية أو النشر أو الاختبار غير مكتمل | يعالج محلياً ثم يثبت على staging |
 | **اختباري أو تاريخي** | seed أو test أو ملف مصدر غير منشور | يحظر تشغيله في الإنتاج أو يحذف بعد تحقق عدم استخدامه |
 
+## 2A. تحديث دفعة أمر المعالجة — 14 أغسطس 2026
+
+> يسود هذا القسم على أي توصيف أقدم متعارض في السجل. كل بند أدناه إما **استبدال بعقد حقيقي** أو **إزالة آمنة**؛ ولا يمثل أي منها إثبات تشغيل حي قبل staging.
+
+| المعرف | المكوّن والموضع | الحالة الحالية | التعديل المنفذ | التحقق المحلي | المتبقي للإغلاق النهائي |
+|---|---|---|---|---|---|
+| ORD-001 | `backend/infra/fastapi/server.py` | استبدال أمني | أُلزمت أسرار البيئة، ومُنع seed وحساب demo التلقائيان خارج تطوير مصرح | بناء NestJS | تشغيل FastAPI على staging ورفض تشغيله بلا إعدادات |
+| ORD-002 | `backend/src/modules/providers/providers.controller.ts` و`provider/simulated-features.controller.ts` | إزالة آمنة | حُذف route `seed-demo` ومتحكم الميزات المحاكي غير المصرح | بناء NestJS | بدائل guarded للعروض/الإحالات/الموظفين عند اعتماد العقود |
+| ORD-003 | `backend/src/modules/labs/labs.service.ts` و`schemas/lab.schema.ts` | استبدال أمني | عزلت الحجوزات والعينات حسب مزود المختبر ومنعت قفز مراحل العينة | بناء NestJS | BOLA وstate-transition على staging بهويتين |
+| ORD-004 | `backend/src/modules/returns/*` و`pharmacy/*` | استبدال أمني | ربطت المرتجعات بطلب صيدلية مملوك ومبلغ خادمي؛ حُذف قرار مرتجع وهمي | بناء NestJS | اختبار refund وسجل تدقيق وتسوية sandbox |
+| ORD-005 | `backend/src/common/idempotency.interceptor.ts` و`pharmacy.controllers.ts` | استبدال أمني | عُزلت مفاتيح الإديمبوتنسي بالهوية والطريقة والمسار، مع قفل Redis ذري، وطُبقت على POST الصيدلية | بناء NestJS | اختبار تكرار/توازي على Redis وstaging |
+| ORD-006 | `backend/src/modules/payments/paymob.*` و`moyasar.module.ts` | استبدال أمني | لا يقبل Paymob مبلغ العميل؛ يقرأ إجمالي طلب مملوك وموافق عليه. حُذف نجاح Moyasar sandbox المحلي بلا مفتاح | بناء NestJS | gateway sandbox، webhook موقّع، refund وreconciliation |
+| ORD-007 | `backend/src/modules/push/push.module.ts` و`provider-app/src/utils/*notifications*` | استبدال/إزالة | لا project ID افتراضي، ولا رمز push غير مسجل، ولا حملة نجاح وهمية، ولا Redis محلي صامت | بناء NestJS وJest المزوّد | Push sandbox واختبارات delivery/retry |
+| ORD-008 | `patient-app/app/pharmacy/{checkout,payment}.tsx` | استبدال/إزالة | حُذف السعر ورسوم التوصيل وcopay والموقع والنجاح المحلي؛ الإنشاء والإرسال والدفع مشروطة بعقد وسعر عرض خادمي | تصدير iOS | عروض الصيدلية والتأمين والتسليم ودفع sandbox |
+| ORD-009 | `patient-app/app/insurance/add-policy.tsx` | إزالة آمنة | حُذف OCR و`base64_simulated_data` والتحقق/الحفظ الافتراضيان؛ الواجهة تصرح بعدم الإتاحة | تصدير iOS | upload مخزن وفحص ملف وOCR/تحقق مؤمن |
+| ORD-010 | `patient-app/app/reports/passport.tsx` وبيانات الجنين | إزالة آمنة | حُذفت أنماط QR المزيفة ونُقلت بيانات الجنين خارج شجرة Expo Router لإزالة route فارغ | تصدير iOS | QR موقع وhealth-ID موحدان عند اكتمال العقد |
+| ORD-011 | `provider-app/src/screens/{doctor,facility}/*` | إزالة آمنة | حُذفت مواعيد وإجازات وتحويلات وتفاصيل طبية وإدارة كوادر/كلمات مرور محلية؛ تعرض الآن خطأ أو عدم إتاحة صريحاً | Jest 3/3 | عقود مزود guarded للإحالة والإجازة والكوادر |
+| ORD-012 | `admin-app/web-admin/*` و`frontend/App_old.js` | إزالة/استبدال | حُذفت مصادر MOCK وseed-demo التاريخية، وأزيل localhost وبطاقات مالية ثابتة، وأُصلح prerender للحارس | CRA وNext.js builds | عقود مالية وonboarding وapproval/audit حية |
+
+| بوابة التحقق | النتيجة الحالية | القيد الصريح |
+|---|---|---|
+| `backend: npm run build` | ناجح | لا يثبت تشغيل Redis أو Mongo أو مزودي الدفع |
+| `patient-app: expo export --platform ios` | ناجح | لا يثبت جهازاً فعلياً أو صلاحيات كاميرا/رفع/Push |
+| `provider-app: npm test -- --runInBand` | 3/3 ناجحة | تغطي workflows محددة فقط وليست E2E |
+| `admin-app/frontend: npm run build` | ناجح | لا يثبت APIs الإدارة |
+| `admin-app/web-admin: NODE_ENV=production npm run build` | ناجح | لا يثبت حراسة الدور عبر API حي |
+| `patient-app: npm run lint` | **فشل: 96 أخطاء و1026 تحذيراً** | مشكلات تاريخية، منها رموز JSX غير معرّفة ومتغيرات غير مستخدمة؛ بوابة الإصدار غير مغلقة |
+
 ## 3. ما استُبدل بعقود وبيانات حقيقية
 
 | المعرف | التطبيق أو الخدمة | الشاشة/الملف | ما كان موجوداً | الاستبدال المنفذ | حالة الإثبات |
