@@ -155,6 +155,7 @@ export class PaymentsService {
   async verifyPayment(user: any, transactionId: string) {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException('txn_not_found');
+    if (t.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not_authorized');
     const result = await this.adapter.verify(t.gateway_intent_id);
     t.status = result.status;
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
@@ -193,21 +194,27 @@ export class PaymentsService {
   }
 
   async retryPayment(user: any, type: string, id: string) {
-    // Cancel pending failed and create new intent
+    const M = this.modelFor(type);
+    const booking: any = await M.findOne({ id }).lean();
+    if (!booking) throw new NotFoundException('booking_not_found');
+    if (booking.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not_authorized');
+    // Cancel only this authorized booking's pending or failed attempts before creating a new intent.
     await this.txns.updateMany({ booking_id: id, status: { $in: ['pending', 'failed'] } }, { $set: { status: 'cancelled' } });
     return this.createPaymentIntent(user, type, id);
   }
 
   async refundPayment(user: any, transactionId: string, amount?: number, reason?: string) {
-    if (!['admin', 'pharmacy', 'provider'].includes(user.role) && user.role !== 'doctor') throw new BadRequestException('not_authorized');
+    if (user.role !== 'admin') throw new BadRequestException('not_authorized');
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
-    const r = await this.adapter.refund(t.gateway_charge_id, amount);
+    const remaining = t.amount - (t.refunded_amount || 0);
+    if (!Number.isFinite(remaining) || remaining <= 0) throw new BadRequestException('nothing_to_refund');
+    if (amount !== undefined && amount !== remaining) throw new BadRequestException('partial_refund_not_supported');
+    const r = await this.adapter.refund(t.gateway_charge_id, remaining);
     if (!r.refunded) throw new BadRequestException('refund_failed');
-    const full = !amount || amount >= t.amount;
-    t.status = full ? 'refunded' : 'partially_refunded';
-    t.refunded_amount = (t.refunded_amount || 0) + (amount || t.amount);
+    t.status = 'refunded';
+    t.refunded_amount = (t.refunded_amount || 0) + remaining;
     t.refunded_at = new Date();
     t.refund_reason = reason;
     await t.save();
