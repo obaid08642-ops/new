@@ -18,6 +18,7 @@
 | هذا السجل | التصنيف اليدوي للأثر وقرار الإصلاح أو العقد المطلوب | القرار التنفيذي ومصدر الحقيقة التشغيلي |
 | [`NABDAH_FINAL_REMEDIATION_REPORT.md`](./NABDAH_FINAL_REMEDIATION_REPORT.md) | حكم الجاهزية والبوابات | قرار الإطلاق لا جرد السطور |
 | [`POST_REMEDIATION_E2E_EXECUTION_PLAN.md`](./POST_REMEDIATION_E2E_EXECUTION_PLAN.md) | حالات التحقق المنشور | لا ينفذ على الإنتاج الحالي |
+| [`NABDAH_OPERATIONAL_SCENARIO_ACCEPTANCE_MAP_20260814.md`](./NABDAH_OPERATIONAL_SCENARIO_ACCEPTANCE_MAP_20260814.md) | خريطة سيناريوهات المريض والمزوّد والإدارة والدفع والتأمين | تمييز ما تؤكده الشيفرة من المتطلبات التي تحتاج عقداً أو staging |
 
 ## 2. ملخص الحالات
 
@@ -47,6 +48,7 @@
 | ORD-010 | `patient-app/app/reports/passport.tsx` وبيانات الجنين | إزالة آمنة | حُذفت أنماط QR المزيفة ونُقلت بيانات الجنين خارج شجرة Expo Router لإزالة route فارغ | تصدير iOS | QR موقع وhealth-ID موحدان عند اكتمال العقد |
 | ORD-011 | `provider-app/src/screens/{doctor,facility}/*` | إزالة آمنة | حُذفت مواعيد وإجازات وتحويلات وتفاصيل طبية وإدارة كوادر/كلمات مرور محلية؛ تعرض الآن خطأ أو عدم إتاحة صريحاً | Jest 3/3 | عقود مزود guarded للإحالة والإجازة والكوادر |
 | ORD-012 | `admin-app/web-admin/*` و`frontend/App_old.js` | إزالة/استبدال | حُذفت مصادر MOCK وseed-demo التاريخية، وأزيل localhost وبطاقات مالية ثابتة، وأُصلح prerender للحارس | CRA وNext.js builds | عقود مالية وonboarding وapproval/audit حية |
+| ORD-013 | `backend/src/modules/insurance/insurance.module.ts` | إزالة آمنة | أوقفت OCR البوليصة، رفع البوليصة، أهلية NPHIES، حفظ بوليصة العميل، والمطالبة التأمينية التي كانت تولد بوالص ومبالغ وأهلية محلية؛ صارت ترجع `503` صريحاً إلى أن يتوفر تكامل موثق | `backend: npm run build` ناجح | تخزين ملفات آمن، OCR/NPHIES حقيقي، مصدر مطالبة خادمي مملوك ومسعّر، وسجل تدقيق وموافقات |
 
 | بوابة التحقق | النتيجة الحالية | القيد الصريح |
 |---|---|---|
@@ -173,6 +175,7 @@
 | BE-011 | `src/modules/labs/labs.service.ts:400-402` | `listSamples()` يعيد كل العينات بلا scope مختبر ظاهر | مفتوح — خصوصية | filter بـ provider/lab ownership وBOLA test بهويتين |
 | BE-012 | `src/app.module.ts:119,129` | fallback Mongo/Redis localhost | مفتوح — تهيئة | فشل آمن خارج development عند غياب متغيرات البيئة |
 | BE-013 | `infra/fastapi/nestjs_proxy.py` و`ai_routes.py` | عناوين localhost ثابتة لخدمات داخلية | يحتاج ضبط نشر | استخدام متغيرات خدمة داخلية وبنية شبكة خاصة، لا عنوان عام |
+| BE-014 | `src/modules/insurance/insurance.module.ts` | OCR ورفع بوليصة وأهلية NPHIES وبوليصة/مطالبة عميل كانت تعيد أسماء وأرقاماً ونسباً ومبالغ مولدة | أزيلت محلياً | أُعيدت `503 Service Unavailable` بدلاً من بيانات تأمين مزعومة؛ يلزم عقد NPHIES/تخزين/OCR ومصدر طلب يحدد السعر والملكية قبل الإحياء |
 
 ## 8. البيانات الوهمية أو البدائل المتبقية — الإدارة
 

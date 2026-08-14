@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
@@ -153,91 +153,24 @@ export class InsuranceService {
     };
   }
 
-  async ocrExtract(fileData: any) {
-    return {
-      success: true,
-      extracted_data: {
-        provider: 'bupa',
-        policy_number: 'BPA-' + Math.floor(100000 + Math.random() * 900000),
-        network: 'gold',
-        class: 'A',
-        expiry_date: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0],
-        member_name: 'Ahmed Obaid',
-        national_id: '1092839482',
-      },
-    };
+  async ocrExtract(_fileData: any): Promise<never> {
+    throw new ServiceUnavailableException('Insurance OCR is not configured. A verified file-storage and OCR integration is required.');
   }
 
-  async uploadPolicy(fileData: any) {
-    return {
-      success: true,
-      policy: {
-        provider: 'tawuniya',
-        policy_number: 'POL-' + Math.floor(100000 + Math.random() * 900000),
-        network: 'silver',
-        class: 'B',
-        expiry_date: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0],
-      },
-    };
+  async uploadPolicy(_fileData: any): Promise<never> {
+    throw new ServiceUnavailableException('Insurance policy upload is not configured. A verified storage and validation workflow is required.');
   }
 
-  async nphiesEligibility(nationalId: string, companyCode: string, memberId?: string) {
-    if (!nationalId || !companyCode) {
-      throw new BadRequestException('national_id and insurance_company_code are required');
-    }
-    return {
-      eligible: true,
-      nphies_transaction_id: 'TX-NPHIES-' + Math.floor(10000000 + Math.random() * 90000000) + '-XYZ',
-      copay_percent: 10,
-      copay_flat: 15,
-      network_class: 'Class A',
-      status: 'Active',
-      benefits: {
-        consultation: 'Covered with 10% copay',
-        dental: 'Covered up to 2000 SAR',
-        optical: 'Covered up to 500 SAR',
-      },
-    };
+  async nphiesEligibility(_nationalId: string, _companyCode: string, _memberId?: string): Promise<never> {
+    throw new ServiceUnavailableException('Insurance eligibility is not configured. A verified NPHIES integration is required.');
   }
 
-  async savePolicy(patientId: string, policyData: any) {
-    let patient = await this.patientModel.findOne({ user_id: patientId });
-    if (!patient) {
-      patient = await this.patientModel.create({ user_id: patientId });
-    }
-    patient.insurance = {
-      provider: policyData.provider,
-      policy_number: policyData.policy_number,
-      network: policyData.network,
-      class: policyData.class,
-      expiry_date: policyData.expiry_date,
-      member_name: policyData.member_name,
-      national_id: policyData.national_id,
-      verified: policyData.verified ?? false,
-      pdf_url: policyData.pdf_url,
-      ocr_extracted: policyData.ocr_extracted ?? false,
-      nphies_eligible: policyData.nphies_eligible ?? false,
-    };
-    await patient.save();
-    return { success: true, insurance: patient.insurance };
+  async savePolicy(_patientId: string, _policyData: any): Promise<never> {
+    throw new ServiceUnavailableException('Insurance policy persistence is disabled until it accepts only validated data from a verified policy workflow.');
   }
 
-  async submitClaim(patientId: string, claimData: any) {
-    const claim = await this.claimModel.create({
-      patient_id: patientId,
-      service: claimData.service || 'استشارة عامة',
-      amount: claimData.amount || 100,
-      covered: claimData.covered || 80,
-      status: 'pending',
-      date: new Date().toLocaleDateString('ar-SA')
-    });
-    return {
-      success: true,
-      claim_id: claim.id,
-      status: claim.status,
-      submitted_at: new Date().toISOString(),
-      ...claimData
-    };
+  async submitClaim(_patientId: string, _claimData: any): Promise<never> {
+    throw new ServiceUnavailableException('Insurance claims are disabled until amounts and coverage are derived from an owned, server-priced service order.');
   }
 
   async getClaims(patientId: string) {

@@ -207,63 +207,26 @@ describe('InsuranceService', () => {
   });
 
   describe('ocrExtract', () => {
-    it('should extract metadata from an uploaded image', async () => {
-      const res = await service.ocrExtract({ dummyImage: 'base64' });
-      expect(res.success).toBe(true);
-      expect(res.extracted_data.provider).toBe('bupa');
-      expect(res.extracted_data.class).toBe('A');
+    it('should reject until a verified OCR integration is configured', async () => {
+      await expect(service.ocrExtract({ file: 'base64' })).rejects.toThrow('not configured');
     });
   });
 
   describe('uploadPolicy', () => {
-    it('should extract metadata from an uploaded PDF', async () => {
-      const res = await service.uploadPolicy({ dummyPdf: 'base64' });
-      expect(res.success).toBe(true);
-      expect(res.policy.provider).toBe('tawuniya');
-      expect(res.policy.class).toBe('B');
+    it('should reject until a verified policy-upload workflow is configured', async () => {
+      await expect(service.uploadPolicy({ file: 'base64' })).rejects.toThrow('not configured');
     });
   });
 
   describe('nphiesEligibility', () => {
-    it('should return eligibility and copay information', async () => {
-      const res = await service.nphiesEligibility('1092839482', 'bupa');
-      expect(res.eligible).toBe(true);
-      expect(res.copay_percent).toBe(10);
-      expect(res.copay_flat).toBe(15);
-    });
-
-    it('should throw BadRequestException if arguments are missing', async () => {
-      await expect(service.nphiesEligibility('', '')).rejects.toThrow(BadRequestException);
+    it('should reject until a verified NPHIES integration is configured', async () => {
+      await expect(service.nphiesEligibility('1092839482', 'bupa')).rejects.toThrow('not configured');
     });
   });
 
   describe('savePolicy', () => {
-    it('should save/update insurance policy on patient profile', async () => {
-      const mockPatient = {
-        user_id: 'p1',
-        insurance: null,
-        save: jest.fn().mockResolvedValue(true),
-      };
-      patientModel.findOne.mockResolvedValue(mockPatient);
-
-      const policyData = {
-        provider: 'bupa',
-        policy_number: 'BPA-1111',
-        network: 'gold',
-        class: 'A',
-        expiry_date: '2027-12-31',
-        member_name: 'Ahmed',
-        national_id: '11111',
-        verified: true,
-      };
-
-      const res = await service.savePolicy('p1', policyData);
-      expect(res.success).toBe(true);
-      expect(mockPatient.insurance).toEqual(expect.objectContaining({
-        provider: 'bupa',
-        policy_number: 'BPA-1111',
-        verified: true,
-      }));
+    it('should reject raw client-side policy persistence', async () => {
+      await expect(service.savePolicy('p1', {})).rejects.toThrow('disabled');
     });
   });
 });
