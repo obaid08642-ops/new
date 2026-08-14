@@ -1,0 +1,100 @@
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nabdah';
+
+const providerSchema = new mongoose.Schema({
+  phone: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  name_en: String,
+  name_ar: String,
+  provider_type: String,
+  status: String,
+  is_online: Boolean,
+});
+
+const Provider = mongoose.models.Provider || mongoose.model('Provider', providerSchema);
+
+async function seed() {
+  console.log('🌱 Seeding Test Providers...');
+  await mongoose.connect(MONGODB_URI);
+  
+  const defaultPassword = await bcrypt.hash('Nabd@1234', 10);
+  
+  const providers = [
+    {
+      phone: '0500000001',
+      name_en: 'Dr. Ahmed (Test Doctor)',
+      name_ar: 'د. أحمد (طبيب تجريبي)',
+      provider_type: 'DOCTOR',
+      password: defaultPassword,
+      status: 'APPROVED',
+      is_online: true
+    },
+    {
+      phone: '0500000002',
+      name_en: 'Nabd Pharmacy (Test)',
+      name_ar: 'صيدلية نبض (تجريبي)',
+      provider_type: 'PHARMACY',
+      password: defaultPassword,
+      status: 'APPROVED',
+      is_online: true
+    },
+    {
+      phone: '0500000003',
+      name_en: 'Nabd Lab (Test)',
+      name_ar: 'معمل نبض (تجريبي)',
+      provider_type: 'LAB',
+      password: defaultPassword,
+      status: 'APPROVED',
+      is_online: true
+    },
+    {
+      phone: '0500000004',
+      name_en: 'Nabd Radiology (Test)',
+      name_ar: 'أشعة نبض (تجريبي)',
+      provider_type: 'RADIOLOGY',
+      password: defaultPassword,
+      status: 'APPROVED',
+      is_online: true
+    },
+    {
+      phone: '0500000005',
+      name_en: 'Nabd Nursing (Test)',
+      name_ar: 'تمريض نبض (تجريبي)',
+      provider_type: 'NURSING',
+      password: defaultPassword,
+      status: 'APPROVED',
+      is_online: true
+    },
+    {
+      phone: '0500000006',
+      name_en: 'Nabd Hospital (Test)',
+      name_ar: 'مستشفى نبض (تجريبي)',
+      provider_type: 'FACILITY',
+      password: defaultPassword,
+      status: 'APPROVED',
+      is_online: true
+    }
+  ];
+
+  for (const p of providers) {
+    await Provider.updateOne(
+      { phone: p.phone },
+      { $set: p },
+      { upsert: true }
+    );
+    console.log(`✅ Seeded ${p.provider_type} -> Phone: ${p.phone} | Pass: Nabd@1234`);
+  }
+
+  console.log('🏁 Seeding complete!');
+}
+
+seed()
+  .catch(e => {
+    console.error('❌ Seeding failed:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await mongoose.disconnect();
+  });

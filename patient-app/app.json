@@ -1,0 +1,110 @@
+{
+  "expo": {
+    "name": "نبض بلس",
+    "slug": "nabdah-plus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0066CC"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "scheme": "nabdplus",
+    "sdkVersion": "54.0.0",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0066CC"
+      },
+      "package": "com.nabdahplus.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "app.nabdahplus.com", "pathPrefix": "/" },
+            { "scheme": "nabdplus" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.MANAGE_OWN_CALLS",
+        "android.permission.READ_PHONE_STATE",
+        "android.permission.BIND_TELECOM_CONNECTION_SERVICE"
+      ]
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nabdahplus.app",
+      "associatedDomains": ["applinks:app.nabdahplus.com"],
+      "infoPlist": {
+        "NSCameraUsageDescription": "نحتاج الكاميرا لمسح الوصفات الطبية والباركود وتحليل البشرة",
+        "NSMicrophoneUsageDescription": "نحتاج الميكروفون للاستشارات الصوتية ومساعد الصوت",
+        "NSLocationWhenInUseUsageDescription": "نحتاج موقعك لإيجاد أقرب الأطباء والصيدليات",
+        "NSPhotoLibraryUsageDescription": "نحتاج الوصول لمعرض الصور لرفع الوصفات الطبية والتقارير",
+        "NSFaceIDUsageDescription": "نستخدم Face ID لتأمين حسابك",
+        "NSMotionUsageDescription": "نحتاج حساس الحركة لتتبع نشاطك اليومي",
+        "UIBackgroundModes": [
+          "voip",
+          "audio",
+          "remote-notification"
+        ]
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nabdah Plus to access your camera"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Nabdah Plus to use your location"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0066CC",
+          "sounds": []
+        }
+      ],
+      "expo-local-authentication",
+      "expo-secure-store",
+      "@react-native-community/datetimepicker",
+      "expo-audio",
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

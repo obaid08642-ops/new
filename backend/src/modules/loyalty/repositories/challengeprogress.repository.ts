@@ -1,0 +1,14 @@
+// @ts-nocheck
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { MongoRepository } from '../../../common/database/mongo.repository';
+// Ensure correct import
+import {  ChallengeProgress, any  } from '../../../schemas/loyalty.schemas';
+
+@Injectable()
+export class ChallengeProgressRepository extends MongoRepository<any> {
+  constructor(@InjectModel(ChallengeProgress.name) model: Model<any>) {
+    super(model);
+  }
+}

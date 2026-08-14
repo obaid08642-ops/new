@@ -1,0 +1,95 @@
+# Nabdah Plus - نبض بلس
+# Comprehensive Healthcare Platform - Saudi Arabia
+
+## About
+Nabdah Plus (نبض بلس) is a comprehensive healthcare super-app serving patients in Saudi Arabia. The platform connects patients with doctors, pharmacies, laboratories, nursing services, and more — all from a single mobile application.
+
+## Services
+
+### Doctor Consultations
+- Video, audio, and text consultations with licensed physicians
+- 35+ medical specialties available
+- Clinic visits, home visits, and online consultations
+- Second opinion service
+- Follow-up consultations
+
+### Pharmacy
+- Prescription upload and OCR scanning
+- Medication delivery to your door
+- Barcode scanning for quick ordering
+- Drug interaction checker
+- Broadcast ordering to nearby pharmacies
+
+### Laboratory & Diagnostics
+- Home sample collection
+- 100+ lab tests available
+- Result tracking and history
+- Lab comparison
+- Package deals for comprehensive checkups
+
+### Home Nursing
+- 15+ nursing services available
+- Injection administration
+- Wound care
+- IV therapy and cannula insertion
+- Elderly care
+- Post-operative care
+- Mother and newborn care
+- Vital signs monitoring
+
+### Health Records
+- Digital health ID with QR code
+- Vital signs tracking (blood pressure, heart rate, glucose, temperature, oxygen)
+- Medication reminders
+- Family health management
+- Medical reports and prescriptions storage
+- Chronic disease management
+- Sleep tracking
+
+### Insurance
+- 20+ Saudi insurance companies supported
+- Coverage verification
+- Claim submission and tracking
+- Benefits summary
+
+### AI Health Tools
+- AI symptom checker
+- Skin analysis
+- Prescription translator
+- Drug interaction scanner
+- Monthly health reports
+
+### Mental Health
+- Licensed psychiatrists and psychologists
+- Breathing exercises
+- Meditation sessions
+- Mood journaling
+
+### Nutrition
+- AI meal plan builder
+- Calorie analyzer
+- Food scanner
+- Body composition tracking
+- Exercise plans
+
+### Emergency Services
+- SOS button with automatic GPS sharing
+- Direct ambulance booking
+- Emergency contact management
+
+## Coverage
+- Available throughout Saudi Arabia
+- Major cities: Riyadh, Jeddah, Makkah, Madinah, Dammam, Al Khobar, Khamis Mushait, Tabuk, Abha, Taif
+
+## Languages
+- Arabic (العربية)
+- English
+- Urdu (اردو)
+- Hindi (हिन्दी)
+- Bengali (বাংলা)
+- Filipino
+
+## Contact
+- Website: https://nabdahplus.com
+- Support: support@nabdahplus.com
+- Emergency: 911 (Saudi Arabia)

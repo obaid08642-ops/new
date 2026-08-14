@@ -1,0 +1,49 @@
+{
+  "summary": "Comprehensive smoke test of Nabd Admin Dashboard. All 64 sidebar nav routes (matching the 62 routes in renderPage + 2 extra nav entries) opened and rendered without any console errors, page errors, or React runtime errors. RTL Arabic + Cairo font + dark theme correctly applied. TopBar buttons (Emergency, Kill Switches, Notifications bell, sidebar collapse) all functional. Ctrl+K global search opens modal, typing 'مستشفى' filters and shows مستشفى الرحمة التخصصي; typing 'أحمد' shows أحمد محمد الزهراني — search filter from MOCK data works correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "routes_tested": {
+    "total_in_nav": 64,
+    "total_in_renderPage_map": 63,
+    "all_render_without_runtime_errors": true,
+    "page_errors_caught": 0,
+    "console_errors_caught": 0,
+    "note": "emergency-orders is a PlaceholderPage as designed (renderPage line 4606). It is NOT in NAV array (intentional) so unreachable via sidebar — main agent can verify by calling setPage('emergency-orders')."
+  },
+  "topbar_and_global": {
+    "emergency_button": "OK — navigates to emergency-live, blink animation working",
+    "kill_switches_button": "OK — navigates to kill-switches",
+    "notifications_bell": "OK — navigates to notifications-mgr",
+    "sidebar_collapse_toggle": "OK — sidebar width animates 240px <-> 62px smoothly",
+    "ctrl_k_search": "OK — modal opens, search filters MOCK providers + patients correctly"
+  },
+  "design_verification": {
+    "html_lang_dir": "lang='ar' dir='rtl' OK",
+    "body_font_family": "Cairo, sans-serif OK",
+    "sidebar_groups_present": ["MAIN","PROVIDERS","USERS","OPERATIONS","MASTER DATA","FINANCIAL","CONTENT","SYSTEM"],
+    "page_title": "نبض بلس - Admin"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "/app/frontend/src/App.js is a single 4,801-line file containing 60+ screens — exceeds the >700-line maintainability threshold by 7x. Recommend splitting into /src/pages/* modules (one file per top-level screen) for long-term maintainability. Not blocking — by design per user's instruction to not refactor.",
+    "All API endpoints in /app/frontend/src/api/endpoints.js are unused skeleton placeholders — entire dashboard runs on hard-coded MOCK object. Expected at this stage but flagged so it's not forgotten when wiring real APIs.",
+    "Inline <link> tag for Google Fonts is rendered inside <div> in the App component body (line 4662) instead of <head>. Browsers tolerate this but it's invalid HTML; move to public/index.html (Cairo is already preloaded there, so this line can simply be removed).",
+    "Nav items in the sidebar lack data-testid attributes — automated testing currently has to rely on label-text matching. Adding data-testid={`nav-${item.id}`} on each clickable nav div would dramatically improve test stability.",
+    "TopBar buttons (Emergency, Kill Switches, bell, collapse toggle) and KPI cards also lack data-testid attributes — same recommendation."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% — 64/64 routes render cleanly"},
+  "test_credentials": "Not applicable — no auth screen, app loads directly into dashboard with hardcoded role SUPER_ADMIN",
+  "seed_data_creation": "None — all data is MOCK in-memory",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "First-pass smoke test passed cleanly. When real APIs are wired by main agent: (1) add data-testid attrs to nav items + topbar buttons + KPI cards to enable robust selector-based testing; (2) the renderPage map has 63 routes vs NAV has 64 items — verify all NAV ids map to a component (currently they do, 'emergency-orders' is the only renderPage key without a NAV entry, used as placeholder). Backend testing will need new pytest suite once endpoints in /app/frontend/src/api/endpoints.js get implemented backend-side."
+}

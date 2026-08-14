@@ -1,0 +1,54 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "react-native",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "target": "ESNext",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/design-system": ["./src/design-system/index.ts"],
+      "@/design-system/*": ["./src/design-system/*"],
+      "@/theme": ["./src/theme/index.ts"],
+      "@/theme/*": ["./src/theme/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/store": ["./src/store/index.ts"],
+      "@/store/*": ["./src/store/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/types": ["./src/types/index.ts"],
+      "@/types/*": ["./src/types/*"],
+      "@/constants": ["./src/constants/index.ts"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/context/*": ["./src/context/*"],
+      "@/i18n": ["./src/i18n/index.ts"],
+      "@/i18n/*": ["./src/i18n/*"],
+      "@/guided-tour": ["./src/guided-tour/index.ts"],
+      "@/guided-tour/*": ["./src/guided-tour/*"],
+      "@/assets/*": ["./assets/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.d.ts",
+    "expo-env.d.ts",
+    ".expo/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "scratch",
+    "backend",
+    "backend-fastapi"
+  ]
+}
