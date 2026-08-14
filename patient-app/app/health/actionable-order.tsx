@@ -2,14 +2,28 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { BorderRadius as R, Colors, Spacing as SP } from '../../src/theme';
+import { BorderRadius as R, Spacing as SP } from '../../src/theme';
+import { useApp } from '../../src/context/AppContext';
 import I from 'react-native-vector-icons/Feather';
 
 export default function ActionableOrderScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const theme = Colors.light;
+  const { colors } = useApp();
+  const theme = useMemo(() => ({
+    bg: colors.bg,
+    surface: colors.s,
+    border: colors.bd,
+    text: colors.n,
+    textSub: colors.t2,
+    primary: colors.p,
+    success: colors.gr,
+    successBg: colors.grs,
+    warning: colors.am,
+    info: colors.bl,
+  }), [colors]);
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const payload = useMemo(() => {
     if (typeof params.payload !== 'string') return { erx: [], labs: [], radiology: [], referral: null };
@@ -136,7 +150,10 @@ export default function ActionableOrderScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: {
+  bg: string; surface: string; border: string; text: string; textSub: string;
+  primary: string; success: string; successBg: string; warning: string; info: string;
+}) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.bg },
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: SP.lg, backgroundColor: theme.surface, borderBottomWidth: 1, borderBottomColor: theme.border },
   backBtn: { padding: SP.xs },

@@ -59,39 +59,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const deviceScheme = useDeviceColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
   const [lang, setLangState] = useState<LangCode>('ar');
-  const [config, setConfig] = useState<any>({
-    version: '1.0.0',
-    features: {
-      telehealth: true,
-      home_visit: true,
-      insurance_integration: true,
-      whatsapp_notifications: false,
-      loyalty_rewards: true,
-      ai_symptom_checker: true,
-    },
-    pricing: {
-      vat_percentage: 15,
-      delivery_base_fee: 10,
-    },
-    contact: {
-      support_phone: '920000000',
-      support_email: 'support@nabdah.com',
-    },
-  });
+  const [config] = useState<any>(null);
 
-  const refreshConfig = useCallback(async () => {
-    try {
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1/config`);
-      if (res.ok) {
-        const data = await res.json();
-        setConfig(data);
-      }
-    } catch (_err) {
-      // Fail silently, keep default configurations
-    }
-  }, []);
+  const refreshConfig = useCallback(async () => undefined, []);
 
-  // Hydrate persisted preferences and fetch remote configuration
+  // Hydrate persisted display preferences. Operational remote configuration
+  // remains unavailable until a protected, versioned contract is published.
   useEffect(() => {
     (async () => {
       try {
@@ -106,13 +79,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ) {
           setThemeModeState(savedTheme);
         }
-        if (savedLang) setLangState(savedLang as LangCode);
+        const normalizedLang = savedLang === 'tl' ? 'fil' : savedLang;
+        if (normalizedLang && LANGUAGES.some((language) => language.code === normalizedLang)) {
+          setLangState(normalizedLang);
+          if (normalizedLang !== savedLang) {
+            AsyncStorage.setItem(STORAGE_LANG, normalizedLang).catch(() => undefined);
+          }
+        }
       } catch (_storageErr) {
         /* keep defaults */
       }
     })();
-    refreshConfig();
-  }, [refreshConfig]);
+  }, []);
 
   const isDark =
     themeMode === 'system' ? deviceScheme === 'dark' : themeMode === 'dark';
@@ -174,19 +152,7 @@ export function useApp(): AppContextValue {
       lang: 'ar',
       isRTL: true,
       setLang: () => {},
-      config: {
-        version: '1.0.0',
-        features: {
-          telehealth: true,
-          home_visit: true,
-          insurance_integration: true,
-          whatsapp_notifications: false,
-          loyalty_rewards: true,
-          ai_symptom_checker: true,
-        },
-        pricing: { vat_percentage: 15, delivery_base_fee: 10 },
-        contact: { support_phone: '920000000', support_email: 'support@nabdah.com' },
-      },
+      config: null,
       refreshConfig: async () => {},
     };
   }

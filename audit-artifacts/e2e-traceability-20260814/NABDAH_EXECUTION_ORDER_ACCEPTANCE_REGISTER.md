@@ -28,8 +28,8 @@
 | EO-05 | صيدلية: broadcast، عروض، بدائل، اختيار، دفع، توصيل | `PARTIAL` | الطلب الوارد وقبول/رفض/تحضير حقيقي؛ مراجعة سلة وتأمين وتوصيل وعروض/broadcast غير مكتملة عمداً ولا مخزون وهمي | نموذج order-offer وbroadcast rules وعقد اختيار/دفع/توصيل كامل |
 | EO-06 | إدارة وCRM وموافقات onboarding | `PARTIAL` | أزيلت الشيفرة التاريخية غير المستوردة ذات MOCK وواجهة seed-demo؛ عولجت fallback localhost وحارس router وبطاقات مالية ثابتة في الإدارة الحديثة. يبقى تكامل المراجعة/إعادة التقديم غير مثبت | إدارة حديثة واحدة محمية خادمياً، مسار approve/reject/changes/audit كامل |
 | EO-07 | دفع وتأمين ومال وwebhooks/refund | `PARTIAL` | أُزيل وضع Moyasar الناجح الوهمي، وربط Paymob بطلب صيدلية مملوك ومُسعّر خادمياً بعد موافقة العرض. تبقى ledger/يدوية payout/refund/webhook/reconciliation وsandbox حقيقي | sandbox payment، توقيع webhook، idempotency، ledger، maker-checker واختبارات رفض |
-| EO-08 | UI/UX، safe-area، states، RTL وإتاحة | `OPEN-SOURCE` | حالات فارغة أضيفت لمسارات محددة فقط؛ مراجعة فعلية لكل شاشة/notch/keyboard لم تنجز | فحص route-by-route على جهاز/محاكي وحالات loading/error/retry/accessibility |
-| EO-09 | i18n كامل للمريض وAR/EN للمزوّد | `OPEN-SOURCE` | لا يوجد جرد كامل أو resource موحد؛ نصوص واجهات كثيرة hard-coded | inventory، موارد locale، lint/CI لمنع النصوص الجديدة، RTL/LTR مثبت |
+| EO-08 | UI/UX، safe-area، states، RTL وإتاحة | `PARTIAL` | جرد ساكن لـ477 ملفاً في تطبيق المريض: عولجت الشاشات/المكونات غير المرتبطة بالسمة ذات الأولوية، وأزيل تثبيت `Colors.light` من شاشات التحاليل المكتشفة، وأصلح عطل نطاق `theme` في أوامر طبية. بقي الفحص البصري route-by-route وsafe-area/keyboard والإتاحة على أجهزة فعلية | فحص route-by-route على جهاز/محاكي وحالات loading/error/retry/accessibility |
+| EO-09 | i18n كامل للمريض وAR/EN للمزوّد | `PARTIAL` | جُردت 4422 مطابقة عربية (3272 فريدة)؛ أُنشئ قاموس واجهة لتطبيق المريض من 3011 مصدر عربي إلى EN/UR/HI/BN/FIL، وربط بـ`AppText`/`autoTranslate`، ووحد `fil` مع ترحيل `tl` القديم ومختار اللغات الست. فحص البنية: 0 حقل مفقود أو متغير قالب مفقود. لا تزال مراجعة مترجمين أصليين/طبيين وCI لمنع النصوص الجديدة وتوطين المزوّد مطلوبة | اعتماد لغوي طبي/مالي/قانوني، lint/CI لمنع النصوص الجديدة، RTL/LTR مثبت على جهاز، وAR/EN للمزوّد |
 | EO-10 | أداء وقياسات | `EXTERNAL-BLOCKER` | لا قياس تحميل أو profiling على staging، وفهارس/queries لم يثبت أثرها | baseline وقياس قبل/بعد على staging ببيانات اختبار |
 | EO-11 | hardening: dependencies، SAST، rate limit، ملفات، تخزين | `PARTIAL` | فحص أسرار محلي مستمر؛ audit للتبعيات وثغرات الملفات/رفعها ما زال مفتوحاً | SBOM/audit بلا ثغرات حرجة غير مقبولة، اختبارات upload/storage وصلاحيات |
 | EO-12 | إشعارات/دردشة/صوت/فيديو | `PARTIAL` | أزيل مشروع Expo الافتراضي ونجاح push غير المسجل، وحُجب إرسال الحملات الوهمي. تبقى LiveKit/video placeholders والمراسلة وبعض اختبارات delivery/retry | events مخزنة ومصادق عليها، tokens scoped، حالات missed/retry/delivery مثبتة |
@@ -43,6 +43,8 @@
 |---|---|---|---|
 | الخلفية | `npm run build` | ناجح | لا يثبت Mongo/Redis أو الملكية في طلب حي |
 | تطبيق المريض | `expo export --platform ios` | ناجح | لا يثبت الكاميرا أو الملفات أو الدفع أو Push على جهاز |
+| تطبيق المريض | فحص قاموس الترجمة المولّد | 3011 مفتاحاً × 5 لغات؛ 0 حقل/متغير قالب مفقود | لا يثبت جودة المصطلحات الطبية أو الملاءمة الثقافية؛ مراجعة بشرية لازمة |
+| تطبيق المريض | جرد Dark Mode الساكن | 477 ملفاً؛ 6 ملفات بلا ربط ظاهر بالسمة و2 استثناءين مقصودين متبقيين | لا يحل محل فحص بصري للوضعين على أجهزة iOS وAndroid |
 | تطبيق المزوّد | `npm test -- --runInBand` | 3/3 ناجحة | اختبارات وحدة محددة، لا E2E أدوار |
 | إدارة CRA | `npm run build` | ناجح | لا يثبت عقود الإدارة الحية |
 | إدارة Next.js | `NODE_ENV=production npm run build` | ناجح | لا يثبت RBAC من خادم حي |

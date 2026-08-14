@@ -1,4 +1,5 @@
 import { LangCode } from '../context/AppContext';
+import { generatedStaticTranslations } from './generatedStaticTranslations';
 
 type TranslationKeys = {
   home: string; consultations: string; pharmacy: string; diagnostics: string; health: string;
@@ -300,7 +301,13 @@ export function autoTranslate(text: any, lang: LangCode): any {
       return autoTranslations[trimmed][lang] ?? text;
     }
     
-    // 2. Exact match in translations.ar values
+    // 2. Exact match in the generated static UI catalog. Arabic is the source.
+    const generated = generatedStaticTranslations[trimmed];
+    if (generated && lang !== 'ar') {
+      return generated[lang] ?? text;
+    }
+
+    // 3. Exact match in translations.ar values
     for (const key in translations.ar) {
       const k = key as keyof TranslationKeys;
       if (translations.ar[k] === trimmed) {

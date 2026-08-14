@@ -7,9 +7,11 @@ import en from './locales/en.json';
 import ur from './locales/ur.json';
 import hi from './locales/hi.json';
 import bn from './locales/bn.json';
-import tl from './locales/tl.json';
+import fil from './locales/tl.json';
 
-const translations = { ar, en, ur, hi, bn, tl };
+const translations = { ar, en, ur, hi, bn, fil };
+const LANGUAGE_STORAGE_KEY = '@nabdah_language';
+const LEGACY_LANGUAGE_STORAGE_KEY = 'app_language';
 
 export type SupportedLanguage = keyof typeof translations;
 
@@ -31,9 +33,11 @@ export class LanguageManager {
   }
 
   public async initialize(): Promise<void> {
-    const savedLang = await AsyncStorage.getItem('app_language');
-    if (savedLang && (savedLang in translations)) {
-      this.setLanguage(savedLang as SupportedLanguage, false);
+    const stored = await AsyncStorage.multiGet([LANGUAGE_STORAGE_KEY, LEGACY_LANGUAGE_STORAGE_KEY]);
+    const savedLang = stored[0][1] ?? stored[1][1];
+    const normalizedLang = savedLang === 'tl' ? 'fil' : savedLang;
+    if (normalizedLang && (normalizedLang in translations)) {
+      this.setLanguage(normalizedLang as SupportedLanguage, false);
     } else {
       this.setLanguage('ar', false);
     }
@@ -41,13 +45,13 @@ export class LanguageManager {
 
   public async setLanguage(lang: SupportedLanguage, restartRequired: boolean = true): Promise<void> {
     this.i18n.locale = lang;
-    await AsyncStorage.setItem('app_language', lang);
+    await AsyncStorage.multiSet([[LANGUAGE_STORAGE_KEY, lang], [LEGACY_LANGUAGE_STORAGE_KEY, lang]]);
 
     const isRTL = lang === 'ar' || lang === 'ur';
     if (I18nManager.isRTL !== isRTL) {
       I18nManager.allowRTL(isRTL);
       I18nManager.forceRTL(isRTL);
-      // In a real app we might use expo-updates to reload the app here
+      // Layout direction applies after the host performs its normal app reload.
     }
   }
 

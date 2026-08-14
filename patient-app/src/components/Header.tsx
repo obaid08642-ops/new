@@ -3,12 +3,12 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar, Modal, T
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
+import { LANGUAGES, type LangCode, useApp } from '../context/AppContext';
 import { lightColors, darkColors } from '../theme/colors';
 import { router, usePathname } from 'expo-router';
 
 export default function Header() {
-  const { isDark, toggleTheme, lang, setLang } = useApp() as any;
+  const { isDark, toggleTheme, lang, setLang } = useApp();
   const toggleDark = toggleTheme;
   const changeLang = setLang;
   const pathname = usePathname();
@@ -24,23 +24,14 @@ export default function Header() {
   const isRTL = lang === 'ar' || lang === 'ur';
 
   const [langMenuVisible, setLangMenuVisible] = useState(false);
-  const langs = ['ar', 'en', 'ur', 'tl', 'hi'];
+  const langs = LANGUAGES;
 
-  const handleLangChange = (l: string) => {
+  const handleLangChange = (l: LangCode) => {
     changeLang(l);
     setLangMenuVisible(false);
   };
 
-  const getLangLabel = () => {
-    switch(lang) {
-      case 'ar': return 'ع';
-      case 'en': return 'EN';
-      case 'ur': return 'اردو';
-      case 'tl': return 'TL';
-      case 'hi': return 'हिं';
-      default: return 'ع';
-    }
-  };
+  const getLangLabel = () => LANGUAGES.find((language) => language.code === lang)?.native ?? 'العربية';
 
   const mainScreens = ['/', '/(tabs)', '/index'];
 
@@ -150,12 +141,12 @@ export default function Header() {
         <TouchableWithoutFeedback onPress={() => setLangMenuVisible(false)}>
           <View style={styles.modalOverlay}>
             <View style={[styles.langMenu, { backgroundColor: colors.s, borderColor: colors.bd, left: isRTL ? undefined : 60, right: isRTL ? 60 : undefined }]}>
-              {langs.map(l => {
-                const label = l === 'ar' ? 'العربية' : l === 'en' ? 'English' : l === 'ur' ? 'اردو' : l === 'tl' ? 'Tagalog' : 'हिन्दी';
+              {langs.map((language) => {
+                const { code, native } = language;
                 return (
-                  <TouchableOpacity key={l} style={[styles.langItem, lang === l && { backgroundColor: colors.bg }]} onPress={() => handleLangChange(l)}>
-                    <Text style={{ fontSize: 14, fontWeight: lang === l ? '700' : '500', color: lang === l ? colors.p : colors.n, textAlign: isRTL ? 'right' : 'left' }}>
-                      {label}
+                  <TouchableOpacity key={code} style={[styles.langItem, lang === code && { backgroundColor: colors.bg }]} onPress={() => handleLangChange(code)}>
+                    <Text style={{ fontSize: 14, fontWeight: lang === code ? '700' : '500', color: lang === code ? colors.p : colors.n, textAlign: isRTL ? 'right' : 'left' }}>
+                      {native}
                     </Text>
                   </TouchableOpacity>
                 );

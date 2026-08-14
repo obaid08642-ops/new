@@ -18,6 +18,7 @@ const TECHNIQUES = [
 
 export default function BreathingScreen() {
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useApp();
   const [technique, setTechnique] = useState(TECHNIQUES[0]);
   const [phase, setPhase] = useState<'ready' | 'inhale' | 'hold' | 'exhale' | 'holdout' | 'done'>('ready');
   const [seconds, setSeconds] = useState(0);
@@ -86,12 +87,12 @@ export default function BreathingScreen() {
     ['#1E293B', '#334155'];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={StyleSheet.absoluteFillObject} />
       <View style={[styles.header, { paddingTop: insets.top + 8 } ]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-          <Icon name="back" size={22} color="#fff" />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.hBtn, { backgroundColor: colors.s, borderColor: colors.bd }]}>
+          <Icon name="back" size={22} color={colors.n} />
         </TouchableOpacity>
         <AppText variant="bodySM">تمارين التنفس 🫁</AppText>
         <View style={{ width: 36 }}/>
@@ -102,7 +103,7 @@ export default function BreathingScreen() {
         <View style={styles.techniqueRow}>
           {TECHNIQUES.map(t => (
             <TouchableOpacity key={t.id} onPress={() => setTechnique(t)}
-              style={[styles.techChip, technique.id === t.id && { backgroundColor: 'rgba(255,255,255,0.25)', borderColor: '#fff' } ]}>
+              style={[styles.techChip, { backgroundColor: colors.s, borderColor: colors.bd }, technique.id === t.id && { backgroundColor: colors.ps, borderColor: colors.p } ]}>
               <AppText variant="bodySM">{t.name}</AppText>
               <AppText variant="bodySM">{t.desc}</AppText>
             </TouchableOpacity>
@@ -112,17 +113,19 @@ export default function BreathingScreen() {
 
       {/* Breathing Circle */}
       <View style={styles.circleArea}>
-        <View style={styles.ringOuter} />
-        <View style={styles.ringMid} />
+        <View style={[styles.ringOuter, { borderColor: colors.bd }]} />
+        <View style={[styles.ringMid, { borderColor: colors.bd }]} />
         <Animated.View style={[styles.breathCircle, {
           transform: [{ scale: scaleAnim }],
           backgroundColor: phase === 'inhale' ? 'rgba(99,102,241,0.6)' :
-            phase === 'exhale' ? 'rgba(5,150,105,0.6)' : 'rgba(255,255,255,0.2)',
-          borderColor: phase === 'inhale' ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
+            phase === 'exhale' ? 'rgba(5,150,105,0.6)' : colors.ps,
+          borderColor: phase === 'inhale' ? colors.c1 : colors.p,
         }]}>
-          <AppText variant="bodySM">
-            {phase === 'ready' ? '🫁' : phase === 'inhale' ? '⬆️' : phase === 'exhale' ? '⬇️' : '⏸️'}
-          </AppText>
+          <Icon
+            name={phase === 'ready' ? 'lungs' : phase === 'inhale' ? 'arrow-up-bold-circle' : phase === 'exhale' ? 'arrow-down-bold-circle' : 'pause-circle'}
+            size={36}
+            color={colors.n}
+          />
           {phase !== 'ready' && phase !== 'done' && (
             <>
               <AppText variant="bodySM">{phaseData?.label}</AppText>
@@ -135,7 +138,7 @@ export default function BreathingScreen() {
         {isRunning && (
           <View style={styles.cycleIndicator}>
             {Array.from({ length: technique.cycles }).map((_, i) => (
-              <View key={i} style={[styles.cycleDot, i < cycle && styles.cycleDotDone]} />
+              <View key={i} style={[styles.cycleDot, { backgroundColor: i < cycle ? colors.p : colors.bd }]} />
             ))}
           </View>
         )}
@@ -145,15 +148,17 @@ export default function BreathingScreen() {
       <View style={[styles.controls, { paddingBottom: insets.bottom + 20 } ]}>
         {!isRunning ? (
           <TouchableOpacity onPress={start} style={styles.startBtn}>
-            <View style={styles.startBtnInner}>
-              <AppText variant="bodySM">
-                {phase === 'done' ? 'أعد التمرين' : `▶️ ابدأ — ${technique.cycles} دورات`}
+            <View style={[styles.startBtnInner, { backgroundColor: colors.p, borderColor: colors.p }]}>
+              <Icon name={phase === 'done' ? 'refresh' : 'play'} size={20} color="#FFFFFF" />
+              <AppText variant="bodySM" style={{ color: '#FFFFFF' }}>
+                {phase === 'done' ? 'أعد التمرين' : `ابدأ — ${technique.cycles} دورات`}
               </AppText>
             </View>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={stop} style={styles.stopBtn}>
-            <AppText variant="bodySM">⏹ إيقاف</AppText>
+          <TouchableOpacity onPress={stop} style={[styles.stopBtn, { borderColor: colors.cr, backgroundColor: colors.cs }]}>
+            <Icon name="stop-circle" size={20} color={colors.cr} />
+            <AppText variant="bodySM">إيقاف</AppText>
           </TouchableOpacity>
         )}
         <AppText variant="bodySM">
@@ -168,28 +173,28 @@ export default function BreathingScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 10 },
-  title: { color: '#fff', fontSize: 18, fontWeight: '800' } as any,
-  hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
+  title: { fontSize: 18, fontWeight: '800' } as any,
+  hBtn: { width: 36, height: 36, borderRadius: 11, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
   techniqueRow: { flexDirection: 'row-reverse', paddingHorizontal: 16, gap: 8, marginBottom: 10 },
-  techChip: { flex: 1, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', padding: 10, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.08)', gap: 3 },
-  techName: { color: '#fff', fontSize: 12, fontWeight: '800' } as any,
-  techDesc: { color: 'rgba(255,255,255,0.6)', fontSize: 8, fontWeight: '400', textAlign: 'center' } as any,
+  techChip: { flex: 1, borderRadius: 14, borderWidth: 1, padding: 10, alignItems: 'center', gap: 3 },
+  techName: { fontSize: 12, fontWeight: '800' } as any,
+  techDesc: { fontSize: 8, fontWeight: '400', textAlign: 'center' } as any,
   circleArea: { flex: 1, justifyContent: 'center', alignItems: 'center', position: 'relative' },
-  ringOuter: { position: 'absolute', width: 260, height: 260, borderRadius: 130, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  ringMid: { position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
+  ringOuter: { position: 'absolute', width: 260, height: 260, borderRadius: 130, borderWidth: 1 },
+  ringMid: { position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 1 },
   breathCircle: { width: 160, height: 160, borderRadius: 80, borderWidth: 2, justifyContent: 'center', alignItems: 'center', gap: 4 },
   phaseEmoji: { fontSize: 36 } as any,
-  phaseLabel: { color: '#fff', fontSize: 14, fontWeight: '700' } as any,
-  phaseSeconds: { color: '#fff', fontSize: 36, fontFamily: 'Cairo-ExtraBold', lineHeight: 40 } as any,
-  done: { color: '#fff', fontSize: 18, fontWeight: '800' } as any,
+  phaseLabel: { fontSize: 14, fontWeight: '700' } as any,
+  phaseSeconds: { fontSize: 36, fontFamily: 'Cairo-ExtraBold', lineHeight: 40 } as any,
+  done: { fontSize: 18, fontWeight: '800' } as any,
   cycleIndicator: { position: 'absolute', bottom: 0, flexDirection: 'row', gap: 8 },
-  cycleDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.3)' },
-  cycleDotDone: { backgroundColor: undefined },
+  cycleDot: { width: 10, height: 10, borderRadius: 5 },
+  cycleDotDone: {},
   controls: { paddingHorizontal: 20, gap: 12 },
   startBtn: { borderRadius: 18, overflow: 'hidden' },
-  startBtnInner: { height: 56, justifyContent: 'center', alignItems: 'center', borderRadius: 18, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
-  startBtnAlt: { color: '#fff', fontSize: 17, fontWeight: '800' } as any,
-  stopBtn: { height: 52, borderRadius: 16, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.4)', justifyContent: 'center', alignItems: 'center' },
-  stopBtnAlt: { color: '#fff', fontSize: 15, fontWeight: '700' } as any,
-  techInfo: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '400', textAlign: 'center' } as any,
+  startBtnInner: { height: 56, flexDirection: 'row-reverse', gap: 8, justifyContent: 'center', alignItems: 'center', borderRadius: 18, borderWidth: 1 },
+  startBtnAlt: { fontSize: 17, fontWeight: '800' } as any,
+  stopBtn: { height: 52, flexDirection: 'row-reverse', gap: 8, borderRadius: 16, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' },
+  stopBtnAlt: { fontSize: 15, fontWeight: '700' } as any,
+  techInfo: { fontSize: 11, fontWeight: '400', textAlign: 'center' } as any,
 });

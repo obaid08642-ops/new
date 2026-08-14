@@ -57,6 +57,18 @@
 | `admin-app/web-admin: NODE_ENV=production npm run build` | ناجح | لا يثبت حراسة الدور عبر API حي |
 | `patient-app: npm run lint` | **فشل: 96 أخطاء و1026 تحذيراً** | مشكلات تاريخية، منها رموز JSX غير معرّفة ومتغيرات غير مستخدمة؛ بوابة الإصدار غير مغلقة |
 
+## 2B. دفعة التوطين والوضع الداكن — 14 أغسطس 2026
+
+> لا تثبت هذه الدفعة أن جميع العبارات الطبية أو القانونية أو المالية صارت معتمدة للنشر. هي تثبت **تغطية القاموس وبنية تمرير اللغة**، وتعالج عيوب سمة محلية واضحة. يلزم اعتماد مترجمين أصليين مؤهلين واختبار بصري على أجهزة قبل إغلاق الجاهزية للمتاجر.
+
+| المعرف | المكوّن والموضع | الحالة الحالية | التعديل المنفذ | التحقق المحلي | المتبقي للإغلاق النهائي |
+|---|---|---|---|---|---|
+| LOC-001 | `patient-app/app/**` و`src/**`، `src/i18n/generatedStaticTranslations.ts` | معالجة محلية جزئية | جردت 4422 مطابقة عربية في 479 ملفاً، منها 3272 نصاً فريداً مرشحاً. ولدت 3011 مفتاح واجهة صادر من الشاشات/المكونات إلى الإنجليزية والأوردية والهندية والبنغالية والفلبينية، ويظل العربية نص المصدر | `PATIENT_APP_TRANSLATION_QA.md`: لا حقل لغة أو متغير قالب مفقود | مراجعة بشرية للمصطلحات السريرية والمالية والقانونية، ومراجعة 353 قيمة لم تتغير لأنها أسماء/رموز أو تحتاج قراراً تحريرياً |
+| LOC-002 | `src/i18n/index.ts` و`src/i18n/LanguageManager.ts` و`src/context/AppContext.tsx` و`src/components/Header.tsx` | إصلاح محلي | ربط القاموس المولد في `autoTranslate`، ووحد رمز الفلبينية على `fil` مع ترحيل القيمة المخزنة `tl`، وموحد التخزين، ومختار الرأس يستخدم قائمة اللغات الست المركزية | تصدير Expo iOS ناجح؛ لا مرجع تشغيلي لـ`tl` إلا مسار الترحيل المتوافق | اختبار تبديل اللغة وRTL/LTR في كل شاشة وعلى نظامين |
+| LOC-003 | `app/mental-health/breathing.tsx` و`src/features/{consultation,medical-orders}/*` و`src/guided-tour/ui/SpotlightRenderer.tsx` | إصلاح محلي | نقلت أسطح ونصوص وحدود الشاشات ذات الأولوية إلى ألوان `AppContext` واستبدلت رموز emoji في شاشة التنفس بأيقونات متجهية | تصدير Expo iOS ناجح | فحص بصري على جهاز، وحالات تكبير الخط والتباين والوصول |
+| LOC-004 | `app/{diagnostics/lab-comparison,diagnostics/packages,health/actionable-order}.tsx` | إصلاح محلي | أزيل تثبيت `Colors.light` والأسطح الشفافة المعيبة؛ أُصلح `theme` خارج نطاقه في شاشة الأوامر الطبية والذي كان مرشحاً لعطل وقت تشغيل | لا `Colors.light` متبقٍ في `patient-app/app/`؛ تصدير Expo iOS ناجح | فحص المسارات ببيانات حقيقية وعقود صيدلية/تحاليل على staging |
+| LOC-005 | `PATIENT_APP_DARK_MODE_AUDIT.md` | دليل قياس | جرد ساكن لـ477 ملفاً: من 12 ملفاً غير ظاهر ربطها بالسمة و8 أولويات أبيض/أسود، إلى 6 ملفات و2 استثناءين مقصودين (`room/[id]` لفيديو أسود ثابت و`src/theme/index.ts` لتعريف الرموز) | إعادة تشغيل مولد التدقيق بعد التعديلات | لا يعوض route-by-route visual QA؛ 168 ملفاً فيها ألوان صريحة يجب مراجعة دلالتها عند المرور البصري |
+
 ## 3. ما استُبدل بعقود وبيانات حقيقية
 
 | المعرف | التطبيق أو الخدمة | الشاشة/الملف | ما كان موجوداً | الاستبدال المنفذ | حالة الإثبات |
@@ -113,7 +125,7 @@
 | PAT-016 | `src/core/platform/auth/AuthAuditLogger.ts:15,27,38` | `IP_PLACEHOLDER` | مفتوح — تدقيق | التقاط IP/الجهاز في الخادم، لا اعتماد على العميل |
 | PAT-017 | `src/core/platform/auth/SessionManager.ts:73` | تدوير token placeholder | مفتوح — هوية | endpoint refresh rotation وrevoke وsecure storage |
 | PAT-018 | `src/config/chatSecurity.ts:139` و`src/utils/security.ts:161` و`guided-tour/engines/AnalyticsCollector.ts:24` | إرسال تدقيق/تحليلات محاكى أو مؤجل | مفتوح — تدقيق | API سجل تدقيق مصادق مع privacy policy وretention |
-| PAT-019 | `src/context/AppContext.tsx:84` و`src/core/config/ConfigManager.ts:49-52` و`RealtimeClient.ts:30` و`SocketContext.tsx:11` | fallback عناوين localhost في وقت التشغيل | مفتوح — تهيئة | منع fallback في الإنتاج مثل عميل API الرئيسي، وإلزام متغير بيئة صحيح |
+| PAT-019 | `RealtimeClient.ts:30` و`SocketContext.tsx:11` | fallback عناوين localhost في وقت التشغيل | مفتوح — تهيئة | عولج `AppContext` و`ConfigManager` في الدفعات السابقة؛ يبقى منع fallback في عملاء الوقت الحقيقي وإلزام متغير بيئة صحيح |
 
 ## 6. البيانات الوهمية أو البدائل المتبقية — تطبيق مزود الخدمة
 

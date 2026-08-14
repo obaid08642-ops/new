@@ -8,14 +8,14 @@ import {
   Alert,
 } from "react-native";
 import { AppText } from "../../src/components/ui";
-import { Colors } from "../../src/theme";
-const theme = { colors: Colors.light };
+import { useApp } from "../../src/context/AppContext";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useDiagnosticsCart } from "../../src/context/DiagnosticsCartContext";
 import { apiFetch } from "../../src/utils/api";
 
 export default function LabComparison() {
+  const { colors } = useApp();
   const router = useRouter();
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
   const { addItem } = useDiagnosticsCart();
@@ -91,13 +91,13 @@ export default function LabComparison() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { borderBottomColor: colors.bd }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Icon
             name="arrow-forward"
             size={24}
-            color={theme.colors.textPrimary}
+            color={colors.n}
           />
         </TouchableOpacity>
         <AppText variant="h2" style={styles.headerTitle}>
@@ -109,32 +109,32 @@ export default function LabComparison() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.infoBox}>
-          <AppText style={{ fontSize: 13, color: theme.colors.textSecondary }}>
+        <View style={[styles.infoBox, { backgroundColor: colors.ps }]}>
+          <AppText style={{ fontSize: 13, color: colors.t2 }}>
             مقارنة الأسعار لـ:
           </AppText>
           <AppText
             variant="h3"
-            style={{ marginTop: 4, color: theme.colors.primary }}
+            style={{ marginTop: 4, color: colors.p }}
           >
             {testName}
           </AppText>
         </View>
 
         {loading ? (
-          <AppText style={{ textAlign: 'center', marginTop: 40, color: theme.colors.textSecondary }}>جاري تحميل المختبرات المتوفرة...</AppText>
+          <AppText style={{ textAlign: 'center', marginTop: 40, color: colors.t2 }}>جاري تحميل المختبرات المتوفرة...</AppText>
         ) : (
           labs.map((lab) => (
             <View
             key={lab.id}
-            style={[styles.labCard, lab.bestValue && styles.labCardBest]}
+            style={[styles.labCard, { backgroundColor: colors.s, borderColor: lab.bestValue ? colors.p : colors.bd }, lab.bestValue && styles.labCardBest]}
           >
             {lab.bestValue && (
-              <View style={styles.bestValueBadge}>
+              <View style={[styles.bestValueBadge, { backgroundColor: colors.ps, borderColor: colors.p }]}>
                 <AppText
                   style={{
                     fontSize: 10,
-                    color: theme.colors.primary,
+                    color: colors.p,
                     fontWeight: "bold",
                   }}
                 >
@@ -153,23 +153,23 @@ export default function LabComparison() {
                   <AppText
                     style={{
                       fontSize: 12,
-                      color: theme.colors.textSecondary,
+                      color: colors.t2,
                       marginLeft: 4,
                     }}
                   >
                     {lab.rating}
                   </AppText>
                   {lab.homeVisitAvailable && (
-                    <View style={styles.homeBadge}>
+                    <View style={[styles.homeBadge, { backgroundColor: colors.ts }]}>
                       <Icon
                         name="home"
                         size={10}
-                        color={theme.colors.secondary}
+                        color={colors.tl}
                       />
                       <AppText
                         style={{
                           fontSize: 9,
-                          color: theme.colors.secondary,
+                          color: colors.tl,
                           marginLeft: 2,
                         }}
                       >
@@ -184,24 +184,20 @@ export default function LabComparison() {
                   style={{
                     fontSize: 24,
                     fontWeight: "900",
-                    color: theme.colors.primary,
+                    color: colors.p,
                   }}
                 >
                   {lab.price}
                 </AppText>
-                <AppText
-                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
-                >
+                <AppText style={{ fontSize: 10, color: colors.t2 }}>
                   ر.س
                 </AppText>
               </View>
             </View>
 
             <View style={styles.cardFooter}>
-              <View style={styles.timeBox}>
-                <AppText
-                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
-                >
+              <View style={[styles.timeBox, { backgroundColor: colors.bg }]}>
+                <AppText style={{ fontSize: 10, color: colors.t2 }}>
                   النتيجة خلال
                 </AppText>
                 <AppText style={{ fontSize: 13, fontWeight: "bold" }}>
@@ -209,7 +205,7 @@ export default function LabComparison() {
                 </AppText>
               </View>
               <TouchableOpacity
-                style={styles.bookBtn}
+                style={[styles.bookBtn, { backgroundColor: colors.p }]}
                 onPress={() => handleBook(lab)}
                 disabled={adding}
               >
@@ -234,15 +230,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
     paddingTop: 60,
-    backgroundColor: "transparent",
     borderBottomWidth: 1,
-    borderBottomColor: "transparent",
   },
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -251,29 +244,24 @@ const styles = StyleSheet.create({
   infoBox: {
     marginBottom: 24,
     padding: 16,
-    backgroundColor: `${"transparent"}10`,
     borderRadius: 16,
   },
   labCard: {
-    backgroundColor: "transparent",
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1.5,
-    borderColor: "transparent",
     position: "relative",
   },
-  labCardBest: { borderColor: "transparent" },
+  labCardBest: {},
   bestValueBadge: {
     position: "absolute",
     top: -12,
     right: 20,
-    backgroundColor: `${"transparent"}15`,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "transparent",
   },
   cardHeader: {
     flexDirection: "row",
@@ -285,7 +273,6 @@ const styles = StyleSheet.create({
   homeBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: `${"transparent"}15`,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -295,14 +282,12 @@ const styles = StyleSheet.create({
   cardFooter: { flexDirection: "row", gap: 12 },
   timeBox: {
     flex: 1,
-    backgroundColor: "transparent",
     borderRadius: 12,
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
   },
   bookBtn: {
-    backgroundColor: "transparent",
     borderRadius: 12,
     paddingHorizontal: 32,
     alignItems: "center",
