@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-08-14T01:33:43.652Z",
+  "frontendUniqueEndpoints": 297,
+  "backendControllerEndpoints": 522,
+  "matched": 138,
+  "ambiguous": 32,
+  "unmatched": 127,
+  "duplicateGlobalPrefixControllers": 60
+}

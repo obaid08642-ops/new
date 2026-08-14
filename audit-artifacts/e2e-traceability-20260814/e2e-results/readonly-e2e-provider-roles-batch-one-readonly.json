@@ -1,0 +1,173 @@
+{
+  "summary": {
+    "generatedAt": "2026-08-14T01:49:47.138Z",
+    "mode": "POST login only + GET verification only",
+    "rolesAttempted": 4,
+    "tokensObtained": 4,
+    "twoFactorGates": 0,
+    "readChecks": 12,
+    "successfulReadChecks": 8
+  },
+  "results": [
+    {
+      "role": "pharmacy",
+      "loginPath": "/provider/auth/login",
+      "loginHttpStatus": 201,
+      "tokenObtained": true,
+      "tokenMetadata": {
+        "claimKeys": [
+          "exp",
+          "iat",
+          "provider_type",
+          "role",
+          "scope"
+        ],
+        "role": "provider",
+        "subjectPresent": true,
+        "expiryPresent": true
+      },
+      "requires2fa": false,
+      "readChecks": [
+        {
+          "route": "/auth/me",
+          "status": 401,
+          "ok": false,
+          "bodyLength": 68,
+          "errorPreview": "{\"message\":\"User not found\",\"error\":\"Unauthorized\",\"statusCode\":401}"
+        },
+        {
+          "route": "/provider/jobs/my-capabilities",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 90
+        },
+        {
+          "route": "/provider/jobs/queue",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        }
+      ]
+    },
+    {
+      "role": "hospital",
+      "loginPath": "/provider/auth/login",
+      "loginHttpStatus": 201,
+      "tokenObtained": true,
+      "tokenMetadata": {
+        "claimKeys": [
+          "exp",
+          "iat",
+          "provider_type",
+          "role",
+          "scope"
+        ],
+        "role": "provider",
+        "subjectPresent": true,
+        "expiryPresent": true
+      },
+      "requires2fa": false,
+      "readChecks": [
+        {
+          "route": "/auth/me",
+          "status": 401,
+          "ok": false,
+          "bodyLength": 68,
+          "errorPreview": "{\"message\":\"User not found\",\"error\":\"Unauthorized\",\"statusCode\":401}"
+        },
+        {
+          "route": "/provider/jobs/my-capabilities",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 90
+        },
+        {
+          "route": "/provider/jobs/queue",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        }
+      ]
+    },
+    {
+      "role": "laboratory",
+      "loginPath": "/provider/auth/login",
+      "loginHttpStatus": 201,
+      "tokenObtained": true,
+      "tokenMetadata": {
+        "claimKeys": [
+          "exp",
+          "iat",
+          "provider_type",
+          "role",
+          "scope"
+        ],
+        "role": "provider",
+        "subjectPresent": true,
+        "expiryPresent": true
+      },
+      "requires2fa": false,
+      "readChecks": [
+        {
+          "route": "/auth/me",
+          "status": 401,
+          "ok": false,
+          "bodyLength": 68,
+          "errorPreview": "{\"message\":\"User not found\",\"error\":\"Unauthorized\",\"statusCode\":401}"
+        },
+        {
+          "route": "/provider/jobs/my-capabilities",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 90
+        },
+        {
+          "route": "/provider/jobs/queue",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        }
+      ]
+    },
+    {
+      "role": "radiology",
+      "loginPath": "/provider/auth/login",
+      "loginHttpStatus": 201,
+      "tokenObtained": true,
+      "tokenMetadata": {
+        "claimKeys": [
+          "exp",
+          "iat",
+          "provider_type",
+          "role",
+          "scope"
+        ],
+        "role": "provider",
+        "subjectPresent": true,
+        "expiryPresent": true
+      },
+      "requires2fa": false,
+      "readChecks": [
+        {
+          "route": "/auth/me",
+          "status": 401,
+          "ok": false,
+          "bodyLength": 68,
+          "errorPreview": "{\"message\":\"User not found\",\"error\":\"Unauthorized\",\"statusCode\":401}"
+        },
+        {
+          "route": "/provider/jobs/my-capabilities",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 90
+        },
+        {
+          "route": "/provider/jobs/queue",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-08-14T10:14:36.897Z",
+  "mode": "single zero-value payment creation request; no card, callback, refund, or withdrawal",
+  "loginStatus": 201,
+  "paymentCreationStatus": 400,
+  "submittedAmountSar": 0,
+  "sandboxIndicator": false,
+  "returnedStatus": null,
+  "responseHasPaymentIdentifier": false,
+  "followUpActionsExecuted": 0
+}

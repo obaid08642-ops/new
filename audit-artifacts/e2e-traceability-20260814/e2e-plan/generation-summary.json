@@ -1,0 +1,12 @@
+{
+  "totalCases": 297,
+  "readonlyEligible": 100,
+  "approvalRequired": 99,
+  "contractProofRequired": 127,
+  "bolaEligible": 17,
+  "risk": {
+    "قراءة عادية": 134,
+    "قراءة حساسة": 64,
+    "متلف أو مُغيّر للحالة": 99
+  }
+}

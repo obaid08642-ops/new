@@ -1,0 +1,148 @@
+{
+  "summary": {
+    "generatedAt": "2026-08-14T01:47:14.946Z",
+    "mode": "POST login only + GET verification only",
+    "rolesAttempted": 1,
+    "tokensObtained": 1,
+    "twoFactorGates": 0,
+    "readChecks": 21,
+    "successfulReadChecks": 21
+  },
+  "results": [
+    {
+      "role": "patient",
+      "loginPath": "/auth/login",
+      "loginHttpStatus": 201,
+      "tokenObtained": true,
+      "requires2fa": false,
+      "readChecks": [
+        {
+          "route": "/auth/me",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 167
+        },
+        {
+          "route": "/health/reminders",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/health/sleep",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/health/vitals",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/maternity/profile",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 1447
+        },
+        {
+          "route": "/nutrition/meals",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/nutrition/profile",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 476
+        },
+        {
+          "route": "/nutrition/water",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/pharmacy/returns",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/users/me/addresses",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/users/me/notification-settings",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 38
+        },
+        {
+          "route": "/users/me/privacy-settings",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 43
+        },
+        {
+          "route": "/users/me/profile",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 370
+        },
+        {
+          "route": "/users/me/security-settings",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 38
+        },
+        {
+          "route": "/calls/history",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 46
+        },
+        {
+          "route": "/care/doctors",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 4532
+        },
+        {
+          "route": "/care/specialties",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 4412
+        },
+        {
+          "route": "/health/chronic-diseases",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/health/chronic-meds",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/health/medications/reminders",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        },
+        {
+          "route": "/health/reports",
+          "status": 200,
+          "ok": true,
+          "bodyLength": 2
+        }
+      ]
+    }
+  ]
+}
