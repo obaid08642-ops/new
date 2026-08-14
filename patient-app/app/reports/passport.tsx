@@ -299,12 +299,6 @@ const st = StyleSheet.create({
     padding: 10,
     justifyContent: "space-between",
   },
-  fakeQRRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    height: "18%",
-  },
-  fakeQRBlock: { width: "18%", height: "100%", borderRadius: 3 },
   infoGrid: { flexDirection: "row-reverse", paddingVertical: 12 },
   gridItem: {
     flex: 1,

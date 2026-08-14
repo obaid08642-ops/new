@@ -28,54 +28,11 @@ export default function AddPolicyScreen() {
   }, []);
 
   const handleScanCard = async () => {
-    try {
-      setIsScanning(true);
-      const res = await apiFetch('/insurance/ocr-extract', {
-        method: 'POST',
-        body: JSON.stringify({ file: 'base64_simulated_data' }),
-      });
-      if (res.success && res.extracted_data) {
-        const data = res.extracted_data;
-        setPolicyNum(data.policy_number);
-        setMemberId(data.national_id);
-        // Map bupa/tawuniya to corresponding ID
-        if (data.provider === 'bupa') setCompany('1');
-        else if (data.provider === 'tawuniya') setCompany('2');
-        else setCompany('1');
-        Alert.alert('نجح المسح', 'تم التعرف على تفاصيل بطاقتك وتعبئة البيانات تلقائياً.');
-      }
-    } catch (err: any) {
-      Alert.alert('خطأ', err.message || 'فشل التعرف على البطاقة');
-    } finally {
-      setIsScanning(false);
-    }
+    Alert.alert('المسح غير متاح', 'لا يمكن مسح أو استخراج بيانات بطاقة التأمين حتى يتوفر عقد رفع وتحقيق خادمي محمي.');
   };
 
   const handleSave = async () => {
-    if (!company || !policyNum) return;
-    setIsSaving(true);
-    try {
-      const compObj = companies.find(c => c.id === company);
-      await apiFetch('/insurance/save-policy', {
-        method: 'POST',
-        body: JSON.stringify({
-          provider: compObj?.name || 'أخرى',
-          policy_number: policyNum,
-          network: 'gold',
-          class: 'A',
-          expiry_date: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().split('T')[0],
-          member_name: 'أحمد عبيد',
-          national_id: memberId,
-          verified: true,
-          ocr_extracted: true,
-        }),
-      });
-      router.replace('/insurance/hub');
-    } catch (err: any) {
-      Alert.alert('خطأ', err.message || 'فشل حفظ بوليصة التأمين');
-    } finally {
-      setIsSaving(false);
-    }
+    Alert.alert('الحفظ غير متاح', 'لم تُحفظ أي بوليصة. يتطلب هذا التدفق عقد خادمي للتحقق من العضوية ورفع المستندات قبل تفعيله.');
   };
 
   return (
@@ -90,15 +47,15 @@ export default function AddPolicyScreen() {
         {/* Scan Card Option */}
         <TouchableOpacity 
           onPress={handleScanCard}
-          disabled={isScanning}
+          disabled={false}
           style={[styles.scanCard, { backgroundColor: isDark ? colors.surface : '#EBF3FF', borderColor: colors.primary + '40' } ]}>
           {isScanning ? (
             <ActivityIndicator size="small" color={colors.primary} />
           ) : (
             <>
               <View>
-                <AppText variant="bodySM">مسح بطاقة التأمين</AppText>
-                <AppText variant="bodySM">صوّر بطاقتك وسنستخرج البيانات تلقائياً</AppText>
+                <AppText variant="bodySM">مسح بطاقة التأمين غير متاح</AppText>
+                <AppText variant="bodySM">يتطلب عقد رفع وتحقيق خادمي محمي.</AppText>
               </View>
               <Icon name="camera" size={28} color={colors.primary} />
             </>
@@ -143,10 +100,10 @@ export default function AddPolicyScreen() {
         </View>
       </ScrollView>
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
-        <TouchableOpacity onPress={handleSave} disabled={!company || !policyNum || isSaving}
-          activeOpacity={0.85} style={{ opacity: !company || !policyNum ? 0.6 : 1 }}>
+        <TouchableOpacity onPress={handleSave} disabled={isSaving}
+          activeOpacity={0.85} style={{ opacity: 0.6 }}>
           <View style={[styles.saveBtn, { backgroundColor: '#0f3460' }]}>
-            <AppText variant="bodySM">{isSaving ? 'جاري الحفظ...' : 'حفظ وإضافة البوليصة '}</AppText>
+            <AppText variant="bodySM">{isSaving ? 'جاري التحقق...' : 'حفظ البوليصة غير متاح'}</AppText>
           </View>
         </TouchableOpacity>
       </View>

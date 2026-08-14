@@ -11,7 +11,7 @@ import { AppText, Card, Badge } from '../../src/components/ui';
 import { Image } from 'expo-image';
 import { apiFetch } from '../../src/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FETUS_DATA } from './fetus-data';
+import { FETUS_DATA } from '../../src/data/fetus-data';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 

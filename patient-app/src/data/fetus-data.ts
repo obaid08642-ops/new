@@ -171,5 +171,3 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
   39: { week: 39, size_name: "بطيخة حمراء", weight_g: 3300, length_cm: 54.0, description: "جسمه مكتمل ومستعد للحياة خارج الرحم، ويبني طبقات الدهون النهائية.", image_path: require("../../assets/images/maternity/fetus/week_39.png") },
   40: { week: 40, size_name: "يقطينة صغيرة", weight_g: 3500, length_cm: 55.0, description: "اكتمل نمو جنينك تماماً! وهو الآن مستعد للخروج ورؤية العالم.", image_path: require("../../assets/images/maternity/fetus/week_40.png") },
 };
-
-export default function DummyFetusRoute() { return null; }
