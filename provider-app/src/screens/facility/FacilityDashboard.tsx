@@ -513,24 +513,8 @@ function SubAccountsScreen({ onBack, onNavigate }: {
 
  const fetchStaff = async () => {
  setLoading(true);
- try {
- const res = await client.get('/provider/features/staff');
- const formatted = res.data.map((x: any) => ({
- id: x._id || x.id,
- name: x.full_name,
- role: x.role || 'doctor',
- spec: x.department || (AR ? 'قسم طبي' : 'Medical Dept'),
- status: x.active ? 'active' : 'inactive',
- phone: x.phone,
- subId: x.phone ? `NBD-${x.phone.slice(-4)}` : 'NBD-F000',
- lastLogin: 'اليوم',
- }));
- setStaffList(formatted);
- } catch (e) {
- show(AR ? 'فشل تحميل قائمة الموظفين' : 'Failed to fetch staff list', 'error');
- } finally {
+ setStaffList([]);
  setLoading(false);
- }
  };
 
  useEffect(() => {
@@ -551,7 +535,7 @@ function SubAccountsScreen({ onBack, onNavigate }: {
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
  {AR ? ' إدارة الكوادر' : ' Staff Accounts'}
  </Text>
- <TouchableOpacity onPress={() => onNavigate('add_subaccount', null)}>
+ <TouchableOpacity onPress={() => show(AR ? 'إدارة الكوادر غير متاحة حتى يُنشر عقد خادمي محمي.' : 'Staff management is unavailable until a protected backend contract is published.', 'warning')}>
  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary,
  alignItems: 'center', justifyContent: 'center' }}>
  <Text style={{ color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>+</Text>
@@ -591,7 +575,7 @@ function SubAccountsScreen({ onBack, onNavigate }: {
  <NSecHeader title={AR ? 'إضافة سريعة' : 'Quick Add'} />
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
  {Object.entries(ROLE_LABELS).map(([role, info]) => (
- <TouchableOpacity key={role} onPress={() => onNavigate('add_subaccount', role)}
+ <TouchableOpacity key={role} onPress={() => show(AR ? 'إضافة الحسابات غير متاحة بلا عقد خادمي محمي.' : 'Account creation is unavailable without a protected backend contract.', 'warning')}
  style={[s.roleAddBtn, { backgroundColor: `${info.color}15`, borderColor: info.color }]}>
  <Text style={{ fontSize: 20 }}>{info.icon}</Text>
  <Text style={{ fontSize: FS.xs, color: info.color, fontWeight: FW.semi }}>
@@ -627,7 +611,7 @@ function SubAccountsScreen({ onBack, onNavigate }: {
  </View>
  <View style={{ gap: SP.xs }}>
  <TouchableOpacity style={[s.iconBtn2, { backgroundColor: theme.primaryLight }]}
- onPress={() => onNavigate('add_subaccount', staff.role)}>
+ onPress={() => show(AR ? 'تعديل الحساب غير متاح بلا عقد خادمي محمي.' : 'Account editing is unavailable without a protected backend contract.', 'warning')}>
  <Text style={{ fontSize: 16 }}>️</Text>
  </TouchableOpacity>
  <TouchableOpacity style={[s.iconBtn2, { backgroundColor: theme.dangerBg }]}
@@ -663,7 +647,7 @@ function SubAccountsScreen({ onBack, onNavigate }: {
  visible={!!showDelete}
  title={AR ? 'حذف الحساب' : 'Delete Account'}
  msg={AR ? 'سيتم حذف هذا الحساب الفرعي نهائياً. هل أنت متأكد؟' : 'This sub-account will be permanently deleted. Are you sure?'}
- onOk={() => { setShowDelete(null); show(AR?'تم حذف الحساب':'Account deleted','success'); }}
+ onOk={() => { setShowDelete(null); show(AR?'لم يُحذف الحساب: خدمة الحذف غير متاحة بلا عقد خادمي محمي.':'Account was not deleted: the protected delete contract is unavailable.', 'warning'); }}
  onCancel={() => setShowDelete(null)}
  okLabel={AR ? 'حذف' : 'Delete'}
  />
@@ -704,34 +688,8 @@ function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; preRole?
  return;
  }
  setLoading(true);
- const tempPass = `TempPass#${String(Math.floor(1000 + Math.random() * 9000))}`;
- try {
- await client.post('/provider/features/staff', {
- full_name: name,
- phone: phone,
- email: email,
- password: tempPass,
- role: role,
- department: spec || 'General',
- permissions: ['read', 'write'],
- });
- const subId = `NBD-${phone.slice(-4)}`;
- setCreatedCreds({
- name,
- email,
- phone,
- role: selectedRole.ar,
- roleEn: selectedRole.en,
- subId,
- tempPass
- });
- show(AR ? ` تم إنشاء الحساب الفرعي بنجاح` : ` Sub-account created successfully`, 'success');
- } catch (err: any) {
- const msg = err.response?.data?.message || err.message;
- show(AR ? `فشل إنشاء الحساب الفرعي: ${msg}` : `Failed to create sub-account: ${msg}`, 'error');
- } finally {
+ show(AR ? 'لم يُنشأ الحساب: عقد إدارة الكوادر المحمي غير منشور بعد.' : 'No account was created: the protected staff-management contract is not published yet.', 'warning');
  setLoading(false);
- }
  };
 
  if (createdCreds) {

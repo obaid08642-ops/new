@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, NotImplementedException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, NotImplementedException, UseInterceptors } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
@@ -16,6 +17,7 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 @Controller('patient/pharmacy')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
+@UseInterceptors(IdempotencyInterceptor)
 export class PatientPharmacyController {
   constructor(private orders: PharmacyOrderService) {}
   @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
@@ -31,6 +33,7 @@ export class PatientPharmacyController {
 // =========================================================================
 @Controller('provider/pharmacy')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(IdempotencyInterceptor)
 export class ProviderPharmacyController {
   constructor(
     private allocs: PharmacyAllocationService,
