@@ -348,7 +348,11 @@ export class LabsService {
 
   async registerSample(user: any, body: { lab_order_id: string; barcode: string; tests: string[]; notes?: string }) {
     if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    const b = await this.bkgModel.findOne({ id: body.lab_order_id });
+    const providerAccountId = user.provider_account_id;
+    if (user.role !== 'admin' && !providerAccountId) throw new ForbiddenException('provider_context_required');
+    const bookingFilter: any = { id: body.lab_order_id };
+    if (user.role !== 'admin') bookingFilter.provider_account_id = providerAccountId;
+    const b = await this.bkgModel.findOne(bookingFilter);
     if (!b) throw new NotFoundException('lab_order_not_found');
 
     const existing = await this.sampleModel.findOne({ barcode: body.barcode });
@@ -357,6 +361,7 @@ export class LabsService {
     const sample = await this.sampleModel.create({
       id: require('uuid').v4(),
       lab_order_id: body.lab_order_id,
+      provider_account_id: b.provider_account_id,
       patient_id: b.patient_id,
       barcode: body.barcode,
       tests: body.tests || [],
@@ -376,12 +381,29 @@ export class LabsService {
 
   async updateSampleStage(user: any, sampleId: string, stage: 'received' | 'analyzing' | 'result_ready' | 'sent', notes?: string) {
     if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    const sample = await this.sampleModel.findOne({ id: sampleId });
+    const providerAccountId = user.provider_account_id;
+    if (user.role !== 'admin' && !providerAccountId) throw new ForbiddenException('provider_context_required');
+    const sampleFilter: any = { id: sampleId };
+    if (user.role !== 'admin') sampleFilter.provider_account_id = providerAccountId;
+    const sample = await this.sampleModel.findOne(sampleFilter);
     if (!sample) throw new NotFoundException('sample_not_found');
 
-    await this.sampleModel.updateOne({ id: sampleId }, { $set: { stage, notes } });
+    const allowedStages: Record<string, string[]> = {
+      received: ['analyzing'],
+      analyzing: ['result_ready'],
+      result_ready: ['sent'],
+      sent: [],
+    };
+    if (sample.stage !== stage && !allowedStages[sample.stage]?.includes(stage)) {
+      throw new BadRequestException('invalid_sample_stage_transition');
+    }
+    if (sample.stage === stage) return { ok: true, stage, idempotent: true };
 
-    const b = await this.bkgModel.findOne({ id: sample.lab_order_id });
+    await this.sampleModel.updateOne(sampleFilter, { $set: { stage, notes } });
+
+    const bookingFilter: any = { id: sample.lab_order_id };
+    if (user.role !== 'admin') bookingFilter.provider_account_id = providerAccountId;
+    const b = await this.bkgModel.findOne(bookingFilter);
     if (b) {
       let targetBookingState: LabBookingState | null = null;
       if (stage === 'analyzing') targetBookingState = LabBookingState.PROCESSING;
@@ -399,7 +421,9 @@ export class LabsService {
 
   async listSamples(user: any) {
     if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    return this.sampleModel.find().sort({ createdAt: -1 }).lean();
+    if (user.role === 'admin') return this.sampleModel.find().sort({ createdAt: -1 }).lean();
+    if (!user.provider_account_id) throw new ForbiddenException('provider_context_required');
+    return this.sampleModel.find({ provider_account_id: user.provider_account_id }).sort({ createdAt: -1 }).lean();
   }
 
   // --- Admin Catalog CRUD ---

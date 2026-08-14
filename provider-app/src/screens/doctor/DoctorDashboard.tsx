@@ -451,22 +451,15 @@ function DoctorScheduleTab({ onNavigate }: { onNavigate: (s: string, p?: any) =>
  .then(res => {
  setApts((res.data || []).map((x: any) => ({
  id: x.id,
- patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+ patient: x.patient_name || '—',
  time: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
  type: x.service_type || 'video',
  status: x.domain_state === 'IN_PROGRESS' || x.universal_state === AppointmentStatus.IN_PROGRESS ? AppointmentStatus.IN_PROGRESS : 'confirmed',
- price: x.total || 150,
+ price: Number(x.total || 0),
  raw: x
  })));
  })
- .catch(() => {
-  // Fallback: show demo appointments when API unavailable
-  setApts([
-    { id: 'apt1', patient: AR ? 'سارة المطيري' : 'Sara Al-Mutairi', time: '09:30', type: 'video', status: 'confirmed', price: 150, raw: {} },
-    { id: 'apt2', patient: AR ? 'أحمد السالم' : 'Ahmed Al-Salem', time: '11:00', type: 'clinic', status: 'confirmed', price: 200, raw: {} },
-    { id: 'apt3', patient: AR ? 'فيصل الحربي' : 'Faisal Al-Harbi', time: '14:30', type: 'home', status: 'confirmed', price: 300, raw: {} },
-  ]);
- });
+ .catch(() => setApts([]));
  }, [AR]);
 
  const filtered = filter === 'all' ? apts : apts.filter(a => a.type === filter);
@@ -568,16 +561,16 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  {/* Patient Info */}
  <NCard style={{ marginBottom: SP.xl }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.lg, marginBottom: SP.lg }}>
- <NAvatar name={apt?.patient ?? 'مريض'} size={60} />
+ <NAvatar name={apt?.patient ?? '—'} size={60} />
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>{apt?.patient ?? '—'}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{apt?.age ?? 34} {AR?'سنة':'yrs'}</Text>
- <NBadge label={apt?.insurance ?? 'Bupa A'} variant="primary" size="xs" style={{ marginTop: SP.xs }} />
+ {apt?.age !== undefined && <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{apt.age} {AR?'سنة':'yrs'}</Text>}
+ {apt?.insurance && <NBadge label={apt.insurance} variant="primary" size="xs" style={{ marginTop: SP.xs }} />}
  </View>
  </View>
 
- {/* --- AI Triage Score --- */}
+ {/* Triage summary is displayed only from the backend payload. */}
  <NCard style={{ marginTop: SP.md, marginBottom: SP.md, backgroundColor: '#E3F2FD', borderColor: '#2196F3' }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
  <Text style={{ fontSize: 24 }}>🤖</Text>
@@ -586,7 +579,7 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  {AR ? 'ملخص الذكاء الاصطناعي (AI Triage)' : 'AI Triage Score'}
  </Text>
  <Text style={{ fontSize: FS.sm, color: '#1976D2', textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'حالة مستقرة - تتوافق الأعراض مع التهاب بسيط' : 'Stable condition - Symptoms match mild infection'}
+ {apt?.triage_summary || '—'}
  </Text>
  </View>
  </View>
@@ -594,10 +587,10 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
 
 
  {[
- { icon:'clock', ar:'وقت الموعد', en:'Time', val:apt?.time ?? '10:00 AM' },
+ { icon:'clock', ar:'وقت الموعد', en:'Time', val:apt?.time ?? '—' },
  { icon:'video', ar:'نوع الخدمة', en:'Type', val:apt?.type === 'video' ? (AR?'استشارة فيديو':'Video Consult') : apt?.type === 'clinic' ? (AR?'كشف عيادة':'Clinic') : (AR?'زيارة منزلية':'Home Visit') },
- { icon:'dollarSign', ar:'الرسوم', en:'Fee', val:`${apt?.price ?? 200} ${AR?'ريال':'SAR'}` },
- { icon:'fileText', ar:'الشكوى', en:'Complaint', val:apt?.complaint ?? AR?'صداع مستمر':'Persistent headache' },
+ { icon:'dollarSign', ar:'الرسوم', en:'Fee', val:apt?.price !== undefined ? `${apt.price} ${AR?'ريال':'SAR'}` : '—' },
+ { icon:'fileText', ar:'الشكوى', en:'Complaint', val:apt?.complaint ?? '—' },
  ].map((row, i) => (
  <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md,
  paddingVertical: SP.sm, borderBottomWidth: i < 3 ? StyleSheet.hairlineWidth : 0, borderBottomColor: theme.border, alignItems: 'center' }}>
@@ -1210,9 +1203,13 @@ export function SickLeaveScreen({ apt, onBack }:
  <NBtn label={AR ? ' إصدار وإرسال الإجازة' : ' Issue & Send Sick Leave'}
  disabled={!diag.trim()}
  onPress={async () => {
+   if (!apt?.id || !apt?.patient_id) {
+     show(AR ? 'لا يمكن إصدار إجازة بلا موعد ومريض حقيقيين' : 'A real appointment and patient are required', 'error');
+     return;
+   }
    try {
-     await client.post(`/provider/requests/${apt?.id || 'new'}/sick-leave`, {
-       patient_id: apt?.patient_id || 'test',
+     await client.post(`/provider/requests/${apt.id}/sick-leave`, {
+       patient_id: apt.patient_id,
        diagnosis: diag,
        start_date: from,
        duration_days: parseInt(days)
@@ -1220,9 +1217,7 @@ export function SickLeaveScreen({ apt, onBack }:
      show(AR?'تم إصدار الإجازة المرضية بنجاح':'Sick leave issued successfully', 'success');
      setIssued(true);
    } catch (err) {
-     // Graceful fallback for demo/offline
-     show(AR?'تم إصدار الإجازة المرضية بنجاح':'Sick leave issued successfully', 'success');
-     setIssued(true);
+     show(AR?'تعذر إصدار الإجازة المرضية. لم يتم حفظ أي مستند.':'Sick leave could not be issued. No document was saved.', 'error');
    }
  }} />
  </NScroll>
@@ -1242,11 +1237,7 @@ export function ReferralScreen({ apt, onBack }:
   const [reason, setReason] = useState('');
   const [urgent, setUrgent] = useState(false);
   const [viewMode, setViewMode] = useState<'create'|'track'>('create');
-  const [referrals, setReferrals] = useState([
-  { id: 'ref1', patientName: apt?.patient || (AR ? 'أحمد محمد السالم' : 'Ahmed Al-Salem'), date: '2026-06-17', target: AR ? 'مختبر البرج' : 'Al-Borg Lab', type: 'Lab', test: 'CBC, Vitamin D', status: AppointmentStatus.COMPLETED, statusAr: 'مكتمل' },
-  { id: 'ref2', patientName: apt?.patient || (AR ? 'سارة خالد العتيبي' : 'Sara Al-Otaibi'), date: '2026-06-18', target: AR ? 'مستشفى دله' : 'Dallah Hospital', type: 'Hospital', test: AR ? 'تحويل قسم القلب' : 'Cardiology Referral', status: 'accepted', statusAr: 'تم القبول' },
-  { id: 'ref3', patientName: apt?.patient || (AR ? 'فيصل عبد الله' : 'Faisal Abdullah'), date: '2026-06-18', target: AR ? 'قسم الأشعة بالنبض' : 'Nabd Radiology Dept', type: 'Radiology', test: 'Chest X-Ray', status: 'pending', statusAr: 'انتظار' }
-  ]);
+  const [referrals] = useState<any[]>([]);
  
   return (
   <NScroll>
@@ -1264,7 +1255,7 @@ export function ReferralScreen({ apt, onBack }:
 
   {viewMode === 'track' ? (
   <View style={{ paddingHorizontal: SP.xl }}>
-  {referrals.map(r => (
+  {referrals.length === 0 ? <NEmpty title={AR ? 'لا توجد تحويلات متاحة' : 'No referrals available'} sub={AR ? 'لا يعرض النظام بيانات بديلة عند تعذر خدمة التحويل.' : 'The app does not show substitute data when referrals are unavailable.'} icon="file-text" /> : referrals.map(r => (
   <NCard key={r.id} style={{ marginBottom: SP.md }}>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xs }}>
   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{r.patientName}</Text>
@@ -1278,7 +1269,7 @@ export function ReferralScreen({ apt, onBack }:
   ) : (
   <View>
   <NCard style={{ marginBottom: SP.xl, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
-  <NAvatar name={apt?.patient ?? 'مريض'} size={44} />
+  <NAvatar name={apt?.patient ?? '—'} size={44} />
   <View>
   <Text style={{ fontWeight: FW.bold, color: theme.text }}>{apt?.patient ?? '—'}</Text>
   <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{new Date().toLocaleDateString('ar-SA')}</Text>
@@ -1317,33 +1308,8 @@ export function ReferralScreen({ apt, onBack }:
 
   <View style={{ height: SP.xl }} />
 
-  <NBtn label={AR ? ' إرسال التحويل' : ' Send Referral'}
-  disabled={!spec || !reason.trim()}
-  onPress={async () => {
-  try {
-  await client.post('/provider/features/referrals', {
-  target_type: spec,
-  notes: reason,
-  patient_id: apt?.patient_id || 'test_patient',
-  urgent
-  });
-  const newRef = {
-  id: String(Date.now()),
-  patientName: apt?.patient || (AR ? 'مريض افتراضي' : 'Default Patient'),
-  date: new Date().toISOString().split('T')[0],
-  target: AR ? 'مقدم خدمة خارجي' : 'External Provider',
-  type: 'Hospital',
-  test: reason,
-  status: 'pending',
-  statusAr: 'انتظار'
-  };
-  setReferrals(prev => [newRef, ...prev]);
-  show(AR?'تم إرسال التحويل بنجاح ':'Referral sent ', 'success');
-  setViewMode('track');
-  } catch(e) {
-  show(AR ? 'حدث خطأ أثناء إرسال التحويل' : 'Failed to send referral', 'error');
-  }
-  }} />
+  <NBtn label={AR ? 'خدمة التحويل غير متاحة حتى تكتمل الموافقات' : 'Referral service unavailable pending workflow approval'}
+  disabled />
   </View>
   )}
   </NScroll>

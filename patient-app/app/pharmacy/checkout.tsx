@@ -2,9 +2,9 @@
 /**
  * app/pharmacy/checkout.tsx
  * Checkout screen: collect delivery address, delivery mode, payment method.
- * - Sends real POST /orders/create to backend with cart items + location.
+ * - Creates then submits a real pharmacy request to the backend broadcast workflow.
  * - On success → navigates to waiting-for-pharmacy with orderId.
- * - Graceful fallback if backend offline (simulated flow for testing).
+ * - Never creates an order locally when the backend is unavailable.
  */
 import React, { useState, useEffect } from 'react';
 import {
@@ -73,43 +73,46 @@ export default function PharmacyCheckoutScreen() {
     router.push('/shared/location-picker');
   };
 
-  const deliveryFee = deliveryMode === 'delivery' ? 15 : 0;
-  const total = subtotal + deliveryFee;
+  const hasDeliveryAddress = Boolean(
+    userAddress?.street &&
+    userAddress?.city &&
+    Number.isFinite(Number(userAddress?.lat)) &&
+    Number.isFinite(Number(userAddress?.lng)),
+  );
 
   const handleConfirmOrder = async () => {
+    if (!items.length) {
+      Alert.alert('السلة فارغة', 'أضف الأصناف المطلوبة قبل إرسال الطلب.');
+      return;
+    }
+    if (deliveryMode === 'delivery' && !hasDeliveryAddress) {
+      Alert.alert('عنوان التوصيل مطلوب', 'اختر عنواناً محفوظاً يتضمن الموقع قبل إرسال الطلب.');
+      return;
+    }
     setSubmitting(true);
     try {
-      // Build payload for backend
       const payload = {
         items: items.map(i => ({
-          medicine_id: i.id,
+          raw_name: i.name,
           name_ar: i.name,
           qty: i.qty,
-          price: i.price,
         })),
-        delivery_address: {
-          label: userAddress.label || 'المنزل',
-          street: userAddress.street || '',
-          city: userAddress.city || '',
-          lat: userAddress.lat || 24.7136,
-          lng: userAddress.lng || 46.6753,
-        },
-        payment_method: paymentType,
-        prescription_id: prescriptionUrl || undefined,
-        totalAmount: total,
-        notes: '',
+        delivery_address: deliveryMode === 'delivery' ? {
+          label: userAddress.label,
+          street: userAddress.street,
+          city: userAddress.city,
+          lat: Number(userAddress.lat),
+          lng: Number(userAddress.lng),
+        } : undefined,
+        patient_notes: '',
+        prescription_attachments: prescriptionUrl ? [prescriptionUrl] : [],
       };
 
-      let orderId: string = '';
-      try {
-        const res = await apiFetch('/api/v1/pharmacy/orders', { method: 'POST', body: JSON.stringify(payload) });
-        orderId = res?.id || res?.order_id || '';
-      } catch (err) {
-        console.error('Checkout API error:', err);
-        throw new Error('فشل إنشاء الطلب. يرجى التأكد من اتصالك بالإنترنت والمحاولة مجدداً.');
-      }
+      const created = await apiFetch('/patient/pharmacy/orders', { method: 'POST', body: JSON.stringify(payload) });
+      const orderId = created?.id || created?.order_id;
+      if (!orderId) throw new Error('لم تُعد الخدمة معرف طلب صالحاً.');
+      await apiFetch(`/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, { method: 'POST' });
 
-      // Navigate to waiting screen with orderId
       router.push({ pathname: '/pharmacy/waiting-for-pharmacy', params: { orderId } });
     } catch (e) {
       Alert.alert('خطأ', 'حدث خطأ أثناء تأكيد الطلب، يرجى المحاولة مجدداً');
@@ -136,7 +139,7 @@ export default function PharmacyCheckoutScreen() {
         <Text style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>طريقة الاستلام</Text>
         <View style={[styles.modeRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
           {[
-            { id: 'delivery' as const, icon: 'local_shipping', label: 'توصيل للمنزل', sub: `${deliveryFee} ر.س` },
+            { id: 'delivery' as const, icon: 'local_shipping', label: 'توصيل للمنزل', sub: 'تحدد الرسوم في العرض' },
             { id: 'pickup' as const, icon: 'storefront', label: 'استلام من الصيدلية', sub: 'مجاناً' },
           ].map(opt => (
             <TouchableOpacity
@@ -224,13 +227,13 @@ export default function PharmacyCheckoutScreen() {
           <View style={[styles.divider, { backgroundColor: colors.bd }]} />
           <View style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
             <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>رسوم التوصيل</Text>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: deliveryFee === 0 ? '#2BB89C' : colors.n }}>
-              {deliveryFee === 0 ? 'مجاناً' : `${deliveryFee} ر.س`}
+            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.t2 }}>
+              تحدد بعد عروض الصيدليات
             </Text>
           </View>
           <View style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-            <Text style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: colors.n }}>الإجمالي</Text>
-            <Text style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: '#23B5CE' }}>{total.toFixed(2)} ر.س</Text>
+            <Text style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: colors.n }}>الإجمالي النهائي</Text>
+            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.t2 }}>يظهر بعد اختيار العرض</Text>
           </View>
         </View>
 
@@ -249,7 +252,7 @@ export default function PharmacyCheckoutScreen() {
           ) : (
             <>
               <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22, marginRight: 10 }}>check_circle</Text>
-              <Text style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>تأكيد الطلب ({total.toFixed(2)} ر.س)</Text>
+              <Text style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>إرسال الطلب للصيدليات</Text>
             </>
           )}
         </TouchableOpacity>

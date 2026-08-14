@@ -42,7 +42,6 @@ import { ProfileImageAuditLogSchema } from '../../schemas/profile-image-audit-lo
 import { User, UserSchema } from '../../schemas/user.schema';
 import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
 import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiology.schema';
-import { SimulatedFeaturesController } from './simulated-features.controller';
 import { LeaveRequestsController } from './leave-requests.controller';
 import {
   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
@@ -109,11 +108,16 @@ import { ProviderSessionRepository } from "./services/repositories/providersessi
       { name: 'ProviderAssignmentAttempt', schema: ProviderAssignmentAttemptSchema },
       { name: 'ProviderScoreSnapshot', schema: ProviderScoreSnapshotSchema },
     ]),
-    JwtModule.registerAsync({ useFactory: () => ({ secret: process.env.JWT_SECRET || 'change-me', signOptions: { expiresIn: '14d' } }) }),
+    JwtModule.registerAsync({
+      useFactory: () => {
+        const secret = process.env.JWT_SECRET?.trim();
+        if (!secret) throw new Error('JWT_SECRET must be configured for the provider module');
+        return { secret, signOptions: { expiresIn: '14d' } };
+      },
+    }),
     StorageModule,
   ],
   controllers: [
-    SimulatedFeaturesController,
     LeaveRequestsController,
     ProviderAuthController,
     ProviderProfileController,

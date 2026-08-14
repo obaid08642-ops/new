@@ -32,7 +32,7 @@ import {
   ProviderBroadcastController, AdminBroadcastController,
   PharmacyChatController, AdminPharmacyChatController,
   ProviderShortageController, AdminShortageController, PatientShortageController,
-  AIB2BProcurementController, PharmacyReturnsController
+  AIB2BProcurementController
 } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -132,8 +132,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     PatientShortageController,
     ProcurementController,
     AdminProcurementController,
-    AIB2BProcurementController,
-    PharmacyReturnsController
+    AIB2BProcurementController
   ],
   exports: [PharmacyOrderService, PharmacyAllocationService, PharmacyOrdersProviderService],
 })

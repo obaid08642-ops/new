@@ -4,7 +4,6 @@ import { UserRole } from '../../common/enums';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
-import { PharmacySeedService } from './services/pharmacy-seed.service';
 import { SmartSplitService } from './services/smart-split.service';
 import { PharmacyBroadcastService } from './services/pharmacy-broadcast.service';
 import { PharmacyChatService } from './services/pharmacy-chat.service';
@@ -123,13 +122,10 @@ export class ProviderInventoryExtController {
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyController {
   constructor(
-    private seedSvc: PharmacySeedService,
     private split: SmartSplitService,
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
   ) {}
-  @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
-  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
@@ -230,15 +226,5 @@ export class AIB2BProcurementController {
     void u;
     void b;
     throw new NotImplementedException('Prescription OCR is unavailable until a validated OCR provider is configured.');
-  }
-}
-
-@Controller('returns')
-@UseGuards(JwtAuthGuard)
-export class PharmacyReturnsController {
-  @Post(':id/decide')
-  async decideReturn(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
-    // Triggers Wallet refund if decision == 'approved'
-    return { success: true, return_request_id: id, decision: b.decision };
   }
 }

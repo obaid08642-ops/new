@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchWithAdminGuard } from '@/utils/api';
+import { fetchWithAdminGuard, getAdminApiBase } from '@/utils/api';
 
 interface CommissionRow {
   id: string;
@@ -37,23 +37,23 @@ export default function FinancialLedger() {
     const fetchFinanceData = async () => {
       try {
         setIsLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+        const API_BASE = getAdminApiBase();
         // Fetch Commissions
-        const commRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/commissions`);
+        const commRes = await fetchWithAdminGuard(`${API_BASE}/admin/finance/commissions`);
         if (commRes.ok) {
           const data = await commRes.json();
           setCommissions(data.data || []);
         }
 
         // Fetch Withdrawals
-        const withRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/pending`);
+        const withRes = await fetchWithAdminGuard(`${API_BASE}/admin/finance/withdrawals/pending`);
         if (withRes.ok) {
           const data = await withRes.json();
           setWithdrawals(data.data || []);
         }
 
         // Fetch Warehouse Orders
-        const whRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/procurement/pending`);
+        const whRes = await fetchWithAdminGuard(`${API_BASE}/admin/extended-operations/procurement/pending`);
         if (whRes.ok) {
           const data = await whRes.json();
           setWarehouseOrders(data.data || []);
@@ -85,10 +85,12 @@ export default function FinancialLedger() {
 
   const handleExecutePayout = async (id: string) => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
-      alert('تم إرسال أمر الدفع إلى شبكة Moyasar وتحويل الحالة إلى completed وإرسال الإشعار.');
-      setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: 'completed' } : w));
+      const API_BASE = getAdminApiBase();
+      const response = await fetchWithAdminGuard(`${API_BASE}/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: result?.status || w.status } : w));
+      alert('تم تنفيذ الطلب وفق الحالة التي أعادها الخادم.');
     } catch (e) {
       alert('خطأ في التنفيذ');
     }
@@ -108,14 +110,15 @@ export default function FinancialLedger() {
     if (total_warehouse_quotation_price <= 0) return alert('يجب تسعير العناصر أولاً');
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/issue-quote/${order.id}`, {
+      const API_BASE = getAdminApiBase();
+      const res = await fetchWithAdminGuard(`${API_BASE}/admin/extended-operations/issue-quote/${order.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems: order.items, totalPrice: total_warehouse_quotation_price })
       });
-      // Success state update
-      alert(`تم إرسال تسعيرة المشتريات بقيمة ${total_warehouse_quotation_price} SAR للصيدلية وتغيير الحالة إلى QUOTATION_ISSUED`);
-      setWarehouseOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'QUOTATION_ISSUED' } : o));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const result = await res.json();
+      setWarehouseOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: result?.status || o.status } : o));
+      alert('تم تسجيل التسعيرة وفق الاستجابة المؤكدة من الخادم.');
     } catch (e) {
       console.error(e);
       alert('خطأ في إرسال التسعيرة');
@@ -141,24 +144,8 @@ export default function FinancialLedger() {
 
       {activeTab === 'ledger' && (
         <div className="space-y-8">
-          {/* Quad financial widget cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-blue-500">
-              <p className="text-sm text-gray-500 font-bold mb-1">Total Out-of-Pocket Balance</p>
-              <h3 className="text-2xl font-bold text-gray-900">450,200 SAR</h3>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-amber-500">
-              <p className="text-sm text-gray-500 font-bold mb-1">Escrow Cash Holding Pool</p>
-              <h3 className="text-2xl font-bold text-gray-900">120,500 SAR</h3>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-teal-500">
-              <p className="text-sm text-gray-500 font-bold mb-1">Commission Wallet Revenue Ledger</p>
-              <h3 className="text-2xl font-bold text-gray-900">85,400 SAR</h3>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm border-l-4 border-l-purple-500">
-              <p className="text-sm text-gray-500 font-bold mb-1">Payout Request Queue</p>
-              <h3 className="text-2xl font-bold text-gray-900">32,000 SAR</h3>
-            </div>
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-600">
+            لا تُعرض المؤشرات المالية المجمّعة حتى يتوفر عقد metrics خادمي موثّق.
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

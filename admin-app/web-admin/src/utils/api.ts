@@ -22,9 +22,19 @@ export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}
   return response;
 };
 
+export const getAdminApiBase = (): string => {
+  const configuredBase = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!configuredBase) throw new Error('NEXT_PUBLIC_API_URL must be configured for the admin application.');
+  if (configuredBase.includes('localhost') && process.env.NODE_ENV === 'production') {
+    throw new Error('Localhost API URLs are forbidden in production.');
+  }
+  const base = configuredBase.replace(/\/+$/, '');
+  return base.endsWith('/api/v1') ? base : `${base}/api/v1`;
+};
+
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}/api/v1${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  const apiBase = getAdminApiBase();
+  const url = endpoint.startsWith('http') ? endpoint : `${apiBase}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   const response = await fetchWithAdminGuard(url, options);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);

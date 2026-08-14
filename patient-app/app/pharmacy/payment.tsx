@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  ActivityIndicator,
+  ActivityIndicator, Alert, Linking,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,50 +24,56 @@ export default function PharmacyPaymentScreen() {
   const { isDark, lang } = useApp() as any;
   const colors = isDark ? darkColors : lightColors;
   const isRTL = lang === 'ar' || lang === 'ur';
-  const { orderId, total } = useLocalSearchParams<{ orderId: string; total: string }>();
-  const { clearCart, paymentType } = useCart();
+  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const { paymentType } = useCart();
 
   const [selectedMethod, setSelectedMethod] = useState<'mada' | 'visa'>('mada');
   const [processing, setProcessing] = useState(false);
 
-  // If it's an insurance order, we simulate a 20% copay amount
-  const originalTotal = parseFloat(total || '0');
-  const amountToPay = paymentType === 'insurance' ? originalTotal * 0.2 : originalTotal;
-
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  const [amountToPay, setAmountToPay] = useState<number | null>(null);
+  const [paymentReady, setPaymentReady] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await apiFetch('/payments/paymob/methods');
-        if (data && Array.isArray(data)) {
-          setPaymentMethods(data);
+        if (!orderId) throw new Error('missing_order_id');
+        const [methods, order] = await Promise.all([
+          apiFetch('/payments/paymob/methods'),
+          apiFetch(`/patient/pharmacy/orders/${encodeURIComponent(orderId)}`),
+        ]);
+        if (Array.isArray(methods)) setPaymentMethods(methods);
+        const total = Number(order?.totals?.total);
+        if (!Number.isFinite(total) || total <= 0 || order?.basket_review_status !== 'patient_approved') {
+          throw new Error('order_not_ready_for_payment');
         }
-      } catch (err) {}
+        setAmountToPay(total);
+        setPaymentReady(true);
+      } catch {
+        setPaymentReady(false);
+      }
     })();
-  }, []);
+  }, [orderId]);
 
   const handlePay = async () => {
+    if (!paymentReady || amountToPay === null || !orderId) {
+      Alert.alert('الدفع غير متاح', 'انتظر اعتماد عرض الصيدلية والسعر النهائي قبل الدفع.');
+      return;
+    }
     setProcessing(true);
     try {
       const res = await apiFetch('/payments/paymob/initiate', {
         method: 'POST',
         body: JSON.stringify({
           order_id: orderId,
-          amount: amountToPay,
-          currency: 'SAR',
           method: selectedMethod,
         }),
       });
 
-      // In production, redirect to Moyasar payment page
-      await new Promise(r => setTimeout(r, 1500));
-      clearCart();
-      router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId } });
+      if (!res?.url) throw new Error('payment_url_missing');
+      await Linking.openURL(res.url);
     } catch {
-      await new Promise(r => setTimeout(r, 1500));
-      clearCart();
-      router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId } });
+      Alert.alert('تعذر بدء الدفع', 'لم يتم تأكيد أي عملية دفع. تحقق من الاتصال وحالة الطلب ثم أعد المحاولة.');
     } finally {
       setProcessing(false);
     }
@@ -92,11 +98,11 @@ export default function PharmacyPaymentScreen() {
         {/* Amount Card */}
         <View style={[styles.amountCard, { backgroundColor: paymentType === 'insurance' ? '#E2F7F2' : '#DEF5F9' } ]}>
           <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: '#141A2A', marginBottom: 8 }}>
-            {paymentType === 'insurance' ? 'تمت الموافقة  نسبة التحمل:' : 'المبلغ المستحق الدفع'}
+            {paymentReady ? 'المبلغ المستحق وفق العرض المعتمد' : 'بانتظار العرض المعتمد'}
           </Text>
           <Text style={{ fontFamily: 'Cairo-Black', fontSize: 42, color: '#141A2A' }}>
-            {amountToPay.toFixed(2)}
-            <Text style={{ fontSize: 18, color: '#4C5566' }}> ر.س</Text>
+            {amountToPay === null ? '—' : amountToPay.toFixed(2)}
+            {amountToPay !== null && <Text style={{ fontSize: 18, color: '#4C5566' }}> ر.س</Text>}
           </Text>
           <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: '#4C5566', marginTop: 8 }}>
             طلب رقم #{orderId?.slice(-6) || '------'}
@@ -143,9 +149,9 @@ export default function PharmacyPaymentScreen() {
       {/* Pay Button */}
       <View style={[styles.footer, { backgroundColor: colors.s, borderTopColor: colors.bd, paddingBottom: insets.bottom + 16 } ]}>
         <TouchableOpacity
-          style={[styles.payBtn, { backgroundColor: processing ? colors.bd : '#23B5CE' }]}
+          style={[styles.payBtn, { backgroundColor: processing || !paymentReady ? colors.bd : '#23B5CE' }]}
           onPress={handlePay}
-          disabled={processing}
+          disabled={processing || !paymentReady}
           activeOpacity={0.85}
         >
           {processing ? (
@@ -153,7 +159,7 @@ export default function PharmacyPaymentScreen() {
           ) : (
             <>
               <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22, marginRight: 10 }}>payments</Text>
-              <Text style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>دفع {amountToPay.toFixed(2)} ر.س</Text>
+              <Text style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>الانتقال إلى بوابة الدفع</Text>
             </>
           )}
         </TouchableOpacity>

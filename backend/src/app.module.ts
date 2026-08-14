@@ -115,21 +115,32 @@ import { CorrelationMiddleware } from './common/correlation.middleware';
     NotificationModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
-      useFactory: () => ({
-        uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
-        dbName: process.env.DB_NAME || 'nabd_nestjs',
-        connectionFactory: (connection) => {
-          connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
-          return connection;
-        }
-      }),
+      useFactory: () => {
+        const uri = process.env.MONGO_URL?.trim();
+        const dbName = process.env.DB_NAME?.trim();
+        if (!uri || !dbName) throw new Error('MONGO_URL and DB_NAME must be configured');
+        return {
+          uri,
+          dbName,
+          connectionFactory: (connection) => {
+            connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
+            return connection;
+          },
+        };
+      },
     }),
     BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-        password: process.env.REDIS_PASSWORD || undefined,
-      },
+      connection: (() => {
+        const redisUrl = process.env.REDIS_URL?.trim();
+        if (!redisUrl) throw new Error('REDIS_URL must be configured');
+        const parsed = new URL(redisUrl);
+        return {
+          host: parsed.hostname,
+          port: Number(parsed.port || 6379),
+          username: parsed.username || undefined,
+          password: parsed.password || undefined,
+        };
+      })(),
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     ScheduleModule.forRoot(),

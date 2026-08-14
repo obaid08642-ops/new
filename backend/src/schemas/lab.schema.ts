@@ -128,6 +128,7 @@ LabBookingSchema.index({ state: 1, scheduled_at: 1 });
 export class LabSample extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) lab_order_id: string;
+  @Prop({ required: true, index: true }) provider_account_id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop({ required: true, unique: true, index: true }) barcode: string;
   @Prop({ type: [String], default: [] }) tests: string[];
@@ -136,4 +137,4 @@ export class LabSample extends Document {
   @Prop() notes?: string;
 }
 export const LabSampleSchema = SchemaFactory.createForClass(LabSample);
-
+LabSampleSchema.index({ provider_account_id: 1, createdAt: -1 });

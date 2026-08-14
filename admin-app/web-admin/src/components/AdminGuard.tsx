@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
+  const [pathname, setPathname] = useState('');
 
   useEffect(() => {
     // In a real production scenario, this checks the JWT and UserRole.ADMIN from API or Context
     const token = localStorage.getItem('admin_token');
     const role = localStorage.getItem('admin_role');
+    setPathname(window.location.pathname);
 
     if (!token || role !== 'admin') {
       setIsAuthenticated(false);
-      router.push('/login');
+      window.location.assign('/login');
     } else {
       setIsAuthenticated(true);
     }
-  }, [router]);
+  }, []);
 
   if (!isAuthenticated) return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">جاري التحقق من الصلاحيات المركزية...</div>;
 
@@ -32,37 +32,37 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1">
             <li>
-              <Link href="/admin/dashboard" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/dashboard' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/dashboard" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/dashboard' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 مركز القيادة (Telemetry)
               </Link>
             </li>
             <li>
-              <Link href="/admin/provider-moderation" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/provider-moderation' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/provider-moderation" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/provider-moderation' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 إدارة المزودين (Moderation)
               </Link>
             </li>
             <li>
-              <Link href="/admin/config-portal" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/config-portal' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/config-portal" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/config-portal' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 بوابة الإعدادات (Config & SLA)
               </Link>
             </li>
             <li>
-              <Link href="/admin/financial-ledger" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/financial-ledger' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/financial-ledger" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/financial-ledger' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 السجل المالي (Financial Ledger)
               </Link>
             </li>
             <li>
-              <Link href="/admin/disputes" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/disputes' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/disputes" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/disputes' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 حل النزاعات (Disputes)
               </Link>
             </li>
             <li>
-              <Link href="/admin/payouts" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/payouts' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/payouts" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/payouts' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 اعتمادات السحب (Payouts)
               </Link>
             </li>
             <li>
-              <Link href="/admin/audit-logs" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${router.pathname === '/admin/audit-logs' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
+              <Link href="/admin/audit-logs" className={`block px-6 py-3 hover:bg-slate-800 hover:text-teal-400 transition-colors ${pathname === '/admin/audit-logs' ? 'bg-slate-800 text-teal-400 border-r-4 border-teal-400' : ''}`}>
                 سجلات الأمن (Audit Logs)
               </Link>
             </li>

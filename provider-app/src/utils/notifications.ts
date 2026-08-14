@@ -35,17 +35,21 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
       return null;
     }
 
+    const projectId = process.env.EXPO_PUBLIC_PROJECT_ID?.trim();
+    if (!projectId) return null;
+
     // Get Expo push token
     let tokenData;
     try {
       tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: process.env.EXPO_PUBLIC_PROJECT_ID || 'dummy-project-id'
+        projectId,
       });
     } catch (e) {
       // Push token fetch failed — non-critical, skip silently
       return null;
     }
     const token = tokenData?.data;
+    if (!token) return null;
 
     // Register token with backend
     try {
@@ -59,7 +63,8 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         }),
       });
     } catch {
-      // Backend registration failed — non-critical
+      // A local token that is not registered server-side must not be treated as ready.
+      return null;
     }
 
     // Set up Android notification channel for calls

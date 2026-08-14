@@ -25,9 +25,12 @@ export async function setupPushNotifications(): Promise<void> {
 
   if (finalStatus !== 'granted') return;
 
+  const projectId = process.env.EXPO_PUBLIC_PROJECT_ID?.trim();
+  if (!projectId) return;
+
   try {
     await Notifications.getExpoPushTokenAsync({
-      projectId: process.env.EXPO_PUBLIC_PROJECT_ID || 'dummy-project-id'
+      projectId,
     });
     // Token obtained — backend registration handled by notifications.ts
   } catch (e) {

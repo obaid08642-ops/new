@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { ReturnRequest } from '../../schemas/returns.schema';
+import { Order, OrderDocument } from '../../schemas/order.schema';
 import { WalletService } from '../wallet/wallet.service';
 import { ReturnRequestRepository } from "./repositories/returnrequest.repository";
 
@@ -8,18 +10,33 @@ import { ReturnRequestRepository } from "./repositories/returnrequest.repository
 export class ReturnsService {
   constructor(
     @Inject('ReturnRequestRepository') private readonly returnModel: ReturnRequestRepository,
+    @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
     private readonly walletService: WalletService,
   ) {}
 
   async createRequest(userId: string, data: any) {
     if (!data.serviceType) throw new BadRequestException('serviceType is required');
     if (!data.reason) throw new BadRequestException('reason is required');
+    if (!data.orderId) throw new BadRequestException('orderId is required');
 
-    const amount = Number(data.amount) || 100; // fallback default amount if not supplied
+    const order = await this.orderModel.findOne({ id: data.orderId, patient_id: userId }).lean();
+    if (!order) throw new NotFoundException('Order not found');
+
+    const amount = Number(order.total);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('Order has no refundable total');
+    }
+
+    const existing = await this.returnModel.findOne({
+      patient_id: userId,
+      order_id: order.id,
+      status: { $in: ['processing', 'approved', 'completed'] },
+    }).lean();
+    if (existing) throw new BadRequestException('An active return already exists for this order');
 
     const returnRequest = await this.returnModel.create({
       patient_id: userId,
-      order_id: data.orderId || `ORD-${Date.now().toString().slice(-6)}`,
+      order_id: order.id,
       service_type: data.serviceType,
       reason: data.reason,
       details: data.details,

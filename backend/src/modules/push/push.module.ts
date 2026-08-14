@@ -8,6 +8,7 @@
  */
 import {
   Module, Injectable, Controller, Post, Get, Delete, Body, Param, UseGuards, Logger, OnModuleInit,
+  ServiceUnavailableException, NotImplementedException,
 } from '@nestjs/common';
 import { InjectModel, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model, Document } from 'mongoose';
@@ -134,7 +135,11 @@ export class PushService implements OnModuleInit {
 
   onModuleInit() {
     try {
-      const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+      const redisUrl = process.env.REDIS_URL?.trim();
+      if (!redisUrl) {
+        this.logger.warn('Push queue disabled because REDIS_URL is not configured');
+        return;
+      }
       const parsedUrl = new URL(redisUrl);
       const connection = {
         host: parsedUrl.hostname,
@@ -206,6 +211,7 @@ export class PushService implements OnModuleInit {
 
   /** Queue a notification for reliable delivery */
   async queueNotification(userId: string, title: string, body: string, data: any = {}, priority: 'high' | 'normal' = 'high') {
+    if (!this.queue) throw new ServiceUnavailableException('push_queue_unavailable');
     await this.queue.add('send', { userId, title, body, data, priority }, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 2000 },
@@ -470,15 +476,11 @@ export class PushController {
   @Get('devices')
   devices(@CurrentUser() u: any) { return this.svc.getUserDevices(u.id); }
 
-  @Post('test')
-  test(@CurrentUser() u: any) { return this.svc.sendToUser(u.id, 'اختبار 🔔', 'إشعار تجريبي من نبض - يعمل بشكل صحيح!'); }
-
   @Post('admin/campaign')
   @Roles(UserRole.ADMIN)
   async sendCampaign(@Body() b: { title: string; body: string; target: string }) {
-    
-    
-    return { ok: true, message: 'تم إرسال الحملة التسويقية بنجاح للمجموعة المستهدفة: ' + b.target };
+    void b;
+    throw new NotImplementedException('Campaign delivery is unavailable until an auditable audience and delivery workflow is implemented.');
   }
 }
 

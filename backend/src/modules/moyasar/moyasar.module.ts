@@ -9,6 +9,7 @@ import {
   UseGuards,
   Logger,
   BadRequestException,
+  ServiceUnavailableException,
   HttpCode,
   Headers,
   UseInterceptors,
@@ -66,7 +67,7 @@ export class MoyasarService {
   ) {
     this.apiKey = process.env.MOYASAR_API_KEY || '';
     if (!this.apiKey) {
-      this.logger.warn('MOYASAR_API_KEY not set — payment calls will run in sandbox mode');
+      this.logger.warn('MOYASAR_API_KEY not set — payment initiation and refunds are unavailable');
     }
   }
 
@@ -88,6 +89,7 @@ export class MoyasarService {
     callbackUrl?: string;
     metadata?: Record<string, any>;
   }): Promise<MoyasarPaymentDocument> {
+    if (!this.apiKey) throw new ServiceUnavailableException('payment_gateway_not_configured');
     const amountHalalas = Math.round(params.amount * 100);
     const callbackUrl =
       params.callbackUrl ||
@@ -118,35 +120,21 @@ export class MoyasarService {
 
     let moyasarResponse: any;
 
-    if (this.apiKey) {
-      try {
-        const resp = await fetch(`${this.baseUrl}/payments`, {
-          method: 'POST',
-          headers: this.authHeaders(),
-          body: JSON.stringify(requestBody),
-        });
-        moyasarResponse = await resp.json();
-        if (!resp.ok) {
-          throw new BadRequestException(
-            moyasarResponse?.message || 'moyasar_create_failed',
-          );
-        }
-      } catch (e: any) {
-        this.logger.error('Moyasar createPayment error', e?.message);
-        throw new BadRequestException(e?.message || 'payment_create_failed');
+    try {
+      const resp = await fetch(`${this.baseUrl}/payments`, {
+        method: 'POST',
+        headers: this.authHeaders(),
+        body: JSON.stringify(requestBody),
+      });
+      moyasarResponse = await resp.json();
+      if (!resp.ok) {
+        throw new BadRequestException(
+          moyasarResponse?.message || 'moyasar_create_failed',
+        );
       }
-    } else {
-      // Sandbox / dev mode when no API key is configured
-      moyasarResponse = {
-        id: `sandbox_${Date.now()}`,
-        status: 'initiated',
-        source: {
-          transaction_url: `nabd://payment/sandbox?booking=${params.bookingId}&amount=${amountHalalas}`,
-        },
-      };
-      this.logger.warn(
-        'Running in sandbox payment mode — set MOYASAR_API_KEY for live payments',
-      );
+    } catch (e: any) {
+      this.logger.error('Moyasar createPayment error', e?.message);
+      throw new BadRequestException(e?.message || 'payment_create_failed');
     }
 
     const payment = await this.paymentModel.create({
@@ -171,9 +159,8 @@ export class MoyasarService {
     const payment = await this.paymentModel.findOne({ moyasar_id: moyasarId });
     if (!payment) return null;
 
-    const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
-    if (!isSandbox) {
-      try {
+    if (!this.apiKey) throw new ServiceUnavailableException('payment_gateway_not_configured');
+    try {
         const resp = await fetch(`${this.baseUrl}/payments/${moyasarId}`, {
           headers: this.authHeaders(),
         });
@@ -200,9 +187,8 @@ export class MoyasarService {
         }
 
         await payment.save();
-      } catch (e: any) {
-        this.logger.error('Moyasar syncStatus error', e?.message);
-      }
+    } catch (e: any) {
+      this.logger.error('Moyasar syncStatus error', e?.message);
     }
 
     return payment;
@@ -212,19 +198,8 @@ export class MoyasarService {
   async refundPayment(
     moyasarId: string,
     amount?: number,
-  ): Promise<{ ok: boolean; refund?: any; sandbox?: boolean }> {
-    const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
-
-    if (isSandbox) {
-      const p = await this.paymentModel.findOne({ moyasar_id: moyasarId });
-      if (p) {
-        p.status = 'refunded';
-        p.refunded_at = new Date();
-        p.refunded_amount = amount ?? p.amount;
-        await p.save();
-      }
-      return { ok: true, sandbox: true };
-    }
+  ): Promise<{ ok: boolean; refund?: any }> {
+    if (!this.apiKey) throw new ServiceUnavailableException('payment_gateway_not_configured');
 
     const payment = await this.paymentModel.findOne({ moyasar_id: moyasarId });
     if (!payment) throw new BadRequestException('payment_not_found');
