@@ -2,7 +2,7 @@
 
 **النطاق:** ملفات TS/TSX تحت `app/` و`src/`، مع استبعاد مجلد i18n والأصول.
 **الغرض:** هذا الفحص لا يحكم بأن كل سطر عطل؛ بل يرصد النص العربي الظاهر في مكوّنات أو خصائص لا يثبت الفحص الساكن أنها تمر عبر `AppText`/`autoTranslate`.
-**النتيجة:** **536** سطراً مرشحاً في **142** ملفاً.
+**النتيجة:** **526** سطراً مرشحاً في **139** ملفاً.
 
 > لا تعني تغطية القاموس المولّد وحدها أن كل نص مرئي سيعرض بلغة المستخدم؛ هذه القائمة هي قائمة عمل للفصل بين النصوص الدلالية، وأسماء العلامات، ورسائل الحالة، وخصائص الإدخال، والواجهات التي تحتاج مفاتيح i18n صريحة.
 
@@ -77,15 +77,6 @@
 | app/(tabs)/services.tsx | 161 | <SectionHeader title="خدمات إضافية" /> |
 | app/ai/chat-doctor.tsx | 39 | suggestions: ['عندي صداع', 'اريد فهم تحاليلي', 'احجز لي موعد', 'معلومات عن دواء'], |
 | app/ai/chat-doctor.tsx | 91 | options = ['احجز موعد', 'سأكتفي بهذا']; |
-| app/ai/monthly-report.tsx | 73 | const [expandedItem, setExpandedItem] = useState<string \| null>('ضغط الدم'); |
-| app/ai/prescription-translator.tsx | 32 | sideEffects: ['غثيان', 'آلام معدة'], |
-| app/ai/prescription-translator.tsx | 34 | alternatives: ['جلوكوفاج', 'جلوكومين'], |
-| app/ai/prescription-translator.tsx | 43 | interactions: ['تجنب مع عصير الجريب فروت'], |
-| app/ai/prescription-translator.tsx | 44 | sideEffects: ['آلام عضلية نادرة'], |
-| app/ai/prescription-translator.tsx | 46 | alternatives: ['ليبيتور', 'توفاست'], |
-| app/ai/prescription-translator.tsx | 141 | sideEffects: med.sideEffects \|\| ['صداع خفيف', 'اضطراب معدة بسيط'], |
-| app/ai/prescription-translator.tsx | 143 | alternatives: med.alternatives \|\| ['متوفر بدائل بالصيدلية'], |
-| app/ai/prescription-translator.tsx | 217 | <SectionHeader title={`الأدوية (${RESULT.medications.length})`} /> |
 | app/ai/skin-analysis.tsx | 40 | products: ['مرطب نيفيا', 'سيروم فيتامين C', 'كريم SPF 50'], |
 | app/ai/skin-analysis.tsx | 50 | const [selectedArea, setSelectedArea] = useState('الوجه'); |
 | app/ai/skin-analysis.tsx | 53 | const BODY_AREAS = ['الوجه', 'اليدان', 'الظهر', 'الجسم']; |
@@ -522,7 +513,6 @@
 | app/settings/index.tsx | 106 | ) : item.label === "اللغة" ? ( |
 | app/shared/location-picker.tsx | 147 | const addr = [g.street, g.district, g.city].filter(Boolean).join("، "); |
 | app/shared/location-picker.tsx | 370 | name={addr.label === "العمل" ? "hospital" : "home"} |
-| app/voice/index.tsx | 159 | const resp = RESPONSES[cmd.action] \|\| "تم تنفيذ الأمر بنجاح!"; |
 | app/wallet/cards.tsx | 91 | [{ text: "حسناً" }], |
 | app/wallet/cards.tsx | 338 | label="إضافة بطاقة جديدة" |
 | app/wallet/topup.tsx | 41 | Alert.alert("خطأ", "يرجى إدخال مبلغ صحيح"); |
@@ -534,8 +524,8 @@
 | app/wallet/transfer.tsx | 53 | Alert.alert("خطأ", "يرجى إدخال مبلغ صحيح"); |
 | app/wallet/transfer.tsx | 57 | Alert.alert("خطأ", "رصيدك الحالي غير كافٍ"); |
 | app/wallet/transfer.tsx | 128 | <SectionHeader title="الخيارات" /> |
-| app/wearables/hub.tsx | 146 | <SectionHeader title="الأجهزة المتوفرة للربط" /> |
-| app/wearables/hub.tsx | 264 | label={syncing ? "جاري المزامنة..." : "مزامنة القراءات الآن"} |
+| app/wearables/hub.tsx | 55 | <SectionHeader title="الأجهزة المتوفرة للربط" /> |
+| app/wearables/hub.tsx | 141 | label={syncing ? "جاري المزامنة..." : "مزامنة القراءات الآن"} |
 | src/components/Header.tsx | 43 | const getLangLabel = () => LANGUAGES.find((language) => language.code === lang)?.native ?? 'العربية'; |
 | src/components/livekit-view.tsx | 144 | label={isMuted ? 'تفعيل الصوت' : 'كتم'} |
 | src/components/livekit-view.tsx | 151 | label={isCameraOff ? 'تشغيل الكاميرا' : 'إيقاف الكاميرا'} |
