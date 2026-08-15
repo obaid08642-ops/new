@@ -1,6 +1,6 @@
 # سجل المصالحة مع المصدر الحي — منصة نبض الصحية
 
-**المرحلة:** Phase 0 — تأسيس ومطابقة قبل أي تعديل برمجي
+**المرحلة:** Phase 1 — تقوية الأمن الحرج بعد تأسيس المصدر الحي
 **الوثيقة الحاكمة:** `MANUS_EXECUTION_DIRECTIVE`، إصدار 15 أغسطس 2026
 **مصدر الحقيقة:** `m7-quality` عند الرأس `fcb8d063a96eb72a2f970c8a2723bb726bf69b4d`
 **فرع العمل الحصري:** `manus/on-live-reconciliation`
@@ -56,7 +56,7 @@
 | بناء baseline للمكونات القابلة للبناء | مكتمل بعد معالجة حاجز واحد | backend build، patient/provider Expo iOS export، وweb-admin Next build كلها ناجحة |
 | اختبارات baseline المتاحة | مكتمل بعد معالجة فشلين | backend 200/200، patient 23/23، provider 3/3 |
 | إعادة فحص سلامة الحزم بعد التحديث | مكتمل | الحزم الثلاث المعدلة اجتازت `unzip -tqq` |
-| commit ورفع `phase-0-baseline` | مفتوح في Phase 0 | ينفذ بعد فحص الفروق وتأكيد محتوى الحزم المحدثة |
+| commit ورفع `phase-0-baseline` | مكتمل | حُفظت إصلاحات baseline على فرع المصالحة المستقل قبل بدء Phase 1 |
 
 ## 5. إصلاحات Phase 0 اللازمة لإغلاق بوابة البناء والاختبار
 
@@ -88,3 +88,29 @@
 ## 8. قواعد حظر دائمة أثناء التنفيذ
 
 لا وصول إنتاج، ولا أسرار أو OTP أو حسابات اختبار في Git أو التقرير. لا mock جديد. لا feature تعطّل قبل سلسلة الإثبات: المصدر الحي ثم backend ثم route/controller/service ثم schema/model ثم تخزين ثم مستهلك الواجهة. كل مرحلة تغلق فقط بعد `INSPECT → IMPLEMENT → BUILD → TEST → FIX → RETEST → VERIFY → COMMIT` وتقرير تغييرات وواجهات وschemas ونتائج اختبار كاملة وملاحظات rollback.
+
+## 9. Phase 1 — SEC-01 إلى SEC-05 والاعتماد الثابت المكتشف
+
+| البند | الملفات الحية المعالجة | المشكلة المثبتة | المعالجة المنفذة | أثر العقد/المخطط |
+|---|---|---|---|---|
+| `SEC-01` | `src/modules/auth/auth.service.ts` و`auth.service.spec.ts` | كان OTP المستخدم/المدير يحفظ نصاً في Redis تحت مفتاح عام نسبياً من دون حد تحقق داخلي واضح | مفتاح مجزأ `auth:otp:login-2fa:<normalized>`، bcrypt hash فقط، TTL خمس دقائق، rate limits مستقلة للإصدار والتحقق، وحذف الكود ومفتاح حد التحقق عند النجاح | حافظ على `requires_2fa` و`verify-otp` و`verify2fa`؛ لا تعديل لOTP المزوّد |
+| `SEC-02` | `infra/fastapi/server.py` و`seed_dev.py` | startup كان يستدعي seed تلقائياً وينشئ سجلات تركيبية وحساب مدير ثابت؛ كشف الفحص أيضاً بيانات اعتماد object storage مضمّنة في المصدر | نقل seed إلى module تطويري، لا ينفذ إلا عند `NODE_ENV=test` و`ALLOW_TEST_SEED=true`، حذف حساب المدير الثابت، وتحويل إعداد التخزين وJWT إلى متغيرات بيئية تفشل بأمان عند غيابها | لا تغيير لمسارات FastAPI؛ لا secret أو حساب ثابت يبقى في المصدر. يلزم تدوير بيانات الاعتماد المكشوفة سابقاً خارج Git |
+| `SEC-03` | `modules/seed/seed.service.ts` و`src/scripts/seed_test.ts` و`seed_test_providers.ts` | كان demo data يمكن تفعيله بعلم منفرد، وكانت سكربتات seed تستعمل عنوان Mongo محلياً افتراضياً | demo identities محصورة بشرطي test + allow، وأزيل URL الافتراضي وأضيف حاجز قبل اتصال Mongo لسكربتات الاختبار | تبقى reference/master data المشروعة فقط في الإقلاع العادي؛ لا تغيير schema |
+| `SEC-04` | `pharmacy.controllers.ts` و`pharmacy-seed.service.ts` و`pharmacy.controllers.spec.ts` | endpoints الإدارية للـseed/sample-order كانت متاحة لكل admin في أي بيئة | حارس 503 في controller وحارس دفاعي ثانٍ في service خارج اختبار مفعّل صراحة | لا أثر على broadcast أو allocation أو مسارات الصيدلية الحية؛ test جديد يثبت عدم إنشاء records في production |
+| `SEC-05` | `labs.service.ts` و`labs.service.spec.ts` | `listSamples` يعيد كل العينات لمزود lab/hospital، كما كان تسجيل/تعديل العينة لا يتحقق من provider booking ownership | admin فقط يرى الجميع؛ المزوّد يستخرج bookings المملوكة ثم samples التابعة لها؛ تسجيل وتعديل العينة يرفضان ownership المخالف | لا schema change؛ أضيف اختبار BOLA بهويتين يثبت منع القراءة والتعديل عبر مختبر آخر |
+
+### بوابات Phase 1
+
+| البوابة | النتيجة |
+|---|---|
+| `backend: npm run build` | ناجح |
+| `backend: npm test -- --runInBand` | 25 suite / 207 test ناجحة |
+| اختبارات OTP وBOLA وseed guard المستحدثة | ناجحة ضمن المجموعة الكاملة |
+| فحص صياغة FastAPI | ناجح للملفات المعدلة |
+| مسح seed/credentials/preview hardening | ناجح؛ لا استيراد `seed_data` أو seed تلقائي أو عنوان preview أو اعتماد R2 صريح أو Mongo URL افتراضي في النطاق المفحوص |
+
+> **قيد Phase 1:** لا يثبت هذا تشغيل FastAPI أو التخزين أو Redis أو SMTP/SMS على staging. إنذار الاختبار لغياب قناة OTP لا يكشف code ولا يغير عقد الإنتاج؛ اختبار القناة الحية مؤجل إلى staging. دوران بيانات اعتماد التخزين التي كانت مضمّنة سابقاً واجب تشغيلي خارج المستودع قبل أي نشر.
+
+## 10. بوابة الانتقال إلى Phase 1.5
+
+تم إغلاق تنفيذ SEC-01..05 محلياً ببوابات البناء والاختبار أعلاه، ويبقى تغليف الحزم المتتبعة وفحصها وحفظ التزام `phase-1-security` على `manus/on-live-reconciliation`. المرحلة التالية لا تبدأ قبل ذلك، ثم تقتصر على فحص idempotency للمسارات الحساسة التي تصل الأدلة الحية إليها.
