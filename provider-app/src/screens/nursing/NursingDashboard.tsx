@@ -553,23 +553,6 @@ function DigitalCheckin({ order, onBack, onRefresh }:{ order:any; onBack:()=>voi
  const [inTransit, setInTransit] = useState(order?.raw?.state === 'EN_ROUTE');
  const [elapsed, setElapsed] = useState(0);
  const timerRef = useRef<any>(null);
- const gpsIntervalRef = useRef<any>(null);
-
- useEffect(() => {
- if (inTransit) {
- gpsIntervalRef.current = setInterval(async () => {
- try {
- const lat = 24.7136 + (Math.random() - 0.5) * 0.005;
- const lng = 46.6753 + (Math.random() - 0.5) * 0.005;
- await client.post(`/home-care/bookings/${order.id}/gps`, { lat, lng });
- } catch (e) {}
- }, 5000);
- }
- return () => {
- if (gpsIntervalRef.current) clearInterval(gpsIntervalRef.current);
- };
- }, [inTransit]);
-
  useEffect(()=>{
  if(checkedIn){timerRef.current=setInterval(()=>setElapsed(p=>p+1),1000);}
  return()=>{if(timerRef.current)clearInterval(timerRef.current);};
@@ -580,14 +563,10 @@ function DigitalCheckin({ order, onBack, onRefresh }:{ order:any; onBack:()=>voi
  useEffect(()=>{if(checkedIn || inTransit){Animated.loop(Animated.sequence([Animated.timing(pulseAnim,{toValue:1.05,duration:1000,useNativeDriver:true}),Animated.timing(pulseAnim,{toValue:1,duration:1000,useNativeDriver:true})])).start();}},[checkedIn, inTransit]);
 
  const handleStartTransit = async () => {
- try {
- await client.post(`/home-care/bookings/${order.id}/check-in`, { lat: 24.7136, lng: 46.6753 });
- setInTransit(true);
- show(AR ? 'بدأت الرحلة — تتبع الـ GPS نشط' : 'Trip started — GPS tracking active', 'success');
- onRefresh();
- } catch (err: any) {
- show(err.message || 'Failed to start transit', 'error');
- }
+ show(
+ AR ? 'بدء الرحلة غير متاح حتى يُربط التطبيق بإذن موقع الجهاز وإحداثيات GPS حقيقية وعقد check-in خادمي موثّق.' : 'Trip start is unavailable until device-location permission, real GPS coordinates, and a verified server-side check-in contract are integrated.',
+ 'warning'
+ );
  };
 
  const handleCheckin = async () => {

@@ -214,19 +214,21 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  const [orders, setOrders] = useState<any[]>([]);
  const [samples, setSamples] = useState<any[]>([]);
  const [stats, setStats] = useState({ todayCount: 0, analyzingCount: 0, readyCount: 0, revenue: 0 });
+ const [loadError, setLoadError] = useState(false);
 
  const fetchLabData = useCallback(async () => {
  try {
+ setLoadError(false);
  const inboxRes = await client.get('/labs/provider/inbox');
  const combined = inboxRes.data || [];
  
  setOrders(combined.map((x: any) => ({
  id: x.id,
- patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+ patient: x.patient_name || (AR ? 'غير متاح' : 'Unavailable'),
  doctor: x.doctor_name || '—',
- tests: x.tests || ['cbc'],
- insurance: x.insurance_provider || 'Cash',
- total: x.total || 150,
+ tests: Array.isArray(x.tests) ? x.tests : [],
+ insurance: x.insurance_provider || (AR ? 'غير متاح' : 'Unavailable'),
+ total: Number.isFinite(Number(x.total)) ? Number(x.total) : null,
  status: x.state === 'SAMPLE_COLLECTED' ? 'analyzing' : x.state === 'REPORTED' ? 'ready' : 'pending',
  date: x.scheduled_at ? new Date(x.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (AR ? 'قريباً' : 'Soon'),
  homeCollection: x.service_type === 'home' || false,
@@ -241,11 +243,13 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
  todayCount: combined.length,
  analyzingCount: combined.filter(o => o.state === 'SAMPLE_COLLECTED').length,
  readyCount: combined.filter(o => o.state === 'REPORTED').length,
- revenue: combined.reduce((acc: number, cur: any) => acc + (cur.total || 0), 0)
+ revenue: combined.reduce((acc: number, cur: any) => acc + (Number.isFinite(Number(cur.total)) ? Number(cur.total) : 0), 0)
  });
  } catch (e: any) {
-  // Add fallback stats so home screen never appears blank
-  setStats({ todayCount: 5, analyzingCount: 3, readyCount: 2, revenue: 750 });
+  setOrders([]);
+  setSamples([]);
+  setStats({ todayCount: 0, analyzingCount: 0, readyCount: 0, revenue: 0 });
+  setLoadError(true);
  }
  }, [AR]);
 
@@ -277,6 +281,13 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
 
  <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#9C27B0" />}
  contentContainerStyle={{padding:SP.xl,paddingBottom:100}} showsVerticalScrollIndicator={false}>
+ {loadError && (
+ <NCard style={{ backgroundColor: theme.warningBg, padding: SP.md, marginBottom: SP.lg }}>
+ <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left' }}>
+ {AR ? 'تعذر تحميل بيانات المختبر من الخادم؛ لا تمثل المؤشرات الصفرية في هذه الحالة بيانات تشغيلية.' : 'Laboratory data could not be loaded from the server; zero indicators do not represent operational data in this state.'}
+ </Text>
+ </NCard>
+ )}
  {/* Stats */}
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.md,marginBottom:SP.xl}}>
  <NStatCard icon="⊥" label={AR?'طلبات اليوم':"Today's Orders"} value={String(stats.todayCount)} color="#2196F3" style={{width:'47%'}} />
@@ -338,12 +349,9 @@ function LabHome({ onNav, onTriggerAlarm }:{ onNav:(s:string,p?:any)=>void; onTr
 function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
   const [showRegister, setShowRegister] = useState(false);
-  const [showNphies, setShowNphies] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [barcode, setBarcode] = useState('');
   const [notes, setNotes] = useState('');
-  const [nphiesCode, setNphiesCode] = useState('');
-  const [copay, setCopay] = useState('');
   const [techName, setTechName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
@@ -356,21 +364,6 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       show(AR ? 'تم رفض الطلب' : 'Declined', 'info');
       onBack();
     } catch(e) {}
-  };
-
-  const handleNphiesApproval = async () => {
-    if (!nphiesCode) return show(AR ? 'الرجاء إدخال رمز الموافقة' : 'Enter approval code', 'warning');
-    setLoading(true);
-    try {
-      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'WAITING_COPAY', note: `nphies_code: ${nphiesCode}, copay: ${copay}` });
-      show(AR ? 'تم طلب نسبة التحمل من المريض' : 'Co-Pay requested from patient', 'success');
-      setShowNphies(false);
-      onBack();
-    } catch (e: any) {
-      show(e.message, 'error');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleCashConfirm = async () => {
@@ -475,7 +468,11 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {order?.status === 'NEW_REQUEST' && (
         <View style={{gap:SP.md}}>
           {order?.is_insurance ? (
-            <NBtn label={AR ? 'طلب موافقة NPHIES' : 'Request NPHIES Approval'} onPress={() => setShowNphies(true)} />
+            <NCard style={{ backgroundColor: theme.warningBg, padding: SP.md }}>
+              <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left' }}>
+                {AR ? 'موافقة التأمين واحتساب نسبة التحمل غير متاحين حتى يتكامل NPHIES ومزود التأمين مع مصدر خادمي موثق.' : 'Insurance approval and co-pay calculation are unavailable until NPHIES and the insurer are integrated with a verified server source.'}
+              </Text>
+            </NCard>
           ) : (
             <NBtn label={AR ? 'تأكيد الطلب المباشر (كاش)' : 'Confirm Direct Order (Cash)'} onPress={handleCashConfirm} />
           )}
@@ -530,15 +527,6 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         </View>
       </NSheet>
 
-      {/* NPHIES Approval Sheet */}
-      <NSheet visible={showNphies} onClose={()=>setShowNphies(false)} title={AR ? 'موافقة التأمين NPHIES' : 'NPHIES Approval'} height={400}>
-        <View style={{ padding: SP.md }}>
-          <NInput label={AR ? 'رقم الموافقة' : 'Approval Code'} placeholder="NPH-12345" value={nphiesCode} onChange={setNphiesCode} icon="verified" />
-          <NInput label={AR ? 'نسبة التحمل (Co-Pay)' : 'Co-Pay SAR'} placeholder="0.00" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
-          <NBtn label={AR ? 'إرسال للمريض للدفع' : 'Send to Patient for Co-Pay'} onPress={handleNphiesApproval} style={{ marginTop: SP.md }} />
-        </View>
-      </NSheet>
-
       {/* Tech Assignment Sheet */}
       <NSheet visible={showAssign} onClose={()=>setShowAssign(false)} title={AR ? 'تعيين فني سحب' : 'Assign Technician'} height={400}>
         <View style={{ padding: SP.md }}>
@@ -551,7 +539,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       <NSheet visible={showRegister} onClose={()=>setShowRegister(false)} title={AR ? 'تسجيل العينة (Accessioning)' : 'Register Sample'} height={400}>
         <View style={{ padding: SP.md }}>
           <NInput label={AR ? 'باركود العينة' : 'Sample Barcode'} placeholder="SMP-XXXXXXXX" value={barcode} onChange={setBarcode} icon="qr-code-scanner" />
-          <NBtn label={AR ? 'فتح الكاميرا للمسح' : 'Open Camera Scanner'} variant="outline" onPress={() => setBarcode('BC-' + Math.floor(Math.random()*100000))} style={{ marginBottom: SP.sm }} />
+          <NBtn label={AR ? 'ماسح الكاميرا غير متاح' : 'Camera scanner unavailable'} variant="outline" onPress={() => show(AR ? 'يلزم ربط ماسح كاميرا آمن يعيد الباركود المقروء فعلياً قبل تفعيل هذه العملية.' : 'A secure camera scanner that returns the actually read barcode must be integrated before this action is enabled.', 'warning')} style={{ marginBottom: SP.sm }} />
           <NInput label={AR ? 'ملاحظات' : 'Notes'} placeholder={AR ? 'ملاحظات اختيارية...' : 'Optional notes...'} value={notes} onChange={setNotes} icon="edit" />
           <NBtn label={AR ? 'تأكيد وتسجيل العينة' : 'Confirm & Register'} loading={loading} onPress={handleRegisterSample} style={{ marginTop: SP.md }} />
         </View>
@@ -976,131 +964,17 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
 // ══════════════════════════════════════════════════════════════════
 // HOME COLLECTION — Dispatch Phlebotomists
 // ══════════════════════════════════════════════════════════════════
-function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
- const COLLECTORS = [
- {id:'c1',name:'خالد المالكي',status:'available',orders:3,loc:'حي النرجس'},
- {id:'c2',name:'سعد الغامدي',status:'busy',orders:5,loc:'حي الورود'},
- {id:'c3',name:'ريم القحطاني',status:'available',orders:2,loc:'حي الروضة'},
- ];
-  const [tracking, setTracking] = useState(false);
-  const [eta, setEta] = useState(15);
-  const [distance, setDistance] = useState(4.2);
-
-  useEffect(() => {
-    let int: any;
-    if (tracking) {
-      int = setInterval(async () => {
-        setEta(prev => Math.max(0, prev - 1));
-        setDistance(prev => Math.max(0, parseFloat((prev - 0.2).toFixed(1))));
-        try {
-          await client.post(`/labs/bookings/${order.id}/gps`, { eta, distance });
-        } catch (e) {
-          // Silent fail for backend sync
-        }
-      }, 5000);
-    }
-    return () => clearInterval(int);
-  }, [tracking, eta, distance, order.id]);
-
-  if (order?.status === 'ASSIGNED' || tracking) {
-    return (
-      <NScroll>
-        <NHeader title={AR ? 'تتبع مسار الفني' : 'Track Technician'} onBack={onBack} />
-        
-        {/* Map View */}
-        <View style={{ height: 250, backgroundColor: '#E3F2FD', borderRadius: R.xl, marginBottom: SP.lg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderColor: theme.border, borderWidth: 1 }}>
-          <Text style={{ fontSize: FS.xl, color: '#1976D2', fontWeight: FW.bold }}>🗺️ GPS TRACKING ACTIVE</Text>
-          <Text style={{ fontSize: FS.md, color: '#1565C0', marginTop: SP.md }}>{AR ? 'الرجاء الانتظار، يتم إرسال الموقع...' : 'Sending location...'}</Text>
-        </View>
-
-        <NCard style={{ marginBottom: SP.md }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
-              <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'الوقت المتبقي' : 'ETA'}</Text>
-              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{eta} {AR ? 'دقيقة' : 'min'}</Text>
-            </View>
-            <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
-              <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'المسافة' : 'Distance'}</Text>
-              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{distance} {AR ? 'كم' : 'km'}</Text>
-            </View>
-          </View>
-        </NCard>
-
-        {distance === 0 ? (
-          <NBtn label={AR ? 'الفني وصل (تم الوصول)' : 'Technician Arrived'} variant="primary" onPress={async () => {
-            try {
-              await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });
-              show(AR ? 'تم الوصول بنجاح' : 'Arrived successfully', 'success');
-              onBack();
-            } catch (err: any) {
-              show(err.message, 'error');
-            }
-          }} />
-        ) : (
-          <NBtn label={AR ? 'بدء رحلة الفني' : 'Start Trip'} onPress={async () => {
-            try {
-              await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_TRANSIT' });
-              setTracking(true);
-            } catch (err: any) {
-              show(err.message, 'error');
-            }
-          }} disabled={tracking} />
-        )}
-
-        <View style={{ marginTop: SP.xl, gap: SP.md }}>
-          <NSecHeader title={AR ? 'إدارة الطوارئ' : 'Emergency Management'} />
-          <NBtn label={AR ? 'المريض لم يحضر' : 'Patient Absent'} variant="outline" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
-            show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
-            onBack();
-          }} />
-          <NBtn label={AR ? 'موقع خاطئ' : 'Wrong Location'} variant="outline" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'WRONG_LOCATION' });
-            show(AR ? 'تم تسجيل الحالة' : 'Status logged', 'info');
-            onBack();
-          }} />
-          <NBtn label={AR ? 'إلغاء وتعيين فني آخر' : 'Cancel & Reassign'} variant="danger" onPress={async () => {
-            await client.post(`/labs/bookings/${order?.id}/reassign`);
-            setTracking(false);
-            show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
-          }} />
-        </View>
-
-      </NScroll>
-    );
-  }
-
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'خدمة السحب المنزلي (تعيين فني)' : 'Home Collection (Assign)'} onBack={onBack} />
-      <NSecHeader title={AR ? 'مندوبو السحب المتاحين' : 'Available Phlebotomists'} />
-      {COLLECTORS.map(col=>(
-        <NCard key={col.id} style={{marginBottom:SP.sm}}>
-          <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
-            <NAvatar name={col.name} size={44} online={col.status==='available'} />
-            <View style={{flex:1}}>
-              <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{col.name}</Text>
-              <Text style={{fontSize:FS.xs,color:theme.textSub}}>{col.loc} | {col.orders} {AR?'طلب':'orders'}</Text>
-            </View>
-            <View style={{alignItems:'flex-end',gap:SP.xs}}>
-              <NBadge label={col.status==='available'?(AR?'متاح':'Available'):(AR?'مشغول':'Busy')} variant={col.status==='available'?'success':'warning'} size="xs" />
-              {col.status==='available' && (
-                <NBtn label={AR?'تعيين كفني':'Assign Tech'} size="xs" full={false} style={{paddingHorizontal:SP.md}} onPress={async () => {
-                  try {
-                    await client.post(`/labs/bookings/${order?.id || 'dummy'}/assign-technician`, { technician_id: col.id });
-                    show(AR ? `تم تعيين ${col.name}` : `${col.name} assigned`, 'success');
-                    onBack();
-                  } catch(err: any) {
-                    show(err.message || 'Error', 'error');
-                  }
-                }} />
-              )}
-            </View>
-          </View>
-        </NCard>
-      ))}
-    </NScroll>
+function HomeCollection({ onBack }:{ onBack:()=>void }) {
+ const { theme } = useTheme(); const { lang } = useLang(); const AR = lang==='ar';
+ return (
+  <NScroll>
+   <NHeader title={AR ? 'السحب المنزلي غير متاح' : 'Home collection unavailable'} onBack={onBack} />
+   <NCard style={{ backgroundColor: theme.warningBg, padding: SP.lg }}>
+    <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
+     {AR ? 'تم إيقاف تعيين الفني والتتبع الحي مؤقتاً. لا يوجد حالياً دليل فنيين خادمي مملوك أو عقد dispatch/GPS موثق، لذلك لا تُعرض قائمة أو وقت وصول أو مسافة مصطنعة.' : 'Technician assignment and live tracking are temporarily disabled. No server-owned technician directory or verified dispatch/GPS contract currently exists, so no synthetic list, ETA, or distance is shown.'}
+    </Text>
+   </NCard>
+  </NScroll>
  );
 }
 
@@ -1116,16 +990,17 @@ function QRSampleLabel({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  <View style={{width:160,height:160,borderRadius:R.xl,borderWidth:3,borderColor:'#9C27B0',alignItems:'center',justifyContent:'center'}}>
  <I name="qr" size={60} color="#9C27B0" />
  </View>
- <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{sample?.barcode??'SMP-2025-XXX'}</Text>
+ <Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text,marginTop:SP.xl}}>{sample?.barcode ?? (AR ? 'باركود غير متاح' : 'Barcode unavailable')}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub,marginTop:SP.xs}}>{sample?.patient??'—'}</Text>
  <View style={{flexDirection:'row',flexWrap:'wrap',gap:SP.xs,justifyContent:'center',marginTop:SP.md}}>
- {(sample?.tests??['cbc']).map((tid:string)=>{const t=LAB_TESTS.find(x=>x.id===tid);return <View key={tid} style={{backgroundColor:'#9C27B010',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#9C27B030'}}><Text style={{fontSize:FS.xs,color:'#9C27B0'}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
+ {(sample?.tests ?? []).map((tid:string)=>{const t=LAB_TESTS.find(x=>x.id===tid);return <View key={tid} style={{backgroundColor:'#9C27B010',paddingHorizontal:SP.sm,paddingVertical:2,borderRadius:R.full,borderWidth:1,borderColor:'#9C27B030'}}><Text style={{fontSize:FS.xs,color:'#9C27B0'}}>{t?(AR?t.ar:t.en):tid}</Text></View>;})}
  </View>
  </NCard>
- <View style={{gap:SP.md}}>
- <NBtn label={AR?'طباعة الملصق':'Print Label'} onPress={()=>show(AR?'جاري الطباعة...':'Printing...','info')} />
- <NBtn label={AR?'حفظ كصورة':'Save as Image'} variant="outline" onPress={()=>show(AR?'تم الحفظ':'Saved','success')} />
- </View>
+ <NCard style={{ backgroundColor: theme.warningBg, padding: SP.md }}>
+ <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left' }}>
+ {AR ? 'طباعة الملصق وحفظه غير متاحين حتى يربطهما عقد جهاز طباعة أو تخزين موثق.' : 'Label printing and image saving are unavailable until they are connected to a verified printer or storage contract.'}
+ </Text>
+ </NCard>
  </NScroll>
  );
 }

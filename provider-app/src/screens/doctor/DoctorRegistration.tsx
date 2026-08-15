@@ -795,9 +795,9 @@ function Step6Insurance({ data, update, onNext, onBack, step, total }: any) {
         </MapView>
         <TouchableOpacity 
           style={{ position: 'absolute', bottom: SP.md, right: SP.md, backgroundColor: theme.card, padding: SP.sm, borderRadius: R.full, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: {width:0, height:2} }}
-          onPress={() => update({ location: { latitude: 24.7136, longitude: 46.6753 } })} // Simulating My Location
+          onPress={() => show(AR ? 'التقاط الموقع من الجهاز غير متاح حالياً. اختر موقع العيادة يدوياً على الخريطة.' : 'Device location capture is unavailable. Select the clinic location manually on the map.', 'warning')}
         >
-          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'موقعي الحالي' : 'My Location'}</Text>
+          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary }}>{AR ? 'اختيار على الخريطة' : 'Select on map'}</Text>
         </TouchableOpacity>
       </View>
 

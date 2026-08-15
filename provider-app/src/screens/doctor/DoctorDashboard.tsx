@@ -1723,60 +1723,15 @@ function PatientFileScreen({ patient, onBack }:
 function NoShowManagementScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
- const { show } = useToast();
  const AR = lang === 'ar';
- const [cancelFee, setCancelFee] = useState('50');
- const [noShowFee, setNoShowFee] = useState('100');
- const [waitlist, setWaitlist] = useState(true);
- const [autoRemind, setAutoRemind] = useState(true);
-
  return (
  <NScroll>
  <NHeader title={AR ? ' إدارة الغياب والإلغاء' : ' No-Show Management'} onBack={onBack} />
-
- <NCard style={{ marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
- marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'رسوم الإلغاء والغياب' : 'Cancellation & No-Show Fees'}
- </Text>
- <NPriceInput label={AR ? 'رسوم الإلغاء المتأخر (أقل من 2 ساعة)' : 'Late Cancel Fee (< 2hr)'}
- value={cancelFee} onChange={setCancelFee} />
- <NPriceInput label={AR ? 'رسوم الغياب التام (No-Show)' : 'No-Show Fee'}
- value={noShowFee} onChange={setNoShowFee} />
- <NCard style={{ backgroundColor: theme.infoBg, padding: SP.md }}>
- <Text style={{ fontSize: FS.xs, color: theme.info, lineHeight: 18 }}>
- {AR ? ' تساعد رسوم الإلغاء على تقليل الغياب بنسبة 40% وفق إحصاءات المنصة.'
- : ' Cancellation fees reduce no-shows by 40% per platform statistics.'}
+ <NCard style={{ backgroundColor: theme.warningBg, padding: SP.lg }}>
+ <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
+ {AR ? 'سياسة الإلغاء والغياب وقائمة الانتظار والتذكيرات غير متاحة حالياً. لا يوجد عقد خادمي موثق يربط الرسوم بالمواعيد والمدفوعات والإشعارات وسجل تدقيق قابل للمراجعة.' : 'Cancellation/no-show policy, waitlist, and reminders are currently unavailable. No verified server contract links fees to appointments, payments, notifications, and reviewable audit records.'}
  </Text>
  </NCard>
- </NCard>
-
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle label={AR ? ' قائمة الانتظار الذكية' : ' Smart Waitlist'}
- sub={AR ? 'ملء المواعيد الملغاة تلقائياً من قائمة الانتظار' : 'Auto-fill cancelled slots from waitlist'}
- value={waitlist} onChange={setWaitlist} />
- <NToggle label={AR ? ' تذكيرات متعددة المراحل' : ' Multi-Stage Reminders'}
- sub={AR ? 'قبل 24 ساعة، ساعتين، 30 دقيقة' : '24hr, 2hr, 30min before appointment'}
- value={autoRemind} onChange={setAutoRemind} />
- </NCard>
-
- {/* Recent no-shows */}
- <NSecHeader title={AR ? 'حالات الغياب الأخيرة' : 'Recent No-Shows'} />
- {['أحمد السالم', 'سارة المطيري', 'فيصل الحربي'].map((name, i) => (
- <NCard key={i} style={{ marginBottom: SP.sm, flexDirection: AR ? 'row-reverse' : 'row',
- alignItems: 'center', gap: SP.md, padding: SP.lg }}>
- <NAvatar name={name} size={36} />
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{name}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'غياب' : 'No-Show'} · 2025-0{i+2}-{10+i}</Text>
- </View>
- <NBadge label={`${noShowFee} ${AR?'ر':'SAR'}`} variant="danger" size="xs" />
- </NCard>
- ))}
-
- <View style={{ height: SP.xl }} />
- <NBtn label={AR ? ' حفظ الإعدادات' : ' Save Settings'}
- onPress={() => { show(AR?'تم حفظ إعدادات الغياب':'Settings saved', 'success'); onBack(); }} />
  </NScroll>
  );
 }
@@ -1789,27 +1744,41 @@ function DoctorWalletTab({ onNavigate }: { onNavigate: (s: string) => void }) {
   const { lang } = useLang();
   const AR = lang === 'ar';
   
-  const [wallet, setWallet] = useState({ available: 0, escrow: 0, dues: 0 });
+  const [wallet, setWallet] = useState<any | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [walletUnavailable, setWalletUnavailable] = useState(false);
   
   useEffect(() => {
     const fetchWallet = async () => {
       try {
         const res = await client.get('/provider/wallet');
-        if (res.data) setWallet(res.data);
+        if (!res.data) throw new Error('wallet_contract_unavailable');
+        setWallet(res.data);
         const txRes = await client.get('/provider/wallet/transactions');
         setTransactions(txRes.data || []);
       } catch (err) { 
-        setWallet({ available: 4200, escrow: 1500, dues: 800 });
-        setTransactions([
-          { id: '1', date: '2026-07-16', type: 'CREDIT', amount: 150, title: AR ? 'استشارة أونلاين' : 'Online Consultation' },
-          { id: '2', date: '2026-07-15', type: 'DEBIT', amount: -22.5, title: AR ? 'عمولة منصة' : 'Platform Fee' },
-          { id: '3', date: '2026-07-14', type: 'CREDIT', amount: 300, title: AR ? 'زيارة منزلية' : 'Home Visit' },
-        ]);
+        setWallet(null);
+        setTransactions([]);
+        setWalletUnavailable(true);
       }
     };
     fetchWallet();
   }, []);
+
+  if (walletUnavailable || !wallet) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <View style={[styles.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
+          <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'}</Text>
+        </View>
+        <NEmpty
+          title={AR ? 'المحفظة غير متاحة حالياً' : 'Wallet unavailable'}
+          sub={AR ? 'لا يمكن عرض الأرصدة أو طلب السحب أو إصدار تقارير مالية إلى أن يتوفر سجل مالي خادمي ومزود دفع وتسوية موثقة.' : 'Balances, withdrawals, and financial reports cannot be shown until a server-backed ledger, payment provider, and verified reconciliation are available.'}
+          icon="wallet"
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -1827,12 +1796,6 @@ function DoctorWalletTab({ onNavigate }: { onNavigate: (s: string) => void }) {
         <NBtn label={AR ? 'طلب سحب رصيد' : 'Withdraw Funds'} icon="money" onPress={() => onNavigate('withdrawal_workflow')} style={{ marginTop: SP.md }} />
         <NBtn label={AR ? 'التقارير والإحصائيات' : 'Revenue Insights & Reports'} variant="outline" onPress={() => onNavigate('revenue_insights')} style={{ marginTop: SP.sm }} />
         
-        <NCard style={{ marginTop: SP.xl, backgroundColor: theme.infoBg }}>
-          <Text style={{ fontSize: FS.sm, color: theme.info, textAlign: AR ? 'right' : 'left', lineHeight: 20 }}>
-            {AR ? 'عمولة المنصة: 15% من كل معاملة يتم تحصيلها نقداً أو عبر التأمين.\nيتم إيقاف الحساب تلقائياً إذا تجاوزت المديونية -500 ريال.' : 'Platform commission: 15% per transaction.\nAccount is automatically suspended if dues exceed -500 SAR.'}
-          </Text>
-        </NCard>
-
         <View style={{ marginTop: SP.xl }}>
           <NSecHeader title={AR ? 'سجل العمليات الأخير' : 'Recent Transactions'} />
         </View>
@@ -1880,11 +1843,7 @@ function DoctorChatTab() {
         const res = await client.get('/chats/provider');
         setChats(res.data || []);
       } catch (err) {
-        setChats([
-          { id: 'c1', patient_name: 'أحمد السالم', status: 'OPEN', last_message: 'متى موعدي القادم؟', unread: 2 },
-          { id: 'c2', patient_name: 'سارة المطيري', status: 'FOLLOW_UP', last_message: 'شكراً دكتور على الاستشارة', unread: 0 },
-          { id: 'c3', patient_name: 'فيصل الحربي', status: 'CLOSED', last_message: 'تمت الاستشارة بنجاح', unread: 0 }
-        ]);
+        setChats([]);
       } finally {
         setLoading(false);
       }
@@ -1904,13 +1863,14 @@ function DoctorChatTab() {
 
   const sendMessage = async () => {
     if (!msg.trim() || !activeChat) return;
-    const newMsg = { id: Date.now().toString(), text: msg, sender: 'provider', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-    setMessages(prev => [...prev, newMsg]);
     const sentText = msg;
-    setMsg('');
     try {
       await client.post(`/chats/${activeChat.id}/messages`, { text: sentText });
-    } catch { /* optimistic send, ignore error */ }
+      setMsg('');
+      await openChat(activeChat);
+    } catch {
+      show(AR ? 'فشل إرسال الرسالة' : 'Failed to send message', 'error');
+    }
   };
 
   // ── Active Chat View ──────────────────────────────────────────────────────
@@ -2049,20 +2009,18 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
   const { user } = useAuth();
   const AR = lang === 'ar';
   
-  // Mock facility link state
   const isLinkedToFacility = !!(user as any)?.parent_facility_id;
-  const facilityName = "مستشفى نبضة الطبي";
+  const facilityName = (user as any)?.parent_facility_name || (AR ? 'اسم المنشأة غير متاح' : 'Facility name unavailable');
 
-  const [clinicPrice, setClinicPrice] = useState('150');
-  const [onlinePrice, setOnlinePrice] = useState('100');
-  const [homePrice, setHomePrice] = useState('300');
+  const [clinicPrice, setClinicPrice] = useState('');
+  const [onlinePrice, setOnlinePrice] = useState('');
+  const [homePrice, setHomePrice] = useState('');
   
-  const [clinicActive, setClinicActive] = useState(true);
-  const [onlineActive, setOnlineActive] = useState(true);
+  const [clinicActive, setClinicActive] = useState(false);
+  const [onlineActive, setOnlineActive] = useState(false);
   const [homeActive, setHomeActive] = useState(false);
 
-  // Mock facility permissions locking
-  const isPricingLocked = isLinkedToFacility; // In real implementation, check permissions matrix
+  const isPricingLocked = isLinkedToFacility;
 
   const requestDeltaUpdate = async () => {
     try {
@@ -2079,8 +2037,7 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
   };
 
   const handleUnlink = () => {
-    // In real app: call API to nullify parent_facility_id
-    show(AR ? 'تم إرسال طلب فك الارتباط' : 'Unlink request sent', 'info');
+    show(AR ? 'فك الارتباط غير متاح حتى يتوفر طلب خادمي محروس وتدقيق وموافقة منشأة.' : 'Unlinking is unavailable until a guarded server request, audit trail, and facility approval flow are integrated.', 'warning');
   };
 
   return (
@@ -2282,33 +2239,13 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  )}
  </NCard>
 
- <NBtn
- label={AR ? ' إرسال المطالبة' : ' Submit Claim'}
- disabled={!company || !amount}
- loading={loading}
- onPress={async () => {
- setLoading(true);
- try {
- if (!apt?.id) throw new Error(AR ? 'لم يتم العثور على موعد الجلسة' : 'Appointment ID not found');
- await client.post(`/provider/jobs/consultation/${apt.id}/insurance`, {
- policyNumber: 'POL-' + Math.floor(Math.random()*100000),
- memberId: 'MEM-' + Math.floor(Math.random()*100000),
- approvalStatus: 'APPROVED',
- coveragePercentage: 80,
- coveredAmount: parseFloat(amount) * 0.8,
- copayAmount: parseFloat(deductible) || 0,
- patientShare: parseFloat(deductible) || 0,
- insuranceShare: parseFloat(amount) * 0.8,
- });
- show(AR ? 'تم إرسال المطالبة بنجاح ' : 'Claim submitted successfully ', 'success');
- onBack();
- } catch (e: any) {
- show(e.message || (AR ? 'فشل إرسال المطالبة' : 'Failed to submit claim'), 'error');
- } finally {
- setLoading(false);
- }
- }}
- />
+ <NCard style={{ backgroundColor: theme.warningBg, padding: SP.lg }}>
+ <Text style={{ fontSize: FS.sm, color: theme.warning, textAlign: AR ? 'right' : 'left' }}>
+ {AR
+ ? 'المطالبات التأمينية غير متاحة حالياً. لا يوجد تكامل موثق مع NPHIES أو مزود تأمين لاستخراج العضوية والموافقة والمبالغ من المصدر الخادمي.'
+ : 'Insurance claims are currently unavailable. No verified NPHIES or insurer integration exists to obtain membership, approval, and amounts from the server source.'}
+ </Text>
+ </NCard>
  </NScroll>
  );
 }
@@ -3126,467 +3063,32 @@ export function SubscriptionPlansScreen({ onBack }: { onBack: () => void }) {
 export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
- const { show } = useToast();
  const AR = lang === 'ar';
- const [period, setPeriod] = useState<'week'|'month'|'year'>('month');
-
- const PERIODS = [
- { k:'week', ar:'أسبوع', en:'Week' },
- { k:'month', ar:'شهر', en:'Month' },
- { k:'year', ar:'سنة', en:'Year' },
- ] as const;
-
- const STATS = period === 'week'
- ? { revenue: '4,200', apts: 18, rating: 4.8, newPts: 5, topService: AR?'استشارة فيديو':'Video' }
- : period === 'month'
- ? { revenue: '18,500', apts: 72, rating: 4.8, newPts: 22, topService: AR?'استشارة فيديو':'Video' }
- : { revenue: '224,000', apts: 860, rating: 4.9, newPts: 180, topService: AR?'استشارة فيديو':'Video' };
-
- // Mock bar chart data
- const BAR_DATA = period === 'week'
- ? [600,800,1100,750,1200,400,350]
- : period === 'month'
- ? [3200,4100,3800,5200,4700,2100,3900,4800,5100,3600,4400,3800]
- : [15000,17000,19000,18000,22000,20000,21000,24000,19000,18000,16000,22000];
-
- const maxBar = Math.max(...BAR_DATA);
- const LABELS_WEEK = AR ? ['أحد','اثن','ثلا','أرب','خمس','جمع','سبت'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
- const LABELS_MONTH = AR ? Array.from({length:12},(_,i)=>`${i+1}`) : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
- const LABELS = period === 'week' ? LABELS_WEEK : LABELS_MONTH;
-
  return (
- <NScroll>
- <NHeader title={AR ? ' الإحصائيات والتقارير' : ' Statistics & Reports'} onBack={onBack} />
-
- {/* Period selector */}
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
- {PERIODS.map(p => (
- <TouchableOpacity key={p.k} onPress={() => setPeriod(p.k as any)}
- style={[{ flex:1, paddingVertical:SP.md, borderRadius:R.lg, borderWidth:1.5, alignItems:'center' }, {
- backgroundColor: period===p.k ? theme.primary : theme.surface2,
- borderColor: period===p.k ? theme.primary : theme.border,
- }]}>
- <Text style={{ color: period===p.k ? '#FFF' : theme.text, fontWeight: FW.semi }}>
- {AR ? p.ar : p.en}
- </Text>
- </TouchableOpacity>
- ))}
- </View>
-
- {/* KPI Cards */}
- <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
- <NStatCard icon="" label={AR?'الإيرادات':'Revenue'} value={STATS.revenue} unit={AR?'ر':'SAR'} color="#4CAF50" style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'المواعيد':'Appointments'} value={String(STATS.apts)} color="#2196F3" style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'التقييم':'Rating'} value={String(STATS.rating)} color="#FFC107" style={{ width:'47%' }} />
- <NStatCard icon="" label={AR?'مرضى جدد':'New Patients'} value={String(STATS.newPts)} color="#9C27B0" style={{ width:'47%' }} />
- </View>
-
- {/* Bar Chart */}
- <NCard style={{ marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
- marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' الإيرادات' : ' Revenue Trend'}
- </Text>
- <ScrollView horizontal showsHorizontalScrollIndicator={false}>
- <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: SP.sm, height: 120 }}>
- {BAR_DATA.map((val, i) => (
- <View key={i} style={{ alignItems: 'center', width: 36 }}>
- <View style={{
- width: 28, height: Math.max(8, (val / maxBar) * 100),
- backgroundColor: theme.primary, borderRadius: 6, opacity: 0.8,
- }} />
- <Text style={{ fontSize: 9, color: theme.textSub, marginTop: 4 }}>
- {LABELS[i] ?? i+1}
- </Text>
- </View>
- ))}
- </View>
- </ScrollView>
- </NCard>
-
- {/* Service Breakdown */}
- <NCard style={{ marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text,
- marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' توزيع الخدمات' : ' Service Breakdown'}
- </Text>
- {[
- { label: AR?'استشارة فيديو':'Video Consult', pct: 55, color: '#2196F3' },
- { label: AR?'كشف عيادة':'Clinic Visit', pct: 30, color: '#4CAF50' },
- { label: AR?'زيارة منزلية':'Home Visit', pct: 15, color: '#FF9800' },
- ].map((item, i) => (
- <View key={i} style={{ marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{item.label}</Text>
- <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: item.color }}>{item.pct}%</Text>
- </View>
- <View style={{ height: 8, backgroundColor: theme.surface2, borderRadius: R.full }}>
- <View style={{ height: 8, width: `${item.pct}%`, backgroundColor: item.color, borderRadius: R.full }} />
- </View>
- </View>
- ))}
- </NCard>
-
- <NBtn
- label={AR ? ' تصدير تقرير PDF' : ' Export PDF Report'}
- variant="outline"
- icon=""
- onPress={() => show(AR ? 'جاري إنشاء التقرير...' : 'Generating report...', 'info')}
- />
- </NScroll>
+  <NScroll>
+   <NHeader title={AR ? 'الإحصاءات والتقارير' : 'Statistics & Reports'} onBack={onBack} />
+   <NCard style={{ backgroundColor: theme.warningBg, padding: SP.lg }}>
+    <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
+     {AR ? 'الإحصاءات والتقارير غير متاحة حالياً. لا يوجد عقد تحليلات خادمي يثبت الإيرادات والمواعيد والتقييمات والفترة الزمنية قبل عرضها أو تصديرها.' : 'Statistics and reports are currently unavailable. No server-side analytics contract verifies revenue, appointments, ratings, or period data before it is displayed or exported.'}
+    </Text>
+   </NCard>
+  </NScroll>
  );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// DOCTOR AVAILABILITY SCREEN
-// ══════════════════════════════════════════════════════════════════════════════
 export function DoctorAvailabilityScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
- const { show } = useToast();
  const AR = lang === 'ar';
- const [saving, setSaving] = useState(false);
-
- const [vacationMode, setVacationMode] = useState(false);
- const [weeklySchedule, setWeeklySchedule] = useState([
- { day: 'Sunday', dayAr: 'الأحد', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
- { day: 'Monday', dayAr: 'الأثنين', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
- { day: 'Tuesday', dayAr: 'الثلاثاء', active: true, splitShift: false, morningStart: '09:00', morningEnd: '17:00', eveningStart: '', eveningEnd: '' },
- { day: 'Wednesday', dayAr: 'الأربعاء', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
- { day: 'Thursday', dayAr: 'الخميس', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
- { day: 'Friday', dayAr: 'الجمعة', active: false, splitShift: false, morningStart: '', morningEnd: '', eveningStart: '', eveningEnd: '' },
- { day: 'Saturday', dayAr: 'السبت', active: false, splitShift: false, morningStart: '', morningEnd: '', eveningStart: '', eveningEnd: '' },
- ]);
-
- const [exceptions, setExceptions] = useState<any[]>([
- { id: '1', date: '2026-06-25', type: 'close_day', labelAr: 'إغلاق اليوم بالكامل', labelEn: 'Full Day Closed' },
- { id: '2', date: '2026-06-28', type: 'block_time', labelAr: 'حظر (13:00 - 15:00)', labelEn: 'Blocked (13:00 - 15:00)', start: '13:00', end: '15:00' },
- ]);
-
- const [showAddException, setShowAddException] = useState(false);
- const [exDate, setExDate] = useState('2026-06-30');
- const [exType, setExType] = useState<'close_day'|'block_time'|'exceptional_open'>('close_day');
- const [exStart, setExStart] = useState('12:00');
- const [exEnd, setExEnd] = useState('14:00');
-
- const [insurances, setInsurances] = useState([
-  { id: 'bupa', ar: 'بوبا العربية', en: 'Bupa Arabia', active: true, copay: '10', tier: 'VIP', clinic: true, online: false, home: false },
-  { id: 'tawuniya', ar: 'التعاونية للتأمين', en: 'Tawuniya', active: true, copay: '20', tier: 'Class A', clinic: true, online: true, home: false },
-  { id: 'medgulf', ar: 'ميدغلف', en: 'Medgulf', active: false, copay: '20', tier: 'Class B', clinic: true, online: false, home: false },
-  { id: 'malath', ar: 'ملاذ للتأمين', en: 'Malath Insurance', active: false, copay: '25', tier: 'Class C', clinic: false, online: false, home: false },
-  ]);
-
-  const toggleIns = (id: string) => {
-  setInsurances(prev => prev.map(item => item.id === id ? { ...item, active: !item.active } : item));
-  };
-
-  const toggleService = (id: string, service: 'clinic'|'online'|'home') => {
-    setInsurances(prev => prev.map(item => item.id === id ? { ...item, [service]: !item[service] } : item));
-  };
-
- const toggleDay = (dayName: string) => {
- setWeeklySchedule(prev => prev.map(d => d.day === dayName ? { ...d, active: !d.active } : d));
- };
-
- const toggleSplit = (dayName: string) => {
- setWeeklySchedule(prev => prev.map(d => d.day === dayName ? { ...d, splitShift: !d.splitShift } : d));
- };
-
- const updateHours = (dayName: string, field: string, value: string) => {
- setWeeklySchedule(prev => prev.map(d => d.day === dayName ? { ...d, [field]: value } : d));
- };
-
- const [showPicker, setShowPicker] = useState(false);
- const [pickerTarget, setPickerTarget] = useState<{day: string, field: string}|null>(null);
-
- const onTimeChange = (event: any, selectedDate?: Date) => {
-   if (Platform.OS === 'android') {
-     setShowPicker(false);
-   }
-   if (selectedDate && pickerTarget) {
-     const hours = selectedDate.getHours().toString().padStart(2, '0');
-     const mins = selectedDate.getMinutes().toString().padStart(2, '0');
-     updateHours(pickerTarget.day, pickerTarget.field, `${hours}:${mins}`);
-   }
- };
-
- const openTimePicker = (day: string, field: string) => {
-   setPickerTarget({ day, field });
-   setShowPicker(true);
- };
-
-  const handleSaveSchedule = async () => {
-    setSaving(true);
-    try {
-      await client.post('/provider/settings/delta', { newData: { weeklySchedule, exceptions, insurances } });
-      show(AR ? 'تم حفظ جدول التوفر الأسبوعي' : 'Weekly availability saved', 'success');
-      onBack();
-    } catch (e) {
-      show(AR ? 'فشل حفظ الجدول' : 'Failed to save schedule', 'error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
- const handleAddException = () => {
- const labelAr = exType === 'close_day' 
- ? 'إغلاق اليوم بالكامل' 
- : exType === 'block_time' 
- ? `حظر (${exStart} - ${exEnd})` 
- : `موعد استثنائي (${exStart} - ${exEnd})`;
- 
- const labelEn = exType === 'close_day' 
- ? 'Full Day Closed' 
- : exType === 'block_time' 
- ? `Blocked (${exStart} - ${exEnd})` 
- : `Exceptional (${exStart} - ${exEnd})`;
-
- const item = {
- id: String(Date.now()),
- date: exDate,
- type: exType,
- labelAr,
- labelEn,
- start: exStart,
- end: exEnd
- };
-
- setExceptions(prev => [...prev, item]);
- setShowAddException(false);
- show(AR ? 'تمت إضافة الاستثناء بنجاح' : 'Exception added successfully', 'success');
- };
-
- const handleDeleteException = (id: string) => {
- setExceptions(prev => prev.filter(x => x.id !== id));
- show(AR ? 'تم حذف الاستثناء' : 'Exception removed', 'error');
- };
-
  return (
- <View style={{ flex: 1, backgroundColor: theme.bg }}>
- <NHeader title={AR ? ' جدول المواعيد والتوفر' : ' Availability Settings'} onBack={onBack} />
- <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
- 
- {/* Vacation Mode */}
- <NCard style={{ marginBottom: SP.xl, backgroundColor: vacationMode ? `${theme.danger}15` : theme.surface }} accent={vacationMode ? theme.danger : undefined}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- ️ {AR ? 'إجازة مؤقتة (وضع عدم الاتصال)' : 'Temporary Vacation (Offline)'}
- </Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
- {AR ? 'تفعيل هذا الوضع يعطل حجز المواعيد الجديدة فوراً' : 'Enabling this blocks new bookings immediately'}
- </Text>
- </View>
- <Switch value={vacationMode} onValueChange={(val) => { setVacationMode(val); show(val ? (AR ? '️ تم تفعيل وضع الإجازة' : '️ Vacation enabled') : (AR ? '🟢 تم إلغاء وضع الإجازة' : '🟢 Vacation disabled'), val ? 'warning' : 'success'); }} trackColor={{ true: theme.danger }} />
- </View>
- </NCard>
-
- {/* Insurance Config */}
- <NSecHeader title={AR ? 'شركات التأمين المقبولة' : 'Accepted Insurances'} />
- {insurances.map(item => (
-  <NCard key={item.id} style={{ marginBottom: SP.md }}>
-  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
-  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
-  {AR ? item.ar : item.en}
-  </Text>
-  <Switch value={item.active} onValueChange={() => toggleIns(item.id)} trackColor={{ true: theme.primary }} />
-  </View>
-
-  {item.active && (
-    <View style={{ marginTop: SP.md, gap: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-      <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الخدمات المشمولة:' : 'Covered Services:'}</Text>
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'clinic')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.clinic ? theme.primary : theme.border, backgroundColor: item.clinic ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'كشف العيادة' : 'Clinic'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'online')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.online ? theme.primary : theme.border, backgroundColor: item.online ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'أونلاين' : 'Online'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'home')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.home ? theme.primary : theme.border, backgroundColor: item.home ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'زيارة منزلية' : 'Home Visit'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  )}
-  
-  {item.active && (
-    <View style={{ marginTop: SP.md, gap: SP.sm, borderTopWidth: 1, borderTopColor: theme.border, paddingTop: SP.sm }}>
-      <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الخدمات المشمولة:' : 'Covered Services:'}</Text>
-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'clinic')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.clinic ? theme.primary : theme.border, backgroundColor: item.clinic ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'كشف العيادة' : 'Clinic'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'online')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.online ? theme.primary : theme.border, backgroundColor: item.online ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'أونلاين' : 'Online'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => toggleService(item.id, 'home')} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.home ? theme.primary : theme.border, backgroundColor: item.home ? theme.primary : 'transparent' }} />
-          <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'زيارة منزلية' : 'Home Visit'}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  )}
-  </NCard>
-  ))}
-
- {/* Weekly Schedule */}
- <NSecHeader title={AR ? 'الجدول الأسبوعي للعيادة والتوفر' : 'Weekly Operations Calendar'} />
- {weeklySchedule.map(d => (
- <NCard key={d.day} style={{ marginBottom: SP.md, opacity: vacationMode ? 0.5 : 1 }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
- <Switch value={d.active} disabled={vacationMode} onValueChange={() => toggleDay(d.day)} trackColor={{ true: theme.primary }} />
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: d.active ? theme.text : theme.textSub }}>
- {AR ? d.dayAr : d.day}
- </Text>
- </View>
- {d.active && (
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'فترتين (منفصل)' : 'Split Shift'}</Text>
- <Switch value={d.splitShift} disabled={vacationMode} onValueChange={() => toggleSplit(d.day)} />
- </View>
- )}
- </View>
-
- {d.active && (
- <View style={{ gap: SP.md }}>
- {/* Morning/Main Shift */}
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
- <Text style={{ fontSize: FS.sm, color: theme.text, width: 80, textAlign: AR ? 'right' : 'left' }}>
- {d.splitShift ? (AR ? ' صباحاً:' : ' Morning:') : (AR ? '⏰ العمل:' : '⏰ Shift:')}
- </Text>
- <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'morningStart')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
-   <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.morningStart || '--:--'}</Text>
- </TouchableOpacity>
- <Text style={{ color: theme.textSub }}>{AR ? 'إلى' : 'to'}</Text>
- <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'morningEnd')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
-   <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.morningEnd || '--:--'}</Text>
- </TouchableOpacity>
- </View>
-
- {/* Evening Shift */}
- {d.splitShift && (
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
- <Text style={{ fontSize: FS.sm, color: theme.text, width: 80, textAlign: AR ? 'right' : 'left' }}>
- {AR ? ' مساءً:' : ' Evening:'}
- </Text>
- <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'eveningStart')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
-   <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.eveningStart || '--:--'}</Text>
- </TouchableOpacity>
- <Text style={{ color: theme.textSub }}>{AR ? 'إلى' : 'to'}</Text>
- <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'eveningEnd')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
-   <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.eveningEnd || '--:--'}</Text>
- </TouchableOpacity>
- </View>
- )}
- </View>
- )}
- </NCard>
- ))}
-  {showPicker && (
-    Platform.OS === 'ios' ? (
-      <Modal transparent visible={showPicker} animationType="slide">
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-          <View style={{ backgroundColor: theme.surface, paddingBottom: 20 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', padding: SP.sm, borderBottomWidth: 1, borderColor: theme.border }}>
-              <TouchableOpacity onPress={() => setShowPicker(false)}>
-                <Text style={{ color: theme.primary, fontSize: FS.md, fontWeight: FW.bold }}>{AR ? 'تم' : 'Done'}</Text>
-              </TouchableOpacity>
-            </View>
-            <DateTimePicker
-              value={new Date()}
-              mode="time"
-              is24Hour={true}
-              display="spinner"
-              onChange={(e, d) => onTimeChange(e, d)}
-            />
-          </View>
-        </View>
-      </Modal>
-    ) : (
-      <DateTimePicker
-        value={new Date()}
-        mode="time"
-        is24Hour={true}
-        display="default"
-        onChange={onTimeChange}
-      />
-    )
-  )}
-
- <NBtn label={AR ? ' حفظ الجدول الأسبوعي' : ' Save Weekly Calendar'} disabled={vacationMode} loading={saving} onPress={handleSaveSchedule} style={{ marginVertical: SP.lg }} />
-
- {/* Exceptional Settings */}
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: SP.xl, marginBottom: SP.lg }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
- {AR ? ' إغلاق وحظر استثنائي' : ' Exceptional Blocks & Closures'}
- </Text>
- <TouchableOpacity onPress={() => setShowAddException(true)} style={{ backgroundColor: theme.surface2, paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.md }}>
- <Text style={{ color: theme.primary, fontSize: FS.sm, fontWeight: FW.bold }}> {AR ? 'إضافة استثناء' : 'Add Rule'}</Text>
- </TouchableOpacity>
- </View>
-
- {exceptions.map(x => (
- <NCard key={x.id} style={{ marginBottom: SP.sm, paddingVertical: SP.md }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
- <View>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
- {x.date}
- </Text>
- <Text style={{ fontSize: FS.sm, color: x.type === 'exceptional_open' ? theme.success : theme.danger, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>
- {AR ? x.labelAr : x.labelEn}
- </Text>
- </View>
- <TouchableOpacity onPress={() => handleDeleteException(x.id)}>
- <Text style={{ fontSize: FS.xl, color: theme.danger }}>️</Text>
- </TouchableOpacity>
- </View>
- </NCard>
- ))}
- </ScrollView>
-
- {/* Exception Sheet */}
- <NSheet visible={showAddException} onClose={() => setShowAddException(false)} title={AR ? ' إضافة قاعدة استثنائية' : ' Add Exceptional Rule'} height={500}>
- <View style={{ padding: SP.md }}>
- <NInput label={AR ? 'التاريخ (YYYY-MM-DD)' : 'Date (YYYY-MM-DD)'} value={exDate} onChange={setExDate} />
- 
- <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'نوع القاعدة الاستثنائية' : 'Rule Type'}
- </Text>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
- {(['close_day', 'block_time', 'exceptional_open'] as const).map(type => (
- <TouchableOpacity key={type} onPress={() => setExType(type)} style={{
- flex: 1, padding: SP.md, borderRadius: R.md, borderWidth: 1.5,
- borderColor: exType === type ? theme.primary : theme.border,
- backgroundColor: exType === type ? theme.primaryLight : theme.surface
- }}>
- <Text style={{ fontSize: 11, fontWeight: FW.bold, color: exType === type ? theme.primary : theme.text, textAlign: 'center' }}>
- {type === 'close_day' ? (AR ? 'إغلاق اليوم' : 'Close Day') : type === 'block_time' ? (AR ? 'حظر وقت' : 'Block Time') : (AR ? 'فتح استثنائي' : 'Open Slot')}
- </Text>
- </TouchableOpacity>
- ))}
- </View>
-
- {exType !== 'close_day' && (
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
- <View style={{ flex: 1 }}>
- <NInput label={AR ? 'من وقت' : 'From Time'} value={exStart} onChange={setExStart} />
- </View>
- <View style={{ flex: 1 }}>
- <NInput label={AR ? 'إلى وقت' : 'To Time'} value={exEnd} onChange={setExEnd} />
- </View>
- </View>
- )}
-
- <NBtn label={AR ? ' تطبيق القاعدة' : ' Apply Rule'} onPress={handleAddException} style={{ marginTop: SP.md }} />
- </View>
- </NSheet>
- </View>
+  <NScroll>
+   <NHeader title={AR ? 'جدول المواعيد والتوفر' : 'Availability Settings'} onBack={onBack} />
+   <NCard style={{ backgroundColor: theme.warningBg, padding: SP.lg }}>
+    <Text style={{ color: theme.warning, textAlign: AR ? 'right' : 'left', lineHeight: 22 }}>
+     {AR ? 'إدارة التوفر والإجازات والاستثناءات غير متاحة حالياً. يلزم عقد خادمي محروس يقرأ الجدول المملوك ويكتب التغييرات مع تدقيق وحل تعارضات الحجز قبل تفعيل هذه الواجهة.' : 'Availability, vacation, and exception management are currently unavailable. A guarded server contract must read the owned schedule and persist changes with audit and booking-conflict resolution before this interface is enabled.'}
+    </Text>
+   </NCard>
+  </NScroll>
  );
 }
 

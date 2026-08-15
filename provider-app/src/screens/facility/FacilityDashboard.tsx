@@ -1057,16 +1057,15 @@ function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () => void;
  const handleDischargePatient = async (bed: any) => {
  setLoading(true);
  try {
- const admissionId = await Vault.get(`admission_${bed.id}`) || bed.occupied_by_patient_id || 'fallback-id';
+ const admissionId = await Vault.get(`admission_${bed.id}`);
+ if (!admissionId) throw new Error(AR ? 'لا يوجد معرّف قبول خادمي محفوظ لهذا السرير.' : 'No server-recorded admission identifier is available for this bed.');
  await client.put(`/facility/beds/discharge/${admissionId}`);
  await Vault.del(`admission_${bed.id}`);
  show(AR ? 'تم إخراج المريض بنجاح' : 'Patient discharged successfully', 'success');
  onRefresh();
  handleShowBeds(selectedWard);
  } catch (e: any) {
- show(AR ? 'تم إخراج المريض بنجاح (محاكاة)' : 'Patient discharged successfully (simulation fallback)', 'success');
- onRefresh();
- handleShowBeds(selectedWard);
+ show(e.message || (AR ? 'تعذر إخراج المريض.' : 'Patient discharge failed.'), 'error');
  } finally {
  setLoading(false);
  }
