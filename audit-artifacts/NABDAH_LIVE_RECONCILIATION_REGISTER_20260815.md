@@ -126,3 +126,38 @@
 | نطاق المرحلة | لا يزال interceptor مقتصراً على route Moyasar الذي كان يستهلكه فعلاً | لم يضف عقد header جديد إلى مسارات مالية أو صيدلانية أخرى بلا مراجعة endpoint-by-endpoint |
 
 بوابة التحقق بعد Phase 1.5: `backend build` ناجح و`backend npm test -- --runInBand` ناجح بعدد **26 suite / 211 test**. فحص تعميم الإديمبوتنسي على refunds وwallet وbilling وpharmacy mutations مؤجل عمداً إلى مراحل العقود أو المراجعة المسارية؛ لا يُفترض أن وجود interceptor واحد يكفي لإغلاق كل عمليات المال.
+
+## 12. Phase 2 — تقوية التهيئة والشبكة
+
+> **نطاق الدليل:** نُفذت هذه المرحلة داخل مساحة المصدر المستخرجة والمعزولة فقط. لا يوجد اتصال بالإنتاج أو إجراء على بيانات حية. يعتمد التشغيل النهائي على تزويد بيئة staging بالقيم الفعلية والتحقق من صلاحية origin وRedis وMongo وJWT قبل النشر.
+
+| المعرّف | الخطر أو الانحراف المثبت | المعالجة المنفذة | الدليل المحلي |
+|---|---|---|---|
+| `CFG-01` | كان تشغيل الإنتاج يسمح بتكوين ناقص في نقاط بنية تحتية حساسة | أضيف `config/env.validation.ts` إلى `ConfigModule` ليلزم `MONGO_URL` و`REDIS_URL` و`JWT_SECRET` و`ALLOWED_ORIGINS` في الإنتاج، ويرفض JWT الأقصر من 32 محرفاً وorigin النجمي | `npm run build` للـbackend ناجح |
+| `CFG-02` | كان `auth.guard.ts` يقبل سراً تطويرياً ضمنياً عند غياب `JWT_SECRET` | أصبح الحارس يرفض المصادقة عند غياب السر، وأزيلت الأسرار التطويرية من `AuthModule` و`ProviderModule` و`ChatGateway` | مسح المصدر لا يجد secret تطويرياً؛ اختبار `auth.guard` ناجح |
+| `CFG-03` | إعداد BullMQ لم يكن يستهلك `REDIS_URL` الموحد | يحلل `app.module.ts` العنوان إلى host/port/password وTLS لمسار `rediss` مع بقاء التحقق الإنتاجي مستقلاً | بناء Nest ناجح؛ لا يثبت اتصال Redis حقيقياً |
+| `CFG-04` | احتفظ عميل API الموروث للمريض بمنطق localhost وإحلال host خاص به | أصبح `src/utils/api.ts` يقرأ `apiBaseUrl` و`fastapiBaseUrl` و`cdnUrl` من `ConfigManager` فقط | تصدير iOS واختبارات المريض ناجحة |
+| `CFG-05` | كان مسارا push للمزوّد يرسلان `dummy-project-id` عند غياب إعداد Expo | أصبح التسجيل يتوقف بأمان عند غياب `EXPO_PUBLIC_PROJECT_ID`؛ لا يُنشأ token وهمي | تصدير iOS واختبارات المزوّد ناجحة |
+| `CFG-06` | 13 ملفاً في الإدارة كانت تملك fallback `localhost:8002` أو تبني base محلياً | أزيل localhost من كل مصدر runtime، وأضيف `adminApiBase()` كمصدر موحد ويُمرر لجميع المواقع المحولة؛ يتوقف العميل بخطأ إعداد واضح إذا غاب متغير API في المتصفح | مسح المصدر ناجح وبناء Next الإنتاجي ناجح |
+| `CFG-07` | بوابتا Socket وRealtime استعملتا `origin: '*'`، وكانت Chat تقبل سر JWT تطويرياً و`userId` غير موثق في non-production | أضيفت سياسة WebSocket واحدة: allow-list من `ALLOWED_ORIGINS` في الإنتاج ورفض البدء إن غابت؛ أزيل wildcard وfallback السر وهوية handshake غير الموثقة | بناء Nest ناجح؛ مسح المصدر لا يجد wildcard أو fallback JWT أو userId handshake في Chat |
+
+### بوابات Phase 2
+
+| البوابة | النتيجة |
+|---|---|
+| `backend: npm run build` | ناجح بعد تحليل `REDIS_URL` وتطبيق سياسة WebSocket |
+| `backend: npm test -- --runInBand` | **26 suite / 211 test** ناجحة |
+| `patient: expo export --platform ios` | ناجح |
+| `patient: npm test -- --runInBand` | **7 suites / 23 tests** ناجحة |
+| `provider: expo export --platform ios` | ناجح |
+| `provider: npm test -- --runInBand` | **1 suite / 3 tests** ناجحة |
+| `web-admin: NODE_ENV=production npm run build` | ناجح؛ الصفحات static/dynamic تُبنى بلا prerender failure |
+| مسح منع localhost وwildcard وsecret التطويري | ناجح في النطاق المعدل؛ لا يثبت صحة متغيرات بيئة حقيقية |
+
+### قيود وإجراءات تشغيلية مفتوحة
+
+لا تغيّر هذه المرحلة إعدادات deployment أو قيم secrets. يجب قبل نشر أي نسخة جديدة ضبط `MONGO_URL` و`REDIS_URL` و`JWT_SECRET` و`ALLOWED_ORIGINS` الصحيحة في بيئة staging، ثم إجراء اتصال end-to-end للـREST وWebSocket من كل origin معتمد. تظل **إعادة تدوير بيانات اعتماد التخزين المكشوفة سابقاً** إجراءً تشغيلياً إلزامياً خارج Git. كما تظل مراجعة صلاحيات الغرف في `AppSocketGateway` موضوع Phase 3؛ لم تُحذف أو تُعطّل قناة حية بلا سلسلة إثبات المستهلكين والعقد.
+
+## 13. بوابة الانتقال إلى Phase 3
+
+أغلقت Phase 2 محلياً بعد بوابات البناء والاختبار والمسح أعلاه. الخطوة التالية هي تغليف الحزم الأربع المستخرجة، فحص محتواها من الأسرار وملفات البناء، ثم حفظ التزام مستقل على `manus/on-live-reconciliation`. بعد ذلك يبدأ فحص الواجهات المثبتة وعقودها: checkout، QR الهوية، خرائط routeLine والطوارئ، وفوالب المختبر، دون اعتماد أن مصدر واجهة أو متغير بيئة وحده دليل كافٍ على تشغيل الإنتاج.
