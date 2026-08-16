@@ -127,3 +127,8 @@ Snapshots:   0 total
 [2]: POST_REMEDIATION_E2E_EXECUTION_PLAN.md "خطة E2E بعد المعالجة"
 
 [3]: EXECUTION_COMPLETION_MATRIX_20260816.md "مصفوفة الإكمال والتنفيذ"
+
+
+## 7. تحقق توفر staging
+
+في 17 أغسطس 2026 استجاب العنوان `http://57.131.133.208:8003/api/v1` بنتيجة `status=ok`، والتطبيق المعلن `Nabd Healthcare OS (NestJS)` والإصدار `1.0.0`. هذا يثبت توفر نقطة البداية الصحية فقط، ولا يثبت نجاح تسجيل الدخول أو BOLA أو provider-role أو hospital UUID. بقيت جولة E2E التنفيذية مفتوحة، وتحتاج موافقة صريحة قبل تنفيذ تسجيل الدخول أو إرسال طلبات تغيير على staging.
