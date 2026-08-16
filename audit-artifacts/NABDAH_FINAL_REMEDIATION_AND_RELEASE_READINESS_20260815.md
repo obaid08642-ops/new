@@ -3,7 +3,7 @@
 **تاريخ التقرير:** 15 أغسطس 2026  
 **مصدر الحقيقة:** فرع `m7-quality` عند `fcb8d063a96eb72a2f970c8a2723bb726bf69b4d`  
 **فرع المصالحة المعزول:** `manus/on-live-reconciliation`  
-**آخر التزام موثق في هذه الحزمة:** `a5594f1` — `fix(phase6): close sensitive contract gaps`
+**آخر التزام موثق في هذه الحزمة:** `e521b57` — `fix(post-phase7): remove legacy staff endpoint`
 
 > هذا التقرير هو ملخص قرار التسليم للمبرمج أو فريق الجودة. السجل التفصيلي الحاكم هو [سجل المصالحة الحي](./NABDAH_LIVE_RECONCILIATION_REGISTER_20260815.md). لا يعني نجاح البناء والاختبار المحلي أن النظام جاهز للإنتاج أو للمتاجر.
 
@@ -80,6 +80,10 @@
 | patient Expo | `expo export --platform ios` ناجح | 7 suites / 23 tests ناجحة | لا يثبت الجهاز أو push أو GPS أو المشتريات |
 | provider Expo | `expo export --platform ios` ناجح | 1 suite / 3 tests ناجحة | لا يثبت provider onboarding أو QR أو خدمات الجهاز |
 | web admin | `NODE_ENV=production npm run build` ناجح في Phase 2 | لا توجد مجموعة E2E موثقة | يلزم browser E2E على staging |
+
+### استئناف ما بعد Phase 7 — مراجعة إدارة موظفي المنشأة
+
+كشفت المطابقة التفصيلية بعد Phase 7 أن إصلاح إنشاء موظف المنشأة لم يكن كافياً وحده: بقيت مؤشرات المنشأة وشاشات الاعتماد تقرأ `/provider/facility/subaccounts` غير المعرّف في المصدر الخلفي، وكان الحذف يعرض toast محلياً، كما كانت بطاقة QR والحفظ والمشاركة الشكلية تعلن نجاحاً بلا عقد. صُححت هذه المواضع في `FacilityDashboard.tsx` باستخدام `/hospital/staff`، و`DELETE /hospital/staff/:id`، وبيانات الخادم أو حالة عدم الإتاحة الصادقة، ثم نجحت بوابة المزوّد 3/3 وتصدير iOS. يلزم اختبار staging لإثبات الملكية والصلاحيات.
 
 ## موانع الإطلاق الإلزامية
 
