@@ -311,3 +311,22 @@
 > **حكم صريح:** لا، لم تُنفذ كل الخطة حتى تاريخ هذه المراجعة. المنفذ هو المعالجة المصدرية والبوابات المحلية؛ غير المنفذ هو E2E/staging والاعتمادات التشغيلية والعقود الحساسة والقبول البشري.
 
 مرجع التصنيف الكامل: [مصفوفة تحقق التنفيذ](./EXECUTION_COMPLETION_MATRIX_20260816.md).
+
+
+## ملحق Gatekeeper Remediation — 17 أغسطس 2026
+
+**نطاق القرار:** عولجت العيوب الخمسة التي كشفها Gatekeeper على فرع `manus/on-live-reconciliation` في نسخة backend الحية المعبأة داخل `nabdah-backend.zip`. لم تُجرَ أي تغييرات على `main` أو الإنتاج.
+
+| ID | العيب المثبت | المعالجة المصدرية | دليل التحقق | الحكم |
+|---|---|---|---|---|
+| P0-BOLA | `POST /orders/:id/cancel` كان يسمح لهوية غير مالكة بالوصول إلى الإلغاء المالي والانتقال | أضيف فحص يطابق `by.id` مع `patient_id` أو `pharmacy_id` المعيّنة، أو دور admin/super_admin، قبل policy/refund/transition | اختبارات `OrdersService` تشمل طبيباً وصيدلية غير معيّنة؛ المجموعة الكاملة 215/215 | `SOURCE FIXED / STAGING REVALIDATE` |
+| P1-ROLE | JWT بصيغة `role=provider` و`provider_type=lab` يفشل حارس الدور، كما كانت LabsService تقرأ `user.role` فقط | الحارس يستخدم role فعّالاً من `role` و`provider_type`، وLabs/Home Care/Hospital Staff تطبق التطبيع نفسه؛ أضيفت Roles تشغيلية لمسارات Radiology | اختبارات JwtAuthGuard لقبول lab ورفض radiology غير المطابق؛ build ناجح | `SOURCE FIXED / STAGING REVALIDATE` |
+| P1-UUID | HospitalService يحول UUID إلى `Types.ObjectId` في staff/onboarding والتجميع | استُخدمت UUID/string في الخدمة والمخططات ذات الصلة، واستُبدل `findByIdAndUpdate` بـ`updateOne({id})`; بقي `_id` الخاص بالموعد Mongo داخلياً | فحص ثابت بلا تحويلات `hospitalId/doctorId` المستهدفة؛ build ناجح | `SOURCE FIXED / STAGING REVALIDATE` |
+| P2-JEST | اختبارات backend تحتاج JWT_SECRET يدوياً | أضيف `src/jest.setup.ts` وسُجّل في `package.json` | 26 suites / 215 tests ناجحة دون متغير يدوي | `CLOSED SOURCE` |
+| P2-LOCALHOST | فوالب localhost في app.module وredis service | حُصرت fallback في non-production، ويفشل production صراحة عند غياب endpoint | فحص ثابت يؤكد أن localhost محصور بشرط NODE_ENV | `CLOSED SOURCE / DEPLOYMENT REVALIDATE` |
+
+> **حكم البوابة:** نتائج المصدر والبناء والاختبار المحلي لا تغلق E2E staging. يلزم إعادة الجولة على `http://57.131.133.208:8003/api/v1` بهويات sandbox، خصوصاً BOLA، provider_type لكل من lab/radiology/nursing/hospital، و`GET /hospital/staff` و`onboardDoctor`.
+
+**موانع غير مصدرية بقيت مفتوحة:** تدوير اعتماد R2 المكشوف تاريخياً، إعادة بناء صورة FastAPI التي تحمل seed القديم، واعتماد عقود consent/QR/location/error-codes. لا يجوز تقديم حكم production-ready أو store-ready قبل إغلاقها وتوثيق نتائج staging/UAT.
+
+آخر تحديث: 2026-08-17، Gatekeeper remediation.
