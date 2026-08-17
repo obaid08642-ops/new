@@ -142,3 +142,22 @@
 - [x] Provider: إصلاح مرجع `radar-alarm.mp3` المفقود باستخدام asset حقيقي موجود، مع إبقاء sonic branding المتخصص مفتوحاً.
 - [x] Backend chat gateway: membership authorization، aliases للأحداث، REST-only persistence، وفان-أوت للرسائل المحفوظة؛ typecheck و28 suite/221 test ناجحة.
 - [x] SEO structured data: وصف/صورة وعروض/توافر للدواء عند بيانات حقيقية، schema للمنشأة، وعروض للخدمات عند سعر حقيقي؛ SEO test وtypecheck ناجحان.
+
+## Push blocker — 2026-08-17
+
+- [x] إعادة تهيئة GitHub CLI/remote ورفع commit `6de0178` إلى `manus/on-live-reconciliation`; remote head تحقق من مطابقته.
+
+## Build regressions found after product-track push — 2026-08-17
+
+- [ ] Patient Expo export: فصل `react-native-maps` native-only imports عن web bundling عبر platform-specific Map implementation، دون تعطيل Android/iOS.
+- [ ] Admin Next build: إزالة/تصحيح import `Html/Head/Body/Main/NextScript` خارج pages/_document، وتحديد المستهلك غير المباشر في `/admin/ai-control` و`/admin/payouts`.
+- [ ] إعادة تشغيل backend build، patient export، admin build، وجميع الاختبارات بعد الإصلاحين.
+
+
+## Final validation build repair — 2026-08-17
+
+- [x] Admin: التحقق من أن خطأ `<Html> should not be imported outside of pages/_document` كان ناتجاً عن تشغيل Next build مع `NODE_ENV` غير قياسي؛ `NODE_ENV=production npm run build` نجح وولّد 34 صفحة، ولم توجد imports لـ`next/document` خارج `src/pages/_document.tsx`.
+- [x] Patient: استبدال imports المباشرة لـ`react-native-maps` في خمس شاشات بطبقة `src/components/MapPrimitives` native/web، مع إبقاء `react-native-maps` الحقيقي على iOS/Android.
+- [x] Patient: إضافة `DatabaseProvider.native.ts` و`DatabaseProvider.web.ts` لمنع تحميل `expo-sqlite`/`wa-sqlite.wasm` في web export، دون seed أو mock data ودون تغيير driver الأصلي للمنصات native.
+- [x] Patient: `NODE_ENV=production npm run export:web` نجح بعد الإصلاحات، وولّد web/iOS/Android bundles؛ التحقق المحلي استخدم package-lock مؤقتاً مع registry عام بسبب resolved mirror داخلي غير قابل للوصول، ثم استُعيد lock الأصلي.
+- [x] مزامنة هذه التغييرات مع أرشيف patient في الفرع، إعادة بناء ZIP النظيف، ثم تشغيل typecheck/tests النهائي قبل commit/push.

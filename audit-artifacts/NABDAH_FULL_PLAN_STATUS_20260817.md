@@ -96,3 +96,24 @@ SEO/GEO الحالي أقوى من مجرد كلمات مفتاحية: توجد 
 الحكم التنافسي: Nabdah يملك فرصة تميز في تجميع الطبيب والدواء والتحاليل والأشعة والرعاية المنزلية ضمن مسار عربي سعودي واحد، لكن Vezeeta متقدم في funnel البحث والحجز والانتشار والتقييمات الموثوقة وتوزيع المتاجر، وTeladoc متقدم في برامج الرعاية المزمنة والصحة النفسية والقنوات المؤسسية وقياس النتائج. لم تُبنَ بعد كل ميزات المنافسين أو برامج الحمل/الدورة/التغذية/التذكير/AI السريري كمنتجات مكتملة ومثبتة.
 
 الحكم التشغيلي: لا يوجد دليل كافٍ لتحمل آلاف أو ملايين المستخدمين معاً. Redis/BullMQ وindexes وgraceful shutdown موجودة، لكن Socket.IO ما زال على IoAdapter افتراضي وactiveUsers محلي وبدون Redis adapter؛ يلزم load test وبنية multi-instance وقياس Mongo/Redis/queue/CDN/storage قبل أي claim للتوسع.
+
+
+## Final Validation and Build Repair — 2026-08-17
+
+### نتيجة فحص Admin
+تم فحص جميع ملفات TypeScript/TSX في لوحة الإدارة بحثاً عن `next/document` و`<Html>` و`<Main>` و`<NextScript>`. الاستيراد الوحيد بقي محصوراً في `src/pages/_document.tsx`، ولم توجد imports مباشرة من `next/document` داخل `/admin/ai-control` أو `/admin/payouts` أو أي صفحة أخرى. سبب الفشل الظاهر في الجولة الأولى كان تشغيل Next.js مع قيمة `NODE_ENV` غير قياسية؛ عند تشغيل `NODE_ENV=production npm run build` نجح Next.js 16.2.10، واكتملت TypeScript compilation وstatic generation لجميع **34 صفحة**، بما فيها `admin/ai-control` و`admin/payouts` و`admin/order-detail` و`admin/config-portal`.
+
+### نتيجة فحص Patient Expo web
+تم استبدال الاستيرادات المباشرة لـ`react-native-maps` في `clinic-location` و`sos-active` و`map` و`location-picker` و`nursing/live-tracking` بطبقة `src/components/MapPrimitives`. ملف `.native.tsx` يعيد MapView/Marker/PROVIDER_DEFAULT الحقيقي من `react-native-maps`، بينما ملف `.web.tsx` يعرض web fallback واضحاً للإحداثيات والعلامة ولا يختلق موقعاً أو نتيجة backend. بذلك زال خطأ `MapMarkerNativeComponent` من مسار Expo web bundling.
+
+ظهر بعد ذلك مانع مستقل في `expo-sqlite` بسبب استيراد `wa-sqlite.wasm` من startup المشترك. عولج مصدرّياً بنقل provider الأصلي إلى `DatabaseProvider.native.ts` وإضافة `DatabaseProvider.web.ts` صريح لا يستورد `expo-sqlite` ولا يزرع بيانات؛ تبقى SQLite الحقيقية على Android/iOS، وتستمر شاشات web في الاعتماد على API. بعد الإصلاح نجح `NODE_ENV=production npm run export:web` وولّد web وiOS وAndroid bundles وملفات `dist` بنجاح.
+
+### حدود الدليل
+تمت هذه النتائج محلياً على المصدر والأرشيفات. تعذر استخدام resolved npm mirror الداخلي أثناء التحقق، لذلك استُخدمت نسخة مؤقتة من `package-lock.json` مع registry عام ثم أُعيد lock الأصلي دون تعديل. لم تُعد هذه الجولة نشر commit إلى staging ولم تغلق E2E، تدوير R2، إعادة بناء FastAPI، أو UAT الأجهزة/RTL/accessibility. لذلك يبقى حكم الجاهزية السابق كما هو: **المصدر أصلح للبناء والمراجعة، لكنه ليس إعلان جاهزية إنتاج أو متاجر**.
+
+### الملفات والآثار
+توجد التغييرات في أرشيف `nabd_plus_patient_app.zip`، وسجل العمل في `todo.md`. أعيد بناء الأرشيفين دون `node_modules` أو `dist` أو `.next` أو logs أو `tsbuildinfo`، واجتازا `unzip -t`. يلزم بعد ذلك تنفيذ typecheck/tests النهائي للحزمة patient، ثم commit وpush على `manus/on-live-reconciliation` فقط.
+
+
+### تصحيح تحقق Patient النهائي
+ظهرت أثناء أول typecheck ملاحظة TypeScript لأن resolver خارج Expo لا يرى أسماء الملفات platform-suffixed بعد نقل provider. أضيف `DatabaseProvider.ts` محايد للـtypecheck يعيد native provider، بينما يبقى Metro صاحب القرار ويختار `.web.ts` أو `.native.ts` عند bundling. بعد ذلك نجح `tsc --noEmit`، ونجحت **7 suites / 23 tests**، ونجح `NODE_ENV=production npm run export:web` مع web/iOS/Android bundles. لا توجد بيانات seed أو mock في هذا الإصلاح؛ web driver فارغ ومقصود فقط لمنع native SQLite من دخول bundle، والبيانات التشغيلية تبقى من API.
