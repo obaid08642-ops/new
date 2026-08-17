@@ -43,3 +43,8 @@ login patient وlaboratory نجحا. محاولة admin login أعادت `401` �
 قبل إغلاق Phase 6 يجب نشر source patch الحالي، توفير patient credential ثانٍ أو order test معتمد، إصلاح payment sandbox/config، وتأكيد admin credential/OTP retrieval. بعد ذلك تُعاد فقط الاختبارات الفاشلة أو غير المنفذة مع before/after state وledger وrequest ids.
 
 **Verdict:** Phase 6 E2E remains OPEN. No production-readiness claim is made.
+
+
+## Production migration reachability check — 2026-08-17
+
+بعد إلغاء staging، أُعيد توجيه probe إلى `https://api.nabd.plus/api/v1`. لم يُرسل أي login أو mutation بنجاح: اتصال TLS انتهى بمهلة 30 ثانية، ثم انتهى فحص HTTPS health بمهلة 20 ثانية، وفحص HTTP البديل بمهلة 15 ثانية. DNS resolution يعمل ويعيد Cloudflare addresses، لكن لا توجد استجابة HTTP من sandbox network خلال الحدود المحددة. لذلك لم يُنشأ order ولم تُلمس بيانات الإنتاج، ولا يمكن إعلان أي بند من BOLA/payment/WebSocket/OTP مغلقاً على الإنتاج حتى تصبح API قابلة للوصول أو يُوفر مسار تشخيص/لوج معتمد.

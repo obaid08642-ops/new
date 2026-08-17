@@ -222,3 +222,19 @@
 - [ ] إصلاح fallback في websocket CORS: production لا يجوز أن يعيد `origin: true` عند غياب `ALLOWED_ORIGINS`؛ يجب fail-closed أو رفض صريح حتى تُضبط القائمة.
 - [ ] تحسين اختبار WebSocket لتمييز transport connect عن authenticated session: token المنتهك قد يتصل لحظياً قبل أن ينفذ gateway disconnect، ويجب إثبات disconnect/عدم استقبال events.
 - [ ] إعادة تحقق حي لـvalid token وinvalid token وtrusted/untrusted Origin بعد نشر الإصلاح.
+
+
+## Production sandbox E2E closure — 2026-08-17
+
+- [ ] تثبيت أن كل الحسابات والطلبات المستخدمة sandbox وأن كل mutation موثق وقابل للتنظيف قبل الاختبار على الإنتاج.
+- [ ] إنشاء order sandbox من patient.sandbox وتسجيل الحالة والـledger قبل/بعد، ثم اختبار cancel/track/update من patient2.sandbox مع توقع 403/404.
+- [ ] تشخيص 500 في payment intent عبر logs المعتمدة، وإصلاح السبب فقط إذا كان المصدر/الإعداد sandbox آمناً، ثم اختبار payment/webhook signature/idempotency/refund sandbox.
+- [ ] إعادة اختبار WebSocket على الإنتاج مع انتظار disconnect الفعلي للـtoken المعدل وOrigin غير الموثوق وعدم استقبال events.
+- [ ] تنفيذ مصفوفة admin OTP/2FA وrate-limit دون تخمين codes أو تجاوز حدود المحاولات.
+- [ ] تحديث وثائق العقود الأربعة ورفع التعديلات بعد نجاح build/tests، مع إبقائها fail-closed وغير مفعلة.
+
+
+## Production reachability blocker — 2026-08-17
+
+- [ ] استعادة وصول HTTPS/HTTP إلى `api.nabd.plus` من بيئة الاختبار أو توفير قناة تشخيص معتمدة؛ DNS يعمل لكن TLS وHTTP ينتهيان بمهلة قبل login.
+- [ ] بعد عودة الوصول فقط: تنفيذ BOLA/payment/WebSocket/OTP على production sandbox، مع عدم اعتبار أي mutation منفذاً في الجولة الحالية.

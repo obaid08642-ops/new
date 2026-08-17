@@ -210,3 +210,10 @@ The source-level FIX2 gate is complete. Gatekeeper must redeploy the resulting c
 التحقق الحي الأولي أثبت login للمريض والمختبر عبر المسارات الصحيحة. BOLA بين مريضين لم يُغلق لغياب credential ثانٍ مؤكد في probe. payment intent أعاد `500 Internal server error` مرتين على order pending، لذلك لم يُثبت idempotency؛ unmatched webhook أعاد `200` مع `ok:false/no_match` فقط. WebSocket transport قبل valid/modified token وOrigin غير موثوق في النسخة المنشورة، وأُضيف source patch يجعل CORS fail-closed خارج development/test مع رفض wildcard/غياب allowlist، بانتظار redeploy وإعادة اختبار authenticated disconnect لا transport connect فقط. admin login أعاد `401`، ولذلك لم تُبدأ دورة OTP/2FA ولم تُخمن أكواد.
 
 نتائج build المحلية بعد contract layer وCORS patch: **30 suites / 228 tests passed** وboot test **1/1 passed**. الحكم التشغيلي: Phase 6 ما زال OPEN، ولا يوجد تفعيل لعقد أو ادعاء جاهزية إنتاجية.
+
+
+## Production-only E2E transition — 2026-08-17
+
+طُبّق انتقال الاختبار من staging إلى `https://api.nabd.plus/api/v1` وفق القواعد الجديدة. DNS يعمل، لكن اتصال TLS إلى HTTPS انتهى بمهلة 30 ثانية، وفحص health عبر HTTPS انتهى بمهلة 20 ثانية، كما انتهى HTTP البديل بمهلة 15 ثانية دون أي response. توقّف probe قبل login وقبل إنشاء order؛ لم تُنفذ أي mutation ولم تتغير بيانات الإنتاج.
+
+بناءً عليه، لم يبدأ اختبار BOLA بين `patient.sandbox` و`patient2.sandbox`، ولم يُشخّص payment 500 أو يُختبر WebSocket/OTP على الإنتاج. هذه ليست نتيجة فشل وظيفي في التطبيق، بل حاجز reachability من بيئة التنفيذ إلى production API. يلزم توفير استجابة API أو قناة logs/diagnostics معتمدة قبل متابعة mutations على الإنتاج.
