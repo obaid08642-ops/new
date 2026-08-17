@@ -253,3 +253,9 @@
 - [x] مراجعة `GET /orders/:id` وعمليات التتبع/التعديل للتأكد من participant/owner authorization وعدم كشف order لمريض آخر.
 - [x] إضافة اختبار BOLA بين patient1/patient2 يغطي read/track/cancel/update ويثبت state وpayment/ledger before-after.
 - [x] توثيق order sandbox `91047ef2-ad36-422a-a184-629693e7c729`: قبل `ESCALATED_TO_ADMIN/pending`، وبعد إلغاء patient2 أصبح `CANCELLED/pending`؛ لا تُنفذ mutations مالية قبل إصلاح P0.
+
+
+## Master project reference — 2026-08-17
+
+- [x] إعداد مرجع Markdown واحد يشرح المعمارية، backend/database، Patient App، Provider App، Admin Dashboard، الشاشات، الميزات، المسارات، السيناريوهات، الصلاحيات، الاختبارات، والحالة التشغيلية.
+- [x] مراجعة اتساق المرجع مع manifests المصدرية والتقارير، ثم رفعه على `manus/on-live-reconciliation`.
