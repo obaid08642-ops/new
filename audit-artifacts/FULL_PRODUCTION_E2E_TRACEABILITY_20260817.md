@@ -257,3 +257,10 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 تمت المعالجة بإضافة ownership-aware entity lookup للمريض والمزوّد المعيّن وadmin، وتطبيع provider/provider_type، وتقييد markPayment بـassigned provider أو admin مع status payload صريح ونتيجة update مؤكدة. أصبحت list/get attachments تتحقق من booking access قبل الإرجاع، مع عدم عرض base64 في القائمة. أضيفت **4/4** regression tests، وأصبح full backend **36 suites / 259 tests** مع tsc/build ناجحين.
 
 لم تُنفذ mutation production على booking غير مناسب. التصنيف **SOURCE FIX / DEPLOY-RECHECK**؛ يلزم بعد النشر إثبات foreign invoice/payment/attachment = 403/404، وبقاء assigned provider/admin workflows ناجحة دون تسريب base64.
+
+
+## Unified booking read contract — 2026-08-17
+
+في probe حي على radiology sandbox id قديم، أعاد `GET /unified-bookings/radiology/:id` حالة `200` بجسم فارغ للمريض المالك ولحساب patient2، بدلاً من عقد واضح يميز record غير الموجود/غير المملوك. كما أعادت مسارات `booking/flow/status` و`timeline` في نفس probe `404`، ما يشير إلى أن النسخة المنشورة لا تتطابق بالكامل مع source snapshot الحالي أو أن التسجيل الفعلي للموديول مختلف؛ لا يُستنتج من ذلك نجاح lifecycle.
+
+تم إصلاح `UnifiedBookingsService.getOne` ليستخدم patient ownership ثم يرمي `404 booking_not_found` عند نتيجة null، مع regression **2/2**. أصبحت البوابة المحلية **37 suites / 261 tests** مع tsc/build ناجحين. التصنيف **SOURCE FIX / LIVE VERSION RECONCILIATION REQUIRED**، ويجب بعد نشر نسخة موحدة إعادة الاختبار على booking sandbox موجود فعلياً قبل الإغلاق.

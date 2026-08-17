@@ -360,3 +360,6 @@
 
 - [x] BookingOps shared BOLA hardening: invoice/payment reads use patient/provider/admin scope; markPayment rejects non-provider, requires assigned provider or admin and explicit update payload; list/get attachments now verify booking access before returning metadata. Regression 4/4; full backend 36 suites/259 tests; tsc/build successful.
 - [ ] Deploy/live recheck BookingOps: foreign invoice/payment/attachments must 404/403; assigned provider/admin mutations remain allowed; test attachments only with real sandbox booking and no base64 leakage.
+
+- [x] UnifiedBookings access contract: `getOne` now throws `404 booking_not_found` for missing/foreign records instead of returning HTTP 200 with null; owned records remain readable. Regression 2/2; full backend 37 suites/261 tests; tsc/build successful.
+- [ ] Deploy/live recheck unified-bookings foreign read on an existing sandbox booking; current production probe returned 200 with empty body for the stale radiology id, while booking-flow status/timeline routes returned 404 and require deployment/version reconciliation.
