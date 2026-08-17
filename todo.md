@@ -533,3 +533,6 @@
 
 - [x] Added NursingRegistration pre-submit guards for identity/location, selected services/pricing models, positive price per model, coverage radius, and working hours. Full Provider typecheck and 5/5 Jest contracts passed after the complete guard batch.
 - [ ] Re-run device/manual onboarding flows against the deployed build; source gate is green but production deployment and real account registration remain separate gates.
+
+- [!] Provider Android Expo export is blocked: `package.json` points to Expo AppEntry but the authoritative snapshot has no root `App.tsx/js/jsx`; evidence: `audit-artifacts/PROVIDER_EXPO_BUILD_BLOCKER_20260818.md`. Do not create a guessed entrypoint; restore the authoritative navigation entry before device/store claims.
+- [ ] Restore Provider App entrypoint from authoritative source register, then rerun Expo export/prebuild and device gates.
