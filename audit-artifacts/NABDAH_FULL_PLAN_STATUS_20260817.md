@@ -217,3 +217,10 @@ The source-level FIX2 gate is complete. Gatekeeper must redeploy the resulting c
 طُبّق انتقال الاختبار من staging إلى `https://api.nabd.plus/api/v1` وفق القواعد الجديدة. DNS يعمل، لكن اتصال TLS إلى HTTPS انتهى بمهلة 30 ثانية، وفحص health عبر HTTPS انتهى بمهلة 20 ثانية، كما انتهى HTTP البديل بمهلة 15 ثانية دون أي response. توقّف probe قبل login وقبل إنشاء order؛ لم تُنفذ أي mutation ولم تتغير بيانات الإنتاج.
 
 بناءً عليه، لم يبدأ اختبار BOLA بين `patient.sandbox` و`patient2.sandbox`، ولم يُشخّص payment 500 أو يُختبر WebSocket/OTP على الإنتاج. هذه ليست نتيجة فشل وظيفي في التطبيق، بل حاجز reachability من بيئة التنفيذ إلى production API. يلزم توفير استجابة API أو قناة logs/diagnostics معتمدة قبل متابعة mutations على الإنتاج.
+
+
+## Production BOLA reproduction and remediation — 2026-08-17
+
+بعد تجاوز Cloudflare عبر `--resolve api.nabd.plus:443:57.131.133.208`، أُنشئ order sandbox واحد من `patient.sandbox@nabd.plus` بالمعرف `91047ef2-ad36-422a-a184-629693e7c729`. قبل اختبار patient2 كانت الحالة `ESCALATED_TO_ADMIN` و`payment_status=pending`، وكان سجل payments فارغاً. استطاع `patient2.sandbox@nabd.plus` قراءة order عبر `GET /orders/:id` بنتيجة 200، بينما أعاد tracking 403، ثم استطاع تنفيذ `POST /orders/:id/cancel` بنتيجة 201، فتغيرت الحالة إلى `CANCELLED` مع بقاء payment pending. `approve-basket` أعاد 404، ولم تُنفذ أي refund أو wallet mutation.
+
+تم إصلاح السبب المصدرّي: `OrdersService.cancel` يفرض ownership قبل CancellationPolicy أو أي side effect مالي، و`GET /orders/:id` أصبح يمرر CurrentUser ويطبق access guard للمالك أو pharmacy assignment أو admin. أُضيفت اختبارات foreign patient/owner للقراءة والإلغاء. النتيجة المحلية بعد الإصلاح: **30 suites / 231 tests passed** وboot **1/1 passed**. الإصلاح لم يُنشر بعد؛ لذلك يبقى BOLA production مفتوحاً حتى deployment وإعادة الاختبار بنفس order أو order sandbox جديد مع before/after.

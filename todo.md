@@ -238,3 +238,18 @@
 
 - [ ] استعادة وصول HTTPS/HTTP إلى `api.nabd.plus` من بيئة الاختبار أو توفير قناة تشخيص معتمدة؛ DNS يعمل لكن TLS وHTTP ينتهيان بمهلة قبل login.
 - [ ] بعد عودة الوصول فقط: تنفيذ BOLA/payment/WebSocket/OTP على production sandbox، مع عدم اعتبار أي mutation منفذاً في الجولة الحالية.
+
+
+## Production origin-direct retry — 2026-08-17
+
+- [ ] التحقق من `/health/liveness` عبر TLS و`--resolve api.nabd.plus:443:57.131.133.208` قبل أي login أو mutation.
+- [ ] تحديث كل probes الإنتاج لتستخدم origin المباشر مع Host/SNI الصحيحين، ثم تنفيذ order sandbox وBOLA بين المريضين.
+- [ ] إعادة payment/WebSocket/OTP probes عبر origin المباشر وتحديث evidence والقيود.
+
+
+## Production BOLA P0 — 2026-08-17
+
+- [x] إصلاح مسار `POST /orders/:id/cancel` ليشترط ملكية المريض أو pharmacy assignment أو admin، وألا يعتمد على role وحده.
+- [x] مراجعة `GET /orders/:id` وعمليات التتبع/التعديل للتأكد من participant/owner authorization وعدم كشف order لمريض آخر.
+- [x] إضافة اختبار BOLA بين patient1/patient2 يغطي read/track/cancel/update ويثبت state وpayment/ledger before-after.
+- [ ] توثيق order sandbox `91047ef2-ad36-422a-a184-629693e7c729`: قبل `ESCALATED_TO_ADMIN/pending`، وبعد إلغاء patient2 أصبح `CANCELLED/pending`؛ لا تُنفذ mutations مالية قبل إصلاح P0.
