@@ -584,3 +584,5 @@
 
 - [x] Patient exact-read retry succeeded after the prior transport timeout: sandbox login HTTP 201; `/doctors/appointments/mine`, `/notifications`, `/wallet/balance`, `/wallet/transactions`, `/orders/mine`, `/doctors`, and `/insurance/companies` all returned HTTP 200. Only statuses/body sizes were persisted; no mutation occurred.
 - [ ] Run the Patient-1/Patient-2 BOLA read/mutation isolation matrix only after selecting a real sandbox order/appointment ID from Patient-1 and recording before/after state; do not fabricate an ID.
+
+- [x] Live Patient BOLA mutation matrix completed on real sandbox order `62039080-53eb-4ca2-8bac-69c2a7bb038f`: Patient-1 owner read before=200 and after=200 with identical body size; Patient-2 foreign read=403 and foreign cancel=403. No state-changing owner action was executed.
