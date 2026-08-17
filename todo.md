@@ -578,3 +578,6 @@
 
 - [x] One controlled nursing sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, `/nursing/visits=200`, and `/nursing/visits?status=pending=200`. Only statuses/body sizes were persisted; no visit mutation occurred.
 - [ ] Confirm an eligible sandbox nursing visit before testing accept/start/complete/location lifecycle; empty inbox is BLOCKED for mutation testing.
+
+- [x] One controlled hospital sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, while `/hospital/staff=403`. This is classified as expected least-privilege for a non-hospital-admin provider account; no staff mutation occurred.
+- [ ] Obtain/verify a dedicated sandbox hospital-admin role before testing staff list/create/update/delete; do not weaken the 403 for an ordinary hospital provider.
