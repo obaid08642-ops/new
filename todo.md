@@ -549,3 +549,6 @@
 
 - [x] One controlled doctor sandbox login succeeded (HTTP 201) and exact read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`; `provider-onboarding/my-profile=404` remains an exact-contract reconciliation item. No mutation or response body was persisted.
 - [ ] Map the 404 `my-profile` consumer to the exact controller route before any provider lifecycle mutation; then run the same one-account read gate for the next provider type outside active 429 windows.
+
+- [x] Recorded `PROVIDER_MY_PROFILE_SOURCE_DRIFT_20260818.md`: local backend controller calls missing `getMyProfile`, while live doctor probe has `my-profile=404` and `progress=200`; no backend code was changed because the snapshot is not a Git working tree and the Provider consumer does not use the route.
+- [ ] Reconcile authoritative backend repository/image and add boot/typecheck coverage for provider-onboarding controller/service method parity before changing or removing my-profile.
