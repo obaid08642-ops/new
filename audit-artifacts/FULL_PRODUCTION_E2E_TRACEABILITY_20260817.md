@@ -264,3 +264,8 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 في probe حي على radiology sandbox id قديم، أعاد `GET /unified-bookings/radiology/:id` حالة `200` بجسم فارغ للمريض المالك ولحساب patient2، بدلاً من عقد واضح يميز record غير الموجود/غير المملوك. كما أعادت مسارات `booking/flow/status` و`timeline` في نفس probe `404`، ما يشير إلى أن النسخة المنشورة لا تتطابق بالكامل مع source snapshot الحالي أو أن التسجيل الفعلي للموديول مختلف؛ لا يُستنتج من ذلك نجاح lifecycle.
 
 تم إصلاح `UnifiedBookingsService.getOne` ليستخدم patient ownership ثم يرمي `404 booking_not_found` عند نتيجة null، مع regression **2/2**. أصبحت البوابة المحلية **37 suites / 261 tests** مع tsc/build ناجحين. التصنيف **SOURCE FIX / LIVE VERSION RECONCILIATION REQUIRED**، ويجب بعد نشر نسخة موحدة إعادة الاختبار على booking sandbox موجود فعلياً قبل الإغلاق.
+
+
+### Current live reconciliation probe
+
+استُخرجت قائمة حقيقية من `GET /unified-bookings/mine` للمريض sandbox؛ تضمنت lab booking `76166cc4-7c29-4762-944b-c7c9de45bb15` بحالة `REPORTED/COMPLETED`. `GET /unified-bookings/lab/:id` أعاد `200` وبيانات الحجز كاملة للمالك patient1، لكنه أعاد `200` بجسم فارغ لـpatient2 قبل نشر patch `72fe83e`. هذا يؤكد أن الإصلاح المصدرّي لم يُنشر بعد، وأن live BOLA/contract recheck يجب أن يعاد بعد النشر ويتوقع `404 booking_not_found` للغريب.
