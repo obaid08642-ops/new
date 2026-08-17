@@ -601,3 +601,6 @@
 
 - [x] Recorded `LABS_ENGINE_LEGACY_AUTH_DRIFT_20260818.md`: legacy `labs/bookings` lifecycle controller lacks visible guard/current-user/ownership checks; no legacy lifecycle mutation was executed.
 - [ ] Reconcile this legacy controller against the deployed backend route map/image; if mounted, add centralized auth/provider-role/ownership tests before activation.
+
+- [x] Recorded `LAB_CONTRACT_RECONCILIATION_BLOCKER_20260818.md`: LabDashboard has ~30 `/labs/bookings/*` consumers while overlapping legacy `LabsEngineController` mutations lack visible auth/ownership; lifecycle mutations remain blocked until deployed route mapping is confirmed.
+- [ ] Resolve the deployed mapping between guarded `LabsController` service routes and legacy `LabsEngineController`, then add/verify ownership and provider-role tests before executing LabDashboard mutations.

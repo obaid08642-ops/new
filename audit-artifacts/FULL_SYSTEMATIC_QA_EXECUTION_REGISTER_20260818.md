@@ -84,3 +84,7 @@ No lifecycle mutation is being inferred from a successful read. Pharmacy has a p
 ## Legacy lab lifecycle security gate — recorded 2026-08-18
 
 The inspected `LabsEngineController` legacy routes lack visible authentication and ownership checks. Because the live provider contract used different guarded inbox/sample routes, no legacy accept/collect/finalize mutation was executed. Exposure must be confirmed against the deployed image before classifying it as a live exploit; if mounted, it is a source security blocker.
+
+## Lab contract reconciliation blocker — recorded 2026-08-18
+
+LabDashboard consumes approximately 30 `/labs/bookings/*` actions. The source snapshot contains overlapping `LabsController` routes delegated through `LabsService` and a legacy `LabsEngineController` mounted under the same prefix with no visible current-user/ownership guard. Mutation testing is blocked until the deployed route mapping is confirmed and the legacy path is removed or hardened.
