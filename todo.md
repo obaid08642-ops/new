@@ -541,3 +541,6 @@
 
 - [x] Restored verified Provider `App.tsx` plus `PushNotifications`, `ProviderHome`, `LiveKitRoomProvider`, and `PharmacyChatResponder` from source-readonly; Provider typecheck passed, 5/5 Jest contracts passed, and Android Expo export succeeded with one 5.4 MB Hermes bundle. Evidence: `PROVIDER_ANDROID_EXPORT_METADATA_20260818.json`.
 - [ ] Run native prebuild/device matrix against this restored entrypoint; Android export is a bundle gate, not proof of emulator/farm/runtime readiness.
+
+- [x] Expo prebuild passed after App restoration; native project generation is reproducible and generated folders were intentionally not committed. Evidence: `PROVIDER_NATIVE_PREBUILD_20260818.md`.
+- [ ] Add production app icon and install `expo-system-ui` or document the managed-workflow equivalent before store submission; rerun prebuild after that configuration decision.
