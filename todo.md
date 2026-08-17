@@ -259,3 +259,7 @@
 
 - [x] إعداد مرجع Markdown واحد يشرح المعمارية، backend/database، Patient App، Provider App، Admin Dashboard، الشاشات، الميزات، المسارات، السيناريوهات، الصلاحيات، الاختبارات، والحالة التشغيلية.
 - [x] مراجعة اتساق المرجع مع manifests المصدرية والتقارير، ثم رفعه على `manus/on-live-reconciliation`.
+
+- [x] Report PDF: فرض ownership في `GET /orders/:id/report.pdf`، إصلاح استيراد `pdfkit` runtime-safe، إضافة handling لأخطاء stream، وإضافة اختبارات رفض BOLA ونجاح المالك؛ اختبارات OrdersService 9/9 وبناء backend ناجح محلياً.
+- [ ] إعادة نشر commit PDF على الإنتاج والتحقق الحي: المالك 200/PDF صالح والمريض الآخر 403، دون لمس بيانات غير sandbox.
+- [ ] تشخيص payment intent 500 في الإنتاج عبر سجلات الخادم ثم إصلاحه واختبار sandbox/idempotency/webhook.
