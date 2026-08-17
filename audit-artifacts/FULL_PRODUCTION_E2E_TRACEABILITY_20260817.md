@@ -194,3 +194,24 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ### ما لم يُغلق
 
 تبقى دورة nursing الحية كاملة معلقة إلى أن يظهر مزود sandbox matching: accept/reject، transit، arrival، start-care، complete، tracking، notes، supplies، cancel، no-show، emergency، notifications، وBOLA بين patient1/patient2 ومزوّد غريب. كما يلزم إعادة نشر patch ثم اختبار المسارات السلبية على الإنتاج قبل اعتبار المعالجة تشغيلية.
+
+
+## Hospitals / staff live matrix and source remediation — 2026-08-17
+
+### القراءة الحية قبل النشر
+
+باستخدام حساب hospital sandbox فقط، أعادت `GET /hospital/invitations` و`GET /hospital/invitations/inbox` الحالة `200` مع قوائم فارغة. أما `GET /hospital/branches` و`/departments` و`/staff` و`/appointments` و`/wallet` فأعادت `500 Internal server error`. لم تُجرَ أي mutation على الإنتاج. محاولة القراءة بحساب patient sandbox انتهت بـ`401 Invalid token` في هذه الجولة، ولم تُستخدم لتجاوز المصادقة.
+
+### السبب الجذري
+
+كان `HospitalService` يحوّل `user.id` إلى `new Types.ObjectId()` مباشرة رغم أن هوية الحساب في JWT هي UUID؛ كما كان `onboardDoctor` و`updateAppointmentStatus` يستخدمان `_id`/ObjectId مباشرة، مع عدم تمرير CurrentUser إلى service للتحقق من الدور والنطاق. هذا يفسر 500 في جميع مسارات القراءة التي احتاجت hospital lookup، ويخلق خطر mutation خارج منشأة الطبيب في status update.
+
+### المعالجة المصدرية
+
+أضيف حل UUID آمن إلى `_id` الحقيقي من User model، مع رفض `hospital_user_not_found` بدلاً من CastError. أضيفت RBAC صريحة لأدوار hospital/hospital_admin/branch_admin/receptionist/finance/admin، مع منع receptionist/finance من الكتابة. أصبحت staff fields user/branch/department تتحقق من المراجع بدلاً من قبول raw body، وأصبح appointment status محصوراً في حالات معروفة ومربوطاً بأطباء affiliated مع المنشأة نفسها. مرّر controller CurrentUser إلى جميع عمليات الخدمة، ولم تعد hospital scope أو role افتراضاً ضمنياً.
+
+أضيفت regression tests **3/3**، ثم full backend **34 suites / 251 tests** مع `tsc --noEmit` وNest build ناجحين. التصنيف: **SOURCE FIX / LIVE PRE-DEPLOY FAILURE / DEPLOY-RECHECK**.
+
+### المتبقي
+
+بعد نشر patch يجب إعادة تشغيل مصفوفة القراءة والتأكد من زوال 500، ثم اختبار staff add، branch/department creation، doctor onboarding، appointment status، wallet، invitation create/respond، مع hospital-admin مقابل provider عادي وpatient غريب. لا يُعلن إغلاق البند قبل evidence حي بعد النشر.
