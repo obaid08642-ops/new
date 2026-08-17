@@ -500,3 +500,6 @@
 
 - [x] Fixed confirmed Pharmacy placeholders: disabled the fake barcode success action and replaced hardcoded broadcast order/accept toast with live `/provider/pharmacy/broadcasts` data and server-backed accept; Provider typecheck passed and 3/3 Jest contracts passed.
 - [ ] Re-run production provider pharmacy read/accept lifecycle after rate-limit window with a real sandbox broadcast only; verify before/after state, notification, and patient visibility.
+
+- [x] Fixed Radiology scan-image placeholder: removed `Coming with S3 integration` action and made local image upload explicitly disabled until authorized storage integration; Provider typecheck and 3/3 Jest contracts remain green.
+- [ ] Audit remaining toast-only export/call/device actions screen-by-screen; wire to real contracts where available or make them explicitly disabled/fail-closed.

@@ -382,7 +382,10 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
       <NSecHeader title={AR?' قسم 2: صور DICOM (اختياري)':' Section 2: DICOM Images (Optional)'} />
       <NCard style={{ marginBottom: SP.lg }}>
         <NInput label={AR ? 'رابط PACS/DICOM الخارجي' : 'External PACS/DICOM URL'} value={dicomUrl} onChange={setDicomUrl} placeholder="https://pacs.hospital.com/viewer/..." />
-        <NBtn label={AR?' رفع صور الأشعة (JPEG/PNG)':' Upload Scan Images (JPEG/PNG)'} variant="outline" loading={loading} onPress={() => show(AR?'سيتم دعمه مع تكامل S3':'Coming with S3 integration','info')} />
+        <NBtn label={AR ? 'رفع صور الأشعة غير متاح حالياً' : 'Scan image upload unavailable'} variant="outline" onPress={() => {}} disabled />
+        <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
+          {AR ? 'يمكن إضافة رابط PACS/DICOM خارجي؛ لن يتم اعتماد رفع ملف محلي قبل تكامل التخزين المصرح.' : 'An external PACS/DICOM URL may be provided; local file upload is disabled until authorized storage integration.'}
+        </Text>
       </NCard>
 
       {reportStatus ==='draft' && pdfUploaded && <NBtn label={AR?' إرسال للمراجعة الطبية':' Submit for Radiologist Review'} loading={loading} onPress={handleSubmitForReview} style={{ marginBottom: SP.md }} />}
