@@ -394,8 +394,30 @@ function Step3Profile({ data, update, onNext, onBack, step, total }: any) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 function Step4PricingAndLocation({ data, update, onNext, onBack, step, total }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [showMap, setShowMap] = useState(false);
+
+  const validate = () => {
+    const selected = [
+      { enabled: data.offersClinic, price: data.clinicPrice, duration: data.clinicDuration, label: AR ? 'خدمة العيادة' : 'clinic service' },
+      { enabled: data.offersVideo, price: data.videoPrice, duration: data.videoDuration, label: AR ? 'الاستشارة المرئية' : 'video service' },
+      { enabled: data.offersHome, price: data.homePrice, duration: data.homeDuration, label: AR ? 'الزيارة المنزلية' : 'home service' },
+    ].filter(item => item.enabled);
+    if (selected.length === 0) {
+      show(AR ? 'اختر خدمة واحدة على الأقل' : 'Select at least one service', 'error');
+      return false;
+    }
+    const incomplete = selected.find(item => !String(item.price || '').trim() || Number(item.price) < 0 || !String(item.duration || '').trim() || Number(item.duration) <= 0);
+    if (incomplete) {
+      show(AR ? `أدخل السعر والمدة لـ${incomplete.label}` : `Enter price and duration for the ${incomplete.label}`, 'error');
+      return false;
+    }
+    if (data.offersHome && (!Number(data.homeRadius) || data.homeRadius <= 0 || !data.lat || !data.lng)) {
+      show(AR ? 'حدد نطاق الزيارة وموقع الخدمة على الخريطة' : 'Set the home radius and service location on the map', 'error');
+      return false;
+    }
+    return true;
+  };
 
   return (
     <NScroll pad={false}>
@@ -509,7 +531,7 @@ function Step4PricingAndLocation({ data, update, onNext, onBack, step, total }: 
           )}
         </View>
 
-        <NBtn label={AR ? 'متابعة' : 'Next'} onPress={onNext} style={{ marginTop: SP.lg, marginBottom: 50 }} />
+        <NBtn label={AR ? 'متابعة' : 'Next'} onPress={() => { if (validate()) onNext(); }} style={{ marginTop: SP.lg, marginBottom: 50 }} />
       </View>
     </NScroll>
   );
