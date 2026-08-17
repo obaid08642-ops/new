@@ -612,3 +612,5 @@
 
 - [x] Audit-report application build gate passed after installing the declared pnpm version: frozen install, production build, and TypeScript check all PASS; asset/chunk warnings are documented in `AUDIT_REPORT_BUILD_GATE_20260818.md`.
 - [ ] Reduce audit-report main chunk and verify runtime-resolved storage asset in the deployed preview before final report delivery.
+
+- [x] Saved `PHASE5_REVALIDATION_SUMMARY_20260818.md` separating verified PASS evidence from lifecycle/Admin/device/gateway BLOCKED items and the superseded transport INCONCLUSIVE.
