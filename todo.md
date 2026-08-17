@@ -575,3 +575,6 @@
 - [x] Fixed Pharmacy OrderHistoryScreen to read `/provider/pharmacy/allocations?status=completed`, matching the declared provider controller; Provider typecheck and 5/5 Jest contracts passed.
 
 - [x] Live recheck of the corrected pharmacy history route returned `200` with an empty list for `GET /provider/pharmacy/allocations?status=completed` using the pharmacy sandbox token; no mutation occurred.
+
+- [x] One controlled nursing sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, `/nursing/visits=200`, and `/nursing/visits?status=pending=200`. Only statuses/body sizes were persisted; no visit mutation occurred.
+- [ ] Confirm an eligible sandbox nursing visit before testing accept/start/complete/location lifecycle; empty inbox is BLOCKED for mutation testing.
