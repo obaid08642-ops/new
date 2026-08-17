@@ -180,4 +180,4 @@
 - [x] تنفيذ تطبيع مركزي للأدوار الفعالة بحيث تُطابق guards قيمة `role` و`provider_type` مع الحفاظ على رفض الحسابات غير المصرح بها.
 - [x] التحقق من labs وradiology وnursing وhospital وpharmacy وعدم كسر الأدوار الإدارية أو patient.
 - [x] تشغيل backend build واختبارات 218/218 أو العدد الفعلي الكامل في النسخة الحالية، ثم توثيق نتيجة الاختبار.
-- [ ] تحديث التقرير، إعادة بناء الأرشيف المتأثر إن لزم، commit وpush على `manus/on-live-reconciliation` فقط.
+- [x] تحديث التقرير، إعادة بناء الأرشيف المتأثر إن لزم، commit وpush على `manus/on-live-reconciliation` فقط.
