@@ -609,3 +609,6 @@
 
 - [x] Recorded `ADMIN_DISPUTES_SOURCE_SCOPE_BLOCKER_20260818.md`: Admin disputes renders fabricated financial/name/reason fallbacks, but the full Admin tree is outside live-work and its authoritative Git source is not yet proven; no unlinked snapshot was edited.
 - [ ] Identify the authoritative Admin repository/worktree, remove fabricated fallbacks, add regression tests, then build and revalidate before any Admin readiness claim.
+
+- [x] Audit-report application build gate passed after installing the declared pnpm version: frozen install, production build, and TypeScript check all PASS; asset/chunk warnings are documented in `AUDIT_REPORT_BUILD_GATE_20260818.md`.
+- [ ] Reduce audit-report main chunk and verify runtime-resolved storage asset in the deployed preview before final report delivery.
