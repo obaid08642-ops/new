@@ -90,3 +90,18 @@
 - [x] إصلاح حدود RefundService عند 24/4 ساعة لتثبيت العقد الزمني.
 - [x] إضافة 3 اختبارات سلبية لـprovider/features؛ النتيجة النهائية 27 suites / 218 tests.
 - [x] إعادة بناء `nabdah-backend.zip` دون node_modules أو dist أو pycache مع اختبار سلامة ZIP.
+
+## Client typecheck defects found in Phase 4 — 2026-08-17
+
+- [ ] Patient: إصلاح استخدام `getCalendars` غير الموجود في react-native-localize داخل `src/utils/dates.ts` مع الحفاظ على timezone/calendar contract.
+- [ ] Provider: إصلاح cast غير الآمن للـreadonly insurance catalog في `src/api/catalogs.ts` دون تغيير بيانات شركات التأمين أو إنشاء بيانات وهمية.
+- [ ] إعادة تشغيل typecheck واختبارات وتصدير patient/provider بعد الإصلاحين، ثم تحديث أرشيفي التطبيقين.
+
+## Phase 4 client validation — 2026-08-17
+
+- [x] Patient: استبدال `getCalendars` بـ`getCalendar` وفق API المثبت.
+- [x] Provider: تصحيح readonly insurance catalog cast.
+- [x] Patient: typecheck ناجح، 7 suites / 23 tests ناجحة، وExpo iOS export ناجح.
+- [x] Provider: typecheck ناجح، 1 suite / 3 tests ناجحة، وExpo iOS export ناجح.
+- [x] Admin: production Next build ناجح بعد تنظيف `.next`، مع توليد 34 صفحة.
+- [x] إعادة بناء أرشيفي patient/provider واختبار ZIP دون node_modules أو dist.

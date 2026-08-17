@@ -168,3 +168,17 @@ Snapshots:   0 total
 | أرشيف `nabdah-backend.zip` | أُعيد بناؤه، واختبار ZIP ناجح، دون `node_modules` أو `dist` أو `__pycache__` |
 
 > هذه الدفعة لا تغلق consent/QR/location/error-code contracts، ولا تعوض E2E الحي أو مراجعة تطبيقات Expo وNext على الأجهزة. ستبقى هذه البنود مفتوحة حتى تنفيذ الأدلة المحددة في خطة E2E.
+
+
+## 10. Phase 4 — إعادة بناء واختبار الحزم الأربع
+
+أعيد تشغيل بوابات الحزم الأربع بدلاً من الاكتفاء بنتائج Gatekeeper الخلفية. في المحاولة الأولى كشف typecheck عيبين حقيقيين: تطبيق المريض كان يستدعي `getCalendars` غير الموجود في إصدار `react-native-localize` المثبت، وتطبيق المزوّد كان يستخدم cast غير آمن لقائمة التأمين readonly. عولج العيبان source-wise دون إضافة بيانات جديدة أو تغيير عقد backend.
+
+| المكوّن | النتيجة الحالية | الدليل |
+|---|---:|---|
+| backend | ناجح | TypeScript و27 suites / 218 tests |
+| patient | ناجح | typecheck، 7 suites / 23 tests، وExpo iOS export |
+| provider | ناجح | typecheck، 1 suite / 3 tests، وExpo iOS export |
+| admin | ناجح بعد تنظيف `.next` وتشغيل `NODE_ENV=production` | Next production build، 34 صفحة static وdynamic routes |
+
+أعيد بناء `nabdah-backend.zip` و`nabd_plus_patient_app.zip` و`NabdProvider-provider.zip` مع اختبار سلامة ZIP واستبعاد `node_modules` و`dist` وcache. لا يزال هذا إثبات بناء محلياً؛ لا يثبت device UAT أو push أو GPS أو WebSocket أو API/service connectivity.
