@@ -598,3 +598,6 @@
 - [ ] Add contract-test assertions for Pharmacy broadcast GET, accept, reject, and completed-history routes so the corrected consumers cannot regress to stale paths.
 
 - [x] Added regression assertions for Pharmacy broadcast GET, accept, reject, and completed-history routes; Provider typecheck and 5/5 Jest contracts passed.
+
+- [x] Recorded `LABS_ENGINE_LEGACY_AUTH_DRIFT_20260818.md`: legacy `labs/bookings` lifecycle controller lacks visible guard/current-user/ownership checks; no legacy lifecycle mutation was executed.
+- [ ] Reconcile this legacy controller against the deployed backend route map/image; if mounted, add centralized auth/provider-role/ownership tests before activation.

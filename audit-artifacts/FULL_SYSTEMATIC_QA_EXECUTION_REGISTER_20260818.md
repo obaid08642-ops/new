@@ -80,3 +80,7 @@ The real lab provider inbox was inspected without mutation. The sanitized summar
 ## Lifecycle eligibility gate summary — recorded 2026-08-18
 
 No lifecycle mutation is being inferred from a successful read. Pharmacy has a pending patient order but no linked/started sandbox pharmacy provider and an empty broadcast list. Laboratory has only an already `REPORTED` request and no pre-report request. Radiology inbox is empty, nursing visits are empty, and ordinary hospital provider staff access is correctly 403 pending a dedicated hospital-admin sandbox identity. Therefore accept/reject/start/collect/report/staff mutations remain gated rather than executed against unrelated or fabricated data.
+
+## Legacy lab lifecycle security gate — recorded 2026-08-18
+
+The inspected `LabsEngineController` legacy routes lack visible authentication and ownership checks. Because the live provider contract used different guarded inbox/sample routes, no legacy accept/collect/finalize mutation was executed. Exposure must be confirmed against the deployed image before classifying it as a live exploit; if mounted, it is a source security blocker.
