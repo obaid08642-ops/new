@@ -363,3 +363,5 @@
 
 - [x] UnifiedBookings access contract: `getOne` now throws `404 booking_not_found` for missing/foreign records instead of returning HTTP 200 with null; owned records remain readable. Regression 2/2; full backend 37 suites/261 tests; tsc/build successful.
 - [ ] Deploy/live recheck unified-bookings foreign read on an existing sandbox booking; current production probe returned 200 with empty body for the stale radiology id, while booking-flow status/timeline routes returned 404 and require deployment/version reconciliation.
+
+- [x] Unified live reconciliation probe: `/unified-bookings/mine` 200 returned a real lab booking; owner getOne returned 200 with data; foreign patient2 returned 200 with empty body on production pre-deploy. This is documented as an open operational contract/BOLA recheck, not a pass.
