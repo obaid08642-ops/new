@@ -552,3 +552,6 @@
 
 - [x] Recorded `PROVIDER_MY_PROFILE_SOURCE_DRIFT_20260818.md`: local backend controller calls missing `getMyProfile`, while live doctor probe has `my-profile=404` and `progress=200`; no backend code was changed because the snapshot is not a Git working tree and the Provider consumer does not use the route.
 - [ ] Reconcile authoritative backend repository/image and add boot/typecheck coverage for provider-onboarding controller/service method parity before changing or removing my-profile.
+
+- [x] One controlled lab sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, `labs/provider/inbox=200`, and `labs/samples=200`. Only statuses/body sizes were persisted; no queue mutation occurred.
+- [ ] Use a real sandbox lab request, if one exists and is confirmed safe, for the next accept/execute lifecycle; otherwise classify lab lifecycle as blocked by absence of an eligible sandbox request rather than inventing one.
