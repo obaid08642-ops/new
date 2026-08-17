@@ -530,3 +530,6 @@
 
 - [x] Added Lab and Radiology pre-submit guards for center identity/location, at least one test/scan, center hours, and home-service radius/hours when enabled. Typecheck and 5/5 Provider Jest contracts passed.
 - [ ] Add equivalent guards to NursingRegistration, then run the complete Provider source gate and retain the commit for deployment review.
+
+- [x] Added NursingRegistration pre-submit guards for identity/location, selected services/pricing models, positive price per model, coverage radius, and working hours. Full Provider typecheck and 5/5 Jest contracts passed after the complete guard batch.
+- [ ] Re-run device/manual onboarding flows against the deployed build; source gate is green but production deployment and real account registration remain separate gates.

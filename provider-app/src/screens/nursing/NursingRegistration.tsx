@@ -798,7 +798,34 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
   const [hasSigned, setHasSigned] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
+  const validateBeforeSubmit = () => {
+    if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
+      show(AR ? 'أكمل بيانات مقدم الرعاية والموقع والعنوان والبريد' : 'Complete provider identity, location, address, and email', 'error');
+      return false;
+    }
+    if (!data.location?.lat || !data.location?.lng) {
+      show(AR ? 'حدد موقع مقدم الرعاية على الخريطة' : 'Pick the provider location on the map', 'error');
+      return false;
+    }
+    if (!data.enabledServices.length || !data.pricingModels.length) {
+      show(AR ? 'اختر خدمة ونموذج تسعير واحداً على الأقل' : 'Select at least one nursing service and pricing model', 'error');
+      return false;
+    }
+    const priceByModel: Record<string, string> = { per_visit: data.priceVisit, per_hour: data.priceHour, per_day: data.priceDay, per_month: data.priceMonth };
+    const missingPrice = data.pricingModels.find((model: string) => !String(priceByModel[model] || '').trim() || Number(priceByModel[model]) <= 0);
+    if (missingPrice) {
+      show(AR ? 'أدخل سعراً موجباً لكل نموذج تسعير مختار' : 'Enter a positive price for each selected pricing model', 'error');
+      return false;
+    }
+    if (!Number(data.coverageRadius) || data.coverageRadius <= 0 || (!data.is24_7 && (!data.workDays.length || !data.openTime || !data.closeTime))) {
+      show(AR ? 'أكمل نطاق التغطية وأيام وساعات العمل' : 'Complete coverage radius and working days/hours', 'error');
+      return false;
+    }
+    return true;
+  };
+
   const submit = () => {
+    if (!validateBeforeSubmit()) return;
     if (!agreed) { show(AR ? 'يجب الموافقة على الشروط' : 'Must agree to terms', 'warning'); return; }
     if (!data.signatureData) {
       show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
