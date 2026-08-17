@@ -76,3 +76,7 @@ A real Patient-1 pending pharmacy order was inspected read-only. It carries a ph
 ## Laboratory lifecycle gate — recorded 2026-08-18
 
 The real lab provider inbox was inspected without mutation. The sanitized summary shows one request already in `REPORTED` state and a wrapper entry with no request status; there is no pending/accepted request suitable for accept, collection, analysis, or report-upload testing. The lab lifecycle remains **BLOCKED_NO_ELIGIBLE_PRE_REPORT_REQUEST** and the reported request was not altered.
+
+## Lifecycle eligibility gate summary — recorded 2026-08-18
+
+No lifecycle mutation is being inferred from a successful read. Pharmacy has a pending patient order but no linked/started sandbox pharmacy provider and an empty broadcast list. Laboratory has only an already `REPORTED` request and no pre-report request. Radiology inbox is empty, nursing visits are empty, and ordinary hospital provider staff access is correctly 403 pending a dedicated hospital-admin sandbox identity. Therefore accept/reject/start/collect/report/staff mutations remain gated rather than executed against unrelated or fabricated data.
