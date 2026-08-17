@@ -83,3 +83,16 @@
 [3]: ./NABDAH_LIVE_RECONCILIATION_REGISTER_20260815.md "سجل المصالحة الحاكم"
 
 [4]: ./NABDAH_GATEKEEPER_REMEDIATION_REPORT_20260817.md "تقرير Gatekeeper والدفعات اللاحقة"
+
+
+## Product, communications, UX and discovery track — status update
+
+هذه المرحلة لم تكن مغلقة عند بدء الجولة. تم تنفيذ إصلاحات مصدرية مثبتة: حماية LiveKit بملكية المشارك وأدوار الإدارة وتوحيد session/room، تقوية ChatGateway بملكية thread وبث الرسائل المحفوظة، تفعيل default system theme وdevice-language مع override محفوظ في patient/provider، تصحيح asset الصوت المفقود في Provider، وتحسين JSON-LD من بيانات حقيقية للدواء والمنشأة والخدمات. بعد هذه الدفعة نجح backend typecheck و28 suite/221 test، كما نجحت بوابات typecheck/الاختبارات للمريض والمزوّد ضمن سجلاتهما السابقة.
+
+لم تُغلق لوحة الإدارة بعد كواجهة متعددة اللغة وثيم يدوي كامل؛ فهي ما زالت RTL/عربية ثابتة مع CSS system-dark جزئي وclasses hard-coded. كما أن provider chat في بعض الشاشات REST-only ولا يملك shared SocketContext، وpush/audio يحتاجان اختباراً على أجهزة فعلية لأن قنوات الصوت الحالية لا تربط كل assets المعلنة.
+
+SEO/GEO الحالي أقوى من مجرد كلمات مفتاحية: توجد صفحات كيان SSR، canonical، Open Graph، JSON-LD، sitemap، robots وllms.txt. أضيفت عروض/توافر للدواء والخدمات عند وجود السعر الحقيقي فقط، وschema للمنشأة. لم تُثبت rankings أو AI citations، ولا توجد hreflang كاملة للغات الست لأن backend لا يقدم عقد ترجمة متوازية لكل كيان. يجب اعتبار SEO/AEO مسار جودة بيانات وسرعة وثقة ومحتوى، وليس وعداً بالظهور الأول.
+
+الحكم التنافسي: Nabdah يملك فرصة تميز في تجميع الطبيب والدواء والتحاليل والأشعة والرعاية المنزلية ضمن مسار عربي سعودي واحد، لكن Vezeeta متقدم في funnel البحث والحجز والانتشار والتقييمات الموثوقة وتوزيع المتاجر، وTeladoc متقدم في برامج الرعاية المزمنة والصحة النفسية والقنوات المؤسسية وقياس النتائج. لم تُبنَ بعد كل ميزات المنافسين أو برامج الحمل/الدورة/التغذية/التذكير/AI السريري كمنتجات مكتملة ومثبتة.
+
+الحكم التشغيلي: لا يوجد دليل كافٍ لتحمل آلاف أو ملايين المستخدمين معاً. Redis/BullMQ وindexes وgraceful shutdown موجودة، لكن Socket.IO ما زال على IoAdapter افتراضي وactiveUsers محلي وبدون Redis adapter؛ يلزم load test وبنية multi-instance وقياس Mongo/Redis/queue/CDN/storage قبل أي claim للتوسع.

@@ -105,3 +105,40 @@
 - [x] Provider: typecheck ناجح، 1 suite / 3 tests ناجحة، وExpo iOS export ناجح.
 - [x] Admin: production Next build ناجح بعد تنظيف `.next`، مع توليد 34 صفحة.
 - [x] إعادة بناء أرشيفي patient/provider واختبار ZIP دون node_modules أو dist.
+
+## Product, communications, UX and discovery track — 2026-08-17
+
+- [ ] تدقيق وتوحيد automatic system light/dark mode مع إمكانية التغيير اليدوي في patient/provider/admin، والتحقق من كل شاشة ومقاس واتجاه.
+- [ ] تدقيق اللغة التلقائية من إعداد الجهاز، التبديل اليدوي، RTL/LTR، واكتمال اللغات الست في النصوص والأخطاء والإشعارات.
+- [ ] تنفيذ التحقق المتخصص للاتصالات: chat، voice، video، signaling، persistence، ownership، reconnect، push، deep links، والقنوات الصوتية.
+- [ ] بناء Communications Implementation Matrix من frontend إلى backend إلى realtime/database/storage ثم العودة إلى state UI.
+- [ ] تدقيق صفحات الويب وSEO/GEO/AEO والـstructured data والروابط الديناميكية للدواء والطبيب والتحليل والأشعة والتمريض والمنشأة.
+- [ ] بحث تنافسي موثق ومقارنة مجالات الاستشارة والدواء والتحاليل والأشعة والتمريض والحمل والدورة والتغذية وAI.
+- [ ] تقييم الأداء والتوسع تحت الضغط، وتحديد ما يمكن إثباته محلياً وما يحتاج load test وبنية staging/production.
+- [ ] دراسة وتنفيذ agentic commerce وMCP/merchant discovery فقط عبر عقود آمنة وبيانات صحية ودوائية موثوقة، دون ادعاء ترتيب بحث مضمون.
+- [ ] تنفيذ الإصلاحات الآمنة المكتشفة، ثم بناء/اختبار/commit/push إلى manus/on-live-reconciliation فقط.
+- [ ] عدم إغلاق بنود staging/E2E الأصلية أو إعلان الجاهزية قبل إعادة النشر والتحقق الحي.
+
+## Communications security findings — 2026-08-17
+
+- [ ] LiveKit: فرض ownership/participant authorization على join/end/reject/metrics/getSession، ومنع رفض أو قراءة جلسة مستخدم آخر.
+- [ ] LiveKit: تقييد admin rooms/analytics/participants/mute/remove بـadmin role والتحقق من room ownership أو صلاحية الإدارة.
+- [ ] LiveKit: توحيد contract بين `session_id` و`room_name`؛ initiate يعيد session id بينما join يبحث أحياناً عن room_name مباشرة.
+- [ ] LiveKit: إزالة fallback `wss://live.nabd.plus` من التطبيق إذا لم يكن endpoint مُعرّفاً بعقد/بيئة موثوقة، وإصلاح fallback الاسم الثابت وspeaker icon.
+- [ ] Communications: إكمال trace chat/push/audio/reconnect/background/terminated-app قبل الحكم النهائي.
+
+## SEO/GEO source findings — 2026-08-17
+
+- [ ] تحسين structured data للدواء بإضافة وصف/صورة وoffers فقط عند وجود سعر حقيقي، وavailability مبنية على availability_status لا على قيمة مخترعة.
+- [ ] إضافة schema مناسب للمنشأة (`MedicalClinic`/`Hospital` بحسب النوع) والخدمة الطبية مع address/telephone عندما تكون بيانات حقيقية.
+- [ ] إضافة `og:locale:alternate` وhreflang/alternate links فقط للغات التي يملك العقد لها محتوى موثوق، مع عدم إعلان ترجمة غير موجودة.
+- [ ] مراجعة sitemap وllms.txt وrobots ضد canonical/base URL الفعلي ونطاق API، ثم اختبار XML وstructured data.
+
+## Product track completed source fixes — 2026-08-17
+
+- [x] Patient: automatic system theme default مع override يدوي محفوظ، وdevice language default ضمن AR/EN/UR/HI/BN/FIL.
+- [x] Patient LanguageManager: مواءمة التهيئة مع لغة الجهاز وعدم إعادة فرض العربية عند غياب preference محفوظ.
+- [x] Provider: system/light/dark mode مع override يدوي محفوظ وعدم الكتابة فوقه عند تغير OS؛ device language default ضمن AR/EN المتاحين.
+- [x] Provider: إصلاح مرجع `radar-alarm.mp3` المفقود باستخدام asset حقيقي موجود، مع إبقاء sonic branding المتخصص مفتوحاً.
+- [x] Backend chat gateway: membership authorization، aliases للأحداث، REST-only persistence، وفان-أوت للرسائل المحفوظة؛ typecheck و28 suite/221 test ناجحة.
+- [x] SEO structured data: وصف/صورة وعروض/توافر للدواء عند بيانات حقيقية، schema للمنشأة، وعروض للخدمات عند سعر حقيقي؛ SEO test وtypecheck ناجحان.
