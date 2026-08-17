@@ -354,3 +354,6 @@
 
 - [x] Notifications BOLA remediation: `markRead` no longer updates arbitrary notification ids; it scopes by user_id/role/all and returns `notification_not_found` when no matching record. Regression 2/2; full backend 35 suites/255 tests; tsc/build successful.
 - [ ] Deploy/live recheck notification foreign read: patient2 must not mark patient1-only notification; owner/role/all reads must continue working.
+
+- [x] Wallet safe negative matrix on production sandbox: unknown topup read `404 topup_not_found`, unknown card delete returned `200` with empty cards (no-op), insufficient transfer returned `400 insufficient_balance`; no payment intent/card/real transfer was created.
+- [ ] Wallet financial closure remains pending Moyasar activation: real sandbox topup intent/confirm/webhook/refund/idempotency, cross-account topup/card BOLA after deploy, and ledger before/after evidence.

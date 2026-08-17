@@ -241,3 +241,10 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 أثبتت القراءة الحية أن `GET /notifications` يعرض سجلات حقيقية مرتبطة بخدمات sandbox، بما في ذلك حالة delivery متعددة القنوات. أثناء مراجعة المصدر ظهر أن `POST /notifications/:id/read` كان يحدّث أي notification بالـid دون قيد user/role، وهو BOLA يسمح لمستخدم مصادق بتغيير سجل مستخدم آخر.
 
 تم إصلاح `NotificationsService.markRead` ليستخدم شرطاً مركباً `{ id, $or: [{ user_id }, { role }, { role: 'all' }] }`، وليعيد `notification_not_found` عند عدم وجود تطابق. أضيف اختباران regression، وأصبح full backend **35 suites / 255 tests** مع tsc/build ناجحين. لم تُنفذ mutation foreign على الإنتاج؛ يلزم بعد نشر patch إثبات patient2 لا يستطيع تعليم إشعار patient1 كمقروء، مع استمرار owner/role/all الصحيح.
+
+
+## Wallet safe negative matrix — 2026-08-17
+
+نفّذ patient2 sandbox قراءة topup غير موجود فأعاد `404 topup_not_found`. محاولة حذف card بمعرف غير موجود أعادت `200` مع قائمة بطاقات فارغة، أي no-op دون لمس بطاقة أخرى. محاولة تحويل `1` إلى patient1 من محفظة رصيدها صفر أعادت `400 insufficient_balance`. لم يُنشأ payment intent، ولم تُضاف بطاقة، ولم يُنفذ تحويل مالي حقيقي.
+
+يبقى المسار المالي الكامل معلقاً على تفعيل Moyasar التجاري: topup intent/confirm، webhook، refund، idempotency، وإثبات ledger قبل/بعد. التصنيف **SAFE NEGATIVE PASS / PAYMENT GATEWAY BLOCKED**.
