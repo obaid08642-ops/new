@@ -215,3 +215,22 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ### المتبقي
 
 بعد نشر patch يجب إعادة تشغيل مصفوفة القراءة والتأكد من زوال 500، ثم اختبار staff add، branch/department creation، doctor onboarding، appointment status، wallet، invitation create/respond، مع hospital-admin مقابل provider عادي وpatient غريب. لا يُعلن إغلاق البند قبل evidence حي بعد النشر.
+
+
+## Shared services — notifications, wallet, family — 2026-08-17
+
+### القراءة الحية
+
+بجلسة patient sandbox جديدة، أعادت notifications الحالة `200` مع إشعارات حقيقية مرتبطة بنتيجة مختبر وحالات delivery موثقة (`SMS SENT` و`push FAILED` ضمن السجل)، لا بيانات mock. أعادت wallet balance/transactions/spending/cards الحالات `200` مع رصيد صفر ومعاملات وبطاقات فارغة حقيقية. بقيت عمليات topup/confirm/transfer خارج mutation في هذه الجولة لأنها تعتمد على بوابة الدفع أو ledger مالي ويجب اختبارها بعد عقد payment/idempotency.
+
+### Family lifecycle
+
+أنشأ patient1 مجموعة sandbox بالحالة `201`، أنشأ invite بالحالة `201`، وانضم patient2 بالحالة `201`. قراءة members أعادت `200`. قبل منح الصلاحية، محاولة قراءة member records أعادت `403`، وبعد إزالة العضو من قبل المالك أعادت العملية `200`. لم تُستخدم بيانات غير sandbox.
+
+### العيب المكتشف والإصلاح
+
+أعاد endpoint منح permissions `404 Member not found` رغم أن mutation كان قد نجح فعلياً؛ السبب أن `FamilyService` كان يفسر غياب `matchedCount` و`nMatched` من بعض نتائج Mongo كأنه `0`. تم إصلاحه بحيث لا يُرفض إلا عند قيمة صفر صريحة، مع إبقاء الحالة الحقيقية غير الموجودة fail-closed. أضيفت regression coverage للحالتين، ثم full backend **34 suites / 253 tests** مع `tsc --noEmit` وNest build ناجحين.
+
+### حدود الإغلاق
+
+يجب بعد النشر إعادة اختبار grant/relation/calendar/permission-request، وإثبات عزل wallet/card/topup بين حسابين، وتسجيل read/register-token وadmin delivery-stats، ثم ربط كل حدث من دورات الخدمات بإشعار فعلي. النتيجة الحالية **SOURCE FIX / LIVE PARTIAL / DEPLOY-RECHECK**.
