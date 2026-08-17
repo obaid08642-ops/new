@@ -573,3 +573,5 @@
 - [ ] Fix Pharmacy OrderHistoryScreen stale GET `/provider/pharmacy/orders` to the declared provider allocations read contract with `status=completed`, then run Provider typecheck/Jest and push.
 
 - [x] Fixed Pharmacy OrderHistoryScreen to read `/provider/pharmacy/allocations?status=completed`, matching the declared provider controller; Provider typecheck and 5/5 Jest contracts passed.
+
+- [x] Live recheck of the corrected pharmacy history route returned `200` with an empty list for `GET /provider/pharmacy/allocations?status=completed` using the pharmacy sandbox token; no mutation occurred.
