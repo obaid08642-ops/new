@@ -132,3 +132,19 @@ CONSULT-CONTRACT-002 was patched and pushed on `manus/on-live-reconciliation` as
 ## Pharmacy route remediation
 
 `GET /orders/pharmacy/queue` returned 403 during the first live run while the active provider app correctly uses `/provider/pharmacy/allocations` (which returned 200 with an empty list). Source inspection found the legacy static route declared after `GET :id`; it was moved before the wildcard in `OrdersController` to prevent route shadowing. Combined backend gate after this change: **30 suites / 235 tests**, build passed. This remains pending live recheck after deployment; no claim of production closure is made yet.
+
+## Consultation mode creation checks
+
+Using patient sandbox and future slots, `POST /care/appointments` with `service_type=video` and card returned HTTP 400 `doctor does not support service_type=video`; `service_type=home` with insurance and a sandbox Riyadh location returned HTTP 400 `doctor does not support service_type=home`. No appointment IDs were created. This confirms the live contract gap: the doctor projection advertises online in its consultation modes, while the appointment backend contract accepts `video` and this sandbox doctor is not configured for it; home care is not enabled for this doctor. These are BLOCKED/contract findings, not Passed flows.
+
+## Laboratory facility lifecycle — live sandbox run
+
+Catalog `GET /labs/services` returned 200 with 69 services. Selected real CBC service `2f227444-b928-40ee-8308-8cc8cc3ac9fb` (45 SAR, home eligible). `compatible-providers` returned 200 with zero rows, so the existing sandbox laboratory account/profile was used explicitly from its live provider identity: account `a6becbef-fc66-4e2a-b07a-4e3402b982be`, facility profile `b5a68ef0-9e58-424e-a88e-ae99f046c2f0`; no fabricated id was used.
+
+Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was created by patient sandbox with facility/cash at HTTP 201 and read by patient at 200. Provider inbox returned 200 and contained the booking. General `PATCH /labs/bookings/:id/state` with `CONFIRMED` returned 403 `admin/lab only`, although provider inbox, technician assignment, sample registration, sample stages, and report upload all worked: assign 201, register sample 201 (`62b5cb45-cb78-4801-929d-00f40a375693`), analyzing 200, result_ready 200, report 201, patient final read 200 with state REPORTED and full history.
+
+**Finding LAB-CONTRACT-001 (P1):** `LabsService.transition` checks `user.role` against `admin/lab/hospital`, while production provider JWT is `role=provider`, `provider_type=laboratory`; it should use the already-established `getEffectiveRoles(user)` helper. The booking reached REPORTED through sample pipeline without using the blocked generic transition. Terminal REPORTED sandbox data is retained as documented evidence; no payment was attempted.
+
+## Laboratory transition remediation
+
+`LabsService.transition` now authorizes through `getEffectiveRoles(user)`, aligning `role=provider` plus `provider_type=laboratory` with the existing provider inbox/sample/report paths while retaining provider ownership checks. Regression: labs suite **8/8** passed. Full backend gate: **30 suites / 236 tests** passed and build passed. The production booking `76166cc4-7c29-4762-944b-c7c9de45bb15` remains evidence of the pre-deploy 403 and final REPORTED pipeline; live recheck of generic transition is pending deployment.
