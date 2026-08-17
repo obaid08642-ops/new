@@ -854,8 +854,8 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         // "Cannot read property 'clinic' of undefined" on final submit.
         wh = ((data.clinicDays as string[]) || []).map((d: string) => ({
           day: d,
-          open: (data as any).clinicStart || '09:00',
-          close: (data as any).clinicEnd || '17:00',
+          open: (data as any).clinicStart || '',
+          close: (data as any).clinicEnd || '',
           open_evening: (data as any).clinicShift === 'both' ? (data as any).clinicStartEve : undefined,
           close_evening: (data as any).clinicShift === 'both' ? (data as any).clinicEndEve : undefined
         }));
@@ -877,8 +877,8 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         price_online: parseFloat(data.videoPrice) || 0,
         price_home: parseFloat(data.homePrice) || 0,
         home_visit_radius_km: data.homeRadius,
-        clinic_duration: parseInt(data.clinicDuration) || 15,
-        video_duration: parseInt(data.videoDuration) || 20,
+        clinic_duration: parseInt(data.clinicDuration) || 0,
+        video_duration: parseInt(data.videoDuration) || 0,
         home_transport_fee: !!data.homeTransportFee,
         home_transport_price: parseFloat(data.homeTransportPrice) || 0,
         clinic_name: data.clinicName || undefined,
@@ -887,15 +887,15 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         gender: data.gender || undefined,
         schedule_video: ((data.videoDays as string[]) || []).map((d: string) => ({
           day: d,
-          open: (data as any).videoStart || '09:00',
-          close: (data as any).videoEnd || '17:00',
+          open: (data as any).videoStart || '',
+          close: (data as any).videoEnd || '',
           open_evening: (data as any).videoShift === 'both' ? (data as any).videoStartEve : undefined,
           close_evening: (data as any).videoShift === 'both' ? (data as any).videoEndEve : undefined
         })),
         schedule_home: ((data.homeDays as string[]) || []).map((d: string) => ({
           day: d,
-          open: (data as any).homeStart || '09:00',
-          close: (data as any).homeEnd || '17:00',
+          open: (data as any).homeStart || '',
+          close: (data as any).homeEnd || '',
           open_evening: (data as any).homeShift === 'both' ? (data as any).homeStartEve : undefined,
           close_evening: (data as any).homeShift === 'both' ? (data as any).homeEndEve : undefined
         })),

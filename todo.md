@@ -515,3 +515,6 @@
 
 - [x] Post-fix registration scan saved as `PROVIDER_REGISTRATION_DEFAULTS_POSTFIX_SCAN_20260818.txt`; remaining nonzero values are user-selected option definitions or runtime payload fallbacks, not initializer business seeds.
 - [ ] Validate runtime form submission rejects missing location/schedule/pricing where required instead of silently persisting zero/empty contracts.
+
+- [x] Removed Doctor submit fallback literals for 09:00/17:00 and 15/20-minute durations; incomplete provider input no longer becomes fabricated schedule/service data. Typecheck and 5/5 Provider Jest contracts passed.
+- [ ] Apply the same submit-payload fallback audit to lab/radiology/nursing/pharmacy and add assertions where non-neutral fallback literals remain.
