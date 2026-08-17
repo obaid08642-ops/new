@@ -591,3 +591,6 @@
 
 - [x] Classified Pharmacy lifecycle as `BLOCKED_NO_ELIGIBLE_PROVIDER_ASSIGNMENT`: a real Patient-1 pending order exists with `pharmacy_id=475a602c-eb2d-486d-9ffd-ea3a70da0004`, but the pharmacy sandbox account's `/provider-onboarding/progress` returned `{"started":false}` and its broadcast list was empty. No accept/reject/dispatch mutation was attempted against an unmatched provider.
 - [ ] Provision or identify a properly linked sandbox pharmacy/provider assignment through the approved test setup, then rerun the full pharmacy lifecycle with before/after state and cleanup.
+
+- [x] Inspected the real lab provider inbox read-only and saved a sanitized summary. It contains one request `76166cc4-7c29-4762-944b-c7c9de45bb15` already in `REPORTED` state and one non-request wrapper entry without a status; no pending/accepted sandbox request is eligible for accept/collect/analyze mutation.
+- [ ] Re-run lab lifecycle only when an eligible sandbox request in a pre-report state is linked to the sandbox lab; do not mutate the already reported request.

@@ -72,3 +72,7 @@ A follow-up report-object BOLA check used the same real sandbox order. Owner PDF
 ## Pharmacy lifecycle gate — recorded 2026-08-18
 
 A real Patient-1 pending pharmacy order was inspected read-only. It carries a pharmacy assignment ID, but the pharmacy sandbox account has no started onboarding profile and its provider broadcast list is empty. The account cannot be safely assumed to own the order. Pharmacy accept/reject/dispatch was therefore **BLOCKED_NO_ELIGIBLE_PROVIDER_ASSIGNMENT**; no mutation was sent to an unmatched provider.
+
+## Laboratory lifecycle gate — recorded 2026-08-18
+
+The real lab provider inbox was inspected without mutation. The sanitized summary shows one request already in `REPORTED` state and a wrapper entry with no request status; there is no pending/accepted request suitable for accept, collection, analysis, or report-upload testing. The lab lifecycle remains **BLOCKED_NO_ELIGIBLE_PRE_REPORT_REQUEST** and the reported request was not altered.
