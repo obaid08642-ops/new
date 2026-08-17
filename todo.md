@@ -368,3 +368,6 @@
 
 - [x] BookingFlow provider visibility: status/timeline/retry entity lookup now supports assigned provider/provider_type ownership while retaining patient/admin scopes; unassigned provider remains fail-closed. Admin resolve accepts admin/super_admin only. Regression 2/2; full backend 38 suites/263 tests; tsc/build successful.
 - [ ] Deploy/live recheck BookingFlow provider status/timeline on an existing assigned sandbox booking; current production status/timeline routes returned 404 due version/route reconciliation.
+
+- [x] HomeCareCompat remediation: booking creation now requires patient + active catalog service_id and uses catalog price only; patient-supplied provider_id/price/name fallback removed. Nursing queue and availability require nursing provider/admin; transitions enforce assigned access and valid state graph; GPS/care plans/inventory require booking/assignment and no orphan fallback ack. Regression 3/3; full backend 39 suites/266 tests; tsc/build successful.
+- [ ] Deploy/live recheck legacy `/home-care/*` paths: patient queue/availability/transition/GPS/care-plan/inventory must be denied; valid patient booking must use catalog price and provider assignment; provider lifecycle remains blocked until a matching sandbox nurse exists.

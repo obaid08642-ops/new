@@ -276,3 +276,12 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 أظهر فحص المصدر أن `BookingFlowService.fetchEntity` كان patient-only باستثناء admin، ما يجعل مزوداً معيناً غير قادر على status/timeline/retry من العقد الموحد حتى لو كان مرتبطاً بالحجز. تم توحيد ownership ليشمل provider_account_id/provider_id/doctor_user_id/pharmacy_id مع دعم provider_type normalization، مع إبقاء المزود غير المعيّن fail-closed، وتوسيع admin resolve إلى admin/super_admin فقط.
 
 أضيفت regression **2/2**، وأصبح full backend **38 suites / 263 tests** مع tsc/build ناجحين. في الإنتاج الحالي أعادت `booking/flow/status` و`timeline` الحالة `404` على probe سابق، ولذلك يصنف البند **SOURCE FIX / LIVE ROUTE-VERSION RECONCILIATION** ولا يُغلق قبل اختبار booking sandbox assigned بعد النشر.
+
+
+## HomeCareCompat legacy contract — 2026-08-17
+
+كشف تدقيق الطبقة التوافقية القديمة `/home-care/*` أن إنشاء الحجز كان يسمح بـservice_name/price/provider_id من العميل، وأن queue التمريض وavailability كانا قابلين للوصول من حسابات مصادق عليها دون تحقق كافٍ. كما كانت transitions وGPS وcare-plans وinventory تقبل booking ids دون ربط كامل بالمريض أو المزود المعيّن، وكان inventory غير المرتبط بحجز يعيد نجاحاً دون سجل حقيقي.
+
+تمت المعالجة بإلزام patient وservice_id فعال من catalog واستخدام سعر catalog فقط، ومنع provider impersonation، وقصر queue/availability على nursing provider/admin، وإضافة state graph للانتقالات، وربط GPS/care plans/inventory بالحجز والتعيين مع إزالة fallback orphan ack. أضيفت **3/3** regression tests، وأصبح full backend **39 suites / 266 tests** مع tsc/build ناجحين.
+
+لم تُنفذ زيارة تمريض وهمية على الإنتاج؛ preflight السابق أعاد providers فارغة. التصنيف **SOURCE FIX / LIVE PROVIDER BLOCKED / DEPLOY-RECHECK**.
