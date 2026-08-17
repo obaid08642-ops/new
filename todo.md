@@ -192,3 +192,12 @@
 - [ ] تدقيق عقود consent وQR verifier وسياسة موقع الطوارئ وerror-code registry، وتوثيق ما يمكن بناؤه وما يحتاج اعتماداً قبل التفعيل.
 - [x] تشغيل build والاختبارات الكاملة وتحديث التقرير الجامع ومصفوفة E2E.
 - [x] commit وpush على `manus/on-live-reconciliation` ثم إبلاغ Gatekeeper بالـcommit لإعادة staging E2E.
+
+
+## P0 ChatGateway boot regression — 2026-08-17
+
+- [x] فصل `ChatService` في `chat.service.ts` وإزالة الاستيراد الدائري بين `chat.gateway.ts` و`chat.module.ts`.
+- [x] تغيير رفض `join_thread` إلى ACK صريح `{ error: 'not_participant' }` دون إسقاط الاستثناء للعميل.
+- [x] إضافة اختبار boot كامل للتطبيق باستخدام `app.init()` يكتشف فشل Nest dependency injection.
+- [x] تشغيل build وboot test وJest الكامل، إعادة بناء أرشيف backend، وتحديث التقرير.
+- [ ] رفع إصلاح P0 على `manus/on-live-reconciliation` قبل بدء دفعات العقود وE2E المتبقية.

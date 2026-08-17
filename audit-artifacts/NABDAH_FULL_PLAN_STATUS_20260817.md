@@ -175,3 +175,29 @@ The source-level FIX2 gate is complete. Gatekeeper must redeploy the resulting c
 ### Acceptance boundary
 
 الإصلاحات المصدرية والبوابات المحلية مكتملة، لكن الإغلاق التشغيلي لهذه الجولة يتطلب نشر commit الناتج على staging ثم إعادة التحقق الحي لـjoin_thread، markNoShow، ping-patient، والمسارات السلبية المقابلة. لا يُستنتج من نجاح build/tests وحده جاهزية إنتاجية أو توسع multi-instance؛ Socket.IO Redis adapter وRTL/admin localization ما زالا بنوداً لاحقة موثقة.
+
+
+## P0 ChatGateway boot regression remediation — 2026-08-17
+
+### Finding
+
+كشف التحقق الحي أن commit `713bbea` كان يحتوي استيراداً دائرياً: `chat.gateway.ts` كان يستورد `ChatService` من `chat.module.ts`، بينما module نفسه يسجل `ChatGateway`. هذا النوع من الخطأ قد لا يظهر في unit tests التي تنشئ gateway مباشرة، لكنه يمنع Nest من إقلاع الحاوية.
+
+### Root fix
+
+نُقل `ChatThread` و`ChatMessage` schemas إلى `src/modules/chat/chat.schemas.ts`، ونُقل `ChatService` كاملاً إلى `src/modules/chat/chat.service.ts`. أصبح `chat.module.ts` composition root فقط، ويستورد `ChatService` وschemas وgateway من ملفات مستقلة. كما تم تحديث `home-care-compat` و`realtime.gateway` ليستوردا الخدمة من الملف المستقل، وأصبح `chat.gateway.ts` يستورد `ChatService` من `chat.service.ts` مباشرة.
+
+عند رفض `join_thread` لا يُرمى exception إلى Socket.IO؛ يعيد handler ACK صريحاً `{ error: 'not_participant' }`، بينما يعيد `{ error: 'socket_not_authenticated' }` للاتصال غير الموثق. لا ينفذ `socket.join` إلا بعد نجاح `ChatService.getThread(threadId, userId)`.
+
+### Validation gates
+
+| Gate | Result |
+|---|---|
+| Backend build | PASS |
+| Backend Jest | **28 suites / 223 tests passed** |
+| ChatGateway membership tests | PASS؛ ACK مرفوض وjoin مسموح للعضو فقط |
+| Boot test | PASS؛ `app.init()` لـChatModule مع ChatGateway وChatService: **1 suite / 1 test** |
+| Main branch | Unchanged |
+| Staging | أثبتت سابقاً عمل الإصلاحات الثلاثة؛ يلزم نشر commit الجديد لإعادة تحقق boot وACK |
+
+اختبار boot أصبح أمراً مستقلاً `npm run test:boot` باستخدام `test/app.boot.e2e-spec.ts`، حتى لا تعتمد سلامة الإقلاع على اختبارات الوحدة فقط.
