@@ -488,3 +488,6 @@
 
 - [x] Committed and pushed the current QA evidence/register batch to `manus/on-live-reconciliation` as `8136d00` after safely rebasing on remote `f2bffa2`; no source reset or remote work loss.
 - [ ] Continue production sandbox lifecycle validation from the pushed route contracts; do not declare release readiness until open INCONCLUSIVE/BLOCKED rows are closed or explicitly accepted.
+
+- [x] Extracted Provider API consumer calls and documented findings in `PROVIDER_API_CONSUMER_CALLS_20260818.txt` and `PROVIDER_API_CONSUMER_FINDINGS_20260818.md`; identified report storage URL, Blueprint, emergency fail-closed, lab-stage, ambulance, wallet and copilot gates.
+- [ ] Validate each discovered consumer against live controller/storage/state/notification contracts; no toast-only or fixed-storage URL counts as completion.
