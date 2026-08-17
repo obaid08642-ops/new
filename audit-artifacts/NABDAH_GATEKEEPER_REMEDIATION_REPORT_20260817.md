@@ -150,3 +150,21 @@ Snapshots:   0 total
 > **حكم E2E المرحلي:** لم تُغلق الجولة. أثبتت الجولة أن staging متاحة وأن provider login يعمل، لكنها أثبتت أيضاً أن المختبر ومسار hospital staff ما زالا غير قابلين للقبول على النشر الحالي. لم يُنفذ BOLA mutation destructive على order في هذه الجولة لأن endpoint الخاص بالإلغاء يغير حالة ويمس التدفق المالي، ولأن نشر الإصلاح المصدرّي لم يُثبت بعد على staging؛ يلزم order sandbox قابل للإلغاء وتحقق قبل/بعد من الحالة والـledger.
 
 آخر تحديث: 2026-08-17، بعد الجولة الحية الأولى.
+
+
+## 9. استئناف الخطة الأساسية — دفعة مصدرية جديدة
+
+أثبتت إعادة قراءة `EXECUTION_COMPLETION_MATRIX_20260816.md` و`POST_REMEDIATION_E2E_EXECUTION_PLAN.md` أن إغلاق Gatekeeper لم يكن إغلاقاً للخطة الأساسية. لذلك فُتح استئناف مستقل للخطة، مع قاعدة عدم تعليم أي بند مكتمل بسبب build محلي وحده.
+
+في هذه الدفعة ظهرت وعولجت عيوب مصدرية إضافية. أزيلت مفاتيح `fake_key` و`fake_secret` من `LiveKitWebhookGuard` وأصبح غياب إعدادات LiveKit رفضاً آمناً. صار Device Trust يرفض العمل دون Redis، ويتحقق من مالك challenge، ولا يعيد إشارات placeholder أو fallback package في production. كما أضيفت ownership checks إلى `provider/features` لعمليات Home Care وRadiology، واستُبدل `findById` بمعرف business UUID، ومُنع إنشاء `FILE-${Date.now()}`، وأصبح نشر تقرير الأشعة مشروطاً بوجود upload حقيقي. أضيفت اختبارات لهذه العقود السلبية.
+
+كُشف أيضاً فشل قائم في سياسة الاسترداد عند حد 24 ساعة، إذ كانت ساعة الاختبار تنزلق إلى الشريحة الأدنى بسبب microseconds. عولجت حدود السياسة بتقريب الفارق إلى الدقيقة للأعلى مع إبقاء الحدود شاملة.
+
+| بوابة الدفعة | النتيجة |
+|---|---:|
+| TypeScript `tsc --noEmit` | ناجح |
+| Jest قبل الدفعة | 26 suites / 215 tests، مع فشل حدود refund واحد |
+| Jest بعد الإصلاح والاختبارات الجديدة | **27 suites / 218 tests ناجحة** |
+| أرشيف `nabdah-backend.zip` | أُعيد بناؤه، واختبار ZIP ناجح، دون `node_modules` أو `dist` أو `__pycache__` |
+
+> هذه الدفعة لا تغلق consent/QR/location/error-code contracts، ولا تعوض E2E الحي أو مراجعة تطبيقات Expo وNext على الأجهزة. ستبقى هذه البنود مفتوحة حتى تنفيذ الأدلة المحددة في خطة E2E.

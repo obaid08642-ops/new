@@ -71,3 +71,22 @@
 - [ ] معالجة/تفسير `GET /hospital/staff` على staging؛ provider login نجح لكن endpoint أعاد 500، ويجب جمع stack trace من staging بعد نشر UUID fix.
 - [ ] استخدام العقد الفعلي لمسار nursing: `/nursing/visits?provider_id=...`؛ محاولة المسار غير الموجود `/home-care/provider/bookings` أعادت 404 ولا تُعد فشل صلاحية.
 - [ ] تنفيذ BOLA mutation حقيقي على staging بعد توفير/تحديد order قابل للإلغاء، مع actor المريض وactor غير المالك، وتوثيق عدم حدوث refund أو transition للرافض.
+
+## Full-plan resumption — 2026-08-17
+
+- [ ] إعادة جرد الخطة الأساسية وقراءة كل سجلات التنفيذ والقبول والمصفوفة ومطابقة كل بند مع دليل مصدر أو اختبار.
+- [ ] فصل البنود المنفذة مصدرّياً عن البنود الجزئية والبنود المتوقفة على staging أو أسرار/اعتماد خارجي.
+- [ ] استكمال الإصلاحات المصدرية المفتوحة في consent/QR/location/error-codes/WebSocket/LiveKit والتخزين والدفع وFastAPI بعد فحص العقود الفعلية.
+- [ ] إعادة تدقيق تطبيق المريض وتطبيق المزود ولوحة الإدارة للبيانات الوهمية والـplaceholders والـroutes والأزرار والترجمة الستية.
+- [ ] بناء واختبار الحزم الأربع كاملة بعد كل دفعة، وتسجيل النتائج لا الاكتفاء بنتيجة backend Gatekeeper.
+- [ ] استكمال staging/E2E لجميع الأدوار والملكية وOTP/2FA والحجز والصيدلية وOCR والدفع والويبهوك وWebSocket وQR/consent.
+- [ ] تحديث التقرير الجامع وسجل البيانات الوهمية والعقود والعيوب وخطة الإصلاح بعد كل نتيجة جديدة، ثم رفع commits إلى الفرع فقط.
+
+## Full-plan source remediation batch — 2026-08-17
+
+- [x] إزالة `fake_key` و`fake_secret` من LiveKitWebhookGuard وجعل غياب إعداد LiveKit fail-closed.
+- [x] تقوية DeviceTrust challenge/verify بإلزام Redis، مطابقة مالك challenge، وإزالة إشارات placeholder وfallback production.
+- [x] إضافة provider ownership وrole checks إلى simulated provider features، ومنع `FILE-${Date.now()}` وpublish بلا report.
+- [x] إصلاح حدود RefundService عند 24/4 ساعة لتثبيت العقد الزمني.
+- [x] إضافة 3 اختبارات سلبية لـprovider/features؛ النتيجة النهائية 27 suites / 218 tests.
+- [x] إعادة بناء `nabdah-backend.zip` دون node_modules أو dist أو pycache مع اختبار سلامة ZIP.
