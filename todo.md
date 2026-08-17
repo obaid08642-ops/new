@@ -566,3 +566,6 @@
 - [ ] Reconcile ProviderApi.login consumer (`/auth/login` with phone) against the verified `/provider/auth/login` email contract before onboarding login is declared complete.
 
 - [x] Fixed PharmacyDashboard reject action to call `/provider/pharmacy/broadcasts/:orderId/reject`, matching the backend controller; Provider typecheck and 5/5 Jest contracts passed.
+
+- [x] Recorded dormant Provider auth drift: unused `ProviderApi.login` posts phone credentials to `/auth/login`, while live sandbox provider login uses `/provider/auth/login` with email; no speculative API change was made.
+- [ ] Before release, either remove the dormant helper or update it under an approved provider-auth contract with a direct auth regression test.
