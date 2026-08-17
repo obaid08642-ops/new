@@ -518,3 +518,6 @@
 
 - [x] Removed Doctor submit fallback literals for 09:00/17:00 and 15/20-minute durations; incomplete provider input no longer becomes fabricated schedule/service data. Typecheck and 5/5 Provider Jest contracts passed.
 - [ ] Apply the same submit-payload fallback audit to lab/radiology/nursing/pharmacy and add assertions where non-neutral fallback literals remain.
+
+- [x] Saved `PROVIDER_REGISTRATION_VALIDATION_AUDIT_20260818.md`; it records submit paths and confirms a follow-up validation gap: several wizards still need explicit required-field guards after neutral defaults.
+- [ ] Add required-field validation for selected service pricing/schedule/location before provider submit, then validate and push as a separate remediation batch.
