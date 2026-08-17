@@ -132,3 +132,21 @@ Snapshots:   0 total
 ## 7. تحقق توفر staging
 
 في 17 أغسطس 2026 استجاب العنوان `http://57.131.133.208:8003/api/v1` بنتيجة `status=ok`، والتطبيق المعلن `Nabd Healthcare OS (NestJS)` والإصدار `1.0.0`. هذا يثبت توفر نقطة البداية الصحية فقط، ولا يثبت نجاح تسجيل الدخول أو BOLA أو provider-role أو hospital UUID. بقيت جولة E2E التنفيذية مفتوحة، وتحتاج موافقة صريحة قبل تنفيذ تسجيل الدخول أو إرسال طلبات تغيير على staging.
+
+
+## 8. نتائج E2E الحية بعد تأكيد المستخدم
+
+تم تسجيل الدخول بنجاح على staging بحساب المريض وحسابات المختبر والأشعة والتمريض والمنشأة؛ ردود provider login كانت `201`، وتبيّن أن عقدها يعيد `access_token` وحقول `provider_type` و`role` على المستوى الأعلى. نجح `GET /orders/mine` للمريض بحالة `200` وأعاد ثلاث سجلات.
+
+| الاختبار | النتيجة الحية | التفسير |
+|---|---:|---|
+| provider login: lab/radiology/nursing/hospital | `201` | الحسابات وكلمة المرور وعقد login متاحة |
+| `GET /labs/provider/inbox` بحساب lab | `403 Forbidden` | الإصلاح المصدرّي غير ظاهر في staging أو JWT staging لا يمرر provider_type كما يتوقع المصدر؛ يحتاج نشر النسخة المصححة وفحص claims |
+| `GET /labs/samples` بحساب lab | `403 Forbidden` | نفس فجوة النشر/العقد؛ لا يُغلق SEC-05 قبولياً |
+| `GET /radiology/provider/inbox` بحساب radiology | `200`، قائمة فارغة | مسار الأشعة متاح للدور، ولا توجد عناصر inbox في البيانات المعزولة |
+| `/home-care/provider/bookings` بحساب nursing | `404` | المسار غير موجود في العقد؛ المسار المصدر الفعلي هو `/nursing/visits?provider_id=...`، لذلك لا تُصنف 404 كفشل صلاحية |
+| `GET /hospital/staff` بحساب hospital | `500 Internal server error` | يطابق عيب UUID/ObjectId الذي كشفه Gatekeeper في النشر الحالي؛ يحتاج نشر الإصلاح وجمع stack trace بعده |
+
+> **حكم E2E المرحلي:** لم تُغلق الجولة. أثبتت الجولة أن staging متاحة وأن provider login يعمل، لكنها أثبتت أيضاً أن المختبر ومسار hospital staff ما زالا غير قابلين للقبول على النشر الحالي. لم يُنفذ BOLA mutation destructive على order في هذه الجولة لأن endpoint الخاص بالإلغاء يغير حالة ويمس التدفق المالي، ولأن نشر الإصلاح المصدرّي لم يُثبت بعد على staging؛ يلزم order sandbox قابل للإلغاء وتحقق قبل/بعد من الحالة والـledger.
+
+آخر تحديث: 2026-08-17، بعد الجولة الحية الأولى.
