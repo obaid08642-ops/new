@@ -485,3 +485,6 @@
 
 - [x] Attempted one exact Patient read-only probe against origin with resolved TLS; session timed out before a response and was killed safely. Evidence: `PATIENT_EXACT_READ_PROBE_20260818.md`. Classified INCONCLUSIVE/transport timeout, not API failure.
 - [ ] Re-run Patient exact-read probe only after transport stability is confirmed; record status/body/IDs without persisting tokens.
+
+- [x] Committed and pushed the current QA evidence/register batch to `manus/on-live-reconciliation` as `8136d00` after safely rebasing on remote `f2bffa2`; no source reset or remote work loss.
+- [ ] Continue production sandbox lifecycle validation from the pushed route contracts; do not declare release readiness until open INCONCLUSIVE/BLOCKED rows are closed or explicitly accepted.
