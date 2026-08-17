@@ -66,3 +66,5 @@ No provider queue, accept, reject, toggle, staff, visit, report, payment, or wal
 ## Patient BOLA live wave — recorded 2026-08-18
 
 A real order ID was selected from Patient-1 `/orders/mine`; no ID was fabricated. Patient-1 owner read before and after the foreign attempt returned HTTP 200 with identical body size. Patient-2 received HTTP 403 for the foreign order read and HTTP 403 for `POST /orders/:id/cancel`. No owner cancellation or other state-changing operation was performed. This closes the tested order-read/order-cancel BOLA case for the sandbox pair; other object families still require their own matrix.
+
+A follow-up report-object BOLA check used the same real sandbox order. Owner PDF access returned HTTP 200 with a 1524-byte valid response; Patient-2 foreign PDF access returned HTTP 403 with a 71-byte error response. The PDF bodies were removed immediately and are not stored in the repository.
