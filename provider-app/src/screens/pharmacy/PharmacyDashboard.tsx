@@ -1362,31 +1362,83 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
         </Text>
       </View>
       <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111' }}>
-        <NBtn label={AR ? 'محاكاة مسح دواء' : 'Simulate Drug Scan'} onPress={() => { show(AR ? 'تم التعرف: Paracetamol 500mg' : 'Detected: Paracetamol 500mg', 'success'); onBack(); }} />
+        <NBtn
+          label={AR ? 'الماسح غير متاح حالياً' : 'Scanner unavailable'}
+          variant="outline"
+          onPress={() => {}}
+          disabled
+        />
+        <Text style={{ color: '#AAA', textAlign: 'center', marginTop: SP.sm, fontSize: FS.xs }}>
+          {AR ? 'لن يتم اعتماد دواء أو مخزون دون تكامل كاميرا/باركود فعلي.' : 'No medicine or inventory is confirmed without a real camera/barcode integration.'}
+        </Text>
       </View>
     </View>
   );
 }
 
 function BroadcastOrderScreen({ onBack }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actingId, setActingId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await client.get('/provider/pharmacy/broadcasts');
+      const data = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+      setItems(data);
+    } catch (e: any) {
+      setItems([]);
+      show(e?.message || (AR ? 'تعذر تحميل الطلبات الحالية' : 'Could not load live orders'), 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [AR, show]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const accept = async (orderId: string) => {
+    setActingId(orderId);
+    try {
+      await client.post(`/provider/pharmacy/orders/${orderId}/accept`);
+      show(AR ? 'تم قبول الطلب من الخادم' : 'Order accepted by the server', 'success');
+      await load();
+    } catch (e: any) {
+      show(e?.message || (AR ? 'تعذر قبول الطلب' : 'Could not accept order'), 'error');
+    } finally {
+      setActingId(null);
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={AR ? 'طلبات البث المباشر الفورية' : 'Live Broadcast Orders'} onBack={onBack} />
       <NScroll pad>
-        <NCard style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: theme.primary }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>طلب وصفة #B-9901</Text>
-            <NBadge label={AR ? 'بث حي' : 'Live Broadcast'} variant="warning" />
-          </View>
-          <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'الأدوية: Amoxil 500mg, Panadol Extra · المسافة: 1.8 كم' : 'Drugs: Amoxil 500mg, Panadol · Distance: 1.8km'}
-          </Text>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
-            <NBtn label={AR?'قبول الطلب وتجهيز الدواء':'Accept Order'} size="sm" onPress={() => show(AR?'تم قبول الطلب وتنبيه المريض':'Order accepted','success')} style={{ flex: 1 }} />
-            <NBtn label={AR ? 'اعتذار' : 'Decline'} size="sm" variant="outline" onPress={onBack} />
-          </View>
-        </NCard>
+        {loading ? <ActivityIndicator color={theme.primary} /> : items.length === 0 ? (
+          <NEmpty title={AR ? 'لا توجد طلبات بث حالياً' : 'No live broadcast orders'} sub={AR ? 'ستظهر هنا الطلبات التي يوجهها النظام إلى صيدليتك.' : 'Orders routed to your pharmacy will appear here.'} />
+        ) : items.map((order: any) => {
+          const id = String(order.id || order.order_id || '');
+          const medicines = order.items || order.medicines || [];
+          return (
+            <NCard key={id} style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: theme.primary }}>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.tracking_id || order.order_number || id}</Text>
+                <NBadge label={AR ? 'بث حي' : 'Live Broadcast'} variant="warning" />
+              </View>
+              <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
+                {medicines.map((item: any) => item.name_ar || item.name_en || item.name || item.sku).filter(Boolean).join(', ') || (AR ? 'تفاصيل الدواء غير متاحة' : 'Medicine details unavailable')}
+              </Text>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
+                <NBtn label={AR ? 'قبول الطلب' : 'Accept Order'} size="sm" loading={actingId === id} onPress={() => accept(id)} style={{ flex: 1 }} />
+                <NBtn label={AR ? 'تحديث' : 'Refresh'} size="sm" variant="outline" onPress={load} />
+              </View>
+            </NCard>
+          );
+        })}
       </NScroll>
     </View>
   );

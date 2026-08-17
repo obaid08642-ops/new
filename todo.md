@@ -497,3 +497,6 @@
 
 - [x] Production infrastructure gate rechecked via origin: liveness 200, readiness 200, MongoDB up, Redis up. Evidence: `PRODUCTION_HEALTH_GATE_20260818.json`.
 - [ ] Continue service lifecycle validation; infrastructure health PASS does not close patient/provider workflow or device gates.
+
+- [x] Fixed confirmed Pharmacy placeholders: disabled the fake barcode success action and replaced hardcoded broadcast order/accept toast with live `/provider/pharmacy/broadcasts` data and server-backed accept; Provider typecheck passed and 3/3 Jest contracts passed.
+- [ ] Re-run production provider pharmacy read/accept lifecycle after rate-limit window with a real sandbox broadcast only; verify before/after state, notification, and patient visibility.
