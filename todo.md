@@ -263,3 +263,7 @@
 - [x] Report PDF: فرض ownership في `GET /orders/:id/report.pdf`، إصلاح استيراد `pdfkit` runtime-safe، إضافة handling لأخطاء stream، وإضافة اختبارات رفض BOLA ونجاح المالك؛ اختبارات OrdersService 9/9 وبناء backend ناجح محلياً.
 - [ ] إعادة نشر commit PDF على الإنتاج والتحقق الحي: المالك 200/PDF صالح والمريض الآخر 403، دون لمس بيانات غير sandbox.
 - [ ] تشخيص payment intent 500 في الإنتاج عبر سجلات الخادم ثم إصلاحه واختبار sandbox/idempotency/webhook.
+
+- [x] Production observation 2026-08-17: عبر origin المباشر، `patient2.sandbox` يحصل على 403 عند تنزيل report.pdf للطلب `91047ef2-ad36-422a-a184-629693e7c729`، بينما `patient.sandbox` على النشر الحالي ما زال يحصل على 500؛ هذا يؤكد أن ownership منشور لكن إصلاح runtime الجديد في commit `f6fa8a8` يحتاج نشره.
+- [ ] Production payment repro 2026-08-17: `POST /payments/intent/pharmacy/91047ef2-ad36-422a-a184-629693e7c729` أعاد 500 generic، correlation `ca08179b-b900-426c-9ac1-d71011dc0332`; الطلب sandbox-only ولم تُنشأ mutation مالية مؤكدة. يلزم stack trace من الحاوية/البوابة لتحديد adapter response قبل إصلاح gateway أو contract.
+- [ ] عدم اعتبار order الملغى اختباراً مالياً صالحاً؛ يجب إنشاء/تحديد order sandbox قابل للدفع قبل payment/webhook/idempotency، ثم تنظيفه أو توثيق حالته وفق قواعد الإنتاج.
