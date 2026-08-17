@@ -494,3 +494,6 @@
 
 - [x] Mapped specialty provider contracts in `PROVIDER_SPECIALTY_CONTRACT_MAP_20260818.md`: pharmacy allocations/broadcasts/inventory/chat, lab bookings/samples/results, radiology provider queue/report/catalog, and home-care/nursing intake/visit/GPS/report.
 - [ ] Execute one controlled live read per specialty inbox and then lifecycle mutation only when a real sandbox request exists; classify missing provider types as BLOCKED rather than seeding production data.
+
+- [x] Production infrastructure gate rechecked via origin: liveness 200, readiness 200, MongoDB up, Redis up. Evidence: `PRODUCTION_HEALTH_GATE_20260818.json`.
+- [ ] Continue service lifecycle validation; infrastructure health PASS does not close patient/provider workflow or device gates.
