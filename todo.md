@@ -503,3 +503,6 @@
 
 - [x] Fixed Radiology scan-image placeholder: removed `Coming with S3 integration` action and made local image upload explicitly disabled until authorized storage integration; Provider typecheck and 3/3 Jest contracts remain green.
 - [ ] Audit remaining toast-only export/call/device actions screen-by-screen; wire to real contracts where available or make them explicitly disabled/fail-closed.
+
+- [x] Removed fabricated PharmacyRegistration defaults (pricing, Riyadh coordinates, hours, workdays, categories, delivery flags); empty/neutral defaults now require explicit provider input. Typecheck and 3/3 Provider Jest contracts passed.
+- [ ] Extend the same default-business-data scan to doctor/lab/radiology/nursing/facility registrations and fix only confirmed non-neutral defaults with the same validation cycle.

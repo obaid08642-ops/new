@@ -76,15 +76,15 @@ const INIT: PharmacyRegData = {
   managerEmail:'', password:'', confirmPass:'', pharmacistName:'',
   crNumber:'', mohLicense:'', sfdaNumber:'', iban:'', taxNumber:'',
   crUri:'', mohUri:'', sfdaUri:'', logoUri:'',
-  city:'', district:'', address:'', deliveryRadius: 4, hasDelivery: true, hasOwnDrivers: true,
-  workDays:['SUN','MON','TUE','WED','THU'], is24_7: false, vacationDate: '',
-  shiftType: 'morning', openTime:'08:00', closeTime:'16:00',
-  eveningOpenTime:'16:00', eveningCloseTime:'23:00',
-  enabledCategories: ['rx','otc','vitamins'], rxDispensing: true, otcSelling: true,
-  minOrderSAR:'50', deliveryFee:'15', freeDeliveryAbove:'200',
-  expressDelivery: false, expressFee:'30', expressMinutes:'30',
-  scheduledDelivery: true, cashOnly: false, acceptedInsurance: [],
-  signatureData: '', signerName: '', signerRole: '',   termsAgreed: false, location: {lat: 24.7, lng: 46.7}, accountHolderName: ''
+  city:'', district:'', address:'', deliveryRadius: 0, hasDelivery: false, hasOwnDrivers: false,
+  workDays:[], is24_7: false, vacationDate: '',
+  shiftType: 'morning', openTime:'', closeTime:'',
+  eveningOpenTime:'', eveningCloseTime:'',
+  enabledCategories: [], rxDispensing: false, otcSelling: false,
+  minOrderSAR:'', deliveryFee:'', freeDeliveryAbove:'',
+  expressDelivery: false, expressFee:'', expressMinutes:'',
+  scheduledDelivery: false, cashOnly: false, acceptedInsurance: [],
+  signatureData: '', signerName: '', signerRole: '',   termsAgreed: false, location: {lat: 0, lng: 0}, accountHolderName: ''
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
