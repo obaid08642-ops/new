@@ -191,4 +191,4 @@
 - [x] إضافة اختبارات ownership/negative cases للإصلاحات الثلاثة، دون mock نجاح زائف.
 - [ ] تدقيق عقود consent وQR verifier وسياسة موقع الطوارئ وerror-code registry، وتوثيق ما يمكن بناؤه وما يحتاج اعتماداً قبل التفعيل.
 - [x] تشغيل build والاختبارات الكاملة وتحديث التقرير الجامع ومصفوفة E2E.
-- [ ] commit وpush على `manus/on-live-reconciliation` ثم إبلاغ Gatekeeper بالـcommit لإعادة staging E2E.
+- [x] commit وpush على `manus/on-live-reconciliation` ثم إبلاغ Gatekeeper بالـcommit لإعادة staging E2E.
