@@ -144,3 +144,34 @@ The staging failure was caused by a split provider identity contract. Laboratory
 ### Remaining acceptance boundary
 
 The source-level FIX2 gate is complete. Gatekeeper must redeploy the resulting commit to staging and repeat live requests for `/labs/samples`, `/labs/provider/inbox`, radiology provider inbox, and the corresponding nursing, hospital, and pharmacy provider routes. Local build/test success does not replace a live JWT and database-backed E2E result.
+
+
+## Gatekeeper follow-up — secondary ownership fixes — 2026-08-17
+
+### Implemented source fixes
+
+أصبح `ChatGateway.join_thread` يستخرج هوية socket الموثقة ثم يستدعي `ChatService.getThread(threadId, userId)` قبل تنفيذ `socket.join`. وبذلك يُرفض المستخدم المصادق غير العضو ولا يستطيع استقبال أحداث `typing` أو `new_message` من thread أجنبي. أضيفت اختبارات رفض وسماح تثبت أن `socket.join` لا يُستدعى قبل نجاح فحص العضوية.
+
+صُحح `LiveKitService.markNoShow` ليستخدم حقل appointment business `id`، مع fallback محدود إلى `_id` فقط عندما يكون المعرّف ObjectId صالحاً، وبنفس نمط `initiateCall`. أضيف اختبار يثبت استعلام UUID واختبار رفض appointment غير الموجود.
+
+صُحح `pingPatient` ليبحث عن appointment نشط يربط provider بالمريض عبر حقول provider/patient المعتمدة، ويرفض العملية بـ403 عند غياب العلاقة أو إذا كان appointment منتهياً أو ملغى. لا يصدر push قبل نجاح هذا الفحص، وأصبح `session_id` مبنياً على appointment حقيقي بدلاً من `providerId`.
+
+### Local gate results
+
+| Gate | Result |
+|---|---|
+| Backend build | PASS |
+| Backend Jest | **28 suites / 223 tests passed** |
+| New follow-up tests | 5 ownership and contract tests passed |
+| Main branch | Unchanged |
+| Target branch | `manus/on-live-reconciliation` |
+
+### Sensitive contracts and operational E2E boundary
+
+لم تُفعّل واجهات جديدة لعقود consent أو QR verifier أو emergency location policy أو error-code registry؛ بقيت الواجهات غير المعتمدة fail-closed أو ضمن العقود الحالية، وتم توثيق الحاجة إلى اعتماد scope/grant/revoke وسجل تدقيق، verifier QR، سياسة الموقع، وسجل أخطاء موحد قبل التفعيل.
+
+اختبارات BOLA الحية بين مريضين، payment sandbox/webhook/idempotency، WebSocket origin وانتحال الهوية، وOTP/2FA/rate-limit تحتاج staging وRedis وMongo وcredentials الفعلية. كلمات مرور sandbox المذكورة في طلب Gatekeeper لا تُحفظ في المصدر أو التقرير.
+
+### Acceptance boundary
+
+الإصلاحات المصدرية والبوابات المحلية مكتملة، لكن الإغلاق التشغيلي لهذه الجولة يتطلب نشر commit الناتج على staging ثم إعادة التحقق الحي لـjoin_thread، markNoShow، ping-patient، والمسارات السلبية المقابلة. لا يُستنتج من نجاح build/tests وحده جاهزية إنتاجية أو توسع multi-instance؛ Socket.IO Redis adapter وRTL/admin localization ما زالا بنوداً لاحقة موثقة.

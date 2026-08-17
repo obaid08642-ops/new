@@ -181,3 +181,14 @@
 - [x] التحقق من labs وradiology وnursing وhospital وpharmacy وعدم كسر الأدوار الإدارية أو patient.
 - [x] تشغيل backend build واختبارات 218/218 أو العدد الفعلي الكامل في النسخة الحالية، ثم توثيق نتيجة الاختبار.
 - [x] تحديث التقرير، إعادة بناء الأرشيف المتأثر إن لزم، commit وpush على `manus/on-live-reconciliation` فقط.
+
+
+## Gatekeeper follow-up — secondary fixes and remaining contracts — 2026-08-17
+
+- [x] فحص وإصلاح `join_thread` للتحقق من عضوية المستخدم قبل `socket.join` ومنع تسريب typing/new_message.
+- [x] فحص وإصلاح `markNoShow` ليستخدم appointment business `id` UUID بدلاً من `_id`.
+- [x] فحص وإصلاح `ping-patient` ليتحقق من موعد/حجز فعلي يربط المزود بالمريض قبل إرسال push.
+- [x] إضافة اختبارات ownership/negative cases للإصلاحات الثلاثة، دون mock نجاح زائف.
+- [ ] تدقيق عقود consent وQR verifier وسياسة موقع الطوارئ وerror-code registry، وتوثيق ما يمكن بناؤه وما يحتاج اعتماداً قبل التفعيل.
+- [x] تشغيل build والاختبارات الكاملة وتحديث التقرير الجامع ومصفوفة E2E.
+- [ ] commit وpush على `manus/on-live-reconciliation` ثم إبلاغ Gatekeeper بالـcommit لإعادة staging E2E.
