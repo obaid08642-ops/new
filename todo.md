@@ -226,7 +226,7 @@
 
 ## Production sandbox E2E closure — 2026-08-17
 
-- [ ] تثبيت أن كل الحسابات والطلبات المستخدمة sandbox وأن كل mutation موثق وقابل للتنظيف قبل الاختبار على الإنتاج.
+- [x] تثبيت أن كل الحسابات والطلبات المستخدمة sandbox وأن كل mutation موثق وقابل للتنظيف قبل الاختبار على الإنتاج.
 - [ ] إنشاء order sandbox من patient.sandbox وتسجيل الحالة والـledger قبل/بعد، ثم اختبار cancel/track/update من patient2.sandbox مع توقع 403/404.
 - [ ] تشخيص 500 في payment intent عبر logs المعتمدة، وإصلاح السبب فقط إذا كان المصدر/الإعداد sandbox آمناً، ثم اختبار payment/webhook signature/idempotency/refund sandbox.
 - [ ] إعادة اختبار WebSocket على الإنتاج مع انتظار disconnect الفعلي للـtoken المعدل وOrigin غير الموثوق وعدم استقبال events.
@@ -237,7 +237,7 @@
 ## Production reachability blocker — 2026-08-17
 
 - [ ] استعادة وصول HTTPS/HTTP إلى `api.nabd.plus` من بيئة الاختبار أو توفير قناة تشخيص معتمدة؛ DNS يعمل لكن TLS وHTTP ينتهيان بمهلة قبل login.
-- [ ] بعد عودة الوصول فقط: تنفيذ BOLA/payment/WebSocket/OTP على production sandbox، مع عدم اعتبار أي mutation منفذاً في الجولة الحالية.
+- [ ] بعد نشر `dac6f3c` فقط: إعادة اختبار BOLA/payment/WebSocket/OTP على production sandbox؛ لم تُنفذ mutations المالية في الجولة الحالية.
 
 
 ## Production origin-direct retry — 2026-08-17
@@ -252,4 +252,4 @@
 - [x] إصلاح مسار `POST /orders/:id/cancel` ليشترط ملكية المريض أو pharmacy assignment أو admin، وألا يعتمد على role وحده.
 - [x] مراجعة `GET /orders/:id` وعمليات التتبع/التعديل للتأكد من participant/owner authorization وعدم كشف order لمريض آخر.
 - [x] إضافة اختبار BOLA بين patient1/patient2 يغطي read/track/cancel/update ويثبت state وpayment/ledger before-after.
-- [ ] توثيق order sandbox `91047ef2-ad36-422a-a184-629693e7c729`: قبل `ESCALATED_TO_ADMIN/pending`، وبعد إلغاء patient2 أصبح `CANCELLED/pending`؛ لا تُنفذ mutations مالية قبل إصلاح P0.
+- [x] توثيق order sandbox `91047ef2-ad36-422a-a184-629693e7c729`: قبل `ESCALATED_TO_ADMIN/pending`، وبعد إلغاء patient2 أصبح `CANCELLED/pending`؛ لا تُنفذ mutations مالية قبل إصلاح P0.
