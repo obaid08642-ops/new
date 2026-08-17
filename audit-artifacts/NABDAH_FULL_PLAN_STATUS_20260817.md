@@ -201,3 +201,12 @@ The source-level FIX2 gate is complete. Gatekeeper must redeploy the resulting c
 | Staging | أثبتت سابقاً عمل الإصلاحات الثلاثة؛ يلزم نشر commit الجديد لإعادة تحقق boot وACK |
 
 اختبار boot أصبح أمراً مستقلاً `npm run test:boot` باستخدام `test/app.boot.e2e-spec.ts`، حتى لا تعتمد سلامة الإقلاع على اختبارات الوحدة فقط.
+
+
+## Phase 6 contract drafts and staging E2E — 2026-08-17
+
+بناءً على اعتماد الخيار (ب)، أُنشئت أربع وثائق مراجعة مستقلة للعقود الأولية: `CONSENT_CONTRACT_REVIEW_DRAFT_20260817.md`، `QR_VERIFIER_CONTRACT_REVIEW_DRAFT_20260817.md`، `EMERGENCY_LOCATION_POLICY_REVIEW_DRAFT_20260817.md`، و`ERROR_CODE_REGISTRY_REVIEW_DRAFT_20260817.md`. جميعها DRAFT/NOT ACTIVE، وتلتزم بأقل scope وأقل موقع وسحب سهل للموافقة. أضيفت طبقة `src/contracts/phase6-contracts.ts` واختبارها، وهي metadata/types وfail-closed guard فقط؛ لا يوجد controller أو route يفعّل أي عقد.
+
+التحقق الحي الأولي أثبت login للمريض والمختبر عبر المسارات الصحيحة. BOLA بين مريضين لم يُغلق لغياب credential ثانٍ مؤكد في probe. payment intent أعاد `500 Internal server error` مرتين على order pending، لذلك لم يُثبت idempotency؛ unmatched webhook أعاد `200` مع `ok:false/no_match` فقط. WebSocket transport قبل valid/modified token وOrigin غير موثوق في النسخة المنشورة، وأُضيف source patch يجعل CORS fail-closed خارج development/test مع رفض wildcard/غياب allowlist، بانتظار redeploy وإعادة اختبار authenticated disconnect لا transport connect فقط. admin login أعاد `401`، ولذلك لم تُبدأ دورة OTP/2FA ولم تُخمن أكواد.
+
+نتائج build المحلية بعد contract layer وCORS patch: **30 suites / 228 tests passed** وboot test **1/1 passed**. الحكم التشغيلي: Phase 6 ما زال OPEN، ولا يوجد تفعيل لعقد أو ادعاء جاهزية إنتاجية.

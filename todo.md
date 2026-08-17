@@ -201,3 +201,24 @@
 - [x] إضافة اختبار boot كامل للتطبيق باستخدام `app.init()` يكتشف فشل Nest dependency injection.
 - [x] تشغيل build وboot test وJest الكامل، إعادة بناء أرشيف backend، وتحديث التقرير.
 - [x] رفع إصلاح P0 على `manus/on-live-reconciliation` قبل بدء دفعات العقود وE2E المتبقية.
+
+
+## Approved fail-closed contracts and staging E2E — 2026-08-17
+
+- [x] إعداد وثيقة مراجعة مستقلة لعقد consent: grant/revoke/scope، الإصدار، expiry، actor، audit trail، وfail-closed defaults.
+- [x] إعداد وثيقة مراجعة مستقلة لعقد QR verifier: payload، signature، expiry، nonce/replay، binding، وfail-closed behavior.
+- [x] إعداد وثيقة مراجعة مستقلة لسياسة emergency location: أقل بيانات، consent، precision، retention، access log، ورفض الإذن.
+- [x] إعداد وثيقة مراجعة مستقلة لسجل error-code registry: taxonomy، stable codes، localization، HTTP mapping، وcorrelation.
+- [x] بناء طبقة backend توثيقية غير مفعلة لهذه العقود، مع منع أي endpoint أو UI من الاعتماد عليها قبل approval.
+- [ ] إعداد وتشغيل E2E staging لـBOLA بين مريضين مع state/ledger before-after.
+- [ ] إعداد وتشغيل E2E staging للدفع وwebhook وidempotency في refunds/wallet/billing/pharmacy.
+- [ ] إعداد وتشغيل E2E staging لـWebSocket origin وtoken impersonation وroom membership — source patch أُنجز، إعادة التحقق الحي بعد redeploy مطلوبة.
+- [ ] إعداد وتشغيل مصفوفة OTP/2FA وrate-limit تشمل success/failure/expiry/attempts/Redis key.
+- [ ] تحديث التقرير الجامع، اختبار backend، commit وpush ثم تسليم نتائج E2E والقيود.
+
+
+## WebSocket staging finding — 2026-08-17
+
+- [ ] إصلاح fallback في websocket CORS: production لا يجوز أن يعيد `origin: true` عند غياب `ALLOWED_ORIGINS`؛ يجب fail-closed أو رفض صريح حتى تُضبط القائمة.
+- [ ] تحسين اختبار WebSocket لتمييز transport connect عن authenticated session: token المنتهك قد يتصل لحظياً قبل أن ينفذ gateway disconnect، ويجب إثبات disconnect/عدم استقبال events.
+- [ ] إعادة تحقق حي لـvalid token وinvalid token وtrusted/untrusted Origin بعد نشر الإصلاح.
