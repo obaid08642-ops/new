@@ -544,3 +544,5 @@
 
 - [x] Expo prebuild passed after App restoration; native project generation is reproducible and generated folders were intentionally not committed. Evidence: `PROVIDER_NATIVE_PREBUILD_20260818.md`.
 - [ ] Add production app icon and install `expo-system-ui` or document the managed-workflow equivalent before store submission; rerun prebuild after that configuration decision.
+
+- [x] GitHub verification confirms the restored Provider entrypoint/runtime modules and export/prebuild evidence are present on `origin/manus/on-live-reconciliation`; local tree is clean at `bf80020` plus documentation commit pending.
