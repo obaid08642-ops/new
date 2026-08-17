@@ -248,3 +248,12 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 نفّذ patient2 sandbox قراءة topup غير موجود فأعاد `404 topup_not_found`. محاولة حذف card بمعرف غير موجود أعادت `200` مع قائمة بطاقات فارغة، أي no-op دون لمس بطاقة أخرى. محاولة تحويل `1` إلى patient1 من محفظة رصيدها صفر أعادت `400 insufficient_balance`. لم يُنشأ payment intent، ولم تُضاف بطاقة، ولم يُنفذ تحويل مالي حقيقي.
 
 يبقى المسار المالي الكامل معلقاً على تفعيل Moyasar التجاري: topup intent/confirm، webhook، refund، idempotency، وإثبات ledger قبل/بعد. التصنيف **SAFE NEGATIVE PASS / PAYMENT GATEWAY BLOCKED**.
+
+
+## BookingOps shared contract — 2026-08-17
+
+أظهر فحص المصدر أن `GET /booking/flow/invoice/:type/:id` و`payment` كانا patient-scoped للقراءة، لكن `POST /booking/flow/payment/:type/:id/mark` كان يقبل provider/admin role ثم يحدث أي booking بالـid دون تحقق من الإسناد. كما كانت `listAttachments` و`getAttachment` لا تتحققان من صاحب الحجز قبل عرض metadata، رغم أن addAttachment كان يتحقق جزئياً.
+
+تمت المعالجة بإضافة ownership-aware entity lookup للمريض والمزوّد المعيّن وadmin، وتطبيع provider/provider_type، وتقييد markPayment بـassigned provider أو admin مع status payload صريح ونتيجة update مؤكدة. أصبحت list/get attachments تتحقق من booking access قبل الإرجاع، مع عدم عرض base64 في القائمة. أضيفت **4/4** regression tests، وأصبح full backend **36 suites / 259 tests** مع tsc/build ناجحين.
+
+لم تُنفذ mutation production على booking غير مناسب. التصنيف **SOURCE FIX / DEPLOY-RECHECK**؛ يلزم بعد النشر إثبات foreign invoice/payment/attachment = 403/404، وبقاء assigned provider/admin workflows ناجحة دون تسريب base64.

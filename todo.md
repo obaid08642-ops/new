@@ -357,3 +357,6 @@
 
 - [x] Wallet safe negative matrix on production sandbox: unknown topup read `404 topup_not_found`, unknown card delete returned `200` with empty cards (no-op), insufficient transfer returned `400 insufficient_balance`; no payment intent/card/real transfer was created.
 - [ ] Wallet financial closure remains pending Moyasar activation: real sandbox topup intent/confirm/webhook/refund/idempotency, cross-account topup/card BOLA after deploy, and ledger before/after evidence.
+
+- [x] BookingOps shared BOLA hardening: invoice/payment reads use patient/provider/admin scope; markPayment rejects non-provider, requires assigned provider or admin and explicit update payload; list/get attachments now verify booking access before returning metadata. Regression 4/4; full backend 36 suites/259 tests; tsc/build successful.
+- [ ] Deploy/live recheck BookingOps: foreign invoice/payment/attachments must 404/403; assigned provider/admin mutations remain allowed; test attachments only with real sandbox booking and no base64 leakage.
