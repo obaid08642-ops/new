@@ -172,3 +172,12 @@
 - [x] تنفيذ الإصلاحات المصدرية الآمنة التي تثبت الحاجة إليها، دون إعادة بناء capability موجودة أو إضافة mock/static data.
 - [x] تشغيل typecheck/lint/build/tests المركزة وتحديث مصفوفة Communications Implementation Matrix في تقرير Markdown.
 - [ ] إبقاء ما يحتاج staging أو credentials أو أجهزة حقيقية مفتوحاً، ثم commit/push على `manus/on-live-reconciliation` فقط.
+
+
+## Gatekeeper FIX2 provider-role normalization — 2026-08-17
+
+- [x] فحص JwtAuthGuard و`@Roles` وكل وحدات provider-facing لتحديد اختلاف `role` و`provider_type` وaliases (`lab`/`laboratory` وغيرها).
+- [x] تنفيذ تطبيع مركزي للأدوار الفعالة بحيث تُطابق guards قيمة `role` و`provider_type` مع الحفاظ على رفض الحسابات غير المصرح بها.
+- [x] التحقق من labs وradiology وnursing وhospital وpharmacy وعدم كسر الأدوار الإدارية أو patient.
+- [x] تشغيل backend build واختبارات 218/218 أو العدد الفعلي الكامل في النسخة الحالية، ثم توثيق نتيجة الاختبار.
+- [ ] تحديث التقرير، إعادة بناء الأرشيف المتأثر إن لزم، commit وpush على `manus/on-live-reconciliation` فقط.

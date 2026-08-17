@@ -117,3 +117,30 @@ SEO/GEO الحالي أقوى من مجرد كلمات مفتاحية: توجد 
 
 ### تصحيح تحقق Patient النهائي
 ظهرت أثناء أول typecheck ملاحظة TypeScript لأن resolver خارج Expo لا يرى أسماء الملفات platform-suffixed بعد نقل provider. أضيف `DatabaseProvider.ts` محايد للـtypecheck يعيد native provider، بينما يبقى Metro صاحب القرار ويختار `.web.ts` أو `.native.ts` عند bundling. بعد ذلك نجح `tsc --noEmit`، ونجحت **7 suites / 23 tests**، ونجح `NODE_ENV=production npm run export:web` مع web/iOS/Android bundles. لا توجد بيانات seed أو mock في هذا الإصلاح؛ web driver فارغ ومقصود فقط لمنع native SQLite من دخول bundle، والبيانات التشغيلية تبقى من API.
+
+
+## Gatekeeper FIX2 — provider-role normalization — 2026-08-17
+
+### Finding
+
+The staging failure was caused by a split provider identity contract. Laboratory accounts could carry `role=provider` with `provider_type=laboratory`, while LabsService accepted only `lab`. Radiology provider routes used `@Roles(UserRole.RADIOLOGY, UserRole.HOSPITAL, UserRole.ADMIN)`, while the guard compared only `payload.role`, so valid provider accounts were rejected with 403.
+
+### Source remediation
+
+`src/common/auth.guard.ts` now provides `normalizeEffectiveRole()` and `getEffectiveRoles()`. Authorization evaluates the normalized union of `role`, `provider_type`, and `providerType`. The normalizer maps `laboratory` and `lab` to `UserRole.LAB`, and also maps radiology, nursing, hospital, pharmacy, home-care, pharmacist, nurse, and hospital-admin aliases to canonical role values. `@Roles` checks and fine-grained permission checks now use the effective roles. Impersonated user payloads preserve provider type fields.
+
+`src/modules/labs/labs.service.ts` now uses the effective role set for all provider-facing lab operations, including inbox, samples, transitions, reports, insurance, assignments, and reassignment. This accepts both `lab` and `laboratory` without a one-off bypass. Radiology and other provider modules using `@Roles` inherit the central guard correction; patient and administrative boundaries remain enforced.
+
+### Gate results
+
+| Gate | Result |
+|---|---|
+| Backend build | PASS |
+| Backend Jest | **26 suites / 218 tests passed** |
+| FIX2 tests added | 7 cases for laboratory/lab, provider + laboratory, radiology, nursing, hospital, pharmacy, and deduplication |
+| Main branch | Unchanged |
+| Target branch | `manus/on-live-reconciliation` |
+
+### Remaining acceptance boundary
+
+The source-level FIX2 gate is complete. Gatekeeper must redeploy the resulting commit to staging and repeat live requests for `/labs/samples`, `/labs/provider/inbox`, radiology provider inbox, and the corresponding nursing, hospital, and pharmacy provider routes. Local build/test success does not replace a live JWT and database-backed E2E result.
