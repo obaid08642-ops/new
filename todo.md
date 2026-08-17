@@ -161,3 +161,14 @@
 - [x] Patient: إضافة `DatabaseProvider.native.ts` و`DatabaseProvider.web.ts` لمنع تحميل `expo-sqlite`/`wa-sqlite.wasm` في web export، دون seed أو mock data ودون تغيير driver الأصلي للمنصات native.
 - [x] Patient: `NODE_ENV=production npm run export:web` نجح بعد الإصلاحات، وولّد web/iOS/Android bundles؛ التحقق المحلي استخدم package-lock مؤقتاً مع registry عام بسبب resolved mirror داخلي غير قابل للوصول، ثم استُعيد lock الأصلي.
 - [x] مزامنة هذه التغييرات مع أرشيف patient في الفرع، إعادة بناء ZIP النظيف، ثم تشغيل typecheck/tests النهائي قبل commit/push.
+
+
+## Focused communications verification — 2026-08-17
+
+- [x] فحص مركز كامل لمسارات chat/realtime بين patient/provider، الملكية، persistence، read state، reconnect، والمرفقات إن كانت مدعومة.
+- [x] فحص مركز لمسارات voice/video وLiveKit أو signaling الفعلي، حالات الاتصال، lifecycle، permissions، ownership، وعدم وجود محاكاة محلية.
+- [x] فحص push notifications للمريض والمزوّد والإدارة، device tokens، targeting، deep links، lifecycle، retry، channels، ومنع التكرار.
+- [x] فحص audio events وcall ringtones وnotification channels والـassets والتوقف/التكرار والتغليف على Android/iOS.
+- [x] تنفيذ الإصلاحات المصدرية الآمنة التي تثبت الحاجة إليها، دون إعادة بناء capability موجودة أو إضافة mock/static data.
+- [x] تشغيل typecheck/lint/build/tests المركزة وتحديث مصفوفة Communications Implementation Matrix في تقرير Markdown.
+- [ ] إبقاء ما يحتاج staging أو credentials أو أجهزة حقيقية مفتوحاً، ثم commit/push على `manus/on-live-reconciliation` فقط.
