@@ -326,3 +326,5 @@
 
 - [x] CONSULT-CONTRACT-002 source fix: `AppointmentsService` يطابق provider profile/user/account identities fail-closed في list/read/transition/cancel/finish؛ regression ناجح وfull backend **30 suites/235 tests** وbuild ناجحان. [ ] نشر patch وإعادة التحقق الحي doctor GET/start/complete.
 - [x] Clinic live lifecycle partial: create cash 201 وauto-confirm، patient check-in 200، patient2 read/cancel 403، owner cleanup cancel 200؛ doctor-side transitions كانت محجوبة بـCONSULT-CONTRACT-002، وتحتاج إعادة التحقق بعد النشر.
+
+- [ ] ORDERS-ROUTE-001: `/orders/pharmacy/queue` كان معلناً بعد `GET :id` وقد يُطابق wildcard؛ نُقل قبل wildcard في patch المؤقت، وأضيف تعليق توضيحي. أعد build/full tests ثم commit/push مع CONSULT-CONTRACT-002، وبعد النشر أعد اختبار 200 للـqueue.

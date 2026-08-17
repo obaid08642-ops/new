@@ -124,3 +124,11 @@ Doctor GET/start/complete returned 403. Diagnosis evidence: provider login JWT h
 The doctor provider contract was repaired in the authoritative backend archive. `AppointmentsService` now resolves the doctor profile by its canonical profile id and considers only the authenticated provider's `id`, `account_id`, `provider_id`, or `provider_profile_id` when matching the profile's `id`, `user_id`, or `account_id`; strangers remain denied. The same helper is used for appointment read, list, state transitions, cancellation, and SOAP finish.
 
 Evidence: appointment regression **14/14** passed; backend full gate **30 suites / 235 tests** passed; Nest build passed. Patch is packaged in the backend archive and awaits deployment before live doctor GET/start/complete recheck. No production source was claimed fixed until that redeploy is confirmed.
+
+## E2E remediation checkpoint
+
+CONSULT-CONTRACT-002 was patched and pushed on `manus/on-live-reconciliation` as commit `d0bd477`. The patch is source/build/test verified but is **not marked live-verified** until production deploy and a new sandbox clinic appointment prove doctor GET/start/complete. Pharmacy and clinic evidence above remains preserved; all created orders/appointments were cancelled by their patient owners after testing.
+
+## Pharmacy route remediation
+
+`GET /orders/pharmacy/queue` returned 403 during the first live run while the active provider app correctly uses `/provider/pharmacy/allocations` (which returned 200 with an empty list). Source inspection found the legacy static route declared after `GET :id`; it was moved before the wildcard in `OrdersController` to prevent route shadowing. Combined backend gate after this change: **30 suites / 235 tests**, build passed. This remains pending live recheck after deployment; no claim of production closure is made yet.
