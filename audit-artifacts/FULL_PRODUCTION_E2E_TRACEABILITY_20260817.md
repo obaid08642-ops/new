@@ -285,3 +285,12 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 تمت المعالجة بإلزام patient وservice_id فعال من catalog واستخدام سعر catalog فقط، ومنع provider impersonation، وقصر queue/availability على nursing provider/admin، وإضافة state graph للانتقالات، وربط GPS/care plans/inventory بالحجز والتعيين مع إزالة fallback orphan ack. أضيفت **3/3** regression tests، وأصبح full backend **39 suites / 266 tests** مع tsc/build ناجحين.
 
 لم تُنفذ زيارة تمريض وهمية على الإنتاج؛ preflight السابق أعاد providers فارغة. التصنيف **SOURCE FIX / LIVE PROVIDER BLOCKED / DEPLOY-RECHECK**.
+
+
+## NursingController financial/state contract — 2026-08-17
+
+كشف الفحص الإضافي أن دفتر محفظة الممرض كان يستخدم fallback ثابتاً بقيمة **150** عند غياب `service_fee`، ما يخلق أرباحاً وهمية. كما كانت بعض انتقالات الحالة لا تتحقق من الحالة السابقة، وكان emergency-abort يعلن إرجاع المبلغ مع تخزين `refunded_amount` قبل وجود settlement مالي، وGPS يقبل إحداثيات غير صالحة قد تتجاوز geofence عبر NaN.
+
+تمت المعالجة باشتقاق المبلغ من الحقول الحقيقية فقط (`service_fee` ثم `total_price/total/price` وإلا صفر)، وحصر wallet في nursing provider/admin، وإلزام إحداثيات صحيحة، وتثبيت انتقالات ARRIVED→CARE_IN_PROGRESS وCARE_IN_PROGRESS→COMPLETED، وإلزام emergency بسبب وحالة صحيحة مع `refund_status=pending_finance_review` و`refunded_amount=0` حتى تتم مراجعة finance الفعلية. أضيفت **6/6** regression tests، وأصبح full backend **39 suites / 269 tests** مع tsc/build ناجحين.
+
+التصنيف **SOURCE FIX / DEPLOY-RECHECK**؛ لا تزال دورة التمريض الحية الكاملة معلّقة بسبب عدم وجود provider matching في sandbox.
