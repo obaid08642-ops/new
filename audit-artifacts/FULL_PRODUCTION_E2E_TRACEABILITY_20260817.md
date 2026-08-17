@@ -294,3 +294,14 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 تمت المعالجة باشتقاق المبلغ من الحقول الحقيقية فقط (`service_fee` ثم `total_price/total/price` وإلا صفر)، وحصر wallet في nursing provider/admin، وإلزام إحداثيات صحيحة، وتثبيت انتقالات ARRIVED→CARE_IN_PROGRESS وCARE_IN_PROGRESS→COMPLETED، وإلزام emergency بسبب وحالة صحيحة مع `refund_status=pending_finance_review` و`refunded_amount=0` حتى تتم مراجعة finance الفعلية. أضيفت **6/6** regression tests، وأصبح full backend **39 suites / 269 tests** مع tsc/build ناجحين.
 
 التصنيف **SOURCE FIX / DEPLOY-RECHECK**؛ لا تزال دورة التمريض الحية الكاملة معلّقة بسبب عدم وجود provider matching في sandbox.
+
+
+## Provider App completeness and intake contract — 2026-08-17
+
+كان snapshot `nabdah-remediation/provider-app` ناقصاً على نحو يمنع البناء: احتوى `DoctorDashboard.tsx` فقط، بينما كانت imports الخاصة بـcontext/components/contracts/constants وباقي الشاشات مفقودة. استُعيدت النسخة الكاملة المطابقة لـExpo SDK54 من snapshot الإنتاج المستخرج، وأصبح التطبيق يحتوي **66 ملف مصدر** تغطي authentication، doctor، facility، laboratory، nursing، pharmacy، radiology، ambulance، shared screens، notifications، services، contracts وLiveKit.
+
+أضيف `app.json` صريح يحدد Android/iOS identifiers (`com.nabd.plus.provider`)، `userInterfaceStyle=automatic`، API الإنتاج `https://api.nabd.plus/api/v1`، وأذونات الكاميرا/الميكروفون/الموقع/الإشعارات. أضيفت أيضاً peer dependency `livekit-client` المطلوبة من `@livekit/react-native`. اجتاز TypeScript، واجتازت اختبارات عقود Provider App **3/3**، ونجح Android Expo prebuild في نسخة مؤقتة مع package والـpermissions الصحيحة.
+
+أثناء فحص استقبال الطلبات، أزيلت fallbacks كانت تنشئ هوية `test_patient`، وpatient/report/referral ids بديلة، وأسعاراً ثابتة بقيمة `150`، ورصيد withdrawal ثابتاً بقيمة `4200`. أصبحت الإجراءات fail-closed عند غياب patient أو appointment حقيقي، وتستخدم الأسعار والهوية القادمة من backend فقط.
+
+هذه نتيجة **SOURCE/BUILD PASS** وليست إغلاقاً تشغيلياً؛ لم تُعلن دورة Provider App الحية كاملة بعد. الإغلاق يتطلب نشر مصدر التطبيق المتزامن والـbackend ثم اختبار حسابات sandbox لكل نوع مزود: استقبال الطلب، قبول/رفض/إعادة توجيه، التعيين، الانتقالات، التتبع، التقرير، الإشعارات، المكالمات، المحفظة، وعزل مزود عن طلبات مزود آخر.
