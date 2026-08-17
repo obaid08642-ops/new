@@ -561,3 +561,8 @@
 
 - [x] Reconciled Pharmacy route mismatch: `/pharmacy/provider/queue` and `/pharmacy/provider/broadcasts` returned 404, while controller-declared `/provider/pharmacy/broadcasts` returned 200 with an empty read-only list. No accept/reject mutation was attempted.
 - [ ] Update PharmacyDashboard consumer to use the controller-declared `/provider/pharmacy/broadcasts` contract, then rerun Provider typecheck/Jest and recheck the live read route after deployment review.
+
+- [ ] Fix PharmacyDashboard reject consumer from stale `/pharmacy/orders/:id/reject` to controller contract `/provider/pharmacy/broadcasts/:orderId/reject`, then run Provider typecheck/Jest and push.
+- [ ] Reconcile ProviderApi.login consumer (`/auth/login` with phone) against the verified `/provider/auth/login` email contract before onboarding login is declared complete.
+
+- [x] Fixed PharmacyDashboard reject action to call `/provider/pharmacy/broadcasts/:orderId/reject`, matching the backend controller; Provider typecheck and 5/5 Jest contracts passed.

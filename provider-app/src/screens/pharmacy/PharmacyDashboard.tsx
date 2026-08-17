@@ -272,7 +272,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
 
   const confirmReject = async (reasonId: string) => {
     try {
-      await client.post(`/pharmacy/orders/${rejectOrderId}/reject`, { reason: reasonId });
+      await client.post(`/provider/pharmacy/broadcasts/${rejectOrderId}/reject`, { reason: reasonId });
       setBroadcasts(prev => prev.filter(b => b.id !== rejectOrderId));
       show(AR ? 'تم رفض الطلب' : 'Order rejected', 'info');
     } catch(e) {}
