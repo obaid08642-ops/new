@@ -303,3 +303,14 @@
 - [x] 2FA expiry: الرمز المستقل 600535 تُرك أكثر من 6 دقائق، ثم أعاد verify-2fa HTTP 400 `OTP expired or not requested` دون access token؛ correlation `c4e1de4f-2a59-42ee-89bb-63d15133b3fe`.
 
 - [x] 2FA expiry النهائي: عدم استخدام رمز الجلسة المستقلة قبل مرور 6 دقائق، ثم إرسال verify-2fa مرة واحدة عبر origin المباشر والتأكد من HTTP 400 دون access token؛ correlation `c4e1de4f-2a59-42ee-89bb-63d15133b3fe`.
+
+## Device validation campaign — 2026-08-17
+
+- [x] جرد Android SDK/emulators وJava/Gradle/Expo/EAS وFirebase CLI والاعتمادات المتاحة؛ غياب Android SDK/adb/Gradle وEAS auth وFirebase/GCP موثق في `DEVICE_VALIDATION_INVENTORY_20260817.md`.
+- [ ] بناء APK اختبار للمريض موصول بـ`https://api.nabd.plus`؛ prebuild وJS export نجحا، لكن APK لم يُنتج بسبب غياب Android SDK/adb وEAS auth.
+- [ ] بناء APK اختبار للمزودين موصول بالإنتاج؛ prebuild نجح، لكن APK لم يُنتج بسبب غياب Android SDK/adb وEAS auth.
+- [ ] تجهيز مسار iOS عبر EAS/TestFlight؛ prebuild نجح، ومانع IPA/TestFlight موثق: لا macOS/Xcode/Apple Developer وEAS غير authenticated.
+- [ ] تنفيذ مصفوفة المحاكيات: لم تبدأ لأن Android SDK/adb/emulator غير متاحة؛ جرد routes وقائمة الهاتف الحقيقي وتجهيز الأدلة البديلة موثق، دون اختلاق screenshots/logs.
+- [x] محاولة/توثيق Firebase Test Lab Robo/scripted: التشغيل محجوب بسبب غياب GCP/Firebase CLI/credentials، والتفصيل في `DEVICE_FARM_BLOCKER_20260817.md`; الاختبار الفعلي ما زال مفتوحاً.
+- [x] إنتاج `REAL_DEVICE_CHECKLIST.md` بالعربية للهاتفين الحقيقيين، مع push/calls/LiveKit/GPS/RTL.
+- [x] إنتاج تقرير جاهزية الأجهزة وعيوب/موانع مرقمة وأدلة config/prebuild/build attempts/logs داخل `audit-artifacts`، إضافة إلى `REAL_DEVICE_CHECKLIST.md` وscreen/route inventory؛ screenshots/videos من emulator/device farm مؤجلة حتى توفير البيئة.
