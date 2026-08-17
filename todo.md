@@ -213,7 +213,7 @@
 - [ ] إعداد وتشغيل E2E staging لـBOLA بين مريضين مع state/ledger before-after.
 - [ ] إعداد وتشغيل E2E staging للدفع وwebhook وidempotency في refunds/wallet/billing/pharmacy.
 - [ ] إعداد وتشغيل E2E staging لـWebSocket origin وtoken impersonation وroom membership — source patch أُنجز، إعادة التحقق الحي بعد redeploy مطلوبة.
-- [ ] إعداد وتشغيل مصفوفة OTP/2FA وrate-limit تشمل success/failure/expiry/attempts/Redis key.
+- [x] إعداد وتشغيل مصفوفة OTP/2FA وrate-limit: success 201، failure 400، attempts 5/6 أعادت 429، single-use 400، expiry 400؛ Redis key لم يُكشف أو يُحفظ في السجل.
 - [ ] تحديث التقرير الجامع، اختبار backend، commit وpush ثم تسليم نتائج E2E والقيود.
 
 
@@ -230,7 +230,7 @@
 - [ ] إنشاء order sandbox من patient.sandbox وتسجيل الحالة والـledger قبل/بعد، ثم اختبار cancel/track/update من patient2.sandbox مع توقع 403/404.
 - [ ] تشخيص 500 في payment intent عبر logs المعتمدة، وإصلاح السبب فقط إذا كان المصدر/الإعداد sandbox آمناً، ثم اختبار payment/webhook signature/idempotency/refund sandbox.
 - [ ] إعادة اختبار WebSocket على الإنتاج مع انتظار disconnect الفعلي للـtoken المعدل وOrigin غير الموثوق وعدم استقبال events.
-- [ ] تنفيذ مصفوفة admin OTP/2FA وrate-limit دون تخمين codes أو تجاوز حدود المحاولات.
+- [x] تنفيذ مصفوفة admin OTP/2FA وrate-limit بحساب sandbox فقط ودون تجاوز الحدود؛ success/single-use/expiry/429 موثقة بنتائج الإنتاج.
 - [ ] تحديث وثائق العقود الأربعة ورفع التعديلات بعد نجاح build/tests، مع إبقائها fail-closed وغير مفعلة.
 
 
@@ -265,5 +265,41 @@
 - [ ] تشخيص payment intent 500 في الإنتاج عبر سجلات الخادم ثم إصلاحه واختبار sandbox/idempotency/webhook.
 
 - [x] Production observation 2026-08-17: عبر origin المباشر، `patient2.sandbox` يحصل على 403 عند تنزيل report.pdf للطلب `91047ef2-ad36-422a-a184-629693e7c729`، بينما `patient.sandbox` على النشر الحالي ما زال يحصل على 500؛ هذا يؤكد أن ownership منشور لكن إصلاح runtime الجديد في commit `f6fa8a8` يحتاج نشره.
-- [ ] Production payment repro 2026-08-17: `POST /payments/intent/pharmacy/91047ef2-ad36-422a-a184-629693e7c729` أعاد 500 generic، correlation `ca08179b-b900-426c-9ac1-d71011dc0332`; الطلب sandbox-only ولم تُنشأ mutation مالية مؤكدة. يلزم stack trace من الحاوية/البوابة لتحديد adapter response قبل إصلاح gateway أو contract.
+- [x] Production payment repro 2026-08-17: `POST /payments/intent/pharmacy/91047ef2-ad36-422a-a184-629693e7c729` أعاد 500 generic، ثم أكد stack trace أن Moyasar يرفض live account؛ الطلب sandbox-only ولم تُنشأ mutation مالية مؤكدة. إصلاح الحساب نفسه خارج الكود.
 - [ ] عدم اعتبار order الملغى اختباراً مالياً صالحاً؛ يجب إنشاء/تحديد order sandbox قابل للدفع قبل payment/webhook/idempotency، ثم تنظيفه أو توثيق حالته وفق قواعد الإنتاج.
+
+- [x] Moyasar production confirmed: `Entity not activated to use live account`; لا mock ولا bypass ولا اختبار دفع حي حتى يفعّل المالك الحساب تجارياً.
+- [x] تحسين PaymentsService لمعالجة أخطاء adapter: تسجيل التفاصيل داخلياً فقط، وإرجاع 502 بعقد `payment_gateway_unavailable` ورسالة عربية آمنة «الدفع غير متاح حالياً» دون كشف نص Moyasar الخام؛ full backend regression 30 suites/234 tests وbuild ناجحان محلياً.
+- [x] إضافة اختبار regression لمسار 502 الآمن، مع إبقاء webhook signature وidempotency وWebSocket وOTP/2FA ضمن الاختبارات غير المالية؛ suite payments 6/6 ناجحة.
+
+- [x] Webhook signature matrix محلياً: Moyasar/PAYTabs/SMS قبول التوقيع الصحيح ورفض الخاطئ/غياب secret؛ suite `webhooks` ناجحة.
+- [x] Idempotency interceptor محلياً: cache hit، اختلاف payload، concurrent lock، وعزل المستخدم/المسار؛ 12/12 اختباراً في webhook + idempotency ناجحة.
+- [ ] التحقق الحي من webhook وidempotency للعمليات المالية يبقى مؤجلاً حتى تفعيل Moyasar وتوفير order sandbox قابل للدفع؛ لا يُغلق بالاختبار المحلي وحده.
+
+- [x] Production OTP/2FA negative/rate-limit: `admin.sandbox` login أعاد `requires_2fa=true`؛ أربع رموز خاطئة أعادت 400 ثم المحاولتان 5/6 أعادتا 429 مع `retry_after=60`. لم يُستخدم رمز صحيح.
+- [x] Production Socket.IO identity probe عبر polling وorigin موثوق: token المريض sandbox قبل الاتصال وأعاد packets/events، بينما token غير صالح أعاد server disconnect packet `41`؛ لم تُرسل رسائل أو mutations.
+- [x] Production WebSocket CORS allowlist probe: `admin.nabd.plus` و`provider.nabd.plus` أعادا ACAO مطابقاً، بينما `evil.example` و`patient.nabd.plus` لم يعيدا ACAO؛ direct websocket client المحلي تعذر بسبب resolver، لذلك اعتمدت handshake/polling protocol لا حكماً على transport websocket نفسه.
+- [x] OTP/2FA success وexpiry أُغلقت لاحقاً عبر دورة login مرتبطة: success 201، single-use 400، expiry 400، مع rate-limit 429 موثق أدناه.
+
+- [x] 2FA success: أُجري لاحقاً بالرمز المرتبط 733061 على `POST /auth/login/verify-2fa` واستُلم access token؛ الرمز والتوكن لم يُحفظا في المستودع.
+- [x] 2FA single-use: إعادة إرسال الرمز نفسه بعد النجاح أعادت HTTP 400 `OTP expired or not requested`.
+- [x] 2FA expiry: الرمز المستقل 600535 تُرك أكثر من 6 دقائق ثم رُفض HTTP 400 دون access token.
+
+- [x] 2FA retry عبر origin المباشر فقط اكتمل لاحقاً بدورة login مرتبطة؛ success 201 ثم single-use 400، دون خلط Cloudflare أو حفظ التوكن.
+- [x] بعد نجاح المسار طُلب رمز expiry مستقل 600535، وانتُظر أكثر من 6 دقائق قبل التحقق، فكانت النتيجة 400.
+
+- [x] 2FA origin diagnostics 2026-08-17: `curl -v --resolve ...` اتصل TCP بـ`57.131.133.208:443` ثم توقف عند TLS بعد ClientHello (`SSL connection timeout`)، مع response headers/body فارغين؛ الطلب لم يصل إلى HTTP ولم يُثبت استهلاك الرمز 232883. الدليل محفوظ خارج المستودع في `/tmp/admin-2fa-timeout.curl-v`.
+
+- [x] 2FA retry بعد إصلاح PMTUD/MSS: origin المباشر عمل، ثم أُجريت دورة login مرتبطة صحيحة بالرمز 733061 ونجحت مع single-use؛ الرمز 235690 غير المرتبط بقي مرفوضاً كما يجب.
+- [x] قياس MTU لم يعد مطلوباً: لم يتكرر TLS timeout بعد إصلاح MSS، ووصلت طلبات 2FA عبر origin المباشر إلى التطبيق بنجاح.
+
+- [x] 2FA retry 235690 عبر origin المباشر وصل إلى التطبيق مرتين بنجاح (HTTP 400، لا timeout)، لكن كلتا المحاولتين أعادتا `OTP expired or not requested`; لم يصدر access token ولم يُثبت استهلاك الرمز، لذلك لا تُعتبر هذه نتيجة single-use.
+- [x] يلزم بدء `POST /auth/login` لحساب admin.sandbox ثم إصدار OTP مرتبط بدورة login نفسها؛ نُفّذت الدورة الصحيحة لاحقاً ونجحت، وأثبتت أن الرمز غير المرتبط يعيد `OTP expired or not requested`.
+
+- [x] بدء دورة login جديدة لـ`admin.sandbox` عبر origin المباشر، ثم التوقف عند `requires_2fa` وانتظار OTP المرتبط بهذه الدورة؛ correlation `a88a1dc8-49a3-427e-b746-c2a87aed187b`.
+
+- [x] 2FA success 2026-08-17: دورة login المرتبطة أعادت HTTP 201 و`user.role=admin` مع access/refresh/device tokens؛ التوكنات لم تُطبع ولم تُحفظ في المستودع. correlation `a6062023-9cf9-4959-a878-fd3ca94b62b5`.
+- [x] 2FA single-use 2026-08-17: إعادة استخدام الرمز نفسه فوراً أعادت HTTP 400 `OTP expired or not requested`، correlation `b5676306-1c0b-4c81-a845-e7d38bfcbcbe`؛ أثبتت أن الرمز استُهلك.
+- [x] 2FA expiry: الرمز المستقل 600535 تُرك أكثر من 6 دقائق، ثم أعاد verify-2fa HTTP 400 `OTP expired or not requested` دون access token؛ correlation `c4e1de4f-2a59-42ee-89bb-63d15133b3fe`.
+
+- [x] 2FA expiry النهائي: عدم استخدام رمز الجلسة المستقلة قبل مرور 6 دقائق، ثم إرسال verify-2fa مرة واحدة عبر origin المباشر والتأكد من HTTP 400 دون access token؛ correlation `c4e1de4f-2a59-42ee-89bb-63d15133b3fe`.
