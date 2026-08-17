@@ -314,3 +314,15 @@
 - [x] محاولة/توثيق Firebase Test Lab Robo/scripted: التشغيل محجوب بسبب غياب GCP/Firebase CLI/credentials، والتفصيل في `DEVICE_FARM_BLOCKER_20260817.md`; الاختبار الفعلي ما زال مفتوحاً.
 - [x] إنتاج `REAL_DEVICE_CHECKLIST.md` بالعربية للهاتفين الحقيقيين، مع push/calls/LiveKit/GPS/RTL.
 - [x] إنتاج تقرير جاهزية الأجهزة وعيوب/موانع مرقمة وأدلة config/prebuild/build attempts/logs داخل `audit-artifacts`، إضافة إلى `REAL_DEVICE_CHECKLIST.md` وscreen/route inventory؛ screenshots/videos من emulator/device farm مؤجلة حتى توفير البيئة.
+
+## Full production E2E traceability campaign — 2026-08-17
+
+- [x] جرد routes/screens/actions في patient/provider وربطها بعقود backend وroles والحالات في `FULL_PRODUCTION_E2E_TRACEABILITY_20260817.md` و`FULL_E2E_BACKEND_ROUTE_CONTRACTS_20260817.md`; live result لكل سيناريو ما زال Pending حتى تنفيذه.
+- [x] إنشاء مصفوفة سيناريوهات كاملة تشمل pharmacy delivery/pickup/reject/reorder/stock، clinic/home/online consultations، labs، radiology، nursing/home care، hospitals/staff، profile/family/addresses/wallet/notifications، وSOS/QR fail-closed؛ نتائج التشغيل ما زالت تُملأ تدريجياً.
+- [ ] تنفيذ دورات حياة كاملة على production بحسابات sandbox فقط، مع request/response status وIDs وbefore/after evidence.
+- [ ] اختبار payment 502 كحالة محظورة متوقعة، وترك ما بعد الدفع معلّقاً حتى تفعيل Moyasar.
+- [ ] اختبار ownership/BOLA بين patient1/patient2 لكل mutation وقراءة حساسة، وfail-closed لـSOS/QR/العقود غير المعتمدة.
+- [ ] إصلاح أي عيب مصدرّي مكتشف عبر inspect → implement → build → test → commit → push، ثم تحديث جدول audit-artifacts النهائي.
+
+- [x] CONSULT-CONTRACT-002 source fix: `AppointmentsService` يطابق provider profile/user/account identities fail-closed في list/read/transition/cancel/finish؛ regression ناجح وfull backend **30 suites/235 tests** وbuild ناجحان. [ ] نشر patch وإعادة التحقق الحي doctor GET/start/complete.
+- [x] Clinic live lifecycle partial: create cash 201 وauto-confirm، patient check-in 200، patient2 read/cancel 403، owner cleanup cancel 200؛ doctor-side transitions كانت محجوبة بـCONSULT-CONTRACT-002، وتحتاج إعادة التحقق بعد النشر.
