@@ -588,3 +588,6 @@
 - [x] Live Patient BOLA mutation matrix completed on real sandbox order `62039080-53eb-4ca2-8bac-69c2a7bb038f`: Patient-1 owner read before=200 and after=200 with identical body size; Patient-2 foreign read=403 and foreign cancel=403. No state-changing owner action was executed.
 
 - [x] Rechecked report PDF BOLA on the same real sandbox order: owner `GET /orders/:id/report.pdf` returned 200 (1524 bytes) and foreign Patient-2 returned 403 (71 bytes). PDF bodies were deleted and not committed.
+
+- [x] Classified Pharmacy lifecycle as `BLOCKED_NO_ELIGIBLE_PROVIDER_ASSIGNMENT`: a real Patient-1 pending order exists with `pharmacy_id=475a602c-eb2d-486d-9ffd-ea3a70da0004`, but the pharmacy sandbox account's `/provider-onboarding/progress` returned `{"started":false}` and its broadcast list was empty. No accept/reject/dispatch mutation was attempted against an unmatched provider.
+- [ ] Provision or identify a properly linked sandbox pharmacy/provider assignment through the approved test setup, then rerun the full pharmacy lifecycle with before/after state and cleanup.
