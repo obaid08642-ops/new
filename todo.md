@@ -558,3 +558,6 @@
 
 - [x] One controlled radiology sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, `radiology/provider/inbox=200`, and `radiology/services=200`. Only statuses/body sizes were persisted; no mutation occurred.
 - [ ] Confirm an eligible sandbox radiology request before testing accept/execute/report lifecycle; absence of a safe request remains BLOCKED, not a reason to fabricate one.
+
+- [x] Reconciled Pharmacy route mismatch: `/pharmacy/provider/queue` and `/pharmacy/provider/broadcasts` returned 404, while controller-declared `/provider/pharmacy/broadcasts` returned 200 with an empty read-only list. No accept/reject mutation was attempted.
+- [ ] Update PharmacyDashboard consumer to use the controller-declared `/provider/pharmacy/broadcasts` contract, then rerun Provider typecheck/Jest and recheck the live read route after deployment review.
