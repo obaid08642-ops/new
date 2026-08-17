@@ -536,3 +536,8 @@
 
 - [!] Provider Android Expo export is blocked: `package.json` points to Expo AppEntry but the authoritative snapshot has no root `App.tsx/js/jsx`; evidence: `audit-artifacts/PROVIDER_EXPO_BUILD_BLOCKER_20260818.md`. Do not create a guessed entrypoint; restore the authoritative navigation entry before device/store claims.
 - [ ] Restore Provider App entrypoint from authoritative source register, then rerun Expo export/prebuild and device gates.
+
+- [ ] Restore the verified Provider `App.tsx` entrypoint plus its required `PushNotifications`, `ProviderHome`, `LiveKitRoomProvider`, and `PharmacyChatResponder` modules from `/home/ubuntu/nabdah-source-readonly/provider-app`; then rerun typecheck, Jest, and Expo export.
+
+- [x] Restored verified Provider `App.tsx` plus `PushNotifications`, `ProviderHome`, `LiveKitRoomProvider`, and `PharmacyChatResponder` from source-readonly; Provider typecheck passed, 5/5 Jest contracts passed, and Android Expo export succeeded with one 5.4 MB Hermes bundle. Evidence: `PROVIDER_ANDROID_EXPORT_METADATA_20260818.json`.
+- [ ] Run native prebuild/device matrix against this restored entrypoint; Android export is a bundle gate, not proof of emulator/farm/runtime readiness.

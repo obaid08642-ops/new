@@ -1,40 +1,18 @@
 // @ts-nocheck
-// expo-notifications touches NATIVE modules at import time — in Expo Go (SDK 53+)
-// importing it during app boot throws "[runtime not ready]: Tried to insert a
-// NativeModule" and kills AppRegistry registration. So NOTHING native is touched
-// at module scope: the module is loaded lazily on first use instead.
-let Notifications: any = null;
-let notificationsInit = false;
-
-function getNotifications(): any {
-  if (!notificationsInit) {
-    notificationsInit = true;
-    try {
-      Notifications = require('expo-notifications');
-      try {
-        Notifications.setNotificationHandler({
-          handleNotification: async () => ({
-            shouldShowAlert: true,
-            shouldPlaySound: true,
-            shouldSetBadge: true,
-            shouldShowBanner: true,
-            shouldShowList: true,
-          }),
-        });
-      } catch { /* native module not ready — skip handler */ }
-    } catch {
-      Notifications = null;
-    }
-  }
-  return Notifications;
-}
+import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+  }),
+});
 
 export async function setupPushNotifications(): Promise<void> {
-  const Notifications = getNotifications();
-  if (!Notifications) return; // Expo Go / native module missing — skip silently
   if (!Device.isDevice) return; // Simulator — skip silently
 
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -47,8 +25,9 @@ export async function setupPushNotifications(): Promise<void> {
 
   if (finalStatus !== 'granted') return;
 
-  const projectId = process.env.EXPO_PUBLIC_PROJECT_ID;
+  const projectId = process.env.EXPO_PUBLIC_PROJECT_ID?.trim();
   if (!projectId) return;
+
   try {
     await Notifications.getExpoPushTokenAsync({
       projectId,
