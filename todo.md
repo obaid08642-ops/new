@@ -581,3 +581,6 @@
 
 - [x] One controlled hospital sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, while `/hospital/staff=403`. This is classified as expected least-privilege for a non-hospital-admin provider account; no staff mutation occurred.
 - [ ] Obtain/verify a dedicated sandbox hospital-admin role before testing staff list/create/update/delete; do not weaken the 403 for an ordinary hospital provider.
+
+- [x] Patient exact-read retry succeeded after the prior transport timeout: sandbox login HTTP 201; `/doctors/appointments/mine`, `/notifications`, `/wallet/balance`, `/wallet/transactions`, `/orders/mine`, `/doctors`, and `/insurance/companies` all returned HTTP 200. Only statuses/body sizes were persisted; no mutation occurred.
+- [ ] Run the Patient-1/Patient-2 BOLA read/mutation isolation matrix only after selecting a real sandbox order/appointment ID from Patient-1 and recording before/after state; do not fabricate an ID.
