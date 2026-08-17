@@ -333,3 +333,8 @@
 - [x] Lab facility lifecycle partial/live: create 201، patient/provider read 200، inbox 200، sample register 201، analyzing/result_ready 200، report 201، patient final read 200/REPORTED؛ generic state transition blocked بـLAB-CONTRACT-001، وcompatible-providers أعاد 0.
 
 - [x] LAB-ACCESS-002 source fix: reschedule/emergency تتطلب patient owner أو assigned provider/admin، GPS يتطلب assigned provider/admin، tracking يتطلب patient/assigned provider/admin؛ labs **11/11**، full backend **30/239**، build ناجح. [ ] deploy/live BOLA recheck.
+
+- [x] Radiology live lifecycle (sandbox): create 201، patient read 200، patient2 read 404، mine 200، provider queue/accept/allocate/finalize 200/200/200/201، patient final report 200؛ evidence `/tmp/e2e-radiology-lifecycle.ndjson`، booking `be7b0b06-73bc-4cdd-8a7c-1dba320da4c7`.
+- [x] RAD-ACCESS-001 source fix: provider queue/wallet/catalog/inventory/mutations محمية بـJwtAuthGuard + effective radiology/admin roles؛ queue يعزل assigned center، finalize/allocate/respond تتحقق من assignment، catalog mutation admin-only، inventory لا يقبل provider_id من body/query. Regression 3/3، full backend 31 suites/242 tests، tsc/build ناجحان. [ ] deploy/live negative recheck.
+- [ ] Radiology remaining lifecycle variants: home-visit, reject/reassign, reschedule, insurance approval/partial/cash opt-in، report review/approval، cancel/no-show، notifications before/after.
+- [ ] Radiology live provider negative recheck after deployment: patient queue/wallet/catalog/inventory/mutation must be 403; foreign provider mutation must be 403; owner provider workflow must remain 2xx.

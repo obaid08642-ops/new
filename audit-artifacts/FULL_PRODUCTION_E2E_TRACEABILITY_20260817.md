@@ -152,3 +152,24 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ## Laboratory booking access remediation
 
 `LAB-ACCESS-002` was fixed fail-closed. Reschedule and emergency now require the patient owner, assigned lab/hospital provider, or admin; GPS updates require the assigned provider/admin; tracking reads require patient owner, assigned provider, or admin. A stranger cannot mutate or read a booking by id alone. Regression: labs suite **11/11** passed; full backend **30 suites / 239 tests** passed; build passed. Production BOLA recheck for these four routes is pending deployment; no live unauthorized mutation was attempted after the finding.
+
+
+## Radiology live lifecycle and access remediation — 2026-08-17
+
+### دورة حياة الأشعة المنفذة بحسابات sandbox
+
+تم تنفيذ دورة واحدة كاملة على الإنتاج عبر origin المباشر (`api.nabd.plus` مع resolve إلى `57.131.133.208`) باستخدام `patient.sandbox` و`patient2.sandbox` و`radiology.sandbox` فقط. أُنشئ booking أشعة داخل المركز بمعرف `be7b0b06-73bc-4cdd-8a7c-1dba320da4c7` وبيانات scan تجريبية غير مرتبطة بمستخدم حقيقي. النتائج: الإنشاء `201`، قراءة المالك `200`، قراءة patient2 للمعرف نفسه `404`، قائمة المريض `200`، قائمة المزوّد `200`، قبول المزوّد `200`، تخصيص الجهاز `200`، رفع التقرير `201`، وقراءة التقرير النهائية للمالك `200`. الحالة النهائية المرصودة `REPORT_UPLOADED` مع metadata للصور والتقرير في الاستجابة. الدليل التفصيلي المختصر محفوظ في `/tmp/e2e-radiology-lifecycle.ndjson`، ويجب نقله إلى مجلد artifacts عند تجهيز حزمة الأدلة النهائية إذا كان خالياً من أي token.
+
+### اكتشاف أمني قبل الإصلاح
+
+أثبت الاختبار السلبي أن حساب patient كان يستطيع قبل نشر patch قراءة `provider/queue` و`wallet` و`catalog` و`inventory` بحالة `200`، وأن patient2 استطاع استدعاء `finalize-scan/:id` بحالة `201`، كما استطاع patient استدعاء `allocate-machine/:id` بحالة `200` على booking sandbox. هذا كان **RAD-ACCESS-001، خطورة عالية**: مسارات مزوّد الأشعة لم تكن محمية بعقد دور/ملكية، وعمليات mutation كانت قابلة للتنفيذ بواسطة هوية غير مزوّدة. لم تُستخدم بيانات غير sandbox ولم تُجرَ أي mutation خارج booking الاختباري.
+
+### المعالجة المصدرية
+
+أُعيدت حماية `RadiologyProviderController` في المصدر الحاكم: `JwtAuthGuard` و`Roles(RADIOLOGY, ADMIN, SUPER_ADMIN)` على مستوى controller، تحقق من الحساب المعيّن قبل `respond` و`allocate-machine` و`finalize-scan`، عزل queue إلى الطلبات pending أو الطلبات المعيّنة للمركز الحالي، عزل wallet/inventory عن `provider_id` القادم من العميل، منع تعديل catalog العام إلا للأدمن مع allowlist للحقول، ومنع إنشاء inventory مع قبول `provider_id` من body. كما عولج قبول UUID العام أو Mongo `_id` في mutation paths، وأصبح report يتطلب `reportText` و`pdfUrl` غير فارغين.
+
+أضيف regression test بثلاث حالات: عدم إعادة حجز مركز آخر في queue، رفض finalize لمركز غريب، ورفض allocate من caller غير مزوّد. النتيجة المستقلة `3/3`، ثم `tsc --noEmit` وNest build ناجحان، ومجموعة backend الكاملة أصبحت **31 suite / 242 test ناجحة**. الإصلاح مصنف **SOURCE FIX / DEPLOY-RECHECK** ولا يُغلق تشغيلياً قبل نشره وإعادة اختبار patient/provider/foreign-provider على الإنتاج.
+
+### حدود دورة الأشعة الحالية
+
+لم تُغلق بعد متغيرات الزيارة المنزلية، الرفض وإعادة الإسناد، إعادة الجدولة، التأمين approve/reject/partial، cash opt-in، cancel/no-show، مراجعة التقرير واعتماده، إشعارات كل انتقال، وربط الصور/التقرير بسياسة storage فعلية. تبقى هذه البنود `Pending` حتى ينفذ كل منها بحسابات sandbox ويثبت before/after وnotification IDs و403/404 للهوية الغريبة. لا يُفهم نجاح دورة center الحالية على أنه اكتمال كل عقد الأشعة.
