@@ -4,6 +4,15 @@ const path = require('node:path');
 describe('Provider App release contracts', () => {
   const root = process.cwd();
   const dashboard = fs.readFileSync(path.join(root, 'src/screens/doctor/DoctorDashboard.tsx'), 'utf8');
+  const pharmacyDashboard = fs.readFileSync(path.join(root, 'src/screens/pharmacy/PharmacyDashboard.tsx'), 'utf8');
+  const radiologyDashboard = fs.readFileSync(path.join(root, 'src/screens/radiology/RadiologyDashboard.tsx'), 'utf8');
+  const registrations = [
+    'doctor/DoctorRegistration.tsx',
+    'pharmacy/PharmacyRegistration.tsx',
+    'lab/LabRegistration.tsx',
+    'radiology/RadiologyRegistration.tsx',
+    'nursing/NursingRegistration.tsx',
+  ].map(file => fs.readFileSync(path.join(root, 'src/screens', file), 'utf8')).join('\n');
   const config = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8')).expo;
 
   it('has explicit production API and native platform identifiers', () => {
@@ -26,5 +35,21 @@ describe('Provider App release contracts', () => {
     expect(dashboard).toContain('/provider/jobs/');
     expect(dashboard).toContain('/provider/stats/today');
     expect(dashboard).toContain('fetchQueue();');
+  });
+
+  it('does not ship fake pharmacy/radiology terminal actions', () => {
+    expect(pharmacyDashboard).not.toContain('Simulate Drug Scan');
+    expect(pharmacyDashboard).not.toContain('طلب وصفة #B-9901');
+    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts');
+    expect(pharmacyDashboard).toContain('/provider/pharmacy/orders/${orderId}/accept');
+    expect(radiologyDashboard).not.toContain('Coming with S3 integration');
+  });
+
+  it('does not seed provider registration with commercial or geographic values', () => {
+    expect(registrations).not.toMatch(/clinicPrice:'300'|homePrice:'500'|videoPrice:'200'/);
+    expect(registrations).not.toMatch(/priceVisit: '150'|priceHour: '80'|priceDay: '800'|priceMonth: '8000'/);
+    expect(registrations).not.toContain('lat: 24.7136');
+    expect(registrations).not.toContain('lng: 46.6753');
+    expect(registrations).not.toContain("cashOnly: true");
   });
 });

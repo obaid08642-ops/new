@@ -509,3 +509,6 @@
 
 - [x] Removed seeded commercial/location/schedule defaults from Doctor, Lab, Radiology, and Nursing registrations; Facility was already neutral. Provider typecheck and 3/3 Jest contracts passed after the batch.
 - [ ] Re-test registration validation screens manually/with device builds to ensure required-field errors replace prior defaults and no backend payload accepts empty operational contracts.
+
+- [x] Added regression assertions for fake pharmacy/radiology actions and seeded registration values; Provider typecheck and 5/5 Jest contracts passed.
+- [ ] Keep the regression suite as a gate while auditing remaining Patient/Admin screens and live provider lifecycle workflows.
