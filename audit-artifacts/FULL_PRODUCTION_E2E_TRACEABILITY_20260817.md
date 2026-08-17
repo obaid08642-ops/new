@@ -173,3 +173,24 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ### حدود دورة الأشعة الحالية
 
 لم تُغلق بعد متغيرات الزيارة المنزلية، الرفض وإعادة الإسناد، إعادة الجدولة، التأمين approve/reject/partial، cash opt-in، cancel/no-show، مراجعة التقرير واعتماده، إشعارات كل انتقال، وربط الصور/التقرير بسياسة storage فعلية. تبقى هذه البنود `Pending` حتى ينفذ كل منها بحسابات sandbox ويثبت before/after وnotification IDs و403/404 للهوية الغريبة. لا يُفهم نجاح دورة center الحالية على أنه اكتمال كل عقد الأشعة.
+
+
+## Nursing / home-care live preflight and source remediation — 2026-08-17
+
+### النتيجة الحية المتاحة
+
+تمت قراءة catalog التمريض الحي بحساب patient sandbox وأعاد `200` مع service id حقيقي `ef35bff2-28a7-405e-ae0f-aa917388f776`. شُغّل `POST /unified-bookings/nursing-broadcast` بموعد مستقبلي وموقع sandbox داخل الرياض و`auto_book=true`; أعاد `201`، لكن `providers: []` و`booking: null`. لذلك لم تُنشأ زيارة وهمية ولم تُجرَ mutations بديلة. لا تُعد هذه النتيجة دورة حياة كاملة؛ هي إثبات أن endpoint الحي يعمل وأن المانع الحالي هو عدم وجود مزود matching متاح في نطاق الاختبار.
+
+### اكتشافات المصدر
+
+كان `NursingController` يسمح سابقاً بقراءة visits اعتماداً على `provider_id` من query، وقراءة visit/tracking بالمعرف فقط، وتنفيذ respond/transit/arrive/start-care/no-show/emergency/complete دون فحص actor أو assignment. كما كان progress notes يقبل `patient_id` وبدون booking إلزامي، و`HomeCareTrackingController` لا يفرض JWT، ويقبل patient coordinates من العميل بدلاً من موقع الحجز، ويولّد fallback ObjectIds عند غياب bookingId/nurseId في طلب المستلزمات. هذه سطوح **NURSING-ACCESS-001 / NURSING-PLACEHOLDER-001** عالية الخطورة مصدرّياً، ولم نكرر mutation القديم على الإنتاج لأن ذلك كان سينشئ سجل supply orphan غير مرتبط بحجز sandbox.
+
+### المعالجة المصدرية
+
+أضيفت قرارات ownership موحدة في `NursingController`: المريض يرى سجلاته فقط، والمزوّد يرى الزيارة المعيّنة له فقط، وadmin له صلاحية الإدارة؛ قبول الطلب غير المعيّن يربطه بالمزوّد المصادق عليه، وكل state mutation لاحق يتطلب assignment. أُلزم notes بوجود booking حقيقي ومطابقة patient/booking، ومنع provider_id من توسيع queue. أضيفت حماية JWT إلى tracking controller، وربط geofence بإحداثيات الحجز المخزنة، وتحديث GPS على الحجز بعد نجاح التحقق، وإزالة جميع fallback identifiers من supplies مع ربط nurse بالحساب المخزن.
+
+أضيفت regression tests للـtracking والـcontroller: **6/6** حالات ownership/geofence/supply/state-history، ثم full backend **33 suites / 248 tests** مع `tsc --noEmit` وNest build ناجحين. التصنيف **SOURCE FIX / LIVE BLOCKED BY PROVIDER AVAILABILITY / DEPLOY-RECHECK**.
+
+### ما لم يُغلق
+
+تبقى دورة nursing الحية كاملة معلقة إلى أن يظهر مزود sandbox matching: accept/reject، transit، arrival، start-care، complete، tracking، notes، supplies، cancel، no-show، emergency، notifications، وBOLA بين patient1/patient2 ومزوّد غريب. كما يلزم إعادة نشر patch ثم اختبار المسارات السلبية على الإنتاج قبل اعتبار المعالجة تشغيلية.
