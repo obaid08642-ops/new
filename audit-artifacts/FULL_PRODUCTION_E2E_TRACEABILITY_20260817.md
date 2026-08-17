@@ -305,3 +305,24 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 أثناء فحص استقبال الطلبات، أزيلت fallbacks كانت تنشئ هوية `test_patient`، وpatient/report/referral ids بديلة، وأسعاراً ثابتة بقيمة `150`، ورصيد withdrawal ثابتاً بقيمة `4200`. أصبحت الإجراءات fail-closed عند غياب patient أو appointment حقيقي، وتستخدم الأسعار والهوية القادمة من backend فقط.
 
 هذه نتيجة **SOURCE/BUILD PASS** وليست إغلاقاً تشغيلياً؛ لم تُعلن دورة Provider App الحية كاملة بعد. الإغلاق يتطلب نشر مصدر التطبيق المتزامن والـbackend ثم اختبار حسابات sandbox لكل نوع مزود: استقبال الطلب، قبول/رفض/إعادة توجيه، التعيين، الانتقالات، التتبع، التقرير، الإشعارات، المكالمات، المحفظة، وعزل مزود عن طلبات مزود آخر.
+
+
+## Comprehensive application inventory kickoff — 2026-08-18
+
+بدأت مرحلة الجرد الشامل بعد تثبيت نطاق التدقيق. جرى إنشاء artifacts مستقلة للتطبيقات الثلاثة: `PATIENT_SOURCE_INVENTORY_20260818.txt`، و`PROVIDER_SOURCE_INVENTORY_20260818.txt`، و`ADMIN_SOURCE_INVENTORY_20260818.txt`. كل artifact يحتوي قائمة الملفات، مؤشرات navigation/routes، مؤشرات API endpoints، وعدّاد interactive handlers (`onPress`/`onClick`/`disabled`) تمهيداً لمراجعة كل شاشة وزر وحالة.
+
+المراجع الحالية تبين أن Provider App على فرع المصالحة يحتوي 66 ملف مصدر، بينما Patient App وAdmin Dashboard يحتاجان مقارنة المصدر المرجعي مع الأرشيف المرفوع قبل اعتماد عدد الشاشات النهائي. inventory المزودين يتضمن بالفعل مسارات auth/OTP، calls/chat، facility/hospital، home-care، insurance، labs، radiology، pharmacy، emergency، wallet وprovider queues؛ وسيُحوّل كل endpoint إلى سيناريو اختبار وصلاحيات ونتيجة متوقعة.
+
+هذه المرحلة **جرد وليس حكماً بالاكتمال**. بعد الجرد البنيوي ستتم مطابقة كل زر مع endpoint حقيقي، ثم إضافة الحالات البديلة: cash/card/insurance، clinic/home/online/branch، schedule/holiday/leave، accept/reject/reassign/cancel/no-show، notifications/chat/call/GPS/report/rating، مع فصل ما هو موجود مصدرّياً عما يتطلب بناءً جديداً أو تحققاً حياً.
+
+
+## Admin Dashboard full-source build gate — 2026-08-18
+
+تم اختبار snapshot الإدارة الكامل `nabdah-live-extracted/admin-app/web-admin` قبل اعتماده. اجتاز TypeScript ومرحلة compilation، لكنه فشل أثناء prerendering في Next.js 16.2.10 برسالة `Html should not be imported outside of pages/_document`، وظهر الفشل في صفحات مثل `/admin/ai-control` و`/admin/order-detail`، بعد أن ظهر أولاً في `/admin/audit-logs` و`/admin/payouts`. لذلك لا يُعد Admin Dashboard جاهزاً للبناء أو النشر، ولا يجوز استبدال الأرشيف الناقص به قبل إصلاح build وإعادة اختبار جميع routes.
+
+المشكلة مسجلة كبند مفتوح في `todo.md`. لا يوجد حتى الآن دليل كافٍ على أن الخطأ من صفحات `audit-logs` أو `payouts` نفسها؛ فهي تستخدم `next/head`، بينما المرجع الوحيد لـ`next/document` هو `pages/_document.tsx`. يلزم تشخيص توافق Next/Turbopack أو إعداد pages router وإصلاحه في المصدر الكامل، ثم إعادة build وroute smoke tests قبل commit.
+
+
+## Production readonly health reconciliation — 2026-08-18
+
+عبر origin المباشر وبـTLS صحيح، أعاد `/api/v1/health/liveness` الحالة `200 {"status":"up"}`، بينما أعاد `/api/v1/health/readiness` الحالة `500 Internal server error`. هذه قراءة آمنة بلا mutation، لكنها تمنع إعلان readiness تشغيلي. كما أنها لا تثبت أن الإنتاج يعمل من commit `41d1103`؛ يلزم من المدقق تأكيد SHA المنشور وتشخيص readiness dependency من سجلات السيرفر قبل بدء مصفوفة E2E.

@@ -1,0 +1,300 @@
+# patient source inventory
+root=/home/ubuntu/nabdah-remediation/patient-app
+generated=2026-08-18
+
+## files
+app/(auth)/login.tsx
+app/(auth)/otp.tsx
+app/(auth)/register.tsx
+app/(tabs)/health.tsx
+app/(tabs)/index.tsx
+app/(tabs)/pharmacy.tsx
+app/ai-assistant.tsx
+app/ai/monthly-report.tsx
+app/community/live-session.tsx
+app/consultations/appointments.tsx
+app/consultations/booking-confirm.tsx
+app/consultations/doctor-search.tsx
+app/diagnostics/search.tsx
+app/health/actionable-order.tsx
+app/health/chronic-medications.tsx
+app/health/conditions-allergies.tsx
+app/health/edit-profile.tsx
+app/health/medication-reminder-add.tsx
+app/health/medication-reminder-list.tsx
+app/health/medications.tsx
+app/health/prescriptions.tsx
+app/health/reports.tsx
+app/health/smart-reminders.tsx
+app/health/vitals-log.tsx
+app/health/vitals.tsx
+app/insurance/hub.tsx
+app/map/index.tsx
+app/maternity/fetus-data.ts
+app/maternity/ovulation-tracker.tsx
+app/nursing/nurse-profile.tsx
+app/payments/failed.tsx
+app/pharmacy/barcode-scanner.tsx
+app/pharmacy/filters.tsx
+app/pharmacy/medicine-compare.tsx
+app/pharmacy/order-confirm.tsx
+app/pharmacy/order-history.tsx
+app/pharmacy/order-tracking.tsx
+app/pharmacy/pharmacist-chat.tsx
+app/pharmacy/waiting-for-pharmacy.tsx
+app/programs/active.tsx
+app/voice/index.tsx
+app/wallet/hub.tsx
+package.json
+src/__tests__/auth/SessionManager.test.ts
+src/components/Icon.tsx
+src/context/ConsultationsContext.tsx
+src/context/SocketContext.tsx
+src/core/platform/auth/SessionManager.ts
+src/theme/colors.ts
+src/theme/index.ts
+src/utils/api.ts
+
+## route/navigation markers
+/home/ubuntu/nabdah-remediation/patient-app/src/context/SocketContext.tsx:140:        // because router.push inside this pure context can sometimes miss the navigation tree
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:141:            onPress={() => router.push("/health/health-id")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:152:            onPress={() => router.push("/health/edit-profile")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:173:                onPress={() => router.push(q.route as any)}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:202:            onAction={() => router.push("/health/vitals")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:212:                  onPress={() => router.push("/health/vitals")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:259:          onPress={() => router.push("/(tabs)/nursing")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:288:              onAction={() => router.push("/consultations/appointments")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/health.tsx:292:                router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:217:                onPress={() => router.push('/pharmacy/barcode-scanner')}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:229:              onPress={() => router.push('/pharmacy/filters')}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:246:              onPress={() => router.push('/pharmacy/scan-prescription')}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:270:              onPress={() => router.push('/pharmacy/order-history')}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:343:                onPress={() => router.push('/pharmacy/manual-order')}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:356:                    onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: m.name || m.name_ar } })}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/pharmacy.tsx:443:            onPress={() => router.push('/pharmacy/cart')}
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/index.tsx:56:    if (m[screen]) router.push(m[screen]);
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/index.tsx:102:      router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/(tabs)/index.tsx:189:      <TouchableOpacity activeOpacity={0.9} style={[styles.homeSearchBar, { borderColor: colors.bd, backgroundColor: colors.s }]} onPress={() => router.push('/search')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/order-tracking.tsx:93:          onPress={() => router.replace('/(tabs)/pharmacy')}
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/order-tracking.tsx:123:            onPress={() => router.push('/pharmacy/chat-with-pharmacist')}
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/order-confirm.tsx:54:      router.push({ pathname: '/pharmacy/payment', params: { orderId, total: order?.total || 0 } });
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/order-confirm.tsx:66:      router.replace({ pathname: '/pharmacy/waiting-for-pharmacy', params: { orderId } });
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/filters.tsx:100:    router.replace({
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/waiting-for-pharmacy.tsx:100:          router.replace({
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/waiting-for-pharmacy.tsx:132:          router.replace("/(tabs)/pharmacy");
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/order-history.tsx:110:    router.push("/pharmacy/cart");
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/order-history.tsx:201:                router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/barcode-scanner.tsx:52:    if (result?.id) router.push({ pathname: '/pharmacy/product-detail', params: { id: result.id, name: result.name } });
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/barcode-scanner.tsx:94:          <TouchableOpacity onPress={() => router.push('/pharmacy/drug-not-found')} style={{ marginTop: 16 }}>
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/pharmacist-chat.tsx:119:            onPress={() => router.replace("/pharmacy/cart")}
+/home/ubuntu/nabdah-remediation/patient-app/app/pharmacy/pharmacist-chat.tsx:237:                        onPress={() => router.push("/pharmacy/payment")}
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/otp.tsx:81:          router.replace({ pathname: '/(auth)/reset-password', params: { email: emailParam } });
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/otp.tsx:135:        router.replace('/(auth)/provider-info' as any);
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/otp.tsx:137:        router.replace('/(tabs)');
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:105:        router.replace('/(auth)/provider-info' as any);
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:107:        router.replace('/(tabs)');
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:178:        router.replace('/(auth)/provider-info' as any);
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:180:        router.replace('/(tabs)');
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:284:          <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:308:          onPress={() => router.push({ pathname: '/(auth)/otp', params: { phone: '+966' + phone.replace(/^0+/, ''), mode: 'login' } })} 
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/login.tsx:348:          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/register.tsx:121:        router.replace('/(auth)/provider-info' as any);
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/register.tsx:123:        router.replace('/(tabs)');
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/register.tsx:172:      router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/register.tsx:270:            أوافق على <Text onPress={() => router.push('/(auth)/terms')} style={{ color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>الشروط والأحكام</Text> و<Text onPress={() => router.push('/(auth)/privacy')} style={{ color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>سياسة الخصوصية</Text>
+/home/ubuntu/nabdah-remediation/patient-app/app/(auth)/register.tsx:321:          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/map/index.tsx:598:                onPress={() => { closeSheet(); router.push('/health/edit-profile'); }} style={[styles.insBanner, { backgroundColor: isDark ? 'rgba(240,105,92,0.15)' : '#FEEFED' } ]}>
+/home/ubuntu/nabdah-remediation/patient-app/app/map/index.tsx:622:                    router.push({ pathname: '/consultations/doctor-profile', params: { doctorId: selectedProvider.id } });
+/home/ubuntu/nabdah-remediation/patient-app/app/map/index.tsx:624:                    router.push('/(tabs)/pharmacy');
+/home/ubuntu/nabdah-remediation/patient-app/app/map/index.tsx:626:                    router.push('/diagnostics/booking-confirm');
+/home/ubuntu/nabdah-remediation/patient-app/app/map/index.tsx:628:                    router.push('/(tabs)/consultations');
+/home/ubuntu/nabdah-remediation/patient-app/app/map/index.tsx:630:                    router.push('/(tabs)/nursing');
+/home/ubuntu/nabdah-remediation/patient-app/app/programs/active.tsx:120:        <IconButton icon="sparkles" onPress={() => router.push('/loyalty/hub' as any)} />
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/booking-confirm.tsx:170:        router.replace({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/booking-confirm.tsx:184:        router.replace({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/booking-confirm.tsx:279:                <Button label="تعديل بيانات التأمين" variant="ghost" icon="edit" onPress={() => router.push('/profile/insurance')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/doctor-search.tsx:176:                  router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/doctor-search.tsx:182:                  router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/appointments.tsx:168:                  onPress={() => router.push("/(tabs)/consultations")}
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/appointments.tsx:193:                router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/appointments.tsx:272:                      router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/appointments.tsx:286:                        router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/consultations/appointments.tsx:306:                    router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/health/prescriptions.tsx:51:          <IconButton icon="camera" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/pharmacy/rx-order')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/health/prescriptions.tsx:78:                    onPress={() => router.push('/(tabs)/pharmacy')}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/chronic-medications.tsx:41:    router.push({ pathname: '/(tabs)/pharmacy', params: { search: med.name } });
+/home/ubuntu/nabdah-remediation/patient-app/app/health/chronic-medications.tsx:51:          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/medication-reminder-add')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/health/chronic-medications.tsx:115:        <Button label="إضافة دواء مزمن جديد" variant="outline" icon="add" onPress={() => router.push('/health/medication-reminder-add')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/health/medication-reminder-list.tsx:191:                        router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/health/medication-reminder-list.tsx:255:          onPress={() => router.push("/health/chronic-medications")}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/vitals-log.tsx:208:        <Card onPress={() => router.push('/health/conditions-allergies')} style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }}>
+/home/ubuntu/nabdah-remediation/patient-app/app/health/medication-reminder-add.tsx:81:            <Button label="البحث في الصيدلية" variant="ghost" icon="search" size="sm" full={false} onPress={() => router.push('/(tabs)/pharmacy')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/health/medication-reminder-add.tsx:82:            <Button label="من وصفة طبية" variant="ghost" icon="prescriptions" size="sm" full={false} onPress={() => router.push('/health/prescriptions')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/health/medications.tsx:117:            onPress={() => router.push(m.route as any)}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/vitals.tsx:137:              onPress={() => router.push("/health/vitals-log")}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/vitals.tsx:178:          onPress={() => router.push("/health/vitals-log")}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/vitals.tsx:184:          onPress={() => router.push("/health/vitals-log")}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/vitals.tsx:187:          onPress={() => router.push("/health/conditions-allergies")}
+/home/ubuntu/nabdah-remediation/patient-app/app/health/actionable-order.tsx:39:      router.push('/pharmacy');
+/home/ubuntu/nabdah-remediation/patient-app/app/health/actionable-order.tsx:48:      router.push('/labs');
+/home/ubuntu/nabdah-remediation/patient-app/app/wallet/hub.tsx:154:              onPress={() => router.push(action.route as any)}
+/home/ubuntu/nabdah-remediation/patient-app/app/wallet/hub.tsx:219:            <TouchableOpacity onPress={() => router.push('/wallet/transactions')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:210:          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/insurance/add-policy')} />
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:289:              onPress={() => router.push(a.route as any)}
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:302:            <TouchableOpacity onPress={() => router.push('/insurance/benefits-summary')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:334:            <TouchableOpacity onPress={() => router.push('/insurance/policy-detail' as any)}>
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:359:            <TouchableOpacity onPress={() => router.push('/insurance/add-policy')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:367:              onPress={() => router.push({ pathname: '/insurance/policy-detail', params: { policyId: policy.id } })}
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:392:            <TouchableOpacity onPress={() => router.push('/insurance/claim-tracking')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/insurance/hub.tsx:404:              onPress={() => router.push('/insurance/claim-tracking')}
+/home/ubuntu/nabdah-remediation/patient-app/app/voice/index.tsx:165:            setTimeout(() => router.push("/emergency/sos"), 1500);
+/home/ubuntu/nabdah-remediation/patient-app/app/maternity/ovulation-tracker.tsx:246:    router.replace('/maternity/hub');
+/home/ubuntu/nabdah-remediation/patient-app/app/diagnostics/search.tsx:99:                  router.push({
+/home/ubuntu/nabdah-remediation/patient-app/app/nursing/nurse-profile.tsx:115:        router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId: res?.booking_id || 'BKG-9921' } });
+/home/ubuntu/nabdah-remediation/patient-app/app/nursing/nurse-profile.tsx:130:        <TouchableOpacity style={styles.successBtn} onPress={() => router.push('/(tabs)')}>
+/home/ubuntu/nabdah-remediation/patient-app/app/community/live-session.tsx:105:        <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-remediation/patient-app/app/ai/monthly-report.tsx:180:          <TouchableOpacity onPress={() => router.push('/health/trends')} style={{ borderRadius: 16, overflow: 'hidden' }}>
+/home/ubuntu/nabdah-remediation/patient-app/app/ai/monthly-report.tsx:185:          <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-remediation/patient-app/app/payments/failed.tsx:77:          onPress={() => router.push("/wallet/hub")}
+/home/ubuntu/nabdah-remediation/patient-app/app/payments/failed.tsx:82:        <TouchableOpacity onPress={() => router.replace("/(tabs)")}>
+/home/ubuntu/nabdah-remediation/patient-app/app/ai-assistant.tsx:111:      <Stack.Screen 
+/home/ubuntu/nabdah-remediation/patient-app/app/ai-assistant.tsx:144:            onPress={() => router.push('/ai/prescription-translator')}
+
+## interactive handlers
+233
+## API endpoint markers
+"/(tabs)"
+"/(tabs)/consultations"
+"/(tabs)/nursing"
+"/(tabs)/pharmacy"
+"/><Circle cx="
+"/><Path d="
+"/consultations/appointment-detail"
+"/consultations/appointments"
+"/consultations/book/[id]"
+"/consultations/cancel-reschedule"
+"/consultations/doctor/[id]"
+"/consultations/waiting-room"
+"/diagnostics/test-detail"
+"/emergency/sos"
+"/health/chronic-medications"
+"/health/conditions-allergies"
+"/health/edit-profile"
+"/health/family-chat"
+"/health/family-hub"
+"/health/health-id"
+"/health/medication-reminder-add"
+"/health/medication-reminder-list"
+"/health/medications"
+"/health/prescriptions"
+"/health/reports"
+"/health/smart-reminders"
+"/health/vitals"
+"/health/vitals-log"
+"/health/vitals/summary"
+"/labs/services"
+"/loyalty/hub"
+"/orders/mine"
+"/pharmacy/cart"
+"/pharmacy/order-confirm"
+"/pharmacy/order-tracking"
+"/pharmacy/payment"
+"/wallet/hub"
+'/(auth)/forgot-password'
+'/(auth)/login'
+'/(auth)/otp'
+'/(auth)/privacy'
+'/(auth)/provider-info'
+'/(auth)/register'
+'/(auth)/reset-password'
+'/(auth)/terms'
+'/(tabs)'
+'/(tabs)/consultations'
+'/(tabs)/diagnostics'
+'/(tabs)/health'
+'/(tabs)/nursing'
+'/(tabs)/pharmacy'
+'/ai/monthly-report'
+'/ai/prescription-translator'
+'/ai/skin-analysis'
+'/ai/symptom-checker'
+'/ai/triage-chat'
+'/api/v1'
+'/auth/convert-guest'
+'/auth/login'
+'/auth/register'
+'/auth/send-otp'
+'/auth/social-login'
+'/auth/verify-otp'
+'/care/appointments'
+'/consultations/booking-success'
+'/consultations/doctor-profile'
+'/diagnostics/booking-confirm'
+'/emergency/sos'
+'/health/chronic-meds'
+'/health/conditions-allergies'
+'/health/edit-profile'
+'/health/medication-reminder-add'
+'/health/medications/reminders'
+'/health/prescriptions'
+'/health/reports'
+'/health/smart-reminders'
+'/health/trends'
+'/health/vitals'
+'/home-care/bookings'
+'/home-care/insurance/verify'
+'/home/offers'
+'/home/upcoming-appointment'
+'/insurance/add-policy'
+'/insurance/benefits-summary'
+'/insurance/claim-tracking'
+'/insurance/claims'
+'/insurance/copay'
+'/insurance/coverage-check'
+'/insurance/network-providers'
+'/insurance/policy-detail'
+'/insurance/save-policy'
+'/insurance/submit-claim'
+'/labs'
+'/loyalty/hub'
+'/map'
+'/maternity/hub'
+'/maternity/profile'
+'/medical/programs/active'
+'/medical/programs/complete-session'
+'/medicines/categories'
+'/medicines/compare'
+'/medicines/filters'
+'/medicines/lookup-barcode'
+'/nursing/live-tracking'
+'/nutrition/hub'
+'/payments/processing'
+'/pharmacy'
+'/pharmacy/barcode-scanner'
+'/pharmacy/cart'
+'/pharmacy/chat-with-pharmacist'
+'/pharmacy/chat/threads'
+'/pharmacy/drug-not-found'
+'/pharmacy/filters'
+'/pharmacy/manual-order'
+'/pharmacy/order-history'
+'/pharmacy/payment'
+'/pharmacy/product-detail'
+'/pharmacy/rx-order'
+'/pharmacy/scan-prescription'
+'/pharmacy/waiting-for-pharmacy'
+'/profile/insurance'
+'/search'
+'/static/images'
+'/user/insurance'
+'/users/me/insurance'
+'/users/me/profile'
+'/wallet/balance'
+'/wallet/spending-data'
+'/wallet/topup'
+'/wallet/transactions'
+'/wallet/transactions?page=1&limit=4'
+'/wallet/transfer'
+
+## interactive handlers
+233
