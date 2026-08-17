@@ -527,3 +527,6 @@
 
 - [x] Added PharmacyRegistration pre-submit guards for identity/address/map location, medicine category/dispensing mode, and delivery radius/workdays/hours when delivery is enabled. Typecheck and 5/5 Provider Jest contracts passed.
 - [ ] Add equivalent pre-submit guards to lab/radiology/nursing registration, then rerun the complete provider regression gate.
+
+- [x] Added Lab and Radiology pre-submit guards for center identity/location, at least one test/scan, center hours, and home-service radius/hours when enabled. Typecheck and 5/5 Provider Jest contracts passed.
+- [ ] Add equivalent guards to NursingRegistration, then run the complete Provider source gate and retain the commit for deployment review.

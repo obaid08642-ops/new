@@ -1572,7 +1572,32 @@ function LStep8Signature({ data, update, onDone, onBack, step, total }: {
   const sigRef = useRef<any>(null);
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
+  const validateBeforeSubmit = () => {
+    if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
+      show(AR ? 'أكمل بيانات المركز والموقع والعنوان والبريد' : 'Complete center identity, location, address, and email', 'error');
+      return false;
+    }
+    if (!data.location?.lat || !data.location?.lng) {
+      show(AR ? 'حدد موقع المركز على الخريطة' : 'Pick the center location on the map', 'error');
+      return false;
+    }
+    if (!data.enabledTests.length && !data.enabledScans.length) {
+      show(AR ? 'اختر فحصاً أو أشعة واحدة على الأقل' : 'Select at least one test or imaging service', 'error');
+      return false;
+    }
+    if (!data.workDays.length || !data.openTime || !data.closeTime) {
+      show(AR ? 'أكمل أيام وساعات عمل المركز' : 'Complete center working days and hours', 'error');
+      return false;
+    }
+    if (data.hasHomeSvc && (!data.homeWorkDays.length || !Number(data.homeRadius) || data.homeRadius <= 0 || !data.homeOpenTime || !data.homeCloseTime)) {
+      show(AR ? 'أكمل نطاق وأيام وساعات الخدمة المنزلية' : 'Complete home-service radius, days, and hours', 'error');
+      return false;
+    }
+    return true;
+  };
+
   const submit = () => {
+    if (!validateBeforeSubmit()) return;
     if (!agreed) { show(AR ? 'يجب الموافقة على الشروط' : 'Must agree to terms', 'warning'); return; }
     if (!data.signatureData) {
       show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
