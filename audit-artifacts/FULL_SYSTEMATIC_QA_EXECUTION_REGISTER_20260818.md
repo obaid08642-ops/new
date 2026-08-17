@@ -56,3 +56,9 @@ For each provider type—doctor, pharmacy, laboratory, radiology, nursing, hospi
 ## Governance decision
 
 المشروع لا يُصنّف جاهزاً للإطلاق الكامل لمجرد نجاح backend tests أو بعض probes. الحكم المرحلي الحالي هو **SOURCE REMEDIATION SUBSTANTIALLY COMPLETE / SYSTEMATIC QA OPEN**. يلزم إغلاق دورة حياة كل خدمة، والتحقق من Provider intake، وإعادة اختبار Patient exact contracts، ثم بناء/اختبار الحزم والتطبيقات والأجهزة قبل إعلان الجاهزية.
+
+## Provider read-only wave — recorded 2026-08-18
+
+Doctor, laboratory, radiology, pharmacy, nursing, and hospital sandbox provider logins each returned HTTP 201 in the controlled origin-direct wave. Progress, notifications, wallet balance, and wallet transactions returned HTTP 200 for each successful account. Laboratory and radiology inbox reads returned HTTP 200. Nursing visits returned HTTP 200. Pharmacy required route reconciliation: `/provider/pharmacy/broadcasts` is the controller-declared read route and returned HTTP 200; stale `/pharmacy/provider/*` guesses returned HTTP 404. Hospital `/hospital/staff` returned HTTP 403 for the ordinary hospital sandbox account and remains a least-privilege boundary pending a dedicated hospital-admin sandbox identity.
+
+No provider queue, accept, reject, toggle, staff, visit, report, payment, or wallet mutation was executed in this wave. Empty read lists are not treated as lifecycle success; a real eligible sandbox request is required before mutation testing.
