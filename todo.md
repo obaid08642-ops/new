@@ -546,3 +546,6 @@
 - [ ] Add production app icon and install `expo-system-ui` or document the managed-workflow equivalent before store submission; rerun prebuild after that configuration decision.
 
 - [x] GitHub verification confirms the restored Provider entrypoint/runtime modules and export/prebuild evidence are present on `origin/manus/on-live-reconciliation`; local tree is clean at `bf80020` plus documentation commit pending.
+
+- [x] One controlled doctor sandbox login succeeded (HTTP 201) and exact read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`; `provider-onboarding/my-profile=404` remains an exact-contract reconciliation item. No mutation or response body was persisted.
+- [ ] Map the 404 `my-profile` consumer to the exact controller route before any provider lifecycle mutation; then run the same one-account read gate for the next provider type outside active 429 windows.
