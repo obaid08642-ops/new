@@ -524,3 +524,6 @@
 
 - [x] Added Doctor Step 4 validation: at least one service, nonnegative price and positive duration for each selected service, and positive home radius plus map location for home visits. Typecheck and 5/5 Provider Jest contracts passed.
 - [ ] Add equivalent conditional guards to pharmacy/lab/radiology/nursing submit steps and cover them with regression tests before declaring onboarding workflows closed.
+
+- [x] Added PharmacyRegistration pre-submit guards for identity/address/map location, medicine category/dispensing mode, and delivery radius/workdays/hours when delivery is enabled. Typecheck and 5/5 Provider Jest contracts passed.
+- [ ] Add equivalent pre-submit guards to lab/radiology/nursing registration, then rerun the complete provider regression gate.

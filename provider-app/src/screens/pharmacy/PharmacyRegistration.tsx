@@ -802,7 +802,28 @@ function PStep7Submit({ data, update, onDone, onBack, step, total }: any) {
     }
   };
 
+  const validateBeforeSubmit = () => {
+    if (!data.nameAr.trim() || !data.nameEn.trim() || !data.type || !data.city.trim() || !data.address.trim()) {
+      show(AR ? 'أكمل بيانات الصيدلية والموقع والعنوان' : 'Complete pharmacy identity, location, and address', 'error');
+      return false;
+    }
+    if (!data.location?.lat || !data.location?.lng) {
+      show(AR ? 'حدد موقع الصيدلية على الخريطة' : 'Pick the pharmacy location on the map', 'error');
+      return false;
+    }
+    if (!data.enabledCategories.length || (!data.rxDispensing && !data.otcSelling)) {
+      show(AR ? 'اختر فئة دوائية وطريقة صرف واحدة على الأقل' : 'Select at least one medicine category and dispensing mode', 'error');
+      return false;
+    }
+    if (data.hasDelivery && (!Number(data.deliveryRadius) || data.deliveryRadius <= 0 || !data.workDays.length || !data.openTime || !data.closeTime)) {
+      show(AR ? 'أكمل نطاق التوصيل وأيام وساعات العمل' : 'Complete delivery radius and working days/hours', 'error');
+      return false;
+    }
+    return true;
+  };
+
   const submit = () => {
+    if (!validateBeforeSubmit()) return;
     if (!agreed) { show(AR ? 'يرجى الموافقة على الشروط' : 'Please agree to terms', 'warning'); return; }
     if (!data.signatureData) {
       show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error');
