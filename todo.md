@@ -604,3 +604,8 @@
 
 - [x] Recorded `LAB_CONTRACT_RECONCILIATION_BLOCKER_20260818.md`: LabDashboard has ~30 `/labs/bookings/*` consumers while overlapping legacy `LabsEngineController` mutations lack visible auth/ownership; lifecycle mutations remain blocked until deployed route mapping is confirmed.
 - [ ] Resolve the deployed mapping between guarded `LabsController` service routes and legacy `LabsEngineController`, then add/verify ownership and provider-role tests before executing LabDashboard mutations.
+
+- [ ] Remove Admin disputes fabricated fallbacks (`amount || 150`, synthetic patient/provider names, and synthetic dispute reason) and render explicit missing-data states from the backend contract instead.
+
+- [x] Recorded `ADMIN_DISPUTES_SOURCE_SCOPE_BLOCKER_20260818.md`: Admin disputes renders fabricated financial/name/reason fallbacks, but the full Admin tree is outside live-work and its authoritative Git source is not yet proven; no unlinked snapshot was edited.
+- [ ] Identify the authoritative Admin repository/worktree, remove fabricated fallbacks, add regression tests, then build and revalidate before any Admin readiness claim.

@@ -88,3 +88,7 @@ The inspected `LabsEngineController` legacy routes lack visible authentication a
 ## Lab contract reconciliation blocker — recorded 2026-08-18
 
 LabDashboard consumes approximately 30 `/labs/bookings/*` actions. The source snapshot contains overlapping `LabsController` routes delegated through `LabsService` and a legacy `LabsEngineController` mounted under the same prefix with no visible current-user/ownership guard. Mutation testing is blocked until the deployed route mapping is confirmed and the legacy path is removed or hardened.
+
+## Admin disputes source-scope blocker — recorded 2026-08-18
+
+The Admin disputes snapshot contains fabricated fallbacks for amount, patient/provider names, and dispute reason. Because the complete Admin tree is outside the current reconciliation worktree and its authoritative Git source has not yet been proven, this finding is recorded as **ADMIN_SOURCE_SCOPE_BLOCKER**; no unlinked snapshot was modified or represented as fixed.
