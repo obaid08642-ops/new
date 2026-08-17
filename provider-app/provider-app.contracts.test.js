@@ -40,8 +40,11 @@ describe('Provider App release contracts', () => {
   it('does not ship fake pharmacy/radiology terminal actions', () => {
     expect(pharmacyDashboard).not.toContain('Simulate Drug Scan');
     expect(pharmacyDashboard).not.toContain('طلب وصفة #B-9901');
-    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts');
+    expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/broadcasts')");
     expect(pharmacyDashboard).toContain('/provider/pharmacy/orders/${orderId}/accept');
+    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${rejectOrderId}/reject');
+    expect(pharmacyDashboard).not.toContain('/pharmacy/orders/${rejectOrderId}/reject');
+    expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })");
     expect(radiologyDashboard).not.toContain('Coming with S3 integration');
   });
 

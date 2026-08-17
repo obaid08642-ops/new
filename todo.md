@@ -594,3 +594,7 @@
 
 - [x] Inspected the real lab provider inbox read-only and saved a sanitized summary. It contains one request `76166cc4-7c29-4762-944b-c7c9de45bb15` already in `REPORTED` state and one non-request wrapper entry without a status; no pending/accepted sandbox request is eligible for accept/collect/analyze mutation.
 - [ ] Re-run lab lifecycle only when an eligible sandbox request in a pre-report state is linked to the sandbox lab; do not mutate the already reported request.
+
+- [ ] Add contract-test assertions for Pharmacy broadcast GET, accept, reject, and completed-history routes so the corrected consumers cannot regress to stale paths.
+
+- [x] Added regression assertions for Pharmacy broadcast GET, accept, reject, and completed-history routes; Provider typecheck and 5/5 Jest contracts passed.
