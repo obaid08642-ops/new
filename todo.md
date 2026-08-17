@@ -506,3 +506,6 @@
 
 - [x] Removed fabricated PharmacyRegistration defaults (pricing, Riyadh coordinates, hours, workdays, categories, delivery flags); empty/neutral defaults now require explicit provider input. Typecheck and 3/3 Provider Jest contracts passed.
 - [ ] Extend the same default-business-data scan to doctor/lab/radiology/nursing/facility registrations and fix only confirmed non-neutral defaults with the same validation cycle.
+
+- [x] Removed seeded commercial/location/schedule defaults from Doctor, Lab, Radiology, and Nursing registrations; Facility was already neutral. Provider typecheck and 3/3 Jest contracts passed after the batch.
+- [ ] Re-test registration validation screens manually/with device builds to ensure required-field errors replace prior defaults and no backend payload accepts empty operational contracts.

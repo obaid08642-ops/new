@@ -1,0 +1,787 @@
+--- provider-app/src/screens/doctor/DoctorRegistration.tsx
+58-  city: string; location: {lat: number; lng: number}; address: string; clinicName: string;
+59-  // Step 8 - Signature
+60-  signatureData: string; signerName: string; signerRole: string;
+61-}
+62-
+63:const INITIAL: DoctorRegData = {
+64-  nameAr:'', nameEn:'', email:'', phone:'', password:'', confirmPass:'', gender:'',
+65-  scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
+66-  specialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
+67-  offersClinic:false, clinicPrice:'300', clinicDuration:'15',
+68-  offersHome:false, homePrice:'500', homeRadius: 10, homeTransportFee: false, homeTransportPrice: '50',
+69-  offersVideo:true, videoPrice:'200', videoDuration:'20',
+70-  lat: 24.7136, lng: 46.6753,
+71-  scheduleType:'per_service',
+72-  unifiedDays:['SUN','MON','TUE','WED','THU'], unifiedStart:'09:00', unifiedEnd:'17:00', unifiedShift:'both',
+73-  clinicDays:['SUN','MON','TUE','WED','THU'], clinicStart:'09:00', clinicEnd:'17:00', clinicShift:'both',
+74-  videoDays:['SUN','MON','TUE','WED','THU'], videoStart:'09:00', videoEnd:'17:00', videoShift:'both',
+75-  homeDays:['SUN','MON','TUE','WED','THU'], homeStart:'09:00', homeEnd:'17:00', homeShift:'both',
+76-  vacationDate:'',
+77-  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 24.7, lng: 46.7}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+78-};
+79-
+80-const WORK_DAYS = [
+81-  { k: 'SUN', ar: 'الأحد', en: 'Sun' },
+82-  { k: 'MON', ar: 'الاثنين', en: 'Mon' },
+83-  { k: 'TUE', ar: 'الثلاثاء', en: 'Tue' },
+84-  { k: 'WED', ar: 'الأربعاء', en: 'Wed' },
+85-  { k: 'THU', ar: 'الخميس', en: 'Thu' },
+86-  { k: 'FRI', ar: 'الجمعة', en: 'Fri' },
+87-  { k: 'SAT', ar: 'السبت', en: 'Sat' },
+88-];
+89-
+90-const SHIFT_OPTIONS = [
+91-  { val: 'morning', ar: 'صباحية', en: 'Morning' },
+92-  { val: 'evening', ar: 'مسائية', en: 'Evening' },
+93-  { val: 'both', ar: 'كلاهما', en: 'Both' },
+94-];
+95-
+96-const HOURS = Array.from({ length: 24 }, (_, i) => {
+97-  const h = i.toString().padStart(2, '0');
+98-  return { val: `${h}:00`, label: `${h}:00` };
+99-});
+100-
+101-// ══════════════════════════════════════════════════════════════════════════════
+102-export function DoctorRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+103-  const [step, setStep] = useState(1);
+104-  const [data, setData] = useState<DoctorRegData>(INITIAL);
+105-  const [showMap, setShowMap] = useState(false);
+106-    const TOTAL = 7;
+107-  const [showSuccess, setShowSuccess] = useState(false);
+108-
+109-  const update = useCallback((patch: Partial<DoctorRegData>) => setData(p => ({ ...p, ...patch })), []);
+110-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+111-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+112-
+113-  const screens: Record<number, React.ReactElement> = {
+114-    8: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+115-    1: <Step1Basic data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+116-    2: <Step2KYC data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+117-    3: <Step3Profile data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+118-    4: <Step4PricingAndLocation data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+119-    5: <Step5Schedule data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+120-    6: <Step6Insurance data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+121-    7: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+122-  };
+123-  return screens[step] ?? null;
+124-}
+125-
+126-// ══════════════════════════════════════════════════════════════════════════════
+127-function Step1Basic({ data, update, onNext, onBack, step, total }: any) {
+128-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+129:  const [errs, setErrs] = useState<any>({});
+130-
+131-  const nameArRef = useRef<any>(null);
+132-  const nameEnRef = useRef<any>(null);
+133-  const phoneRef = useRef<any>(null);
+134-  const emailRef = useRef<any>(null);
+135-  const passwordRef = useRef<any>(null);
+136-  const confirmPassRef = useRef<any>(null);
+137-
+138-  const validate = () => {
+139-    const e: any = {};
+140-    if (!data.nameAr) e.nameAr = AR ? 'مطلوب' : 'Required';
+141-    if (!data.nameEn) e.nameEn = AR ? 'مطلوب' : 'Required';
+142-    if (!Validate.email(data.email)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
+143-    if (!Validate.phone(data.phone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
+144-    if (!data.gender) e.gender = AR ? 'مطلوب' : 'Required';
+145-    const ps = Validate.password(data.password);
+146-    if (!ps.valid) e.password = AR ? ps.msgAr : ps.msgEn;
+147-    if (data.password !== data.confirmPass) e.confirmPass = AR ? 'غير متطابق' : 'Mismatch';
+148-    setErrs(e); return Object.keys(e).length === 0;
+149-  };
+150-
+151-  const [loading, setLoading] = useState(false);
+152-  
+153-    
+154-  const handleNext = async () => {
+155-    if (!validate()) return;
+156-
+157-    setLoading(true);
+158-    try {
+159-      await ProviderApi.start({
+160-        phone: data.phone,
+161-        password: data.password,
+162-        full_name: data.nameAr,
+163-        email: data.email,
+164-        type: 'doctor',
+165-      });
+166-      await ProviderApi.login(data.phone, data.password);
+167-      onNext();
+168-    } catch (e: any) {
+169-      try {
+170-        await ProviderApi.login(data.phone, data.password);
+171-        onNext();
+172-      } catch (loginErr: any) {
+173-        setErrs({ phone: e.message || 'Error' });
+174-      }
+175-    } finally {
+176-      setLoading(false);
+177-    }
+178-  };
+179-
+180-  return (
+181-    <NScroll>
+182-      <NHeader title={AR ? 'المعلومات الأساسية' : 'Basic Info'} sub={AR ? 'الاسم وبيانات الدخول' : 'Name & Login Info'} step={step} total={total} onBack={onBack} />
+183-      
+184-      <NInput innerRef={nameArRef} label={AR ? 'الاسم الكامل (بالعربية)' : 'Full Name (Arabic)'} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+185-      <NInput innerRef={nameEnRef} label={AR ? 'الاسم الكامل (بالإنجليزية)' : 'Full Name (English)'} value={data.nameEn} onChange={v => update({ nameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+186-      
+187-      <NPhoneInput innerRef={phoneRef} label={AR ? 'رقم الجوال' : 'Phone'} value={data.phone} onChange={v => update({ phone: v })} error={errs.phone} required />
+188-      <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني' : 'Email'} value={data.email} onChange={v => update({ email: v })} kbType="email-address" caps="none" error={errs.email} required returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
+189-      
+190-      <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الجنس' : 'Gender'} *</Text>
+191-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
+192-        <TouchableOpacity onPress={() => update({ gender: 'M' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.gender === 'M' ? theme.primary : theme.border, backgroundColor: data.gender === 'M' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}><Text style={{ color: data.gender === 'M' ? theme.primary : theme.text }}>{AR ? 'ذكر' : 'Male'}</Text></TouchableOpacity>
+193-        <TouchableOpacity onPress={() => update({ gender: 'F' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.gender === 'F' ? theme.primary : theme.border, backgroundColor: data.gender === 'F' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}><Text style={{ color: data.gender === 'F' ? theme.primary : theme.text }}>{AR ? 'أنثى' : 'Female'}</Text></TouchableOpacity>
+194-      </View>
+195-
+196-      <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} value={data.password} onChange={v => update({ password: v })} secure error={errs.password} required returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
+197-      <NPassStrength password={data.password} />
+198-      <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure error={errs.confirmPass} required returnKey="done" onSubmit={handleNext} />
+199-      
+--- provider-app/src/screens/lab/LabRegistration.tsx
+77-  // Internal
+78-  signatureData: string; signerName: string; signerRole: string;
+79-  termsAgreed: boolean;
+80-}
+81-
+82:const INIT: LabRegData = {
+83-  nameAr: '', nameEn: '', centerType: '',
+84-  managerName: '', managerPhone: '', managerEmail: '',
+85-  techOfficerName: '', techOfficerScfhs: '',
+86-  password: '', confirmPass: '',
+87-  crNumber: '', mohLicense: '', iban: '', accountHolderName: '', taxNumber: '', languages: [],
+88-  crUri: '', mohUri: '', logoUri: '',
+89-  city: '', location: { lat: 24.7136, lng: 46.6753 }, district: '', address: '',
+90-  hasHomeSvc: false, homeRadius: 8, homeCollectorCount: '2', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
+91-  enabledTests: [], testPrices: {}, testHomeAvail: {}, testTurnaround: {}, testInsuranceCov: {}, scanInsuranceCov: {},
+92-  enabledScans: [], scanPrices: {},
+93-  bundles: [],
+94-  workDays: ['sun', 'mon', 'tue', 'wed', 'thu'],
+95-  shiftType: 'morning', openTime: '08:00', closeTime: '14:00', eveningOpenTime: '16:00', eveningCloseTime: '22:00',
+96-  homeWorkDays: ['sun', 'mon', 'tue', 'wed', 'thu'],
+97-  homeShiftType: 'morning', homeOpenTime: '08:00', homeCloseTime: '14:00', homeEveningOpenTime: '16:00', homeEveningCloseTime: '22:00',
+98-  vacationDate: '',
+99-  cashOnly: false, acceptedInsurance: [],
+100-  signatureData: '', signerName: '', signerRole: '',
+101-  termsAgreed: false,
+102-};
+103-
+104-const WORK_DAYS = [
+105-  { k: 'SUN', ar: 'الأحد', en: 'Sun' },
+106-  { k: 'MON', ar: 'الاثنين', en: 'Mon' },
+107-  { k: 'TUE', ar: 'الثلاثاء', en: 'Tue' },
+108-  { k: 'WED', ar: 'الأربعاء', en: 'Wed' },
+109-  { k: 'THU', ar: 'الخميس', en: 'Thu' },
+110-  { k: 'FRI', ar: 'الجمعة', en: 'Fri' },
+111-  { k: 'SAT', ar: 'السبت', en: 'Sat' },
+112-] as const;
+113-
+114-// ══════════════════════════════════════════════════════════════════════════════
+115-// LAB REGISTRATION NAVIGATOR
+116-// ══════════════════════════════════════════════════════════════════════════════
+117-export function LabRegistration({ onBack, onDone, providerType }: { onBack: () => void; onDone: () => void; providerType: string }) {
+118-  const [step, setStep] = useState(1);
+119:  const [data, setData] = useState<LabRegData>({ ...INIT, centerType: providerType });
+120-  const [showMap, setShowMap] = useState(false);
+121-  const TOTAL = 7;
+122-  const [showSuccess, setShowSuccess] = useState(false);
+123-  const update = useCallback((p: Partial<LabRegData>) => setData(prev => ({ ...prev, ...p })), []);
+124-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+125-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+126-
+127-  const screens: Record<number, React.ReactElement> = {
+128-    8: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+129-    1: <LStep1 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+130-    2: <LStep2 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+131-    3: <LStep3 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+132-    4: <LStep4 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+133-    5: <LStep6 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+134-    6: <LStep7AdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+135-    7: <LStep8Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+136-  };
+137-  return screens[step] ?? null;
+138-}
+139-
+140-// ══════════════════════════════════════════════════════════════════════════════
+141-// STEP 1 — BASIC INFO
+142-// ══════════════════════════════════════════════════════════════════════════════
+143-function LStep1({ data, update, onNext, onBack, step, total }: {
+144-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
+145-  onNext: () => void; onBack: () => void; step: number; total: number;
+146-}) {
+147-  const { theme } = useTheme();
+148-  const { lang } = useLang();
+149-  const AR = lang === 'ar';
+150:  const [errs, setErrs] = useState<Record<string, string>>({});
+151-
+152-  const nameArRef = useRef<any>(null);
+153-  const nameEnRef = useRef<any>(null);
+154-  const mgrNameRef = useRef<any>(null);
+155-  const emailRef = useRef<any>(null);
+156-  const phoneRef = useRef<any>(null);
+157-  const techOfficerNameRef = useRef<any>(null);
+158-  const techOfficerScfhsRef = useRef<any>(null);
+159-  const passwordRef = useRef<any>(null);
+160-  const confirmPassRef = useRef<any>(null);
+161-
+162-  const validate = () => {
+163-    const e: Record<string, string> = {};
+164-    if (!data.nameAr.trim()) e.name = AR ? 'مطلوب' : 'Required';
+165-    if (!data.centerType) e.type = AR ? 'اختر نوع المركز' : 'Choose center type';
+166-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
+167-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
+168-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
+169-    if (!data.techOfficerName.trim()) e.tech = AR ? 'اسم المسؤول الفني مطلوب' : 'Tech officer name required';
+170-    const ps = Validate.password(data.password);
+171-    if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
+172-    if (data.password !== data.confirmPass) e.conf = AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match';
+173-    setErrs(e);
+174-    return Object.keys(e).length === 0;
+175-  };
+176-
+177-  const [loading, setLoading] = useState(false);
+178-  
+179-    const handleNext = async () => {
+180-    if (!validate()) return;
+181-    setLoading(true);
+182-    try {
+183-      await ProviderApi.start({
+184-        phone: data.managerPhone,
+185-        password: data.password,
+186-        full_name: data.managerName,
+187-        email: data.managerEmail,
+188-        type: data.centerType === 'lab' ? 'lab' : 'radiology',
+189-      });
+190-      await ProviderApi.login(data.managerPhone, data.password);
+191-      onNext();
+192-    } catch (e: any) {
+193-      try {
+194-        await ProviderApi.login(data.managerPhone, data.password);
+195-        onNext();
+196-      } catch (loginErr: any) {
+197-        setErrs({ phone: e.message || 'Error' });
+198-      }
+199-    } finally {
+200-      setLoading(false);
+201-    }
+202-  };
+203-
+204-  return (
+205-    <NScroll>
+206-      <NHeader
+207-        title={AR ? 'بيانات المركز الأساسية' : 'Center Basic Info'}
+208-        sub={AR ? 'أدخل بيانات معملك أو مركز الأشعة' : 'Enter your lab or radiology center details'}
+209-        step={step} total={total} onBack={onBack}
+210-      />
+211-
+212-      {/* Center Type Removed (Auto-detected from Welcome Screen) */}
+213-
+214-      <NInput
+215-        innerRef={nameArRef}
+216-        label={AR ? 'اسم المركز بالعربي' : 'Center Name (Arabic)'}
+217-        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabdah Medical Lab'}
+218-        value={data.nameAr} onChange={v => update({ nameAr: v })}
+219-        icon="⊥" required error={errs.name} caps="words"
+220-        returnKey="next" onSubmit={() => nameEnRef.current?.focus()}
+--
+330-}) {
+331-  const { theme } = useTheme();
+332-  const { lang } = useLang();
+333-  const { show } = useToast();
+334-  const AR = lang === 'ar';
+335:  const [errs, setErrs] = useState<Record<string, string>>({});
+336-  const [showLocModal, setShowLocModal] = useState(false);
+337-
+338-  const validate = () => {
+339-    const e: Record<string, string> = {};
+340-    if (!Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR must be 10 digits';
+341-    if (!data.mohLicense.trim()) e.moh = AR ? 'مطلوب' : 'Required';
+342-    if (!Validate.iban(data.iban)) e.iban = AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN';
+343-    
+344-    // Custom validation for Lab/Radiology separation
+--- provider-app/src/screens/radiology/RadiologyRegistration.tsx
+77-  // Internal
+78-  signatureData: string; signerName: string; signerRole: string;
+79-  termsAgreed: boolean;
+80-}
+81-
+82:const INIT: RadiologyRegData = {
+83-  nameAr: '', nameEn: '', centerType: '',
+84-  managerName: '', managerPhone: '', managerEmail: '',
+85-  techOfficerName: '', techOfficerScfhs: '',
+86-  password: '', confirmPass: '',
+87-  crNumber: '', mohLicense: '', iban: '', accountHolderName: '', taxNumber: '', languages: [],
+88-  crUri: '', mohUri: '', logoUri: '',
+89-  city: '', location: { lat: 24.7136, lng: 46.6753 }, district: '', address: '',
+90-  hasHomeSvc: false, homeRadius: 8, homeCollectorCount: '2', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
+91-  enabledTests: [], testPrices: {}, testHomeAvail: {}, testTurnaround: {}, testInsuranceCov: {}, scanInsuranceCov: {},
+92-  enabledScans: [], scanPrices: {},
+93-  bundles: [],
+94-  workDays: ['sun', 'mon', 'tue', 'wed', 'thu'],
+95-  shiftType: 'morning', openTime: '08:00', closeTime: '14:00', eveningOpenTime: '16:00', eveningCloseTime: '22:00',
+96-  homeWorkDays: ['sun', 'mon', 'tue', 'wed', 'thu'],
+97-  homeShiftType: 'morning', homeOpenTime: '08:00', homeCloseTime: '14:00', homeEveningOpenTime: '16:00', homeEveningCloseTime: '22:00',
+98-  vacationDate: '',
+99-  cashOnly: false, acceptedInsurance: [],
+100-  signatureData: '', signerName: '', signerRole: '',
+101-  termsAgreed: false,
+102-};
+103-
+104-const WORK_DAYS = [
+105-  { k: 'SUN', ar: 'الأحد', en: 'Sun' },
+106-  { k: 'MON', ar: 'الاثنين', en: 'Mon' },
+107-  { k: 'TUE', ar: 'الثلاثاء', en: 'Tue' },
+108-  { k: 'WED', ar: 'الأربعاء', en: 'Wed' },
+109-  { k: 'THU', ar: 'الخميس', en: 'Thu' },
+110-  { k: 'FRI', ar: 'الجمعة', en: 'Fri' },
+111-  { k: 'SAT', ar: 'السبت', en: 'Sat' },
+112-] as const;
+113-
+114-// ══════════════════════════════════════════════════════════════════════════════
+115-// LAB REGISTRATION NAVIGATOR
+116-// ══════════════════════════════════════════════════════════════════════════════
+117-export function RadiologyRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void; }) {
+118-  const [step, setStep] = useState(1);
+119:  const [data, setData] = useState<RadiologyRegData>({ ...INIT, centerType: 'radiology' });
+120-  const [showMap, setShowMap] = useState(false);
+121-  const TOTAL = 7;
+122-  const [showSuccess, setShowSuccess] = useState(false);
+123-  const update = useCallback((p: Partial<RadiologyRegData>) => setData(prev => ({ ...prev, ...p })), []);
+124-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+125-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+126-
+127-  const screens: Record<number, React.ReactElement> = {
+128-    8: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+129-    1: <LStep1 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+130-    2: <LStep2 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+131-    3: <LStep3 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+132-    4: <LStep4 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+133-    5: <LStep6 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+134-    6: <LStep7AdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+135-    7: <LStep8Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+136-  };
+137-  return screens[step] ?? null;
+138-}
+139-
+140-// ══════════════════════════════════════════════════════════════════════════════
+141-// STEP 1 — BASIC INFO
+142-// ══════════════════════════════════════════════════════════════════════════════
+143-function LStep1({ data, update, onNext, onBack, step, total }: {
+144-  data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
+145-  onNext: () => void; onBack: () => void; step: number; total: number;
+146-}) {
+147-  const { theme } = useTheme();
+148-  const { lang } = useLang();
+149-  const AR = lang === 'ar';
+150:  const [errs, setErrs] = useState<Record<string, string>>({});
+151-
+152-  const nameArRef = useRef<any>(null);
+153-  const nameEnRef = useRef<any>(null);
+154-  const mgrNameRef = useRef<any>(null);
+155-  const emailRef = useRef<any>(null);
+156-  const phoneRef = useRef<any>(null);
+157-  const techOfficerNameRef = useRef<any>(null);
+158-  const techOfficerScfhsRef = useRef<any>(null);
+159-  const passwordRef = useRef<any>(null);
+160-  const confirmPassRef = useRef<any>(null);
+161-
+162-  const validate = () => {
+163-    const e: Record<string, string> = {};
+164-    if (!data.nameAr.trim()) e.name = AR ? 'مطلوب' : 'Required';
+165-    if (!data.centerType) e.type = AR ? 'اختر نوع المركز' : 'Choose center type';
+166-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
+167-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
+168-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
+169-    if (!data.techOfficerName.trim()) e.tech = AR ? 'اسم المسؤول الفني مطلوب' : 'Tech officer name required';
+170-    const ps = Validate.password(data.password);
+171-    if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
+172-    if (data.password !== data.confirmPass) e.conf = AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match';
+173-    setErrs(e);
+174-    return Object.keys(e).length === 0;
+175-  };
+176-
+177-  const [loading, setLoading] = useState(false);
+178-  
+179-    const handleNext = async () => {
+180-    if (!validate()) return;
+181-    setLoading(true);
+182-    try {
+183-      await ProviderApi.start({
+184-        phone: data.managerPhone,
+185-        password: data.password,
+186-        full_name: data.managerName,
+187-        email: data.managerEmail,
+188-        type: data.centerType === 'lab' ? 'lab' : 'radiology',
+189-      });
+190-      await ProviderApi.login(data.managerPhone, data.password);
+191-      onNext();
+192-    } catch (e: any) {
+193-      try {
+194-        await ProviderApi.login(data.managerPhone, data.password);
+195-        onNext();
+196-      } catch (loginErr: any) {
+197-        setErrs({ phone: e.message || 'Error' });
+198-      }
+199-    } finally {
+200-      setLoading(false);
+201-    }
+202-  };
+203-
+204-  return (
+205-    <NScroll>
+206-      <NHeader
+207-        title={AR ? 'بيانات المركز الأساسية' : 'Center Basic Info'}
+208-        sub={AR ? 'أدخل بيانات معملك أو مركز الأشعة' : 'Enter your lab or radiology center details'}
+209-        step={step} total={total} onBack={onBack}
+210-      />
+211-
+212-      {/* Center Type Removed (Auto-detected from Welcome Screen) */}
+213-
+214-      <NInput
+215-        innerRef={nameArRef}
+216-        label={AR ? 'اسم المركز بالعربي' : 'Center Name (Arabic)'}
+217-        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabdah Medical Radiology'}
+218-        value={data.nameAr} onChange={v => update({ nameAr: v })}
+219-        icon="⊥" required error={errs.name} caps="words"
+220-        returnKey="next" onSubmit={() => nameEnRef.current?.focus()}
+--
+330-}) {
+331-  const { theme } = useTheme();
+332-  const { lang } = useLang();
+333-  const { show } = useToast();
+334-  const AR = lang === 'ar';
+335:  const [errs, setErrs] = useState<Record<string, string>>({});
+336-  const [showLocModal, setShowLocModal] = useState(false);
+337-
+338-  const validate = () => {
+339-    const e: Record<string, string> = {};
+340-    if (!Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR must be 10 digits';
+341-    if (!data.mohLicense.trim()) e.moh = AR ? 'مطلوب' : 'Required';
+342-    if (!Validate.iban(data.iban)) e.iban = AR ? 'رقم الآيبان غير صحيح' : 'Invalid IBAN';
+343-    
+344-    // Custom validation for Radiology/Radiology separation
+--- provider-app/src/screens/nursing/NursingRegistration.tsx
+76-  // Submit
+77-  signatureData: string; signerName: string; signerRole: string;
+78-  termsAgreed: boolean;
+79-}
+80-
+81:const INIT: NurseRegData = {
+82-  mode: 'individual', nameAr: '', nameEn: '', gender: '', managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
+83-  scfhsNumber: '', scfhsExpiry: '', nationalId: '', crNumber: '', languages: [], mohLicense: '', iban: '', accountHolderName: '',
+84-  scfhsUri: '', crUri: '', mohUri: '', photoUri: '',
+85-  enabledServices: [],
+86-  pricingModels: ['per_visit'], priceVisit: '150', priceHour: '80', priceDay: '800', priceMonth: '8000',
+87-  city: '', location: { lat: 24.7136, lng: 46.6753 }, district: '', address: '', coverageRadius: 10, coverageAreas: [],
+88-  workDays: ['SUN','MON','TUE','WED','THU','SAT'], shiftType: 'morning', openTime: '07:00', closeTime: '15:00', eveningOpenTime: '15:00', eveningCloseTime: '23:00', is24_7: false, vacationDate: '',
+89-  cashOnly: true, acceptedInsurance: [],
+90-  signatureData: '', signerName: '', signerRole: '', termsAgreed: false,
+91-};
+92-
+93-// ══════════════════════════════════════════════════════════════════════════════
+94-export function NursingRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+95-  const [step, setStep] = useState(1);
+96-  const [data, setData] = useState<NurseRegData>(INIT);
+97-  const [showMap, setShowMap] = useState(false);
+98-  const TOTAL = 8;
+99-  const [submitted, setSub] = useState(false);
+100-  const update = useCallback((p: Partial<NurseRegData>) => setData(prev => ({ ...prev, ...p })), []);
+101-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+102-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+103-
+104-  if (submitted) return <RegistrationSuccess onDone={onDone} email={data.managerEmail} providerType="nursing" />;
+105-
+106-  const screens: Record<number, React.ReactElement> = {
+107-    1: <NS1 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+108-    2: <NS2 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+109-    3: <NS3 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+110-    4: <NS4 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+111-    5: <NS5 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+112-    6: <NS6 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+113-    7: <PStep7SubmitAdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+114-    8: <NS8Signature data={data} update={update} onDone={() => setSub(true)} onBack={back} step={step} total={TOTAL} />,
+115-  };
+116-  return screens[step] ?? null;
+117-}
+118-
+119-// ── STEP 1: BASIC INFO ──────────────────────────────────────────
+120-function NS1({ data, update, onNext, onBack, step, total }: any) {
+121-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+122:  const [errs, setErrs] = useState<Record<string, string>>({});
+123-  const [showLocModal, setShowLocModal] = useState(false);
+124-
+125-  const nameArRef = useRef<any>(null);
+126-  const nameEnRef = useRef<any>(null);
+127-  const mgrNameRef = useRef<any>(null);
+128-  const emailRef = useRef<any>(null);
+129-  const phoneRef = useRef<any>(null);
+130-  const passwordRef = useRef<any>(null);
+131-  const confirmPassRef = useRef<any>(null);
+132-  
+133-  const validate = () => {
+134-    const e: Record<string, string> = {};
+135-    if (!data.mode) e.mode = AR ? 'اختر النوع' : 'Choose type';
+136-    if (!data.nameAr.trim()) e.name = AR ? 'مطلوب' : 'Required';
+137-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
+138-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
+139-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
+140-    const ps = Validate.password(data.password);
+141-    if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
+142-    if (data.password !== data.confirmPass) e.conf = AR ? 'غير متطابق' : 'Mismatch';
+143-    setErrs(e); return Object.keys(e).length === 0;
+144-  };
+145-
+146-  const [loading, setLoading] = useState(false);
+147-    const handleNext = async () => {
+148-    if (!validate()) return;
+149-    setLoading(true);
+150-    try {
+151-      await ProviderApi.start({
+152-        phone: data.managerPhone,
+153-        password: data.password,
+154-        full_name: data.managerName,
+155-        email: data.managerEmail,
+156-        type: 'home_care',
+157-      });
+158-      await ProviderApi.login(data.managerPhone, data.password);
+159-      onNext();
+160-    } catch (e: any) {
+161-      try {
+162-        await ProviderApi.login(data.managerPhone, data.password);
+163-        onNext();
+164-      } catch (loginErr: any) {
+165-        setErrs({ phone: e.message || 'Error' });
+166-      }
+167-    } finally {
+168-      setLoading(false);
+169-    }
+170-  };
+171-
+172-  return (
+173-    <NScroll>
+174-      <NHeader title={AR ? 'بيانات مقدم الخدمة' : 'Provider Basic Info'} sub={AR ? 'تمريض منزلي — اختر نوع التسجيل' : 'Home Nursing — choose registration type'} step={step} total={total} onBack={onBack} />
+175-
+176-      <View style={{ marginBottom: SP.xl }}>
+177-        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'نوع مقدم الخدمة' : 'Provider Type'}<Text style={{ color: theme.danger }}> *</Text></Text>
+178-        {PROVIDER_MODES.map(pm => {
+179-          const sel = data.mode === pm.id;
+180-          return (
+181-            <TouchableOpacity key={pm.id} onPress={() => update({ mode: pm.id })}
+182-              style={[st.typeRow, { backgroundColor: sel ? `${pm.color}10` : theme.surface2, borderColor: sel ? pm.color : theme.border, flexDirection: AR ? 'row-reverse' : 'row' }]}>
+183-              <IBg name="nursing" size={18} color={pm.color} bg={`${pm.color}20`} />
+184-              <View style={{ flex: 1 }}>
+185-                <Text style={{ fontSize: FS.md, fontWeight: sel ? FW.bold : FW.reg, color: sel ? pm.color : theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? pm.ar : pm.en}</Text>
+186-                <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>
+187-                  {pm.id === 'individual' ? (AR ? 'ممرض مرخص يعمل بشكل مستقل' : 'Licensed nurse working independently') : (AR ? 'شركة تقدم خدمات تمريض منزلي' : 'Company providing home nursing services')}
+188-                </Text>
+189-              </View>
+190-              {sel && <I name="check" size={18} color={pm.color} />}
+191-            </TouchableOpacity>
+192-          );
+--
+243-
+244-// ── STEP 2: KYC ─────────────────────────────────────────────────
+245-function NS2({ data, update, onNext, onBack, step, total }: any) {
+246-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+247-  const isIndiv = data.mode === 'individual';
+248:  const [errs, setErrs] = useState<Record<string, string>>({});
+249-
+250-  const validate = () => {
+251-    const e: Record<string, string> = {};
+252-    if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = AR ? 'رقم SCFHS مطلوب' : 'SCFHS required';
+253-    if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = AR ? 'السجل التجاري 10 أرقام' : 'CR 10 digits';
+254-    if (!Validate.iban(data.iban)) e.iban = AR ? 'الآيبان غير صحيح' : 'Invalid IBAN';
+255-    setErrs(e); return Object.keys(e).length === 0;
+256-  };
+257-
+258-  const pickDocument = (field: keyof NurseRegData) => {
+259-    Alert.alert(
+260-      AR ? 'إرفاق مستند' : 'Attach Document',
+261-      AR ? 'اختر طريقة الرفع' : 'Choose upload method',
+262-      [
+263-        {
+264-          text: AR ? 'الكاميرا' : 'Camera',
+265-          onPress: async () => {
+266-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+267-            if (status !== 'granted') {
+268-              show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error');
+269-              return;
+270-            }
+271-            let result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
+272-            if (!result.canceled) {
+273-              update({ [field]: result.assets[0].uri } as any);
+274-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
+275-            }
+276-          }
+277-        },
+278-        {
+279-          text: AR ? 'معرض الصور' : 'Photo Gallery',
+280-          onPress: async () => {
+281-            let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+282-            if (!result.canceled) {
+283-              update({ [field]: result.assets[0].uri } as any);
+284-              show(AR ? 'تم إرفاق المستند' : 'Document attached', 'success');
+--- provider-app/src/screens/facility/FacilityRegistration.tsx
+65-  acceptedInsurance: { companyId: string; plans: string[] }[];
+66-  hasInsuranceCoordinator: boolean;
+67-  signatureData: string; loading?: boolean; signerName: string; signerRole: string; termsAgreed: boolean;
+68-}
+69-
+70:const INIT: FacilityRegData = {
+71-  
+72-  facilityNameAr: '', facilityNameEn: '', facilityType: '',
+73-  managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
+74-  languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
+75-  city: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
+76-};
+77-
+78-export function FacilityRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+79-  const [step, setStep] = useState(1);
+80-  const [data, setData] = useState<FacilityRegData>(INIT);
+81-  const [submitted, setSubmitted] = useState(false);
+82-  const TOTAL = 8;
+83-  const [showSuccess, setShowSuccess] = useState(false);
+84-
+85-  const update = useCallback((patch: Partial<FacilityRegData>) => setData(prev => ({ ...prev, ...patch })), []);
+86-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+87-  const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
+88-
+89-  const screens: Record<number, React.ReactElement> = {
+90-    8: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+91-    1: <Step1Basic data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+92-    2: <Step2Legal data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+93-    3: <Step3Location data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+94-    4: <Step4SubProviders data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+95-    5: <Step5Insurance data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+96-    6: <Step6AdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+97-    7: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+98-  };
+99-  return (
+100-    <>
+101-      {screens[step] ?? null}
+102-      <Modal visible={data.loading} transparent animationType="fade">
+103-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+104-          <View style={{ padding: 20, backgroundColor: '#FFF', borderRadius: 12, alignItems: 'center' }}>
+105-            <Text style={{ marginTop: 10, fontSize: 16 }}>جاري معالجة البيانات...</Text>
+106-          </View>
+107-        </View>
+108-      </Modal>
+109-    </>
+110-  );
+111-}
+112-
+113-// ══════════════════════════════════════════════════════════════════════════════
+114-function Step1Basic({ data, update, onNext, onBack, step, total }: any) {
+115-  const { show } = useToast();
+116-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+117:  const [errs, setErrs] = useState<Record<string, string>>({});
+118-
+119-  const nameArRef = useRef<any>(null);
+120-  const nameEnRef = useRef<any>(null);
+121-  const mgrNameRef = useRef<any>(null);
+122-  const phoneRef = useRef<any>(null);
+123-  const emailRef = useRef<any>(null);
+124-  const passwordRef = useRef<any>(null);
+125-  const confirmPassRef = useRef<any>(null);
+126-
+127-  const validate = () => {
+128-    const e: Record<string, string> = {};
+129-    if (!data.facilityType) e.type = AR ? 'اختر نوع المنشأة' : 'Choose facility type';
+130-    if (!data.facilityNameAr.trim()) e.nameAr = AR ? 'مطلوب' : 'Required';
+131-    if (!data.facilityNameEn.trim()) e.nameEn = AR ? 'مطلوب' : 'Required';
+132-    if (!data.managerName.trim()) e.mgr = AR ? 'مطلوب' : 'Required';
+133-    if (!Validate.phone(data.managerPhone)) e.phone = AR ? 'جوال غير صحيح' : 'Invalid phone';
+134-    if (!Validate.email(data.managerEmail)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
+135-    if (data.facilityType !== 'hospital' && data.facilityType !== 'clinic') e.type = AR ? 'نوع غير مدعوم' : 'Unsupported type';
+136-    const ps = Validate.password(data.password);
+137-    if (!ps.valid) e.pass = AR ? ps.msgAr : ps.msgEn;
+138-    if (data.password !== data.confirmPass) e.conf = AR ? 'كلمتا المرور غير متطابقتين' : 'Passwords do not match';
+139-    setErrs(e); return Object.keys(e).length === 0;
+140-  };
+141-
+142-  
+143-  const handleNext = async () => {
+144-    if (!validate()) return;
+145-
+146-    try {
+147-      update({ loading: true });
+148-      await ProviderApi.start({
+149-        phone: data.managerPhone,
+150-        password: data.password,
+151-        full_name: data.managerName,
+152-        email: data.managerEmail,
+153-        type: data.facilityType,
+154-      });
+155-      try {
+156-        await ProviderApi.login(data.managerPhone, data.password);
+157-      } catch (e) {
+158-        await ProviderApi.login(data.managerPhone, data.password);
+159-      }
+160-      onNext();
+161-    } catch (e: any) {
+162-      show(Array.isArray(e.response?.data?.message) ? e.response?.data?.message[0] : (e.response?.data?.message || e.message || 'Error occurred'), 'error');
+163-    } finally {
+164-      update({ loading: false });
+165-    }
+166-  };
+167-
+168-  return (
+169-    <NScroll>
+170-      <NHeader title={AR ? 'بيانات المستشفى/المستوصف' : 'Facility Info'} step={step} total={total} onBack={onBack} />
+171-      
+172-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
+173-        {FACILITY_TYPES.map(t => (
+174-          <TouchableOpacity key={t.id} onPress={() => update({ facilityType: t.id })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.facilityType === t.id ? theme.primary : theme.border, backgroundColor: data.facilityType === t.id ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
+175-            <Text style={{ color: data.facilityType === t.id ? theme.primary : theme.text }}>{AR ? t.ar : t.en}</Text>
+176-          </TouchableOpacity>
+177-        ))}
+178-      </View>
+179-      {errs.type && <Text style={{ fontSize: FS.xs, color: theme.danger, marginBottom: SP.md }}>{errs.type}</Text>}
+180-
+181-      <NInput innerRef={nameArRef} label={AR ? 'اسم المنشأة (بالعربية)' : 'Facility Name (AR)'} value={data.facilityNameAr} onChange={v => update({ facilityNameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+182-      <NInput innerRef={nameEnRef} label={AR ? 'اسم المنشأة (بالإنجليزية)' : 'Facility Name (EN)'} value={data.facilityNameEn} onChange={v => update({ facilityNameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+183-      
+184-      <NInput innerRef={mgrNameRef} label={AR ? 'اسم مدير المنشأة' : 'Manager Name'} value={data.managerName} onChange={v => update({ managerName: v })} required error={errs.mgr} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+185-      <NPhoneInput innerRef={phoneRef} label={AR ? 'رقم جوال المدير' : 'Manager Phone'} value={data.managerPhone} onChange={v => update({ managerPhone: v })} required error={errs.phone} />
+186-      <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني للمدير' : 'Manager Email'} value={data.managerEmail} onChange={v => update({ managerEmail: v })} kbType="email-address" caps="none" required error={errs.email} returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
+187-      
+--
+309-// ══════════════════════════════════════════════════════════════════════════════
+310-function Step3Location({ data, update, onNext, onBack, step, total }: any) {
+311-  const { show } = useToast();
+312-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+313-  const [showLocModal, setShowLocModal] = useState(false);
+314:  const [errs, setErrs] = useState<Record<string, string>>({});
+315-
+316-  const validate = () => {
+317-    const e: Record<string, string> = {};
+318-    if (!data.city) e.city = AR ? 'اختر المدينة' : 'Choose city';
+319-    if (!data.fullAddress.trim()) e.addr = AR ? 'العنوان مطلوب' : 'Address required';
+320-    if (!data.location || !data.location.lat) e.loc = AR ? 'تحديد الموقع مطلوب' : 'Location required';
+321-    setErrs(e); return Object.keys(e).length === 0;
+322-  };
+323-
+324-  const handleNext = async () => {
+325-    if (!validate()) return;
+326-    try {
+327-      update({ loading: true });
+328-      let crUrl = data.crDocUri;
+329-      let mohUrl = data.mohDocUri;
+330-      let logoUrl = data.facilityLogoUri;
+331-      
+332-      if (crUrl && !crUrl.startsWith('http')) crUrl = await ProviderApi.uploadFile(crUrl, 'image/jpeg', 'cr.jpg');
+333-      if (mohUrl && !mohUrl.startsWith('http')) mohUrl = await ProviderApi.uploadFile(mohUrl, 'image/jpeg', 'moh.jpg');
+334-      if (logoUrl && !logoUrl.startsWith('http')) logoUrl = await ProviderApi.uploadFile(logoUrl, 'image/jpeg', 'logo.jpg');
+335-
+336-      const docs = [crUrl, mohUrl].filter(Boolean);
+337-      // Logo goes to its OWN field — brand mark, not a gallery photo.
+338-      const images: string[] = [];
+339-      
+340-      if (data.facilityImagesUris && data.facilityImagesUris.length > 0) {
+341-        for (let i = 0; i < data.facilityImagesUris.length; i++) {
+342-          const uri = data.facilityImagesUris[i];
+343-          if (!uri.startsWith('http')) {
+344-            images.push(await ProviderApi.uploadFile(uri, 'image/jpeg', `facility_${i}.jpg`));

@@ -64,17 +64,17 @@ const INITIAL: DoctorRegData = {
   nameAr:'', nameEn:'', email:'', phone:'', password:'', confirmPass:'', gender:'',
   scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
   specialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
-  offersClinic:false, clinicPrice:'300', clinicDuration:'15',
-  offersHome:false, homePrice:'500', homeRadius: 10, homeTransportFee: false, homeTransportPrice: '50',
-  offersVideo:true, videoPrice:'200', videoDuration:'20',
-  lat: 24.7136, lng: 46.6753,
+  offersClinic:false, clinicPrice:'', clinicDuration:'',
+  offersHome:false, homePrice:'', homeRadius: 0, homeTransportFee: false, homeTransportPrice: '',
+  offersVideo:false, videoPrice:'', videoDuration:'',
+  lat: 0, lng: 0,
   scheduleType:'per_service',
-  unifiedDays:['SUN','MON','TUE','WED','THU'], unifiedStart:'09:00', unifiedEnd:'17:00', unifiedShift:'both',
-  clinicDays:['SUN','MON','TUE','WED','THU'], clinicStart:'09:00', clinicEnd:'17:00', clinicShift:'both',
-  videoDays:['SUN','MON','TUE','WED','THU'], videoStart:'09:00', videoEnd:'17:00', videoShift:'both',
-  homeDays:['SUN','MON','TUE','WED','THU'], homeStart:'09:00', homeEnd:'17:00', homeShift:'both',
+  unifiedDays:[], unifiedStart:'', unifiedEnd:'', unifiedShift:'both',
+  clinicDays:[], clinicStart:'', clinicEnd:'', clinicShift:'both',
+  videoDays:[], videoStart:'', videoEnd:'', videoShift:'both',
+  homeDays:[], homeStart:'', homeEnd:'', homeShift:'both',
   vacationDate:'',
-  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 24.7, lng: 46.7}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 0, lng: 0}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
 };
 
 const WORK_DAYS = [

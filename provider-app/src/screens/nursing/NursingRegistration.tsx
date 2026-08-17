@@ -83,10 +83,10 @@ const INIT: NurseRegData = {
   scfhsNumber: '', scfhsExpiry: '', nationalId: '', crNumber: '', languages: [], mohLicense: '', iban: '', accountHolderName: '',
   scfhsUri: '', crUri: '', mohUri: '', photoUri: '',
   enabledServices: [],
-  pricingModels: ['per_visit'], priceVisit: '150', priceHour: '80', priceDay: '800', priceMonth: '8000',
-  city: '', location: { lat: 24.7136, lng: 46.6753 }, district: '', address: '', coverageRadius: 10, coverageAreas: [],
-  workDays: ['SUN','MON','TUE','WED','THU','SAT'], shiftType: 'morning', openTime: '07:00', closeTime: '15:00', eveningOpenTime: '15:00', eveningCloseTime: '23:00', is24_7: false, vacationDate: '',
-  cashOnly: true, acceptedInsurance: [],
+  pricingModels: [], priceVisit: '', priceHour: '', priceDay: '', priceMonth: '',
+  city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0, coverageAreas: [],
+  workDays: [], shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '', is24_7: false, vacationDate: '',
+  cashOnly: false, acceptedInsurance: [],
   signatureData: '', signerName: '', signerRole: '', termsAgreed: false,
 };
 
