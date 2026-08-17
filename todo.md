@@ -614,3 +614,5 @@
 - [ ] Reduce audit-report main chunk and verify runtime-resolved storage asset in the deployed preview before final report delivery.
 
 - [x] Saved `PHASE5_REVALIDATION_SUMMARY_20260818.md` separating verified PASS evidence from lifecycle/Admin/device/gateway BLOCKED items and the superseded transport INCONCLUSIVE.
+
+- [x] Issued `FULL_SYSTEMATIC_QA_FINAL_REPORT_20260818.md` with the evidence-based release verdict, verified gates, lifecycle blockers, Admin source scope blocker, Lab contract drift, payment/device constraints, and internal evidence references.
