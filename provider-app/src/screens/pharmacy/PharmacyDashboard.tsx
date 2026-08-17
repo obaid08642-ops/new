@@ -1450,7 +1450,7 @@ function OrderHistoryScreen({ onBack }: any) {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    client.get('/provider/pharmacy/orders', { params: { status: 'completed' } })
+    client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })
       .then(r => setHistory(Array.isArray(r.data) ? r.data : (r.data?.items || [])))
       .catch(() => setHistory([]))
       .finally(() => setLoading(false));

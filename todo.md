@@ -569,3 +569,7 @@
 
 - [x] Recorded dormant Provider auth drift: unused `ProviderApi.login` posts phone credentials to `/auth/login`, while live sandbox provider login uses `/provider/auth/login` with email; no speculative API change was made.
 - [ ] Before release, either remove the dormant helper or update it under an approved provider-auth contract with a direct auth regression test.
+
+- [ ] Fix Pharmacy OrderHistoryScreen stale GET `/provider/pharmacy/orders` to the declared provider allocations read contract with `status=completed`, then run Provider typecheck/Jest and push.
+
+- [x] Fixed Pharmacy OrderHistoryScreen to read `/provider/pharmacy/allocations?status=completed`, matching the declared provider controller; Provider typecheck and 5/5 Jest contracts passed.
