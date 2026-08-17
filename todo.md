@@ -555,3 +555,6 @@
 
 - [x] One controlled lab sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, `labs/provider/inbox=200`, and `labs/samples=200`. Only statuses/body sizes were persisted; no queue mutation occurred.
 - [ ] Use a real sandbox lab request, if one exists and is confirmed safe, for the next accept/execute lifecycle; otherwise classify lab lifecycle as blocked by absence of an eligible sandbox request rather than inventing one.
+
+- [x] One controlled radiology sandbox login succeeded (HTTP 201); read-only probe returned `progress=200`, `notifications=200`, `wallet/balance=200`, `wallet/transactions=200`, `radiology/provider/inbox=200`, and `radiology/services=200`. Only statuses/body sizes were persisted; no mutation occurred.
+- [ ] Confirm an eligible sandbox radiology request before testing accept/execute/report lifecycle; absence of a safe request remains BLOCKED, not a reason to fabricate one.
