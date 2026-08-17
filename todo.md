@@ -491,3 +491,6 @@
 
 - [x] Extracted Provider API consumer calls and documented findings in `PROVIDER_API_CONSUMER_CALLS_20260818.txt` and `PROVIDER_API_CONSUMER_FINDINGS_20260818.md`; identified report storage URL, Blueprint, emergency fail-closed, lab-stage, ambulance, wallet and copilot gates.
 - [ ] Validate each discovered consumer against live controller/storage/state/notification contracts; no toast-only or fixed-storage URL counts as completion.
+
+- [x] Mapped specialty provider contracts in `PROVIDER_SPECIALTY_CONTRACT_MAP_20260818.md`: pharmacy allocations/broadcasts/inventory/chat, lab bookings/samples/results, radiology provider queue/report/catalog, and home-care/nursing intake/visit/GPS/report.
+- [ ] Execute one controlled live read per specialty inbox and then lifecycle mutation only when a real sandbox request exists; classify missing provider types as BLOCKED rather than seeding production data.
