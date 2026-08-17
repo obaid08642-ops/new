@@ -351,3 +351,6 @@
 - [x] Shared services live read matrix: notifications 200 with real delivery statuses; wallet balance/transactions/spending/cards 200 with real empty/zero data; family no-group responses 404/200 as contract.
 - [x] Family sandbox lifecycle: patient1 created group 201, generated invite 201, patient2 joined 201, members 200, unauthorized member-records 403, owner removed patient2 200. Found false 404 after successful permission update because service treated empty UpdateResult metadata as failure; source fixed to fail only on explicit matchedCount/nMatched=0, with regression coverage. Full backend 34 suites/253 tests, tsc/build successful.
 - [ ] Shared services remaining: rerun family grant/relation/calendar/permission-request after deploy, wallet topup/payment-gateway-dependent flows, notification read/register-token/admin delivery stats, cross-account wallet/card/topup BOLA, and verify notification creation after each service lifecycle.
+
+- [x] Notifications BOLA remediation: `markRead` no longer updates arbitrary notification ids; it scopes by user_id/role/all and returns `notification_not_found` when no matching record. Regression 2/2; full backend 35 suites/255 tests; tsc/build successful.
+- [ ] Deploy/live recheck notification foreign read: patient2 must not mark patient1-only notification; owner/role/all reads must continue working.

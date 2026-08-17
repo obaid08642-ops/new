@@ -234,3 +234,10 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ### حدود الإغلاق
 
 يجب بعد النشر إعادة اختبار grant/relation/calendar/permission-request، وإثبات عزل wallet/card/topup بين حسابين، وتسجيل read/register-token وadmin delivery-stats، ثم ربط كل حدث من دورات الخدمات بإشعار فعلي. النتيجة الحالية **SOURCE FIX / LIVE PARTIAL / DEPLOY-RECHECK**.
+
+
+## Notifications ownership — 2026-08-17
+
+أثبتت القراءة الحية أن `GET /notifications` يعرض سجلات حقيقية مرتبطة بخدمات sandbox، بما في ذلك حالة delivery متعددة القنوات. أثناء مراجعة المصدر ظهر أن `POST /notifications/:id/read` كان يحدّث أي notification بالـid دون قيد user/role، وهو BOLA يسمح لمستخدم مصادق بتغيير سجل مستخدم آخر.
+
+تم إصلاح `NotificationsService.markRead` ليستخدم شرطاً مركباً `{ id, $or: [{ user_id }, { role }, { role: 'all' }] }`، وليعيد `notification_not_found` عند عدم وجود تطابق. أضيف اختباران regression، وأصبح full backend **35 suites / 255 tests** مع tsc/build ناجحين. لم تُنفذ mutation foreign على الإنتاج؛ يلزم بعد نشر patch إثبات patient2 لا يستطيع تعليم إشعار patient1 كمقروء، مع استمرار owner/role/all الصحيح.
