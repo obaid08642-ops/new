@@ -1,0 +1,567 @@
+# patient QA inventory
+root=/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus
+files=627
+## route files
+app/(auth)/_layout.tsx
+app/(auth)/forgot-password.tsx
+app/(auth)/login.tsx
+app/(auth)/otp.tsx
+app/(auth)/privacy.tsx
+app/(auth)/provider-info.tsx
+app/(auth)/register.tsx
+app/(auth)/reset-password.tsx
+app/(auth)/terms.tsx
+app/(auth)/welcome.tsx
+app/(onboarding)/_layout.tsx
+app/(onboarding)/index.tsx
+app/(onboarding)/language.tsx
+app/(onboarding)/permissions.tsx
+app/(tabs)/_layout.tsx
+app/(tabs)/consultations/index.tsx
+app/(tabs)/diagnostics.tsx
+app/(tabs)/health.tsx
+app/(tabs)/index.tsx
+app/(tabs)/nursing.tsx
+app/(tabs)/pharmacy.tsx
+app/(tabs)/services.tsx
+app/_layout.tsx
+app/ai-assistant.tsx
+app/ai/chat-doctor.tsx
+app/ai/monthly-report.tsx
+app/ai/prescription-translator.tsx
+app/ai/skin-analysis.tsx
+app/ai/symptom-checker.tsx
+app/ai/symptom-timeline.tsx
+app/ai/triage.tsx
+app/articles/[slug].tsx
+app/articles/bookmarks.tsx
+app/articles/index.tsx
+app/community/hub.tsx
+app/community/post-detail.tsx
+app/consultations/appointment-detail.tsx
+app/consultations/appointments.tsx
+app/consultations/book/[id].tsx
+app/consultations/booking-confirm.tsx
+app/consultations/booking-pending.tsx
+app/consultations/booking-success.tsx
+app/consultations/call-history.tsx
+app/consultations/cancel-reschedule.tsx
+app/consultations/chat-with-doctor.tsx
+app/consultations/clinic-confirm.tsx
+app/consultations/clinic-location.tsx
+app/consultations/clinic/[id].tsx
+app/consultations/doctor-profile.tsx
+app/consultations/doctor-search.tsx
+app/consultations/doctor/[id].tsx
+app/consultations/follow-up.tsx
+app/consultations/home-visit-tracking.tsx
+app/consultations/incoming-call.tsx
+app/consultations/offer/[id].tsx
+app/consultations/post-call-rating.tsx
+app/consultations/prescription-from-doctor.tsx
+app/consultations/share-report.tsx
+app/consultations/specialty-select.tsx
+app/consultations/summary.tsx
+app/consultations/video-call.tsx
+app/consultations/video/[id].tsx
+app/consultations/virtual-waiting-room.tsx
+app/consultations/waiting-room.tsx
+app/delivery/address-select.tsx
+app/diagnostics/book-sample.tsx
+app/diagnostics/booking-confirm.tsx
+app/diagnostics/booking-success.tsx
+app/diagnostics/cart.tsx
+app/diagnostics/checkout.tsx
+app/diagnostics/insurance-approval.tsx
+app/diagnostics/insurance-upload.tsx
+app/diagnostics/lab-comparison.tsx
+app/diagnostics/lab/[id].tsx
+app/diagnostics/my-results.tsx
+app/diagnostics/order/[id].tsx
+app/diagnostics/orders.tsx
+app/diagnostics/package-detail.tsx
+app/diagnostics/packages.tsx
+app/diagnostics/results-history.tsx
+app/diagnostics/sample-tracking.tsx
+app/diagnostics/search.tsx
+app/diagnostics/technician-tracking.tsx
+app/diagnostics/test-detail.tsx
+app/diagnostics/upload-rx.tsx
+app/drug-scanner/index.tsx
+app/emergency/index.tsx
+app/emergency/sos-active.tsx
+app/emergency/sos.tsx
+app/emergency/tracking.tsx
+app/family/calendar.tsx
+app/family/chat.tsx
+app/family/emergency-contacts.tsx
+app/family/hub.tsx
+app/family/index.tsx
+app/family/invite.tsx
+app/family/join.tsx
+app/family/member-health.tsx
+app/family/permission-request.tsx
+app/family/permissions.tsx
+app/family/scan.tsx
+app/family/shared-calendar.tsx
+app/health/actionable-order.tsx
+app/health/add-family-member.tsx
+app/health/chronic-disease.tsx
+app/health/chronic-medications.tsx
+app/health/conditions-allergies.tsx
+app/health/edit-profile.tsx
+app/health/emergency-contacts.tsx
+app/health/family-calendar.tsx
+app/health/family-chat.tsx
+app/health/family-hub.tsx
+app/health/family-member-detail.tsx
+app/health/health-id.tsx
+app/health/medication-reminder-add.tsx
+app/health/medication-reminder-list.tsx
+app/health/medications.tsx
+app/health/prescriptions.tsx
+app/health/refills.tsx
+app/health/reminders.tsx
+app/health/reports.tsx
+app/health/sleep-score.tsx
+app/health/sleep-tracker.tsx
+app/health/smart-reminders.tsx
+app/health/trends.tsx
+app/health/vitals-log.tsx
+app/health/vitals.tsx
+app/health/wearables.tsx
+app/index.tsx
+app/insurance/add-policy.tsx
+app/insurance/approval-pending.tsx
+app/insurance/benefits-summary.tsx
+app/insurance/claim-tracking.tsx
+app/insurance/copay.tsx
+app/insurance/coverage-check.tsx
+app/insurance/hub.tsx
+app/insurance/index.tsx
+app/insurance/network-providers.tsx
+app/insurance/payment-split.tsx
+app/insurance/policy-detail.tsx
+app/insurance/refund-status.tsx
+app/insurance/submit-claim.tsx
+app/loyalty/challenges.tsx
+app/loyalty/hub.tsx
+app/loyalty/leaderboard.tsx
+app/loyalty/referrals.tsx
+app/loyalty/rewards.tsx
+app/map/index.tsx
+app/maternity/baby-development.tsx
+app/maternity/baby-growth.tsx
+app/maternity/hub.tsx
+app/maternity/maternity-setup.tsx
+app/maternity/ovulation-tracker.tsx
+app/maternity/pregnancy-tracker.tsx
+app/mental-health/breathing.tsx
+app/mental-health/crisis-support.tsx
+app/mental-health/hub.tsx
+app/mental-health/index.tsx
+app/mental-health/meditation.tsx
+app/mental-health/mood-journal.tsx
+app/mental-health/self-assessment.tsx
+app/mental-health/therapist-match.tsx
+app/notifications/index.tsx
+app/nursing/live-tracking.tsx
+app/nursing/nurse-profile.tsx
+app/nursing/service-details.tsx
+app/nursing/service-info.tsx
+app/nutrition/ai-meal-planner.tsx
+app/nutrition/ai-plan-builder.tsx
+app/nutrition/body-composition.tsx
+app/nutrition/body-target.tsx
+app/nutrition/calorie-analyzer.tsx
+app/nutrition/daily-tracker.tsx
+app/nutrition/exercise-plan.tsx
+app/nutrition/food-scanner.tsx
+app/nutrition/hub.tsx
+app/nutrition/index.tsx
+app/nutrition/log-meal.tsx
+app/nutrition/nutrition-plan.tsx
+app/nutrition/water-tracker.tsx
+app/offers/[id].tsx
+app/offers/index.tsx
+app/orders/index.tsx
+app/payments/failed.tsx
+app/payments/failure.tsx
+app/payments/processing.tsx
+app/payments/success.tsx
+app/pharmacy/barcode-scanner.tsx
+app/pharmacy/broadcast-status.tsx
+app/pharmacy/cart.tsx
+app/pharmacy/chat-with-pharmacist.tsx
+app/pharmacy/checkout.tsx
+app/pharmacy/custom-item.tsx
+app/pharmacy/drug-not-found.tsx
+app/pharmacy/filters.tsx
+app/pharmacy/manual-order.tsx
+app/pharmacy/medicine-compare.tsx
+app/pharmacy/order-confirm.tsx
+app/pharmacy/order-history.tsx
+app/pharmacy/order-tracking.tsx
+app/pharmacy/payment.tsx
+app/pharmacy/pharmacist-chat.tsx
+app/pharmacy/product-detail.tsx
+app/pharmacy/product-search.tsx
+app/pharmacy/reorder.tsx
+app/pharmacy/rx-order.tsx
+app/pharmacy/scan-prescription.tsx
+app/pharmacy/waiting-for-pharmacy.tsx
+app/pharmacy/wishlist.tsx
+app/profile/addresses.tsx
+app/profile/edit.tsx
+app/profile/index.tsx
+app/profile/insurance.tsx
+app/programs/active.tsx
+app/reports/ai-analysis.tsx
+app/reports/hub.tsx
+app/reports/passport.tsx
+app/reports/timeline.tsx
+app/reports/view-report.tsx
+app/returns/detail.tsx
+app/returns/hub.tsx
+app/returns/new-request.tsx
+app/reviews/index.tsx
+app/room/[id].tsx
+app/s/[type]/[slug].tsx
+app/search/index.tsx
+app/services/index.tsx
+app/settings/about.tsx
+app/settings/data.tsx
+app/settings/feedback.tsx
+app/settings/help.tsx
+app/settings/index.tsx
+app/settings/language.tsx
+app/settings/notifications-settings.tsx
+app/settings/notifications.tsx
+app/settings/privacy.tsx
+app/settings/security.tsx
+app/settings/support-chat.tsx
+app/settings/terms.tsx
+app/shared/location-picker.tsx
+app/support/chat.tsx
+app/support/ticket.tsx
+app/voice/index.tsx
+app/wallet/cards.tsx
+app/wallet/hub.tsx
+app/wallet/topup.tsx
+app/wallet/transactions.tsx
+app/wallet/transfer.tsx
+app/wearables/hub.tsx
+## API call markers
+fetch(
+fetch(`${BASE_URL}/auth/guest`, {
+fetch(`${BASE_URL}/auth/refresh`, {
+fetch(`${BASE_URL}/legal/policy/patient_terms?lang=${AR ? "ar" : "en"}`
+fetch(`${BASE_URL}/legal/policy/privacy_policy?lang=${AR ? "ar" : "en"}`
+fetch(`${appConfig.apiBaseUrl}/config`
+fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {
+fetch(req.url, {
+fetch(url, { ...options, headers, signal: ctrl.signal }
+fetch(valid, 'memory-disk'
+## interactive count
+1884
+## placeholder/fallback markers
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/.env.example:3:EXPO_PUBLIC_API_BASE_URL=http://localhost:8002/api/v1
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/.env.example:4:EXPO_PUBLIC_SOCKET_URL=http://localhost:8002
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/.env.example:5:EXPO_PUBLIC_CDN_URL=http://localhost:8002/uploads
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/chat.tsx:242:            placeholder="اكتب رسالتك..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/chat.tsx:243:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:249:                placeholder="اكتب استفسارك أو تجربتك الصحية للمجتمع الطبي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:250:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:274:          placeholder="أضف تعليقاً..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:275:          placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:260:            placeholder="رقم الوثيقة"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:261:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:268:            placeholder="رقم العضوية (اختياري)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:269:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:20:// Pre-load placeholders only — /loyalty/config overwrites with the live table.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/referrals.tsx:210:            placeholder="أدخل كود الإحالة"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/chat-doctor.tsx:218:              placeholder="اكتب سؤالك الطبي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/chat-doctor.tsx:219:              placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/triage.tsx:199:          placeholder="اكتب أعراضك هنا (مثال: أشعر بصداع كلي...)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/triage.tsx:200:          placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:112:            style={{ flex: 1, fontSize: 13, color: colors.n, textAlign: isRTL ? 'right' : 'left' }} placeholder={lang === 'ar' ? 'ابحث عن طبيب، دواء، تحليل، مقال، تأمين...' : 'Search doctor, medicine, lab, article, insurance...'}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:113:            placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:202:                placeholder={f.hint}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:203:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/search.tsx:67:            placeholder="ابحث عن تحليل..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/upload-rx.tsx:3:// This file previously rendered a bare "Upload" placeholder stub.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:74:            { name: 'doctor_request.pdf', url: 'https://example.com/doctor_request.pdf', kind: 'doctor_request' }
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:220:              <Input value={policyNumber} onChangeText={setPolicyNumber} placeholder="رقم بوليصة التأمين" icon="document" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:221:              <Input value={memberId} onChangeText={setMemberId} placeholder="رقم عضوية التأمين" icon="user" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:66:            placeholder="ابحث عن باقة..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:67:            placeholderTextColor={theme.colors.textSecondary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:227:                placeholder="اسم الدواء"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:228:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:235:                placeholder="الجرعة (مثال: 500 ملغ)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:236:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:243:                placeholder="وقت التذكير (مثال: 08:00)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:244:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:189:          placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:487:              placeholder="أضف حساسية..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:488:              placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:556:              placeholder="أضف مرضاً مزمنة..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:557:              placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:115:          <Input value={name} onChangeText={setName} placeholder="مثال: بنادول إكسترا 500mg" icon="medication" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:226:        <Input value={notes} onChangeText={setNotes} placeholder="ملاحظات إضافية (اختياري)" icon="edit" multiline />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:179:            placeholder="ابحث عن مرض..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:239:            placeholder="ابحث عن حساسية..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:178:              <Input value={hours} onChangeText={setHours} placeholder="عدد الساعات (مثال: 7.5)" icon="bedtime" keyboardType="numeric" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:179:              <Input value={score} onChangeText={setScore} placeholder="تقييم الجودة من 100 (مثال: 80)" icon="sparkles" keyboardType="numeric" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:175:                placeholder="الاسم"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:176:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:183:                placeholder="صلة القرابة (اختياري)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:184:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:191:                placeholder="رقم الجوال"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:192:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:232:                <Input value={value1} onChangeText={setValue1} placeholder="الانقباضي" keyboardType="numeric" icon="trending_up" style={{ flex: 1 }}/>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:234:                <Input value={value2} onChangeText={setValue2} placeholder="الانبساطي" keyboardType="numeric" icon="trendingDown" style={{ flex: 1 }}/>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:237:              <Input value={value1} onChangeText={setValue1} placeholder={`القراءة (${config.unit})`} keyboardType="numeric" icon={config.icon} style={{ marginTop: 8 }}/>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reviews/index.tsx:192:            placeholder="شارك تجربتك مع الآخرين..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reviews/index.tsx:193:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:138:            placeholder="اكتب ما يخطر على بالك..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:139:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:96:          placeholder="ابحث في المقالات…"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:302:                  placeholder="مثال: 6"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:303:                  placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:313:                  placeholder="مثال: 7.5"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:314:                  placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:324:                  placeholder="مثال: 65"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:325:                  placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:335:                  placeholder="مثال: 42"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:336:                  placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:128:            placeholder="مثال: كبسة لحم مع سلطة وزبادي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:100:        {/* Body silhouette placeholder */}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:140:              placeholder="ابحث عن طعام..." placeholderTextColor={colors.textTertiary} textAlign="right" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:72:          <Input value={weight} onChangeText={setWeight} placeholder="الوزن (كغ)" keyboardType="numeric" icon="weight" style={{ flex: 1 }}/>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:73:          <Input value={height} onChangeText={setHeight} placeholder="الطول (سم)" keyboardType="numeric" icon="trending_up" style={{ flex: 1 }}/>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:93:          <Input value={targetWeight} onChangeText={setTargetWeight} placeholder="الوزن المستهدف (كغ)" keyboardType="numeric" icon="success" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:115:              <Input value={form.weight} onChangeText={v => set('weight', v)} placeholder="الوزن (كغ)" keyboardType="numeric" icon="weight" style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:116:              <Input value={form.height} onChangeText={v => set('height', v)} placeholder="الطول (سم)" keyboardType="numeric" icon="trending_up" style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:119:              <Input value={form.age} onChangeText={v => set('age', v)} placeholder="العمر" keyboardType="numeric" icon="calendar" style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:120:              <Input value={form.targetWeight} onChangeText={v => set('targetWeight', v)} placeholder="الوزن المستهدف" keyboardType="numeric" icon="success" style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:144:            <Input value={allergies} onChangeText={setAllergies} placeholder="حساسية أو أطعمة ممنوعة (اختياري)" icon="warning" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:593:              placeholder: "اسم العنوان (مثال: المنزل)",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:596:            { key: "street", placeholder: "الشارع والحي", icon: "location" },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:599:              placeholder: "رقم المبنى / اسمه",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:604:              placeholder: "الطابق (اختياري)",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:609:              placeholder: "ملاحظات للمندوب (اختياري)",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:623:                placeholder={field.placeholder}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:624:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:422:              placeholder="ابحث عن دكتور، صيدلية، مستشفى..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:423:              placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:173:          <TextInput value={msg} onChangeText={setMsg} placeholder="اكتب رسالة..." placeholderTextColor={colors.textTertiary} style={[st.input, { backgroundColor: colors.surfaceSecondary, color: colors.textPrimary }]} onSubmitEditing={send} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/join.tsx:147:              placeholder="مثال: F7X2K9"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/invite.tsx:79:            <Input value={name} onChangeText={setName} placeholder="اسم الفرد" icon="user" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/diagnostics.tsx:111:            placeholder={mainTab === 'labs' ? "ابحث عن تحليل، باقة، أو مختبر..." : "ابحث عن نوع الأشعة أو المركز..."}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/diagnostics.tsx:112:            placeholderTextColor={colors.textSecondary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/pharmacy.tsx:136:          // Offline — cached copy (if any) already shown above; never mock data
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/pharmacy.tsx:229:                placeholder={lang === 'ar' ? 'ابحث بالاسم أو المادة الفعالة...' : 'Search medicines...'}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/pharmacy.tsx:230:                placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/consultations/index.tsx:220:            placeholder="ابحث عن دكتور أو تخصص..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/consultations/index.tsx:221:            placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/nursing.tsx:120:              placeholder="ابحث عن خدمة أو ممرض..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/nursing.tsx:124:              placeholderTextColor="#94A3B8"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/delivery/address-select.tsx:42:        // No mock fallback — show the honest empty state
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/specialty-select.tsx:61:          placeholder="ابحث عن تخصص..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/book/[id].tsx:345:            placeholder="اكتب الأعراض أو أي معلومات تود إخبار الطبيب بها"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/book/[id].tsx:346:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/doctor-search.tsx:113:          placeholder="ابحث بالاسم أو التخصص..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/video/[id].tsx:3:// This file previously rendered a "VideoCall - s64" placeholder stub.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/booking-confirm.tsx:116:          const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/post-call-rating.tsx:98:            placeholder="اكتب رأيك في الخدمة..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/post-call-rating.tsx:99:            placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/chat-with-doctor.tsx:189:          placeholder="اكتب رسالة..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/chat-with-doctor.tsx:190:          placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:337:                placeholder="الاسم على البطاقة"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:338:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:344:                placeholder="رقم البطاقة"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:345:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:352:                placeholder="تاريخ الانتهاء (MM/YY)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:353:                placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/topup.tsx:151:            placeholder="المبلغ (ر.س)"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/topup.tsx:152:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/forgot-password.tsx:108:          placeholder="البريد الإلكتروني"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/reset-password.tsx:116:          placeholder="كلمة المرور الجديدة"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/reset-password.tsx:126:          placeholder="تأكيد كلمة المرور"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/login.tsx:246:              placeholder="example@mail.com"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/login.tsx:247:              placeholderTextColor={resolveColor('var(--t3)', isDark)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/login.tsx:266:              placeholder="••••••••"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/login.tsx:267:              placeholderTextColor={resolveColor('var(--t3)', isDark)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:25:const AuthField = ({ label, icon, placeholder, value, onChangeText, isPass, isDark, isRTL, focusedInput, setFocusedInput, showPassword, setShowPassword }: any) => (
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:34:        placeholder={placeholder}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:35:        placeholderTextColor={resolveColor('var(--t3)', isDark)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:222:          placeholder={'أحمد السالم'} 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:231:          placeholder={'0500000000'} 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:240:          placeholder="example@mail.com" 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:249:          placeholder="••••••••" 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:259:          placeholder="••••••••" 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/otp.tsx:78:      // M1: backend returns { ok: true } from /auth/verify-otp (older mocks used `verified`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/returns/new-request.tsx:182:                  placeholder="مثال: ORD-2024-001" placeholderTextColor={colors.textTertiary} textAlign="right" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/returns/new-request.tsx:205:                placeholder="اشرح مشكلتك بالتفصيل..." placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/drug-not-found.tsx:92:            <Input value={name} onChangeText={setName} placeholder="اسم الدواء *" icon="medication" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/drug-not-found.tsx:93:            <Input value={dose} onChangeText={setDose} placeholder="التركيز / الجرعة (مثال: 500mg)" icon="edit" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/drug-not-found.tsx:95:              <Input value={qty} onChangeText={v => setQty(v.replace(/\D/g, ''))} placeholder="الكمية" keyboardType="numeric" icon="shopping_cart" style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/drug-not-found.tsx:98:            <Input value={notes} onChangeText={setNotes} placeholder="ملاحظات إضافية (اختياري)" icon="edit" multiline />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:249:                placeholder="الحد الأدنى"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:250:                placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:259:                placeholder="الحد الأقصى"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:260:                placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:298:              placeholder="ابحث عن شركة..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:299:              placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:386:              placeholder="اكتب رسالتك للصيدلي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:387:              placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:186:            placeholder: "مثال: ميتفورمين 500mg",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:192:            placeholder: "مثال: 500mg",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:198:            placeholder: "مثال: 2 علبة",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:231:              placeholder={f.placeholder}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:232:              placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:268:            placeholder="أي معلومات إضافية..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:269:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/manual-order.tsx:79:            placeholder="مثال: كونجستال أقراص"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/manual-order.tsx:80:            placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/manual-order.tsx:88:            placeholder="أضف أي تفاصيل أخرى تساعد الصيدلي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/manual-order.tsx:89:            placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/product-detail.tsx:263:            <View style={[styles.placeholderHero, { backgroundColor: med.iconBg || '#DEF5F9', width, height: width }]}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/product-detail.tsx:448:                <TextInput value={suggestValue} onChangeText={setSuggestValue} placeholder={isRTL ? 'القيمة الصحيحة المقترحة' : 'Suggested correct value'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cairo-Regular', textAlign: isRTL ? 'right' : 'left' }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/product-detail.tsx:451:            <TextInput value={suggestNote} onChangeText={setSuggestNote} placeholder={isRTL ? 'ملاحظة إضافية (اختياري)' : 'Extra note (optional)'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cairo-Regular', textAlign: isRTL ? 'right' : 'left' }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/product-detail.tsx:522:  placeholderHero: { justifyContent: 'center', alignItems: 'center' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/pharmacist-chat.tsx:349:          placeholder="اكتب رسالتك للصيدلي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/pharmacist-chat.tsx:350:          placeholderTextColor={colors.t3}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:254:            placeholder="أدخل كود الكوبون"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:255:            placeholderTextColor={colors.t2}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/security.tsx:250:                      placeholder="••••••••"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/security.tsx:251:                      placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/feedback.tsx:153:            placeholder="اكتب ملاحظتك هنا..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/feedback.tsx:154:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/network-providers.tsx:119:            placeholder="ابحث عن مزود..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/network-providers.tsx:120:            placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:152:            { label: 'رقم البوليصة', val: policyNum, setter: setPolicyNum, placeholder: 'رقم البوليصة كما في البطاقة' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:153:            { label: 'رقم العضوية / الهوية الوطنية', val: memberId, setter: setMemberId, placeholder: 'الهوية الوطنية / الإقامة' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:154:            { label: 'اسم العضو (اختياري)', val: memberName, setter: setMemberName, placeholder: 'الاسم كما في البطاقة' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:155:            { label: 'تاريخ الانتهاء (اختياري)', val: expiry, setter: setExpiry, placeholder: 'YYYY-MM-DD' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:161:                  placeholder={f.placeholder} placeholderTextColor={colors.textTertiary} textAlign="right" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/coverage-check.tsx:193:              placeholder="اسم الطبيب أو المستشفى أو الصيدلية"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/coverage-check.tsx:194:              placeholderTextColor={colors.textTertiary} textAlign="right"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:138:            placeholder="اكتب استفسارك الطبي..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:7: * M1-01 — REAL network client (replaces the former in-memory mock that returned
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:11: * so all 157 screens that were wired to the mock become live against the real
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/PHASE_1A_VALIDATION_REPORT.md:64:- **TODO Items**: `OfflineQueueManager` needs background sync hook (Phase 1C).
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/PROJECT_CONSTITUTION.md:824:| Integration | Jest + AsyncStorage mock | Flow level |
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/PROJECT_CONSTITUTION.md:1731:1. Testability — يمكن استبدال أي service بـ mock في الاختبارات
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/PROJECT_CONSTITUTION.md:1825:// Unit Test — نستبدل كل dependency بـ mock
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/PHASE_1A.md:26:16. Create feature module folder structure (placeholders).
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/PHASE_1A.md:41:- Module placeholders.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/DECISIONS.md:38:**Consequences:** Consistent network behavior. Easier to mock for testing.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/docs/DECISIONS.md:115:**Consequences:** Services are mockable.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:2959:        "jest-mock": "^29.7.0"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3064:        "jest-mock": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3091:        "jest-mock": "^29.7.0"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9385:        "jest-mock": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9482:    "node_modules/expect/node_modules/jest-mock": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9484:      "resolved": "https://registry.npmjs.org/jest-mock/-/jest-mock-30.4.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11970:        "jest-mock": "30.4.1"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12001:        "jest-mock": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12018:        "jest-mock": "30.4.1"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12250:    "node_modules/jest-circus/node_modules/jest-mock": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12252:      "resolved": "https://registry.npmjs.org/jest-mock/-/jest-mock-30.4.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12317:        "jest-mock": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12924:        "jest-mock": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12950:        "jest-mock": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13128:    "node_modules/jest-mock": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13130:      "resolved": "https://registry.npmjs.org/jest-mock/-/jest-mock-29.7.0.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13280:        "jest-mock": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/jest.config.js:8:    '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Medium.ttf:375:        class="header-search-button placeholder  input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Medium.ttf:379:        placeholder="Search or jump to..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Medium.ttf:767:                placeholder="github-ruby"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Medium.ttf:783:              placeholder="(repo:mona/a OR repo:mona/b) AND lang:python"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Black.ttf:375:        class="header-search-button placeholder  input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Black.ttf:379:        placeholder="Search or jump to..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Black.ttf:767:                placeholder="github-ruby"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Black.ttf:783:              placeholder="(repo:mona/a OR repo:mona/b) AND lang:python"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-SemiBold.ttf:375:        class="header-search-button placeholder  input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-SemiBold.ttf:379:        placeholder="Search or jump to..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-SemiBold.ttf:767:                placeholder="github-ruby"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-SemiBold.ttf:783:              placeholder="(repo:mona/a OR repo:mona/b) AND lang:python"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-ExtraBold.ttf:375:        class="header-search-button placeholder  input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-ExtraBold.ttf:379:        placeholder="Search or jump to..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-ExtraBold.ttf:767:                placeholder="github-ruby"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-ExtraBold.ttf:783:              placeholder="(repo:mona/a OR repo:mona/b) AND lang:python"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Regular.ttf:375:        class="header-search-button placeholder  input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Regular.ttf:379:        placeholder="Search or jump to..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Regular.ttf:767:                placeholder="github-ruby"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Regular.ttf:783:              placeholder="(repo:mona/a OR repo:mona/b) AND lang:python"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Bold.ttf:375:        class="header-search-button placeholder  input-button form-control d-flex flex-1 flex-self-stretch flex-items-center no-wrap width-full py-0 pl-2 pr-0 text-left border-0 box-shadow-none"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Bold.ttf:379:        placeholder="Search or jump to..."
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Bold.ttf:767:                placeholder="github-ruby"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/assets/fonts/Cairo-Bold.ttf:783:              placeholder="(repo:mona/a OR repo:mona/b) AND lang:python"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:10:  let mockLocalDataSource: jest.Mocked<ILocalDataSource<UserEntity>>;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:11:  let mockRemoteDataSource: jest.Mocked<IRemoteDataSource<UserEntity>>;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:12:  let mockEventBus: jest.Mocked<EventBus>;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:13:  let mockConflictResolver: jest.Mocked<ConflictResolver>;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:16:    mockLocalDataSource = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:29:    mockRemoteDataSource = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:40:    mockEventBus = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:45:    mockConflictResolver = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:50:      mockLocalDataSource,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:51:      mockRemoteDataSource,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:52:      mockEventBus,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:53:      mockConflictResolver
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:62:    const mockUser: UserEntity = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:64:      email: 'test@example.com',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:69:    mockLocalDataSource.findById.mockResolvedValue(mockUser);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:72:    expect(result).toEqual(mockUser);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:73:    expect(mockLocalDataSource.findById).toHaveBeenCalledWith('1');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:79:      email: 'new@example.com',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:84:    mockLocalDataSource.insert.mockResolvedValue(newUser);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:88:    expect(mockLocalDataSource.insert).toHaveBeenCalledWith(newUser);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/__tests__/UsersRepository.test.ts.bak:89:    expect(mockEventBus.publish).toHaveBeenCalledWith('ENTITY_INSERTED', expect.objectContaining({ entity: newUser }), 'users');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/sync/__tests__/SyncManager.test.ts.bak:7:    // We would use jest.mock for dependencies like SyncWorker, QueueProcessor here
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/sources/SQLiteDataSource.ts:83:    const placeholders = Object.keys(entity).map(() => '?').join(', ');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/data/repositories/sources/SQLiteDataSource.ts:86:    const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/Loading.tsx:76:// DS Skeleton — Shimmer placeholder for content loading
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/Input.tsx:23:  placeholder?: string;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/Input.tsx:44:    placeholder,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/Input.tsx:131:          placeholder={placeholder}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/Input.tsx:132:          placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/SearchBar.tsx:25:  placeholder?: string;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/SearchBar.tsx:46:  placeholder,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/SearchBar.tsx:63:    placeholder ??
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/SearchBar.tsx:150:          placeholder={defaultPlaceholder}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/design-system/components/SearchBar.tsx:151:          placeholderTextColor={colors.textTertiary}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/mocks/MockDataSources.ts:2: * Mock Services — Injectable mock implementations for testing.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/mocks/MockDataSources.ts:48:    const item = { ...dto, id: dto.id ?? `mock-${Date.now()}` } as TModel;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:5:  let mockSecureStorage: any;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:7:  const mockSession: SessionData = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:19:    mockSecureStorage = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:20:      setItem: jest.fn().mockResolvedValue(undefined),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:21:      getItem: jest.fn().mockResolvedValue(null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:22:      deleteItem: jest.fn().mockResolvedValue(undefined),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:24:    sessionManager = new SessionManager(mockSecureStorage);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:28:    await sessionManager.createSession(mockSession);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:34:    await sessionManager.createSession(mockSession);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:36:    global.fetch = jest.fn().mockResolvedValue({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:52:    await sessionManager.createSession(mockSession);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:58:    await sessionManager.createSession(mockSession);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/auth/SessionManager.test.ts:67:    await sessionManager.createSession(mockSession);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:10:export const mockConfig: AppConfig = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:18:  apiBaseUrl:       'http://localhost:8002/api/v1',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:19:  fastapiBaseUrl:   'http://localhost:8000/api',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:20:  socketUrl:        'ws://localhost:8002',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:21:  cdnUrl:           'http://localhost:8002/media',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:59:export const mockLogger: any = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:64:  scope: jest.fn(() => mockLogger),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:69:export const mockAnalytics = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:78:export const mockFeatureFlags = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:86:export const mockHttpClient = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:124:// AsyncStorage mock (for Jest)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:141:// DI Container mock setup (for unit tests)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:146:  container.bindSingleton(Tokens.Logger,       mockLogger);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:147:  container.bindSingleton(Tokens.Analytics,    mockAnalytics);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:148:  container.bindSingleton(Tokens.FeatureFlags, mockFeatureFlags);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/__tests__/utils/testUtils.ts:149:  container.bindSingleton(Tokens.Config,       mockConfig);

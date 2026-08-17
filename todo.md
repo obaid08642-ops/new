@@ -429,3 +429,59 @@
 - [ ] Production readonly reconciliation: liveness is 200 via origin, but readiness returns 500. Obtain server logs/readiness dependency diagnosis from the auditor before any E2E readiness claim; do not infer deployed SHA from health alone.
 
 - [x] Created `DEPLOYMENT_AND_POST_DEPLOY_GATE_20260818.md` for auditor handoff: backup/rollback, SHA confirmation, readiness gate, role-by-role Provider App intake, Patient App service lifecycles, Admin operations, evidence schema, and PASS/FAIL/BLOCKED/UNRECONCILED/NOT IMPLEMENTED rules.
+
+# Full Systematic QA & Workflow Validation — 2026-08-18
+
+- [ ] Reconcile live release: confirm deployed SHA includes `41d1103` plus RolesGuard fix `f2bffa28`, record rollback image/DB backup, disk state, liveness/readiness, and release identifier.
+- [ ] Add `f2bffa28` to source/evidence register and rerun local 269/269 gate after the RolesGuard change is present in the authoritative source archive.
+- [ ] Patient App screen/button audit: enumerate every route, screen, modal, tab, card, icon, form, CTA, back action, cancel action, retry action, deep link, permission, and API call; classify each as wired, broken, placeholder, or missing.
+- [ ] Provider App screen/button audit: enumerate onboarding/KYC, approval, profile, availability, schedules/holidays/leave, catalog/pricing/insurance settings, inbox/broadcast, accept/reject/reassign, patient detail, chat/call/GPS, reports/prescriptions/referrals, no-show/cancel, wallet/withdrawal, notifications, ratings, drug index/jobs, settings, and logout.
+- [ ] Admin Dashboard screen/button audit: enumerate authentication/RBAC, provider/facility approvals, users, orders/bookings, queues/broadcast/reassignment, catalog/drugs, insurance, payments/refunds/payouts/ledger, labs/radiology/nursing/hospital/ambulance operations, notifications, audit logs, exports, configuration, localization/theme, and destructive-action safeguards.
+- [ ] Consultation lifecycle matrix: online, clinic, home; cash, card, insurance/copay; doctor/facility/specialty/price; working hours/slots/holidays/leave; booking/confirm/reschedule/cancel/no-show; chat before/during/after; video/audio initiate/ring/accept/reject/end; prescription/sick leave/report/referral/follow-up/rating/receipt/notifications.
+- [ ] Pharmacy lifecycle matrix: delivery/pickup/refill/reorder; cash/card/insurance; catalog/stock/substitution; broadcast/accept/reject/reassign; cart/approval/tracking/completion; cancellation at each state; inventory before/after; receipt/rating/notifications.
+- [ ] Laboratory lifecycle matrix: branch/home; test catalog/preparation; cash/card/insurance/out-of-network; booking/sample/analyzing/result/report; accept/reject/reassign/reschedule/cancel; report access and BOLA; notifications.
+- [ ] Radiology lifecycle matrix: branch/home/modality/PACS; cash/card/insurance; booking/perform/images/report; inbox/respond/allocate/finalize; reassign/reschedule/cancel/no-show; report access/BOLA; notifications.
+- [ ] Nursing/home-care lifecycle matrix: catalog/broadcast/accept/reject/reassign; availability; arrival/start/in-progress/complete; GPS/geofence; notes/care plan/supplies; emergency/no-show/cancel; cash/insurance/pending-finance-review; rating/notifications; provider/patient/admin isolation.
+- [ ] Hospital/facility lifecycle matrix: directory/profile/branches/departments; appointment; staff invite/onboard/roles; hospital-admin versus provider; schedules/leave; patient tracker; discharge/report/resources/announcements/internal chat; UUID contract; audit logs.
+- [ ] Shared workflow matrix: notifications creation/read/read-all/foreign isolation; wallet/cards/topup/transfer/withdrawal/ledger; family invite/join/permissions/records/remove; chat membership/typing/messages; LiveKit origin/token/no-show; OTP/2FA/rate limits; webhooks/signatures/idempotency; error contracts.
+- [ ] Extended feature audit: nutrition, mental health, pregnancy, cycle/ovulation, medication reminders, AI triage/diagnosis boundaries, drug index, provider jobs, personalization, SEO/GEO/share links, multilingual content, and automatic theme.
+- [ ] Provider intake E2E: doctor/lab/radiology/pharmacy/nursing/hospital/ambulance sandbox login and onboarding state; online toggle; request broadcast/inbox; accept/reject/timeout/reassign; payment/insurance branch; patient minimization; chat/call/GPS/report; notification; wallet/withdrawal; settings/logout.
+- [ ] Cross-account BOLA for every lifecycle: patient1 owner, patient2 foreign, provider1 assigned, provider2 foreign, hospital-admin, admin; verify reads/mutations/state/ledger/notifications/reports are 403/404 as appropriate.
+- [ ] Cross-platform QA: Android/iOS/Huawei source/build, small/medium/tablet layouts, orientation/background/permissions, weak network/retry, push/deep links, calls/GPS, RTL/LTR/six languages, light/dark automatic/manual theme, accessibility, crash logs, real-device UAT.
+- [ ] For every defect: inspect source → implement fail-closed fix → add regression → build → run full gate → commit/push → deploy confirmation → live recheck → evidence update. No closure on source-only evidence.
+
+- [x] Remote reconciliation update: auditor pushed `f2bffa28609f` (global RolesGuard effective-role/provider_type fix) on top of `629f097`; production live matrix reports provider queue/inbox access restored and BOLA cases green.
+- [ ] Reconcile local backend archive and full 269/269 gate against remote `f2bffa2` before any further source claim; retain deployed rollback image/DB evidence.
+- [ ] Phase-1 readiness remains open until `/health/readiness` is explained/healthy or formally waived with server evidence; liveness 200 alone is insufficient.
+
+- [x] Independent backend archive gate from remote `f2bffa2`: extracted 702 files, dependencies installed successfully, Jest exited 0 with all discovered suites passing; archive SHA `c274ce57313c7406cb2d2100cb5e41feaa94e53691675dedf242602b13e16793`. The auditor's reported total remains 39 suites/269 tests and must be retained as the release count.
+
+- [x] Persisted systematic inventories: Patient App artifact currently contains 249 route/screen markers and Admin Dashboard artifact contains 42 page-route markers, plus API and interactive-handler sections.
+- [ ] Expand each inventory marker into a row-level contract with exact screen/button, backend endpoint, payload, role, expected state transitions, and evidence; counts are discovery totals, not pass totals.
+
+- [x] Patient readonly live matrix: login succeeded; notifications, wallet balance/transactions, orders/mine, doctors, labs/packages, radiology/services, pharmacy/products, home-care/services, insurance/companies, and articles returned 200 with structured data. Evidence saved as `PATIENT_READONLY_LIVE_MATRIX_20260818.json`.
+- [ ] Reconcile Patient App exact consumers before mutation: `/profile`, `/family`, `/appointments/mine`, `/hospitals` returned 404 and `/services` returned 403 in the generic probe; these may be stale route guesses, so map each screen to its actual controller/endpoint before classifying as defects.
+
+- [x] Patient route reconciliation artifact created: generic probe 404/403 results are not final defects until mapped to exact app consumers/controllers; mutations are prohibited from guessed routes.
+- [ ] Re-run Patient reads from exact screen consumers and then begin one controlled sandbox lifecycle at a time with before/after/cleanup evidence.
+
+- [x] Persisted Patient consultation consumer map with 854 lines of source screen/API/navigation evidence in `PATIENT_CONSULTATION_CONSUMER_MAP_20260818.txt`.
+- [ ] Resolve consultation consumers into exact endpoints and execute online/clinic/home + cash/card/insurance booking lifecycles with doctor acceptance and patient/provider cross-account evidence.
+
+- [x] Persisted Provider App intake consumer map with 507 lines of screen/API/workflow evidence in `PROVIDER_INTAKE_CONSUMER_MAP_20260818.txt`.
+- [ ] Resolve provider consumers to exact backend routes and execute read-only queue/availability probes, then controlled accept/reject/reassign lifecycles per provider type with cross-provider BOLA evidence.
+
+- [x] Persisted Provider intake backend/app route map in `PROVIDER_INTAKE_BACKEND_ROUTE_MAP_20260818.txt` (532 lines) for exact consumer-to-controller reconciliation.
+- [ ] Use the reconciled route map to run provider login/queue/availability reads and then accept/reject/reassign only on real sandbox requests, recording provider-type and assignment boundaries.
+
+- [x] Provider readonly probe executed without mutations; evidence saved in `PROVIDER_READONLY_LIVE_MATRIX_20260818.json` and findings in `PROVIDER_READONLY_FINDINGS_20260818.md`. App login contract is confirmed as `POST /provider/auth/login` with email/password/meta.
+- [ ] Reconcile provider 404 response bodies as account/contract classification and wait out 429 windows before one-account-at-a-time retry; no repeated login attempts or queue mutations until then.
+
+- [x] Persisted Patient consumer/backend route reconciliation in `PATIENT_CONSUMER_BACKEND_ROUTE_MAP_20260818.txt` (1450 lines), covering profile, family, appointments, pharmacy, labs, radiology, nursing, hospital, wallet, notifications, insurance, and reports.
+- [ ] Classify every Patient 404/403 by exact consumer call, backend contract, auth/ownership policy, and screen/workflow impact; then create a safe production probe matrix.
+
+- [x] Inventoried Provider App: 42 screen files and 5 API/context files, plus provider/service controllers; saved in `PROVIDER_SCREEN_CONTROLLER_INVENTORY_20260818.md`.
+- [ ] For each provider type (doctor, pharmacy, lab, radiology, nursing, hospital, ambulance), map screen actions to exact backend request lifecycle and mark read-only, mutation, or externally blocked.
+
+- [x] Attempted one exact Patient read-only probe against origin with resolved TLS; session timed out before a response and was killed safely. Evidence: `PATIENT_EXACT_READ_PROBE_20260818.md`. Classified INCONCLUSIVE/transport timeout, not API failure.
+- [ ] Re-run Patient exact-read probe only after transport stability is confirmed; record status/body/IDs without persisting tokens.
