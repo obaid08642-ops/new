@@ -269,3 +269,10 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ### Current live reconciliation probe
 
 استُخرجت قائمة حقيقية من `GET /unified-bookings/mine` للمريض sandbox؛ تضمنت lab booking `76166cc4-7c29-4762-944b-c7c9de45bb15` بحالة `REPORTED/COMPLETED`. `GET /unified-bookings/lab/:id` أعاد `200` وبيانات الحجز كاملة للمالك patient1، لكنه أعاد `200` بجسم فارغ لـpatient2 قبل نشر patch `72fe83e`. هذا يؤكد أن الإصلاح المصدرّي لم يُنشر بعد، وأن live BOLA/contract recheck يجب أن يعاد بعد النشر ويتوقع `404 booking_not_found` للغريب.
+
+
+## BookingFlow provider visibility — 2026-08-17
+
+أظهر فحص المصدر أن `BookingFlowService.fetchEntity` كان patient-only باستثناء admin، ما يجعل مزوداً معيناً غير قادر على status/timeline/retry من العقد الموحد حتى لو كان مرتبطاً بالحجز. تم توحيد ownership ليشمل provider_account_id/provider_id/doctor_user_id/pharmacy_id مع دعم provider_type normalization، مع إبقاء المزود غير المعيّن fail-closed، وتوسيع admin resolve إلى admin/super_admin فقط.
+
+أضيفت regression **2/2**، وأصبح full backend **38 suites / 263 tests** مع tsc/build ناجحين. في الإنتاج الحالي أعادت `booking/flow/status` و`timeline` الحالة `404` على probe سابق، ولذلك يصنف البند **SOURCE FIX / LIVE ROUTE-VERSION RECONCILIATION** ولا يُغلق قبل اختبار booking sandbox assigned بعد النشر.
