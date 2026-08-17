@@ -1,0 +1,109 @@
+# Provider registration defaults post-fix scan
+provider-app/src/screens/doctor/DoctorRegistration.tsx:43:  offersClinic: boolean; clinicPrice: string; clinicDuration: string;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:44:  offersHome: boolean; homePrice: string; homeRadius: number;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:46:  offersVideo: boolean; videoPrice: string; videoDuration: string;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:47:  lat: number; lng: number;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:56:  cashOnly: boolean;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:58:  city: string; location: {lat: number; lng: number}; address: string; clinicName: string;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:67:  offersClinic:false, clinicPrice:'', clinicDuration:'',
+provider-app/src/screens/doctor/DoctorRegistration.tsx:68:  offersHome:false, homePrice:'', homeRadius: 0, homeTransportFee: false, homeTransportPrice: '',
+provider-app/src/screens/doctor/DoctorRegistration.tsx:69:  offersVideo:false, videoPrice:'', videoDuration:'',
+provider-app/src/screens/doctor/DoctorRegistration.tsx:70:  lat: 0, lng: 0,
+provider-app/src/screens/doctor/DoctorRegistration.tsx:77:  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 0, lng: 0}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+provider-app/src/screens/doctor/DoctorRegistration.tsx:415:              <NInput label={AR ? 'سعر الكشف في العيادة' : 'Clinic Visit Price'} value={data.clinicPrice} onChange={v=>update({clinicPrice:v})} kbType="numeric" />
+provider-app/src/screens/doctor/DoctorRegistration.tsx:429:              <NInput label={AR ? 'سعر الاستشارة الأونلاين' : 'Online Consult Price'} value={data.videoPrice} onChange={v=>update({videoPrice:v})} kbType="numeric" />
+provider-app/src/screens/doctor/DoctorRegistration.tsx:444:              <NInput label={AR ? 'سعر الزيارة المنزلية' : 'Home Visit Price'} value={data.homePrice} onChange={v=>update({homePrice:v})} kbType="numeric" />
+provider-app/src/screens/doctor/DoctorRegistration.tsx:502:                initialLocation={{ lat: data.lat, lng: data.lng }}
+provider-app/src/screens/doctor/DoctorRegistration.tsx:504:                  update({ lat: loc.lat, lng: loc.lng });
+provider-app/src/screens/doctor/DoctorRegistration.tsx:715:        <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
+provider-app/src/screens/doctor/DoctorRegistration.tsx:796:          onPress={(e) => update({ location: e.nativeEvent.coordinate })}
+provider-app/src/screens/doctor/DoctorRegistration.tsx:802:          onPress={() => update({ location: { latitude: 24.7136, longitude: 46.6753 } })} // Simulating My Location
+provider-app/src/screens/doctor/DoctorRegistration.tsx:876:        price_clinic: parseFloat(data.clinicPrice) || 0,
+provider-app/src/screens/doctor/DoctorRegistration.tsx:877:        price_online: parseFloat(data.videoPrice) || 0,
+provider-app/src/screens/doctor/DoctorRegistration.tsx:878:        price_home: parseFloat(data.homePrice) || 0,
+provider-app/src/screens/doctor/DoctorRegistration.tsx:936:        location: data.location,
+provider-app/src/screens/doctor/DoctorRegistration.tsx:954:      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.lat, lng: data.lng , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
+provider-app/src/screens/doctor/DoctorRegistration.tsx:1098:          { labelAr: 'كشف في العيادة', labelEn: 'Clinic Visit', price: data.clinicPrice || '0' },
+provider-app/src/screens/doctor/DoctorRegistration.tsx:1099:          { labelAr: 'استشارة أونلاين', labelEn: 'Online Consultation', price: data.videoPrice || '0' },
+provider-app/src/screens/doctor/DoctorRegistration.tsx:1100:          { labelAr: 'زيارة منزلية', labelEn: 'Home Visit', price: data.homePrice || '0' }
+provider-app/src/screens/facility/FacilityRegistration.tsx:60:  location: {lat: number; lng: number};
+provider-app/src/screens/facility/FacilityRegistration.tsx:64:  cashOnly: boolean;
+provider-app/src/screens/facility/FacilityRegistration.tsx:75:  city: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
+provider-app/src/screens/facility/FacilityRegistration.tsx:356:        location: data.location?.lat ? data.location : undefined,
+provider-app/src/screens/facility/FacilityRegistration.tsx:404:        <LocationPickerModal visible={showLocModal} onClose={() => setShowLocModal(false)} onSelectLocation={(l) => update({ location: l })} initialLocation={data.location.lat ? data.location : undefined} />
+provider-app/src/screens/facility/FacilityRegistration.tsx:426:    workDays: ['SUN','MON','TUE','WED','THU'], startHour: '09:00', endHour: '17:00',
+provider-app/src/screens/facility/FacilityRegistration.tsx:589:                        <TouchableOpacity key={d.k} onPress={() => setTempSub({...tempSub, workDays: sel ? tempSub.workDays.filter((x:any)=>x!==d.k) : [...(tempSub.workDays||[]), d.k]})} style={{ paddingHorizontal: SP.sm, paddingVertical: 4, borderRadius: R.sm, borderWidth: 1, borderColor: sel ? theme.primary : theme.border, backgroundColor: sel ? theme.primaryLight : theme.bg }}>
+provider-app/src/screens/facility/FacilityRegistration.tsx:653:                        <TouchableOpacity key={d.k} onPress={() => setTempSub({...tempSub, workDays: sel ? tempSub.workDays.filter((x:any)=>x!==d.k) : [...(tempSub.workDays||[]), d.k]})} style={{ paddingHorizontal: SP.sm, paddingVertical: 4, borderRadius: R.sm, borderWidth: 1, borderColor: sel ? theme.primary : theme.border, backgroundColor: sel ? theme.primaryLight : theme.bg }}>
+provider-app/src/screens/facility/FacilityRegistration.tsx:714:                        <TouchableOpacity key={d.k} onPress={() => setTempSub({...tempSub, workDays: sel ? tempSub.workDays.filter((x:any)=>x!==d.k) : [...(tempSub.workDays||[]), d.k]})} style={{ paddingHorizontal: SP.sm, paddingVertical: 4, borderRadius: R.sm, borderWidth: 1, borderColor: sel ? theme.primary : theme.border, backgroundColor: sel ? theme.primaryLight : theme.bg }}>
+provider-app/src/screens/facility/FacilityRegistration.tsx:775:                        <TouchableOpacity key={d.k} onPress={() => setTempSub({...tempSub, workDays: sel ? tempSub.workDays.filter((x:any)=>x!==d.k) : [...(tempSub.workDays||[]), d.k]})} style={{ paddingHorizontal: SP.sm, paddingVertical: 4, borderRadius: R.sm, borderWidth: 1, borderColor: sel ? theme.primary : theme.border, backgroundColor: sel ? theme.primaryLight : theme.bg }}>
+provider-app/src/screens/facility/FacilityRegistration.tsx:963:        <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
+provider-app/src/screens/facility/FacilityRegistration.tsx:1063:        lat: data.location?.lat || 0,
+provider-app/src/screens/facility/FacilityRegistration.tsx:1064:        lng: data.location?.lng || 0,
+provider-app/src/screens/lab/LabRegistration.tsx:50:  city: string; location: {lat: number; lng: number}; district: string; address: string;
+provider-app/src/screens/lab/LabRegistration.tsx:68:  workDays: string[]; 
+provider-app/src/screens/lab/LabRegistration.tsx:70:  openTime: string; closeTime: string; eveningOpenTime: string; eveningCloseTime: string;
+provider-app/src/screens/lab/LabRegistration.tsx:75:  cashOnly: boolean;
+provider-app/src/screens/lab/LabRegistration.tsx:89:  city: '', location: { lat: 0, lng: 0 }, district: '', address: '',
+provider-app/src/screens/lab/LabRegistration.tsx:94:  workDays: [],
+provider-app/src/screens/lab/LabRegistration.tsx:95:  shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '',
+provider-app/src/screens/lab/LabRegistration.tsx:99:  cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/lab/LabRegistration.tsx:664:        <LocationPickerModal visible={showLocModal} onClose={() => setShowLocModal(false)} onSelectLocation={(l) => update({ location: l })} initialLocation={data.location.lat ? data.location : undefined} />
+provider-app/src/screens/lab/LabRegistration.tsx:1391:              value={data.openTime} onChange={v => update({ openTime: v })}
+provider-app/src/screens/lab/LabRegistration.tsx:1394:              value={data.closeTime} onChange={v => update({ closeTime: v })}
+provider-app/src/screens/lab/LabRegistration.tsx:1469:          onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
+provider-app/src/screens/lab/LabRegistration.tsx:1642:        location: data.location,
+provider-app/src/screens/lab/LabRegistration.tsx:1662:      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.location?.lat || 0, lng: data.location?.lng || 0 , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:229:      await ProviderApi.submit({ lat: data.location?.lat || 0, lng: data.location?.lng || 0, full_data: sanitizeWizardData(data) });
+provider-app/src/screens/nursing/NursingRegistration.tsx:67:  priceVisit: string; priceHour: string; priceDay: string; priceMonth: string;
+provider-app/src/screens/nursing/NursingRegistration.tsx:69:  city: string; location: {lat: number; lng: number}; district: string; address: string;
+provider-app/src/screens/nursing/NursingRegistration.tsx:72:  workDays: string[]; shiftType: 'morning' | 'evening' | 'both'; openTime: string; closeTime: string; eveningOpenTime: string; eveningCloseTime: string; is24_7: boolean; vacationDate: string;
+provider-app/src/screens/nursing/NursingRegistration.tsx:74:  cashOnly: boolean;
+provider-app/src/screens/nursing/NursingRegistration.tsx:86:  pricingModels: [], priceVisit: '', priceHour: '', priceDay: '', priceMonth: '',
+provider-app/src/screens/nursing/NursingRegistration.tsx:87:  city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0, coverageAreas: [],
+provider-app/src/screens/nursing/NursingRegistration.tsx:88:  workDays: [], shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '', is24_7: false, vacationDate: '',
+provider-app/src/screens/nursing/NursingRegistration.tsx:89:  cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/nursing/NursingRegistration.tsx:479:              value={pm.id === 'per_visit' ? data.priceVisit : pm.id === 'per_hour' ? data.priceHour : pm.id === 'per_day' ? data.priceDay : data.priceMonth}
+provider-app/src/screens/nursing/NursingRegistration.tsx:480:              onChange={v => update(pm.id === 'per_visit' ? { priceVisit: v } : pm.id === 'per_hour' ? { priceHour: v } : pm.id === 'per_day' ? { priceDay: v } : { priceMonth: v })} required />
+provider-app/src/screens/nursing/NursingRegistration.tsx:601:        <LocationPickerModal visible={showLocModal} onClose={() => setShowLocModal(false)} onSelectLocation={(l) => update({ location: l })} initialLocation={data.location.lat ? data.location : undefined} />
+provider-app/src/screens/nursing/NursingRegistration.tsx:617:    update({ workDays: d });
+provider-app/src/screens/nursing/NursingRegistration.tsx:647:        <NToggle label={AR ? 'متاح 24/7' : 'Available 24/7'} sub={AR ? 'خدمة متواصلة كل الأيام' : 'Around-the-clock every day'} value={data.is24_7} onChange={v => update({ is24_7: v, workDays: v ? ['SUN','MON','TUE','WED','THU','FRI','SAT'] : data.workDays })} />
+provider-app/src/screens/nursing/NursingRegistration.tsx:683:                  <View style={{ flex: 1 }}><NInput label={AR?'من':'From'} value={data.openTime} onChange={v=>update({openTime:v})} placeholder="07:00" /></View>
+provider-app/src/screens/nursing/NursingRegistration.tsx:684:                  <View style={{ flex: 1 }}><NInput label={AR?'إلى':'To'} value={data.closeTime} onChange={v=>update({closeTime:v})} placeholder="15:00" /></View>
+provider-app/src/screens/nursing/NursingRegistration.tsx:721:          <Switch value={data.cashOnly} onValueChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })} />
+provider-app/src/screens/nursing/NursingRegistration.tsx:845:        priceVisit: parseFloat(data.priceVisit) || 0,
+provider-app/src/screens/nursing/NursingRegistration.tsx:846:        priceHour: parseFloat(data.priceHour) || 0,
+provider-app/src/screens/nursing/NursingRegistration.tsx:847:        priceDay: parseFloat(data.priceDay) || 0,
+provider-app/src/screens/nursing/NursingRegistration.tsx:848:        priceMonth: parseFloat(data.priceMonth) || 0,
+provider-app/src/screens/nursing/NursingRegistration.tsx:856:        location: data.location,
+provider-app/src/screens/nursing/NursingRegistration.tsx:877:      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.location?.lat || 0, lng: data.location?.lng || 0 , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:50:  city: string; location: {lat: number; lng: number}; district: string; address: string;
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:68:  workDays: string[]; 
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:70:  openTime: string; closeTime: string; eveningOpenTime: string; eveningCloseTime: string;
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:75:  cashOnly: boolean;
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:89:  city: '', location: { lat: 0, lng: 0 }, district: '', address: '',
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:94:  workDays: [],
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:95:  shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '',
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:99:  cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:664:        <LocationPickerModal visible={showLocModal} onClose={() => setShowLocModal(false)} onSelectLocation={(l) => update({ location: l })} initialLocation={data.location.lat ? data.location : undefined} />
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1391:              value={data.openTime} onChange={v => update({ openTime: v })}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1394:              value={data.closeTime} onChange={v => update({ closeTime: v })}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1469:          onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1642:        location: data.location,
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1662:      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.location?.lat || 0, lng: data.location?.lng || 0 , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:52:  city: string; location: {lat: number; lng: number}; district: string; address: string;
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:55:  workDays: string[]; is24_7: boolean; vacationDate: string;
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:57:  openTime: string; closeTime: string;
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:66:  cashOnly: boolean;
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:80:  workDays:[], is24_7: false, vacationDate: '',
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:81:  shiftType: 'morning', openTime:'', closeTime:'',
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:86:  scheduledDelivery: false, cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:87:  signatureData: '', signerName: '', signerRole: '',   termsAgreed: false, location: {lat: 0, lng: 0}, accountHolderName: ''
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:465:    update({ workDays:days });
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:473:        <NToggle label={AR?' مفتوح 24/7':' Open 24/7'} sub={AR?'الصيدلية مفتوحة طوال اليوم والأسبوع':'Open around the clock every day'} value={data.is24_7} onChange={v => update({ is24_7:v, workDays: v? ['SUN','MON','TUE','WED','THU','FRI','SAT']: data.workDays })} />
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:510:                  <View style={{ flex: 1 }}><NDropdown label={AR?'من':'From'} value={data.openTime} options={HOURS} onChange={v=>update({openTime:v})} /></View>
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:511:                  <View style={{ flex: 1 }}><NDropdown label={AR?'إلى':'To'} value={data.closeTime} options={HOURS} onChange={v=>update({closeTime:v})} /></View>
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:643:          <Switch value={!data.cashOnly} onValueChange={v=>update({cashOnly:!v})} />
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:774:          location: data.location,
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:794:      await ProviderApi.submit({ signer_name: data.signerName, signer_role: data.signerRole, lat: data.location?.lat || 0, lng: data.location?.lng || 0 , signature_url: sigUrl, full_data: sanitizeWizardData(data) });
+
+Expected policy: empty/zero/false defaults are neutral; nonzero commercial/geographic/schedule defaults require explicit product justification.
