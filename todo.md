@@ -331,3 +331,5 @@
 
 - [x] LAB-CONTRACT-001 source fix: `LabsService.transition` يستخدم `getEffectiveRoles(user)`؛ labs regression **8/8**، full backend **30 suites/236 tests** وbuild ناجحان. [ ] push/live recheck لمسار generic state transition.
 - [x] Lab facility lifecycle partial/live: create 201، patient/provider read 200، inbox 200، sample register 201، analyzing/result_ready 200، report 201، patient final read 200/REPORTED؛ generic state transition blocked بـLAB-CONTRACT-001، وcompatible-providers أعاد 0.
+
+- [x] LAB-ACCESS-002 source fix: reschedule/emergency تتطلب patient owner أو assigned provider/admin، GPS يتطلب assigned provider/admin، tracking يتطلب patient/assigned provider/admin؛ labs **11/11**، full backend **30/239**، build ناجح. [ ] deploy/live BOLA recheck.

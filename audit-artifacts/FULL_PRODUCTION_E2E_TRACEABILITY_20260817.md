@@ -148,3 +148,7 @@ Booking `76166cc4-7c29-4762-944b-c7c9de45bb15` / tracking `LAB-2608-459A8` was c
 ## Laboratory transition remediation
 
 `LabsService.transition` now authorizes through `getEffectiveRoles(user)`, aligning `role=provider` plus `provider_type=laboratory` with the existing provider inbox/sample/report paths while retaining provider ownership checks. Regression: labs suite **8/8** passed. Full backend gate: **30 suites / 236 tests** passed and build passed. The production booking `76166cc4-7c29-4762-944b-c7c9de45bb15` remains evidence of the pre-deploy 403 and final REPORTED pipeline; live recheck of generic transition is pending deployment.
+
+## Laboratory booking access remediation
+
+`LAB-ACCESS-002` was fixed fail-closed. Reschedule and emergency now require the patient owner, assigned lab/hospital provider, or admin; GPS updates require the assigned provider/admin; tracking reads require patient owner, assigned provider, or admin. A stranger cannot mutate or read a booking by id alone. Regression: labs suite **11/11** passed; full backend **30 suites / 239 tests** passed; build passed. Production BOLA recheck for these four routes is pending deployment; no live unauthorized mutation was attempted after the finding.
