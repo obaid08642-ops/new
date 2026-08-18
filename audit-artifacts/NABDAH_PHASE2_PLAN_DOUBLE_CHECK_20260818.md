@@ -41,7 +41,7 @@ A subsequent static scan found 153 marker lines across 77 Patient `main` files. 
 
 ### Corrections after semantic contract review
 
-The initial 32-call count was corrected in stages: the classifier first used the wrong route-column name, then the confirmed Chat/Insurance aliases were expanded. The final alias-aware queue records 9 alias-compatible calls, 20 method-mismatch candidates, and 10 no-exact-route review candidates, with no automatic source edits. Copay is an intentional `/patient/pay-copay` alias, and pharmacy basket approval/rejection are real transitions. These corrections reduce false positives but do not close runtime/build/security gates.
+The initial 32-call count was corrected in stages: the classifier first used the wrong route-column name, then the confirmed Chat/Insurance aliases were expanded. The final alias-aware queue initially recorded 9 alias-compatible calls, 20 method-mismatch candidates, and 10 no-exact-route review candidates, with no automatic source edits. The ten provisional no-exact rows were manually rechecked against Backend main and are now classified in `NABDAH_PHASE2_NO_EXACT_ROUTE_REVIEW_20260819.md`: eight are Chat aliases, one is a real method mismatch, and one is an exact route requiring semantic validation. Copay is an intentional `/patient/pay-copay` alias, and pharmacy basket approval/rejection are real transitions. These corrections reduce false positives but do not close runtime/build/security gates.
 
 
 ### Patient sensitive-screen button scan
