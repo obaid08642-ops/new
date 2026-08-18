@@ -22,6 +22,14 @@
 | **P0** | Emergency action bypasses the required fail-closed governance boundary | Severe symptom paths encourage immediate emergency behavior and route to the emergency screen despite the emergency/QR/consent contract remaining unapproved and fail-closed. | Keep this feature inaccessible or limited to approved generic emergency guidance until owner legal/product approval defines the complete emergency contract. |
 | **P1** | Body map and symptom library are static Arabic taxonomy | The map/library does not cover a governed symptom ontology, causes ambiguous region-to-symptom mapping, and has no six-language/RTL-LTR clinical-content review. | Use a reviewed multilingual symptom taxonomy with explicit scope, age/sex/pregnancy safeguards, and accessible alternatives; otherwise remove diagnostic framing. |
 
+## Virtual-doctor chat findings
+
+| Priority | Finding | Evidence | Required remediation |
+|---|---|---|---|
+| **P0** | AI chat is presented as an available physician/consultant | The screen is called “AI doctor,” says it is connected, labels the assistant a virtual consultant, and invites symptom, lab-result, and medicine advice. It is the same generic `/ai/triage/chat` endpoint without clinician identity, clinical oversight, structured safety protocol, or conversation retention/consent contract. | Remove clinician/availability/consultant representation and keep the capability fail-closed until approved clinical governance; otherwise replace with a plainly labelled, governed informational assistant. |
+| **P1** | Voice action is a visible unavailable feature | The microphone is displayed as an active control but reports that recording is not available after tap. | Remove/disable it with an accessible explanatory label until the feature is implemented and privacy-reviewed. |
+| **P1** | Chat safety copy and timestamps are hard-coded Arabic/local | Intro, suggestions, errors, online status, and “now” timestamps are raw Arabic and do not reflect a real provider session. | Complete reviewed six-language copy and distinguish an AI response from a human clinical encounter throughout the interaction. |
+
 ## Decision
 
 Both patient-facing AI medical capabilities are **P0 FIX/BLOCKED**. They must not be represented as diagnostic or complete drug-safety services until their contracts, clinical governance, authorization, truthful availability/error behavior, localization, privacy retention, and emergency boundaries are corrected.
