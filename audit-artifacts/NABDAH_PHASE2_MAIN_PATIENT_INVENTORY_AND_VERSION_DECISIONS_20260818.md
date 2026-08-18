@@ -111,3 +111,21 @@ This gate is currently `SOURCE_PRESENT / TEST_PRESENT`, not `TEST_PASS`: the ext
 An isolated Patient build copy was created from `main`. The first `npm ci` was correctly blocked because `package.json` and `package-lock.json` are not synchronized; npm reported version conflicts including Expo, Jest Expo, Sentry, and Jest types. An isolated `npm install --package-lock-only` repaired the temporary copy only, but the subsequent dependency installation failed with `ENOTFOUND` during package retrieval. The source archive and its lockfile were not changed, and no lockfile repair has been promoted to `main` or the QA branch.
 
 Classification: **BLOCKED / SOURCE-HYGIENE FINDING**, not PASS and not a source fix yet. Before Phase 2 can close, the owner-approved decision is required on whether the lockfile should be regenerated from the declared `package.json` in a network-capable build environment. Any resulting lockfile change must be reviewed, tested, and committed explicitly rather than silently generated in QA.
+
+
+## Health / medication contract review
+
+The main Backend `HealthModuleController` exposes the Patient medication contracts under the `health` prefix: `GET /health/reminders`, `POST /health/reminders`, `POST /health/reminders/:id/log`, `POST /health/reminders/:id/refill`, `POST /health/reminders/:id/refill/snooze`, `POST /health/reminders/:id/refill/cancel`, `PATCH /health/reminders/:id`, `DELETE /health/reminders/:id`, `GET /health/medications/reminders`, `GET /health/chronic-diseases`, and `GET /health/chronic-meds`. The corresponding main Patient screens use these contracts consistently for loading, logging dose outcomes, editing/deleting reminders, and starting refill workflows.
+
+This contract match is not yet an E2E PASS. The remaining checks are ownership and idempotency for refill mutations, truthful address/order confirmation, persistence of local device notifications versus server dose state, and failure handling when permission or the pharmacy order fails. The main screen comments explicitly avoid treating locally calculated refill days as authoritative and reload server state after mutation; that behavior is retained as a positive safety signal.
+
+
+## Sensitive workflow findings
+
+The main Profile surface already contains real calls for loyalty balance, profile editing, addresses, insurance companies/networks, and saved insurance data. The address screen uses server-backed loading and an optimistic default-address update with rollback/alert behavior. These are existing-screen rebuilds and should not be described as newly created pages.
+
+The main maternity surface is feature-rich and includes pregnancy setup, pregnancy tracking, ovulation/cycle tracking, baby development/growth, and vaccination-related paths. Its breadth is retained under the main-default policy, but medical defaults, AsyncStorage fallbacks, and optimistic updates require a safety review before activation. The verification branch provides narrower fail-closed state handling; it is a safety reference, not a replacement for the feature journey.
+
+The main nutrition surface includes meal planning, AI plan building, body composition/targets, calorie analysis, daily tracking, exercise planning, food scanning, nutrition plans, and water tracking. The same distinction applies: the broad screens are existing features being rebuilt for truthful data and state behavior, while narrower verification screens may contribute loading/error/empty handling without deleting product breadth.
+
+The main mental-health surface includes hub, breathing, crisis support, meditation, mood journal, self-assessment, and therapist matching. `self-assessment.tsx` calls `/mental-health/assessment-questions` and submits to `/mental-health/assessment`; the workflow must remain fail-closed if questions or clinical responses are unavailable. Crisis actions and therapist navigation require separate safety, consent, and availability verification. Any `Date.now`, demo, placeholder, or fallback marker in these screens remains a review item rather than proof of a defect until its user-facing behavior is confirmed.
