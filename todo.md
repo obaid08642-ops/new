@@ -689,3 +689,10 @@
 - [ ] Build the expanded service × booking-mode × payment/insurance × location × lifecycle × actor matrix before declaring any workflow complete.
 - [ ] Add explicit screen/button/state checks for patient selection, scheduling, confirmation, payment, insurance approval, provider intake, execution, reporting, tracking, cancellation, reschedule, refund/ledger, notifications, and admin oversight.
 - [ ] Cover all service families: consultations, pharmacy, laboratory, radiology, nursing/home-care, hospitals/facilities, ambulance/emergency, nutrition, maternity, mental health, AI tools, family/health records, wallet, support, and shared account flows.
+
+- [ ] Integrate Pasted_content_17 requirements: doctor search/profile/availability with holidays, blocked slots, existing bookings, split shifts, and immediate versus scheduled service.
+- [ ] Add consultation branches for clinic, home, and online care across cash and insurance, including insurance pending/approved/partial/rejected and patient copay confirmation.
+- [ ] Add provider-side insurance intake with complete patient/service/coverage details, external insurer submission boundary, decision entry, and patient/provider notifications.
+- [ ] Add consultation communication lifecycle: pre-visit chat window, reminders, ready-to-call gate, video/voice controls, files, reconnect/end states, and access authorization.
+- [ ] Add consented clinical context and attachments before booking; prescription, referral, lab/radiology/home-care orders after consultation; independent ordering per downstream service; completion and rating flows.
+- [ ] Apply the same decision/state/screen/button model to pharmacy, laboratory, radiology, nursing/home-care, and facility workflows, including prescription-required versus OTC medication logic.

@@ -60,3 +60,13 @@ Every discovered screen/button is recorded with: application, route/file, visibl
 ## Release gates
 
 No workflow is release-ready until the source inventory, backend route/schema mapping, local build/tests, sandbox E2E evidence, security/BOLA matrix, payment limitation, notifications/realtime checks, localization/device checks, and unresolved blockers are all represented in the final register. Payment-dependent cases remain explicitly `BLOCKED — Moyasar activation` rather than being mocked or marked PASS. Consent, QR verifier, emergency location, and error-code contracts remain fail-closed until owner/legal/product approval.
+
+## Pasted_content_17 consultation and insurance additions
+
+The consultation matrix must explicitly branch by doctor availability and service mode. Availability checks include holidays, blocked periods, already-booked slots, non-working hours, split morning/evening shifts, timezone boundaries, immediate appointments, and future appointments.
+
+For insurance consultations, the lifecycle is: patient submits coverage request → provider/authorized staff sees the complete minimum-necessary patient, service, location, appointment, and insurance details → staff submits to the external insurer system through an approved integration or records a verified manual decision → the system stores full approval, rejection, or partial approval → patient receives the decision and reason-safe explanation → partial approval shows insurer share, patient copay, and amount due → patient explicitly pays the copay → provider receives payment confirmation → booking becomes confirmed. Rejection must not silently convert to cash; the patient must choose cash, another provider/service, or cancellation.
+
+Consultation screens must cover doctor search/detail, availability, service mode, insurance/cash choice, clinical context consent, attachments and complaint description, review, payment or insurance pending, confirmation, appointment details, clinic map/reminder, home address/contact/location, online ready state, pre-visit chat, reminders, video/voice call, files, reconnect/end/no-show, prescription, referrals, independent downstream orders, report/history, rating, and support.
+
+Post-consultation outputs are independent actionable objects: a prescription can start a pharmacy journey; a lab order starts a laboratory journey; a radiology order starts a radiology journey; and a nursing/home-care order starts a home-care journey. Each downstream item needs its own status, consent, price/coverage, cancellation, and evidence while retaining the originating consultation reference.
