@@ -644,3 +644,6 @@
 
 - [x] Fetched and indexed all branches of `obaid08642-ops/new` only; `fix/e2e-operational-contracts-20260814` is the direct four-component source candidate, while milestone branches are archive-based.
 - [ ] Compare hashes and source trees between `fix/e2e-operational-contracts-20260814`, packaged artifacts, and `manus/on-live-reconciliation`; select the direct Nabdah patch base before implementation.
+
+- [x] Confirmed `fix/e2e-operational-contracts-20260814` at `21006cc` is the direct four-component Nabdah source branch inside `new` (backend 619, patient 602, provider 97, admin 125 files).
+- [ ] Create a verified Nabdah-only source worktree from `fix/e2e-operational-contracts-20260814`, then reconcile the previous provider fixes and QA evidence without importing unrelated repositories.
