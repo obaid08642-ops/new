@@ -744,3 +744,7 @@
 - [ ] Correct Phase 2 reporting: describe most Patient/Provider/Admin changes as rebuilds or internal rewrites of existing screens, not newly added screens.
 - [ ] Verify the only actual additions in the stated scope: six Patient translation dictionaries with tests, medication-notifications.ts, and Provider PlatformMap.tsx/.native.tsx/.web.tsx; record Admin as internal changes across the existing 34 pages with no new pages.
 - [ ] Reclassify every apparent new screen/feature claim in the audit as existing-screen rebuild, genuine addition, removed synthetic data, or unresolved gap, with source evidence.
+
+- [ ] Phase 2 confirmed Patient defect: wire `profile/addresses.tsx` `إضافة عنوان جديد` button to a real create-address form using `POST /users/me/addresses`, with validation, loading/error/retry, ownership, RTL/LTR, accessibility, and duplicate-submit protection.
+- [ ] Phase 2 correct API review false positives using screen-level reads and controller aliases before counting any remaining Patient contract defects.
+- [ ] Phase 2 Patient runtime build remains BLOCKED until package-lock/package.json synchronization and dependency mirror/network access are resolved in an isolated build environment without silently changing main.
