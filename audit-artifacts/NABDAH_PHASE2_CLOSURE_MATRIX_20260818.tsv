@@ -10,6 +10,6 @@ translation additions	six modules and six tests present in verification archive 
 medication notifications	utility and dedicated test present; imports verified	SOURCE_PRESENT/TEST_PRESENT	phase report; runtime tests pending
 provider map additions	PlatformMap base/native/web present	SOURCE_PRESENT	phase report; provider build pending
 Admin scope	no new pages claimed; existing Admin page surface requires internal contract review	BLOCKED	Admin review is a later phase
-Patient typecheck/Jest/Expo export	not executable in current sandbox: lock mismatch then network/cache failure	BLOCKED	phase report build gate
+Patient typecheck/Jest/Expo export	reconciled temporary copy passed typecheck, Jest, and Expo export; committed source lockfile still requires safe reconciliation	FIX	NABDAH_BUILD_ENVIRONMENT_GATE_20260818.md
 Phase 2 source modifications	no Patient source replacement or silent archive merge performed	PASS	git history and clean QA worktree
 Phase 2 final closure	not closed until build/test gate and remaining contract review complete	OPEN	owner-facing status
