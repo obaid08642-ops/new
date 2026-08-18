@@ -653,3 +653,6 @@
 
 - [x] Recorded `NABDAH_DIRECT_BACKEND_BUILD_ENV_BLOCKER_20260818.md`: direct backend lockfile differs from the local extracted dependency tree and clean install is blocked by peer resolution/inode quota; no invalid build PASS was claimed.
 - [ ] Run exact direct-backend Jest/build in a sufficient-inode environment and record the result before merging or deploying the full source tree.
+
+- [x] Created `NABDAH_DIRECT_COMPONENT_INVENTORY_20260818.txt` from the direct Nabdah source branch only: 494 Patient route/source files, 39 Provider screen files, 15 Admin page files, 111 Backend controllers, and 137 Backend services.
+- [ ] Expand this inventory into screen/button/consumer/controller/database/state matrices, then test every unresolved mapping rather than counting files as completion.
