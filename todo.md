@@ -650,3 +650,6 @@
 
 - [x] Ran and cleaned an isolated source merge trial inside `new`; no branch was changed and the only direct binary conflict was recorded in `NABDAH_SOURCE_MERGE_TRIAL_20260818.md`.
 - [ ] Deliberately reconcile direct Nabdah trees and verified Provider/QA changes, regenerate packages only after full source gates pass, then push the resulting implementation commit to `manus/on-live-reconciliation`.
+
+- [x] Recorded `NABDAH_DIRECT_BACKEND_BUILD_ENV_BLOCKER_20260818.md`: direct backend lockfile differs from the local extracted dependency tree and clean install is blocked by peer resolution/inode quota; no invalid build PASS was claimed.
+- [ ] Run exact direct-backend Jest/build in a sufficient-inode environment and record the result before merging or deploying the full source tree.
