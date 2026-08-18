@@ -707,3 +707,7 @@
 - [ ] Perform a final completeness review of the master plan against the entire conversation and all supplied requirement files; do not assume the current service list is exhaustive.
 - [ ] Check for omitted cross-cutting areas: search/discovery, pricing/catalogs, consent/privacy, analytics, audit/compliance, fraud/abuse, accessibility, localization, SEO/web, app-store/device release, observability, backups/restore, scaling/queues, and incident/support operations.
 - [ ] Record any new gaps as explicit scenarios and release gates before implementation continues.
+
+- [ ] Do not start any numbered phase until the owner explicitly says `ابدأ` for that phase.
+- [ ] At the end of every phase, perform a line-by-line checklist review against the phase scope, verify artifacts/tests/source state, commit and push only to `manus/on-live-reconciliation`, then report completion and wait for the owner’s next-phase command.
+- [ ] Never declare a phase complete when an item is untested; classify it as PASS, FIX, BLOCKED, or INCONCLUSIVE with evidence.
