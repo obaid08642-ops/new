@@ -685,3 +685,7 @@
 
 - [ ] Resume Full Systematic QA from the verified `manus/on-live-reconciliation` branch at current remote HEAD; extract and audit all four committed application artifacts before any new implementation.
 - [ ] Preserve the original closure order: contract inventory -> build/test gates -> sandbox-only E2E -> fixes/revalidation -> readiness report.
+
+- [ ] Build the expanded service × booking-mode × payment/insurance × location × lifecycle × actor matrix before declaring any workflow complete.
+- [ ] Add explicit screen/button/state checks for patient selection, scheduling, confirmation, payment, insurance approval, provider intake, execution, reporting, tracking, cancellation, reschedule, refund/ledger, notifications, and admin oversight.
+- [ ] Cover all service families: consultations, pharmacy, laboratory, radiology, nursing/home-care, hospitals/facilities, ambulance/emergency, nutrition, maternity, mental health, AI tools, family/health records, wallet, support, and shared account flows.
