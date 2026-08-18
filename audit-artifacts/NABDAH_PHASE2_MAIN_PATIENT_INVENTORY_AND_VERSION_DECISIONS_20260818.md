@@ -46,3 +46,8 @@ After expanding the confirmed Controller aliases, the 32-call queue contains 9 a
 ## Unwired-button scan follow-up
 
 A targeted scan of sensitive Patient screens found several apparent button candidates, but manual reads confirmed handlers for consultation follow-up, booking confirmation, medication barcode/AI scan, pharmacist chat expiry, and custom-item completion. These are not defects. The confirmed missing action remains the `إضافة عنوان جديد` button in `profile/addresses.tsx`; it has no handler and remains queued for remediation.
+
+
+### Address contract correction
+
+Backend main does define `POST /users/me/addresses`, protected by `JwtAuthGuard`, and persists the new address in the authenticated patient's profile. It also defines `GET`, `PATCH/:addressId`, and `DELETE/:addressId`. Therefore the confirmed defect is specifically the missing Patient form/handler on the visible `إضافة عنوان جديد` button; it is not a missing Backend contract. The remediation test contract remains valid, with the POST payload and ownership checks grounded in `users.addresses.controller.ts`.
