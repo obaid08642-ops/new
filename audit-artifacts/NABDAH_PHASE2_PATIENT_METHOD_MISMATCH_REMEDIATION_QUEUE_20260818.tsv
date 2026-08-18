@@ -1,0 +1,21 @@
+file	line	client_method	client_path	candidate_backend_routes	review_action	severity
+nabd_plus/app/articles/[slug].tsx	42	POST	/articles?category=${encodeURIComponent(res.category)}&limit=4	GET /articles	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/articles/[slug].tsx	46	POST	/articles/bookmarks/${encodeURIComponent(String(slug))}/status	GET /articles/bookmarks/:slug/status	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/community/post-detail.tsx	53	PUT	/community/posts/${postId}	GET /community/posts/:id;DELETE /community/posts/:id	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/consultations/chat-with-doctor.tsx	41	POST	/care/doctors/${doctorId}	GET /care/doctors/:id	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/diagnostics/order/[id].tsx	40	POST	/labs/bookings/${id}	GET /labs/bookings/:id	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/family/calendar.tsx	49	POST	/family/calendar	GET /family/calendar	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/family/chat.tsx	62	POST	/users/me/profile	GET /users/me/profile;PATCH /users/me/profile	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/family/chat.tsx	67	POST	/family/members	GET /family/members	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/health/family-hub.tsx	80	POST	/family/my-group	GET /family/my-group	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/health/family-hub.tsx	82	POST	/family/members	GET /family/members	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/health/smart-reminders.tsx	52	PATCH	/health/reminders	GET /health/reminders;POST /health/reminders	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/loyalty/challenges.tsx	30	POST	/loyalty/challenges	GET /loyalty/challenges	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/loyalty/rewards.tsx	33	POST	/loyalty/rewards	GET /loyalty/rewards	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/nutrition/log-meal.tsx	35	POST	/nutrition/foods	GET /nutrition/foods	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/pharmacy/broadcast-status.tsx	29	POST	/orders/bids/request/${orderId}	GET /orders/bids/request/:id	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/pharmacy/chat-with-pharmacist.tsx	53	POST	/orders/${orderId}	GET /orders/:id	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/pharmacy/checkout.tsx	67	POST	/wallet/balance	GET /wallet/balance	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/pharmacy/order-confirm.tsx	38	POST	/orders/${orderId}	GET /orders/:id	confirm payload and switch client method/route only if UI intent is mutation	P1
+nabd_plus/app/pharmacy/wishlist.tsx	37	POST	/users/me/wishlist	GET /users/me/wishlist	confirm payload and switch client method/route only if UI intent is mutation	P2
+nabd_plus/app/profile/addresses.tsx	29	PATCH	/users/me/addresses	GET /users/me/addresses;POST /users/me/addresses	confirm payload and switch client method/route only if UI intent is mutation	P1
