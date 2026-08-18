@@ -97,3 +97,10 @@ The actual additive files confirmed in the overlapping archive are the six trans
 The medication and refill paths already expose real calls such as `GET /health/reminders`, `POST /health/reminders`, `POST /health/reminders/:id/refill`, and `POST /health/reminders/:id/log` in the main feature set. Their remaining review concerns are contract semantics, address/ownership checks, device notification permissions, idempotency, and truthful confirmation states—not inventing a new refill screen.
 
 The phase remains open because the selected file set has not yet been applied to source, dependencies are not installed in the extracted archives, and full typecheck/Jest/export gates are still pending. No alternative archive has been silently merged.
+
+
+## Actual-addition verification gate
+
+Static source verification confirms that the six translation modules each have a corresponding test file and are imported by the rebuilt Patient screens. The medication notification utility has a dedicated test and is imported by medication reminder list/add, chronic medication, and the notification handler. The tests cover notification action mapping for taken, snooze, open, and ignore cases. Provider has the three platform map files, with native exports delegating to `react-native-maps` and the web implementation intentionally rendering a safe non-native map surface with no-op marker/circle exports and a ref-compatible `animateToRegion` method.
+
+This gate is currently `SOURCE_PRESENT / TEST_PRESENT`, not `TEST_PASS`: the extracted Patient and Provider archives have no installed `node_modules`, so Jest, TypeScript, Expo export, and native/web build execution must occur after dependency installation in a controlled copy. No dependency installation or source mutation was performed in this step.
