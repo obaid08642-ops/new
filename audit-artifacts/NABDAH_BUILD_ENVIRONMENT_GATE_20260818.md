@@ -15,3 +15,5 @@ This proves two separate blockers: **(1)** the committed Patient lockfile requir
 ## Temporary Patient validation gate
 
 After the isolated lock reconciliation and tarball-host normalization described above, the temporary Patient copy completed three real validation commands successfully: `npm run typecheck`, `npm test -- --runInBand`, and `npm run export:web`. Expo export emitted web, Android Hermes, and iOS Hermes bundles; the web entry was 9.37 MB and Android/iOS bundles were 13.5 MB each. These results prove the reconciled dependency graph can typecheck, execute the current Jest suite, and bundle for Expo. They do **not** repair or replace the committed source lockfile, nor do they substitute for native device, backend integration, E2E, security, or production tests.
+
+The same temporary copy also completed `npx expo prebuild --no-install --platform android` successfully. Generated native folders remain temporary and were not copied to source. Expo emitted one non-fatal configuration warning: `userInterfaceStyle` requires `expo-system-ui` to take effect. This is a release-configuration follow-up, not a prebuild failure.
