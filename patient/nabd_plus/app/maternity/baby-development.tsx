@@ -382,8 +382,8 @@ export default function BabyDevelopmentScreen() {
           const dueDate = profile.due_date && profile.due_date !== 'transparent' ? new Date(profile.due_date) : null;
           const today = new Date();
           let calcWeek = profile.current_week || 4;
-          if (lmp) {
-            const diffTime = Math.abs(today.getTime() - lmp.getTime());
+          if (lmp && lmp.getTime() <= today.getTime()) {
+            const diffTime = today.getTime() - lmp.getTime();
             calcWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
           } else if (dueDate) {
             const diffTime = dueDate.getTime() - today.getTime();
