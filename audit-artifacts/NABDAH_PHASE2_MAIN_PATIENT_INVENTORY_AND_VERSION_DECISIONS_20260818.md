@@ -52,3 +52,17 @@ The phase has not yet closed. The 48 unmatched main Patient calls require manual
 ## Phase 2 completion gate
 
 Before declaring Phase 2 complete, the remaining Patient inventory must cover every route/screen and action, and every changed feature file must receive a final `MAIN`, `QA`, `MERGED`, or `BLOCKED` decision with evidence. The chosen source set must then pass typecheck/build and route/API smoke validation. Only after that double-check may the phase report be committed and the next phase considered.
+
+
+## Contract matching refinement
+
+The first route pass overcounted or misclassified routes when one Backend file contained multiple `@Controller` classes. The compiler was corrected to segment every controller separately. The corrected main corpus contains 1,310 compiled routes, including the real compat contracts for `GET/POST /maternity/vaccines` and `GET /nutrition/foods`.
+
+The corrected Patient match contains 333 extracted calls: 301 direct method/path matches and 32 manual-review items. Of those 32, several are confirmed method mismatches or wrong client intents rather than absent backend paths. Examples include `POST /articles` where Backend exposes `GET /articles`, `POST /labs/bookings/:id` where the current route is `GET`, `POST /nutrition/foods` where the catalog route is `GET`, and `POST /wallet/balance` where Backend exposes `GET`. Other items such as `/patient/pay-copay`, direct chat thread creation/messages, and `/medical/programs/*` have no compiled path match and require contract-level review before any UI activation.
+
+This is a **Phase 2 finding**, not yet a source fix. The main-default policy remains in force. The affected screens must be marked `FIX` or `BLOCKED` only after DTO, ownership, state transition, and intended user action are verified in Backend and tests.
+
+
+## Risk-marker classification
+
+Of the 504 broad risk markers found in the main Patient source, 83 occur in test/mock-support files and are not user-facing by themselves. The remaining 421 occur in production paths and require manual classification. The highest-priority production groups include diagnostics booking confirmation (hardcoded/default scheduling and address signals), maternity baby growth and maternity hub, pharmacy custom/manual order and pharmacist chat, consultation chat, health reminders/wearables, insurance add-policy, wallet, AI chat/triage, and location picker. UI component prop names such as `placeholder` are not automatically defects; they must be distinguished from fabricated business values, dead buttons, or missing backend states.
