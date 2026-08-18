@@ -65,3 +65,9 @@ Device validation covers Android sizes, iOS build/TestFlight constraints, RTL/LT
 ## 9. Final release gates
 
 The project is not declared ready until all critical journeys have evidence across Patient, Provider, Admin, Backend, and Database; all high-risk security tests pass; unresolved gateway or contract dependencies are explicitly blocked; builds and boot tests pass; no unclassified placeholders or dead operational buttons remain; localization/theme/accessibility review is recorded; and the final report includes a service × scenario × actor × result × evidence register. Store submission, production deployment, Moyasar activation, legal consent approval, and real-device validation remain separate gates and are never inferred from local source inspection.
+
+## 10. Final completeness review additions
+
+The plan also explicitly covers search and catalog freshness, pricing/tax/commission/discount/currency rules, fraud and abuse resistance, privacy retention/export/deletion, medical-file access logs, structured observability and correlation IDs, queues/dead letters/retries, backup and restore drills with RPO/RTO, migrations and rollback, scalability/load/soak behavior, WebSocket multi-instance readiness, public web SEO/GEO/AEO and dynamic sharing pages, accessibility and design-system checks, Android/iOS/Huawei release constraints where supported, signing and push/deep-link operations, content/translation/legal review, AI safety disclosures, and support/incident runbooks.
+
+These are mandatory cross-cutting gates mapped to every app and service. A journey with an untested critical dependency is `BLOCKED`, not PASS.

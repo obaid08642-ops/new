@@ -703,3 +703,7 @@
 - [ ] Audit Admin screens end-to-end across operations, approvals, providers/facilities, catalogs, orders/bookings, insurance, finance/ledger, reports/charts, notifications, support, audit logs, feature/config controls, privacy, and role governance.
 - [ ] For every feature, detect missing logical CTA/screen/state, local-only success, fabricated/hardcoded data, stale route, missing backend/database transition, broken error/loading/empty/retry state, accessibility/localization issue, and security/ownership gap.
 - [ ] Apply the complete service journey model to consultations, pharmacy, laboratory, radiology, nursing/home-care, hospitals/facilities, ambulance/emergency, nutrition, maternity, mental health, AI, family/records, wallet, support, and shared account flows.
+
+- [ ] Perform a final completeness review of the master plan against the entire conversation and all supplied requirement files; do not assume the current service list is exhaustive.
+- [ ] Check for omitted cross-cutting areas: search/discovery, pricing/catalogs, consent/privacy, analytics, audit/compliance, fraud/abuse, accessibility, localization, SEO/web, app-store/device release, observability, backups/restore, scaling/queues, and incident/support operations.
+- [ ] Record any new gaps as explicit scenarios and release gates before implementation continues.
