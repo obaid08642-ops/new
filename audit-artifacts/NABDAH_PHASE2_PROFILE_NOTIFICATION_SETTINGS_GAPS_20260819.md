@@ -4,6 +4,8 @@
 
 Patient profile endpoints are JWT-scoped to the current user and apply an editable-field whitelist, including NoSQL operator/path rejection. Notification list/read/read-all routes are JWT-protected, owner/role/all-scoped, and include a tested fail-closed foreign-notification check. These ownership controls are **PASS**.
 
+The patient-managed emergency-contact CRUD path is also patient-scoped: it validates contact name/phone, assigns an opaque ID, and deletes only from the requesting patient's embedded profile. This is **PASS** as standalone contact management. It does **not** authorize activation, sharing, or notification of an emergency/SOS workflow; those contracts remain fail-closed pending owner legal/product approval.
+
 ## Confirmed defects
 
 | Priority | Finding | Evidence | Required remediation |
