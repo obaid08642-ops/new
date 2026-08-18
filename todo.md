@@ -748,3 +748,4 @@
 - [ ] Phase 2 confirmed Patient defect: wire `profile/addresses.tsx` `إضافة عنوان جديد` button to a real create-address form using `POST /users/me/addresses`, with validation, loading/error/retry, ownership, RTL/LTR, accessibility, and duplicate-submit protection.
 - [x] Phase 2 correct API review false positives using screen-level reads and controller aliases before counting any remaining Patient contract defects.
 - [ ] Phase 2 Patient runtime build remains BLOCKED until package-lock/package.json synchronization and dependency mirror/network access are resolved in an isolated build environment without silently changing main.
+- [ ] Phase 2 Patient release configuration: decide whether to install and configure `expo-system-ui` so the declared `userInterfaceStyle` is effective, then rerun the Android prebuild gate.
