@@ -12,6 +12,16 @@
 | **P1** | Scan failure is indistinguishable from a safe result | Catching an API error sets `interactions: []` then displays a reassuring result and “no known safe interactions.” | Preserve error status, require retry, and explicitly state that interaction information is unavailable rather than safe. |
 | **P1** | Medical suggestions and labels are Arabic-only and lack accessible context | Triage introduction, medical claims, errors, recommendation card, scanner content, and hard-coded medicine suggestions do not cover six locales or user-safe descriptions. | Move to reviewed translations and accessible labels; do not hard-code common-drug recommendations without clinical catalog/region verification. |
 
+## Additional symptom-checker findings
+
+| Priority | Finding | Evidence | Required remediation |
+|---|---|---|---|
+| **P0** | Public triage endpoint persists sensitive symptom data as `guest` | `POST /ai/triage` is public and persists symptoms, urgency, and generated reasoning even when no patient identity exists. This creates an unauthenticated health-data retention path without documented consent, deletion, or abuse controls. | Require authenticated patient context for persistence, or do not persist anonymous submissions; define consent, minimization, retention/deletion, access, audit, and rate-limit controls before release. |
+| **P0** | AI failure is silently converted to routine triage | On any model/parsing failure, Backend returns `routine` with general-medicine guidance; client treats it as a valid result. | Return an explicit safe service-unavailable result, do not downgrade severity on failure, and require urgent-care guidance where appropriate. |
+| **P0** | Symptom checker fabricates demographic and clinical output | Missing gender is coerced to `male`; UI labels an AI specialty as a “possible condition,” generates fixed self-care/emergency tips, and claims analysis of “10,000+ similar cases” without source evidence. | Remove all unsupported claims/default demographics/fabricated tips; use only structured clinically reviewed output with documented evidence and limitations. |
+| **P0** | Emergency action bypasses the required fail-closed governance boundary | Severe symptom paths encourage immediate emergency behavior and route to the emergency screen despite the emergency/QR/consent contract remaining unapproved and fail-closed. | Keep this feature inaccessible or limited to approved generic emergency guidance until owner legal/product approval defines the complete emergency contract. |
+| **P1** | Body map and symptom library are static Arabic taxonomy | The map/library does not cover a governed symptom ontology, causes ambiguous region-to-symptom mapping, and has no six-language/RTL-LTR clinical-content review. | Use a reviewed multilingual symptom taxonomy with explicit scope, age/sex/pregnancy safeguards, and accessible alternatives; otherwise remove diagnostic framing. |
+
 ## Decision
 
-Both patient-facing AI medical capabilities are **P0 FIX/BLOCKED**. They must not be represented as diagnostic or complete drug-safety services until their contracts, clinical governance, authorization, truthful availability/error behavior, localization, and emergency boundaries are corrected.
+Both patient-facing AI medical capabilities are **P0 FIX/BLOCKED**. They must not be represented as diagnostic or complete drug-safety services until their contracts, clinical governance, authorization, truthful availability/error behavior, localization, privacy retention, and emergency boundaries are corrected.
