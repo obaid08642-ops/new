@@ -736,3 +736,11 @@
 
 - [ ] Phase 2 source policy: treat `main` as the default final source; use QA only as a verification reference unless a specific file is proven newer, better integrated, less synthetic, and build-compatible.
 - [ ] Record any exception to the main-default policy per file/feature with evidence and owner-facing rationale; never silently replace whole app archives or branches.
+
+- [ ] Compare the latest Patient files for profile, medication reminders, medication reorder/refill, chronic conditions, chronic medications, nutrition, cycle tracking, maternity/pregnancy follow-up, and mental health against main and the verification archive.
+- [ ] Record a per-file decision (MAIN, ALTERNATIVE, MERGED, FIX, or BLOCKED) with feature, API contract, state, synthetic-data, and test evidence; do not silently mix archives.
+- [ ] Verify selected files build and preserve real backend integration, loading/error/empty states, ownership, localization, and medical-safety constraints before Phase 2 closure.
+
+- [ ] Correct Phase 2 reporting: describe most Patient/Provider/Admin changes as rebuilds or internal rewrites of existing screens, not newly added screens.
+- [ ] Verify the only actual additions in the stated scope: six Patient translation dictionaries with tests, medication-notifications.ts, and Provider PlatformMap.tsx/.native.tsx/.web.tsx; record Admin as internal changes across the existing 34 pages with no new pages.
+- [ ] Reclassify every apparent new screen/feature claim in the audit as existing-screen rebuild, genuine addition, removed synthetic data, or unresolved gap, with source evidence.

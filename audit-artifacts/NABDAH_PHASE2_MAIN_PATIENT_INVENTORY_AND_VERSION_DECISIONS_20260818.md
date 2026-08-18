@@ -66,3 +66,34 @@ This is a **Phase 2 finding**, not yet a source fix. The main-default policy rem
 ## Risk-marker classification
 
 Of the 504 broad risk markers found in the main Patient source, 83 occur in test/mock-support files and are not user-facing by themselves. The remaining 421 occur in production paths and require manual classification. The highest-priority production groups include diagnostics booking confirmation (hardcoded/default scheduling and address signals), maternity baby growth and maternity hub, pharmacy custom/manual order and pharmacist chat, consultation chat, health reminders/wearables, insurance add-policy, wallet, AI chat/triage, and location picker. UI component prop names such as `placeholder` are not automatically defects; they must be distinguished from fabricated business values, dead buttons, or missing backend states.
+
+
+## Scope correction: rebuilds versus actual additions
+
+The current audit must not describe the work as discovering or creating a large set of new screens. The accurate classification is that most visible changes are **rebuilds of existing screens** to remove synthetic data, add real API/state handling, improve UX, or preserve medical-safety behavior.
+
+The separately verifiable additions in the overlapping archive are limited to:
+
+| Application | Actual addition | Correct interpretation |
+|---|---|---|
+| Patient | Six translation dictionaries and their tests: `medications`, `nutrition`, `maternity`, `mental-health`, `guided-care`, and `health-day` | Additive localization resources, not new screens |
+| Patient | `src/utils/medication-notifications.ts` | Local dose-notification utility, not a new screen; requires permission, platform, persistence, cancellation, and test validation |
+| Provider | `PlatformMap.tsx`, `PlatformMap.native.tsx`, and `PlatformMap.web.tsx` | Platform abstraction to keep map imports/builds safe, not a new Provider feature screen |
+| Admin | No new pages | Internal changes across the existing 34-page Admin surface; verify behavior and data contracts rather than counting pages as additions |
+
+The remaining differences in medication, chronic health, nutrition, maternity/cycle, mental-health, profile, pharmacy reorder, Provider dashboards, radiology, and guided triage are treated as **existing-screen rewrites or rebuilds**. Their acceptance criteria are removal of fabricated values, real backend integration, explicit loading/empty/error/retry states, ownership and consent checks, and preserved feature breadth.
+
+The presence of a verification-only file does not automatically make it the preferred version. `main` remains the default. A file-level exception is permitted only when the alternative demonstrably contains the intended update, preserves or improves real contracts and states, removes synthetic business data, and remains build-compatible. No whole archive is to be replaced silently.
+
+
+## Current sensitive-file comparison
+
+The file-level matrix now covers 43 sensitive Patient files across profile, medication reminders, reorder/refill, chronic health, nutrition, maternity/cycle, and mental-health. It is stored as `NABDAH_PHASE2_SENSITIVE_PATIENT_DECISION_MATRIX_20260818.tsv`.
+
+The current interpretation is conservative. `main` remains the default for feature-rich screens such as pregnancy tracking, ovulation/cycle tracking, nutrition planning, mental-health activities, and existing profile flows. Verification versions that are short redirects or fail-closed placeholders are not replacements for those features; they are safety references whose loading/error/empty policies may be merged later. The verification versions are candidates for selected data-state improvements where they demonstrably add real API calls and explicit state handling without narrowing the product journey.
+
+The actual additive files confirmed in the overlapping archive are the six translation modules and tests, `src/utils/medication-notifications.ts` and its test, and Provider's three `PlatformMap` platform files. The main archive has the existing localization system under `src/i18n` and direct `react-native-maps` imports in several Provider screens, so these files represent a merge/integration concern rather than proof of new user-facing screens. Admin remains an existing 34-page surface with internal changes; no new Admin page is claimed.
+
+The medication and refill paths already expose real calls such as `GET /health/reminders`, `POST /health/reminders`, `POST /health/reminders/:id/refill`, and `POST /health/reminders/:id/log` in the main feature set. Their remaining review concerns are contract semantics, address/ownership checks, device notification permissions, idempotency, and truthful confirmation states—not inventing a new refill screen.
+
+The phase remains open because the selected file set has not yet been applied to source, dependencies are not installed in the extracted archives, and full typecheck/Jest/export gates are still pending. No alternative archive has been silently merged.
