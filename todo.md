@@ -746,6 +746,7 @@
 - [ ] Reclassify every apparent new screen/feature claim in the audit as existing-screen rebuild, genuine addition, removed synthetic data, or unresolved gap, with source evidence.
 
 - [ ] Phase 2 confirmed Patient defect: wire `profile/addresses.tsx` `إضافة عنوان جديد` button to a real create-address form using `POST /users/me/addresses`, with validation, loading/error/retry, ownership, RTL/LTR, accessibility, and duplicate-submit protection.
+- [ ] Phase 2 confirmed Patient diagnostics booking defects: replace fabricated address/provider/slot/document/price data; map insurance fields to `insurance_provider` and `insurance_member_id`; remove unsupported wallet booking choice; use server-authoritative quote/payment state; and preserve idempotent cart/payment sequencing before live activation.
 - [x] Phase 2 correct API review false positives using screen-level reads and controller aliases before counting any remaining Patient contract defects.
 - [ ] Phase 2 Patient runtime build remains BLOCKED until package-lock/package.json synchronization and dependency mirror/network access are resolved in an isolated build environment without silently changing main.
 - [ ] Phase 2 Patient release configuration: decide whether to install and configure `expo-system-ui` so the declared `userInterfaceStyle` is effective, then rerun the Android prebuild gate.
