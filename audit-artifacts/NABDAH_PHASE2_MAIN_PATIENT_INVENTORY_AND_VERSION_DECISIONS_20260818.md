@@ -36,3 +36,8 @@ After expanding the confirmed Controller aliases, the 32-call queue contains 9 a
 ## Parser corrections from screen-level reads
 
 `family/calendar.tsx` correctly loads `GET /family/calendar` and creates events with `POST /family/calendar/event`; the earlier `POST /family/calendar` row is an extraction/method inference false positive. `nutrition/log-meal.tsx` correctly loads `GET /nutrition/foods` and saves the meal through `POST /nutrition/meals`; the earlier `POST /nutrition/foods` row is also a parser false positive. These items must be removed from the true remediation count after the extractor is corrected, not changed in source.
+
+
+## Confirmed Patient UI gap: addresses
+
+`profile/addresses.tsx` correctly loads addresses and updates the selected default address through `PATCH /users/me/addresses/:id`. However, the visible `Button` labelled `إضافة عنوان جديد` has no `onPress`, navigation, or mutation handler. This is a confirmed UI/UX defect: the screen advertises a core action that cannot be executed. It must be fixed in the remediation phase by adding a real create-address flow backed by `POST /users/me/addresses`, with validation, loading, error, cancellation, and refresh states. It is not safe to classify this as a route-parser mismatch.
