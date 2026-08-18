@@ -37,3 +37,8 @@ Phase 2 remains open until the 32 API review items are resolved or explicitly cl
 ### Subsequent risk-marker pass
 
 A subsequent static scan found 153 marker lines across 77 Patient `main` files. These are not 153 defects: most are legitimate form placeholders or documentation of prior fixes. The scan is recorded in `NABDAH_PHASE2_PATIENT_MAIN_RISK_REVIEW_20260818.md`; only user-visible synthetic medical values, local-only success, or unbacked business defaults will enter remediation. This leaves the existing `FIX`/`BLOCKED` statuses unchanged until runtime and contract evidence is available.
+
+
+### Corrections after semantic contract review
+
+The initial 32-call count was corrected in stages: the classifier first used the wrong route-column name, then the confirmed Chat/Insurance aliases were expanded. The final alias-aware queue records 9 alias-compatible calls, 20 method-mismatch candidates, and 10 no-exact-route review candidates, with no automatic source edits. Copay is an intentional `/patient/pay-copay` alias, and pharmacy basket approval/rejection are real transitions. These corrections reduce false positives but do not close runtime/build/security gates.
