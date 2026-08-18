@@ -725,3 +725,14 @@
 - [ ] Classify each difference as source fix, audit evidence, regenerated artifact, missing file, stale file, mock/hardcoded data, or unresolved conflict; do not choose a baseline by commit date alone.
 - [ ] Determine and document the complete approved source set; preserve any unique valid fixes from either ref through a reviewed merge/cherry-pick plan before Phase 2.
 - [ ] Apply the end-of-phase double-check protocol to every future Phase: compare to plan, complete missing items, re-test, document evidence, push, and wait for owner approval.
+
+- [ ] Phase 2 approved baseline: use `manus/on-live-reconciliation` at `9bff7c68` on top of production-validated unified baseline `main=6540e5f3`; do not restore `selfassessment.repository.ts`, do not commit `.env` or Firebase secrets, and do not build from another branch.
+- [ ] Phase 2 Patient closure must include source inventory, screen/button/state matrix, API/Backend contract matching, mock/hardcoded data scan, navigation/route checks, and user-journey gaps before any remediation is declared.
+
+- [ ] Compare every changed/unique Patient file between main and QA, including AI, diagnostics, medicines, nutrition, maternity, mental health, reports, family, localization, medication notifications, route backups, and release configuration.
+- [ ] For each differing file, record a decision: MAIN, QA, MERGED, or BLOCKED, with evidence for feature completeness, real backend/data integration, placeholder/mock absence, security, and build compatibility.
+- [ ] Prioritize and inspect advanced Patient features: medicines/OTC and prescriptions, nutrition, pregnancy/maternity/baby growth, mental health, AI, diagnostics/labs/radiology, reminders, reports, family permissions, wallet, and support.
+- [ ] Extend the same file-level decision method to Provider operational screens in the next Provider phase: onboarding, profiles, availability, insurance/cash settings, intake, accept/reject/reassign, execution, reports, payouts, maps, chat, and notifications.
+
+- [ ] Phase 2 source policy: treat `main` as the default final source; use QA only as a verification reference unless a specific file is proven newer, better integrated, less synthetic, and build-compatible.
+- [ ] Record any exception to the main-default policy per file/feature with evidence and owner-facing rationale; never silently replace whole app archives or branches.

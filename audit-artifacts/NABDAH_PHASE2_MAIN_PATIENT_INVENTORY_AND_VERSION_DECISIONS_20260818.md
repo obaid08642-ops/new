@@ -1,0 +1,54 @@
+# Phase 2 — Patient inventory on main and version decisions
+
+## Source policy
+
+`main` is the official default source for this phase. The reconciliation branch is used only as a verification reference. No alternative file is adopted merely because its branch is newer. An exception requires evidence that the file is functionally newer, better integrated with the real Backend contract, safer against synthetic data, and build-compatible.
+
+## Main inventory
+
+The Patient archive from `main=53ba7da` was scanned before any source modification.
+
+| Metric | Main result |
+|---|---:|
+| TypeScript/JavaScript files scanned | 509 |
+| Route/screen candidates | 255 |
+| UI action markers | 2,276 |
+| API call markers | 825 |
+| Files containing API markers | 232 |
+| Loading/error/empty/retry state markers | 1,450 |
+| Risk markers requiring manual review | 504 |
+| Distinct risk file/marker pairs | 220 |
+| Backend routes compiled from main | 1,391 |
+| Patient API calls extracted from main | 333 |
+| Main Patient calls matched by method/path | 285 |
+| Main Patient calls in manual review queue | 48 |
+
+The counts are inventory signals, not proof of correctness. A UI action can still be dead, local-only, or connected to an incorrect contract; a matching route can still have wrong DTO, ownership, state, or business semantics.
+
+## Verification comparison with reconciliation archive
+
+The QA Patient archive had 522 source files, 251 route candidates, 754 API markers, 2,878 state markers, and 410 broad risk markers under the same scanner. Its API matcher produced 317 calls, 268 direct method/path matches, and 49 manual-review candidates. The different counts confirm that the archives are not interchangeable, but they do not by themselves establish that QA is globally better.
+
+## File-level decisions
+
+| Feature area | Decision | Rationale and required follow-up |
+|---|---|---|
+| Medication reminders and notification scheduling | **QA candidate for adoption** | The QA `medication-reminder-add.tsx` supports create/edit, loads existing reminders, validates structured fields, persists via POST/PATCH `/health/reminders`, and synchronizes device notifications. Main has fewer integration signals. Confirm DTO and device-permission behavior in later contract/build tests before replacing the main file. |
+| Medication list/health medication screens | **QA candidate, not yet merged** | QA has more API integration in the changed medication screen set; compare DTOs and ownership, then retain main if QA loses any patient-visible feature. |
+| Nutrition hub | **Keep main breadth; merge QA data-state pattern later** | Main exposes the broader feature directory. QA adds real `/nutrition/profile` and `/nutrition/daily-summary`, loading/error/retry states, but narrows navigation considerably. Do not replace main wholesale; merge verified data states without dropping feature routes. |
+| AI nutrition plan builder | **Keep main feature; BLOCK synthetic/contract activation until verified** | Main contains a complete multi-step flow and POST `/ai/generate-diet-plan` plus `/nutrition/profile`, with real metric validation. QA replaces the route with a redirect and removes the feature. Main is retained as the product feature, but it must be contract-tested and must not display or persist unverified AI output. |
+| Maternity hub and pregnancy/cycle tracking | **Keep main breadth; mandatory fail-closed remediation** | Main has the richer planning/checkup/booking journey but contains a synthetic default profile (week 28 and Date.now-derived due date), AsyncStorage fallback, and optimistic local transitions. QA is safer and narrower, loading `/maternity/profile` with explicit empty/error states. Do not adopt QA wholesale; merge the safe state policy into the richer main experience and remove fabricated medical defaults. |
+| Diagnostics checkout | **Keep main UX as gated design; do not activate blindly** | Main preserves the full booking/payment experience but locally generates dates/slots and has local radiology questionnaire state. QA redirects fail-closed because provider availability/payment contracts are not proven. Retain main as the intended journey only behind verified availability/payment contracts; no unverified booking is allowed. |
+| Mental-health crisis support | **Review/merge** | QA provides explicit real contact CRUD and translated safety states; main offers broader self-help/hotline experience. Preserve safety and breadth only after checking backend contracts and emergency policy. |
+| AI, diagnostics, reports, family and health records | **Main default, file-level review required** | Main has broader visible journeys; QA changes several files and may remove or narrow features. Choose per file only after API/DTO/ownership/state comparison. |
+| QA-only localization and medication-notification modules | **Adopt as candidates** | These are additive and test-bearing, but must be included only after package/typecheck and translation-key validation. |
+| Main-only `.env*`, Google/Firebase files, and `expo-env.d.ts` | **Do not copy secrets** | `.env*` and Firebase credential files are release/environment assets, not source data. Use `.env.example` and secret/release provisioning. Preserve only valid non-secret type/config contracts. |
+| Removed backup route files | **Keep removed** | The QA archive’s removal of `*.backup.tsx` files is a correctness improvement because Expo Router can register files under `app/` as routes. |
+
+## Current blockers and non-claims
+
+The phase has not yet closed. The 48 unmatched main Patient calls require manual review. The 504 risk markers require classification into legitimate safety copy, test code, acceptable placeholders, or defects. No source file has been replaced yet because the file-level decisions need DTO, build, and state verification. No production mutation was performed.
+
+## Phase 2 completion gate
+
+Before declaring Phase 2 complete, the remaining Patient inventory must cover every route/screen and action, and every changed feature file must receive a final `MAIN`, `QA`, `MERGED`, or `BLOCKED` decision with evidence. The chosen source set must then pass typecheck/build and route/API smoke validation. Only after that double-check may the phase report be committed and the next phase considered.
