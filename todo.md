@@ -662,3 +662,7 @@
 
 - [x] Normalized the Nabdah screen/button inventory into `NABDAH_SCREEN_BUTTON_CONTRACT_UNIQUE_20260818.tsv`: 3,158 unique markers, 580 endpoint-bearing records, 10 placeholder candidates, 32 fail-closed reviews, and 6 stale/environment candidates.
 - [ ] Manually validate every candidate classification against the direct Backend controller/schema and convert each record to PASS, FIX, BLOCKED, or INCONCLUSIVE with evidence.
+
+- [x] Compiled 933 full Backend routes from class/method decorators and produced `NABDAH_BACKEND_COMPILED_ROUTES_20260818.tsv`.
+- [x] Produced `NABDAH_ENDPOINT_CONTROLLER_MATCH_20260818.tsv`: 587 extracted path-like records, 235 matched controller routes, and 352 requiring review; many unmatched records are client navigation paths such as `/(tabs)` and must be filtered before defect classification.
+- [ ] Filter non-API navigation paths, recover HTTP methods from call context, and manually classify the remaining unmatched consumer routes against controller prefixes/constants.
