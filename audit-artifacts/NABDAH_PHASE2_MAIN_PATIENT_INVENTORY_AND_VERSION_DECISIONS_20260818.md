@@ -16,3 +16,8 @@ The first open-contract classifier used the wrong TSV field name and incorrectly
 The copay contract is not absent from Backend main: the exact route is `POST /insurance/patient/pay-copay` in `insurance-engine.module.ts`, while Patient currently calls `POST /patient/pay-copay`. This is a genuine client/backend prefix mismatch and remains a FIX candidate; it must be corrected only after confirming the payload, booking/insurance ownership, idempotency, and payment failure states.
 
 The Chat controller has an alias declaration for both `chat` and `chats`, so Patient `/chat/...` and SocketContext `/chats/...` are contract-compatible after compiler alias normalization. `medical/programs/active` and `medical/programs/complete-session` are real routes under the extensions controller; the active read call uses the wrong client method and the completion call needs payload/state/ownership review rather than a missing-screen decision.
+
+
+## Copay correction after reading the alias controller
+
+The earlier note that `/patient/pay-copay` was a genuine prefix mismatch is superseded by the Backend source: `InsuranceAliasController` explicitly exposes `POST /patient/pay-copay` and delegates to `InsuranceFlowService.payCopay`. The Patient route is therefore present and intentionally supported. The remaining review is semantic rather than routing: confirm gateway intent ownership, idempotency/replay behavior, state transition safety, and the expected failure behavior when the payment gateway is unavailable. No route fix should be applied for this item.
