@@ -696,3 +696,10 @@
 - [ ] Add consultation communication lifecycle: pre-visit chat window, reminders, ready-to-call gate, video/voice controls, files, reconnect/end states, and access authorization.
 - [ ] Add consented clinical context and attachments before booking; prescription, referral, lab/radiology/home-care orders after consultation; independent ordering per downstream service; completion and rating flows.
 - [ ] Apply the same decision/state/screen/button model to pharmacy, laboratory, radiology, nursing/home-care, and facility workflows, including prescription-required versus OTC medication logic.
+
+- [ ] Preserve and execute the original QA/remediation roadmap while adding the full service-journey expansion from Pasted_content_17.
+- [ ] Audit Patient screens and actions end-to-end across discovery, booking, payment/insurance, confirmation, execution, results, prescriptions, referrals, ratings, profile, family, wallet, support, localization, theme, permissions, and recovery states.
+- [ ] Audit Provider screens end-to-end across onboarding, profile/clinic/facility identity, availability/holidays/shifts, insurance/cash settings, inbox/broadcast, accept/reject/reassign, execution, reports, communication, wallet, payouts, notifications, settings, and security.
+- [ ] Audit Admin screens end-to-end across operations, approvals, providers/facilities, catalogs, orders/bookings, insurance, finance/ledger, reports/charts, notifications, support, audit logs, feature/config controls, privacy, and role governance.
+- [ ] For every feature, detect missing logical CTA/screen/state, local-only success, fabricated/hardcoded data, stale route, missing backend/database transition, broken error/loading/empty/retry state, accessibility/localization issue, and security/ownership gap.
+- [ ] Apply the complete service journey model to consultations, pharmacy, laboratory, radiology, nursing/home-care, hospitals/facilities, ambulance/emergency, nutrition, maternity, mental health, AI, family/records, wallet, support, and shared account flows.
