@@ -717,3 +717,11 @@
 - [ ] Research public flows and provider/operations experiences screen-by-screen where legally and technically accessible; record source URL, date, platform, observed steps, evidence, and confidence.
 - [ ] Compare competitor journeys against Nabdah by task, actor, screen, CTA, state, pricing/insurance, handoff, notification, recovery, accessibility, and trust/safety; separate observed facts from recommendations.
 - [ ] Convert only validated opportunities into Nabdah requirements; do not copy protected design/content or fabricate competitor behavior.
+
+- [x] Rebase Phase 1 source verification on the latest `main` branch as requested; compare its ancestry, commit tip, and four application artifacts with `manus/on-live-reconciliation` before continuing.
+- [x] Do not start Phase 2 or modify source until the `main` baseline comparison is documented and the owner-approved source reference is explicit.
+
+- [ ] Compare `main` and `manus/on-live-reconciliation` at commit, tree, archive, extracted-file, source-fix, mock-data, and manifest levels before Phase 2.
+- [ ] Classify each difference as source fix, audit evidence, regenerated artifact, missing file, stale file, mock/hardcoded data, or unresolved conflict; do not choose a baseline by commit date alone.
+- [ ] Determine and document the complete approved source set; preserve any unique valid fixes from either ref through a reviewed merge/cherry-pick plan before Phase 2.
+- [ ] Apply the end-of-phase double-check protocol to every future Phase: compare to plan, complete missing items, re-test, document evidence, push, and wait for owner approval.
