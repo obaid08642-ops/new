@@ -647,3 +647,6 @@
 
 - [x] Confirmed `fix/e2e-operational-contracts-20260814` at `21006cc` is the direct four-component Nabdah source branch inside `new` (backend 619, patient 602, provider 97, admin 125 files).
 - [ ] Create a verified Nabdah-only source worktree from `fix/e2e-operational-contracts-20260814`, then reconcile the previous provider fixes and QA evidence without importing unrelated repositories.
+
+- [x] Ran and cleaned an isolated source merge trial inside `new`; no branch was changed and the only direct binary conflict was recorded in `NABDAH_SOURCE_MERGE_TRIAL_20260818.md`.
+- [ ] Deliberately reconcile direct Nabdah trees and verified Provider/QA changes, regenerate packages only after full source gates pass, then push the resulting implementation commit to `manus/on-live-reconciliation`.
