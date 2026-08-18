@@ -729,16 +729,16 @@
 - [x] Phase 2 approved baseline: use `main=53ba7da` as the effective source default and `manus/on-live-reconciliation` as the evidence branch; do not restore `selfassessment.repository.ts`, do not commit `.env` or Firebase secrets, and do not build from another branch.
 - [ ] Phase 2 Patient closure must include source inventory, screen/button/state matrix, API/Backend contract matching, mock/hardcoded data scan, navigation/route checks, and user-journey gaps before any remediation is declared.
 
-- [ ] Compare every changed/unique Patient file between main and QA, including AI, diagnostics, medicines, nutrition, maternity, mental health, reports, family, localization, medication notifications, route backups, and release configuration.
-- [ ] For each differing file, record a decision: MAIN, QA, MERGED, or BLOCKED, with evidence for feature completeness, real backend/data integration, placeholder/mock absence, security, and build compatibility.
+- [x] Compare every changed/unique Patient file between main and QA, including AI, diagnostics, medicines, nutrition, maternity, mental health, reports, family, localization, medication notifications, route backups, and release configuration. Current reconciled reference is byte-identical to main across the full Patient tree; see `NABDAH_PHASE2_PATIENT_FULL_TREE_SOURCE_COMPARISON_20260819.md`.
+- [x] For each differing file, record a decision: MAIN, QA, MERGED, or BLOCKED, with evidence for feature completeness, real backend/data integration, placeholder/mock absence, security, and build compatibility. No current reconciled-reference differences exist; prior sensitive candidates were resolved as MAIN_DEFAULT_IDENTICAL_CURRENT_REFERENCE.
 - [ ] Prioritize and inspect advanced Patient features: medicines/OTC and prescriptions, nutrition, pregnancy/maternity/baby growth, mental health, AI, diagnostics/labs/radiology, reminders, reports, family permissions, wallet, and support.
 - [ ] Extend the same file-level decision method to Provider operational screens in the next Provider phase: onboarding, profiles, availability, insurance/cash settings, intake, accept/reject/reassign, execution, reports, payouts, maps, chat, and notifications.
 
-- [ ] Phase 2 source policy: treat `main` as the default final source; use QA only as a verification reference unless a specific file is proven newer, better integrated, less synthetic, and build-compatible.
-- [ ] Record any exception to the main-default policy per file/feature with evidence and owner-facing rationale; never silently replace whole app archives or branches.
+- [x] Phase 2 source policy: treat `main` as the default final source; use QA only as a verification reference unless a specific file is proven newer, better integrated, less synthetic, and build-compatible.
+- [x] Record any exception to the main-default policy per file/feature with evidence and owner-facing rationale; never silently replace whole app archives or branches. No current reconciled-reference exception exists.
 
-- [ ] Compare the latest Patient files for profile, medication reminders, medication reorder/refill, chronic conditions, chronic medications, nutrition, cycle tracking, maternity/pregnancy follow-up, and mental health against main and the verification archive.
-- [ ] Record a per-file decision (MAIN, ALTERNATIVE, MERGED, FIX, or BLOCKED) with feature, API contract, state, synthetic-data, and test evidence; do not silently mix archives.
+- [x] Compare the latest Patient files for profile, medication reminders, medication reorder/refill, chronic conditions, chronic medications, nutrition, cycle tracking, maternity/pregnancy follow-up, and mental health against main and the verification archive. The current reconciled tree is byte-identical to main.
+- [x] Record a per-file decision (MAIN, ALTERNATIVE, MERGED, FIX, or BLOCKED) with feature, API contract, state, synthetic-data, and test evidence; do not silently mix archives. Current source decision is MAIN_DEFAULT_IDENTICAL_CURRENT_REFERENCE; behavioral and safety gates remain separately open.
 - [ ] Verify selected files build and preserve real backend integration, loading/error/empty states, ownership, localization, and medical-safety constraints before Phase 2 closure.
 
 - [ ] Correct Phase 2 reporting: describe most Patient/Provider/Admin changes as rebuilds or internal rewrites of existing screens, not newly added screens.
