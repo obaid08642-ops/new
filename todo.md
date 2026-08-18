@@ -671,3 +671,7 @@
 - [x] Method-aware matching found 260 direct matches and 144 review candidates; documented that concatenated/template expressions require reconstruction before defect classification.
 - [ ] Reconstruct and validate all 144 API review candidates, including response-shape/auth checks; no route is considered stale from string matching alone.
 - [x] Filtered the 352 route-review records into 91 navigation/template records and 261 API-candidate records in `NABDAH_UNMATCHED_API_REVIEW_20260818.tsv`; the 261 remain open for full expression reconstruction.
+
+- [x] Verified repository identity: only `obaid08642-ops/new`; direct implementation source is remote `fix/e2e-operational-contracts-20260814` at `21006cc`, and QA evidence is remote `manus/on-live-reconciliation` at `d3eb266`.
+- [x] Confirmed the QA branch is being used for audit evidence, not as a substitute for the direct implementation source; removed the interrupted untracked backend dependency directory.
+- [ ] Continue strictly in plan order: finish contract review, then build/test gates, then sandbox-only production E2E.
