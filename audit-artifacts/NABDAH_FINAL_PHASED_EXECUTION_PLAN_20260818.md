@@ -125,3 +125,17 @@ A Phase is not complete merely because code compiles. A journey is PASS only whe
 ## Required completion report after every Phase
 
 Each Phase report must contain: Phase number and exact scope; checklist of every planned item; files/commits changed; tests/builds executed; scenarios and evidence; PASS/FIX/BLOCKED/INCONCLUSIVE table; unresolved risks; comparison against the plan; corrections made after the double-check; pushed commit and branch; and the explicit statement that the next Phase is waiting for the owner’s command.
+
+## Phase 7 — Competitive UX and workflow benchmark
+
+**Purpose.** Compare Nabdah’s intended journeys with leading products by domain, without copying protected design or assuming unverified behavior.
+
+**Research cohorts.** Teleconsultation and doctor booking; pharmacy and e-prescription; laboratory; radiology/imaging; home nursing and care; hospitals/facilities; nutrition, maternity, and mental health; and integrated health platforms. The cohort may include regional and international examples such as Vezeeta/Visita, Teladoc, and domain-specific services where public evidence is available.
+
+**Work.** For each competitor and accessible platform, record source URL, date, platform, country/market, actor, task, screen sequence, CTA, state transitions, pricing/insurance disclosure, provider intake and completion flow, notifications, recovery paths, accessibility/trust signals, and confidence. Separate observed facts from interpretation and recommendations. Compare against Nabdah by actor, screen, action, state, handoff, contract implication, and release priority.
+
+**Boundaries.** Use public pages, permitted app/store material, official documentation, and user-authorized access only. Do not bypass authentication, scrape private data, fabricate competitor behavior, or copy protected content/design. The outcome is a requirements and opportunity benchmark, not a claim that competitor flows are universally correct.
+
+**Deliverables.** Competitor cohort register, evidence-backed screen/workflow maps, Nabdah comparison matrix, strengths/gaps/opportunities report, prioritized recommendations, and change requests mapped to existing phases.
+
+**Exit criteria.** Findings are source-cited and confidence-labeled; validated opportunities are converted into explicit Nabdah requirements or intentionally rejected with rationale; no previous Phase or requirement is removed.

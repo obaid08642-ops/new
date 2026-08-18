@@ -711,3 +711,9 @@
 - [ ] Do not start any numbered phase until the owner explicitly says `ابدأ` for that phase.
 - [ ] At the end of every phase, perform a line-by-line checklist review against the phase scope, verify artifacts/tests/source state, commit and push only to `manus/on-live-reconciliation`, then report completion and wait for the owner’s next-phase command.
 - [ ] Never declare a phase complete when an item is untested; classify it as PASS, FIX, BLOCKED, or INCONCLUSIVE with evidence.
+
+- [ ] Preserve every existing phase and add a dedicated competitive UX/workflow benchmark phase before final remediation.
+- [ ] Define competitor cohorts by domain: teleconsultation, pharmacy/e-prescription, laboratory, radiology/imaging, home nursing, hospital/facility, nutrition/maternity/mental health, and integrated health platforms.
+- [ ] Research public flows and provider/operations experiences screen-by-screen where legally and technically accessible; record source URL, date, platform, observed steps, evidence, and confidence.
+- [ ] Compare competitor journeys against Nabdah by task, actor, screen, CTA, state, pricing/insurance, handoff, notification, recovery, accessibility, and trust/safety; separate observed facts from recommendations.
+- [ ] Convert only validated opportunities into Nabdah requirements; do not copy protected design/content or fabricate competitor behavior.
