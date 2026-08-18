@@ -670,3 +670,4 @@
 - [x] Separated UI navigation literals from actual network calls and extracted 404 concrete API call records across Patient/Provider/Admin.
 - [x] Method-aware matching found 260 direct matches and 144 review candidates; documented that concatenated/template expressions require reconstruction before defect classification.
 - [ ] Reconstruct and validate all 144 API review candidates, including response-shape/auth checks; no route is considered stale from string matching alone.
+- [x] Filtered the 352 route-review records into 91 navigation/template records and 261 API-candidate records in `NABDAH_UNMATCHED_API_REVIEW_20260818.tsv`; the 261 remain open for full expression reconstruction.
