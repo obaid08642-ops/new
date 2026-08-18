@@ -630,3 +630,6 @@
 - [ ] إغلاق WebSocket والدفع والويبهوك/idempotency وOTP/2FA والتوطين والثيمات وSEO/structured data والأداء والrate limits.
 - [ ] بناء واختبار Android/iOS/Huawei والمحاكيات والمزرعة وTestFlight وdeep links وpush/calls/GPS/RTL/lifecycle/permissions.
 - [ ] تشغيل release gate على commit المنشور وإعادة health/security/smoke/E2E، ثم إصدار شهادة جاهزية فقط عند PASS لكل البوابات الإلزامية.
+
+- [x] Captured file counts and tree hashes for Patient, Provider, Backend, and both Admin candidate snapshots in `AUTHORITATIVE_SOURCE_HASH_SNAPSHOT_20260818.txt`.
+- [ ] Resolve Admin candidate divergence and map each snapshot to its actual Git repository/commit before source edits.
