@@ -26,3 +26,8 @@ The earlier note that `/patient/pay-copay` was a genuine prefix mismatch is supe
 ## Final alias-aware review queue
 
 After expanding the confirmed Controller aliases, the 32-call queue contains 9 alias-compatible Chat/copay calls, 20 method-mismatch candidates, and 10 no-exact-route review candidates (the header is excluded from these counts). The alias-compatible calls are not missing features; they still require semantic authorization/state checks. The remaining candidates are not all defects: some are legitimate UI mutations using an unsupported method, some need a different sub-route such as `/family/calendar/event` or `/users/me/wishlist/:itemId`, and some require a deliberate compatibility contract decision. This queue is now suitable for remediation planning and not for automatic source edits.
+
+
+## Pharmacy basket contract review
+
+`order-confirm.tsx` uses `GET /orders/:id` for detail and `POST /orders/:id/approve-basket` / `POST /orders/:id/reject-basket` for the two user actions. Both basket transition contracts are present in Backend main and the UI remains on the payment path only after the approval call succeeds. The earlier generic `POST /orders/:id` mismatch candidates in pharmacy chat/order-confirm are separate calls and require screen-intent review; they do not invalidate the basket confirmation flow.
