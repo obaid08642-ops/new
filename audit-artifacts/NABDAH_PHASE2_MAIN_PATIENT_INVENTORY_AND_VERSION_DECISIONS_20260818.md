@@ -21,3 +21,8 @@ The Chat controller has an alias declaration for both `chat` and `chats`, so Pat
 ## Copay correction after reading the alias controller
 
 The earlier note that `/patient/pay-copay` was a genuine prefix mismatch is superseded by the Backend source: `InsuranceAliasController` explicitly exposes `POST /patient/pay-copay` and delegates to `InsuranceFlowService.payCopay`. The Patient route is therefore present and intentionally supported. The remaining review is semantic rather than routing: confirm gateway intent ownership, idempotency/replay behavior, state transition safety, and the expected failure behavior when the payment gateway is unavailable. No route fix should be applied for this item.
+
+
+## Final alias-aware review queue
+
+After expanding the confirmed Controller aliases, the 32-call queue contains 9 alias-compatible Chat/copay calls, 20 method-mismatch candidates, and 10 no-exact-route review candidates (the header is excluded from these counts). The alias-compatible calls are not missing features; they still require semantic authorization/state checks. The remaining candidates are not all defects: some are legitimate UI mutations using an unsupported method, some need a different sub-route such as `/family/calendar/event` or `/users/me/wishlist/:itemId`, and some require a deliberate compatibility contract decision. This queue is now suitable for remediation planning and not for automatic source edits.
