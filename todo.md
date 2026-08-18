@@ -675,3 +675,7 @@
 - [x] Verified repository identity: only `obaid08642-ops/new`; direct implementation source is remote `fix/e2e-operational-contracts-20260814` at `21006cc`, and QA evidence is remote `manus/on-live-reconciliation` at `d3eb266`.
 - [x] Confirmed the QA branch is being used for audit evidence, not as a substitute for the direct implementation source; removed the interrupted untracked backend dependency directory.
 - [ ] Continue strictly in plan order: finish contract review, then build/test gates, then sandbox-only production E2E.
+
+- [x] Corrected the execution source to `manus/on-live-reconciliation` at `d59a8bfa` after verifying it is 311 commits ahead of the old `fix/e2e-operational-contracts-20260814` ref.
+- [x] Confirmed the current reconciliation branch uses the cleaned single-artifact layout; backend/patient source and provider/admin artifacts must be extracted from the committed archives before build or source inspection.
+- [ ] Extract and audit only the source artifacts from `manus/on-live-reconciliation`; do not use the old fix branch as an implementation base.
