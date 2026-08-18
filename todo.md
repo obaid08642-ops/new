@@ -749,3 +749,4 @@
 - [x] Phase 2 correct API review false positives using screen-level reads and controller aliases before counting any remaining Patient contract defects.
 - [ ] Phase 2 Patient runtime build remains BLOCKED until package-lock/package.json synchronization and dependency mirror/network access are resolved in an isolated build environment without silently changing main.
 - [ ] Phase 2 Patient release configuration: decide whether to install and configure `expo-system-ui` so the declared `userInterfaceStyle` is effective, then rerun the Android prebuild gate.
+- [ ] Phase 2 Patient native APK/AAB gate: Android prebuild passes in the temporary copy, but this sandbox lacks Android SDK/`adb`; run the Gradle release build only in an SDK-equipped CI/device-build environment and preserve its logs/artifact metadata.
