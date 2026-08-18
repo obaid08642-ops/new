@@ -21,7 +21,7 @@ This checklist compares the current Phase 2 work against the approved phased pla
 | Distinguish existing-screen rebuilds from genuine additions | Six dictionaries/tests, medication notification utility/test, and three Provider map files identified as actual additions; Admin has no new pages | PASS |
 | Remove or classify fabricated/hardcoded data | Markers were separated from legitimate test mocks; remaining medical/default markers are queued for remediation | FIX |
 | Verify loading, empty, error, retry, and offline behavior | Static markers reviewed; runtime verification pending | BLOCKED |
-| Verify TypeScript, Jest, and Expo export | Isolated install blocked by lock mismatch and unreachable dependency mirror; no source lockfile changed | BLOCKED |
+| Verify TypeScript, Jest, and Expo export | Reconciled temporary copy passed typecheck, Jest, and Expo export; committed lockfile/mirror still cannot reproduce this without a source-level reconciliation decision | FIX |
 | Verify security, ownership, consent, and medical-safety behavior | Static contract review started; E2E and mutation checks remain later gates | BLOCKED |
 | Perform a line-by-line double-check and commit evidence | This document, closure matrix, decision matrix, and report are committed to QA branch | PASS |
 
