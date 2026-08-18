@@ -1,0 +1,588 @@
+component	file	line	raw	normalized	classification	backend_candidates
+patient	patient-app/app/(auth)/forgot-password.tsx	31	/auth/send-otp	/auth/send-otp	MATCHED_ROUTE	POST /auth/send-otp (backend/src/modules/auth/auth.controller.ts:126)
+patient	patient-app/app/(auth)/login.tsx	100	/auth/social-login	/auth/social-login	MATCHED_ROUTE	POST /auth/social-login (backend/src/modules/auth/auth.controller.ts:148)
+patient	patient-app/app/(auth)/login.tsx	113	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/login.tsx	158	/auth/login	/auth/login	MATCHED_ROUTE	POST /auth/login (backend/src/modules/auth/auth.controller.ts:41)
+patient	patient-app/app/(auth)/login.tsx	184	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/login.tsx	287	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/login.tsx	311	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/login.tsx	351	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/otp.tsx	78	/auth/verify-otp	/auth/verify-otp	MATCHED_ROUTE	POST /auth/verify-otp (backend/src/modules/auth/auth.controller.ts:133)
+patient	patient-app/app/(auth)/otp.tsx	91	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/otp.tsx	96	/auth/register	/auth/register	MATCHED_ROUTE	POST /auth/register (backend/src/modules/auth/auth.controller.ts:35)
+patient	patient-app/app/(auth)/otp.tsx	116	/auth/convert-guest	/auth/convert-guest	MATCHED_ROUTE	POST /auth/convert-guest (backend/src/modules/auth/auth.controller.ts:64)
+patient	patient-app/app/(auth)/otp.tsx	147	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/otp.tsx	149	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/provider-info.tsx	15	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/provider-info.tsx	19	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/register.tsx	121	/auth/social-login	/auth/social-login	MATCHED_ROUTE	POST /auth/social-login (backend/src/modules/auth/auth.controller.ts:148)
+patient	patient-app/app/(auth)/register.tsx	134	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/register.tsx	175	/auth/send-otp	/auth/send-otp	MATCHED_ROUTE	POST /auth/send-otp (backend/src/modules/auth/auth.controller.ts:126)
+patient	patient-app/app/(auth)/register.tsx	280	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/register.tsx	331	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/reset-password.tsx	33	/auth/reset-password	/auth/reset-password	MATCHED_ROUTE	POST /auth/reset-password (backend/src/modules/auth/auth.controller.ts:140)
+patient	patient-app/app/(auth)/reset-password.tsx	76	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	32	/auth/guest	/auth/guest	MATCHED_ROUTE	POST /auth/guest (backend/src/modules/auth/auth.controller.ts:59)
+patient	patient-app/app/(auth)/welcome.tsx	35	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	48	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	49	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	50	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	185	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	191	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	197	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(auth)/welcome.tsx	202	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(onboarding)/index.tsx	87	/(onboarding	/(onboarding	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(onboarding)/index.tsx	97	/(onboarding	/(onboarding	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(onboarding)/language.tsx	58	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(onboarding)/permissions.tsx	74	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/consultations/index.tsx	31	/ai-assistant	/ai-assistant	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/consultations/index.tsx	83	/providers?type=doctor	/providers	MATCHED_ROUTE	GET /providers (backend/src/modules/providers/providers.controller.ts:20)
+patient	patient-app/app/(tabs)/diagnostics.tsx	56	/labs/packages	/labs/packages	MATCHED_ROUTE	GET /labs/packages (backend/src/modules/labs/labs.controller.ts:29)
+patient	patient-app/app/(tabs)/diagnostics.tsx	57	/labs/services	/labs/services	MATCHED_ROUTE	GET /labs/services (backend/src/modules/labs/labs.controller.ts:9)
+patient	patient-app/app/(tabs)/diagnostics.tsx	58	/radiology/services	/radiology/services	MATCHED_ROUTE	GET /radiology/services (backend/src/modules/radiology/radiology.controller.ts:10)
+patient	patient-app/app/(tabs)/diagnostics.tsx	59	/providers?type=lab	/providers	MATCHED_ROUTE	GET /providers (backend/src/modules/providers/providers.controller.ts:20)
+patient	patient-app/app/(tabs)/diagnostics.tsx	93	/diagnostics/orders	/diagnostics/orders	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/diagnostics.tsx	175	/diagnostics/insurance-upload	/diagnostics/insurance-upload	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/diagnostics.tsx	194	/diagnostics/packages	/diagnostics/packages	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/diagnostics.tsx	352	/diagnostics/checkout	/diagnostics/checkout	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/diagnostics.tsx	372	/diagnostics/cart	/diagnostics/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/health.tsx	97	/health/vitals/summary	/health/vitals/summary	MATCHED_ROUTE	GET /health/vitals/summary (backend/src/modules/health/health.controller.ts:19)|PATCH /health/vitals/:id (backend/src/modules/health/health.controller.ts:23)|DELETE /health/vitals/:id (backend/src/modules/health/health.controller.ts:25)
+patient	patient-app/app/(tabs)/health.tsx	98	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/(tabs)/health.tsx	99	/home/upcoming-appointment	/home/upcoming-appointment	MATCHED_ROUTE	GET /home/upcoming-appointment (backend/src/modules/home/home.controller.ts:15)
+patient	patient-app/app/(tabs)/health.tsx	144	/health/health-id	/health/health-id	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/health.tsx	155	/health/edit-profile	/health/edit-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/health.tsx	205	/health/vitals	/health/vitals	MATCHED_ROUTE	GET /health/vitals (backend/src/modules/health/health.controller.ts:12)|POST /health/vitals (backend/src/modules/health/health.controller.ts:21)
+patient	patient-app/app/(tabs)/health.tsx	215	/health/vitals	/health/vitals	MATCHED_ROUTE	GET /health/vitals (backend/src/modules/health/health.controller.ts:12)|POST /health/vitals (backend/src/modules/health/health.controller.ts:21)
+patient	patient-app/app/(tabs)/health.tsx	262	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/health.tsx	291	/consultations/appointments	/consultations/appointments	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/index.tsx	84	/home/offers	/home/offers	MATCHED_ROUTE	GET /home/offers (backend/src/modules/home/home.controller.ts:10)
+patient	patient-app/app/(tabs)/index.tsx	85	/home/upcoming-appointment	/home/upcoming-appointment	MATCHED_ROUTE	GET /home/upcoming-appointment (backend/src/modules/home/home.controller.ts:15)
+patient	patient-app/app/(tabs)/index.tsx	86	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/(tabs)/index.tsx	189	/search	/search	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/nursing.tsx	54	/home-care/services	/home-care/services	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/nursing.tsx	55	/home-care/packages	/home-care/packages	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	72	/medicines/categories	/medicines/categories	MATCHED_ROUTE	GET /medicines/categories (backend/src/modules/medicines/medicines.controller.ts:36)|GET /medicines/:id (backend/src/modules/medicines/medicines.controller.ts:54)|PATCH /medicines/:id (backend/src/modules/medicines/medicines.controller.ts:106)
+patient	patient-app/app/(tabs)/pharmacy.tsx	225	/pharmacy/barcode-scanner	/pharmacy/barcode-scanner	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	237	/pharmacy/filters	/pharmacy/filters	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	254	/pharmacy/scan-prescription	/pharmacy/scan-prescription	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	278	/pharmacy/order-history	/pharmacy/order-history	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	351	/pharmacy/manual-order	/pharmacy/manual-order	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	364	/pharmacy/product-detail	/pharmacy/product-detail	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/(tabs)/pharmacy.tsx	451	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai-assistant.tsx	146	/ai/prescription-translator	/ai/prescription-translator	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai/chat-doctor.tsx	83	/ai/triage/chat	/ai/triage/chat	MATCHED_ROUTE	POST /ai/triage/chat (backend/src/modules/ai/ai.controller.ts:58)
+patient	patient-app/app/ai/chat-doctor.tsx	112	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai/skin-analysis.tsx	95	/ai/skin-analysis	/ai/skin-analysis	MATCHED_ROUTE	POST /ai/skin-analysis (backend/src/modules/ai/ai.controller.ts:69)
+patient	patient-app/app/ai/skin-analysis.tsx	226	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai/symptom-checker.tsx	235	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai/symptom-checker.tsx	322	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai/symptom-checker.tsx	340	/ai/symptom-timeline	/ai/symptom-timeline	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/ai/triage.tsx	61	/ai/triage/chat	/ai/triage/chat	MATCHED_ROUTE	POST /ai/triage/chat (backend/src/modules/ai/ai.controller.ts:58)
+patient	patient-app/app/ai/triage.tsx	171	/emergency	/emergency	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/community/hub.tsx	39	/community/posts?page=1&limit=20	/community/posts	MATCHED_ROUTE	GET /community/posts (backend/src/modules/community/community.controller.ts:16)|POST /community/posts (backend/src/modules/community/community.controller.ts:26)
+patient	patient-app/app/community/live-session.tsx	31	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointment-detail.tsx	83	/consultations/doctor/[id]	/consultations/doctor/[id]	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointment-detail.tsx	153	/patient/pay-copay	/patient/pay-copay	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointment-detail.tsx	166	/consultations/cancel-reschedule	/consultations/cancel-reschedule	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointment-detail.tsx	172	/consultations/virtual-waiting-room	/consultations/virtual-waiting-room	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointment-detail.tsx	182	/consultations/clinic-location	/consultations/clinic-location	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointment-detail.tsx	192	/consultations/home-visit-tracking	/consultations/home-visit-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/appointments.tsx	166	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/booking-confirm.tsx	56	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/consultations/booking-confirm.tsx	122	/care/appointments	/care/appointments	MATCHED_ROUTE	POST /care/appointments (backend/src/modules/care/appointments.controller.ts:14)|GET /care/appointments (backend/src/modules/care/appointments.controller.ts:19)
+patient	patient-app/app/consultations/booking-confirm.tsx	258	/profile/insurance	/profile/insurance	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/booking-success.tsx	53	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/booking-success.tsx	57	/consultations/appointments	/consultations/appointments	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/booking-success.tsx	62	/consultations/clinic-location	/consultations/clinic-location	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/booking-success.tsx	65	/consultations/home-visit-tracking	/consultations/home-visit-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/booking-success.tsx	292	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/cancel-reschedule.tsx	34	/consultations/appointments	/consultations/appointments	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/chat-with-doctor.tsx	113	/consultations/video-call	/consultations/video-call	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/chat-with-doctor.tsx	116	/consultations/video-call	/consultations/video-call	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/doctor-profile.tsx	92	/care/appointments/waitlist/join	/care/appointments/waitlist/join	MATCHED_ROUTE	POST /care/appointments/waitlist/join (backend/src/modules/care/appointments.controller.ts:29)
+patient	patient-app/app/consultations/doctor-profile.tsx	300	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/doctor-profile.tsx	300	/insurance/add-policy	/insurance/add-policy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/doctor-profile.tsx	556	/consultations/doctor-profile	/consultations/doctor-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/follow-up.tsx	92	/consultations/prescription-from-doctor	/consultations/prescription-from-doctor	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/follow-up.tsx	102	/consultations/book/[id]	/consultations/book/[id]	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/follow-up.tsx	137	/consultations/chat-with-doctor	/consultations/chat-with-doctor	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/follow-up.tsx	138	/consultations/book/[id]	/consultations/book/[id]	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/post-call-rating.tsx	47	/care/appointments/rating	/care/appointments/rating	MATCHED_ROUTE	GET /care/appointments/:id (backend/src/modules/care/appointments.controller.ts:24)
+patient	patient-app/app/consultations/post-call-rating.tsx	54	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/post-call-rating.tsx	62	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/prescription-from-doctor.tsx	39	/prescriptions/active	/prescriptions/active	MATCHED_ROUTE	GET /prescriptions/:id (backend/src/modules/prescriptions/prescriptions.controller.ts:62)
+patient	patient-app/app/consultations/prescription-from-doctor.tsx	63	/pharmacy/rx-order	/pharmacy/rx-order	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/prescription-from-doctor.tsx	285	/consultations/follow-up	/consultations/follow-up	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/prescription-from-doctor.tsx	335	/diagnostics/search	/diagnostics/search	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/share-report.tsx	155	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/consultations/specialty-select.tsx	37	/care/specialties	/care/specialties	MATCHED_ROUTE	GET /care/specialties (backend/src/modules/care/care.controller.ts:11)
+patient	patient-app/app/consultations/waiting-room.tsx	242	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/delivery/address-select.tsx	35	/users/me/addresses	/users/me/addresses	MATCHED_ROUTE	GET /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:11)|POST /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:17)
+patient	patient-app/app/delivery/address-select.tsx	73	/shared/location-picker	/shared/location-picker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/delivery/address-select.tsx	135	/shared/location-picker	/shared/location-picker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/book-sample.tsx	46	/shared/location-picker	/shared/location-picker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/book-sample.tsx	121	/pay	/pay	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/booking-confirm.tsx	39	/cart	/cart	MATCHED_ROUTE	GET /cart (backend/src/modules/cart/cart.module.ts:131)
+patient	patient-app/app/diagnostics/booking-confirm.tsx	64	/labs/bookings	/labs/bookings	MATCHED_ROUTE	POST /labs/bookings (backend/src/modules/labs/labs.controller.ts:38)
+patient	patient-app/app/diagnostics/booking-confirm.tsx	91	/cart/clear	/cart/clear	MATCHED_ROUTE	POST /cart/clear (backend/src/modules/cart/cart.controller.ts:11)|POST /cart/clear (backend/src/modules/cart/cart.module.ts:135)
+patient	patient-app/app/diagnostics/booking-confirm.tsx	96	/cart/clear	/cart/clear	MATCHED_ROUTE	POST /cart/clear (backend/src/modules/cart/cart.controller.ts:11)|POST /cart/clear (backend/src/modules/cart/cart.module.ts:135)
+patient	patient-app/app/diagnostics/booking-confirm.tsx	104	/insurance/approval-pending	/insurance/approval-pending	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/booking-confirm.tsx	107	/diagnostics/sample-tracking	/diagnostics/sample-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/booking-confirm.tsx	155	/delivery/address-select	/delivery/address-select	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/booking-success.tsx	87	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/booking-success.tsx	92	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/booking-success.tsx	98	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/cart.tsx	188	/diagnostics/checkout	/diagnostics/checkout	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/checkout.tsx	266	/diagnostics/booking-success	/diagnostics/booking-success	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/checkout.tsx	270	/diagnostics/booking-success	/diagnostics/booking-success	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/insurance-approval.tsx	250	/consultations	/consultations	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/insurance-upload.tsx	58	/providers?type=lab	/providers	MATCHED_ROUTE	GET /providers (backend/src/modules/providers/providers.controller.ts:20)
+patient	patient-app/app/diagnostics/insurance-upload.tsx	150	/consultations	/consultations	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/insurance-upload.tsx	294	/orders/create	/orders/create	MATCHED_ROUTE	POST /orders/create (backend/src/modules/orders/orders.controller.ts:13)|GET /orders/:id (backend/src/modules/orders/orders.controller.ts:49)
+patient	patient-app/app/diagnostics/lab-comparison.tsx	87	/diagnostics/cart	/diagnostics/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/my-results.tsx	26	/labs/bookings/mine	/labs/bookings/mine	MATCHED_ROUTE	GET /labs/bookings/mine (backend/src/modules/labs/labs.controller.ts:41)|GET /labs/bookings/:id (backend/src/modules/labs/labs.controller.ts:44)
+patient	patient-app/app/diagnostics/order/[id].tsx	36	/orders/mine	/orders/mine	MATCHED_ROUTE	GET /orders/mine (backend/src/modules/orders/orders.controller.ts:19)|GET /orders/:id (backend/src/modules/orders/orders.controller.ts:49)
+patient	patient-app/app/diagnostics/order/[id].tsx	54	/orders/mine	/orders/mine	MATCHED_ROUTE	GET /orders/mine (backend/src/modules/orders/orders.controller.ts:19)|GET /orders/:id (backend/src/modules/orders/orders.controller.ts:49)
+patient	patient-app/app/diagnostics/order/[id].tsx	54	/cancel	/cancel	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/order/[id].tsx	69	/orders/mine	/orders/mine	MATCHED_ROUTE	GET /orders/mine (backend/src/modules/orders/orders.controller.ts:19)|GET /orders/:id (backend/src/modules/orders/orders.controller.ts:49)
+patient	patient-app/app/diagnostics/order/[id].tsx	69	/report.pdf	/report.pdf	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/orders.tsx	28	/labs/bookings/mine	/labs/bookings/mine	MATCHED_ROUTE	GET /labs/bookings/mine (backend/src/modules/labs/labs.controller.ts:41)|GET /labs/bookings/:id (backend/src/modules/labs/labs.controller.ts:44)
+patient	patient-app/app/diagnostics/packages.tsx	27	/labs/packages	/labs/packages	MATCHED_ROUTE	GET /labs/packages (backend/src/modules/labs/labs.controller.ts:29)
+patient	patient-app/app/diagnostics/packages.tsx	28	/labs/categories	/labs/categories	MATCHED_ROUTE	GET /labs/categories (backend/src/modules/labs/labs.controller.ts:32)
+patient	patient-app/app/diagnostics/results-history.tsx	20	/labs/bookings/mine	/labs/bookings/mine	MATCHED_ROUTE	GET /labs/bookings/mine (backend/src/modules/labs/labs.controller.ts:41)|GET /labs/bookings/:id (backend/src/modules/labs/labs.controller.ts:44)
+patient	patient-app/app/diagnostics/results-history.tsx	72	/reports/view-report	/reports/view-report	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/sample-tracking.tsx	37	/labs/bookings/mine	/labs/bookings/mine	MATCHED_ROUTE	GET /labs/bookings/mine (backend/src/modules/labs/labs.controller.ts:41)|GET /labs/bookings/:id (backend/src/modules/labs/labs.controller.ts:44)
+patient	patient-app/app/diagnostics/sample-tracking.tsx	93	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/sample-tracking.tsx	155	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/diagnostics/search.tsx	28	/labs/services	/labs/services	MATCHED_ROUTE	GET /labs/services (backend/src/modules/labs/labs.controller.ts:9)
+patient	patient-app/app/drug-scanner/index.tsx	35	/health/medications	/health/medications	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/drug-scanner/index.tsx	47	/ai/drug-interactions	/ai/drug-interactions	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/drug-scanner/index.tsx	199	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/emergency/sos-active.tsx	24	/emergency/my-active	/emergency/my-active	MATCHED_ROUTE	GET /emergency/my-active (backend/src/modules/emergency/emergency.controller.ts:22)|GET /emergency/:id (backend/src/modules/emergency/emergency.controller.ts:28)
+patient	patient-app/app/emergency/sos-active.tsx	113	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/emergency/sos.tsx	57	/emergency/trigger	/emergency/trigger	MATCHED_ROUTE	POST /emergency/trigger (backend/src/modules/emergency/emergency.controller.ts:11)|GET /emergency/:id (backend/src/modules/emergency/emergency.controller.ts:28)
+patient	patient-app/app/emergency/sos.tsx	205	/emergency/tracking	/emergency/tracking	MATCHED_ROUTE	GET /emergency/:id (backend/src/modules/emergency/emergency.controller.ts:28)
+patient	patient-app/app/emergency/tracking.tsx	31	/emergency/tracking	/emergency/tracking	MATCHED_ROUTE	GET /emergency/:id (backend/src/modules/emergency/emergency.controller.ts:28)
+patient	patient-app/app/family/calendar.tsx	55	/family/calendar	/family/calendar	MATCHED_ROUTE	GET /family/calendar (backend/src/modules/family/family.controller.ts:73)
+patient	patient-app/app/family/calendar.tsx	84	/family/calendar/event	/family/calendar/event	MATCHED_ROUTE	POST /family/calendar/event (backend/src/modules/family/family.controller.ts:67)
+patient	patient-app/app/family/chat.tsx	35	/family/chat/messages	/family/chat/messages	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/chat.tsx	64	/reports/view-report	/reports/view-report	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/chat.tsx	81	/family/voice-call	/family/voice-call	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/chat.tsx	82	/consultations/video-call	/consultations/video-call	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/chat.tsx	99	/reports/hub	/reports/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/emergency-contacts.tsx	144	/emergency/sos	/emergency/sos	MATCHED_ROUTE	GET /emergency/:id (backend/src/modules/emergency/emergency.controller.ts:28)
+patient	patient-app/app/family/hub.tsx	84	/family/members	/family/members	MATCHED_ROUTE	GET /family/members (backend/src/modules/family/family.controller.ts:47)
+patient	patient-app/app/family/hub.tsx	108	/family/invite	/family/invite	MATCHED_ROUTE	POST /family/invite (backend/src/modules/family/family.controller.ts:29)
+patient	patient-app/app/family/hub.tsx	122	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/hub.tsx	209	/family/chat	/family/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/hub.tsx	218	/family/invite	/family/invite	MATCHED_ROUTE	POST /family/invite (backend/src/modules/family/family.controller.ts:29)
+patient	patient-app/app/family/invite.tsx	28	/family/invite	/family/invite	MATCHED_ROUTE	POST /family/invite (backend/src/modules/family/family.controller.ts:29)
+patient	patient-app/app/family/join.tsx	32	/family/join	/family/join	MATCHED_ROUTE	POST /family/join (backend/src/modules/family/family.controller.ts:35)
+patient	patient-app/app/family/join.tsx	86	/health/family-hub	/health/family-hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/member-health.tsx	257	/family/chat	/family/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/member-health.tsx	263	/family/voice-call	/family/voice-call	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/member-health.tsx	269	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/family/permission-request.tsx	22	/family/permissions/pending	/family/permissions/pending	MATCHED_ROUTE	GET /family/permissions/pending (backend/src/modules/family/family.controller.ts:100)
+patient	patient-app/app/family/permissions.tsx	133	/family/permissions/request	/family/permissions/request	MATCHED_ROUTE	POST /family/permissions/request (backend/src/modules/family/family.controller.ts:87)
+patient	patient-app/app/family/shared-calendar.tsx	54	/family/calendar	/family/calendar	MATCHED_ROUTE	GET /family/calendar (backend/src/modules/family/family.controller.ts:73)
+patient	patient-app/app/family/shared-calendar.tsx	83	/family/calendar/event	/family/calendar/event	MATCHED_ROUTE	POST /family/calendar/event (backend/src/modules/family/family.controller.ts:67)
+patient	patient-app/app/family/voice-call.tsx	68	/family/chat	/family/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/actionable-order.tsx	52	/pharmacy	/pharmacy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/actionable-order.tsx	58	/diagnostics	/diagnostics	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/actionable-order.tsx	148	/diagnostics	/diagnostics	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/chronic-disease.tsx	26	/health/chronic-diseases	/health/chronic-diseases	MATCHED_ROUTE	GET /health/chronic-diseases (backend/src/modules/health/health.controller.ts:73)
+patient	patient-app/app/health/chronic-disease.tsx	27	/health/vitals	/health/vitals	MATCHED_ROUTE	GET /health/vitals (backend/src/modules/health/health.controller.ts:12)|POST /health/vitals (backend/src/modules/health/health.controller.ts:21)
+patient	patient-app/app/health/chronic-disease.tsx	133	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/chronic-disease.tsx	160	/health/vitals	/health/vitals	MATCHED_ROUTE	GET /health/vitals (backend/src/modules/health/health.controller.ts:12)|POST /health/vitals (backend/src/modules/health/health.controller.ts:21)
+patient	patient-app/app/health/chronic-medications.tsx	24	/health/chronic-meds	/health/chronic-meds	MATCHED_ROUTE	GET /health/chronic-meds (backend/src/modules/health/health.controller.ts:78)
+patient	patient-app/app/health/chronic-medications.tsx	37	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/chronic-medications.tsx	45	/health/medication-reminder-add	/health/medication-reminder-add	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/chronic-medications.tsx	109	/health/medication-reminder-add	/health/medication-reminder-add	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/edit-profile.tsx	59	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/health/edit-profile.tsx	95	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/health/emergency-contacts.tsx	36	/health/emergency-contacts	/health/emergency-contacts	MATCHED_ROUTE	GET /health/emergency-contacts (backend/src/modules/health/health.controller.ts:68)
+patient	patient-app/app/health/family-hub.tsx	86	/family/my-group	/family/my-group	MATCHED_ROUTE	GET /family/my-group (backend/src/modules/family/family.controller.ts:23)
+patient	patient-app/app/health/family-hub.tsx	88	/family/members	/family/members	MATCHED_ROUTE	GET /family/members (backend/src/modules/family/family.controller.ts:47)
+patient	patient-app/app/health/family-hub.tsx	105	/family/create	/family/create	MATCHED_ROUTE	POST /family/create (backend/src/modules/family/family.controller.ts:16)
+patient	patient-app/app/health/family-hub.tsx	199	/family/join	/family/join	MATCHED_ROUTE	POST /family/join (backend/src/modules/family/family.controller.ts:35)
+patient	patient-app/app/health/family-hub.tsx	279	/family/chat	/family/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/family-hub.tsx	288	/family/invite	/family/invite	MATCHED_ROUTE	POST /family/invite (backend/src/modules/family/family.controller.ts:29)
+patient	patient-app/app/health/health-id.tsx	31	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/health/health-id.tsx	123	/health/emergency-contacts	/health/emergency-contacts	MATCHED_ROUTE	GET /health/emergency-contacts (backend/src/modules/health/health.controller.ts:68)
+patient	patient-app/app/health/health-id.tsx	159	/health/edit-profile	/health/edit-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/medication-reminder-add.tsx	77	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/medication-reminder-add.tsx	78	/health/prescriptions	/health/prescriptions	MATCHED_ROUTE	GET /health/prescriptions (backend/src/modules/health/health.controller.ts:63)
+patient	patient-app/app/health/medication-reminder-list.tsx	56	/health/medications/reminders	/health/medications/reminders	MATCHED_ROUTE	GET /health/medications/reminders (backend/src/modules/health/health.controller.ts:58)
+patient	patient-app/app/health/medication-reminder-list.tsx	251	/health/chronic-medications	/health/chronic-medications	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/prescriptions.tsx	28	/health/prescriptions	/health/prescriptions	MATCHED_ROUTE	GET /health/prescriptions (backend/src/modules/health/health.controller.ts:63)
+patient	patient-app/app/health/prescriptions.tsx	44	/pharmacy/rx-order	/pharmacy/rx-order	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/prescriptions.tsx	71	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/refills.tsx	30	/medical-profile	/medical-profile	MATCHED_ROUTE	GET /medical-profile (backend/src/modules/medical-profile/medical-profile.controller.ts:12)|PATCH /medical-profile (backend/src/modules/medical-profile/medical-profile.controller.ts:13)
+patient	patient-app/app/health/reminders.tsx	44	/health/reminders	/health/reminders	MATCHED_ROUTE	GET /health/reminders (backend/src/modules/health/health.controller.ts:28)|POST /health/reminders (backend/src/modules/health/health.controller.ts:30)
+patient	patient-app/app/health/reminders.tsx	271	/health/refills	/health/refills	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/reports.tsx	27	/health/reports	/health/reports	MATCHED_ROUTE	GET /health/reports (backend/src/modules/health/health.controller.ts:53)
+patient	patient-app/app/health/trends.tsx	139	/health/trends	/health/trends	MATCHED_ROUTE	GET /health/trends (backend/src/modules/health/health.controller.ts:83)
+patient	patient-app/app/health/vitals-log.tsx	95	/health/vitals	/health/vitals	MATCHED_ROUTE	GET /health/vitals (backend/src/modules/health/health.controller.ts:12)|POST /health/vitals (backend/src/modules/health/health.controller.ts:21)
+patient	patient-app/app/health/vitals-log.tsx	203	/health/conditions-allergies	/health/conditions-allergies	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/vitals.tsx	87	/health/vitals/summary	/health/vitals/summary	MATCHED_ROUTE	GET /health/vitals/summary (backend/src/modules/health/health.controller.ts:19)|PATCH /health/vitals/:id (backend/src/modules/health/health.controller.ts:23)|DELETE /health/vitals/:id (backend/src/modules/health/health.controller.ts:25)
+patient	patient-app/app/health/vitals.tsx	137	/health/vitals-log	/health/vitals-log	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/vitals.tsx	178	/health/vitals-log	/health/vitals-log	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/vitals.tsx	184	/health/vitals-log	/health/vitals-log	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/vitals.tsx	187	/health/conditions-allergies	/health/conditions-allergies	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/wearables.tsx	37	/health/wearables/devices	/health/wearables/devices	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/wearables.tsx	38	/health/wearables/data	/health/wearables/data	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/health/wearables.tsx	58	/health/sleep-tracker	/health/sleep-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/index.tsx	36	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/index.tsx	38	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/index.tsx	41	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/add-policy.tsx	33	/insurance/companies	/insurance/companies	MATCHED_ROUTE	GET /insurance/companies (backend/src/modules/insurance/insurance.module.ts:187)|POST /insurance/companies (backend/src/modules/insurance/insurance.module.ts:192)
+patient	patient-app/app/insurance/approval-pending.tsx	62	/payments/processing	/payments/processing	MATCHED_ROUTE	POST /payments/:provider (backend/src/modules/payments/payments.module.ts:257)
+patient	patient-app/app/insurance/approval-pending.tsx	63	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/benefits-summary.tsx	21	/insurance/benefits-summary	/insurance/benefits-summary	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/claim-tracking.tsx	30	/api/v1/insurance/claims/my	/insurance/claims/my	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/claim-tracking.tsx	48	/insurance/submit-claim	/insurance/submit-claim	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/claim-tracking.tsx	112	/insurance/refund-status	/insurance/refund-status	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/copay.tsx	32	/provider/jobs/insurance-copay	/provider/jobs/insurance-copay	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/copay.tsx	38	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	101	/users/me/insurance	/users/me/insurance	MATCHED_ROUTE	GET /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts:10)|POST /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts:16)
+patient	patient-app/app/insurance/hub.tsx	128	/insurance/claims	/insurance/claims	MATCHED_ROUTE	GET /insurance/claims (backend/src/modules/insurance/insurance.module.ts:264)
+patient	patient-app/app/insurance/hub.tsx	167	/insurance/save-policy	/insurance/save-policy	MATCHED_ROUTE	POST /insurance/save-policy (backend/src/modules/insurance/insurance.module.ts:254)
+patient	patient-app/app/insurance/hub.tsx	211	/insurance/add-policy	/insurance/add-policy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	303	/insurance/benefits-summary	/insurance/benefits-summary	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	335	/insurance/policy-detail	/insurance/policy-detail	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	360	/insurance/add-policy	/insurance/add-policy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	368	/insurance/policy-detail	/insurance/policy-detail	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	393	/insurance/claim-tracking	/insurance/claim-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/hub.tsx	405	/insurance/claim-tracking	/insurance/claim-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/network-providers.tsx	49	/map	/map	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/payment-split.tsx	79	/insurance/payment-confirm	/insurance/payment-confirm	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/payment-split.tsx	91	/consultations/booking-success	/consultations/booking-success	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/payment-split.tsx	93	/pharmacy/order-tracking	/pharmacy/order-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/payment-split.tsx	95	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/payment-split.tsx	148	/insurance/hub	/insurance/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/insurance/policy-detail.tsx	84	/insurance/coverage-check	/insurance/coverage-check	MATCHED_ROUTE	GET /insurance/coverage-check (backend/src/modules/insurance/insurance.module.ts:222)
+patient	patient-app/app/insurance/submit-claim.tsx	32	/insurance/claims/submit	/insurance/claims/submit	MATCHED_ROUTE	POST /insurance/claims/submit (backend/src/modules/insurance/insurance.module.ts:259)
+patient	patient-app/app/loyalty/challenges.tsx	28	/loyalty/challenges	/loyalty/challenges	MATCHED_ROUTE	GET /loyalty/challenges (backend/src/modules/loyalty/loyalty.controller.ts:40)
+patient	patient-app/app/loyalty/hub.tsx	53	/loyalty/account	/loyalty/account	MATCHED_ROUTE	GET /loyalty/account (backend/src/modules/loyalty/loyalty.controller.ts:22)
+patient	patient-app/app/loyalty/hub.tsx	57	/loyalty/transactions?page=1	/loyalty/transactions	MATCHED_ROUTE	GET /loyalty/transactions (backend/src/modules/loyalty/loyalty.controller.ts:28)
+patient	patient-app/app/loyalty/hub.tsx	60	/loyalty/config	/loyalty/config	MATCHED_ROUTE	GET /loyalty/config (backend/src/modules/loyalty/loyalty.controller.ts:13)
+patient	patient-app/app/loyalty/hub.tsx	66	/loyalty/rewards	/loyalty/rewards	MATCHED_ROUTE	GET /loyalty/rewards (backend/src/modules/loyalty/loyalty.controller.ts:46)
+patient	patient-app/app/loyalty/hub.tsx	105	/loyalty/leaderboard	/loyalty/leaderboard	MATCHED_ROUTE	GET /loyalty/leaderboard (backend/src/modules/loyalty/loyalty.controller.ts:34)
+patient	patient-app/app/loyalty/hub.tsx	106	/loyalty/rewards	/loyalty/rewards	MATCHED_ROUTE	GET /loyalty/rewards (backend/src/modules/loyalty/loyalty.controller.ts:46)
+patient	patient-app/app/loyalty/hub.tsx	260	/loyalty/rewards	/loyalty/rewards	MATCHED_ROUTE	GET /loyalty/rewards (backend/src/modules/loyalty/loyalty.controller.ts:46)
+patient	patient-app/app/loyalty/rewards.tsx	37	/loyalty/account	/loyalty/account	MATCHED_ROUTE	GET /loyalty/account (backend/src/modules/loyalty/loyalty.controller.ts:22)
+patient	patient-app/app/loyalty/rewards.tsx	40	/loyalty/rewards	/loyalty/rewards	MATCHED_ROUTE	GET /loyalty/rewards (backend/src/modules/loyalty/loyalty.controller.ts:46)
+patient	patient-app/app/map/index.tsx	206	/user/insurance	/user/insurance	MATCHED_ROUTE	GET /user/insurance (backend/src/modules/users/user.insurance.controller.ts:12)
+patient	patient-app/app/map/index.tsx	593	/health/edit-profile	/health/edit-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/map/index.tsx	617	/consultations/doctor-profile	/consultations/doctor-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/map/index.tsx	619	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/map/index.tsx	621	/diagnostics/booking-confirm	/diagnostics/booking-confirm	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/map/index.tsx	623	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/map/index.tsx	625	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/baby-development.tsx	358	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/baby-growth.tsx	51	/maternity/infant-growth	/maternity/infant-growth	MATCHED_ROUTE	POST /maternity/infant-growth (backend/src/modules/maternity/maternity.controller.ts:52)
+patient	patient-app/app/maternity/baby-growth.tsx	80	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/baby-growth.tsx	92	/maternity/vaccines	/maternity/vaccines	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/baby-growth.tsx	284	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	64	/maternity/content	/maternity/content	MATCHED_ROUTE	GET /maternity/content (backend/src/modules/maternity/maternity.controller.ts:18)
+patient	patient-app/app/maternity/hub.tsx	66	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/hub.tsx	83	/maternity/maternity-setup	/maternity/maternity-setup	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	199	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/hub.tsx	271	/maternity/baby-development	/maternity/baby-development	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	271	/maternity/ovulation-tracker	/maternity/ovulation-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	367	/maternity/ovulation-tracker	/maternity/ovulation-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	399	/maternity/baby-development	/maternity/baby-development	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	471	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/hub.tsx	520	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/maternity-setup.tsx	176	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/maternity-setup.tsx	189	/maternity/hub	/maternity/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/maternity-setup.tsx	195	/maternity/hub	/maternity/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/ovulation-tracker.tsx	230	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/ovulation-tracker.tsx	246	/maternity/hub	/maternity/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/pregnancy-tracker.tsx	45	/maternity/profile	/maternity/profile	MATCHED_ROUTE	GET /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:12)|POST /maternity/profile (backend/src/modules/maternity/maternity.controller.ts:24)
+patient	patient-app/app/maternity/pregnancy-tracker.tsx	95	/maternity/kicks	/maternity/kicks	MATCHED_ROUTE	POST /maternity/kicks (backend/src/modules/maternity/maternity.controller.ts:31)
+patient	patient-app/app/maternity/pregnancy-tracker.tsx	130	/maternity/contractions	/maternity/contractions	MATCHED_ROUTE	POST /maternity/contractions (backend/src/modules/maternity/maternity.controller.ts:38)
+patient	patient-app/app/maternity/pregnancy-tracker.tsx	295	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/maternity/pregnancy-tracker.tsx	296	/nutrition/ai-plan-builder	/nutrition/ai-plan-builder	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/mental-health/breathing.tsx	63	/mental-health/breathing	/mental-health/breathing	MATCHED_ROUTE	POST /mental-health/breathing (backend/src/modules/mental-health/mental-health.controller.ts:80)|GET /mental-health/breathing (backend/src/modules/mental-health/mental-health.controller.ts:88)
+patient	patient-app/app/mental-health/crisis-support.tsx	36	/mental-health/crisis-contacts	/mental-health/crisis-contacts	MATCHED_ROUTE	GET /mental-health/crisis-contacts (backend/src/modules/mental-health/mental-health.controller.ts:116)|POST /mental-health/crisis-contacts (backend/src/modules/mental-health/mental-health.controller.ts:124)
+patient	patient-app/app/mental-health/crisis-support.tsx	40	/mental-health/hotlines	/mental-health/hotlines	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/mental-health/meditation.tsx	42	/mental-health/meditation/sessions	/mental-health/meditation/sessions	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/mental-health/meditation.tsx	69	/mental-health/meditation	/mental-health/meditation	MATCHED_ROUTE	POST /mental-health/meditation (backend/src/modules/mental-health/mental-health.controller.ts:54)|GET /mental-health/meditation (backend/src/modules/mental-health/mental-health.controller.ts:62)
+patient	patient-app/app/mental-health/mood-journal.tsx	46	/mental-health/mood?days=7	/mental-health/mood	MATCHED_ROUTE	POST /mental-health/mood (backend/src/modules/mental-health/mental-health.controller.ts:25)|GET /mental-health/mood (backend/src/modules/mental-health/mental-health.controller.ts:33)
+patient	patient-app/app/mental-health/mood-journal.tsx	59	/mental-health/mood	/mental-health/mood	MATCHED_ROUTE	POST /mental-health/mood (backend/src/modules/mental-health/mental-health.controller.ts:25)|GET /mental-health/mood (backend/src/modules/mental-health/mental-health.controller.ts:33)
+patient	patient-app/app/mental-health/self-assessment.tsx	26	/mental-health/assessment-questions	/mental-health/assessment-questions	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/mental-health/self-assessment.tsx	48	/mental-health/assessment	/mental-health/assessment	MATCHED_ROUTE	POST /mental-health/assessment (backend/src/modules/mental-health/mental-health.controller.ts:98)|GET /mental-health/assessment (backend/src/modules/mental-health/mental-health.controller.ts:106)
+patient	patient-app/app/mental-health/self-assessment.tsx	86	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/mental-health/self-assessment.tsx	86	/mental-health/breathing	/mental-health/breathing	MATCHED_ROUTE	POST /mental-health/breathing (backend/src/modules/mental-health/mental-health.controller.ts:80)|GET /mental-health/breathing (backend/src/modules/mental-health/mental-health.controller.ts:88)
+patient	patient-app/app/mental-health/therapist-match.tsx	29	/doctors	/doctors	MATCHED_ROUTE	GET /doctors (backend/src/modules/doctors/doctors.module.ts:251)|GET /doctors (backend/src/modules/doctors/doctors.module.ts:273)
+patient	patient-app/app/mental-health/therapist-match.tsx	97	/consultations/doctor-profile	/consultations/doctor-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/mental-health/therapist-match.tsx	119	/consultations/booking-confirm	/consultations/booking-confirm	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/live-tracking.tsx	148	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/nurse-profile.tsx	85	/home-care/insurance/verify	/home-care/insurance/verify	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/nurse-profile.tsx	121	/home-care/bookings	/home-care/bookings	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/nurse-profile.tsx	126	/nursing/live-tracking	/nursing/live-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/nurse-profile.tsx	141	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/service-details.tsx	148	/nursing/nurse-profile	/nursing/nurse-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nursing/service-details.tsx	213	/nursing/nurse-profile	/nursing/nurse-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/ai-plan-builder.tsx	47	/ai/generate-diet-plan	/ai/generate-diet-plan	MATCHED_ROUTE	POST /ai/generate-diet-plan (backend/src/modules/ai/ai.controller.ts:89)
+patient	patient-app/app/nutrition/ai-plan-builder.tsx	63	/nutrition/profile	/nutrition/profile	MATCHED_ROUTE	GET /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:17)|POST /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:25)
+patient	patient-app/app/nutrition/ai-plan-builder.tsx	201	/nutrition/nutrition-plan	/nutrition/nutrition-plan	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/ai-plan-builder.tsx	202	/nutrition/exercise-plan	/nutrition/exercise-plan	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/body-composition.tsx	27	/nutrition/profile	/nutrition/profile	MATCHED_ROUTE	GET /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:17)|POST /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:25)
+patient	patient-app/app/nutrition/body-composition.tsx	150	/nutrition/body-target	/nutrition/body-target	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/body-composition.tsx	156	/nutrition/ai-plan-builder	/nutrition/ai-plan-builder	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/body-target.tsx	34	/nutrition/profile	/nutrition/profile	MATCHED_ROUTE	GET /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:17)|POST /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:25)
+patient	patient-app/app/nutrition/body-target.tsx	47	/nutrition/profile	/nutrition/profile	MATCHED_ROUTE	GET /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:17)|POST /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts:25)
+patient	patient-app/app/nutrition/body-target.tsx	110	/nutrition/ai-plan-builder	/nutrition/ai-plan-builder	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/body-target.tsx	111	/nutrition/body-composition	/nutrition/body-composition	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/calorie-analyzer.tsx	38	/ai/analyze-meal	/ai/analyze-meal	MATCHED_ROUTE	POST /ai/analyze-meal (backend/src/modules/ai/ai.controller.ts:84)
+patient	patient-app/app/nutrition/calorie-analyzer.tsx	61	/nutrition/meals	/nutrition/meals	MATCHED_ROUTE	POST /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts:35)|GET /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts:43)
+patient	patient-app/app/nutrition/calorie-analyzer.tsx	73	/nutrition/daily-tracker	/nutrition/daily-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/daily-tracker.tsx	57	/nutrition/water	/nutrition/water	MATCHED_ROUTE	POST /nutrition/water (backend/src/modules/nutrition/nutrition.controller.ts:63)|GET /nutrition/water (backend/src/modules/nutrition/nutrition.controller.ts:71)
+patient	patient-app/app/nutrition/daily-tracker.tsx	108	/nutrition/log-meal	/nutrition/log-meal	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/daily-tracker.tsx	155	/nutrition/exercise-plan	/nutrition/exercise-plan	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/daily-tracker.tsx	168	/nutrition/calorie-analyzer	/nutrition/calorie-analyzer	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/food-scanner.tsx	41	/ai/analyze-meal	/ai/analyze-meal	MATCHED_ROUTE	POST /ai/analyze-meal (backend/src/modules/ai/ai.controller.ts:84)
+patient	patient-app/app/nutrition/food-scanner.tsx	70	/nutrition/meals	/nutrition/meals	MATCHED_ROUTE	POST /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts:35)|GET /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts:43)
+patient	patient-app/app/nutrition/food-scanner.tsx	82	/nutrition/daily-tracker	/nutrition/daily-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/food-scanner.tsx	84	/nutrition/daily-tracker	/nutrition/daily-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/log-meal.tsx	41	/nutrition/foods	/nutrition/foods	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/log-meal.tsx	59	/nutrition/meals	/nutrition/meals	MATCHED_ROUTE	POST /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts:35)|GET /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts:43)
+patient	patient-app/app/nutrition/log-meal.tsx	70	/nutrition/daily-tracker	/nutrition/daily-tracker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/log-meal.tsx	134	/nutrition/food-scanner	/nutrition/food-scanner	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/nutrition/water-tracker.tsx	57	/nutrition/water	/nutrition/water	MATCHED_ROUTE	POST /nutrition/water (backend/src/modules/nutrition/nutrition.controller.ts:63)|GET /nutrition/water (backend/src/modules/nutrition/nutrition.controller.ts:71)
+patient	patient-app/app/payments/failed.tsx	77	/wallet/hub	/wallet/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/payments/failed.tsx	82	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/payments/failure.tsx	78	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/payments/success.tsx	68	/consultations/clinic-location	/consultations/clinic-location	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/payments/success.tsx	69	/consultations/home-visit-tracking	/consultations/home-visit-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/payments/success.tsx	70	/consultations/booking-success	/consultations/booking-success	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/payments/success.tsx	78	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/barcode-scanner.tsx	35	/pharmacy/product-detail	/pharmacy/product-detail	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/barcode-scanner.tsx	68	/pharmacy/drug-not-found	/pharmacy/drug-not-found	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/broadcast-status.tsx	71	/pharmacy/order-tracking	/pharmacy/order-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/cart.tsx	69	/pharmacy/checkout	/pharmacy/checkout	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/cart.tsx	182	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/cart.tsx	202	/pharmacy/manual-order	/pharmacy/manual-order	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/chat-with-pharmacist.tsx	116	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/checkout.tsx	44	/users/me/profile	/users/me/profile	MATCHED_ROUTE	GET /users/me/profile (backend/src/modules/users/users.controller.ts:11)|PATCH /users/me/profile (backend/src/modules/users/users.controller.ts:16)
+patient	patient-app/app/pharmacy/checkout.tsx	69	/profile/insurance	/profile/insurance	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/checkout.tsx	79	/shared/location-picker	/shared/location-picker	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/checkout.tsx	117	/patient/pharmacy/orders	/patient/pharmacy/orders	MATCHED_ROUTE	POST /patient/pharmacy/orders (backend/src/modules/pharmacy/pharmacy.controllers.ts:23)|GET /patient/pharmacy/orders (backend/src/modules/pharmacy/pharmacy.controllers.ts:24)|GET /patient/pharmacy/:id (backend/src/modules/pharmacy/pharmacy.controllers.ts:148)
+patient	patient-app/app/pharmacy/checkout.tsx	122	/pharmacy/waiting-for-pharmacy	/pharmacy/waiting-for-pharmacy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/custom-item.tsx	52	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/drug-not-found.tsx	68	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/filters.tsx	69	/medicines/filters	/medicines/filters	MATCHED_ROUTE	GET /medicines/filters (backend/src/modules/medicines/medicines.controller.ts:42)|GET /medicines/:id (backend/src/modules/medicines/medicines.controller.ts:54)|PATCH /medicines/:id (backend/src/modules/medicines/medicines.controller.ts:106)
+patient	patient-app/app/pharmacy/manual-order.tsx	56	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/medicine-compare.tsx	36	/medicines/compare	/medicines/compare	MATCHED_ROUTE	POST /medicines/compare (backend/src/modules/medicines/medicines.controller.ts:48)|GET /medicines/:id (backend/src/modules/medicines/medicines.controller.ts:54)|PATCH /medicines/:id (backend/src/modules/medicines/medicines.controller.ts:106)
+patient	patient-app/app/pharmacy/order-confirm.tsx	57	/pharmacy/payment	/pharmacy/payment	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/order-confirm.tsx	69	/pharmacy/waiting-for-pharmacy	/pharmacy/waiting-for-pharmacy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/order-history.tsx	53	/orders/mine	/orders/mine	MATCHED_ROUTE	GET /orders/mine (backend/src/modules/orders/orders.controller.ts:19)|GET /orders/:id (backend/src/modules/orders/orders.controller.ts:49)
+patient	patient-app/app/pharmacy/order-history.tsx	109	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/order-tracking.tsx	110	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/order-tracking.tsx	134	/pharmacy/chat-with-pharmacist	/pharmacy/chat-with-pharmacist	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/payment.tsx	48	/payments/paymob/methods	/payments/paymob/methods	MATCHED_ROUTE	GET /payments/paymob/methods (backend/src/modules/payments/paymob.controller.ts:14)
+patient	patient-app/app/pharmacy/payment.tsx	71	/payments/paymob/initiate	/payments/paymob/initiate	MATCHED_ROUTE	POST /payments/paymob/initiate (backend/src/modules/payments/paymob.controller.ts:19)
+patient	patient-app/app/pharmacy/pharmacist-chat.tsx	39	/pharmacy/chat/threads	/pharmacy/chat/threads	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/pharmacist-chat.tsx	119	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/pharmacist-chat.tsx	237	/pharmacy/payment	/pharmacy/payment	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/product-detail.tsx	188	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/product-detail.tsx	275	/pharmacy/product-detail	/pharmacy/product-detail	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/reorder.tsx	63	/payments/processing	/payments/processing	MATCHED_ROUTE	POST /payments/:provider (backend/src/modules/payments/payments.module.ts:257)
+patient	patient-app/app/pharmacy/reorder.tsx	123	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/rx-order.tsx	30	/cart/prescription	/cart/prescription	MATCHED_ROUTE	GET /cart/prescription (backend/src/modules/cart/cart.controller.ts:17)
+patient	patient-app/app/pharmacy/rx-order.tsx	50	/insurance/approval-pending	/insurance/approval-pending	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/rx-order.tsx	55	/pharmacy/order-tracking	/pharmacy/order-tracking	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/rx-order.tsx	141	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/rx-order.tsx	159	/delivery/address-select	/delivery/address-select	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/scan-prescription.tsx	77	/ai/prescription-ocr	/ai/prescription-ocr	MATCHED_ROUTE	POST /ai/prescription-ocr (backend/src/modules/ai/ai.controller.ts:40)
+patient	patient-app/app/pharmacy/scan-prescription.tsx	106	/pharmacy/cart	/pharmacy/cart	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/waiting-for-pharmacy.tsx	133	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/pharmacy/wishlist.tsx	33	/users/me/wishlist	/users/me/wishlist	MATCHED_ROUTE	GET /users/me/wishlist (backend/src/modules/users/users.controller.ts:21)
+patient	patient-app/app/profile/addresses.tsx	27	/users/me/addresses	/users/me/addresses	MATCHED_ROUTE	GET /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:11)|POST /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:17)
+patient	patient-app/app/profile/index.tsx	34	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/profile/index.tsx	47	/health/edit-profile	/health/edit-profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/profile/index.tsx	76	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/profile/insurance.tsx	26	/users/me/insurance	/users/me/insurance	MATCHED_ROUTE	GET /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts:10)|POST /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts:16)
+patient	patient-app/app/profile/insurance.tsx	165	/users/me/insurance	/users/me/insurance	MATCHED_ROUTE	GET /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts:10)|POST /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts:16)
+patient	patient-app/app/programs/active.tsx	34	/medical/programs/active	/medical/programs/active	MATCHED_ROUTE	GET /medical/programs/active (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:101)
+patient	patient-app/app/programs/active.tsx	60	/medical/programs/complete-session	/medical/programs/complete-session	MATCHED_ROUTE	POST /medical/programs/complete-session (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:106)
+patient	patient-app/app/programs/active.tsx	100	/loyalty/hub	/loyalty/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/reports/ai-analysis.tsx	290	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/reports/ai-analysis.tsx	296	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/reports/passport.tsx	37	/medical-profile	/medical-profile	MATCHED_ROUTE	GET /medical-profile (backend/src/modules/medical-profile/medical-profile.controller.ts:12)|PATCH /medical-profile (backend/src/modules/medical-profile/medical-profile.controller.ts:13)
+patient	patient-app/app/reports/passport.tsx	38	/patients/passport	/patients/passport	MATCHED_ROUTE	GET /patients/passport (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:90)
+patient	patient-app/app/reports/timeline.tsx	42	/reports/timeline	/reports/timeline	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/reports/timeline.tsx	88	/reports/passport	/reports/passport	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/returns/hub.tsx	70	/pharmacy/returns	/pharmacy/returns	MATCHED_ROUTE	POST /pharmacy/returns (backend/src/modules/returns/returns.controller.ts:11)|GET /pharmacy/returns (backend/src/modules/returns/returns.controller.ts:16)
+patient	patient-app/app/returns/hub.tsx	124	/returns/new-request	/returns/new-request	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/returns/hub.tsx	308	/returns/new-request	/returns/new-request	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/returns/new-request.tsx	68	/pharmacy/returns	/pharmacy/returns	MATCHED_ROUTE	POST /pharmacy/returns (backend/src/modules/returns/returns.controller.ts:11)|GET /pharmacy/returns (backend/src/modules/returns/returns.controller.ts:16)
+patient	patient-app/app/returns/new-request.tsx	100	/returns/hub	/returns/hub	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/returns/new-request.tsx	103	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/search/index.tsx	68	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/search/index.tsx	72	/(tabs	/(tabs	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/about.tsx	221	/settings/terms	/settings/terms	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/about.tsx	238	/settings/privacy	/settings/privacy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/data.tsx	25	/users/me/storage	/users/me/storage	MATCHED_ROUTE	GET /users/me/storage (backend/src/modules/users/users.controller.ts:42)
+patient	patient-app/app/settings/data.tsx	54	/settings/privacy	/settings/privacy	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/feedback.tsx	38	/support/feedback	/support/feedback	MATCHED_ROUTE	POST /support/feedback (backend/src/modules/support/support.controller.ts:31)
+patient	patient-app/app/settings/help.tsx	38	/support/faqs	/support/faqs	MATCHED_ROUTE	GET /support/faqs (backend/src/modules/support/support.controller.ts:26)
+patient	patient-app/app/settings/help.tsx	146	/settings/support-chat	/settings/support-chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/index.tsx	55	/(onboarding	/(onboarding	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/index.tsx	59	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/settings/notifications-settings.tsx	99	/users/me/notification-settings	/users/me/notification-settings	MATCHED_ROUTE	GET /users/me/notification-settings (backend/src/modules/users/users.controller.ts:32)|PATCH /users/me/notification-settings (backend/src/modules/users/users.controller.ts:37)
+patient	patient-app/app/settings/notifications-settings.tsx	108	/users/me/notification-settings	/users/me/notification-settings	MATCHED_ROUTE	GET /users/me/notification-settings (backend/src/modules/users/users.controller.ts:32)|PATCH /users/me/notification-settings (backend/src/modules/users/users.controller.ts:37)
+patient	patient-app/app/settings/privacy.tsx	37	/users/me/privacy-settings	/users/me/privacy-settings	MATCHED_ROUTE	GET /users/me/privacy-settings (backend/src/modules/users/users.controller.ts:47)|PATCH /users/me/privacy-settings (backend/src/modules/users/users.controller.ts:52)
+patient	patient-app/app/settings/privacy.tsx	45	/users/me/privacy-settings	/users/me/privacy-settings	MATCHED_ROUTE	GET /users/me/privacy-settings (backend/src/modules/users/users.controller.ts:47)|PATCH /users/me/privacy-settings (backend/src/modules/users/users.controller.ts:52)
+patient	patient-app/app/settings/security.tsx	40	/users/me/security-settings	/users/me/security-settings	MATCHED_ROUTE	GET /users/me/security-settings (backend/src/modules/users/users.controller.ts:57)|PATCH /users/me/security-settings (backend/src/modules/users/users.controller.ts:62)
+patient	patient-app/app/settings/security.tsx	52	/users/me/security-settings	/users/me/security-settings	MATCHED_ROUTE	GET /users/me/security-settings (backend/src/modules/users/users.controller.ts:57)|PATCH /users/me/security-settings (backend/src/modules/users/users.controller.ts:62)
+patient	patient-app/app/settings/security.tsx	57	/users/me/security-settings	/users/me/security-settings	MATCHED_ROUTE	GET /users/me/security-settings (backend/src/modules/users/users.controller.ts:57)|PATCH /users/me/security-settings (backend/src/modules/users/users.controller.ts:62)
+patient	patient-app/app/settings/security.tsx	67	/users/me/change-password	/users/me/change-password	MATCHED_ROUTE	POST /users/me/change-password (backend/src/modules/users/users.controller.ts:67)
+patient	patient-app/app/settings/security.tsx	87	/users/me/sessions	/users/me/sessions	MATCHED_ROUTE	GET /users/me/sessions (backend/src/modules/users/users.controller.ts:72)
+patient	patient-app/app/shared/location-picker.tsx	80	/users/me/addresses	/users/me/addresses	MATCHED_ROUTE	GET /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:11)|POST /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:17)
+patient	patient-app/app/shared/location-picker.tsx	168	/users/me/addresses	/users/me/addresses	MATCHED_ROUTE	GET /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:11)|POST /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts:17)
+patient	patient-app/app/support/chat.tsx	46	/support/chat	/support/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/support/chat.tsx	80	/support/chat	/support/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/support/ticket.tsx	26	/support/tickets	/support/tickets	MATCHED_ROUTE	GET /support/tickets (backend/src/modules/support/support.controller.ts:20)
+patient	patient-app/app/support/ticket.tsx	44	/support/chat	/support/chat	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/app/wallet/cards.tsx	64	/wallet/cards	/wallet/cards	MATCHED_ROUTE	GET /wallet/cards (backend/src/modules/wallet/wallet.controller.ts:46)|POST /wallet/cards (backend/src/modules/wallet/wallet.controller.ts:53)
+patient	patient-app/app/wallet/cards.tsx	346	/wallet/cards	/wallet/cards	MATCHED_ROUTE	GET /wallet/cards (backend/src/modules/wallet/wallet.controller.ts:46)|POST /wallet/cards (backend/src/modules/wallet/wallet.controller.ts:53)
+patient	patient-app/app/wallet/cards.tsx	361	/wallet/cards	/wallet/cards	MATCHED_ROUTE	GET /wallet/cards (backend/src/modules/wallet/wallet.controller.ts:46)|POST /wallet/cards (backend/src/modules/wallet/wallet.controller.ts:53)
+patient	patient-app/app/wallet/hub.tsx	68	/wallet/balance	/wallet/balance	MATCHED_ROUTE	GET /wallet/balance (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:24)|GET /wallet/balance (backend/src/modules/wallet/wallet.controller.ts:10)
+patient	patient-app/app/wallet/hub.tsx	73	/wallet/transactions?page=1&limit=4	/wallet/transactions	MATCHED_ROUTE	GET /wallet/transactions (backend/src/modules/wallet/wallet.controller.ts:17)
+patient	patient-app/app/wallet/hub.tsx	95	/wallet/spending-data	/wallet/spending-data	MATCHED_ROUTE	GET /wallet/spending-data (backend/src/modules/wallet/wallet.controller.ts:23)
+patient	patient-app/app/wallet/hub.tsx	211	/wallet/transactions	/wallet/transactions	MATCHED_ROUTE	GET /wallet/transactions (backend/src/modules/wallet/wallet.controller.ts:17)
+patient	patient-app/app/wallet/topup.tsx	25	/wallet/balance	/wallet/balance	MATCHED_ROUTE	GET /wallet/balance (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:24)|GET /wallet/balance (backend/src/modules/wallet/wallet.controller.ts:10)
+patient	patient-app/app/wallet/topup.tsx	45	/wallet/topup	/wallet/topup	MATCHED_ROUTE	POST /wallet/topup (backend/src/modules/wallet/wallet.controller.ts:29)
+patient	patient-app/app/wallet/transactions.tsx	38	/wallet/transactions	/wallet/transactions	MATCHED_ROUTE	GET /wallet/transactions (backend/src/modules/wallet/wallet.controller.ts:17)
+patient	patient-app/app/wallet/transfer.tsx	25	/wallet/balance	/wallet/balance	MATCHED_ROUTE	GET /wallet/balance (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:24)|GET /wallet/balance (backend/src/modules/wallet/wallet.controller.ts:10)
+patient	patient-app/app/wallet/transfer.tsx	61	/wallet/transfer	/wallet/transfer	MATCHED_ROUTE	POST /wallet/transfer (backend/src/modules/wallet/wallet.controller.ts:38)
+patient	patient-app/src/components/Header.tsx	131	/notifications	/notifications	MATCHED_ROUTE	GET /notifications (backend/src/modules/notifications/notifications.controller.ts:11)
+patient	patient-app/src/components/Header.tsx	137	/profile	/profile	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/src/context/CartContext.tsx	50	/cart	/cart	MATCHED_ROUTE	GET /cart (backend/src/modules/cart/cart.module.ts:131)
+patient	patient-app/src/context/CartContext.tsx	86	/cart/lines	/cart/lines	MATCHED_ROUTE	POST /cart/lines (backend/src/modules/cart/cart.module.ts:132)
+patient	patient-app/src/context/CartContext.tsx	169	/cart/clear	/cart/clear	MATCHED_ROUTE	POST /cart/clear (backend/src/modules/cart/cart.controller.ts:11)|POST /cart/clear (backend/src/modules/cart/cart.module.ts:135)
+patient	patient-app/src/context/ConsultationsContext.tsx	24	/care/appointments	/care/appointments	MATCHED_ROUTE	POST /care/appointments (backend/src/modules/care/appointments.controller.ts:14)|GET /care/appointments (backend/src/modules/care/appointments.controller.ts:19)
+patient	patient-app/src/core/events/AuditManager.ts	62	/audit/batch	/audit/batch	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/src/hooks/useGuestGuard.tsx	71	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/src/hooks/useGuestGuard.tsx	76	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/src/hooks/usePushNotifications.ts	57	/notifications/register-token	/notifications/register-token	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/src/navigation/guards/AuthGuard.tsx	25	/(auth	/(auth	UNMATCHED_ROUTE_REVIEW	
+patient	patient-app/src/utils/notifications.ts	60	/push/register	/push/register	MATCHED_ROUTE	POST /push/register (backend/src/modules/push/push.module.ts:470)
+patient	patient-app/src/utils/security.ts	162	/audit	/audit	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/api/provider.ts	8	/provider-onboarding/start	/provider-onboarding/start	MATCHED_ROUTE	POST /provider-onboarding/start (backend/src/modules/provider-onboarding/provider-onboarding.module.ts:215)
+provider	provider-app/src/api/provider.ts	14	/provider/auth/login	/provider/auth/login	MATCHED_ROUTE	POST /provider/auth/login (backend/src/modules/provider/provider.controllers.ts:28)|PATCH /provider/auth/:id (backend/src/modules/provider/provider.controllers.ts:99)|DELETE /provider/auth/:id (backend/src/modules/provider/provider.controllers.ts:102)|GET /provider/auth/:id (backend/src/modules/provider/provider.controllers.ts:112)|GET /provider/auth/:id (backend/src/modules/provider/provider.controllers.ts:153)|DELETE /provider/auth/:id (backend/src/modules/provider/provider.controllers.ts:327)|DELETE /provider/auth/:id (backend/src/modules/provider/provider.controllers.ts:335)
+provider	provider-app/src/api/provider.ts	37	/storage/upload	/storage/upload	MATCHED_ROUTE	POST /storage/upload (backend/src/modules/storage/storage.module.ts:131)|GET /storage/:id (backend/src/modules/storage/storage.module.ts:135)
+provider	provider-app/src/api/provider.ts	52	/storage/upload	/storage/upload	MATCHED_ROUTE	POST /storage/upload (backend/src/modules/storage/storage.module.ts:131)|GET /storage/:id (backend/src/modules/storage/storage.module.ts:135)
+provider	provider-app/src/api/provider.ts	63	/provider-onboarding/step2	/provider-onboarding/step2	MATCHED_ROUTE	POST /provider-onboarding/step2 (backend/src/modules/provider-onboarding/provider-onboarding.module.ts:218)
+provider	provider-app/src/api/provider.ts	69	/provider-onboarding/step3	/provider-onboarding/step3	MATCHED_ROUTE	POST /provider-onboarding/step3 (backend/src/modules/provider-onboarding/provider-onboarding.module.ts:221)
+provider	provider-app/src/api/provider.ts	75	/provider-onboarding/submit	/provider-onboarding/submit	MATCHED_ROUTE	POST /provider-onboarding/submit (backend/src/modules/provider-onboarding/provider-onboarding.module.ts:224)
+provider	provider-app/src/components/ui.tsx	902	/provider/profile/image/status	/provider/profile/image/status	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/components/ui.tsx	925	/provider/profile/image/status	/provider/profile/image/status	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/components/ui.tsx	986	/provider/profile/image/upload	/provider/profile/image/upload	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/auth/PendingDashboard.tsx	31	/auth/send-otp	/auth/send-otp	MATCHED_ROUTE	POST /auth/send-otp (backend/src/modules/auth/auth.controller.ts:126)
+provider	provider-app/src/screens/auth/PendingDashboard.tsx	44	/auth/verify-otp	/auth/verify-otp	MATCHED_ROUTE	POST /auth/verify-otp (backend/src/modules/auth/auth.controller.ts:133)
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	192	/provider/jobs/queue?status=incoming&kind=consultation	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	202	/provider/jobs/queue?status=active	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	210	/provider/stats/today	/provider/stats/today	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	224	/provider/jobs/	/provider/jobs	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	224	/accept	/accept	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	234	/provider/jobs/	/provider/jobs	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	234	/reject	/reject	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	450	/provider/jobs/queue?status=active&kind=consultation	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	652	/provider/consultation/end	/provider/consultation/end	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	886	/medicines	/medicines	MATCHED_ROUTE	GET /medicines (backend/src/modules/medicines/medicines.controller.ts:12)
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	931	/prescriptions/create	/prescriptions/create	MATCHED_ROUTE	POST /prescriptions/create (backend/src/modules/prescriptions/prescriptions.controller.ts:11)|GET /prescriptions/:id (backend/src/modules/prescriptions/prescriptions.controller.ts:62)
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	1754	/provider/wallet	/provider/wallet	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	1757	/provider/wallet/transactions	/provider/wallet/transactions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	1843	/chats/provider	/chats/provider	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2027	/provider/settings/delta	/provider/settings/delta	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2362	/provider/notifications	/provider/notifications	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2378	/provider/directory	/provider/directory	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2789	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2837	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2865	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	2905	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	3121	/provider/profile	/provider/profile	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	3140	/provider/profile	/provider/profile	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/doctor/DoctorDashboard.tsx	3635	/provider/chat/send	/provider/chat/send	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityAuditLogScreen.tsx	16	/provider/facility/audit-logs	/provider/facility/audit-logs	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	72	/facility/inbox	/facility/inbox	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	135	/facility/beds/wards	/facility/beds/wards	MATCHED_ROUTE	GET /facility/beds/wards (backend/src/modules/facility-ops/facility-ops.module.ts:219)|POST /facility/beds/wards (backend/src/modules/facility-ops/facility-ops.module.ts:229)
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	136	/facility/surgeries/schedule	/facility/surgeries/schedule	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	247	/provider/jobs/queue?status=active&kind=appointment&today=true	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	248	/provider/facility/subaccounts	/provider/facility/subaccounts	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	917	/provider/facility/shifts	/provider/facility/shifts	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	1037	/facility/beds/admission	/facility/beds/admission	MATCHED_ROUTE	POST /facility/beds/admission (backend/src/modules/facility-ops/facility-ops.module.ts:234)
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	1078	/facility/beds/wards	/facility/beds/wards	MATCHED_ROUTE	GET /facility/beds/wards (backend/src/modules/facility-ops/facility-ops.module.ts:219)|POST /facility/beds/wards (backend/src/modules/facility-ops/facility-ops.module.ts:229)
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	1226	/provider/jobs/queue?status=active&kind=appointment&today=true	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	1764	/facility/surgeries/book	/facility/surgeries/book	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	1967	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	1984	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	2130	/home-care/bookings/nursing/all	/home-care/bookings/nursing/all	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityDashboard.tsx	2133	/home-care/providers?availability=now	/home-care/providers	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityInternalChatScreen.tsx	20	/chat/channels	/chat/channels	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx	33	/provider/leave-requests	/provider/leave-requests	MATCHED_ROUTE	GET /provider/leave-requests (backend/src/modules/provider/leave-requests.controller.ts:6)
+provider	provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx	44	/provider/leave-requests/action	/provider/leave-requests/action	MATCHED_ROUTE	POST /provider/leave-requests/action (backend/src/modules/provider/leave-requests.controller.ts:12)
+provider	provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx	16	/provider/facility/patients/active	/provider/facility/patients/active	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx	16	/provider/facility/calendar	/provider/facility/calendar	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/lab/LabDashboard.tsx	53	/labs/provider/inbox	/labs/provider/inbox	MATCHED_ROUTE	GET /labs/provider/inbox (backend/src/modules/labs/labs.controller.ts:70)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	222	/labs/provider/inbox	/labs/provider/inbox	MATCHED_ROUTE	GET /labs/provider/inbox (backend/src/modules/labs/labs.controller.ts:70)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	239	/labs/samples	/labs/samples	MATCHED_ROUTE	GET /labs/samples (backend/src/modules/labs/labs.controller.ts:131)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	563	/labs/samples	/labs/samples	MATCHED_ROUTE	GET /labs/samples (backend/src/modules/labs/labs.controller.ts:131)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	883	/labs/packages	/labs/packages	MATCHED_ROUTE	GET /labs/packages (backend/src/modules/labs/labs.controller.ts:29)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	949	/approval-workflow/requests	/approval-workflow/requests	MATCHED_ROUTE	POST /approval-workflow/requests (backend/src/modules/approval-workflow/approval-workflow.module.ts:145)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	1068	/labs/provider/inbox	/labs/provider/inbox	MATCHED_ROUTE	GET /labs/provider/inbox (backend/src/modules/labs/labs.controller.ts:70)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	1381	/provider/capabilities/lab-services	/provider/capabilities/lab-services	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/lab/LabDashboard.tsx	1393	/approval-workflow/requests	/approval-workflow/requests	MATCHED_ROUTE	POST /approval-workflow/requests (backend/src/modules/approval-workflow/approval-workflow.module.ts:145)
+provider	provider-app/src/screens/lab/LabDashboard.tsx	1414	/approval-workflow/requests	/approval-workflow/requests	MATCHED_ROUTE	POST /approval-workflow/requests (backend/src/modules/approval-workflow/approval-workflow.module.ts:145)
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	83	/provider/jobs/queue?kind=nursing&status=incoming	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	84	/provider/jobs/queue?kind=nursing&status=active	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	85	/provider/jobs/queue?kind=nursing&status=completed	/provider/jobs/queue	MATCHED_ROUTE	GET /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts:275)
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	227	/home-care/provider/availability	/home-care/provider/availability	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	359	/nursing/jobs/active	/nursing/jobs/active	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	507	/provider/nursing/checklist	/provider/nursing/checklist	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	720	/nursing/notes	/nursing/notes	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	845	/provider/nursing/supplies	/provider/nursing/supplies	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	851	/home-care/inventory/request	/home-care/inventory/request	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	978	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1074	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1166	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1260	/nursing/coverage/verify-gps	/nursing/coverage/verify-gps	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1329	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1372	/provider/profile	/provider/profile	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1390	/provider/profile	/provider/profile	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/nursing/NursingDashboard.tsx	1489	/provider/schedule/settings	/provider/schedule/settings	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	218	/provider/pharmacy/orders/incoming	/provider/pharmacy/orders/incoming	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	507	/provider/pharmacy/b2b/voice-to-order	/provider/pharmacy/b2b/voice-to-order	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	620	/pharmacy/reports/eod	/pharmacy/reports/eod	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	969	/provider-deltas	/provider-deltas	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/radiology/RadiologyDashboard.tsx	88	/radiology/provider/inbox	/radiology/provider/inbox	MATCHED_ROUTE	GET /radiology/provider/inbox (backend/src/modules/radiology/radiology.controller.ts:73)
+provider	provider-app/src/screens/radiology/RadiologyDashboard.tsx	138	/radiology/provider/inbox	/radiology/provider/inbox	MATCHED_ROUTE	GET /radiology/provider/inbox (backend/src/modules/radiology/radiology.controller.ts:73)
+provider	provider-app/src/screens/radiology/RadiologyDashboard.tsx	390	/provider/capabilities/radiology-services	/provider/capabilities/radiology-services	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/radiology/RadiologyDashboard.tsx	395	/radiology/catalog/delta-request	/radiology/catalog/delta-request	MATCHED_ROUTE	POST /radiology/catalog/delta-request (backend/src/modules/radiology/radiology.controller.ts:135)
+provider	provider-app/src/screens/radiology/RadiologyDashboard.tsx	467	/radiology/catalog/delta-request	/radiology/catalog/delta-request	MATCHED_ROUTE	POST /radiology/catalog/delta-request (backend/src/modules/radiology/radiology.controller.ts:135)
+provider	provider-app/src/screens/shared/BlueprintScreens.tsx	57	/provider/features/promotions	/provider/features/promotions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/BlueprintScreens.tsx	133	/provider/features/promotions	/provider/features/promotions	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/BlueprintScreens.tsx	785	/provider/features/referrals	/provider/features/referrals	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/ProviderHome.tsx	18	/pharmacy/orders/pending	/pharmacy/orders/pending	MATCHED_ROUTE	GET /pharmacy/orders/:id (backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:34)
+provider	provider-app/src/screens/shared/ProviderHome.tsx	21	/calls/provider/waiting-room	/calls/provider/waiting-room	MATCHED_ROUTE	GET /calls/provider/waiting-room (backend/src/modules/livekit/livekit.controller.ts:12)
+provider	provider-app/src/screens/shared/RealScreens.tsx	19	/provider/reviews	/provider/reviews	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/RealScreens.tsx	116	/provider/working-hours	/provider/working-hours	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/RealScreens.tsx	164	/auth/change-password	/auth/change-password	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/RealScreens.tsx	260	/support/tickets	/support/tickets	MATCHED_ROUTE	GET /support/tickets (backend/src/modules/support/support.controller.ts:20)
+provider	provider-app/src/screens/shared/RealScreensExtended.tsx	150	/pharmacy/products	/pharmacy/products	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/RealScreensExtended.tsx	205	/pharmacy/shortages/report	/pharmacy/shortages/report	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/SharedScreens.tsx	57	/chats/provider	/chats/provider	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/SharedScreens.tsx	285	/provider/notifications	/provider/notifications	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/SharedScreens.tsx	424	/support/tickets	/support/tickets	MATCHED_ROUTE	GET /support/tickets (backend/src/modules/support/support.controller.ts:20)
+provider	provider-app/src/screens/shared/SharedScreens.tsx	975	/provider/banks	/provider/banks	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/screens/shared/SharedScreens.tsx	1014	/provider/wallet/withdraw	/provider/wallet/withdraw	UNMATCHED_ROUTE_REVIEW	
+provider	provider-app/src/utils/notifications.ts	56	/push/register	/push/register	MATCHED_ROUTE	POST /push/register (backend/src/modules/push/push.module.ts:470)
+admin	admin-app/web-admin/src/pages/admin/audit-logs.tsx	28	/admin/governance/audit-logs	/admin/governance/audit-logs	MATCHED_ROUTE	POST /admin/governance/:key (backend/src/modules/admin-governance/admin-governance.module.ts:270)|PUT /admin/governance/:id (backend/src/modules/admin-governance/admin-governance.module.ts:338)|GET /admin/governance/audit-logs (backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:28)
+admin	admin-app/web-admin/src/pages/admin/disputes.tsx	30	/admin/disputes	/admin/disputes	UNMATCHED_ROUTE_REVIEW	
+admin	admin-app/web-admin/src/pages/admin/nursing-portal.tsx	15	/admin/nursing/requests	/admin/nursing/requests	UNMATCHED_ROUTE_REVIEW	
+admin	admin-app/web-admin/src/pages/admin/provider-audits.tsx	13	/admin/provider-deltas/pending	/admin/provider-deltas/pending	UNMATCHED_ROUTE_REVIEW	
+admin	admin-app/web-admin/src/pages/admin/users-management.tsx	16	/admin/users	/admin/users	UNMATCHED_ROUTE_REVIEW	

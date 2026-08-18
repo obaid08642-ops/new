@@ -1,0 +1,405 @@
+file	line	method	endpoint	normalized	classification	backend_candidates
+admin-app/web-admin/src/pages/admin/audit-logs.tsx	28	GET	/admin/governance/audit-logs	/admin/governance/audit-logs	PASS_MATCHED	28 /admin/governance/audit-logs (backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts)
+admin-app/web-admin/src/pages/admin/disputes.tsx	30	GET	/admin/disputes	/admin/disputes	UNMATCHED_API_REVIEW	
+admin-app/web-admin/src/pages/admin/nursing-portal.tsx	15	POST	/admin/nursing/requests	/admin/nursing/requests	UNMATCHED_API_REVIEW	
+admin-app/web-admin/src/pages/admin/nursing-portal.tsx	29	POST	/admin/nursing/requests/${requestId}/assign	/admin/nursing/requests/:id/assign	UNMATCHED_API_REVIEW	
+admin-app/web-admin/src/pages/admin/provider-audits.tsx	13	POST	/admin/provider-deltas/pending	/admin/provider-deltas/pending	UNMATCHED_API_REVIEW	
+admin-app/web-admin/src/pages/admin/provider-audits.tsx	22	POST	/admin/provider-deltas/${id}/approve	/admin/provider-deltas/:id/approve	PASS_MATCHED	53 /admin/provider-deltas/:deltaId/approve (backend/src/modules/admin/admin.controller.ts)
+admin-app/web-admin/src/pages/admin/provider-audits.tsx	32	POST	/admin/provider-deltas/${id}/reject	/admin/provider-deltas/:id/reject	PASS_MATCHED	67 /admin/provider-deltas/:deltaId/reject (backend/src/modules/admin/admin.controller.ts)
+admin-app/web-admin/src/pages/admin/users-management.tsx	16	POST	/admin/users	/admin/users	UNMATCHED_API_REVIEW	
+admin-app/web-admin/src/pages/admin/users-management.tsx	29	POST	/admin/users/${id}/ban	/admin/users/:id/ban	UNMATCHED_API_REVIEW	
+patient-app/app/(auth)/forgot-password.tsx	31	POST	/auth/send-otp	/auth/send-otp	PASS_MATCHED	126 /auth/send-otp (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/login.tsx	100	POST	/auth/social-login	/auth/social-login	PASS_MATCHED	148 /auth/social-login (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/login.tsx	158	POST	/auth/login	/auth/login	PASS_MATCHED	41 /auth/login (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/otp.tsx	78	POST	/auth/verify-otp	/auth/verify-otp	PASS_MATCHED	133 /auth/verify-otp (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/otp.tsx	96	POST	/auth/register	/auth/register	PASS_MATCHED	35 /auth/register (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/register.tsx	121	POST	/auth/social-login	/auth/social-login	PASS_MATCHED	148 /auth/social-login (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/register.tsx	175	POST	/auth/send-otp	/auth/send-otp	PASS_MATCHED	126 /auth/send-otp (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/reset-password.tsx	33	POST	/auth/reset-password	/auth/reset-password	PASS_MATCHED	140 /auth/reset-password (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(auth)/welcome.tsx	32	POST	/auth/guest	/auth/guest	PASS_MATCHED	59 /auth/guest (backend/src/modules/auth/auth.controller.ts)
+patient-app/app/(tabs)/consultations/index.tsx	83	GET	/providers?type=doctor	/providers	PASS_MATCHED	20 /providers (backend/src/modules/providers/providers.controller.ts)
+patient-app/app/(tabs)/diagnostics.tsx	56	GET	/labs/packages	/labs/packages	PASS_MATCHED	29 /labs/packages (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/(tabs)/diagnostics.tsx	57	GET	/labs/services	/labs/services	PASS_MATCHED	9 /labs/services (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/(tabs)/diagnostics.tsx	58	GET	/radiology/services	/radiology/services	PASS_MATCHED	10 /radiology/services (backend/src/modules/radiology/radiology.controller.ts)
+patient-app/app/(tabs)/diagnostics.tsx	59	GET	/providers?type=lab	/providers	PASS_MATCHED	20 /providers (backend/src/modules/providers/providers.controller.ts)
+patient-app/app/(tabs)/health.tsx	97	GET	/health/vitals/summary	/health/vitals/summary	PASS_MATCHED	19 /health/vitals/summary (backend/src/modules/health/health.controller.ts)
+patient-app/app/(tabs)/health.tsx	98	GET	/users/me/profile	/users/me/profile	PASS_MATCHED	11 /users/me/profile (backend/src/modules/users/users.controller.ts)
+patient-app/app/(tabs)/health.tsx	99	GET	/home/upcoming-appointment	/home/upcoming-appointment	PASS_MATCHED	15 /home/upcoming-appointment (backend/src/modules/home/home.controller.ts)
+patient-app/app/(tabs)/health.tsx	107	GET	"/nutrition/daily-summary?date=${new Date().toISOString().split(""T"")[0]}"	/nutrition/daily-summary	PASS_MATCHED	53 /nutrition/daily-summary (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/(tabs)/index.tsx	84	GET	/home/offers	/home/offers	PASS_MATCHED	10 /home/offers (backend/src/modules/home/home.controller.ts)
+patient-app/app/(tabs)/index.tsx	85	GET	/home/upcoming-appointment	/home/upcoming-appointment	PASS_MATCHED	15 /home/upcoming-appointment (backend/src/modules/home/home.controller.ts)
+patient-app/app/(tabs)/index.tsx	86	GET	/users/me/profile	/users/me/profile	PASS_MATCHED	11 /users/me/profile (backend/src/modules/users/users.controller.ts)
+patient-app/app/(tabs)/nursing.tsx	54	GET	/home-care/services	/home-care/services	UNMATCHED_API_REVIEW	
+patient-app/app/(tabs)/nursing.tsx	55	GET	/home-care/packages	/home-care/packages	UNMATCHED_API_REVIEW	
+patient-app/app/(tabs)/pharmacy.tsx	72	GET	/medicines/categories	/medicines/categories	PASS_MATCHED	36 /medicines/categories (backend/src/modules/medicines/medicines.controller.ts)|54 /medicines/:id (backend/src/modules/medicines/medicines.controller.ts)
+patient-app/app/(tabs)/pharmacy.tsx	126	GET	/medicines?${q.toString()}	/medicines	PASS_MATCHED	12 /medicines (backend/src/modules/medicines/medicines.controller.ts)
+patient-app/app/community/hub.tsx	39	GET	/community/posts?page=1&limit=20	/community/posts	PASS_MATCHED	16 /community/posts (backend/src/modules/community/community.controller.ts)
+patient-app/app/community/post-detail.tsx	49	PUT	/community/posts/${postId}	/community/posts/:id	UNMATCHED_API_REVIEW	
+patient-app/app/community/post-detail.tsx	64	PUT	/community/posts/${postId}/vote	/community/posts/:id/vote	PASS_MATCHED	41 /community/posts/:id/vote (backend/src/modules/community/community.controller.ts)
+patient-app/app/community/post-detail.tsx	78	POST	/community/posts/${postId}/comment	/community/posts/:id/comment	PASS_MATCHED	36 /community/posts/:id/comment (backend/src/modules/community/community.controller.ts)
+patient-app/app/consultations/appointment-detail.tsx	153	POST	/patient/pay-copay	/patient/pay-copay	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/booking-confirm.tsx	77	GET	/insurance/coverage-check?provider_id=${encodeURIComponent(String(params.doctorId))}&service_type=consultation	/insurance/coverage-check	PASS_MATCHED	222 /insurance/coverage-check (backend/src/modules/insurance/insurance.module.ts)
+patient-app/app/consultations/call-history.tsx	48	GET	/calls/history?page=${pageNum}&limit=20	/calls/history	PASS_MATCHED	69 /calls/history (backend/src/modules/livekit/livekit.controller.ts)
+patient-app/app/consultations/chat-with-doctor.tsx	39	GET	/care/doctors/${doctorId}	/care/doctors/:id	PASS_MATCHED	60 /care/doctors/:id (backend/src/modules/care/care.controller.ts)
+patient-app/app/consultations/chat-with-doctor.tsx	43	GET	/chat/history/${doctorId}	/chat/history/:id	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/chat-with-doctor.tsx	87	POST	/chat/send	/chat/send	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/clinic-location.tsx	32	GET	/care/appointments/${appointmentId}	/care/appointments/:id	PASS_MATCHED	24 /care/appointments/:id (backend/src/modules/care/appointments.controller.ts)
+patient-app/app/consultations/doctor-profile.tsx	92	POST	/care/appointments/waitlist/join	/care/appointments/waitlist/join	PASS_MATCHED	29 /care/appointments/waitlist/join (backend/src/modules/care/appointments.controller.ts)
+patient-app/app/consultations/doctor-search.tsx	43	GET	/care/doctors?${qs.toString()}	/care/doctors	PASS_MATCHED	29 /care/doctors (backend/src/modules/care/care.controller.ts)
+patient-app/app/consultations/doctor/[id].tsx	75	GET	/care/doctors/${encodeURIComponent(id || 'd1')}	/care/doctors/:id	PASS_MATCHED	60 /care/doctors/:id (backend/src/modules/care/care.controller.ts)
+patient-app/app/consultations/follow-up.tsx	27	POST	/consultations/${consultationId}	/consultations/:id	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/follow-up.tsx	41	POST	/consultations/${consultationId}/messages	/consultations/:id/messages	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/home-visit-tracking.tsx	29	GET	/care/appointments/${appointmentId}	/care/appointments/:id	PASS_MATCHED	24 /care/appointments/:id (backend/src/modules/care/appointments.controller.ts)
+patient-app/app/consultations/incoming-call.tsx	64	POST	/calls/${sessionId}/reject	/calls/:id/reject	PASS_MATCHED	55 /calls/:sessionId/reject (backend/src/modules/livekit/livekit.controller.ts)
+patient-app/app/consultations/offer/[id].tsx	43	GET	/promotions/offers/${id}/providers	/promotions/offers/:id/providers	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/post-call-rating.tsx	47	POST	/care/appointments/rating	/care/appointments/rating	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/prescription-from-doctor.tsx	39	GET	/prescriptions/active	/prescriptions/active	PASS_MATCHED	62 /prescriptions/:id (backend/src/modules/prescriptions/prescriptions.controller.ts)
+patient-app/app/consultations/specialty-select.tsx	37	GET	/care/specialties	/care/specialties	PASS_MATCHED	11 /care/specialties (backend/src/modules/care/care.controller.ts)
+patient-app/app/consultations/video-call.tsx	47	GET	/care/appointments/${appointmentId}/video-token	/care/appointments/:id/video-token	UNMATCHED_API_REVIEW	
+patient-app/app/consultations/virtual-waiting-room.tsx	45	GET	/care/appointments/${appointmentId}	/care/appointments/:id	PASS_MATCHED	24 /care/appointments/:id (backend/src/modules/care/appointments.controller.ts)
+patient-app/app/consultations/waiting-room.tsx	29	GET	/care/appointments/${appointmentId}	/care/appointments/:id	PASS_MATCHED	24 /care/appointments/:id (backend/src/modules/care/appointments.controller.ts)
+patient-app/app/delivery/address-select.tsx	35	GET	/users/me/addresses	/users/me/addresses	PASS_MATCHED	11 /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts)
+patient-app/app/diagnostics/booking-confirm.tsx	91	POST	/cart/clear	/cart/clear	PASS_MATCHED	11 /cart/clear (backend/src/modules/cart/cart.controller.ts)|135 /cart/clear (backend/src/modules/cart/cart.module.ts)
+patient-app/app/diagnostics/booking-confirm.tsx	96	POST	/cart/clear	/cart/clear	PASS_MATCHED	11 /cart/clear (backend/src/modules/cart/cart.controller.ts)|135 /cart/clear (backend/src/modules/cart/cart.module.ts)
+patient-app/app/diagnostics/cart.tsx	30	GET	/labs/compatible-providers?testIds=${ids}	/labs/compatible-providers	PASS_MATCHED	168 /labs/compatible-providers (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/insurance-approval.tsx	37	GET	/orders/${orderId}	/orders/:id	PASS_MATCHED	49 /orders/:id (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/diagnostics/insurance-approval.tsx	78	PATCH	/orders/${orderId}/items/${item.id}/opt-in-cash	/orders/:id/items/:id/opt-in-cash	PASS_MATCHED	71 /orders/:id/items/:itemId/opt-in-cash (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/diagnostics/insurance-upload.tsx	58	GET	/providers?type=lab	/providers	PASS_MATCHED	20 /providers (backend/src/modules/providers/providers.controller.ts)
+patient-app/app/diagnostics/insurance-upload.tsx	294	POST	/orders/create	/orders/create	PASS_MATCHED	13 /orders/create (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/diagnostics/lab-comparison.tsx	33	GET	/labs/services/${id}	/labs/services/:id	PASS_MATCHED	35 /labs/services/:id (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/lab-comparison.tsx	34	GET	/labs/compatible-providers?testIds=${id}	/labs/compatible-providers	PASS_MATCHED	168 /labs/compatible-providers (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/lab/[id].tsx	27	GET	/providers/${id}	/providers/:id	PASS_MATCHED	32 /providers/:id (backend/src/modules/providers/providers.controller.ts)
+patient-app/app/diagnostics/lab/[id].tsx	28	GET	/labs/services?providerId=${id}	/labs/services	PASS_MATCHED	9 /labs/services (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/order/[id].tsx	36	POST	/orders/mine	/orders/mine	UNMATCHED_API_REVIEW	
+patient-app/app/diagnostics/order/[id].tsx	54	POST	/orders/mine	/orders/mine	UNMATCHED_API_REVIEW	
+patient-app/app/diagnostics/order/[id].tsx	69	GET	/orders/mine	/orders/mine	PASS_MATCHED	19 /orders/mine (backend/src/modules/orders/orders.controller.ts)|49 /orders/:id (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/diagnostics/orders.tsx	28	GET	/labs/bookings/mine	/labs/bookings/mine	PASS_MATCHED	41 /labs/bookings/mine (backend/src/modules/labs/labs.controller.ts)|44 /labs/bookings/:id (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/package-detail.tsx	26	GET	/labs/packages/${id}	/labs/packages/:id	PASS_MATCHED	163 /labs/packages/:id (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/packages.tsx	27	GET	/labs/packages	/labs/packages	PASS_MATCHED	29 /labs/packages (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/packages.tsx	28	GET	/labs/categories	/labs/categories	PASS_MATCHED	32 /labs/categories (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/search.tsx	28	GET	/labs/services	/labs/services	PASS_MATCHED	9 /labs/services (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/diagnostics/technician-tracking.tsx	34	GET	/labs/bookings/${bookingId}	/labs/bookings/:id	PASS_MATCHED	44 /labs/bookings/:id (backend/src/modules/labs/labs.controller.ts)
+patient-app/app/drug-scanner/index.tsx	35	POST	/health/medications	/health/medications	UNMATCHED_API_REVIEW	
+patient-app/app/drug-scanner/index.tsx	47	POST	/ai/drug-interactions	/ai/drug-interactions	UNMATCHED_API_REVIEW	
+patient-app/app/emergency/sos-active.tsx	24	GET	/emergency/my-active	/emergency/my-active	PASS_MATCHED	22 /emergency/my-active (backend/src/modules/emergency/emergency.controller.ts)|28 /emergency/:id (backend/src/modules/emergency/emergency.controller.ts)
+patient-app/app/emergency/tracking.tsx	31	GET	/emergency/tracking	/emergency/tracking	PASS_MATCHED	28 /emergency/:id (backend/src/modules/emergency/emergency.controller.ts)
+patient-app/app/family/calendar.tsx	55	GET	/family/calendar	/family/calendar	PASS_MATCHED	73 /family/calendar (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/calendar.tsx	84	POST	/family/calendar/event	/family/calendar/event	PASS_MATCHED	67 /family/calendar/event (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/calendar.tsx	124	DELETE	/family/calendar/event/${id}	/family/calendar/event/:id	PASS_MATCHED	79 /family/calendar/event/:eventId (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/chat.tsx	35	GET	/family/chat/messages	/family/chat/messages	UNMATCHED_API_REVIEW	
+patient-app/app/family/hub.tsx	84	GET	/family/members	/family/members	PASS_MATCHED	47 /family/members (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/invite.tsx	28	POST	/family/invite	/family/invite	PASS_MATCHED	29 /family/invite (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/join.tsx	32	POST	/family/join	/family/join	PASS_MATCHED	35 /family/join (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/member-health.tsx	46	GET	/family/member-health/${memberId}	/family/member-health/:id	PASS_MATCHED	53 /family/member-health/:userId (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/permission-request.tsx	22	GET	/family/permissions/pending	/family/permissions/pending	PASS_MATCHED	100 /family/permissions/pending (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/permission-request.tsx	49	PUT	/family/permissions/respond/${requestInfo._id || requestInfo.id}	/family/permissions/respond/:id	PASS_MATCHED	106 /family/permissions/respond/:requestId (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/permissions.tsx	133	POST	/family/permissions/request	/family/permissions/request	PASS_MATCHED	87 /family/permissions/request (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/permissions.tsx	165	DELETE	/family/remove-member/${memberId}	/family/remove-member/:id	PASS_MATCHED	41 /family/remove-member/:userId (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/shared-calendar.tsx	54	GET	/family/calendar	/family/calendar	PASS_MATCHED	73 /family/calendar (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/shared-calendar.tsx	83	POST	/family/calendar/event	/family/calendar/event	PASS_MATCHED	67 /family/calendar/event (backend/src/modules/family/family.controller.ts)
+patient-app/app/family/shared-calendar.tsx	124	DELETE	/family/calendar/event/${id}	/family/calendar/event/:id	PASS_MATCHED	79 /family/calendar/event/:eventId (backend/src/modules/family/family.controller.ts)
+patient-app/app/health/chronic-disease.tsx	26	GET	/health/chronic-diseases	/health/chronic-diseases	PASS_MATCHED	73 /health/chronic-diseases (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/chronic-disease.tsx	27	GET	/health/vitals	/health/vitals	PASS_MATCHED	12 /health/vitals (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/chronic-medications.tsx	24	GET	/health/chronic-meds	/health/chronic-meds	PASS_MATCHED	78 /health/chronic-meds (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/edit-profile.tsx	95	PATCH	/users/me/profile	/users/me/profile	PASS_MATCHED	16 /users/me/profile (backend/src/modules/users/users.controller.ts)
+patient-app/app/health/emergency-contacts.tsx	36	GET	/health/emergency-contacts	/health/emergency-contacts	PASS_MATCHED	68 /health/emergency-contacts (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/family-hub.tsx	86	POST	/family/my-group	/family/my-group	UNMATCHED_API_REVIEW	
+patient-app/app/health/family-hub.tsx	88	POST	/family/members	/family/members	UNMATCHED_API_REVIEW	
+patient-app/app/health/family-hub.tsx	105	POST	/family/create	/family/create	PASS_MATCHED	16 /family/create (backend/src/modules/family/family.controller.ts)
+patient-app/app/health/medication-reminder-list.tsx	56	GET	/health/medications/reminders	/health/medications/reminders	PASS_MATCHED	58 /health/medications/reminders (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/prescriptions.tsx	28	GET	/health/prescriptions	/health/prescriptions	PASS_MATCHED	63 /health/prescriptions (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/refills.tsx	30	GET	/medical-profile	/medical-profile	PASS_MATCHED	12 /medical-profile (backend/src/modules/medical-profile/medical-profile.controller.ts)
+patient-app/app/health/reminders.tsx	44	POST	/health/reminders	/health/reminders	PASS_MATCHED	30 /health/reminders (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/reminders.tsx	62	POST	/health/reminders/${id}/log	/health/reminders/:id/log	PASS_MATCHED	32 /health/reminders/:id/log (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/reports.tsx	27	GET	/health/reports	/health/reports	PASS_MATCHED	53 /health/reports (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/trends.tsx	139	GET	/health/trends	/health/trends	PASS_MATCHED	83 /health/trends (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/vitals-log.tsx	56	GET	/health/vitals/chart?vital=${vital}	/health/vitals/chart	UNMATCHED_API_REVIEW	
+patient-app/app/health/vitals-log.tsx	57	GET	/health/vitals/recent?vital=${vital}	/health/vitals/recent	UNMATCHED_API_REVIEW	
+patient-app/app/health/vitals-log.tsx	95	POST	/health/vitals	/health/vitals	PASS_MATCHED	21 /health/vitals (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/vitals.tsx	87	GET	/health/vitals/summary	/health/vitals/summary	PASS_MATCHED	19 /health/vitals/summary (backend/src/modules/health/health.controller.ts)
+patient-app/app/health/wearables.tsx	37	GET	/health/wearables/devices	/health/wearables/devices	UNMATCHED_API_REVIEW	
+patient-app/app/health/wearables.tsx	38	GET	/health/wearables/data	/health/wearables/data	UNMATCHED_API_REVIEW	
+patient-app/app/insurance/add-policy.tsx	33	GET	/insurance/companies	/insurance/companies	PASS_MATCHED	187 /insurance/companies (backend/src/modules/insurance/insurance.module.ts)
+patient-app/app/insurance/benefits-summary.tsx	21	GET	/insurance/benefits-summary	/insurance/benefits-summary	UNMATCHED_API_REVIEW	
+patient-app/app/insurance/claim-tracking.tsx	30	GET	/api/v1/insurance/claims/my	/insurance/claims/my	UNMATCHED_API_REVIEW	
+patient-app/app/insurance/copay.tsx	32	POST	/provider/jobs/insurance-copay	/provider/jobs/insurance-copay	UNMATCHED_API_REVIEW	
+patient-app/app/insurance/hub.tsx	101	GET	/users/me/insurance	/users/me/insurance	PASS_MATCHED	10 /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts)
+patient-app/app/insurance/hub.tsx	128	GET	/insurance/claims	/insurance/claims	PASS_MATCHED	264 /insurance/claims (backend/src/modules/insurance/insurance.module.ts)
+patient-app/app/insurance/hub.tsx	167	POST	/insurance/save-policy	/insurance/save-policy	PASS_MATCHED	254 /insurance/save-policy (backend/src/modules/insurance/insurance.module.ts)
+patient-app/app/insurance/payment-split.tsx	46	GET	/insurance/coverage-check?service_type=${SERVICE.serviceType}	/insurance/coverage-check	PASS_MATCHED	222 /insurance/coverage-check (backend/src/modules/insurance/insurance.module.ts)
+patient-app/app/insurance/payment-split.tsx	79	POST	/insurance/payment-confirm	/insurance/payment-confirm	UNMATCHED_API_REVIEW	
+patient-app/app/insurance/submit-claim.tsx	32	POST	/insurance/claims/submit	/insurance/claims/submit	PASS_MATCHED	259 /insurance/claims/submit (backend/src/modules/insurance/insurance.module.ts)
+patient-app/app/loyalty/challenges.tsx	28	GET	/loyalty/challenges	/loyalty/challenges	PASS_MATCHED	40 /loyalty/challenges (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/hub.tsx	53	GET	/loyalty/account	/loyalty/account	PASS_MATCHED	22 /loyalty/account (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/hub.tsx	57	GET	/loyalty/transactions?page=1	/loyalty/transactions	PASS_MATCHED	28 /loyalty/transactions (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/hub.tsx	60	GET	/loyalty/config	/loyalty/config	PASS_MATCHED	13 /loyalty/config (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/hub.tsx	66	GET	/loyalty/rewards	/loyalty/rewards	PASS_MATCHED	46 /loyalty/rewards (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/rewards.tsx	37	GET	/loyalty/account	/loyalty/account	PASS_MATCHED	22 /loyalty/account (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/rewards.tsx	40	GET	/loyalty/rewards	/loyalty/rewards	PASS_MATCHED	46 /loyalty/rewards (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/loyalty/rewards.tsx	66	POST	/loyalty/rewards/${reward.id}/claim	/loyalty/rewards/:id/claim	PASS_MATCHED	52 /loyalty/rewards/:id/claim (backend/src/modules/loyalty/loyalty.controller.ts)
+patient-app/app/map/index.tsx	170	GET	/providers/map?${query.toString()}	/providers/map	PASS_MATCHED	32 /providers/:id (backend/src/modules/providers/providers.controller.ts)
+patient-app/app/map/index.tsx	206	GET	/user/insurance	/user/insurance	PASS_MATCHED	12 /user/insurance (backend/src/modules/users/user.insurance.controller.ts)
+patient-app/app/maternity/baby-development.tsx	358	GET	/maternity/profile	/maternity/profile	PASS_MATCHED	12 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/baby-growth.tsx	51	POST	/maternity/infant-growth	/maternity/infant-growth	PASS_MATCHED	52 /maternity/infant-growth (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/baby-growth.tsx	80	GET	/maternity/profile	/maternity/profile	PASS_MATCHED	12 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/baby-growth.tsx	92	GET	/maternity/vaccines	/maternity/vaccines	UNMATCHED_API_REVIEW	
+patient-app/app/maternity/hub.tsx	64	GET	/maternity/content	/maternity/content	PASS_MATCHED	18 /maternity/content (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/hub.tsx	66	GET	/maternity/profile	/maternity/profile	PASS_MATCHED	12 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/hub.tsx	199	POST	/maternity/profile	/maternity/profile	PASS_MATCHED	24 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/hub.tsx	224	PUT	/maternity/checkups/${encodeURIComponent(week)}/toggle	/maternity/checkups/:id/toggle	PASS_MATCHED	45 /maternity/checkups/:week/toggle (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/maternity-setup.tsx	176	POST	/maternity/profile	/maternity/profile	PASS_MATCHED	24 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/ovulation-tracker.tsx	230	POST	/maternity/profile	/maternity/profile	PASS_MATCHED	24 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/pregnancy-tracker.tsx	45	GET	/maternity/profile	/maternity/profile	PASS_MATCHED	12 /maternity/profile (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/pregnancy-tracker.tsx	95	POST	/maternity/kicks	/maternity/kicks	PASS_MATCHED	31 /maternity/kicks (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/pregnancy-tracker.tsx	130	POST	/maternity/contractions	/maternity/contractions	PASS_MATCHED	38 /maternity/contractions (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/maternity/pregnancy-tracker.tsx	154	PUT	/maternity/checkups/${encodeURIComponent(week)}/toggle	/maternity/checkups/:id/toggle	PASS_MATCHED	45 /maternity/checkups/:week/toggle (backend/src/modules/maternity/maternity.controller.ts)
+patient-app/app/mental-health/breathing.tsx	63	POST	/mental-health/breathing	/mental-health/breathing	PASS_MATCHED	80 /mental-health/breathing (backend/src/modules/mental-health/mental-health.controller.ts)
+patient-app/app/mental-health/crisis-support.tsx	36	GET	/mental-health/crisis-contacts	/mental-health/crisis-contacts	PASS_MATCHED	116 /mental-health/crisis-contacts (backend/src/modules/mental-health/mental-health.controller.ts)
+patient-app/app/mental-health/crisis-support.tsx	40	GET	/mental-health/hotlines	/mental-health/hotlines	UNMATCHED_API_REVIEW	
+patient-app/app/mental-health/meditation.tsx	42	GET	/mental-health/meditation/sessions	/mental-health/meditation/sessions	UNMATCHED_API_REVIEW	
+patient-app/app/mental-health/meditation.tsx	69	POST	/mental-health/meditation	/mental-health/meditation	PASS_MATCHED	54 /mental-health/meditation (backend/src/modules/mental-health/mental-health.controller.ts)
+patient-app/app/mental-health/mood-journal.tsx	46	POST	/mental-health/mood?days=7	/mental-health/mood	PASS_MATCHED	25 /mental-health/mood (backend/src/modules/mental-health/mental-health.controller.ts)
+patient-app/app/mental-health/mood-journal.tsx	59	POST	/mental-health/mood	/mental-health/mood	PASS_MATCHED	25 /mental-health/mood (backend/src/modules/mental-health/mental-health.controller.ts)
+patient-app/app/mental-health/self-assessment.tsx	26	GET	/mental-health/assessment-questions	/mental-health/assessment-questions	UNMATCHED_API_REVIEW	
+patient-app/app/mental-health/self-assessment.tsx	48	POST	/mental-health/assessment	/mental-health/assessment	PASS_MATCHED	98 /mental-health/assessment (backend/src/modules/mental-health/mental-health.controller.ts)
+patient-app/app/nursing/live-tracking.tsx	83	GET	/nursing/visits/${bookingId}/tracking	/nursing/visits/:id/tracking	PASS_MATCHED	99 /nursing/visits/:id/tracking (backend/src/modules/home-care/home-care.controller.ts)
+patient-app/app/nursing/nurse-profile.tsx	81	POST	/home-care/providers/${nurseId}	/home-care/providers/:id	UNMATCHED_API_REVIEW	
+patient-app/app/nursing/nurse-profile.tsx	85	POST	/home-care/insurance/verify	/home-care/insurance/verify	UNMATCHED_API_REVIEW	
+patient-app/app/nursing/nurse-profile.tsx	121	POST	/home-care/bookings	/home-care/bookings	UNMATCHED_API_REVIEW	
+patient-app/app/nursing/service-details.tsx	44	GET	"/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || ""any""}&availability=${availability || ""any""}&nationality=${nationality || ""any""}&search=${search || """"}"	/home-care/providers	UNMATCHED_API_REVIEW	
+patient-app/app/nutrition/ai-plan-builder.tsx	63	POST	/nutrition/profile	/nutrition/profile	PASS_MATCHED	25 /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/body-composition.tsx	27	GET	/nutrition/profile	/nutrition/profile	PASS_MATCHED	17 /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/body-target.tsx	34	POST	/nutrition/profile	/nutrition/profile	PASS_MATCHED	25 /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/body-target.tsx	47	POST	/nutrition/profile	/nutrition/profile	PASS_MATCHED	25 /nutrition/profile (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/calorie-analyzer.tsx	61	POST	/nutrition/meals	/nutrition/meals	PASS_MATCHED	35 /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/daily-tracker.tsx	57	POST	/nutrition/water	/nutrition/water	PASS_MATCHED	63 /nutrition/water (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/food-scanner.tsx	70	POST	/nutrition/meals	/nutrition/meals	PASS_MATCHED	35 /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/log-meal.tsx	41	POST	/nutrition/foods	/nutrition/foods	UNMATCHED_API_REVIEW	
+patient-app/app/nutrition/log-meal.tsx	59	POST	/nutrition/meals	/nutrition/meals	PASS_MATCHED	35 /nutrition/meals (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/nutrition/water-tracker.tsx	57	POST	/nutrition/water	/nutrition/water	PASS_MATCHED	63 /nutrition/water (backend/src/modules/nutrition/nutrition.controller.ts)
+patient-app/app/pharmacy/barcode-scanner.tsx	25	GET	/patient/pharmacy/medicines/barcode/${encodeURIComponent(data)}	/patient/pharmacy/medicines/barcode/:id	UNMATCHED_API_REVIEW	
+patient-app/app/pharmacy/broadcast-status.tsx	51	GET	/orders/bids/request/${requestId || 'default'}	/orders/bids/request/:id	PASS_MATCHED	175 /orders/bids/request/:id (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/broadcast-status.tsx	66	GET	/orders/bids/${pharmacyId}/accept	/orders/bids/:id/accept	UNMATCHED_API_REVIEW	
+patient-app/app/pharmacy/chat-with-pharmacist.tsx	54	GET	/chat/history?orderId=${orderId || 'default'}	/chat/history	UNMATCHED_API_REVIEW	
+patient-app/app/pharmacy/checkout.tsx	44	GET	/users/me/profile	/users/me/profile	PASS_MATCHED	11 /users/me/profile (backend/src/modules/users/users.controller.ts)
+patient-app/app/pharmacy/checkout.tsx	117	POST	/patient/pharmacy/orders	/patient/pharmacy/orders	PASS_MATCHED	23 /patient/pharmacy/orders (backend/src/modules/pharmacy/pharmacy.controllers.ts)
+patient-app/app/pharmacy/checkout.tsx	120	POST	/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit	/patient/pharmacy/orders/:id/submit	PASS_MATCHED	27 /patient/pharmacy/orders/:id/submit (backend/src/modules/pharmacy/pharmacy.controllers.ts)
+patient-app/app/pharmacy/drug-not-found.tsx	38	GET	/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}	/patient/pharmacy/shortage-flags/lookup	PASS_MATCHED	10 /patient/pharmacy/shortage-flags/lookup (backend/src/modules/pharmacy/patient-pharmacy.controller.ts)
+patient-app/app/pharmacy/filters.tsx	69	GET	/medicines/filters	/medicines/filters	PASS_MATCHED	42 /medicines/filters (backend/src/modules/medicines/medicines.controller.ts)|54 /medicines/:id (backend/src/modules/medicines/medicines.controller.ts)
+patient-app/app/pharmacy/medicine-compare.tsx	36	GET	/medicines/compare	/medicines/compare	PASS_MATCHED	54 /medicines/:id (backend/src/modules/medicines/medicines.controller.ts)
+patient-app/app/pharmacy/order-confirm.tsx	41	POST	/orders/${orderId}	/orders/:id	UNMATCHED_API_REVIEW	
+patient-app/app/pharmacy/order-confirm.tsx	56	POST	/orders/${orderId}/approve-basket	/orders/:id/approve-basket	PASS_MATCHED	40 /orders/:id/approve-basket (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/order-confirm.tsx	68	POST	/orders/${orderId}/reject-basket	/orders/:id/reject-basket	PASS_MATCHED	44 /orders/:id/reject-basket (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/order-history.tsx	53	GET	/orders/mine	/orders/mine	PASS_MATCHED	19 /orders/mine (backend/src/modules/orders/orders.controller.ts)|49 /orders/:id (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/order-tracking.tsx	70	GET	/orders/${orderIdStr}/tracking	/orders/:id/tracking	PASS_MATCHED	66 /orders/:id/tracking (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/payment.tsx	48	GET	/payments/paymob/methods	/payments/paymob/methods	PASS_MATCHED	14 /payments/paymob/methods (backend/src/modules/payments/paymob.controller.ts)
+patient-app/app/pharmacy/payment.tsx	49	GET	/patient/pharmacy/orders/${encodeURIComponent(orderId)}	/patient/pharmacy/orders/:id	PASS_MATCHED	25 /patient/pharmacy/orders/:id (backend/src/modules/pharmacy/pharmacy.controllers.ts)
+patient-app/app/pharmacy/payment.tsx	71	POST	/payments/paymob/initiate	/payments/paymob/initiate	PASS_MATCHED	19 /payments/paymob/initiate (backend/src/modules/payments/paymob.controller.ts)
+patient-app/app/pharmacy/product-detail.tsx	79	GET	/medicines/${id}	/medicines/:id	PASS_MATCHED	54 /medicines/:id (backend/src/modules/medicines/medicines.controller.ts)
+patient-app/app/pharmacy/product-detail.tsx	111	GET	/medicines/${id}/alternatives	/medicines/:id/alternatives	PASS_MATCHED	66 /medicines/:id/alternatives (backend/src/modules/medicines/medicines.controller.ts)
+patient-app/app/pharmacy/reorder.tsx	27	GET	/orders/${orderId}	/orders/:id	PASS_MATCHED	49 /orders/:id (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/reorder.tsx	57	GET	/orders/${orderId}/reorder	/orders/:id/reorder	UNMATCHED_API_REVIEW	
+patient-app/app/pharmacy/reorder.tsx	59	GET	/orders/${orderId}/reorder-partial	/orders/:id/reorder-partial	UNMATCHED_API_REVIEW	
+patient-app/app/pharmacy/rx-order.tsx	30	GET	/cart/prescription	/cart/prescription	PASS_MATCHED	17 /cart/prescription (backend/src/modules/cart/cart.controller.ts)
+patient-app/app/pharmacy/scan-prescription.tsx	77	POST	/ai/prescription-ocr	/ai/prescription-ocr	PASS_MATCHED	40 /ai/prescription-ocr (backend/src/modules/ai/ai.controller.ts)
+patient-app/app/pharmacy/waiting-for-pharmacy.tsx	94	GET	/orders/${orderId}	/orders/:id	PASS_MATCHED	49 /orders/:id (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/waiting-for-pharmacy.tsx	130	POST	/orders/${orderId}/cancel	/orders/:id/cancel	PASS_MATCHED	34 /orders/:id/cancel (backend/src/modules/orders/orders.controller.ts)
+patient-app/app/pharmacy/wishlist.tsx	33	GET	/users/me/wishlist	/users/me/wishlist	PASS_MATCHED	21 /users/me/wishlist (backend/src/modules/users/users.controller.ts)
+patient-app/app/pharmacy/wishlist.tsx	42	GET	/users/me/wishlist/${id}	/users/me/wishlist/:id	UNMATCHED_API_REVIEW	
+patient-app/app/profile/addresses.tsx	27	PATCH	/users/me/addresses	/users/me/addresses	UNMATCHED_API_REVIEW	
+patient-app/app/profile/addresses.tsx	42	PATCH	/users/me/addresses/${id}	/users/me/addresses/:id	PASS_MATCHED	34 /users/me/addresses/:addressId (backend/src/modules/users/users.addresses.controller.ts)
+patient-app/app/profile/insurance.tsx	26	GET	/users/me/insurance	/users/me/insurance	PASS_MATCHED	10 /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts)
+patient-app/app/profile/insurance.tsx	165	POST	/users/me/insurance	/users/me/insurance	PASS_MATCHED	16 /users/me/insurance (backend/src/modules/users/users.insurance.controller.ts)
+patient-app/app/programs/active.tsx	34	GET	/medical/programs/active	/medical/programs/active	PASS_MATCHED	101 /medical/programs/active (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts)
+patient-app/app/programs/active.tsx	60	POST	/medical/programs/complete-session	/medical/programs/complete-session	PASS_MATCHED	106 /medical/programs/complete-session (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts)
+patient-app/app/reports/passport.tsx	37	GET	/medical-profile	/medical-profile	PASS_MATCHED	12 /medical-profile (backend/src/modules/medical-profile/medical-profile.controller.ts)
+patient-app/app/reports/passport.tsx	38	GET	/patients/passport	/patients/passport	PASS_MATCHED	90 /patients/passport (backend/src/modules/nabd-extensions/nabd-extensions.controller.ts)
+patient-app/app/reports/timeline.tsx	42	GET	/reports/timeline	/reports/timeline	UNMATCHED_API_REVIEW	
+patient-app/app/reports/view-report.tsx	40	GET	/reports/${params.id}	/reports/:id	UNMATCHED_API_REVIEW	
+patient-app/app/returns/new-request.tsx	68	POST	/pharmacy/returns	/pharmacy/returns	PASS_MATCHED	11 /pharmacy/returns (backend/src/modules/returns/returns.controller.ts)
+patient-app/app/search/index.tsx	38	GET	/home/search?q=${encodeURIComponent(query)}	/home/search	PASS_MATCHED	20 /home/search (backend/src/modules/home/home.controller.ts)
+patient-app/app/settings/feedback.tsx	38	POST	/support/feedback	/support/feedback	PASS_MATCHED	31 /support/feedback (backend/src/modules/support/support.controller.ts)
+patient-app/app/settings/notifications-settings.tsx	108	PATCH	/users/me/notification-settings	/users/me/notification-settings	PASS_MATCHED	37 /users/me/notification-settings (backend/src/modules/users/users.controller.ts)
+patient-app/app/settings/privacy.tsx	45	PATCH	/users/me/privacy-settings	/users/me/privacy-settings	PASS_MATCHED	52 /users/me/privacy-settings (backend/src/modules/users/users.controller.ts)
+patient-app/app/settings/security.tsx	52	PATCH	/users/me/security-settings	/users/me/security-settings	PASS_MATCHED	62 /users/me/security-settings (backend/src/modules/users/users.controller.ts)
+patient-app/app/settings/security.tsx	57	PATCH	/users/me/security-settings	/users/me/security-settings	PASS_MATCHED	62 /users/me/security-settings (backend/src/modules/users/users.controller.ts)
+patient-app/app/settings/security.tsx	67	POST	/users/me/change-password	/users/me/change-password	PASS_MATCHED	67 /users/me/change-password (backend/src/modules/users/users.controller.ts)
+patient-app/app/shared/location-picker.tsx	80	GET	/users/me/addresses	/users/me/addresses	PASS_MATCHED	11 /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts)
+patient-app/app/shared/location-picker.tsx	168	POST	/users/me/addresses	/users/me/addresses	PASS_MATCHED	17 /users/me/addresses (backend/src/modules/users/users.addresses.controller.ts)
+patient-app/app/wallet/cards.tsx	64	GET	/wallet/cards	/wallet/cards	PASS_MATCHED	46 /wallet/cards (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/cards.tsx	105	DELETE	/wallet/cards/${cardId}	/wallet/cards/:id	PASS_MATCHED	60 /wallet/cards/:id (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/cards.tsx	346	POST	/wallet/cards	/wallet/cards	PASS_MATCHED	53 /wallet/cards (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/cards.tsx	361	POST	/wallet/cards	/wallet/cards	PASS_MATCHED	53 /wallet/cards (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/hub.tsx	95	GET	/wallet/spending-data	/wallet/spending-data	PASS_MATCHED	23 /wallet/spending-data (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/topup.tsx	45	POST	/wallet/topup	/wallet/topup	PASS_MATCHED	29 /wallet/topup (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/transactions.tsx	38	GET	/wallet/transactions	/wallet/transactions	PASS_MATCHED	17 /wallet/transactions (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/app/wallet/transfer.tsx	61	POST	/wallet/transfer	/wallet/transfer	PASS_MATCHED	38 /wallet/transfer (backend/src/modules/wallet/wallet.controller.ts)
+patient-app/src/context/CartContext.tsx	50	GET	/cart	/cart	PASS_MATCHED	131 /cart (backend/src/modules/cart/cart.module.ts)
+patient-app/src/context/CartContext.tsx	86	POST	/cart/lines	/cart/lines	PASS_MATCHED	132 /cart/lines (backend/src/modules/cart/cart.module.ts)
+patient-app/src/context/CartContext.tsx	132	DELETE	/cart/lines/${item.line_id}	/cart/lines/:id	PASS_MATCHED	134 /cart/lines/:lineId (backend/src/modules/cart/cart.module.ts)
+patient-app/src/context/CartContext.tsx	152	DELETE	/cart/lines/${item.line_id}	/cart/lines/:id	PASS_MATCHED	134 /cart/lines/:lineId (backend/src/modules/cart/cart.module.ts)
+patient-app/src/context/CartContext.tsx	154	PATCH	/cart/lines/${item.line_id}	/cart/lines/:id	PASS_MATCHED	133 /cart/lines/:lineId (backend/src/modules/cart/cart.module.ts)
+patient-app/src/context/CartContext.tsx	169	POST	/cart/clear	/cart/clear	PASS_MATCHED	11 /cart/clear (backend/src/modules/cart/cart.controller.ts)|135 /cart/clear (backend/src/modules/cart/cart.module.ts)
+patient-app/src/context/ConsultationsContext.tsx	24	GET	/care/appointments	/care/appointments	PASS_MATCHED	19 /care/appointments (backend/src/modules/care/appointments.controller.ts)
+patient-app/src/context/SocketContext.tsx	57	POST	/chats/threads/${m.threadId}/messages	/chats/threads/:id/messages	UNMATCHED_API_REVIEW	
+patient-app/src/core/events/AuditManager.ts	62	POST	/audit/batch	/audit/batch	UNMATCHED_API_REVIEW	
+patient-app/src/utils/callkeep.ts	72	POST	/calls/${callUUID}/reject	/calls/:id/reject	PASS_MATCHED	55 /calls/:sessionId/reject (backend/src/modules/livekit/livekit.controller.ts)
+patient-app/src/utils/notifications.ts	60	POST	/push/register	/push/register	PASS_MATCHED	470 /push/register (backend/src/modules/push/push.module.ts)
+provider-app/src/api/provider.ts	8	POST	/provider-onboarding/start	/provider-onboarding/start	PASS_MATCHED	215 /provider-onboarding/start (backend/src/modules/provider-onboarding/provider-onboarding.module.ts)
+provider-app/src/api/provider.ts	14	POST	/provider/auth/login	/provider/auth/login	PASS_MATCHED	28 /provider/auth/login (backend/src/modules/provider/provider.controllers.ts)
+provider-app/src/api/provider.ts	37	POST	/storage/upload	/storage/upload	PASS_MATCHED	131 /storage/upload (backend/src/modules/storage/storage.module.ts)
+provider-app/src/api/provider.ts	52	POST	/storage/upload	/storage/upload	PASS_MATCHED	131 /storage/upload (backend/src/modules/storage/storage.module.ts)
+provider-app/src/api/provider.ts	63	POST	/provider-onboarding/step2	/provider-onboarding/step2	PASS_MATCHED	218 /provider-onboarding/step2 (backend/src/modules/provider-onboarding/provider-onboarding.module.ts)
+provider-app/src/api/provider.ts	69	POST	/provider-onboarding/step3	/provider-onboarding/step3	PASS_MATCHED	221 /provider-onboarding/step3 (backend/src/modules/provider-onboarding/provider-onboarding.module.ts)
+provider-app/src/api/provider.ts	75	POST	/provider-onboarding/submit	/provider-onboarding/submit	PASS_MATCHED	224 /provider-onboarding/submit (backend/src/modules/provider-onboarding/provider-onboarding.module.ts)
+provider-app/src/components/ui.tsx	902	GET	/provider/profile/image/status	/provider/profile/image/status	UNMATCHED_API_REVIEW	
+provider-app/src/components/ui.tsx	925	GET	/provider/profile/image/status	/provider/profile/image/status	UNMATCHED_API_REVIEW	
+provider-app/src/components/ui.tsx	986	POST	/provider/profile/image/upload	/provider/profile/image/upload	UNMATCHED_API_REVIEW	
+provider-app/src/screens/auth/PendingDashboard.tsx	31	POST	/auth/send-otp	/auth/send-otp	PASS_MATCHED	126 /auth/send-otp (backend/src/modules/auth/auth.controller.ts)
+provider-app/src/screens/auth/PendingDashboard.tsx	44	POST	/auth/verify-otp	/auth/verify-otp	PASS_MATCHED	133 /auth/verify-otp (backend/src/modules/auth/auth.controller.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	192	GET	/provider/jobs/queue?status=incoming&kind=consultation	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	202	GET	/provider/jobs/queue?status=active	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	210	GET	/provider/stats/today	/provider/stats/today	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	224	POST	/provider/jobs/	/provider/jobs	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	234	POST	/provider/jobs/	/provider/jobs	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	247	POST	/provider/jobs/consultation/${insuranceModalReq.id}/insurance	/provider/jobs/consultation/:id/insurance	PASS_MATCHED	284 /provider/jobs/:type/:id/insurance (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	450	GET	/provider/jobs/queue?status=active&kind=consultation	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	652	POST	/provider/consultation/end	/provider/consultation/end	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	886	GET	/medicines	/medicines	PASS_MATCHED	12 /medicines (backend/src/modules/medicines/medicines.controller.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	931	POST	/prescriptions/create	/prescriptions/create	PASS_MATCHED	11 /prescriptions/create (backend/src/modules/prescriptions/prescriptions.controller.ts)
+provider-app/src/screens/doctor/DoctorDashboard.tsx	1211	POST	/provider/requests/${apt.id}/sick-leave	/provider/requests/:id/sick-leave	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	1754	GET	/provider/wallet	/provider/wallet	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	1757	GET	/provider/wallet/transactions	/provider/wallet/transactions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	1843	GET	/chats/provider	/chats/provider	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	1857	GET	/chats/${chat.id}/messages	/chats/:id/messages	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	1868	POST	/chats/${activeChat.id}/messages	/chats/:id/messages	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2027	POST	/provider/settings/delta	/provider/settings/delta	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2336	POST	/provider/requests/${apt?.id || 'new'}/medical-report	/provider/requests/${apt	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2362	GET	/provider/notifications	/provider/notifications	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2378	GET	/provider/directory	/provider/directory	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2789	GET	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2837	POST	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2865	POST	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2880	DELETE	/provider/capabilities/doctor-sessions/${id}	/provider/capabilities/doctor-sessions/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	2905	POST	/provider/capabilities/doctor-sessions	/provider/capabilities/doctor-sessions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	3121	GET	/provider/profile	/provider/profile	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	3140	PATCH	/provider/profile	/provider/profile	UNMATCHED_API_REVIEW	
+provider-app/src/screens/doctor/DoctorDashboard.tsx	3635	POST	/provider/chat/send	/provider/chat/send	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityAuditLogScreen.tsx	16	GET	/provider/facility/audit-logs	/provider/facility/audit-logs	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	72	GET	/facility/inbox	/facility/inbox	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	135	GET	/facility/beds/wards	/facility/beds/wards	PASS_MATCHED	219 /facility/beds/wards (backend/src/modules/facility-ops/facility-ops.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	136	GET	/facility/surgeries/schedule	/facility/surgeries/schedule	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	247	GET	/provider/jobs/queue?status=active&kind=appointment&today=true	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	248	GET	/provider/facility/subaccounts	/provider/facility/subaccounts	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	917	GET	/provider/facility/shifts	/provider/facility/shifts	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	1023	GET	/facility/beds/wards/${ward.id}/beds	/facility/beds/wards/:id/beds	PASS_MATCHED	224 /facility/beds/wards/:wardId/beds (backend/src/modules/facility-ops/facility-ops.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	1037	POST	/facility/beds/admission	/facility/beds/admission	PASS_MATCHED	234 /facility/beds/admission (backend/src/modules/facility-ops/facility-ops.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	1062	PUT	/facility/beds/discharge/${admissionId}	/facility/beds/discharge/:id	PASS_MATCHED	239 /facility/beds/discharge/:admissionId (backend/src/modules/facility-ops/facility-ops.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	1078	POST	/facility/beds/wards	/facility/beds/wards	PASS_MATCHED	229 /facility/beds/wards (backend/src/modules/facility-ops/facility-ops.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	1226	GET	/provider/jobs/queue?status=active&kind=appointment&today=true	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/facility/FacilityDashboard.tsx	1764	POST	/facility/surgeries/book	/facility/surgeries/book	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	1967	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	1984	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	2130	GET	/home-care/bookings/nursing/all	/home-care/bookings/nursing/all	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	2133	GET	/home-care/providers?availability=now	/home-care/providers	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityDashboard.tsx	2150	POST	/home-care/bookings/${selectedBooking.id}/assign	/home-care/bookings/:id/assign	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityInternalChatScreen.tsx	20	GET	/chat/channels	/chat/channels	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityInternalChatScreen.tsx	27	GET	/chat/messages/${activeChat}	/chat/messages/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityInternalChatScreen.tsx	36	POST	/chat/messages/${activeChat}	/chat/messages/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx	33	GET	/provider/leave-requests	/provider/leave-requests	PASS_MATCHED	6 /provider/leave-requests (backend/src/modules/provider/leave-requests.controller.ts)
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx	44	POST	/provider/leave-requests/action	/provider/leave-requests/action	PASS_MATCHED	12 /provider/leave-requests/action (backend/src/modules/provider/leave-requests.controller.ts)
+provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx	16	GET	/provider/facility/patients/active	/provider/facility/patients/active	UNMATCHED_API_REVIEW	
+provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx	16	GET	/provider/facility/calendar	/provider/facility/calendar	UNMATCHED_API_REVIEW	
+provider-app/src/screens/lab/LabDashboard.tsx	53	GET	/labs/provider/inbox	/labs/provider/inbox	PASS_MATCHED	70 /labs/provider/inbox (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	222	GET	/labs/provider/inbox	/labs/provider/inbox	PASS_MATCHED	70 /labs/provider/inbox (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	239	GET	/labs/samples	/labs/samples	PASS_MATCHED	131 /labs/samples (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	363	PATCH	/labs/bookings/${order.id}/state	/labs/bookings/:id/state	PASS_MATCHED	50 /labs/bookings/:id/state (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	372	PATCH	/labs/bookings/${order.id}/state	/labs/bookings/:id/state	PASS_MATCHED	50 /labs/bookings/:id/state (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	385	POST	/labs/bookings/${order.id}/assign-technician	/labs/bookings/:id/assign-technician	PASS_MATCHED	75 /labs/bookings/:id/assign-technician (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	400	PATCH	/labs/bookings/${order.id}/reschedule	/labs/bookings/:id/reschedule	PASS_MATCHED	86 /labs/bookings/:id/reschedule (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	415	PATCH	/labs/bookings/${order.id}/state	/labs/bookings/:id/state	PASS_MATCHED	50 /labs/bookings/:id/state (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	563	GET	/labs/samples	/labs/samples	PASS_MATCHED	131 /labs/samples (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	578	PATCH	/labs/samples/${sam.id}/stage	/labs/samples/:id/stage	PASS_MATCHED	125 /labs/samples/:id/stage (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	766	PATCH	/labs/samples/${sample.id}/stage	/labs/samples/:id/stage	PASS_MATCHED	125 /labs/samples/:id/stage (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	789	PATCH	/labs/samples/${sample.id}/stage	/labs/samples/:id/stage	PASS_MATCHED	125 /labs/samples/:id/stage (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	822	POST	/labs/bookings/${sample.lab_order_id || sample.id}/upload-report	/labs/bookings/:id/upload-report	PASS_MATCHED	80 /labs/bookings/:id/upload-report (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	823	PATCH	/labs/samples/${sample.id}/stage	/labs/samples/:id/stage	PASS_MATCHED	125 /labs/samples/:id/stage (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	883	GET	/labs/packages	/labs/packages	PASS_MATCHED	29 /labs/packages (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	949	POST	/approval-workflow/requests	/approval-workflow/requests	PASS_MATCHED	145 /approval-workflow/requests (backend/src/modules/approval-workflow/approval-workflow.module.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	1068	GET	/labs/provider/inbox	/labs/provider/inbox	PASS_MATCHED	70 /labs/provider/inbox (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	1082	PATCH	/labs/bookings/${selectedOrder.id}/insurance	/labs/bookings/:id/insurance	PASS_MATCHED	60 /labs/bookings/:id/insurance (backend/src/modules/labs/labs.controller.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	1381	GET	/provider/capabilities/lab-services	/provider/capabilities/lab-services	UNMATCHED_API_REVIEW	
+provider-app/src/screens/lab/LabDashboard.tsx	1393	POST	/approval-workflow/requests	/approval-workflow/requests	PASS_MATCHED	145 /approval-workflow/requests (backend/src/modules/approval-workflow/approval-workflow.module.ts)
+provider-app/src/screens/lab/LabDashboard.tsx	1414	POST	/approval-workflow/requests	/approval-workflow/requests	PASS_MATCHED	145 /approval-workflow/requests (backend/src/modules/approval-workflow/approval-workflow.module.ts)
+provider-app/src/screens/nursing/NursingDashboard.tsx	83	GET	/provider/jobs/queue?kind=nursing&status=incoming	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/nursing/NursingDashboard.tsx	84	GET	/provider/jobs/queue?kind=nursing&status=active	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/nursing/NursingDashboard.tsx	85	GET	/provider/jobs/queue?kind=nursing&status=completed	/provider/jobs/queue	PASS_MATCHED	275 /provider/jobs/queue (backend/src/modules/provider-jobs/provider-jobs.module.ts)
+provider-app/src/screens/nursing/NursingDashboard.tsx	142	POST	/nursing/visits/${incomingRequest.id}/respond	/nursing/visits/:id/respond	PASS_MATCHED	116 /nursing/visits/:id/respond (backend/src/modules/home-care/home-care.controller.ts)
+provider-app/src/screens/nursing/NursingDashboard.tsx	152	POST	/nursing/visits/${incomingRequest.id}/respond	/nursing/visits/:id/respond	PASS_MATCHED	116 /nursing/visits/:id/respond (backend/src/modules/home-care/home-care.controller.ts)
+provider-app/src/screens/nursing/NursingDashboard.tsx	227	POST	/home-care/provider/availability	/home-care/provider/availability	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	359	GET	/nursing/jobs/active	/nursing/jobs/active	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	421	POST	/home-care/bookings/${order.id}/respond	/home-care/bookings/:id/respond	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	432	POST	/home-care/bookings/${order.id}/respond	/home-care/bookings/:id/respond	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	507	GET	/provider/nursing/checklist	/provider/nursing/checklist	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	574	POST	/home-care/bookings/${order.id}/check-in	/home-care/bookings/:id/check-in	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	720	POST	/nursing/notes	/nursing/notes	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	766	POST	/home-care/bookings/${order.id}/visit-report	/home-care/bookings/:id/visit-report	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	845	GET	/provider/nursing/supplies	/provider/nursing/supplies	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	851	POST	/home-care/inventory/request	/home-care/inventory/request	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	978	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1074	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1166	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1260	POST	/nursing/coverage/verify-gps	/nursing/coverage/verify-gps	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1329	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1372	GET	/provider/profile	/provider/profile	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1390	PATCH	/provider/profile	/provider/profile	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingDashboard.tsx	1489	POST	/provider/schedule/settings	/provider/schedule/settings	UNMATCHED_API_REVIEW	
+provider-app/src/screens/nursing/NursingFieldOps.tsx	67	POST	/nursing/visits/${order.id}/${endpoint}	/nursing/visits/:id/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	218	GET	/provider/pharmacy/orders/incoming	/provider/pharmacy/orders/incoming	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	248	POST	/provider/pharmacy/orders/${orderId}/accept	/provider/pharmacy/orders/:id/accept	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	269	POST	/provider/pharmacy/orders/${rejectOrderId}/reject	/provider/pharmacy/orders/:id/reject	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	373	GET	/pharmacy/prescriptions/${rxNumber}	/pharmacy/prescriptions/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	404	POST	/insurance/claims/submit	/insurance/claims/submit	PASS_MATCHED	259 /insurance/claims/submit (backend/src/modules/insurance/insurance.module.ts)
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	507	POST	/provider/pharmacy/b2b/voice-to-order	/provider/pharmacy/b2b/voice-to-order	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	620	POST	/pharmacy/reports/eod	/pharmacy/reports/eod	UNMATCHED_API_REVIEW	
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx	969	POST	/provider-deltas	/provider-deltas	UNMATCHED_API_REVIEW	
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	88	GET	/radiology/provider/inbox	/radiology/provider/inbox	PASS_MATCHED	73 /radiology/provider/inbox (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	138	GET	/radiology/provider/inbox	/radiology/provider/inbox	PASS_MATCHED	73 /radiology/provider/inbox (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	189	GET	/radiology/bookings/${order.id}	/radiology/bookings/:id	PASS_MATCHED	44 /radiology/bookings/:id (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	192	POST	/radiology/bookings/${currentOrder.id}/${action}	/radiology/bookings/:id/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	200	POST	/radiology/bookings/${currentOrder.id}/insurance-approval	/radiology/bookings/:id/insurance-approval	PASS_MATCHED	117 /radiology/bookings/:id/insurance-approval (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	207	POST	/radiology/bookings/${currentOrder.id}/abort	/radiology/bookings/:id/abort	PASS_MATCHED	100 /radiology/bookings/:id/abort (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	247	PATCH	/radiology/bookings/${currentOrder.id}/state	/radiology/bookings/:id/state	PASS_MATCHED	50 /radiology/bookings/:id/state (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	249	PATCH	/radiology/bookings/${currentOrder.id}/state	/radiology/bookings/:id/state	PASS_MATCHED	50 /radiology/bookings/:id/state (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	303	POST	/radiology/bookings/${order.id}/upload-report	/radiology/bookings/:id/upload-report	PASS_MATCHED	83 /radiology/bookings/:id/upload-report (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	312	POST	/radiology/bookings/${order.id}/submit-report-for-review	/radiology/bookings/:id/submit-report-for-review	PASS_MATCHED	106 /radiology/bookings/:id/submit-report-for-review (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	318	POST	/radiology/bookings/${order.id}/approve-report	/radiology/bookings/:id/approve-report	PASS_MATCHED	111 /radiology/bookings/:id/approve-report (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	390	GET	/provider/capabilities/radiology-services	/provider/capabilities/radiology-services	UNMATCHED_API_REVIEW	
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	395	POST	/radiology/catalog/delta-request	/radiology/catalog/delta-request	PASS_MATCHED	135 /radiology/catalog/delta-request (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/radiology/RadiologyDashboard.tsx	467	POST	/radiology/catalog/delta-request	/radiology/catalog/delta-request	PASS_MATCHED	135 /radiology/catalog/delta-request (backend/src/modules/radiology/radiology.controller.ts)
+provider-app/src/screens/shared/BlueprintScreens.tsx	57	GET	/provider/features/promotions	/provider/features/promotions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/BlueprintScreens.tsx	133	POST	/provider/features/promotions	/provider/features/promotions	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/BlueprintScreens.tsx	509	GET	/provider/features/crm/patients/${pat.id}	/provider/features/crm/patients/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/BlueprintScreens.tsx	531	PATCH	/provider/features/crm/patients/${selectedPat.id}	/provider/features/crm/patients/:id	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/BlueprintScreens.tsx	785	POST	/provider/features/referrals	/provider/features/referrals	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/LiveKitRoomProvider.tsx	47	POST	/calls/${roomId}/join	/calls/:id/join	PASS_MATCHED	45 /calls/:sessionId/join (backend/src/modules/livekit/livekit.controller.ts)
+provider-app/src/screens/shared/PharmacyChatResponder.tsx	23	GET	/pharmacy/chat/threads/${threadId}/messages	/pharmacy/chat/threads/:id/messages	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/ProviderHome.tsx	18	GET	/pharmacy/orders/pending	/pharmacy/orders/pending	PASS_MATCHED	34 /pharmacy/orders/:id (backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts)
+provider-app/src/screens/shared/ProviderHome.tsx	21	GET	/calls/provider/waiting-room	/calls/provider/waiting-room	PASS_MATCHED	12 /calls/provider/waiting-room (backend/src/modules/livekit/livekit.controller.ts)
+provider-app/src/screens/shared/RealScreens.tsx	19	GET	/provider/reviews	/provider/reviews	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/RealScreens.tsx	27	POST	/provider/reviews/${id}/reply	/provider/reviews/:id/reply	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/RealScreens.tsx	116	PUT	/provider/working-hours	/provider/working-hours	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/RealScreens.tsx	164	POST	/auth/change-password	/auth/change-password	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/RealScreens.tsx	260	POST	/support/tickets	/support/tickets	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/RealScreensExtended.tsx	150	POST	/pharmacy/products	/pharmacy/products	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/RealScreensExtended.tsx	205	POST	/pharmacy/shortages/report	/pharmacy/shortages/report	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	57	GET	/chats/provider	/chats/provider	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	141	GET	/chats/${conv.id}/messages	/chats/:id/messages	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	163	POST	/chats/${conv.id}/messages	/chats/:id/messages	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	285	GET	/provider/notifications	/provider/notifications	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	424	POST	/support/tickets	/support/tickets	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	817	GET	/provider/dashboard/stats?period=${period}	/provider/dashboard/stats	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	975	GET	/provider/banks	/provider/banks	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	1014	POST	/provider/wallet/withdraw	/provider/wallet/withdraw	UNMATCHED_API_REVIEW	
+provider-app/src/screens/shared/SharedScreens.tsx	2219	GET	/nursing/wallet?provider_id=${user?.id}	/nursing/wallet	PASS_MATCHED	315 /nursing/wallet (backend/src/modules/home-care/home-care.controller.ts)
+provider-app/src/utils/notifications.ts	56	POST	/push/register	/push/register	PASS_MATCHED	470 /push/register (backend/src/modules/push/push.module.ts)

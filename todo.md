@@ -662,3 +662,58 @@
 
 - [x] Normalized the Nabdah screen/button inventory into `NABDAH_SCREEN_BUTTON_CONTRACT_UNIQUE_20260818.tsv`: 3,158 unique markers, 580 endpoint-bearing records, 10 placeholder candidates, 32 fail-closed reviews, and 6 stale/environment candidates.
 - [ ] Manually validate every candidate classification against the direct Backend controller/schema and convert each record to PASS, FIX, BLOCKED, or INCONCLUSIVE with evidence.
+
+- [x] Compiled 933 full Backend routes from class/method decorators and produced `NABDAH_BACKEND_COMPILED_ROUTES_20260818.tsv`.
+- [x] Produced `NABDAH_ENDPOINT_CONTROLLER_MATCH_20260818.tsv`: 587 extracted path-like records, 235 matched controller routes, and 352 requiring review; many unmatched records are client navigation paths such as `/(tabs)` and must be filtered before defect classification.
+- [ ] Filter non-API navigation paths, recover HTTP methods from call context, and manually classify the remaining unmatched consumer routes against controller prefixes/constants.
+
+- [x] Separated UI navigation literals from actual network calls and extracted 404 concrete API call records across Patient/Provider/Admin.
+- [x] Method-aware matching found 260 direct matches and 144 review candidates; documented that concatenated/template expressions require reconstruction before defect classification.
+- [ ] Reconstruct and validate all 144 API review candidates, including response-shape/auth checks; no route is considered stale from string matching alone.
+- [x] Filtered the 352 route-review records into 91 navigation/template records and 261 API-candidate records in `NABDAH_UNMATCHED_API_REVIEW_20260818.tsv`; the 261 remain open for full expression reconstruction.
+
+- [x] Verified repository identity: only `obaid08642-ops/new`; direct implementation source is remote `fix/e2e-operational-contracts-20260814` at `21006cc`, and QA evidence is remote `manus/on-live-reconciliation` at `d3eb266`.
+- [x] Confirmed the QA branch is being used for audit evidence, not as a substitute for the direct implementation source; removed the interrupted untracked backend dependency directory.
+- [ ] Continue strictly in plan order: finish contract review, then build/test gates, then sandbox-only production E2E.
+
+- [x] Corrected the execution source to `manus/on-live-reconciliation` at `d59a8bfa` after verifying it is 311 commits ahead of the old `fix/e2e-operational-contracts-20260814` ref.
+- [x] Confirmed the current reconciliation branch uses the cleaned single-artifact layout; backend/patient source and provider/admin artifacts must be extracted from the committed archives before build or source inspection.
+- [ ] Extract and audit only the source artifacts from `manus/on-live-reconciliation`; do not use the old fix branch as an implementation base.
+
+- [ ] Audit historical push/commit destinations from the conversation and Git history; identify exactly which branch received each Backend/Patient/Provider/Admin change.
+- [ ] Verify whether current `manus/on-live-reconciliation` contains all four application artifacts or only Backend/patient archives, and record any missing Provider/Admin source artifacts.
+
+- [ ] Resume Full Systematic QA from the verified `manus/on-live-reconciliation` branch at current remote HEAD; extract and audit all four committed application artifacts before any new implementation.
+- [ ] Preserve the original closure order: contract inventory -> build/test gates -> sandbox-only E2E -> fixes/revalidation -> readiness report.
+
+- [ ] Build the expanded service × booking-mode × payment/insurance × location × lifecycle × actor matrix before declaring any workflow complete.
+- [ ] Add explicit screen/button/state checks for patient selection, scheduling, confirmation, payment, insurance approval, provider intake, execution, reporting, tracking, cancellation, reschedule, refund/ledger, notifications, and admin oversight.
+- [ ] Cover all service families: consultations, pharmacy, laboratory, radiology, nursing/home-care, hospitals/facilities, ambulance/emergency, nutrition, maternity, mental health, AI tools, family/health records, wallet, support, and shared account flows.
+
+- [ ] Integrate Pasted_content_17 requirements: doctor search/profile/availability with holidays, blocked slots, existing bookings, split shifts, and immediate versus scheduled service.
+- [ ] Add consultation branches for clinic, home, and online care across cash and insurance, including insurance pending/approved/partial/rejected and patient copay confirmation.
+- [ ] Add provider-side insurance intake with complete patient/service/coverage details, external insurer submission boundary, decision entry, and patient/provider notifications.
+- [ ] Add consultation communication lifecycle: pre-visit chat window, reminders, ready-to-call gate, video/voice controls, files, reconnect/end states, and access authorization.
+- [ ] Add consented clinical context and attachments before booking; prescription, referral, lab/radiology/home-care orders after consultation; independent ordering per downstream service; completion and rating flows.
+- [ ] Apply the same decision/state/screen/button model to pharmacy, laboratory, radiology, nursing/home-care, and facility workflows, including prescription-required versus OTC medication logic.
+
+- [ ] Preserve and execute the original QA/remediation roadmap while adding the full service-journey expansion from Pasted_content_17.
+- [ ] Audit Patient screens and actions end-to-end across discovery, booking, payment/insurance, confirmation, execution, results, prescriptions, referrals, ratings, profile, family, wallet, support, localization, theme, permissions, and recovery states.
+- [ ] Audit Provider screens end-to-end across onboarding, profile/clinic/facility identity, availability/holidays/shifts, insurance/cash settings, inbox/broadcast, accept/reject/reassign, execution, reports, communication, wallet, payouts, notifications, settings, and security.
+- [ ] Audit Admin screens end-to-end across operations, approvals, providers/facilities, catalogs, orders/bookings, insurance, finance/ledger, reports/charts, notifications, support, audit logs, feature/config controls, privacy, and role governance.
+- [ ] For every feature, detect missing logical CTA/screen/state, local-only success, fabricated/hardcoded data, stale route, missing backend/database transition, broken error/loading/empty/retry state, accessibility/localization issue, and security/ownership gap.
+- [ ] Apply the complete service journey model to consultations, pharmacy, laboratory, radiology, nursing/home-care, hospitals/facilities, ambulance/emergency, nutrition, maternity, mental health, AI, family/records, wallet, support, and shared account flows.
+
+- [ ] Perform a final completeness review of the master plan against the entire conversation and all supplied requirement files; do not assume the current service list is exhaustive.
+- [ ] Check for omitted cross-cutting areas: search/discovery, pricing/catalogs, consent/privacy, analytics, audit/compliance, fraud/abuse, accessibility, localization, SEO/web, app-store/device release, observability, backups/restore, scaling/queues, and incident/support operations.
+- [ ] Record any new gaps as explicit scenarios and release gates before implementation continues.
+
+- [ ] Do not start any numbered phase until the owner explicitly says `ابدأ` for that phase.
+- [ ] At the end of every phase, perform a line-by-line checklist review against the phase scope, verify artifacts/tests/source state, commit and push only to `manus/on-live-reconciliation`, then report completion and wait for the owner’s next-phase command.
+- [ ] Never declare a phase complete when an item is untested; classify it as PASS, FIX, BLOCKED, or INCONCLUSIVE with evidence.
+
+- [ ] Preserve every existing phase and add a dedicated competitive UX/workflow benchmark phase before final remediation.
+- [ ] Define competitor cohorts by domain: teleconsultation, pharmacy/e-prescription, laboratory, radiology/imaging, home nursing, hospital/facility, nutrition/maternity/mental health, and integrated health platforms.
+- [ ] Research public flows and provider/operations experiences screen-by-screen where legally and technically accessible; record source URL, date, platform, observed steps, evidence, and confidence.
+- [ ] Compare competitor journeys against Nabdah by task, actor, screen, CTA, state, pricing/insurance, handoff, notification, recovery, accessibility, and trust/safety; separate observed facts from recommendations.
+- [ ] Convert only validated opportunities into Nabdah requirements; do not copy protected design/content or fabricate competitor behavior.
