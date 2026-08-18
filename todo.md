@@ -616,3 +616,17 @@
 - [x] Saved `PHASE5_REVALIDATION_SUMMARY_20260818.md` separating verified PASS evidence from lifecycle/Admin/device/gateway BLOCKED items and the superseded transport INCONCLUSIVE.
 
 - [x] Issued `FULL_SYSTEMATIC_QA_FINAL_REPORT_20260818.md` with the evidence-based release verdict, verified gates, lifecycle blockers, Admin source scope blocker, Lab contract drift, payment/device constraints, and internal evidence references.
+
+
+# برنامج الإغلاق الكامل للإنتاج — 2026-08-18
+
+- [ ] تجميد المستودعات والـcommits authoritative للـBackend وPatient وProvider وAdmin وتسجيل hashes وربط النشر.
+- [ ] إنتاج مصفوفة شاشة × زر × consumer × controller × database contract لكل Patient وProvider وAdmin.
+- [ ] إزالة كل placeholder وfallback تجاري وfake success وstale route وbuild blocker، وإضافة اختبار regression لكل إصلاح.
+- [ ] إنشاء أو ربط sandbox fixtures حقيقية لكل خدمة ودور دون اختلاق بيانات إنتاجية.
+- [ ] تنفيذ Patient E2E كاملاً لكل خدمات الاستشارة online/clinic/home، pharmacy، lab، radiology، nursing، hospital، insurance/cash، الدفع، الإلغاء، إعادة الجدولة، no-show، التقارير، الإشعارات، المحفظة وBOLA.
+- [ ] تنفيذ Provider E2E كاملاً لكل نوع مزود: onboarding، availability، inbox/broadcast، accept/reject/reassign، التنفيذ، GPS، chat/video، التقارير، insurance/cash، wallet/payout، settings وحدود الدور.
+- [ ] تنفيذ Admin E2E كاملاً: login/2FA، dashboard، users، moderation، catalog، disputes، ledger، payouts، insurance، procurement، notifications، SOS، RBAC وaudit logs.
+- [ ] إغلاق WebSocket والدفع والويبهوك/idempotency وOTP/2FA والتوطين والثيمات وSEO/structured data والأداء والrate limits.
+- [ ] بناء واختبار Android/iOS/Huawei والمحاكيات والمزرعة وTestFlight وdeep links وpush/calls/GPS/RTL/lifecycle/permissions.
+- [ ] تشغيل release gate على commit المنشور وإعادة health/security/smoke/E2E، ثم إصدار شهادة جاهزية فقط عند PASS لكل البوابات الإلزامية.
