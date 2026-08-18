@@ -1,0 +1,854 @@
+# Patient consultation consumer map
+# Source snapshot: nabdah-live-extracted/patient-app/nabd_plus
+app/(auth)/_layout.tsx
+app/(auth)/forgot-password.tsx
+app/(auth)/login.tsx
+app/(auth)/otp.tsx
+app/(auth)/privacy.tsx
+app/(auth)/provider-info.tsx
+app/(auth)/register.tsx
+app/(auth)/reset-password.tsx
+app/(auth)/terms.tsx
+app/(auth)/welcome.tsx
+app/(onboarding)/_layout.tsx
+app/(onboarding)/index.tsx
+app/(onboarding)/language.tsx
+app/(onboarding)/permissions.tsx
+app/(tabs)/_layout.tsx
+app/(tabs)/consultations/index.tsx
+app/(tabs)/diagnostics.tsx
+app/(tabs)/health.tsx
+app/(tabs)/index.tsx
+app/(tabs)/nursing.tsx
+app/(tabs)/pharmacy.tsx
+app/(tabs)/services.tsx
+app/_layout.tsx
+app/ai-assistant.tsx
+app/ai/chat-doctor.tsx
+app/ai/monthly-report.tsx
+app/ai/prescription-translator.tsx
+app/ai/skin-analysis.tsx
+app/ai/symptom-checker.tsx
+app/ai/symptom-timeline.tsx
+app/ai/triage.tsx
+app/articles/[slug].tsx
+app/articles/bookmarks.tsx
+app/articles/index.tsx
+app/community/hub.tsx
+app/community/post-detail.tsx
+app/consultations/appointment-detail.tsx
+app/consultations/appointments.tsx
+app/consultations/book/[id].tsx
+app/consultations/booking-confirm.tsx
+app/consultations/booking-pending.tsx
+app/consultations/booking-success.tsx
+app/consultations/call-history.tsx
+app/consultations/cancel-reschedule.tsx
+app/consultations/chat-with-doctor.tsx
+app/consultations/clinic-confirm.tsx
+app/consultations/clinic-location.tsx
+app/consultations/clinic/[id].tsx
+app/consultations/doctor-profile.tsx
+app/consultations/doctor-search.tsx
+app/consultations/doctor/[id].tsx
+app/consultations/follow-up.tsx
+app/consultations/home-visit-tracking.tsx
+app/consultations/incoming-call.tsx
+app/consultations/offer/[id].tsx
+app/consultations/post-call-rating.tsx
+app/consultations/prescription-from-doctor.tsx
+app/consultations/share-report.tsx
+app/consultations/specialty-select.tsx
+app/consultations/summary.tsx
+app/consultations/video-call.tsx
+app/consultations/video/[id].tsx
+app/consultations/virtual-waiting-room.tsx
+app/consultations/waiting-room.tsx
+app/delivery/address-select.tsx
+app/diagnostics/book-sample.tsx
+app/diagnostics/booking-confirm.tsx
+app/diagnostics/booking-success.tsx
+app/diagnostics/cart.tsx
+app/diagnostics/checkout.tsx
+app/diagnostics/insurance-approval.tsx
+app/diagnostics/insurance-upload.tsx
+app/diagnostics/lab-comparison.tsx
+app/diagnostics/lab/[id].tsx
+app/diagnostics/my-results.tsx
+app/diagnostics/order/[id].tsx
+app/diagnostics/orders.tsx
+app/diagnostics/package-detail.tsx
+app/diagnostics/packages.tsx
+app/diagnostics/results-history.tsx
+app/diagnostics/sample-tracking.tsx
+app/diagnostics/search.tsx
+app/diagnostics/technician-tracking.tsx
+app/diagnostics/test-detail.tsx
+app/diagnostics/upload-rx.tsx
+app/drug-scanner/index.tsx
+app/emergency/index.tsx
+app/emergency/sos-active.tsx
+app/emergency/sos.tsx
+app/emergency/tracking.tsx
+app/family/calendar.tsx
+app/family/chat.tsx
+app/family/emergency-contacts.tsx
+app/family/hub.tsx
+app/family/index.tsx
+app/family/invite.tsx
+app/family/join.tsx
+app/family/member-health.tsx
+app/family/permission-request.tsx
+app/family/permissions.tsx
+app/family/scan.tsx
+app/family/shared-calendar.tsx
+app/health/actionable-order.tsx
+app/health/add-family-member.tsx
+app/health/chronic-disease.tsx
+app/health/chronic-medications.tsx
+app/health/conditions-allergies.tsx
+app/health/edit-profile.tsx
+app/health/emergency-contacts.tsx
+app/health/family-calendar.tsx
+app/health/family-chat.tsx
+app/health/family-hub.tsx
+app/health/family-member-detail.tsx
+app/health/health-id.tsx
+app/health/medication-reminder-add.tsx
+app/health/medication-reminder-list.tsx
+app/health/medications.tsx
+app/health/prescriptions.tsx
+app/health/refills.tsx
+app/health/reminders.tsx
+app/health/reports.tsx
+app/health/sleep-score.tsx
+app/health/sleep-tracker.tsx
+app/health/smart-reminders.tsx
+app/health/trends.tsx
+app/health/vitals-log.tsx
+app/health/vitals.tsx
+app/health/wearables.tsx
+app/index.tsx
+app/insurance/add-policy.tsx
+app/insurance/approval-pending.tsx
+app/insurance/benefits-summary.tsx
+app/insurance/claim-tracking.tsx
+app/insurance/copay.tsx
+app/insurance/coverage-check.tsx
+app/insurance/hub.tsx
+app/insurance/index.tsx
+app/insurance/network-providers.tsx
+app/insurance/payment-split.tsx
+app/insurance/policy-detail.tsx
+app/insurance/refund-status.tsx
+app/insurance/submit-claim.tsx
+app/loyalty/challenges.tsx
+app/loyalty/hub.tsx
+app/loyalty/leaderboard.tsx
+app/loyalty/referrals.tsx
+app/loyalty/rewards.tsx
+app/map/index.tsx
+app/maternity/baby-development.tsx
+app/maternity/baby-growth.tsx
+app/maternity/fetus-data.ts
+app/maternity/hub.tsx
+app/maternity/maternity-setup.tsx
+app/maternity/ovulation-tracker.tsx
+app/maternity/pregnancy-tracker.tsx
+app/mental-health/breathing.tsx
+app/mental-health/crisis-support.tsx
+app/mental-health/hub.tsx
+app/mental-health/index.tsx
+app/mental-health/meditation.tsx
+app/mental-health/mood-journal.tsx
+app/mental-health/self-assessment.tsx
+app/mental-health/therapist-match.tsx
+app/notifications/index.tsx
+app/nursing/live-tracking.tsx
+app/nursing/nurse-profile.tsx
+app/nursing/service-details.tsx
+app/nursing/service-info.tsx
+app/nutrition/ai-meal-planner.tsx
+app/nutrition/ai-plan-builder.tsx
+app/nutrition/body-composition.tsx
+app/nutrition/body-target.tsx
+app/nutrition/calorie-analyzer.tsx
+app/nutrition/daily-tracker.tsx
+app/nutrition/exercise-plan.tsx
+app/nutrition/food-scanner.tsx
+app/nutrition/hub.tsx
+app/nutrition/index.tsx
+app/nutrition/log-meal.tsx
+app/nutrition/nutrition-plan.tsx
+app/nutrition/water-tracker.tsx
+app/offers/[id].tsx
+app/offers/index.tsx
+app/orders/index.tsx
+app/payments/failed.tsx
+app/payments/failure.tsx
+app/payments/processing.tsx
+app/payments/success.tsx
+app/pharmacy/barcode-scanner.tsx
+app/pharmacy/broadcast-status.tsx
+app/pharmacy/cart.tsx
+app/pharmacy/chat-with-pharmacist.tsx
+app/pharmacy/checkout.tsx
+app/pharmacy/custom-item.tsx
+app/pharmacy/drug-not-found.tsx
+app/pharmacy/filters.tsx
+app/pharmacy/manual-order.tsx
+app/pharmacy/medicine-compare.tsx
+app/pharmacy/order-confirm.tsx
+app/pharmacy/order-history.tsx
+app/pharmacy/order-tracking.tsx
+app/pharmacy/payment.tsx
+app/pharmacy/pharmacist-chat.tsx
+app/pharmacy/product-detail.tsx
+app/pharmacy/product-search.tsx
+app/pharmacy/reorder.tsx
+app/pharmacy/rx-order.tsx
+app/pharmacy/scan-prescription.tsx
+app/pharmacy/waiting-for-pharmacy.tsx
+app/pharmacy/wishlist.tsx
+app/profile/addresses.tsx
+app/profile/edit.tsx
+app/profile/index.tsx
+app/profile/insurance.tsx
+app/programs/active.tsx
+app/reports/ai-analysis.tsx
+app/reports/hub.tsx
+app/reports/passport.tsx
+app/reports/timeline.tsx
+app/reports/view-report.tsx
+app/returns/detail.tsx
+app/returns/hub.tsx
+app/returns/new-request.tsx
+app/reviews/index.tsx
+app/rn_screens.json
+app/room/[id].tsx
+app/s/[type]/[slug].tsx
+app/search/index.tsx
+app/services/index.tsx
+app/settings/about.tsx
+app/settings/data.tsx
+app/settings/feedback.tsx
+app/settings/help.tsx
+app/settings/index.tsx
+app/settings/language.tsx
+app/settings/notifications-settings.tsx
+app/settings/notifications.tsx
+app/settings/privacy.tsx
+app/settings/security.tsx
+app/settings/support-chat.tsx
+app/settings/terms.tsx
+app/shared/location-picker.tsx
+app/support/chat.tsx
+app/support/ticket.tsx
+app/voice/index.tsx
+app/wallet/cards.tsx
+app/wallet/hub.tsx
+app/wallet/topup.tsx
+app/wallet/transactions.tsx
+app/wallet/transfer.tsx
+app/wearables/hub.tsx
+## Matching API/navigation markers
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/chat.tsx:28:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/chat.tsx:50:    apiFetch<any[]>('/support/chat')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/chat.tsx:84:      const res = await apiFetch<any>('/support/chat', { method: 'POST', body: JSON.stringify({ message: text }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/chat.tsx:269:                const up = await apiFetch<any>('/media/upload', { method: 'POST', body: formData });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/ticket.tsx:17:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/ticket.tsx:26:    apiFetch<any[]>('/support/tickets')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/ticket.tsx:44:          onPress={() => router.push("/support/chat")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/support/ticket.tsx:69:              onPress={() => router.push("/support/chat")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:29:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:59:      const res = await apiFetch(`/community/posts?page=1&limit=20${qs}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:60:      const fetchedPosts = Array.isArray(res) ? res : res.posts || [];
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:61:      setPosts(fetchedPosts);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:74:      await apiFetch("/community/posts", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:172:                router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:24:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:53:      const res = await apiFetch(`/community/posts/${postId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:68:      const res = await apiFetch(`/community/posts/${postId}/vote`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:87:      const res = await apiFetch(`/community/posts/${postId}/comment`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/hub.tsx:28:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/hub.tsx:71:      const res = await apiFetch("/medical-reports/mine?limit=100");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/hub.tsx:179:                  router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/hub.tsx:238:                      router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/hub.tsx:251:                      router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/timeline.tsx:23:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/timeline.tsx:29:// Timeline events fetched from API
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/timeline.tsx:43:        const res = await apiFetch('/medical-reports/timeline');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/timeline.tsx:89:          onPress={() => router.push("/reports/passport" as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/ai-analysis.tsx:19:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/ai-analysis.tsx:37:        const res = await apiFetch("/ai/analyze-report", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/ai-analysis.tsx:154:                onPress={() => router.push("/(tabs)/consultations")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/view-report.tsx:26:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/view-report.tsx:70:        const res = await apiFetch(`/reports/${params.id}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/view-report.tsx:246:            router.push({ pathname: "/reports/ai-analysis", params: { id: report.id } })
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/passport.tsx:24:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/passport.tsx:38:    apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/passport.tsx:39:    apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:13:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:20:  { icon: 'calendar', label: 'مواعيدي', route: '/consultations/appointments', color: '#0284C7' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:23:  { icon: 'shield', label: 'التأمين الطبي', route: '/profile/insurance', color: '#4F46E5' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:34:    router.replace('/(auth)/welcome');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:44:    apiFetch('/loyalty/account')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:61:          {!isGuest && <IconButton icon="edit" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/edit-profile')} />}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:95:                  router.push(item.route as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/addresses.tsx:15:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/addresses.tsx:29:        const data = await apiFetch("/users/me/addresses");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/addresses.tsx:46:      await apiFetch(`/users/me/addresses/${id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:16:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:40:      const data = await apiFetch("/users/me/insurance");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:61:      const list = await apiFetch("/insurance/companies");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:73:      const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:96:      const saved = await apiFetch("/users/me/insurance", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/index.tsx:37:        router.replace("/(auth)/welcome");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/index.tsx:39:        router.replace("/(tabs)");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/index.tsx:42:      router.replace("/(auth)/welcome");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/index.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/index.tsx:23:    apiFetch('/home/offers')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/index.tsx:59:            <TouchableOpacity key={o.id || i} activeOpacity={0.85} onPress={() => o.id && router.push(`/offers/${o.id}`)}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/[id].tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/[id].tsx:30:    apiFetch<any>(`/offers/${offerId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/[id].tsx:37:    apiFetch<any>(`/promotions/offers/${offerId}/providers`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/[id].tsx:62:      router.push({ pathname: '/consultations/book/[id]', params: { id: p.id } } as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:14:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:61:      const acc = await apiFetch('/loyalty/account');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:65:      const txRes = await apiFetch('/loyalty/transactions?page=1');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:68:      const configRes = await apiFetch('/loyalty/config').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:74:      const rewardsRes = await apiFetch('/loyalty/rewards').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:113:            <IconButton icon="info" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/loyalty/leaderboard')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:114:            <IconButton icon="redeem" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/loyalty/rewards')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:268:              onPress={() => router.push('/loyalty/rewards')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:294:                        await apiFetch(`/loyalty/rewards/${rid}/claim`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/referrals.tsx:27:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/referrals.tsx:53:      const res = await apiFetch("/referrals/my");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/referrals.tsx:86:      await apiFetch("/referrals/apply", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/challenges.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/challenges.tsx:30:      const res = await apiFetch('/loyalty/challenges');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/challenges.tsx:52:      await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:13:// Rewards fetched from API
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:30:      const acc = await apiFetch('/loyalty/account');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:33:      const catalog = await apiFetch('/loyalty/rewards');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:59:              const res = await apiFetch(`/loyalty/rewards/${reward.id}/claim`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/leaderboard.tsx:18:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/leaderboard.tsx:36:    apiFetch('/loyalty/leaderboard?limit=50')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-timeline.tsx:10:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-timeline.tsx:52:      const res = await apiFetch("/ai/triage/history");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-timeline.tsx:96:          <Button label="فحص الأعراض الآن" variant="gradient" icon="stethoscope" onPress={() => router.push("/ai/symptom-checker")} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:6://   /care/appointments · /health/vitals/summary · /health/chronic-meds · /health/trends
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:16:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:37:        apiFetch('/care/appointments').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:38:        apiFetch('/health/vitals/summary').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:39:        apiFetch('/health/chronic-meds').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:40:        apiFetch('/health/trends').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:103:            <TouchableOpacity onPress={() => router.push('/health/vitals-log')} style={[styles.primaryBtn, { backgroundColor: colors.primary }]}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:179:                      <TouchableOpacity onPress={() => router.push('/health/trends')} style={[styles.recBox, { backgroundColor: colors.primary + '10' }]}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:217:          <TouchableOpacity onPress={() => router.push('/health/trends')} style={[styles.primaryBtn, { backgroundColor: colors.primary }]}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:220:          <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/skin-analysis.tsx:13:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/skin-analysis.tsx:90:      const res = await apiFetch<any>('/ai/skin-analysis', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/skin-analysis.tsx:221:            <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:87:      const res = await apiFetch<any>('/ai/ocr-translate', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:239:                      <Button label={med.price != null ? `اطلب — ${med.price} ر.س` : 'اطلب من الصيدلية'} variant="primary" icon="shopping_cart" size="sm" full={false} onPress={() => router.push('/(tabs)/pharmacy')} style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:240:                      <Button label="تفاصيل" variant="outline" icon="info" size="sm" full={false} onPress={() => router.push('/pharmacy/product-detail')} style={{ flex: 1 }} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:248:            <TouchableOpacity onPress={() => router.push('/(tabs)/pharmacy')} style={{ borderRadius: 18, overflow: 'hidden' }}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:259:              <Button label="إضافة للتذكيرات" variant="outline" icon="bell" onPress={() => router.push('/health/medication-reminder-add')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/prescription-translator.tsx:260:              <Button label="مشاركة مع الطبيب" variant="ghost" icon="share" onPress={() => router.push('/consultations/share-report')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/chat-doctor.tsx:16:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/chat-doctor.tsx:77:      const res = await apiFetch<any>('/ai/triage/chat', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/chat-doctor.tsx:106:      router.push('/(tabs)/consultations');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/triage.tsx:9:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/triage.tsx:51:      const res = await apiFetch<any>('/ai/triage/chat', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/triage.tsx:67:            actionRoute: u === 'emergency' ? '/emergency' : '/(tabs)/consultations',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/triage.tsx:161:                  router.push('/emergency');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-checker.tsx:29:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-checker.tsx:191:      const res = await apiFetch<any>("/ai/triage", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-checker.tsx:334:              onPress={() => router.push("/(tabs)/consultations")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-checker.tsx:425:            onPress={() => router.push("/(tabs)/consultations")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-checker.tsx:443:            onPress={() => router.push("/ai/symptom-timeline")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:90:      const rows = await apiFetch<any[]>('/notifications');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:107:    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:114:      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:120:      if (translated) router.push({ pathname: translated.pathname as any, params: translated.params || {} });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:137:          else router.replace('/');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:8:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:54:      apiFetch(`/home/search?q=${encodeURIComponent(query)}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:84:      router.push(`/consultations/doctor/${id}` as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:86:      router.push('/(tabs)/health' as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:89:      router.push({ pathname: '/pharmacy/product-detail', params: { id } } as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:91:      router.push({ pathname: '/diagnostics/test-detail', params: { id } } as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:93:      router.push({ pathname: '/diagnostics/test-detail', params: { id, type: 'radiology' } } as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:95:      router.push(`/articles/${r.slug || id}` as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:97:      router.push('/insurance/hub' as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:99:      router.push({ pathname: '/community/post-detail', params: { id } } as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:101:      router.push({ pathname: '/family/member-health', params: { id } } as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/voice/index.tsx:28:    route: "/consultations/doctor-search",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/voice/index.tsx:52:    route: "/consultations/appointments",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/voice/index.tsx:101:            onPress={() => router.push(a.route)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:23:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:34:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:47:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:69:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:82:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:95:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/services/index.tsx:22:      { title: 'استشارات الأطباء', desc: 'عيادة، فيديو، أو زيارة منزلية', icon: 'stethoscope', route: '/(tabs)/consultations' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/services/index.tsx:60:      { title: 'التأمين الطبي', desc: 'وثيقتك وتغطيتك التأمينية', icon: 'shield', route: '/insurance' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/services/index.tsx:91:                  onPress={() => router.push(item.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/search.tsx:15:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/search.tsx:29:        const res = await apiFetch("/labs/services");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/search.tsx:97:                  router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/cart.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/cart.tsx:30:      apiFetch(`/labs/compatible-providers?testIds=${ids}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/cart.tsx:192:              (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName, labId: selectedLab } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:11:import { apiFetch } from '../../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:25:    const fetchData = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:28:          apiFetch(`/providers/${id}`),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:29:          apiFetch(`/labs/services?providerId=${id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:40:    if (id) fetchData();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:136:               onPress={() => (router.push as any)(`/diagnostics/test-detail?id=${test.id}&labId=${id}`)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/technician-tracking.tsx:18:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/technician-tracking.tsx:35:      apiFetch(`/labs/bookings/${bookingId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-success.tsx:88:        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary, marginBottom: 16 }]} onPress={() => router.replace('/diagnostics/orders' as never)}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-success.tsx:93:        <TouchableOpacity style={[styles.secondaryBtn, { borderColor: colors.primary }]} onPress={() => router.push('/(tabs)')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:15:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:27:    const fetchOrders = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:31:          apiFetch("/labs/bookings/mine").catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:32:          apiFetch("/radiology/bookings/mine").catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:58:    fetchOrders();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:213:                  (router.push as any)(`/diagnostics/sample-tracking?bookingId=${order.id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:15:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:23:  const fetchResults = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:28:        apiFetch<any[]>("/labs/bookings/mine").catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:29:        apiFetch<any[]>("/radiology/reports/mine").catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:41:    fetchResults();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:142:                    ? router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:151:                      ? router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/my-results.tsx:155:                      : router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/results-history.tsx:9:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/results-history.tsx:17:  const fetchResults = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/results-history.tsx:20:      const data = await apiFetch<any[]>('/labs/bookings/mine');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/results-history.tsx:34:    fetchResults();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/results-history.tsx:72:                onPress={() => hasReport && router.push({ pathname: '/reports/view-report', params: { reportId: report.id || item.id, url: report.url || report.url_base64, name: report.name } })}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:35:    const fetchOrder = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:37:        const res = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:61:      fetchOrder();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:78:        await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:240:                  (router.push as any)({ 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:250:                onPress={() => (router.push as any)('/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:259:                (router.push as any)({ 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:24:  const fetchTracking = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:30:        const mine = await apiFetch<any[]>('/labs/bookings/mine');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:45:      const data = await apiFetch<any>(`/labs/bookings/${targetId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:64:    fetchTracking();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:86:        <Button label="تصفح التحاليل" onPress={() => router.push('/(tabs)/diagnostics')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/sample-tracking.tsx:148:          <TouchableOpacity onPress={() => router.replace('/(tabs)/diagnostics')} style={styles.backBtn}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:12:import { INSURANCE_COMPANIES_FULL, COVERAGE_CLASSES } from '../../src/constants/insurance';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:13:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:19:// Backend labs for matching will be fetched
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:44:    const fetchLabs = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:46:        const res = await apiFetch('/providers?type=lab');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:49:        console.log('Error fetching labs', e);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:52:    const fetchCompanies = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:55:        const res = await apiFetch('/insurance/companies');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:59:        console.log('Error fetching insurance companies', e);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:62:    fetchLabs();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:63:    fetchCompanies();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:109:        const res = await apiFetch('/ai/ocr-translate', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:172:                onPress={() => (router.push as any)('/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:334:                const res = await apiFetch('/orders/create', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:339:                (router.push as any)({ 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:340:                  pathname: '/diagnostics/insurance-approval',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/test-detail.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/test-detail.tsx:39:    apiFetch(endpoint)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/test-detail.tsx:152:              router.push('/diagnostics/cart' as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:9:import { INSURANCE_COMPANIES } from '../../src/constants/insurance';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:32:        const data = await apiFetch<any>('/cart');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:57:      const booking = await apiFetch<any>('/labs/bookings', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:84:      await apiFetch('/cart/clear', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:89:      await apiFetch('/cart/clear', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:97:        router.push({ pathname: '/insurance/approval-pending', params: { amount: String(total), bookingId: booking.id } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:100:          { text: 'موافق', onPress: () => router.push({ pathname: '/diagnostics/sample-tracking', params: { bookingId: booking.id } }) }
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:148:                <Card onPress={() => router.push('/delivery/address-select')} style={{ backgroundColor: colors.surfaceSecondary }}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:16:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:28:      apiFetch('/labs/packages'),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:29:      apiFetch('/labs/categories')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:111:              router.push(`/diagnostics/package-detail?id=${pkg.id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/book-sample.tsx:50:        <Button label="الذهاب إلى السلة" variant="gradient" size="lg" icon="cart" onPress={() => router.replace('/diagnostics/cart')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab-comparison.tsx:16:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab-comparison.tsx:34:      apiFetch(`/labs/services/${id}`),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab-comparison.tsx:35:      apiFetch(`/labs/compatible-providers?testIds=${id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab-comparison.tsx:82:      router.push("/diagnostics/cart");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/checkout.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/checkout.tsx:252:              const endpoint = isRadiology ? '/radiology/bookings' : '/labs/bookings';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/checkout.tsx:268:              const booking = await apiFetch(endpoint, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/checkout.tsx:273:              router.push({ pathname: '/diagnostics/booking-success', params: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:8:import { apiFetch } from '../../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:29:    // E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:31:    const fetchOrder = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:35:          const res = await apiFetch(`/radiology/bookings/${id}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:40:          const res = await apiFetch(`/labs/bookings/${id}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:51:    fetchOrder();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:61:          const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/package-detail.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/package-detail.tsx:27:    apiFetch(`/labs/packages/${id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-list.tsx:26:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-list.tsx:40:// Reminders fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-list.tsx:52:        const res = await apiFetch('/health/medications/reminders');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-list.tsx:183:                        router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-list.tsx:247:          onPress={() => router.push("/health/chronic-medications")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:15:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:52:      const res = await apiFetch('/health/reminders');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:73:      await apiFetch(`/health/reminders/${id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:92:            await apiFetch(`/health/reminders/${id}`, { method: 'DELETE' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:109:      await apiFetch('/health/reminders', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reminders.tsx:24:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reminders.tsx:44:      const res = await apiFetch('/health/reminders');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reminders.tsx:62:      await apiFetch(`/health/reminders/${id}/log`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reminders.tsx:271:          onPress={() => router.push("/health/refills" as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:18:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:60:        const data = await apiFetch<any>('/users/me/profile');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:125:      const res = await apiFetch<any>('/media/upload', { method: 'POST', body: formData });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:129:        await apiFetch('/users/me/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:142:      await apiFetch('/users/me/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/actionable-order.tsx:37:    router.push('/(tabs)/pharmacy');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/actionable-order.tsx:42:    router.push('/diagnostics/search');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/actionable-order.tsx:131:            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.info }]} onPress={() => router.push('/diagnostics/search')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/prescriptions.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/prescriptions.tsx:14:// Prescriptions fetched from API
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/prescriptions.tsx:26:        const res = await apiFetch('/health/prescriptions');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/prescriptions.tsx:42:          <IconButton icon="camera" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/pharmacy/rx-order')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/prescriptions.tsx:69:                    onPress={() => router.push('/(tabs)/pharmacy')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:79:      await apiFetch('/health/reminders', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:117:            <Button label="البحث في الصيدلية" variant="ghost" icon="search" size="sm" full={false} onPress={() => router.push('/(tabs)/pharmacy')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:118:            <Button label="من وصفة طبية" variant="ghost" icon="prescriptions" size="sm" full={false} onPress={() => router.push('/health/prescriptions')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:37:          apiFetch('/users/me/profile').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:38:          apiFetch('/health/emergency-contacts').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:39:          apiFetch('/health/chronic-meds').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:199:            <TouchableOpacity onPress={() => router.push('/health/emergency-contacts')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:246:          onPress={() => router.push('/health/edit-profile')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:21:    const fetchMeds = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:23:        const res = await apiFetch('/health/chronic-meds');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:26:        console.log('Error fetching chronic meds', e);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:29:    fetchMeds();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:36:    router.push({ pathname: '/(tabs)/pharmacy', params: { search: med.name } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:44:          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/medication-reminder-add')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:108:        <Button label="إضافة دواء مزمن جديد" variant="outline" icon="add" onPress={() => router.push('/health/medication-reminder-add')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-score.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-score.tsx:34:      const res = await apiFetch('/health/sleep?limit=30');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-score.tsx:117:                    onPress={() => router.push('/health/sleep-tracker')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:26:    apiFetch('/health/reminders?active=1')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:67:              const res = await apiFetch(`/health/reminders/${id}/refill`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:75:                  [{ text: 'تتبع الطلب', onPress: () => router.push('/pharmacy/order-tracking') }, { text: 'حسناً', style: 'cancel' }],
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:85:                  { text: 'إضافة عنوان', onPress: () => router.push('/profile/addresses') }, { text: 'إلغاء', style: 'cancel' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:188:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:13:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:86:        const p = await apiFetch("/users/me/profile");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:124:      await apiFetch("/users/me/profile", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:26:          apiFetch('/health/chronic-diseases').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:27:          apiFetch('/health/vitals').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:44:          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/edit-profile')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:141:                <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:173:          <TouchableOpacity onPress={() => router.push('/health/vitals')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:26:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:80:      const grp = await apiFetch("/family/my-group");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:82:      const mems = await apiFetch("/family/members");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:99:      await apiFetch("/family/create", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:194:            onPress={() => router.push("/family/join")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:208:                onPress={() => router.push(q.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:232:                  router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:264:                        router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:274:                    onPress={() => router.push("/family/chat")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:283:            onPress={() => router.push("/family/invite")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:36:      const res = await apiFetch('/health/sleep?limit=30');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:71:      await apiFetch('/health/sleep', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/trends.tsx:30:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/trends.tsx:141:        const res = await apiFetch('/health/trends');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:21:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:38:      const res = await apiFetch('/health/emergency-contacts');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:56:      const doc = await apiFetch('/health/emergency-contacts', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:83:            await apiFetch(`/health/emergency-contacts/${c.id}`, { method: 'DELETE' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reports.tsx:13:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reports.tsx:25:        const res = await apiFetch('/health/reports');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reports.tsx:56:            onPress={() => router.push({ pathname: '/reports/view-report', params: { id: item.id } })}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medications.tsx:111:            onPress={() => router.push(m.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:33:// Chart data fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:56:          apiFetch(`/health/vitals/chart?vital=${vital}`).catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:57:          apiFetch(`/health/vitals/recent?vital=${vital}`).catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:95:      await apiFetch('/health/vitals', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:203:        <Card onPress={() => router.push('/health/conditions-allergies')} style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:45:        apiFetch('/wearables/devices').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:46:        apiFetch('/wearables/data').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:62:      await apiFetch('/wearables/devices', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:97:          <IconButton icon="sleep" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/sleep-tracker')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:78:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:87:    apiFetch("/health/vitals/summary")
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:133:              onPress={() => router.push("/health/vitals-log")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:174:          onPress={() => router.push("/health/vitals-log")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:180:          onPress={() => router.push("/health/vitals-log")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:183:          onPress={() => router.push("/health/conditions-allergies")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reviews/index.tsx:25:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reviews/index.tsx:64:      await apiFetch('/patient-ux/review', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:40:    apiFetch('/mental-health/mood?days=7')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:53:      await apiFetch('/mental-health/mood', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/hub.tsx:65:    route: "/(tabs)/consultations",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/hub.tsx:103:            onPress={() => router.push(f.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/meditation.tsx:14:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/meditation.tsx:16:// Sessions fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/meditation.tsx:42:    apiFetch('/mental-health/meditation')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/meditation.tsx:69:            apiFetch('/mental-health/meditation', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/breathing.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/breathing.tsx:62:            apiFetch('/mental-health/breathing', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/therapist-match.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/therapist-match.tsx:16:// Therapists fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/therapist-match.tsx:31:      const res = await apiFetch<any[]>('/doctors');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/therapist-match.tsx:106:                <Button label="تصفح الأطباء" variant="outline" size="sm" full={false} onPress={() => router.push('/(tabs)/consultations')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/therapist-match.tsx:111:              <Card key={t.id} onPress={() => router.push({ pathname: '/consultations/doctor/[id]', params: { id: t.id } })}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/therapist-match.tsx:139:                  <Button label="احجز الآن" variant="primary" size="sm" full={false} onPress={() => router.push({ pathname: '/consultations/booking-confirm', params: { doctorId: t.id } })} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/crisis-support.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/crisis-support.tsx:13:// Hotlines fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/crisis-support.tsx:47:    // E2: single fetch — backend returns { user_contacts, default_contacts }.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/crisis-support.tsx:49:    apiFetch('/mental-health/crisis-contacts')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/crisis-support.tsx:137:          <TouchableOpacity key={i} onPress={() => router.push(tool.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:13:// Questions fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:26:    apiFetch('/mental-health/assessment-questions')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:48:      await apiFetch('/mental-health/assessment', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:86:                onPress={() => r.action?.includes('طبيب') ? router.push('/(tabs)/consultations') : router.push('/mental-health/breathing')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:25:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:48:      const res = await apiFetch(`/articles?${params.toString()}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:58:    apiFetch("/articles/categories")
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:88:        <IconButton icon="bookmark" onPress={() => router.push("/articles/bookmarks")} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:158:              onPress={() => router.push({ pathname: "/articles/[slug]", params: { slug: a.slug } })}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/bookmarks.tsx:18:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/bookmarks.tsx:33:      const res = await apiFetch("/articles/bookmarks/mine");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/bookmarks.tsx:78:          <Button label="تصفح المقالات" variant="gradient" icon="document" onPress={() => router.push("/articles")} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/bookmarks.tsx:86:              onPress={() => router.push({ pathname: "/articles/[slug]", params: { slug: a.slug } })}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:19:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:38:      const res = await apiFetch(`/articles/${encodeURIComponent(String(slug))}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:42:        const rel = await apiFetch(`/articles?category=${encodeURIComponent(res.category)}&limit=4`).catch(() => []);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:46:      const st = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/status`).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:59:      const res = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/toggle`, { method: "POST" });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:164:                  onPress={() => router.replace({ pathname: "/articles/[slug]", params: { slug: r.slug } })}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/drug-scanner/index.tsx:15:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/drug-scanner/index.tsx:35:    apiFetch('/health/medications')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/drug-scanner/index.tsx:47:      const res = await apiFetch('/ai/drug-interactions', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/drug-scanner/index.tsx:199:              <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:57:      apiFetch('/maternity/content').then(res => setContent(res)).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:59:      const res = await apiFetch('/maternity/profile').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:76:            router.replace('/maternity/maternity-setup');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:192:      const updated = await apiFetch('/maternity/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:217:      const updated = await apiFetch(`/maternity/checkups/${encodeURIComponent(week)}/toggle`, { method: 'PUT' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:264:            onPress={() => router.push((status === 'pregnant' ? '/maternity/baby-development' : '/maternity/ovulation-tracker') as any)} 
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:360:                    onPress={() => router.push('/maternity/ovulation-tracker' as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:376:              onPress={() => router.push(q.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:392:                <TouchableOpacity onPress={() => router.push('/maternity/baby-development')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:464:                        onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:513:                onPress={() => router.push('/(tabs)/diagnostics' as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/ovulation-tracker.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/ovulation-tracker.tsx:231:      await apiFetch('/maternity/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/ovulation-tracker.tsx:247:    router.replace('/maternity/hub');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:45:      let res = await apiFetch('/maternity/profile').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:95:      const updated = await apiFetch('/maternity/kicks', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:130:          const updated = await apiFetch('/maternity/contractions', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:154:      const updated = await apiFetch(`/maternity/checkups/${encodeURIComponent(week)}/toggle`, { method: 'PUT' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:295:          <Button label="استشارة طبيب نساء وولادة" variant="gradient" icon="doctor" onPress={() => router.push('/(tabs)/consultations')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:296:          <Button label="خطة تغذية للحامل" variant="outline" icon="food" onPress={() => router.push('/nutrition/ai-plan-builder')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/maternity-setup.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/maternity-setup.tsx:177:      const res = await apiFetch('/maternity/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/maternity-setup.tsx:190:      router.replace('/maternity/hub');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/maternity-setup.tsx:196:      router.replace('/maternity/hub');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-development.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-development.tsx:358:        let profile = await apiFetch('/maternity/profile').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:12:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:41:      const res = await apiFetch('/maternity/infant-growth', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:64:    fetchProfile();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:67:  const fetchProfile = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:70:      const res = await apiFetch('/maternity/profile');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:81:      // Attempt to fetch vaccines from specific endpoint if not in profile
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:82:      const vacRes = await apiFetch('/maternity/vaccines').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:274:            onPress={() => router.push('/(tabs)/consultations')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:157:    const fetchToken = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:168:    if (id) fetchToken();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:13:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:80:      safe(apiFetch('/care/appointments/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:81:      safe(apiFetch('/orders/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:82:      safe(apiFetch('/labs/bookings/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:83:      safe(apiFetch('/radiology/bookings/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:84:      safe(apiFetch('/home-care/bookings/my')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:85:      safe(apiFetch('/insurance/claims')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:86:      safe(apiFetch('/pharmacy/returns')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:87:      safe(apiFetch('/emergency/my/active')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:100:        route: { pathname: '/consultations/appointment-detail', params: { appointmentId: a.id } },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:145:        route: { pathname: '/insurance/claim-tracking' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:257:                onPress={() => it.route && router.push(it.route)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:25:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:40:      const res = await apiFetch<any>("/ai/analyze-meal", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:63:      const res = await apiFetch<any>("/ai/analyze-meal", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:79:      await apiFetch("/nutrition/meals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:91:      router.push("/nutrition/daily-tracker");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:93:      router.push("/nutrition/daily-tracker");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/food-scanner.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/food-scanner.tsx:41:      const res = await apiFetch<any>('/ai/analyze-meal', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/food-scanner.tsx:70:      await apiFetch('/nutrition/meals', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/food-scanner.tsx:82:      router.push('/nutrition/daily-tracker');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/food-scanner.tsx:84:      router.push('/nutrition/daily-tracker');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:17:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:19:// Metrics fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:27:    apiFetch("/nutrition/profile")
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:150:          onPress={() => router.push("/nutrition/body-target")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:156:          onPress={() => router.push("/nutrition/ai-plan-builder")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/hub.tsx:99:    route: "/(tabs)/consultations",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/hub.tsx:137:            onPress={() => router.push(f.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/exercise-plan.tsx:13:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/exercise-plan.tsx:44:      const res = await apiFetch('/ai/generate-exercise-plan', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:21:// Foods fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:35:    apiFetch('/nutrition/foods')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:53:      await apiFetch('/nutrition/meals', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:64:      router.replace('/nutrition/daily-tracker');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:128:        <TouchableOpacity onPress={() => router.push('/nutrition/food-scanner')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/water-tracker.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/water-tracker.tsx:37:      const res = await apiFetch<WaterData>(`/nutrition/water?date=${today}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/water-tracker.tsx:52:      await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml: size.ml }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:29:    apiFetch('/nutrition/profile')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:42:      await apiFetch('/nutrition/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:105:        <Button label="إنشاء خطة غذائية" variant="outline" icon="robot" onPress={() => router.push('/nutrition/ai-plan-builder')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:106:        <Button label="عرض هيكل الجسم" variant="outline" icon="user" onPress={() => router.push('/nutrition/body-composition')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:33:      const data = await apiFetch<DailySummary>(`/nutrition/daily-summary?date=${today}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:50:      await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:101:              onPress={() => !meal ? router.push({ pathname: '/nutrition/log-meal', params: { meal_type: type } } as any) : 'transparent'}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:148:        <Card onPress={() => router.push('/nutrition/exercise-plan')} style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:161:        <Button label="تحليل وجبة بالـ AI" variant="outline" icon="robot" onPress={() => router.push('/nutrition/calorie-analyzer')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:50:      const res = await apiFetch<any>('/ai/generate-diet-plan', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:64:      await apiFetch('/nutrition/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:195:            <Button label="حفظ الخطة" variant="gradient" size="lg" icon="download" onPress={() => router.push('/nutrition/nutrition-plan')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:196:            <Button label="إنشاء خطة تمارين مناسبة" variant="outline" icon="run" onPress={() => router.push('/nutrition/exercise-plan')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-meal-planner.tsx:15:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-meal-planner.tsx:29:// Data fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-meal-planner.tsx:51:      try { profile = await apiFetch('/nutrition/profile'); } catch {}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-meal-planner.tsx:64:      const res = await apiFetch<any>('/ai/generate-diet-plan', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:11:import { apiFetch } from '../../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:16:  doctor: (id) => ({ pathname: '/consultations/doctor-profile', params: { id } }),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:17:  facility: (id) => ({ pathname: '/consultations/clinic/[id]', params: { id } }),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:30:        const entity = await apiFetch(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:35:          router.replace(factory(id));
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:48:    router.replace({ pathname: '/search', params: { q: String(slug || '').replace(/-/g, ' ') } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:25:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:82:        const data = await apiFetch("/users/me/addresses");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:170:      const saved = await apiFetch("/users/me/addresses", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:15:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:83:    const fetchTracking = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:85:        const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:91:    fetchTracking();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:92:    // E2: poll the live API every 15s (was: fetch once + a fake local ETA countdown)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:93:    const interval = setInterval(fetchTracking, 15000);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:131:          <TouchableOpacity style={{ backgroundColor: '#23B5CE', width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12 }} onPress={() => router.push('/(tabs)')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:181:          onPress={() => router.push("/(tabs)")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-info.tsx:10:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-info.tsx:27:    apiFetch(`/home-care/services/${serviceId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-info.tsx:55:  const goBook = () => router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:9:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:32:  const fetchNurses = async (sortType: string) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:35:      const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:45:    fetchNurses(currentSort);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:51:    fetchNurses(type);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:151:                      router.push({ pathname: '/nursing/nurse-profile', params: { nurseId: nurse.id, flow, serviceId } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:216:                  router.push({ pathname: '/nursing/nurse-profile', params: { nurseId: selectedNurseForLock, flow, serviceId } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:8:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:86:    const fetchData = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:88:        const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:92:          // Real coverage check (endpoint /home-care/insurance/verify does not exist)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:93:          const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:100:    fetchData();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:133:      const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:139:        router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:158:        <TouchableOpacity style={styles.successBtn} onPress={() => router.push('/(tabs)')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:253:            <TouchableOpacity onPress={() => router.push('/delivery/address-select')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:2:// app/payments/processing.tsx
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:143:          const res = await apiFetch<{ status: string; balance?: number; amount?: number }>(
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:149:            router.replace({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:150:              pathname: '/payments/success',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:156:            router.replace({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:157:              pathname: '/payments/failed',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:168:        const endpoint = isTxn ? `/payments/verify/${moyasarId}` : `/moyasar/payments/sync/${moyasarId}`;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:170:        const res = await apiFetch<{
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:181:          router.replace({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:182:            pathname: '/payments/success',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:195:          router.replace({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:196:            pathname: '/payments/failed',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:412:                router.replace({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/processing.tsx:413:                  pathname: '/payments/failed',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/failure.tsx:78:            onPress={() => router.replace("/(tabs)")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/failed.tsx:2:// app/payments/failed.tsx
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/failed.tsx:77:          onPress={() => router.push("/wallet/hub")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/failed.tsx:82:        <TouchableOpacity onPress={() => router.replace("/(tabs)")}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:2:// app/payments/success.tsx
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:85:            if (apptId) router.push({ pathname: '/consultations/booking-pending', params: { appointmentId: apptId, visitType: vt } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:86:            else if (vt === 'clinic') router.push('/consultations/clinic-location');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:87:            else if (vt === 'home') router.push('/consultations/home-visit-tracking');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:88:            else router.push({ pathname: '/consultations/booking-success', params: { visitType: vt } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:98:            onPress={() => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: (params.bookingId || '') as string } })}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:107:            onPress={() => router.replace('/wallet/hub')}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/payments/success.tsx:114:        <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={{ borderRadius: 16, overflow: 'hidden' }}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:26:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:41:// Providers will be fetched from API
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:166:  const fetchProviders = useCallback(async (lat?: number, lng?: number) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:173:      const res = await apiFetch(`/providers/map?${query.toString()}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:216:        const ins = await apiFetch('/user/insurance');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:219:      // Providers fetched after getting location
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:224:  // ── Get user location on mount + fetch nearby providers
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:230:          // Still fetch providers with default coords
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:231:          await fetchProviders();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:242:        await fetchProviders(coord.lat, coord.lng);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:244:        await fetchProviders();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:614:                onPress={() => { closeSheet(); router.push('/health/edit-profile'); }} style={[styles.insBanner, { backgroundColor: isDark ? 'rgba(240,105,92,0.15)' : '#FEEFED' } ]}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:638:                    router.push({ pathname: '/consultations/doctor-profile', params: { doctorId: selectedProvider.id } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:640:                    router.push('/(tabs)/pharmacy');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:642:                    router.push('/diagnostics/booking-confirm');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:644:                    router.push('/(tabs)/consultations');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:646:                    router.push('/(tabs)/nursing');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/scan.tsx:39:    router.replace({ pathname: '/family/join', params: { code } });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:24:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:49:      const res = await apiFetch("/family/calendar");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:71:              await apiFetch("/family/calendar/event", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:101:              await apiFetch(`/family/calendar/event/${id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:25:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:61:// Members fetched dynamically
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:77:      const mems = await apiFetch("/family/members");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:101:            onPress={() => router.push("/family/invite")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:115:            onPress={() => router.push("/(tabs)/index" as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:136:                onPress={() => router.push(q.route as any)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:160:                  router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:192:                        router.push({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:202:                    onPress={() => router.push("/family/chat")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:211:            onPress={() => router.push("/family/invite")}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:11:import { apiFetch } from '../../src/utils/api';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:46:      const res = await apiFetch('/family/chat/messages');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:62:        const profile = await apiFetch('/users/me/profile');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:67:        const mems = await apiFetch('/family/members');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:86:      const res = await apiFetch('/family/chat/messages', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/join.tsx:18:import { apiFetch } from "../../src/utils/api";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/join.tsx:44:      const res = await apiFetch("/family/join", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/join.tsx:99:          onPress={() => router.replace("/health/family-hub")}

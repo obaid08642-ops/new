@@ -1,0 +1,17 @@
+Repository: https://github.com/obaid08642-ops/new.git
+Default branch: main
+Scope restriction: Nabdah repository only; unrelated repositories excluded.
+
+Branches observed:
+fix/e2e-operational-contracts-20260814
+m0-fixes
+m1-patient-integration
+m2-backend-apis
+m3-insurance-finance
+m4-extended-flows
+m5-admin-pages
+m6-seo-enterprise
+m7-quality
+main
+manus/on-live-reconciliation
+remediation/e2e-traceability-20260814

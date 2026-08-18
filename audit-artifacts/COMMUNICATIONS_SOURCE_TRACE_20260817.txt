@@ -1,0 +1,1280 @@
+===== /home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus =====
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:19: *  - Throws Error with the server's message when available — no silent fake fallbacks.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:59:  const serverMessage =
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:60:    err?.response?.data?.message ||
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:62:    err?.data?.message;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:63:  if (serverMessage) {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:64:    return new Error(Array.isArray(serverMessage) ? serverMessage.join('، ') : String(serverMessage));
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/utils/api.ts:70:  return new Error(err?.message || 'حدث خطأ غير متوقع');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:21:    "@livekit/react-native": "^2.11.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:22:    "@livekit/react-native-webrtc": "^144.1.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:55:    "expo-notifications": "~0.32.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:66:    "livekit-client": "^2.20.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:74:    "react-native-callkeep": "^3.1.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:89:    "react-native-webrtc": "^124.0.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package.json:94:    "socket.io-client": "^4.8.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:2:import { io, Socket } from 'socket.io-client';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:7:import { getOfflineMessages, removeOfflineMessage } from '../utils/offlineQueue';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:52:      const offlineMsgs = await getOfflineMessages();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:57:          await apiFetch(`/chats/threads/${m.threadId}/messages`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:61:              message_type: m.messageType,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:65:          await removeOfflineMessage(m.id);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:67:          console.warn('Syncing offline message failed, halting queue processing', err);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:96:        transports: ['websocket'],
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:105:        // Trigger offline message sync
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:123:      socketInstance.on('chat:typing:start', ({ thread_id, user_id }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:133:      socketInstance.on('chat:typing:stop', ({ thread_id, user_id }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:176:      socket.emit('chat:typing:start', { thread_id: threadId });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:183:      // Automatically stop typing after 3 seconds of no keypress
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:185:        socket.emit('chat:typing:stop', { thread_id: threadId });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:192:      socket.emit('chat:join', { thread_id: threadId });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/SocketContext.tsx:198:      socket.emit('chat:leave', { thread_id: threadId });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/babel.config.js:4:    // babel-preset-expo (SDK 54) automatically configures the Reanimated /
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/ConsultationsContext.tsx:1:import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/ConsultationsContext.tsx:21:  const fetchAppointments = useCallback(async (isRefresh = false) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/CartContext.tsx:6:import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/CartContext.tsx:75:  const addItem = useCallback(async (item: Omit<CartItem, 'qty'> & { qty?: number }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/CartContext.tsx:122:      // API call failed, ignore (guest fallback)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/CartContext.tsx:126:  const removeItem = useCallback(async (id: string) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/CartContext.tsx:139:  const updateQty = useCallback(async (id: string, delta: number) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/CartContext.tsx:165:  const clearCart = useCallback(async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/labMappers.ts:17:  ultrasound: { icon: 'waveform', color: '#26A69A' },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:11:interface Message {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:21:  const [messages, setMessages] = useState<Message[]>([
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:34:  const sendMessage = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:37:    const userMessage: Message = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:44:    setMessages(prev => [...prev, userMessage]);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:49:      const response = await HttpClient.post<{ response: string }>('/ai/triage/chat', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:50:        messages: messages.concat(userMessage).map(m => ({ role: m.role, content: m.content })),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:53:      const aiMessage: Message = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:60:      setMessages(prev => [...prev, aiMessage]);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:63:      const errorMessage: Message = {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:69:      setMessages(prev => [...prev, errorMessage]);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:76:  const renderMessage = ({ item }: { item: Message }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:79:      <View style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowAssistant]}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:118:        data={messages}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:120:        renderItem={renderMessage}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:142:            onSubmitEditing={sendMessage}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:150:            onPress={sendMessage}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:174:  messageRow: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:180:  messageRowUser: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai-assistant.tsx:183:  messageRowAssistant: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:1:import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:25:  addItem: (item: Omit<DiagnosticsCartItem, 'qty'> & { qty?: number }) => Promise<{ success: boolean; message?: string }>;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:49:  const addItem = useCallback(async (item: Omit<DiagnosticsCartItem, 'qty'> & { qty?: number }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:68:      return { success: false, message: 'Cart restricted' };
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:87:  const removeItem = useCallback(async (id: string, kind: 'lab' | 'radiology') => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:95:  const updateQty = useCallback(async (id: string, kind: 'lab' | 'radiology', delta: number) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/DiagnosticsCartContext.tsx:103:  const clearCart = useCallback(async (kind?: 'lab' | 'radiology') => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app.json:57:        "android.permission.POST_NOTIFICATIONS",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app.json:59:        "android.permission.MANAGE_OWN_CALLS",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app.json:81:          "remote-notification"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app.json:106:        "expo-notifications",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app.json:108:          "icon": "./assets/notification-icon.png",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app.json:110:          "sounds": []
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:3:export interface OfflineMessage {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:8:  messageType: 'text' | 'image' | 'voice' | 'file';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:12:const OFFLINE_QUEUE_KEY = '@nabdah_offline_messages';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:14:export async function getOfflineMessages(): Promise<OfflineMessage[]> {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:24:export async function addOfflineMessage(msg: OfflineMessage): Promise<void> {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:26:    const messages = await getOfflineMessages();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:27:    messages.push(msg);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:28:    await AsyncStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(messages));
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:34:export async function removeOfflineMessage(id: string): Promise<void> {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:36:    const messages = await getOfflineMessages();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/offlineQueue.ts:37:    const filtered = messages.filter(m => m.id !== id);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/_layout.tsx:4:// Polyfills must run before ANY other import (LiveKit expects DOMException).
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/_layout.tsx:28:import NotificationHandler from '../src/components/NotificationHandler';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/_layout.tsx:114:                      <NotificationHandler />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/AppContext.tsx:5:  useCallback,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/AppContext.tsx:66:  const refreshConfig = useCallback(async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/AppContext.tsx:110:  const setThemeMode = useCallback((m: ThemeMode) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/AppContext.tsx:117:  const toggleTheme = useCallback(() => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/context/AppContext.tsx:127:  const setLang = useCallback((l: LangCode) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/api.ts:43:// Auto guest provisioning: any call made without a valid token transparently
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/api.ts:87:  // No token at all → provision a device-bound guest session (except auth calls).
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/api.ts:133:      const m = errData?.message ?? errData?.error ?? null;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/api.ts:134:      // NestJS validation errors return message as ARRAY; some endpoints return
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:7:    "file": "settings/notifications-settings.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:11:    "file": "settings/support-chat.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:27:    "file": "settings/notifications.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:91:    "file": "pharmacy/chat-with-pharmacist.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:195:    "file": "health/family-chat.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:303:    "file": "family/chat.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:311:    "file": "family/voice-call.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:411:    "file": "support/chat.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:427:    "file": "ai/chat-doctor.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:463:    "file": "consultations/call-history.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:467:    "file": "consultations/post-call-rating.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:471:    "file": "consultations/incoming-call.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:487:    "file": "consultations/livekit-view.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:495:    "file": "consultations/chat-with-doctor.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:499:    "file": "consultations/video-call.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/rn_screens.json:811:    "file": "notifications/index.tsx",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/theme/ThemeEngine.ts:10:import { useCallback } from 'react';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/theme/ThemeEngine.ts:80:  const resolveThemeColor = useCallback(
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/theme/ThemeEngine.ts:91:  const resolveRadius = useCallback(
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/performance.tsx:1:import React, { useCallback, useMemo } from 'react';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/performance.tsx:70:// Debounce helper (for search inputs, API calls)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/performance.tsx:99:  let lastCall = 0;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/performance.tsx:103:    if (now - lastCall >= delay) {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/performance.tsx:104:      lastCall = now;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/sentry.ts:39:    console.warn('[Sentry] Init failed:', e.message);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/theme/index.ts:6:// through a remote config / API, and the rest of the system adapts automatically.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/theme/index.ts:313:// Deep Link scheme
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/theme/index.ts:315:export const DEEP_LINK_SCHEME = 'nabdahplus';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/tracking.tsx:127:        <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL('tel:997')}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/tracking.tsx:128:          <Icon name="call" size={18} color="#F0695C" />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/tracking.tsx:147:  callBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, backgroundColor: 'transparent', borderRadius: 14, height: 48, justifyContent: 'center', marginTop: 8 },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/prefetch.ts:10: * - Idle-time prefetch: requestIdleCallback equivalent via InteractionManager
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/LocalizedAlert.ts:7:/** Centralized Alert wrapper that localizes static title, message, and button labels. */
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/LocalizedAlert.ts:10:  message?: string,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/LocalizedAlert.ts:15:  return Alert.alert(translate(title) as string, translate(message) as string | undefined, localizedButtons, options);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos-active.tsx:84:              showLocalizedAlert('تعذر الإلغاء', e?.message || 'حدث خطأ أثناء إلغاء النداء.');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos-active.tsx:158:          <IconButton icon="call" bg={colors.primarySurface} color={colors.primary} onPress={() => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos-active.tsx:159:            // Real call only — dial the assigned unit's actual phone if the dispatch provided it.
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:1:import * as Notifications from 'expo-notifications';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:6:// Configure notification behavior
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:7:Notifications.setNotificationHandler({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:8:  handleNotification: async () => ({
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:10:    shouldPlaySound: true,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:17:export async function registerForPushNotificationsAsync(): Promise<string | null> {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:19:    console.log('Must use physical device for Push Notifications');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:24:    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:28:      const { status } = await Notifications.requestPermissionsAsync();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:33:      console.log('Failed to get push token for push notification!');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:43:        const nativeToken = await Notifications.getDevicePushTokenAsync();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:62:        tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:83:    // Set up Android notification channel for calls
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:85:      await Notifications.setNotificationChannelAsync('calls', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:86:        name: 'Calls',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:87:        importance: Notifications.AndroidImportance.MAX,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:90:        sound: 'default', // Can customize sound here
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:93:      await Notifications.setNotificationChannelAsync('default', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:95:        importance: Notifications.AndroidImportance.DEFAULT,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:108:export function initNotificationListeners(
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:109:  onNotificationReceived: (notification: Notifications.Notification) => void,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:110:  onNotificationResponse: (response: Notifications.NotificationResponse) => void,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:112:  // Listen for notifications received when app is open
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:113:  const incomingSubscription = Notifications.addNotificationReceivedListener(onNotificationReceived);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:115:  // Listen for notification clicks (app is in background or closed)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/notifications.ts:116:  const responseSubscription = Notifications.addNotificationResponseReceivedListener(onNotificationResponse);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:5:// @livekit/react-native is a NATIVE module — absent in Expo Go. A static
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:8:let LiveKitRoom: any = null;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:14:let LIVEKIT_NATIVE_OK = false;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:16:  const lk = require('@livekit/react-native');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:17:  LiveKitRoom = lk.LiveKitRoom;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:22:  Track = require('livekit-client').Track;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:23:  LIVEKIT_NATIVE_OK = !!LiveKitRoom;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:25:  LIVEKIT_NATIVE_OK = false;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:46:const liveKitUrl = process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://live.nabd.plus';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:48:const ActiveCallView = ({ onEndCall }: { onEndCall: () => void }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:78:    <View style={styles.callContainer}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:110:      {/* Call Controls */}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:124:          style={[styles.controlButton, styles.endCallButton]}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:125:          onPress={onEndCall}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:152:    if (!LIVEKIT_NATIVE_OK) {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:156:    // Fetch LiveKit token from backend
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:160:        const response = await HttpClient.post<{ token: string }>(`/calls/${id}/join`, {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:200:      <LiveKitRoom
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:201:        serverUrl={liveKitUrl}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:208:        <ActiveCallView onEndCall={handleDisconnect} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:209:      </LiveKitRoom>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:226:  callContainer: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/room/[id].tsx:282:  endCallButton: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:2:import React, { useState, useCallback } from "react";
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:35:  const handleSOS = useCallback(() => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:86:  const callNumber = useCallback((number: string) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:143:        {/* Quick Calls */}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:144:        <Animated.View entering={FadeInDown.delay(200)} style={st.quickCalls}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:148:          <View style={st.callGrid}>
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:177:                onPress={() => callNumber(item.number)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:179:                  st.callCard,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:187:                  style={[st.callIcon, { backgroundColor: item.color + "15" }]}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:234:            onPress={() => callNumber(EMERGENCY_NUMBERS.poison)}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:282:  quickCalls: { paddingHorizontal: 20 },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:283:  callGrid: { flexDirection: "row-reverse", gap: 10, flexWrap: "wrap" },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:284:  callCard: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos.tsx:293:  callIcon: {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:4:import * as Notifications from 'expo-notifications';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:5:import { registerForPushNotificationsAsync, initNotificationListeners } from '../utils/notifications';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:6:import { displayNativeIncomingCall } from '../utils/callkeep';
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:14:    notification_id: data?.notification_id,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:21: * M6 / ER-8 + ER-12: every notification must open its exact destination
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:31:  '/consultations/chat-with-doctor',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:44:  '/notifications',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:52:    case 'chat':
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:53:      return { pathname: '/consultations/chat-with-doctor', params: { doctorId: data.senderId, doctorName: data.senderName } };
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:79:export default function NotificationHandler() {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:86:    registerForPushNotificationsAsync();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:90:      if (data.type === 'incoming_call') {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:91:        displayNativeIncomingCall(data.sessionId, data.callerName || 'طبيب نبض', data.callType !== 'voice');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:104:      // Safe fallback: notifications center
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:105:      router.push('/notifications' as any);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:108:    // App launched by tapping a notification (terminated state)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:109:    Notifications.getLastNotificationResponseAsync().then(response => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:111:        const data = response.notification.request.content.data;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:118:    const handleNotificationClick = (response: Notifications.NotificationResponse) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:119:      const data = response.notification.request.content.data;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:125:    const handleForegroundNotification = (notification: Notifications.Notification) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:126:      const data = notification.request.content.data as any;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:128:      if (data && data.type === 'incoming_call') {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:129:        displayNativeIncomingCall(data.sessionId, data.callerName || 'طبيب نبض', data.callType !== 'voice');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:133:    // Listen to notification events
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:134:    const unsubscribe = initNotificationListeners(
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:135:      handleForegroundNotification,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/components/NotificationHandler.tsx:136:      handleNotificationClick
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/security.ts:135:  | 'CHAT_SESSION_START'
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/security.ts:136:  | 'CHAT_SESSION_END'
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/approval-pending.tsx:105:          <Button label="اتصل بشركة التأمين" variant="outline" icon="call" onPress={() => router.replace('/(tabs)/consultations')} />
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:5:let isCallKeepInitialized = false;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:6:let RNCallKeep: any = null;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:8:const getCallKeep = () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:9:  if (!RNCallKeep && Platform.OS !== 'web') {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:15:        RNCallKeep = require('react-native-callkeep').default;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:18:      console.warn('[CallKeep] Failed to load callkeep native module:', e.message);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:21:  return RNCallKeep;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:29:    maximumCallGroups: '1',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:30:    maximumCallsPerCallGroup: '1',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:43:export const initCallKeep = async () => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:45:  if (isCallKeepInitialized) return;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:47:  const callKeepInstance = getCallKeep();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:48:  if (!callKeepInstance) {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:49:    console.log('[CallKeep] CallKeep native module not available or running in Expo Go.');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:54:    await callKeepInstance.setup(options);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:55:    callKeepInstance.setAvailable(true);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:56:    isCallKeepInitialized = true;
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:57:    console.log('[CallKeep] Initialized successfully');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:59:    // Register CallKeep listeners
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:60:    callKeepInstance.addEventListener('answerCall', async ({ callUUID }: { callUUID: string }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:61:      console.log('[CallKeep] Answer call event received:', callUUID);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:62:      callKeepInstance.backToForeground();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:64:        pathname: '/consultations/video-call' as any,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:65:        params: { sessionId: callUUID },
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:69:    callKeepInstance.addEventListener('endCall', async ({ callUUID }: { callUUID: string }) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:70:      console.log('[CallKeep] End/Reject call event received:', callUUID);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:72:        await apiFetch(`/calls/${callUUID}/reject`, { method: 'POST' }).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:74:        console.warn('CallKeep reject endpoint failed', err);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:79:    console.warn('[CallKeep] Setup failed (likely in Expo Go):', e.message);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:83:export const displayNativeIncomingCall = async (sessionId: string, callerName: string, hasVideo = true) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:84:  await initCallKeep();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:86:  const callKeepInstance = getCallKeep();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:87:  if (!isCallKeepInitialized || !callKeepInstance) {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:88:    console.log('[CallKeep] CallKeep not initialized, falling back to React Native overlay screen');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:90:      pathname: '/consultations/incoming-call' as any,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:93:        callerName,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:94:        callType: hasVideo ? 'video' : 'voice',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:101:    callKeepInstance.displayIncomingCall(
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:103:      callerName,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:104:      callerName,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:109:    console.warn('[CallKeep] Failed to display native call:', e);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:111:      pathname: '/consultations/incoming-call' as any,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:114:        callerName,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:115:        callType: hasVideo ? 'video' : 'voice',
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:121:export const endNativeCall = (sessionId: string) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:122:  const callKeepInstance = getCallKeep();
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:123:  if (isCallKeepInitialized && callKeepInstance) {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:125:      callKeepInstance.endCall(sessionId);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/src/utils/callkeep.ts:129:export { RNCallKeep };
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13:        "@livekit/react-native": "^2.11.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:14:        "@livekit/react-native-webrtc": "^144.1.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:47:        "expo-notifications": "~0.32.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:58:        "livekit-client": "^2.20.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:66:        "react-native-callkeep": "^3.1.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:81:        "react-native-webrtc": "^124.0.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:86:        "socket.io-client": "^4.8.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:227:        "@babel/helper-optimise-call-expression": "^7.29.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:325:    "node_modules/@babel/helper-optimise-call-expression": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:327:      "resolved": "https://registry.npmjs.org/@babel/helper-optimise-call-expression/-/helper-optimise-call-expression-7.29.7.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:370:        "@babel/helper-optimise-call-expression": "^7.29.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:1612:    "node_modules/@callstack/react-theme-provider": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:1614:      "resolved": "https://registry.npmjs.org/@callstack/react-theme-provider/-/react-theme-provider-3.0.9.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:1625:    "node_modules/@callstack/react-theme-provider/node_modules/deepmerge": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:2872:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:2901:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3015:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3063:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3145:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3257:        "callsites": "^3.0.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3394:    "node_modules/@livekit/components-core": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3396:      "resolved": "https://registry.npmjs.org/@livekit/components-core/-/components-core-0.12.13.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3408:        "livekit-client": "^2.17.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3412:    "node_modules/@livekit/components-core/node_modules/loglevel": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3425:    "node_modules/@livekit/components-react": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3427:      "resolved": "https://registry.npmjs.org/@livekit/components-react/-/components-react-2.9.21.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3431:        "@livekit/components-core": "0.12.13",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3441:        "@livekit/krisp-noise-filter": "^0.2.12 || ^0.3.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3442:        "livekit-client": "^2.18.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3448:        "@livekit/krisp-noise-filter": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3453:    "node_modules/@livekit/mutex": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3455:      "resolved": "https://registry.npmjs.org/@livekit/mutex/-/mutex-1.1.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3459:    "node_modules/@livekit/protocol": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3461:      "resolved": "https://registry.npmjs.org/@livekit/protocol/-/protocol-1.46.6.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3468:    "node_modules/@livekit/react-native": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3470:      "resolved": "https://registry.npmjs.org/@livekit/react-native/-/react-native-2.11.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3478:        "@livekit/components-react": "^2.9.17",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3479:        "@livekit/mutex": "^1.1.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3494:        "@livekit/react-native-webrtc": "^144.1.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3495:        "livekit-client": "^2.19.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3500:    "node_modules/@livekit/react-native-webrtc": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3502:      "resolved": "https://registry.npmjs.org/@livekit/react-native-webrtc/-/react-native-webrtc-144.1.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3513:    "node_modules/@livekit/react-native-webrtc/node_modules/debug": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3530:    "node_modules/@livekit/react-native-webrtc/node_modules/ms": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3776:        "@radix-ui/react-use-callback-ref": "1.1.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3832:        "@radix-ui/react-use-callback-ref": "1.1.2"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:3998:        "@radix-ui/react-use-callback-ref": "1.1.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:4079:    "node_modules/@radix-ui/react-use-callback-ref": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:4081:      "resolved": "https://registry.npmjs.org/@radix-ui/react-use-callback-ref/-/react-use-callback-ref-1.1.2.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:4137:        "@radix-ui/react-use-callback-ref": "1.1.2"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:4488:        "use-latest-callback": "^0.2.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:4502:        "use-latest-callback": "^0.2.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:4529:        "use-latest-callback": "^0.2.4"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:5022:    "node_modules/@socket.io/component-emitter": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:5024:      "resolved": "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.1.2.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6239:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6256:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6257:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6278:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6298:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6319:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6320:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6341:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6360:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6378:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6379:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6400:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6417:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:6443:        "call-bind": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7084:    "node_modules/call-bind": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7086:      "resolved": "https://registry.npmjs.org/call-bind/-/call-bind-1.0.9.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7090:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7102:    "node_modules/call-bind-apply-helpers": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7104:      "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7115:    "node_modules/call-bound": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7117:      "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7121:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7131:    "node_modules/callsites": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7133:      "resolved": "https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7767:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7784:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:7801:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8339:        "call-bind-apply-helpers": "^1.0.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8436:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8508:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8509:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8530:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8597:        "call-bind": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8618:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8619:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:8684:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9384:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9460:    "node_modules/expect/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9462:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9903:    "node_modules/expo-notifications": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9905:      "resolved": "https://registry.npmjs.org/expo-notifications/-/expo-notifications-0.32.17.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:9950:        "use-latest-callback": "^0.2.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10395:        "is-callable": "^1.2.7"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10508:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10509:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10515:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10562:    "node_modules/get-caller-file": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10564:      "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10577:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:10648:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11221:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11237:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11238:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11261:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11294:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11314:    "node_modules/is-callable": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11316:      "resolved": "https://registry.npmjs.org/is-callable/-/is-callable-1.2.7.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11347:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11364:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11395:        "call-bound": "^1.0.4"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11420:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11454:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11498:        "call-bind": "^1.0.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11535:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11567:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11597:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11625:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11641:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11685:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11700:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11928:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:11952:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12000:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12045:        "callsites": "^3.1.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12228:    "node_modules/jest-circus/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12230:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12316:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12352:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:12569:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13108:    "node_modules/jest-message-util": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13110:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-29.7.0.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13224:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13279:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13324:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13357:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13637:    "node_modules/js-message": {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:13639:      "resolved": "https://registry.npmjs.org/js-message/-/js-message-1.0.7.tgz",
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/package-lock.json:14228:    "node_modules/livekit-client": {
+===== /home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider =====
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:7: useCallback, useRef, ReactNode
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:39:  const toggle = useCallback(() => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:77:  const set = useCallback((l: Lang) => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:83: const toggle = useCallback(() => set(lang === 'ar' ? 'en' : 'ar'), [lang, set]);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:85: const t = useCallback((k: TKey): string => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:144: const show = useCallback((msg: string, type: ToastType = 'success') => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:293:      if (!res.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:304:      return { ok: false, err: e?.message || t('serverErr') };
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:311:    const { success } = await LocalAuth.authenticateAsync({ promptMessage: 'Enable Biometric Login' });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/context/index.tsx:328:      const { success } = await LocalAuth.authenticateAsync({ promptMessage: 'Unlock Nabdah Plus' });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/jest.setup.js:7:    Sound: { createAsync: jest.fn() },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/jest.setup.js:22:jest.mock('@livekit/react-native', () => ({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/jest.setup.js:34:jest.mock('livekit-client', () => ({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/jest.setup.js:68:jest.mock('socket.io-client', () => ({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/app.json:51:        "POST_NOTIFICATIONS"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/app.json:72:        "expo-notifications",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/app.json:74:          "icon": "./assets/notification-icon.png",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/ContractModal.tsx:85:The Second Party agrees to the platform's commission rate which is deducted automatically from successful transactions.
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:1:import { setupPushNotifications } from "./src/utils/PushNotifications";
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:6:import React, { useState, useCallback, useEffect } from 'react';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:10:  'expo-notifications: Android Push notifications',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:11:  '`expo-notifications` functionality is not fully supported in Expo Go',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:36:      catch (e: any) { console.error(`[LazyScreen] Failed to load ${label}:`, e?.message || e); cached = null; }
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:144:  static getDerivedStateFromError(e: any) { return { error: String(e?.message || e) }; }
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/App.tsx:170:    setupPushNotifications().catch(() => { /* push unavailable (Expo Go) — non-critical */ });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/icons.tsx:31: chat: ['M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z'],
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/OtpModal.tsx:96:      setError(e.message || (AR ? 'حدث خطأ ما' : 'An error occurred'));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/OtpModal.tsx:131:              I18nManager.forceRTL flips 'row' automatically, so we compensate to keep LTR. */}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/jest.config.js:8:    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@livekit/.*|livekit-client))',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:96:    expect(mockPost).toHaveBeenCalledTimes(1);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:97:    const [url, payload] = mockPost.mock.calls[0] as unknown as [string, any];
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:115:    expect(mockPost).not.toHaveBeenCalled();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:116:    expect(mockShow).toHaveBeenCalledWith(expect.stringContaining('اختر'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:120:    mockPost.mockRejectedValueOnce({ response: { data: { message: 'server_error' } }, message: 'server_error' });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:135:    expect(mockPost).toHaveBeenCalledTimes(1);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/__tests__/ClinicalWorkflows.test.tsx:136:    expect(mockShow).toHaveBeenCalledWith('server_error', 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/ui.tsx:942: setErrorMsg(e.message || 'Network error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/ui.tsx:991: setErrorMsg(e.message || 'Upload failed');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package.json:18:    "@livekit/components-react": "^2.9.23",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package.json:19:    "@livekit/react-native": "^2.11.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package.json:20:    "@livekit/react-native-webrtc": "^144.1.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package.json:48:    "expo-notifications": "~0.32.17",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package.json:64:    "socket.io-client": "^4.8.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package.json:66:    "livekit-client": "^2.20.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/index.ts:1:// Polyfills must run before ANY other import (LiveKit expects DOMException).
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/SuccessScreen.tsx:10:  message?: string;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/SuccessScreen.tsx:15:export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/SuccessScreen.tsx:21:  const defaultMessage = AR
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/components/SuccessScreen.tsx:39:            {message || defaultMessage}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11:        "@livekit/components-react": "^2.9.23",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:12:        "@livekit/react-native": "^2.11.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13:        "@livekit/react-native-webrtc": "^144.1.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:42:        "expo-notifications": "~0.32.17",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:47:        "livekit-client": "^2.20.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:59:        "socket.io-client": "^4.8.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:197:        "@babel/helper-optimise-call-expression": "^7.29.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:295:    "node_modules/@babel/helper-optimise-call-expression": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:297:      "resolved": "https://registry.npmjs.org/@babel/helper-optimise-call-expression/-/helper-optimise-call-expression-7.29.7.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:340:        "@babel/helper-optimise-call-expression": "^7.29.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:2871:        "faye-websocket": "0.11.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3384:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3413:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3526:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3608:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3737:        "callsites": "^3.0.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3874:    "node_modules/@livekit/components-core": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3876:      "resolved": "https://registry.npmjs.org/@livekit/components-core/-/components-core-0.12.14.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3888:        "livekit-client": "^2.20.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3892:    "node_modules/@livekit/components-react": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3894:      "resolved": "https://registry.npmjs.org/@livekit/components-react/-/components-react-2.9.23.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3898:        "@livekit/components-core": "0.12.14",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3908:        "@livekit/krisp-noise-filter": "^0.2.12 || ^0.3.0 || ^0.4.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3909:        "livekit-client": "^2.20.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3915:        "@livekit/krisp-noise-filter": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3920:    "node_modules/@livekit/mutex": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3922:      "resolved": "https://registry.npmjs.org/@livekit/mutex/-/mutex-1.1.1.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3926:    "node_modules/@livekit/protocol": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3928:      "resolved": "https://registry.npmjs.org/@livekit/protocol/-/protocol-1.50.4.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3935:    "node_modules/@livekit/react-native": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3937:      "resolved": "https://registry.npmjs.org/@livekit/react-native/-/react-native-2.11.1.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3945:        "@livekit/components-react": "^2.9.17",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3946:        "@livekit/mutex": "^1.1.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3961:        "@livekit/react-native-webrtc": "^144.1.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3962:        "livekit-client": "^2.19.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3967:    "node_modules/@livekit/react-native-webrtc": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3969:      "resolved": "https://registry.npmjs.org/@livekit/react-native-webrtc/-/react-native-webrtc-144.1.1.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3980:    "node_modules/@livekit/react-native-webrtc/node_modules/debug": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:3997:    "node_modules/@livekit/react-native-webrtc/node_modules/ms": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4182:        "@radix-ui/react-use-callback-ref": "1.1.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4223:        "@radix-ui/react-use-callback-ref": "1.1.2"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4341:        "@radix-ui/react-use-callback-ref": "1.1.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4409:    "node_modules/@radix-ui/react-use-callback-ref": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4411:      "resolved": "https://registry.npmjs.org/@radix-ui/react-use-callback-ref/-/react-use-callback-ref-1.1.2.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4887:        "use-latest-callback": "^0.2.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4907:        "use-latest-callback": "^0.2.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4934:        "use-latest-callback": "^0.2.4"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4993:    "node_modules/@socket.io/component-emitter": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:4995:      "resolved": "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.1.2.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5003:      "deprecated": "DEPRECATED: This package is no longer maintained.\nPlease use the built-in Jest matchers available in @testing-library/react-native v12.4+.\n\nSee migration guide: https://callstack.github.io/react-native-testing-library/docs/migration/jest-matchers",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5325:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5365:    "node_modules/@types/jest/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5367:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5732:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5748:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5767:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5768:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5789:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:5815:        "call-bind": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6337:    "node_modules/call-bind": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6339:      "resolved": "https://registry.npmjs.org/call-bind/-/call-bind-1.0.9.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6343:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6355:    "node_modules/call-bind-apply-helpers": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6357:      "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6368:    "node_modules/call-bound": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6370:      "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6374:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6384:    "node_modules/callsites": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6386:      "resolved": "https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6928:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6945:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:6962:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7269:        "call-bind-apply-helpers": "^1.0.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7323:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7388:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7389:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7410:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7455:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7495:        "call-bind": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7557:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:7757:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8105:    "node_modules/expo-notifications": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8107:      "resolved": "https://registry.npmjs.org/expo-notifications/-/expo-notifications-0.32.17.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8152:        "use-latest-callback": "^0.2.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8320:    "node_modules/faye-websocket": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8322:      "resolved": "https://registry.npmjs.org/faye-websocket/-/faye-websocket-0.11.4.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8326:        "websocket-driver": ">=0.5.1"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8509:        "is-callable": "^1.2.7"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8587:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8588:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8594:        "is-callable": "^1.2.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8631:    "node_modules/get-caller-file": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8633:      "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8646:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:8714:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9180:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9196:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9197:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9221:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9254:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9288:    "node_modules/is-callable": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9290:      "resolved": "https://registry.npmjs.org/is-callable/-/is-callable-1.2.7.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9321:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9338:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9369:        "call-bound": "^1.0.4"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9384:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9418:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9449:        "call-bind": "^1.0.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9486:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9518:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9560:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9588:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9604:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9648:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9663:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:9858:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:10202:    "node_modules/jest-message-util": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:10204:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-29.7.0.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:10318:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:10373:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:10454:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11160:    "node_modules/livekit-client": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11162:      "resolved": "https://registry.npmjs.org/livekit-client/-/livekit-client-2.21.0.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11166:        "@livekit/mutex": "1.1.1",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11167:        "@livekit/protocol": "1.50.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11174:        "webrtc-adapter": "9.0.6"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:11180:    "node_modules/livekit-client/node_modules/loglevel": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:12131:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:12156:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:12157:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:12783:        "call-bind": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13365:        "use-callback-ref": "^1.3.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13466:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13512:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13760:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13761:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:13815:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14134:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14152:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14233:    "node_modules/socket.io-client": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14235:      "resolved": "https://registry.npmjs.org/socket.io-client/-/socket.io-client-4.8.3.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14239:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14242:        "socket.io-parser": "~4.2.4"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14248:    "node_modules/socket.io-parser": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14250:      "resolved": "https://registry.npmjs.org/socket.io-parser/-/socket.io-parser-4.2.6.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14254:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14503:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14504:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14525:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14526:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14543:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14964:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14978:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:14998:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15018:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15087:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15214:    "node_modules/use-callback-ref": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15216:      "resolved": "https://registry.npmjs.org/use-callback-ref/-/use-callback-ref-1.3.3.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15235:    "node_modules/use-latest-callback": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15237:      "resolved": "https://registry.npmjs.org/use-latest-callback/-/use-latest-callback-0.2.6.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15441:    "node_modules/webrtc-adapter": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15443:      "resolved": "https://registry.npmjs.org/webrtc-adapter/-/webrtc-adapter-9.0.6.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15454:    "node_modules/websocket-driver": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15456:      "resolved": "https://registry.npmjs.org/websocket-driver/-/websocket-driver-0.7.5.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15462:        "websocket-extensions": ">=0.1.1"
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15468:    "node_modules/websocket-extensions": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15470:      "resolved": "https://registry.npmjs.org/websocket-extensions/-/websocket-extensions-0.1.4.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15597:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15643:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15644:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/package-lock.json:15839:        "get-caller-file": "^2.0.5",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:2:// expo-notifications touches NATIVE modules at import time — in Expo Go (SDK 53+)
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:6:let Notifications: any = null;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:7:let notificationsInit = false;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:9:function getNotifications(): any {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:10:  if (!notificationsInit) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:11:    notificationsInit = true;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:13:      Notifications = require('expo-notifications');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:15:        Notifications.setNotificationHandler({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:16:          handleNotification: async () => ({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:18:            shouldPlaySound: true,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:26:      Notifications = null;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:29:  return Notifications;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:35:// Configure notification behavior
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:37:export async function registerForPushNotificationsAsync(): Promise<string | null> {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:38:  const Notifications = getNotifications();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:39:  if (!Notifications) return null;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:46:    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:50:      const { status } = await Notifications.requestPermissionsAsync();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:55:      // User denied push notification permission — graceful skip
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:65:        const nativeToken = await Notifications.getDevicePushTokenAsync();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:79:        tokenData = await Notifications.getExpoPushTokenAsync({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:104:    // Set up Android notification channel for calls
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:106:      await Notifications.setNotificationChannelAsync('calls', {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:107:        name: 'Calls',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:108:        importance: Notifications.AndroidImportance.MAX,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:111:        sound: 'default',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:114:      await Notifications.setNotificationChannelAsync('default', {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:116:        importance: Notifications.AndroidImportance.DEFAULT,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:124:    // Non-critical — push notifications degraded gracefully
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:129:export function initNotificationListeners(
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:130:  onNotificationReceived: (notification: any) => void,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:131:  onNotificationResponse: (response: any) => void,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:133:  const Notifications = getNotifications();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:134:  if (!Notifications) return () => {};
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:135:  // Listen for notifications received when app is open
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:136:  const incomingSubscription = Notifications.addNotificationReceivedListener(onNotificationReceived);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:138:  // Listen for notification clicks (app is in background or closed)
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/notifications.ts:139:  const responseSubscription = Notifications.addNotificationResponseReceivedListener(onNotificationResponse);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/api/client.ts:10:// Request Interceptor: Automatically inject secure headers and JWT token
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/security/Security.ts:177:        promptMessage: reason,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/security/Security.ts:185:      return { success: false, error: e?.message || 'Unknown error' };
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/polyfills.ts:2:// LiveKit and other web-oriented libs expect DOMException at import time.
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/polyfills.ts:9:    constructor(message?: string, name?: string) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/polyfills.ts:10:      super(message);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:2:// expo-notifications touches NATIVE modules at import time — in Expo Go (SDK 53+)
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:6:let Notifications: any = null;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:7:let notificationsInit = false;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:9:function getNotifications(): any {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:10:  if (!notificationsInit) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:11:    notificationsInit = true;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:13:      Notifications = require('expo-notifications');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:15:        Notifications.setNotificationHandler({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:16:          handleNotification: async () => ({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:18:            shouldPlaySound: true,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:26:      Notifications = null;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:29:  return Notifications;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:35:export async function setupPushNotifications(): Promise<void> {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:36:  const Notifications = getNotifications();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:37:  if (!Notifications) return; // Expo Go / native module missing — skip silently
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:40:  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:44:    const { status } = await Notifications.requestPermissionsAsync();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:53:    await Notifications.getExpoPushTokenAsync({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:56:    // Token obtained — backend registration handled by notifications.ts
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:62:    await Notifications.setNotificationChannelAsync('default', {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/utils/PushNotifications.ts:64:      importance: Notifications.AndroidImportance.MAX,
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/types/FacilityTypes.ts:25:  type: 'mri' | 'ct' | 'or' | 'consultation' | 'ultrasound' | 'other';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/types/contracts.ts:97:  CHAT = 'chat',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/types/contracts.ts:118:export enum NotificationType {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/types/contracts.ts:129:export enum NotificationPriority {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/api/provider.ts:32:    // whole object as the bearer token made EVERY later call 401 ("Invalid
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/api/provider.ts:68:      throw e; // Re-throw so callers can handle upload errors
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:99: { key:'radiology', icon:'', color:'#009688', light:'#E0F2F1', arName:'مركز أشعة', enName:'Radiology Center', arDesc:'أشعة سينية، رنين، مقطعية', enDesc:'X-Ray, MRI, CT Scan, Ultrasound' },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:147: { id:'psych', ar:'الطب النفسي', en:'Psychiatry', icon:'chat' },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:200: { id:'us', ar:'موجات فوق صوتية Ultrasound', en:'Ultrasound', prep:true, hours:1, noteAr:'اشرب الماء ولا تتبول قبل الفحص' },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:207: { id:'doppler', ar:'دوبلر الأوعية Doppler', en:'Doppler Ultrasound', prep:false, hours:1 },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:354: dashboard:'الرئيسية', appointments:'المواعيد', chat:'الرسائل', wallet:'المحفظة', settings:'الإعدادات',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:364: profile:'الملف الشخصي', notifications:'الإشعارات', security:'الأمان',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:405: dashboard:'Home', appointments:'Schedule', chat:'Messages', wallet:'Wallet', settings:'Settings',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/constants/index.ts:411: profile:'Profile', notifications:'Notifications', security:'Security',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:108:          const msg = err.message || err.error || err;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:615: if (!res.ok) throw new Error(data.message || (AR ? 'فشل إرسال الرمز' : 'Failed to send OTP'));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:620: setErr(e.message || (AR ? 'حدث خطأ ما' : 'Something went wrong'));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:637: if (!res.ok) throw new Error(data.message || (AR ? 'رمز غير صحيح' : 'Incorrect code'));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:640: setErr(e.message || (AR ? 'رمز غير صحيح' : 'Incorrect code'));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:664:   const msg = data.message || (AR ? 'فشل استعادة كلمة المرور' : 'Failed to reset password');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:680: setErr(e.message || (AR ? 'حدث خطأ ما' : 'Something went wrong'));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:846: {/* Notification channels */}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/auth/AuthScreens.tsx:854: { icon: '', ar: 'إشعار التطبيق Push', en: 'Push Notification' },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:6:import React, { useState, useEffect, useCallback, useRef } from 'react';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:40:  const load = useCallback(async () => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:68:      show(e?.response?.data?.message === 'already_claimed_or_closed'
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:112:        <NSecHeader title={AR ? `نداءات مفتوحة (${pool.length})` : `Open SOS Calls (${pool.length})`} />
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:116:            title={AR ? 'لا نداءات حالياً' : 'No open calls'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:117:            subtitle={AR ? 'ابقَ متصلاً — تصلك النداءات فورياً كل 15 ثانية' : 'Stay online — calls refresh every 15s'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:128:                  {m.patient_name || (AR ? 'نداء استغاثة' : 'SOS Call')}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:268:      show(e?.message || (AR ? 'فشل التسليم' : 'Handover failed'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceDashboard.tsx:324:      show(e?.message || (AR ? 'فشل الإنهاء' : 'Completion failed'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyRegistration.tsx:1:import React, { useState, useRef, useCallback } from 'react';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyRegistration.tsx:97:  const update = useCallback((p: Partial<PharmacyRegData>) => setData(prev => ({ ...prev, ...p })), []);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyRegistration.tsx:165:        setErrs({ phone: e.message || 'Error' });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyRegistration.tsx:799:      show(e.message || (AR ? 'حدث خطأ' : 'Error submitting'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceRegistration.tsx:91:        setErrs({ managerPhone: e?.message || (AR ? 'تعذر بدء التسجيل' : 'Could not start registration') });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/ambulance/AmbulanceRegistration.tsx:233:      show(err?.message || (AR ? 'حدث خطأ أثناء الإرسال' : 'Submit failed'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/lab/LabQcActions.tsx:31:      show(e?.response?.data?.message || (AR ? 'فشل التنفيذ' : 'Failed'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:54:import { FacilityInternalChatScreen } from './FacilityInternalChatScreen';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:60:import { NotificationsCenterScreen, TechnicalSupportTicketsScreen } from '../shared/RealScreens';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:213:      <Stack.Screen name="internal_chat">{({ navigation }: any) => <FacilityInternalChatScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:224:      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:307: <TouchableOpacity style={[s.iconBtn, { backgroundColor: theme.surface2 }]} onPress={() => onNavigate('notifications')}>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:423: { icon:'', ar:'التواصل\nالداخلي', en:'Internal\nChat', screen:'internal_chat' },
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:583:     const msg = err.response?.data?.message || err.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:780: const msg = err.response?.data?.message || err.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1000: {AR ? 'تُشتق الأقسام تلقائياً من حقل القسم في حسابات الكوادر الفعلية.' : 'Departments are derived automatically from the department field on real staff accounts.'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1064:   } catch (e: any) { show(e?.message || (AR?'فشل التعيين':'Assign failed'), 'error'); }
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1137: show(e.message || 'Failed to fetch beds', 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1161: show(e.message || 'Admission failed', 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1181: const msg = e?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1182: show(typeof msg === 'string' ? msg : (e.message || (AR ? 'فشل إخراج المريض — تحقق من الاتصال وحاول مجدداً' : 'Discharge failed — check connection and retry')), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1202: show(e.message || 'Failed to create ward', 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1446: const msg = err?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:1971: show(e.message || 'Surgery booking failed', 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:2256: <NSettingsRow icon="bell" label={AR?'الإشعارات':'Notifications'} onPress={() => onNavigate('notifications')} />
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:2364: show(err.message || (AR ? 'فشل التعيين' : 'Assignment failed'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityDashboard.tsx:2454:      show(err?.response?.data?.message || (AR ? 'فشل تنفيذ الإجراء' : 'Action failed'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:13: * ║ 09. ExpiryTrackingScreen — track expiry dates + batch recall ║
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:25:import React, { useState, useRef, useEffect, useCallback } from 'react';
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:59:  NotificationsCenterScreen, TechnicalSupportTicketsScreen
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:168:     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:196:  const [sound, setSound] = useState<Audio.Sound | null>(null);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:198:  // Play alarm sound
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:201:      const { sound } = await Audio.Sound.createAsync(
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:202:        require('../../../assets/sounds/radar-alarm.mp3') // Assume this exists or will fail gracefully
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:204:      setSound(sound);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:205:      await sound.playAsync();
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:207:      console.warn("Could not play alarm sound", e);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:212:    return sound ? () => { sound.unloadAsync(); } : undefined;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:213:  }, [sound]);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:215:  // Simulated WebSocket connection for Live Radar (Polling fallback)
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:344:function PharmacyChatTab() {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:349:  const CHATS = [
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:355:        <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الرسائل' : 'Chats'}</Text>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:358:        {CHATS.map(c => (
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:408:      const msg = e?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:651:                    {AR ? 'قم بتوجيه الكاميرا نحو الرف أو الفاتورة لاستخراج النواقص تلقائياً' : 'Point camera at shelf or invoice to extract shortages automatically'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:765:  const load = useCallback(async () => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:795:      const msg = e?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:863:                  : 'Dues are settled automatically from your future earnings at each settlement — no manual action needed.'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:995:  const fetchAll = useCallback(async () => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1035:      const msg = e?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1049:      const msg = e?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1450:  const fetchInventory = useCallback(async () => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1550:// PHARMACY CHAT SCREEN (Module 10)
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1552:function PharmacyChatScreen({ onBack }: any) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1565:  const loadMessages = useCallback(async (threadId: string) => {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1567:      const res = await client.get(`/pharmacy/chat/threads/${threadId}/messages`);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1568:      setMsgs(Array.isArray(res.data?.messages) ? res.data.messages : []);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1575:    client.get('/pharmacy/chat/threads')
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1581:          loadMessages(rows[0].id);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1586:  }, [loadMessages]);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1592:      await client.post(`/pharmacy/chat/threads/${activeThread.id}/messages`, { text: input.trim() });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1594:      loadMessages(activeThread.id);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1596:      const msg = e?.response?.data?.message;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1597:      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال الرسالة' : 'Could not send message'), 'error');
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1605:      <NHeader title={AR ? 'محادثة المريض' : 'Patient Chat'} onBack={onBack} />
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1610:          {AR ? 'لا توجد محادثات' : 'No conversations'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1617:                <TouchableOpacity key={t.id} onPress={() => { setActiveThread(t); loadMessages(t.id); }}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/pharmacy/PharmacyDashboard.tsx:1641:              placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:9:export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:16:  const [activeChat, setActiveChat] = useState<string | null>(null);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:18:  const [messages, setMessages] = useState<any[]>([]);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:22:    client.get('/chat/threads')
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:27:          name: t.name || (AR ? 'محادثة' : 'Chat'),
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:28:          lastMessage: t.last_message || '',
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:36:    if (activeChat) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:37:      client.get(`/chat/threads/${activeChat}/messages`)
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:39:          const list = Array.isArray(res.data) ? res.data : (res.data?.messages || []);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:40:          setMessages(list.map((m: any) => ({
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:48:        .catch(() => setMessages([]));
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:50:  }, [activeChat, AR]);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:53:    if (!inputText.trim() || !activeChat) return;
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:55:      await client.post(`/chat/threads/${activeChat}/messages`, { body: inputText, type: 'text' });
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:56:      setMessages([...messages, { id: 'm-' + Date.now(), sender: AR ? 'أنت' : 'You', text: inputText, time: AR ? 'الآن' : 'now', isMe: true }]);
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:63:  if (activeChat) {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:66:        <NHeader title={channels.find(c => c.id === activeChat)?.name || (AR ? 'محادثة' : 'Chat')} onBack={() => setActiveChat(null)} />
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:68:          {messages.map(msg => (
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:83:            placeholder={AR ? 'اكتب رسالتك...' : 'Type a message...'}
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:98:      <NHeader title={AR ? 'التواصل الداخلي' : 'Internal Chat'} onBack={onBack} />
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:106:          <TouchableOpacity key={ch.id} onPress={() => setActiveChat(ch.id)}>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:109:                <I name="chat" size={20} color={theme.textSub} />
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/src/screens/facility/FacilityInternalChatScreen.tsx:113:                <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }} numberOfLines={1}>{ch.lastMessage}</Text>
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:124:        "@babel/helper-optimise-call-expression": "^7.29.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:222:    "node_modules/@babel/helper-optimise-call-expression": {
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:224:      "resolved": "https://registry.npmjs.org/@babel/helper-optimise-call-expression/-/helper-optimise-call-expression-7.29.7.tgz",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:267:        "@babel/helper-optimise-call-expression": "^7.29.7",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:2798:        "faye-websocket": "0.11.4",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:3311:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:3340:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:3440:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:3498:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-live-extracted/provider-app/NabdProvider/node_modules/.package-lock.json:3584:        "callsites": "^3.0.0",
+===== /home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend =====
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/config/websocket-cors.ts:3:export function getWebSocketCorsOptions(): CorsOptions {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/config/websocket-cors.ts:7:    throw new Error('FATAL: ALLOWED_ORIGINS is required for WebSocket gateways in production');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/main.ts:12:import { IoAdapter } from '@nestjs/platform-socket.io';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/main.ts:83:  app.useWebSocketAdapter(new IoAdapter(app));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.spec.ts:33:    expect(redisClient.set).toHaveBeenCalledWith(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.spec.ts:36:    const persisted = JSON.parse(redisClient.set.mock.calls[1][1]);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.spec.ts:39:    expect(redisClient.del).toHaveBeenCalledWith('idempotency:patient-a:POST:/moyasar/payments:same-client-key:lock');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.spec.ts:48:    expect(next.handle).not.toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.spec.ts:66:    expect(redisClient.set).toHaveBeenCalledWith(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/auth.guard.ts:121:    // Role check (fallback compatibility). Provider tokens historically used
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.ts:1:import { Injectable, NestInterceptor, ExecutionContext, CallHandler, SetMetadata } from '@nestjs/common';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.ts:30:  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/main.js:22:            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/main.js:49:const platform_socket_io_1 = require("@nestjs/platform-socket.io");
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/main.js:108:    app.useWebSocketAdapter(new platform_socket_io_1.IoAdapter(app));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:37:    else { const msg = e.response ? `${e.response.status}: ${JSON.stringify(e.response.data).slice(0, 120)}` : e.message; results.push(['FAIL', name, msg]); console.log(`FAIL  ${name} — ${msg}`); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:317:  await t('J4 provider incoming requests (chat.broadcast flow)', async () => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:329:    ['K4 notification delivery stats', '/notifications/admin/delivery-stats'],
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:359:  // ══ L. NOTIFICATIONS ══
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:360:  await t('L1 notifications list works', async () => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:361:    const r = await axios.get(`${base}/notifications`, auth(patient.token));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:364:  await t('L2 admin schedules notification (delivery contract)', async () => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:366:    const r = await axios.post(`${base}/notifications/admin/schedule`, { title: 'اختبار', body: 'إشعار مجدول', audience: 'patients', scheduled_at: future(1) }, auth(admin.token)).catch((e) => e.response);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:374:    const io = require('socket.io-client');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:375:    const s = io('http://127.0.0.1:4099', { transports: ['websocket'], timeout: 4000, auth: { token: '' } });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:388:    const io = require('socket.io-client');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:389:    const s = io('http://127.0.0.1:4099', { transports: ['websocket'], timeout: 4000, auth: { token: patient.token } });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:392:      s.on('connect_error', (e) => r('err:' + e.message));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:400:  // ══ N. CALLS (LiveKit) ══
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:401:  let callSession;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:402:  await t('N1 initiate call session', async () => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:403:    const r = await axios.post(`${base}/calls/initiate`, { callee_id: doctor.id, call_type: 'video', booking_id: appt.video }, auth(patient.token)).catch((e) => e.response);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:406:    callSession = r.data?.session_id || r.data?.id || r.data?.room_name;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:407:    if (!r.data?.token) throw new Error('no caller token: ' + JSON.stringify(r.data).slice(0, 120));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:408:    return `status=${r.status} room=${callSession}`;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:410:  await t('N2 join returns LiveKit JWT', async () => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:411:    if (!callSession) doSkip('no session from N1');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:412:    const r = await axios.post(`${base}/calls/${callSession}/join`, {}, auth(doctor.token)).catch((e) => e.response);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:414:    const tok = r.data?.token || r.data?.livekit_token;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix.js:415:    if (!tok) throw new Error('no livekit jwt: ' + JSON.stringify(r.data).slice(0, 120));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/redis-cache.interceptor.ts:1:import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/redis-cache.interceptor.ts:10:  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/redis-cache.interceptor.ts:18:    // Skip caching if Authorization header is present (unless specifically designed for it)
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/boot.js:35:    LIVEKIT_API_KEY: 'e2e_livekit_key', LIVEKIT_API_SECRET: 'e2e_livekit_secret_0123456789abcdef0123456789abcdef', LIVEKIT_URL: 'wss://livekit.e2e.local',
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/auth.guard.spec.ts:154:    expect(connection.model).toHaveBeenCalledWith('AuditLog');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/auth.guard.spec.ts:155:    expect(mockModel.create).toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/package.json:1:{ "name": "nabdah-e2e", "private": true, "dependencies": { "mongodb-memory-server": "^10.1.4", "axios": "^1.7.9", "socket.io-client": "^4.8.1", "mongodb": "^6.12.0", "bcryptjs": "^2.4.3" } }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/slug.util.ts:8: *  - The trailing 6-char id prefix lets us deterministically reverse a slug
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.spec.ts:65:    expect(next.handle).toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.spec.ts:66:    expect(auditService.write).not.toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.spec.ts:109:    expect(next.handle).toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.spec.ts:110:    expect(auditService.write).toHaveBeenCalledWith(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/audit-log.interceptor.spec.ts:152:    expect(next.handle).toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/tsconfig.json:17:    "strictBindCallApply": false,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix2.js:14:    else { const msg = e.response ? `${e.response.status}: ${JSON.stringify(e.response.data).slice(0, 160)}` : e.message; results.push(['FAIL', name, msg]); console.log(`FAIL  ${name} — ${msg}`); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix2.js:527:  await t('X2 patient notifications inbox reachable', async () => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix2.js:528:    const r = await axios.get(`${base}/notifications`, auth(U.patient.token));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/e2e/matrix2.js:531:    return `${n} notifications`;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.ts:1:import { BadRequestException, CallHandler, ConflictException, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/idempotency.interceptor.ts:11:  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/validators/saudi-phone.validator.ts:11:  defaultMessage() {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/validators/password.validator.ts:12:  defaultMessage() {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/events.ts:44:  // Notifications
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/events.ts:45:  NOTIFICATION_CREATED: 'notification.created',
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/validators/iqama.validator.ts:27:  defaultMessage() {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/enums.ts:147:  CHAT = 'chat',
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/enums.ts:168:export enum NotificationType {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/enums.ts:179:export enum NotificationPriority {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:3:import { LiveKitModule } from './modules/livekit/livekit.module';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:7:import { AdminNotificationCenterModule } from './modules/admin-notification-center/admin-notification-center.module';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:19:import { NotificationModule } from './modules/notification/notification.module';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:39:import { NotificationsModule } from './modules/notifications/notifications.module';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:96:import { ChatModule } from './modules/chat/chat.module';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:140:    LiveKitModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:144:    AdminNotificationCenterModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:155:    NotificationModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:182:    NotificationsModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/app.module.ts:229:    ChatModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:11:const livekit_module_1 = require("./modules/livekit/livekit.module");
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:15:const admin_notification_center_module_1 = require("./modules/admin-notification-center/admin-notification-center.module");
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:27:const notification_module_1 = require("./modules/notification/notification.module");
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:47:const notifications_module_1 = require("./modules/notifications/notifications.module");
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:104:const chat_module_1 = require("./modules/chat/chat.module");
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:152:            livekit_module_1.LiveKitModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:156:            admin_notification_center_module_1.AdminNotificationCenterModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:167:            notification_module_1.NotificationModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:194:            notifications_module_1.NotificationsModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/dist/app.module.js:241:            chat_module_1.ChatModule,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/common/database/audit.plugin.ts:24:  // Automatically update timestamps if schema has timestamps enabled (Mongoose does this inherently)
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/scripts/test-extensions.ts:47:  // Access dynamic models registered in connection but not statically exported
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/scripts/test-extensions.ts:276:    const criticalLab = await svc.verifyLabResultRanges('sample1', 2.5);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/scripts/test-extensions.ts:277:    assert(criticalLab.isCritical, 'Critical low value (2.5 mmol/L) triggered high-priority alarm');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/scripts/test-extensions.ts:292:    // 15. AI Triage chat chatbot fallback
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/scripts/test-extensions.ts:293:    const chat = await aiSvc.triageChat([
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/scripts/test-extensions.ts:296:    assert(chat.urgency === 'emergency', 'AI Triage chat flags chest pain as emergency');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/custom-services/custom-services.service.ts:32:    // Emit event → admin notification + provider broadcast (real wiring would push notifications)
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:25:        "@nestjs/platform-socket.io": "^10.4.22",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:30:        "@nestjs/websockets": "^10.4.22",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:45:        "livekit-server-sdk": "^2.17.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:58:        "socket.io": "^4.8.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:80:        "socket.io-client": "^4.8.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:1299:        "faye-websocket": "0.11.4",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2289:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2310:    "node_modules/@jest/console/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2312:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2402:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2440:    "node_modules/@jest/core/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2442:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2598:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2638:    "node_modules/@jest/expect/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2640:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2717:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2738:    "node_modules/@jest/fake-timers/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2740:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2871:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2935:    "node_modules/@jest/reporters/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:2937:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3057:        "callsites": "^3.1.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3249:    "node_modules/@livekit/protocol": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3251:      "resolved": "https://registry.npmjs.org/@livekit/protocol/-/protocol-1.50.4.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3265:        "call-bind": "^1.0.8"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3565:        "@nestjs/websockets": "^10.0.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3576:        "@nestjs/websockets": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3670:    "node_modules/@nestjs/platform-socket.io": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3672:      "resolved": "https://registry.npmjs.org/@nestjs/platform-socket.io/-/platform-socket.io-10.4.22.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3676:        "socket.io": "4.8.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3685:        "@nestjs/websockets": "^10.0.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3689:    "node_modules/@nestjs/platform-socket.io/node_modules/debug": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3706:    "node_modules/@nestjs/platform-socket.io/node_modules/ms": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3712:    "node_modules/@nestjs/platform-socket.io/node_modules/socket.io": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3714:      "resolved": "https://registry.npmjs.org/socket.io/-/socket.io-4.8.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3723:        "socket.io-adapter": "~2.5.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3724:        "socket.io-parser": "~4.2.4"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3909:    "node_modules/@nestjs/websockets": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3911:      "resolved": "https://registry.npmjs.org/@nestjs/websockets/-/websockets-10.4.22.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3922:        "@nestjs/platform-socket.io": "^10.0.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:3927:        "@nestjs/platform-socket.io": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:5101:    "node_modules/@socket.io/component-emitter": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:5103:      "resolved": "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.1.2.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:6536:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7226:    "node_modules/call-bind": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7228:      "resolved": "https://registry.npmjs.org/call-bind/-/call-bind-1.0.9.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7232:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7244:    "node_modules/call-bind-apply-helpers": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7246:      "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7257:    "node_modules/call-bound": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7259:      "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7263:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7273:    "node_modules/callsites": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7275:      "resolved": "https://registry.npmjs.org/callsites/-/callsites-3.1.0.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:7983:        "call-bind": "^1.0.5",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8190:        "call-bind-apply-helpers": "^1.0.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8309:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8421:        "call-bind": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8651:        "jest-message-util": "^29.7.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8804:    "node_modules/faye-websocket": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8806:      "resolved": "https://registry.npmjs.org/faye-websocket/-/faye-websocket-0.11.4.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:8810:        "websocket-driver": ">=0.5.1"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:9054:        "is-callable": "^1.2.7"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:9419:    "node_modules/get-caller-file": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:9421:      "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:9434:        "call-bind-apply-helpers": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10319:        "standard-as-callback": "2.1.0"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10367:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10383:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10384:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10435:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10445:    "node_modules/is-callable": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10447:      "resolved": "https://registry.npmjs.org/is-callable/-/is-callable-1.2.7.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10478:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10568:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10584:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10614:        "call-bound": "^1.0.3"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10641:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10657:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10712:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:10945:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11004:    "node_modules/jest-circus/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11006:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11577:    "node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11579:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-29.7.0.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11598:    "node_modules/jest-message-util/node_modules/@jest/schemas": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11611:    "node_modules/jest-message-util/node_modules/@jest/types": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11629:    "node_modules/jest-message-util/node_modules/@sinclair/typebox": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11796:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11822:    "node_modules/jest-runner/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11824:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11912:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11977:    "node_modules/jest-runtime/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:11979:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12085:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12131:        "jest-message-util": "30.4.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12171:    "node_modules/jest-snapshot/node_modules/jest-message-util": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12173:      "resolved": "https://registry.npmjs.org/jest-message-util/-/jest-message-util-30.4.1.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12777:    "node_modules/livekit-server-sdk": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12779:      "resolved": "https://registry.npmjs.org/livekit-server-sdk/-/livekit-server-sdk-2.17.0.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12784:        "@livekit/protocol": "^1.48.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:12791:    "node_modules/livekit-server-sdk/node_modules/jose": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:13854:        "call-bind": "^1.0.7",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:13879:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:13880:        "call-bound": "^1.0.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:14053:        "callsites": "^3.0.0"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:14666:        "get-caller-file": "^2.0.1",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:14827:        "call-bind": "^1.0.8",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15100:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15408:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15426:        "call-bound": "^1.0.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15467:    "node_modules/socket.io": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15469:      "resolved": "https://registry.npmjs.org/socket.io/-/socket.io-4.8.3.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15478:        "socket.io-adapter": "~2.5.2",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15479:        "socket.io-parser": "~4.2.4"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15485:    "node_modules/socket.io-adapter": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15487:      "resolved": "https://registry.npmjs.org/socket.io-adapter/-/socket.io-adapter-2.5.8.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15495:    "node_modules/socket.io-adapter/node_modules/debug": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15512:    "node_modules/socket.io-adapter/node_modules/ms": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15518:    "node_modules/socket.io-client": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15520:      "resolved": "https://registry.npmjs.org/socket.io-client/-/socket.io-client-4.8.3.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15525:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15528:        "socket.io-parser": "~4.2.4"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15534:    "node_modules/socket.io-client/node_modules/debug": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15552:    "node_modules/socket.io-client/node_modules/ms": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15559:    "node_modules/socket.io-parser": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15561:      "resolved": "https://registry.npmjs.org/socket.io-parser/-/socket.io-parser-4.2.7.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15565:        "@socket.io/component-emitter": "~3.1.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15572:    "node_modules/socket.io-parser/node_modules/debug": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15589:    "node_modules/socket.io-parser/node_modules/ms": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15595:    "node_modules/socket.io/node_modules/debug": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15612:    "node_modules/socket.io/node_modules/ms": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15709:    "node_modules/standard-as-callback": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:15711:      "resolved": "https://registry.npmjs.org/standard-as-callback/-/standard-as-callback-2.1.0.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17031:    "node_modules/websocket-driver": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17033:      "resolved": "https://registry.npmjs.org/websocket-driver/-/websocket-driver-0.7.5.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17039:        "websocket-extensions": ">=0.1.1"
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17045:    "node_modules/websocket-extensions": {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17047:      "resolved": "https://registry.npmjs.org/websocket-extensions/-/websocket-extensions-0.1.4.tgz",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17132:        "call-bind": "^1.0.9",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17133:        "call-bound": "^1.0.4",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package-lock.json:17395:        "get-caller-file": "^2.0.5",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package.json:29:    "@nestjs/platform-socket.io": "^10.4.22",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package.json:34:    "@nestjs/websockets": "^10.4.22",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package.json:49:    "livekit-server-sdk": "^2.17.0",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package.json:62:    "socket.io": "^4.8.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/package.json:84:    "socket.io-client": "^4.8.3",
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/provider-onboarding/contract-pdf.service.ts:119:      this.logger.warn(`signature fetch failed: ${e.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/callmetric.schema.ts:6:export class CallMetric {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/callmetric.schema.ts:17:export type CallMetricDocument = CallMetric & Omit<Document, 'id'>;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/callmetric.schema.ts:18:export const CallMetricSchema = SchemaFactory.createForClass(CallMetric);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/cart/cart.module.ts:122:  /** Returns lines grouped by kind so caller can dispatch to each domain checkout endpoint. */
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:220:      console.error('CONTRACT_GENERATION_FAILED', e?.message || e);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/passkey.service.ts:132:      console.error('PASSKEY_ENROLL_VERIFY_FAIL', e?.message, JSON.stringify({ rpID: this.rpID, origin: this.origin }));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/passkey.service.ts:156:   * Called ONLY from AuthService.login() after the password has been verified.
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/passkey.service.ts:197:      console.error('PASSKEY_LOGIN_VERIFY_FAIL', e?.message, JSON.stringify({ rpID: this.rpID, origin: this.origin, cred_user: cred?.user_id }));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:20:      fileFilter: (req, file, callback) => {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:23:          return callback(new BadRequestException('Only approved image, PDF, audio, and document files are allowed!'), false);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:25:        callback(null, true);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:37:    if (folder === 'chats') {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:39:        throw new BadRequestException('thread_id is required for chat uploads');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:41:      await this.verifyChatUploadAllowed(threadId);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:61:    if (folder === 'chats') {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:63:        throw new BadRequestException('thread_id is required for chat uploads');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:65:      await this.verifyChatUploadAllowed(threadId);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:70:  private async verifyChatUploadAllowed(threadId: string) {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:72:      const ChatThreadModel = this.connection.model('ChatThread');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.controller.ts:73:      const thread = await ChatThreadModel.findOne({ id: threadId });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/events/event-bus.service.ts:9:  entity_type: 'order' | 'allocation' | 'broadcast' | 'chat' | 'shortage' | string;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/events/event-bus.service.ts:23: * Phase 2 hardening: callers should NEVER await this (use .catch silently).
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/events/event-bus.service.ts:50:      this.logger.warn(`emit_failed type=${input.type} err=${e?.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/events/event-bus.service.ts:53:    // (notifications, analytics, gateways) actually fire for bus events.
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/events/event-bus.service.ts:57:      this.logger.warn(`emitter_fanout_failed type=${input.type} err=${e?.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.service.ts:52:      this.logger.error(`Failed to upload file to R2: ${error.message}`, error.stack);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.service.ts:53:      throw new BadRequestException(`File upload failed: ${error.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.service.ts:73:      this.logger.error(`Failed to generate presigned upload URL: ${error.message}`, error.stack);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.service.ts:74:      throw new BadRequestException(`Presigned URL generation failed: ${error.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.service.ts:87:      this.logger.error(`Failed to delete file from R2: ${error.message}`, error.stack);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/media/media.service.ts:88:      throw new BadRequestException(`File deletion failed: ${error.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/events/system-event.schema.ts:13:  @Prop({ required: true, index: true }) entity_type: string; // order | allocation | broadcast | chat | shortage
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:3:import { NotificationType, NotificationPriority } from '../common/enums';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:6:@Schema({ timestamps: true, collection: 'notifications' })
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:7:export class Notification {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:14:  @Prop({ type: String, enum: Object.values(NotificationType), default: NotificationType.INFO })
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:15:  type: NotificationType;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:16:  @Prop({ type: String, enum: Object.values(NotificationPriority), default: NotificationPriority.NORMAL })
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:17:  priority: NotificationPriority;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:26:export type NotificationDocument = Notification & Document;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:27:export const NotificationSchema = SchemaFactory.createForClass(Notification);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:28:NotificationSchema.index({ user_id: 1, createdAt: -1 });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/schemas/notification.schema.ts:29:NotificationSchema.index({ role: 1, createdAt: -1 });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.spec.ts:36:    expect(emit).not.toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.spec.ts:53:    expect(emit).toHaveBeenCalledWith('moyasar.payment.paid', { id: 'pay_1' });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.spec.ts:64:    expect(emit).toHaveBeenCalledTimes(1);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.spec.ts:81:    expect(emit).toHaveBeenCalledWith('paytabs.payment.status', { tran_ref: 'T1' });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/schemas/trusted-device.schema.ts:12: * not leak usable device tokens.
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:4:import { WebhookReceiver } from 'livekit-server-sdk';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:119:  async handleLiveKitWebhook(rawBody: string, authHeader: string) {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:120:    const apiKey = process.env.LIVEKIT_API_KEY;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:121:    const apiSecret = process.env.LIVEKIT_API_SECRET;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:124:      throw new BadRequestException('LiveKit credentials not configured');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:130:      this.eventEmitter.emit(`livekit.${event.event}`, event);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.service.ts:133:      throw new BadRequestException(`Webhook verification failed: ${err.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.controller.ts:176:    return { ok: true, message: 'consent_recorded' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.controller.ts:218:  socialLogin(@Body() body: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:2:import { WebhookReceiver } from 'livekit-server-sdk';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:5:export class LiveKitWebhookGuard implements CanActivate {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:9:    const apiKey = process.env.LIVEKIT_API_KEY;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:10:    const apiSecret = process.env.LIVEKIT_API_SECRET;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:16:      throw new UnauthorizedException('LiveKit webhook verification is not configured.');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:28:      request.livekitVerifiedEvent = verifiedEvent;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:31:      throw new UnauthorizedException('LiveKit webhook cryptographic identity mismatch.');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/sms/sms.service.ts:15: * OTP/verification flows fall back to email + push (handled by callers).
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/sms/sms.service.ts:47:        const res = await axios.post('https://api.taqnyat.sa/v1/messages', {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/device-trust.service.ts:13: * - issue():       called ONLY after a fully completed 2FA (OTP verified or
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:42:  @Post('livekit')
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:43:  async livekit(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:48:    return this.service.handleLiveKitWebhook(rawBody, authHeader);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:119:    return { ok: true, message: 'Logged out from all devices' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:240:            message: 'Passkey verification required.',
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:251:        message: 'OTP sent to your registered contact.'
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:294:   * digital signature has been cryptographically verified against the
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:421:      { name: 'notifications', fields: ['user_id'] },
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:540:      // plus an in-app push notification, so app-only users still receive it.
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:554:        // The OTP above already reached the user via push notification; when the
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:565:              messages: [{
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:584:      return { ok: false, error: err.message };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:656:  async socialLogin(dto: { provider: 'google' | 'apple' | 'x' | 'snapchat'; token: string; email?: string; name?: string }) {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:675:    } else if (dto.provider === 'snapchat') {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:676:      const snapchatInfo = await this.verifySnapchatToken(dto.token);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:677:      if (!snapchatInfo) throw new UnauthorizedException('Invalid Snapchat token');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:678:      email = snapchatInfo.email;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:679:      name = snapchatInfo.full_name || name;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:757:  private async verifySnapchatToken(token: string): Promise<any> {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:763:          email: payload.email || `${payload.username || 'snap_user'}@snapchat.com`,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:764:          full_name: payload.name || 'Snapchat User',
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:767:      return { email: `snapchat_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'Snapchat User' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.ts:769:      return { email: `snapchat_user_${Date.now().toString().slice(-4)}@nabd.app`, full_name: 'Snapchat User' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:95:      return { success: false, routed_to_approval: true, operation_id: op.id, message: 'المبلغ كبير — تم إرسال العملية لموافقة أدمن آخر (maker-checker)' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:116:    return { success: true, message: 'Payout executed successfully', amount, provider_id: providerId, available_after: (await this.ledger.providerBalance(providerId)).available, source: legacyDoc ? 'legacy' : 'provider_ops' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.spec.ts:193:      expect(verifyOtpSpy).toHaveBeenCalledWith('admin@nabd.plus', '123456');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.spec.ts:211:      expect(verifyOtpSpy).toHaveBeenCalledWith('+966500000999', '123456');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.spec.ts:222:      expect(redisService.setJson).toHaveBeenCalledWith(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.spec.ts:227:      const stored = redisService.setJson.mock.calls[0][1];
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.spec.ts:239:      expect(redisService.del).toHaveBeenCalledWith('auth:otp:login-2fa:admin@nabd.plus');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/auth/auth.service.spec.ts:240:      expect(redisService.del).toHaveBeenCalledWith('ratelimit:auth:otp:verify:admin@nabd.plus');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:16:  /** Old provider images being replaced by an approved delta are physically
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:87:    // Rejected uploads must not linger: physically delete any image the delta
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:19:    if (!body.subject || !body.message) throw new BadRequestException('subject and message required');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:26:      message: body.message.trim(),
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:30:      thread: [{ by: user.id, role: user.role || 'patient', message: body.message.trim(), at: new Date() }],
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:46:  async reply(user: any, id: string, message: string) {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:47:    if (!message?.trim()) throw new BadRequestException('message required');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:51:    r.thread.push({ by: user.id, role: user.role || 'patient', message: message.trim(), at: new Date() });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:84:    const allowed = ['language', 'theme', 'calendar', 'notifications_enabled', 'notif_reminders', 'notif_orders', 'notif_appointments', 'notif_lab_results', 'expo_push_token'];
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.service.ts:100:    return { success: true, message: 'شكرًا لملاحظاتك!' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:41:    return { success: true, message: 'تمت صياغة تسعيرة المستودع بنجاح، وترحيل الفاتورة للصيدلية للتأكيد والدفع.' };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/emergency/emergency.service.ts:191:  /** M1-31: patient-scoped view — the caller's own active SOS request (was admin-only before). */
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/support/support.controller.ts:16:  @Post('requests/:id/reply') reply(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.reply(u, id, b.message); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:44:      message: forceMaintenanceState
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:49:      expect(req.save).toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:50:      expect(events.emit).toHaveBeenCalledWith('insurance.decided', expect.objectContaining({ request_id: 'req-1', state: 'APPROVED_FULL' }));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:123:      expect(events.emit).toHaveBeenCalledWith('insurance.copay.paid', expect.objectContaining({ request_id: 'req-1' }));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:171:      expect(req.save).toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:188:  it.each(['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'])(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:249:    expect(events.emit).toHaveBeenCalledWith('refund.requested', { refund_id: 'rf-1' });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts:257:    expect(refunds.create).not.toHaveBeenCalled();
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:13:      callRingingDuration: 45,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:111:  consultation: 0.15, video: 0.15, audio: 0.15, chat: 0.15,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:168:const ONLINE_ONLY_CHANNELS = ['online', 'video', 'audio', 'chat', 'home', 'home_visit', 'delivery', 'nursing', 'physiotherapy', 'ambulance'];
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:434:  // ---- legacy aliases the patient app already calls ----
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:439:  // M4 alias: patient claim-tracking screens call /insurance/claims/*
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:3: * Jobs are enqueued by NotificationsService.create(); failures throw so
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:9:import { NotificationsService } from './notifications.service';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:11:@Processor('notifications-delivery')
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:12:export class NotificationDeliveryProcessor extends WorkerHost {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:13:  private logger = new Logger('NotificationDelivery');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:16:    @Inject(forwardRef(() => NotificationsService))
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts:17:    private readonly svc: NotificationsService,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance/insurance.module.ts:273:   * locally stored policy data only and says so explicitly (nphies_live: false).
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/mail/mail.module.ts:52:    if (error) throw new Error(error.message || 'resend_error');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/mail/mail.module.ts:80:      this.logger.warn(`Resend failed for ${to}: ${e.message} — attempting SES fallback`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/mail/mail.module.ts:89:      this.logger.error(`Both mail providers failed for ${to}: ${e2.message}`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/mail/mail.module.ts:90:      this.events.emit('mail.failed', { to, subject, error: e2.message });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/mail/mail.module.ts:91:      return { ok: false, provider: 'none', fallback_used: true, error: e2.message };
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/mail/mail.module.ts:95:  /** Shared OTP template (Arabic, RTL) — used by auth + notifications. */
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/insurance/insurance.service.spec.ts:242:      expect(patientModel.findOneAndUpdate).toHaveBeenCalledWith(
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:5:import { Notification, NotificationDocument } from '../../schemas/notification.schema';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:6:import { NotificationPriority, NotificationType } from '../../common/enums';
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:8:import { NotificationRepository } from "./repositories/notification.repository";
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:18:export class NotificationsService {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:19:  private logger = new Logger('Notifications');
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:21:    @Inject('NotificationRepository') private model: NotificationRepository,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:25:    @InjectQueue('notifications-delivery') private queue: Queue,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:33:    params?: any; type?: NotificationType; priority?: NotificationPriority;
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:48:      type: data.type || NotificationType.INFO,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:49:      priority: data.priority || NotificationPriority.NORMAL,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:54:    this.events.emit(EVENTS.NOTIFICATION_CREATED, { id: n.id, user_id: n.user_id, role: n.role, title_key: n.title_key, body_key: n.body_key, priority: n.priority });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:64:        jobId: `deliver:${id}`, // E5-F5: BullMQ dedup — a second enqueue for the same notification is dropped
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:72:      this.logger.error(`Delivery queue unavailable (${e.message}) — falling back to direct delivery`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:73:      await this.deliverById(id).catch((err: any) => this.logger.error(`Direct delivery failed: ${err.message}`));
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:80:    if (!n) { this.logger.warn(`deliverById: notification ${id} not found`); return; }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:92:    catch (e: any) { delivery.push = bump('push', false, e.message); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:99:          catch (e: any) { delivery.sms = bump('sms', false, e.message); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:101:          catch (e: any) { delivery.whatsapp = bump('whatsapp', false, e.message); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:105:          catch (e: any) { delivery.email = bump('email', false, e.message); }
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:108:        this.logger.error('Failed resolving user channels', e.message);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:117:    if (status === 'FAILED') throw new Error(`notification ${id}: all channels failed`);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:129:    // 1. Broadcast Push Notification
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:152:   * M6/ER-8: push payload carries the deep-link contract — every notification
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:156:   * Returns true when at least one channel accepted the message.
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:170:      // or /notifications/register-token). The old DeviceToken model never
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:207:      notification: { title: n.title_key, body: n.body_key },
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:223:      const messages = tokens.map((to) => ({
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:228:        sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:230:      const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:236:      this.logger.error('Expo push failed', e.message);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:267:      await axios.post(`https://${process.env.INFOBIP_URL}/whatsapp/1/message/template`, {
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:268:        messages: [{
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:275:      this.logger.error('Failed to send WhatsApp', e.message);
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:310:  // ============ EVENT HOOKS (auto-create notifications) ============
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:314:   * Routes notifications to patient + provider + admin from one source.
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:319:    if (pid) await this.create({ user_id: pid, title_key: 'notif.service.requested.title', body_key: 'notif.service.requested.body', type: NotificationType.ORDER, action: { route: `/tracking/${this.routeKind(p)}/${p.entity_id}` } });
+/home/ubuntu/nabdah-gatekeeper-work/backend/nabdah-backend/src/modules/notifications/notifications.service.ts:324:    if (pid) await this.create({ user_id: pid, title_key: 'notif.service.matched.title', body_key: 'notif.service.matched.body', type: NotificationType.ORDER, action: { route: `/tracking/${this.routeKind(p)}/${p.entity_id}` } });
+
+FINDING — patient/src/components/livekit-view.tsx: LiveKitRoom حقيقي مع token/serverUrl وAudioSession وcamera/microphone controls. لكن عند غياب remoteParticipant تعرض الشاشة الاسم الثابت `د. محمد أحمد الكردي` بدلاً من حالة انتظار محايدة؛ هذا placeholder UI ويجب استبداله ببيانات session أو نص انتظار. كذلك زر speaker يستخدم icon `mic` في الحالتين، وهو خطأ UI. مدة المكالمة محلية للتوقيت فقط، وليست حالة signaling.
+
+FINDING — backend LiveKitController/Service: كانت مسارات reject وgetSession بلا هوية caller، ومسارات admin rooms/analytics/participants/mute/remove بلا Roles، كما كان join يحول session_id إلى room_name بطريقة غير متسقة. تم إصلاحها بإلزام CurrentUser، Roles(admin/super_admin)، helper sessionForActor، ownership للpatient/provider، وتوحيد token/room contract. أضيف `livekit.service.spec.ts` بثلاث حالات ownership. التحقق المحلي بعد التعديل: TypeScript ناجح، Jest أصبح 28 suites / 221 tests ناجحة.
+
+FINDING — Push/audio: patient assets contain `assets/sounds/notification.wav`, but `app.json` declares `sounds: []` and Android channels use `sound: 'default'`; category-specific premium audio is not wired. Provider contains `assets/audio/rad_dispatch_alert.mp3`, but PharmacyDashboard references `assets/sounds/radar-alarm.mp3`, which is absent; this is a broken resource reference. Provider notification helpers also configure only default/call channels. No new audio was invented; assets/channel contract remains open until exact packaging and category mapping are designed and tested on physical devices.
+
+FINDING — provider chat: `FacilityInternalChatScreen` uses REST list/messages/send only and synthesizes local ids/timestamps for sent messages; it has no realtime listener. `DoctorDashboard` contains its own Socket.IO instance and separately uses REST booking-thread messaging, so provider app lacks one shared chat transport/context. This is not a reason to invent socket message persistence; it should be reconciled with backend `chat.message_sent` fan-out and per-screen thread membership.
+
+=== Focused verification continuation 2026-08-17 ===
+Initial source mapping found:
+- Chat: ChatController/ChatService under backend src/modules/chat/chat.module.ts; Mongo persistence in chat_threads/chat_messages; EventBus event chat.message_sent; Socket.IO realtime fanout in realtime.gateway.ts.
+- Realtime: backend src/modules/realtime/realtime.gateway.ts is the active-looking primary transport with events chat:join/leave/typing/read/delivered and call:incoming/accepted/rejected/ended/ice_candidate/sdp_offer/sdp_answer.
+- Legacy parallel contracts also exist in src/modules/chat/chat.gateway.ts and src/modules/socket/socket.gateway.ts and must be classified before removal.
+- Patient SocketContext currently emits chat:join/leave and typing events, but offline replay posts {content,message_type,receiver_id} while ChatController expects body/type/attachment fields. This is a confirmed contract mismatch to fix.
+- ChatService currently asserts membership for getThread/getMessages/sendMessage, but markRead/markDelivered/reactions/pin/participant management lack equivalent membership/ownership checks and need focused remediation.
+- LiveKit controller/service currently expose participant-facing calls plus admin room endpoints. The inspected code shows rejectCall without CurrentUser, getSessionById without caller ownership, admin room/analytics endpoints without Roles guard, and realtime call relay accepts caller/target IDs from client payload without session authorization. These are confirmed security findings requiring focused fixes/tests.

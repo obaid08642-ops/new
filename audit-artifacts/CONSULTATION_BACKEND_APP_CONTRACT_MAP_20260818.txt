@@ -1,0 +1,1026 @@
+# Consultation backend/app contract map
+## Backend controller/module markers
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:3: *   search_queries, orders, appointments, pushengagements, chatmessages, users.
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:39:  // ── Top doctors (by completed+total appointments) ──────────────
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:41:    return this.col('appointments').aggregate([
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:42:      { $group: { _id: { $ifNull: ['$doctor_name', '$provider_id'] }, appointments: { $sum: 1 }, completed: { $sum: { $cond: [{ $in: ['$status', ['COMPLETED', 'complete', 'completed']] }, 1, 0] } } } },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:43:      { $sort: { appointments: -1 } },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:45:      { $project: { _id: 0, doctor: '$_id', appointments: 1, completed: 1 } },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:61:    return this.col('appointments').aggregate([
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:62:      { $group: { _id: { $ifNull: ['$type', '$service_type', 'consultation'] }, count: { $sum: 1 } } },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:73:    const [users, orders, appointments, carts] = await Promise.all([
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:76:      this.col('appointments').countDocuments({}),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:83:    const cancelledAppts = await this.col('appointments').countDocuments({ status: { $in: ['CANCELLED', 'cancelled', 'NO_SHOW'] } });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:90:        { $unionWith: { coll: 'appointments', pipeline: [{ $match: { createdAt: { $gte: new Date(now - ms) } } }, { $group: { _id: '$patient_id' } }] } },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:110:      totals: { users, orders, appointments, carts },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:113:      appointment_cancellation_rate: appointments > 0 ? +(cancelledAppts / appointments * 100).toFixed(1) : null,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:120:@Controller('admin/analytics')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:126:  @Get('overview')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:129:  @Get('top-searched')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:132:  @Get('top-medicines')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:135:  @Get('top-doctors')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:138:  @Get('top-pharmacies')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/analytics/analytics.module.ts:141:  @Get('top-services')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/storage/storage.module.ts:348:@Controller('storage')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/storage/storage.module.ts:351:  @Post('upload')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/storage/storage.module.ts:362:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/storage/storage.module.ts:372:  @Get(':id/signed-url')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/storage/storage.module.ts:383:  @Post('upload-suggestion-image')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/storage/storage.module.ts:401:  @Post('upload-cloudinary')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:6:@Controller('users')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:11:  @Get('me/profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:16:  @Patch('me/profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:21:  @Get('me/wishlist')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:26:  @Post('me/wishlist/:itemId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:32:  @Get('me/notification-settings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:37:  @Patch('me/notification-settings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:42:  @Get('me/storage')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:47:  @Get('me/privacy-settings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:52:  @Patch('me/privacy-settings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:57:  @Get('me/security-settings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:62:  @Patch('me/security-settings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:67:  @Post('me/change-password')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:72:  @Get('me/sessions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:76:  @Delete('me/sessions/:jti')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:80:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:86:  @Post(':id/toggle')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.controller.ts:92:  @Delete(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/user.insurance.controller.ts:5:@Controller('user')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/user.insurance.controller.ts:12:  @Get('insurance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/user.insurance.controller.ts:15:    return { policies: profile?.insurance_policies || [] };
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.module.ts:6:import { UsersInsuranceController } from './users.insurance.controller';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.addresses.controller.ts:6:@Controller('users/me/addresses')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.addresses.controller.ts:11:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.addresses.controller.ts:17:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.addresses.controller.ts:34:  @Patch(':addressId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.addresses.controller.ts:52:  @Delete(':addressId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.insurance.controller.ts:5:@Controller('users/me/insurance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.insurance.controller.ts:10:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.insurance.controller.ts:13:    return profile.insurance || null;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.insurance.controller.ts:16:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.insurance.controller.ts:20:      ...profile.insurance,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/users/users.insurance.controller.ts:24:    await this.users.updatePatientProfile(id, { insurance: updatedInsurance });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:4: * BR-2 (owner-approved insurance flow): patient picks "insurance" → system checks
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:19:import { InsuranceCompanySchema, InsuranceCompanyDocument } from '../../schemas/insurance.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:33:  @Prop() booking_id?: string;          // linked booking/appointment/order
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:34:  @Prop() booking_kind?: string;        // consultation | home_care | pharmacy | lab | radiology | nursing
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:93:  @Prop({ default: 'online' }) payment_method: string; // online | cash | insurance
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:111:  consultation: 0.15, video: 0.15, audio: 0.15, chat: 0.15,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:170:@Controller('bookings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:173:  @Get('quote') quote(@Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:176:    const withInsurance = q?.with_insurance === 'true' || q?.with_insurance === '1';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:180:    if (withInsurance) allowed_methods.push('insurance');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:185:      service_type: q?.service_type || 'consultation',
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:190:      insurance_applicable: true,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:223:    if (!company) throw new NotFoundException('insurance company not found');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:233:    await this.patients.updateOne({ user_id: user.id }, { $set: { insurance: policy } }, { upsert: true });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:238:    const p = await this.patients.findOne({ user_id: user.id }, { _id: 0, insurance: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:239:    const ins: any = (p as any)?.insurance || null;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:257:    this.events.emit('insurance.requested', { request_id: doc.id, provider_id: doc.provider_id });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:276:    this.events.emit('insurance.resubmitted', { request_id: req.id, patient_id: req.patient_id, provider_id: req.provider_id, count: resubmission_count });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:297:    this.events.emit('insurance.appeal_filed', { request_id: req.id, patient_id: req.patient_id });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:360:    this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, state: req.state, copay_amount: req.copay_amount });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:380:    this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:395:@Controller('insurance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:401:  @Get('companies') companies() { return this.svc.companiesList(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:402:  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:403:  @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:405:  @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:410:      service_type: q?.service_type || 'consultation',
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:417:  @Get('benefits-summary') async benefits(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:422:  @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: any) { return this.svc.createRequest(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:423:  @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:424:  @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:425:  @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:426:  @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:427:  @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:428:  @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:431:  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:432:  @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.decide(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:435:  @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:439:  // M4 alias: patient claim-tracking screens call /insurance/claims/*
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:440:  @Get('claims/my') claimsMy(@CurrentUser() u: any) { return this.svc.myRequests(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:443:// Patient-app aliases: POST /patient/pay-copay, POST /home-care/insurance/verify
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:444:@Controller()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:449:  @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:453:  @Post('home-care/insurance/verify') verify(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:476:  policyFor(scheduledAt?: Date) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:477:    if (!scheduledAt) return REFUND_WINDOWS[0];
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:478:    const hours = (new Date(scheduledAt).getTime() - Date.now()) / 3600000;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:492:    const policy = this.policyFor(body?.scheduled_at ? new Date(body.scheduled_at) : undefined);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:524:@Controller('refunds')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:528:  @Post('request') request(@CurrentUser() u: any, @Body() b: any) { return this.svc.request(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:529:  @Get('my') my(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:530:  @Get('policy-preview') preview(@Query('scheduled_at') s?: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:536:@Controller('admin/finance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:543:  @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:544:  @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:545:  @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:550:@Controller('admin/insurance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:554:  @Get('requests') all(@Query('state') state?: string) { return this.svc.adminAll(state); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:555:  @Get('stats') stats() { return this.svc.adminStats(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:558:@Controller('finance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:563:  @Post('ledger/accrue') accrue(@Body() b: any) { return this.finance.accrue(b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:564:  @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:8:@Controller('support')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:11:  @Post('requests') create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:13:  @Post('tickets') createTicket(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:14:  @Get('requests/mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:15:  @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:16:  @Post('requests/:id/reply') reply(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.reply(u, id, b.message); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:19:  @Get('admin/requests') @Roles(UserRole.ADMIN) adminList(@Query('status') status?: string) { return this.svc.adminList(status); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:20:  @Patch('admin/requests/:id') @Roles(UserRole.ADMIN) adminUpdate(@Param('id') id: string, @Body() b: any) { return this.svc.adminUpdateStatus(id, b.status, b.assigned_to); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:23:  @Get('tickets')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:29:  @Get('faqs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:34:  @Post('feedback')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:39:  @Get('settings') get(@CurrentUser() u: any) { return this.svc.getSettings(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/support/support.controller.ts:40:  @Patch('settings') update(@CurrentUser() u: any, @Body() b: any) { return this.svc.updateSettings(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:9:@Controller('webhooks')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:14:  @Post('moyasar')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:24:  @Post('paytabs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:34:  @Post('sms')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:42:  @Post('livekit')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:10:@Controller('community')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:16:  @Get('posts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:26:  @Post('posts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:31:  @Get('posts/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:36:  @Post('posts/:id/comment')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:41:  @Put('posts/:id/vote')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:46:  @Delete('posts/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:53:  @Get('admin/pending')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:58:  @Put('admin/:id/moderate')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:65:  @Get('live-sessions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:70:  @Post('live-sessions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:75:  @Put('live-sessions/:id/join')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/community/community.controller.ts:80:  @Put('live-sessions/:id/status')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:22:import { Cron, CronExpression } from '@nestjs/schedule';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:692:@Controller('push')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:697:  @Post('register')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:700:  @Post('unregister')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:703:  @Get('devices')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:706:  @Post('test')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:710:  @Post('web/subscribe')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:722:  @Post('web/unsubscribe')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:729:  @Get('web/vapid-key')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:733:  @Post('events')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/push/push.module.ts:736:  @Post('admin/campaign')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:7:@Controller('pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:14:  @Get('prescriptions/:rxNumber') async byRxNumber(@CurrentUser() u: any, @Param('rxNumber') rx: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:26:  @Post('reports/eod') async eod(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:42:  @Get('orders/incoming') incoming(@CurrentUser() u: any) { return this.svc.incoming(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:43:  @Get('orders/preparing') preparing(@CurrentUser() u: any) { return this.svc.preparing(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:44:  @Get('orders/ready') ready(@CurrentUser() u: any) { return this.svc.ready(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:45:  @Get('orders/completed') completed(@CurrentUser() u: any) { return this.svc.completed(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:46:  @Get('orders/basket-review') basketReview(@CurrentUser() u: any) { return this.svc.basketReview(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:47:  @Get('orders/awaiting-approval') awaitingApproval(@CurrentUser() u: any) { return this.svc.awaitingApproval(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:48:  @Get('orders/refills') refills(@CurrentUser() u: any) { return this.svc.refillOrders(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:51:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:52:  @Post('orders/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { reason?: string }) { return this.ordersSvc.reject(id, u, b?.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:53:  @Post('orders/:id/preparing') preparingAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markPreparing(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:54:  @Post('orders/:id/ready') readyAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markReady(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:55:  @Post('orders/:id/partial') partial(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { unavailable_medicine_ids: string[] }) { return this.ordersSvc.markPartial(id, u, b.unavailable_medicine_ids || []); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:58:  @Get('inventory') inventory(@CurrentUser() u: any) { return this.svc.getInventory(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:59:  @Post('inventory/stock') stock(@CurrentUser() u: any, @Body() b: { medicine_id: string; stock_qty: number; is_available?: boolean }) { return this.svc.updateStock(u, b.medicine_id, b.stock_qty, b.is_available !== false); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:60:  @Post('inventory/add') addMed(@CurrentUser() u: any, @Body() b: any) { return this.svc.addMedicineToInventory(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:63:  @Get('orders/:id') orderDetail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.orderDetail(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:64:  @Post('orders/:id/items/:idx/unavailable') itemUnavailable(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.markItemUnavailable(u, id, parseInt(idx, 10)); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:65:  @Post('orders/:id/items/:idx/restore') itemRestore(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.restoreItem(u, id, parseInt(idx, 10)); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:66:  @Post('orders/:id/items/:idx/qty') itemQty(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { qty: number }) { return this.svc.updateItemQty(u, id, parseInt(idx, 10), b.qty); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:67:  @Post('orders/:id/items/:idx/substitute') itemSub(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { name_ar: string; name_en?: string; medicine_id?: string; qty?: number; price?: number; note?: string }) { return this.svc.substituteItem(u, id, parseInt(idx, 10), b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:70:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { note?: string }) { return this.svc.submitBasket(u, id, b?.note); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:73:  @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: 'approved' | 'rejected' | 'pending'; reason?: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:83:@Controller('provider/pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:88:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:89:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.submitBasket(u, id, b?.note); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:90:  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:93:  @Post('orders/:id/dispatch') dispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:21:@Controller('home-care')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:33:  @Get('services') servicesList(@Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:39:  @Get('services/:id') async serviceOne(@Param('id') id: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:45:  @Get('providers') async providers(@Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:53:  @Get('providers/:id') async provider(@Param('id') id: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:74:  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:77:    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:87:      scheduled_at: new Date(body.scheduled_at),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:98:  @Get('bookings/my') myBookings(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:104:  @Get('bookings/nursing/all') nursingQueue(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:141:  @Post('bookings/:id/respond') respond(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:151:  @Post('bookings/:id/assign') async assign(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:158:  @Post('bookings/:id/check-in') checkIn(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:162:  @Post('bookings/:id/gps') async gps(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:170:  @Post('bookings/:id/visit-report') visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:183:  @Get('care-plans/:patientId') async listCarePlans(@CurrentUser() u: any, @Param('patientId') patientId: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:189:  @Post('care-plans/:patientId') async createCarePlan(@CurrentUser() u: any, @Param('patientId') patientId: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:209:  @Post('provider/availability') async setAvailability(@CurrentUser() u: any, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:215:  @Post('inventory/request') async inventoryRequest(@CurrentUser() u: any, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:265:@Controller('provider/nursing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:268:  @Get('checklist') checklist(@Query('category') category?: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:271:  @Get('supplies') supplies() { return { items: NURSING_SUPPLIES }; }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:276:@Controller()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:281:  @Get('chats/provider') providerThreads(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:285:  @Get('chat/channels') channels(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:289:  @Get('chats/:id/messages') getMessages(@CurrentUser() u: any, @Param('id') id: string, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:293:  @Post('chats/:id/messages') postMessage(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:298:  @Post('chat/messages/:threadId') postLegacy(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:303:  @Post('provider/chat/send') providerSend(@CurrentUser() u: any, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:4:@Controller('admin/config')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:8:  @Get('sla')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:12:      consultationDuration: 15,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:19:  @Put('sla')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts:3:@Controller('system-health')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts:6:  @Get('liveness')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts:19:  @Get('readiness')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:9:@Controller('admin/governance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:22:  @Put('trigger-emergency-maintenance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:50:  @Get('fraud-alerts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:57:  @Get('audit-logs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:6:@Controller('admin/extended-operations')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:12:  @Get('procurement/pending')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:22:  @Patch('issue-quote/:procurementId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:8:@Controller('providers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:45:  @Post('provider-deltas')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:51:  @Post('provider-deltas/:id/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:82:  @Post('provider-deltas/:id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:10: * clusters of SOS emergency requests and home-visit appointments, aggregated
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:13:@Controller('nabd-extensions/admin/analytics')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:18:    @InjectModel('Appointment') private appointmentModel: Model<any>,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:36:  @Get('heatmaps')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:49:    // Real home-visit appointment demand (last 30 days)
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:52:      const appts = await this.appointmentModel
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:21:@Controller('admin/finance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:31:  @Get('commissions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:37:  @Get('withdrawals/pending')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:70:  @Post('withdrawals/:id/execute')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:119:  @Post('withdrawals/:id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/admin-web-core.module.ts:21:import { AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/bans/bans.controller.ts:14:@Controller('bans')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/bans/bans.controller.ts:20:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/bans/bans.controller.ts:25:  @Delete(':value')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/bans/bans.controller.ts:30:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/media/media.controller.ts:8:@Controller('media')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/media/media.controller.ts:16:  @Post('upload')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/media/media.controller.ts:46:  @Post('presigned')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/media/media.controller.ts:87:      if (thread.type === 'booking' && thread.booking_kind === 'consultation') {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/media/media.controller.ts:108:          const followupHours = sysConfig?.value?.consultation_followup_hours ?? 24;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/media/media.controller.ts:124:  @Delete(':key(*)')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:25:    payment_method?: 'cash' | 'insurance';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:26:    insurance_provider?: string;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:82:        insurance_provider: line.insurance_provider,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:97:    const allowed = ['qty', 'payment_method', 'insurance_provider', 'home_visit', 'notes'];
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:129:@Controller('cart')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:136:  @Get('') get(@CurrentUser() u: any) { return this.svc.get(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:137:  @Post('lines') add(@Body() b: any, @CurrentUser() u: any) { return this.svc.addLine(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:138:  @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:139:  @Delete('lines/:lineId') rm(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:140:  @Post('clear') clr(@Body() b: any, @CurrentUser() u: any) { return this.svc.clear(u, b?.kind); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:141:  @Get('checkout') chk(@CurrentUser() u: any) { return this.svc.prepareCheckout(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/cart/cart.module.ts:142:  @Get('prescription')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:16:import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:58:      ...dupAppts.map(d => ({ kind: 'consultation', ...d })),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:74:      ...await sample(this.appts, 'consultation'),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:81:      const eventTypeMap: Record<string, string> = { pharmacy: 'order', lab: 'lab_booking', radiology: 'radiology_booking', nursing: 'nursing_booking', consultation: 'appointment' };
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:91:      ...await mismatchFor(this.appts, 'consultation', 'status'),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:98:      const eventTypeMap: Record<string, string> = { pharmacy: 'order', lab: 'lab_booking', radiology: 'radiology_booking', nursing: 'nursing_booking', consultation: 'appointment' };
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:108:      ...await missingBirthFor(this.appts, 'consultation'),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:151:        const field = o.kind === 'consultation' ? 'status' : 'state';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:160:@Controller('consistency')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:165:  @Get('audit') audit() { return this.svc.audit(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:166:  @Post('reconcile') reconcile() { return this.svc.reconcile(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/consistency/consistency.module.ts:167:  @Post('fix-orphans') fixOrphans(@Query('dry_run') dry?: string) { return this.svc.fixOrphans(dry !== 'false'); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:8:@Controller('feature-flags')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:14:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:20:@Controller('admin/feature-flags')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:25:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:31:  @Post(':key')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:170:      status: 'scheduled',
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:213:  async bookSurgery(facilityId: string, body: { patient_id: string; primary_surgeon_id: string; assistants?: string[]; ot_room_number: string; scheduled_at: Date; duration_mins: number }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:214:    const start = new Date(body.scheduled_at);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:221:      scheduled_at: { $lt: end },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:225:      const conflictEnd = new Date(conflicting.scheduled_at.getTime() + conflicting.duration_mins * 60 * 1000);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:238:      scheduled_at: body.scheduled_at,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:245:    return this.surgeryModel.find({ facility_id: facilityId }).sort({ scheduled_at: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:253:@Controller('facility/beds')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:258:  @Get('wards')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:263:  @Get('wards/:wardId/beds')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:268:  @Post('wards')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:273:  @Post('admission')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:278:  @Get('admissions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:283:  @Put('discharge/:admissionId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:289:@Controller('facility/shifts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:294:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:299:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:304:  @Post(':id/substitute')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:309:  @Post('attendance/check-in')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:314:  @Post('attendance/check-out/:attendanceId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:319:  @Get('attendance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:325:@Controller('facility/surgeries')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:330:  @Post('book')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:335:  @Get('schedule')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:345:@Controller('facility')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:352:  @Get('announcements')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:359:  @Post('announcements')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:376:  @Get('resources')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:383:  @Post('resources')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:388:    const type = String(b?.type || 'consultation').slice(0, 40);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:405:  @Put('resources/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:10:import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:21: * Every booking flavor (pharmacy, lab, radiology, nursing, consultation) is
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:38:  private scoreBucket(items: Array<{ kind: any; state: string; createdAt?: Date; state_history?: any[]; scheduled_at?: Date }>) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:51:      if (it.scheduled_at) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:53:        if (lastComplete && new Date(lastComplete.at).getTime() > new Date(it.scheduled_at).getTime() + 60 * 60000) delayed++;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:77:        items = await this.orders.find({ pharmacy_id: p.user_id, createdAt: { $gte: since } }, { state: 1, state_history: 1, createdAt: 1, scheduled_at: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:80:        items = await this.labs.find({ account_id: p.user_id, createdAt: { $gte: since } }, { state: 1, state_history: 1, createdAt: 1, scheduled_at: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:83:        items = await this.rads.find({ account_id: p.user_id, createdAt: { $gte: since } }, { state: 1, state_history: 1, createdAt: 1, scheduled_at: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:86:        items = await this.home.find({ account_id: p.user_id, createdAt: { $gte: since } }, { state: 1, state_history: 1, createdAt: 1, scheduled_at: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:88:        kind = 'consultation';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:89:        const itemsAppt: any[] = await this.appts.find({ $or: [{ doctor_id: p.id }, { doctor_user_id: p.user_id }, { account_id: p.user_id }], createdAt: { $gte: since } }, { status: 1, state_history: 1, createdAt: 1, slot_start: 1 }).lean();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:90:        items = itemsAppt.map((a: any) => ({ ...a, state: a.status, scheduled_at: a.slot_start }));
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:120:    const activeAppts = appts.filter((a: any) => isActive('consultation', a.status));
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:122:      orders_using_insurance: orders.filter(o => (o as any).payment_method === 'insurance').length,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:123:      labs_using_insurance: labs.filter(b => b.payment_method === 'insurance').length,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:124:      rads_using_insurance: rads.filter(b => b.payment_method === 'insurance').length,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:125:      insurance_providers: Array.from(new Set([
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:126:        ...labs.map(b => b.insurance_provider).filter(Boolean),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:127:        ...rads.map(b => b.insurance_provider).filter(Boolean),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:136:        total_consultation: appts.length, active_consultation: activeAppts.length,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:142:      }, insurance_usage: ins_usage,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:148:        consultation: activeAppts.slice(0, 10),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:155:        consultation: appts.slice(0, 30),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:178:    } else if (entity_type === 'appointment') {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:191:    const activeCon = domainStatesFor('consultation', ServiceState.CANCELLED).concat(domainStatesFor('consultation', ServiceState.COMPLETED));
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:222:      consultation: { total: apptsTotal, active: apptsActive },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:233:@Controller('admin/governance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:238:  @Get('summary') summary() { return this.svc.globalSummary(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:239:  @Get('providers-performance') perf(@Query() q: any) { return this.svc.providersPerformance({ type: q.type, limit: q.limit ? Number(q.limit) : undefined }); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:240:  @Get('patient/:id') patient(@Param('id') id: string) { return this.svc.patientProfile(id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:241:  @Get('trace/:entity_type/:entity_id') trace(@Param('entity_type') et: string, @Param('entity_id') ei: string) { return this.svc.entityTrace(et, ei); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:244:@Controller('kill-switches')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:251:    { id: "KS002", name: "الكشوفات الأونلاين", key: "online_consultations", value: true, description: "إيقاف حجوزات الفيديو والاستشارات عن بعد", danger: true },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:261:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:270:  @Post(':key')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:288:@Controller('commissions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:301:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:338:  @Put(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/system-config.controller.ts:15:@Controller('admin/governance/system-config')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/system-config.controller.ts:19:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/system-config.controller.ts:31:  @Put()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:8:@Controller('b2b')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:15:  @Get('requests')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:24:  @Post('requests/:id/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:34:  @Post('requests/:id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:4:import { SlotLock, SlotLockSchema } from '../../schemas/slot-lock.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:7:/** 5-minute slot-lock TTL with optimistic anti-collision. */
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:14:  async reserve(user: any, body: { provider_id: string; booking_kind: string; slot_start: string; slot_end?: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:15:    if (!body.provider_id || !body.slot_start) throw new BadRequestException('missing_fields');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:16:    const start = new Date(body.slot_start);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:17:    const end = body.slot_end ? new Date(body.slot_end) : new Date(start.getTime() + 30 * 60 * 1000);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:24:      slot_start: { $lt: end },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:25:      slot_end: { $gt: start },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:27:    if (conflict && conflict.patient_id !== user.id) throw new BadRequestException('slot_taken');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:30:    const lock = await this.locks.create({ provider_id: body.provider_id, patient_id: user.id, booking_kind: body.booking_kind, slot_start: start, slot_end: end, status: 'held', expires_at });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:57:@Controller('slot-locks')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:61:  @Post('reserve') reserve(@CurrentUser() u: any, @Body() b: any) { return this.svc.reserve(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:62:  @Post(':id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { booking_id: string }) { return this.svc.confirm(u, id, b.booking_id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:63:  @Post(':id/release') release(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.release(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:64:  @Get('mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:9:@Controller('loyalty')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:13:  @Get('config')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:22:  @Get('account')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:28:  @Get('transactions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:34:  @Get('leaderboard')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:40:  @Get('challenges')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:46:  @Post('challenges/:id/join')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:52:  @Get('rewards')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:58:  @Post('rewards/:id/claim')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:64:  @Get('rewards/claimed')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:6:@Controller('medicines')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:12:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:45:  @Get('autocomplete')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:51:  @Post('lookup-barcode')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:57:  @Get('by-barcode/:code')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:63:  @Get('categories')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:69:  @Get('filters')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:75:  @Post('compare')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:85:  @Get('hot')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:92:  @Get('search/did-you-mean')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:99:  @Get('search/trending')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:105:  @Get('search/recent')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:111:  @Post('admin/hot/regenerate')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:118:  @Post(':id/report-shortage')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:124:  @Get('admin/shortage-reports')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:131:  @Post('admin/shortage-reports/:reportId/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:138:  @Post('admin/shortage-reports/:reportId/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:145:  @Post('admin/catalog/:id/clear-shortage-badge')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:152:  @Post('admin/catalog/:id/availability')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:161:  @Post(':id/suggest-image')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:167:  @Get('admin/image-suggestions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:174:  @Post('admin/image-suggestions/:suggestionId/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:181:  @Post('admin/image-suggestions/:suggestionId/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:189:  @Post(':id/suggest-change')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:196:  @Post('suggest-new-item')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:202:  @Get('admin/change-requests')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:209:  @Post('admin/change-requests/:requestId/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:216:  @Post('admin/change-requests/:requestId/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:223:  @Patch('admin/catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:230:  @Get('admin/catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:247:  @Post('admin/catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:254:  @Post('admin/catalog/:id/delete')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:261:  @Get('admin/reports')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:268:  @Get('me/recently-viewed')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:274:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:280:  @Get(':id/details')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:289:  @Get(':id/alternatives')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:294:  @Post('manual-entry')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:299:  @Get('admin/pending-review')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:305:  @Post('admin/catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:311:  @Delete('admin/catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:317:  @Post(':id/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:323:  @Post(':id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:329:  @Patch(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:336:  @Post('admin/import-json')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:342:  @Post('admin/import-csv')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:13:@Controller('seo')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:19:  @Get('resolve/:type/:slug')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:28:  @Get('meta/:type/:slug')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:35:  @Get('build/:type/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:45:  @Get('sitemap.xml')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:58:  @Get('llms.txt')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/seo/seo.controller.ts:70:  @Get('robots.txt')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/timeline/timeline.module.ts:10:import { AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/timeline/timeline.module.ts:15:import { AppointmentRepository } from "./repositories/appointment.repository";
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/timeline/timeline.controller.ts:8:@Controller('timeline')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/timeline/timeline.controller.ts:13:   * GET /api/v2/timeline?kinds=order,lab,rx,home_care,consultation,vital,reminder,custom
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/timeline/timeline.controller.ts:17:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/timeline/timeline.controller.ts:35:  @Get('summary')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:25:/** Provider weekly schedule + blocked dates for labs/radiology/home services. */
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:26:@Schema({ timestamps: true, collection: 'provider_schedules' })
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:33:  @Prop({ default: 30 }) slot_minutes: number;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:34:  @Prop({ default: 1 }) max_per_slot: number;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:152:    for (const k of ['weekly', 'blocked_dates', 'slot_minutes', 'max_per_slot', 'coverage_radius_km', 'is_online']) if (data[k] !== undefined) $set[k] = data[k];
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:154:    this.bus.emit({ type: 'provider.schedule_updated', entity_type: 'provider_schedule', entity_id: r.id, actor_account_id: user.id, actor_role: user.role, meta: { entity_type } }).catch(() => null);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:158:  // Compute generic available slots for a given provider/entity_type/date
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:159:  async availableSlots(account_id: string, entity_type: string, date: string, bookedCounter?: (slotISO: string) => Promise<number>) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:161:    if (!s) s = { weekly: DEFAULT_WEEKLY, blocked_dates: [], slot_minutes: 30, max_per_slot: 1 };
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:165:    const dur = s.slot_minutes || 30;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:176:          out.push({ time: iso, available: booked < (s.max_per_slot || 1) });
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:185:@Controller('service-catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:190:  @Get('mine/:type') mine(@Param('type') t: 'lab' | 'radiology', @CurrentUser() u: any) { return this.svc.myCatalog(u, t); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:191:  @Post('mine/:type') create(@Param('type') t: 'lab' | 'radiology', @Body() b: any, @CurrentUser() u: any) { return this.svc.createService(u, t, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:192:  @Patch('mine/:type/:id') update(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateService(u, t, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:193:  @Post('mine/:type/:id/toggle') toggle(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.toggleService(u, t, id, !!b.active); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:194:  @Delete('mine/:type/:id') del(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @CurrentUser() u: any) { return this.svc.deleteService(u, t, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:196:  @Get('schedule/:entity') sched(@Param('entity') e: string, @CurrentUser() u: any) { return this.svc.getSchedule(u, e); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:197:  @Patch('schedule/:entity') setSched(@Param('entity') e: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.upsertSchedule(u, e, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:200:  @Get('admin/:type') @Roles(UserRole.ADMIN) adminAll(@Param('type') t: 'lab' | 'radiology', @Query() q: any) { return this.svc.adminListAll(t, q); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:201:  @Post('admin/:type/:id/approve') @Roles(UserRole.ADMIN) approve(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.adminApproveService(t, id, b.approve !== false, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:9:@Controller('ai')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:14:  @Get('config')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:20:  @Post('config')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:27:  @Get('admin/gateway')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:34:  @Post('admin/gateway/provider/:key')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:41:  @Post('admin/gateway/mode')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:48:  @Get('admin/usage')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:56:  @Post('triage')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:61:  @Get('triage/history')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:66:  @Post('voice-to-order')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:85:  @Post('prescription-ocr')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:91:  @Post('parse-excel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:107:  @Post('copilot/suggest')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:113:  @Post('triage/chat')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:120:  @Post('ocr-translate')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:125:  @Post('skin-analysis')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:130:  @Post('medicine-image-search')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:135:  @Post('barcode-lookup')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:140:  @Post('analyze-meal')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:150:  @Post('analyze-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:156:  @Post('generate-exercise-plan')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:161:  @Post('generate-diet-plan')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:11:import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:54:      if (stateStr !== 'COMPLETED') throw new ForbiddenException('You can only rate after appointment is COMPLETED');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:127:  async rebook(user: any, body: { booking_kind: string; booking_id: string; scheduled_at: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:136:    clone.scheduled_at = body.scheduled_at ? new Date(body.scheduled_at) : new Date();
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:144:@Controller('patient-ux')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:148:  @Post('review') rate(@CurrentUser() u: any, @Body() b: any) { return this.svc.rate(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:149:  @Post('refund') refund(@CurrentUser() u: any, @Body() b: any) { return this.svc.requestRefund(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:150:  @Get('refund/mine') refunds(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:151:  @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: any) { return this.svc.rebook(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:155:@Controller('admin/refunds')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:160:  @Get() list() { return this.svc.adminListRefunds(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:161:  @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:162:  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { decision: 'approved' | 'rejected'; note?: string; amount?: number }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:187:      case 'care': case 'consultation': return this.appts;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:271:@Controller('admin/override')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:277:  @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: { kind: string; id: string; reason: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:282:  @Post('transition') transition(@CurrentUser() u: any, @Body() body: { kind: string; id: string; state: string; reason: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:287:  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: { kind: string; id: string; payment_status: 'paid' | 'refunded' | 'failed'; amount?: number; reason: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:296:    // Distinct model name: insurance-engine also registers a 'RefundRequest' model (policy-window
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home/home.module.ts:6:import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home/home.controller.ts:5:@Controller('home')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home/home.controller.ts:10:  @Get('offers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home/home.controller.ts:15:  @Get('upcoming-appointment')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home/home.controller.ts:20:  @Get('search')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:7:@Controller('notifications')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:12:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:22:  @Post('register-token')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:36:  @Post(':id/read')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:41:  @Post('read-all')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:46:  @Post('admin/send')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:52:  // M6/ER-8: admin — schedule a notification for future delivery
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:53:  @Post('admin/schedule')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:55:  schedule(@Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:56:    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.controller.ts:61:  @Get('admin/delivery-stats')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/notifications/notifications.module.ts:16:    // M6/ER-8: delivery queue — retry (x4, exponential) + scheduled delivery
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/referral/referral.controller.ts:11:@Controller('referrals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/referral/referral.controller.ts:16:  @Get('my')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/referral/referral.controller.ts:22:  @Post('apply')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:45:@Controller('auth')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:52:  @Post('register')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:59:  @Post('login')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:85:  @Post('guest')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:90:  @Post('convert-guest')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:97:  @Post('login/verify-2fa')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:119:  @Get('me')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:127:  @Get('trusted-devices')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:133:  @Delete('trusted-devices/:deviceId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:139:  @Post('heartbeat')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:150:  @Get('sessions/online')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:157:  @Post('refresh')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:163:  @Post('logout-all')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:169:  @Post('consent')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:179:  @Post('logout')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:192:  @Post('send-otp')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:200:  @Post('verify-otp')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:208:  @Post('reset-password')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/auth.controller.ts:217:  @Post('social-login')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/passkey.controller.ts:14:@Controller('auth/passkey')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/passkey.controller.ts:19:  @Post('enroll/options')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/passkey.controller.ts:24:  @Post('enroll/verify')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/passkey.controller.ts:30:  @Get('devices')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/passkey.controller.ts:36:  @Delete('devices/:credentialId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/auth/passkey.controller.ts:44:  @Post('login/verify')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/api-security/api-security.module.ts:191:@Controller('admin/security')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/api-security/api-security.module.ts:197:  @Get('events')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/api-security/api-security.module.ts:209:  @Post('blacklist/clear')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:89:      consultation: { collection: 'appointments', amounts: ['total_price', 'price', 'amount'] },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:90:      appointment: { collection: 'appointments', amounts: ['total_price', 'price', 'amount'] },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:97:      insurance: { collection: 'insuranceservicerequests', amounts: ['copay_amount', 'price'] },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:98:      'insurance-copay': { collection: 'insuranceservicerequests', amounts: ['copay_amount', 'price'] },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:99:      copay: { collection: 'insuranceservicerequests', amounts: ['copay_amount', 'price'] },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:374:@Controller('moyasar')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:379:  @Post('payments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:404:  @Get('payments/booking/:bookingId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:415:  @Get('payments/me')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:422:  @Get('payments/sync/:moyasarId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:433:  @Post('payments/:moyasarId/refund')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:445:  @Post('webhook')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/moyasar/moyasar.module.ts:457:  @Get('callback')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/i18n/i18n.controller.ts:8:@Controller('i18n')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/i18n/i18n.controller.ts:13:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/i18n/i18n.controller.ts:19:  @Get('all')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:7:@Controller('export')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:19:  @Get('patients')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:25:  @Get('appointments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:28:    this.sendCsvResponse(res, 'appointments.csv', csv);
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:31:  @Get('orders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:37:  @Get('transactions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:43:  @Get('audit-logs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/realtime/realtime.module.ts:7:import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:9:@Controller('medical-profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:13:  @Get() get(@CurrentUser() u: any) { return this.svc.getOrCreate(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:14:  @Get('passport-token')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:20:  @Patch() update(@CurrentUser() u: any, @Body() b: any) { return this.svc.update(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:22:  @Post('chronic-diseases') addCd(@CurrentUser() u: any, @Body() b: any) { return this.svc.addItem(u, 'chronic_diseases', b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:23:  @Delete('chronic-diseases/:id') delCd(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.removeItem(u, 'chronic_diseases', id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:25:  @Post('allergies') addAl(@CurrentUser() u: any, @Body() b: any) { return this.svc.addItem(u, 'allergies', b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:26:  @Delete('allergies/:id') delAl(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.removeItem(u, 'allergies', id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:28:  @Post('surgeries') addS(@CurrentUser() u: any, @Body() b: any) { return this.svc.addItem(u, 'surgeries', b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:29:  @Delete('surgeries/:id') delS(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.removeItem(u, 'surgeries', id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:31:  @Post('long-term-medications') addLm(@CurrentUser() u: any, @Body() b: any) { return this.svc.addItem(u, 'long_term_medications', b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:32:  @Delete('long-term-medications/:id') delLm(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.removeItem(u, 'long_term_medications', id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:35:  @Get('provider/:patientId') byPatient(@CurrentUser() u: any, @Param('patientId') pid: string) { return this.svc.getForPatient(u, pid); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/tour/tour.controller.ts:6:@Controller('tour')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/tour/tour.controller.ts:10:  @Get('status')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/tour/tour.controller.ts:15:  @Post('complete')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:220:@Controller('recruitment')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:226:  @Get('candidate/profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:231:  @Post('candidate/profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:236:  @Get('applications/my')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:242:  @Post('jobs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:251:  @Put('jobs/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:259:  @Get('jobs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:265:  @Get('jobs/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:270:  @Post('jobs/:id/apply')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:275:  @Get('jobs/:id/applications')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:280:  @Patch('applications/:id/status')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:643:      consultation: 'appointments', appointment: 'appointments',
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:859:@Controller('finance-engine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:869:  @Post('coupons/validate')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:881:  @Post('loyalty/redeem-quote')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:889:  @Get('provider/balance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:896:@Controller('admin/finance-engine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:911:  @Get('reports/summary')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:918:  @Post('commission-rules')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:923:  @Get('commission-rules/history')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:928:  @Post('commission-rules/resolve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:936:  @Get('approvals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:941:  @Post('approvals/request')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:946:  @Post('approvals/:id/decide')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:974:  @Post('refunds/:id/execute')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:1004:  @Get('fraud/duplicate-payments/:bookingId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:1010:  @Get('provider-balance/:providerId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:18:import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:40:  consultation: { REQUESTED: 5,   MATCHING: 5,   ASSIGNED: 10, CONFIRMED: 60,  IN_PROGRESS: 60   },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:78:      collect(this.appts, 'consultation', 'status'),
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:103:  async assessPenalty(args: { booking_id: string; kind: string; patient_id: string; provider_id?: string; scheduled_at?: Date; cancelled_at?: Date }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:104:    if (!args.scheduled_at) return null;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:105:    const minutesBefore = (new Date(args.scheduled_at).getTime() - new Date(args.cancelled_at || new Date()).getTime()) / 60000;
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:108:    else if (minutesBefore < 0) { amount = 50; reason = 'cancel_after_scheduled'; }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:117:  async fallback(body: { kind: 'pharmacy' | 'lab' | 'radiology' | 'nursing' | 'consultation'; exclude_provider_id?: string; city?: string; insurance?: string; service_keys?: string[] }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:119:      kind: body.kind, city: body.city, insurance: body.insurance,
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:137:@Controller('ops')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:142:  @Get('sla') sla() { return this.svc.slaReport(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:143:  @Post('escalate') escalate(@Body() b: any) { return this.svc.escalate(b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:144:  @Post('penalty/assess') assess(@Body() b: any) { return this.svc.assessPenalty(b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:145:  @Post('fallback') fallback(@Body() b: any) { return this.svc.fallback(b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts:146:  @Get('penalties') penalties(@Query() q: any) { return this.svc.listPenalties(q); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:8:@Controller('health')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:12:  @Get('vitals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:16:  @Get('vitals/chart')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:19:  @Get('vitals/recent')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:22:  @Get('vitals/latest')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:25:  @Get('vitals/summary')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:28:  @Get('score')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:30:  @Post('vitals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:32:  @Patch('vitals/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:34:  @Delete('vitals/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:37:  @Get('reminders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:39:  @Post('reminders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:41:  @Post('reminders/:id/log')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:45:  @Post('reminders/:id/refill')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:47:  @Post('reminders/:id/refill/snooze')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:49:  @Post('reminders/:id/refill/cancel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:51:  @Patch('reminders/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:55:  @Delete('reminders/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:58:  @Get('sleep')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:62:  @Post('sleep')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:68:  @Get('reports')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:73:  @Get('medications/reminders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:78:  @Get('prescriptions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:83:  @Get('emergency-contacts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:88:  @Post('emergency-contacts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:93:  @Delete('emergency-contacts/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:98:  @Get('chronic-diseases')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:103:  @Get('chronic-meds')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health.controller.ts:108:  @Get('trends')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:12:@Controller('admin/health-dashboard')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:31:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:91:    // Cron jobs (static known schedule + last backup file age)
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:93:      { name: 'daily-backup', schedule: '03:00 daily', status: 'scheduled' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:94:      { name: 'monitor', schedule: '*/15min', status: 'scheduled' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:95:      { name: 'hot-medicines', schedule: '04:00 daily', status: 'scheduled' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:96:      { name: 'appointment-reminders', schedule: 'hourly', status: 'in-app' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:97:      { name: 'retargeting', schedule: 'every 6h', status: 'in-app' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:98:      { name: 'scheduled-campaigns', schedule: 'every minute', status: 'in-app' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/health/health-dashboard.controller.ts:99:      { name: 'certbot-renew', schedule: '12h', status: 'scheduled' },
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:18:@Controller('mental-health')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:25:  @Post('mood')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:33:  @Get('mood')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:44:  @Get('mood/stats')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:54:  @Post('meditation')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:62:  @Get('meditation')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:70:  @Get('meditation/stats')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:80:  @Post('breathing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:88:  @Get('breathing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:98:  @Post('assessment')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:106:  @Get('assessment')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:116:  @Get('crisis-contacts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:124:  @Post('crisis-contacts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:132:  @Delete('crisis-contacts/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/mental-health/mental-health.controller.ts:142:  @Get('dashboard')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:5:@Controller('labs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:9:  @Public() @Get('services')
+## Patient exact apiFetch markers
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:59:      const res = await apiFetch(`/community/posts?page=1&limit=20${qs}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/hub.tsx:74:      await apiFetch("/community/posts", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:53:      const res = await apiFetch(`/community/posts/${postId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:68:      const res = await apiFetch(`/community/posts/${postId}/vote`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/community/post-detail.tsx:87:      const res = await apiFetch(`/community/posts/${postId}/comment`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/hub.tsx:71:      const res = await apiFetch("/medical-reports/mine?limit=100");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/timeline.tsx:43:        const res = await apiFetch('/medical-reports/timeline');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/ai-analysis.tsx:37:        const res = await apiFetch("/ai/analyze-report", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/view-report.tsx:70:        const res = await apiFetch(`/reports/${params.id}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/passport.tsx:38:    apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reports/passport.tsx:39:    apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/index.tsx:44:    apiFetch('/loyalty/account')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/addresses.tsx:29:        const data = await apiFetch("/users/me/addresses");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/addresses.tsx:46:      await apiFetch(`/users/me/addresses/${id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:40:      const data = await apiFetch("/users/me/insurance");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:61:      const list = await apiFetch("/insurance/companies");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:73:      const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/profile/insurance.tsx:96:      const saved = await apiFetch("/users/me/insurance", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/offers/index.tsx:23:    apiFetch('/home/offers')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:61:      const acc = await apiFetch('/loyalty/account');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:65:      const txRes = await apiFetch('/loyalty/transactions?page=1');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:68:      const configRes = await apiFetch('/loyalty/config').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:74:      const rewardsRes = await apiFetch('/loyalty/rewards').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/hub.tsx:294:                        await apiFetch(`/loyalty/rewards/${rid}/claim`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/referrals.tsx:53:      const res = await apiFetch("/referrals/my");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/referrals.tsx:86:      await apiFetch("/referrals/apply", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/challenges.tsx:30:      const res = await apiFetch('/loyalty/challenges');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/challenges.tsx:52:      await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:30:      const acc = await apiFetch('/loyalty/account');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:33:      const catalog = await apiFetch('/loyalty/rewards');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/rewards.tsx:59:              const res = await apiFetch(`/loyalty/rewards/${reward.id}/claim`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/loyalty/leaderboard.tsx:36:    apiFetch('/loyalty/leaderboard?limit=50')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/symptom-timeline.tsx:52:      const res = await apiFetch("/ai/triage/history");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:37:        apiFetch('/care/appointments').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:38:        apiFetch('/health/vitals/summary').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:39:        apiFetch('/health/chronic-meds').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/ai/monthly-report.tsx:40:        apiFetch('/health/trends').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:107:    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/notifications/index.tsx:114:      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/search/index.tsx:54:      apiFetch(`/home/search?q=${encodeURIComponent(query)}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:34:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:47:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:69:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:82:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wearables/hub.tsx:95:      apiFetch("/health/vitals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/search.tsx:29:        const res = await apiFetch("/labs/services");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/cart.tsx:30:      apiFetch(`/labs/compatible-providers?testIds=${ids}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:28:          apiFetch(`/providers/${id}`),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab/[id].tsx:29:          apiFetch(`/labs/services?providerId=${id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/technician-tracking.tsx:35:      apiFetch(`/labs/bookings/${bookingId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:31:          apiFetch("/labs/bookings/mine").catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/orders.tsx:32:          apiFetch("/radiology/bookings/mine").catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:37:        const res = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-approval.tsx:78:        await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:46:        const res = await apiFetch('/providers?type=lab');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:55:        const res = await apiFetch('/insurance/companies');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:109:        const res = await apiFetch('/ai/ocr-translate', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/insurance-upload.tsx:334:                const res = await apiFetch('/orders/create', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/test-detail.tsx:39:    apiFetch(endpoint)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:84:      await apiFetch('/cart/clear', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/booking-confirm.tsx:89:      await apiFetch('/cart/clear', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:28:      apiFetch('/labs/packages'),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/packages.tsx:29:      apiFetch('/labs/categories')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab-comparison.tsx:34:      apiFetch(`/labs/services/${id}`),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/lab-comparison.tsx:35:      apiFetch(`/labs/compatible-providers?testIds=${id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/checkout.tsx:268:              const booking = await apiFetch(endpoint, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:29:    // E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:35:          const res = await apiFetch(`/radiology/bookings/${id}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:40:          const res = await apiFetch(`/labs/bookings/${id}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/order/[id].tsx:61:          const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/diagnostics/package-detail.tsx:27:    apiFetch(`/labs/packages/${id}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-list.tsx:52:        const res = await apiFetch('/health/medications/reminders');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:52:      const res = await apiFetch('/health/reminders');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:73:      await apiFetch(`/health/reminders/${id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:92:            await apiFetch(`/health/reminders/${id}`, { method: 'DELETE' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/smart-reminders.tsx:109:      await apiFetch('/health/reminders', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reminders.tsx:44:      const res = await apiFetch('/health/reminders');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reminders.tsx:62:      await apiFetch(`/health/reminders/${id}/log`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:129:        await apiFetch('/users/me/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/edit-profile.tsx:142:      await apiFetch('/users/me/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/prescriptions.tsx:26:        const res = await apiFetch('/health/prescriptions');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/medication-reminder-add.tsx:79:      await apiFetch('/health/reminders', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:37:          apiFetch('/users/me/profile').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:38:          apiFetch('/health/emergency-contacts').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/health-id.tsx:39:          apiFetch('/health/chronic-meds').catch(() => []),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-medications.tsx:23:        const res = await apiFetch('/health/chronic-meds');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-score.tsx:34:      const res = await apiFetch('/health/sleep?limit=30');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:26:    apiFetch('/health/reminders?active=1')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/refills.tsx:67:              const res = await apiFetch(`/health/reminders/${id}/refill`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:86:        const p = await apiFetch("/users/me/profile");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/conditions-allergies.tsx:124:      await apiFetch("/users/me/profile", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:26:          apiFetch('/health/chronic-diseases').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/chronic-disease.tsx:27:          apiFetch('/health/vitals').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:80:      const grp = await apiFetch("/family/my-group");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:82:      const mems = await apiFetch("/family/members");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/family-hub.tsx:99:      await apiFetch("/family/create", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:36:      const res = await apiFetch('/health/sleep?limit=30');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/sleep-tracker.tsx:71:      await apiFetch('/health/sleep', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/trends.tsx:141:        const res = await apiFetch('/health/trends');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:38:      const res = await apiFetch('/health/emergency-contacts');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:56:      const doc = await apiFetch('/health/emergency-contacts', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/emergency-contacts.tsx:83:            await apiFetch(`/health/emergency-contacts/${c.id}`, { method: 'DELETE' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/reports.tsx:25:        const res = await apiFetch('/health/reports');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:56:          apiFetch(`/health/vitals/chart?vital=${vital}`).catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:57:          apiFetch(`/health/vitals/recent?vital=${vital}`).catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals-log.tsx:95:      await apiFetch('/health/vitals', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:45:        apiFetch('/wearables/devices').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:46:        apiFetch('/wearables/data').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/wearables.tsx:62:      await apiFetch('/wearables/devices', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/health/vitals.tsx:87:    apiFetch("/health/vitals/summary")
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/reviews/index.tsx:64:      await apiFetch('/patient-ux/review', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:40:    apiFetch('/mental-health/mood?days=7')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/mood-journal.tsx:53:      await apiFetch('/mental-health/mood', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/meditation.tsx:42:    apiFetch('/mental-health/meditation')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/meditation.tsx:69:            apiFetch('/mental-health/meditation', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/breathing.tsx:62:            apiFetch('/mental-health/breathing', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/crisis-support.tsx:49:    apiFetch('/mental-health/crisis-contacts')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:26:    apiFetch('/mental-health/assessment-questions')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/mental-health/self-assessment.tsx:48:      await apiFetch('/mental-health/assessment', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:48:      const res = await apiFetch(`/articles?${params.toString()}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/index.tsx:58:    apiFetch("/articles/categories")
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/bookmarks.tsx:33:      const res = await apiFetch("/articles/bookmarks/mine");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:38:      const res = await apiFetch(`/articles/${encodeURIComponent(String(slug))}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:42:        const rel = await apiFetch(`/articles?category=${encodeURIComponent(res.category)}&limit=4`).catch(() => []);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:46:      const st = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/status`).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/articles/[slug].tsx:59:      const res = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/toggle`, { method: "POST" });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/drug-scanner/index.tsx:35:    apiFetch('/health/medications')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/drug-scanner/index.tsx:47:      const res = await apiFetch('/ai/drug-interactions', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:57:      apiFetch('/maternity/content').then(res => setContent(res)).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:59:      const res = await apiFetch('/maternity/profile').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:192:      const updated = await apiFetch('/maternity/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/hub.tsx:217:      const updated = await apiFetch(`/maternity/checkups/${encodeURIComponent(week)}/toggle`, { method: 'PUT' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/ovulation-tracker.tsx:231:      await apiFetch('/maternity/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:45:      let res = await apiFetch('/maternity/profile').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:95:      const updated = await apiFetch('/maternity/kicks', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:130:          const updated = await apiFetch('/maternity/contractions', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/pregnancy-tracker.tsx:154:      const updated = await apiFetch(`/maternity/checkups/${encodeURIComponent(week)}/toggle`, { method: 'PUT' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/maternity-setup.tsx:177:      const res = await apiFetch('/maternity/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-development.tsx:358:        let profile = await apiFetch('/maternity/profile').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:41:      const res = await apiFetch('/maternity/infant-growth', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:70:      const res = await apiFetch('/maternity/profile');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/maternity/baby-growth.tsx:82:      const vacRes = await apiFetch('/maternity/vaccines').catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:80:      safe(apiFetch('/care/appointments/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:81:      safe(apiFetch('/orders/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:82:      safe(apiFetch('/labs/bookings/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:83:      safe(apiFetch('/radiology/bookings/mine')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:84:      safe(apiFetch('/home-care/bookings/my')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:85:      safe(apiFetch('/insurance/claims')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:86:      safe(apiFetch('/pharmacy/returns')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/orders/index.tsx:87:      safe(apiFetch('/emergency/my/active')),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/calorie-analyzer.tsx:79:      await apiFetch("/nutrition/meals", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/food-scanner.tsx:70:      await apiFetch('/nutrition/meals', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-composition.tsx:27:    apiFetch("/nutrition/profile")
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/exercise-plan.tsx:44:      const res = await apiFetch('/ai/generate-exercise-plan', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:35:    apiFetch('/nutrition/foods')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/log-meal.tsx:53:      await apiFetch('/nutrition/meals', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/water-tracker.tsx:52:      await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml: size.ml }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:29:    apiFetch('/nutrition/profile')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/body-target.tsx:42:      await apiFetch('/nutrition/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/daily-tracker.tsx:50:      await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-plan-builder.tsx:64:      await apiFetch('/nutrition/profile', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nutrition/ai-meal-planner.tsx:51:      try { profile = await apiFetch('/nutrition/profile'); } catch {}
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/s/[type]/[slug].tsx:30:        const entity = await apiFetch(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:82:        const data = await apiFetch("/users/me/addresses");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/shared/location-picker.tsx:170:      const saved = await apiFetch("/users/me/addresses", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/live-tracking.tsx:85:        const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-info.tsx:27:    apiFetch(`/home-care/services/${serviceId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/service-details.tsx:35:      const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:88:        const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:93:          const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/nursing/nurse-profile.tsx:133:      const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:173:      const res = await apiFetch(`/providers/map?${query.toString()}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/map/index.tsx:216:        const ins = await apiFetch('/user/insurance');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:49:      const res = await apiFetch("/family/calendar");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:71:              await apiFetch("/family/calendar/event", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/calendar.tsx:101:              await apiFetch(`/family/calendar/event/${id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/hub.tsx:77:      const mems = await apiFetch("/family/members");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:46:      const res = await apiFetch('/family/chat/messages');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:62:        const profile = await apiFetch('/users/me/profile');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:67:        const mems = await apiFetch('/family/members');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/chat.tsx:86:      const res = await apiFetch('/family/chat/messages', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/join.tsx:44:      const res = await apiFetch("/family/join", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/permissions.tsx:119:        const group = await apiFetch("/family/my-group");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/permissions.tsx:147:        await apiFetch(`/family/member/${memberId}/permissions`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/permissions.tsx:153:        await apiFetch("/family/permissions/request", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/permissions.tsx:186:              await apiFetch(`/family/remove-member/${memberId}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/permission-request.tsx:24:    apiFetch('/family/permissions/pending')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/permission-request.tsx:52:        await apiFetch(`/family/permissions/respond/${requestInfo._id || requestInfo.id}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/invite.tsx:31:      const res = await apiFetch('/family/invite', { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/family/member-health.tsx:49:      const res = await apiFetch(`/family/member-records/${memberId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/index.tsx:81:          apiFetch('/home/offers').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/index.tsx:82:          apiFetch('/home/upcoming-appointment').catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/index.tsx:83:          apiFetch('/users/me/profile').catch(() => null)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/diagnostics.tsx:59:          apiFetch('/labs/packages').catch(() => ({ data: [] })),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/diagnostics.tsx:60:          apiFetch('/labs/services').catch(() => ({ data: [] })),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/diagnostics.tsx:61:          apiFetch('/radiology/services').catch(() => ({ data: [] })),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/diagnostics.tsx:62:          apiFetch('/providers?type=lab').catch(() => ({ data: [] }))
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/pharmacy.tsx:69:        const data = await apiFetch('/medicines/categories');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/pharmacy.tsx:131:          const data = await apiFetch(ep);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/consultations/index.tsx:89:        const data = await apiFetch('/providers?type=doctor');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/consultations/index.tsx:116:    apiFetch('/care/specialties')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/consultations/index.tsx:122:    apiFetch('/home/offers')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/health.tsx:103:          apiFetch("/health/vitals/summary").catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/health.tsx:104:          apiFetch("/health/score").catch(() => null),
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/health.tsx:105:          apiFetch('/home/upcoming-appointment').catch(() => null)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/health.tsx:113:        const waterRes = await apiFetch(`/nutrition/daily-summary?date=${new Date().toISOString().split("T")[0]}`).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/nursing.tsx:45:    apiFetch('/home-care/services')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(tabs)/nursing.tsx:52:    apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch(console.error);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/delivery/address-select.tsx:36:        const data = await apiFetch('/users/me/addresses');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/specialty-select.tsx:28:    apiFetch('/care/specialties')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/share-report.tsx:53:        const res = await apiFetch("/medical-reports/mine?limit=100");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/book/[id].tsx:73:      const data = await apiFetch(`/care/doctors/${encodeURIComponent(String(id || ''))}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/video-call.tsx:59:          const initRes = await apiFetch(`/calls/initiate`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/video-call.tsx:66:            const joinRes = await apiFetch(`/calls/${sessionId}/join`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/virtual-waiting-room.tsx:47:      apiFetch(`/care/appointments/${appointmentId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/prescription-from-doctor.tsx:39:      // In production: apiFetch('/prescriptions/active')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/doctor-search.tsx:44:      const res = await apiFetch(`/care/doctors?${qs.toString()}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/incoming-call.tsx:64:        await apiFetch(`/calls/${sessionId}/reject`, { method: "POST" });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/appointment-detail.tsx:184:                  apiFetch('/patient/pay-copay', { method: 'POST', body: { id: appointment.id } })
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/follow-up.tsx:41:      const data = await apiFetch(`/care/appointments/${encodeURIComponent(appointmentId)}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/follow-up.tsx:49:          apiFetch(`/care/doctors/${encodeURIComponent(a.doctor_id)}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/home-visit-tracking.tsx:23:      apiFetch(`/care/appointments/${appointmentId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/waiting-room.tsx:31:      apiFetch(`/care/appointments/${appointmentId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/booking-confirm.tsx:45:        const list = await apiFetch('/insurance/companies');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/booking-confirm.tsx:55:        const nets = await apiFetch(`/insurance/companies/${insCompany}/networks`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/clinic-location.tsx:24:      apiFetch(`/care/appointments/${appointmentId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/booking-pending.tsx:108:              await apiFetch(`/care/appointments/${appointmentId}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason: 'patient_cancelled_while_waiting' }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/doctor/[id].tsx:51:        const data = await apiFetch(`/care/doctors/${encodeURIComponent(id || 'd1')}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/doctor/[id].tsx:149:        const res = await apiFetch(`/care/doctors/${encodeURIComponent(doc.id)}/slots?date=${iso}&service_type=${vt}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/cancel-reschedule.tsx:105:        await apiFetch(`/care/appointments/${appointmentId}/cancel`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/cancel-reschedule.tsx:118:        await apiFetch(`/care/appointments/${appointmentId}/reschedule`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/post-call-rating.tsx:41:        await apiFetch('/patient-ux/review', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/chat-with-doctor.tsx:41:      apiFetch(`/care/doctors/${doctorId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/chat-with-doctor.tsx:51:          return apiFetch(`/chat/threads/direct`, { method: 'POST', body: JSON.stringify({ other_user_id: doctorUserId }) })
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/chat-with-doctor.tsx:58:              return apiFetch(`/chat/threads/${tid}/messages`).then((mres: any) => ({ mres, doctorUserId }));
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/chat-with-doctor.tsx:125:      await apiFetch(`/chat/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ body: text, type: 'text', client_message_id: tempId }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/consultations/call-history.tsx:48:      const data = await apiFetch(`/calls/history?page=${pageNum}&limit=20`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/cards.tsx:65:      const res = await apiFetch("/wallet/cards");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/cards.tsx:106:              const res = await apiFetch(`/wallet/cards/${cardId}`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/cards.tsx:347:                  const res = await apiFetch("/wallet/cards", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/cards.tsx:362:                  const res = await apiFetch("/wallet/cards", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/hub.tsx:158:    apiFetch('/wallet/spending-data')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/transactions.tsx:39:    apiFetch('/wallet/transactions')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/wallet/transfer.tsx:62:                      const res: any = await apiFetch("/wallet/transfer", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/welcome.tsx:28:      const res = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/forgot-password.tsx:33:      await apiFetch('/auth/send-otp', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/reset-password.tsx:34:      await apiFetch("/auth/reset-password", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/login.tsx:91:      const res = await apiFetch('/auth/social-login', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/login.tsx:151:        const res = await apiFetch('/auth/login', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:112:      const res = await apiFetch('/auth/social-login', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/register.tsx:168:      await apiFetch('/auth/send-otp', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/otp.tsx:70:      const resOtp = await apiFetch('/auth/verify-otp', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/(auth)/otp.tsx:90:          const regRes = await apiFetch('/auth/register', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/returns/new-request.tsx:66:      await apiFetch('/pharmacy/returns', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/drug-not-found.tsx:32:      const res: any = await apiFetch(`/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/filters.tsx:64:        const data = await apiFetch('/medicines/filters');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/scan-prescription.tsx:80:      const response = await apiFetch("/ai/prescription-ocr", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/scan-prescription.tsx:88:      const savedPrescription = await apiFetch('/prescriptions/upload', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:53:      apiFetch(`/orders/${orderId}`)
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:60:        const threadRes: any = await apiFetch(`/chat/threads/booking`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:68:        const data: any = await apiFetch(`/chat/threads/${tid}/messages`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:124:      apiFetch(`/chat/threads/${threadId}/messages`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/chat-with-pharmacist.tsx:168:        await apiFetch(`/chat/threads/${threadId}/messages`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:55:      const res = await apiFetch('/media/upload', { method: 'POST', body: form });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/custom-item.tsx:79:      await apiFetch('/support/requests', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/order-confirm.tsx:38:        const data = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/order-confirm.tsx:54:      await apiFetch(`/orders/${orderId}/approve-basket`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/order-confirm.tsx:65:      await apiFetch(`/orders/${orderId}/reject-basket`, { method: 'POST', body: JSON.stringify({ reason: 'patient-rejected-price' }) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/product-detail.tsx:123:        const data = await apiFetch(`/medicines/${id}/details?lang=${currentDbLang()}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/product-detail.tsx:162:      await apiFetch(`/medicines/${id}/suggest-change`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/order-history.tsx:52:      const res = await apiFetch("/orders/mine");
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/payment.tsx:40:      const data = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/order-tracking.tsx:71:        const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/wishlist.tsx:37:        const data = await apiFetch('/users/me/wishlist');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/wishlist.tsx:47:      await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/broadcast-status.tsx:29:        const response = await apiFetch(`/orders/bids/request/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/broadcast-status.tsx:46:      await apiFetch(`/orders/bids/${bidId}/accept`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/waiting-for-pharmacy.tsx:96:        const order = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/waiting-for-pharmacy.tsx:132:            if (orderId) await apiFetch(`/orders/${orderId}/cancel`, { method: "POST" });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/reorder.tsx:26:        const order = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/reorder.tsx:58:        created = await apiFetch(`/orders/${orderId}/reorder`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/reorder.tsx:60:        created = await apiFetch(`/orders/${orderId}/reorder-partial`, {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/rx-order.tsx:23:    apiFetch('/cart/prescription')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:50:        const profile = await apiFetch('/users/me/profile');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:67:    apiFetch('/wallet/balance').then((r: any) => setWalletBalance(Number(r?.balance || 0))).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:75:    apiFetch('/finance-engine/loyalty/redeem-quote', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:86:      const res = await apiFetch('/finance-engine/coupons/validate', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/checkout.tsx:162:        const res = await apiFetch('/orders/create', { method: 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/pharmacy/medicine-compare.tsx:37:        const data = await apiFetch('/medicines/compare', 'POST', { ids });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/notifications-settings.tsx:108:      apiFetch('/users/me/notification-settings', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/security.tsx:53:    apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ biometric: val }) }).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/security.tsx:58:    apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ two_factor: val }) }).catch(() => {});
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/security.tsx:68:      await apiFetch('/users/me/change-password', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/security.tsx:106:            await apiFetch(`/users/me/sessions/${s.id}`, { method: 'DELETE' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/feedback.tsx:33:      await apiFetch('/support/feedback', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/privacy.tsx:47:      apiFetch('/users/me/privacy-settings', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/settings/privacy.tsx:164:                      await apiFetch('/support/requests', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/submit-claim.tsx:27:      await apiFetch("/insurance/claims/submit", {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/benefits-summary.tsx:21:      apiFetch('/insurance/benefits-summary')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/hub.tsx:95:        const ins = await apiFetch('/users/me/insurance');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/hub.tsx:122:        const res = await apiFetch('/insurance/claims');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/hub.tsx:161:          const saved = await apiFetch('/insurance/save-policy', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/network-providers.tsx:52:        const profile = await apiFetch("/users/me/profile").catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/network-providers.tsx:63:        const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:29:    apiFetch('/insurance/companies')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:44:      const res = await apiFetch('/insurance/ocr-extract', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/add-policy.tsx:78:      await apiFetch('/insurance/save-policy', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/claim-tracking.tsx:30:        const res = await apiFetch('/insurance/claims/my');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/refund-status.tsx:33:    apiFetch('/refunds/my')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/copay.tsx:57:      await apiFetch('/patient/pay-copay', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/payment-split.tsx:47:      const res = await apiFetch(`/insurance/coverage-check?service_type=${SERVICE.serviceType}`);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/payment-split.tsx:59:    apiFetch('/wallet/cards')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/payment-split.tsx:93:      const res = await apiFetch('/insurance/payment-confirm', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/policy-detail.tsx:24:    apiFetch('/users/me/profile')
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/approval-pending.tsx:32:          req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/approval-pending.tsx:34:          const list = await apiFetch('/insurance/requests/my').catch(() => []);
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/insurance/approval-pending.tsx:48:    apiFetch('/users/me/profile').then((p: any) => {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos-active.tsx:42:        const res = await apiFetch('/emergency/my/active');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/sos-active.tsx:79:              await apiFetch(`/emergency/${sosId}/cancel`, { method: 'POST' });
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/emergency/tracking.tsx:33:        const res = await apiFetch('/emergency/tracking');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/programs/active.tsx:44:      const res = await apiFetch('/medical/programs/active');
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/programs/active.tsx:72:              const res = await apiFetch('/medical/programs/complete-session', {
+/home/ubuntu/nabdah-live-extracted/patient-app/nabd_plus/app/_layout.tsx:60:            const res: any = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });

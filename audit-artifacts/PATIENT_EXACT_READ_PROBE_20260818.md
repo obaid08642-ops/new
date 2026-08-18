@@ -1,0 +1,3 @@
+# Patient exact-read probe — 2026-08-18
+
+تمت محاولة واحدة عبر origin المباشر مع `--resolve api.nabd.plus:443:57.131.133.208` لتسجيل دخول حساب `patient.sandbox@nabd.plus` ثم قراءة المسارات المثبتة مصدرّياً (`/doctors/appointments/mine`, `/notifications`, `/wallet/balance`, `/orders/mine`, `/doctors`, `/insurance/companies`). جلسة الطرفية علقت وتجاوزت مهلة النقل قبل إنتاج استجابة قابلة للتوثيق، ثم أوقفت دون إعادة الطلبات. النتيجة **INCONCLUSIVE / transport timeout** وليست فشلاً وظيفياً أو أمنياً. يجب إعادة المحاولة لاحقاً في جلسة منفصلة فقط بعد التأكد من استقرار TLS/origin، مع تسجيل status وbody مختصرين دون حفظ token.

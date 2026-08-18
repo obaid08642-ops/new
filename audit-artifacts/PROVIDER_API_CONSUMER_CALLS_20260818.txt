@@ -1,0 +1,318 @@
+# Provider API consumer calls
+provider-app/src/api/provider.ts:24:    const res = await client.post('/provider-onboarding/start', payload);
+provider-app/src/api/provider.ts:30:    const res = await client.post('/auth/login', { phone, password });
+provider-app/src/api/provider.ts:59:      const res = await client.post('/storage/upload', {
+provider-app/src/api/provider.ts:75:    const res = await client.post('/storage/upload', {
+provider-app/src/api/provider.ts:87:    const res = await client.post('/provider-onboarding/step2', payload);
+provider-app/src/api/provider.ts:93:    const res = await client.post('/provider-onboarding/step3', payload);
+provider-app/src/api/provider.ts:99:    const res = await client.post('/provider-onboarding/submit', payload || {});
+provider-app/src/context/index.tsx:215:      const isOnline = await fetch('https://1.1.1.1', { method: 'HEAD' }).then(() => true).catch(() => false);
+provider-app/src/context/index.tsx:272:      const res = await fetch(`${baseUrl}/provider/auth/refresh`, {
+provider-app/src/context/index.tsx:300:      const res = await fetch(`${baseUrl}/provider/auth/login`, {
+provider-app/src/context/index.tsx:360:        await fetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
+provider-app/src/context/index.tsx:385: const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:42:      const res = await client.get('/emergency/driver/missions');
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:63:      await client.post(`/emergency/${id}/claim`, {});
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:177:        const res = await client.get(`/provider/ops/ambulance/${mission.id}/eta`, {
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:194:        await client.post(`/emergency/${mission.id}/track`, { lat: pos.coords.latitude, lng: pos.coords.longitude });
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:264:      await client.post(`/provider/ops/ambulance/${mission.id}/handover`, { hospital_name: hospital.trim(), notes: notes.trim() });
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:316:      await client.post(`/provider/ops/ambulance/${mission.id}/complete`, {
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:370:    client.get('/provider/ops/wallet/ledger?limit=50')
+provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:403:    client.get(`/emergency/driver/missions`).then((res: any) => {
+provider-app/src/screens/auth/AuthScreens.tsx:609: const res = await fetch(`${API_BASE}/provider/auth/forgot-password`, {
+provider-app/src/screens/auth/AuthScreens.tsx:631: const res = await fetch(`${API_BASE}/provider/auth/verify-reset-code`, {
+provider-app/src/screens/auth/AuthScreens.tsx:653: const res = await fetch(`${API_BASE}/provider/auth/reset-password`, {
+provider-app/src/screens/auth/PendingDashboard.tsx:34:      await client.post('/auth/send-otp', { identifier: user.email });
+provider-app/src/screens/auth/PendingDashboard.tsx:47:      await client.post('/auth/verify-otp', { identifier: user.email, code: otp });
+provider-app/src/screens/doctor/DoctorDashboard.tsx:192:	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:202: const resToday = await client.get('/provider/jobs/queue?status=active');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:210: const resStats = await client.get('/provider/stats/today');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:224:	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/accept`);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:234:	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/reject`);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:247:     await client.post(`/provider/jobs/consultation/${insuranceModalReq.id}/insurance`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:450: client.get('/provider/jobs/queue?status=active&kind=consultation')
+provider-app/src/screens/doctor/DoctorDashboard.tsx:659:      await client.post('/provider/consultation/end', payload);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:893:   client.get('/medicines')
+provider-app/src/screens/doctor/DoctorDashboard.tsx:938:  await client.post('/prescriptions/create', payload);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1214:     await client.post(`/provider/requests/${apt?.id || 'new'}/sick-leave`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1328:  await client.post('/provider/features/referrals', {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1442:      await client.post(endpoint, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1841:        const res = await client.get('/provider/wallet');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1843:        const txRes = await client.get('/provider/wallet/transactions');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1923:        const res = await client.get('/chats/provider');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1941:      const res = await client.get(`/chats/${chat.id}/messages`);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1955:      await client.post(`/chats/${activeChat.id}/messages`, { text: sentText });
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2112:      await client.post('/provider/settings/delta', {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2336: await client.post(`/provider/jobs/consultation/${apt.id}/insurance`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2446:     await client.post(`/provider/requests/${apt.id}/medical-report`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2472:    client.get('/provider/notifications').then(res => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2488:    client.get('/provider/directory')
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2899: const res = await client.get('/provider/capabilities/doctor-sessions');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2947: await client.post('/provider/capabilities/doctor-sessions', payload);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2975: await client.post('/provider/capabilities/doctor-sessions', payload);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2990: await client.delete(`/provider/capabilities/doctor-sessions/${id}`);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3015: await client.post('/provider/capabilities/doctor-sessions', payload);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3368:      await client.post('/provider/settings/delta', { newData: { weeklySchedule, exceptions, insurances } });
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3666: const res = await client.get('/provider/profile');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3685: await client.patch('/provider/profile', {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4082:      const res = await fetch(`${API_BASE}/calls/provider/waiting-room`, { headers });
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4099:      await fetch(`${API_BASE}/calls/provider/ping-patient`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4113:      await fetch(`${API_BASE}/calls/provider/no-show`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4180:      await client.post('/provider/chat/send', { appointment_id: apt?.id, message: msg });
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:41:      const res = await client.get('/provider/ops/doctor/leave');
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:51:      await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:62:      await client.delete(`/provider/ops/doctor/leave/${id}`);
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:134:      const res = await client.get('/provider/ops/doctor/templates');
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:148:      await client.post('/provider/ops/doctor/templates', { name: name.trim(), items: parsed });
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:159:      await client.delete(`/provider/ops/doctor/templates/${id}`);
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:218:      const res = await client.get('/provider/ops/doctor/diagnoses', { params: q ? { search: q } : {} });
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:228:      await client.post('/provider/ops/doctor/diagnoses', { name_ar: nameAr.trim(), name_en: nameEn.trim() || undefined, icd: icd.trim() || undefined });
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:281:      const res = await client.get('/provider/ops/doctor/blacklist');
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:289:      await client.delete(`/provider/ops/doctor/blacklist/${patientId}`);
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:35:      const res = await client.get('/hospital/invitations/inbox');
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:57:      await client.post(`/hospital/invitations/${id}/respond`, { accept });
+provider-app/src/screens/facility/DischargeSummaryScreen.tsx:25:    client.get('/facility/beds/admissions')
+provider-app/src/screens/facility/DischargeSummaryScreen.tsx:45:      await client.put(`/facility/beds/discharge/${selected.id}`, {
+provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:21:      const res = await client.get('/facility/announcements');
+provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:32:      await client.post('/facility/announcements', { text: message.trim() });
+provider-app/src/screens/facility/FacilityAuditLogScreen.tsx:16:    client.get('/provider/facility/audit-logs')
+provider-app/src/screens/facility/FacilityDashboard.tsx:77:    client.get('/facility/inbox').then(res => setOrders(res.data || []));
+provider-app/src/screens/facility/FacilityDashboard.tsx:140:        client.get('/facility/beds/wards'),
+provider-app/src/screens/facility/FacilityDashboard.tsx:141:        client.get('/facility/surgeries/schedule')
+provider-app/src/screens/facility/FacilityDashboard.tsx:160:    client.get('/hospital/branches').then(r => {
+provider-app/src/screens/facility/FacilityDashboard.tsx:263:   client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {});
+provider-app/src/screens/facility/FacilityDashboard.tsx:264:   client.get('/hospital/staff').then(r => setSubaccounts(r.data || [])).catch(() => {});
+provider-app/src/screens/facility/FacilityDashboard.tsx:265:   client.get('/provider/stats/today').then(r => setTodayStats(r.data || null)).catch(() => {});
+provider-app/src/screens/facility/FacilityDashboard.tsx:272: client.get('/provider/jobs/queue?status=active&kind=appointment&today=true'),
+provider-app/src/screens/facility/FacilityDashboard.tsx:273: client.get('/hospital/staff'),
+provider-app/src/screens/facility/FacilityDashboard.tsx:274: client.get('/provider/stats/today'),
+provider-app/src/screens/facility/FacilityDashboard.tsx:555: const res = await client.get('/hospital/staff');
+provider-app/src/screens/facility/FacilityDashboard.tsx:579:     await client.delete(`/hospital/staff/${showDelete}`);
+provider-app/src/screens/facility/FacilityDashboard.tsx:759: const response = await client.post('/hospital/staff', {
+provider-app/src/screens/facility/FacilityDashboard.tsx:939:   client.get('/hospital/staff')
+provider-app/src/screens/facility/FacilityDashboard.tsx:1017: useEffect(() => { client.get('/provider/facility/shifts').then(r => setShifts(r.data || [])).catch(() => {}); }, []);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1062:     await client.post(`/facility/shifts/${needingSub.id}/substitute`, {});
+provider-app/src/screens/facility/FacilityDashboard.tsx:1133: const res = await client.get(`/facility/beds/wards/${ward.id}/beds`);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1147: const res = await client.post('/facility/beds/admission', {
+provider-app/src/screens/facility/FacilityDashboard.tsx:1175: await client.put(`/facility/beds/discharge/${admissionId}`);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1192: await client.post('/facility/beds/wards', {
+provider-app/src/screens/facility/FacilityDashboard.tsx:1341: useEffect(() => { client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {}); }, []);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1440: await client.patch(`/care/appointments/${encodeURIComponent(apptId)}/check-in`);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1472:   client.get('/provider/facility/patients/active')
+provider-app/src/screens/facility/FacilityDashboard.tsx:1593:   client.get('/insurance/requests/provider/queue')
+provider-app/src/screens/facility/FacilityDashboard.tsx:1691:   client.get('/provider/ops/wallet/ledger')
+provider-app/src/screens/facility/FacilityDashboard.tsx:1842:   client.get('/facility/shifts/attendance')
+provider-app/src/screens/facility/FacilityDashboard.tsx:1955: await client.post('/facility/surgeries/book', {
+provider-app/src/screens/facility/FacilityDashboard.tsx:2072:   client.get('/hospital/staff')
+provider-app/src/screens/facility/FacilityDashboard.tsx:2170:   await client.post('/provider/settings/delta', { 
+provider-app/src/screens/facility/FacilityDashboard.tsx:2187:      await client.post('/provider/settings/delta', { newData });
+provider-app/src/screens/facility/FacilityDashboard.tsx:2335: const resBookings = await client.get('/home-care/bookings/nursing/all');
+provider-app/src/screens/facility/FacilityDashboard.tsx:2338: const resNurses = await client.get('/home-care/providers?availability=now');
+provider-app/src/screens/facility/FacilityDashboard.tsx:2355: await client.post(`/home-care/bookings/${selectedBooking.id}/assign`, {
+provider-app/src/screens/facility/FacilityDashboard.tsx:2450:      await client.post(`/provider/jobs/${kind}/${order.id}/${action}`);
+provider-app/src/screens/facility/FacilityInternalChatScreen.tsx:22:    client.get('/chat/threads')
+provider-app/src/screens/facility/FacilityInternalChatScreen.tsx:37:      client.get(`/chat/threads/${activeChat}/messages`)
+provider-app/src/screens/facility/FacilityInternalChatScreen.tsx:55:      await client.post(`/chat/threads/${activeChat}/messages`, { body: inputText, type: 'text' });
+provider-app/src/screens/facility/FacilityInvitationScreen.tsx:53:      await client.post('/hospital/invitations', {
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:33:      const res = await client.get('/provider/leave-requests');
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:44:      await client.post('/provider/leave-requests/action', { id, action });
+provider-app/src/screens/facility/FacilityPatientTrackerScreen.tsx:16:    client.get('/provider/facility/patients/active')
+provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx:26:        const res = await client.get('/provider/profile');
+provider-app/src/screens/facility/FacilityProfileConfigScreen.tsx:43:      await client.patch('/provider/profile', {
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:33:      const res = await client.get('/facility/resources');
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:47:      await client.post('/facility/resources', { name_ar: nameAr.trim(), name_en: nameEn.trim(), type: addType });
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:60:      await client.put(`/facility/resources/${res.id}`, { status: next });
+provider-app/src/screens/facility/FacilityUnifiedCalendarScreen.tsx:16:    client.get('/provider/facility/calendar')
+provider-app/src/screens/lab/LabDashboard.tsx:56:    client.get('/labs/provider/inbox')
+provider-app/src/screens/lab/LabDashboard.tsx:224: const inboxRes = await client.get('/labs/provider/inbox');
+provider-app/src/screens/lab/LabDashboard.tsx:241: const resSamples = await client.get('/labs/samples');
+provider-app/src/screens/lab/LabDashboard.tsx:373:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'SAMPLE_REJECTED' });
+provider-app/src/screens/lab/LabDashboard.tsx:383:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'WAITING_COPAY', note: `nphies_code: ${nphiesCode}, copay: ${copay}` });
+provider-app/src/screens/lab/LabDashboard.tsx:397:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'CONFIRMED' });
+provider-app/src/screens/lab/LabDashboard.tsx:410:      await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: techName });
+provider-app/src/screens/lab/LabDashboard.tsx:425:      await client.patch(`/labs/bookings/${order.id}/reschedule`, { new_date: rescheduleDate, reason: 'Provider Reschedule' });
+provider-app/src/screens/lab/LabDashboard.tsx:440:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'PROCESSING', note: `Barcode: ${barcode}. ${notes}` });
+provider-app/src/screens/lab/LabDashboard.tsx:614: const res = await client.get('/labs/samples');
+provider-app/src/screens/lab/LabDashboard.tsx:629: await client.patch(`/labs/samples/${sam.id}/stage`, { stage: 'analyzing' });
+provider-app/src/screens/lab/LabDashboard.tsx:741:   await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { file: 'lab_report_signature.pdf' });
+provider-app/src/screens/lab/LabDashboard.tsx:826:            await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'result_uploaded', approved_by_supervisor: true });
+provider-app/src/screens/lab/LabDashboard.tsx:849:              await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sample_rejected', reason: rejectReason });
+provider-app/src/screens/lab/LabDashboard.tsx:882: await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { results: RESULTS, send_to: sendTo });
+provider-app/src/screens/lab/LabDashboard.tsx:883: await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
+provider-app/src/screens/lab/LabDashboard.tsx:943: useEffect(() => { client.get('/labs/packages').then(r => setBundlesList(r.data || [])).catch(() => {}); }, []);
+provider-app/src/screens/lab/LabDashboard.tsx:1009:    await client.post('/approval-workflow/requests', {
+provider-app/src/screens/lab/LabDashboard.tsx:1045:          await client.post(`/labs/bookings/${order.id}/gps`, { eta, distance });
+provider-app/src/screens/lab/LabDashboard.tsx:1081:              await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });
+provider-app/src/screens/lab/LabDashboard.tsx:1091:              await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_TRANSIT' });
+provider-app/src/screens/lab/LabDashboard.tsx:1102:            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
+provider-app/src/screens/lab/LabDashboard.tsx:1107:            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'WRONG_LOCATION' });
+provider-app/src/screens/lab/LabDashboard.tsx:1112:            await client.post(`/labs/bookings/${order?.id}/reassign`);
+provider-app/src/screens/lab/LabDashboard.tsx:1140:                    await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
+provider-app/src/screens/lab/LabDashboard.tsx:1242: const res = await client.get('/labs/provider/inbox');
+provider-app/src/screens/lab/LabDashboard.tsx:1256: await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
+provider-app/src/screens/lab/LabDashboard.tsx:1508:      const res = await client.get('/provider/capabilities/lab-services');
+provider-app/src/screens/lab/LabDashboard.tsx:1520:      await client.post('/approval-workflow/requests', {
+provider-app/src/screens/lab/LabDashboard.tsx:1541:      await client.post('/approval-workflow/requests', {
+provider-app/src/screens/lab/LabQcActions.tsx:27:      await client.post(`/provider/ops/lab/bookings/${booking.id}/qc/${action}`, body);
+provider-app/src/screens/nursing/NursingDashboard.tsx:84: client.get('/provider/jobs/queue?kind=nursing&status=incoming'),
+provider-app/src/screens/nursing/NursingDashboard.tsx:85: client.get('/provider/jobs/queue?kind=nursing&status=active'),
+provider-app/src/screens/nursing/NursingDashboard.tsx:86: client.get('/provider/jobs/queue?kind=nursing&status=completed')
+provider-app/src/screens/nursing/NursingDashboard.tsx:143:               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: true });
+provider-app/src/screens/nursing/NursingDashboard.tsx:153:               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: false });
+provider-app/src/screens/nursing/NursingDashboard.tsx:230: await client.post('/home-care/provider/availability', { available: nextVal });
+provider-app/src/screens/nursing/NursingDashboard.tsx:362:    client.get('/nursing/jobs/active').then(res => setJobs(res.data || []));
+provider-app/src/screens/nursing/NursingDashboard.tsx:424: await client.post(`/home-care/bookings/${order.id}/respond`, { accept: true });
+provider-app/src/screens/nursing/NursingDashboard.tsx:435: await client.post(`/home-care/bookings/${order.id}/respond`, { accept: false });
+provider-app/src/screens/nursing/NursingDashboard.tsx:510: useEffect(() => { client.get('/provider/nursing/checklist').then(r => setItems(r.data || [])).catch(() => {}); }, []);
+provider-app/src/screens/nursing/NursingDashboard.tsx:580: if (p) await client.post(`/home-care/bookings/${order.id}/gps`, p);
+provider-app/src/screens/nursing/NursingDashboard.tsx:602: await client.post(`/home-care/bookings/${order.id}/gps`, p);
+provider-app/src/screens/nursing/NursingDashboard.tsx:615: const res = await client.post(`/home-care/bookings/${order.id}/check-in`, p);
+provider-app/src/screens/nursing/NursingDashboard.tsx:670: await client.post(`/home-care/bookings/${order.id}/visit-report`, { complete: true });
+provider-app/src/screens/nursing/NursingDashboard.tsx:699: const res = await client.get(`/home-care/care-plans/${patientId}`);
+provider-app/src/screens/nursing/NursingDashboard.tsx:710: await client.post(`/home-care/care-plans/${patientId}`, {
+provider-app/src/screens/nursing/NursingDashboard.tsx:774: const res = await client.get(`/nursing/notes/${patientId}`);
+provider-app/src/screens/nursing/NursingDashboard.tsx:808:     await client.post('/nursing/notes', { patient_id: patientId, booking_id: patient?.id, vitals, note });
+provider-app/src/screens/nursing/NursingDashboard.tsx:870: await client.post(`/home-care/bookings/${order.id}/visit-report`, {
+provider-app/src/screens/nursing/NursingDashboard.tsx:950: useEffect(() => { client.get('/provider/nursing/supplies').then(r => setSupplies(r.data || [])).catch(() => {}); }, []);
+provider-app/src/screens/nursing/NursingDashboard.tsx:956: await client.post('/home-care/inventory/request', {
+provider-app/src/screens/nursing/NursingDashboard.tsx:1031: client.get('/provider/wallet'),
+provider-app/src/screens/nursing/NursingDashboard.tsx:1032: client.get('/provider/wallet/transactions'),
+provider-app/src/screens/nursing/NursingDashboard.tsx:1047: await client.post('/provider/payouts/request', { amount });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1119:      await client.post('/provider/settings/delta', { newData });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1216:   await client.post('/provider/settings/delta', { newData: { services, includeKit, kitPrice } });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1308:   await client.post('/provider/settings/delta', { 
+provider-app/src/screens/nursing/NursingDashboard.tsx:1402:   await client.post('/nursing/coverage/verify-gps', { radius });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1471:      await client.post('/provider/settings/delta', { newData: { radius } });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1514: const res = await client.get('/provider/profile');
+provider-app/src/screens/nursing/NursingDashboard.tsx:1532: await client.patch('/provider/profile', {
+provider-app/src/screens/nursing/NursingDashboard.tsx:1600:        const res = await client.post('/chats/threads/booking', { booking_kind: 'nursing', booking_id: order?.id || order?.raw?.id });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1613:        const res = await client.get(`/chats/threads/${threadId}/messages`);
+provider-app/src/screens/nursing/NursingDashboard.tsx:1628:      await client.post(`/chats/threads/${threadId}/messages`, { body: txt, client_message_id: `n_${Date.now()}` });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1629:      const res = await client.get(`/chats/threads/${threadId}/messages`);
+provider-app/src/screens/nursing/NursingDashboard.tsx:1677:      await client.post('/provider/schedule/settings', { shifts, maxVisits: parseInt(maxVisits), emergencyReady });
+provider-app/src/screens/nursing/NursingFieldOps.tsx:67:      const res = await client.post(`/nursing/visits/${order.id}/${endpoint}`, payload);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:221:      client.get('/provider/pharmacy/broadcasts') // real open broadcasts for this pharmacy
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:256:      const res = await client.post(`/provider/pharmacy/orders/${orderId}/accept`);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:275:      await client.post(`/pharmacy/orders/${rejectOrderId}/reject`, { reason: reasonId });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:384:      const res = await client.get(`/pharmacy/prescriptions/${encodeURIComponent(rxNumber.trim())}`);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:405:      await client.post(`/pharmacy/orders/${order.id}/ready`);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:510:    client.get('/pharmacy/returns/provider/list')
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:527:      const res: any = await client.get('/pharmacy/procurement/my-requests');
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:536:      const res: any = await client.post('/pharmacy/procurement/analyze-file', payload);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:575:      await client.post('/pharmacy/procurement/submit-request', {
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:770:        client.get('/provider/wallet'),
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:771:        client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:793:      const res = await client.post('/pharmacy/reports/eod');
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:932:    client.get('/pharmacy/returns/provider/list')
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:999:        client.get('/provider/pharmacy/allocations', { params: { status: 'ready_for_pickup' } }),
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1000:        client.get('/provider/pharmacy/allocations', { params: { status: 'out_for_delivery' } }),
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1025:      await client.post(`/provider/pharmacy/orders/${selected.order_id}/dispatch`, {
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1046:      await client.post(`/provider/pharmacy/allocations/${alloc.id}/delivered`);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1160:    client.get('/provider/pharmacy/allocations')
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1197:      client.get('/provider/inventory/search', { params: { q: subSearch } })
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1215:      const res = await client.post(`/provider/pharmacy/orders/${orderId}/insurance`, { policyNo: nphiesData.policyNo, authCode: nphiesData.authCode, copay: Number(nphiesData.copay) || 0, status: 'APPROVED' });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1239:      await client.post(`/provider/pharmacy/orders/${orderId}/submit-basket`, { basket, insuranceStatus, copay });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1401:    client.get('/provider/pharmacy/orders', { params: { status: 'completed' } })
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1453:      const res = await client.get('/provider/capabilities/pharmacy');
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1466:      await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1568:      const res = await client.get(`/pharmacy/chat/threads/${threadId}/messages`);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1576:    client.get('/pharmacy/chat/threads')
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1593:      await client.post(`/pharmacy/chat/threads/${activeThread.id}/messages`, { text: input.trim() });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1669:      await client.post('/provider/settings/delta', { 
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:91:      const res = await client.get('/radiology/provider/inbox');
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:141:  const fetch = useCallback(async () => { try { setLoading(true); const res = await client.get('/radiology/provider/inbox'); setOrders(res.data || []); } catch {} finally { setLoading(false); } }, []);
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:142:  useEffect(() => { fetch(); }, [fetch]);
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:194:  const refresh = async () => { try { const res = await client.get(`/radiology/bookings/${order.id}`); setCurrentOrder(res.data); } catch {} };
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:197:    try { await client.post(`/radiology/bookings/${currentOrder.id}/${action}`, body || {}); show(AR ? 'تم بنجاح' : 'Done', 'success'); await refresh(); }
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:205:    try { await client.post(`/radiology/bookings/${currentOrder.id}/insurance-approval`, { approval_code: nphiesCode, copay: parseFloat(copay) || 0 }); show(AR ? 'تم إرسال التأمين للمريض' : 'Insurance approval sent', 'success'); setShowNphies(false); await refresh(); }
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:212:    try { await client.post(`/radiology/bookings/${currentOrder.id}/abort`, { reason: abortReason }); show(AR ? 'تم إلغاء الفحص وإنشاء طلب استرداد' : 'Scan aborted. Refund ticket created.', 'info'); setShowAbort(false); await refresh(); }
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:228:      await client.patch(`/radiology/bookings/${currentOrder.id}/reschedule`, { new_date: newDate, reason: 'reschedule_after_abort' });
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:270:          <NBtn label={AR?' تأكيد الطلب (كاش)':' Confirm Order (Cash)'} loading={loading} onPress={async () => { setLoading(true); try { await client.patch(`/radiology/bookings/${currentOrder.id}/state`, { state:'CONFIRMED', note:'Cash confirmed' }); show(AR?'تم التأكيد':'Confirmed','success'); await refresh(); } catch(e:any){show(e.message,'error');} finally{setLoading(false);} }} />
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:272:          <NBtn label={AR?' رفض الطلب':' Decline Order'} variant="danger" loading={loading} onPress={async () => { setLoading(true); try { await client.patch(`/radiology/bookings/${currentOrder.id}/state`, { state:'CANCELLED', note:'Rejected by center' }); show(AR?'تم الرفض':'Declined','info'); onBack(); } catch(e:any){show(e.message,'error');} finally{setLoading(false);} }} />
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:338:      await client.post(`/radiology/bookings/${order.id}/upload-report`, { pdf_url: 'https://storage.nabdah.com/reports/' + order.id + '.pdf', dicom_url: dicomUrl || null, findings });
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:347:    try { await client.post(`/radiology/bookings/${order.id}/submit-report-for-review`, {}); setReportStatus('under_review'); show(AR ? 'تم الإرسال للمراجعة' : 'Sent for review', 'success'); }
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:353:    try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(AR?'تم نشر التقرير للمريض':'Report published','success'); onBack(); }
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:425:  useEffect(() => { client.get('/provider/capabilities/radiology').then(r => setServices(r.data || [])).catch(() => {}).finally(() => setLoading(false)); }, []);
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:430:      await client.post('/radiology/catalog/delta-request', { name_ar: nameAr, name_en: nameEn, modality_category: modality, price: parseFloat(price), estimated_duration_minutes: parseInt(duration) || 30, insurance_availability: insAvail, portable_ultrasound: portableUS, requires_pregnancy_check: riskPregnancy, requires_metal_implant_check: riskMetal, requires_contrast_allergy_check: riskContrast, preparation_keys: prepItems });
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:502:    try { await client.post('/radiology/catalog/delta-request', { type: 'schedule_update', working_days: workingDays, morning_shift: { from: morningFrom, to: morningTo }, evening_shift: { from: eveningFrom, to: eveningTo }, emergency_available: emergencyAvailable }); show(AR ? 'تم حفظ الجدول وإرساله للمراجعة' : 'Schedule saved and sent for review', 'success'); }
+provider-app/src/screens/shared/BlueprintScreens.tsx:59: const res = await client.get('/provider/features/promotions');
+provider-app/src/screens/shared/BlueprintScreens.tsx:135: await client.post('/provider/features/promotions', {
+provider-app/src/screens/shared/BlueprintScreens.tsx:232: client.get('/provider-onboarding/my-profile')
+provider-app/src/screens/shared/BlueprintScreens.tsx:249: await client.post('/provider/features/promotions', {
+provider-app/src/screens/shared/BlueprintScreens.tsx:310:   client.get('/referrals/my')
+provider-app/src/screens/shared/BlueprintScreens.tsx:559:   client.get('/provider/features/crm/patients')
+provider-app/src/screens/shared/BlueprintScreens.tsx:581: const res = await client.get(`/provider/features/crm/patients/${pat.id}`);
+provider-app/src/screens/shared/BlueprintScreens.tsx:603: await client.patch(`/provider/features/crm/patients/${selectedPat.id}`, {
+provider-app/src/screens/shared/BlueprintScreens.tsx:702:   client.get('/provider/ops/wallet/ledger')
+provider-app/src/screens/shared/BlueprintScreens.tsx:796:   client.get('/provider/jobs/queue?status=active')
+provider-app/src/screens/shared/BlueprintScreens.tsx:812:     const r = await client.post('/ai/copilot/suggest', { notes });
+provider-app/src/screens/shared/BlueprintScreens.tsx:837:     await client.post('/home-care/notes', { patient_id: patientId, note });
+provider-app/src/screens/shared/BlueprintScreens.tsx:980:      const res = await client.post('/provider/features/referrals', {
+provider-app/src/screens/shared/BlueprintScreens.tsx:1099:     const r = await client.get('/emergency/active');
+provider-app/src/screens/shared/BlueprintScreens.tsx:1117:     await client.post('/emergency/trigger', { location, severity: 'critical' });
+provider-app/src/screens/shared/BlueprintScreens.tsx:1129:     await client.post(`/emergency/${id}/claim`, {});
+provider-app/src/screens/shared/BlueprintScreens.tsx:1207:           await client.post(`/emergency/${emergencyId}/track`, {
+provider-app/src/screens/shared/BlueprintScreens.tsx:1330:      const res = await client.get('/labs/samples');
+provider-app/src/screens/shared/BlueprintScreens.tsx:1351:      await client.patch(`/labs/samples/${sam.id}/stage`, { stage: 'analyzing' });
+provider-app/src/screens/shared/FleetScreen.tsx:35:      const res = await client.get('/provider/ambulance/fleet');
+provider-app/src/screens/shared/FleetScreen.tsx:48:      await client.patch(`/provider/ambulance/fleet/${v.id}`, { is_available: !v.is_available });
+provider-app/src/screens/shared/FleetScreen.tsx:65:              await client.delete(`/provider/ambulance/fleet/${v.id}`);
+provider-app/src/screens/shared/FleetScreen.tsx:162:      const res = await client.post('/provider/ambulance/fleet', {
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:49:      const res = await client.get('/insurance/requests/provider/queue');
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:90:      const res = await client.post(`/insurance/requests/${target.id}/decide`, body);
+provider-app/src/screens/shared/RealScreens.tsx:19:    client.get('/provider/reviews')
+provider-app/src/screens/shared/RealScreens.tsx:27:      await client.post(`/provider/reviews/${id}/reply`, { reply: replyText });
+provider-app/src/screens/shared/RealScreens.tsx:116:      const res = await client.get('/provider/working-hours');
+provider-app/src/screens/shared/RealScreens.tsx:160:      await client.put('/provider/working-hours', { hours });
+provider-app/src/screens/shared/RealScreens.tsx:241:      await client.post('/users/me/change-password', { oldPassword, newPassword });
+provider-app/src/screens/shared/RealScreens.tsx:313:    client.get('/provider/notifications')
+provider-app/src/screens/shared/RealScreens.tsx:373:      await client.post('/support/tickets', { subject: subject.trim(), message: message.trim() });
+provider-app/src/screens/shared/RealScreensExtended.tsx:38:    client.get('/pharmacy/orders/refills')
+provider-app/src/screens/shared/RealScreensExtended.tsx:99:    client.get('/provider/pharmacy/allocations', { params: { status: 'out_for_delivery' } })
+provider-app/src/screens/shared/RealScreensExtended.tsx:162:    client.get('/pharmacy/orders/refills')
+provider-app/src/screens/shared/RealScreensExtended.tsx:227:      await client.post('/approval-workflow/requests', {
+provider-app/src/screens/shared/RealScreensExtended.tsx:268:      const res = await client.get('/pharmacy/inventory/expiry');
+provider-app/src/screens/shared/RealScreensExtended.tsx:342:      await client.post('/support/tickets', {
+provider-app/src/screens/shared/RealScreensExtended.tsx:383:      const res = await client.get('/provider/capabilities/lab');
+provider-app/src/screens/shared/RealScreensExtended.tsx:451:      const res = await client.get('/provider/zones');
+provider-app/src/screens/shared/RegistrationSuccess.tsx:56:      const res = await client.get('/provider-onboarding/contract');
+provider-app/src/screens/shared/SharedScreens.tsx:62:        const res = await client.get('/chats/threads');
+provider-app/src/screens/shared/SharedScreens.tsx:149:        const res = await client.get(`/chats/${conv.id}/messages`);
+provider-app/src/screens/shared/SharedScreens.tsx:171:      await client.post(`/chats/${conv.id}/messages`, { text: txt });
+provider-app/src/screens/shared/SharedScreens.tsx:293:   client.get('/provider/notifications')
+provider-app/src/screens/shared/SharedScreens.tsx:428:     await client.post('/support/tickets', { subject, body });
+provider-app/src/screens/shared/SharedScreens.tsx:793:    client.get(`/provider/dashboard/stats?period=${period}`)
+provider-app/src/screens/shared/SharedScreens.tsx:880: client.get('/provider/reviews')
+provider-app/src/screens/shared/SharedScreens.tsx:890: await client.post(`/provider/reviews/${id}/reply`, { reply: text });
+provider-app/src/screens/shared/SharedScreens.tsx:989:        client.get('/provider/payouts/balance'),
+provider-app/src/screens/shared/SharedScreens.tsx:990:        client.get('/provider/bank-account').catch(() => ({ data: null })),
+provider-app/src/screens/shared/SharedScreens.tsx:991:        client.get('/provider/payouts/mine').catch(() => ({ data: [] })),
+provider-app/src/screens/shared/SharedScreens.tsx:999:        const banksRes = await client.get('/provider/banks').catch(() => ({ data: [] }));
+provider-app/src/screens/shared/SharedScreens.tsx:1025:        await client.post('/provider/bank-account', {
+provider-app/src/screens/shared/SharedScreens.tsx:1031:      await client.post('/provider/payouts/request', { amount: amt, iban: cleanIban });
+provider-app/src/screens/shared/SharedScreens.tsx:1309:        const res = await client.get('/recruitment/jobs');
+provider-app/src/screens/shared/SharedScreens.tsx:1329:        const jobsRes = await client.get('/recruitment/jobs', { params: { facility_id: user.id } });
+provider-app/src/screens/shared/SharedScreens.tsx:1334:            const appsRes = await client.get(`/recruitment/jobs/${job.id}/applications`);
+provider-app/src/screens/shared/SharedScreens.tsx:1370:      const res = await client.post('/recruitment/jobs', {
+provider-app/src/screens/shared/SharedScreens.tsx:1406:      await client.post(`/recruitment/jobs/${selectedJob.id}/apply`, {
+provider-app/src/screens/shared/SharedScreens.tsx:1944:     await client.post(`/medicines/${selectedDrug.id}/suggest-change`, {
+provider-app/src/screens/shared/SharedScreens.tsx:1969:       up = await client.post('/storage/upload', {
+provider-app/src/screens/shared/SharedScreens.tsx:1977:       up = await client.post('/storage/upload-suggestion-image', {
+provider-app/src/screens/shared/SharedScreens.tsx:1985:     await client.post(`/medicines/${selectedDrug.id}/suggest-image`, {
+provider-app/src/screens/shared/SharedScreens.tsx:2004:       const res = await fetch(`${API_BASE}/drugs/categories`, { headers });
+provider-app/src/screens/shared/SharedScreens.tsx:2024:       const res = await fetch(`${API_BASE}/drugs?${q.toString()}`, { headers });
+provider-app/src/screens/shared/SharedScreens.tsx:2044:       const res = await fetch(`${API_BASE}/drugs/${selectedDrug.id}`, { headers });
+provider-app/src/screens/shared/SharedScreens.tsx:2464:       const res = await client.get('/provider-onboarding/my-profile').catch(() => null);
+provider-app/src/screens/shared/SharedScreens.tsx:2502:     await client.post('/provider/settings/delta', {
+provider-app/src/screens/shared/SharedScreens.tsx:2609: const res = await client.get('/provider/kyc/documents');
+provider-app/src/screens/shared/SharedScreens.tsx:2630: await client.post('/provider/kyc/documents', {
+provider-app/src/screens/shared/SharedScreens.tsx:2788:     const r = await client.get(`/storage/${storageId}/signed-url`);
+provider-app/src/screens/shared/SharedScreens.tsx:2796:       const res = await client.get('/provider-onboarding/my-profile');
+provider-app/src/screens/shared/SharedScreens.tsx:2811:   await client.post('/provider/settings/delta', { changes: { clinic_images: ids } });
+provider-app/src/screens/shared/SharedScreens.tsx:2838:     const up = await client.post('/storage/upload', {
+provider-app/src/screens/shared/SharedScreens.tsx:2936:          client.get('/provider/wallet'),
+provider-app/src/screens/shared/SharedScreens.tsx:2937:          client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
+provider-app/src/screens/shared/SharedScreens.tsx:2940:        client.get('/provider/me').then((meRes: any) => {
+provider-app/src/screens/shared/VideoCallRoom.tsx:85:      const initRes = await client.post('/calls/initiate', { appointmentId, call_type: voiceOnly ? 'voice' : 'video' });
+provider-app/src/screens/shared/VideoCallRoom.tsx:91:      const joinRes = await client.post(`/calls/${encodeURIComponent(sessionId)}/join`);
+provider-app/src/screens/shared/VideoCallRoom.tsx:164:      try { await client.post(`/calls/${encodeURIComponent(sid)}/end`); } catch { /* session end is best-effort; room is already closed */ }

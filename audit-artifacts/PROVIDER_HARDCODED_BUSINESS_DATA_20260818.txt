@@ -1,0 +1,135 @@
+# Provider hardcoded business data scan
+provider-app/src/screens/doctor/DoctorDashboard.tsx:419:  <NInput label={AR ? 'نسبة تحمل المريض (SAR)' : 'Patient Co-Pay (SAR)'} value={patientCopay} onChange={setPatientCopay} kbType="numeric" placeholder="e.g. 50" icon="" />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:420:  <NInput label={AR ? 'تحمل شركة التأمين (SAR)' : 'Insurance Coverage (SAR)'} value={insuranceCoverage} onChange={setInsuranceCoverage} kbType="numeric" placeholder="e.g. 150" icon="" />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:465:    { id: 'apt1', patient: AR ? 'سارة المطيري' : 'Sara Al-Mutairi', time: '09:30', type: 'video', status: 'confirmed', price: 150, raw: {} },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:466:    { id: 'apt2', patient: AR ? 'أحمد السالم' : 'Ahmed Al-Salem', time: '11:00', type: 'clinic', status: 'confirmed', price: 200, raw: {} },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:467:    { id: 'apt3', patient: AR ? 'فيصل الحربي' : 'Faisal Al-Harbi', time: '14:30', type: 'home', status: 'confirmed', price: 300, raw: {} },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:538: {item.type === 'video'?'':item.type==='clinic'?'':''} {item.price} {AR?'ر':'SAR'}
+provider-app/src/screens/doctor/DoctorDashboard.tsx:599: { icon:'dollarSign', ar:'الرسوم', en:'Fee', val:`${apt?.price ?? 200} ${AR?'ريال':'SAR'}` },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:875: { id: 't1', name: 'Paracetamol 500mg', dose: 'قرص واحد عند الحاجة', freq: 'عند الحاجة', duration: '5 أيام', notes: 'بعد الأكل' },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1816: <NBadge label={`${noShowFee} ${AR?'ر':'SAR'}`} variant="danger" size="xs" />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1848:          { id: '1', date: '2026-07-16', type: 'CREDIT', amount: 150, title: AR ? 'استشارة أونلاين' : 'Online Consultation' },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1850:          { id: '3', date: '2026-07-14', type: 'CREDIT', amount: 300, title: AR ? 'زيارة منزلية' : 'Home Visit' },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1866:        <NStatCard label={AR ? 'الرصيد المتاح للسحب' : 'Available for Withdrawal'} value={`${wallet.available} SAR`} icon="wallet" />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1867:        <NStatCard label={AR ? 'مبالغ معلقة التأمين' : 'Insurance Escrow'} value={`${wallet.escrow} SAR`} icon="shield" color={theme.warn} />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1868:        <NStatCard label={AR ? 'مستحقات المنصة / المديونية' : 'Nabdah Dues'} value={`${wallet.dues} SAR`} icon="info" color={theme.danger} />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1875:            {AR ? 'عمولة المنصة: 15% من كل معاملة يتم تحصيلها نقداً أو عبر التأمين.\nيتم إيقاف الحساب تلقائياً إذا تجاوزت المديونية -500 ريال.' : 'Platform commission: 15% per transaction.\nAccount is automatically suspended if dues exceed -500 SAR.'}
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1890:                {tx.type === 'CREDIT' ? '+' : ''}{tx.amount} {AR ? 'ر' : 'SAR'}
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1927:          { id: 'c1', patient_name: 'أحمد السالم', status: 'OPEN', last_message: 'متى موعدي القادم؟', unread: 2 },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1928:          { id: 'c2', patient_name: 'سارة المطيري', status: 'FOLLOW_UP', last_message: 'شكراً دكتور على الاستشارة', unread: 0 },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1929:          { id: 'c3', patient_name: 'فيصل الحربي', status: 'CLOSED', last_message: 'تمت الاستشارة بنجاح', unread: 0 }
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2322: {AR ? ` صافي المطالبة للتأمين: ${net} ريال` : ` Net insurance claim: ${net} SAR`}
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3056:  {s.price} {AR ? 'ريال' : 'SAR'}
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3080: <NPriceInput label={AR ? 'سعر الخدمة (SAR)' : 'Service Price (SAR)'} value={editPrice} onChange={setEditPrice} />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3091: <NPriceInput label={AR ? 'سعر الخدمة (SAR)' : 'Service Price (SAR)'} value={newPrice} onChange={setNewPrice} required />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3143: <Text style={{ fontSize: FS.xs, color: theme.textSub, marginBottom: 2 }}>{AR ? 'السعر (ريال)' : 'Price (SAR)'}</Text>
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3225: <NStatCard icon="" label={AR?'الإيرادات':'Revenue'} value={STATS.revenue} unit={AR?'ر':'SAR'} color="#4CAF50" style={{ width:'47%' }} />
+provider-app/src/screens/doctor/components/DoctorUrgentRequests.tsx:9:  patient_name: string;
+provider-app/src/screens/doctor/components/DoctorStatsRow.tsx:39:          value={`${stats.revenue || 0} ر.س`}
+provider-app/src/screens/doctor/components/DoctorQueueList.tsx:9:  patient_name: string;
+provider-app/src/screens/doctor/DoctorOpsScreens.tsx:173:          placeholder={'Paracetamol 500 - 1x3\nVitamin C - 1x1'}
+provider-app/src/screens/facility/FacilityDashboard.tsx:104:              <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.total} SAR</Text>
+provider-app/src/screens/facility/FacilityDashboard.tsx:354: <NStatCard icon="money" label={AR ? 'إيرادات اليوم' : "Today's Rev."} value={typeof revenue === 'number' ? revenue.toLocaleString() : '—'} unit={AR?'ر':'SAR'} color="#4CAF50" style={{ width: '47%' }} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:1613: <NStatCard icon="" label={AR?'مقبولة هذا الشهر':'Approved this month'} value={`${(totalAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color="#4CAF50" style={{ flex:1 }} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:1614: <NStatCard icon="" label={AR?'قيد الانتظار':'Pending'} value={`${(pendingAmt/1000).toFixed(1)}K`} unit={AR?'ر':'SAR'} color="#FF9800" style={{ flex:1 }} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:1652: {(claim.amount - claim.deductible).toLocaleString()} {AR?'ر':'SAR'}
+provider-app/src/screens/facility/FacilityDashboard.tsx:1657: {AR ? `التحمّل: ${claim.deductible} ريال` : `Deductible: ${claim.deductible} SAR`}
+provider-app/src/screens/facility/FacilityDashboard.tsx:2297: <NPriceInput label={AR ? 'سعر سرير العناية المركزة ICU (يومي)' : 'ICU Bed Rate (Daily - SAR)'} value={icuDaily} onChange={setIcuDaily} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2298: <NPriceInput label={AR ? 'سعر سرير العناية المركزة ICU (ساعي)' : 'ICU Bed Rate (Hourly - SAR)'} value={icuHourly} onChange={setIcuHourly} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2299: <NPriceInput label={AR ? 'سعر سرير التنويم بالأجنحة (يومي)' : 'Ward Inpatient Rate (Daily - SAR)'} value={wardDaily} onChange={setWardDaily} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2300: <NPriceInput label={AR ? 'تكلفة فتح غرف العمليات للعملية' : 'Surgery Room Starting Price (SAR)'} value={surgPrice} onChange={setSurgPrice} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2301: <NPriceInput label={AR ? 'رسوم الطوارئ' : 'Emergency Fee (SAR)'} value={erFee} onChange={setErFee} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2302: <NPriceInput label={AR ? 'رسوم الإسعاف' : 'Ambulance Fee (SAR)'} value={ambFee} onChange={setAmbFee} />
+provider-app/src/screens/lab/LabDashboard.tsx:113:                  <Text style={{ color: theme.text, fontWeight: 'bold', fontSize: FS.lg }}>{order.total} SAR</Text>
+provider-app/src/screens/lab/LabDashboard.tsx:290: <NStatCard icon="◈" label={AR?'إيرادات اليوم':'Revenue'} value={String(stats.revenue)} unit={AR?'ر':'SAR'} color="#4CAF50" style={{width:'47%'}} />
+provider-app/src/screens/lab/LabDashboard.tsx:489:          <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#9C27B0'}}>{order?.total??0} {AR?'ريال':'SAR'}</Text>
+provider-app/src/screens/lab/LabDashboard.tsx:560:          <NInput label={AR ? 'نسبة التحمل (Co-Pay)' : 'Co-Pay SAR'} placeholder="0.00" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
+provider-app/src/screens/lab/LabDashboard.tsx:964: <Text style={{fontSize:FS.sm,color:theme.textSub}}>{AR?'ريال':'SAR'}</Text>
+provider-app/src/screens/lab/LabDashboard.tsx:1300: {AR ? 'المبلغ الإجمالي' : 'Total Amount'}: {selectedOrder.total} {AR ? 'ر' : 'SAR'}
+provider-app/src/screens/lab/LabDashboard.tsx:1306: <NPriceInput label={AR ? 'مبلغ التحمل (ريال)' : 'Co-Pay (SAR)'} value={String(selectedOrder.insurance_copay || '')} onChange={setTotalCopay} />
+provider-app/src/screens/lab/LabDashboard.tsx:1349: <Text style={{fontSize:FS.sm,color:theme.textSub}}>{cl.insurance_provider} | {cl.items?.length} {AR?'فحص':'tests'} | {cl.total} {AR?'ر':'SAR'}</Text>
+provider-app/src/screens/lab/LabDashboard.tsx:1580:                    {srv.price} {AR ? 'ر' : 'SAR'}
+provider-app/src/screens/lab/LabRegistration.tsx:727:              label={AR ? (data.centerType === 'radiology' ? 'رسوم النقل والتصوير (ريال)' : 'رسوم السحب المنزلي (ريال)') : (data.centerType === 'radiology' ? 'Home Scan Fee (SAR)' : 'Home Collection Fee (SAR)')}
+provider-app/src/screens/lab/LabRegistration.tsx:981:                    <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
+provider-app/src/screens/lab/LabRegistration.tsx:1053:                <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
+provider-app/src/screens/lab/LabRegistration.tsx:1273:                  : `${bundle.tests.length} tests for ${bundle.price} SAR (${bundle.discount}% off)`}
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:155:                  {(AR ? 'السعر: ' : 'Price: ') + (req.price ?? '—') + (AR ? ' ر.س' : ' SAR')}
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:164:                    {(AR ? 'copay المطلوب من المريض: ' : 'Patient copay due: ') + (req.copay_amount ?? '—') + (AR ? ` ر.س (${req.copay_percent}%)` : ` SAR (${req.copay_percent}%)`)}
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:195:              {target ? `${target.patient_name || ''} · ${target.service_type || ''} · ${target.price ?? ''} ${AR ? 'ر.س' : 'SAR'}` : ''}
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:239:                    {AR ? `يدفع المريض: ${copayPreview} ر.س` : `Patient pays: ${copayPreview} SAR`}
+provider-app/src/screens/shared/BlueprintScreens.tsx:102: <Text style={{ fontSize: FS.xs, color: theme.textSub }}> {item.discounted_price} {AR?'ريال':'SAR'} <Text style={{ textDecorationLine:'line-through' }}>{item.original_price} {AR?'ريال':'SAR'}</Text></Text>
+provider-app/src/screens/shared/BlueprintScreens.tsx:251: title_en: `Ad Campaign — SAR ${b} budget`,
+provider-app/src/screens/shared/BlueprintScreens.tsx:286: <NInput label={AR ? 'الميزانية الإجمالية (ريال)' : 'Ad Budget (SAR)'} value={budget} onChange={setBudget} kbType="numeric" />
+provider-app/src/screens/shared/BlueprintScreens.tsx:735: {loading ? '…' : `${monthEarnings.toLocaleString()} ${AR ? 'ريال' : 'SAR'}`}
+provider-app/src/screens/shared/BlueprintScreens.tsx:759: <Text style={{ fontSize: FS.sm, color: theme.text, fontWeight: FW.bold }}>{val.toLocaleString()} {AR ? 'ر' : 'SAR'}</Text>
+provider-app/src/screens/shared/RealScreensExtended.tsx:204:            Panadol Extra (500mg)
+provider-app/src/screens/shared/RealScreensExtended.tsx:207:            {AR ? 'سعر صيدليتك: 12 ر.س | متوسط السوق: 13.5 ر.س (SFDA Standard)' : 'Your Price: 12 SAR | Market Avg: 13.5 SAR'}
+provider-app/src/screens/shared/RealScreensExtended.tsx:248:          <NInput placeholder={AR ? 'السعر المحدد (ر.س)' : 'Price (SAR)'} kbType="numeric" value={price} onChange={setPrice} />
+provider-app/src/screens/shared/RealScreensExtended.tsx:426:                    {(AR ? `السعر: ${Number(t.price || 0).toFixed(2)} ر.س` : `Price: ${Number(t.price || 0).toFixed(2)} SAR`)
+provider-app/src/screens/shared/RealScreensExtended.tsx:495:                      + (z.base_fee ? (AR ? ` · رسوم الزيارة: ${Number(z.base_fee).toFixed(2)} ر.س` : ` · Visit fee: ${Number(z.base_fee).toFixed(2)} SAR`) : '')}
+provider-app/src/screens/shared/SharedScreens.tsx:369: { q_ar: 'كيف أسحب أرباحي؟', q_en: 'How to withdraw earnings?', a_ar: 'اذهب للمحفظة > سحب > أدخل المبلغ > تأكيد. الحد الأدنى 100 ريال.', a_en: 'Go to Wallet > Withdraw > Enter amount > Confirm. Minimum 100 SAR.' },
+provider-app/src/screens/shared/SharedScreens.tsx:834:  <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={d.revenue.toLocaleString()} unit={AR ? 'ر' : 'SAR'} color="#4CAF50" style={{ width: '47%' }} />
+provider-app/src/screens/shared/SharedScreens.tsx:1090:                : `Your ${amount} SAR request is now under finance-admin review. You will be notified of its status.`}
+provider-app/src/screens/shared/SharedScreens.tsx:1105:            {AR ? `الرصيد المتاح للسحب: ${balance!.available.toFixed(2)} ريال` : `Available for withdrawal: ${balance!.available.toFixed(2)} SAR`}
+provider-app/src/screens/shared/SharedScreens.tsx:1109:              {AR ? `قيد التسوية (ضمان): ${balance!.pending.toFixed(2)} ريال` : `In escrow (pending): ${balance!.pending.toFixed(2)} SAR`}
+provider-app/src/screens/shared/SharedScreens.tsx:1189:          label={AR ? 'مبلغ السحب (100 ريال على الأقل)' : 'Withdrawal Amount (min 100 SAR)'}
+provider-app/src/screens/shared/SharedScreens.tsx:1215:                      {Number(h.amount || 0).toFixed(2)} {AR ? 'ريال' : 'SAR'}
+provider-app/src/screens/shared/SharedScreens.tsx:1884:   { key: 'price', ar: 'السعر (ر.س)', en: 'Price (SAR)', numeric: true, cur: (d, s) => d.price ?? s.price },
+provider-app/src/screens/shared/SharedScreens.tsx:2127:           {d.price ?? selectedDrug.price} {AR ? 'ريال سعودي' : 'SAR'}
+provider-app/src/screens/shared/SharedScreens.tsx:2175:               <Text style={{ color: theme.primary, fontSize: FS.sm, fontWeight: FW.bold }}>{alt.price} {AR ? 'ريال' : 'SAR'}</Text>
+provider-app/src/screens/shared/SharedScreens.tsx:2339: {item.price} {AR ? 'ريال' : 'SAR'}
+provider-app/src/screens/shared/SharedScreens.tsx:2372: {selectedDrug.price} {AR ? 'ريال سعودي' : 'SAR'}
+provider-app/src/screens/shared/SharedScreens.tsx:2422: <Text style={{ color: theme.primary, fontSize: FS.sm, fontWeight: FW.bold }}>{alt.price} {AR ? 'ريال' : 'SAR'}</Text>
+provider-app/src/screens/shared/SharedScreens.tsx:2964:            {balance} <Text style={{ fontSize: FS.md }}>{AR ? 'ريال' : 'SAR'}</Text>
+provider-app/src/screens/shared/SharedScreens.tsx:2975:          <NStatCard icon="trendingUp" label={AR ? 'إجمالي الإيرادات' : 'Total Revenue'} value={String(totalRevenue)} unit={AR ? 'ر' : 'SAR'} color={theme.success} style={{ flex: 1 }} />
+provider-app/src/screens/shared/SharedScreens.tsx:2976:          <NStatCard icon="clock" label={AR ? 'أرصدة معلقة (Escrow)' : 'Pending (Escrow)'} value={String(pendingEscrow)} unit={AR ? 'ر' : 'SAR'} color={theme.warn} style={{ flex: 1 }} />
+provider-app/src/screens/shared/SharedScreens.tsx:3005:              {(tx.type === 'CREDIT' || tx.type === 'EARNING') ? '+' : '-'}{Math.abs(tx.amount || 0)} {AR ? 'ر' : 'SAR'}
+provider-app/src/screens/shared/SharedScreens.tsx:3026:        <NStatCard icon="" label={AR ? 'الإيرادات' : "Revenue"} value={String(stats.revenue || 0)} unit={AR ? 'ر' : 'SAR'} color="#4CAF50" style={{ width: '47%' }} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:263: <NStatCard icon="◈" label={AR?'الإيرادات':'Revenue'} value={String(totalRev)} unit={AR?'ر':'SAR'} color="#E91E63" style={{width:'47%'}} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:306: <Text style={{fontSize:FS.md,fontWeight:FW.xbold,color:'#E91E63',marginTop:2}}>{order.total || order.price || 0} {AR?'ر':'SAR'}</Text>
+provider-app/src/screens/nursing/NursingDashboard.tsx:392:              <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.price} SAR</Text>
+provider-app/src/screens/nursing/NursingDashboard.tsx:476: <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#E91E63'}}>{order?.price??0} {AR?'ريال':'SAR'}</Text>
+provider-app/src/screens/nursing/NursingDashboard.tsx:1070: <Text style={{color:'rgba(255,255,255,0.8)'}}>{AR?'ريال سعودي — نقدي فقط':'SAR — Cash Only'}</Text>
+provider-app/src/screens/nursing/NursingDashboard.tsx:1071: {!loading && earned > 0 && <Text style={{color:'rgba(255,255,255,0.7)',fontSize:FS.xs,marginTop:SP.xs}}>{AR?`إجمالي المكتسب: ${earned.toLocaleString()} ر`:`Total earned: ${earned.toLocaleString()} SAR`}</Text>}
+provider-app/src/screens/nursing/NursingDashboard.tsx:1093: <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:isCredit?'#4CAF50':'#F44336'}}>{isCredit?'+':'-'}{amt.toLocaleString()} {AR?'ر':'SAR'}</Text>
+provider-app/src/screens/nursing/NursingDashboard.tsx:1340: <NPriceInput label={AR ? 'سعر الساعة (ريال)' : 'Hourly Fee (SAR)'} value={hourlyPrice} onChange={setHourlyPrice} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:1351: <NPriceInput label={AR ? 'سعر اليوم (ريال)' : 'Daily Fee (SAR)'} value={dailyPrice} onChange={setDailyPrice} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:1362: <NPriceInput label={AR ? 'سعر الأسبوع (ريال)' : 'Weekly Price (SAR)'} value={weeklyPrice} onChange={setWeeklyPrice} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:1373: <NPriceInput label={AR ? 'سعر الشهر (ريال)' : 'Monthly Price (SAR)'} value={monthlyPrice} onChange={setMonthlyPrice} />
+provider-app/src/screens/nursing/NursingRegistration.tsx:478:            <NPriceInput label={AR ? `سعر ${pm.ar} (ريال)` : `${pm.en} Price (SAR)`}
+provider-app/src/screens/nursing/NursingRegistration.tsx:841:        nursing_services: data.enabledServices.map((id: string) => ({ key: id, name_ar: id, price: 0 })),
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:727:              label={AR ? (data.centerType === 'radiology' ? 'رسوم النقل والتصوير (ريال)' : 'رسوم السحب المنزلي (ريال)') : (data.centerType === 'radiology' ? 'Home Scan Fee (SAR)' : 'Home Collection Fee (SAR)')}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:981:                    <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1053:                <NPriceInput label={AR ? 'السعر (ريال)' : 'Price (SAR)'}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1273:                  : `${bundle.tests.length} tests for ${bundle.price} SAR (${bundle.discount}% off)`}
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:105:        <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={String(stats.revenue)} unit={AR ? 'ر' : 'SAR'} color="#009688" style={{ width: '47%' }} />
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:170:                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: '#009688' }}>{order.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:251:          <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: 4 }}>{AR ? 'الدفع:' : 'Payment:'} {currentOrder.payment_method || 'cash'} | {currentOrder.total || 0} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:293:        <NPriceInput label={AR ? 'نسبة التحمل (Co-Pay) ر.س' : 'Co-Pay Amount SAR'} value={copay} onChange={setCopay} />
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:454:                <Text style={{ fontSize: FS.xs, color: '#009688' }}>{s.price} {AR ? 'ر.س' : 'SAR'} | {s.estimated_duration_minutes || 30} {AR ? 'د' : 'min'}</Text>
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:476:        <NPriceInput label={AR ? 'السعر كاش (ر.س)' : 'Cash Price (SAR)'} value={price} onChange={setPrice} />
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:229:            patient_name: b.patient_name || b.patient?.full_name,
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:313:                  <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.primary }}>{b.total} ر.س</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:470:                {item.qty || 1} × {Number(item.price || 0).toFixed(2)} {AR ? 'ر.س' : 'SAR'}
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:478:              <Text style={{ fontWeight: FW.bold, color: theme.text }}>{totals.subtotal.toFixed(2)} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:482:              <Text style={{ fontWeight: FW.bold, color: theme.success }}>{totals.covered.toFixed(2)} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:486:              <Text style={{ fontWeight: FW.bold, color: theme.warn }}>{totals.cash.toFixed(2)} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:740:                  {(AR ? 'السبب: ' : 'Reason: ') + (r.reason || '—') + ' · ' + (AR ? 'المبلغ: ' : 'Amount: ') + (r.amount ?? 0) + (AR ? ' ر.س' : ' SAR')}
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:838:          {wallet.available.toFixed(2)} <Text style={{ fontSize: 18 }}>{AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:857:            <Text style={{ fontWeight: FW.bold, color: theme.text }}>{item.val.toFixed(2)} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:899:            { label: AR ? 'إيراد اليوم' : 'Today revenue', val: `${Number(eod.revenue || 0).toFixed(2)} ${AR ? 'ر.س' : 'SAR'}` },
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:965:                <Text style={{ color: theme.text, fontWeight: '600' }}>{(r.amount ?? 0) + (AR ? ' ر.س' : ' SAR')}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1086:                        {(a.items?.length || 0)} {AR ? 'صنف' : 'items'} · {a.totals?.total ?? 0} {AR ? 'ر.س' : 'SAR'}
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1260:              {insuranceStatus === 'APPROVED' && <Text style={{ color: theme.text, marginTop: 4 }}>{AR ? 'مبلغ التحمل (Co-Pay):' : 'Co-Pay:'} {copay} {AR ? 'ر.س' : 'SAR'}</Text>}
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1292:                <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{item.requestedQty}x • {item.price} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1330:                  <Text style={{ color: theme.primary }}>{sub.price} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1480:              {AR ? `الإجمالي: ${total} ر.س · التاريخ: ${date}` : `Total: ${total} SAR · Date: ${date}`}
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1567:                  <Text style={{ color: theme.primary, fontWeight: 'bold', textAlign: AR ? 'right' : 'left' }}>{item.price} {AR ? 'ر.س' : 'SAR'}</Text>
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:63:  minOrderSAR: string; deliveryFee: string; freeDeliveryAbove: string;
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:84:  minOrderSAR:'50', deliveryFee:'15', freeDeliveryAbove:'200',
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:627:          <NPriceInput label={AR?'توصيل مجاني فوق (ريال)':'Free delivery above (SAR)'} value={data.freeDeliveryAbove} onChange={v=>update({freeDeliveryAbove:v})} />
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:628:          <NPriceInput label={AR?'الحد الأدنى للطلب (ريال)':'Minimum Order Amount (SAR)'} value={data.minOrderSAR} onChange={v=>update({minOrderSAR:v})} required />
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:748:        min_order_sar: parseFloat(data.minOrderSAR) || 0,
+provider-app/src/constants/index.ts:304: MIN_WITHDRAW_SAR: 100,
+provider-app/src/constants/index.ts:408: sar:'SAR', balance:'Balance', earnings:'Earnings', commission:'Platform Commission',
+provider-app/src/components/ContractModal.tsx:102:                    <Text style={{fontWeight: 'bold', color: theme.text}}>{item.price} {AR ? 'ر.س' : 'SAR'}</Text>

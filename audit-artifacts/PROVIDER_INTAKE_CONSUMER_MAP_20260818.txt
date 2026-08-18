@@ -1,0 +1,507 @@
+# Provider App intake consumer map
+src/screens/ambulance/AmbulanceDashboard.tsx
+src/screens/ambulance/AmbulanceRegistration.tsx
+src/screens/auth/AuthScreens.tsx
+src/screens/auth/PendingDashboard.tsx
+src/screens/doctor/DoctorDashboard.tsx
+src/screens/doctor/DoctorOpsScreens.tsx
+src/screens/doctor/DoctorRegistration.tsx
+src/screens/doctor/FacilityInvitationsScreen.tsx
+src/screens/doctor/components/DoctorHeader.tsx
+src/screens/doctor/components/DoctorQueueList.tsx
+src/screens/doctor/components/DoctorStatsRow.tsx
+src/screens/doctor/components/DoctorUrgentRequests.tsx
+src/screens/facility/DischargeSummaryScreen.tsx
+src/screens/facility/FacilityAnnouncementsScreen.tsx
+src/screens/facility/FacilityAuditLogScreen.tsx
+src/screens/facility/FacilityDashboard.tsx
+src/screens/facility/FacilityInternalChatScreen.tsx
+src/screens/facility/FacilityInvitationScreen.tsx
+src/screens/facility/FacilityLeaveRequestsScreen.tsx
+src/screens/facility/FacilityPatientTrackerScreen.tsx
+src/screens/facility/FacilityProfileConfigScreen.tsx
+src/screens/facility/FacilityRegistration.tsx
+src/screens/facility/FacilityResourcesScreen.tsx
+src/screens/facility/FacilityUnifiedCalendarScreen.tsx
+src/screens/lab/LabDashboard.tsx
+src/screens/lab/LabQcActions.tsx
+src/screens/lab/LabRegistration.tsx
+src/screens/nursing/NursingDashboard.tsx
+src/screens/nursing/NursingFieldOps.tsx
+src/screens/nursing/NursingRegistration.tsx
+src/screens/pharmacy/PharmacyDashboard.tsx
+src/screens/pharmacy/PharmacyRegistration.tsx
+src/screens/radiology/RadiologyDashboard.tsx
+src/screens/radiology/RadiologyRegistration.tsx
+src/screens/shared/BlueprintScreens.tsx
+src/screens/shared/FleetScreen.tsx
+src/screens/shared/InsuranceRequestsScreen.tsx
+src/screens/shared/RealScreens.tsx
+src/screens/shared/RealScreensExtended.tsx
+src/screens/shared/RegistrationSuccess.tsx
+src/screens/shared/SharedScreens.tsx
+src/screens/shared/VideoCallRoom.tsx
+## API and workflow markers
+provider-app/src/screens/doctor/DoctorDashboard.tsx:100:     <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
+provider-app/src/screens/doctor/DoctorDashboard.tsx:102:     <Stack.Screen name="availability_engine">{({ navigation }: any) => <DoctorAvailabilityScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+provider-app/src/screens/doctor/DoctorDashboard.tsx:189: const fetchQueue = useCallback(async () => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:192:	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:202: const resToday = await client.get('/provider/jobs/queue?status=active');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:213:  // Production: Error should be shown to user if fetch fails
+provider-app/src/screens/doctor/DoctorDashboard.tsx:214:  show(AR ? 'تعذر جلب البيانات. يرجى التأكد من اتصالك بالإنترنت.' : 'Failed to fetch data.', 'error');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:218: useEffect(() => { fetchQueue(); }, [fetchQueue]);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:220: const onRefresh = async () => { setRefreshing(true); await fetchQueue(); setRefreshing(false); };
+provider-app/src/screens/doctor/DoctorDashboard.tsx:224:	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/accept`);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:226: show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:227: fetchQueue();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:229: } catch (e) { show(AR ? 'حدث خطأ أثناء القبول' : 'Error accepting request', 'error'); }
+provider-app/src/screens/doctor/DoctorDashboard.tsx:234:	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/reject`);
+provider-app/src/screens/doctor/DoctorDashboard.tsx:236: show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:252:     fetchQueue();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:280:     <NBtn label={AR ? 'إعادة المحاولة' : 'Retry'} onPress={fetchQueue} size="sm" />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:450: client.get('/provider/jobs/queue?status=active&kind=consultation')
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1247:  { id: 'ref2', patientName: apt?.patient || (AR ? 'سارة خالد العتيبي' : 'Sara Al-Otaibi'), date: '2026-06-18', target: AR ? 'مستشفى دله' : 'Dallah Hospital', type: 'Hospital', test: AR ? 'تحويل قسم القلب' : 'Cardiology Referral', status: 'accepted', statusAr: 'تم القبول' },
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1271:  <NBadge label={AR ? r.statusAr : r.status.toUpperCase()} variant={r.status === AppointmentStatus.COMPLETED ? 'success' : r.status === 'accepted' ? 'primary' : 'warning'} size="xs" />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1839:    const fetchWallet = async () => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1854:    fetchWallet();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1870:        <NBtn label={AR ? 'طلب سحب رصيد' : 'Withdraw Funds'} icon="money" onPress={() => onNavigate('withdrawal_workflow')} style={{ marginTop: SP.md }} />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1920:    const fetchChats = async () => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:1935:    fetchChats();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2228:        <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2472:    client.get('/provider/notifications').then(res => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2476:        icon: n.type?.toLowerCase().includes('radiology') ? 'document-text' : n.type?.toLowerCase().includes('payment') ? 'cash' : 'notifications',
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2897: const fetchServices = async () => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2931: fetchServices();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:2976: fetchServices();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3369:      show(AR ? 'تم حفظ جدول التوفر الأسبوعي' : 'Weekly availability saved', 'success');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3660: fetchProfile();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3663: const fetchProfile = async () => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:3829: {AR ? 'حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:' : 'Select which insurance providers you accept and specify copay percentages:'}
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4075:    fetchWaitingRoom();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4078:  const fetchWaitingRoom = async () => {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4082:      const res = await fetch(`${API_BASE}/calls/provider/waiting-room`, { headers });
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4087:        throw new Error('Failed to fetch waiting room');
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4099:      await fetch(`${API_BASE}/calls/provider/ping-patient`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4113:      await fetch(`${API_BASE}/calls/provider/no-show`, {
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4119:      fetchWaitingRoom();
+provider-app/src/screens/doctor/DoctorDashboard.tsx:4227:    // Simulated fetching of inbound reports for testing
+provider-app/src/screens/doctor/DoctorRegistration.tsx:57:  acceptedInsurance: { companyId: string; plans: string[] }[];
+provider-app/src/screens/doctor/DoctorRegistration.tsx:77:  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 24.7, lng: 46.7}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+provider-app/src/screens/doctor/DoctorRegistration.tsx:686:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/doctor/DoctorRegistration.tsx:689:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+provider-app/src/screens/doctor/DoctorRegistration.tsx:691:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+provider-app/src/screens/doctor/DoctorRegistration.tsx:696:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/doctor/DoctorRegistration.tsx:706:    update({ acceptedInsurance: updated });
+provider-app/src/screens/doctor/DoctorRegistration.tsx:746:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+provider-app/src/screens/doctor/DoctorRegistration.tsx:747:            const isAccepted = !!acceptedObj;
+provider-app/src/screens/doctor/DoctorRegistration.tsx:763:                        const hasPlan = acceptedObj.plans.includes(p);
+provider-app/src/screens/doctor/DoctorRegistration.tsx:815:          if (!data.cashOnly && (!data.acceptedInsurance || data.acceptedInsurance.length === 0)) {
+provider-app/src/screens/doctor/DoctorRegistration.tsx:903:        accepts_insurance: !data.cashOnly && (data.acceptedInsurance || []).length > 0,
+provider-app/src/screens/doctor/DoctorRegistration.tsx:904:        accepted_insurance: (data.acceptedInsurance || []).map((i: any) => i.companyId),
+provider-app/src/screens/doctor/DoctorRegistration.tsx:938:        accepts_cash: data.cashOnly,
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:15:  availability: { ar: 'التحكم بالتوفر', en: 'Availability' },
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:33:  const fetchInvitations = useCallback(async () => {
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:35:      const res = await client.get('/hospital/invitations/inbox');
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:51:  useEffect(() => { fetchInvitations(); }, [fetchInvitations]);
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:53:  const respond = async (id: string, accept: boolean) => {
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:57:      await client.post(`/hospital/invitations/${id}/respond`, { accept });
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:58:      setInvitations(prev => prev.map(inv => inv.id === id ? { ...inv, status: accept ? 'accepted' : 'rejected' } : inv));
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:60:        accept
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:61:          ? (AR ? 'تم قبول الدعوة بنجاح. أنت الآن تعمل ضمن منشأة.' : 'Invitation accepted. You are now linked to the facility.')
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:62:          : (AR ? 'تم رفض الدعوة' : 'Invitation rejected'),
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:63:        accept ? 'success' : 'info',
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:70:      fetchInvitations();
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:100:                  label={inv.status === 'pending' ? (AR ? 'قيد الانتظار' : 'Pending') : inv.status === 'accepted' ? (AR ? 'مقبولة' : 'Accepted') : (AR ? 'مرفوضة' : 'Rejected')} 
+provider-app/src/screens/doctor/FacilityInvitationsScreen.tsx:101:                  variant={inv.status === 'pending' ? 'primary' : inv.status === 'accepted' ? 'success' : 'danger'} 
+provider-app/src/screens/facility/FacilityRegistration.tsx:65:  acceptedInsurance: { companyId: string; plans: string[] }[];
+provider-app/src/screens/facility/FacilityRegistration.tsx:75:  city: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
+provider-app/src/screens/facility/FacilityRegistration.tsx:642:                    <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+provider-app/src/screens/facility/FacilityRegistration.tsx:703:                    <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+provider-app/src/screens/facility/FacilityRegistration.tsx:764:                    <NCheckbox label={AR ? 'مشمول في التأمين الطبي' : 'Accepts Medical Insurance'} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+provider-app/src/screens/facility/FacilityRegistration.tsx:886:          insurance: !!sp.acceptsInsurance,
+provider-app/src/screens/facility/FacilityRegistration.tsx:899:          insurance: !!sp.acceptsInsurance,
+provider-app/src/screens/facility/FacilityRegistration.tsx:912:          insurance: !!sp.acceptsInsurance,
+provider-app/src/screens/facility/FacilityRegistration.tsx:922:        accepts_cash: data.cashOnly,
+provider-app/src/screens/facility/FacilityRegistration.tsx:923:        accepted_insurance: data.acceptedInsurance.map((i: any) => i.companyId),
+provider-app/src/screens/facility/FacilityRegistration.tsx:935:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/facility/FacilityRegistration.tsx:938:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+provider-app/src/screens/facility/FacilityRegistration.tsx:940:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+provider-app/src/screens/facility/FacilityRegistration.tsx:945:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/facility/FacilityRegistration.tsx:955:    update({ acceptedInsurance: updated });
+provider-app/src/screens/facility/FacilityRegistration.tsx:975:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+provider-app/src/screens/facility/FacilityRegistration.tsx:976:            const isAccepted = !!acceptedObj;
+provider-app/src/screens/facility/FacilityRegistration.tsx:992:                        const hasPlan = acceptedObj.plans.includes(p);
+provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:19:  const fetchAll = useCallback(async () => {
+provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:26:  useEffect(() => { fetchAll(); }, [fetchAll]);
+provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:35:      fetchAll();
+provider-app/src/screens/facility/FacilityAnnouncementsScreen.tsx:62:              placeholder={AR ? 'اكتب التعميم هنا وسيظهر لجميع المزودين المرتبطين...' : 'Type announcement here to broadcast to all linked providers...'}
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:16:  status: 'pending' | 'approved' | 'rejected';
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:27:    fetchRequests();
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:30:  const fetchRequests = async () => {
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:36:      console.warn('Failed to fetch leave requests', e);
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:42:  const handleAction = async (id: string, action: 'approved' | 'rejected') => {
+provider-app/src/screens/facility/FacilityLeaveRequestsScreen.tsx:84:                    onPress={() => handleAction(req.id, 'rejected')} 
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:31:  const fetchAll = useCallback(async () => {
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:38:  useEffect(() => { fetchAll(); }, [fetchAll]);
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:50:      fetchAll();
+provider-app/src/screens/facility/FacilityResourcesScreen.tsx:61:      fetchAll();
+provider-app/src/screens/facility/FacilityInvitationScreen.tsx:25:    availability: true,
+provider-app/src/screens/facility/FacilityInvitationScreen.tsx:38:    { key: 'availability', ar: 'التحكم بالتوفر', en: 'Availability Control' },
+provider-app/src/screens/facility/FacilityInvitationScreen.tsx:84:              : `A notification has been sent to (${identifier}). Once accepted, they will join the facility staff with the specified permissions.`}
+provider-app/src/screens/facility/FacilityDashboard.tsx:9: * ║ DepartmentManagementScreen — manage departments + assigned doctors ║
+provider-app/src/screens/facility/FacilityDashboard.tsx:11: * ║ BedManagementScreen — bed availability + ICU + admissions ║
+provider-app/src/screens/facility/FacilityDashboard.tsx:77:    client.get('/facility/inbox').then(res => setOrders(res.data || []));
+provider-app/src/screens/facility/FacilityDashboard.tsx:136:  const fetchWardsAndSurgeries = async () => {
+provider-app/src/screens/facility/FacilityDashboard.tsx:153:    fetchWardsAndSurgeries();
+provider-app/src/screens/facility/FacilityDashboard.tsx:187:              {activeTab === 'orders' && <FacilityOrdersTab onNavigate={go} surgeries={surgeries} wards={wards} onRefresh={fetchWardsAndSurgeries} />}
+provider-app/src/screens/facility/FacilityDashboard.tsx:209:      <Stack.Screen name="beds">{({ navigation }: any) => <BedManagementScreen onBack={() => navigation.goBack()} wards={wards} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
+provider-app/src/screens/facility/FacilityDashboard.tsx:219:      <Stack.Screen name="surgery_sched">{({ navigation }: any) => <SurgeryScheduleScreen onBack={() => navigation.goBack()} surgeries={surgeries} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
+provider-app/src/screens/facility/FacilityDashboard.tsx:224:      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+provider-app/src/screens/facility/FacilityDashboard.tsx:263:   client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {});
+provider-app/src/screens/facility/FacilityDashboard.tsx:272: client.get('/provider/jobs/queue?status=active&kind=appointment&today=true'),
+provider-app/src/screens/facility/FacilityDashboard.tsx:307: <TouchableOpacity style={[s.iconBtn, { backgroundColor: theme.surface2 }]} onPress={() => onNavigate('notifications')}>
+provider-app/src/screens/facility/FacilityDashboard.tsx:552: const fetchStaff = async () => {
+provider-app/src/screens/facility/FacilityDashboard.tsx:566: show(AR ? 'فشل تحميل قائمة الموظفين' : 'Failed to fetch staff list', 'error');
+provider-app/src/screens/facility/FacilityDashboard.tsx:573: fetchStaff();
+provider-app/src/screens/facility/FacilityDashboard.tsx:1063:     show(AR?'تم تعيين بديل':'Substitute assigned','success');
+provider-app/src/screens/facility/FacilityDashboard.tsx:1137: show(e.message || 'Failed to fetch beds', 'error');
+provider-app/src/screens/facility/FacilityDashboard.tsx:1341: useEffect(() => { client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {}); }, []);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1443: fetchHistory();
+provider-app/src/screens/facility/FacilityDashboard.tsx:1471: const fetchHistory = () => {
+provider-app/src/screens/facility/FacilityDashboard.tsx:1480: useEffect(() => { fetchHistory(); }, []);
+provider-app/src/screens/facility/FacilityDashboard.tsx:1589: const [statusFilter, setStatusFilter] = useState<'all'|'pending'|'approved'|'rejected'>('all');
+provider-app/src/screens/facility/FacilityDashboard.tsx:1593:   client.get('/insurance/requests/provider/queue')
+provider-app/src/screens/facility/FacilityDashboard.tsx:1623: { k:'rejected', ar:'مرفوضة', en:'Rejected' },
+provider-app/src/screens/facility/FacilityDashboard.tsx:1639: accent={claim.status==='approved' ? theme.success : claim.status==='rejected' ? theme.danger : theme.warn}>
+provider-app/src/screens/facility/FacilityDashboard.tsx:1644: claim.status==='rejected'?(AR?' مرفوضة':' Rejected') : (AR?' انتظار':' Pending')}
+provider-app/src/screens/facility/FacilityDashboard.tsx:1645: variant={claim.status==='approved'?'success':claim.status==='rejected'?'danger':'warning'}
+provider-app/src/screens/facility/FacilityDashboard.tsx:1690:   // Real financial data only — platform wallet ledger (provider earnings vs payouts).
+provider-app/src/screens/facility/FacilityDashboard.tsx:2256: <NSettingsRow icon="bell" label={AR?'الإشعارات':'Notifications'} onPress={() => onNavigate('notifications')} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2330: const [assigning, setAssigning] = useState(false);
+provider-app/src/screens/facility/FacilityDashboard.tsx:2332: const fetchData = async () => {
+provider-app/src/screens/facility/FacilityDashboard.tsx:2338: const resNurses = await client.get('/home-care/providers?availability=now');
+provider-app/src/screens/facility/FacilityDashboard.tsx:2341: show(AR ? 'فشل جلب البيانات' : 'Failed to fetch dispatch data', 'error');
+provider-app/src/screens/facility/FacilityDashboard.tsx:2348: fetchData();
+provider-app/src/screens/facility/FacilityDashboard.tsx:2355: await client.post(`/home-care/bookings/${selectedBooking.id}/assign`, {
+provider-app/src/screens/facility/FacilityDashboard.tsx:2360: show(AR ? 'تم تعيين الممرض بنجاح' : 'Nurse assigned successfully', 'success');
+provider-app/src/screens/facility/FacilityDashboard.tsx:2362: fetchData();
+provider-app/src/screens/facility/FacilityDashboard.tsx:2377: onRefresh={fetchData}
+provider-app/src/screens/facility/FacilityDashboard.tsx:2446:  const act = async (action: 'accept' | 'reject') => {
+provider-app/src/screens/facility/FacilityDashboard.tsx:2451:      show(action === 'accept' ? (AR ? 'تم قبول الطلب' : 'Order accepted') : (AR ? 'تم رفض الطلب' : 'Order rejected'), action === 'accept' ? 'success' : 'info');
+provider-app/src/screens/facility/FacilityDashboard.tsx:2466:          <NBtn label={AR ? 'رفض الطلب' : 'Reject'} loading={acting} onPress={() => act('reject')} style={{ flex: 1, backgroundColor: theme.danger }} />
+provider-app/src/screens/facility/FacilityDashboard.tsx:2467:          <NBtn label={AR ? 'قبول وتأكيد' : 'Accept & Confirm'} loading={acting} onPress={() => act('accept')} style={{ flex: 1, backgroundColor: theme.success }} />
+provider-app/src/screens/auth/AuthScreens.tsx:609: const res = await fetch(`${API_BASE}/provider/auth/forgot-password`, {
+provider-app/src/screens/auth/AuthScreens.tsx:631: const res = await fetch(`${API_BASE}/provider/auth/verify-reset-code`, {
+provider-app/src/screens/auth/AuthScreens.tsx:653: const res = await fetch(`${API_BASE}/provider/auth/reset-password`, {
+provider-app/src/screens/lab/LabQcActions.tsx:21:  const [rejectReason, setRejectReason] = useState('');
+provider-app/src/screens/lab/LabQcActions.tsx:129:      {/* Sample reject modal */}
+provider-app/src/screens/lab/LabQcActions.tsx:137:              value={rejectReason} onChangeText={setRejectReason}
+provider-app/src/screens/lab/LabQcActions.tsx:142:              <NBtn label={AR ? 'تأكيد الرفض' : 'Confirm Reject'} variant="danger" loading={busy === 'sample_rejected'}
+provider-app/src/screens/lab/LabQcActions.tsx:143:                onPress={async () => { setShowReject(false); qc('sample_rejected', { reason: rejectReason.trim() || 'unsuitable_sample' }); setRejectReason(''); }}
+provider-app/src/screens/lab/LabDashboard.tsx:56:    client.get('/labs/provider/inbox')
+provider-app/src/screens/lab/LabDashboard.tsx:222: const fetchLabData = useCallback(async () => {
+provider-app/src/screens/lab/LabDashboard.tsx:224: const inboxRes = await client.get('/labs/provider/inbox');
+provider-app/src/screens/lab/LabDashboard.tsx:259: fetchLabData();
+provider-app/src/screens/lab/LabDashboard.tsx:260: }, [fetchLabData]);
+provider-app/src/screens/lab/LabDashboard.tsx:264: await fetchLabData();
+provider-app/src/screens/lab/LabDashboard.tsx:410:      await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: techName });
+provider-app/src/screens/lab/LabDashboard.tsx:539:      {/* QC actions: urgent/STAT/critical/verify/double-verify/reject (Phase-1 APIs) */}
+provider-app/src/screens/lab/LabDashboard.tsx:612: const fetchSamples = useCallback(async () => {
+provider-app/src/screens/lab/LabDashboard.tsx:624: fetchSamples();
+provider-app/src/screens/lab/LabDashboard.tsx:625: }, [fetchSamples]);
+provider-app/src/screens/lab/LabDashboard.tsx:631: fetchSamples();
+provider-app/src/screens/lab/LabDashboard.tsx:660: onRefresh={fetchSamples}
+provider-app/src/screens/lab/LabDashboard.tsx:727:  const [rejectReason, setRejectReason] = useState(''); 
+provider-app/src/screens/lab/LabDashboard.tsx:843:              {rejectReason === reason && <I name="check" size={16} color={theme.primary} />}
+provider-app/src/screens/lab/LabDashboard.tsx:849:              await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sample_rejected', reason: rejectReason });
+provider-app/src/screens/lab/LabDashboard.tsx:850:              show(AR ? 'تم رفض العينة وإشعار المريض بطلب إعادة السحب مجاناً' : 'Sample rejected. Patient notified for free recollection.', 'success');
+provider-app/src/screens/lab/LabDashboard.tsx:1111:          <NBtn label={AR ? 'إلغاء وتعيين فني آخر' : 'Cancel & Reassign'} variant="danger" onPress={async () => {
+provider-app/src/screens/lab/LabDashboard.tsx:1112:            await client.post(`/labs/bookings/${order?.id}/reassign`);
+provider-app/src/screens/lab/LabDashboard.tsx:1114:            show(AR ? 'تم الإلغاء وجاري التعيين' : 'Cancelled & Reassigning', 'success');
+provider-app/src/screens/lab/LabDashboard.tsx:1138:                  if (!order?.id) { show(AR ? 'لا يوجد طلب محدد للتعيين' : 'No order selected to assign', 'error'); return; }
+provider-app/src/screens/lab/LabDashboard.tsx:1140:                    await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
+provider-app/src/screens/lab/LabDashboard.tsx:1141:                    show(AR ? `تم تعيين ${col.name}` : `${col.name} assigned`, 'success');
+provider-app/src/screens/lab/LabDashboard.tsx:1239: const fetchOrders = async () => {
+provider-app/src/screens/lab/LabDashboard.tsx:1242: const res = await client.get('/labs/provider/inbox');
+provider-app/src/screens/lab/LabDashboard.tsx:1246: show(AR ? 'خطأ في جلب الطلبات' : 'Error fetching orders', 'error');
+provider-app/src/screens/lab/LabDashboard.tsx:1252: useEffect(() => { fetchOrders(); }, []);
+provider-app/src/screens/lab/LabDashboard.tsx:1263: fetchOrders();
+provider-app/src/screens/lab/LabDashboard.tsx:1277: newItems[idx].rejectReason = val;
+provider-app/src/screens/lab/LabDashboard.tsx:1318: <NInput label={AR ? 'سبب الرفض' : 'Rejection Reason'} value={item.rejectReason || ''} onChange={(v) => setItemRejectReason(idx, v)} />
+provider-app/src/screens/lab/LabDashboard.tsx:1326: <NBtn label={AR ? 'رفض' : 'Reject'} variant="danger" onPress={() => handleUpdateInsurance('rejected')} style={{flex: 1}} />
+provider-app/src/screens/lab/LabDashboard.tsx:1344: <NCard style={{marginBottom:SP.md}} accent={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'#4CAF50':cl.insurance_status==='rejected'?'#F44336':'#FF9800'}>
+provider-app/src/screens/lab/LabDashboard.tsx:1347: <NBadge label={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?(AR?'مقبولة':'Approved'):cl.insurance_status==='rejected'?(AR?'مرفوضة':'Rejected'):(AR?'انتظار':'Pending')} variant={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'success':cl.insurance_status==='rejected'?'danger':'warning'} size="xs" />
+provider-app/src/screens/lab/LabDashboard.tsx:1504:  useEffect(() => { fetchServices(); }, []);
+provider-app/src/screens/lab/LabDashboard.tsx:1506:  const fetchServices = async () => {
+provider-app/src/screens/lab/LabRegistration.tsx:76:  acceptedInsurance: { companyId: string; plans: string[] }[];
+provider-app/src/screens/lab/LabRegistration.tsx:99:  cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/lab/LabRegistration.tsx:1313:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/lab/LabRegistration.tsx:1316:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+provider-app/src/screens/lab/LabRegistration.tsx:1318:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+provider-app/src/screens/lab/LabRegistration.tsx:1323:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/lab/LabRegistration.tsx:1333:    update({ acceptedInsurance: updated });
+provider-app/src/screens/lab/LabRegistration.tsx:1340:        sub={AR ? 'حدد أوقات العمل وشركات التأمين المقبولة' : 'Set working hours and accepted insurance companies'}
+provider-app/src/screens/lab/LabRegistration.tsx:1463:      {/* Insurance accepts */}
+provider-app/src/screens/lab/LabRegistration.tsx:1467:          sub={AR ? 'تعطيل قبول أي تأمين في المركز' : 'Disable all insurance acceptance'}
+provider-app/src/screens/lab/LabRegistration.tsx:1469:          onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
+provider-app/src/screens/lab/LabRegistration.tsx:1477:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+provider-app/src/screens/lab/LabRegistration.tsx:1478:            const isAccepted = !!acceptedObj;
+provider-app/src/screens/lab/LabRegistration.tsx:1505:                        const hasPlan = acceptedObj.plans.includes(p);
+provider-app/src/screens/lab/LabRegistration.tsx:1645:        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+provider-app/src/screens/lab/LabRegistration.tsx:1646:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+provider-app/src/screens/lab/LabRegistration.tsx:1689:    { label_ar: 'التأمين', label_en: 'Insurance', val: data.cashOnly ? (AR ? 'نقدي' : 'Cash') : `${data.acceptedInsurance.length}` },
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:21:  acceptsCash: boolean; acceptedInsurance: string[];
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:31:  acceptsCash: true, acceptedInsurance: [],
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:184:        <NToggle label={AR ? 'يقبل الدفع نقداً' : 'Accepts cash'} value={data.acceptsCash} onChange={(v: boolean) => update({ acceptsCash: v })} />
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:216:        accepts_cash: data.acceptsCash,
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:227:        accepts_cash: data.acceptsCash,
+provider-app/src/screens/ambulance/AmbulanceRegistration.tsx:241:      <NHeader title={AR ? 'الحساب البنكي والإرسال' : 'Bank & Submit'} sub={AR ? 'لاستلام مستحقاتك من المنصة' : 'To receive your payouts'} step={step} total={total} onBack={onBack} />
+provider-app/src/screens/shared/RealScreens.tsx:313:    client.get('/provider/notifications')
+provider-app/src/screens/shared/RealScreens.tsx:338:            <Text style={{ color: theme.textSub }}>{AR ? 'لا توجد إشعارات بعد' : 'No notifications yet'}</Text>
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:6: * Backend: GET  /insurance/requests/provider/queue
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:17:type DecisionMode = 'approve_full' | 'approve_partial' | 'reject' | null;
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:49:      const res = await client.get('/insurance/requests/provider/queue');
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:81:    if (mode === 'reject') {
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:167:                {req.state === 'REJECTED' && !!req.rejection_reason && (
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:169:                    {(AR ? 'سبب الرفض: ' : 'Reason: ') + req.rejection_reason}
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:203:                { k: 'reject', ar: 'رفض', en: 'Reject', color: theme.danger },
+provider-app/src/screens/shared/InsuranceRequestsScreen.tsx:245:            {mode === 'reject' && (
+provider-app/src/screens/shared/BlueprintScreens.tsx:56: const fetchPromos = useCallback(async () => {
+provider-app/src/screens/shared/BlueprintScreens.tsx:69: fetchPromos();
+provider-app/src/screens/shared/BlueprintScreens.tsx:70: }, [fetchPromos]);
+provider-app/src/screens/shared/BlueprintScreens.tsx:439: : 'Warning: Dropping below 80% acceptance decreases search engine visibility for patients.'}
+provider-app/src/screens/shared/BlueprintScreens.tsx:589: show(AR ? 'فشل تحميل بيانات العميل' : 'Failed to fetch CRM data', 'error');
+provider-app/src/screens/shared/BlueprintScreens.tsx:796:   client.get('/provider/jobs/queue?status=active')
+provider-app/src/screens/shared/BlueprintScreens.tsx:1096: const fetchActive = async () => {
+provider-app/src/screens/shared/BlueprintScreens.tsx:1097:   // Real active emergencies only — no demo broadcasts.
+provider-app/src/screens/shared/BlueprintScreens.tsx:1103: useEffect(() => { fetchActive(); }, []);
+provider-app/src/screens/shared/BlueprintScreens.tsx:1130:     show(AR ? 'تم قبول النداء — الحالة الآن مسندة إليك' : 'SOS claimed — case assigned to you', 'success');
+provider-app/src/screens/shared/BlueprintScreens.tsx:1134:     fetchActive();
+provider-app/src/screens/shared/BlueprintScreens.tsx:1192:     show(AR ? 'لا توجد حالة طوارئ مسندة — اقبل نداء أولاً' : 'No assigned emergency — claim an SOS first', 'error');
+provider-app/src/screens/shared/BlueprintScreens.tsx:1328:  const fetchSamples = useCallback(async () => {
+provider-app/src/screens/shared/BlueprintScreens.tsx:1339:  useEffect(() => { fetchSamples(); }, [fetchSamples]);
+provider-app/src/screens/shared/BlueprintScreens.tsx:1353:      fetchSamples();
+provider-app/src/screens/shared/SharedScreens.tsx:9: * ║ 02. NotificationsCenter — unified notification hub ║
+provider-app/src/screens/shared/SharedScreens.tsx:59:    const fetchChats = async () => {
+provider-app/src/screens/shared/SharedScreens.tsx:78:    fetchChats();
+provider-app/src/screens/shared/SharedScreens.tsx:146:    const fetchMsgs = async () => {
+provider-app/src/screens/shared/SharedScreens.tsx:160:    fetchMsgs();
+provider-app/src/screens/shared/SharedScreens.tsx:293:   client.get('/provider/notifications')
+provider-app/src/screens/shared/SharedScreens.tsx:347: <Text style={{ fontSize: FS.md, color: theme.textSub, marginTop: SP.lg }}>{AR ? 'لا توجد إشعارات' : 'No notifications'}</Text>
+provider-app/src/screens/shared/SharedScreens.tsx:369: { q_ar: 'كيف أسحب أرباحي؟', q_en: 'How to withdraw earnings?', a_ar: 'اذهب للمحفظة > سحب > أدخل المبلغ > تأكيد. الحد الأدنى 100 ريال.', a_en: 'Go to Wallet > Withdraw > Enter amount > Confirm. Minimum 100 SAR.' },
+provider-app/src/screens/shared/SharedScreens.tsx:968:// 12. WITHDRAWAL WORKFLOW SCREEN — Unified withdrawal screens
+provider-app/src/screens/shared/SharedScreens.tsx:989:        client.get('/provider/payouts/balance'),
+provider-app/src/screens/shared/SharedScreens.tsx:991:        client.get('/provider/payouts/mine').catch(() => ({ data: [] })),
+provider-app/src/screens/shared/SharedScreens.tsx:1031:      await client.post('/provider/payouts/request', { amount: amt, iban: cleanIban });
+provider-app/src/screens/shared/SharedScreens.tsx:1035:      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال طلب السحب — تحقق من الاتصال وحاول مجدداً' : 'Could not submit withdrawal request — check connection and retry'), 'error');
+provider-app/src/screens/shared/SharedScreens.tsx:1045:      case 'rejected': return AR ? 'مرفوض' : 'Rejected';
+provider-app/src/screens/shared/SharedScreens.tsx:1049:  const statusVariant = (st: string) => st === 'pending' ? 'warning' : (st === 'rejected' ? 'danger' : 'success');
+provider-app/src/screens/shared/SharedScreens.tsx:1105:            {AR ? `الرصيد المتاح للسحب: ${balance!.available.toFixed(2)} ريال` : `Available for withdrawal: ${balance!.available.toFixed(2)} SAR`}
+provider-app/src/screens/shared/SharedScreens.tsx:1118:                  : 'Your balance is negative due to refunds/adjustments — new earnings settle this debt before any withdrawal is allowed.'}
+provider-app/src/screens/shared/SharedScreens.tsx:1127:                  : 'You already have a withdrawal request under review — you cannot submit a new one until it is processed.'}
+provider-app/src/screens/shared/SharedScreens.tsx:1223:                {h.status === 'rejected' && !!h.admin_note && (
+provider-app/src/screens/shared/SharedScreens.tsx:1307:    const fetchJobs = async () => {
+provider-app/src/screens/shared/SharedScreens.tsx:1318:    fetchJobs();
+provider-app/src/screens/shared/SharedScreens.tsx:2004:       const res = await fetch(`${API_BASE}/drugs/categories`, { headers });
+provider-app/src/screens/shared/SharedScreens.tsx:2024:       const res = await fetch(`${API_BASE}/drugs?${q.toString()}`, { headers });
+provider-app/src/screens/shared/SharedScreens.tsx:2044:       const res = await fetch(`${API_BASE}/drugs/${selectedDrug.id}`, { headers });
+provider-app/src/screens/shared/SharedScreens.tsx:2181:       {/* Suggest edit — proposals go to the admin review queue (approve/reject) */}
+provider-app/src/screens/shared/SharedScreens.tsx:2459:     // prefill the provider's current acceptance from their profile
+provider-app/src/screens/shared/SharedScreens.tsx:2466:       current = p.accepted_insurance || [];
+provider-app/src/screens/shared/SharedScreens.tsx:2504:         accepts_insurance: active.length > 0,
+provider-app/src/screens/shared/SharedScreens.tsx:2505:         accepted_insurance: active.map(i => i.id),
+provider-app/src/screens/shared/SharedScreens.tsx:2524: {AR ? 'حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:' : 'Select which insurance providers you accept and specify copay percentages:'}
+provider-app/src/screens/shared/SharedScreens.tsx:2648: case 'rejected': return { label: AR ? 'مرفوض' : 'Rejected', variant: 'danger' as const };
+provider-app/src/screens/shared/SharedScreens.tsx:2705: {(item.review_status === 'rejected' || item.review_status === 'needs_replacement') && (
+provider-app/src/screens/shared/SharedScreens.tsx:2933:    const fetchWallet = async () => {
+provider-app/src/screens/shared/SharedScreens.tsx:2949:        console.warn('Failed to fetch wallet', err);
+provider-app/src/screens/shared/SharedScreens.tsx:2954:    fetchWallet();
+provider-app/src/screens/shared/SharedScreens.tsx:2968:            onPress={() => onNavigate && onNavigate('withdrawal_workflow')} 
+provider-app/src/screens/shared/FleetScreen.tsx:18:  rejected: { ar: 'مرفوضة', en: 'Rejected', variant: 'danger' },
+provider-app/src/screens/shared/FleetScreen.tsx:127:              {v.status === 'rejected' && !!v.admin_notes && (
+provider-app/src/screens/nursing/NursingDashboard.tsx:6: * 03. NursingOrderDetail — accept/reject + patient info
+provider-app/src/screens/nursing/NursingDashboard.tsx:80: const fetchJobs = async () => {
+provider-app/src/screens/nursing/NursingDashboard.tsx:84: client.get('/provider/jobs/queue?kind=nursing&status=incoming'),
+provider-app/src/screens/nursing/NursingDashboard.tsx:85: client.get('/provider/jobs/queue?kind=nursing&status=active'),
+provider-app/src/screens/nursing/NursingDashboard.tsx:86: client.get('/provider/jobs/queue?kind=nursing&status=completed')
+provider-app/src/screens/nursing/NursingDashboard.tsx:102: fetchJobs();
+provider-app/src/screens/nursing/NursingDashboard.tsx:121:              {tab==='home' && <NursingHome onNav={go} jobs={jobs} refreshing={refreshing} onRefresh={fetchJobs} onTriggerAlarm={() => setAlarmVisible(true)} />}
+provider-app/src/screens/nursing/NursingDashboard.tsx:143:               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: true });
+provider-app/src/screens/nursing/NursingDashboard.tsx:144:               show(AR ? 'تم قبول الطلب بنجاح' : 'Request accepted successfully', 'success');
+provider-app/src/screens/nursing/NursingDashboard.tsx:146:               fetchJobs();
+provider-app/src/screens/nursing/NursingDashboard.tsx:153:               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: false });
+provider-app/src/screens/nursing/NursingDashboard.tsx:154:               show(AR ? 'تم رفض الطلب' : 'Request rejected', 'info');
+provider-app/src/screens/nursing/NursingDashboard.tsx:156:               fetchJobs();
+provider-app/src/screens/nursing/NursingDashboard.tsx:176:      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <NursingFieldOps order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+provider-app/src/screens/nursing/NursingDashboard.tsx:178:      <Stack.Screen name="checkin">{({ navigation, route }: any) => <DigitalCheckin order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+provider-app/src/screens/nursing/NursingDashboard.tsx:181:      <Stack.Screen name="visit_report">{({ navigation, route }: any) => <VisitReport order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+provider-app/src/screens/nursing/NursingDashboard.tsx:210:      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+provider-app/src/screens/nursing/NursingDashboard.tsx:230: await client.post('/home-care/provider/availability', { available: nextVal });
+provider-app/src/screens/nursing/NursingDashboard.tsx:424: await client.post(`/home-care/bookings/${order.id}/respond`, { accept: true });
+provider-app/src/screens/nursing/NursingDashboard.tsx:425: show(AR ? 'تم قبول الطلب بنجاح' : 'Order accepted successfully', 'success');
+provider-app/src/screens/nursing/NursingDashboard.tsx:429: show(err.message || 'Error accepting order', 'error');
+provider-app/src/screens/nursing/NursingDashboard.tsx:435: await client.post(`/home-care/bookings/${order.id}/respond`, { accept: false });
+provider-app/src/screens/nursing/NursingDashboard.tsx:436: show(AR ? 'تم رفض الطلب' : 'Order rejected', 'success');
+provider-app/src/screens/nursing/NursingDashboard.tsx:440: show(err.message || 'Error rejecting order', 'error');
+provider-app/src/screens/nursing/NursingDashboard.tsx:696: const fetchPlans = useCallback(async () => {
+provider-app/src/screens/nursing/NursingDashboard.tsx:704: useEffect(() => { fetchPlans(); }, [fetchPlans]);
+provider-app/src/screens/nursing/NursingDashboard.tsx:716: fetchPlans();
+provider-app/src/screens/nursing/NursingDashboard.tsx:771: const fetchNotes = useCallback(async () => {
+provider-app/src/screens/nursing/NursingDashboard.tsx:779: useEffect(() => { fetchNotes(); }, [fetchNotes]);
+provider-app/src/screens/nursing/NursingDashboard.tsx:812:     fetchNotes();
+provider-app/src/screens/nursing/NursingDashboard.tsx:1026: const [withdrawing, setWithdrawing] = useState(false);
+provider-app/src/screens/nursing/NursingDashboard.tsx:1028: const fetchWallet = useCallback(async () => {
+provider-app/src/screens/nursing/NursingDashboard.tsx:1040: useEffect(() => { fetchWallet(); }, [fetchWallet]);
+provider-app/src/screens/nursing/NursingDashboard.tsx:1047: await client.post('/provider/payouts/request', { amount });
+provider-app/src/screens/nursing/NursingDashboard.tsx:1050: fetchWallet();
+provider-app/src/screens/nursing/NursingDashboard.tsx:1102: <NBtn label={AR?'تأكيد':'Confirm'} disabled={!amt||parseInt(amt)<=0} loading={withdrawing} onPress={handleWithdraw} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:1179: <NSettingsRow icon="bell" label={AR?'الإشعارات':'Notifications'} onPress={()=>onNav('notifications')} />
+provider-app/src/screens/nursing/NursingDashboard.tsx:1508: fetchProfile();
+provider-app/src/screens/nursing/NursingDashboard.tsx:1511: const fetchProfile = async () => {
+provider-app/src/screens/nursing/NursingRegistration.tsx:75:  acceptedInsurance: { companyId: string; plans: string[] }[];
+provider-app/src/screens/nursing/NursingRegistration.tsx:89:  cashOnly: true, acceptedInsurance: [],
+provider-app/src/screens/nursing/NursingRegistration.tsx:621:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/nursing/NursingRegistration.tsx:624:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+provider-app/src/screens/nursing/NursingRegistration.tsx:626:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+provider-app/src/screens/nursing/NursingRegistration.tsx:631:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/nursing/NursingRegistration.tsx:639:    update({ acceptedInsurance: updated });
+provider-app/src/screens/nursing/NursingRegistration.tsx:644:      <NHeader title={AR ? 'المواعيد والتأمين' : 'Schedule & Insurance'} sub={AR ? 'حدد أوقات العمل وقبول التأمين' : 'Set availability and insurance options'} step={step} total={total} onBack={onBack} />
+provider-app/src/screens/nursing/NursingRegistration.tsx:721:          <Switch value={data.cashOnly} onValueChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })} />
+provider-app/src/screens/nursing/NursingRegistration.tsx:726:            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'اختر شركات التأمين الطبي المعتمدة للتمريض:' : 'Select accepted medical insurance plans:'}</Text>
+provider-app/src/screens/nursing/NursingRegistration.tsx:728:              const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+provider-app/src/screens/nursing/NursingRegistration.tsx:729:              const isAccepted = !!acceptedObj;
+provider-app/src/screens/nursing/NursingRegistration.tsx:745:                          const hasPlan = acceptedObj.plans.includes(p);
+provider-app/src/screens/nursing/NursingRegistration.tsx:859:        accepts_cash: data.cashOnly,
+provider-app/src/screens/nursing/NursingRegistration.tsx:860:        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+provider-app/src/screens/nursing/NursingRegistration.tsx:861:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:76:  acceptedInsurance: { companyId: string; plans: string[] }[];
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:99:  cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1313:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1316:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1318:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1323:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1333:    update({ acceptedInsurance: updated });
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1340:        sub={AR ? 'حدد أوقات العمل وشركات التأمين المقبولة' : 'Set working hours and accepted insurance companies'}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1463:      {/* Insurance accepts */}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1467:          sub={AR ? 'تعطيل قبول أي تأمين في المركز' : 'Disable all insurance acceptance'}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1469:          onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1477:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1478:            const isAccepted = !!acceptedObj;
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1505:                        const hasPlan = acceptedObj.plans.includes(p);
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1645:        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1646:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+provider-app/src/screens/radiology/RadiologyRegistration.tsx:1689:    { label_ar: 'التأمين', label_en: 'Insurance', val: data.cashOnly ? (AR ? 'نقدي' : 'Cash') : `${data.acceptedInsurance.length}` },
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:88:  const fetchOrders = useCallback(async () => {
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:91:      const res = await client.get('/radiology/provider/inbox');
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:97:  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:99:    <NScroll refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrders} tintColor="#009688" />}>
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:141:  const fetch = useCallback(async () => { try { setLoading(true); const res = await client.get('/radiology/provider/inbox'); setOrders(res.data || []); } catch {} finally { setLoading(false); } }, []);
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:142:  useEffect(() => { fetch(); }, [fetch]);
+provider-app/src/screens/radiology/RadiologyDashboard.tsx:430:      await client.post('/radiology/catalog/delta-request', { name_ar: nameAr, name_en: nameEn, modality_category: modality, price: parseFloat(price), estimated_duration_minutes: parseInt(duration) || 30, insurance_availability: insAvail, portable_ultrasound: portableUS, requires_pregnancy_check: riskPregnancy, requires_metal_implant_check: riskMetal, requires_contrast_allergy_check: riskContrast, preparation_keys: prepItems });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:5: * ║ 01. PharmacyHomeTab — dashboard + live broadcast orders ║
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:6: * ║ 02. BroadcastOrderScreen — accept/partial/reject + alternatives ║
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:20: * ║ 16. PharmacyWalletScreen — earnings + withdrawal ║
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:156:     <Stack.Screen name="pharmacy_broadcast">{({ navigation }: any) => <PharmacyBroadcastResponse onBack={() => navigation.goBack()} />}</Stack.Screen>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:168:     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:195:  const [broadcasts, setBroadcasts] = useState<any[]>([]);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:220:    const fetchBroadcasts = () => {
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:221:      client.get('/provider/pharmacy/broadcasts') // real open broadcasts for this pharmacy
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:231:          if (newOrders.length > broadcasts.length) playAlarm(); // Trigger alarm on new order
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:237:    fetchBroadcasts();
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:238:    const interval = setInterval(fetchBroadcasts, 5000); // Poll every 5s
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:244:  const [rejectOrderId, setRejectOrderId] = useState<string|null>(null);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:254:  const acceptOrder = async (orderId: string, isOtc?: boolean) => {
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:256:      const res = await client.post(`/provider/pharmacy/orders/${orderId}/accept`);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:258:        show(AR ? 'تم قبول الطلب بنجاح!' : 'Order accepted successfully!', 'success');
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:275:      await client.post(`/pharmacy/orders/${rejectOrderId}/reject`, { reason: reasonId });
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:276:      setBroadcasts(prev => prev.filter(b => b.id !== rejectOrderId));
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:277:      show(AR ? 'تم رفض الطلب' : 'Order rejected', 'info');
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:300:          {broadcasts.length === 0 ? (
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:303:            broadcasts.map((b, idx) => (
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:323:                  <NBtn label={AR ? 'قبول الطلب' : 'Accept Order'} variant="secondary" style={{ flex: 2 }} onPress={() => acceptOrder(b.id, b.is_otc)} />
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:394:      show(AR ? 'تعذر جلب بيانات الوصفة — تحقق من الاتصال وحاول مجدداً' : 'Could not fetch the prescription — check connection and retry', 'error');
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:437:              {AR ? 'أدخل رقم الوصفة أو رقم تتبع الطلب لجلب بياناتها الحقيقية من طلبات صيدليتك.' : 'Enter the prescription number or order tracking ID to fetch its real data from your pharmacy orders.'}
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:737:                  <NBadge label={r.status === 'approved' || r.status === 'completed' ? (AR ? 'مقبول' : 'Approved') : r.status === 'rejected' ? (AR ? 'مرفوض' : 'Rejected') : (AR ? 'قيد المعالجة' : 'Processing')} variant={r.status === 'approved' || r.status === 'completed' ? 'success' : r.status === 'rejected' ? 'danger' : 'warning'} size="xs" />
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:840:        <NBtn label={AR ? 'سحب الرصيد' : 'Withdraw Funds'} variant="outline" onPress={() => onNavigate('withdrawal_workflow')} style={{ marginTop: SP.md, width: 200, backgroundColor: 'rgba(255,255,255,0.2)', borderColor: 'transparent' }} />
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:927:    if (k === 'rejected') return { label: AR ? 'مرفوض' : 'Rejected', variant: 'danger' as any };
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:996:  const fetchAll = useCallback(async () => {
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1012:  useEffect(() => { fetchAll(); }, [fetchAll]);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1034:      fetchAll();
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1048:      fetchAll();
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1386:            <NBtn label={AR?'قبول الطلب وتجهيز الدواء':'Accept Order'} size="sm" onPress={() => show(AR?'تم قبول الطلب وتنبيه المريض':'Order accepted','success')} style={{ flex: 1 }} />
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1451:  const fetchInventory = useCallback(async () => {
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1462:  useEffect(() => { fetchInventory(); }, [fetchInventory]);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1469:      fetchInventory();
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1663:  const [acceptsInsurance, setAcceptsInsurance] = useState(true);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1664:  const [acceptsInstallments, setAcceptsInstallments] = useState(false);
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1670:        newData: { deliveryRadius, minOrder, deliveryFee, acceptsInsurance, acceptsInstallments } 
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1694:          <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
+provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:1695:          <NToggle label={AR ? 'قبول الدفع بالتقسيط (تابي/تمارا)' : 'Accept Installments (Tabby/Tamara)'} value={acceptsInstallments} onChange={setAcceptsInstallments} />
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:67:  acceptedInsurance: { companyId: string; plans: string[] }[];
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:86:  scheduledDelivery: true, cashOnly: false, acceptedInsurance: [],
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:598:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:601:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:603:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:608:    const current = data.acceptedInsurance || [];
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:616:    update({ acceptedInsurance: updated });
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:648:            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'اختر شركات التأمين الصيدلاني المعتمدة وفئاتها:' : 'Select accepted pharmacy insurance plans:'}</Text>
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:650:              const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:651:              const isAccepted = !!acceptedObj;
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:667:                          const hasPlan = acceptedObj.plans.includes(p);
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:753:        accepts_insurance: !data.cashOnly,
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:754:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+provider-app/src/screens/pharmacy/PharmacyRegistration.tsx:755:        accepts_cash: true,
+provider-app/src/constants/index.ts:357: pending:'قيد المراجعة', active:'نشط', suspended:'موقوف', rejected:'مرفوض',
+provider-app/src/constants/index.ts:364: profile:'الملف الشخصي', notifications:'الإشعارات', security:'الأمان',
+provider-app/src/constants/index.ts:379: accept:'قبول', reject:'رفض', partialAccept:'قبول جزئي',
+provider-app/src/constants/index.ts:407: pending:'Under Review', active:'Active', suspended:'Suspended', rejected:'Rejected',
+provider-app/src/constants/index.ts:411: profile:'Profile', notifications:'Notifications', security:'Security',
+provider-app/src/constants/index.ts:422: accept:'Accept', reject:'Reject', partialAccept:'Partial Accept',
+provider-app/src/api/client.ts:1:import axios from 'axios';
+provider-app/src/api/client.ts:5:const client = axios.create({
+provider-app/src/api/client.ts:28: (error) => Promise.reject(error)
+provider-app/src/api/client.ts:48: return Promise.reject(error.response?.data || error);
+provider-app/src/services/HttpClient.ts:1:import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+provider-app/src/services/HttpClient.ts:3:export const HttpClient = axios.create({
+provider-app/src/services/HttpClient.ts:13:    if (!config) return Promise.reject(error);
+provider-app/src/services/HttpClient.ts:27:    return Promise.reject(error);
+provider-app/src/utils/notifications.ts:2:// expo-notifications touches NATIVE modules at import time — in Expo Go (SDK 53+)
+provider-app/src/utils/notifications.ts:7:let notificationsInit = false;
+provider-app/src/utils/notifications.ts:10:  if (!notificationsInit) {
+provider-app/src/utils/notifications.ts:11:    notificationsInit = true;
+provider-app/src/utils/notifications.ts:13:      Notifications = require('expo-notifications');
+provider-app/src/utils/notifications.ts:33:import { apiFetch } from './api';
+provider-app/src/utils/notifications.ts:35:// Configure notification behavior
+provider-app/src/utils/notifications.ts:55:      // User denied push notification permission — graceful skip
+provider-app/src/utils/notifications.ts:83:        // Push token fetch failed — non-critical, skip silently
+provider-app/src/utils/notifications.ts:91:      await apiFetch('/push/register', {
+provider-app/src/utils/notifications.ts:104:    // Set up Android notification channel for calls
+provider-app/src/utils/notifications.ts:124:    // Non-critical — push notifications degraded gracefully
+provider-app/src/utils/notifications.ts:130:  onNotificationReceived: (notification: any) => void,
+provider-app/src/utils/notifications.ts:135:  // Listen for notifications received when app is open
+provider-app/src/utils/notifications.ts:138:  // Listen for notification clicks (app is in background or closed)
+provider-app/src/utils/PushNotifications.ts:2:// expo-notifications touches NATIVE modules at import time — in Expo Go (SDK 53+)
+provider-app/src/utils/PushNotifications.ts:7:let notificationsInit = false;
+provider-app/src/utils/PushNotifications.ts:10:  if (!notificationsInit) {
+provider-app/src/utils/PushNotifications.ts:11:    notificationsInit = true;
+provider-app/src/utils/PushNotifications.ts:13:      Notifications = require('expo-notifications');
+provider-app/src/utils/PushNotifications.ts:56:    // Token obtained — backend registration handled by notifications.ts
+provider-app/src/utils/api.ts:2: * apiFetch — thin fetch-style wrapper over the shared axios client.
+provider-app/src/utils/api.ts:14:export async function apiFetch(path: string, options: ApiFetchOptions = {}): Promise<any> {
+provider-app/src/types/contracts.ts:41:  REJECTED = 'rejected',
+provider-app/src/types/FacilityTypes.ts:34:  status: 'pending' | 'accepted' | 'rejected' | 'revoked';
+provider-app/src/types/FacilityTypes.ts:44:  availability: boolean;
+provider-app/src/components/ContractModal.tsx:22:  const [accepting, setAccepting] = useState(false);
+provider-app/src/components/ContractModal.tsx:114:            style={[styles.confirmBtn, accepting && { opacity: 0.6 }]}
+provider-app/src/components/ContractModal.tsx:115:            disabled={accepting}
+provider-app/src/components/ContractModal.tsx:117:              // Article 16: pressing "I Agree" is legally binding electronic acceptance.
+provider-app/src/components/ContractModal.tsx:119:              try { await client.post('/legal/accept/provider_agreement', {}); } catch {}
+provider-app/src/components/ContractModal.tsx:125:              {accepting ? (AR ? 'جارٍ التسجيل…' : 'Recording…') : (AR ? 'أوافق' : 'I Agree')}
+provider-app/src/context/index.tsx:177:export type AppStateStatusType = 'checking' | 'logged_out' | 'logged_in' | 'suspended' | 'pending' | 'rejected' | 'offline';
+provider-app/src/context/index.tsx:215:      const isOnline = await fetch('https://1.1.1.1', { method: 'HEAD' }).then(() => true).catch(() => false);
+provider-app/src/context/index.tsx:257:    if (status === 'rejected') { setAppState('rejected'); return false; }
+provider-app/src/context/index.tsx:272:      const res = await fetch(`${baseUrl}/provider/auth/refresh`, {
+provider-app/src/context/index.tsx:300:      const res = await fetch(`${baseUrl}/provider/auth/login`, {
+provider-app/src/context/index.tsx:360:        await fetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
+provider-app/src/context/index.tsx:385: const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {
+provider-app/src/security/Security.ts:316: 'toggle_online'|'withdraw_request'|'doc_upload'|'settings_change'|'biometric_login'|'biometric_enabled';

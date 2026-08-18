@@ -1,0 +1,177 @@
+# admin source inventory
+root=/home/ubuntu/admin-build-work/web-admin
+generated=2026-08-18
+
+## files
+.gitignore
+AGENTS.md
+CLAUDE.md
+README.md
+eslint.config.mjs
+next-env.d.ts
+next.config.ts
+package-lock.json
+package.json
+postcss.config.mjs
+public/favicon.ico
+public/file.svg
+public/globe.svg
+public/next.svg
+public/robots.txt
+public/vercel.svg
+public/window.svg
+src/components/AdminGuard.tsx
+src/components/EmptyIcon.tsx
+src/components/ProviderFullDetail.tsx
+src/components/PublicDirectory.tsx
+src/pages/_app.tsx
+src/pages/_document.tsx
+src/pages/admin/ai-control.tsx
+src/pages/admin/ambulance-fleet.tsx
+src/pages/admin/analytics.tsx
+src/pages/admin/audit-logs.tsx
+src/pages/admin/catalog-manager.tsx
+src/pages/admin/commissions.tsx
+src/pages/admin/config-portal.tsx
+src/pages/admin/dashboard.tsx
+src/pages/admin/disputes.tsx
+src/pages/admin/financial-ledger.tsx
+src/pages/admin/fraud-monitoring.tsx
+src/pages/admin/health-dashboard.tsx
+src/pages/admin/image-suggestions.tsx
+src/pages/admin/insurance-companies.tsx
+src/pages/admin/insurance-queue.tsx
+src/pages/admin/legal-policies.tsx
+src/pages/admin/medicines-catalog.tsx
+src/pages/admin/notification-center.tsx
+src/pages/admin/nursing-portal.tsx
+src/pages/admin/order-detail.tsx
+src/pages/admin/payouts.tsx
+src/pages/admin/pharmacy-procurement.tsx
+src/pages/admin/provider-audits.tsx
+src/pages/admin/provider-moderation.tsx
+src/pages/admin/rbac.tsx
+src/pages/admin/security.tsx
+src/pages/admin/shortage-reports.tsx
+src/pages/admin/sos-monitor.tsx
+src/pages/admin/support-tickets.tsx
+src/pages/admin/users-management.tsx
+src/pages/api/hello.ts
+src/pages/articles/index.tsx
+src/pages/doctors/index.tsx
+src/pages/facilities/index.tsx
+src/pages/home-care-services/index.tsx
+src/pages/index.tsx
+src/pages/lab-services/index.tsx
+src/pages/login.tsx
+src/pages/medicines/index.tsx
+src/pages/s/[type]/[slug].tsx
+src/styles/globals.css
+src/utils/api.ts
+tsconfig.json
+
+## route/navigation markers
+/home/ubuntu/admin-build-work/web-admin/public/globe.svg:1:<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+/home/ubuntu/admin-build-work/web-admin/src/pages/index.tsx:38:        <link rel="canonical" href={SITE} />
+/home/ubuntu/admin-build-work/web-admin/src/pages/index.tsx:52:            <Link href="/login" className="text-sm text-slate-500 hover:text-teal-700">دخول المزودين والإدارة</Link>
+/home/ubuntu/admin-build-work/web-admin/src/pages/index.tsx:53:            <a href="#download" className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">حمّل التطبيق</a>
+/home/ubuntu/admin-build-work/web-admin/src/pages/index.tsx:70:              <Link key={s.href} href={s.href} className="bg-white rounded-2xl border border-slate-200 p-6 hover:border-teal-400 hover:shadow-md transition-all group">
+/home/ubuntu/admin-build-work/web-admin/src/pages/login.tsx:153:    router.push('/admin/dashboard');
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:52:          <Link href="/" className="text-teal-700 font-bold">العودة للرئيسية</Link>
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:67:        <link rel="canonical" href={`${SITE}/s/${type}/${meta.slug}`} />
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:88:            <Link href="/" className="text-xl font-black text-teal-700">نبض</Link>
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:89:            <a href={`nabdplus://s/${type}/${meta.slug}`} className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:94:            <Link href="/" className="hover:text-teal-700">الرئيسية</Link>
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:96:            <Link href={t.dir} className="hover:text-teal-700">{t.label}</Link>
+/home/ubuntu/admin-build-work/web-admin/src/pages/s/[type]/[slug].tsx:234:            <a href={`nabdplus://s/${type}/${meta.slug}`} className="inline-block mt-4 bg-white text-teal-700 font-bold px-6 py-2.5 rounded-lg">فتح في تطبيق نبض</a>
+/home/ubuntu/admin-build-work/web-admin/src/pages/admin/sos-monitor.tsx:138:                        href={`https://maps.google.com/?q=${lat},${lng}`}
+/home/ubuntu/admin-build-work/web-admin/src/pages/admin/ambulance-fleet.tsx:136:                      <a key={i} href={d} target="_blank" rel="noreferrer" className="text-xs text-sky-600 underline">مستند {i + 1}</a>
+/home/ubuntu/admin-build-work/web-admin/src/pages/admin/pharmacy-procurement.tsx:116:                      <a href={r.uploaded_file_url} target="_blank" rel="noreferrer" className="text-teal-700 text-sm font-bold underline">الملف المرفق</a>
+/home/ubuntu/admin-build-work/web-admin/src/components/PublicDirectory.tsx:65:        <link rel="canonical" href={`${SITE}/${CANONICAL_PATH[config.type] || config.type}`} />
+/home/ubuntu/admin-build-work/web-admin/src/components/PublicDirectory.tsx:75:            <Link href="/" className="text-xl font-black text-teal-700">نبض</Link>
+/home/ubuntu/admin-build-work/web-admin/src/components/PublicDirectory.tsx:76:            <Link href="/" className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2 rounded-lg"> التطبيق</Link>
+/home/ubuntu/admin-build-work/web-admin/src/components/PublicDirectory.tsx:99:                  href={`/s/${config.type}/${slug}`}
+/home/ubuntu/admin-build-work/web-admin/src/components/AdminGuard.tsx:90:                        href={item.href}
+/home/ubuntu/admin-build-work/web-admin/src/components/ProviderFullDetail.tsx:50:    <a href={src} target="_blank" rel="noreferrer">
+/home/ubuntu/admin-build-work/web-admin/src/components/ProviderFullDetail.tsx:67:  return <a href={href} target="_blank" rel="noreferrer" className="text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded px-2 py-1 underline">{label}</a>;
+/home/ubuntu/admin-build-work/web-admin/src/components/ProviderFullDetail.tsx:253:                  <a className="text-teal-700 underline text-sm font-mono" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${prof.geo.lat},${prof.geo.lng}`}>
+/home/ubuntu/admin-build-work/web-admin/src/components/ProviderFullDetail.tsx:296:                  <a className="text-teal-700 underline text-sm font-mono" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${ob.location.lat},${ob.location.lng}`}>
+
+## interactive handlers
+168
+## API endpoint markers
+"/></g><defs><clipPath id="
+"/><path fill="
+"/login"
+"/pharmacy/cart"
+'/admin'
+'/admin/ambulance-fleet'
+'/admin/analytics/overview'
+'/admin/audit-logs'
+'/admin/catalog-manager'
+'/admin/commissions'
+'/admin/config-portal'
+'/admin/dashboard'
+'/admin/disputes'
+'/admin/extended-operations/procurement/pending'
+'/admin/finance/commissions'
+'/admin/finance/ledger/summary'
+'/admin/finance/refunds/queue'
+'/admin/finance/withdrawals/pending'
+'/admin/financial-ledger'
+'/admin/fraud-monitoring'
+'/admin/health-dashboard'
+'/admin/insurance-companies'
+'/admin/insurance-queue'
+'/admin/insurance/stats'
+'/admin/medicines-catalog'
+'/admin/notification-center/broadcasts'
+'/admin/notification-center/campaigns'
+'/admin/notification-center/retarget/run'
+'/admin/notification-center/segments'
+'/admin/notification-center/stats/overview'
+'/admin/nursing-portal'
+'/admin/nursing/requests'
+'/admin/payouts'
+'/admin/pharmacy-procurement'
+'/admin/provider-audits'
+'/admin/provider-deltas'
+'/admin/provider-moderation'
+'/admin/rbac'
+'/admin/security'
+'/admin/sos-monitor'
+'/admin/support-tickets'
+'/admin/users-management'
+'/ai/admin/gateway'
+'/ai/admin/gateway/mode'
+'/articles'
+'/articles?limit=50'
+'/auth/passkey/devices'
+'/auth/passkey/enroll/options'
+'/auth/passkey/enroll/verify'
+'/care/doctors?limit=300'
+'/care/facilities?limit=300'
+'/doctors'
+'/emergency/active'
+'/facilities'
+'/home-care-services'
+'/home-care/services'
+'/insurance/companies'
+'/insurance/companies/all'
+'/lab-services'
+'/labs/admin/catalog'
+'/labs/packages'
+'/labs/services'
+'/legal/policies'
+'/login'
+'/medicines'
+'/medicines/admin/catalog'
+'/medicines/admin/reports'
+'/nursing/admin/catalog'
+'/nursing/catalog'
+'/radiology/admin/catalog'
+'/radiology/services'
+'/storage/upload'
+
+## interactive handlers
+168
