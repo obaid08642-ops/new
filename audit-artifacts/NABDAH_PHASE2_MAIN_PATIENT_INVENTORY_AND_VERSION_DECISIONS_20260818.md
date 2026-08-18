@@ -132,3 +132,10 @@ The main mental-health surface includes hub, breathing, crisis support, meditati
 
 
 A second isolated installation attempt using the local npm cache also failed with `ENOTCACHED` for `redux-persist@6.0.0`. This confirms the remaining build blocker is environmental/dependency availability in the sandbox, in addition to the source lockfile mismatch. No source, lockfile, or branch was changed; the build gate remains `BLOCKED` until a network-capable or fully cached build environment is available.
+
+
+## Manual review of unmatched Patient calls
+
+The unmatched queue includes both genuine review items and client-intent/method mismatches. Examples requiring a `FIX` review include `POST /patient/pay-copay` where no matching Backend route was found, direct chat thread creation/message paths under `/chat/threads/*` where the current backend contract is not exposed under the same prefix, and `GET /medical/programs/active` while the Backend currently exposes enrollment and complete-session operations rather than an active-program read route. These must not be activated as successful workflows until a real contract is confirmed.
+
+Other entries are method mismatches rather than absent features: `POST /articles` is used where the Backend catalog is read with `GET`; `POST /articles/bookmarks/:slug/status` is used where the status route is `GET` and toggle is `POST`; `PUT /community/posts/:id` has no matching update route in the compiled controller; `POST /labs/bookings/:id` conflicts with the current `GET` detail route; `POST /nutrition/foods` conflicts with the read-only food catalog `GET`; and `POST /wallet/balance` conflicts with the read-only balance route. These are existing-screen contract defects, not missing screens. The decision is to preserve the main feature breadth and correct the client intent or backend contract explicitly in the remediation phase, with ownership and state tests.
