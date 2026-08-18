@@ -682,3 +682,6 @@
 
 - [ ] Audit historical push/commit destinations from the conversation and Git history; identify exactly which branch received each Backend/Patient/Provider/Admin change.
 - [ ] Verify whether current `manus/on-live-reconciliation` contains all four application artifacts or only Backend/patient archives, and record any missing Provider/Admin source artifacts.
+
+- [ ] Resume Full Systematic QA from the verified `manus/on-live-reconciliation` branch at current remote HEAD; extract and audit all four committed application artifacts before any new implementation.
+- [ ] Preserve the original closure order: contract inventory -> build/test gates -> sandbox-only E2E -> fixes/revalidation -> readiness report.
