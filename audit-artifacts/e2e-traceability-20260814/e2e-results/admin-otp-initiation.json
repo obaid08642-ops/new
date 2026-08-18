@@ -1,7 +1,0 @@
-{
-  "generatedAt": "2026-08-14T12:01:49.796Z",
-  "mode": "start admin OTP cycle only; no OTP verification and no administrative reads",
-  "loginStatus": 429,
-  "twoFactorRequired": false,
-  "tokenIssuedBefore2fa": false
-}
