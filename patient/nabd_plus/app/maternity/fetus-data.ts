@@ -17,7 +17,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 0,
     description: "في الأسبوع الأول، تبدأ البويضة المخصبة بالانقسام السريع وتتحرك نحو الرحم.",
-    image_path: require('../../assets/images/maternity/fetus/week_1.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-01.png'),
   },
   2: {
     week: 2,
@@ -25,7 +25,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 0.1,
     description: "تتكاثر الخلايا وتزرع نفسها في بطانة الرحم السميكة.",
-    image_path: require('../../assets/images/maternity/fetus/week_2.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-02.png'),
   },
   3: {
     week: 3,
@@ -33,7 +33,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 0.2,
     description: "يبدأ الأنبوب العصبي بالتكون، وهو الذي سيصبح لاحقاً الدماغ والحبل الشوكي.",
-    image_path: require('../../assets/images/maternity/fetus/week_3.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-03.png'),
   },
   4: {
     week: 4,
@@ -41,7 +41,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 0.5,
     description: "يبدأ القلب الصغير بالتشكل والنبض، وتتكون براعم الأطراف الأولى.",
-    image_path: require('../../assets/images/maternity/fetus/week_4.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-04.png'),
   },
   5: {
     week: 5,
@@ -49,7 +49,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 0.8,
     description: "يأخذ الجنين شكل حرف C، وتبدأ ملامح الوجه الأساسية بالظهور.",
-    image_path: require('../../assets/images/maternity/fetus/week_5.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-05.png'),
   },
   6: {
     week: 6,
@@ -57,7 +57,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 1.2,
     description: "تتطور براعم الأطراف لتصبح أذرع وسيقان صغيرة، وتبدأ العينان بالتكون.",
-    image_path: require('../../assets/images/maternity/fetus/week_6.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-06.png'),
   },
   7: {
     week: 7,
@@ -65,7 +65,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 0,
     length_cm: 1.5,
     description: "يتطور الدماغ بسرعة مذهلة، وتبدأ الأعضاء الداخلية بالنمو.",
-    image_path: require('../../assets/images/maternity/fetus/week_7.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-07.png'),
   },
   8: {
     week: 8,
@@ -73,7 +73,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 1,
     length_cm: 2.5,
     description: "تتكون أصابع اليدين والقدمين الصغيرة، وتستمر الملامح بالتشكل.",
-    image_path: require('../../assets/images/maternity/fetus/week_8.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-08.png'),
   },
   9: {
     week: 9,
@@ -81,7 +81,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 2,
     length_cm: 3.0,
     description: "تكتمل الأساسيات الجسدية للجنين ويبدأ بالتحرك بنشاط داخل الرحم.",
-    image_path: require('../../assets/images/maternity/fetus/week_9.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-09.png'),
   },
   10: {
     week: 10,
@@ -89,7 +89,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 4,
     length_cm: 4.0,
     description: "ينتهي طور المضغة ويبدأ طور الجنين، وتصبح الأطراف والوجه أكثر وضوحاً.",
-    image_path: require('../../assets/images/maternity/fetus/week_17.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-10.png'),
   },
   11: {
     week: 11,
@@ -97,7 +97,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 7,
     length_cm: 5.0,
     description: "تتكون ملامح الوجه والأذنين بشكل أفضل، وتنمو بصيلات الشعر.",
-    image_path: require('../../assets/images/maternity/fetus/week_17.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-11.png'),
   },
   12: {
     week: 12,
@@ -105,7 +105,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 14,
     length_cm: 6.5,
     description: "تتكون الأظافر الرقيقة وتصبح ردود أفعال الجنين أكثر وضوحاً.",
-    image_path: require('../../assets/images/maternity/fetus/week_12.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-12.png'),
   },
   13: {
     week: 13,
@@ -113,7 +113,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 23,
     length_cm: 8.0,
     description: "تبدأ بصمات الأصابع الفريدة بالتشكل على أطراف الأصابع.",
-    image_path: require('../../assets/images/maternity/fetus/week_13.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-13.png'),
   },
   14: {
     week: 14,
@@ -121,7 +121,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 43,
     length_cm: 10.0,
     description: "يستطيع الجنين الآن تغيير تعابير وجهه والقيام بحركات بسيطة.",
-    image_path: require('../../assets/images/maternity/fetus/week_14.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-14.png'),
   },
   15: {
     week: 15,
@@ -129,7 +129,7 @@ export const FETUS_DATA: Record<number, FetusWeekData> = {
     weight_g: 70,
     length_cm: 12.0,
     description: "يبدأ الشعر بالنمو على الرأس وتتصلب العظام تدريجياً.",
-    image_path: require('../../assets/images/maternity/fetus/week_15.jpg'),
+    image_path: require('../../assets/images/maternity/fetus-v2/week-15.png'),
   },
   16: {
     week: 16,
