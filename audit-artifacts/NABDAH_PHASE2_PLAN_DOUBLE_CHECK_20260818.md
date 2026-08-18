@@ -24,6 +24,8 @@ This checklist compares the current Phase 2 work against the approved phased pla
 | Verify TypeScript, Jest, and Expo export | Reconciled temporary copy passed typecheck, Jest, and Expo export; committed lockfile/mirror still cannot reproduce this without a source-level reconciliation decision | FIX |
 | Verify security, ownership, consent, and medical-safety behavior | Static contract review started; E2E and mutation checks remain later gates | BLOCKED |
 | Perform a line-by-line double-check and commit evidence | This document, closure matrix, decision matrix, and report are committed to QA branch | PASS |
+| Re-audit remaining nursing/home-care, laboratory, radiology, report, wallet, profile, notification, and settings workflows | Source-to-Backend review completed; confirmed P0/P1 findings have individual audit artifacts and tracked remediation items | FIX |
+| Re-audit patient AI clinical surfaces | Monthly report, report analysis, symptom checker/triage, drug interactions, and skin analysis reviewed; unsafe or ungoverned flows are explicitly BLOCKED | FIX/BLOCKED |
 
 ## Explicit non-claims
 
@@ -31,7 +33,26 @@ No new screen is claimed merely because an existing screen was rewritten. No QA-
 
 ## Remaining closure requirements
 
-Phase 2 remains open until the 32 API review items are resolved or explicitly classified, the selected file decisions are finalized, runtime dependencies become installable, Patient typecheck/Jest/Expo gates run, and the complete status is reviewed again against this table. Any source remediation belongs in the planned remediation phase unless a narrowly scoped Phase 2 correction is explicitly justified and tested.
+Phase 2 remains open until all remaining patient screens listed below are reviewed, the API review items are resolved or explicitly classified, selected file decisions are finalized, and the complete status is rechecked against this table. Patient TypeScript/Jest/Expo gates have passed in the isolated verification environment, but device/runtime and security mutation evidence remains a later gate. Any source remediation belongs in the planned remediation phase unless a narrowly scoped Phase 2 correction is explicitly justified and tested.
+
+### Newly completed workflow review evidence
+
+| Workflow group | Current status | Evidence |
+|---|---|---|
+| Monthly health report | FIX | `NABDAH_PHASE2_MONTHLY_REPORT_DATA_LOCALIZATION_GAP_20260819.md` |
+| Medical report viewer and AI report analysis | FIX/BLOCKED | `NABDAH_PHASE2_MEDICAL_REPORT_VIEWER_AND_AI_CONTRACT_GAPS_20260819.md` |
+| Home-care/nursing booking and tracking | FIX/BLOCKED | `NABDAH_PHASE2_HOME_CARE_NURSING_WORKFLOW_CONTRACT_GAPS_20260819.md` |
+| Diagnostics, laboratories, and radiology | FIX/BLOCKED | `NABDAH_PHASE2_DIAGNOSTICS_LAB_RADIOLOGY_WORKFLOW_GAPS_20260819.md` |
+| Wallet transfers and saved cards | FIX/BLOCKED | `NABDAH_PHASE2_WALLET_TRANSFER_CARD_CONTRACT_GAPS_20260819.md` |
+| Profile, notification settings, and inbox | FIX | `NABDAH_PHASE2_PROFILE_NOTIFICATION_SETTINGS_GAPS_20260819.md` |
+| Symptom triage and drug interactions | P0 FIX/BLOCKED | `NABDAH_PHASE2_TRIAGE_DRUG_INTERACTION_SAFETY_GAPS_20260819.md` |
+| Skin analysis | P0 FIX/BLOCKED | `NABDAH_PHASE2_SKIN_ANALYSIS_SAFETY_PRIVACY_GAPS_20260819.md` |
+
+### Remaining detailed patient review queue before Phase 2 closure review
+
+1. Complete static/contract review of the remaining AI utilities, prescription translation, support/chat, and non-clinical settings/data screens.
+2. Reconcile every new confirmed contract defect into the closure matrix and the master remediation register.
+3. Run the Phase 2 closure double-check against the approved plan, validate artifact links and branch state, then commit/push closure evidence. The phase must remain open because the findings are not remediated until Phase 8.
 
 
 ### Subsequent risk-marker pass
