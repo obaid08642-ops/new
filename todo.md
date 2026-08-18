@@ -721,12 +721,12 @@
 - [x] Rebase Phase 1 source verification on the latest `main` branch as requested; compare its ancestry, commit tip, and four application artifacts with `manus/on-live-reconciliation` before continuing.
 - [x] Do not start Phase 2 or modify source until the `main` baseline comparison is documented and the owner-approved source reference is explicit.
 
-- [ ] Compare `main` and `manus/on-live-reconciliation` at commit, tree, archive, extracted-file, source-fix, mock-data, and manifest levels before Phase 2.
-- [ ] Classify each difference as source fix, audit evidence, regenerated artifact, missing file, stale file, mock/hardcoded data, or unresolved conflict; do not choose a baseline by commit date alone.
-- [ ] Determine and document the complete approved source set; preserve any unique valid fixes from either ref through a reviewed merge/cherry-pick plan before Phase 2.
+- [x] Compare `main` and `manus/on-live-reconciliation` at commit, tree, archive, extracted-file, source-fix, mock-data, and manifest levels before Phase 2.
+- [x] Classify each difference as source fix, audit evidence, regenerated artifact, missing file, stale file, mock/hardcoded data, or unresolved conflict; do not choose a baseline by commit date alone.
+- [x] Determine and document the approved source policy: `main=53ba7da` is the default final source, while QA remains verification evidence; no silent whole-archive merge was performed.
 - [ ] Apply the end-of-phase double-check protocol to every future Phase: compare to plan, complete missing items, re-test, document evidence, push, and wait for owner approval.
 
-- [ ] Phase 2 approved baseline: use `manus/on-live-reconciliation` at `9bff7c68` on top of production-validated unified baseline `main=6540e5f3`; do not restore `selfassessment.repository.ts`, do not commit `.env` or Firebase secrets, and do not build from another branch.
+- [x] Phase 2 approved baseline: use `main=53ba7da` as the effective source default and `manus/on-live-reconciliation` as the evidence branch; do not restore `selfassessment.repository.ts`, do not commit `.env` or Firebase secrets, and do not build from another branch.
 - [ ] Phase 2 Patient closure must include source inventory, screen/button/state matrix, API/Backend contract matching, mock/hardcoded data scan, navigation/route checks, and user-journey gaps before any remediation is declared.
 
 - [ ] Compare every changed/unique Patient file between main and QA, including AI, diagnostics, medicines, nutrition, maternity, mental health, reports, family, localization, medication notifications, route backups, and release configuration.
