@@ -104,3 +104,10 @@ The phase remains open because the selected file set has not yet been applied to
 Static source verification confirms that the six translation modules each have a corresponding test file and are imported by the rebuilt Patient screens. The medication notification utility has a dedicated test and is imported by medication reminder list/add, chronic medication, and the notification handler. The tests cover notification action mapping for taken, snooze, open, and ignore cases. Provider has the three platform map files, with native exports delegating to `react-native-maps` and the web implementation intentionally rendering a safe non-native map surface with no-op marker/circle exports and a ref-compatible `animateToRegion` method.
 
 This gate is currently `SOURCE_PRESENT / TEST_PRESENT`, not `TEST_PASS`: the extracted Patient and Provider archives have no installed `node_modules`, so Jest, TypeScript, Expo export, and native/web build execution must occur after dependency installation in a controlled copy. No dependency installation or source mutation was performed in this step.
+
+
+## Build gate result
+
+An isolated Patient build copy was created from `main`. The first `npm ci` was correctly blocked because `package.json` and `package-lock.json` are not synchronized; npm reported version conflicts including Expo, Jest Expo, Sentry, and Jest types. An isolated `npm install --package-lock-only` repaired the temporary copy only, but the subsequent dependency installation failed with `ENOTFOUND` during package retrieval. The source archive and its lockfile were not changed, and no lockfile repair has been promoted to `main` or the QA branch.
+
+Classification: **BLOCKED / SOURCE-HYGIENE FINDING**, not PASS and not a source fix yet. Before Phase 2 can close, the owner-approved decision is required on whether the lockfile should be regenerated from the declared `package.json` in a network-capable build environment. Any resulting lockfile change must be reviewed, tested, and committed explicitly rather than silently generated in QA.
