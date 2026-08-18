@@ -41,3 +41,8 @@ After expanding the confirmed Controller aliases, the 32-call queue contains 9 a
 ## Confirmed Patient UI gap: addresses
 
 `profile/addresses.tsx` correctly loads addresses and updates the selected default address through `PATCH /users/me/addresses/:id`. However, the visible `Button` labelled `إضافة عنوان جديد` has no `onPress`, navigation, or mutation handler. This is a confirmed UI/UX defect: the screen advertises a core action that cannot be executed. It must be fixed in the remediation phase by adding a real create-address flow backed by `POST /users/me/addresses`, with validation, loading, error, cancellation, and refresh states. It is not safe to classify this as a route-parser mismatch.
+
+
+## Unwired-button scan follow-up
+
+A targeted scan of sensitive Patient screens found several apparent button candidates, but manual reads confirmed handlers for consultation follow-up, booking confirmation, medication barcode/AI scan, pharmacist chat expiry, and custom-item completion. These are not defects. The confirmed missing action remains the `إضافة عنوان جديد` button in `profile/addresses.tsx`; it has no handler and remains queued for remediation.
