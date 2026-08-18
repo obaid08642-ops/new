@@ -1,0 +1,13 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { MongoRepository } from '../../../../common/database/mongo.repository';
+// Ensure correct import
+import { ProviderBankAccount } from '../../schemas';
+
+@Injectable()
+export class ProviderBankAccountRepository extends MongoRepository<ProviderBankAccount> {
+  constructor(@InjectModel(ProviderBankAccount.name) model: Model<ProviderBankAccount>) {
+    super(model);
+  }
+}

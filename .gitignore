@@ -1,2 +1,26 @@
+# Source extraction and package dependencies
 extracted/
 node_modules/
+**/node_modules/
+
+# Environment-specific configuration and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Generated build artifacts and local caches
+**/dist/
+**/.next/
+**/.expo/
+**/.cache/
+coverage/
+**/coverage/
+*.log
+
+# Operating-system/editor metadata
+.DS_Store
+.idea/
+.vscode/

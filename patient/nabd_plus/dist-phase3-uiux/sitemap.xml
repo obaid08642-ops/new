@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Main Pages -->
+  <url>
+    <loc>https://nabdahplus.com/</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/doctors</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/medicines</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/labs</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/nursing</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/specialties</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/insurance</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/about</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nabdahplus.com/terms</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Dynamic Pages: Doctor Detail -->
+  <!-- Pattern: /doctors/:slug -->
+  <!--
+  <url>
+    <loc>https://nabdahplus.com/doctors/dr-ahmed-al-saud</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  -->
+
+  <!-- Dynamic Pages: Medicine Detail -->
+  <!-- Pattern: /medicines/:slug -->
+  <!--
+  <url>
+    <loc>https://nabdahplus.com/medicines/panadol-extra</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  -->
+
+  <!-- Dynamic Pages: Lab Detail -->
+  <!-- Pattern: /labs/:slug -->
+  <!--
+  <url>
+    <loc>https://nabdahplus.com/labs/complete-blood-count</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  -->
+
+  <!-- Dynamic Pages: Nursing Service Detail -->
+  <!-- Pattern: /nursing/:slug -->
+  <!--
+  <url>
+    <loc>https://nabdahplus.com/nursing/home-iv-injection</loc>
+    <lastmod>2026-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  -->
+
+</urlset>
