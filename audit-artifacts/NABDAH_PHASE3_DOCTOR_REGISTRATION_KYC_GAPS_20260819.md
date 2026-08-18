@@ -13,6 +13,10 @@
 | **P1** | OTP/contract/bank flow lacks clear verified submission and destination control | OTP modal opens even when email sending fails; client collects payer IBAN/name without verified-account status and then submits a broad `full_data` snapshot. | Require successful server OTP challenge before verification UI, scoped/minimized submitted fields, verified bank ownership/change controls, signed contract version/hash, and approval/audit results. |
 | **P1** | Registration copy and sensitive process lack six-language/accessible review | KYC, pricing, location, insurance, contract, bank and error UI is AR/EN only. | Deliver reviewed AR/EN/UR/HI/BN/FIL content and accessible RTL/LTR/native permission flows. |
 
+## Cross-provider confirmation
+
+`LabRegistration.tsx` and `RadiologyRegistration.tsx` repeat the same pattern: they call `ProviderApi.start` and `ProviderApi.login` before approval, accept `*/*` document uploads while assigning image/PDF MIME labels, and submit broad wizard snapshots through the same registration steps. Therefore, the restricted-pending-account and secure document-validation remediation applies to **laboratory and radiology provider onboarding as well**, not only doctors.
+
 ## Decision
 
 Doctor registration is **P0 FIX/BLOCKED**. It cannot be relied on to provision home service, provider identity, location, image/document processing, payment destination, or a restricted approval state.
