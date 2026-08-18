@@ -659,3 +659,6 @@
 
 - [x] Generated `NABDAH_SCREEN_BUTTON_CONTRACT_INVENTORY_20260818.tsv` from direct Nabdah source only: 1,858 Patient markers, 1,262 Provider markers, and 38 Admin markers.
 - [ ] Normalize the raw markers into unique screen/action/endpoint records and classify each as wired, stale, placeholder, fail-closed, or requiring backend/fixture proof.
+
+- [x] Normalized the Nabdah screen/button inventory into `NABDAH_SCREEN_BUTTON_CONTRACT_UNIQUE_20260818.tsv`: 3,158 unique markers, 580 endpoint-bearing records, 10 placeholder candidates, 32 fail-closed reviews, and 6 stale/environment candidates.
+- [ ] Manually validate every candidate classification against the direct Backend controller/schema and convert each record to PASS, FIX, BLOCKED, or INCONCLUSIVE with evidence.
