@@ -633,3 +633,11 @@
 
 - [x] Captured file counts and tree hashes for Patient, Provider, Backend, and both Admin candidate snapshots in `AUTHORITATIVE_SOURCE_HASH_SNAPSHOT_20260818.txt`.
 - [ ] Resolve Admin candidate divergence and map each snapshot to its actual Git repository/commit before source edits.
+
+
+- [x] Corrected scope: `Alhrajplus` and `Naps-admin` are unrelated projects and are excluded from all Nabdah work.
+- [x] Nabdah scope is restricted to `https://github.com/obaid08642-ops/new.git` and its branches only; no files from unrelated repositories may be used as source or evidence.
+- [ ] Re-enumerate only the branches and Nabdah components inside `new`, then reconcile each source snapshot to a branch/commit before continuing implementation.
+
+- [x] Indexed the 11 branches of `obaid08642-ops/new` in `NABDAH_NEW_REPOSITORY_BRANCH_INDEX_20260818.txt`; unrelated repositories remain excluded.
+- [ ] Compare branch trees and identify which Nabdah branch contains the latest Patient, Provider, Backend, and Admin authoritative source before selecting the implementation base.
