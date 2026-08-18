@@ -142,3 +142,6 @@ Other entries are method mismatches rather than absent features: `POST /articles
 
 
 A feature-level summary was generated from the file decision queue. It records the current distribution across AI, diagnostics, family, localization, maternity, medicines, mental health, nutrition, reminders, reports, and release/environment files. QA-only additions remain explicitly classified as `QA`; broad feature-rich main screens remain `REVIEW` until contract, safety, and build gates are complete. Release/environment entries are not candidates for source merging and remain environment review items.
+
+
+A retry with `npm_config_registry=https://registry.npmjs.org` in the isolated build copy still resolved the tarball URL through the environment's configured mirror and failed with `ENOTFOUND npm.mirrors.msh.team` for `redux-persist`. `node_modules` remained absent. This confirms that the Patient runtime gates cannot be honestly reported as passed in this sandbox; the finding is environmental/dependency resolution, not a source modification.
