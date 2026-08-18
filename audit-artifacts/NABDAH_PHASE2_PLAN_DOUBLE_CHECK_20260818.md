@@ -50,9 +50,9 @@ Phase 2 remains open until all remaining patient screens listed below are review
 
 ### Remaining detailed patient review queue before Phase 2 closure review
 
-1. Complete static/contract review of the remaining AI utilities, prescription translation, support/chat, and non-clinical settings/data screens.
-2. Reconcile every new confirmed contract defect into the closure matrix and the master remediation register.
-3. Run the Phase 2 closure double-check against the approved plan, validate artifact links and branch state, then commit/push closure evidence. The phase must remain open because the findings are not remediated until Phase 8.
+1. Complete static/contract review of the remaining AI utilities, prescription translation, support/chat, and non-clinical settings/data screens. **Completed:** findings are recorded in the final closure artifact.
+2. Reconcile every new confirmed contract defect into the closure matrix and the master remediation register. **Completed:** every confirmed defect is a retained unchecked Phase 8 remediation item in `todo.md`.
+3. Run the Phase 2 closure double-check against the approved plan, validate artifact links and branch state, then commit/push closure evidence. **Completed:** see `NABDAH_PHASE2_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`. The audit phase closes while the remediation findings remain open for Phase 8.
 
 
 ### Subsequent risk-marker pass
