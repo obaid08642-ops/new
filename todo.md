@@ -656,3 +656,6 @@
 
 - [x] Created `NABDAH_DIRECT_COMPONENT_INVENTORY_20260818.txt` from the direct Nabdah source branch only: 494 Patient route/source files, 39 Provider screen files, 15 Admin page files, 111 Backend controllers, and 137 Backend services.
 - [ ] Expand this inventory into screen/button/consumer/controller/database/state matrices, then test every unresolved mapping rather than counting files as completion.
+
+- [x] Generated `NABDAH_SCREEN_BUTTON_CONTRACT_INVENTORY_20260818.tsv` from direct Nabdah source only: 1,858 Patient markers, 1,262 Provider markers, and 38 Admin markers.
+- [ ] Normalize the raw markers into unique screen/action/endpoint records and classify each as wired, stale, placeholder, fail-closed, or requiring backend/fixture proof.
