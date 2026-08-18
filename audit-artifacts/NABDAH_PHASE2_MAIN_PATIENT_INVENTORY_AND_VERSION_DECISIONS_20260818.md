@@ -31,3 +31,8 @@ After expanding the confirmed Controller aliases, the 32-call queue contains 9 a
 ## Pharmacy basket contract review
 
 `order-confirm.tsx` uses `GET /orders/:id` for detail and `POST /orders/:id/approve-basket` / `POST /orders/:id/reject-basket` for the two user actions. Both basket transition contracts are present in Backend main and the UI remains on the payment path only after the approval call succeeds. The earlier generic `POST /orders/:id` mismatch candidates in pharmacy chat/order-confirm are separate calls and require screen-intent review; they do not invalidate the basket confirmation flow.
+
+
+## Parser corrections from screen-level reads
+
+`family/calendar.tsx` correctly loads `GET /family/calendar` and creates events with `POST /family/calendar/event`; the earlier `POST /family/calendar` row is an extraction/method inference false positive. `nutrition/log-meal.tsx` correctly loads `GET /nutrition/foods` and saves the meal through `POST /nutrition/meals`; the earlier `POST /nutrition/foods` row is also a parser false positive. These items must be removed from the true remediation count after the extractor is corrected, not changed in source.
