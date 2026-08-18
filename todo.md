@@ -641,3 +641,6 @@
 
 - [x] Indexed the 11 branches of `obaid08642-ops/new` in `NABDAH_NEW_REPOSITORY_BRANCH_INDEX_20260818.txt`; unrelated repositories remain excluded.
 - [ ] Compare branch trees and identify which Nabdah branch contains the latest Patient, Provider, Backend, and Admin authoritative source before selecting the implementation base.
+
+- [x] Fetched and indexed all branches of `obaid08642-ops/new` only; `fix/e2e-operational-contracts-20260814` is the direct four-component source candidate, while milestone branches are archive-based.
+- [ ] Compare hashes and source trees between `fix/e2e-operational-contracts-20260814`, packaged artifacts, and `manus/on-live-reconciliation`; select the direct Nabdah patch base before implementation.
