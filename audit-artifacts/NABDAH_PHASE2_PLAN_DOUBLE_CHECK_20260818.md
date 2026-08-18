@@ -32,3 +32,8 @@ No new screen is claimed merely because an existing screen was rewritten. No QA-
 ## Remaining closure requirements
 
 Phase 2 remains open until the 32 API review items are resolved or explicitly classified, the selected file decisions are finalized, runtime dependencies become installable, Patient typecheck/Jest/Expo gates run, and the complete status is reviewed again against this table. Any source remediation belongs in the planned remediation phase unless a narrowly scoped Phase 2 correction is explicitly justified and tested.
+
+
+### Subsequent risk-marker pass
+
+A subsequent static scan found 153 marker lines across 77 Patient `main` files. These are not 153 defects: most are legitimate form placeholders or documentation of prior fixes. The scan is recorded in `NABDAH_PHASE2_PATIENT_MAIN_RISK_REVIEW_20260818.md`; only user-visible synthetic medical values, local-only success, or unbacked business defaults will enter remediation. This leaves the existing `FIX`/`BLOCKED` statuses unchanged until runtime and contract evidence is available.
