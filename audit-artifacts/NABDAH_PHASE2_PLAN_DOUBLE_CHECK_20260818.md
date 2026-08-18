@@ -47,3 +47,7 @@ The initial 32-call count was corrected in stages: the classifier first used the
 ### Patient sensitive-screen button scan
 
 A context-window scan across profile, nutrition, maternity, health, consultations, pharmacy, insurance, and family screens found one unbound action candidate: `profile/addresses.tsx:151` (`إضافة عنوان جديد`). This matches the manually confirmed defect and its remediation test contract. No additional unbound buttons were found in the scanned scope; runtime UI testing remains a separate blocked gate.
+
+### Full Patient action-binding scan
+
+A repository-wide JSX action scan over Patient `app/**/*.tsx` found two syntactic candidates. `profile/addresses.tsx:151` is confirmed unbound: the visible `Button` has no `onPress` and no surrounding navigation/form handler. `wallet/hub.tsx:244` is not a defect: the `TouchableOpacity` intentionally exposes `onLongPress={() => removeCard(card)}` for card removal and has no missing tap CTA in that component. The scan therefore adds no second UI defect, while runtime verification remains blocked by the dependency environment.
