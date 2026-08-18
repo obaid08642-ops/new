@@ -9,3 +9,10 @@ The queue should therefore distinguish route-compiler omissions from genuine def
 ## Corrected 32-call classification using the actual route column
 
 The first open-contract classifier used the wrong TSV field name and incorrectly labelled every item as no-route. After re-running against the actual `route` column, the queue is now separated correctly: many items are method mismatches against real GET/PATCH/POST contracts; chat routes require a controller-alias normalization pass; and only `patient/pay-copay` remains without an exact route in the current corpus and requires contract review. This correction supersedes the earlier all-no-route output and prevents false defect claims.
+
+
+## Focused copay and alias review
+
+The copay contract is not absent from Backend main: the exact route is `POST /insurance/patient/pay-copay` in `insurance-engine.module.ts`, while Patient currently calls `POST /patient/pay-copay`. This is a genuine client/backend prefix mismatch and remains a FIX candidate; it must be corrected only after confirming the payload, booking/insurance ownership, idempotency, and payment failure states.
+
+The Chat controller has an alias declaration for both `chat` and `chats`, so Patient `/chat/...` and SocketContext `/chats/...` are contract-compatible after compiler alias normalization. `medical/programs/active` and `medical/programs/complete-session` are real routes under the extensions controller; the active read call uses the wrong client method and the completion call needs payload/state/ownership review rather than a missing-screen decision.
