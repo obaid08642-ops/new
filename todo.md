@@ -679,3 +679,6 @@
 - [x] Corrected the execution source to `manus/on-live-reconciliation` at `d59a8bfa` after verifying it is 311 commits ahead of the old `fix/e2e-operational-contracts-20260814` ref.
 - [x] Confirmed the current reconciliation branch uses the cleaned single-artifact layout; backend/patient source and provider/admin artifacts must be extracted from the committed archives before build or source inspection.
 - [ ] Extract and audit only the source artifacts from `manus/on-live-reconciliation`; do not use the old fix branch as an implementation base.
+
+- [ ] Audit historical push/commit destinations from the conversation and Git history; identify exactly which branch received each Backend/Patient/Provider/Admin change.
+- [ ] Verify whether current `manus/on-live-reconciliation` contains all four application artifacts or only Backend/patient archives, and record any missing Provider/Admin source artifacts.
