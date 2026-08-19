@@ -1,0 +1,191 @@
+file	line	category	text
+jest.config.js	8	synthetic-marker	'@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
+app/ai-assistant.tsx	138	synthetic-marker	"placeholder=""اكتب استفسارك الطبي..."""
+utils/api.ts	7	synthetic-marker	* M1-01 — REAL network client (replaces the former in-memory mock that returned
+utils/api.ts	8	synthetic-marker	* hardcoded data after a fake 800ms delay and never touched the network).
+utils/api.ts	11	synthetic-marker	* so all 157 screens that were wired to the mock become live against the real
+utils/api.ts	19	synthetic-marker	*  - Throws Error with the server's message when available — no silent fake fallbacks.
+app/support/chat.tsx	242	synthetic-marker	"placeholder=""اكتب رسالتك..."""
+app/community/hub.tsx	249	synthetic-marker	"placeholder=""اكتب استفسارك أو تجربتك الصحية للمجتمع الطبي..."""
+app/community/post-detail.tsx	274	synthetic-marker	"placeholder=""أضف تعليقاً..."""
+app/reports/hub.tsx	3	synthetic-marker	// EPIC4/S21: the previous version rendered a hardcoded REPORTS array with
+app/reports/ai-analysis.tsx	3	synthetic-marker	// EPIC4/S21: the previous version rendered a fully hardcoded AI_RESULT
+app/profile/index.tsx	40	synthetic-marker	// E2: real loyalty balance for the points badge (was hardcoded '1,250')
+app/profile/insurance.tsx	260	synthetic-marker	"placeholder=""رقم الوثيقة"""
+app/profile/insurance.tsx	268	synthetic-marker	"placeholder=""رقم العضوية (اختياري)"""
+app/loyalty/referrals.tsx	210	synthetic-marker	"placeholder=""أدخل كود الإحالة"""
+app/ai/monthly-report.tsx	3	synthetic-marker	"// E2: was 100% fabricated — fake health scores (78/100), fake BP trends (""تحسّن""),"
+app/ai/monthly-report.tsx	4	synthetic-marker	// fake appointments and fake AI recommendations. In a medical app that is a safety
+app/ai/chat-doctor.tsx	218	synthetic-marker	"placeholder=""اكتب سؤالك الطبي..."""
+app/ai/triage.tsx	199	synthetic-marker	"placeholder=""اكتب أعراضك هنا (مثال: أشعر بصداع كلي...)"""
+app/search/index.tsx	112	synthetic-marker	style={{ flex: 1, fontSize: 13, color: colors.n, textAlign: isRTL ? 'right' : 'left' }} placeholder={lang === 'ar' ? 'ابحث عن طبيب، دواء، تحليل، مقال، تأمين...' : 'Search doctor, medicine, lab, article, insurance...'}
+app/wearables/hub.tsx	202	synthetic-marker	placeholder={f.hint}
+app/diagnostics/search.tsx	67	synthetic-marker	"placeholder=""ابحث عن تحليل..."""
+app/diagnostics/orders.tsx	213	synthetic-marker	(router.push as any)(`/diagnostics/sample-tracking?bookingId=${order.id}`)
+app/diagnostics/my-results.tsx	156	synthetic-marker	"pathname: ""/diagnostics/sample-tracking"","
+app/diagnostics/insurance-approval.tsx	132	synthetic-marker	"<Icon name=""file-clock"" size={48} color={colors.primary} />"
+app/diagnostics/upload-rx.tsx	3	synthetic-marker	"// This file previously rendered a bare ""Upload"" placeholder stub."
+app/diagnostics/sample-tracking.tsx	57	synthetic-marker	console.log('Error loading sample tracking info', err);
+app/diagnostics/insurance-upload.tsx	105	synthetic-marker	"// ""AI processing"" then displayed hardcoded tests (CBC, Vitamin D)."
+app/diagnostics/booking-confirm.tsx	100	synthetic-marker	{ text: 'موافق', onPress: () => router.push({ pathname: '/diagnostics/sample-tracking', params: { bookingId: booking.id } }) }
+app/diagnostics/booking-confirm.tsx	139	synthetic-marker	{/* Sample location */}
+app/diagnostics/booking-confirm.tsx	220	synthetic-marker	"<Input value={policyNumber} onChangeText={setPolicyNumber} placeholder=""رقم بوليصة التأمين"" icon=""document"" />"
+app/diagnostics/booking-confirm.tsx	221	synthetic-marker	"<Input value={memberId} onChangeText={setMemberId} placeholder=""رقم عضوية التأمين"" icon=""user"" />"
+app/diagnostics/packages.tsx	66	synthetic-marker	"placeholder=""ابحث عن باقة..."""
+app/diagnostics/book-sample.tsx	1	synthetic-marker	// app/diagnostics/book-sample.tsx — routes the legacy entrypoint into the live provider-selection flow.
+app/diagnostics/checkout.tsx	281	synthetic-marker	// Never fake success — show the real error so the patient can retry
+app/health/smart-reminders.tsx	227	synthetic-marker	"placeholder=""اسم الدواء"""
+app/health/smart-reminders.tsx	235	synthetic-marker	"placeholder=""الجرعة (مثال: 500 ملغ)"""
+app/health/smart-reminders.tsx	243	synthetic-marker	"placeholder=""وقت التذكير (مثال: 08:00)"""
+app/health/edit-profile.tsx	487	synthetic-marker	"placeholder=""أضف حساسية..."""
+app/health/edit-profile.tsx	556	synthetic-marker	"placeholder=""أضف مرضاً مزمنة..."""
+app/health/medication-reminder-add.tsx	115	synthetic-marker	"<Input value={name} onChangeText={setName} placeholder=""مثال: بنادول إكسترا 500mg"" icon=""medication"" />"
+app/health/medication-reminder-add.tsx	226	synthetic-marker	"<Input value={notes} onChangeText={setNotes} placeholder=""ملاحظات إضافية (اختياري)"" icon=""edit"" multiline />"
+app/health/conditions-allergies.tsx	76	synthetic-marker	"// EPIC4/S21: was hardcoded ([""السكري النوع الثاني"", ""ضغط الدم المرتفع""] +"
+app/health/conditions-allergies.tsx	179	synthetic-marker	"placeholder=""ابحث عن مرض..."""
+app/health/conditions-allergies.tsx	239	synthetic-marker	"placeholder=""ابحث عن حساسية..."""
+app/health/sleep-tracker.tsx	178	synthetic-marker	"<Input value={hours} onChangeText={setHours} placeholder=""عدد الساعات (مثال: 7.5)"" icon=""bedtime"" keyboardType=""numeric"" />"
+app/health/sleep-tracker.tsx	179	synthetic-marker	"<Input value={score} onChangeText={setScore} placeholder=""تقييم الجودة من 100 (مثال: 80)"" icon=""sparkles"" keyboardType=""numeric"" />"
+app/health/emergency-contacts.tsx	175	synthetic-marker	"placeholder=""الاسم"""
+app/health/emergency-contacts.tsx	183	synthetic-marker	"placeholder=""صلة القرابة (اختياري)"""
+app/health/emergency-contacts.tsx	191	synthetic-marker	"placeholder=""رقم الجوال"""
+app/health/vitals-log.tsx	232	synthetic-marker	"<Input value={value1} onChangeText={setValue1} placeholder=""الانقباضي"" keyboardType=""numeric"" icon=""trending_up"" style={{ flex: 1 }}/>"
+app/health/vitals-log.tsx	234	synthetic-marker	"<Input value={value2} onChangeText={setValue2} placeholder=""الانبساطي"" keyboardType=""numeric"" icon=""trendingDown"" style={{ flex: 1 }}/>"
+app/health/vitals-log.tsx	237	synthetic-marker	"<Input value={value1} onChangeText={setValue1} placeholder={`القراءة (${config.unit})`} keyboardType=""numeric"" icon={config.icon} style={{ marginTop: 8 }}/>"
+app/health/wearables.tsx	77	synthetic-marker	// Latest sample per metric — real data only
+app/reviews/index.tsx	63	synthetic-marker	// E2: real review endpoint (was a fake 1.5s success — nothing was ever saved)
+app/reviews/index.tsx	192	synthetic-marker	"placeholder=""شارك تجربتك مع الآخرين..."""
+app/mental-health/mood-journal.tsx	138	synthetic-marker	"placeholder=""اكتب ما يخطر على بالك..."""
+app/articles/index.tsx	96	synthetic-marker	"placeholder=""ابحث في المقالات…"""
+app/maternity/baby-growth.tsx	302	synthetic-marker	"placeholder=""مثال: 6"""
+app/maternity/baby-growth.tsx	313	synthetic-marker	"placeholder=""مثال: 7.5"""
+app/maternity/baby-growth.tsx	324	synthetic-marker	"placeholder=""مثال: 65"""
+app/maternity/baby-growth.tsx	335	synthetic-marker	"placeholder=""مثال: 42"""
+app/nutrition/calorie-analyzer.tsx	128	synthetic-marker	"placeholder=""مثال: كبسة لحم مع سلطة وزبادي..."""
+app/nutrition/body-composition.tsx	100	synthetic-marker	{/* Body silhouette placeholder */}
+app/nutrition/exercise-plan.tsx	3	synthetic-marker	// EPIC4/S21: the previous version rendered a hardcoded gym plan for everyone
+app/nutrition/log-meal.tsx	140	synthetic-marker	"placeholder=""ابحث عن طعام..."" placeholderTextColor={colors.textTertiary} textAlign=""right"" />"
+app/nutrition/body-target.tsx	72	synthetic-marker	"<Input value={weight} onChangeText={setWeight} placeholder=""الوزن (كغ)"" keyboardType=""numeric"" icon=""weight"" style={{ flex: 1 }}/>"
+app/nutrition/body-target.tsx	73	synthetic-marker	"<Input value={height} onChangeText={setHeight} placeholder=""الطول (سم)"" keyboardType=""numeric"" icon=""trending_up"" style={{ flex: 1 }}/>"
+app/nutrition/body-target.tsx	93	synthetic-marker	"<Input value={targetWeight} onChangeText={setTargetWeight} placeholder=""الوزن المستهدف (كغ)"" keyboardType=""numeric"" icon=""success"" />"
+app/nutrition/ai-plan-builder.tsx	115	synthetic-marker	"<Input value={form.weight} onChangeText={v => set('weight', v)} placeholder=""الوزن (كغ)"" keyboardType=""numeric"" icon=""weight"" style={{ flex: 1 }} />"
+app/nutrition/ai-plan-builder.tsx	116	synthetic-marker	"<Input value={form.height} onChangeText={v => set('height', v)} placeholder=""الطول (سم)"" keyboardType=""numeric"" icon=""trending_up"" style={{ flex: 1 }} />"
+app/nutrition/ai-plan-builder.tsx	119	synthetic-marker	"<Input value={form.age} onChangeText={v => set('age', v)} placeholder=""العمر"" keyboardType=""numeric"" icon=""calendar"" style={{ flex: 1 }} />"
+app/nutrition/ai-plan-builder.tsx	120	synthetic-marker	"<Input value={form.targetWeight} onChangeText={v => set('targetWeight', v)} placeholder=""الوزن المستهدف"" keyboardType=""numeric"" icon=""success"" style={{ flex: 1 }} />"
+app/nutrition/ai-plan-builder.tsx	144	synthetic-marker	"<Input value={allergies} onChangeText={setAllergies} placeholder=""حساسية أو أطعمة ممنوعة (اختياري)"" icon=""warning"" />"
+app/shared/location-picker.tsx	593	synthetic-marker	"placeholder: ""اسم العنوان (مثال: المنزل)"","
+app/shared/location-picker.tsx	596	synthetic-marker	"{ key: ""street"", placeholder: ""الشارع والحي"", icon: ""location"" },"
+app/shared/location-picker.tsx	599	synthetic-marker	"placeholder: ""رقم المبنى / اسمه"","
+app/shared/location-picker.tsx	604	synthetic-marker	"placeholder: ""الطابق (اختياري)"","
+app/shared/location-picker.tsx	609	synthetic-marker	"placeholder: ""ملاحظات للمندوب (اختياري)"","
+app/shared/location-picker.tsx	623	synthetic-marker	placeholder={field.placeholder}
+app/nursing/live-tracking.tsx	92	synthetic-marker	// E2: poll the live API every 15s (was: fetch once + a fake local ETA countdown)
+app/map/index.tsx	179	synthetic-marker	// and providers without real coordinates never appear as map markers at a fake Riyadh location
+app/map/index.tsx	422	synthetic-marker	"placeholder=""ابحث عن دكتور، صيدلية، مستشفى..."""
+app/family/chat.tsx	173	synthetic-marker	"<TextInput value={msg} onChangeText={setMsg} placeholder=""اكتب رسالة..."" placeholderTextColor={colors.textTertiary} style={[st.input, { backgroundColor: colors.surfaceSecondary, color: colors.textPrimary }]} onSubmitEditing={send} />"
+app/family/join.tsx	147	synthetic-marker	"placeholder=""مثال: F7X2K9"""
+app/family/invite.tsx	79	synthetic-marker	"<Input value={name} onChangeText={setName} placeholder=""اسم الفرد"" icon=""user"" />"
+app/family/member-health.tsx	105	synthetic-marker	// Honest failure: no permission or network — show empty state, not dummy data
+app/(tabs)/index.tsx	64	logic-marker	alert(lang === 'ar' ? 'الخدمة ستتوفر قريباً' : 'Coming Soon');
+app/(tabs)/diagnostics.tsx	99	synthetic-marker	"<Icon name=""file-document-outline"" size={20} color={colors.primary} style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>"
+app/(tabs)/diagnostics.tsx	111	synthetic-marker	"placeholder={mainTab === 'labs' ? ""ابحث عن تحليل، باقة، أو مختبر..."" : ""ابحث عن نوع الأشعة أو المركز...""}"
+app/(tabs)/pharmacy.tsx	136	synthetic-marker	// Offline — cached copy (if any) already shown above; never mock data
+app/(tabs)/pharmacy.tsx	229	synthetic-marker	placeholder={lang === 'ar' ? 'ابحث بالاسم أو المادة الفعالة...' : 'Search medicines...'}
+app/(tabs)/nursing.tsx	120	synthetic-marker	"placeholder=""ابحث عن خدمة أو ممرض..."""
+app/delivery/address-select.tsx	42	synthetic-marker	// No mock fallback — show the honest empty state
+app/consultations/specialty-select.tsx	61	synthetic-marker	"placeholder=""ابحث عن تخصص..."""
+app/consultations/share-report.tsx	2	synthetic-marker	"// EPIC4/S21: was a hardcoded REPORTS list + setTimeout ""share"" that did"
+app/consultations/video-call.tsx	57	synthetic-marker	// (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
+app/consultations/doctor-search.tsx	113	synthetic-marker	"placeholder=""ابحث بالاسم أو التخصص..."""
+app/consultations/post-call-rating.tsx	98	synthetic-marker	"placeholder=""اكتب رأيك في الخدمة..."""
+app/consultations/chat-with-doctor.tsx	189	synthetic-marker	"placeholder=""اكتب رسالة..."""
+app/wallet/hub.tsx	337	synthetic-marker	"placeholder=""الاسم على البطاقة"""
+app/wallet/hub.tsx	344	synthetic-marker	"placeholder=""رقم البطاقة"""
+app/wallet/hub.tsx	352	synthetic-marker	"placeholder=""تاريخ الانتهاء (MM/YY)"""
+app/wallet/topup.tsx	151	synthetic-marker	"placeholder=""المبلغ (ر.س)"""
+app/(auth)/forgot-password.tsx	108	synthetic-marker	"placeholder=""البريد الإلكتروني"""
+app/(auth)/reset-password.tsx	116	synthetic-marker	"placeholder=""كلمة المرور الجديدة"""
+app/(auth)/reset-password.tsx	126	synthetic-marker	"placeholder=""تأكيد كلمة المرور"""
+app/(auth)/login.tsx	95	synthetic-marker	// M1: no more dummy token fallback — a real session or an explicit error
+app/(auth)/login.tsx	246	synthetic-marker	"placeholder=""example@mail.com"""
+app/(auth)/login.tsx	266	synthetic-marker	"placeholder=""••••••••"""
+app/(auth)/register.tsx	25	synthetic-marker	const AuthField = ({ label, icon, placeholder, value, onChangeText, isPass, isDark, isRTL, focusedInput, setFocusedInput, showPassword, setShowPassword }: any) => (
+app/(auth)/register.tsx	34	synthetic-marker	placeholder={placeholder}
+app/(auth)/register.tsx	116	synthetic-marker	// M1: real session only — no dummy token fallback
+app/(auth)/register.tsx	222	synthetic-marker	placeholder={'أحمد السالم'}
+app/(auth)/register.tsx	231	synthetic-marker	placeholder={'0500000000'}
+app/(auth)/register.tsx	240	synthetic-marker	"placeholder=""example@mail.com"""
+app/(auth)/register.tsx	249	synthetic-marker	"placeholder=""••••••••"""
+app/(auth)/register.tsx	259	synthetic-marker	"placeholder=""••••••••"""
+app/returns/new-request.tsx	182	synthetic-marker	"placeholder=""مثال: ORD-2024-001"" placeholderTextColor={colors.textTertiary} textAlign=""right"" />"
+app/returns/new-request.tsx	205	synthetic-marker	"placeholder=""اشرح مشكلتك بالتفصيل..."" placeholderTextColor={colors.textTertiary}"
+app/pharmacy/drug-not-found.tsx	92	synthetic-marker	"<Input value={name} onChangeText={setName} placeholder=""اسم الدواء *"" icon=""medication"" />"
+app/pharmacy/drug-not-found.tsx	93	synthetic-marker	"<Input value={dose} onChangeText={setDose} placeholder=""التركيز / الجرعة (مثال: 500mg)"" icon=""edit"" />"
+app/pharmacy/drug-not-found.tsx	95	synthetic-marker	"<Input value={qty} onChangeText={v => setQty(v.replace(/\D/g, ''))} placeholder=""الكمية"" keyboardType=""numeric"" icon=""shopping_cart"" style={{ flex: 1 }} />"
+app/pharmacy/drug-not-found.tsx	98	synthetic-marker	"<Input value={notes} onChangeText={setNotes} placeholder=""ملاحظات إضافية (اختياري)"" icon=""edit"" multiline />"
+app/pharmacy/filters.tsx	249	synthetic-marker	"placeholder=""الحد الأدنى"""
+app/pharmacy/filters.tsx	259	synthetic-marker	"placeholder=""الحد الأقصى"""
+app/pharmacy/filters.tsx	298	synthetic-marker	"placeholder=""ابحث عن شركة..."""
+app/pharmacy/chat-with-pharmacist.tsx	52	synthetic-marker	// Real pharmacy identity from the order itself (no hardcoded name)
+app/pharmacy/chat-with-pharmacist.tsx	386	synthetic-marker	"placeholder=""اكتب رسالتك للصيدلي..."""
+app/pharmacy/custom-item.tsx	39	synthetic-marker	// E2: real prescription upload (was a fake toggle that uploaded nothing)
+app/pharmacy/custom-item.tsx	186	synthetic-marker	"placeholder: ""مثال: ميتفورمين 500mg"","
+app/pharmacy/custom-item.tsx	192	synthetic-marker	"placeholder: ""مثال: 500mg"","
+app/pharmacy/custom-item.tsx	198	synthetic-marker	"placeholder: ""مثال: 2 علبة"","
+app/pharmacy/custom-item.tsx	231	synthetic-marker	placeholder={f.placeholder}
+app/pharmacy/custom-item.tsx	268	synthetic-marker	"placeholder=""أي معلومات إضافية..."""
+app/pharmacy/order-confirm.tsx	41	synthetic-marker	// API unavailable — show error state (no demo data in production)
+app/pharmacy/manual-order.tsx	79	synthetic-marker	"placeholder=""مثال: كونجستال أقراص"""
+app/pharmacy/manual-order.tsx	88	synthetic-marker	"placeholder=""أضف أي تفاصيل أخرى تساعد الصيدلي..."""
+app/pharmacy/product-detail.tsx	448	synthetic-marker	<TextInput value={suggestValue} onChangeText={setSuggestValue} placeholder={isRTL ? 'القيمة الصحيحة المقترحة' : 'Suggested correct value'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cai
+app/pharmacy/product-detail.tsx	451	synthetic-marker	<TextInput value={suggestNote} onChangeText={setSuggestNote} placeholder={isRTL ? 'ملاحظة إضافية (اختياري)' : 'Extra note (optional)'} placeholderTextColor={colors.t3} style={{ borderWidth: 1, borderColor: colors.bd, borderRadius: 10, padding: 10, marginTop: 10, color: colors.n, fontFamily: 'Cairo-R
+app/pharmacy/pharmacist-chat.tsx	349	synthetic-marker	"placeholder=""اكتب رسالتك للصيدلي..."""
+app/pharmacy/order-tracking.tsx	77	synthetic-marker	// API unavailable — keep last known state, no demo data
+app/pharmacy/checkout.tsx	254	synthetic-marker	"placeholder=""أدخل كود الكوبون"""
+app/settings/security.tsx	250	synthetic-marker	"placeholder=""••••••••"""
+app/settings/feedback.tsx	153	synthetic-marker	"placeholder=""اكتب ملاحظتك هنا..."""
+app/insurance/network-providers.tsx	119	synthetic-marker	"placeholder=""ابحث عن مزود..."""
+app/insurance/add-policy.tsx	152	synthetic-marker	{ label: 'رقم البوليصة', val: policyNum, setter: setPolicyNum, placeholder: 'رقم البوليصة كما في البطاقة' },
+app/insurance/add-policy.tsx	153	synthetic-marker	{ label: 'رقم العضوية / الهوية الوطنية', val: memberId, setter: setMemberId, placeholder: 'الهوية الوطنية / الإقامة' },
+app/insurance/add-policy.tsx	154	synthetic-marker	{ label: 'اسم العضو (اختياري)', val: memberName, setter: setMemberName, placeholder: 'الاسم كما في البطاقة' },
+app/insurance/add-policy.tsx	155	synthetic-marker	{ label: 'تاريخ الانتهاء (اختياري)', val: expiry, setter: setExpiry, placeholder: 'YYYY-MM-DD' },
+app/insurance/add-policy.tsx	161	synthetic-marker	"placeholder={f.placeholder} placeholderTextColor={colors.textTertiary} textAlign=""right"" />"
+app/insurance/coverage-check.tsx	193	synthetic-marker	"placeholder=""اسم الطبيب أو المستشفى أو الصيدلية"""
+app/emergency/sos-active.tsx	27	synthetic-marker	// E2: real patient GPS for the SOS map (was a fake animated graphic)
+app/diagnostics/order/[id].tsx	74	synthetic-marker	"// E2 fix: was a fake ""تم التحميل"" alert after a malformed request. Now opens the"
+app/diagnostics/order/[id].tsx	98	synthetic-marker	"<Icon name=""file-search-outline"" size={48} color={colors.textSecondary} />"
+app/(tabs)/consultations/index.tsx	220	synthetic-marker	"placeholder=""ابحث عن دكتور أو تخصص..."""
+app/consultations/book/[id].tsx	345	synthetic-marker	"placeholder=""اكتب الأعراض أو أي معلومات تود إخبار الطبيب بها"""
+app/consultations/offer/[id].tsx	3	synthetic-marker	// E2: this screen was fully broken — `promos` was a hardcoded empty array so
+app/consultations/video/[id].tsx	3	synthetic-marker	"// This file previously rendered a ""VideoCall - s64"" placeholder stub."
+src/constants/specialties.ts	146	synthetic-marker	{ id: '5', nameAr: 'سحب عينات دم', nameEn: 'Blood Sample Collection', description: 'سحب عينات دم منزلية للتحاليل المخبرية', basePrice: 60, duration: '15 دقيقة', icon: 'bloodtype' },
+src/navigation/RouterConfig.ts	6	synthetic-marker	// Centralized route definitions to avoid hardcoded strings
+src/services/FileManager.ts	1	synthetic-marker	import * as FileSystem from 'expo-file-system';
+src/services/HttpClient.ts	4	synthetic-marker	// M1-ENV: backend URL is now environment-driven (dev/staging/prod) instead of hardcoded.
+src/services/FeatureFlags.ts	71	logic-marker	loyalty_program:       false,   // coming soon
+src/hooks/usePushNotifications.ts	45	synthetic-marker	case 'lab': return { pathname: '/diagnostics/sample-tracking', params: { bookingId: id } };
+src/config/deepLinks.ts	84	synthetic-marker	'diagnostics/book-sample': 'labs/book',
+src/config/deepLinks.ts	89	synthetic-marker	'diagnostics/sample-tracking': 'labs/tracking/:id',
+src/components/ProductImage.tsx	11	synthetic-marker	*   ✔ placeholder (blurred box + pill icon while loading)
+src/components/ProductImage.tsx	50	synthetic-marker	placeholder={{ blurhash: 'LGF5]+Yk^6#M@-5c,1J5@[or[Q6.' }}
+src/components/Icon.tsx	6	synthetic-marker	const STATIC_MAP: Record<string, string> = {'back': 'arrow-right', 'diagnostics': 'flask', 'doctor': 'doctor', 'hospital': 'hospital-building', 'pulse': 'heart-pulse', 'heartPulse': 'heart-pulse', 'bloodBag': 'blood-bag', 'user': 'account', 'users': 'account-group', 'success': 'check-circle', 'error
+src/components/Icon.tsx	37	synthetic-marker	document: 'file-document',
+src/components/ui.tsx	449	synthetic-marker	placeholder?: string;
+src/components/ui.tsx	462	synthetic-marker	value, onChangeText, placeholder, icon, iconRight, onIconRightPress,
+src/components/ui.tsx	466	synthetic-marker	const translatedPlaceholder = autoTranslate(placeholder, lang);
+src/components/ui.tsx	488	synthetic-marker	placeholder={translatedPlaceholder}
+src/components/ScreenStates.tsx	10	synthetic-marker	* silently swallowed behind static fake data. Wrap any data-driven screen:
+src/components/animations.tsx	69	synthetic-marker	// Shimmer Loading Placeholder
+src/data/database/core/DatabaseProvider.native.ts	19	logic-marker	// SQLCipher driver is not implemented yet — throws until it is
+src/design-system/components/Loading.tsx	76	synthetic-marker	// DS Skeleton — Shimmer placeholder for content loading
+src/design-system/components/Input.tsx	23	synthetic-marker	placeholder?: string;
+src/design-system/components/Input.tsx	44	synthetic-marker	placeholder,
+src/design-system/components/Input.tsx	131	synthetic-marker	placeholder={placeholder}
+src/design-system/components/SearchBar.tsx	25	synthetic-marker	placeholder?: string;
+src/design-system/components/SearchBar.tsx	46	synthetic-marker	placeholder,
+src/design-system/components/SearchBar.tsx	63	synthetic-marker	placeholder ??
+src/design-system/components/SearchBar.tsx	150	synthetic-marker	placeholder={defaultPlaceholder}
+src/core/config/ConfigManager.ts	3	synthetic-marker	* Environment-aware, Admin-overridable, no hardcoded values.
+src/core/config/ConfigManager.ts	184	synthetic-marker	// ── External Keys (from .env — never hardcoded) ───────────────────────
+src/store/utils/testUtils.tsx	21	synthetic-marker	// For now, we mock it via the singleton store.
+src/store/middleware/observability.ts	41	synthetic-marker	// In production, we'd sample this to avoid spamming analytics

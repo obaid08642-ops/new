@@ -1,0 +1,33 @@
+file	line	client_method	client_path	normalized	alias_candidates	same_method_candidates	any_method_candidates	provisional
+nabd_plus/app/articles/[slug].tsx	42	POST	/articles?category=${encodeURIComponent(res.category)}&limit=4	/articles	/articles		GET /articles	METHOD_MISMATCH
+nabd_plus/app/articles/[slug].tsx	46	POST	/articles/bookmarks/${encodeURIComponent(String(slug))}/status	/articles/bookmarks/:id/status	/articles/bookmarks/:id/status		GET /articles/bookmarks/:slug/status	METHOD_MISMATCH
+nabd_plus/app/community/post-detail.tsx	53	PUT	/community/posts/${postId}	/community/posts/:id	/community/posts/:id		GET /community/posts/:id;DELETE /community/posts/:id	METHOD_MISMATCH
+nabd_plus/app/consultations/appointment-detail.tsx	184	POST	/patient/pay-copay	/patient/pay-copay	/patient/pay-copay	POST /patient/pay-copay (InsuranceAliasController)		PASS_ALIAS_MATCH
+nabd_plus/app/consultations/chat-with-doctor.tsx	41	POST	/care/doctors/${doctorId}	/care/doctors/:id	/care/doctors/:id		GET /care/doctors/:id	METHOD_MISMATCH
+nabd_plus/app/consultations/chat-with-doctor.tsx	51	POST	/chat/threads/direct	/chat/threads/direct	/chat/threads/direct			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/consultations/chat-with-doctor.tsx	58	GET	/chat/threads/${tid}/messages	/chat/threads/:id/messages	/chat/threads/:id/messages			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/consultations/chat-with-doctor.tsx	125	POST	/chat/threads/${threadId}/messages	/chat/threads/:id/messages	/chat/threads/:id/messages			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/diagnostics/order/[id].tsx	40	POST	/labs/bookings/${id}	/labs/bookings/:id	/labs/bookings/:id		GET /labs/bookings/:id	METHOD_MISMATCH
+nabd_plus/app/family/calendar.tsx	49	POST	/family/calendar	/family/calendar	/family/calendar		GET /family/calendar	METHOD_MISMATCH
+nabd_plus/app/family/chat.tsx	62	POST	/users/me/profile	/users/me/profile	/users/me/profile		GET /users/me/profile;PATCH /users/me/profile	METHOD_MISMATCH
+nabd_plus/app/family/chat.tsx	67	POST	/family/members	/family/members	/family/members		GET /family/members	METHOD_MISMATCH
+nabd_plus/app/health/family-hub.tsx	80	POST	/family/my-group	/family/my-group	/family/my-group		GET /family/my-group	METHOD_MISMATCH
+nabd_plus/app/health/family-hub.tsx	82	POST	/family/members	/family/members	/family/members		GET /family/members	METHOD_MISMATCH
+nabd_plus/app/health/smart-reminders.tsx	52	PATCH	/health/reminders	/health/reminders	/health/reminders		GET /health/reminders;POST /health/reminders	METHOD_MISMATCH
+nabd_plus/app/insurance/copay.tsx	57	POST	/patient/pay-copay	/patient/pay-copay	/patient/pay-copay	POST /patient/pay-copay (InsuranceAliasController)		PASS_ALIAS_MATCH
+nabd_plus/app/loyalty/challenges.tsx	30	POST	/loyalty/challenges	/loyalty/challenges	/loyalty/challenges		GET /loyalty/challenges	METHOD_MISMATCH
+nabd_plus/app/loyalty/rewards.tsx	33	POST	/loyalty/rewards	/loyalty/rewards	/loyalty/rewards		GET /loyalty/rewards	METHOD_MISMATCH
+nabd_plus/app/nutrition/log-meal.tsx	35	POST	/nutrition/foods	/nutrition/foods	/nutrition/foods		GET /nutrition/foods	METHOD_MISMATCH
+nabd_plus/app/pharmacy/broadcast-status.tsx	29	POST	/orders/bids/request/${orderId}	/orders/bids/request/:id	/orders/bids/request/:id		GET /orders/bids/request/:id	METHOD_MISMATCH
+nabd_plus/app/pharmacy/chat-with-pharmacist.tsx	53	POST	/orders/${orderId}	/orders/:id	/orders/:id		GET /orders/:id	METHOD_MISMATCH
+nabd_plus/app/pharmacy/chat-with-pharmacist.tsx	60	POST	/chat/threads/booking	/chat/threads/booking	/chat/threads/booking			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/pharmacy/chat-with-pharmacist.tsx	68	GET	/chat/threads/${tid}/messages	/chat/threads/:id/messages	/chat/threads/:id/messages			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/pharmacy/chat-with-pharmacist.tsx	124	POST	/chat/threads/${threadId}/messages	/chat/threads/:id/messages	/chat/threads/:id/messages			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/pharmacy/chat-with-pharmacist.tsx	168	POST	/chat/threads/${threadId}/messages	/chat/threads/:id/messages	/chat/threads/:id/messages			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/pharmacy/checkout.tsx	67	POST	/wallet/balance	/wallet/balance	/wallet/balance		GET /wallet/balance	METHOD_MISMATCH
+nabd_plus/app/pharmacy/order-confirm.tsx	38	POST	/orders/${orderId}	/orders/:id	/orders/:id		GET /orders/:id	METHOD_MISMATCH
+nabd_plus/app/pharmacy/wishlist.tsx	37	POST	/users/me/wishlist	/users/me/wishlist	/users/me/wishlist		GET /users/me/wishlist	METHOD_MISMATCH
+nabd_plus/app/profile/addresses.tsx	29	PATCH	/users/me/addresses	/users/me/addresses	/users/me/addresses		GET /users/me/addresses;POST /users/me/addresses	METHOD_MISMATCH
+nabd_plus/app/programs/active.tsx	44	POST	/medical/programs/active	/medical/programs/active	/medical/programs/active			NO_EXACT_ROUTE_REVIEW
+nabd_plus/app/programs/active.tsx	72	POST	/medical/programs/complete-session	/medical/programs/complete-session	/medical/programs/complete-session			NO_EXACT_ROUTE_REVIEW
+nabd_plus/src/context/SocketContext.tsx	57	POST	/chats/threads/${m.threadId}/messages	/chats/threads/:id/messages	/chats/threads/:id/messages;/chat/threads/:id/messages			NO_EXACT_ROUTE_REVIEW

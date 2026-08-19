@@ -1,0 +1,17 @@
+# Phase 3 Provider — doctor availability, insurance, credentials, profile and location gaps
+
+## Confirmed defects
+
+| Priority | Finding | Evidence | Required remediation |
+|---|---|---|---|
+| **P0** | Availability, exceptions, vacation, and insurance begin as invented provider data | Doctor availability declares fixed weekly hours, dated exceptions, insurers, tiers, copays, and service coverage in component state, without loading the authenticated provider’s server profile/settings. | Load an owned, versioned provider configuration DTO; render an honest empty/setup state until it exists; validate all timezones, overlaps, holidays, capacity and insurance eligibility server-side. |
+| **P0** | Vacation mode cannot be persisted despite claiming it blocks new bookings | Toggle changes local UI and displays success, but the only save button is disabled when vacation mode is enabled. No server command is sent at toggle time. | Add an owned server state transition with immediate scheduling/broadcast impact and retry/rollback behavior; never promise booking blockage until acknowledged by Backend. |
+| **P0** | Insurance configuration is hard-coded and can report local success without persistence | `InsuranceConfigScreen` has static insurers/copays/tiers and its save function only displays a toast. The availability screen also submits the same synthetic data through a generic delta endpoint. | Replace with server-authoritative accepted insurers/plan/service/copay contracts, role/credential validation, immutable audit trail, and idempotent update endpoints; remove local-success behavior. |
+| **P0** | Credentials and document upload are simulated | Certificate screen starts with named verified/pending credentials and uses a timed progress loop to create a fabricated pending document, without file selection, storage, KYC review, or Backend state. | Remove fabricated credential records and fake upload; implement verified secure upload, provider ownership, review status, audit, expiry and admin decision workflow. |
+| **P1** | Provider profile image and clinic-image controls are incomplete | Image uploader sets `avatarUrl` locally, but profile PATCH omits it; clinic image add button has no handler and static image placeholders are rendered. | Persist only returned owned media references in the profile DTO, show upload/review errors, and remove inactive image controls until secure gallery storage is implemented. |
+| **P1** | Location, coverage radius, and transport-fee save is purely local | Location screen provides a decorative map and accepts radius/fee but `handleSave` only shows success. | Use an approved geolocation/coverage pricing contract with service eligibility, currency, policy and provider ownership validation; remove claim until implemented. |
+| **P1** | Multiple controls are Arabic/English-only and include emoji/text placeholders | Configuration labels, dates, status, icons and health/insurance content lack six-language locale coverage and premium accessible controls. | Complete six-locale dictionaries and RTL/LTR validation; use vector accessible icons and locale-aware date/currency display. |
+
+## Decision
+
+Doctor provider configuration is **P0 FIX/BLOCKED**. It cannot govern patient booking, insurance, credential verification, location coverage, or provider identity while its core data and success states are locally fabricated or unpersisted.

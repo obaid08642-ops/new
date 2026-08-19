@@ -1,0 +1,26 @@
+item	scope_or_result	status	evidence
+main baseline	main=53ba7da used as Patient default source	PASS	main worktree and source policy evidence
+patient screen inventory	509 source files; 255 screen/route candidates; 2,276 UI action markers	PASS	NABDAH_PHASE2_PATIENT_UI_API_STATE_INVENTORY_20260818.tsv
+patient API inventory	333 calls against 1,310 corrected main routes; 301 direct matches; 32 review items	FIX	NABDAH_PHASE2_MAIN_PATIENT_API_ROUTE_MATCH_20260818.tsv
+sensitive file comparison	43 files across profile, medication, refill, chronic, nutrition, maternity/cycle, mental-health	PASS	NABDAH_PHASE2_SENSITIVE_PATIENT_DECISION_MATRIX_20260818.tsv
+rebuild-versus-addition scope	existing screen rebuilds separated from six dictionaries/tests, medication utility, three provider maps, no new Admin pages	PASS	NABDAH_PHASE2_MAIN_PATIENT_INVENTORY_AND_VERSION_DECISIONS_20260818.md
+medication/refill contracts	Health controller routes match main Patient reminder/refill calls	PASS	health.controller.ts plus phase report
+medical synthetic-data review	maternity defaults, diagnostics defaults, mental-health and nutrition markers require source remediation or safety gate	FIX	NABDAH_PHASE2_MANUAL_FINDINGS_BATCH_01_20260818.md
+translation additions	six modules and six tests present in verification archive and imported by rebuilt screens	SOURCE_PRESENT/TEST_PRESENT	phase report; runtime tests pending
+medication notifications	utility and dedicated test present; imports verified	SOURCE_PRESENT/TEST_PRESENT	phase report; runtime tests pending
+provider map additions	PlatformMap base/native/web present	SOURCE_PRESENT	phase report; provider build pending
+Admin scope	no new pages claimed; existing Admin page surface requires internal contract review	BLOCKED	Admin review is a later phase
+Patient typecheck/Jest/Expo export	reconciled temporary copy passed typecheck, Jest, and Expo export; committed source lockfile still requires safe reconciliation	FIX	NABDAH_BUILD_ENVIRONMENT_GATE_20260818.md
+Phase 2 source modifications	no Patient source replacement or silent archive merge performed	PASS	git history and clean QA worktree
+Phase 2 final closure	audit coverage double-checked; remediation, release, device, E2E, payment and approval gates remain open in later phases	CLOSED_AUDIT_ONLY	NABDAH_PHASE2_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md
+monthly health report	canonical appointment field, partial-error state, vital semantics, and six-language display reviewed	FIX	NABDAH_PHASE2_MONTHLY_REPORT_DATA_LOCALIZATION_GAP_20260819.md
+medical report viewer and AI analysis	invalid report API path/parameter entries, PHI sharing, attachment, error, and localization contracts reviewed	FIX/BLOCKED	NABDAH_PHASE2_MEDICAL_REPORT_VIEWER_AND_AI_CONTRACT_GAPS_20260819.md
+home-care/nursing workflow	multi-session, insurance, request-to-tracking, availability, location, profile DTO, and rating review complete	FIX/BLOCKED	NABDAH_PHASE2_HOME_CARE_NURSING_WORKFLOW_CONTRACT_GAPS_20260819.md
+diagnostics/lab/radiology workflow	AM/PM slot, home/contact, insurance/payment, radiology DTO, and radiology BOLA review complete	FIX/BLOCKED	NABDAH_PHASE2_DIAGNOSTICS_LAB_RADIOLOGY_WORKFLOW_GAPS_20260819.md
+wallet transfer and cards	transactional integrity, idempotency, Android form, relationship labels, and tokenized card review complete	FIX/BLOCKED	NABDAH_PHASE2_WALLET_TRANSFER_CARD_CONTRACT_GAPS_20260819.md
+profile/notification settings/inbox	clinical profile defaults/validation, persistence, delivery preferences, read-state, and localization review complete	FIX	NABDAH_PHASE2_PROFILE_NOTIFICATION_SETTINGS_GAPS_20260819.md
+triage and drug interactions	clinical governance, contract, authorization, privacy, emergency boundary, and truthful error review complete	P0 FIX/BLOCKED	NABDAH_PHASE2_TRIAGE_DRUG_INTERACTION_SAFETY_GAPS_20260819.md
+skin analysis	medical image consent/retention, fabricated results, typed output, and safety review complete	P0 FIX/BLOCKED	NABDAH_PHASE2_SKIN_ANALYSIS_SAFETY_PRIVACY_GAPS_20260819.md
+loyalty rewards	reward atomicity, idempotency, coupon, terms, and localization review complete	FIX/BLOCKED	NABDAH_PHASE2_LOYALTY_REWARD_CONTRACT_GAPS_20260819.md
+prescription translator	OCR contract, fabricated medical data, image consent, and handoff review complete	P0 FIX/BLOCKED	NABDAH_PHASE2_PRESCRIPTION_TRANSLATOR_CONTRACT_SAFETY_GAPS_20260819.md
+support chat and tickets	declared route, availability, ticket context, attachment, and localization review complete	FIX/BLOCKED	NABDAH_PHASE2_SUPPORT_CHAT_TICKET_CONTRACT_GAPS_20260819.md
