@@ -977,4 +977,26 @@
 
 ## Phase 16 — live Sandbox finding — 2026-08-19
 
-- [x] P0 authorization defect: live Sandbox proved that approved `doctor` Provider could read `GET /nursing/visits` (HTTP 200) although its `provider_type` is `doctor`; source `NursingController.isNursingProvider` accepted the generic `provider` role. Restricted nursing eligibility to explicit nursing/home-care/hospital roles/types, added a negative regression, and rebuilt, tested, and archived the Backend. Evidence: `NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md`; redeploy and live boundary retest remain required under separate reviewer authorization.
+- [x] P0 authorization defect: live Sandbox proved that approved `doctor` Provider could read `GET /nursing/visits` (HTTP 200) although its `provider_type` is `doctor`; source `NursingController.isNursingProvider` accepted the generic `provider` role. Restricted nursing eligibility to explicit nursing/home-care/hospital roles/types, added a negative regression, rebuilt and published candidate `e7f3ceb`, then live-retested the boundary: Doctor returned 403 and Nursing returned 200. Evidence: `NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md`; this closes that resource only, not the remaining Phase 16 matrix.
+
+## Phase 16 — doctor appointment and prescription contract follow-up — 2026-08-19
+
+- [x] Reconciled the strengthened prescription contract explicitly: `EPrescriptionScreen` now issues only with server-sourced `appointment_id` and `patient_id` from an `IN_PROGRESS` consultation, searches the approved catalogue, and does not show success before server confirmation. It supports a prescription-scoped manual medicine subject to review, while local AI triage and local age/insurance/complaint fallbacks were removed. Provider typecheck and 30/30 contract tests pass; live validation remains open pending deployment of this new candidate.
+
+## Phase 16 — controlled manual-prescription medicine review — 2026-08-19
+
+- [x] Implemented a doctor manual-prescription medicine path that preserves verified `IN_PROGRESS` appointment and patient ownership, stores the manual item only on the prescription with `is_manual_entry: true` and `PENDING_REVIEW`, never creates a `medicines_master` entry, exposes the authenticated review queue, requires a verified approved substitute before dispense, and renders an explicit pharmacy warning/action. Server/client regressions, clean gates, and rebuilt archives are documented in `NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md`; live validation remains open pending deployment of this new candidate.
+
+
+## Phase 16 — Prescription contract and mutation BOLA remediation — 2026-08-19
+
+- [x] فحص مستقل لمسار الوصفات كشف أن قراءة الوصفة كانت مقيدة بالمشارك، بينما `transition` و`sendToPharmacy` و`substitute` لم تكن تطبق كلها ملكية المورد؛ عومل ذلك كعيب BOLA مصدرّي عالي الخطورة.
+- [x] قصر إنشاء الوصفة، بما في ذلك endpoint `manual-entry` الموروث، على طبيب فعّال مع `appointment_id` و`patient_id` يطابقان موعداً خادمياً مملوكاً وحالته `IN_PROGRESS`.
+- [x] تنفيذ مسار الدواء اليدوي المطلوب: `is_manual_entry: true` و`verified: false` و`PENDING_REVIEW` داخل الوصفة فقط، من دون إدخال في كتالوج الأدوية، مع بديل كتالوج معتمد قبل الصرف.
+- [x] إضافة طابور `GET /prescriptions/manual-review/queue` للصيدلية المعيّنة/الإدارة، وواجهة صيدلية تحذر من الصنف اليدوي وتحجب تأكيد الصرف إلى أن يسجل بديل معتمد خادمياً.
+- [x] تمرير `appointment_id` و`patient_id` وحالة الموعد الخادمية إلى شاشة إصدار وصفة الطبيب، وإزالة افتراضات العمر والتأمين والشكوى وAI triage المحلية من تفاصيل الموعد.
+- [x] إضافة اختبارات BOLA سالبة للإرسال والانتقال والبديل، ثم نجاح بوابة الوصفات المركزة 17/17 وبناء Backend وtypecheck/اختبارات Provider 30/30.
+- [x] أعيد تشغيل حزمة Backend الكاملة بنجاح: 67 suites / 385 tests؛ أعيد بناء أرشيفي Backend وProvider، فُحصت سلامة ZIP، وسجلت SHA في دليل Phase 16. يبقى commit/push إلى `manus/on-live-reconciliation` فقط كخطوة تنفيذية تالية.
+- [ ] بعد تفويض نشر SHA الجديد فقط: إعادة اختبار Sandbox الحي لإنشاء الوصفة والدواء اليدوي والطابور والبديل ومنع BOLA؛ لا يعد هذا البند مكتملًا بالاختبارات المحلية.
+
+مرجع الدليل: `audit-artifacts/NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md`.
