@@ -970,3 +970,7 @@
 - [x] Phase 14 Provider nursing route remediation: aligned NursingDashboard with owned `GET/POST /nursing/visits` contracts and contained SOAP note entry until its required `patient_id`/`booking_id` contract is explicitly mapped and tested for ownership and transition errors. Evidence: `NABDAH_PHASE14_PROVIDER_CONTRACT_REMEDIATION_20260819.md`.
 - [x] Phase 14 Provider doctor-chat remediation: replaced stale `/chats/provider` and `/chats/:id/messages` with thread contracts and contained missing `/provider/chat/send`; no message may display as sent before participant-authorized server persistence. Evidence: `NABDAH_PHASE14_PROVIDER_CONTRACT_REMEDIATION_20260819.md`.
 - [x] Phase 14 Pharmacy expiry surface: kept the expiry view fail-closed until an owned, audited inventory-expiry Backend contract is implemented and tested; no status is inferred from a schema alone. Evidence: `NABDAH_PHASE14_PROVIDER_CONTRACT_REMEDIATION_20260819.md`; Provider SHA-256 `a89fe6379ad2587a8eeff75c1e0a08368fefc3cbe6c935750996c2bc35188c40`.
+
+## Phase 15 — reviewer candidate and governance package — 2026-08-19
+
+- [x] Phase 15 reviewer deployment candidate: prepared the commit/archives SHA manifest, clean-gate evidence, dependency-audit summary, migration/index preflight, rollback/post-deploy smoke+BOLA plan, and owner/reviewer prerequisite requests in `NABDAH_PHASE15_REVIEWER_DEPLOYMENT_CANDIDATE_20260819.md`. No Sandbox or production deployment was requested or performed; current status remains NO-GO pending explicit reviewer authorization.
