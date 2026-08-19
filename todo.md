@@ -962,3 +962,11 @@
 ## Pre-Phase 13 confirmed-source remediation — 2026-08-19
 
 - [x] Resolve the independently confirmed Provider DoctorDashboard clinical truthfulness defects: contained local consultation chat and fixed EHR facts; removed `guest_patient`/default-diagnosis prescription fallbacks, unverified custom medicines, and local-only prescription template persistence/success; enforced a verified doctor–appointment–patient relationship and approved medicine catalogue in the Backend prescription contract; added negative/positive regressions, ran clean gates, and archived evidence in `NABDAH_PREPHASE13_DOCTOR_PRESCRIPTION_REMEDIATION_20260819.md`. Backend SHA-256 `8c0d63fb0a74d530580b5841cd6c29dde6df2a2a9c2610588c1f802db69f991e`; Provider SHA-256 `b5e5431de7fffcb9139d07faf41132cc94429a1c3a50a6b68dfb672684b2c1cc`.
+
+## Phase 13 — contract inventory and confirmed follow-on work — 2026-08-19
+
+- [x] Phase 13 static contract inventory: classified 238 unique API consumer contracts across Patient, Provider and Admin against 1,342 observed Backend routes; recorded source locations and initial `WIRED_CANDIDATE`/`STALE`/`MISSING`/`INCONCLUSIVE` status in `NABDAH_PHASE13_CONTRACT_CLASSIFICATION_20260819.md` and its raw inventory artifacts. This is not live E2E or an ownership acceptance.
+- [ ] Phase 14 Provider legal-agreement route remediation: align ContractModal with verified `GET /legal/policy/:key?lang` and `POST /legal/accept/:key` contracts, preserve fail-closed handling, and add regression tests for load/accept/error without local success.
+- [ ] Phase 14 Provider nursing route remediation: align NursingDashboard consumer paths with owned `GET/POST /nursing/visits` contracts; contain note entry until its required `patient_id`/`booking_id` contract is explicitly mapped and tested for ownership and transition errors.
+- [ ] Phase 14 Provider doctor-chat remediation: replace or contain stale `/chats/provider`, `/chats/:id/messages`, and missing `/provider/chat/send` consumers; no message may display as sent before participant-authorized server persistence.
+- [ ] Phase 14 Pharmacy expiry surface: keep the expiry view fail-closed until an owned, audited inventory-expiry Backend contract is implemented and tested; do not infer expiry data from a schema alone.
