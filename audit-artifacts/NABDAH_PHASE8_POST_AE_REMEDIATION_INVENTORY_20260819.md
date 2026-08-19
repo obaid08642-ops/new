@@ -42,3 +42,24 @@ The findings above are source-level observations only. No production or sandbox 
 ## Batch AF disposition
 
 Batch AF remediated the wallet, post-consultation chat, pre-visit fixture, simulated inbound reports, arbitrary insurance screen, non-contract calendar/video assertions, waiting-room response handling, and the backend order/end/report/insurance ownership boundaries. The evidence is recorded in `NABDAH_PHASE8_BATCH_AF_DOCTOR_CLINICAL_RECORD_INTEGRITY_20260819.md`. Local no-show configuration/history, any future private inbound-report list, approved calendar/video integration, and reviewer-authorized sandbox acceptance remain separate bounded work; none is represented as live or complete.
+
+## Admin governance: confirmed source findings
+
+| Finding | Evidence | Risk | Required remediation direction |
+|---|---|---|---|
+| Client-selected emergency operator | `config-portal.tsx` submits the constant `admin-master-001`; `AdminGovernanceController` accepts `adminId` directly from the body and converts it to an object ID. | A browser can assert another operator identity for a system-wide emergency change. | Derive operator identity from the authenticated admin session and never accept it from the client. |
+| Unguarded global mutations/readouts | The controller has no admin-role guard and its emergency trigger, fraud-alert and audit-log routes do not receive authenticated context. | Non-admin actors may invoke a global operation or read sensitive operational data if routing/auth assumptions drift. | Apply explicit central admin authorization and test denial paths. |
+| Nonfunctional infrastructure claim | Redis handling is commented out, but the route declares that all services were interrupted/restored after only a database upsert. | The admin UI can claim a global safety-critical system state that was not executed. | Fail closed: remove browser control/terminal-success claim until an owner-approved, audited infrastructure command exists. |
+| Direct browser SLA override | The portal posts global SLA/JWT values directly and reports success without checking the response body; no matching source controller was found in the route search. | Operators can be shown an applied global configuration that is unverified or unsupported. | Contain the client UI pending a typed, authorized configuration/audit contract. |
+
+## Admin campaigns and notifications: confirmed source findings
+
+| Finding | Evidence | Risk | Required remediation direction |
+|---|---|---|---|
+| Fixed actor attribution | `AdminNotificationCenterController` applies JWT/admin guards, but all broadcast/campaign service calls pass the literal actor `'admin'` instead of the authenticated operator identity. | Audit attribution and maker-checker control cannot identify the actual decision-maker. | Pass authenticated admin context into the service and retain immutable actor/audit metadata. |
+| Broad audience/mutation without product guardrail | The client can target all users, role segments, a raw user ID, deep links and immediate retargeting. | PHI-adjacent outreach can be sent or scheduled without a documented review/audience/route validation boundary. | Require server allowlisted segments/deep links, clear audience confirmation, rate/idempotency/audit controls and an authorized review policy. |
+| Success-only campaign actions | The page displays immediate “sent/scheduled/retarget run” assertions after generic calls, while send/cancel/retarget handlers do not inspect a response result. | The UI may report a campaign action as complete if the backend/network did not confirm it. | Require a typed acknowledged response and refresh only after it; otherwise retain an error/retry state. |
+
+## Batch AG disposition
+
+Batch AG added class-level admin role metadata to governance routes, removed the body-selected administrator identity, and changed the emergency-maintenance endpoint to reject without writing configuration until an owner-approved infrastructure command, immutable audit attribution, dual approval and verified recovery are implemented. The config portal now exposes an explicit unavailable state and no longer displays browser-controlled SLA or maintenance success. A prior Next build failure was isolated to a nonstandard inherited `NODE_ENV`; the clean production environment build completed all 34 static admin routes. Campaign governance, SOS administrative mutation containment, AI/PHI controls and source-of-truth RBAC remain separate bounded work.
