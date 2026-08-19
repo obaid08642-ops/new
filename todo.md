@@ -977,4 +977,59 @@
 
 ## Phase 16 — live Sandbox finding — 2026-08-19
 
-- [x] P0 authorization defect: live Sandbox proved that approved `doctor` Provider could read `GET /nursing/visits` (HTTP 200) although its `provider_type` is `doctor`; source `NursingController.isNursingProvider` accepted the generic `provider` role. Restricted nursing eligibility to explicit nursing/home-care/hospital roles/types, added a negative regression, and rebuilt, tested, and archived the Backend. Evidence: `NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md`; redeploy and live boundary retest remain required under separate reviewer authorization.
+- [x] P0 authorization defect: live Sandbox proved that approved `doctor` Provider could read `GET /nursing/visits` (HTTP 200) although its `provider_type` is `doctor`; source `NursingController.isNursingProvider` accepted the generic `provider` role. Restricted nursing eligibility to explicit nursing/home-care/hospital roles/types, added a negative regression, rebuilt and published candidate `e7f3ceb`, then live-retested the boundary: Doctor returned 403 and Nursing returned 200. Evidence: `NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md`; this closes that resource only, not the remaining Phase 16 matrix.
+
+## Phase 16 — doctor appointment and prescription contract follow-up — 2026-08-19
+
+- [x] Reconciled the strengthened prescription contract explicitly: `EPrescriptionScreen` now issues only with server-sourced `appointment_id` and `patient_id` from an `IN_PROGRESS` consultation, searches the approved catalogue, and does not show success before server confirmation. It supports a prescription-scoped manual medicine subject to review, while local AI triage and local age/insurance/complaint fallbacks were removed. Provider typecheck and 30/30 contract tests pass; live validation remains open pending deployment of this new candidate.
+
+## Phase 16 — controlled manual-prescription medicine review — 2026-08-19
+
+- [x] Implemented a doctor manual-prescription medicine path that preserves verified `IN_PROGRESS` appointment and patient ownership, stores the manual item only on the prescription with `is_manual_entry: true` and `PENDING_REVIEW`, never creates a `medicines_master` entry, exposes the authenticated review queue, requires a verified approved substitute before dispense, and renders an explicit pharmacy warning/action. Server/client regressions, clean gates, and rebuilt archives are documented in `NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md`; live validation remains open pending deployment of this new candidate.
+
+
+## Phase 16 — Prescription contract and mutation BOLA remediation — 2026-08-19
+
+- [x] فحص مستقل لمسار الوصفات كشف أن قراءة الوصفة كانت مقيدة بالمشارك، بينما `transition` و`sendToPharmacy` و`substitute` لم تكن تطبق كلها ملكية المورد؛ عومل ذلك كعيب BOLA مصدرّي عالي الخطورة.
+- [x] قصر إنشاء الوصفة، بما في ذلك endpoint `manual-entry` الموروث، على طبيب فعّال مع `appointment_id` و`patient_id` يطابقان موعداً خادمياً مملوكاً وحالته `IN_PROGRESS`.
+- [x] تنفيذ مسار الدواء اليدوي المطلوب: `is_manual_entry: true` و`verified: false` و`PENDING_REVIEW` داخل الوصفة فقط، من دون إدخال في كتالوج الأدوية، مع بديل كتالوج معتمد قبل الصرف.
+- [x] إضافة طابور `GET /prescriptions/manual-review/queue` للصيدلية المعيّنة/الإدارة، وواجهة صيدلية تحذر من الصنف اليدوي وتحجب تأكيد الصرف إلى أن يسجل بديل معتمد خادمياً.
+- [x] تمرير `appointment_id` و`patient_id` وحالة الموعد الخادمية إلى شاشة إصدار وصفة الطبيب، وإزالة افتراضات العمر والتأمين والشكوى وAI triage المحلية من تفاصيل الموعد.
+- [x] إضافة اختبارات BOLA سالبة للإرسال والانتقال والبديل، ثم نجاح بوابة الوصفات المركزة 17/17 وبناء Backend وtypecheck/اختبارات Provider 30/30.
+- [x] أعيد تشغيل حزمة Backend الكاملة بنجاح: 67 suites / 385 tests؛ أعيد بناء أرشيفي Backend وProvider، فُحصت سلامة ZIP، وسجلت SHA في دليل Phase 16. يبقى commit/push إلى `manus/on-live-reconciliation` فقط كخطوة تنفيذية تالية.
+- [ ] بعد تفويض نشر SHA الجديد فقط: إعادة اختبار Sandbox الحي لإنشاء الوصفة والدواء اليدوي والطابور والبديل ومنع BOLA؛ لا يعد هذا البند مكتملًا بالاختبارات المحلية.
+
+مرجع الدليل: `audit-artifacts/NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md`.
+
+
+## Phase 16 — Hospital provider-role normalization finding — 2026-08-19
+
+- [x] عيب مصدرّي مؤكد: `GET /hospital/staff` أعاد HTTP 403 لحساب Hospital Sandbox رغم نجاح `GET /provider/auth/me` للحساب. كان `HospitalService.assertFacilityActor` يقرأ `actor.role || actor.provider_type`؛ وبما أن `role` يساوي `provider`، لا يصل إلى `provider_type: hospital`. استبدل بفحص `getEffectiveRoles` وقائمة منشأة صريحة، مع اختبار قبول Hospital Provider ورفض Doctor Provider/Patient، ونجحت بوابة HospitalService 4/4 وBackend الكامل 67 suites/386 tests وأرشيف ZIP النظيف. الدليل: `NABDAH_PHASE16_HOSPITAL_PROVIDER_ROLE_REMEDIATION_20260819.md`. تبقى إعادة اختبار Hospital Sandbox (expected 200) ورفض Doctor/Patient بعد النشر شرطاً مفتوحاً، ولا يعد هذا إثباتاً لتدفق staff الكامل.
+
+
+## Phase 16 — Consultation cash auto-confirm partial-persistence P0 — 2026-08-19
+
+- [x] عيب P0 مثبت حياً: `POST /care/appointments` بموعد clinic/cash Sandbox موسوم أعاد HTTP 403، لكن كشف read-back أن موعداً `PENDING` حُفظ. كان `AppointmentsService.create` ينشئ السجل ثم يستدعي `transition(..., { id: 'system', role: 'system' })` للتأكيد التلقائي، بينما `transition` يفرض `assertAppointmentAccess` ولا يسمح بالـactor الداخلي. أصلح الشرط الداخلي الضيق لـ`id=system` و`role=system` فقط، وأضيف اختبار PENDING → CONFIRMED داخلي؛ بوابة appointment states 15/15 وBackend الكامل 67 suites/387 tests والأرشيف النظيف PASS. اختبر BOLA للموعد المتبقي (owner 200، foreign 403) ثم نظف بإلغاء المالك إلى `CANCELLED`. الدليل: `NABDAH_PHASE16_CONSULTATION_CASH_AUTOCONFIRM_P0_REMEDIATION_20260819.md`. تبقى إعادة النشر واختبار 201/CONFIRMED ثم lifecycle الكامل حياً شرطاً مفتوحاً.
+
+
+## Phase 16 — Lab embedded-report access contract finding — 2026-08-19
+
+- [x] عيب عقد مصدرّي مؤكد: `GET /lab-results/mine` أعاد نتيجة embedded من `labbookings.reports` للمريض المالك، بينما `GET /lab-results/:id` لنفس `id` أعاد HTTP 404 لأن `LabResultsService.one` كان يبحث فقط في مجموعة `LabResult`. أضيف fallback مملوك وآمن يطابق `reports.id` و`patient_id` للمستخدم غير الإداري ويعيد metadata فقط من دون base64؛ اختبارات owner/foreign 5/5 وBackend الكامل 67 suites/389 tests وأرشيف ZIP النظيف PASS. الدليل: `NABDAH_PHASE16_LAB_EMBEDDED_REPORT_CONTRACT_REMEDIATION_20260819.md`. تبقى إعادة التحقق الحي owner 200/foreign 404 بعد نشر مرشح مستقل شرطاً مفتوحاً.
+
+
+## Phase 17 — Signed native builds and real devices — 2026-08-19
+
+- [x] جرد مستقل: `app.json` موجود في Provider وPatient، و`eas.json` موجود في Patient فقط مع profile production فارغ؛ لا `eas.json` في Provider، ولا مجلدي `android/` أو`ios/` المولدين، ولا أسماء keystore/p12/mobileprovision/credentials ظاهرة، ولا `eas`/`expo`/`adb`/`xcodebuild` في البيئة. لا APK/AAB/IPA أو build receipt أو device-farm/real-device evidence متاح. الحالة **BLOCKED** لا PASS. الدليل: `NABDAH_PHASE17_NATIVE_BUILD_AND_DEVICE_BLOCKERS_20260819.md`.
+- [ ] يلزم مالك الإصدار توفير ربط EAS وAndroid/Apple signing وartifacts production موقعة وdevice farm وهاتف Android وهاتف iOS، ثم تنفيذ matrix permissions/deep links/push/weak network/background/audio/camera/GPS/LiveKit أو full-screen intent وتوثيق logs/screenshots/crashes.
+
+
+## Phase 18 — Six-language, RTL, accessibility, and UX acceptance — 2026-08-19
+
+- [x] قبول تقني محدود: Provider يعلن `ar/en/ur/hi/bn/fil`، وتحقق جرد مصدرّي من اكتمال 2,813 زوج نص و82 قالباً لكل UR/HI/BN/FIL؛ Arabic-only RTL مثبت في `LangProvider`. نجحت بوابة Provider 30/30، وPatient 22 suites/56 tests مع typecheck، بما فيها locale/accessibility tests. الدليل: `NABDAH_PHASE18_LOCALE_ACCESSIBILITY_TECHNICAL_ACCEPTANCE_20260819.md`.
+- [ ] قبول بشري/جهاز إلزامي: مراجعة AR/EN/UR/HI/BN/FIL للنص الطبي والمالي والقانوني، RTL عربي وLTR للغات الأخرى، screen reader/focus/contrast/touch targets/dark-light/truncation على builds موقعة وdevice farm وهاتفين؛ لا يوجد sign-off أو screenshots/videos حالياً، لذلك Phase 18 **BLOCKED** للقبول النهائي.
+
+
+## Phase 19 — Final evidence-bound readiness verdict — 2026-08-19
+
+- [x] صدر حكم Phase 19: **NO-GO**. الفرع والأرشيف نظيفان وبوابات المصدر التقنية تمر، لكن لا نشر مراجع للمرشح الحالي ولا Phase 16 E2E كاملة، ولا signed native artifacts أو device farm/هاتفان، ولا Moyasar test-safe، ولا approvals legal/product للعقود الحساسة، ولا sign-off بشري للغات والإتاحة. الدليل: `NABDAH_PHASE19_FINAL_READINESS_VERDICT_20260819.md`.
+- [ ] لا يعاد فتح حكم GO إلا بعد نشر مراجع صريح مع rollback/SHA، وإغلاق أو توثيق كل صف Phase 16 حياً، وبنى/أجهزة Phase 17، وقبول بشري Phase 18، وموافقات الدفع/القانون/الخصوصية اللازمة.
