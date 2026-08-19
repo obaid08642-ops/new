@@ -1010,3 +1010,8 @@
 ## Phase 16 — Consultation cash auto-confirm partial-persistence P0 — 2026-08-19
 
 - [x] عيب P0 مثبت حياً: `POST /care/appointments` بموعد clinic/cash Sandbox موسوم أعاد HTTP 403، لكن كشف read-back أن موعداً `PENDING` حُفظ. كان `AppointmentsService.create` ينشئ السجل ثم يستدعي `transition(..., { id: 'system', role: 'system' })` للتأكيد التلقائي، بينما `transition` يفرض `assertAppointmentAccess` ولا يسمح بالـactor الداخلي. أصلح الشرط الداخلي الضيق لـ`id=system` و`role=system` فقط، وأضيف اختبار PENDING → CONFIRMED داخلي؛ بوابة appointment states 15/15 وBackend الكامل 67 suites/387 tests والأرشيف النظيف PASS. اختبر BOLA للموعد المتبقي (owner 200، foreign 403) ثم نظف بإلغاء المالك إلى `CANCELLED`. الدليل: `NABDAH_PHASE16_CONSULTATION_CASH_AUTOCONFIRM_P0_REMEDIATION_20260819.md`. تبقى إعادة النشر واختبار 201/CONFIRMED ثم lifecycle الكامل حياً شرطاً مفتوحاً.
+
+
+## Phase 16 — Lab embedded-report access contract finding — 2026-08-19
+
+- [x] عيب عقد مصدرّي مؤكد: `GET /lab-results/mine` أعاد نتيجة embedded من `labbookings.reports` للمريض المالك، بينما `GET /lab-results/:id` لنفس `id` أعاد HTTP 404 لأن `LabResultsService.one` كان يبحث فقط في مجموعة `LabResult`. أضيف fallback مملوك وآمن يطابق `reports.id` و`patient_id` للمستخدم غير الإداري ويعيد metadata فقط من دون base64؛ اختبارات owner/foreign 5/5 وBackend الكامل 67 suites/389 tests وأرشيف ZIP النظيف PASS. الدليل: `NABDAH_PHASE16_LAB_EMBEDDED_REPORT_CONTRACT_REMEDIATION_20260819.md`. تبقى إعادة التحقق الحي owner 200/foreign 404 بعد نشر مرشح مستقل شرطاً مفتوحاً.

@@ -29,6 +29,7 @@
 | 2026-08-19 | Nursing visits | Nursing Sandbox | `GET /nursing/visits` | HTTP 200 وقائمة فارغة | PASS: الدور المصرح يبقى قادراً على القراءة |
 | 2026-08-19 | Provider identity | Doctor/Pharmacy/Lab/Radiology/Nursing/Hospital | `GET /provider/auth/me` | HTTP 200 لكل حساب | PASS: جلسات Sandbox صالحة؛ لا يثبت lifecycle |
 | 2026-08-19 | Lab booking | Patient owner / Patient foreign | `GET /labs/bookings/:id` | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط؛ المرجع قائم سابقاً وحالته terminal، فلم يعدل |
+| 2026-08-19 | Lab embedded report | Patient owner | `GET /lab-results/mine` ثم `GET /lab-results/:id` | القائمة عرضت عنصراً واحداً لكن detail أعاد HTTP 404 | عيب عقد مصدرّي؛ أصلح في المرشح غير المنشور بفallback مملوك |
 | 2026-08-19 | Radiology booking | Patient owner / Patient foreign | `GET /radiology/bookings/:id` | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط؛ لم يقرأ التقرير أو يعدل الحجز |
 | 2026-08-19 | Consultation clinic/cash الموسومة | Patient owner | `POST /care/appointments` | HTTP 403، لكن المورد حُفظ `PENDING` | **P0**: partial persistence؛ أصلح في المصدر ضمن المرشح غير المنشور |
 | 2026-08-19 | Consultation fixture الموسومة | Patient owner / Patient foreign / Patient owner | قراءة ثم تنظيف: owner 200؛ foreign 403؛ cancel 200 إلى `CANCELLED` | BOLA read PASS والتنظيف PASS؛ لا lifecycle مقبول قبل إعادة الاختبار بعد النشر |
@@ -40,7 +41,7 @@
 | Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | FIX source / live retest required | clinic/cash كشف P0 partial persistence ثم نُظف؛ بعد نشر المرشح ينشأ fixture جديد، ويتحقق 201/CONFIRMED ثم check-in → start → complete |
 | Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للأجنبي وربط بالموعد | BLOCKED للمرشح الجديد | نشر `36b1d20` بتفويض منفصل ثم تنفيذ سيناريو الكتالوج واليدوي والبديل |
 | Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | OPEN | فحص قوائم broadcast/allocation read-only ثم استخدام record Sandbox قابل للتنظيف |
-| Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | PARTIAL | Lab booking BOLA وRadiology booking BOLA PASS؛ lifecycle/report access يبقى محجوباً لحين fixture مستقل قابل للتنظيف، ولا تقرأ أو تحفظ تقريراً طبياً |
+| Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | FIX source / live retest required | Lab booking وRadiology booking BOLA PASS؛ تقرير Lab embedded كشف owner 404 ثم أصلح في المصدر؛ lifecycle/report access يبقيان معلّقين لحين نشر المرشح وfixture مستقل قابل للتنظيف |
 | Nursing/Hospital | visit response/check-in/note/tracking وstaff/bed flows | ownership والانتقال والتدقيق | PARTIAL | حد التمريض PASS؛ يلزم lifecycle وحماية staff/bed |
 | Wallet/Family/Notifications | عملية Sandbox فقط وإشعار/role boundaries | ledger/state/cleanup بلا دفع حقيقي | BLOCKED جزئياً | لا mutation مالية قبل تفعيل Moyasar؛ يمكن اختبار BOLA read-only للعقود المتاحة |
 | Provider intake | كل نوع مزود من التسجيل إلى pending/approved | server-owned status ولا dashboard access مبكر | OPEN | يحتاج fixtures تسجيل معزولة أو دليل lifecycle قائم قابل للتنظيف |

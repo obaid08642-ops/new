@@ -48,9 +48,9 @@ if (!isInternalSystemTransition) await this.assertAppointmentAccess(appt, actor)
 |---|---|
 | اختبار `appointments-states` | PASS — 15 اختباراً، منها تأكيد داخلي PENDING → CONFIRMED |
 | Backend build | PASS — `nest build` |
-| Backend regression الكامل | PASS — 67 suites / 387 tests |
+| Backend regression الكامل | PASS — 67 suites / 389 tests في المرشح الأحدث الذي يضم إصلاح التقرير المخبأ أيضاً |
 | سلامة ZIP | PASS — استبعد `node_modules` و`dist` و`coverage` و`.env` |
-| `nabdah-backend.zip` SHA-256 | `2beee48f921758cb6b702d65975267f3c2226bc344ad049ce6144106eea6cf6f` |
+| `nabdah-backend.zip` SHA-256 | `0010b9f7c52cc8e0b75c769ff327b8b343b5943c43b36e8d90fbb303164ce9a1` |
 
 ## إعادة الاختبار الحي المطلوبة بعد النشر
 
