@@ -2,7 +2,7 @@
 
 **الفرع الوحيد:** `manus/on-live-reconciliation`
 **المورد المنشور المختبَر:** `e7f3ceb0f50a121ee3726676ec27fc4d5ff09b43`، بحسب تفويض المالك والتحقق المستقل الموثق.
-**مرشح Backend الأحدث غير المنشور:** `047b787f42d316624070eadc8e69078e952c5f47`، ويضم مسار الوصفات اليدوية وإصلاح Hospital RBAC.
+**مرشح Backend الأحدث غير المنشور:** `36b1d2082668ff11b57072f0eff3cfd6bcc7d478`، ويضم مسار الوصفات اليدوية وإصلاح Hospital RBAC وإصلاح auto-confirm للاستشارة النقدية.
 **الحالة:** **IN PROGRESS**. لا يعامل أي صف بغير دليل request/response/status وstate قبل/بعد وخطوة cleanup، ولا يثبت نشر مرشح الوصفات الأحدث بمجرد دفعه إلى Git.
 
 > تستخدم جميع العمليات أدناه حسابات Sandbox المعتمدة فقط. لا يتضمن هذا السجل JWT أو OTP أو أسماء أو identifiers كاملة أو محتوى طبي أو بيانات دفع حقيقية.
@@ -15,7 +15,7 @@
 | health/readiness read-only | البيئة | PASS | `/health/liveness` و`/health/readiness` أعادا HTTP 200 في جولة 2026-08-19 |
 | حسابات Patient/Doctor/Pharmacy/Lab/Radiology/Nursing/Hospital | Test owner | PASS | تسجيل الدخول الحديث أعاد HTTP 201 لكل الحسابات، و`GET /provider/auth/me` أعاد HTTP 200 للمزودين الستة؛ لا تحفظ الاستجابات أو الرموز في Git |
 | نشر إصلاح P0 التمريضي | Reviewer/DevOps | PASS لهذا المورد | commit `e7f3ceb` منشور؛ Doctor أعاد 403 وNursing أعاد 200 لمسار `/nursing/visits` |
-| نشر مرشح الوصفات اليدوية وBOLA للمسارات المعدِّلة وإصلاح Hospital RBAC | Reviewer/DevOps | BLOCKED | لا يوجد تفويض نشر منفصل للمرشح `047b787`؛ لا يختبر عقده الجديد حياً قبل النشر |
+| نشر مرشح الوصفات اليدوية وBOLA للمسارات المعدِّلة وإصلاح Hospital RBAC وauto-confirm للاستشارة النقدية | Reviewer/DevOps | BLOCKED | لا يوجد تفويض نشر منفصل للمرشح `36b1d20`؛ لا يختبر عقده الجديد حياً قبل النشر |
 | backup/rollback وmigration/index preflight للمرشح الجديد | Reviewer/DB owner | BLOCKED | مطلوب قبل نشر المرشح الجديد |
 | بيانات lifecycle قابلة للتنظيف لكل مجال | Test owner | PARTIAL | يوجد مورد Unified Booking مملوك سابقاً؛ بقية fixtures يجب اكتشافها أو إنشاؤها بعقد مسموح ثم تنظيفها |
 | Moyasar/consent/location/AI/PHI approvals | Owner/Legal/Product | BLOCKED | خارج نطاق أي mutation مالي أو حساس في هذه الجولة |
@@ -38,7 +38,7 @@
 | المجال | السيناريو الأدنى | دليل القبول | الحالة الحالية | الخطوة التالية المقيدة |
 |---|---|---|---|---|
 | Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | FIX source / live retest required | clinic/cash كشف P0 partial persistence ثم نُظف؛ بعد نشر المرشح ينشأ fixture جديد، ويتحقق 201/CONFIRMED ثم check-in → start → complete |
-| Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للأجنبي وربط بالموعد | BLOCKED للمرشح الجديد | نشر `047b787` بتفويض منفصل ثم تنفيذ سيناريو الكتالوج واليدوي والبديل |
+| Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للأجنبي وربط بالموعد | BLOCKED للمرشح الجديد | نشر `36b1d20` بتفويض منفصل ثم تنفيذ سيناريو الكتالوج واليدوي والبديل |
 | Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | OPEN | فحص قوائم broadcast/allocation read-only ثم استخدام record Sandbox قابل للتنظيف |
 | Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | PARTIAL | Lab booking BOLA وRadiology booking BOLA PASS؛ lifecycle/report access يبقى محجوباً لحين fixture مستقل قابل للتنظيف، ولا تقرأ أو تحفظ تقريراً طبياً |
 | Nursing/Hospital | visit response/check-in/note/tracking وstaff/bed flows | ownership والانتقال والتدقيق | PARTIAL | حد التمريض PASS؛ يلزم lifecycle وحماية staff/bed |
