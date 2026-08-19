@@ -1021,3 +1021,9 @@
 
 - [x] جرد مستقل: `app.json` موجود في Provider وPatient، و`eas.json` موجود في Patient فقط مع profile production فارغ؛ لا `eas.json` في Provider، ولا مجلدي `android/` أو`ios/` المولدين، ولا أسماء keystore/p12/mobileprovision/credentials ظاهرة، ولا `eas`/`expo`/`adb`/`xcodebuild` في البيئة. لا APK/AAB/IPA أو build receipt أو device-farm/real-device evidence متاح. الحالة **BLOCKED** لا PASS. الدليل: `NABDAH_PHASE17_NATIVE_BUILD_AND_DEVICE_BLOCKERS_20260819.md`.
 - [ ] يلزم مالك الإصدار توفير ربط EAS وAndroid/Apple signing وartifacts production موقعة وdevice farm وهاتف Android وهاتف iOS، ثم تنفيذ matrix permissions/deep links/push/weak network/background/audio/camera/GPS/LiveKit أو full-screen intent وتوثيق logs/screenshots/crashes.
+
+
+## Phase 18 — Six-language, RTL, accessibility, and UX acceptance — 2026-08-19
+
+- [x] قبول تقني محدود: Provider يعلن `ar/en/ur/hi/bn/fil`، وتحقق جرد مصدرّي من اكتمال 2,813 زوج نص و82 قالباً لكل UR/HI/BN/FIL؛ Arabic-only RTL مثبت في `LangProvider`. نجحت بوابة Provider 30/30، وPatient 22 suites/56 tests مع typecheck، بما فيها locale/accessibility tests. الدليل: `NABDAH_PHASE18_LOCALE_ACCESSIBILITY_TECHNICAL_ACCEPTANCE_20260819.md`.
+- [ ] قبول بشري/جهاز إلزامي: مراجعة AR/EN/UR/HI/BN/FIL للنص الطبي والمالي والقانوني، RTL عربي وLTR للغات الأخرى، screen reader/focus/contrast/touch targets/dark-light/truncation على builds موقعة وdevice farm وهاتفين؛ لا يوجد sign-off أو screenshots/videos حالياً، لذلك Phase 18 **BLOCKED** للقبول النهائي.
