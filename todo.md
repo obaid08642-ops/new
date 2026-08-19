@@ -1027,3 +1027,9 @@
 
 - [x] قبول تقني محدود: Provider يعلن `ar/en/ur/hi/bn/fil`، وتحقق جرد مصدرّي من اكتمال 2,813 زوج نص و82 قالباً لكل UR/HI/BN/FIL؛ Arabic-only RTL مثبت في `LangProvider`. نجحت بوابة Provider 30/30، وPatient 22 suites/56 tests مع typecheck، بما فيها locale/accessibility tests. الدليل: `NABDAH_PHASE18_LOCALE_ACCESSIBILITY_TECHNICAL_ACCEPTANCE_20260819.md`.
 - [ ] قبول بشري/جهاز إلزامي: مراجعة AR/EN/UR/HI/BN/FIL للنص الطبي والمالي والقانوني، RTL عربي وLTR للغات الأخرى، screen reader/focus/contrast/touch targets/dark-light/truncation على builds موقعة وdevice farm وهاتفين؛ لا يوجد sign-off أو screenshots/videos حالياً، لذلك Phase 18 **BLOCKED** للقبول النهائي.
+
+
+## Phase 19 — Final evidence-bound readiness verdict — 2026-08-19
+
+- [x] صدر حكم Phase 19: **NO-GO**. الفرع والأرشيف نظيفان وبوابات المصدر التقنية تمر، لكن لا نشر مراجع للمرشح الحالي ولا Phase 16 E2E كاملة، ولا signed native artifacts أو device farm/هاتفان، ولا Moyasar test-safe، ولا approvals legal/product للعقود الحساسة، ولا sign-off بشري للغات والإتاحة. الدليل: `NABDAH_PHASE19_FINAL_READINESS_VERDICT_20260819.md`.
+- [ ] لا يعاد فتح حكم GO إلا بعد نشر مراجع صريح مع rollback/SHA، وإغلاق أو توثيق كل صف Phase 16 حياً، وبنى/أجهزة Phase 17، وقبول بشري Phase 18، وموافقات الدفع/القانون/الخصوصية اللازمة.
