@@ -1005,3 +1005,8 @@
 ## Phase 16 — Hospital provider-role normalization finding — 2026-08-19
 
 - [x] عيب مصدرّي مؤكد: `GET /hospital/staff` أعاد HTTP 403 لحساب Hospital Sandbox رغم نجاح `GET /provider/auth/me` للحساب. كان `HospitalService.assertFacilityActor` يقرأ `actor.role || actor.provider_type`؛ وبما أن `role` يساوي `provider`، لا يصل إلى `provider_type: hospital`. استبدل بفحص `getEffectiveRoles` وقائمة منشأة صريحة، مع اختبار قبول Hospital Provider ورفض Doctor Provider/Patient، ونجحت بوابة HospitalService 4/4 وBackend الكامل 67 suites/386 tests وأرشيف ZIP النظيف. الدليل: `NABDAH_PHASE16_HOSPITAL_PROVIDER_ROLE_REMEDIATION_20260819.md`. تبقى إعادة اختبار Hospital Sandbox (expected 200) ورفض Doctor/Patient بعد النشر شرطاً مفتوحاً، ولا يعد هذا إثباتاً لتدفق staff الكامل.
+
+
+## Phase 16 — Consultation cash auto-confirm partial-persistence P0 — 2026-08-19
+
+- [x] عيب P0 مثبت حياً: `POST /care/appointments` بموعد clinic/cash Sandbox موسوم أعاد HTTP 403، لكن كشف read-back أن موعداً `PENDING` حُفظ. كان `AppointmentsService.create` ينشئ السجل ثم يستدعي `transition(..., { id: 'system', role: 'system' })` للتأكيد التلقائي، بينما `transition` يفرض `assertAppointmentAccess` ولا يسمح بالـactor الداخلي. أصلح الشرط الداخلي الضيق لـ`id=system` و`role=system` فقط، وأضيف اختبار PENDING → CONFIRMED داخلي؛ بوابة appointment states 15/15 وBackend الكامل 67 suites/387 tests والأرشيف النظيف PASS. اختبر BOLA للموعد المتبقي (owner 200، foreign 403) ثم نظف بإلغاء المالك إلى `CANCELLED`. الدليل: `NABDAH_PHASE16_CONSULTATION_CASH_AUTOCONFIRM_P0_REMEDIATION_20260819.md`. تبقى إعادة النشر واختبار 201/CONFIRMED ثم lifecycle الكامل حياً شرطاً مفتوحاً.

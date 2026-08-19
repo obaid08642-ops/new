@@ -45,7 +45,7 @@
 
 | الأرشيف | SHA-256 | الحالة |
 |---|---|---|
-| `nabdah-backend.zip` | `6b6d119b5e6c7deeb0d4ea4f897d54c5fd9728200f74bc4f76487d784367d528` | PASS — مصدر Hospital RBAC ووصفات Phase 16 موجودان في المرشح غير المنشور |
+| `nabdah-backend.zip` | `2beee48f921758cb6b702d65975267f3c2226bc344ad049ce6144106eea6cf6f` | PASS — مصدر Hospital RBAC ووصفات Phase 16 موجودان في المرشح غير المنشور |
 
 ## التحقق الحي التالي
 

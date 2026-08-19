@@ -30,12 +30,14 @@
 | 2026-08-19 | Provider identity | Doctor/Pharmacy/Lab/Radiology/Nursing/Hospital | `GET /provider/auth/me` | HTTP 200 لكل حساب | PASS: جلسات Sandbox صالحة؛ لا يثبت lifecycle |
 | 2026-08-19 | Lab booking | Patient owner / Patient foreign | `GET /labs/bookings/:id` | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط؛ المرجع قائم سابقاً وحالته terminal، فلم يعدل |
 | 2026-08-19 | Radiology booking | Patient owner / Patient foreign | `GET /radiology/bookings/:id` | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط؛ لم يقرأ التقرير أو يعدل الحجز |
+| 2026-08-19 | Consultation clinic/cash الموسومة | Patient owner | `POST /care/appointments` | HTTP 403، لكن المورد حُفظ `PENDING` | **P0**: partial persistence؛ أصلح في المصدر ضمن المرشح غير المنشور |
+| 2026-08-19 | Consultation fixture الموسومة | Patient owner / Patient foreign / Patient owner | قراءة ثم تنظيف: owner 200؛ foreign 403؛ cancel 200 إلى `CANCELLED` | BOLA read PASS والتنظيف PASS؛ لا lifecycle مقبول قبل إعادة الاختبار بعد النشر |
 
 ## مصفوفة الحياة التشغيلية
 
 | المجال | السيناريو الأدنى | دليل القبول | الحالة الحالية | الخطوة التالية المقيدة |
 |---|---|---|---|---|
-| Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | PARTIAL | اكتشاف موعد Sandbox لا ينطوي على دفع ثم اختبار accept → start → complete |
+| Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | FIX source / live retest required | clinic/cash كشف P0 partial persistence ثم نُظف؛ بعد نشر المرشح ينشأ fixture جديد، ويتحقق 201/CONFIRMED ثم check-in → start → complete |
 | Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للأجنبي وربط بالموعد | BLOCKED للمرشح الجديد | نشر `047b787` بتفويض منفصل ثم تنفيذ سيناريو الكتالوج واليدوي والبديل |
 | Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | OPEN | فحص قوائم broadcast/allocation read-only ثم استخدام record Sandbox قابل للتنظيف |
 | Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | PARTIAL | Lab booking BOLA وRadiology booking BOLA PASS؛ lifecycle/report access يبقى محجوباً لحين fixture مستقل قابل للتنظيف، ولا تقرأ أو تحفظ تقريراً طبياً |
