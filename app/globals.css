@@ -43,6 +43,12 @@
 .family-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
 .family-card { display: grid; gap: .55rem; padding: 1.15rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); box-shadow: 0 14px 32px rgba(22,71,84,.06); }
 .family-card > span { color: var(--muted); font-size: .92rem; }
+.notification-list { display: grid; gap: .85rem; margin-top: 1.5rem; }
+.notification-card { display: grid; gap: .6rem; padding: 1.1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); box-shadow: 0 14px 32px rgba(22,71,84,.06); }
+.notification-card > div { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; }
+.notification-card p { margin: 0; line-height: 1.6; overflow-wrap: anywhere; }
+.notification-card > span { color: var(--muted); font-size: .88rem; }
+.unread-badge { border-radius: 99px; padding: .2rem .55rem; background: rgba(10,145,166,.12); color: var(--brand-deep); font-size: .78rem; font-weight: 800; }
 @media (max-width: 860px) { .profile-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 860px) { .diagnostic-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .order-detail > div { grid-template-columns: minmax(0, 1fr); gap: .25rem; }.catalog-search { align-items: stretch; flex-direction: column; } }
