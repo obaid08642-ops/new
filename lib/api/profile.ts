@@ -1,4 +1,4 @@
-export type ProfileField = { key: string; value: string };
+export type ProfileField = { key: string; value: string | number | boolean };
 export type ProfileDomainState = "available" | "empty" | "forbidden" | "error";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -12,12 +12,13 @@ export function extractRecord(payload: unknown) {
 
 export function readProfileFields(record: Record<string, unknown> | null, acceptedKeys: string[]) {
   if (!record) return [] as ProfileField[];
-  return acceptedKeys.flatMap((key) => {
+  const fields: ProfileField[] = [];
+  for (const key of acceptedKeys) {
     const value = record[key];
-    if (typeof value === "string" && value.trim()) return [{ key, value }];
-    if (typeof value === "number" || typeof value === "boolean") return [{ key, value: String(value) }];
-    return [];
-  });
+    if (typeof value === "string" && value.trim()) fields.push({ key, value });
+    if (typeof value === "number" || typeof value === "boolean") fields.push({ key, value });
+  }
+  return fields;
 }
 
 export function profileDomainState(status: number, fieldCount: number): ProfileDomainState {

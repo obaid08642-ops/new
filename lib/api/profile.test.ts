@@ -11,6 +11,11 @@ describe("profile response guards", () => {
     expect(extractRecord(["invalid"])).toBeNull();
   });
 
+  it("preserves primitive boolean values so the UI can translate them without guessing", () => {
+    const record = extractRecord({ is_smoker: false, internal_id: "not-allowed" });
+    expect(readProfileFields(record, ["is_smoker"])).toEqual([{ key: "is_smoker", value: false }]);
+  });
+
   it("keeps empty, forbidden and upstream failure states distinct", () => {
     expect(profileDomainState(200, 0)).toBe("empty");
     expect(profileDomainState(200, 1)).toBe("available");

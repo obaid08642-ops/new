@@ -28,6 +28,9 @@ grep -Fq '/ar/profile' "$dashboard_body"
 owner_status="$(curl -sS -b "$owner_jar" -o "$owner_body" -w '%{http_code}' "$base/ar/profile")"
 if [[ "$owner_status" != "200" ]]; then echo "Owner profile route returned status $owner_status" >&2; exit 1; fi
 if ! grep -Fq 'ملفي الصحي' "$owner_body"; then echo "Owner profile route missed its translated title" >&2; exit 1; fi
+for label in 'الجنس' 'مدخن' 'يتناول الكحول' 'حامل' 'مرضعة'; do
+  if ! grep -Fq "$label" "$owner_body"; then echo "Owner profile route missed a permitted live medical field label" >&2; exit 1; fi
+done
 
 other_status="$(curl -sS -b "$other_jar" -o "$other_body" -w '%{http_code}' "$base/ar/profile")"
 if [[ "$other_status" != "200" ]]; then echo "Other profile route returned status $other_status" >&2; exit 1; fi
