@@ -910,4 +910,4 @@
 
 - [ ] P1 candidate: obtain reviewer-authorized deployment and post-deployment sandbox proof for the fixed `GET /prescriptions/:id` authorization path. The current Patient1 sandbox list has no prescription record, so a live BOLA proof is not yet available.
 - [x] P1 source remediation: `GET /prescriptions/:id` now passes the authenticated caller into a participant/privileged-admin authorization check that existence-hides foreign records; focused 6/6 plus full Backend 65 suites/370 tests and `nest build` passed, and archive SHA-256 is `2b47f9e7f5c289d3d35d9b211fe0de07f931aa39c08c0006c90cc4e08bdcfac3`.
-- [ ] Diagnose the production response-time failure of `GET /unified-bookings/mine` observed during two read-only browser checks before classifying cross-account unified-booking ownership as accepted; do not treat timeout as a security pass.
+- [x] Rechecked the transient read timeout for `GET /unified-bookings/mine` with an explicit eight-second request bound: Patient1 owner list returned `200` and Patient2 foreign detail returned `404`; the timeout did not reproduce and is retained as an inconclusive transport observation, not an accepted availability defect.
