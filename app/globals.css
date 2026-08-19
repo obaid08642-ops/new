@@ -27,5 +27,14 @@
 .medicine-card > span:not(.medicine-open), .medicine-card > em { color: var(--muted); font-size: .92rem; font-style: normal; line-height: 1.45; overflow-wrap: anywhere; }
 .medicine-card > em { color: var(--danger); font-weight: 800; }
 .medicine-open { color: var(--brand-deep); font-weight: 800; }
+.diagnostic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.diagnostic-grid .status-card { margin-top: 0; min-width: 0; }
+.diagnostic-grid h2 { margin: 0; font-size: 1.05rem; }
+.diagnostic-list { display: grid; gap: .8rem; margin-top: 1rem; }
+.diagnostic-card { display: grid; gap: .45rem; padding-top: .85rem; border-top: 1px solid var(--line); min-width: 0; }
+.diagnostic-card > strong, .diagnostic-card > span { overflow-wrap: anywhere; }
+.diagnostic-card > span:not(.diagnostic-open) { color: var(--muted); font-size: .92rem; }
+.diagnostic-open { color: var(--brand-deep); font-weight: 800; }
 @media (max-width: 860px) { .profile-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .diagnostic-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .order-detail > div { grid-template-columns: minmax(0, 1fr); gap: .25rem; }.catalog-search { align-items: stretch; flex-direction: column; } }
