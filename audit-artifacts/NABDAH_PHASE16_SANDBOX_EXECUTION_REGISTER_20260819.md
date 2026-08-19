@@ -40,13 +40,13 @@
 |---|---|---|---|---|
 | Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | FIX source / live retest required | clinic/cash كشف P0 partial persistence ثم نُظف؛ بعد نشر المرشح ينشأ fixture جديد، ويتحقق 201/CONFIRMED ثم check-in → start → complete |
 | Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للأجنبي وربط بالموعد | BLOCKED للمرشح الجديد | نشر `8124e1d` بتفويض منفصل ثم تنفيذ سيناريو الكتالوج واليدوي والبديل |
-| Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | OPEN | فحص قوائم broadcast/allocation read-only ثم استخدام record Sandbox قابل للتنظيف |
+| Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | BLOCKED — linked fixture/deployment | broadcast وallocations أعادا HTTP 200 وقائمتين فارغتين؛ لا يوجد record Sandbox موسوم قابل للتنظيف، وعقد الوصفة اليدوية الجديد غير منشور |
 | Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | FIX source / live retest required | Lab booking وRadiology booking BOLA PASS؛ تقرير Lab embedded كشف owner 404 ثم أصلح في المصدر؛ lifecycle/report access يبقيان معلّقين لحين نشر المرشح وfixture مستقل قابل للتنظيف |
-| Nursing/Hospital | visit response/check-in/note/tracking وstaff/bed flows | ownership والانتقال والتدقيق | PARTIAL | حد التمريض PASS؛ يلزم lifecycle وحماية staff/bed |
-| Wallet/Family/Notifications | عملية Sandbox فقط وإشعار/role boundaries | ledger/state/cleanup بلا دفع حقيقي | BLOCKED جزئياً | لا mutation مالية قبل تفعيل Moyasar؛ يمكن اختبار BOLA read-only للعقود المتاحة |
-| Provider intake | كل نوع مزود من التسجيل إلى pending/approved | server-owned status ولا dashboard access مبكر | OPEN | يحتاج fixtures تسجيل معزولة أو دليل lifecycle قائم قابل للتنظيف |
-| Admin RBAC | إدارة كل دور ومحاولة cross-role | 401/403/404 وسجل تدقيق | PARTIAL | OTP/2FA موثق سابقاً؛ يلزم إدارة role/resource وفق حدود 2FA المصرح بها |
-| BOLA | actor A/actor B لكل مورد حساس | رفض متماثل أو 404 مخفي للملكية الأجنبية | PARTIAL | Unified Booking وNursing وLab booking وRadiology booking PASS؛ يضاف prescription/pharmacy والموردات المعدِّلة بعد توفر fixtures أو نشر المرشح |
+| Nursing/Hospital | visit response/check-in/note/tracking وstaff/bed flows | ownership والانتقال والتدقيق | BLOCKED — linked fixture/deployment | حد التمريض PASS (Doctor 403/Nursing 200)، لكن Hospital Sandbox أعاد 403 للـstaff قبل إصلاح source غير المنشور، ولا يوجد visit/staff/bed fixture موسوم |
+| Wallet/Family/Notifications | عملية Sandbox فقط وإشعار/role boundaries | ledger/state/cleanup بلا دفع حقيقي | BLOCKED — payment/legal/fixture | Moyasar غير مفعّل وفق الخطة؛ لا mutation مالية أو ledger، ولا family/notification fixture موسوم ومفوض لهذه الجولة |
+| Provider intake | كل نوع مزود من التسجيل إلى pending/approved | server-owned status ولا dashboard access مبكر | BLOCKED — isolated registration fixtures | login و`provider/auth/me` PASS للحسابات المعتمدة، لكن لا fixtures بريد/هوية تسجيل جديدة معتمدة أو مسار cleanup لـpending/approved |
+| Admin RBAC | إدارة كل دور ومحاولة cross-role | BLOCKED — owner 2FA/fixture | حساب Admin Sandbox يتطلب 2FA ولا يوجد OTP/step-up مفوض للجولة؛ لا يمكن اختبار role mutation أو audit من دون تجاوز الحماية |
+| BOLA | actor A/actor B لكل مورد حساس | رفض متماثل أو 404 مخفي للملكية الأجنبية | BLOCKED — partial evidence only | Unified Booking وNursing وLab booking وRadiology booking وConsultation read PASS؛ prescription/pharmacy/reports الجديدة والموردات المعدِّلة تتطلب نشر المرشح أو fixture مملوك |
 
 ## قواعد التنفيذ والتنظيف
 
