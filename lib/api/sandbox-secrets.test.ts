@@ -8,7 +8,7 @@ function findAccessToken(value: unknown): string | undefined {
   return Object.values(record).map(findAccessToken).find(Boolean);
 }
 
-const describeSandbox = process.env.RUN_SANDBOX_TESTS === "true" ? describe : describe.skip;
+const describeSandbox = process.env.RUN_SANDBOX_TESTS === "true" && process.env.RUN_SANDBOX_CREDENTIAL_TEST === "true" ? describe : describe.skip;
 
 describeSandbox("Sandbox credentials", () => {
   it("authenticates the owner account without exposing any credential or token", async () => {
