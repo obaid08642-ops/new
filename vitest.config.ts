@@ -7,13 +7,14 @@ export default defineConfig({
   root: templateRoot,
   resolve: {
     alias: {
-      "@": path.resolve(templateRoot, "client", "src"),
+      "@": templateRoot,
       "@shared": path.resolve(templateRoot, "shared"),
       "@assets": path.resolve(templateRoot, "attached_assets"),
     },
   },
   test: {
     environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts"],
+    include: ["app/**/*.test.ts", "app/**/*.spec.ts", "lib/**/*.test.ts", "lib/**/*.spec.ts", "tests/**/*.test.ts", "tests/**/*.spec.ts"],
+    fileParallelism: process.env.RUN_SANDBOX_TESTS !== "true",
   },
 });

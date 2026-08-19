@@ -1,0 +1,3 @@
+const API_BASE_URL = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
+export function patientApiUrl(path: string) { if (!path.startsWith("/") || path.includes("..")) throw new Error("invalid_patient_api_path"); return `${API_BASE_URL}${path}`; }
+export async function callPatientApi(path: string, init: RequestInit = {}, accessToken?: string | null) { const headers = new Headers(init.headers); headers.set("Accept", "application/json"); if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`); return fetch(patientApiUrl(path), { ...init, headers, cache: "no-store" }); }
