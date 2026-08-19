@@ -1015,3 +1015,9 @@
 ## Phase 16 — Lab embedded-report access contract finding — 2026-08-19
 
 - [x] عيب عقد مصدرّي مؤكد: `GET /lab-results/mine` أعاد نتيجة embedded من `labbookings.reports` للمريض المالك، بينما `GET /lab-results/:id` لنفس `id` أعاد HTTP 404 لأن `LabResultsService.one` كان يبحث فقط في مجموعة `LabResult`. أضيف fallback مملوك وآمن يطابق `reports.id` و`patient_id` للمستخدم غير الإداري ويعيد metadata فقط من دون base64؛ اختبارات owner/foreign 5/5 وBackend الكامل 67 suites/389 tests وأرشيف ZIP النظيف PASS. الدليل: `NABDAH_PHASE16_LAB_EMBEDDED_REPORT_CONTRACT_REMEDIATION_20260819.md`. تبقى إعادة التحقق الحي owner 200/foreign 404 بعد نشر مرشح مستقل شرطاً مفتوحاً.
+
+
+## Phase 17 — Signed native builds and real devices — 2026-08-19
+
+- [x] جرد مستقل: `app.json` موجود في Provider وPatient، و`eas.json` موجود في Patient فقط مع profile production فارغ؛ لا `eas.json` في Provider، ولا مجلدي `android/` أو`ios/` المولدين، ولا أسماء keystore/p12/mobileprovision/credentials ظاهرة، ولا `eas`/`expo`/`adb`/`xcodebuild` في البيئة. لا APK/AAB/IPA أو build receipt أو device-farm/real-device evidence متاح. الحالة **BLOCKED** لا PASS. الدليل: `NABDAH_PHASE17_NATIVE_BUILD_AND_DEVICE_BLOCKERS_20260819.md`.
+- [ ] يلزم مالك الإصدار توفير ربط EAS وAndroid/Apple signing وartifacts production موقعة وdevice farm وهاتف Android وهاتف iOS، ثم تنفيذ matrix permissions/deep links/push/weak network/background/audio/camera/GPS/LiveKit أو full-screen intent وتوثيق logs/screenshots/crashes.
