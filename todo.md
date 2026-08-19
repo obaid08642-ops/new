@@ -913,3 +913,12 @@
 - [x] Rechecked the transient read timeout for `GET /unified-bookings/mine` with an explicit eight-second request bound: Patient1 owner list returned `200` and Patient2 foreign detail returned `404`; the timeout did not reproduce and is retained as an inconclusive transport observation, not an accepted availability defect.
 - [x] Phase 11 bounded sandbox acceptance: Wave 1/2 read-only and negative authorization evidence, archive remediation for prescription-detail ownership, current archive integrity and blockers were double-checked in `NABDAH_PHASE11_FINAL_DOUBLE_CHECK_20260819.md`. This closes the bounded acceptance phase, not production release.
 - [x] Phase 12: prepared the final production-readiness report, owner/reviewer deployment decision package, rollback and post-deployment smoke checklist in `NABDAH_PHASE12_FINAL_PRODUCTION_READINESS_REPORT_20260819.md` without executing a deployment; verdict is NO-GO until the documented blockers close.
+
+## Readiness resumption — 2026-08-19
+
+- [x] Reconciled every remaining release blocker against its current package locks, evidence, owner dependency and required acceptance proof in `NABDAH_READINESS_RESUMPTION_BLOCKER_RECONCILIATION_20260819.md`; classified each as source-fixable, externally gated or deployment-gated.
+- [ ] Perform controlled dependency-remediation planning and source work for Backend Nest/XLSX and Patient/Provider Expo SDK findings; preserve lockfile integrity, run clean gates and never use force upgrades.
+- [ ] Re-audit remaining source-level UX, six-locale translation, RTL/LTR, accessibility and truthful-data contracts; fix only confirmed defects, with source gates and archive evidence.
+- [ ] Prepare a reviewer-ready Backend deployment candidate for the prescription-detail authorization patch, including rollback, post-deployment BOLA proof and explicitly deferred production actions.
+- [ ] Prepare owner-facing prerequisite packages for Moyasar activation, SOS/QR/consent/location approval, real-device builds/test credentials and store-submission requirements without bypassing any external approval.
+- [ ] Execute only reviewer-authorized post-deployment sandbox acceptance and real-device checks, then reissue the final GO/NO-GO decision with evidence.
