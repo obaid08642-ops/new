@@ -67,3 +67,15 @@ Batch AG added class-level admin role metadata to governance routes, removed the
 ## Batch AH disposition
 
 Batch AH changes campaign/broadcast attribution from a fixed actor to the authenticated admin identity, requires audience confirmation for bulk outreach, validates allowed segment formats, target-user existence, message sizes, deep-link route safety and scheduling window, and refuses empty-audience delivery. Client actions now wait for explicit server acknowledgement before reporting send, schedule or cancellation success, while manual browser retargeting is unavailable pending a consent and review policy. The evidence is recorded in `NABDAH_PHASE8_BATCH_AH_ADMIN_CAMPAIGN_DELIVERY_GOVERNANCE_20260819.md`. A two-person campaign approval rule, immutable admin audit store, provider delivery receipts, opt-in/suppression controls and reviewer-authorized sandbox outreach remain separate work.
+
+## Admin SOS control: confirmed source findings
+
+| Finding | Evidence | Risk | Required remediation direction |
+|---|---|---|---|
+| Raw hospital assignment | The SOS admin screen accepts a free-text hospital ID and invokes assign from the browser. `EmergencyService.assign()` writes that ID and forces dispatch state without role, hospital verification, vehicle binding or transition/audit enforcement. | An invalid or unauthorized hospital can be asserted against a safety-critical incident. | Contain assignment until a verified facility/vehicle roster and formally authorized dispatch workflow are implemented. |
+| Direct terminal resolution | The screen submits free text to resolve; `EmergencyService.resolve()` sets `RESOLVED` directly without role check, legal transition, outcome evidence or immutable audit. | A user can close a live emergency record with unverified information. | Contain browser resolution and require owner-approved emergency closure protocol. |
+| Overexposed emergency/PHI surface | The page polls active cases and renders patient identity, telephone and exact location/map links. `active()` returns broad records without an explicit admin scope in the service. | The management surface expands PHI/location access beyond a proven need-to-know boundary. | Keep the admin SOS view fail-closed until the owner-approved emergency/consent/location contract and scoped administrative audit model exist. |
+
+## Batch AI disposition
+
+Batch AI leaves admin role metadata in place but makes the administrative emergency list/detail, hospital assignment, manual redispatch and closure endpoints return `503` before accessing or mutating a record. The admin SOS page contains only an explicit unavailable message and never polls/displays emergency identity, telephone or location. The evidence is recorded in `NABDAH_PHASE8_BATCH_AI_ADMIN_SOS_PRIVACY_DISPATCH_CONTAINMENT_20260819.md`. The dedicated verified-vehicle ambulance workflow remains separate; owner approval and sandbox proof are required before any administrative SOS operational surface can re-open.
