@@ -974,3 +974,7 @@
 ## Phase 15 — reviewer candidate and governance package — 2026-08-19
 
 - [x] Phase 15 reviewer deployment candidate: prepared the commit/archives SHA manifest, clean-gate evidence, dependency-audit summary, migration/index preflight, rollback/post-deploy smoke+BOLA plan, and owner/reviewer prerequisite requests in `NABDAH_PHASE15_REVIEWER_DEPLOYMENT_CANDIDATE_20260819.md`. No Sandbox or production deployment was requested or performed; current status remains NO-GO pending explicit reviewer authorization.
+
+## Phase 16 — live Sandbox finding — 2026-08-19
+
+- [x] P0 authorization defect: live Sandbox proved that approved `doctor` Provider could read `GET /nursing/visits` (HTTP 200) although its `provider_type` is `doctor`; source `NursingController.isNursingProvider` accepted the generic `provider` role. Restricted nursing eligibility to explicit nursing/home-care/hospital roles/types, added a negative regression, and rebuilt, tested, and archived the Backend. Evidence: `NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md`; redeploy and live boundary retest remain required under separate reviewer authorization.
