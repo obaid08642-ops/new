@@ -958,3 +958,7 @@
 - [ ] Prepare a reviewer-ready Backend deployment candidate for the prescription-detail authorization patch, including rollback, post-deployment BOLA proof and explicitly deferred production actions.
 - [ ] Prepare owner-facing prerequisite packages for Moyasar activation, SOS/QR/consent/location approval, real-device builds/test credentials and store-submission requirements without bypassing any external approval.
 - [ ] Execute only reviewer-authorized post-deployment sandbox acceptance and real-device checks, then reissue the final GO/NO-GO decision with evidence.
+
+## Pre-Phase 13 confirmed-source remediation — 2026-08-19
+
+- [x] Resolve the independently confirmed Provider DoctorDashboard clinical truthfulness defects: contained local consultation chat and fixed EHR facts; removed `guest_patient`/default-diagnosis prescription fallbacks, unverified custom medicines, and local-only prescription template persistence/success; enforced a verified doctor–appointment–patient relationship and approved medicine catalogue in the Backend prescription contract; added negative/positive regressions, ran clean gates, and archived evidence in `NABDAH_PREPHASE13_DOCTOR_PRESCRIPTION_REMEDIATION_20260819.md`. Backend SHA-256 `8c0d63fb0a74d530580b5841cd6c29dde6df2a2a9c2610588c1f802db69f991e`; Provider SHA-256 `b5e5431de7fffcb9139d07faf41132cc94429a1c3a50a6b68dfb672684b2c1cc`.
