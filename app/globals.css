@@ -17,5 +17,15 @@
 .appointment-card > strong { overflow-wrap: anywhere; }
 .appointment-card > span:not(.appointment-service):not(.appointment-open) { color: var(--muted); font-size: .92rem; line-height: 1.45; }
 .appointment-open { color: var(--brand-deep); font-weight: 800; }
+.catalog-search { display: flex; align-items: end; gap: .75rem; margin-top: 1.25rem; }
+.catalog-search .field { flex: 1; margin-top: 0; }
+.medicine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.medicine-card { display: grid; gap: .6rem; min-width: 0; padding: 1.15rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); box-shadow: 0 14px 32px rgba(22,71,84,.06); transition: transform 160ms var(--ease-out, ease), border-color 160ms var(--ease-out, ease); }
+.medicine-card:hover { transform: translateY(-2px); border-color: var(--brand); }
+.medicine-card:focus-visible { outline: 3px solid rgba(11,152,174,.25); outline-offset: 3px; }
+.medicine-card > strong { overflow-wrap: anywhere; }
+.medicine-card > span:not(.medicine-open), .medicine-card > em { color: var(--muted); font-size: .92rem; font-style: normal; line-height: 1.45; overflow-wrap: anywhere; }
+.medicine-card > em { color: var(--danger); font-weight: 800; }
+.medicine-open { color: var(--brand-deep); font-weight: 800; }
 @media (max-width: 860px) { .profile-grid { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 480px) { .order-detail > div { grid-template-columns: minmax(0, 1fr); gap: .25rem; } }
+@media (max-width: 480px) { .order-detail > div { grid-template-columns: minmax(0, 1fr); gap: .25rem; }.catalog-search { align-items: stretch; flex-direction: column; } }

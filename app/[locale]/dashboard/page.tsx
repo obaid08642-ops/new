@@ -12,5 +12,5 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   if (!hasAccessToken) redirect(`/${locale}/login`);
   setRequestLocale(locale);
   const t = await getTranslations("Dashboard");
-  return <main className="main dashboard"><div className="eyebrow">{t("eyebrow")}</div><h1>{t("title")}</h1><section className="status-card"><p>{t("body")}</p><div className="hero-actions"><Link className="button button-primary" href={`/${locale}/orders`}>{t("orders")}</Link><Link className="button button-secondary" href={`/${locale}/appointments`}>{t("appointments")}</Link><Link className="button button-secondary" href={`/${locale}/profile`}>{t("profile")}</Link></div></section></main>;
+  return <main className="main dashboard"><div className="eyebrow">{t("eyebrow")}</div><h1>{t("title")}</h1><section className="status-card"><p>{t("body")}</p><div className="hero-actions"><Link className="button button-primary" href={`/${locale}/orders`}>{t("orders")}</Link><Link className="button button-secondary" href={`/${locale}/appointments`}>{t("appointments")}</Link><Link className="button button-secondary" href={`/${locale}/medicines`}>{t("medicines")}</Link><Link className="button button-secondary" href={`/${locale}/profile`}>{t("profile")}</Link></div></section></main>;
 }
