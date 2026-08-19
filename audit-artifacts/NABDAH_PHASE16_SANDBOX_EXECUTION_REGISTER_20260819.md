@@ -1,36 +1,56 @@
-# منصة نبض — Phase 16: سجل تنفيذ Sandbox الجاهز للمراجع
+# منصة نبض — Phase 16: سجل تنفيذ Sandbox
 
-**المرشح المطلوب:** `b08035556e2febc43035a6540e88746151362317` على `manus/on-live-reconciliation`  
-**الحالة الآن:** **BLOCKED — لا يوجد تفويض نشر مراجع أو تأكيد أن بيئة Sandbox تحمل هذا المرشح.**  
-**قاعدة السجل:** لا تسجل أي حالة PASS إلا مع request/response/status/IDs/state before-after/cleanup حقيقية من Sandbox، ومن دون PII أو OTP أو JWT في Git.
+**الفرع الوحيد:** `manus/on-live-reconciliation`
+**المورد المنشور المختبَر:** `e7f3ceb0f50a121ee3726676ec27fc4d5ff09b43`، بحسب تفويض المالك والتحقق المستقل الموثق.
+**مرشح الوصفات الأحدث غير المنشور:** `9c9cc6029e27db713aaabe0646fcb2f8d863dc88`.
+**الحالة:** **IN PROGRESS**. لا يعامل أي صف بغير دليل request/response/status وstate قبل/بعد وخطوة cleanup، ولا يثبت نشر مرشح الوصفات الأحدث بمجرد دفعه إلى Git.
 
-## متطلبات البدء
+> تستخدم جميع العمليات أدناه حسابات Sandbox المعتمدة فقط. لا يتضمن هذا السجل JWT أو OTP أو أسماء أو identifiers كاملة أو محتوى طبي أو بيانات دفع حقيقية.
 
-| المطلوب | المالك | الحالة |
-|---|---|---|
-| بيئة Sandbox محددة وعنوانها | Reviewer/DevOps | BLOCKED |
-| تأكيد نشر commit/artifact المرشح وبصمته | Reviewer/DevOps | BLOCKED |
-| backup/rollback وإجراء migration/index preflight | Reviewer/DevOps/DB owner | BLOCKED |
-| حسابات Sandbox معزولة وأدوار Patient/Doctor/Pharmacy/Lab/Nurse/Hospital/Admin | Test owner | BLOCKED |
-| بيانات اختبار مولدة ومعرفات تنظيف محددة | Test owner | BLOCKED |
-| حدود Moyasar/consent/location/AI/PHI القانونية | Owner/Legal/Product | BLOCKED |
+## متطلبات البدء والحالة الراهنة
 
-## مصفوفة الحياة التشغيلية المطلوبة
-
-| المجال | السيناريو الأدنى | دليل القبول | الحالة |
+| المتطلب | المالك | الحالة | الدليل المنقح |
 |---|---|---|---|
-| Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | BLOCKED |
-| Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للحالة الأجنبية، وربط prescription بالموعد | BLOCKED |
-| Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | BLOCKED |
-| Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | BLOCKED |
-| Nursing/Hospital | visit response/check-in/note/tracking وstaff/bed flows | ownership والانتقال والتدقيق | BLOCKED |
-| Wallet/Family/Notifications | عملية Sandbox فقط وإشعار/role boundaries | ledger/state/cleanup بلا دفع حقيقي | BLOCKED |
-| Provider intake | كل نوع مزود من التسجيل إلى حالة pending/approved | server-owned status ولا dashboard access مبكر | BLOCKED |
-| Admin RBAC | إدارة كل دور ومحاولة cross-role | 401/403/404 المتوقعة وسجل تدقيق | BLOCKED |
-| BOLA | مصفوفة actor A/actor B لكل مورد حساس | رفض متماثل أو 404 مخفي للملكية الأجنبية | BLOCKED |
+| عنوان البيئة وإذن اختبار API | Owner/Reviewer | PASS | `https://api.nabd.plus/api/v1` مفوض لحسابات Sandbox فقط |
+| health/readiness read-only | البيئة | PASS | `/health/liveness` و`/health/readiness` أعادا HTTP 200 في جولة 2026-08-19 |
+| حسابات Patient/Doctor/Pharmacy/Lab/Radiology/Nursing/Hospital | Test owner | PASS | تسجيل الدخول الحديث أعاد HTTP 201 لكل الحسابات، و`GET /provider/auth/me` أعاد HTTP 200 للمزودين الستة؛ لا تحفظ الاستجابات أو الرموز في Git |
+| نشر إصلاح P0 التمريضي | Reviewer/DevOps | PASS لهذا المورد | commit `e7f3ceb` منشور؛ Doctor أعاد 403 وNursing أعاد 200 لمسار `/nursing/visits` |
+| نشر مرشح الوصفات اليدوية وBOLA للمسارات المعدِّلة | Reviewer/DevOps | BLOCKED | لا يوجد تفويض نشر منفصل للمرشح `9c9cc60`؛ لا يختبر عقده الجديد حياً قبل النشر |
+| backup/rollback وmigration/index preflight للمرشح الجديد | Reviewer/DB owner | BLOCKED | مطلوب قبل نشر المرشح الجديد |
+| بيانات lifecycle قابلة للتنظيف لكل مجال | Test owner | PARTIAL | يوجد مورد Unified Booking مملوك سابقاً؛ بقية fixtures يجب اكتشافها أو إنشاؤها بعقد مسموح ثم تنظيفها |
+| Moyasar/consent/location/AI/PHI approvals | Owner/Legal/Product | BLOCKED | خارج نطاق أي mutation مالي أو حساس في هذه الجولة |
 
-## قواعد التنفيذ والـcleanup
+## سجل الأدلة الحية المنجزة
 
-تستخدم الطلبات حسابات Sandbox فقط، وتولد records بعلامة run ID يحددها المراجع. لا يرفق السجل أي سر أو رمز أو رقم وطني أو اسم مريض أو تقرير طبي. بعد كل lifecycle تسجل IDs منقحة وstate قبل/بعد، ثم تحذف أو تؤرشف بيانات الاختبار بعقد معتمد. فشل أي BOLA أو payment/consent/PHI rule يعامل كـP0 ويوقف السيناريو المرتبط.
+| الوقت | المورد | actor | العملية | النتيجة | الحكم المقيد |
+|---|---|---|---|---|---|
+| 2026-08-19 | Unified Booking مملوك | Patient owner / Patient foreign | قراءة المورد نفسه | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط |
+| 2026-08-19 | Nursing visits | Doctor Sandbox | `GET /nursing/visits` | HTTP 403 | PASS: منع cross-provider بعد إصلاح P0 |
+| 2026-08-19 | Nursing visits | Nursing Sandbox | `GET /nursing/visits` | HTTP 200 وقائمة فارغة | PASS: الدور المصرح يبقى قادراً على القراءة |
+| 2026-08-19 | Provider identity | Doctor/Pharmacy/Lab/Radiology/Nursing/Hospital | `GET /provider/auth/me` | HTTP 200 لكل حساب | PASS: جلسات Sandbox صالحة؛ لا يثبت lifecycle |
+| 2026-08-19 | Lab booking | Patient owner / Patient foreign | `GET /labs/bookings/:id` | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط؛ المرجع قائم سابقاً وحالته terminal، فلم يعدل |
+| 2026-08-19 | Radiology booking | Patient owner / Patient foreign | `GET /radiology/bookings/:id` | owner: HTTP 200؛ foreign: HTTP 404 | PASS لهذا المورد BOLA فقط؛ لم يقرأ التقرير أو يعدل الحجز |
 
-> لا ينفذ agent هذا السجل قبل تفويض المراجع الصريح بنشر المرشح إلى Sandbox. وجود backend منشور لا يثبت أنه يحمل commit المرشح ولا يسمح باعتباره دليل Phase 16.
+## مصفوفة الحياة التشغيلية
+
+| المجال | السيناريو الأدنى | دليل القبول | الحالة الحالية | الخطوة التالية المقيدة |
+|---|---|---|---|---|
+| Consultation | online/clinic/home × cash/insurance، إنشاء/قبول/بدء/إنهاء | actor/role/state/ledger قبل وبعد وcleanup | PARTIAL | اكتشاف موعد Sandbox لا ينطوي على دفع ثم اختبار accept → start → complete |
+| Prescription | موعد مملوك للطبيب، دواء معتمد، محاولة foreign patient/appointment | 201 للحالة الصحيحة و404/403 للأجنبي وربط بالموعد | BLOCKED للمرشح الجديد | نشر `9c9cc60` بتفويض منفصل ثم تنفيذ سيناريو الكتالوج واليدوي والبديل |
+| Pharmacy | broadcast/claim/dispense/refill/delivery أو pickup | state transition وallocation وBOLA | OPEN | فحص قوائم broadcast/allocation read-only ثم استخدام record Sandbox قابل للتنظيف |
+| Lab/Radiology | inbox/sample/report/approved signed report | patient identity، report access، BOLA، cleanup | PARTIAL | Lab booking BOLA وRadiology booking BOLA PASS؛ lifecycle/report access يبقى محجوباً لحين fixture مستقل قابل للتنظيف، ولا تقرأ أو تحفظ تقريراً طبياً |
+| Nursing/Hospital | visit response/check-in/note/tracking وstaff/bed flows | ownership والانتقال والتدقيق | PARTIAL | حد التمريض PASS؛ يلزم lifecycle وحماية staff/bed |
+| Wallet/Family/Notifications | عملية Sandbox فقط وإشعار/role boundaries | ledger/state/cleanup بلا دفع حقيقي | BLOCKED جزئياً | لا mutation مالية قبل تفعيل Moyasar؛ يمكن اختبار BOLA read-only للعقود المتاحة |
+| Provider intake | كل نوع مزود من التسجيل إلى pending/approved | server-owned status ولا dashboard access مبكر | OPEN | يحتاج fixtures تسجيل معزولة أو دليل lifecycle قائم قابل للتنظيف |
+| Admin RBAC | إدارة كل دور ومحاولة cross-role | 401/403/404 وسجل تدقيق | PARTIAL | OTP/2FA موثق سابقاً؛ يلزم إدارة role/resource وفق حدود 2FA المصرح بها |
+| BOLA | actor A/actor B لكل مورد حساس | رفض متماثل أو 404 مخفي للملكية الأجنبية | PARTIAL | Unified Booking وNursing وLab booking وRadiology booking PASS؛ يضاف prescription/pharmacy والموردات المعدِّلة بعد توفر fixtures أو نشر المرشح |
+
+## قواعد التنفيذ والتنظيف
+
+يستخدم التنفيذ حسابات Sandbox فقط. يسجل كل lifecycle method/path/status ومعرفاً منقحاً وstate قبل/بعد وخطوة cleanup المتاحة من العقد. لا تُنشأ بيانات بوسيلة غير موثقة، ولا يختبر دفع فعلي، ولا يرفق محتوى تقارير أو PII أو أسرار. أي BOLA أو payment أو consent أو PHI failure هو P0 يوقف المجال المتأثر ويولد دليلاً منفصلاً قبل الاستمرار.
+
+## References
+
+[1]: `NABDAH_AGENT_TRANSITION_OPEN_WORK_AND_REMAINING_PHASES_20260819.md` "الخطة الحاكمة ومعيار خروج Phase 16"
+[2]: `NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md` "دليل إصلاح P0 التمريضي والتحقق الحي"
+[3]: `NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md` "مرشح الوصفات اليدوية وإصلاح BOLA المصدرّي"

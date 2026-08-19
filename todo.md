@@ -1000,3 +1000,8 @@
 - [ ] بعد تفويض نشر SHA الجديد فقط: إعادة اختبار Sandbox الحي لإنشاء الوصفة والدواء اليدوي والطابور والبديل ومنع BOLA؛ لا يعد هذا البند مكتملًا بالاختبارات المحلية.
 
 مرجع الدليل: `audit-artifacts/NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md`.
+
+
+## Phase 16 — Hospital provider-role normalization finding — 2026-08-19
+
+- [x] عيب مصدرّي مؤكد: `GET /hospital/staff` أعاد HTTP 403 لحساب Hospital Sandbox رغم نجاح `GET /provider/auth/me` للحساب. كان `HospitalService.assertFacilityActor` يقرأ `actor.role || actor.provider_type`؛ وبما أن `role` يساوي `provider`، لا يصل إلى `provider_type: hospital`. استبدل بفحص `getEffectiveRoles` وقائمة منشأة صريحة، مع اختبار قبول Hospital Provider ورفض Doctor Provider/Patient، ونجحت بوابة HospitalService 4/4 وBackend الكامل 67 suites/386 tests وأرشيف ZIP النظيف. الدليل: `NABDAH_PHASE16_HOSPITAL_PROVIDER_ROLE_REMEDIATION_20260819.md`. تبقى إعادة اختبار Hospital Sandbox (expected 200) ورفض Doctor/Patient بعد النشر شرطاً مفتوحاً، ولا يعد هذا إثباتاً لتدفق staff الكامل.
