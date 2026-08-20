@@ -34,3 +34,9 @@
 @media (max-width: 920px) { .featureGrid { grid-template-columns: 1fr; } }
 @media (max-width: 540px) { .dashboard { gap: 1.25rem; padding-top: 0; }.hero { margin-inline: -1rem; border-radius: 0 0 1.6rem 1.6rem; }.moreGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: reduce) { .iconAction, .quickTile, .featureCard, .moreLink { transition: none; } }
+
+.appointmentSummary { display: grid; gap: .45rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.appointmentSummary strong { color: var(--ink); font-size: 1.08rem; overflow-wrap: anywhere; }
+.appointmentSummary span, .emptySummary { color: var(--muted); line-height: 1.6; }
+.appointmentOpen { display: inline-flex; align-items: center; gap: .35rem; width: fit-content; color: var(--brand-deep); font-weight: 800; }
+.appointmentOpen:hover { text-decoration: underline; }
