@@ -92,4 +92,12 @@ describe("patient BFF session rotation", () => {
     expect(state.clearSessionCookies).toHaveBeenCalledWith(expect.any(Response));
     expect(state.setSessionCookies).not.toHaveBeenCalled();
   });
+
+  it("does not proxy an unlisted resource before reading or refreshing a session", async () => {
+    const response = await GET(request(), { params: Promise.resolve({ path: ["medical-profile"] }) });
+
+    expect(response.status).toBe(404);
+    expect(state.callPatientApi).not.toHaveBeenCalled();
+    expect(state.clearSessionCookies).not.toHaveBeenCalled();
+  });
 });
