@@ -48,6 +48,7 @@ describe("diagnostics SSR boundary", () => {
     expect(html).not.toContain("private");
     expect(html).not.toContain("500");
     expect(html).not.toContain(reportUrl);
+    expect(html).toContain('href="/en/diagnostics"');
     expect(html).not.toMatch(/href="[^"]*(report|pdf)/i);
   });
 });

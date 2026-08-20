@@ -8,6 +8,8 @@ import { JsonLd } from "@/components-next/json-ld";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { RetryButton } from "@/components-next/retry-button";
+import { ChevronLeft, Pill, ShieldCheck } from "lucide-react";
+import styles from "./medicine-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; medicineId: string }> };
 
@@ -42,11 +44,22 @@ export default async function MedicineDetailPage({ params }: Props) {
   const t = await getTranslations("PublicMedicines");
   const response = await getPublicMedicine(medicineId);
   if (response?.status === 404) notFound();
-  if (!response || !response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
+  if (!response || !response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><Pill size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const medicine = extractMedicineDetail(await response.json().catch(() => null));
   if (!medicine) notFound();
   const name = locale === "ar" ? medicine.nameAr || medicine.nameEn || t("untitled") : medicine.nameEn || medicine.nameAr || t("untitled");
   const canonical = localizedUrl(locale, `/medicines/${medicine.id}`);
   const schema = { "@context": "https://schema.org", "@type": "MedicalWebPage", name, url: canonical, inLanguage: locale, mainEntity: { "@type": "Thing", name } };
-  return <main className="main dashboard"><JsonLd data={schema} /><Link className="back-link" href={`/${locale}/medicine-catalog`}>{t("back")}</Link><div className="eyebrow">{t("eyebrow")}</div><h1>{name}</h1><section className="status-card"><dl className="order-detail">{medicine.activeIngredient ? <div><dt>{t("activeIngredient")}</dt><dd>{medicine.activeIngredient}</dd></div> : null}{medicine.genericName ? <div><dt>{t("genericName")}</dt><dd>{medicine.genericName}</dd></div> : null}{medicine.form ? <div><dt>{t("form")}</dt><dd>{medicine.form}</dd></div> : null}{medicine.strength ? <div><dt>{t("strength")}</dt><dd>{medicine.strength}</dd></div> : null}{medicine.requiresPrescription !== undefined ? <div><dt>{t("prescription")}</dt><dd>{medicine.requiresPrescription ? t("yes") : t("no")}</dd></div> : null}</dl><p>{t("detailNotice")}</p></section></main>;
+  const facts = [
+    medicine.activeIngredient ? [t("activeIngredient"), medicine.activeIngredient] : null,
+    medicine.genericName ? [t("genericName"), medicine.genericName] : null,
+    medicine.form ? [t("form"), medicine.form] : null,
+    medicine.strength ? [t("strength"), medicine.strength] : null,
+    medicine.requiresPrescription !== undefined ? [t("prescription"), medicine.requiresPrescription ? t("yes") : t("no")] : null,
+  ].filter((fact): fact is [string, string] => Boolean(fact));
+  return <main className={`main ${styles.page}`}><JsonLd data={schema} />
+    <Link className={styles.back} href={`/${locale}/medicine-catalog`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
+    <section className={styles.hero}><div className={styles.heroText}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{name}</h1></div><span className={styles.heroIcon}><Pill size={28} aria-hidden="true" /></span></section>
+    <section className={styles.detail} aria-label={name}><dl className={styles.grid}>{facts.map(([label, value]) => <div className={styles.item} key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p className={styles.notice}>{t("detailNotice")}</p></section>
+  </main>;
 }

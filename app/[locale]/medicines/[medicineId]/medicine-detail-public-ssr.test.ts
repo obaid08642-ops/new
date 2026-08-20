@@ -37,6 +37,7 @@ describe("public medicine detail SSR boundary", () => {
     expect(state.getPublicMedicine).toHaveBeenCalledWith("published-medicine");
     expect(html).toContain("Published medicine");
     expect(html).toContain('"@type":"MedicalWebPage"');
+    expect(html).toContain('href="/en/medicine-catalog"');
     expect(html).not.toContain("99");
     expect(html).not.toContain("private-patient");
     expect(html).not.toContain("private.pdf");
