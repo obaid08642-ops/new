@@ -30,4 +30,12 @@ describeSandbox("Sandbox family contract", () => {
     const payload: unknown = await list.json();
     expect(payload === null || typeof payload === "object").toBe(true);
   }, 20_000);
+
+  it("rejects the self-scoped family list without a patient session", async () => {
+    const baseUrl = process.env.NABD_API_BASE_URL;
+    expect(baseUrl).toBeTruthy();
+
+    const response = await fetch(`${baseUrl}/family/members`, { signal: AbortSignal.timeout(12_000) });
+    expect(response.status).toBe(401);
+  }, 15_000);
 });
