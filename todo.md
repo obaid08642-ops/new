@@ -1033,3 +1033,8 @@
 
 - [x] صدر حكم Phase 19: **NO-GO**. الفرع والأرشيف نظيفان وبوابات المصدر التقنية تمر، لكن لا نشر مراجع للمرشح الحالي ولا Phase 16 E2E كاملة، ولا signed native artifacts أو device farm/هاتفان، ولا Moyasar test-safe، ولا approvals legal/product للعقود الحساسة، ولا sign-off بشري للغات والإتاحة. الدليل: `NABDAH_PHASE19_FINAL_READINESS_VERDICT_20260819.md`.
 - [ ] لا يعاد فتح حكم GO إلا بعد نشر مراجع صريح مع rollback/SHA، وإغلاق أو توثيق كل صف Phase 16 حياً، وبنى/أجهزة Phase 17، وقبول بشري Phase 18، وموافقات الدفع/القانون/الخصوصية اللازمة.
+
+
+## Phase 16 rerun — Doctor prescription ownership identity mismatch P0 — 2026-08-20
+
+- [x] **P0 حي مثبت ومصلح مصدرّياً:** على البيئة المنشورة، أنشأ Patient Sandbox موعد clinic/cash (201/CONFIRMED)، ثم check-in (200) وDoctor Sandbox start (200)، لكن `POST /prescriptions/create` للموعد والمريض نفسيهما أعاد 404. كان `AppointmentsService.start` يستخدم مطابقة owner موسعة (user/account/provider/profile identifiers) بينما `PrescriptionsService.create` يقارن `appointment.doctor_user_id` فقط بـ`doctor.id`. اكتملت الجلسة إلى `COMPLETED` (200) لتجنب fixture نشط. أصبح إنشاء الوصفة يطابق actor identifiers مع `appointment.doctor_user_id` و`appointment.doctor_id` بعد تثبيت `IN_PROGRESS` وpatient ownership؛ regression account/profile owner مقابل foreign provider PASS، وBackend 67 suites/390 tests وbuild/ZIP PASS. الدليل: `NABDAH_PHASE16_PRESCRIPTION_DOCTOR_IDENTITY_P0_REMEDIATION_20260820.md`. تبقى إعادة النشر وإعادة دورة الوصفة اليدوية الحية كاملة شرطاً مفتوحاً.
