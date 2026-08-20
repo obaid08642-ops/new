@@ -14,7 +14,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["app/**/*.test.ts", "app/**/*.spec.ts", "lib/**/*.test.ts", "lib/**/*.spec.ts", "tests/**/*.test.ts", "tests/**/*.spec.ts"],
+    include: ["app/**/*.test.ts", "app/**/*.test.tsx", "app/**/*.spec.ts", "app/**/*.spec.tsx", "lib/**/*.test.ts", "lib/**/*.test.tsx", "lib/**/*.spec.ts", "lib/**/*.spec.tsx", "tests/**/*.test.ts", "tests/**/*.test.tsx", "tests/**/*.spec.ts", "tests/**/*.spec.tsx"],
     fileParallelism: process.env.RUN_SANDBOX_TESTS !== "true",
   },
 });
