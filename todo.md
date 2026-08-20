@@ -1048,3 +1048,14 @@
 ## Phase 17 follow-up — Provider EAS build configuration — 2026-08-20
 
 - [x] أغلق نقص تهيئة EAS المصدرّي: أضيف `provider/eas.json` بـdevelopment/preview/production profiles محايدة بلا project ID أو credentials أو submit automation. JSON validation وProvider 30/30 نجحا، وProvider archive SHA `d81fbd14c1d9daedee18fd17679898b1f6ef06dd4c67810206fe14ee502b70e5` يتضمنه. الدليل: `NABDAH_PHASE17_NATIVE_BUILD_AND_DEVICE_BLOCKERS_20260819.md`. لا يغلق هذا توقيع Android/Apple أو build أو device testing.
+
+
+## Security and public-discovery hardening program — 2026-08-20
+
+- [ ] الاعتماديات: جرد `npm audit` أثبت 18 finding في Patient و22 في Provider، بينها Expo/Metro و`image-size`; تطبيق ترقيات Expo-compatible فقط عبر أدوات SDK، مع منع `npm audit fix --force` وتشغيل typecheck/tests/build لكل تطبيق.
+- [ ] OpenAPI: جرد مولد/وثيقة العقد الحالية، ثم إضافة server URL وBearer authentication/scopes وschemas والأخطاء وتغطية المسارات التراثية، أو احتواؤها بإحالات compatibility مختبرة.
+- [ ] الكتالوج العام: إضافة حقول eligibility/review/provenance لا تظهر public/SEO من مجرد وجود DB record، مع migrations/backfill fail-closed وخطة rollback.
+- [ ] projection/events: بعد اعتماد إداري، إصدار event idempotent/audited لتحديث public projection/cache/metadata/sitemap/feed/deep-link؛ لا worker خارجي أو نشر background قبل اختيار بنية واعتماد التشغيل.
+- [ ] اللغات: حسم عدد locales من source/schema، والتحقق من اكتمال `translations` قبل eligibility العامة بدلاً من fallback صامت.
+- [ ] Mongoose indexes: تحديد التحذيرات الفعلية والـschema/ migration المسؤولة، وإزالة تعريف مكرر فقط بعد اختبار index inventory وخطة rollback؛ لا حذف index إنتاجي في هذه الجولة.
+- [ ] قبول Sandbox: بعد كل دفعة، بوابات Backend/Patient/Provider/Admin وسيناريوهات BOLA/lifecycle المتاحة فقط؛ لا نشر إنتاج أو دفع حقيقي أو admin 2FA bypass.
