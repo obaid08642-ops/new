@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, medicineId } = await params;
   if (!isLocale(locale) || !parseMedicineId(medicineId).success) return {};
   const response = await getPublicMedicine(medicineId);
-  const medicine = response.ok ? extractMedicineDetail(await response.json().catch(() => null)) : null;
+  const medicine = response?.ok ? extractMedicineDetail(await response.json().catch(() => null)) : null;
   if (!medicine) return { robots: { index: false, follow: false } };
   const name = locale === "ar" ? medicine.nameAr || medicine.nameEn || "عنصر كتالوج" : medicine.nameEn || medicine.nameAr || "Catalogue item";
   const canonical = localizedUrl(locale, `/medicines/${medicineId}`);
@@ -41,8 +41,8 @@ export default async function MedicineDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("PublicMedicines");
   const response = await getPublicMedicine(medicineId);
-  if (response.status === 404) notFound();
-  if (!response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
+  if (response?.status === 404) notFound();
+  if (!response || !response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const medicine = extractMedicineDetail(await response.json().catch(() => null));
   if (!medicine) notFound();
   const name = locale === "ar" ? medicine.nameAr || medicine.nameEn || t("untitled") : medicine.nameEn || medicine.nameAr || t("untitled");
