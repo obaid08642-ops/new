@@ -32,8 +32,8 @@ export default async function FamilyPage({ params }: Props) {
     {members.length === 0 ? <section className={styles.state}><UsersRound size={25} aria-hidden="true" /><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{members.map((member) => <article className={styles.card} key={member.id}>
       <span className={styles.cardIcon}><UsersRound size={19} aria-hidden="true" /></span>
       <div className={styles.cardBody}>
-        <strong className={styles.member}>{t("member")}</strong>
-        <span className={styles.role}>{member.role === "owner" ? t("owner") : t("memberRole")}</span>
+        <strong className={styles.member}>{member.displayName || t("member")}</strong>
+        <span className={styles.role}>{member.role === "owner" ? t("owner") : t("memberRole")}{member.relation ? ` · ${member.relation}` : ""}</span>
         {member.joinedAt ? <span className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(member.joinedAt))}</span> : null}
       </div>
     </article>)}</section>}
