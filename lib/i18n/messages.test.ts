@@ -47,6 +47,12 @@ describe("patient web messages", () => {
     }
   });
 
+  it("keeps the public catalogue namespace structurally translated in the four additional locales", () => {
+    for (const messages of [ur, hi, bn, fil]) {
+      expect(Object.keys(messages.PublicMedicines).sort()).toEqual(Object.keys(en.PublicMedicines).sort());
+    }
+  });
+
   it("does not leave raw loading labels or backend messages in the visible core", async () => {
     const [loading, loginForm] = await Promise.all([
       readFile(new URL("../../app/[locale]/dashboard/loading.tsx", import.meta.url), "utf8"),
