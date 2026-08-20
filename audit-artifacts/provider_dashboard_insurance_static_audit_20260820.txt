@@ -1,0 +1,72 @@
+
+===== doctor/DoctorDashboard.tsx =====
+1150- {tr('العمر: 34 سنة | ذكر | فصيلة الدم: A+', 'Age: 34 | Male | Blood: A+')}
+1151- </Text>
+1152- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm, marginTop: SP.xs }}>
+1153: <NBadge label="Bupa A" variant="primary" size="xs" />
+1154- <NBadge label={tr('مزمن: سكري', 'Chronic: Diabetes')} variant="warning" size="xs" />
+1155- {isVip && <NBadge label="VIP " variant="success" size="xs" />}
+1156- {isBlocked && <NBadge label={tr('محظور ', 'Blocked ')} variant="danger" size="xs" />}
+--
+2843- const [exStart, setExStart] = useState('12:00');
+2844- const [exEnd, setExEnd] = useState('14:00');
+2845-
+2846: const [insurances, setInsurances] = useState([
+2847:  { id: 'bupa', ar: 'بوبا العربية', en: 'Bupa Arabia', active: true, copay: '10', tier: 'VIP', clinic: true, online: false, home: false },
+2848:  { id: 'tawuniya', ar: 'التعاونية للتأمين', en: 'Tawuniya', active: true, copay: '20', tier: 'Class A', clinic: true, online: true, home: false },
+2849:  { id: 'medgulf', ar: 'ميدغلف', en: 'Medgulf', active: false, copay: '20', tier: 'Class B', clinic: true, online: false, home: false },
+2850:  { id: 'malath', ar: 'ملاذ للتأمين', en: 'Malath Insurance', active: false, copay: '25', tier: 'Class C', clinic: false, online: false, home: false },
+2851-  ]);
+2852-
+2853-  const toggleIns = (id: string) => {
+--
+2892-  const handleSaveSchedule = async () => {
+2893-    setSaving(true);
+2894-    try {
+2895:      await client.post('/provider/settings/delta', { newData: { weeklySchedule, exceptions, insurances } });
+2896-      show(tr('تم حفظ جدول التوفر الأسبوعي', 'Weekly availability saved'), 'success');
+2897-      onBack();
+2898-    } catch (e) {
+--
+2956- </NCard>
+2957-
+2958- {/* Insurance Config */}
+2959: <NSecHeader title={tr('شركات التأمين المقبولة', 'Accepted Insurances')} />
+2960: {insurances.map(item => (
+2961-  <NCard key={item.id} style={{ marginBottom: SP.md }}>
+2962-  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
+2963-  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>
+--
+3334- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+3335- const tr = (ar: string, en: string) => translateProviderPair(lang, ar, en);
+3336- const trT = (ar: string, en: string, values: readonly unknown[]) => translateProviderTemplate(lang, ar, en, values);
+3337: const [insurances, setInsurances] = useState([
+3338: { id: 'bupa', ar: 'بوبا العربية', en: 'Bupa Arabia', active: true, copay: '10', tier: 'VIP' },
+3339: { id: 'tawuniya', ar: 'التعاونية للتأمين', en: 'Tawuniya', active: true, copay: '20', tier: 'Class A' },
+3340: { id: 'medgulf', ar: 'ميدغلف', en: 'Medgulf', active: false, copay: '20', tier: 'Class B' },
+3341: { id: 'malath', ar: 'ملاذ للتأمين', en: 'Malath Insurance', active: false, copay: '25', tier: 'Class C' },
+3342- ]);
+3343-
+3344- const toggleIns = (id: string) => {
+--
+3362- {tr('حدد شركات التأمين المقبولة لديك ونسب التحمل لكل شركة:', 'Select which insurance providers you accept and specify copay percentages:')}
+3363- </Text>
+3364-
+3365: {insurances.map(item => (
+3366- <NCard key={item.id} style={{ marginBottom: SP.sm }}>
+3367- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+3368- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
+
+===== lab/LabDashboard.tsx =====
+
+===== radiology/RadiologyDashboard.tsx =====
+
+===== pharmacy/PharmacyDashboard.tsx =====
+
+===== nursing/NursingDashboard.tsx =====
+
+===== facility/FacilityDashboard.tsx =====
+
+===== ambulance/AmbulanceRegistration.tsx =====
+
+===== shared/InsuranceRequestsScreen.tsx =====

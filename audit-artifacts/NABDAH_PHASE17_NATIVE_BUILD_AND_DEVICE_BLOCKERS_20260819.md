@@ -9,7 +9,7 @@
 | العنصر | Provider | Patient | الحكم |
 |---|---|---|---|
 | Expo configuration | `app.json` موجود؛ Android package `com.nabd.plus.provider` وiOS bundle `com.nabd.plus.provider` | `app.json` موجود؛ Android package وiOS bundle `com.patient.nabd` | PASS إعداد فقط |
-| EAS profiles | لا يوجد `eas.json` | `eas.json` يحوي development/preview/production، لكن production فارغ ولا يثبت credentials أو build سابق | PARTIAL إعداد فقط |
+| EAS profiles | `eas.json` يحوي development/preview/production، ومر عبر JSON validation وProvider 30/30؛ SHA Provider archive `d81fbd14c1d9daedee18fd17679898b1f6ef06dd4c67810206fe14ee502b70e5` | `eas.json` يحوي development/preview/production، لكن production فارغ ولا يثبت credentials أو build سابق | PARTIAL إعداد فقط |
 | مشروع native مولد | لا مجلدا `android/` أو`ios/` في worktree | لا مجلدا `android/` أو`ios/` في worktree | BLOCKED لعدم وجود artifact محلي أو build log |
 | credentials موقعة | لا keystore أو p12 أو mobileprovision أو credential file ظاهر ضمن الجرد الاسمي | لا keystore أو p12 أو mobileprovision أو credential file ظاهر ضمن الجرد الاسمي | BLOCKED؛ لا يعني الجرد أن حساب EAS لا يملك credentials، بل لا يوجد دليل مفوض هنا |
 | أدوات native في البيئة | لم توجد `eas` أو`expo` أو`adb` أو`xcodebuild` ضمن PATH | نفس النتيجة | BLOCKED؛ لا Android SDK/Xcode/device harness مثبت |
@@ -20,7 +20,7 @@
 
 تتضمن إعدادات Provider صلاحيات الكاميرا والميكروفون والموقع والإشعارات والتحقق الحيوي، وتستخدم `https://api.nabd.plus/api/v1`. تتضمن إعدادات Patient deep links وassociated domains وFirebase config references ومجموعة أوسع من الصلاحيات، بما فيها camera/location/audio/notifications وbackground modes. وجود هذه التصريحات يزيد، ولا يقلل، الحاجة إلى اختبار موقّع على أجهزة حقيقية للـpermissions وdeep links وpush وbackground/CallKeep وGPS والكاميرا والباركود.
 
-> `eas.json` في تطبيق Patient يحدد profile `production` فارغاً. هذه صيغة إعداد صالحة مبدئياً، لكنها ليست build receipt ولا يثبت بها وجود Apple signing أو Android keystore أو حسابات EAS مخولة.
+> أصبح للمشروعين `eas.json` بصيغة profiles متوازية وproduction فارغ. هذه تهيئة صالحة مبدئياً، لكنها ليست build receipt ولا تثبت وجود Apple signing أو Android keystore أو حسابات EAS مخولة. لم ينفذ هذا التغيير أي build أو submit أو نشر.
 
 ## متطلبات إزالة الحجب
 
@@ -42,4 +42,5 @@
 [1]: `NABDAH_AGENT_TRANSITION_OPEN_WORK_AND_REMAINING_PHASES_20260819.md` "Phase 17 ومعيار الخروج"
 [2]: `../../nabdah_execution/provider/app.json` "تهيئة Provider Expo والصلاحيات"
 [3]: `../../nabdah_execution/patient/app.json` "تهيئة Patient Expo وdeep links والصلاحيات"
-[4]: `../../nabdah_execution/patient/eas.json` "profiles EAS الموجودة"
+[4]: `../../nabdah_execution/patient/eas.json` "profiles EAS الخاصة بـPatient"
+[5]: `../../nabdah_execution/provider/eas.json` "profiles EAS الخاصة بـProvider"

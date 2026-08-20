@@ -1,0 +1,39 @@
+
+===== provider =====
+provider/src/constants/index.ts | catalog_api=no | static_candidate=yes | any_api=no
+provider/src/screens/lab/LabRegistration.tsx | catalog_api=yes | static_candidate=no | any_api=no
+provider/src/screens/lab/LabDashboard.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/auth/AuthScreens.tsx | catalog_api=no | static_candidate=no | any_api=no
+provider/src/screens/facility/FacilityRegistration.tsx | catalog_api=yes | static_candidate=no | any_api=no
+provider/src/screens/facility/FacilityInvitationScreen.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/facility/FacilityDashboard.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/ambulance/AmbulanceRegistration.tsx | catalog_api=no | static_candidate=no | any_api=no
+provider/src/screens/shared/InsuranceRequestsScreen.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/shared/BlueprintScreens.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/shared/VideoCallRoom.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/shared/RealScreensExtended.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/shared/SharedScreens.tsx | catalog_api=yes | static_candidate=no | any_api=yes
+provider/src/screens/nursing/NursingDashboard.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/nursing/NursingRegistration.tsx | catalog_api=yes | static_candidate=no | any_api=no
+provider/src/screens/doctor/DoctorDashboard.tsx | catalog_api=no | static_candidate=yes | any_api=yes
+provider/src/screens/doctor/DoctorRegistration.tsx | catalog_api=yes | static_candidate=no | any_api=no
+provider/src/screens/doctor/FacilityInvitationsScreen.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/radiology/RadiologyRegistration.tsx | catalog_api=yes | static_candidate=no | any_api=no
+provider/src/screens/radiology/RadiologyDashboard.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/pharmacy/PharmacyDashboard.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/screens/pharmacy/PharmacyRegistration.tsx | catalog_api=yes | static_candidate=no | any_api=no
+provider/src/api/catalogs.ts | catalog_api=yes | static_candidate=no | any_api=yes
+provider/src/services/HttpClient.ts | catalog_api=no | static_candidate=no | any_api=no
+provider/src/types/contracts.ts | catalog_api=no | static_candidate=no | any_api=no
+provider/src/types/FacilityTypes.ts | catalog_api=no | static_candidate=no | any_api=no
+provider/src/components/ui.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/components/ContractModal.tsx | catalog_api=no | static_candidate=no | any_api=yes
+provider/src/i18n/sharedLocales.ts | catalog_api=no | static_candidate=no | any_api=no
+provider/src/i18n/providerTextTranslations.ts | catalog_api=no | static_candidate=no | any_api=no
+
+===== admin =====
+admin/src/pages/admin/legal-policies.tsx | catalog_api=no | static_candidate=no | any_api=yes
+admin/src/pages/admin/insurance-queue.tsx | catalog_api=no | static_candidate=no | any_api=yes
+admin/src/pages/admin/insurance-companies.tsx | catalog_api=yes | static_candidate=no | any_api=yes
+admin/src/components/AdminGuard.tsx | catalog_api=no | static_candidate=no | any_api=yes
+admin/src/components/ProviderFullDetail.tsx | catalog_api=no | static_candidate=no | any_api=no
