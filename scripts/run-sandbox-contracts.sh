@@ -5,7 +5,7 @@ cooldown_seconds="${SANDBOX_COOLDOWN_SECONDS:-70}"
 
 batches=(
   "lib/api/sandbox-secrets.test.ts lib/api/sandbox-order-ownership.test.ts"
-  "lib/api/sandbox-appointments-contracts.test.ts lib/api/sandbox-diagnostics-contracts.test.ts"
+  "lib/api/sandbox-appointments-contracts.test.ts lib/api/sandbox-diagnostics-contracts.test.ts lib/api/sandbox-specialty-provider-count.test.ts"
   "lib/api/sandbox-home-care-contract.test.ts lib/api/sandbox-medicines-contract.test.ts"
   "lib/api/sandbox-family-contract.test.ts lib/api/sandbox-notifications-contract.test.ts"
   "lib/api/sandbox-chat-contract.test.ts lib/api/sandbox-prescriptions-contract.test.ts"
