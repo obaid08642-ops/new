@@ -1043,3 +1043,8 @@
 ## Phase 16 rerun — Provider self-profile identity mismatch — 2026-08-20
 
 - [x] عيب عقد حي مؤكد ومصلح مصدرّياً: `GET /providers/me/profile` لحساب Doctor Sandbox أعاد HTTP 200 بجسم فارغ، في حين أن `provider/auth/me` أعاد 200 ومطابقة منقحة أثبتت أن الحساب يطابق Doctor profile نشط في القائمة العامة. كان `ProvidersService.myProfile` يستعلم بـ`{ user_id }` فقط. أصبح Controller يمرر actor الكامل، وتطابق الخدمة فقط user/account/provider/profile identifiers المنطبعة، ثم تعيد 404 عند غياب الملف. اختبارات owner/foreign/no-identifier PASS، وBackend 68 suites/393 tests وbuild/ZIP PASS. الدليل: `NABDAH_PHASE16_PROVIDER_SELF_PROFILE_IDENTITY_REMEDIATION_20260820.md`. تبقى إعادة الاختبار الحي بعد نشر المرشح شرطاً مفتوحاً.
+
+
+## Phase 17 follow-up — Provider EAS build configuration — 2026-08-20
+
+- [x] أغلق نقص تهيئة EAS المصدرّي: أضيف `provider/eas.json` بـdevelopment/preview/production profiles محايدة بلا project ID أو credentials أو submit automation. JSON validation وProvider 30/30 نجحا، وProvider archive SHA `d81fbd14c1d9daedee18fd17679898b1f6ef06dd4c67810206fe14ee502b70e5` يتضمنه. الدليل: `NABDAH_PHASE17_NATIVE_BUILD_AND_DEVICE_BLOCKERS_20260819.md`. لا يغلق هذا توقيع Android/Apple أو build أو device testing.
