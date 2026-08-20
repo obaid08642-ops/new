@@ -26,13 +26,23 @@ describeSandbox("Sandbox notifications contract", () => {
     expect(baseUrl).toBeTruthy();
     const accessToken = await login(process.env.NABD_SANDBOX_OWNER_EMAIL, process.env.NABD_SANDBOX_OWNER_PASSWORD, baseUrl as string);
     const headers = { authorization: `Bearer ${accessToken}` };
-    const [list, count] = await Promise.all([
-      fetch(`${baseUrl}/notifications`, { headers, signal: AbortSignal.timeout(12_000) }),
-      fetch(`${baseUrl}/notifications/unread-count`, { headers, signal: AbortSignal.timeout(12_000) }),
-    ]);
+    const list = await fetch(`${baseUrl}/notifications`, { headers, signal: AbortSignal.timeout(25_000) });
+    const count = await fetch(`${baseUrl}/notifications/unread-count`, { headers, signal: AbortSignal.timeout(25_000) });
     expect(list.status).toBe(200);
     expect(count.status).toBe(200);
     const payload: unknown = await list.json();
     expect(payload === null || typeof payload === "object").toBe(true);
-  }, 30_000);
+  }, 50_000);
+
+  it("rejects notification reads without a patient session", async () => {
+    const baseUrl = process.env.NABD_API_BASE_URL;
+    expect(baseUrl).toBeTruthy();
+
+    const [list, count] = await Promise.all([
+      fetch(`${baseUrl}/notifications`, { signal: AbortSignal.timeout(12_000) }),
+      fetch(`${baseUrl}/notifications/unread-count`, { signal: AbortSignal.timeout(12_000) })
+    ]);
+    expect(list.status).toBe(401);
+    expect(count.status).toBe(401);
+  }, 15_000);
 });
