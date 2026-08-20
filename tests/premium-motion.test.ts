@@ -27,4 +27,13 @@ describe("premium motion accessibility", () => {
   it("avoids a blanket transition that could animate layout-sensitive properties", () => {
     expect(globalStyles()).not.toMatch(/transition\s*:\s*all\b/);
   });
+
+  it("uses system font stacks without shipping an embedded Cairo font", () => {
+    const css = globalStyles();
+
+    expect(css).toContain("--font-ui: -apple-system");
+    expect(css).toContain('"Noto Sans Arabic"');
+    expect(css).not.toContain("@font-face");
+    expect(css).not.toContain("Nabd Cairo");
+  });
 });
