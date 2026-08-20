@@ -6,7 +6,7 @@ import { extractRecord, profileDomainState, readProfileFields, type ProfileDomai
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
-import { ArrowUpLeft, BadgeCheck, Bell, CalendarDays, CircleAlert, FileText, HeartPulse, ShieldCheck, ShoppingBag, UserRound, UsersRound } from "lucide-react";
+import { ArrowUpLeft, BadgeCheck, Bell, CalendarDays, CircleAlert, FileText, HeartPulse, Pill, ShieldCheck, ShoppingBag, UserRound, UsersRound } from "lucide-react";
 import styles from "./profile.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -44,6 +44,7 @@ export default async function ProfilePage({ params }: Props) {
     { key: "appointments", href: `/${locale}/appointments`, Icon: CalendarDays, accent: "#0284C7" },
     { key: "orders", href: `/${locale}/orders`, Icon: ShoppingBag, accent: "#D97706" },
     { key: "prescriptions", href: `/${locale}/prescriptions`, Icon: FileText, accent: "#7A6BEA" },
+    { key: "medicines", href: `/${locale}/medicines`, Icon: Pill, accent: "#16A34A" },
     { key: "family", href: `/${locale}/family`, Icon: UsersRound, accent: "#0D9488" },
     { key: "notifications", href: `/${locale}/notifications`, Icon: Bell, accent: "#64748B" },
   ] as const;
