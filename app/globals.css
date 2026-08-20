@@ -66,3 +66,9 @@
 @media (max-width: 860px) { .diagnostic-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) { .order-detail > div { grid-template-columns: minmax(0, 1fr); gap: .25rem; }.catalog-search { align-items: stretch; flex-direction: column; } }
 .route-state-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+@font-face { font-family: "Nabd Cairo"; src: url("/manus-storage/nabd-plus-cairo-regular_7910587a.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Nabd Cairo"; src: url("/manus-storage/nabd-plus-cairo-bold_e0f056f8.ttf") format("truetype"); font-style: normal; font-weight: 700 900; font-display: swap; }
+:root { --ink: #141a2a; --muted: #4c5566; --line: #e5e8ee; --surface: #fff; --canvas: #f2f4f7; --brand: #23b5ce; --brand-deep: #1a9fb6; --brand-soft: #def5f9; --mint: #def5f9; --danger: #f0695c; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
+body { font-family: "Nabd Cairo", Arial, Tahoma, sans-serif; }.topbar { background: rgba(255,255,255,.94); box-shadow: 0 1px 0 rgba(20,26,42,.03); }.brand-mark { background: linear-gradient(135deg, #23b5ce, #1a9fb6); }
+html, body, .shell { max-width: 100%; overflow-x: clip; }
+@media (max-width: 540px) { .topbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: .65rem; }.brand { justify-self: start; }.nav-actions { grid-template-columns: minmax(0, 1fr) auto; min-width: 0; }.nav-actions > * { min-width: 0; }.locale-selector { max-width: 100%; }.auth-card { max-width: calc(100vw - 2rem); } }
