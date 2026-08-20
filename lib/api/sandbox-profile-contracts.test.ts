@@ -26,4 +26,14 @@ describeSandbox("Sandbox profile contracts", () => {
       expect(response.status).not.toBe(403);
     }
   }, 20_000);
+
+  it("rejects each self-scoped profile domain without a patient session", async () => {
+    const baseUrl = process.env.NABD_API_BASE_URL;
+    expect(baseUrl).toBeTruthy();
+
+    for (const path of ["/users/me/profile", "/medical-profile", "/users/me/insurance"]) {
+      const response = await fetch(`${baseUrl}${path}`);
+      expect(response.status).toBe(401);
+    }
+  }, 20_000);
 });
