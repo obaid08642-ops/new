@@ -230,7 +230,7 @@
 
 ### حالة GitHub الحالية
 
-لم يُرفع أي تغيير جديد إلى GitHub `main` بعد ظهور سلسلة التزامات خارجية. رأس GitHub في وقت التحديث هو `9547349`، مبني فوق `6bfad478` الموسوم بـ`branch content authoritative`، بينما نقطة الاستعادة المحلية الأخيرة هي `e870cdea`. يُراجع `docs/github-sync-status-2026-08-20.md` قبل أي rebase أو merge أو push، ولا يسمح بـ`force push` إلا بقرار صريح من مالك المستودع.
+لم يُرفع أي تغيير جديد إلى GitHub `main` بعد ظهور سلسلة التزامات خارجية. رأس GitHub في وقت التحديث هو `9547349`، مبني فوق `6bfad478` الموسوم بـ`branch content authoritative`. نُشرت نسخة الويب المحققة بدلاً من ذلك إلى فرع المراجعة غير المدمر [`patient-web-premium-20260820`](https://github.com/obaid08642-ops/new/tree/patient-web-premium-20260820)، مع رابط مقارنة [جاهز لطلب المراجعة](https://github.com/obaid08642-ops/new/pull/new/patient-web-premium-20260820). يُراجع `docs/github-sync-status-2026-08-20.md` قبل أي rebase أو merge أو push، ولا يسمح بـ`force push` إلا بقرار صريح من مالك المستودع.
 
 ## مراجع الملحق
 
