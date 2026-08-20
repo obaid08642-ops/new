@@ -24,6 +24,29 @@ describe("patient web messages", () => {
     }
   });
 
+  it("keeps every private patient-page namespace structurally translated in the four additional locales", () => {
+    const privateNamespaces = [
+      "Orders",
+      "Appointments",
+      "Medicines",
+      "Diagnostics",
+      "HomeCare",
+      "Family",
+      "Notifications",
+      "Health",
+      "Prescriptions",
+      "Chat",
+      "Reminders",
+      "Profile"
+    ] as const;
+
+    for (const messages of [ur, hi, bn, fil]) {
+      for (const namespace of privateNamespaces) {
+        expect(Object.keys(messages[namespace]).sort()).toEqual(Object.keys(en[namespace]).sort());
+      }
+    }
+  });
+
   it("does not leave raw loading labels or backend messages in the visible core", async () => {
     const [loading, loginForm] = await Promise.all([
       readFile(new URL("../../app/[locale]/dashboard/loading.tsx", import.meta.url), "utf8"),
