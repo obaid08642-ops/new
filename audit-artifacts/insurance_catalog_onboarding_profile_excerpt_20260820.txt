@@ -1,0 +1,1268 @@
+
+===== provider/src/screens/doctor/DoctorRegistration.tsx =====
+10-  NCheckbox, NHeader, NScroll, NDropdown, NDatePickerSheet, NDivider
+11-} from '../../components/ui';
+12-import { Validate } from '../../security/Security';
+13:import { SP, R, FS, FW, SPECIALTIES, DEGREES, INSURANCE, CITIES } from '../../constants';
+14-import { I, I as NIcon } from '../../components/icons';
+15-import { RegistrationSuccess } from '../shared/SharedScreens';
+16-import { ContractModal } from '../../components/ContractModal';
+--
+24-import MapView, { Circle, Marker } from '../../components/PlatformMap';
+25-import SignatureCanvas from 'react-native-signature-canvas';
+26-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+27:import { useInsuranceCatalog } from '../../api/catalogs';
+28-import { translateProviderPair, translateProviderTemplate } from '../../i18n/providerTextTranslations';
+29-
+30-const { width: W } = Dimensions.get('window');
+--
+53-  videoDays: string[]; videoStart: string; videoEnd: string; videoShift: string;
+54-  homeDays: string[]; homeStart: string; homeEnd: string; homeShift: string;
+55-  vacationDate: string;
+56:  // Step 6 - Insurance & Location
+57-  cashOnly: boolean;
+58:  acceptedInsurance: { companyId: string; plans: string[] }[];
+59-  city: string; location: {lat: number; lng: number}; address: string; clinicName: string;
+60-  // Step 8 - Signature
+61-  signatureData: string; signerName: string; signerRole: string;
+--
+75-  videoDays:[], videoStart:'', videoEnd:'', videoShift:'both',
+76-  homeDays:[], homeStart:'', homeEnd:'', homeShift:'both',
+77-  vacationDate:'',
+78:  cashOnly:false, acceptedInsurance:[], city:'', location: {lat: 0, lng: 0}, address:'', clinicName:'', signatureData:'', signerName:'', signerRole:''
+79-};
+80-
+81-const WORK_DAYS = [
+--
+118-    3: <Step3Profile data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+119-    4: <Step4PricingAndLocation data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+120-    5: <Step5Schedule data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+121:    6: <Step6Insurance data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+122-    7: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+123-  };
+124-  return screens[step] ?? null;
+--
+481-                <NInput label={tr('رسوم الانتقال', 'Transport Fee')} value={data.homeTransportPrice} onChange={v=>update({homeTransportPrice:v})} kbType="numeric" />
+482-              )}
+483-
+484:              <Text style={{ fontSize: FS.sm, color: theme.text, marginTop: SP.md, marginBottom: SP.xs, textAlign: AR ? 'right' : 'left' }}>{tr('نطاق التغطية الجغرافية', 'Coverage Radius')}</Text>
+485-
+486-              {/* +/- controls & text input */}
+487-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
+--
+711-}
+712-
+713-// ══════════════════════════════════════════════════════════════════════════════
+714:function Step6Insurance({ data, update, onNext, onBack, step, total }: any) {
+715: const insuranceCatalog = useInsuranceCatalog();
+716-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+717- const tr = (ar: string, en: string) => translateProviderPair(lang, ar, en);
+718- const trT = (ar: string, en: string, values: readonly unknown[]) => translateProviderTemplate(lang, ar, en, values);
+719-
+720-  const toggleCompany = (coId: string) => {
+721:    const current = data.acceptedInsurance || [];
+722-    const index = current.findIndex(c => c.companyId === coId);
+723-    if (index >= 0) {
+724:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+725-    } else {
+726:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+727-    }
+728-  };
+729-
+730-  const togglePlan = (coId: string, plan: string) => {
+731:    const current = data.acceptedInsurance || [];
+732-    const updated = current.map(item => {
+733-      if (item.companyId === coId) {
+734-        const nextPlans = item.plans.includes(plan)
+--
+738-      }
+739-      return item;
+740-    });
+741:    update({ acceptedInsurance: updated });
+742-  };
+743-
+744-  return (
+745-    <NScroll>
+746:      <NHeader title={tr('التأمين وموقع تقديم الخدمة', 'Insurance & Clinic Info')} step={step} total={total} onBack={onBack} />
+747-
+748-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.sm }}>
+749:        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tr('الدفع نقداً فقط (لا أقبل التأمين)', 'Cash Only (No Insurance)')}</Text>
+750-        <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
+751-      </View>
+752-
+753-      {!data.cashOnly && (
+754-        <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.lg }}>
+755:          <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.primary, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tr('تطبيق التأمين على الخدمات التالية:', 'Apply Insurance to:')}</Text>
+756-          {data.offersClinic && (
+757-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
+758-              <Text style={{ fontSize: FS.sm, color: theme.text }}>{tr('حجز العيادة', 'Clinic Visit')}</Text>
+759:              <Switch value={data.insuranceClinic} onValueChange={v=>update({insuranceClinic:v})} />
+760-            </View>
+761-          )}
+762-          {data.offersVideo && (
+763-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
+764-              <Text style={{ fontSize: FS.sm, color: theme.text }}>{tr('استشارة فيديو', 'Video Consult')}</Text>
+765:              <Switch value={data.insuranceVideo} onValueChange={v=>update({insuranceVideo:v})} />
+766-            </View>
+767-          )}
+768-          {data.offersHome && (
+769-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+770-              <Text style={{ fontSize: FS.sm, color: theme.text }}>{tr('زيارة منزلية', 'Home Visit')}</Text>
+771:              <Switch value={data.insuranceHome} onValueChange={v=>update({insuranceHome:v})} />
+772-            </View>
+773-          )}
+774-        </View>
+--
+776-
+777-      {!data.cashOnly && (
+778-        <View style={{ marginBottom: SP.xl }}>
+779:          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tr('شركات التأمين المعتمدة', 'Accepted Insurance Companies')}</Text>
+780:          {insuranceCatalog.map(co => {
+781:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+782-            const isAccepted = !!acceptedObj;
+783-
+784-            return (
+--
+847-            show(tr('يرجى إكمال العنوان الشامل (المدينة، الحي، الشارع)', 'Please complete the address (City, District, Street)'), 'error');
+848-            return;
+849-          }
+850:          if (!data.cashOnly && (!data.acceptedInsurance || data.acceptedInsurance.length === 0)) {
+851:            show(tr('يرجى اختيار شركة تأمين واحدة على الأقل أو تفعيل الدفع النقدي فقط', 'Please select at least one insurance company or enable Cash Only'), 'error');
+852-            return;
+853-          }
+854-          onNext();
+--
+898-        }));
+899-      }
+900-
+901:      // 1. Send all Step 3 data (Services, Schedule, Location, Insurance)
+902-      //    — plus the fields that were collected but never sent (durations,
+903-      //    transport fee, clinic name, vacation, per-mode schedules, IDs).
+904-      await ProviderApi.step3({
+--
+937-          close_evening: (data as any).homeShift === 'both' ? (data as any).homeEndEve : undefined
+938-        })),
+939-        working_hours: wh,
+940:        accepts_insurance: !data.cashOnly && (data.acceptedInsurance || []).length > 0,
+941:        accepted_insurance: (data.acceptedInsurance || []).map((i: any) => i.companyId),
+942:        insurance_clinic: data.insuranceClinic,
+943:        insurance_online: data.insuranceVideo,
+944:        insurance_home: data.insuranceHome,
+945-      });
+946-
+947-      // 2. Step 2 Data that was deferred (City, Address, Cash, Bio, Photo, Clinic Images)
+
+===== provider/src/screens/lab/LabRegistration.tsx =====
+7-import * as DocumentPicker from 'expo-document-picker';
+8-import SignatureCanvas from 'react-native-signature-canvas';
+9-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+10:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+11-import { useTheme, useLang, useToast } from '../../context';
+12-import {
+13-  NBtn, NCard, NInput, NPhoneInput, NPassStrength,
+--
+17-import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
+18-import DateTimePicker from '@react-native-community/datetimepicker';
+19-import { Validate } from '../../security/Security';
+20:import { SP, R, FS, FW, CITIES, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+21-import { RegistrationSuccess } from '../shared/SharedScreens';
+22-import { LocationPickerModal } from '../../components/LocationPickerModal';
+23-import { ContractModal } from '../../components/ContractModal';
+--
+59-  testPrices: Record<string, string>;
+60-  testHomeAvail: Record<string, boolean>;
+61-  testTurnaround: Record<string, string>;
+62:  testInsuranceCov: Record<string, boolean>;
+63:  scanInsuranceCov: Record<string, boolean>;
+64-  enabledScans: string[];
+65-  scanPrices: Record<string, string>;
+66-  // Step 5
+--
+74-  homeOpenTime: string; homeCloseTime: string; homeEveningOpenTime: string; homeEveningCloseTime: string;
+75-  vacationDate: string;
+76-  cashOnly: boolean;
+77:  acceptedInsurance: { companyId: string; plans: string[] }[];
+78-  // Internal
+79-  signatureData: string; signerName: string; signerRole: string;
+80-  termsAgreed: boolean;
+--
+89-  crUri: '', mohUri: '', logoUri: '',
+90-  city: '', location: { lat: 0, lng: 0 }, district: '', address: '',
+91-  hasHomeSvc: false, homeRadius: 0, homeCollectorCount: '', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
+92:  enabledTests: [], testPrices: {}, testHomeAvail: {}, testTurnaround: {}, testInsuranceCov: {}, scanInsuranceCov: {},
+93-  enabledScans: [], scanPrices: {},
+94-  bundles: [],
+95-  workDays: [],
+--
+97-  homeWorkDays: [],
+98-  homeShiftType: 'morning', homeOpenTime: '', homeCloseTime: '', homeEveningOpenTime: '', homeEveningCloseTime: '',
+99-  vacationDate: '',
+100:  cashOnly: false, acceptedInsurance: [],
+101-  signatureData: '', signerName: '', signerRole: '',
+102-  termsAgreed: false,
+103-};
+--
+607-    <NScroll>
+608-      <NHeader
+609-        title={AR ? (data.centerType === 'radiology' ? 'الموقع والتصوير المنزلي' : 'الموقع وخدمة السحب المنزلي') : (data.centerType === 'radiology' ? 'Location & Home Scan' : 'Location & Home Collection')}
+610:        sub={AR ? (data.centerType === 'radiology' ? 'حدد موقع المركز ونطاق التصوير المنزلي' : 'حدد موقع المركز ونطاق الخدمة المنزلية') : 'Set center location and home service coverage'}
+611-        step={step} total={total} onBack={onBack}
+612-      />
+613-
+--
+680-          <View style={{ marginTop: SP.xl }}>
+681-            {/* Radius */}
+682-            <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
+683:              {tr('نطاق التغطية للخدمة المنزلية (كم)', 'Coverage Radius (km)')}
+684-            </Text>
+685-
+686-            {/* +/- controls & manual input */}
+--
+819-  const setTestTurnaround = (id: string, val: string) => {
+820-    update({ testTurnaround: { ...data.testTurnaround, [id]: val } });
+821-  };
+822:  const setTestInsurance = (id: string, val: boolean) => {
+823:    update({ testInsuranceCov: { ...data.testInsuranceCov, [id]: val } });
+824-  };
+825:  const setScanInsurance = (id: string, val: boolean) => {
+826:    update({ scanInsuranceCov: { ...data.scanInsuranceCov, [id]: val } });
+827-  };
+828-
+829-  const filteredTests = labCatalog.filter(t =>
+--
+1285-}
+1286-
+1287-// ══════════════════════════════════════════════════════════════════════════════
+1288:// STEP 6 — SCHEDULE + INSURANCE
+1289-// ══════════════════════════════════════════════════════════════════════════════
+1290-function LStep6({ data, update, onNext, onBack, step, total }: {
+1291-  data: LabRegData; update: (p: Partial<LabRegData>) => void;
+1292-  onNext: () => void; onBack: () => void; step: number; total: number;
+1293-}) {
+1294: const insuranceCatalog = useInsuranceCatalog();
+1295-  const { theme } = useTheme();
+1296-  const { lang } = useLang();
+1297-  const AR = lang === 'ar';
+--
+1311-  };
+1312-
+1313-  const toggleCompany = (coId: string) => {
+1314:    const current = data.acceptedInsurance || [];
+1315-    const index = current.findIndex(c => c.companyId === coId);
+1316-    if (index >= 0) {
+1317:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+1318-    } else {
+1319:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+1320-    }
+1321-  };
+1322-
+1323-  const togglePlan = (coId: string, plan: string) => {
+1324:    const current = data.acceptedInsurance || [];
+1325-    const updated = current.map(item => {
+1326-      if (item.companyId === coId) {
+1327-        const nextPlans = item.plans.includes(plan)
+--
+1331-      }
+1332-      return item;
+1333-    });
+1334:    update({ acceptedInsurance: updated });
+1335-  };
+1336-
+1337-  return (
+1338-    <NScroll>
+1339-      <NHeader
+1340:        title={tr('المواعيد والتأمين', 'Schedule & Insurance')}
+1341:        sub={tr('حدد أوقات العمل وشركات التأمين المقبولة', 'Set working hours and accepted insurance companies')}
+1342-        step={step} total={total} onBack={onBack}
+1343-      />
+1344-
+--
+1461-        />
+1462-      )}
+1463-
+1464:      {/* Insurance accepts */}
+1465-      <NCard style={{ marginBottom: SP.xl, marginTop: SP.md }}>
+1466-        <NToggle
+1467:          label={tr('نقدي فقط (بدون تأمين)', 'Cash Only (No Insurance)')}
+1468:          sub={tr('تعطيل قبول أي تأمين في المركز', 'Disable all insurance acceptance')}
+1469-          value={data.cashOnly}
+1470:          onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
+1471-        />
+1472-      </NCard>
+1473-
+1474-      {!data.cashOnly && (
+1475-        <>
+1476:          <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }]}>{tr('شركات التأمين الطبية المعتمدة', 'Accepted Medical Insurance Tiers')}</Text>
+1477:          {insuranceCatalog.map(co => {
+1478:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+1479-            const isAccepted = !!acceptedObj;
+1480-
+1481-            return (
+--
+1672-        location: data.location,
+1673-        address: data.address,
+1674-        district: data.district,
+1675:        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+1676:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+1677-        cr_number: data.crNumber,
+1678-        moh_license_number: data.mohLicense,
+1679-        tax_number: data.taxNumber,
+--
+1716-    { label_ar: 'الأشعة', label_en: 'Scans', val: `${data.enabledScans.length}` },
+1717-    { label_ar: 'الحزم', label_en: 'Bundles', val: `${data.bundles.length}` },
+1718-    { label_ar: 'خدمة منزلية', label_en: 'Home Svc', val: data.hasHomeSvc ? `${data.homeRadius} km` : (tr('لا', 'No')) },
+1719:    { label_ar: 'التأمين', label_en: 'Insurance', val: data.cashOnly ? (tr('نقدي', 'Cash')) : `${data.acceptedInsurance.length}` },
+1720-  ];
+1721-
+1722-  return (
+--
+1805-
+1806-        <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
+1807-          <NCheckbox
+1808:            label={tr('أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.', 'I agree to Nabdah Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.')}
+1809-            value={agreed} onChange={setAgreed}
+1810-          />
+1811-        </NCard>
+
+===== provider/src/screens/radiology/RadiologyRegistration.tsx =====
+7-import * as DocumentPicker from 'expo-document-picker';
+8-import SignatureCanvas from 'react-native-signature-canvas';
+9-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+10:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+11-import { useTheme, useLang, useToast } from '../../context';
+12-import {
+13-  NBtn, NCard, NInput, NPhoneInput, NPassStrength,
+--
+17-import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
+18-import DateTimePicker from '@react-native-community/datetimepicker';
+19-import { Validate } from '../../security/Security';
+20:import { SP, R, FS, FW, CITIES, INSURANCE, C, LAB_TESTS, RAD_SCANS, LIMITS , LANGS } from '../../constants';
+21-import { RegistrationSuccess } from '../shared/SharedScreens';
+22-import { LocationPickerModal } from '../../components/LocationPickerModal';
+23-import { ContractModal } from '../../components/ContractModal';
+--
+59-  testPrices: Record<string, string>;
+60-  testHomeAvail: Record<string, boolean>;
+61-  testTurnaround: Record<string, string>;
+62:  testInsuranceCov: Record<string, boolean>;
+63:  scanInsuranceCov: Record<string, boolean>;
+64-  enabledScans: string[];
+65-  scanPrices: Record<string, string>;
+66-  // Step 5
+--
+74-  homeOpenTime: string; homeCloseTime: string; homeEveningOpenTime: string; homeEveningCloseTime: string;
+75-  vacationDate: string;
+76-  cashOnly: boolean;
+77:  acceptedInsurance: { companyId: string; plans: string[] }[];
+78-  // Internal
+79-  signatureData: string; signerName: string; signerRole: string;
+80-  termsAgreed: boolean;
+--
+89-  crUri: '', mohUri: '', logoUri: '',
+90-  city: '', location: { lat: 0, lng: 0 }, district: '', address: '',
+91-  hasHomeSvc: false, homeRadius: 0, homeCollectorCount: '', homeCollectionFee: '', targetGenders: 'both', homeCollectorGender: 'both',
+92:  enabledTests: [], testPrices: {}, testHomeAvail: {}, testTurnaround: {}, testInsuranceCov: {}, scanInsuranceCov: {},
+93-  enabledScans: [], scanPrices: {},
+94-  bundles: [],
+95-  workDays: [],
+--
+97-  homeWorkDays: [],
+98-  homeShiftType: 'morning', homeOpenTime: '', homeCloseTime: '', homeEveningOpenTime: '', homeEveningCloseTime: '',
+99-  vacationDate: '',
+100:  cashOnly: false, acceptedInsurance: [],
+101-  signatureData: '', signerName: '', signerRole: '',
+102-  termsAgreed: false,
+103-};
+--
+607-    <NScroll>
+608-      <NHeader
+609-        title={AR ? (data.centerType === 'radiology' ? 'الموقع والتصوير المنزلي' : 'الموقع وخدمة السحب المنزلي') : (data.centerType === 'radiology' ? 'Location & Home Scan' : 'Location & Home Collection')}
+610:        sub={AR ? (data.centerType === 'radiology' ? 'حدد موقع المركز ونطاق التصوير المنزلي' : 'حدد موقع المركز ونطاق الخدمة المنزلية') : 'Set center location and home service coverage'}
+611-        step={step} total={total} onBack={onBack}
+612-      />
+613-
+--
+680-          <View style={{ marginTop: SP.xl }}>
+681-            {/* Radius */}
+682-            <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
+683:              {tr('نطاق التغطية للخدمة المنزلية (كم)', 'Coverage Radius (km)')}
+684-            </Text>
+685-
+686-            {/* +/- controls & manual input */}
+--
+819-  const setTestTurnaround = (id: string, val: string) => {
+820-    update({ testTurnaround: { ...data.testTurnaround, [id]: val } });
+821-  };
+822:  const setTestInsurance = (id: string, val: boolean) => {
+823:    update({ testInsuranceCov: { ...data.testInsuranceCov, [id]: val } });
+824-  };
+825:  const setScanInsurance = (id: string, val: boolean) => {
+826:    update({ scanInsuranceCov: { ...data.scanInsuranceCov, [id]: val } });
+827-  };
+828-
+829-  const filteredTests = labCatalog.filter(t =>
+--
+1285-}
+1286-
+1287-// ══════════════════════════════════════════════════════════════════════════════
+1288:// STEP 6 — SCHEDULE + INSURANCE
+1289-// ══════════════════════════════════════════════════════════════════════════════
+1290-function LStep6({ data, update, onNext, onBack, step, total }: {
+1291-  data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
+1292-  onNext: () => void; onBack: () => void; step: number; total: number;
+1293-}) {
+1294: const insuranceCatalog = useInsuranceCatalog();
+1295-  const { theme } = useTheme();
+1296-  const { lang } = useLang();
+1297-  const AR = lang === 'ar';
+--
+1311-  };
+1312-
+1313-  const toggleCompany = (coId: string) => {
+1314:    const current = data.acceptedInsurance || [];
+1315-    const index = current.findIndex(c => c.companyId === coId);
+1316-    if (index >= 0) {
+1317:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+1318-    } else {
+1319:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+1320-    }
+1321-  };
+1322-
+1323-  const togglePlan = (coId: string, plan: string) => {
+1324:    const current = data.acceptedInsurance || [];
+1325-    const updated = current.map(item => {
+1326-      if (item.companyId === coId) {
+1327-        const nextPlans = item.plans.includes(plan)
+--
+1331-      }
+1332-      return item;
+1333-    });
+1334:    update({ acceptedInsurance: updated });
+1335-  };
+1336-
+1337-  return (
+1338-    <NScroll>
+1339-      <NHeader
+1340:        title={tr('المواعيد والتأمين', 'Schedule & Insurance')}
+1341:        sub={tr('حدد أوقات العمل وشركات التأمين المقبولة', 'Set working hours and accepted insurance companies')}
+1342-        step={step} total={total} onBack={onBack}
+1343-      />
+1344-
+--
+1461-        />
+1462-      )}
+1463-
+1464:      {/* Insurance accepts */}
+1465-      <NCard style={{ marginBottom: SP.xl, marginTop: SP.md }}>
+1466-        <NToggle
+1467:          label={tr('نقدي فقط (بدون تأمين)', 'Cash Only (No Insurance)')}
+1468:          sub={tr('تعطيل قبول أي تأمين في المركز', 'Disable all insurance acceptance')}
+1469-          value={data.cashOnly}
+1470:          onChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })}
+1471-        />
+1472-      </NCard>
+1473-
+1474-      {!data.cashOnly && (
+1475-        <>
+1476:          <Text style={[st.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }]}>{tr('شركات التأمين الطبية المعتمدة', 'Accepted Medical Insurance Tiers')}</Text>
+1477:          {insuranceCatalog.map(co => {
+1478:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+1479-            const isAccepted = !!acceptedObj;
+1480-
+1481-            return (
+--
+1672-        location: data.location,
+1673-        address: data.address,
+1674-        district: data.district,
+1675:        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+1676:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+1677-        cr_number: data.crNumber,
+1678-        moh_license_number: data.mohLicense,
+1679-        tax_number: data.taxNumber,
+--
+1716-    { label_ar: 'الأشعة', label_en: 'Scans', val: `${data.enabledScans.length}` },
+1717-    { label_ar: 'الحزم', label_en: 'Bundles', val: `${data.bundles.length}` },
+1718-    { label_ar: 'خدمة منزلية', label_en: 'Home Svc', val: data.hasHomeSvc ? `${data.homeRadius} km` : (tr('لا', 'No')) },
+1719:    { label_ar: 'التأمين', label_en: 'Insurance', val: data.cashOnly ? (tr('نقدي', 'Cash')) : `${data.acceptedInsurance.length}` },
+1720-  ];
+1721-
+1722-  return (
+--
+1805-
+1806-        <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
+1807-          <NCheckbox
+1808:            label={tr('أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية، وأؤكد صحة جميع البيانات المدخلة.', 'I agree to Nabdah Plus Terms & Conditions and Privacy Policy, and confirm all data is accurate.')}
+1809-            value={agreed} onChange={setAgreed}
+1810-          />
+1811-        </NCard>
+
+===== provider/src/screens/pharmacy/PharmacyRegistration.tsx =====
+8-import SignatureCanvas from 'react-native-signature-canvas';
+9-import MapView, { Circle, Marker } from '../../components/PlatformMap';
+10-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+11:import { useInsuranceCatalog } from '../../api/catalogs';
+12-import { useTheme, useLang, useToast } from '../../context';
+13-import {
+14-  NBtn, NCard, NInput, NPhoneInput, NPassStrength,
+--
+16-  NHeader, NScroll, NSuccess, NPriceInput, NSearch, NDropdown, NDatePickerSheet
+17-} from '../../components/ui';
+18-import { Validate } from '../../security/Security';
+19:import { SP, R, FS, FW, PHARMA_CATS, CITIES, LIMITS, C, INSURANCE , LANGS } from '../../constants';
+20-import { RegistrationSuccess } from '../shared/SharedScreens';
+21-import { LocationPickerModal } from '../../components/LocationPickerModal';
+22-import { ContractModal } from '../../components/ContractModal';
+--
+65-  expressDelivery: boolean; expressFee: string; expressMinutes: string;
+66-  scheduledDelivery: boolean;
+67-  cashOnly: boolean;
+68:  acceptedInsurance: { companyId: string; plans: string[] }[];
+69-  // Internal
+70-  signatureData: string; signerName: string; signerRole: string;
+71-  termsAgreed: boolean;
+--
+84-  enabledCategories: [], rxDispensing: false, otcSelling: false,
+85-  minOrderSAR:'', deliveryFee:'', freeDeliveryAbove:'',
+86-  expressDelivery: false, expressFee:'', expressMinutes:'',
+87:  scheduledDelivery: false, cashOnly: false, acceptedInsurance: [],
+88-  signatureData: '', signerName: '', signerRole: '',   termsAgreed: false, location: {lat: 0, lng: 0}, accountHolderName: ''
+89-};
+90-
+--
+354-
+355-  return (
+356-    <NScroll>
+357:      <NHeader title={tr('الموقع ونطاق التوصيل', 'Location & Delivery Zone')} sub={tr('حدد موقع الصيدلية ونطاق التوصيل', 'Set pharmacy location and delivery coverage')} step={step} total={total} onBack={onBack} />
+358-
+359-      <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{tr('المدينة', 'City')} *</Text>
+360-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom:SP.lg }}>
+--
+442-
+443-            <NCard style={{ backgroundColor:theme.infoBg, padding:SP.md }}>
+444-              <Text style={{ fontSize:FS.xs, color:theme.info, lineHeight:18, textAlign:AR?'right':'left' }}>
+445:                {trT("نظام البث (Broadcast): يتم إرسال طلبات الأدوية للمرضى داخل نطاق {0} كم لضمان سرعة التوصيل.", "Broadcast system: Prescription orders sent to pharmacies within {0}km coverage radius.", [data.deliveryRadius])}
+446-              </Text>
+447-            </NCard>
+448-          </View>
+--
+600-
+601-// ══════════════════════════════════════════════════════════════════════════════
+602-function PStep6Delivery({ data, update, onNext, onBack, step, total }: any) {
+603: const insuranceCatalog = useInsuranceCatalog();
+604-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+605- const tr = (ar: string, en: string) => translateProviderPair(lang, ar, en);
+606- const trT = (ar: string, en: string, values: readonly unknown[]) => translateProviderTemplate(lang, ar, en, values);
+607-
+608-  const toggleCompany = (coId: string) => {
+609:    const current = data.acceptedInsurance || [];
+610-    const index = current.findIndex(c => c.companyId === coId);
+611-    if (index >= 0) {
+612:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+613-    } else {
+614:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+615-    }
+616-  };
+617-
+618-  const togglePlan = (coId: string, plan: string) => {
+619:    const current = data.acceptedInsurance || [];
+620-    const updated = current.map(item => {
+621-      if (item.companyId === coId) {
+622-        const nextPlans = item.plans.includes(plan) ? item.plans.filter(p => p !== plan) : [...item.plans, plan];
+--
+624-      }
+625-      return item;
+626-    });
+627:    update({ acceptedInsurance: updated });
+628-  };
+629-
+630-  return (
+631-    <NScroll>
+632:      <NHeader title={tr('شروط التوصيل والتأمين', 'Delivery & Insurance')} sub={tr('حدد رسوم التوصيل وشركات التأمين المقبولة', 'Configure delivery terms & insurance tiers')} step={step} total={total} onBack={onBack} />
+633-
+634-      {data.hasDelivery && (
+635-        <NCard style={{ marginBottom:SP.xl }}>
+--
+650-
+651-      <NCard style={{ marginBottom:SP.xl }}>
+652-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
+653:          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tr('أقبل الدفع بالتأمين الصيدلاني؟', 'Accept Insurance Payments?')}</Text>
+654-          <Switch value={!data.cashOnly} onValueChange={v=>update({cashOnly:!v})} />
+655-        </View>
+656-
+657-        {!data.cashOnly && (
+658-          <View style={{ marginTop: SP.md }}>
+659:            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tr('اختر شركات التأمين الصيدلاني المعتمدة وفئاتها:', 'Select accepted pharmacy insurance plans:')}</Text>
+660:            {insuranceCatalog.map(co => {
+661:              const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+662-              const isAccepted = !!acceptedObj;
+663-
+664-              return (
+--
+765-        express_fee: parseFloat(data.expressFee) || 0,
+766-        express_minutes: parseInt(data.expressMinutes, 10) || 0,
+767-        working_hours: workingHours,
+768:        accepts_insurance: !data.cashOnly,
+769:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+770-        accepts_cash: true,
+771-        rx_dispensing: data.rxDispensing || false,
+772-        otc_selling: data.otcSelling || false,
+
+===== provider/src/screens/nursing/NursingRegistration.tsx =====
+7-import * as DocumentPicker from 'expo-document-picker';
+8-import SignatureCanvas from 'react-native-signature-canvas';
+9-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+10:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+11-import { useTheme, useLang, useToast } from '../../context';
+12-import {
+13-  NBtn, NCard, NInput, NPhoneInput, NPassStrength,
+--
+16-} from '../../components/ui';
+17-import { I, IBg } from '../../components/icons';
+18-import { Validate } from '../../security/Security';
+19:import { SP, R, FS, FW, NURSING_SVCS, CITIES, INSURANCE, C , LANGS } from '../../constants';
+20-import { RegistrationSuccess } from '../shared/SharedScreens';
+21-import { ContractModal } from '../../components/ContractModal';
+22-import { OtpModal } from '../../components/OtpModal';
+--
+66-  // Pricing
+67-  pricingModels: string[];
+68-  priceVisit: string; priceHour: string; priceDay: string; priceMonth: string;
+69:  // Coverage & Map
+70-  city: string; location: {lat: number; lng: number}; district: string; address: string;
+71:  coverageRadius: number; coverageAreas: string[];
+72-  // Schedule
+73-  workDays: string[]; shiftType: 'morning' | 'evening' | 'both'; openTime: string; closeTime: string; eveningOpenTime: string; eveningCloseTime: string; is24_7: boolean; vacationDate: string;
+74:  // Insurance
+75-  cashOnly: boolean;
+76:  acceptedInsurance: { companyId: string; plans: string[] }[];
+77-  // Submit
+78-  signatureData: string; signerName: string; signerRole: string;
+79-  termsAgreed: boolean;
+--
+85-  scfhsUri: '', crUri: '', mohUri: '', photoUri: '',
+86-  enabledServices: [],
+87-  pricingModels: [], priceVisit: '', priceHour: '', priceDay: '', priceMonth: '',
+88:  city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0, coverageAreas: [],
+89-  workDays: [], shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '', is24_7: false, vacationDate: '',
+90:  cashOnly: false, acceptedInsurance: [],
+91-  signatureData: '', signerName: '', signerRole: '', termsAgreed: false,
+92-};
+93-
+--
+501-  );
+502-}
+503-
+504:// ── STEP 5: COVERAGE ────────────────────────────────────────────
+505-function NS5({ data, update, onNext, onBack, step, total }: any) {
+506-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+507- const tr = (ar: string, en: string) => translateProviderPair(lang, ar, en);
+--
+544-
+545-  return (
+546-    <NScroll>
+547:      <NHeader title={tr('نطاق التغطية', 'Coverage Area')} sub={tr('حدد المناطق التي تغطيها', 'Define your service area')} step={step} total={total} onBack={onBack} />
+548-
+549-      <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{tr('المدينة', 'City')}<Text style={{ color: theme.danger }}> *</Text></Text>
+550-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.lg }}>
+--
+558-      <NInput label={tr('العنوان', 'Address')} value={data.address} onChange={v => update({ address: v })} required error={errs.addr} multi lines={2} />
+559-
+560-      <NCard style={{ marginBottom: SP.xl }}>
+561:        <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{tr('نطاق التغطية للزيارة المنزلية (كم)', 'Coverage Radius (km)')}</Text>
+562-
+563-        {/* +/- controls & manual text input */}
+564-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md, marginBottom: SP.md }}>
+565-          <TouchableOpacity
+566:            onPress={() => update({ coverageRadius: Math.max(1, data.coverageRadius - 1) })}
+567-            style={{ width: 44, height: 44, borderRadius: R.md, backgroundColor: theme.surface3, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}
+568-          >
+569-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>-</Text>
+570-          </TouchableOpacity>
+571-          <TextInput
+572:            value={String(data.coverageRadius)}
+573-            onChangeText={v => {
+574-              const num = parseInt(v.replace(/\D/g, '')) || 0;
+575:              update({ coverageRadius: Math.min(100, Math.max(1, num)) });
+576-            }}
+577-            keyboardType="numeric"
+578-            style={{ flex: 1, height: 44, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.inputBg, borderRadius: R.md, color: theme.text, textAlign: 'center', fontSize: FS.md, fontWeight: 'bold' }}
+579-          />
+580-          <TouchableOpacity
+581:            onPress={() => update({ coverageRadius: Math.min(100, data.coverageRadius + 1) })}
+582-            style={{ width: 44, height: 44, borderRadius: R.md, backgroundColor: theme.surface3, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}
+583-          >
+584-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>+</Text>
+--
+588-
+589-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
+590-          {[5, 10, 15, 20, 30, 50].map(r => (
+591:            <TouchableOpacity key={r} onPress={() => update({ coverageRadius: r })} style={[st.chip, { backgroundColor: data.coverageRadius === r ? '#E91E63' : theme.surface2, borderColor: data.coverageRadius === r ? '#E91E63' : theme.border }]}>
+592:              <Text style={{ color: data.coverageRadius === r ? '#FFF' : theme.text, fontWeight: FW.semi }}>{r} {tr('كم', 'km')}</Text>
+593-            </TouchableOpacity>
+594-          ))}
+595-        </View>
+--
+617-  );
+618-}
+619-
+620:// ── STEP 6: SCHEDULE & INSURANCE ────────────────────────────────────────────
+621-function NS6({ data, update, onNext, onBack, step, total }: any) {
+622: const insuranceCatalog = useInsuranceCatalog();
+623-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+624- const tr = (ar: string, en: string) => translateProviderPair(lang, ar, en);
+625- const trT = (ar: string, en: string, values: readonly unknown[]) => translateProviderTemplate(lang, ar, en, values);
+--
+631-  };
+632-
+633-  const toggleCompany = (coId: string) => {
+634:    const current = data.acceptedInsurance || [];
+635-    const index = current.findIndex(c => c.companyId === coId);
+636-    if (index >= 0) {
+637:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+638-    } else {
+639:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+640-    }
+641-  };
+642-
+643-  const togglePlan = (coId: string, plan: string) => {
+644:    const current = data.acceptedInsurance || [];
+645-    const updated = current.map(item => {
+646-      if (item.companyId === coId) {
+647-        const nextPlans = item.plans.includes(plan) ? item.plans.filter(p => p !== plan) : [...item.plans, plan];
+--
+649-      }
+650-      return item;
+651-    });
+652:    update({ acceptedInsurance: updated });
+653-  };
+654-
+655-  return (
+656-    <NScroll>
+657:      <NHeader title={tr('المواعيد والتأمين', 'Schedule & Insurance')} sub={tr('حدد أوقات العمل وقبول التأمين', 'Set availability and insurance options')} step={step} total={total} onBack={onBack} />
+658-
+659-      <NCard style={{ marginBottom: SP.xl }}>
+660-        <NToggle label={tr('متاح 24/7', 'Available 24/7')} sub={tr('خدمة متواصلة كل الأيام', 'Around-the-clock every day')} value={data.is24_7} onChange={v => update({ is24_7: v, workDays: v ? ['SUN','MON','TUE','WED','THU','FRI','SAT'] : data.workDays })} />
+--
+727-
+728-      <View style={{ height: SP.sm }} />
+729-
+730:      {/* Insurance settings for nursing */}
+731-      <NCard style={{ marginBottom: SP.xl }}>
+732-        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
+733:          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tr('الدفع نقداً فقط (لا أقبل التأمين)', 'Cash Only (No Insurance)')}</Text>
+734:          <Switch value={data.cashOnly} onValueChange={v => update({ cashOnly: v, acceptedInsurance: v ? [] : data.acceptedInsurance })} />
+735-        </View>
+736-
+737-        {!data.cashOnly && (
+738-          <View style={{ marginTop: SP.md }}>
+739:            <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{tr('اختر شركات التأمين الطبي المعتمدة للتمريض:', 'Select accepted medical insurance plans:')}</Text>
+740:            {insuranceCatalog.map(co => {
+741:              const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+742-              const isAccepted = !!acceptedObj;
+743-
+744-              return (
+--
+795-          {tr('الأسعار والخدمات التمريضية التي حددتها لن تُنشر للجمهور فور اكتمال التسجيل.', 'Your nursing rates, services, and profile will NOT go live immediately.')}
+796-        </Text>
+797-        <Text style={{ fontSize: FS.md, color: theme.text, textAlign: AR ? 'right' : 'left', lineHeight: 24 }}>
+798:          {tr('مستقبلاً، أي تعديل للأسعار أو تغيير لنطاق التغطية سيتطلب موافقة الأدمن للتأكد من مطابقة تراخيص التمريض المنزلي.', 'Future changes to nursing fees or coverage radius must be reviewed and approved by the Admin first.')}
+799-        </Text>
+800-      </View>
+801-
+--
+834-      show(tr('أدخل سعراً موجباً لكل نموذج تسعير مختار', 'Enter a positive price for each selected pricing model'), 'error');
+835-      return false;
+836-    }
+837:    if (!Number(data.coverageRadius) || data.coverageRadius <= 0 || (!data.is24_7 && (!data.workDays.length || !data.openTime || !data.closeTime))) {
+838:      show(tr('أكمل نطاق التغطية وأيام وساعات العمل', 'Complete coverage radius and working days/hours'), 'error');
+839-      return false;
+840-    }
+841-    return true;
+--
+883-
+884-      await ProviderApi.step3({
+885-        nursing_services: data.enabledServices.map((id: string) => ({ key: id, name_ar: id, price: 0 })),
+886:        home_visit_radius_km: data.coverageRadius,
+887-        working_hours: workingHours,
+888-        pricingModel: data.pricingModels,
+889-        priceVisit: parseFloat(data.priceVisit) || 0,
+--
+901-        district: data.district,
+902-        address: data.address,
+903-        accepts_cash: data.cashOnly,
+904:        accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
+905:        accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
+906-        bio: data.bio,
+907-        cr_number: data.crNumber,
+908-        moh_license_number: data.mohLicense,
+--
+944-    { ar: 'المدينة', en: 'City', val: CITIES.find(c => c.id === data.city)?.[AR ? 'ar' : 'en'] ?? '—' },
+945-    { ar: 'الخدمات', en: 'Services', val: `${data.enabledServices.length}` },
+946-    { ar: 'نموذج التسعير', en: 'Pricing', val: prc ? (AR ? prc.ar : prc.en) : '—' },
+947:    { ar: 'نطاق التغطية', en: 'Coverage', val: `${data.coverageRadius} km` },
+948:    { ar: 'الدفع', en: 'Payment', val: data.cashOnly ? (tr('نقدي فقط', 'نقدي + تأمين')) : (tr('نقدي + تأمين', 'Cash + Insurance')) },
+949-  ];
+950-
+951-    const [showOtp, setShowOtp] = useState(false);
+--
+963-            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
+964-              <I name="info" size={16} color={theme.warn} />
+965-              <Text style={{ flex: 1, fontSize: FS.sm, color: theme.warn, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
+966:                {tr('خدمات التمريض المنزلي تعمل بنظام الدفع النقدي فقط — لا يوجد تأمين صحي.', 'Home nursing services operate on cash-only basis — no health insurance.')}
+967-              </Text>
+968-            </View>
+969-          </NCard>
+--
+1035-
+1036-
+1037-        <NCard style={{ marginBottom: SP.lg, backgroundColor: theme.surface2 }}>
+1038:          <NCheckbox label={tr('أوافق على شروط وأحكام نبضة بلس وسياسة الخصوصية.', 'I agree to Nabdah Plus Terms & Privacy Policy.')} value={agreed} onChange={setAgreed} />
+1039-        </NCard>
+1040-
+1041-        <NBtn label={tr('إرسال الطلب للمراجعة', 'Submit Application')} onPress={submit} loading={loading} disabled={!agreed} style={{ marginBottom: 50, backgroundColor: theme.success }} />
+
+===== provider/src/screens/facility/FacilityRegistration.tsx =====
+11-} from '../../components/ui';
+12-import { SafeAreaView } from 'react-native-safe-area-context';
+13-import { Validate } from '../../security/Security';
+14:import { SP, R, FS, FW, INSURANCE, CITIES, SPECIALTIES, DEGREES, LAB_TESTS, RAD_SCANS, NURSING_SVCS , LANGS } from '../../constants';
+15-import { I } from '../../components/icons';
+16-import { RegistrationSuccess } from '../shared/SharedScreens';
+17-import { ContractModal } from '../../components/ContractModal';
+--
+23-import * as ImagePicker from 'expo-image-picker';
+24-import * as DocumentPicker from 'expo-document-picker';
+25-import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+26:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+27-
+28-import SignatureCanvas from 'react-native-signature-canvas';
+29-import { translateProviderPair } from '../../i18n/providerTextTranslations';
+--
+60-  city: string; fullAddress: string;
+61-  location: {lat: number; lng: number};
+62-  // Sub-accounts
+63:  subProviders: any[]; // { type: 'doctor'|'lab'|'pharmacy', nameAr: string, nameEn: string, license: string, hasInsuranceEmp: boolean, ... }
+64:  // Insurance
+65-  cashOnly: boolean;
+66:  acceptedInsurance: { companyId: string; plans: string[] }[];
+67:  hasInsuranceCoordinator: boolean;
+68-  signatureData: string; loading?: boolean; signerName: string; signerRole: string; termsAgreed: boolean;
+69-}
+70-
+--
+73-  facilityNameAr: '', facilityNameEn: '', facilityType: '',
+74-  managerName: '', managerPhone: '', managerEmail: '', password: '', confirmPass: '',
+75-  languages: [], crNumber: '', mohLicense: '', crDocUri: '', mohDocUri: '', facilityLogoUri: '', facilityImagesUris: [],
+76:  city: '', fullAddress: '', location: {lat: 0, lng: 0}, subProviders: [], cashOnly: false, acceptedInsurance: [], hasInsuranceCoordinator: false, signatureData: '', signerName: '', signerRole: '', termsAgreed: false, loading: false
+77-};
+78-
+79-export function FacilityRegistration({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+--
+93-    2: <Step2Legal data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+94-    3: <Step3Location data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+95-    4: <Step4SubProviders data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+96:    5: <Step5Insurance data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+97-    6: <Step6AdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
+98-    7: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+99-  };
+--
+577-                      </View>
+578-                      {tempSub[mode.enb] && (
+579-                        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginTop: 4 }}>
+580:                           <NCheckbox label={tr('مشمول في التأمين؟', 'Accepts Insurance?')} value={tempSub[mode.ins]} onChange={v => setTempSub({...tempSub, [mode.ins]: v})} />
+581-                        </View>
+582-                      )}
+583-                    </View>
+--
+608-                  </View>
+609-
+610-                  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.md }}>
+611:                    {tr('يتم تطبيق التأمين الخاص بالمستشفى تلقائياً على حساب الطبيب، ويمكن للطبيب تفعيل أو إيقاف التأمين من لوحة تحكمه.', 'Facility insurance is automatically applied. The doctor can toggle it from their dashboard.')}
+612-                  </Text>
+613-                </View>
+614-              </View>
+--
+635-
+636-                <View style={{ marginTop: SP.lg, paddingTop: SP.lg, borderTopWidth: 1, borderTopColor: theme.border }}>
+637-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+638:                    {tr('الخدمات المنزلية والتأمين', 'Home Services & Insurance')}
+639-                  </Text>
+640-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
+641-                    <View style={{ flex: 1 }}><NCheckbox label={tr('توفير سحب العينات من المنزل', 'Provide Home Sample Collection')} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
+--
+644-                    )}
+645-                  </View>
+646-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: SP.md }}>
+647:                    <NCheckbox label={tr('مشمول في التأمين الطبي', 'Accepts Medical Insurance')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+648-                  </View>
+649-
+650-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.sm, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+--
+696-
+697-                <View style={{ marginTop: SP.lg, paddingTop: SP.lg, borderTopWidth: 1, borderTopColor: theme.border }}>
+698-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+699:                    {tr('الخدمات المنزلية والتأمين', 'Home Services & Insurance')}
+700-                  </Text>
+701-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
+702-                    <View style={{ flex: 1 }}><NCheckbox label={tr('توفير التصوير المنزلي (Home Scan)', 'Provide Home Scan')} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
+--
+705-                    )}
+706-                  </View>
+707-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: SP.md }}>
+708:                    <NCheckbox label={tr('مشمول في التأمين الطبي', 'Accepts Medical Insurance')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+709-                  </View>
+710-
+711-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.sm, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+--
+757-
+758-                <View style={{ marginTop: SP.lg, paddingTop: SP.lg, borderTopWidth: 1, borderTopColor: theme.border }}>
+759-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+760:                    {tr('نطاق الخدمة والتأمين', 'Service Scope & Insurance')}
+761-                  </Text>
+762-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
+763-                    <View style={{ flex: 1 }}><NCheckbox label={tr('تقديم رعاية منزلية (Home Care)', 'Provide Home Care')} value={!!tempSub.homeEnabled} onChange={v => setTempSub({...tempSub, homeEnabled: v})} /></View>
+--
+766-                    )}
+767-                  </View>
+768-                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: SP.md }}>
+769:                    <NCheckbox label={tr('مشمول في التأمين الطبي', 'Accepts Medical Insurance')} value={tempSub.acceptsInsurance} onChange={v => setTempSub({...tempSub, acceptsInsurance: v})} />
+770-                  </View>
+771-
+772-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.sm, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+--
+831-}
+832-
+833-// ══════════════════════════════════════════════════════════════════════════════
+834:function Step5Insurance({ data, update, onNext, onBack, step, total }: any) {
+835: const insuranceCatalog = useInsuranceCatalog();
+836-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+837- const tr = (ar: string, en: string) => translateProviderPair(lang, ar, en);
+838-  const handleNext = async () => {
+--
+873-          price_clinic: Number(sp.priceClinic) || 0,
+874-          price_online: Number(sp.priceOnline) || 0,
+875-          price_home: Number(sp.priceHome) || 0,
+876:          insurance_clinic: !!sp.insClinic,
+877:          insurance_online: !!sp.insOnline,
+878:          insurance_home: !!sp.insHome,
+879-          working_hours: wh,
+880-          clinic_images: uploadedImages,
+881-        };
+--
+889-          prices: sp.testPrices || {},
+890-          home_service: !!sp.homeEnabled,
+891-          home_fee: Number(sp.priceHome) || 0,
+892:          insurance: !!sp.acceptsInsurance,
+893-          working_hours: wh,
+894-          clinic_images: uploadedImages,
+895-      }));
+--
+902-          prices: sp.scanPrices || {},
+903-          home_service: !!sp.homeEnabled,
+904-          home_fee: Number(sp.priceHome) || 0,
+905:          insurance: !!sp.acceptsInsurance,
+906-          working_hours: wh,
+907-          clinic_images: uploadedImages,
+908-      }));
+--
+915-          prices: sp.nursingPrices || {},
+916-          home_service: !!sp.homeEnabled,
+917-          home_fee: Number(sp.priceHome) || 0,
+918:          insurance: !!sp.acceptsInsurance,
+919-          working_hours: wh,
+920-          clinic_images: uploadedImages,
+921-      }));
+--
+926-        radiology_roster: radRoster,
+927-        nursing_roster: nursingRoster,
+928-        accepts_cash: data.cashOnly,
+929:        accepted_insurance: data.acceptedInsurance.map((i: any) => i.companyId),
+930-      });
+931-      onNext();
+932-    } catch (e: any) {
+--
+938-  };
+939-
+940-  const toggleCompany = (coId: string) => {
+941:    const current = data.acceptedInsurance || [];
+942-    const index = current.findIndex(c => c.companyId === coId);
+943-    if (index >= 0) {
+944:      update({ acceptedInsurance: current.filter(c => c.companyId !== coId) });
+945-    } else {
+946:      update({ acceptedInsurance: [...current, { companyId: coId, plans: [] }] });
+947-    }
+948-  };
+949-
+950-  const togglePlan = (coId: string, plan: string) => {
+951:    const current = data.acceptedInsurance || [];
+952-    const updated = current.map(item => {
+953-      if (item.companyId === coId) {
+954-        const nextPlans = item.plans.includes(plan)
+--
+958-      }
+959-      return item;
+960-    });
+961:    update({ acceptedInsurance: updated });
+962-  };
+963-
+964-  return (
+965-    <NScroll>
+966:      <NHeader title={tr('التأمين الأساسي للمستشفى', 'Facility Insurance')} step={step} total={total} onBack={onBack} />
+967-      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.lg }}>
+968:        <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tr('الدفع نقداً فقط (لا نقبل التأمين)', 'Cash Only (No Insurance)')}</Text>
+969-        <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
+970-      </View>
+971-
+972-      {!data.cashOnly && (
+973-        <View style={{ marginBottom: SP.xl }}>
+974-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.lg }}>
+975:            <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{tr('مدير/مسؤول تأمين عام للمستشفى؟', 'General Insurance Manager?')}</Text>
+976:            <Switch value={data.hasInsuranceCoordinator} onValueChange={v=>update({hasInsuranceCoordinator:v})} />
+977-          </View>
+978-
+979:          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tr('شركات التأمين المقبولة بالمنشأة', 'Accepted Insurance Companies')}</Text>
+980:          {insuranceCatalog.map(co => {
+981:            const acceptedObj = data.acceptedInsurance?.find(c => c.companyId === co.id);
+982-            const isAccepted = !!acceptedObj;
+983-
+984-            return (
+
+===== patient/app/profile/insurance.tsx =====
+18-import { useGuestGuard } from "../../src/hooks/useGuestGuard";
+19-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+20-
+21:export default function InsuranceScreen() {
+22-  const insets = useSafeAreaInsets();
+23-  const { colors, isDark, lang } = useApp();
+24-  const { isGuest, requireAuth } = useGuestGuard();
+25:  const [insurance, setInsurance] = useState<any>(null);
+26-  const [loading, setLoading] = useState(true);
+27-
+28:  // Real add-policy form state (catalog-driven)
+29-  const [showForm, setShowForm] = useState(false);
+30-  const [companies, setCompanies] = useState<any[]>([]);
+31:  const [networks, setNetworks] = useState<any[]>([]);
+32-  const [companyId, setCompanyId] = useState<string | null>(null);
+33:  const [networkCode, setNetworkCode] = useState<string | null>(null);
+34:  const [policyNumber, setPolicyNumber] = useState("");
+35-  const [memberId, setMemberId] = useState("");
+36-  const [saving, setSaving] = useState(false);
+37-
+38:  const loadInsurance = async () => {
+39-    try {
+40:      const data = await apiFetch("/users/me/insurance");
+41:      setInsurance(data);
+42-    } catch {
+43:      setInsurance(null);
+44-    } finally {
+45-      setLoading(false);
+46-    }
+47-  };
+48-
+49-  useEffect(() => {
+50:    loadInsurance();
+51-  }, []);
+52-
+53-  const openForm = async () => {
+54:    // Insurance requires a registered account (guests are blocked by policy)
+55-    if (isGuest) {
+56:      if (requireAuth("insurance")) return;
+57-      return;
+58-    }
+59-    setShowForm(true);
+60-    try {
+61:      const list = await apiFetch("/insurance/companies");
+62-      setCompanies(Array.isArray(list) ? list : []);
+63-    } catch {
+64-      setCompanies([]);
+--
+67-
+68-  const pickCompany = async (c: any) => {
+69-    setCompanyId(c.id || c.code);
+70:    setNetworkCode(null);
+71:    setNetworks([]);
+72-    try {
+73:      const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+74:      setNetworks(Array.isArray(nets) ? nets : []);
+75-    } catch {
+76:      setNetworks([]);
+77-    }
+78-  };
+79-
+80:  const savePolicy = async () => {
+81:    if (!companyId || !policyNumber.trim()) {
+82-      showLocalizedAlert("تنبيه", "اختر شركة التأمين وأدخل رقم الوثيقة");
+83-      return;
+84-    }
+--
+88-      const payload = {
+89-        provider: company?.code || companyId,
+90-        provider_name: company?.name_ar || company?.name_en || "",
+91:        policy_number: policyNumber.trim(),
+92-        member_id: memberId.trim(),
+93:        network: networkCode || "",
+94-        class: "A",
+95-      };
+96:      const saved = await apiFetch("/users/me/insurance", {
+97-        method: "POST",
+98-        body: JSON.stringify(payload),
+99-      });
+100:      setInsurance(saved || payload);
+101-      setShowForm(false);
+102:      setPolicyNumber("");
+103-      setMemberId("");
+104-      showLocalizedAlert("تم", "تم حفظ بطاقة التأمين وستتم مراجعتها للتفعيل");
+105-    } catch (e: any) {
+--
+148-          color={colors.primary}
+149-          style={{ marginTop: 40 }}
+150-        />
+151:      ) : insurance ? (
+152-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+153-          <View
+154-            style={[
+--
+158-          >
+159-            <View style={st.row}>
+160-              <AppText variant="h4" color={colors.textPrimary}>
+161:                {insurance.provider_name || insurance.provider || "شركة التأمين"}
+162-              </AppText>
+163-              <Icon name="shield-check" size={28} color={colors.primary} />
+164-            </View>
+165-            <View style={{ marginTop: 16, gap: 12 }}>
+166-              <View style={st.row}>
+167-                <AppText variant="body" color={colors.textSecondary}>
+168:                  وثيقة رقم: {insurance.policy_number || "---"}
+169-                </AppText>
+170-                <Icon name="document" size={18} color={colors.textTertiary} />
+171-              </View>
+172-              <View style={st.row}>
+173-                <AppText variant="body" color={colors.textSecondary}>
+174:                  الشبكة: {insurance.network || "---"}
+175-                </AppText>
+176-                <Icon name="hospital" size={18} color={colors.textTertiary} />
+177-              </View>
+178-              <View style={st.row}>
+179-                <AppText variant="body" color={colors.textSecondary}>
+180:                  الفئة: {insurance.class || "---"}
+181-                </AppText>
+182-                <Icon name="star" size={18} color={colors.textTertiary} />
+183-              </View>
+--
+226-            })}
+227-          </View>
+228-
+229:          {networks.length > 0 && (
+230-            <>
+231-              <AppText variant="bodySM" color={colors.textSecondary} style={{ textAlign: "right" }}>
+232-                الفئة / الشبكة
+233-              </AppText>
+234-              <View style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 8 }}>
+235:                {networks.map((n) => {
+236:                  const sel = networkCode === n.code;
+237-                  return (
+238-                    <TouchableOpacity
+239-                      key={n.code}
+240:                      onPress={() => setNetworkCode(n.code)}
+241-                      style={[
+242-                        st.chip,
+243-                        {
+--
+259-          <TextInput
+260-            placeholder="رقم الوثيقة"
+261-            placeholderTextColor={colors.textTertiary}
+262:            value={policyNumber}
+263:            onChangeText={setPolicyNumber}
+264-            keyboardType="number-pad"
+265-            style={[st.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.card }]}
+266-          />
+--
+275-          <Button
+276-            label={saving ? "جارٍ الحفظ..." : "حفظ البطاقة"}
+277-            variant="primary"
+278:            onPress={savePolicy}
+279-            disabled={saving}
+280-          />
+281-          <Button
+
+===== patient/app/insurance/add-policy.tsx =====
+11-import { pickLocalized } from '../../src/utils/localize';
+12-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+13-
+14:export default function AddPolicyScreen() {
+15-  const insets = useSafeAreaInsets();
+16-  const { colors, isDark } = useApp();
+17-
+18-  const [company, setCompany] = useState('');
+19:  const [policyNum, setPolicyNum] = useState('');
+20-  const [memberId, setMemberId] = useState('');
+21-  const [memberName, setMemberName] = useState('');
+22-  const [expiry, setExpiry] = useState('');
+--
+26-  const [companies, setCompanies] = useState<any[]>([]);
+27-
+28-  React.useEffect(() => {
+29:    apiFetch('/insurance/companies')
+30-      .then(res => setCompanies(Array.isArray(res) ? res : []))
+31-      .catch(() => setCompanies([]));
+32-  }, []);
+--
+41-      const shot = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7 });
+42-      if (shot.canceled || !shot.assets?.[0]?.base64) return;
+43-      setIsScanning(true);
+44:      const res = await apiFetch('/insurance/ocr-extract', {
+45-        method: 'POST',
+46-        body: JSON.stringify({ image_base64: shot.assets[0].base64, mime_type: 'image/jpeg' }),
+47-      });
+48-      if (res.success && res.extracted_data) {
+49-        const data = res.extracted_data;
+50:        if (data.policy_number) setPolicyNum(data.policy_number);
+51-        if (data.national_id) setMemberId(data.national_id);
+52-        if (data.member_name) setMemberName(data.member_name);
+53-        if (data.expiry_date) setExpiry(data.expiry_date);
+--
+71-  };
+72-
+73-  const handleSave = async () => {
+74:    if (!company || !policyNum) return;
+75-    setIsSaving(true);
+76-    try {
+77-      const compObj = companies.find(c => c.id === company);
+78:      await apiFetch('/insurance/save-policy', {
+79-        method: 'POST',
+80-        body: JSON.stringify({
+81-          provider: pickLocalized(compObj?.name_ar, compObj?.name_en) || compObj?.code,
+82-          company_id: compObj?.code,
+83:          policy_number: policyNum,
+84-          ...(expiry ? { expiry_date: expiry } : {}),
+85-          ...(memberName ? { member_name: memberName } : {}),
+86-          national_id: memberId || undefined,
+--
+88-          ocr_extracted: ocrUsed,
+89-        }),
+90-      });
+91:      router.replace('/insurance/hub');
+92-    } catch (err: any) {
+93-      showLocalizedAlert('خطأ', err.message || 'فشل حفظ بوليصة التأمين');
+94-    } finally {
+--
+145-          </View>
+146-        </View>
+147-
+148:        {/* Policy Details */}
+149-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
+150-          <AppText variant="bodySM">بيانات البوليصة</AppText>
+151-          {[
+152:            { label: 'رقم البوليصة', val: policyNum, setter: setPolicyNum, placeholder: 'رقم البوليصة كما في البطاقة' },
+153-            { label: 'رقم العضوية / الهوية الوطنية', val: memberId, setter: setMemberId, placeholder: 'الهوية الوطنية / الإقامة' },
+154-            { label: 'اسم العضو (اختياري)', val: memberName, setter: setMemberName, placeholder: 'الاسم كما في البطاقة' },
+155-            { label: 'تاريخ الانتهاء (اختياري)', val: expiry, setter: setExpiry, placeholder: 'YYYY-MM-DD' },
+--
+165-        </View>
+166-      </ScrollView>
+167-      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
+168:        <TouchableOpacity onPress={handleSave} disabled={!company || !policyNum || isSaving}
+169:          activeOpacity={0.85} style={{ opacity: !company || !policyNum ? 0.6 : 1 }}>
+170-          <View style={[styles.saveBtn, { backgroundColor: '#0f3460' }]}>
+171-            <AppText variant="bodySM">{isSaving ? 'جاري الحفظ...' : 'حفظ وإضافة البوليصة '}</AppText>
+172-          </View>

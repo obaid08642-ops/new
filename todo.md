@@ -1059,3 +1059,16 @@
 - [x] اللغات: حُسمت 6 locales فقط `ar/en/ur/hi/bn/fil`، مع mapping الداخلي `fil→translations.tl`. أضيف schema للـtranslations وvalidator قبل public medicine approval يمنع fallback الصامت ويعيد gaps قابلة للتصحيح. الدليل: `NABDAH_LOCALE_AND_MONGOOSE_INDEX_HARDENING_20260820.md`.
 - [x] Mongoose indexes: أزيل source duplicate فقط لـ`LabResult.booking_id` مع إبقاء property index؛ فحص mental-health أثبت أن duplicate المبلغ عنه غير موجود في المصدر الحالي، فلم يُحذف شيء. اختبارات index contract + build تمر، ولا migration/dropIndex إنتاجية. الدليل: `NABDAH_LOCALE_AND_MONGOOSE_INDEX_HARDENING_20260820.md`.
 - [ ] قبول Sandbox: بعد كل دفعة، بوابات Backend/Patient/Provider/Admin وسيناريوهات BOLA/lifecycle المتاحة فقط؛ لا نشر إنتاج أو دفع حقيقي أو admin 2FA bypass.
+
+## توحيد مستهلكي كتالوج التأمين — 2026-08-20
+
+- [x] جرد Patient وProvider وAdmin لكل مواضع اختيار شركة أو فئة تأمين، بما في ذلك تسجيل المزودين الستة، إعداداتهم، ملف المريض، إضافة الوثيقة، الاستشارات، الحجوزات، التحاليل، ولوحة Admin.
+- [x] ربط شاشة تصفية الاستشارات في Patient بـ`GET /insurance/companies` ثم `GET /insurance/companies/:id/networks`، وإزالة قاموس الشركات والفئات المحلي.
+- [x] ربط رفع وثيقة التأمين للتحاليل بالكتالوج والشبكات الخادمية فقط، وإزالة اختيار Bupa/Class B الافتراضي وكل fallback محلي.
+- [x] تحويل route إعدادات تأمين الطبيب إلى `InsuranceConfigScreen` المشتركة المرتبطة بالـBackend، وحذف نسخة الطبيب الثابتة وإزالة شركات/فئات نموذجية من شاشة التوفر.
+- [x] إزالة مصادر الكتالوج الثابتة غير المستخدمة من Patient وProvider، وإضافة اختبارات انحدار تمنع عودتها في التدفقات التشغيلية.
+- [x] بوابات هذه الدفعة: Patient typecheck + 23 suites/59 tests، Provider typecheck + 31 tests، Backend 73 suites/411 tests + build؛ فحص المصدر التشغيلي لم يجد مرجع كتالوج ثابتاً.
+- [x] تحقق قراءة فقط من API المنشور: 30 شركة عامة، وأول شركة (Bupa) أعادت 17 شبكة؛ لم يُجر أي login أو mutation.
+- [ ] لا يعتمد محتوى الشركات أو الشعارات أو الفئات تلقائياً: تشغيل backfill الحي، نشر المرشح، جمع الشعارات الرسمية المتبقية، واعتماد فئات كل شركة تتطلب مراجعاً/DevOps وقرارات موثقة.
+
+الدليل: `audit-artifacts/UNIFIED_INSURANCE_CATALOG_CONSUMER_AUDIT_20260820.md`.

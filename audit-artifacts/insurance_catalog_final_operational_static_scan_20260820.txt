@@ -1,0 +1,2 @@
+/home/ubuntu/nabdah_execution/provider/src/api/catalogs.ts:7: * served by the backend (insurance_companies / insurance_networks collections,
+/home/ubuntu/nabdah_execution/provider/src/api/catalogs.ts:15:  id: string;          // company code (e.g. 'bupa')

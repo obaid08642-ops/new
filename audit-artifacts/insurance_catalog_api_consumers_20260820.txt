@@ -1,0 +1,86 @@
+admin/src/pages/admin/legal-policies.tsx:13:      apiFetch('/legal/policies').catch(() => []),
+admin/src/pages/admin/legal-policies.tsx:22:    const full = await apiFetch(`/legal/policy/${key}`).catch(() => null);
+admin/src/pages/admin/legal-policies.tsx:29:    await apiFetch(`/admin/legal/policy/${editing}`, {
+admin/src/pages/admin/insurance-queue.tsx:36:        apiFetch('/admin/insurance/stats').catch(() => null),
+admin/src/pages/admin/insurance-queue.tsx:37:        apiFetch(`/admin/insurance/requests${stateFilter ? `?state=${stateFilter}` : ''}`).catch(() => []),
+admin/src/pages/admin/insurance-companies.tsx:46:      const res = await apiFetch('/insurance/companies/all');
+admin/src/pages/admin/insurance-companies.tsx:61:      await apiFetch(`/insurance/companies/${id}`, {
+admin/src/pages/admin/insurance-companies.tsx:80:      await apiFetch('/insurance/companies', {
+admin/src/pages/admin/insurance-companies.tsx:98:      await apiFetch(`/insurance/companies/${editId}`, {
+admin/src/pages/admin/insurance-companies.tsx:118:      await apiFetch(`/insurance/companies/${tierCompany}/networks`, {
+admin/src/pages/admin/insurance-companies.tsx:141:      await apiFetch(`/insurance/companies/${companyId}/networks/${tier.id || tier._id}`, { method: 'DELETE' });
+admin/src/components/AdminGuard.tsx:24:      { href: '/admin/insurance-queue', label: 'التأمين والمستردات', icon: '' },
+admin/src/components/AdminGuard.tsx:25:      { href: '/admin/insurance-companies', label: 'شركات التأمين', icon: '' },
+patient/app/profile/index.tsx:23:  { icon: 'shield', label: 'التأمين الطبي', route: '/profile/insurance', color: '#4F46E5' },
+patient/app/profile/insurance.tsx:40:      const data = await apiFetch("/users/me/insurance");
+patient/app/profile/insurance.tsx:61:      const list = await apiFetch("/insurance/companies");
+patient/app/profile/insurance.tsx:73:      const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+patient/app/profile/insurance.tsx:96:      const saved = await apiFetch("/users/me/insurance", {
+patient/app/search/index.tsx:97:      router.push('/insurance/hub' as any);
+patient/app/services/index.tsx:60:      { title: 'التأمين الطبي', desc: 'وثيقتك وتغطيتك التأمينية', icon: 'shield', route: '/insurance' },
+patient/app/diagnostics/insurance-upload.tsx:55:        const res = await apiFetch('/insurance/companies');
+patient/app/diagnostics/insurance-upload.tsx:73:        const res = await apiFetch(`/insurance/companies/${selCompany}/networks`);
+patient/app/diagnostics/insurance-upload.tsx:364:                  pathname: '/diagnostics/insurance-approval',
+patient/app/orders/index.tsx:85:      safe(apiFetch('/insurance/claims')),
+patient/app/orders/index.tsx:145:        route: { pathname: '/insurance/claim-tracking' },
+patient/app/nursing/nurse-profile.tsx:93:          const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
+patient/app/map/index.tsx:216:        const ins = await apiFetch('/user/insurance');
+patient/app/(tabs)/diagnostics.tsx:188:          <TouchableOpacity style={styles.insuranceCard} onPress={() => (router.push as any)('/diagnostics/insurance-upload')}>
+patient/app/consultations/appointment-detail.tsx:184:                  apiFetch<any[]>('/insurance/requests/my')
+patient/app/consultations/appointment-detail.tsx:188:                      router.push({ pathname: '/insurance/payment-split', params: { request_id: request.id } });
+patient/app/consultations/booking-confirm.tsx:46:        const list = await apiFetch('/insurance/companies');
+patient/app/consultations/booking-confirm.tsx:61:        const nets = await apiFetch(`/insurance/companies/${insCompany}/networks`);
+patient/app/consultations/booking-confirm.tsx:228:        const insuranceRequest = await apiFetch<any>('/insurance/requests', {
+patient/app/consultations/booking-confirm.tsx:234:        router.replace({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequest.id } });
+patient/app/consultations/booking-confirm.tsx:350:                <Button label="تعديل بيانات التأمين" variant="ghost" icon="edit" onPress={() => router.push('/profile/insurance')} />
+patient/app/pharmacy/checkout.tsx:107:            router.push('/profile/insurance');
+patient/app/insurance/submit-claim.tsx:27:      await apiFetch("/insurance/claims/submit", {
+patient/app/insurance/benefits-summary.tsx:21:      apiFetch('/insurance/benefits-summary')
+patient/app/insurance/index.tsx:6:  return <Redirect href="/insurance/hub" />;
+patient/app/insurance/hub.tsx:75:  { icon: 'search', label: 'فحص التغطية', color: '#23B5CE', bg: '#EBF3FF', route: '/insurance/coverage-check' },
+patient/app/insurance/hub.tsx:76:  { icon: 'document', label: 'رفع مطالبة', color: '#7A6BEA', bg: '#EDE9FE', route: '/insurance/submit-claim' },
+patient/app/insurance/hub.tsx:77:  { icon: 'hospital', label: 'مزودو الخدمة', color: '#5BA84F', bg: '#DCFCE7', route: '/insurance/network-providers' },
+patient/app/insurance/hub.tsx:78:  { icon: 'wallet', label: 'المزايا المتبقية', color: '#F0A526', bg: '#FEF3C7', route: '/insurance/benefits-summary' },
+patient/app/insurance/hub.tsx:95:        const ins = await apiFetch('/users/me/insurance');
+patient/app/insurance/hub.tsx:122:        const res = await apiFetch('/insurance/claims');
+patient/app/insurance/hub.tsx:161:          const saved = await apiFetch('/insurance/save-policy', {
+patient/app/insurance/hub.tsx:205:          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/insurance/add-policy')} />
+patient/app/insurance/hub.tsx:297:            <TouchableOpacity onPress={() => router.push('/insurance/benefits-summary')}>
+patient/app/insurance/hub.tsx:329:            <TouchableOpacity onPress={() => router.push('/insurance/policy-detail' as any)}>
+patient/app/insurance/hub.tsx:354:            <TouchableOpacity onPress={() => router.push('/insurance/add-policy')}>
+patient/app/insurance/hub.tsx:362:              onPress={() => router.push({ pathname: '/insurance/policy-detail', params: { policyId: policy.id } })}
+patient/app/insurance/hub.tsx:387:            <TouchableOpacity onPress={() => router.push('/insurance/claim-tracking')}>
+patient/app/insurance/hub.tsx:399:              onPress={() => router.push('/insurance/claim-tracking')}
+patient/app/insurance/network-providers.tsx:177:                <TouchableOpacity onPress={() => router.push("/insurance/add-policy")}>
+patient/app/insurance/add-policy.tsx:29:    apiFetch('/insurance/companies')
+patient/app/insurance/add-policy.tsx:44:      const res = await apiFetch('/insurance/ocr-extract', {
+patient/app/insurance/add-policy.tsx:78:      await apiFetch('/insurance/save-policy', {
+patient/app/insurance/add-policy.tsx:91:      router.replace('/insurance/hub');
+patient/app/insurance/claim-tracking.tsx:30:        const res = await apiFetch('/insurance/claims/my');
+patient/app/insurance/claim-tracking.tsx:48:        <TouchableOpacity onPress={() => router.push('/insurance/submit-claim')} style={[styles.newClaimBtn, { backgroundColor: '#1a1a2e' } ]}>
+patient/app/insurance/claim-tracking.tsx:112:                <TouchableOpacity onPress={() => router.push('/insurance/refund-status')}
+patient/app/insurance/coverage-check.tsx:35:        `/insurance/coverage-check?service_type=${serviceType}${providerName ? `&service_key=${providerName}` : ''}`
+patient/app/insurance/copay.tsx:31:        const rows = await apiFetch<any[]>('/insurance/requests/my');
+patient/app/insurance/copay.tsx:54:      const txn = await apiFetch<any>(`/payments/intent/insurance/${copayRequest.id}`, { method: 'POST', headers: paymentIntentHeaders('insurance', copayRequest.id) });
+patient/app/insurance/payment-split.tsx:27:      setRequest(parseInsuranceCopayRequest(await apiFetch(`/insurance/requests/${requestId}`)));
+patient/app/insurance/payment-split.tsx:41:        await apiFetch(`/insurance/requests/${request.id}/pay-copay`, { method: 'POST', body: JSON.stringify({}) });
+patient/app/insurance/payment-split.tsx:44:        const txn = await apiFetch<any>(`/payments/intent/insurance/${request.id}`, { method: 'POST', headers: paymentIntentHeaders('insurance', request.id) });
+patient/app/insurance/policy-detail.tsx:71:            <TouchableOpacity onPress={() => router.push('/insurance/add-policy')}>
+patient/app/insurance/policy-detail.tsx:107:          onPress={() => router.push("/insurance/coverage-check")}
+patient/app/insurance/approval-pending.tsx:32:          req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);
+patient/app/insurance/approval-pending.tsx:34:          const list = await apiFetch('/insurance/requests/my').catch(() => []);
+patient/app/insurance/approval-pending.tsx:87:        <Button label="متابعة حالة الطلبات" variant="ghost" icon="refresh" onPress={() => router.push('/insurance/claim-tracking')} />
+patient/src/hooks/usePushNotifications.ts:70:    '/insurance/hub', '/wallet/hub', '/returns/hub',
+patient/src/hooks/usePushNotifications.ts:137:        router.push('/insurance/hub' as any);
+patient/src/components/NotificationHandler.tsx:43:  '/insurance',
+patient/src/components/NotificationHandler.tsx:69:      return { pathname: '/insurance', params: { requestId: data.requestId } };
+provider/src/screens/lab/LabDashboard.tsx:1253: await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
+provider/src/screens/facility/FacilityDashboard.tsx:1612:   client.get('/insurance/requests/provider/queue')
+provider/src/screens/shared/InsuranceRequestsScreen.tsx:52:      const res = await client.get('/insurance/requests/provider/queue');
+provider/src/screens/shared/InsuranceRequestsScreen.tsx:93:      const res = await client.post(`/insurance/requests/${target.id}/decide`, body);
+provider/src/screens/nursing/NursingDashboard.tsx:1430:   await client.post('/nursing/coverage/verify-gps', { radius });
+provider/src/screens/doctor/DoctorDashboard.tsx:257:     await client.post(`/provider/jobs/consultation/${insuranceModalReq.id}/insurance`, {
+provider/src/screens/radiology/RadiologyDashboard.tsx:214:    try { await client.post(`/radiology/bookings/${currentOrder.id}/insurance-approval`, { approval_code: nphiesCode, copay: parseFloat(copay) || 0 }); show(tr('تم إرسال التأمين للمريض', 'Insurance approval sent'), 'success'); setShowNphies(false); await refresh(); }
+provider/src/screens/pharmacy/PharmacyDashboard.tsx:1305:      const res = await client.post(`/provider/pharmacy/orders/${orderId}/insurance`, { policyNo: nphiesData.policyNo, authCode: nphiesData.authCode, copay: Number(nphiesData.copay) || 0, status: 'APPROVED' });
+provider/src/api/catalogs.ts:30:    const res = await client.get('/insurance/companies');
+provider/src/components/ContractModal.tsx:31:    client.get(`/legal/policy/provider_agreement?lang=${AR ? 'ar' : 'en'}`)

@@ -1,0 +1,182 @@
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx-59-  const saudiInsurances = {
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx-60-    'الكل': ['الكل'],
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx:61:    'بوبا العربية (Bupa)': ['VIP', 'شبكة 1', 'شبكة 2', 'شبكة 3', 'شبكة 4', 'شبكة 5', 'شبكة 6', 'شبكة 7', 'شبكة 8'],
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx:62:    'التعاونية (Tawuniya)': ['الماسية', 'البلاتينية', 'الذهبية', 'الفضية', 'البرونزية', 'الأساسية', 'عائلتي'],
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx-63-    'تكافل الراجحي': ['الفئة 1', 'الفئة 2', 'الفئة 3', 'الفئة 4', 'الفئة 5', 'الفئة 6', 'الفئة 7'],
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx:64:    'ميدغلف (Medgulf)': ['الفئة A', 'الفئة B', 'الفئة C', 'الفئة D'],
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx-65-    'سايكو (SAICO)': ['VIP', 'A', 'B', 'C'],
+/home/ubuntu/nabdah_execution/patient/app/(tabs)/consultations/index.tsx-66-    'جي آي جي (GIG)': ['شبكة 1', 'شبكة 2', 'شبكة 3', 'شبكة 4', 'شبكة 5'],
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-23-}
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-24-
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:25:export const COVERAGE_CLASSES = [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-26-  { id: 'vip', nameAr: 'VIP', nameEn: 'VIP', level: 1 },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-27-  { id: 'a', nameAr: 'الفئة A', nameEn: 'Class A', level: 2 },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-41-];
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-42-
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:43:export const INSURANCE_COMPANIES_FULL: InsuranceCompanyFull[] = [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-44-  {
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-45-    id: '1',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-46-    name: 'بوبا العربية',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:47:    nameEn: 'Bupa Arabia',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-48-    shortName: 'بوبا',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:49:    logo: 'bupa',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-50-    brandColor: '#E30613',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-51-    plans: [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:52:      { planId: 'bupa-vip-ind', planName: 'بوبا VIP فردي', planType: 'individual', coverageClass: 'VIP' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:53:      { planId: 'bupa-a-fam', planName: 'بوبا عائلي A', planType: 'family', coverageClass: 'A' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:54:      { planId: 'bupa-b-corp', planName: 'بوبا مؤسسات B', planType: 'corporate', coverageClass: 'B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:55:      { planId: 'bupa-c-corp', planName: 'بوبا مؤسسات C', planType: 'corporate', coverageClass: 'C' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-56-    ],
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-57-  },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-61-    nameEn: 'Al Rajhi Takaful',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-62-    shortName: 'تكافل',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:63:    logo: 'tawuniya',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-64-    brandColor: '#009933',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-65-    plans: [
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-72-    id: '3',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-73-    name: 'ملاذ للتأمين',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:74:    nameEn: 'Malath Insurance',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-75-    shortName: 'ملاذ',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:76:    logo: 'malath',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-77-    brandColor: '#00539B',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-78-    plans: [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:79:      { planId: 'malath-a-ind', planName: 'ملاذ فردي A', planType: 'individual', coverageClass: 'A' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:80:      { planId: 'malath-b-fam', planName: 'ملاذ عائلي B', planType: 'family', coverageClass: 'B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:81:      { planId: 'malath-c-corp', planName: 'ملاذ مؤسسات C', planType: 'corporate', coverageClass: 'C' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-82-    ],
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-83-  },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-99-    id: '5',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-100-    name: 'أكسا التعاونية',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:101:    nameEn: 'AXA Cooperative',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-102-    shortName: 'أكسا',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:103:    logo: 'axa',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-104-    brandColor: '#00008F',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-105-    plans: [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:106:      { planId: 'axa-vip-ind', planName: 'أكسا VIP فردي', planType: 'individual', coverageClass: 'VIP' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:107:      { planId: 'axa-a-fam', planName: 'أكسا عائلي A', planType: 'family', coverageClass: 'A' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:108:      { planId: 'axa-c-corp', planName: 'أكسا مؤسسات C', planType: 'corporate', coverageClass: 'C' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-109-    ],
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-110-  },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-125-    id: '7',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-126-    name: 'التعاونية',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:127:    nameEn: 'Tawuniya',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-128-    shortName: 'التعاونية',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:129:    logo: 'tawuniya2',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-130-    brandColor: '#C8102E',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-131-    plans: [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:132:      { planId: 'tawuniya-vip-ind', planName: 'التعاونية VIP فردي', planType: 'individual', coverageClass: 'VIP' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:133:      { planId: 'tawuniya-a-fam', planName: 'التعاونية عائلي A', planType: 'family', coverageClass: 'A' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:134:      { planId: 'tawuniya-b-corp', planName: 'التعاونية مؤسسات B', planType: 'corporate', coverageClass: 'B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:135:      { planId: 'tawuniya-d-corp', planName: 'التعاونية مؤسسات D', planType: 'corporate', coverageClass: 'D' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-136-    ],
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-137-  },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-152-    id: '9',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-153-    name: 'ميدغلف',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:154:    nameEn: 'MedGulf',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-155-    shortName: 'ميدغلف',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:156:    logo: 'medgulf',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-157-    brandColor: '#003366',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-158-    plans: [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:159:      { planId: 'medgulf-vip-ind', planName: 'ميدغلف VIP فردي', planType: 'individual', coverageClass: 'VIP' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:160:      { planId: 'medgulf-a-fam', planName: 'ميدغلف عائلي A', planType: 'family', coverageClass: 'A' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:161:      { planId: 'medgulf-b-corp', planName: 'ميدغلف مؤسسات B', planType: 'corporate', coverageClass: 'B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-162-    ],
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-163-  },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-299-    nameEn: 'Mediterranean & Gulf Insurance',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-300-    shortName: 'المتوسط',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:301:    logo: 'medgulf2',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-302-    brandColor: '#01579B',
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-303-    plans: [
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:304:      { planId: 'medgulf2-a-ind', planName: 'المتوسط فردي A', planType: 'individual', coverageClass: 'A' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:305:      { planId: 'medgulf2-b-fam', planName: 'المتوسط عائلي B', planType: 'family', coverageClass: 'B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:306:      { planId: 'medgulf2-c-corp', planName: 'المتوسط مؤسسات C', planType: 'corporate', coverageClass: 'C' },
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-307-    ],
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-308-  },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-463-
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts-464-// Backward-compatible alias
+/home/ubuntu/nabdah_execution/patient/src/constants/insurance.ts:465:export const INSURANCE_COMPANIES = INSURANCE_COMPANIES_FULL;
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-106-];
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-107-
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:108:export const INSURANCE_COMPANIES = [
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:109:  { id: '1', name: 'بوبا للتأمين', shortName: 'بوبا', logo: 'bupa', color: '#E30613' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:110:  { id: '2', name: 'تكافل الراجحي', shortName: 'تكافل', logo: 'tawuniya', color: '#009933' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:111:  { id: '3', name: 'ملاذ للتأمين', shortName: 'ملاذ', logo: 'malath', color: '#00539B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-112-  { id: '4', name: 'الدرع العربي', shortName: 'الدرع', logo: 'arabian_shield', color: '#1A3C6E' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:113:  { id: '5', name: 'أكسا للتأمين', shortName: 'أكسا', logo: 'axa', color: '#00008F' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-114-  { id: '6', name: 'وقاية للتأمين', shortName: 'وقاية', logo: 'wiqaya', color: '#006B3F' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:115:  { id: '7', name: 'التعاونية', shortName: 'التعاونية', logo: 'tawuniya2', color: '#C8102E' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-116-  { id: '8', name: 'سايكو', shortName: 'سايكو', logo: 'saico', color: '#3B82F6' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:117:  { id: '9', name: 'ميدغلف', shortName: 'ميدغلف', logo: 'medgulf', color: '#003366' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-118-  { id: '10', name: 'الراجحي تكافل', shortName: 'الراجحي', logo: 'alrajhi_takaful', color: '#00843D' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-119-  { id: '11', name: 'أليانز السعودي الفرنسي', shortName: 'أليانز', logo: 'allianz_sf', color: '#003781' },
+--
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-126-  { id: '18', name: 'سلامة للتأمين', shortName: 'سلامة', logo: 'salama', color: '#2E7D32' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-127-  { id: '19', name: 'تشب', shortName: 'تشب', logo: 'chubb', color: '#E65100' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts:128:  { id: '20', name: 'المتوسط والخليج', shortName: 'المتوسط', logo: 'medgulf2', color: '#01579B' },
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-129-];
+/home/ubuntu/nabdah_execution/patient/src/constants/index.ts-130-
+--
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-208-  "استشاري": { ar: "استشاري", en: "Consultant", ur: "مشیر", hi: "सलाहकार", bn: "পরামর্শদাতা", fil: "Consultant" },
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-209-  "مرفوض": { ar: "مرفوض", en: "Rejected", ur: "مسترد", hi: "अस्वीकृत", bn: "প্রত্যাখ্যাত", fil: "Rejected" },
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:210:  "أكسا": { ar: "أكسا", en: "AXA", ur: "اکسا", hi: "एक्सा", bn: "আকসা", fil: "AXA" },
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-211-  "منخفض": { ar: "منخفض", en: "Low", ur: "کم", hi: "कम", bn: "কম", fil: "Low" },
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-212-  "قيد المراجعة": { ar: "قيد المراجعة", en: "Under Review", ur: "زیر غور", hi: "समीक्षाधीन", bn: "পর্যালোচনার অধীনে", fil: "Under Review" },
+--
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-265-  "تأكيد الطلب": { ar: "تأكيد الطلب", en: "Confirm Order", ur: "آرڈر की تصدیق", hi: "ऑर्डर की पुष्टि", bn: "অর্ডার নিশ্চিত করুন", fil: "Confirm Order" },
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-266-  "إلغاء الطلب": {"ar": "إلغاء الطلب", "en": "Cancel Order", "ur": "آرڈر منسوخ کریں", "hi": "ऑर्डर रद्द करें", "bn": "অর্ডার বাতিল করুন", "fil": "Cancel Order"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:267:  "بوبا للتأمين": {"ar": "بوبا للتأمين", "en": "Bupa Insurance", "ur": "بوبا انشورنس", "hi": "ब्यूपा बीमा", "bn": "বুপا বীমা", "fil": "Bupa Insurance"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-268-  "تكافل الراجحي": {"ar": "تكافل الراجحي", "en": "Al Rajhi Takaful", "ur": "الراجحی تکافل", "hi": "अल राजी तकाफुल", "bn": "আল রাজি তাকাফুল", "fil": "Al Rajhi Takaful"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:269:  "ملاذ للتأمين": {"ar": "ملاذ للتأمين", "en": "Malath Insurance", "ur": "ملاذ انشورنس", "hi": "मालाथ बीमा", "bn": "মালাথ বীমা", "fil": "Malath Insurance"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-270-  "الدرع العربي": {"ar": "الدرع العربي", "en": "Arabian Shield", "ur": "عرب شیلڈ", "hi": "अरेबियन शील्ड", "bn": "আরবীয় শিল্ড", "fil": "Arabian Shield"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:271:  "التعاونية": {"ar": "التعاونية", "en": "Tawuniya", "ur": "التعاونیہ", "hi": "तवानिया", "bn": "তাওউনিয়া", "fil": "Tawuniya"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-272-  "سايكو": {"ar": "سايكو", "en": "SAICO", "ur": "سائیکو", "hi": "सायको", "bn": "সাইকো", "fil": "SAICO"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:273:  "ميدغلف": {"ar": "ميدغلف", "en": "MedGulf", "ur": "مڈ گلف", "hi": "मेडगल्फ", "bn": "মেডগালফ", "fil": "MedGulf"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:274:  "بوبا للتأمين (Bupa Arabia)": {"ar": "بوبا للتأمين (Bupa Arabia)", "en": "Bupa Arabia", "ur": "بوبا عربیہ", "hi": "ब्यूपा अरेबिया", "bn": "বুপা আরাবিয়া", "fil": "Bupa Arabia"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-275-  "الدرع العربي (Arabian Shield)": {"ar": "الدرع العربي (Arabian Shield)", "en": "Arabian Shield", "ur": "عرب شیلڈ", "hi": "अरेबियन शील्ड", "bn": "আরবীয় শিল্ড", "fil": "Arabian Shield"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:276:  "ميدغلف (MedGulf)": {"ar": "ميدغلف (MedGulf)", "en": "MedGulf", "ur": "مڈ گلف", "hi": "मेडगल्फ", "bn": "মেডগালف", "fil": "MedGulf"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-277-  "الراجحي تكافل (Al Rajhi Takaful)": {"ar": "الراجحي تكافل (Al Rajhi Takaful)", "en": "Al Rajhi Takaful", "ur": "الراجحی تکافل", "hi": "अल राजी तकाफुल", "bn": "আল রাজি তাকাফুল", "fil": "Al Rajhi Takaful"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-278-  "أليانز السعودي الفرنسي (Allianz SF)": {"ar": "أليانز السعودي الفرنسي (Allianz SF)", "en": "Allianz SF", "ur": "الیانز سعودی فرانسیسی", "hi": "एलियांज एसएफ", "bn": "অ্যালিয়ানজ এসএফ", "fil": "Allianz SF"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-279-  "ولاء للتأمين (Walaa)": {"ar": "ولاء للتأمين (Walaa)", "en": "Walaa Insurance", "ur": "ولاء انشورنس", "hi": "वला बीमा", "bn": "ওয়ালা বীমা", "fil": "Walaa Insurance"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-280-  "سلامة للتأمين (Salama)": {"ar": "سلامة للتأمين (Salama)", "en": "Salama Insurance", "ur": "سلامہ انشورنس", "hi": "सलामा बीमा", "bn": "সালামা বীমা", "fil": "Salama Insurance"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts:281:  "المتوسط والخليج (MEDGULF)": {"ar": "المتوسط والخليج (MEDGULF)", "en": "MedGulf", "ur": "مڈ گلف", "hi": "मेडगल्फ", "bn": "মেডগালফ", "fil": "MedGulf"},
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-282-};
+/home/ubuntu/nabdah_execution/patient/src/i18n/index.ts-283-
+--
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-8-  requireNumbers: boolean;
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-9-  requireSpecialChars: boolean;
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts:10:  maxAgeDays: number;
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-11-}
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-12-
+--
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-20-    requireNumbers: true,
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-21-    requireSpecialChars: true,
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts:22:    maxAgeDays: 90,
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-23-  };
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-24-
+--
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-52-
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-53-  /**
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts:54:   * Checks if a user's password has expired based on maxAgeDays
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-55-   */
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-56-  public isPasswordExpired(lastChangedDate: Date): boolean {
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-57-    const ageMs = Date.now() - lastChangedDate.getTime();
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts:58:    const maxAgeMs = this.config.maxAgeDays * 24 * 60 * 60 * 1000;
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts:59:    return ageMs > maxAgeMs;
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-60-  }
+/home/ubuntu/nabdah_execution/patient/src/core/platform/auth/PasswordPolicyService.ts-61-}
+--
+/home/ubuntu/nabdah_execution/patient/src/guided-tour/types/index.ts-9-  appCompatVersion: string;
+/home/ubuntu/nabdah_execution/patient/src/guided-tour/types/index.ts-10-  minAppVersion: string;
+/home/ubuntu/nabdah_execution/patient/src/guided-tour/types/index.ts:11:  maxAppVersion?: string;
+/home/ubuntu/nabdah_execution/patient/src/guided-tour/types/index.ts-12-  platform?: 'ios' | 'android' | 'both';
+/home/ubuntu/nabdah_execution/patient/src/guided-tour/types/index.ts-13-  steps: TourStepDefinition[];
