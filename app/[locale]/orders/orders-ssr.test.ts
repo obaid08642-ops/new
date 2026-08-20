@@ -1,0 +1,12 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), requirePatientAccess: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
+vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
+vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+import OrdersPage from "./page";
+const serverToken = "server-only-order-token";
+const orderId = "91047ef2-ad36-422a-a184-629693e7c729";
+describe("orders SSR boundary and visual card", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders the order card through BFF without embedding the session token", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: [{ id: orderId, reference: "Order-123", status: "CONFIRMED" }] }), { status: 200 })); const html = renderToStaticMarkup(await OrdersPage({ params: Promise.resolve({ locale: "ar" }) })); expect(state.callPatientApi).toHaveBeenCalledWith("/orders/mine", {}, serverToken); expect(html).toContain("Order-123"); expect(html).toContain(`/ar/orders/${orderId}`); expect(html).not.toContain(serverToken); }); });
