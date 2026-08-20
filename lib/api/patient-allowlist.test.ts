@@ -1,0 +1,44 @@
+import { describe, expect, it } from "vitest";
+import {
+  isAllowedPatientApiPath,
+  isAllowedPatientApiRequest,
+} from "./patient-allowlist";
+
+describe("patient API allowlist", () => {
+  it("allows only the documented order reads needed by the browser BFF", () => {
+    expect(isAllowedPatientApiPath("/orders/mine")).toBe(true);
+    expect(
+      isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729")
+    ).toBe(true);
+    expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
+  });
+
+  it("rejects administrative, provider, unlisted patient domains, and writes", () => {
+    expect(isAllowedPatientApiPath("/admin/users")).toBe(false);
+    expect(isAllowedPatientApiPath("/provider/queue")).toBe(false);
+    expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
+  });
+
+  it("fails closed for malformed or nested order identifiers", () => {
+    expect(isAllowedPatientApiPath("/orders/not-an-id")).toBe(false);
+    expect(
+      isAllowedPatientApiPath(
+        "/orders/91047ef2-ad36-422a-a184-629693e7c729/items"
+      )
+    ).toBe(false);
+    expect(isAllowedPatientApiPath("/orders/../admin/users")).toBe(false);
+    expect(isAllowedPatientApiPath("/orders/%2e%2e/admin/users")).toBe(false);
+  });
+
+  it("does not widen the browser surface through method casing or writes", () => {
+    expect(isAllowedPatientApiRequest("/orders/mine", "get")).toBe(false);
+    expect(isAllowedPatientApiRequest("/orders/mine", "PUT")).toBe(false);
+    expect(
+      isAllowedPatientApiRequest(
+        "/orders/91047ef2-ad36-422a-a184-629693e7c729",
+        "DELETE"
+      )
+    ).toBe(false);
+  });
+});
