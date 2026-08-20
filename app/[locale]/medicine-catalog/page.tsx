@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
 import { getPublicMedicines } from "@/lib/api/public-medicines-server";
 import { JsonLd } from "@/components-next/json-ld";
-import { isLocale } from "@/lib/i18n";
+import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { RetryButton } from "@/components-next/retry-button";
 import { ArrowUpLeft, Pill, Search, ShieldCheck } from "lucide-react";
@@ -20,7 +20,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   return {
     title: locale === "ar" ? "كتالوج منشور" : "Published catalogue",
     description: locale === "ar" ? "كتالوج العناصر المنشورة من نبض بلس." : "Published catalogue information from Nabd Plus.",
-    alternates: { canonical, languages: { ar: localizedUrl("ar", "/medicine-catalog"), en: localizedUrl("en", "/medicine-catalog"), "x-default": localizedUrl("ar", "/medicine-catalog") } },
+    alternates: { canonical, languages: { ...Object.fromEntries(locales.map((supportedLocale) => [supportedLocale, localizedUrl(supportedLocale, "/medicine-catalog")])), "x-default": localizedUrl("ar", "/medicine-catalog") } },
     robots: { index: false, follow: false },
   };
 }

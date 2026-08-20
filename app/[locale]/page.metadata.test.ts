@@ -22,5 +22,7 @@ describe("public landing metadata", () => {
       fil: "https://nabd.plus/fil",
       "x-default": "https://nabd.plus/ar"
     });
+    expect(metadata.openGraph).toMatchObject({ type: "website", url: "https://nabd.plus/en" });
+    expect(metadata.twitter).toMatchObject({ card: "summary" });
   });
 });
