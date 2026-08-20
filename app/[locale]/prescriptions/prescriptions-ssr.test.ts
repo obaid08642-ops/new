@@ -21,14 +21,15 @@ describe("prescriptions SSR boundary", () => {
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
 
-  it("renders metadata only without identifier, patient, medicine, diagnosis, instructions, file, or token", async () => {
+  it("renders bounded patient prescription metadata without diagnosis, instructions, file, or token", async () => {
     state.getPatientPrescriptions.mockResolvedValue(new Response(JSON.stringify({ prescriptions: [{ id: prescriptionId, state: "CREATED_BY_DOCTOR", createdAt: "2026-08-20T10:00:00.000Z", items: [{ medicine_name_ar: "private-medicine", dose: "private-dose", instructions: "private-instructions" }], patient_id: "private-patient", diagnosis: "private-diagnosis", notes: "private-notes", upload_image: fileUrl }] }), { status: 200 }));
 
     const html = renderToStaticMarkup(await PrescriptionsPage({ params: Promise.resolve({ locale: "en" }) }));
 
     expect(state.getPatientPrescriptions).toHaveBeenCalledWith(serverToken);
     expect(html).toContain("CREATED_BY_DOCTOR");
-    for (const secret of [serverToken, prescriptionId, "private-medicine", "private-dose", "private-instructions", "private-patient", "private-diagnosis", "private-notes", fileUrl]) expect(html).not.toContain(secret);
+    expect(html).toContain("private-medicine");
+    for (const secret of [serverToken, prescriptionId, "private-dose", "private-instructions", "private-patient", "private-diagnosis", "private-notes", fileUrl]) expect(html).not.toContain(secret);
     expect(html).not.toMatch(/href="[^"]*private-prescription/i);
   });
 });
