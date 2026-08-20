@@ -1052,7 +1052,7 @@
 
 ## Security and public-discovery hardening program — 2026-08-20
 
-- [ ] الاعتماديات: جرد `npm audit` أثبت 18 finding في Patient و22 في Provider، بينها Expo/Metro و`image-size`; تطبيق ترقيات Expo-compatible فقط عبر أدوات SDK، مع منع `npm audit fix --force` وتشغيل typecheck/tests/build لكل تطبيق.
+- [x] الاعتماديات: جرد `npm audit` أثبت 18 finding في Patient و22 في Provider، بينها Expo/Metro و`image-size`. نفذ `expo install --check` و`expo install --fix --npm` الرسميان بلا أي تغيير لأن SDK 57.0.14 متوافق ومقفَل، واجتازت Patient typecheck/22 suites-56 tests/web export وProvider typecheck/30 tests/web export. لا يوجد إصلاح `image-size` ضمن عقد Metro 0.84.4/Expo 57، واقتراح audit downgrade غير مقبول؛ remediation الكامل محجوب بترقية Expo SDK رسمية لاحقة. الدليل: `NABDAH_MOBILE_DEPENDENCY_REMEDIATION_STATUS_20260820.md`.
 - [ ] OpenAPI: جرد مولد/وثيقة العقد الحالية، ثم إضافة server URL وBearer authentication/scopes وschemas والأخطاء وتغطية المسارات التراثية، أو احتواؤها بإحالات compatibility مختبرة.
 - [ ] الكتالوج العام: إضافة حقول eligibility/review/provenance لا تظهر public/SEO من مجرد وجود DB record، مع migrations/backfill fail-closed وخطة rollback.
 - [ ] projection/events: بعد اعتماد إداري، إصدار event idempotent/audited لتحديث public projection/cache/metadata/sitemap/feed/deep-link؛ لا worker خارجي أو نشر background قبل اختيار بنية واعتماد التشغيل.
