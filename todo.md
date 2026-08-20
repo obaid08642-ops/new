@@ -1038,3 +1038,8 @@
 ## Phase 16 rerun — Doctor prescription ownership identity mismatch P0 — 2026-08-20
 
 - [x] **P0 حي مثبت ومصلح مصدرّياً:** على البيئة المنشورة، أنشأ Patient Sandbox موعد clinic/cash (201/CONFIRMED)، ثم check-in (200) وDoctor Sandbox start (200)، لكن `POST /prescriptions/create` للموعد والمريض نفسيهما أعاد 404. كان `AppointmentsService.start` يستخدم مطابقة owner موسعة (user/account/provider/profile identifiers) بينما `PrescriptionsService.create` يقارن `appointment.doctor_user_id` فقط بـ`doctor.id`. اكتملت الجلسة إلى `COMPLETED` (200) لتجنب fixture نشط. أصبح إنشاء الوصفة يطابق actor identifiers مع `appointment.doctor_user_id` و`appointment.doctor_id` بعد تثبيت `IN_PROGRESS` وpatient ownership؛ regression account/profile owner مقابل foreign provider PASS، وBackend 67 suites/390 tests وbuild/ZIP PASS. الدليل: `NABDAH_PHASE16_PRESCRIPTION_DOCTOR_IDENTITY_P0_REMEDIATION_20260820.md`. تبقى إعادة النشر وإعادة دورة الوصفة اليدوية الحية كاملة شرطاً مفتوحاً.
+
+
+## Phase 16 rerun — Provider self-profile identity mismatch — 2026-08-20
+
+- [x] عيب عقد حي مؤكد ومصلح مصدرّياً: `GET /providers/me/profile` لحساب Doctor Sandbox أعاد HTTP 200 بجسم فارغ، في حين أن `provider/auth/me` أعاد 200 ومطابقة منقحة أثبتت أن الحساب يطابق Doctor profile نشط في القائمة العامة. كان `ProvidersService.myProfile` يستعلم بـ`{ user_id }` فقط. أصبح Controller يمرر actor الكامل، وتطابق الخدمة فقط user/account/provider/profile identifiers المنطبعة، ثم تعيد 404 عند غياب الملف. اختبارات owner/foreign/no-identifier PASS، وBackend 68 suites/393 tests وbuild/ZIP PASS. الدليل: `NABDAH_PHASE16_PROVIDER_SELF_PROFILE_IDENTITY_REMEDIATION_20260820.md`. تبقى إعادة الاختبار الحي بعد نشر المرشح شرطاً مفتوحاً.
