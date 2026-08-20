@@ -2,7 +2,7 @@
 
 **التاريخ:** 2026-08-20
 **الفرع الوحيد:** `manus/on-live-reconciliation`
-**رأس Git وقت التوثيق:** `5916aa560473dc3c1eeaaceb1d85d2627345cf98`
+**رأس Git وقت التوثيق:** `a2774c4e03ed1af29712e8a0e929f73b2fa3cf3d`
 **الحكم:** **NO-GO مستمر، مع تقدم مصدرّي وحي مثبت.**
 
 ## ما أُغلق أو أُثبت الآن
@@ -15,6 +15,8 @@
 | P0 هوية Doctor والوصفة | FIX source: موعد وصل إلى start حياً، وكشف 404 لإنشاء الوصفة؛ الإصلاح اجتاز 67 suites/390 tests ثم أدرج في archive |
 | Provider self-profile | FIX source: عيب 200 body فارغ كشف حياً؛ الإصلاح اجتاز 68 suites/393 tests ثم أدرج في archive |
 | Provider EAS config | FIX source: أضيف profiles متوازية وProvider 30/30 PASS؛ لا build أو signing مدعى |
+| تحصين الكتالوج العام | FIX source: eligibility/review/provenance fail-closed، projection/event idempotent، وترشيح public/SEO/services؛ Backend 70 suites/401 tests ثم توسعت البوابة إلى 72/406 |
+| اللغات والفهارس | FIX source: ست لغات مؤكدة وvalidator للنشر العام؛ أزيل تعريف LabResult المكرر فقط، ولا حذف physical index؛ Backend 72 suites/406 tests + build |
 
 ## ما يستطيع الوكيل إكماله فوراً
 
@@ -35,12 +37,12 @@
 
 | artifact | SHA-256 | نطاقه |
 |---|---|---|
-| `nabdah-backend.zip` | `0862a289bf87b5525665dc6147ffdd6a1ecf9e984ce4917b98073790ab3d602b` | P0 Doctor prescription identity + Provider self-profile identity، فوق الإصلاحات السابقة |
+| `nabdah-backend.zip` | `c6cd33a0fce83147f9de8b16836767c01d7132425a0a46eeef60c5df3dc17f6f` | المرشح التراكمي: إصلاحات P0 السابقة، عقود OpenAPI، حوكمة الكتالوج/public projection، واللغات/فهرس LabResult؛ لم يُنشر |
 | `nabdah-provider.zip` | `d81fbd14c1d9daedee18fd17679898b1f6ef06dd4c67810206fe14ee502b70e5` | `eas.json` محايد لتطبيق Provider؛ لا signing أو submit |
 
 ## الشرط المباشر لخفض NO-GO
 
-ينخفض NO-GO فقط عندما ينشر المراجع Backend archive أعلاه مع rollback وSHA مثبت، ثم تنجح دورة الوصفة اليدوية حياً، وتتوفر أدلة native signed/device والقبول البشري والموافقات الخارجية. حتى ذلك الحين، جميع الإصلاحات الجديدة **مرشح مراجعة، وليست دليلاً على إنتاج جاهز**.
+ينخفض NO-GO فقط عندما ينشر المراجع Backend archive أعلاه مع rollback وSHA مثبت، ثم تنجح دورة الوصفة اليدوية وحوكمة الكتالوج حياً بحسابات Sandbox، وتتوفر أدلة native signed/device والقبول البشري والموافقات الخارجية. حتى ذلك الحين، جميع الإصلاحات الجديدة **مرشح مراجعة، وليست دليلاً على إنتاج جاهز**.
 
 ## References
 
