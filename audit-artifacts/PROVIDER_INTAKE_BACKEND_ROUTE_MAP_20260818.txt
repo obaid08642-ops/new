@@ -1,0 +1,532 @@
+# Provider intake backend route map
+## Provider App literals
+'/chats/provider
+'/facility/inbox
+'/home-care/bookings/nursing/all
+'/home-care/provider/availability
+'/home-care/providers?availability=now
+'/hospital/branches
+'/hospital/invitations
+'/hospital/invitations/inbox
+'/hospital/staff
+'/insurance/requests/provider/queue
+'/labs/bookings
+'/labs/packages
+'/labs/provider/inbox
+'/labs/samples
+'/labs/services
+'/legal/accept/provider_agreement
+'/nursing/catalog
+'/nursing/coverage/verify-gps
+'/nursing/jobs/active
+'/nursing/notes
+'/pharmacy/chat/threads
+'/pharmacy/inventory/expiry
+'/pharmacy/orders/refills
+'/pharmacy/procurement/analyze-file
+'/pharmacy/procurement/my-requests
+'/pharmacy/procurement/submit-request
+'/pharmacy/reports/eod
+'/pharmacy/returns/provider/list
+'/provider-onboarding/contract
+'/provider-onboarding/my-profile
+'/provider-onboarding/start
+'/provider-onboarding/step2
+'/provider-onboarding/step3
+'/provider-onboarding/submit
+'/provider/ambulance/fleet
+'/provider/auth/send-otp
+'/provider/auth/verify-email
+'/provider/bank-account
+'/provider/banks
+'/provider/capabilities/doctor-sessions
+'/provider/capabilities/lab
+'/provider/capabilities/lab-services
+'/provider/capabilities/pharmacy
+'/provider/capabilities/radiology
+'/provider/chat/send
+'/provider/consultation/end
+'/provider/directory
+'/provider/facility/audit-logs
+'/provider/facility/calendar
+'/provider/facility/patients/active
+'/provider/facility/shifts
+'/provider/features/crm/patients
+'/provider/features/promotions
+'/provider/features/referrals
+'/provider/inventory/search
+'/provider/jobs/queue?kind=nursing&status=active
+'/provider/jobs/queue?kind=nursing&status=completed
+'/provider/jobs/queue?kind=nursing&status=incoming
+'/provider/jobs/queue?status=active
+'/provider/jobs/queue?status=active&kind=appointment&today=true
+'/provider/jobs/queue?status=active&kind=consultation
+'/provider/jobs/queue?status=incoming&kind=consultation
+'/provider/kyc/documents
+'/provider/leave-requests
+'/provider/leave-requests/action
+'/provider/me
+'/provider/notifications
+'/provider/nursing/checklist
+'/provider/nursing/supplies
+'/provider/ops/doctor/blacklist
+'/provider/ops/doctor/diagnoses
+'/provider/ops/doctor/leave
+'/provider/ops/doctor/templates
+'/provider/ops/wallet/ledger
+'/provider/ops/wallet/ledger?limit=50
+'/provider/payouts/balance
+'/provider/payouts/mine
+'/provider/payouts/request
+'/provider/pharmacy/allocations
+'/provider/pharmacy/broadcasts
+'/provider/pharmacy/orders
+'/provider/profile
+'/provider/profile/image/status
+'/provider/profile/image/upload
+'/provider/reviews
+'/provider/schedule/settings
+'/provider/settings/delta
+'/provider/stats/today
+'/provider/wallet
+'/provider/wallet/transactions
+'/provider/working-hours
+'/provider/zones
+'/radiology/bookings
+'/radiology/catalog/delta-request
+'/radiology/provider/inbox
+'/radiology/services
+'/recruitment/jobs
+## Backend controller route markers
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:431:  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:544:  @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:564:  @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:7:@Controller('pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:14:  @Get('prescriptions/:rxNumber') async byRxNumber(@CurrentUser() u: any, @Param('rxNumber') rx: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:26:  @Post('reports/eod') async eod(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:42:  @Get('orders/incoming') incoming(@CurrentUser() u: any) { return this.svc.incoming(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:43:  @Get('orders/preparing') preparing(@CurrentUser() u: any) { return this.svc.preparing(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:44:  @Get('orders/ready') ready(@CurrentUser() u: any) { return this.svc.ready(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:45:  @Get('orders/completed') completed(@CurrentUser() u: any) { return this.svc.completed(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:46:  @Get('orders/basket-review') basketReview(@CurrentUser() u: any) { return this.svc.basketReview(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:47:  @Get('orders/awaiting-approval') awaitingApproval(@CurrentUser() u: any) { return this.svc.awaitingApproval(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:48:  @Get('orders/refills') refills(@CurrentUser() u: any) { return this.svc.refillOrders(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:51:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:52:  @Post('orders/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { reason?: string }) { return this.ordersSvc.reject(id, u, b?.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:53:  @Post('orders/:id/preparing') preparingAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markPreparing(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:54:  @Post('orders/:id/ready') readyAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markReady(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:55:  @Post('orders/:id/partial') partial(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { unavailable_medicine_ids: string[] }) { return this.ordersSvc.markPartial(id, u, b.unavailable_medicine_ids || []); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:58:  @Get('inventory') inventory(@CurrentUser() u: any) { return this.svc.getInventory(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:59:  @Post('inventory/stock') stock(@CurrentUser() u: any, @Body() b: { medicine_id: string; stock_qty: number; is_available?: boolean }) { return this.svc.updateStock(u, b.medicine_id, b.stock_qty, b.is_available !== false); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:60:  @Post('inventory/add') addMed(@CurrentUser() u: any, @Body() b: any) { return this.svc.addMedicineToInventory(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:63:  @Get('orders/:id') orderDetail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.orderDetail(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:64:  @Post('orders/:id/items/:idx/unavailable') itemUnavailable(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.markItemUnavailable(u, id, parseInt(idx, 10)); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:65:  @Post('orders/:id/items/:idx/restore') itemRestore(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.restoreItem(u, id, parseInt(idx, 10)); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:66:  @Post('orders/:id/items/:idx/qty') itemQty(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { qty: number }) { return this.svc.updateItemQty(u, id, parseInt(idx, 10), b.qty); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:67:  @Post('orders/:id/items/:idx/substitute') itemSub(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { name_ar: string; name_en?: string; medicine_id?: string; qty?: number; price?: number; note?: string }) { return this.svc.substituteItem(u, id, parseInt(idx, 10), b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:70:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { note?: string }) { return this.svc.submitBasket(u, id, b?.note); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:73:  @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: 'approved' | 'rejected' | 'pending'; reason?: string }) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:83:@Controller('provider/pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:88:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:89:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.submitBasket(u, id, b?.note); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:90:  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:93:  @Post('orders/:id/dispatch') dispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:45:  @Get('providers') async providers(@Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:53:  @Get('providers/:id') async provider(@Param('id') id: string) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:104:  @Get('bookings/nursing/all') nursingQueue(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:209:  @Post('provider/availability') async setAvailability(@CurrentUser() u: any, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:265:@Controller('provider/nursing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:271:  @Get('supplies') supplies() { return { items: NURSING_SUPPLIES }; }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:281:  @Get('chats/provider') providerThreads(@CurrentUser() u: any, @Query() q: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:303:  @Post('provider/chat/send') providerSend(@CurrentUser() u: any, @Body() body: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:8:@Controller('providers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:45:  @Post('provider-deltas')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:51:  @Post('provider-deltas/:id/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:82:  @Post('provider-deltas/:id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:239:  @Get('providers-performance') perf(@Query() q: any) { return this.svc.providersPerformance({ type: q.type, limit: q.limit ? Number(q.limit) : undefined }); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medicines/medicines.controller.ts:152:  @Post('admin/catalog/:id/availability')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:190:  @Get('mine/:type') mine(@Param('type') t: 'lab' | 'radiology', @CurrentUser() u: any) { return this.svc.myCatalog(u, t); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:191:  @Post('mine/:type') create(@Param('type') t: 'lab' | 'radiology', @Body() b: any, @CurrentUser() u: any) { return this.svc.createService(u, t, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:192:  @Patch('mine/:type/:id') update(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateService(u, t, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:193:  @Post('mine/:type/:id/toggle') toggle(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.toggleService(u, t, id, !!b.active); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:194:  @Delete('mine/:type/:id') del(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @CurrentUser() u: any) { return this.svc.deleteService(u, t, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:200:  @Get('admin/:type') @Roles(UserRole.ADMIN) adminAll(@Param('type') t: 'lab' | 'radiology', @Query() q: any) { return this.svc.adminListAll(t, q); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:201:  @Post('admin/:type/:id/approve') @Roles(UserRole.ADMIN) approve(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.adminApproveService(t, id, b.approve !== false, u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ai/ai.controller.ts:34:  @Post('admin/gateway/provider/:key')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:25:  @Get('appointments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/export/export.controller.ts:31:  @Get('orders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts:35:  @Get('provider/:patientId') byPatient(@CurrentUser() u: any, @Param('patientId') pid: string) { return this.svc.getForPatient(u, pid); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:242:  @Post('jobs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:251:  @Put('jobs/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:259:  @Get('jobs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:265:  @Get('jobs/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:270:  @Post('jobs/:id/apply')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/recruitment/recruitment.module.ts:275:  @Get('jobs/:id/applications')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:889:  @Get('provider/balance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts:1010:  @Get('provider-balance/:providerId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:5:@Controller('labs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:9:  @Public() @Get('services')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:29:  @Public() @Get('packages')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:32:  @Public() @Get('categories')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:35:  @Public() @Get('services/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:38:  @Post('bookings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:41:  @Get('bookings/mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:44:  @Get('bookings/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:47:  @Post('bookings/:id/cancel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:50:  @Patch('bookings/:id/state')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:55:  @Post('bookings/:id/documents')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:60:  @Patch('bookings/:id/insurance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:65:  @Patch('bookings/:id/items/:serviceId/opt-in-cash')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:70:  @Get('provider/inbox')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:75:  @Post('bookings/:id/assign-technician')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:80:  @Post('bookings/:id/upload-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:86:  @Patch('bookings/:id/reschedule')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:91:  @Post('bookings/:id/gps')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:96:  @Get('bookings/:id/tracking')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:101:  @Post('bookings/:id/emergency')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:106:  @Post('bookings/:id/reassign')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:111:  @Get('admin/all')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:124:  @Post('samples/register')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:130:  @Patch('samples/:id/stage')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:136:  @Get('samples')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:143:  @Post('admin/catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:149:  @Put('admin/catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:155:  @Delete('admin/catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:162:  @Patch('admin/bookings/:id/force-state')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:168:  @Public() @Get('packages/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/labs.controller.ts:173:  @Public() @Get('compatible-providers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:7:@Controller('labs/bookings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:14:  @Get('queue')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:23:  @Post(':id/respond')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:42:  @Post('collect-sample/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:70:  @Post('finalize-test/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:100:  @Get('catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:106:  @Post('catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:121:  @Get('wallet')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/lab-results.controller.ts:8:@Controller('lab-results')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/lab-results.controller.ts:11:  @Post() create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/lab-results.controller.ts:12:  @Get('mine') mine(@CurrentUser() u: any) { return this.svc.mineFor(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/lab-results.controller.ts:13:  @Get('by-booking/:bid') byBkg(@CurrentUser() u: any, @Param('bid') bid: string) { return this.svc.byBooking(u, bid); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/labs/lab-results.controller.ts:14:  @Get(':id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.one(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/prescriptions/prescriptions.controller.ts:59:  @Get('pharmacy/queue')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:256:  @Post('appointments/:id/force-cancel') fca(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelAppt(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:257:  @Post('appointments/:id/force-confirm') fcoappt(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceConfirmAppt(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:258:  @Post('appointments/:id/force-reschedule') fra(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceRescheduleAppt(u, id, b.new_time, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:259:  @Post('orders/:id/force-cancel') fco(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelOrder(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:260:  @Post('orders/:id/force-complete') fkco(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCompleteOrder(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:261:  @Post('orders/:id/force-reassign') frr(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceReassignOrder(u, id, b.pharmacy_id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:263:  @Post('labs/:id/force-cancel') fcl(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelLab(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:264:  @Post('labs/:id/force-complete') fkcl(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCompleteLab(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:265:  @Post('labs/:id/override-insurance') oil(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.overrideLabInsurance(u, id, b.status, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:267:  @Post('radiology/:id/force-cancel') fcr(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCancelRad(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:268:  @Post('radiology/:id/force-complete') fkcr(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.forceCompleteRad(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:269:  @Post('radiology/:id/override-insurance') oir(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.overrideRadInsurance(u, id, b.status, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:271:  @Post('providers/:id/suspend') susp(@Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.suspendProvider(u, id, b.reason || ''); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:272:  @Post('providers/:id/unsuspend') unsp(@Param('id') id: string, @CurrentUser() u: any) { return this.svc.unsuspendProvider(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:6:@Controller('providers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:13:  @Post('apply')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:20:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:33:  @Get('map')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:39:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:45:  @Get('me/profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:58:  @Post('admin/create')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:64:  @Get('admin/all')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:70:  @Get('admin/pending')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:76:  @Post(':id/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:82:  @Post(':id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:88:  @Post(':id/suspend')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/providers.controller.ts:95:  @Post('admin/seed-demo')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts:10:@Controller('providers/enterprise')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts:19:  @Post('provision-sub-provider')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts:49:  @Get('branch-staff/:hospitalId/:branchId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts:70:  @Post('branch-financials/:hospitalId/:branchId')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/payouts/provider-payouts.controller.ts:16:@Controller('provider/payouts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/payouts/provider-payouts.controller.ts:34:  @Post('request')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/payouts/provider-payouts.controller.ts:85:  @Get('mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/payouts/provider-payouts.controller.ts:91:  @Get('balance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/ratings/ratings.module.ts:96:  @Get('provider/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:491:@Controller('provider/ops')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:497:  @Post('doctor/leave') addLeave(@CurrentUser() u: any, @Body() b: any) { return this.svc.addLeave(u.id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:498:  @Get('doctor/leave') leaves(@CurrentUser() u: any): Promise<any[]> { return this.svc.myLeaves(u.id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:499:  @Delete('doctor/leave/:id') cancelLeave(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancelLeave(u.id, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:502:  @Post('doctor/templates') saveTemplate(@CurrentUser() u: any, @Body() b: any) { return this.svc.saveTemplate(u.id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:503:  @Get('doctor/templates') templates(@CurrentUser() u: any): Promise<any[]> { return this.svc.myTemplates(u.id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:504:  @Delete('doctor/templates/:id') delTemplate(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTemplate(u.id, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:505:  @Post('doctor/diagnoses') saveDx(@CurrentUser() u: any, @Body() b: any) { return this.svc.saveDiagnosis(u.id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:506:  @Get('doctor/diagnoses') diagnoses(@CurrentUser() u: any, @Query('search') s?: string): Promise<any[]> { return this.svc.myDiagnoses(u.id, s); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:507:  @Post('doctor/blacklist/:patientId') block(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.blacklistPatient(u.id, p, b?.reason); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:508:  @Delete('doctor/blacklist/:patientId') unblock(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.unblacklistPatient(u.id, p); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:509:  @Get('doctor/blacklist') blacklist(@CurrentUser() u: any): Promise<any[]> { return this.svc.myBlacklist(u.id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:510:  @Get('doctor/patient-crm/:patientId') getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getPatientCrm(u.id, p); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:511:  @Put('doctor/patient-crm/:patientId') putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.putPatientCrm(u.id, p, b || {}); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:514:  @Post('lab/bookings/:id/qc/:action') qc(@CurrentUser() u: any, @Param('id') id: string, @Param('action') action: string, @Body() b: any) { return this.svc.labQc(u, id, action, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:517:  @Post('nursing/bookings/:id/checklist/:phase') checklist(@CurrentUser() u: any, @Param('id') id: string, @Param('phase') phase: string, @Body() b: any) { return this.svc.nursingChecklist(u, id, phase as any, b?.items || {}); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:518:  @Post('nursing/bookings/:id/sign') sign(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.nursingSign(u, id, b?.signature, b?.signer_name); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:519:  @Post('nursing/bookings/:id/track') track(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.nursingTrack(u, id, b?.lat, b?.lng); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:520:  @Post('nursing/bookings/:id/escalate') escalate(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.nursingEscalate(u, id, b?.reason); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:523:  @Get('ambulance/:id/eta') eta(@Param('id') id: string, @Query('lat') lat: string, @Query('lng') lng: string) { return this.svc.ambulanceEta(id, parseFloat(lat), parseFloat(lng)); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:524:  @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceHandover(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:525:  @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceComplete(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:528:  @Get('invoice/:orderId/pdf') async invoice(@CurrentUser() u: any, @Param('orderId') id: string, @Res({ passthrough: true }) res: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:534:  @Get('wallet/ledger') wallet(@CurrentUser() u: any, @Query('limit') l?: string): Promise<any> { return this.svc.walletLedger(u.id, l ? parseInt(l) : 100); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:539:@Controller('provider')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:545:  @Get('wallet') async wallet(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:550:  @Get('wallet/transactions') async walletTx(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:562:  @Get('stats/today') async statsToday(@CurrentUser() u: any): Promise<any> {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:567:  @Get('reviews') async myReviews(@CurrentUser() u: any): Promise<any[]> {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:571:  @Post('reviews/:id/reply') replyReview(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:576:  @Get('working-hours') async getHours(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:579:  @Put('working-hours') async putHours(@CurrentUser() u: any, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:584:  @Get('schedule/settings') async getSched(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:587:  @Post('schedule/settings') async postSched(@CurrentUser() u: any, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts:592:  @Post('consultation/end') endConsultation(@CurrentUser() u: any, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:254:@Controller('provider/jobs')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:258:  @Get('queue') queue(@CurrentUser() u: any, @Query() q: any) { return this.svc.queue(u, (q.status as any) || 'incoming', q.kind); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:259:  @Get('my-capabilities') async myCaps(@CurrentUser() u: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:263:  @Post(':type/:id/accept') accept(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.accept(u, t, id, b?.reason); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:264:  @Post(':type/:id/reject') reject(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.reject(u, t, id, b?.reason); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:265:  @Post(':type/:id/start') start(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.start(u, t, id, b?.reason); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:266:  @Post(':type/:id/complete') complete(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.complete(u, t, id, b?.reason); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts:267:  @Post(':type/:id/insurance') insurance(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Body() b: any) { return this.svc.updateInsurance(u, t, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:7:@Controller('orders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:13:  @Post('create')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:20:  @Get('mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:25:  @Post(':id/reorder')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:30:  @Post(':id/reorder-partial')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:35:  @Post(':id/cancel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:41:  @Post(':id/approve-basket')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:45:  @Post(':id/reject-basket')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:51:  @Get('pharmacy/queue')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:57:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:62:  @Get(':id/report.pdf')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:70:  @Get(':id/tracking')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:75:  @Patch(':id/items/:itemId/opt-in-cash')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:82:  @Patch(':id/insurance-approval')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:88:  @Post(':id/accept')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:94:  @Post(':id/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:100:  @Post(':id/preparing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:106:  @Post(':id/ready')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:112:  @Post(':id/partial')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:119:  @Post(':id/assign-delivery')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:125:  @Post(':id/delivery/update')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:131:  @Post(':id/dispatch')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:137:  @Post(':id/delivered')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:144:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:150:  @Get('admin/escalated')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:156:  @Post(':id/admin/transition')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:162:  @Post('bids/place')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:168:  @Post('bids/:id/accept')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:173:  @Get('bids/request/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/orders/orders.controller.ts:178:  @Get('bids/pharmacy/mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin-notification-center/admin-notification-center.module.ts:354:  @Post('broadcasts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:24:  @Get('wallet/balance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:30:  @Post('wallet/credit')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:43:  @Post('wallet/debit')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:116:  @Post('provider/match/pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:121:  @Post('provider/match/nurse')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:126:  @Get('provider/rankings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:132:  @Get('provider/fraud-alerts')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:142:  @Post('nursing/attendance/verify')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:147:  @Get('nursing/visit/checklist')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:152:  @Post('pharmacy/broadcast/respond')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:158:  @Get('pharmacy/inventory/expiry')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:163:  @Post('labs/samples/barcode-verify')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts:169:  @Post('labs/results/verify')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/livekit/livekit.controller.ts:13:  @Get('provider/waiting-room')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/livekit/livekit.controller.ts:18:  @Post('provider/ping-patient')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/livekit/livekit.controller.ts:23:  @Post('provider/no-show')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:254:  @Public() @Get(':id/slots') slots(@Param('id') id: string, @Query('date') date: string) { return this.svc.availableSlots(id, date); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:256:  @Post('appointments') book(@Body() body: any, @CurrentUser() user: any) { return this.svc.book(user, body); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:257:  @Get('appointments/mine') mine(@CurrentUser() user: any) { return this.svc.myAppointments(user); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:258:  @Get('appointments/inbox') inbox(@Query('status') s: string | undefined, @CurrentUser() user: any) { return this.svc.doctorInbox(user, s); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:259:  @Get('appointments/:id') ap(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.appointmentDetail(user, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:260:  @Patch('appointments/:id/state') tr(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) { return this.svc.transition(user, id, body.state); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:262:  @Get('appointments/:id/messages') msgs(@Param('id') id: string, @CurrentUser() user: any) { return this.svc.listMessages(user, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:263:  @Post('appointments/:id/messages') postMsg(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) { return this.svc.postMessage(user, id, body.text); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:264:  @Post('appointments/:id/note') note(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) { return this.svc.upsertNote(user, id, body); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/doctors/doctors.module.ts:266:  @Patch('availability') avail(@Body() body: any, @CurrentUser() user: any) { return this.svc.setAvailability(user, body); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin/admin.controller.ts:444:  @Post('providers/create')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin/admin.controller.ts:578:  @Post('provider-deltas')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin/admin.controller.ts:584:  @Post('provider-deltas/:deltaId/approve')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/admin/admin.controller.ts:598:  @Post('provider-deltas/:deltaId/reject')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/payments/payments.module.ts:335:  @Post(':provider') @HttpCode(200) async webhook(@Param('provider') p: string, @Body() b: any) {
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:76:  @Get('provider/settlements')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:82:  @Get('provider/settlements/excel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:91:  @Get('provider/settlements/pdf')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:101:  @Post('admin/providers/license-monitor/run')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:107:  @Get('provider/insurance-matrix')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:111:  @Put('provider/insurance-matrix')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts:119:  @Get('provider/sla')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:338:  @Post('nursing-broadcast') nursing(@CurrentUser() u: any, @Body() b: any) { return this.svc.nursingRadiusBroadcast(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care/home-care.controller.ts:11:@Controller('nursing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/home-care/home-care.controller.ts:340:  @Get('wallet')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:40:  @Get('orders/available')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:46:  @Get('orders/active')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:52:  @Get('orders/history')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:58:  @Post('orders/:id/accept')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:64:  @Post('orders/:id/pickup')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:70:  @Post('orders/:id/deliver')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/drivers/drivers.controller.ts:84:  @Get('available')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:316:  @Get(':id/providers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:537:  @Get('inbox')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:548:  @Post('inbox/:id/read')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:559:@Controller('nursing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:563:  @Get('jobs/active')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:606:  @Post('jobs/:id/notes')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:643:@Controller('pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:709:@Controller('provider-deltas')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:727:@Controller('provider/capabilities')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:731:  @Get('lab-services')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:740:  @Get('radiology-services')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:751:@Controller('provider/facility')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:833:@Controller('provider/pharmacy/b2b')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/compat.module.ts:1020:@Controller('provider/dashboard')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/admin-spa.module.ts:111:@Controller('broadcast')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/admin-spa.module.ts:497:@Controller('orders')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/admin-spa.module.ts:991:@Controller('nursing-services')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/admin-spa.module.ts:1053:@Controller('providers')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/admin-spa.module.ts:1145:  @Get('bookings/nursing/my')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/compat/admin-spa.module.ts:1301:@Controller('admin/nursing')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/leave-requests.controller.ts:7:@Controller('provider/leave-requests')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/leave-requests.controller.ts:14:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/leave-requests.controller.ts:23:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/leave-requests.controller.ts:48:  @Post('action')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:16:@Controller('provider/features')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:29:  @Post('promotions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:45:  @Get('promotions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:51:  @Post('referrals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:65:  @Get('referrals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:72:  @Get('crm/patients')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:89:  @Get('crm/patients/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:107:  @Patch('crm/patients/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:128:  @Post('home-care/bookings/:id/check-in')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:147:  @Post('home-care/reports/:id/submit')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:169:  @Post('radiology/bookings/:id/upload-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider/simulated-features.controller.ts:187:  @Post('radiology/bookings/:id/publish-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/doctor-integration.controller.ts:7:@Controller('provider/doctor-engine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:8:@Controller('care/appointments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:14:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:19:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:24:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:29:  @Post('waitlist/join')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:34:  @Patch(':id/cancel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:39:  @Patch(':id/reschedule')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:45:  @Patch(':id/confirm')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:51:  @Patch(':id/check-in')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:57:  @Patch(':id/start')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:63:  @Patch(':id/complete')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:69:  @Post(':id/finish')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/appointments.controller.ts:75:  @Get(':id/summary')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/care/doctor-referrals.controller.ts:10:@Controller('provider/doctor-referrals')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:5:@Controller('radiology')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:9:  @Public() @Get('services')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:31:  @Public() @Get('modalities')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:34:  @Public() @Get('services/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:37:  @Post('bookings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:40:  @Get('bookings/mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:43:  @Get('bookings/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:46:  @Post('bookings/:id/cancel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:49:  @Patch('bookings/:id/state')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:54:  @Post('bookings/:id/publish-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:59:  @Get('reports/mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:62:  @Post('bookings/:id/documents')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:67:  @Patch('bookings/:id/insurance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:72:  @Get('provider/inbox')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:77:  @Post('bookings/:id/assign-technician')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:82:  @Post('bookings/:id/upload-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:88:  @Post('bookings/:id/checkin')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:93:  @Post('bookings/:id/start-scan')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:99:  @Post('bookings/:id/abort')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:105:  @Post('bookings/:id/submit-report-for-review')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:110:  @Post('bookings/:id/approve-report')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:116:  @Post('bookings/:id/insurance-approval')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:122:  @Patch('bookings/:id/reschedule')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:128:  @Get('bookings/:id/tracking')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:134:  @Post('catalog/delta-request')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:140:  @Post('bookings/:id/confirm-preparation')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:145:  @Get('admin/all')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:159:  @Post('admin/catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:165:  @Put('admin/catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:171:  @Delete('admin/catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/radiology.controller.ts:178:  @Patch('admin/bookings/:id/force-state')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:25:@Controller('radiology/provider')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:56:  @Get('queue')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:73:  @Post(':id/respond')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:98:  @Post('allocate-machine/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:130:  @Post('finalize-scan/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:161:  @Get('wallet')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:192:  @Get('catalog')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:197:  @Post('catalog/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:206:  @Get('inventory')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts:213:  @Post('inventory')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:8:@Controller('radiology/bookings')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:21:  @Post()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:62:  @Get('mine')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:70:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:82:  @Post('allocate-machine/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:112:  @Post('finalize-scan/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:5:@Controller('wallet')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:10:  @Get('balance')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:17:  @Get('transactions')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:23:  @Get('spending-data')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:34:  @Post('topup')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:42:  @Post('topup/confirm')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:48:  @Get('topup/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:53:  @Post('transfer')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:61:  @Get('cards')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:68:  @Post('cards')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/wallet/wallet.controller.ts:75:  @Delete('cards/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:5:@Controller('hospital')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:10:  @Post('branches')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:15:  @Get('branches')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:20:  @Post('departments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:25:  @Get('departments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:30:  @Post('staff')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:35:  @Get('staff')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:40:  @Post('doctors/onboard')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:45:  @Get('appointments')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:53:  @Put('appointments/:id/status')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:58:  @Get('wallet')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:66:  @Post('invitations')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:71:  @Get('invitations')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:76:  @Get('invitations/inbox')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts:81:  @Post('invitations/:id/respond')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/returns/returns.controller.ts:6:@Controller('pharmacy/returns')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/returns/returns.controller.ts:21:  @Get('provider/list')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/patient-pharmacy.controller.ts:5:@Controller('patient/pharmacy')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/patient-pharmacy.controller.ts:10:  @Get('shortage-flags/lookup')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:19:@Controller('admin/procurement')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:26:  @Get()
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:32:  @Get('summary')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:38:  @Get(':id/export')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:47:  @Get(':id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:53:  @Patch(':id/review')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:59:  @Post(':id/quotation')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:70:  @Get(':id/quotation')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:76:  @Patch(':id/cancel')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts:82:  @Patch(':id/complete')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts:18:@Controller('pharmacy/procurement')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts:29:  @Post('submit-request')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts:53:  @Get('my-requests')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts:61:  @Post(':id/feedback')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts:75:  @Post('analyze-file')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:113:@Controller('hospital/staff')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:117:  @Get() list(@CurrentUser() u: any) { return this.svc.list(u); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:118:  @Post() create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:119:  @Patch(':id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.update(u, id, b); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:120:  @Post(':id/suspend') suspend(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { suspended?: boolean }) { return this.svc.suspend(u, id, b?.suspended !== false); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:121:  @Post(':id/reset-password') reset(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { password: string }) { return this.svc.resetPassword(u, id, b?.password); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts:122:  @Delete(':id') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.remove(u, id); }
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/emergency/ambulance-fleet.controller.ts:84:@Controller('provider/ambulance/fleet')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:431:@Controller('provider-onboarding')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:435:  @Public() @Post('start')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:438:  @UseGuards(JwtAuthGuard) @Get('my-profile')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:441:  @UseGuards(JwtAuthGuard) @Post('step2')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:444:  @UseGuards(JwtAuthGuard) @Post('step3')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:447:  @UseGuards(JwtAuthGuard) @Post('submit')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:450:  @UseGuards(JwtAuthGuard) @Get('progress')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:454:  @UseGuards(JwtAuthGuard) @Get('contract')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:461:  @UseGuards(JwtAuthGuard) @Get('admin/contracts/:id')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:469:  @UseGuards(JwtAuthGuard) @Post('admin/contracts/:id/visibility')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:476:@Controller('search')
+/tmp/nabdah-appointment-work/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts:480:  @Public() @Get('providers')

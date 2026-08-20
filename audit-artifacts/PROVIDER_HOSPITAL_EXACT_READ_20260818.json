@@ -1,0 +1,1 @@
+{"scope":"hospital.sandbox read-only exact contract probe","results":[{"path":"/provider-onboarding/progress","status":200,"body_bytes":17},{"path":"/notifications","status":200,"body_bytes":2},{"path":"/wallet/balance","status":200,"body_bytes":13},{"path":"/wallet/transactions","status":200,"body_bytes":29},{"path":"/hospital/staff","status":403,"body_bytes":82}]}

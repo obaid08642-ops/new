@@ -1,0 +1,8 @@
+{
+  "timestamp_observed": "2026-08-17T23:03:44Z",
+  "base": "https://api.nabd.plus/api/v1",
+  "transport": "origin direct via --resolve api.nabd.plus:443:57.131.133.208",
+  "liveness": {"status": 200, "body": {"status": "up"}},
+  "readiness": {"status": 200, "body": {"status": "ok", "details": {"mongodb": "up", "redis": "up"}}},
+  "classification": "PASS_INFRASTRUCTURE_GATE"
+}

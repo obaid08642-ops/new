@@ -1,0 +1,23 @@
+{
+  "scope": "patient.sandbox@nabd.plus via origin direct; read-only only",
+  "login": {"status": "success", "token_received": true},
+  "reads": [
+    {"path":"/profile","status":404,"classification":"UNRECONCILED_ROUTE"},
+    {"path":"/notifications","status":200,"classification":"PASS_READ"},
+    {"path":"/family","status":404,"classification":"UNRECONCILED_ROUTE_OR_EMPTY_CONTRACT"},
+    {"path":"/wallet/balance","status":200,"classification":"PASS_READ"},
+    {"path":"/wallet/transactions","status":200,"classification":"PASS_READ"},
+    {"path":"/orders/mine","status":200,"classification":"PASS_READ"},
+    {"path":"/appointments/mine","status":404,"classification":"UNRECONCILED_ROUTE"},
+    {"path":"/services","status":403,"classification":"CONTRACT_OR_ROLE_MISMATCH"},
+    {"path":"/doctors","status":200,"classification":"PASS_READ"},
+    {"path":"/hospitals","status":404,"classification":"UNRECONCILED_ROUTE"},
+    {"path":"/labs/packages","status":200,"classification":"PASS_READ"},
+    {"path":"/radiology/services","status":200,"classification":"PASS_READ"},
+    {"path":"/pharmacy/products","status":200,"classification":"PASS_READ"},
+    {"path":"/home-care/services","status":200,"classification":"PASS_READ"},
+    {"path":"/insurance/companies","status":200,"classification":"PASS_READ"},
+    {"path":"/articles","status":200,"classification":"PASS_READ"}
+  ],
+  "note": "404s may be stale route guesses rather than source defects; next step is exact consumer-to-controller reconciliation before any mutation."
+}

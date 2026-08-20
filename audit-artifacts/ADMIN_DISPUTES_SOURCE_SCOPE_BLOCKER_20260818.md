@@ -1,0 +1,5 @@
+# Admin disputes source-scope blocker — 2026-08-18
+
+The full Admin snapshot used for inventory contains a real fabricated-data fallback in `src/pages/admin/disputes.tsx`: missing `amount` renders `150 ر.س`, missing patient/provider names render synthetic labels, and missing reason renders a synthetic dispute reason. This violates the evidence-first requirement and can misstate financial data.
+
+The current reconciliation worktree `/home/ubuntu/nabdah-live-work` does not contain an Admin source tree. The complete Admin snapshot is stored in separate worktrees (`/home/ubuntu/nabdah-live-extracted/admin-app/web-admin` and `/home/ubuntu/admin-build-work/web-admin`) and is not yet proven to be the authoritative Git source for `manus/on-live-reconciliation`. Therefore no source edit is made here; the finding is recorded as **ADMIN_SOURCE_SCOPE_BLOCKER** until the authoritative Admin repository/worktree is identified. A placeholder scan or build result from an unlinked snapshot must not be presented as a deployed fix.

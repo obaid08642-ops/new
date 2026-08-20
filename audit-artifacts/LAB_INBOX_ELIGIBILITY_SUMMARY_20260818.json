@@ -1,0 +1,17 @@
+{
+  "top_type": "array",
+  "request_summaries": [
+    {
+      "id": "76166cc4-7c29-4762-944b-c7c9de45bb15",
+      "status": "REPORTED",
+      "type": null,
+      "patient_id": "0f278cf5-9917-473a-a9bc-c6dbed980834"
+    },
+    {
+      "id": "2240145f-8638-42b6-a1e7-6872d8f59067",
+      "status": null,
+      "type": null,
+      "patient_id": null
+    }
+  ]
+}

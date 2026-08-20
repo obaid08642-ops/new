@@ -1,0 +1,9 @@
+env: load .env.development .env
+env: export EXPO_PUBLIC_API_BASE_URL EXPO_PUBLIC_API_URL EXPO_PUBLIC_SOCKET_URL EXPO_PUBLIC_FASTAPI_BASE_URL EXPO_PUBLIC_CDN_URL EXPO_PUBLIC_LIVEKIT_URL EXPO_PUBLIC_ENVIRONMENT EXPO_PUBLIC_ENABLE_MOCK_SERVICES
+Failed to resolve the Android SDK path. Default install location not found: /home/ubuntu/Android/sdk. Use ANDROID_HOME to set the Android SDK location.
+Failed to resolve the Android SDK path. Default install location not found: /home/ubuntu/Android/sdk. Use ANDROID_HOME to set the Android SDK location.
+Error: spawn adb ENOENT
+Error: spawn adb ENOENT
+    at Process.ChildProcess._handle.onexit (node:internal/child_process:285:19)
+    at onErrorNT (node:internal/child_process:483:16)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)

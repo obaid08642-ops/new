@@ -1,0 +1,74 @@
+{
+  "doctor": {
+    "login": {
+      "status": 404,
+      "type": "dict",
+      "keys": [
+        "message",
+        "error",
+        "statusCode"
+      ]
+    },
+    "reads": []
+  },
+  "lab": {
+    "login": {
+      "status": 404,
+      "type": "dict",
+      "keys": [
+        "message",
+        "error",
+        "statusCode"
+      ]
+    },
+    "reads": []
+  },
+  "radiology": {
+    "login": {
+      "status": 404,
+      "type": "dict",
+      "keys": [
+        "message",
+        "error",
+        "statusCode"
+      ]
+    },
+    "reads": []
+  },
+  "pharmacy": {
+    "login": {
+      "status": 429,
+      "type": "dict",
+      "keys": [
+        "statusCode",
+        "message",
+        "retry_after"
+      ]
+    },
+    "reads": []
+  },
+  "nursing": {
+    "login": {
+      "status": 429,
+      "type": "dict",
+      "keys": [
+        "statusCode",
+        "message",
+        "retry_after"
+      ]
+    },
+    "reads": []
+  },
+  "hospital": {
+    "login": {
+      "status": 429,
+      "type": "dict",
+      "keys": [
+        "statusCode",
+        "message",
+        "retry_after"
+      ]
+    },
+    "reads": []
+  }
+}

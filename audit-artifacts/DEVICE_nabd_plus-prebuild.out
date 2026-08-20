@@ -1,0 +1,14 @@
+  --non-interactive is not supported, use $CI=1 instead
+env: load .env.development .env
+env: export EXPO_PUBLIC_API_BASE_URL EXPO_PUBLIC_API_URL EXPO_PUBLIC_SOCKET_URL EXPO_PUBLIC_FASTAPI_BASE_URL EXPO_PUBLIC_CDN_URL EXPO_PUBLIC_LIVEKIT_URL EXPO_PUBLIC_ENVIRONMENT EXPO_PUBLIC_ENABLE_MOCK_SERVICES
+The android and ios projects are malformed, project files will be cleared and reinitialized.
+- Clearing android, ios
+✔ Cleared android, ios code
+- Creating native directories (./ios and ./android)
+✔ Created native directories
+- Updating package.json
+✔ Updated package.json
+- Running prebuild
+» android: userInterfaceStyle: Install expo-system-ui in your project to enable this feature.
+- Running prebuild
+✔ Finished prebuild

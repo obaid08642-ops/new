@@ -1,0 +1,428 @@
+# provider source inventory
+root=/home/ubuntu/nabdah-live-work/provider-app
+generated=2026-08-18
+
+## files
+app.json
+assets/adaptive-icon.png
+assets/audio/rad_dispatch_alert.mp3
+assets/icon.png
+assets/notification-icon.png
+assets/splash.png
+package-lock.json
+package.json
+provider-app.contracts.test.js
+src/api/catalogs.ts
+src/api/client.ts
+src/api/otp.ts
+src/api/provider.ts
+src/components/ContractModal.tsx
+src/components/LocationPickerModal.tsx
+src/components/OtpModal.tsx
+src/components/SignatureCanvasModal.tsx
+src/components/SuccessScreen.tsx
+src/components/icons.tsx
+src/components/ui.tsx
+src/constants/index.ts
+src/context/index.tsx
+src/polyfills.ts
+src/screens/ambulance/AmbulanceDashboard.tsx
+src/screens/ambulance/AmbulanceRegistration.tsx
+src/screens/auth/AuthScreens.tsx
+src/screens/auth/PendingDashboard.tsx
+src/screens/doctor/DoctorDashboard.tsx
+src/screens/doctor/DoctorOpsScreens.tsx
+src/screens/doctor/DoctorRegistration.tsx
+src/screens/doctor/FacilityInvitationsScreen.tsx
+src/screens/doctor/components/DoctorHeader.tsx
+src/screens/doctor/components/DoctorQueueList.tsx
+src/screens/doctor/components/DoctorStatsRow.tsx
+src/screens/doctor/components/DoctorUrgentRequests.tsx
+src/screens/facility/DischargeSummaryScreen.tsx
+src/screens/facility/FacilityAnnouncementsScreen.tsx
+src/screens/facility/FacilityAuditLogScreen.tsx
+src/screens/facility/FacilityDashboard.tsx
+src/screens/facility/FacilityInternalChatScreen.tsx
+src/screens/facility/FacilityInvitationScreen.tsx
+src/screens/facility/FacilityLeaveRequestsScreen.tsx
+src/screens/facility/FacilityPatientTrackerScreen.tsx
+src/screens/facility/FacilityProfileConfigScreen.tsx
+src/screens/facility/FacilityRegistration.tsx
+src/screens/facility/FacilityResourcesScreen.tsx
+src/screens/facility/FacilityUnifiedCalendarScreen.tsx
+src/screens/lab/LabDashboard.tsx
+src/screens/lab/LabQcActions.tsx
+src/screens/lab/LabRegistration.tsx
+src/screens/nursing/NursingDashboard.tsx
+src/screens/nursing/NursingFieldOps.tsx
+src/screens/nursing/NursingRegistration.tsx
+src/screens/pharmacy/PharmacyDashboard.tsx
+src/screens/pharmacy/PharmacyRegistration.tsx
+src/screens/radiology/RadiologyDashboard.tsx
+src/screens/radiology/RadiologyRegistration.tsx
+src/screens/shared/BlueprintScreens.tsx
+src/screens/shared/FleetScreen.tsx
+src/screens/shared/InsuranceRequestsScreen.tsx
+src/screens/shared/RealScreens.tsx
+src/screens/shared/RealScreensExtended.tsx
+src/screens/shared/RegistrationSuccess.tsx
+src/screens/shared/SharedScreens.tsx
+src/screens/shared/VideoCallRoom.tsx
+src/security/Security.ts
+src/services/HttpClient.ts
+src/services/NotificationService.ts
+src/types/FacilityTypes.ts
+src/types/contracts.ts
+src/utils/PushNotifications.ts
+src/utils/api.ts
+src/utils/dates.ts
+src/utils/imageUrl.ts
+src/utils/notifications.ts
+tsconfig.json
+
+## route/navigation markers
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:68:     <Stack.Screen name="MainTabs">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:89:     </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:91:     <Stack.Screen name="appointment_detail">{({ navigation, route }: any) => <AppointmentDetailScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:92:     <Stack.Screen name="consultation">{({ navigation, route }: any) => <LiveConsultationScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:93:     <Stack.Screen name="prescription">{({ navigation, route }: any) => <EPrescriptionScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:94:     <Stack.Screen name="sick_leave">{({ navigation, route }: any) => <SickLeaveScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:95:     <Stack.Screen name="medical_report">{({ navigation, route }: any) => <MedicalReportScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:96:     <Stack.Screen name="referral">{({ navigation, route }: any) => <ReferralScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:97:     <Stack.Screen name="request_test">{({ navigation, route }: any) => <RequestTestScreen apt={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:98:     <Stack.Screen name="patient_file">{({ navigation, route }: any) => <PatientFileScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:99:     <Stack.Screen name="no_show">{({ navigation }: any) => <NoShowManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:100:     <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:101:     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="doctor" />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:102:     <Stack.Screen name="availability_engine">{({ navigation }: any) => <DoctorAvailabilityScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:103:     <Stack.Screen name="service_management">{({ navigation }: any) => <DoctorServiceManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:104:     <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:105:     <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:106:     <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:107:     <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:108:     <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:109:     <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:110:     <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:111:     <Stack.Screen name="ai_copilot">{({ navigation }: any) => <AiMedicalCopilot onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:112:     <Stack.Screen name="outbound_referral">{({ navigation }: any) => <SmartOutboundReferralNetwork onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:113:     <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:114:     <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:115:     <Stack.Screen name="profile_edit">{({ navigation }: any) => <DoctorProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:116:     <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:117:     <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:118:     <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:119:     <Stack.Screen name="virtual_waiting_room">{({ navigation }: any) => <VirtualWaitingRoomScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:120:     <Stack.Screen name="pre_visit_chat">{({ navigation, route }: any) => <PreVisitChatScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:121:     <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:122:     <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:123:     <Stack.Screen name="location_config">{({ navigation }: any) => <DoctorLocationScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/doctor/DoctorDashboard.tsx:124:     <Stack.Screen name="inbound_reports">{({ navigation }: any) => <InboundMedicalReportsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:181:      <Stack.Screen name="MainTabs">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:200:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:202:      <Stack.Screen name="subaccounts">{({ navigation }: any) => <SubAccountsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:203:      <Stack.Screen name="add_subaccount">{({ navigation, route }: any) => <FacilityInvitationScreen onBack={() => navigation.goBack()} preRole={route.params?.param} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:204:      <Stack.Screen name="departments">{({ navigation }: any) => <DepartmentManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:205:      <Stack.Screen name="shifts">{({ navigation }: any) => <ShiftManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:206:      <Stack.Screen name="resources">{({ navigation }: any) => <FacilityResourcesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:207:      <Stack.Screen name="leave_requests">{({ navigation }: any) => <FacilityLeaveRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:208:      <Stack.Screen name="unified_sched">{({ navigation }: any) => <FacilityUnifiedCalendarScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:209:      <Stack.Screen name="beds">{({ navigation }: any) => <BedManagementScreen onBack={() => navigation.goBack()} wards={wards} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:210:      <Stack.Screen name="qr_checkin">{({ navigation }: any) => <QRCheckinScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:211:      <Stack.Screen name="insurance_hub">{({ navigation }: any) => <InsuranceClaimsHubScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:212:      <Stack.Screen name="financial">{({ navigation }: any) => <FacilityFinancialScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:213:      <Stack.Screen name="internal_chat">{({ navigation }: any) => <FacilityInternalChatScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:214:      <Stack.Screen name="audit_logs">{({ navigation }: any) => <FacilityAuditLogScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:215:      <Stack.Screen name="announcements">{({ navigation }: any) => <FacilityAnnouncementsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:216:      <Stack.Screen name="patient_tracker">{({ navigation }: any) => <FacilityPatientTrackerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:217:      <Stack.Screen name="discharge_summary">{({ navigation }: any) => <DischargeSummaryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:218:      <Stack.Screen name="attendance">{({ navigation }: any) => <StaffAttendanceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:219:      <Stack.Screen name="surgery_sched">{({ navigation }: any) => <SurgeryScheduleScreen onBack={() => navigation.goBack()} surgeries={surgeries} onRefresh={fetchWardsAndSurgeries} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:220:      <Stack.Screen name="credentialing">{({ navigation }: any) => <CredentialingScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:221:      <Stack.Screen name="hospital_dispatch">{({ navigation }: any) => <HospitalDispatchScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:222:      <Stack.Screen name="facility_info">{({ navigation }: any) => <FacilityProfileConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:223:      <Stack.Screen name="auto_reports">{({ navigation }: any) => <StatisticsReports onBack={() => navigation.goBack()} providerType="facility" />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:224:      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:225:      <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:226:      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <FacilityOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:227:      <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:228:      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:229:      <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:230:      <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:231:      <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:232:      <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:233:      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:234:      <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:235:      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:236:      <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:237:      <Stack.Screen name="ambulance_fleet">{({ navigation }: any) => <FleetScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:238:      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:239:      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:240:      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:241:      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:242:      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:243:      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/facility/FacilityDashboard.tsx:244:      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:151:     <Stack.Screen name="MainTabs">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:171:     </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:173:     <Stack.Screen name="order_detail">{({ navigation, route }: any) => <LabOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:174:     <Stack.Screen name="sample_tracking">{({ navigation }: any) => <SampleTracking onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:175:     <Stack.Screen name="result_entry">{({ navigation, route }: any) => <ResultEntry sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:176:     <Stack.Screen name="result_review">{({ navigation, route }: any) => <ResultReview sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:177:     <Stack.Screen name="bundles">{({ navigation }: any) => <LabBundlesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:178:     <Stack.Screen name="add_test">{({ navigation }: any) => <AddCustomTest onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:179:     <Stack.Screen name="home_collection">{({ navigation, route }: any) => <HomeCollection order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:180:     <Stack.Screen name="qr_label">{({ navigation, route }: any) => <QRSampleLabel sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:181:     <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:182:     <Stack.Screen name="chat">{({ navigation }: any) => <ChatSystem onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:183:     <Stack.Screen name="tat_tracker">{({ navigation }: any) => <TATTracker onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:184:     <Stack.Screen name="insurance">{({ navigation }: any) => <LabInsurance onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:186:     <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:187:     <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:188:     <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:189:     <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:190:     <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:191:     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:192:     <Stack.Screen name="lab_scanner">{({ navigation }: any) => <LabSampleScannerScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:193:     <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:194:     <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:195:     <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:196:     <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:197:     <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:198:     <Stack.Screen name="test_menu">{({ navigation }: any) => <LabTestMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:200:     <Stack.Screen name="home_service">{({ navigation }: any) => <LabHomeServiceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:201:     <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:202:     <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:203:     <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:204:     <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/lab/LabDashboard.tsx:205:     <Stack.Screen name="devices">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:428:      <Stack.Screen name="home">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:432:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:433:      <Stack.Screen name="mission">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:437:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:438:      <Stack.Screen name="handover">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:442:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:443:      <Stack.Screen name="complete">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:447:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:448:      <Stack.Screen name="history">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:450:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:451:      <Stack.Screen name="fleet">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/ambulance/AmbulanceDashboard.tsx:453:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:116:      <Stack.Screen name="MainTabs">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:174:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:176:      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <NursingFieldOps order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:177:      <Stack.Screen name="checklist">{({ navigation, route }: any) => <VisitChecklist order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:178:      <Stack.Screen name="checkin">{({ navigation, route }: any) => <DigitalCheckin order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:179:      <Stack.Screen name="care_plan">{({ navigation, route }: any) => <CarePlan patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:180:      <Stack.Screen name="progress">{({ navigation, route }: any) => <ProgressNotes patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:181:      <Stack.Screen name="visit_report">{({ navigation, route }: any) => <VisitReport order={route.params?.param} onBack={() => navigation.goBack()} onRefresh={fetchJobs} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:182:      <Stack.Screen name="supplies">{({ navigation }: any) => <MedicalSupplies onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:183:      <Stack.Screen name="nursing_services">{({ navigation }: any) => <NursingServicesSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:184:      <Stack.Screen name="nursing_pricing">{({ navigation }: any) => <NursingPricingSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:185:      <Stack.Screen name="nursing_coverage">{({ navigation }: any) => <NursingCoverageSettings onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:187:      <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:188:      <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:189:      <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:190:      <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:191:      <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:192:      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:193:      <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:194:      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:195:      <Stack.Screen name="sos_dispatch">{({ navigation }: any) => <SosDispatchScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:196:      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:197:      <Stack.Screen name="nurse_visit">{({ navigation }: any) => <NurseVisitConsole onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:198:      <Stack.Screen name="nurse_checklist">{({ navigation }: any) => <NurseChecklistConsole onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:199:      <Stack.Screen name="profile_edit">{({ navigation }: any) => <NursingProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:200:      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:201:      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:202:      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:203:      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:204:      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:205:      <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:206:      <Stack.Screen name="chat">{({ navigation, route }: any) => <NursingChatScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:207:      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:208:      <Stack.Screen name="working_hours">{({ navigation }: any) => <NursingScheduleScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:210:      <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:211:      <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:212:      <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/nursing/NursingDashboard.tsx:213:      <Stack.Screen name="devices">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:56:      <Stack.Screen name="MainTabs">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:70:      </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:72:      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <OrderDetailScreen order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:73:      <Stack.Screen name="reporting">{({ navigation, route }: any) => <ReportingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:74:      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:75:      <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/radiology/RadiologyDashboard.tsx:76:      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:107:     <Stack.Screen name="MainTabs">
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:136:     </Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:138:     <Stack.Screen name="shortage">{({ navigation }: any) => <ShortageReportScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:139:     <Stack.Screen name="b2b_supply">{({ navigation }: any) => <B2BSupplyRequestScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:140:     <Stack.Screen name="scanner">{({ navigation }: any) => <SmartBarcodeScannerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:141:     <Stack.Screen name="wallet">{({ navigation }: any) => <PharmacyWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:142:     <Stack.Screen name="order_history">{({ navigation }: any) => <OrderHistoryScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:143:     <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:144:     <Stack.Screen name="delivery_track">{({ navigation, route }: any) => <DeliveryTrackingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:145:     <Stack.Screen name="qr_menu">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:146:     <Stack.Screen name="reviews">{({ navigation }: any) => <ReviewsAndRatingsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:147:     <Stack.Screen name="chronic">{({ navigation }: any) => <ChronicDiseaseProgramScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:148:     <Stack.Screen name="promotions">{({ navigation }: any) => <PromotionsDashboard onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:149:     <Stack.Screen name="create_promo">{({ navigation }: any) => <CreateCampaignScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:150:     <Stack.Screen name="web_config">{({ navigation }: any) => <ProfileWebConfig onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:151:     <Stack.Screen name="subscriptions_ads">{({ navigation }: any) => <SubscriptionsAdsScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:152:     <Stack.Screen name="affiliate">{({ navigation }: any) => <AffiliatePortal onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:153:     <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:154:     <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:155:     <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:156:     <Stack.Screen name="pharmacy_broadcast">{({ navigation }: any) => <PharmacyBroadcastResponse onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:157:     <Stack.Screen name="expiry_monitor">{({ navigation }: any) => <InventoryExpiryMonitor onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:158:     <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:159:     <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:160:     <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:161:     <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:162:     <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:163:     <Stack.Screen name="pharmacy_info">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:164:     <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:165:     <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:166:     <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:167:     <Stack.Screen name="pricing_fees">{({ navigation }: any) => <DrugPriceComparisonScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:168:     <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+/home/ubuntu/nabdah-live-work/provider-app/src/screens/pharmacy/PharmacyDashboard.tsx:169:     <Stack.Screen name="support">{({ navigation }: any) => <TechnicalSupportTicketsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+
+## interactive handlers
+909
+## API endpoint markers
+'/ai/copilot/suggest'
+'/api'
+'/api/v1'
+'/approval-workflow/requests'
+'/auth/login'
+'/auth/send-otp'
+'/auth/verify-otp'
+'/calls/initiate'
+'/chat/threads'
+'/chats/provider'
+'/chats/threads'
+'/chats/threads/booking'
+'/emergency/active'
+'/emergency/driver/missions'
+'/emergency/trigger'
+'/facility/announcements'
+'/facility/beds/admission'
+'/facility/beds/admissions'
+'/facility/beds/wards'
+'/facility/inbox'
+'/facility/resources'
+'/facility/shifts/attendance'
+'/facility/surgeries/book'
+'/facility/surgeries/schedule'
+'/home-care/bookings'
+'/home-care/bookings/nursing/all'
+'/home-care/inventory/request'
+'/home-care/notes'
+'/home-care/provider/availability'
+'/home-care/providers?availability=now'
+'/hospital/branches'
+'/hospital/invitations'
+'/hospital/invitations/inbox'
+'/hospital/staff'
+'/insurance/companies'
+'/insurance/requests/provider/queue'
+'/labs/bookings'
+'/labs/packages'
+'/labs/provider/inbox'
+'/labs/samples'
+'/labs/services'
+'/legal/accept/provider_agreement'
+'/medicines'
+'/nursing/catalog'
+'/nursing/coverage/verify-gps'
+'/nursing/jobs/active'
+'/nursing/notes'
+'/pharmacy/chat/threads'
+'/pharmacy/inventory/expiry'
+'/pharmacy/orders/refills'
+'/pharmacy/procurement/analyze-file'
+'/pharmacy/procurement/my-requests'
+'/pharmacy/procurement/submit-request'
+'/pharmacy/reports/eod'
+'/pharmacy/returns/provider/list'
+'/prescriptions/create'
+'/provider-onboarding/contract'
+'/provider-onboarding/my-profile'
+'/provider-onboarding/start'
+'/provider-onboarding/step2'
+'/provider-onboarding/step3'
+'/provider-onboarding/submit'
+'/provider/ambulance/fleet'
+'/provider/auth/send-otp'
+'/provider/auth/verify-email'
+'/provider/bank-account'
+'/provider/banks'
+'/provider/capabilities/doctor-sessions'
+'/provider/capabilities/lab'
+'/provider/capabilities/lab-services'
+'/provider/capabilities/pharmacy'
+'/provider/capabilities/radiology'
+'/provider/chat/send'
+'/provider/consultation/end'
+'/provider/directory'
+'/provider/facility/audit-logs'
+'/provider/facility/calendar'
+'/provider/facility/patients/active'
+'/provider/facility/shifts'
+'/provider/features/crm/patients'
+'/provider/features/promotions'
+'/provider/features/referrals'
+'/provider/inventory/search'
+'/provider/jobs/'
+'/provider/jobs/queue?kind=nursing&status=active'
+'/provider/jobs/queue?kind=nursing&status=completed'
+'/provider/jobs/queue?kind=nursing&status=incoming'
+'/provider/jobs/queue?status=active&kind=appointment&today=true'
+'/provider/jobs/queue?status=active&kind=consultation'
+'/provider/jobs/queue?status=active'
+'/provider/jobs/queue?status=incoming&kind=consultation'
+'/provider/kyc/documents'
+'/provider/leave-requests'
+'/provider/leave-requests/action'
+'/provider/me'
+'/provider/notifications'
+'/provider/nursing/checklist'
+'/provider/nursing/supplies'
+'/provider/ops/doctor/blacklist'
+'/provider/ops/doctor/diagnoses'
+'/provider/ops/doctor/leave'
+'/provider/ops/doctor/templates'
+'/provider/ops/wallet/ledger'
+'/provider/ops/wallet/ledger?limit=50'
+'/provider/payouts/balance'
+'/provider/payouts/mine'
+'/provider/payouts/request'
+'/provider/pharmacy/allocations'
+'/provider/pharmacy/broadcasts'
+'/provider/pharmacy/orders'
+'/provider/profile'
+'/provider/profile/image/status'
+'/provider/profile/image/upload'
+'/provider/reviews'
+'/provider/schedule/settings'
+'/provider/settings/delta'
+'/provider/stats/today'
+'/provider/wallet'
+'/provider/wallet/transactions'
+'/provider/working-hours'
+'/provider/zones'
+'/push/register'
+'/radiology/bookings'
+'/radiology/catalog/delta-request'
+'/radiology/provider/inbox'
+'/radiology/services'
+'/recruitment/jobs'
+'/referrals/my'
+'/storage/upload'
+'/storage/upload-suggestion-image'
+'/support/tickets'
+'/users/me/change-password'
+'/v1'
+
+## interactive handlers
+909

@@ -1,0 +1,1 @@
+{"order_id":"62039080-53eb-4ca2-8bac-69c2a7bb038f","owner_before_status":200,"owner_before_body_bytes":3041,"foreign_cancel_status":403,"foreign_cancel_body_bytes":71,"owner_after_status":200,"owner_after_body_bytes":3041,"expected":"foreign_cancel_must_be_403_or_404_and_owner_state_must_remain_readable"}
