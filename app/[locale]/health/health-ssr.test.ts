@@ -3,8 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ getPatientVitalSummary: vi.fn(), requirePatientAccess: vi.fn() }));
 
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/vitals-server", () => ({ getPatientVitalSummary: state.getPatientVitalSummary }));
@@ -31,5 +32,15 @@ describe("vital summary SSR boundary", () => {
     expect(html).not.toContain("private-device");
     expect(html).not.toContain("private-note");
     expect(html).not.toContain("private-reading");
+  });
+
+  it("shows the unavailable state when the upstream connection fails instead of treating it as empty data", async () => {
+    state.getPatientVitalSummary.mockRejectedValue(new TypeError("network timeout"));
+
+    const html = renderToStaticMarkup(await HealthPage({ params: Promise.resolve({ locale: "en" }) }));
+
+    expect(html).toContain("unavailableTitle");
+    expect(html).toContain("unavailable");
+    expect(html).not.toContain(serverToken);
   });
 });
