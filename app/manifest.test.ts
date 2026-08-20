@@ -6,7 +6,7 @@ describe("web manifest", () => {
     const data = manifest();
 
     expect(data.name).toBe("Nabd Plus");
-    expect(data.start_url).toBe("/ar");
+    expect(data.start_url).toBe("/");
     expect(data.icons).toEqual([{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }]);
     expect(data.shortcuts).toBeUndefined();
     expect(JSON.stringify(data)).not.toMatch(/accessToken|refreshToken|appointmentId|prescriptionId/i);

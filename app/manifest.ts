@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Nabd Plus",
     short_name: "Nabd Plus",
     description: "Nabd Plus patient portal",
-    start_url: "/ar",
+    start_url: "/",
     display: "standalone",
     background_color: "#f6fbfc",
     theme_color: "#078494",
