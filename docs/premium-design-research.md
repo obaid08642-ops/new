@@ -29,6 +29,19 @@
 
 > يجب أن تصف البيانات المنظمة المحتوى الظاهر في الصفحة نفسها؛ لا تُنشأ صفحة فارغة للـJSON-LD ولا يوصف محتوى غير مرئي للمستخدم.[7]
 
+## الطب والحركة — إحساس Apple بلا نسخ غير مرخص
+
+تشير إرشادات Apple إلى أن الخطوط النظامية تعطي تسلسلاً واضحاً وقابلية قراءة، وتوصي بتجنب الأوزان الرفيعة وبأقل عدد من عائلات الخط.[9] ولأن رخصة San Francisco تحظر تضمينه أو توزيعه لمحتوى موقع ويب، لا يُضمّن SF أو SF Arabic في نبض بلس.[10] بدلاً من ذلك يستخدم الويب **سلسلة النظام** (`system-ui` و`-apple-system`) بحيث يظهر الخط النظامي الأصلي تلقائياً على أجهزة Apple، ثم `Noto Sans Arabic` المفتوح المصدر كبديل عربي متعدد الأوزان عند عدم توفر خط النظام، مع fallback للغات الست.[9] [11]
+
+| السياق | الاختيار | السبب |
+|---|---|---|
+| iPhone وiPad وmacOS | `-apple-system` / `system-ui` | يجعل المتصفح يختار خط نظام جهاز Apple من دون تضمين أو توزيع خط Apple. |
+| العربية والأردية | `Noto Sans Arabic` أو خط نظام الجهاز | بديل sans عربي متدرج الأوزان، ويجنب الطابع الكوفي الثقيل لخط Cairo في ضوابط الواجهة. |
+| الإنجليزية والفلبينية | خط النظام، ثم `Inter` عند توفره، ثم `Segoe UI` | تسلسل واجهة محايد وقريب بصرياً من أسلوب النظام. |
+| الهندية والبنغالية | خط نظام الجهاز، ثم `Noto Sans Devanagari` أو `Noto Sans Bengali` | يحافظ على دعم النصوص المحلية بدلاً من فرض خط لاتيني عليها. |
+
+تستخدم الحركة للانتقال والتأكيد فقط: opacity وtransform دون تغيير أبعاد التخطيط، ومدد قصيرة من 120–220ms، مع إيقاف الحركة غير الأساسية عندما يطلب المستخدم تقليلها. تتماشى هذه القرارات مع توجيه Apple القائم على قابلية القراءة والتسلسل الواضح، لكنها لا تنسخ عناصر Apple أو أصولها.[9]
+
 ## المراجع
 
 [1] [Apple Human Interface Guidelines — Design](https://developer.apple.com/design/human-interface-guidelines)
@@ -46,3 +59,9 @@
 [7] [Google Search Central — Introduction to structured data](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data)
 
 [8] [Google Search Central — Tell Google about localized versions of your page](https://developers.google.com/search/docs/specialty/international/localized-versions)
+
+[9] [Apple Human Interface Guidelines — Typography](https://developer.apple.com/design/human-interface-guidelines/typography)
+
+[10] [Apple Fonts — San Francisco licence](https://developer.apple.com/fonts/)
+
+[11] [Google Fonts — Noto Sans Arabic](https://fonts.google.com/noto/specimen/Noto+Sans+Arabic)

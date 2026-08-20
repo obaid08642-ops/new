@@ -9,17 +9,25 @@ function publicMedicinePath(path: string) {
 }
 
 /** Public catalog only: this function cannot send a patient credential or reach any private endpoint. */
-export function getPublicMedicines(search: { q?: string; page: number }) {
-  return fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), {
-    headers: { Accept: "application/json" },
-    cache: "force-cache",
-  });
+export async function getPublicMedicines(search: { q?: string; page: number }): Promise<Response | null> {
+  try {
+    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), {
+      headers: { Accept: "application/json" },
+      cache: "force-cache",
+    });
+  } catch {
+    return null;
+  }
 }
 
-export function getPublicMedicine(medicineId: string) {
+export async function getPublicMedicine(medicineId: string): Promise<Response | null> {
   if (!parseMedicineId(medicineId).success) throw new Error("invalid_public_medicine_id");
-  return fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), {
-    headers: { Accept: "application/json" },
-    cache: "force-cache",
-  });
+  try {
+    return await fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), {
+      headers: { Accept: "application/json" },
+      cache: "force-cache",
+    });
+  } catch {
+    return null;
+  }
 }
