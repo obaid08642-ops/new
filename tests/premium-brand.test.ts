@@ -4,6 +4,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { PulseShieldMark } from "../components-next/pulse-shield-mark";
+import { VitalGlyph } from "../components-next/vital-glyph";
 
 describe("premium Nabd brand assets", () => {
   it("renders a scalable pulse-and-shield vector without embedded text", () => {
@@ -17,5 +18,11 @@ describe("premium Nabd brand assets", () => {
     const page = readFileSync(resolve(process.cwd(), "app/[locale]/dashboard/page.tsx"), "utf8");
     expect(page).toContain('from "@/components-next/pulse-shield-mark"');
     expect(page).toContain("<PulseShieldMark decorative />");
+  });
+
+  it("renders a reusable vector glyph for each permitted vital key", () => {
+    const markup = renderToStaticMarkup(createElement(VitalGlyph, { kind: "heart_rate" }));
+    expect(markup).toContain("<svg");
+    expect(markup).not.toContain("<text");
   });
 });
