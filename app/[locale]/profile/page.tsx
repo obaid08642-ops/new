@@ -5,9 +5,11 @@ import { extractRecord, profileDomainState, readProfileFields, type ProfileDomai
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
+import { BadgeCheck, CircleAlert, HeartPulse, ShieldCheck, UserRound } from "lucide-react";
+import styles from "./profile.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
-type Domain = { title: string; fields: ProfileField[]; state: ProfileDomainState };
+type Domain = { title: string; fields: ProfileField[]; state: ProfileDomainState; kind: "identity" | "medical" | "insurance" };
 
 async function resolveDomain(response: Response, acceptedKeys: string[]): Promise<Pick<Domain, "fields" | "state">> {
   if (!response.ok) return { fields: [], state: profileDomainState(response.status, 0) };
@@ -32,7 +34,13 @@ export default async function ProfilePage({ params }: Props) {
     resolveDomain(medicalResponse, ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]),
     resolveDomain(insuranceResponse, ["providerName", "companyName", "policyNumber", "memberId", "status"])
   ]);
-  const domains: Domain[] = [{ title: t("identity"), ...identity }, { title: t("medical"), ...medical }, { title: t("insurance"), ...insurance }];
+  const domains: Domain[] = [{ title: t("identity"), ...identity, kind: "identity" }, { title: t("medical"), ...medical, kind: "medical" }, { title: t("insurance"), ...insurance, kind: "insurance" }];
   const stateMessage = (state: ProfileDomainState) => state === "empty" ? t("empty") : state === "forbidden" ? t("forbidden") : t("unavailable");
-  return <main className="main dashboard"><div className="eyebrow">{t("eyebrow")}</div><h1>{t("title")}</h1><p className="profile-intro">{t("body")}</p><div className="profile-grid">{domains.map((domain) => <section className="status-card" key={domain.title}><h2>{domain.title}</h2>{domain.state === "available" ? <dl className="order-detail">{domain.fields.map((field) => <div key={field.key}><dt>{t(`fields.${field.key}`)}</dt><dd>{typeof field.value === "boolean" ? t(field.value ? "yes" : "no") : field.key === "gender" && (field.value === "male" || field.value === "female") ? t(`gender.${field.value}`) : String(field.value)}</dd></div>)}</dl> : <>{<p role={domain.state === "error" ? "alert" : undefined}>{stateMessage(domain.state)}</p>}{domain.state === "error" ? <RetryButton /> : null}</>}</section>)}</div></main>;
+  const domainVisual = { identity: { Icon: UserRound, accent: "#2E86FF" }, medical: { Icon: HeartPulse, accent: "#23B5CE" }, insurance: { Icon: ShieldCheck, accent: "#7A6BEA" } } as const;
+  const displayFieldValue = (field: ProfileField): string | null => {
+    if (typeof field.value === "boolean") return t(field.value ? "yes" : "no");
+    if (field.key === "gender") return field.value === "male" || field.value === "female" ? t(`gender.${field.value}`) : null;
+    return String(field.value);
+  };
+  return <main className={`main ${styles.page}`}><section className={styles.hero}><div><p className={styles.eyebrow}><BadgeCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("body")}</p></div><span className={styles.heroIcon}><UserRound size={27} aria-hidden="true" /></span></section><div className={styles.grid}>{domains.map((domain) => { const { Icon, accent } = domainVisual[domain.kind]; const isError = domain.state === "error"; const fields = domain.fields.flatMap((field) => { const value = displayFieldValue(field); return value === null ? [] : [{ field, value }]; }); return <section className={styles.domain} key={domain.title} style={{ "--domain-accent": accent } as React.CSSProperties}><div className={styles.domainHead}><span className={styles.domainIcon}><Icon size={20} aria-hidden="true" /></span><h2>{domain.title}</h2></div>{domain.state === "available" ? <dl className={styles.fields}>{fields.map(({ field, value }) => <div className={styles.field} key={field.key}><dt>{t(`fields.${field.key}`)}</dt><dd>{value}</dd></div>)}</dl> : <div className={styles.state}><span className={`${styles.stateIcon} ${isError ? styles.stateIconAlert : ""}`}>{isError ? <CircleAlert size={18} aria-hidden="true" /> : <Icon size={18} aria-hidden="true" />}</span><p className={isError ? styles.stateAlert : undefined} role={isError ? "alert" : undefined}>{stateMessage(domain.state)}</p>{isError ? <RetryButton /> : null}</div>}</section>; })}</div></main>;
 }
