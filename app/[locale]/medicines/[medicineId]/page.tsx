@@ -7,6 +7,7 @@ import { getPublicMedicine } from "@/lib/api/public-medicines-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
+import { RetryButton } from "@/components-next/retry-button";
 
 type Props = { params: Promise<{ locale: string; medicineId: string }> };
 
@@ -33,7 +34,7 @@ export default async function MedicineDetailPage({ params }: Props) {
   const t = await getTranslations("PublicMedicines");
   const response = await getPublicMedicine(medicineId);
   if (response.status === 404) notFound();
-  if (!response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section></main>;
+  if (!response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const medicine = extractMedicineDetail(await response.json().catch(() => null));
   if (!medicine) notFound();
   const name = locale === "ar" ? medicine.nameAr || medicine.nameEn || t("untitled") : medicine.nameEn || medicine.nameAr || t("untitled");

@@ -6,6 +6,7 @@ import { getPublicMedicines } from "@/lib/api/public-medicines-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { isLocale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
+import { RetryButton } from "@/components-next/retry-button";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string | string[]; page?: string | string[] }> };
 
@@ -29,7 +30,7 @@ export default async function PublicMedicineCatalogPage({ params, searchParams }
   const t = await getTranslations("PublicMedicines");
   const search = parseMedicineSearch(await searchParams);
   const response = await getPublicMedicines(search);
-  if (!response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section></main>;
+  if (!response.ok) return <main className="main dashboard"><section className="status-card" role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const medicines = extractMedicineRows(await response.json().catch(() => null));
   const nameForLocale = (medicine: typeof medicines[number]) => locale === "ar" ? medicine.nameAr || medicine.nameEn || t("untitled") : medicine.nameEn || medicine.nameAr || t("untitled");
   const canonical = localizedUrl(locale, "/medicine-catalog");
