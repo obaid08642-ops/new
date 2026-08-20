@@ -33,7 +33,9 @@ export default async function PrescriptionsPage({ params }: Props) {
       <span className={styles.cardIcon}><FileText size={19} aria-hidden="true" /></span>
       <div className={styles.cardBody}>
         <strong className={styles.status}>{prescription.state || t("stateUnavailable")}</strong>
+        {prescription.doctorName ? <span className={styles.doctor}>{prescription.doctorName}</span> : null}
         <span className={styles.items}>{t("items", { count: prescription.itemCount })}</span>
+        {prescription.medicationNames.length ? <span className={styles.medications}>{prescription.medicationNames.join("، ")}</span> : null}
         {prescription.createdAt ? <span className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(prescription.createdAt))}</span> : null}
       </div>
     </article>)}</section>}
