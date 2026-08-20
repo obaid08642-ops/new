@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "canonical-record@1",
+  "title": "Canonical catalog record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "source",
+    "product_kind",
+    "taxonomy",
+    "identifiers",
+    "common",
+    "locales",
+    "assets",
+    "governance",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {"const": "canonical-record@1"},
+    "id": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_record_id", "raw_record_hash", "raw_snapshot_hash", "imported_at"],
+      "properties": {
+        "source_record_id": {"type": "string"},
+        "raw_record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "raw_snapshot_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "imported_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "product_kind": {"enum": ["medicine", "non_medicine", "unknown"]},
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_taxonomy_id", "secondary_taxonomy_ids", "state"],
+      "properties": {
+        "primary_taxonomy_id": {"type": ["string", "null"]},
+        "secondary_taxonomy_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "state": {"enum": ["unclassified", "proposed", "approved", "blocked"]}
+      }
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sku", "barcode"],
+      "properties": {
+        "sku": {"type": ["string", "null"]},
+        "barcode": {"type": ["string", "null"]}
+      }
+    },
+    "common": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["brand", "manufacturer", "requires_prescription", "form", "strength", "package_size"],
+      "properties": {
+        "brand": {"type": ["string", "null"]},
+        "manufacturer": {"type": ["string", "null"]},
+        "requires_prescription": {"type": ["boolean", "null"]},
+        "form": {"type": ["string", "null"]},
+        "strength": {"type": ["string", "null"]},
+        "package_size": {"type": ["string", "null"]}
+      }
+    },
+    "locales": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/localeContent"}
+    },
+    "assets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_image_id", "image_ids"],
+      "properties": {
+        "primary_image_id": {"type": ["string", "null"]},
+        "image_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["public_eligibility", "approval_state", "indexing_eligibility", "medical_claims_status"],
+      "properties": {
+        "public_eligibility": {"type": "boolean"},
+        "approval_state": {"enum": ["draft", "needs_review", "approved_for_display", "blocked"]},
+        "indexing_eligibility": {"type": "boolean"},
+        "medical_claims_status": {"enum": ["not_applicable", "requires_verification", "verified", "blocked"]}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidence"}
+    }
+  },
+  "$defs": {
+    "localeContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["display_name", "official_name", "search_aliases", "slug", "content", "translation_status"],
+      "properties": {
+        "display_name": {"type": ["string", "null"]},
+        "official_name": {"type": ["string", "null"]},
+        "search_aliases": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "slug": {"type": ["string", "null"]},
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["description", "indications", "dosage", "warnings", "storage_conditions"],
+          "properties": {
+            "description": {"type": ["string", "null"]},
+            "indications": {"type": "array", "items": {"type": "string"}},
+            "dosage": {"type": ["string", "null"]},
+            "warnings": {"type": "array", "items": {"type": "string"}},
+            "storage_conditions": {"type": ["string", "null"]}
+          }
+        },
+        "translation_status": {"enum": ["not_started", "partial", "review_required", "ready_for_export", "blocked_by_source"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "locale_id", "source_type", "raw_excerpt", "confidence"],
+      "properties": {
+        "field": {"type": "string"},
+        "locale_id": {"type": "string"},
+        "source_type": {"enum": ["raw_dataset", "official_api", "official_leaflet", "regulatory", "manual_review"]},
+        "source_url": {"type": ["string", "null"]},
+        "raw_excerpt": {"type": "string"},
+        "confidence": {"enum": ["low", "medium", "high"]}
+      }
+    }
+  }
+}

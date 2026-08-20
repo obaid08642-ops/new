@@ -1,0 +1,96 @@
+{
+  "schema_version": "taxonomy@1",
+  "revision": 1,
+  "status": "approved_for_calibration_only",
+  "governing_rules": {
+    "one_primary_path_per_product": true,
+    "offers_are_not_taxonomy": true,
+    "brands_are_not_taxonomy": true,
+    "store_names_are_not_taxonomy": true,
+    "product_titles_are_not_taxonomy": true,
+    "secondary_taxonomy_is_for_filters_only": true
+  },
+  "product_kinds": [
+    {
+      "id": "medicine",
+      "labels": {"ar-SA": "دواء", "en": "Medicine"},
+      "definition": "منتج دوائي يتطلب مراجعة حقوله الصحية قبل النشر."
+    },
+    {
+      "id": "non_medicine",
+      "labels": {"ar-SA": "غير دواء", "en": "Non-medicine"},
+      "definition": "منتج صحي أو عناية أو تجميل أو جهاز أو غذاء لا يصنف كدواء."
+    },
+    {
+      "id": "unknown",
+      "labels": {"ar-SA": "غير مصنف", "en": "Unknown"},
+      "definition": "لا يسمح بتحويله تلقائياً إلى دواء أو غير دواء بلا دليل أو قاعدة معتمدة."
+    }
+  ],
+  "categories": [
+    {
+      "id": "medicines",
+      "labels": {"ar-SA": "الأدوية", "en": "Medicines"},
+      "allowed_product_kinds": ["medicine"],
+      "notes": "يشمل الأدوية الموصوفة وغير الموصوفة، ولا يشمل المكملات تلقائياً."
+    },
+    {
+      "id": "vitamins-supplements",
+      "labels": {"ar-SA": "الفيتامينات والمكملات", "en": "Vitamins & Supplements"},
+      "allowed_product_kinds": ["non_medicine", "unknown"],
+      "notes": "يفصل المكملات عن الأدوية؛ أي ادعاء صحي حساس يراجع منفصلاً."
+    },
+    {
+      "id": "skin-care",
+      "labels": {"ar-SA": "العناية بالبشرة", "en": "Skin Care"},
+      "allowed_product_kinds": ["non_medicine", "unknown"]
+    },
+    {
+      "id": "hair-care",
+      "labels": {"ar-SA": "العناية بالشعر", "en": "Hair Care"},
+      "allowed_product_kinds": ["non_medicine", "unknown"]
+    },
+    {
+      "id": "makeup-cosmetics",
+      "labels": {"ar-SA": "المكياج ومستحضرات التجميل", "en": "Makeup & Cosmetics"},
+      "allowed_product_kinds": ["non_medicine", "unknown"]
+    },
+    {
+      "id": "bath-body-fragrance",
+      "labels": {"ar-SA": "العناية بالجسم والعطور", "en": "Bath, Body & Fragrance"},
+      "allowed_product_kinds": ["non_medicine", "unknown"]
+    },
+    {
+      "id": "personal-care-hygiene",
+      "labels": {"ar-SA": "العناية الشخصية والنظافة", "en": "Personal Care & Hygiene"},
+      "allowed_product_kinds": ["non_medicine", "unknown"]
+    },
+    {
+      "id": "mother-baby",
+      "labels": {"ar-SA": "الأم والطفل", "en": "Mother & Baby"},
+      "allowed_product_kinds": ["non_medicine", "unknown", "medicine"],
+      "notes": "لا يحل هذا المسار محل التحقق الخاص بالرضع والحمل والرضاعة."
+    },
+    {
+      "id": "medical-devices",
+      "labels": {"ar-SA": "الأجهزة والمستلزمات الطبية", "en": "Medical Devices & Supplies"},
+      "allowed_product_kinds": ["non_medicine", "unknown"]
+    },
+    {
+      "id": "oral-dental-care",
+      "labels": {"ar-SA": "العناية بالفم والأسنان", "en": "Oral & Dental Care"},
+      "allowed_product_kinds": ["non_medicine", "unknown", "medicine"]
+    }
+  ],
+  "legacy_category_treatment": {
+    "أدوية ومكملات": "split_required_no_direct_auto_map",
+    "العناية بالبشرة": "skin-care_candidate",
+    "العناية بالشعر": "hair-care_candidate",
+    "المكياج والتجميل": "makeup-cosmetics_candidate",
+    "تجميل وعناية": "bath-body-fragrance_candidate",
+    "العناية الشخصية": "personal-care-hygiene_candidate",
+    "الأم والطفل": "mother-baby_candidate",
+    "الأجهزة الطبية": "medical-devices_candidate",
+    "العروض": "reject_from_taxonomy"
+  }
+}

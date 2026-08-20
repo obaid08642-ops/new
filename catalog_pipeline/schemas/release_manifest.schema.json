@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release-manifest@1",
+  "title": "Catalog release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "manifest_type", "release_id", "created_at", "source_snapshot_hash", "signature", "key_id"],
+  "properties": {
+    "schema_version": {"const": "release-manifest@1"},
+    "manifest_type": {"enum": ["release", "locale", "latest"]},
+    "release_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source_snapshot_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "taxonomy_revision": {"type": "integer", "minimum": 0},
+    "locale_registry_revision": {"type": "integer", "minimum": 0},
+    "locale_id": {"type": "string"},
+    "direction": {"enum": ["ltr", "rtl"]},
+    "language_publication_state": {"enum": ["enabled", "partial", "disabled"]},
+    "locale_manifest_url": {"type": "string"},
+    "locales": {"type": "array", "items": {"$ref": "#/$defs/localeSummary"}},
+    "product_index": {"$ref": "#/$defs/fileDescriptor"},
+    "shards": {"type": "array", "items": {"$ref": "#/$defs/shardDescriptor"}},
+    "tombstones": {"type": "array", "items": {"$ref": "#/$defs/tombstone"}},
+    "signature": {"type": "string", "minLength": 1},
+    "key_id": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "localeSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locale_id", "publication_state", "manifest_url"],
+      "properties": {
+        "locale_id": {"type": "string"},
+        "publication_state": {"enum": ["enabled", "partial", "disabled"]},
+        "manifest_url": {"type": "string"}
+      }
+    },
+    "fileDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "sha256", "compressed_size", "record_count"],
+      "properties": {
+        "url": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "compressed_size": {"type": "integer", "minimum": 0},
+        "uncompressed_size": {"type": "integer", "minimum": 0},
+        "record_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "shardDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "sha256", "compressed_size", "record_count", "main_category_id", "min_id", "max_id", "revision"],
+      "properties": {
+        "url": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "compressed_size": {"type": "integer", "minimum": 0},
+        "uncompressed_size": {"type": "integer", "minimum": 0},
+        "record_count": {"type": "integer", "minimum": 0},
+        "main_category_id": {"type": "string"},
+        "min_id": {"type": "string"},
+        "max_id": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 1}
+      }
+    },
+    "tombstone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason"],
+      "properties": {
+        "id": {"type": "string"},
+        "reason": {"enum": ["deleted", "withdrawn", "not_public", "superseded"]},
+        "deleted_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-08-20T17:39:00Z",
+  "finished_at": "2026-08-20T17:40:32Z",
+  "sample_requested": 1,
+  "extractions_completed": 1,
+  "reviews_completed": 1,
+  "failures": [],
+  "review_status_counts": {
+    "blocked_by_conflict": 1
+  },
+  "models": {
+    "extraction": "gpt-5-mini",
+    "independent_review": "gpt-5"
+  },
+  "publication_changes": 0
+}

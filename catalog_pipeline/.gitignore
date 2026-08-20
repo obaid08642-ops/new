@@ -1,0 +1,23 @@
+# Private development material and large source artifacts
+keys/*_private.pem
+data/raw/*.gz
+data/internal/*.gz
+releases/*
+tests/release_artifacts/
+tests/nonempty_release_artifacts/
+tests/*.jsonl.gz
+
+# Keep folder markers and public keys when intentionally added
+!data/raw/.gitkeep
+!data/internal/.gitkeep
+!releases/.gitkeep
+!keys/*_public.pem
+# Internal calibration inputs/outputs may contain source product text.
+data/internal/*
+!data/internal/.gitkeep
+# Never commit signing material.
+keys/
+
+# Python bytecode
+__pycache__/
+*.py[cod]

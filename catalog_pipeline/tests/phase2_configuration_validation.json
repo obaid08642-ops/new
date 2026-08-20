@@ -1,0 +1,16 @@
+{
+  "locale_count": 6,
+  "enabled_locales": [
+    "ar-SA",
+    "en"
+  ],
+  "partial_locales": [
+    "ur",
+    "hi",
+    "bn",
+    "fil"
+  ],
+  "taxonomy_category_count": 10,
+  "errors": [],
+  "passed": true
+}

@@ -1,0 +1,73 @@
+{
+  "release_id": "v2026-08-20.1-nonempty-test",
+  "release_manifest_signature": "valid",
+  "locale_manifests": [
+    {
+      "locale_id": "ar-SA",
+      "signature": "valid"
+    },
+    {
+      "locale_id": "en",
+      "signature": "valid"
+    },
+    {
+      "locale_id": "ur",
+      "signature": "valid"
+    },
+    {
+      "locale_id": "hi",
+      "signature": "valid"
+    },
+    {
+      "locale_id": "bn",
+      "signature": "valid"
+    },
+    {
+      "locale_id": "fil",
+      "signature": "valid"
+    }
+  ],
+  "artifacts_verified": [
+    {
+      "url": "ar-SA/product-index.json.gz",
+      "record_count": 1,
+      "compressed_size": 146
+    },
+    {
+      "url": "ar-SA/medicines.test-category/id-236460-236460.json.gz",
+      "record_count": 1,
+      "compressed_size": 1118
+    },
+    {
+      "url": "en/product-index.json.gz",
+      "record_count": 1,
+      "compressed_size": 139
+    },
+    {
+      "url": "en/medicines.test-category/id-236460-236460.json.gz",
+      "record_count": 1,
+      "compressed_size": 1000
+    },
+    {
+      "url": "ur/product-index.json.gz",
+      "record_count": 0,
+      "compressed_size": 20
+    },
+    {
+      "url": "hi/product-index.json.gz",
+      "record_count": 0,
+      "compressed_size": 20
+    },
+    {
+      "url": "bn/product-index.json.gz",
+      "record_count": 0,
+      "compressed_size": 20
+    },
+    {
+      "url": "fil/product-index.json.gz",
+      "record_count": 0,
+      "compressed_size": 20
+    }
+  ],
+  "latest_pointer_signature": "valid"
+}

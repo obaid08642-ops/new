@@ -1,0 +1,60 @@
+{
+  "schema_version": "locale-registry@1",
+  "revision": 1,
+  "locales": [
+    {
+      "locale_id": "ar-SA",
+      "source_key": "ar",
+      "hreflang": "ar-SA",
+      "direction": "rtl",
+      "display_name": "العربية",
+      "fallback_locale": null,
+      "publication_state": "enabled"
+    },
+    {
+      "locale_id": "en",
+      "source_key": "en",
+      "hreflang": "en",
+      "direction": "ltr",
+      "display_name": "English",
+      "fallback_locale": null,
+      "publication_state": "enabled"
+    },
+    {
+      "locale_id": "ur",
+      "source_key": "ur",
+      "hreflang": "ur",
+      "direction": "rtl",
+      "display_name": "اردو",
+      "fallback_locale": "en",
+      "publication_state": "partial"
+    },
+    {
+      "locale_id": "hi",
+      "source_key": "hi",
+      "hreflang": "hi",
+      "direction": "ltr",
+      "display_name": "हिन्दी",
+      "fallback_locale": "en",
+      "publication_state": "partial"
+    },
+    {
+      "locale_id": "bn",
+      "source_key": "bn",
+      "hreflang": "bn",
+      "direction": "ltr",
+      "display_name": "বাংলা",
+      "fallback_locale": "en",
+      "publication_state": "partial"
+    },
+    {
+      "locale_id": "fil",
+      "source_key": "fil",
+      "hreflang": "fil",
+      "direction": "ltr",
+      "display_name": "Filipino",
+      "fallback_locale": "en",
+      "publication_state": "partial"
+    }
+  ]
+}

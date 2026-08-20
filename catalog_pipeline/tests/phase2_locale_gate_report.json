@@ -1,0 +1,76 @@
+{
+  "release_id": "v2026-08-20.1-phase2-test",
+  "dry_run": false,
+  "records_examined": 1,
+  "source_snapshot_hash": "c665bd05b30d21edff3770609fe035e2b92550c497067b62c91a4dfa6476293e",
+  "eligible_record_counts": {
+    "ar-SA": 1,
+    "en": 1,
+    "ur": 0,
+    "hi": 0,
+    "bn": 0,
+    "fil": 0
+  },
+  "blocked_reason_counts": {
+    "ur": {
+      "locale_not_ready_for_export": 1,
+      "missing_slug": 1,
+      "locale_publication_not_enabled": 1
+    },
+    "hi": {
+      "locale_not_ready_for_export": 1,
+      "missing_slug": 1,
+      "locale_publication_not_enabled": 1
+    },
+    "bn": {
+      "locale_not_ready_for_export": 1,
+      "missing_slug": 1,
+      "locale_publication_not_enabled": 1
+    },
+    "fil": {
+      "locale_not_ready_for_export": 1,
+      "missing_slug": 1,
+      "locale_publication_not_enabled": 1
+    }
+  },
+  "blocked_record_samples": [
+    {
+      "id": "236460",
+      "locale_id": "ur",
+      "reasons": [
+        "locale_not_ready_for_export",
+        "missing_slug",
+        "locale_publication_not_enabled"
+      ]
+    },
+    {
+      "id": "236460",
+      "locale_id": "hi",
+      "reasons": [
+        "locale_not_ready_for_export",
+        "missing_slug",
+        "locale_publication_not_enabled"
+      ]
+    },
+    {
+      "id": "236460",
+      "locale_id": "bn",
+      "reasons": [
+        "locale_not_ready_for_export",
+        "missing_slug",
+        "locale_publication_not_enabled"
+      ]
+    },
+    {
+      "id": "236460",
+      "locale_id": "fil",
+      "reasons": [
+        "locale_not_ready_for_export",
+        "missing_slug",
+        "locale_publication_not_enabled"
+      ]
+    }
+  ],
+  "release_directory": "tests/phase2_release_artifacts/v2026-08-20.1-phase2-test",
+  "artifacts_written": true
+}

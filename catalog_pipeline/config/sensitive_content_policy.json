@@ -1,0 +1,46 @@
+{
+  "schema_version": "sensitive-content-policy@1",
+  "revision": 1,
+  "source_precedence": [
+    "regulatory",
+    "official_leaflet",
+    "official_manufacturer",
+    "official_product_api",
+    "raw_dataset",
+    "market_reference"
+  ],
+  "sensitive_fields": [
+    "active_ingredient",
+    "generic_name",
+    "indications",
+    "dosage",
+    "warnings",
+    "contraindications",
+    "pregnancy_lactation",
+    "pediatric_use",
+    "allergen_information",
+    "drug_interactions"
+  ],
+  "publication_rules": {
+    "medicine_identity_requires_evidence": true,
+    "sensitive_field_requires_authoritative_evidence": true,
+    "raw_dataset_only_is_not_verified": true,
+    "conflict_requires_human_or_authoritative_resolution": true,
+    "missing_evidence_hides_field_not_invents_text": true,
+    "market_reference_cannot_verify_medical_claim": true
+  },
+  "record_states": [
+    "draft",
+    "evidence_captured",
+    "needs_review",
+    "approved_for_display",
+    "blocked"
+  ],
+  "translation_states": [
+    "not_started",
+    "partial",
+    "review_required",
+    "ready_for_export",
+    "blocked_by_source"
+  ]
+}

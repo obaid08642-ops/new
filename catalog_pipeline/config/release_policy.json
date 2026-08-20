@@ -1,0 +1,28 @@
+{
+  "schema_version": "release-policy@1",
+  "release_root": "releases",
+  "sharding": {
+    "target_compressed_bytes": 307200,
+    "min_compressed_bytes": 153600,
+    "max_compressed_bytes": 1048576,
+    "candidate_record_limit": 2000,
+    "stable_sort_field": "id",
+    "split_strategy": "locale/main_category_id/stable_id_range"
+  },
+  "publication_gate": {
+    "public_eligibility": true,
+    "approval_state": "approved_for_display",
+    "indexing_eligibility": true,
+    "locale_status": "ready_for_export"
+  },
+  "cache_control": {
+    "versioned_artifact": "public, max-age=31536000, immutable",
+    "latest_pointer": "public, max-age=60, must-revalidate"
+  },
+  "signing": {
+    "algorithm": "Ed25519",
+    "key_id": "catalog-ed25519-dev-1",
+    "private_key_path": "keys/catalog_ed25519_private.pem",
+    "public_key_path": "keys/catalog_ed25519_public.pem"
+  }
+}
