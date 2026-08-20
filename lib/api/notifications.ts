@@ -20,14 +20,19 @@ function text(record: Record<string, unknown>, key: string) {
   return typeof value === "string" && value.trim() ? value : undefined;
 }
 
+function presentationText(record: Record<string, unknown>, key: string) {
+  const value = text(record, key);
+  return value && !/^notif(?:ication)?\.[a-z0-9._-]+$/i.test(value) ? value : undefined;
+}
+
 function notificationFrom(value: unknown): PatientNotification | null {
   const record = asRecord(value);
   const id = notificationIdSchema.safeParse(record?.id);
   if (!id.success || !record) return null;
   return {
     id: id.data,
-    title: text(record, "title"),
-    body: text(record, "body"),
+    title: presentationText(record, "title"),
+    body: presentationText(record, "body"),
     priority: text(record, "priority"),
     createdAt: text(record, "createdAt"),
     read: typeof record.read === "boolean" ? record.read : undefined,

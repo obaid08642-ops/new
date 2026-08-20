@@ -8,4 +8,9 @@ describe("notification response guards", () => {
     const notifications = extractPatientNotifications({ notifications: [{ id: notificationId, title: "Title", body: "Body", priority: "HIGH", createdAt: "2026-08-20T10:00:00.000Z", read: false, user_id: "private", title_key: "raw", body_key: "raw", action: { route: "/private" }, delivery: { token: "private" } }] });
     expect(notifications).toEqual([{ id: notificationId, title: "Title", body: "Body", priority: "HIGH", createdAt: "2026-08-20T10:00:00.000Z", read: false }]);
   });
+
+  it("suppresses backend translation keys rather than presenting technical text to the patient", () => {
+    const notifications = extractPatientNotifications({ data: [{ id: notificationId, title: "notif.service.confirmed.title", body: "notif.service.confirmed.body", priority: "normal" }] });
+    expect(notifications).toEqual([{ id: notificationId, priority: "normal" }]);
+  });
 });
