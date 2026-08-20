@@ -37,7 +37,7 @@
 - [x] اعتماد Web App على Next.js App Router وTypeScript strict وطبقات services/hooks/features بدلاً من قالب SPA الحالي.
 - [x] تنفيذ نمط JWT Bearer وتجديد واحد آمن وفق الدليل، دون localStorage للتوكنات ودون تنفيذ على حسابات غير Sandbox.
 - [x] اختبار سيناريو ملكية المورد في Sandbox: مالك الطلب وحساب المريض الغريب، وتوثيق 200 مقابل 403/404 بلا كشف للوجود.
-- [ ] مطابقة عقود presigned upload وSSE/Realtime وLiveKit مع الويب، وتسجيل أي endpoint أو capability ناقصة في الخلفية قبل بناء واجهتها.
+- [x] مطابقة عقود presigned upload وSSE/Realtime وLiveKit مع الويب، وتسجيل أي endpoint أو capability ناقصة في الخلفية قبل بناء واجهتها.
 - [x] مقارنة دليل Next.js مع الخطة والمصدر وتسجيل الإضافات المعتمدة أو التعارضات في سجل الفجوات.
 - [x] تصحيح استدعاء تطبيق المريض من `/care/appointments/mine` إلى `GET /care/appointments` وإضافة اختبار عقد له.
 - [x] تصحيح استدعاء تطبيق المريض من `/user/insurance` إلى `GET /users/me/insurance` وإضافة اختبار عقد له.
