@@ -6,6 +6,7 @@ import { Activity, Bell, CalendarDays, ChevronLeft, ChevronRight, ClipboardList,
 import type { CSSProperties } from "react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { isLocale } from "@/lib/i18n";
+import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
 import styles from "./dashboard.module.css";
 
 const quickDestinations = [
@@ -37,7 +38,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   return <main className={`main ${styles.dashboard}`}>
     <section className={styles.hero} aria-labelledby="patient-dashboard-title">
       <div className={styles.heroTop}><span className={styles.heroBadge}>{t("eyebrow")}</span><div className={styles.heroActions}><Link className={styles.iconAction} href={`/${locale}/notifications`} aria-label={t("notifications")}><Bell size={19} aria-hidden="true" /></Link><Link className={styles.iconAction} href={`/${locale}/profile`} aria-label={t("profile")}><UserRound size={19} aria-hidden="true" /></Link></div></div>
-      <div className={styles.heroGreeting}><span className={styles.pulseMark}><HeartPulse size={27} aria-hidden="true" /></span><div className={styles.heroText}><h1 id="patient-dashboard-title">{t("title")}</h1><p>{t("body")}</p></div></div>
+      <div className={styles.heroGreeting}><span className={styles.pulseMark}><PulseShieldMark decorative /></span><div className={styles.heroText}><h1 id="patient-dashboard-title">{t("title")}</h1><p>{t("body")}</p></div></div>
     </section>
     <section className={styles.section} aria-labelledby="quick-access-title"><div className={styles.sectionHeading}><h2 id="quick-access-title">{t("eyebrow")}</h2><span>{t("title")}</span></div><nav className={styles.quickGrid} aria-label={t("title")}>{quickDestinations.map(({ key, href, icon: Icon, accent }) => <Link key={key} className={styles.quickTile} href={`/${locale}/${href}`} style={{ "--tile-accent": accent } as CSSProperties}><span className={styles.quickIcon}><Icon size={23} aria-hidden="true" /></span><strong>{t(key)}</strong></Link>)}</nav></section>
     <section className={styles.section} aria-label={t("health")}><div className={styles.featureGrid}>{featureDestinations.map(({ key, href, icon: Icon, accent }) => <Link key={key} className={styles.featureCard} href={`/${locale}/${href}`} style={{ "--feature-accent": accent } as CSSProperties}><span className={styles.featureIcon}><Icon size={22} aria-hidden="true" /></span><span className={styles.featureContent}><strong>{t(key)}</strong><span>{t("body")}</span></span><Chevron className={styles.chevron} size={18} aria-hidden="true" /></Link>)}</div></section>
