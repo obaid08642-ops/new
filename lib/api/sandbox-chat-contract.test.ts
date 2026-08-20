@@ -30,4 +30,12 @@ describeSandbox("Sandbox patient chat contract", () => {
     const payload: unknown = await response.json();
     expect(payload === null || typeof payload === "object").toBe(true);
   }, 20_000);
+
+  it("rejects the self-scoped thread list without a patient session", async () => {
+    const baseUrl = process.env.NABD_API_BASE_URL;
+    expect(baseUrl).toBeTruthy();
+
+    const response = await fetch(`${baseUrl}/chat/threads`, { signal: AbortSignal.timeout(12_000) });
+    expect(response.status).toBe(401);
+  }, 15_000);
 });
