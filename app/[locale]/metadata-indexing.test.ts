@@ -10,7 +10,7 @@ describe("indexing metadata boundary", () => {
     const metadata = await layoutMetadata({ params: Promise.resolve({ locale: "ar" }) });
 
     expect(metadata.robots).toEqual({ index: false, follow: false });
-    expect(metadata.alternates?.languages).toEqual({ ar: "/ar", en: "/en", "x-default": "/ar" });
+    expect(metadata.alternates?.languages).toEqual({ ar: "/ar", en: "/en", ur: "/ur", hi: "/hi", bn: "/bn", fil: "/fil", "x-default": "/ar" });
   });
 
   it("allows indexing only for the public home override", async () => {

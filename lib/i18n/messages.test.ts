@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
 import ar from "@/messages/ar.json";
+import bn from "@/messages/bn.json";
 import en from "@/messages/en.json";
+import fil from "@/messages/fil.json";
+import hi from "@/messages/hi.json";
+import ur from "@/messages/ur.json";
 import { getGlobalNotFoundCopy } from "./global-notfound";
 
 describe("patient web messages", () => {
@@ -9,6 +13,14 @@ describe("patient web messages", () => {
     expect(Object.keys(ar).sort()).toEqual(Object.keys(en).sort());
     for (const namespace of ["Shared", "Home", "Login", "Dashboard", "Metadata", "NotFound"] as const) {
       expect(Object.keys(ar[namespace]).sort()).toEqual(Object.keys(en[namespace]).sort());
+    }
+  });
+
+  it("provides translated core namespaces for every supported mobile locale", () => {
+    for (const messages of [ur, hi, bn, fil]) {
+      for (const namespace of ["Shared", "Home", "Login", "Dashboard", "Metadata", "NotFound", "RouteState"] as const) {
+        expect(Object.keys(messages[namespace]).sort()).toEqual(Object.keys(en[namespace]).sort());
+      }
     }
   });
 
