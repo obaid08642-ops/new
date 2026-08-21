@@ -532,5 +532,20 @@
     "notice": "এই surface শুধু recorded medication schedule ও refill metadata দেখায়। যোগ, সম্পাদনা, বন্ধ, refill এবং reminder action অনুপলব্ধ।",
     "unavailableTitle": "Chronic medication লোড করা যায়নি",
     "unavailable": "কোনো fallback medication data দেখানো হয়নি।"
+  },
+  "HealthTrends": {
+    "eyebrow": "রেকর্ড করা স্বাস্থ্য প্রবণতা",
+    "title": "স্বাস্থ্য প্রবণতা",
+    "back": "স্বাস্থ্যে ফিরে যান",
+    "readings": "রিডিং",
+    "empty": "কোনো trend data ফেরত আসেনি।",
+    "notice": "এই read-only view শুধু সংরক্ষিত readings ও direction-এর সারাংশ। এটি diagnosis, alert, normal-range assessment বা treatment recommendation নয়।",
+    "unavailableTitle": "স্বাস্থ্য প্রবণতা লোড করা যায়নি",
+    "unavailable": "কোনো fallback trend data দেখানো হয়নি।",
+    "direction": {
+      "up": "উর্ধ্বমুখী",
+      "down": "নিম্নমুখী",
+      "flat": "স্থিতিশীল"
+    }
   }
 }

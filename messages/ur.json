@@ -532,5 +532,20 @@
     "notice": "یہ سطح صرف درج شدہ medication schedules اور refill metadata دکھاتی ہے۔ شامل، ترمیم، روکنا، refill اور reminder actions دستیاب نہیں۔",
     "unavailableTitle": "دائمی ادویات لوڈ نہیں ہو سکیں",
     "unavailable": "کوئی متبادل medication data نہیں دکھایا گیا۔"
+  },
+  "HealthTrends": {
+    "eyebrow": "درج شدہ صحت کے رجحانات",
+    "title": "صحت کے رجحانات",
+    "back": "صحت پر واپس",
+    "readings": "ریڈنگز",
+    "empty": "سرور نے trend data واپس نہیں کیا۔",
+    "notice": "یہ read-only view صرف محفوظ شدہ readings اور direction کا خلاصہ ہے۔ یہ diagnosis، alert، normal range assessment یا treatment recommendation نہیں۔",
+    "unavailableTitle": "صحت کے رجحانات لوڈ نہیں ہو سکے",
+    "unavailable": "کوئی متبادل trend data نہیں دکھایا گیا۔",
+    "direction": {
+      "up": "اوپر جا رہا ہے",
+      "down": "نیچے جا رہا ہے",
+      "flat": "مستحکم"
+    }
   }
 }

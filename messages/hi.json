@@ -532,5 +532,20 @@
     "notice": "यह surface केवल recorded medication schedules और refill metadata दिखाती है। जोड़ना, संपादित करना, रोकना, refill और reminder actions उपलब्ध नहीं हैं।",
     "unavailableTitle": "Chronic medications लोड नहीं हो सकीं",
     "unavailable": "कोई fallback medication data नहीं दिखाया गया।"
+  },
+  "HealthTrends": {
+    "eyebrow": "रिकॉर्ड किए गए health trends",
+    "title": "Health trends",
+    "back": "स्वास्थ्य पर वापस",
+    "readings": "रीडिंग",
+    "empty": "कोई trend data नहीं लौटाया गया।",
+    "notice": "यह read-only view केवल recorded readings और direction का सारांश है। यह diagnosis, alert, normal-range assessment या treatment recommendation नहीं है।",
+    "unavailableTitle": "Health trends लोड नहीं हो सके",
+    "unavailable": "कोई fallback trend data नहीं दिखाया गया।",
+    "direction": {
+      "up": "ऊपर जा रहा है",
+      "down": "नीचे जा रहा है",
+      "flat": "स्थिर"
+    }
   }
 }

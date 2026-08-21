@@ -532,5 +532,20 @@
     "notice": "Ipinapakita lang ang recorded medication schedules at refill metadata. Hindi available ang add, edit, stop, refill, at reminder actions.",
     "unavailableTitle": "Hindi ma-load ang chronic medications",
     "unavailable": "Walang fallback medication data na ipinakita."
+  },
+  "HealthTrends": {
+    "eyebrow": "Recorded health trends",
+    "title": "Health trends",
+    "back": "Bumalik sa health",
+    "readings": "reading",
+    "empty": "Walang trend data na ibinalik.",
+    "notice": "Read-only view lang ito ng recorded readings at direction. Hindi ito diagnosis, alert, normal-range assessment, o treatment recommendation.",
+    "unavailableTitle": "Hindi ma-load ang health trends",
+    "unavailable": "Walang fallback trend data na ipinakita.",
+    "direction": {
+      "up": "Pataas",
+      "down": "Pababa",
+      "flat": "Stable"
+    }
   }
 }

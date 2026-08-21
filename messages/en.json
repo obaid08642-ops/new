@@ -532,5 +532,20 @@
     "notice": "This surface shows recorded medication schedules and refill metadata only. Add, edit, stop, refill, and reminder actions remain unavailable.",
     "unavailableTitle": "Unable to load chronic medications",
     "unavailable": "No fallback medication data was shown."
+  },
+  "HealthTrends": {
+    "eyebrow": "Recorded health trends",
+    "title": "Health trends",
+    "back": "Back to health",
+    "readings": "readings",
+    "empty": "No trend data was returned.",
+    "notice": "This read-only view summarizes recorded readings and direction only. It is not a diagnosis, alert, normal-range assessment, or treatment recommendation.",
+    "unavailableTitle": "Unable to load health trends",
+    "unavailable": "No fallback trend data was shown.",
+    "direction": {
+      "up": "Moving up",
+      "down": "Moving down",
+      "flat": "Stable"
+    }
   }
 }
