@@ -35,11 +35,13 @@
     "taxonomy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["primary_taxonomy_id", "secondary_taxonomy_ids", "state"],
+      "required": ["primary_taxonomy_id", "secondary_taxonomy_ids", "state", "subcategory_id", "sub_subcategory_id"],
       "properties": {
         "primary_taxonomy_id": {"type": ["string", "null"]},
         "secondary_taxonomy_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-        "state": {"enum": ["unclassified", "proposed", "approved", "blocked"]}
+        "state": {"enum": ["unclassified", "proposed", "approved", "blocked"]},
+        "subcategory_id": {"type": ["string", "null"]},
+        "sub_subcategory_id": {"type": ["string", "null"]}
       }
     },
     "identifiers": {
