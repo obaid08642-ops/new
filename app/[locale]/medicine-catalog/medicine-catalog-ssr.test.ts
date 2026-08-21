@@ -24,6 +24,16 @@ describe("public medicine catalogue SSR boundary", () => {
     expect(html).not.toContain("private-patient");
   });
 
+  it("marks Arabic medicine details for bidirectional rendering inside the English catalogue", async () => {
+    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "باراسيتامول 500 مجم" }]), { status: 200 }));
+
+    const html = renderToStaticMarkup(await PublicMedicineCatalogPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }));
+
+    expect(html).toContain('lang="ar"');
+    expect(html).toContain('dir="auto"');
+    expect(html).toContain("باراسيتامول 500 مجم");
+  });
+
   it("keeps catalogue URLs out of the index until a verified medicine classification exists", async () => {
     const metadata = await generateMetadata({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "query", page: "1" }) });
 

@@ -56,4 +56,13 @@ describe("appointments SSR boundary", () => {
     expect(html).toContain('href="/en/appointments"');
     for (const secret of ["private-patient", "private-phone", "private-notes", "500"]) expect(html).not.toContain(secret);
   });
+
+  it("renders a truthful empty state without a self-link disguised as an action", async () => {
+    state.getPatientAppointments.mockResolvedValue(new Response(JSON.stringify([]), { status: 200 }));
+
+    const html = renderToStaticMarkup(await AppointmentsPage({ params: Promise.resolve({ locale: "en" }) }));
+
+    expect(html).toContain("empty");
+    expect(html).not.toContain('class="button button-primary"');
+  });
 });

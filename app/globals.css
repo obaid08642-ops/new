@@ -93,6 +93,9 @@ body { background: radial-gradient(circle at 85% -15%, rgba(35,181,206,.17), tra
 @keyframes page-enter { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
 @media (max-width:540px) { .topbar { min-height:auto; padding-block:.75rem; }.brand-wordmark { font-size:1.05rem; }.brand-mark { width:2.25rem; height:2.25rem; }.nav-actions { gap:.4rem; }.header-login { min-height:2.65rem; border-radius:.9rem; padding:.5rem .7rem; }.locale-selector { gap:.18rem; }.locale-option { min-height:2.2rem; padding-inline:.4rem; font-size:.73rem; } }
 
+/* Keep every supported locale discoverable without horizontal scrolling on phone screens. */
+@media (max-width:540px) { .nav-actions { grid-template-columns:minmax(0,1fr); }.locale-selector { flex-wrap:wrap; overflow:visible; padding-bottom:0; justify-content:flex-start; }.nav-actions > .header-login { width:100%; } }
+
 
 /* Phase 5: cross-platform semantic layer sourced from mobile design tokens. */
 :root {
