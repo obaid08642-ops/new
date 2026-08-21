@@ -455,5 +455,30 @@
     "categories": "زمرے",
     "noResultsTitle": "کوئی مماثل مضمون نہیں",
     "noResults": "دوسری تلاش یا زمرہ آزمائیں۔"
+  },
+  "ChatDetail": {
+    "eyebrow": "نجی گفتگو",
+    "thread": "گفتگو",
+    "messagesTitle": "پیغام کی سرگرمی",
+    "back": "چیٹس پر واپس",
+    "bodyHidden": "اس read-only حصے میں پیغام کا متن، شرکاء کے identifiers، reactions اور attachments پوشیدہ ہیں جب تک محفوظ content contract ثابت نہ ہو۔",
+    "attachmentHidden": "ایک attachment موجود ہے؛ اس کا محفوظ URL نہیں دکھایا گیا۔",
+    "deleted": "حذف شدہ پیغام",
+    "timeUnavailable": "وقت دستیاب نہیں",
+    "empty": "سرور نے پیغام کی سرگرمی واپس نہیں کی۔",
+    "unavailableTitle": "گفتگو لوڈ نہیں ہو سکی",
+    "unavailable": "کوئی متبادل گفتگو ڈیٹا نہیں دکھایا گیا۔",
+    "types": {
+      "direct": "براہ راست گفتگو",
+      "group": "گروپ گفتگو",
+      "booking": "بکنگ گفتگو"
+    },
+    "messageTypes": {
+      "text": "ٹیکسٹ پیغام",
+      "image": "تصویر کا پیغام",
+      "voice": "وائس پیغام",
+      "file": "فائل پیغام",
+      "system": "سسٹم پیغام"
+    }
   }
 }

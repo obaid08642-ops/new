@@ -455,5 +455,30 @@
     "categories": "বিভাগ",
     "noResultsTitle": "মিল পাওয়া নিবন্ধ নেই",
     "noResults": "অন্য অনুসন্ধান বা বিভাগ চেষ্টা করুন।"
+  },
+  "ChatDetail": {
+    "eyebrow": "ব্যক্তিগত কথোপকথন",
+    "thread": "কথোপকথন",
+    "messagesTitle": "বার্তার কার্যকলাপ",
+    "back": "চ্যাটে ফিরে যান",
+    "bodyHidden": "সুরক্ষিত content contract যাচাই না হওয়া পর্যন্ত এই read-only অংশে বার্তার body, participant identifiers, reactions ও attachments লুকানো থাকে।",
+    "attachmentHidden": "একটি attachment আছে; এর protected URL দেখানো হয়নি।",
+    "deleted": "মুছে ফেলা বার্তা",
+    "timeUnavailable": "সময় অনুপলব্ধ",
+    "empty": "সার্ভার বার্তার কার্যকলাপ ফেরত দেয়নি।",
+    "unavailableTitle": "কথোপকথন লোড করা যায়নি",
+    "unavailable": "কোনো fallback কথোপকথন ডেটা দেখানো হয়নি।",
+    "types": {
+      "direct": "সরাসরি কথোপকথন",
+      "group": "গ্রুপ কথোপকথন",
+      "booking": "বুকিং কথোপকথন"
+    },
+    "messageTypes": {
+      "text": "টেক্সট বার্তা",
+      "image": "ছবির বার্তা",
+      "voice": "ভয়েস বার্তা",
+      "file": "ফাইল বার্তা",
+      "system": "সিস্টেম বার্তা"
+    }
   }
 }

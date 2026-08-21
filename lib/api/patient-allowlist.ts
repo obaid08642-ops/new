@@ -1,4 +1,5 @@
 const orderId = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
+const threadId = orderId;
 const patientReadRoutes = [
   new RegExp("^/orders/mine$"),
   new RegExp(`^/orders/${orderId}$`, "i"),
@@ -20,6 +21,9 @@ const patientReadRoutes = [
   new RegExp("^/users/me/storage$"),
   new RegExp("^/users/me/sessions$"),
   new RegExp("^/articles/bookmarks/mine$"),
+  new RegExp("^/chat/threads$"),
+  new RegExp(`^/chat/threads/${threadId}$`, "i"),
+  new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
 ];
 
 export function isAllowedPatientApiPath(path: string) {

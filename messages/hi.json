@@ -455,5 +455,30 @@
     "categories": "श्रेणियाँ",
     "noResultsTitle": "कोई मिलान लेख नहीं",
     "noResults": "दूसरी खोज या श्रेणी आज़माएँ।"
+  },
+  "ChatDetail": {
+    "eyebrow": "निजी बातचीत",
+    "thread": "बातचीत",
+    "messagesTitle": "संदेश गतिविधि",
+    "back": "चैट पर वापस",
+    "bodyHidden": "सुरक्षित content contract सत्यापित होने तक इस read-only भाग में संदेश body, participant identifiers, reactions और attachments छिपे हैं।",
+    "attachmentHidden": "एक attachment मौजूद है; उसका protected URL नहीं दिखाया गया।",
+    "deleted": "हटाया गया संदेश",
+    "timeUnavailable": "समय उपलब्ध नहीं",
+    "empty": "सर्वर ने संदेश गतिविधि नहीं लौटाई।",
+    "unavailableTitle": "बातचीत लोड नहीं हो सकी",
+    "unavailable": "कोई fallback बातचीत डेटा नहीं दिखाया गया।",
+    "types": {
+      "direct": "सीधी बातचीत",
+      "group": "समूह बातचीत",
+      "booking": "बुकिंग बातचीत"
+    },
+    "messageTypes": {
+      "text": "टेक्स्ट संदेश",
+      "image": "इमेज संदेश",
+      "voice": "वॉइस संदेश",
+      "file": "फ़ाइल संदेश",
+      "system": "सिस्टम संदेश"
+    }
   }
 }

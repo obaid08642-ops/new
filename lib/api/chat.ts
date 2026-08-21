@@ -31,3 +31,15 @@ export function extractChatThreadSummaries(payload: unknown) {
     return thread ? [thread] : [];
   });
 }
+
+export type ChatMessageSummary = { id: string; senderRole: string; type: string; createdAt?: string; edited: boolean; deleted: boolean; hasAttachment: boolean };
+export function extractChatMessageSummaries(payload: unknown): ChatMessageSummary[] {
+  const root = asRecord(payload);
+  const list = Array.isArray(root?.messages) ? root.messages : listFrom(payload);
+  return list.flatMap((value) => {
+    const record = asRecord(value);
+    const id = threadIdSchema.safeParse(record?.id);
+    if (!id.success || typeof record?.sender_role !== "string" || typeof record?.type !== "string") return [];
+    return [{ id: id.data, senderRole: record.sender_role.slice(0, 40), type: record.type.slice(0, 20), createdAt: typeof record.createdAt === "string" ? record.createdAt : undefined, edited: record.is_edited === true, deleted: record.is_deleted === true, hasAttachment: typeof record.attachment_url === "string" || typeof record.attachment_name === "string" }];
+  });
+}

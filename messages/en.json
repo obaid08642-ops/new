@@ -455,5 +455,30 @@
     "categories": "Categories",
     "noResultsTitle": "No matching articles",
     "noResults": "Try another search or category."
+  },
+  "ChatDetail": {
+    "eyebrow": "Private conversation",
+    "thread": "Conversation",
+    "messagesTitle": "Message activity",
+    "back": "Back to chats",
+    "bodyHidden": "Message bodies, participant identifiers, reactions, and attachments remain hidden in this read-only slice until the protected-content contract is verified.",
+    "attachmentHidden": "An attachment is present; its protected URL is not shown.",
+    "deleted": "Deleted message",
+    "timeUnavailable": "Time unavailable",
+    "empty": "No message activity was returned.",
+    "unavailableTitle": "Unable to load conversation",
+    "unavailable": "No fallback conversation data was shown.",
+    "types": {
+      "direct": "Direct conversation",
+      "group": "Group conversation",
+      "booking": "Booking conversation"
+    },
+    "messageTypes": {
+      "text": "Text message",
+      "image": "Image message",
+      "voice": "Voice message",
+      "file": "File message",
+      "system": "System message"
+    }
   }
 }

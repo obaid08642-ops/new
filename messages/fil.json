@@ -455,5 +455,30 @@
     "categories": "Mga category",
     "noResultsTitle": "Walang katugmang article",
     "noResults": "Subukan ang ibang search o category."
+  },
+  "ChatDetail": {
+    "eyebrow": "Pribadong conversation",
+    "thread": "Conversation",
+    "messagesTitle": "Aktibidad ng messages",
+    "back": "Bumalik sa chats",
+    "bodyHidden": "Nakatago sa read-only slice na ito ang message bodies, participant identifiers, reactions, at attachments hanggang ma-verify ang protected-content contract.",
+    "attachmentHidden": "May attachment; hindi ipinapakita ang protected URL nito.",
+    "deleted": "Deleted message",
+    "timeUnavailable": "Hindi available ang oras",
+    "empty": "Walang message activity na ibinalik ang server.",
+    "unavailableTitle": "Hindi ma-load ang conversation",
+    "unavailable": "Walang fallback conversation data na ipinakita.",
+    "types": {
+      "direct": "Direct conversation",
+      "group": "Group conversation",
+      "booking": "Booking conversation"
+    },
+    "messageTypes": {
+      "text": "Text message",
+      "image": "Image message",
+      "voice": "Voice message",
+      "file": "File message",
+      "system": "System message"
+    }
   }
 }
