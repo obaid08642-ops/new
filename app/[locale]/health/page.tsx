@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { CSSProperties } from "react";
-import { Activity, Bell, CalendarDays, FileText, HeartPulse, MessageCircle, UsersRound } from "lucide-react";
+import { Activity, Bell, CalendarDays, FileText, HeartPulse, MessageCircle, Moon, UsersRound } from "lucide-react";
 import { extractVitalSummary } from "@/lib/api/vitals";
 import { getPatientVitalSummary } from "@/lib/api/vitals-server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -17,14 +17,15 @@ const quickActions = [
   { key: "family", href: "family", icon: UsersRound, color: "#EC4899" },
   { key: "reminders", href: "reminders", icon: Bell, color: "#F0A526" },
   { key: "chat", href: "chat", icon: MessageCircle, color: "#23B5CE" },
+  { key: "sleep", href: "health/sleep", icon: Moon, color: "#6366F1" },
 ] as const;
 const quickLabels: Record<string, Record<string, string>> = {
-  ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة" },
-  en: { prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat" },
-  ur: { prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو" },
-  hi: { prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट" },
-  bn: { prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট" },
-  fil: { prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat" },
+  ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم" },
+  en: { prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat", sleep: "Sleep" },
+  ur: { prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو", sleep: "نیند" },
+  hi: { prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट", sleep: "नींद" },
+  bn: { prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট", sleep: "ঘুম" },
+  fil: { prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat", sleep: "Tulog" },
 };
 
 export default async function HealthPage({ params }: Props) {
