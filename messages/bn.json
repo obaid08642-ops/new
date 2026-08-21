@@ -505,5 +505,17 @@
     "notice": "ফোন নম্বর masked। mutation contract যাচাই না হওয়া পর্যন্ত যোগ ও মুছে ফেলা অনুপলব্ধ।",
     "unavailableTitle": "জরুরি যোগাযোগ লোড করা যায়নি",
     "unavailable": "কোনো fallback contact data দেখানো হয়নি।"
+  },
+  "ChronicDiseases": {
+    "eyebrow": "রেকর্ড করা স্বাস্থ্য অবস্থা",
+    "title": "দীর্ঘমেয়াদি অবস্থা",
+    "back": "স্বাস্থ্যে ফিরে যান",
+    "recordedCondition": "রোগীর রেকর্ড করা অবস্থা",
+    "source": "উৎস",
+    "unknown": "অজানা",
+    "empty": "কোনো chronic condition ফেরত আসেনি।",
+    "notice": "এগুলো শুধু profile-এ রেকর্ড করা entry। কোনো diagnosis, severity, control assessment বা treatment recommendation দেওয়া হয় না।",
+    "unavailableTitle": "Chronic condition লোড করা যায়নি",
+    "unavailable": "কোনো fallback condition data দেখানো হয়নি।"
   }
 }

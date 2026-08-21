@@ -505,5 +505,17 @@
     "notice": "फ़ोन नंबर masked हैं। mutation contract सत्यापित होने तक जोड़ना और हटाना उपलब्ध नहीं है।",
     "unavailableTitle": "आपातकालीन संपर्क लोड नहीं हो सके",
     "unavailable": "कोई fallback संपर्क डेटा नहीं दिखाया गया।"
+  },
+  "ChronicDiseases": {
+    "eyebrow": "रिकॉर्ड की गई स्वास्थ्य स्थितियाँ",
+    "title": "दीर्घकालिक स्थितियाँ",
+    "back": "स्वास्थ्य पर वापस",
+    "recordedCondition": "मरीज़ द्वारा रिकॉर्ड की गई स्थिति",
+    "source": "स्रोत",
+    "unknown": "अज्ञात",
+    "empty": "कोई chronic condition नहीं लौटाई गई।",
+    "notice": "ये केवल profile में दर्ज entries हैं। कोई diagnosis, severity, control assessment या treatment recommendation नहीं दी जाती।",
+    "unavailableTitle": "Chronic conditions लोड नहीं हो सकीं",
+    "unavailable": "कोई fallback condition data नहीं दिखाया गया।"
   }
 }

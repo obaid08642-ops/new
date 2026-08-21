@@ -505,5 +505,17 @@
     "notice": "Masked ang phone numbers. Hindi available ang pagdagdag at pag-delete hanggang ma-verify ang mutation contract.",
     "unavailableTitle": "Hindi ma-load ang emergency contacts",
     "unavailable": "Walang fallback contact data na ipinakita."
+  },
+  "ChronicDiseases": {
+    "eyebrow": "Mga naitalang kondisyon",
+    "title": "Mga chronic condition",
+    "back": "Bumalik sa health",
+    "recordedCondition": "Kondisyong ni-record ng patient",
+    "source": "Source",
+    "unknown": "Hindi alam",
+    "empty": "Walang chronic condition na ibinalik.",
+    "notice": "Mga entry lang ito mula sa profile. Walang diagnosis, severity, control assessment, o treatment recommendation.",
+    "unavailableTitle": "Hindi ma-load ang chronic conditions",
+    "unavailable": "Walang fallback condition data na ipinakita."
   }
 }

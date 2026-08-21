@@ -505,5 +505,17 @@
     "notice": "Phone numbers are masked. Adding and deleting contacts remain unavailable until the mutation contract is verified.",
     "unavailableTitle": "Unable to load emergency contacts",
     "unavailable": "No fallback contact data was shown."
+  },
+  "ChronicDiseases": {
+    "eyebrow": "Recorded health conditions",
+    "title": "Chronic conditions",
+    "back": "Back to health",
+    "recordedCondition": "Patient-recorded condition",
+    "source": "Source",
+    "unknown": "Unknown",
+    "empty": "No chronic conditions were returned.",
+    "notice": "These are self-recorded profile entries only. No diagnosis, severity, control assessment, or treatment recommendation is provided.",
+    "unavailableTitle": "Unable to load chronic conditions",
+    "unavailable": "No fallback condition data was shown."
   }
 }

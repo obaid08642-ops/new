@@ -505,5 +505,17 @@
     "notice": "فون نمبرز masked ہیں۔ mutation contract ثابت ہونے تک شامل کرنا اور حذف دستیاب نہیں۔",
     "unavailableTitle": "ہنگامی رابطے لوڈ نہیں ہو سکے",
     "unavailable": "کوئی متبادل رابطہ ڈیٹا نہیں دکھایا گیا۔"
+  },
+  "ChronicDiseases": {
+    "eyebrow": "درج شدہ صحت کی حالتیں",
+    "title": "دائمی حالتیں",
+    "back": "صحت پر واپس",
+    "recordedCondition": "مریض کی درج کردہ حالت",
+    "source": "ماخذ",
+    "unknown": "نامعلوم",
+    "empty": "سرور نے دائمی حالتیں واپس نہیں کیں۔",
+    "notice": "یہ صرف profile میں درج اندراجات ہیں۔ کوئی تشخیص، شدت، کنٹرول assessment یا علاج کی سفارش نہیں دی جاتی۔",
+    "unavailableTitle": "دائمی حالتیں لوڈ نہیں ہو سکیں",
+    "unavailable": "کوئی متبادل condition data نہیں دکھایا گیا۔"
   }
 }
