@@ -55,7 +55,8 @@
     "notifications": "Notifications",
     "prescriptions": "Prescriptions",
     "medicines": "Medicines",
-    "profile": "My health profile"
+    "profile": "My health profile",
+    "settings": "Settings"
   },
   "Orders": {
     "eyebrow": "Private orders",

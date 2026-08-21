@@ -55,7 +55,8 @@
     "notifications": "الإشعارات",
     "prescriptions": "الوصفات الطبية",
     "medicines": "الأدوية",
-    "profile": "ملفي الصحي"
+    "profile": "ملفي الصحي",
+    "settings": "الإعدادات"
   },
   "Orders": {
     "eyebrow": "طلبات خاصة",
