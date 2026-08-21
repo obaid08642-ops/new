@@ -8,6 +8,7 @@ const patientReadRoutes = [
   new RegExp("^/cart$"),
   new RegExp("^/cart/checkout$"),
   new RegExp("^/cart/prescription$"),
+  new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
 ];
 
 export function isAllowedPatientApiPath(path: string) {

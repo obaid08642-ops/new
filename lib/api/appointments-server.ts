@@ -8,3 +8,7 @@ export function getPatientAppointments(accessToken: string) {
 export function getPatientAppointment(accessToken: string, appointmentId: string) {
   return callPatientApi(`/care/appointments/${appointmentId}`, {}, accessToken);
 }
+
+export function getPatientUnifiedConsultation(accessToken: string, appointmentId: string) {
+  return callPatientApi(`/unified-bookings/consultation/${appointmentId}`, {}, accessToken);
+}

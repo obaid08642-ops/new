@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   getPatientAppointments: vi.fn(),
   getPatientAppointment: vi.fn(),
+  getPatientUnifiedConsultation: vi.fn(),
   requirePatientAccess: vi.fn(),
 }));
 
@@ -17,6 +18,7 @@ vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatien
 vi.mock("@/lib/api/appointments-server", () => ({
   getPatientAppointments: state.getPatientAppointments,
   getPatientAppointment: state.getPatientAppointment,
+  getPatientUnifiedConsultation: state.getPatientUnifiedConsultation,
 }));
 
 import AppointmentsPage from "./page";
@@ -29,6 +31,7 @@ describe("appointments SSR boundary", () => {
   beforeEach(() => {
     state.getPatientAppointments.mockReset();
     state.getPatientAppointment.mockReset();
+    state.getPatientUnifiedConsultation.mockReset();
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
 
@@ -43,11 +46,11 @@ describe("appointments SSR boundary", () => {
   });
 
   it("renders appointment detail through the server boundary without embedding the access token", async () => {
-    state.getPatientAppointment.mockResolvedValue(new Response(JSON.stringify({ id: appointmentId, service_type: "clinic", status: "CONFIRMED", doctor_name: "Verified provider", patient_name: "private-patient", patient_phone: "private-phone", clinical_notes: "private-notes", total_price: 500 }), { status: 200 }));
+    state.getPatientUnifiedConsultation.mockResolvedValue(new Response(JSON.stringify({ id: appointmentId, service_type: "clinic", status: "CONFIRMED", doctor_name: "Verified provider", patient_name: "private-patient", patient_phone: "private-phone", clinical_notes: "private-notes", total_price: 500 }), { status: 200 }));
 
     const html = renderToStaticMarkup(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId }) }));
 
-    expect(state.getPatientAppointment).toHaveBeenCalledWith(serverToken, appointmentId);
+    expect(state.getPatientUnifiedConsultation).toHaveBeenCalledWith(serverToken, appointmentId);
     expect(html).not.toContain(serverToken);
     expect(html).toContain("Verified provider");
     expect(html).toContain('href="/en/appointments"');

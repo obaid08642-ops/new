@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractAppointmentDetail, parseAppointmentId } from "@/lib/api/appointments";
-import { getPatientAppointment } from "@/lib/api/appointments-server";
+import { getPatientUnifiedConsultation } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
@@ -17,7 +17,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Appointments");
   const token = await requirePatientAccess(locale);
-  const response = await getPatientAppointment(token, appointmentId);
+  const response = await getPatientUnifiedConsultation(token, appointmentId);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><Stethoscope size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
