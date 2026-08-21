@@ -1,0 +1,12 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { Bookmark, ChevronLeft, FileText } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getPatientArticleBookmarks } from "@/lib/api/articles-server";
+import { parseArticleList } from "@/lib/api/articles";
+import { requirePatientAccess } from "@/lib/auth/session";
+import { isLocale } from "@/lib/i18n";
+import { RetryButton } from "@/components-next/retry-button";
+import styles from "../articles.module.css";
+type Props={params:Promise<{locale:string}>};
+export default async function ArticleBookmarksPage({params}:Props){const {locale}=await params;if(!isLocale(locale))notFound();setRequestLocale(locale);const t=await getTranslations("Articles");const token=await requirePatientAccess(locale);let response:Response;try{response=await getPatientArticleBookmarks(token);}catch{return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;}if(response.status===401)redirect(`/${locale}/login`);if(response.status===403||response.status===404)notFound();if(!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const articles=parseArticleList(await response.json().catch(()=>null));return <main className={`main ${styles.page}`}><section className={styles.hero}><p className={styles.eyebrow}><Bookmark size={15} aria-hidden="true"/>{t("eyebrow")}</p><h1>{t("bookmarksTitle")}</h1><p>{t("bookmarksNotice")}</p></section>{articles.length?<section className={styles.list}>{articles.map((article)=><Link className={styles.card} key={article.slug} href={`/${locale}/articles/${article.slug}`}><span className={styles.icon}><FileText size={20} aria-hidden="true"/></span><span className={styles.copy}><strong>{locale==="ar"?article.titleAr||article.titleEn:article.titleEn||article.titleAr||t("untitled")}</strong><span>{article.category||t("categoryUnavailable")}</span></span><ChevronLeft className={styles.arrow} size={18} aria-hidden="true"/></Link>)}</section>:<section className={styles.empty}><Bookmark size={34} aria-hidden="true"/><h2>{t("emptyTitle")}</h2><p>{t("empty")}</p><Link className={styles.primary} href={`/${locale}/articles`}>{t("browse")}</Link></section>}</main>}

@@ -19,6 +19,7 @@ const patientReadRoutes = [
   new RegExp("^/users/me/security-settings$"),
   new RegExp("^/users/me/storage$"),
   new RegExp("^/users/me/sessions$"),
+  new RegExp("^/articles/bookmarks/mine$"),
 ];
 
 export function isAllowedPatientApiPath(path: string) {

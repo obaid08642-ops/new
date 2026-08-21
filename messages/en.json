@@ -432,5 +432,22 @@
       "sound": "Play a sound when notifications arrive",
       "vibration": "Vibrate with notifications"
     }
+  },
+  "Articles": {
+    "eyebrow": "Health library",
+    "title": "Health articles",
+    "notice": "Published article metadata and excerpts are shown only when returned by the public backend.",
+    "bookmarksTitle": "Saved articles",
+    "bookmarksNotice": "Your saved articles are loaded from your account. Bookmark changes remain unavailable until the write contract is verified.",
+    "emptyTitle": "No saved articles",
+    "empty": "You have not saved an article yet.",
+    "browse": "Browse articles",
+    "back": "Back to articles",
+    "untitled": "Article",
+    "categoryUnavailable": "Category unavailable",
+    "excerptUnavailable": "No excerpt was returned.",
+    "bodyHidden": "The article body is not displayed in this read-only slice because the sanitized content and media contract is not yet verified.",
+    "unavailableTitle": "Unable to load articles",
+    "unavailable": "No fallback article data was shown."
   }
 }

@@ -432,5 +432,22 @@
       "sound": "Magpatugtog ng tunog sa pagdating ng notification",
       "vibration": "Mag-vibrate kasama ng notification"
     }
+  },
+  "Articles": {
+    "eyebrow": "Library ng kalusugan",
+    "title": "Mga artikulo tungkol sa kalusugan",
+    "notice": "Published article metadata at excerpts lang ang ipinapakita kapag ibinalik ng public backend.",
+    "bookmarksTitle": "Mga naka-save na artikulo",
+    "bookmarksNotice": "Mula sa account mo nilo-load ang saved articles. Hindi available ang save changes hanggang ma-verify ang write contract.",
+    "emptyTitle": "Walang naka-save na artikulo",
+    "empty": "Wala ka pang naka-save na artikulo.",
+    "browse": "Mag-browse ng articles",
+    "back": "Bumalik sa articles",
+    "untitled": "Article",
+    "categoryUnavailable": "Hindi available ang category",
+    "excerptUnavailable": "Walang excerpt na ibinalik.",
+    "bodyHidden": "Hindi ipinapakita ang article body sa read-only slice na ito dahil hindi pa verified ang sanitized content at media contract.",
+    "unavailableTitle": "Hindi ma-load ang articles",
+    "unavailable": "Walang fallback article data na ipinakita."
   }
 }
