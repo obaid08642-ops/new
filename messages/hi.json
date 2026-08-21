@@ -494,5 +494,16 @@
     "notice": "यह read-only surface केवल सहेजे गए sleep metrics दिखाती है; जोड़ना, संपादित करना, हटाना और clinical recommendations उपलब्ध नहीं हैं।",
     "unavailableTitle": "नींद की रीडिंग लोड नहीं हो सकी",
     "unavailable": "कोई fallback sleep data नहीं दिखाया गया।"
+  },
+  "EmergencyContacts": {
+    "eyebrow": "निजी सुरक्षा संपर्क",
+    "title": "आपातकालीन संपर्क",
+    "back": "स्वास्थ्य पर वापस",
+    "contact": "संपर्क",
+    "primary": "मुख्य संपर्क",
+    "empty": "कोई आपातकालीन संपर्क नहीं लौटाया गया।",
+    "notice": "फ़ोन नंबर masked हैं। mutation contract सत्यापित होने तक जोड़ना और हटाना उपलब्ध नहीं है।",
+    "unavailableTitle": "आपातकालीन संपर्क लोड नहीं हो सके",
+    "unavailable": "कोई fallback संपर्क डेटा नहीं दिखाया गया।"
   }
 }

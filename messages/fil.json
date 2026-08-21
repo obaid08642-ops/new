@@ -494,5 +494,16 @@
     "notice": "Read-only surface lang ito para sa persisted sleep metrics; hindi available ang pagdagdag, pag-edit, pag-delete, at clinical recommendations.",
     "unavailableTitle": "Hindi ma-load ang sleep readings",
     "unavailable": "Walang fallback sleep data na ipinakita."
+  },
+  "EmergencyContacts": {
+    "eyebrow": "Pribadong safety contacts",
+    "title": "Emergency contacts",
+    "back": "Bumalik sa health",
+    "contact": "Contact",
+    "primary": "Primary contact",
+    "empty": "Walang emergency contact na ibinalik.",
+    "notice": "Masked ang phone numbers. Hindi available ang pagdagdag at pag-delete hanggang ma-verify ang mutation contract.",
+    "unavailableTitle": "Hindi ma-load ang emergency contacts",
+    "unavailable": "Walang fallback contact data na ipinakita."
   }
 }

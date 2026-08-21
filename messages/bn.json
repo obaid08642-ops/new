@@ -494,5 +494,16 @@
     "notice": "এই read-only surface শুধু সংরক্ষিত sleep metrics দেখায়; যোগ, সম্পাদনা, মুছে ফেলা ও clinical recommendations অনুপলব্ধ।",
     "unavailableTitle": "ঘুমের রিডিং লোড করা যায়নি",
     "unavailable": "কোনো fallback sleep data দেখানো হয়নি।"
+  },
+  "EmergencyContacts": {
+    "eyebrow": "ব্যক্তিগত নিরাপত্তা যোগাযোগ",
+    "title": "জরুরি যোগাযোগ",
+    "back": "স্বাস্থ্যে ফিরে যান",
+    "contact": "যোগাযোগ",
+    "primary": "প্রধান যোগাযোগ",
+    "empty": "কোনো জরুরি যোগাযোগ ফেরত আসেনি।",
+    "notice": "ফোন নম্বর masked। mutation contract যাচাই না হওয়া পর্যন্ত যোগ ও মুছে ফেলা অনুপলব্ধ।",
+    "unavailableTitle": "জরুরি যোগাযোগ লোড করা যায়নি",
+    "unavailable": "কোনো fallback contact data দেখানো হয়নি।"
   }
 }

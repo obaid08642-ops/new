@@ -494,5 +494,16 @@
     "notice": "This read-only surface shows persisted sleep metrics only; adding, editing, deleting, and clinical recommendations are not available.",
     "unavailableTitle": "Unable to load sleep readings",
     "unavailable": "No fallback sleep data was shown."
+  },
+  "EmergencyContacts": {
+    "eyebrow": "Private safety contacts",
+    "title": "Emergency contacts",
+    "back": "Back to health",
+    "contact": "Contact",
+    "primary": "Primary contact",
+    "empty": "No emergency contacts were returned.",
+    "notice": "Phone numbers are masked. Adding and deleting contacts remain unavailable until the mutation contract is verified.",
+    "unavailableTitle": "Unable to load emergency contacts",
+    "unavailable": "No fallback contact data was shown."
   }
 }
