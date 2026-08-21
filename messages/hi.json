@@ -395,7 +395,11 @@
     "disabled": "बंद",
     "notAvailable": "उपलब्ध नहीं",
     "unavailableTitle": "सेटिंग्स लोड नहीं हो सकीं",
-    "unavailable": "कोई वैकल्पिक सेटिंग्स डेटा नहीं दिखाया गया।"
+    "unavailable": "कोई वैकल्पिक सेटिंग्स डेटा नहीं दिखाया गया।",
+    "sessionsTitle": "सक्रिय सत्र",
+    "sessionsEmpty": "सर्वर ने कोई सक्रिय सत्र नहीं लौटाया।",
+    "deviceUnknown": "अज्ञात डिवाइस",
+    "expiresIn": "{value} दिनों में समाप्त"
   },
   "NotificationSettings": {
     "eyebrow": "सूचना नियंत्रण",

@@ -395,7 +395,11 @@
     "disabled": "বন্ধ",
     "notAvailable": "অনুপলব্ধ",
     "unavailableTitle": "সেটিংস লোড করা যায়নি",
-    "unavailable": "কোনো বিকল্প সেটিংস ডেটা দেখানো হয়নি।"
+    "unavailable": "কোনো বিকল্প সেটিংস ডেটা দেখানো হয়নি।",
+    "sessionsTitle": "সক্রিয় সেশন",
+    "sessionsEmpty": "সার্ভার কোনো সক্রিয় সেশন ফেরত দেয়নি।",
+    "deviceUnknown": "অজানা ডিভাইস",
+    "expiresIn": "{value} দিনে শেষ হবে"
   },
   "NotificationSettings": {
     "eyebrow": "নোটিফিকেশন নিয়ন্ত্রণ",

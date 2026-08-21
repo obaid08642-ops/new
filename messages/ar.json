@@ -395,7 +395,11 @@
     "disabled": "متوقف",
     "notAvailable": "غير متاح",
     "unavailableTitle": "تعذر تحميل الإعدادات",
-    "unavailable": "لم تُعرض بيانات إعدادات بديلة."
+    "unavailable": "لم تُعرض بيانات إعدادات بديلة.",
+    "sessionsTitle": "الجلسات النشطة",
+    "sessionsEmpty": "لم يُرجع الخادم جلسات نشطة.",
+    "deviceUnknown": "جهاز غير معروف",
+    "expiresIn": "تنتهي خلال {value} يومًا"
   },
   "NotificationSettings": {
     "eyebrow": "ضوابط الإشعارات",

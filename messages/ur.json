@@ -395,7 +395,11 @@
     "disabled": "غیر فعال",
     "notAvailable": "دستیاب نہیں",
     "unavailableTitle": "ترتیبات لوڈ نہیں ہو سکیں",
-    "unavailable": "کوئی متبادل ترتیبات ڈیٹا نہیں دکھایا گیا۔"
+    "unavailable": "کوئی متبادل ترتیبات ڈیٹا نہیں دکھایا گیا۔",
+    "sessionsTitle": "فعال سیشنز",
+    "sessionsEmpty": "سرور نے کوئی فعال سیشن واپس نہیں کیا۔",
+    "deviceUnknown": "نامعلوم ڈیوائس",
+    "expiresIn": "{value} دن میں ختم ہوگا"
   },
   "NotificationSettings": {
     "eyebrow": "اطلاعات کے کنٹرولز",

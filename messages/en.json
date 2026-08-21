@@ -395,7 +395,11 @@
     "disabled": "Disabled",
     "notAvailable": "Not available",
     "unavailableTitle": "Unable to load settings",
-    "unavailable": "No fallback settings data was shown."
+    "unavailable": "No fallback settings data was shown.",
+    "sessionsTitle": "Active sessions",
+    "sessionsEmpty": "No active sessions were returned.",
+    "deviceUnknown": "Unknown device",
+    "expiresIn": "Expires in {value} days"
   },
   "NotificationSettings": {
     "eyebrow": "Notification controls",

@@ -395,7 +395,11 @@
     "disabled": "Naka-disable",
     "notAvailable": "Hindi available",
     "unavailableTitle": "Hindi ma-load ang settings",
-    "unavailable": "Walang fallback settings data na ipinakita."
+    "unavailable": "Walang fallback settings data na ipinakita.",
+    "sessionsTitle": "Mga aktibong session",
+    "sessionsEmpty": "Walang aktibong session na ibinalik ang server.",
+    "deviceUnknown": "Hindi kilalang device",
+    "expiresIn": "Mag-e-expire sa loob ng {value} araw"
   },
   "NotificationSettings": {
     "eyebrow": "Mga kontrol ng notification",

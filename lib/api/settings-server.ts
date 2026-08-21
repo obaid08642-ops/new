@@ -11,3 +11,7 @@ export function getPatientSecuritySettings(accessToken: string) {
 export function getPatientStorage(accessToken: string) {
   return callPatientApi("/users/me/storage", {}, accessToken);
 }
+
+export function getPatientSessions(accessToken: string) {
+  return callPatientApi("/users/me/sessions", {}, accessToken);
+}
