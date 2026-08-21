@@ -441,7 +441,7 @@
     "bookmarksTitle": "Saved articles",
     "bookmarksNotice": "Your saved articles are loaded from your account. Bookmark changes remain unavailable until the write contract is verified.",
     "emptyTitle": "No saved articles",
-    "empty": "You have not saved an article yet.",
+    "empty": "No published articles are available.",
     "browse": "Browse articles",
     "back": "Back to articles",
     "untitled": "Article",
@@ -449,6 +449,11 @@
     "excerptUnavailable": "No excerpt was returned.",
     "bodyHidden": "The article body is not displayed in this read-only slice because the sanitized content and media contract is not yet verified.",
     "unavailableTitle": "Unable to load articles",
-    "unavailable": "No fallback article data was shown."
+    "unavailable": "No fallback article data was shown.",
+    "searchPlaceholder": "Search articles",
+    "search": "Search",
+    "categories": "Categories",
+    "noResultsTitle": "No matching articles",
+    "noResults": "Try another search or category."
   }
 }

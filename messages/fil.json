@@ -441,7 +441,7 @@
     "bookmarksTitle": "Mga naka-save na artikulo",
     "bookmarksNotice": "Mula sa account mo nilo-load ang saved articles. Hindi available ang save changes hanggang ma-verify ang write contract.",
     "emptyTitle": "Walang naka-save na artikulo",
-    "empty": "Wala ka pang naka-save na artikulo.",
+    "empty": "Walang published article na available.",
     "browse": "Mag-browse ng articles",
     "back": "Bumalik sa articles",
     "untitled": "Article",
@@ -449,6 +449,11 @@
     "excerptUnavailable": "Walang excerpt na ibinalik.",
     "bodyHidden": "Hindi ipinapakita ang article body sa read-only slice na ito dahil hindi pa verified ang sanitized content at media contract.",
     "unavailableTitle": "Hindi ma-load ang articles",
-    "unavailable": "Walang fallback article data na ipinakita."
+    "unavailable": "Walang fallback article data na ipinakita.",
+    "searchPlaceholder": "Maghanap ng articles",
+    "search": "Maghanap",
+    "categories": "Mga category",
+    "noResultsTitle": "Walang katugmang article",
+    "noResults": "Subukan ang ibang search o category."
   }
 }
