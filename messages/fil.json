@@ -331,5 +331,17 @@
       "memberId": "ID ng miyembro",
       "status": "Status"
     }
+  },
+  "Insurance": {
+    "eyebrow": "Pribadong insurance",
+    "title": "Buod ng insurance",
+    "notice": "Limitadong policy summary lamang mula sa server ang ipinapakita. Hindi ipinapakita ang policy number, member ID, card files, claims o payments.",
+    "policyStatus": "Status ng policy",
+    "active": "May policy record",
+    "none": "Walang policy record",
+    "company": "Kumpanya",
+    "plan": "Plan",
+    "unavailableTitle": "Hindi ma-load ang insurance",
+    "unavailable": "Walang fallback insurance data na ipinakita. Subukan muli mamaya."
   }
 }

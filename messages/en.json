@@ -331,5 +331,17 @@
     "errorBody": "No fallback data or technical detail has been shown. Try again, or return home if the issue continues.",
     "retry": "Try again",
     "returnHome": "Return home"
+  },
+  "Insurance": {
+    "eyebrow": "Private insurance",
+    "title": "Insurance overview",
+    "notice": "Only the limited policy summary returned by the server is shown. Policy numbers, member identifiers, card files, claims and payments are not displayed here.",
+    "policyStatus": "Policy status",
+    "active": "Policy recorded",
+    "none": "No policy recorded",
+    "company": "Company",
+    "plan": "Plan",
+    "unavailableTitle": "Unable to load insurance",
+    "unavailable": "No fallback insurance data was shown. Please retry later."
   }
 }

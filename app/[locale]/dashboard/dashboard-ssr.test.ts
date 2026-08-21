@@ -1,12 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ accessToken: "dashboard-server-token-never-in-html", redirect: vi.fn() }));
+const state = vi.hoisted(() => ({ accessToken: "dashboard-server-token-never-in-html", redirect: vi.fn(), profile: vi.fn(), appointment: vi.fn() }));
 
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: (name: string) => (name === "nabd_access" ? { value: state.accessToken } : undefined) }) }));
 vi.mock("next/navigation", () => ({ redirect: state.redirect }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
+vi.mock("@/lib/api/dashboard-server", () => ({ getPatientDashboardProfile: state.profile, getPatientDashboardUpcomingAppointment: state.appointment }));
 
 import DashboardPage from "./page";
 
@@ -14,6 +15,8 @@ describe("dashboard SSR boundary", () => {
   beforeEach(() => {
     state.accessToken = "dashboard-server-token-never-in-html";
     state.redirect.mockReset();
+    state.profile.mockReset().mockResolvedValue(new Response(JSON.stringify({ name: "Verified patient" }), { status: 200 }));
+    state.appointment.mockReset().mockResolvedValue(new Response(JSON.stringify(null), { status: 200 }));
   });
 
   it("renders the protected feature links without serializing the session token", async () => {
