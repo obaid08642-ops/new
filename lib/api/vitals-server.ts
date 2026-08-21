@@ -8,3 +8,7 @@ export function getPatientVitalSummary(accessToken: string) {
 export function getPatientHealthScore(accessToken: string) {
   return callPatientApi("/health/score", {}, accessToken);
 }
+
+export function getPatientReports(accessToken: string) {
+  return callPatientApi("/health/reports", {}, accessToken);
+}

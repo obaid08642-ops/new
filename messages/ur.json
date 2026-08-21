@@ -258,7 +258,14 @@
     "scoreStatus": "ڈیٹا کی حالت",
     "scoreInsufficient": "ناکافی ڈیٹا",
     "scoreComponents": "اسکور کے اجزا",
-    "back": "صحت پر واپس"
+    "back": "صحت پر واپس",
+    "reportsTitle": "صحت کی رپورٹس",
+    "reportsNotice": "صرف ریکارڈ شدہ رپورٹ کی معلومات دکھائی جاتی ہیں۔ رپورٹ کا متن اور منسلکات محفوظ ہیں۔",
+    "reportsEmpty": "فی الحال کوئی رپورٹ درج نہیں۔",
+    "report": "رپورٹ",
+    "untitledReport": "بے عنوان رپورٹ",
+    "reportDoctor": "ڈاکٹر",
+    "reportFacility": "ادارہ"
   },
   "Prescriptions": {
     "eyebrow": "نجی نسخے",

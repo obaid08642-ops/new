@@ -258,7 +258,14 @@
     "scoreStatus": "Status ng data",
     "scoreInsufficient": "Hindi sapat ang data",
     "scoreComponents": "Mga bahagi ng score",
-    "back": "Bumalik sa health"
+    "back": "Bumalik sa health",
+    "reportsTitle": "Health reports",
+    "reportsNotice": "Metadata lamang ng naitalang report ang ipinapakita. Protektado ang report body at attachments.",
+    "reportsEmpty": "Wala pang naitalang report.",
+    "report": "Report",
+    "untitledReport": "Walang pamagat na report",
+    "reportDoctor": "Doktor",
+    "reportFacility": "Pasilidad"
   },
   "Prescriptions": {
     "eyebrow": "Pribadong mga reseta",

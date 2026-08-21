@@ -213,7 +213,14 @@
     "scoreStatus": "حالة البيانات",
     "scoreInsufficient": "بيانات غير كافية",
     "scoreComponents": "مكونات الدرجة",
-    "back": "العودة إلى الصحة"
+    "back": "العودة إلى الصحة",
+    "reportsTitle": "التقارير الصحية",
+    "reportsNotice": "يُعرض وصف التقرير المسجل فقط. يبقى محتوى التقرير والمرفقات محميين.",
+    "reportsEmpty": "لا توجد تقارير مسجلة حالياً.",
+    "report": "تقرير",
+    "untitledReport": "تقرير بلا عنوان",
+    "reportDoctor": "الطبيب",
+    "reportFacility": "المنشأة"
   },
   "Prescriptions": {
     "eyebrow": "وصفات خاصة",

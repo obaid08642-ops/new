@@ -213,7 +213,14 @@
     "scoreStatus": "Data status",
     "scoreInsufficient": "Not enough data",
     "scoreComponents": "Score components",
-    "back": "Back to health"
+    "back": "Back to health",
+    "reportsTitle": "Health reports",
+    "reportsNotice": "Recorded report metadata only is shown. Report body and attachments remain protected.",
+    "reportsEmpty": "No reports are currently recorded.",
+    "report": "Report",
+    "untitledReport": "Untitled report",
+    "reportDoctor": "Doctor",
+    "reportFacility": "Facility"
   },
   "Prescriptions": {
     "eyebrow": "Private prescriptions",

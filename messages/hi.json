@@ -258,7 +258,14 @@
     "scoreStatus": "डेटा स्थिति",
     "scoreInsufficient": "पर्याप्त डेटा नहीं",
     "scoreComponents": "स्कोर घटक",
-    "back": "स्वास्थ्य पर वापस"
+    "back": "स्वास्थ्य पर वापस",
+    "reportsTitle": "स्वास्थ्य रिपोर्ट",
+    "reportsNotice": "केवल दर्ज रिपोर्ट का मेटाडेटा दिखाया जाता है। रिपोर्ट का मुख्य भाग और अटैचमेंट सुरक्षित हैं।",
+    "reportsEmpty": "अभी कोई रिपोर्ट दर्ज नहीं है।",
+    "report": "रिपोर्ट",
+    "untitledReport": "बिना शीर्षक रिपोर्ट",
+    "reportDoctor": "डॉक्टर",
+    "reportFacility": "संस्था"
   },
   "Prescriptions": {
     "eyebrow": "निजी नुस्खे",
