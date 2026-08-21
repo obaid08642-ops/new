@@ -269,7 +269,14 @@
     "report": "رپورٹ",
     "untitledReport": "بے عنوان رپورٹ",
     "reportDoctor": "ڈاکٹر",
-    "reportFacility": "ادارہ"
+    "reportFacility": "ادارہ",
+    "backToHealth": "صحت پر واپس",
+    "vitalsHistoryEyebrow": "آپ کی محفوظ شدہ vital readings",
+    "vitalsHistoryTitle": "Vitals history",
+    "vitalsHistoryNotice": "یہ read-only view patient record میں محفوظ readings دکھاتی ہے۔ یہ diagnosis یا medical judgment calculate نہیں کرتی۔",
+    "vitalsHistoryEmpty": "کوئی vital reading واپس نہیں آئی۔",
+    "vitalsHistoryNoDefaults": "Default values یا synthetic trends نہیں دکھائے جاتے۔",
+    "vitalsHistoryReadOnly": "Readings add/edit/delete اس وقت تک دستیاب نہیں جب تک replay-safe mutation contracts verify نہ ہوں۔"
   },
   "Prescriptions": {
     "eyebrow": "نجی نسخے",

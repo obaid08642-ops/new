@@ -21,14 +21,15 @@ const quickActions = [
   { key: "chronicDiseases", href: "health/chronic-diseases", icon: HeartPulse, color: "#E11D48" },
   { key: "chronicMedications", href: "health/chronic-medications", icon: Pill, color: "#16A34A" },
   { key: "trends", href: "health/trends", icon: Activity, color: "#2563EB" },
+  { key: "vitalsHistory", href: "health/vitals", icon: HeartPulse, color: "#0EA5E9" },
 ] as const;
 const quickLabels: Record<string, Record<string, string>> = {
-  ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم", chronicDiseases: "الحالات المزمنة", chronicMedications: "الأدوية المزمنة", trends: "الاتجاهات" },
-  en: { prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat", sleep: "Sleep", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends" },
-  ur: { prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو", sleep: "نیند", chronicDiseases: "دائمی حالتیں", chronicMedications: "دائمی ادویات", trends: "رجحانات" },
-  hi: { prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट", sleep: "नींद", chronicDiseases: "दीर्घकालिक स्थितियाँ", chronicMedications: "दीर्घकालिक दवाएँ", trends: "रुझान" },
-  bn: { prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট", sleep: "ঘুম", chronicDiseases: "দীর্ঘমেয়াদি অবস্থা", chronicMedications: "দীর্ঘমেয়াদি ওষুধ", trends: "প্রবণতা" },
-  fil: { prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat", sleep: "Tulog", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends" },
+  ar: { prescriptions: "وصفاتي", family: "العائلة", reminders: "تذكيراتي", chat: "محادثة", sleep: "النوم", chronicDiseases: "الحالات المزمنة", chronicMedications: "الأدوية المزمنة", trends: "الاتجاهات", vitalsHistory: "سجل المؤشرات" },
+  en: { prescriptions: "Prescriptions", family: "Family", reminders: "Reminders", chat: "Chat", sleep: "Sleep", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history" },
+  ur: { prescriptions: "نسخے", family: "خاندان", reminders: "یاددہانیاں", chat: "گفتگو", sleep: "نیند", chronicDiseases: "دائمی حالتیں", chronicMedications: "دائمی ادویات", trends: "رجحانات", vitalsHistory: "Vitals history" },
+  hi: { prescriptions: "प्रिस्क्रिप्शन", family: "परिवार", reminders: "अनुस्मारक", chat: "चैट", sleep: "नींद", chronicDiseases: "दीर्घकालिक स्थितियाँ", chronicMedications: "दीर्घकालिक दवाएँ", trends: "रुझान", vitalsHistory: "Vitals history" },
+  bn: { prescriptions: "প্রেসক্রিপশন", family: "পরিবার", reminders: "রিমাইন্ডার", chat: "চ্যাট", sleep: "ঘুম", chronicDiseases: "দীর্ঘমেয়াদি অবস্থা", chronicMedications: "দীর্ঘমেয়াদি ওষুধ", trends: "প্রবণতা", vitalsHistory: "Vitals history" },
+  fil: { prescriptions: "Reseta", family: "Pamilya", reminders: "Paalala", chat: "Chat", sleep: "Tulog", chronicDiseases: "Chronic conditions", chronicMedications: "Chronic medicines", trends: "Trends", vitalsHistory: "Vitals history" },
 };
 
 export default async function HealthPage({ params }: Props) {

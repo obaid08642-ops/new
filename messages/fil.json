@@ -269,7 +269,14 @@
     "report": "Report",
     "untitledReport": "Walang pamagat na report",
     "reportDoctor": "Doktor",
-    "reportFacility": "Pasilidad"
+    "reportFacility": "Pasilidad",
+    "backToHealth": "Bumalik sa health",
+    "vitalsHistoryEyebrow": "Iyong recorded vital readings",
+    "vitalsHistoryTitle": "Vitals history",
+    "vitalsHistoryNotice": "Read-only view ito ng readings na naka-save sa patient record. Hindi ito nagkakalkula ng diagnosis o medical judgment.",
+    "vitalsHistoryEmpty": "Walang vital reading na ibinalik.",
+    "vitalsHistoryNoDefaults": "Walang default values o synthetic trends na ipinapakita.",
+    "vitalsHistoryReadOnly": "Hindi available ang pagdagdag, pag-edit, at pagtanggal hanggang ma-verify ang replay-safe mutation contracts."
   },
   "Prescriptions": {
     "eyebrow": "Pribadong mga reseta",

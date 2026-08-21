@@ -224,7 +224,14 @@
     "report": "Report",
     "untitledReport": "Untitled report",
     "reportDoctor": "Doctor",
-    "reportFacility": "Facility"
+    "reportFacility": "Facility",
+    "backToHealth": "Back to health",
+    "vitalsHistoryEyebrow": "Your recorded vital readings",
+    "vitalsHistoryTitle": "Vitals history",
+    "vitalsHistoryNotice": "This read-only view shows readings saved to your patient record. It does not calculate a diagnosis or medical judgment.",
+    "vitalsHistoryEmpty": "No vital readings were returned.",
+    "vitalsHistoryNoDefaults": "No default values or synthetic trends are shown.",
+    "vitalsHistoryReadOnly": "Adding, editing, and deleting readings remain unavailable until replay-safe mutation contracts are verified."
   },
   "Prescriptions": {
     "eyebrow": "Private prescriptions",

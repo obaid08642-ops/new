@@ -224,7 +224,14 @@
     "report": "تقرير",
     "untitledReport": "تقرير بلا عنوان",
     "reportDoctor": "الطبيب",
-    "reportFacility": "المنشأة"
+    "reportFacility": "المنشأة",
+    "backToHealth": "العودة إلى الصحة",
+    "vitalsHistoryEyebrow": "قراءاتك الحيوية المسجلة",
+    "vitalsHistoryTitle": "سجل المؤشرات الحيوية",
+    "vitalsHistoryNotice": "يعرض هذا العرض للقراءة فقط القراءات المحفوظة في ملفك الطبي. لا يحسب تشخيصًا أو حكمًا طبيًا.",
+    "vitalsHistoryEmpty": "لم تُرجع الحساب قراءات حيوية.",
+    "vitalsHistoryNoDefaults": "لا تُعرض قيم افتراضية أو اتجاهات مصطنعة.",
+    "vitalsHistoryReadOnly": "تظل إضافة القراءات وتعديلها وحذفها غير متاحة حتى يتم التحقق من عقود mutations الآمنة ضد التكرار وإعادة التشغيل."
   },
   "Prescriptions": {
     "eyebrow": "وصفات خاصة",

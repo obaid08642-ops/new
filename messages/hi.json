@@ -269,7 +269,14 @@
     "report": "रिपोर्ट",
     "untitledReport": "बिना शीर्षक रिपोर्ट",
     "reportDoctor": "डॉक्टर",
-    "reportFacility": "संस्था"
+    "reportFacility": "संस्था",
+    "backToHealth": "Health पर वापस",
+    "vitalsHistoryEyebrow": "आपकी दर्ज की गई vital readings",
+    "vitalsHistoryTitle": "Vitals history",
+    "vitalsHistoryNotice": "यह read-only view आपके patient record में saved readings दिखाती है। यह diagnosis या medical judgment calculate नहीं करती।",
+    "vitalsHistoryEmpty": "कोई vital reading नहीं लौटी।",
+    "vitalsHistoryNoDefaults": "Default values या synthetic trends नहीं दिखाए जाते।",
+    "vitalsHistoryReadOnly": "Readings जोड़ना, बदलना और हटाना तब तक उपलब्ध नहीं है जब तक replay-safe mutation contracts verify न हों।"
   },
   "Prescriptions": {
     "eyebrow": "निजी नुस्खे",

@@ -269,7 +269,14 @@
     "report": "রিপোর্ট",
     "untitledReport": "শিরোনামহীন রিপোর্ট",
     "reportDoctor": "চিকিৎসক",
-    "reportFacility": "প্রতিষ্ঠান"
+    "reportFacility": "প্রতিষ্ঠান",
+    "backToHealth": "স্বাস্থ্যে ফিরে যান",
+    "vitalsHistoryEyebrow": "আপনার সংরক্ষিত vital readings",
+    "vitalsHistoryTitle": "Vitals history",
+    "vitalsHistoryNotice": "এই read-only view patient record-এ সংরক্ষিত readings দেখায়। এটি diagnosis বা medical judgment হিসাব করে না।",
+    "vitalsHistoryEmpty": "কোনো vital reading ফেরত আসেনি।",
+    "vitalsHistoryNoDefaults": "Default values বা synthetic trends দেখানো হয় না।",
+    "vitalsHistoryReadOnly": "Replay-safe mutation contracts যাচাই না হওয়া পর্যন্ত readings যোগ, সম্পাদনা বা মুছে ফেলা উপলব্ধ নয়।"
   },
   "Prescriptions": {
     "eyebrow": "ব্যক্তিগত প্রেসক্রিপশন",

@@ -30,3 +30,12 @@ export function extractVitalSummary(payload: unknown) {
     return vital ? [vital] : [];
   });
 }
+
+export type VitalHistoryItem={id:string;key:VitalKey;value:string;unit?:string;context?:string;measuredAt?:string};
+export function extractVitalHistory(payload: unknown): VitalHistoryItem[] {
+  return listFrom(payload).flatMap((item,index)=>{
+    const record=asRecord(item); const vital=vitalFrom(item);
+    if(!record||!vital)return [];
+    return [{id:typeof record.id==='string'&&record.id.length<=160?record.id:`vital-${index}`,key:vital.key,value:vital.value,unit:vital.unit,context:typeof record.context==='string'?record.context:undefined,measuredAt:vital.measuredAt}];
+  });
+}
