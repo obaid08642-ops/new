@@ -480,5 +480,19 @@
       "file": "फ़ाइल संदेश",
       "system": "सिस्टम संदेश"
     }
+  },
+  "Sleep": {
+    "eyebrow": "नींद का इतिहास",
+    "title": "नींद की रीडिंग",
+    "back": "स्वास्थ्य पर वापस",
+    "reading": "रीडिंग",
+    "score": "स्कोर",
+    "duration": "अवधि",
+    "hours": "घंटे",
+    "notAvailable": "स्कोर उपलब्ध नहीं",
+    "empty": "कोई नींद रीडिंग नहीं लौटाई गई।",
+    "notice": "यह read-only surface केवल सहेजे गए sleep metrics दिखाती है; जोड़ना, संपादित करना, हटाना और clinical recommendations उपलब्ध नहीं हैं।",
+    "unavailableTitle": "नींद की रीडिंग लोड नहीं हो सकी",
+    "unavailable": "कोई fallback sleep data नहीं दिखाया गया।"
   }
 }

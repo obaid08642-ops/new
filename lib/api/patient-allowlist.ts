@@ -12,6 +12,7 @@ const patientReadRoutes = [
   new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
   new RegExp("^/health/score$"),
   new RegExp("^/health/reports$"),
+  new RegExp("^/health/sleep\\?limit=100$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
   new RegExp("^/insurance/claims$"),

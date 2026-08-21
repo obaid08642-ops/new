@@ -480,5 +480,19 @@
       "file": "ফাইল বার্তা",
       "system": "সিস্টেম বার্তা"
     }
+  },
+  "Sleep": {
+    "eyebrow": "ঘুমের ইতিহাস",
+    "title": "ঘুমের রিডিং",
+    "back": "স্বাস্থ্যে ফিরে যান",
+    "reading": "রিডিং",
+    "score": "স্কোর",
+    "duration": "সময়কাল",
+    "hours": "ঘণ্টা",
+    "notAvailable": "স্কোর অনুপলব্ধ",
+    "empty": "কোনো ঘুমের রিডিং ফেরত আসেনি।",
+    "notice": "এই read-only surface শুধু সংরক্ষিত sleep metrics দেখায়; যোগ, সম্পাদনা, মুছে ফেলা ও clinical recommendations অনুপলব্ধ।",
+    "unavailableTitle": "ঘুমের রিডিং লোড করা যায়নি",
+    "unavailable": "কোনো fallback sleep data দেখানো হয়নি।"
   }
 }

@@ -480,5 +480,19 @@
       "file": "File message",
       "system": "System message"
     }
+  },
+  "Sleep": {
+    "eyebrow": "Sleep history",
+    "title": "Sleep readings",
+    "back": "Back to health",
+    "reading": "Reading",
+    "score": "score",
+    "duration": "Duration",
+    "hours": "hours",
+    "notAvailable": "Score unavailable",
+    "empty": "No sleep readings were returned.",
+    "notice": "This read-only surface shows persisted sleep metrics only; adding, editing, deleting, and clinical recommendations are not available.",
+    "unavailableTitle": "Unable to load sleep readings",
+    "unavailable": "No fallback sleep data was shown."
   }
 }

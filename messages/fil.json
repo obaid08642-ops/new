@@ -480,5 +480,19 @@
       "file": "File message",
       "system": "System message"
     }
+  },
+  "Sleep": {
+    "eyebrow": "Sleep history",
+    "title": "Mga sleep reading",
+    "back": "Bumalik sa health",
+    "reading": "Reading",
+    "score": "score",
+    "duration": "Tagal",
+    "hours": "oras",
+    "notAvailable": "Hindi available ang score",
+    "empty": "Walang sleep reading na ibinalik.",
+    "notice": "Read-only surface lang ito para sa persisted sleep metrics; hindi available ang pagdagdag, pag-edit, pag-delete, at clinical recommendations.",
+    "unavailableTitle": "Hindi ma-load ang sleep readings",
+    "unavailable": "Walang fallback sleep data na ipinakita."
   }
 }
