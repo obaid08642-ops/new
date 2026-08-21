@@ -415,7 +415,17 @@
     "moodUnavailable": "Hindi available ang mood",
     "energy": "Energy",
     "stress": "Stress",
-    "sleepHours": "Sleep hours"
+    "sleepHours": "Sleep hours",
+    "meditationBack": "Bumalik sa mental health",
+    "meditationEyebrow": "Mindfulness practice history",
+    "meditationHistoryTitle": "Meditation history",
+    "meditationHistoryNotice": "Read-only view ito ng recorded mindfulness practice sessions. Hindi ito gumagawa ng sessions o treatment claims.",
+    "meditationHistoryUnavailableTitle": "Hindi ma-load ang meditation history",
+    "meditationHistoryEmpty": "Walang meditation session na ibinalik.",
+    "meditationUnavailable": "Hindi available ang practice",
+    "minutes": "minutes",
+    "completed": "Completed",
+    "notCompleted": "Not completed"
   },
   "Settings": {
     "eyebrow": "Mga proteksyon ng account",

@@ -415,7 +415,17 @@
     "moodUnavailable": "Mood unavailable",
     "energy": "Energy",
     "stress": "Stress",
-    "sleepHours": "Sleep hours"
+    "sleepHours": "Sleep hours",
+    "meditationBack": "Back to mental health",
+    "meditationEyebrow": "Mindfulness practice history",
+    "meditationHistoryTitle": "Meditation history",
+    "meditationHistoryNotice": "This read-only view shows recorded mindfulness practice sessions. It does not create sessions or make treatment claims.",
+    "meditationHistoryUnavailableTitle": "Unable to load meditation history",
+    "meditationHistoryEmpty": "No meditation sessions were returned.",
+    "meditationUnavailable": "Practice unavailable",
+    "minutes": "minutes",
+    "completed": "Completed",
+    "notCompleted": "Not completed"
   },
   "Settings": {
     "eyebrow": "Account safeguards",

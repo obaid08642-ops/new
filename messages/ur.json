@@ -415,7 +415,17 @@
     "moodUnavailable": "Mood دستیاب نہیں",
     "energy": "Energy",
     "stress": "Stress",
-    "sleepHours": "Sleep hours"
+    "sleepHours": "Sleep hours",
+    "meditationBack": "ذہنی صحت پر واپس",
+    "meditationEyebrow": "Mindfulness practice history",
+    "meditationHistoryTitle": "Meditation history",
+    "meditationHistoryNotice": "یہ read-only view recorded mindfulness practice sessions دکھاتی ہے۔ یہ sessions نہیں بناتی اور treatment claims نہیں کرتی۔",
+    "meditationHistoryUnavailableTitle": "Meditation history لوڈ نہیں ہو سکی",
+    "meditationHistoryEmpty": "کوئی meditation session واپس نہیں آیا۔",
+    "meditationUnavailable": "Practice دستیاب نہیں",
+    "minutes": "minutes",
+    "completed": "Completed",
+    "notCompleted": "Not completed"
   },
   "Settings": {
     "eyebrow": "اکاؤنٹ تحفظات",

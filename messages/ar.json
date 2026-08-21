@@ -415,7 +415,17 @@
     "moodUnavailable": "المزاج غير متاح",
     "energy": "الطاقة",
     "stress": "التوتر",
-    "sleepHours": "ساعات النوم"
+    "sleepHours": "ساعات النوم",
+    "meditationBack": "العودة إلى الصحة النفسية",
+    "meditationEyebrow": "سجل ممارسات اليقظة الذهنية",
+    "meditationHistoryTitle": "سجل التأمل",
+    "meditationHistoryNotice": "يعرض هذا العرض للقراءة فقط جلسات اليقظة الذهنية المسجلة. لا ينشئ جلسات ولا يقدم ادعاءات علاجية.",
+    "meditationHistoryUnavailableTitle": "تعذر تحميل سجل التأمل",
+    "meditationHistoryEmpty": "لم تُرجع الحساب جلسات تأمل.",
+    "meditationUnavailable": "الممارسة غير متاحة",
+    "minutes": "دقيقة",
+    "completed": "مكتملة",
+    "notCompleted": "غير مكتملة"
   },
   "Settings": {
     "eyebrow": "ضوابط الحساب",
