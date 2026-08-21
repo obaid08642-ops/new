@@ -46,11 +46,11 @@ describe("appointments SSR boundary", () => {
   });
 
   it("renders appointment detail through the server boundary without embedding the access token", async () => {
-    state.getPatientUnifiedConsultation.mockResolvedValue(new Response(JSON.stringify({ id: appointmentId, service_type: "clinic", status: "CONFIRMED", doctor_name: "Verified provider", patient_name: "private-patient", patient_phone: "private-phone", clinical_notes: "private-notes", total_price: 500 }), { status: 200 }));
+    state.getPatientAppointment.mockResolvedValue(new Response(JSON.stringify({ id: appointmentId, service_type: "clinic", status: "CONFIRMED", doctor_name: "Verified provider", patient_name: "private-patient", patient_phone: "private-phone", clinical_notes: "private-notes", total_price: 500 }), { status: 200 }));
 
     const html = renderToStaticMarkup(await AppointmentDetailPage({ params: Promise.resolve({ locale: "en", appointmentId }) }));
 
-    expect(state.getPatientUnifiedConsultation).toHaveBeenCalledWith(serverToken, appointmentId);
+    expect(state.getPatientAppointment).toHaveBeenCalledWith(serverToken, appointmentId);
     expect(html).not.toContain(serverToken);
     expect(html).toContain("Verified provider");
     expect(html).toContain('href="/en/appointments"');
