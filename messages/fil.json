@@ -389,7 +389,14 @@
     "meditationMinutes": "Mindfulness minutes",
     "notAvailable": "Hindi available",
     "unavailableTitle": "Hindi ma-load ang wellbeing",
-    "unavailable": "Walang fallback wellbeing data na ipinakita. Subukan muli mamaya."
+    "unavailable": "Walang fallback wellbeing data na ipinakita. Subukan muli mamaya.",
+    "crisisBack": "Bumalik sa mental health",
+    "crisisEyebrow": "Private crisis contacts",
+    "crisisTitle": "Crisis contacts",
+    "crisisNotice": "Owner-scoped contact metadata lang ang ipinapakita. Masked ang phone numbers at hindi available ang pagtawag, pagdagdag, o pag-delete sa read-only view na ito.",
+    "crisisUnavailableTitle": "Hindi ma-load ang crisis contacts",
+    "crisisEmpty": "Walang crisis contact na ibinalik para sa account na ito.",
+    "contactUnavailable": "Hindi available ang contact name"
   },
   "Settings": {
     "eyebrow": "Mga proteksyon ng account",

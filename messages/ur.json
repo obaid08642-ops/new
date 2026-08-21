@@ -389,7 +389,14 @@
     "meditationMinutes": "ذہن سازی کے منٹ",
     "notAvailable": "دستیاب نہیں",
     "unavailableTitle": "فلاح لوڈ نہیں ہو سکی",
-    "unavailable": "کوئی متبادل فلاحی ڈیٹا نہیں دکھایا گیا۔ دوبارہ کوشش کریں۔"
+    "unavailable": "کوئی متبادل فلاحی ڈیٹا نہیں دکھایا گیا۔ دوبارہ کوشش کریں۔",
+    "crisisBack": "ذہنی صحت پر واپس",
+    "crisisEyebrow": "نجی crisis contacts",
+    "crisisTitle": "Crisis contacts",
+    "crisisNotice": "صرف owner-scoped contact metadata دکھائی جاتی ہے۔ فون masked ہیں اور call، add یا delete دستیاب نہیں۔",
+    "crisisUnavailableTitle": "Crisis contacts لوڈ نہیں ہو سکے",
+    "crisisEmpty": "اس اکاؤنٹ کے لیے کوئی crisis contact واپس نہیں آیا۔",
+    "contactUnavailable": "رابطے کا نام دستیاب نہیں"
   },
   "Settings": {
     "eyebrow": "اکاؤنٹ تحفظات",

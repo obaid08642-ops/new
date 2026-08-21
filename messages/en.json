@@ -389,7 +389,14 @@
     "meditationMinutes": "Mindfulness minutes",
     "notAvailable": "Not available",
     "unavailableTitle": "Unable to load wellbeing",
-    "unavailable": "No fallback wellbeing data was shown. Please retry later."
+    "unavailable": "No fallback wellbeing data was shown. Please retry later.",
+    "crisisBack": "Back to mental health",
+    "crisisEyebrow": "Private crisis contacts",
+    "crisisTitle": "Crisis contacts",
+    "crisisNotice": "Only owner-scoped contact metadata is shown. Phone numbers are masked and calling, adding, or deleting contacts is not available in this read-only view.",
+    "crisisUnavailableTitle": "Unable to load crisis contacts",
+    "crisisEmpty": "No crisis contacts were returned for this account.",
+    "contactUnavailable": "Contact name unavailable"
   },
   "Settings": {
     "eyebrow": "Account safeguards",

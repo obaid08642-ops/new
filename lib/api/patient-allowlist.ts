@@ -22,6 +22,7 @@ const patientReadRoutes = [
   new RegExp("^/insurance/benefits-summary$"),
   new RegExp("^/insurance/claims$"),
   new RegExp("^/mental-health/dashboard$"),
+  new RegExp("^/mental-health/crisis-contacts$"),
   new RegExp("^/users/me/privacy-settings$"),
   new RegExp("^/users/me/security-settings$"),
   new RegExp("^/users/me/storage$"),

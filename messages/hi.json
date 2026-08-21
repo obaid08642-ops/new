@@ -389,7 +389,14 @@
     "meditationMinutes": "माइंडफुलनेस मिनट",
     "notAvailable": "उपलब्ध नहीं",
     "unavailableTitle": "Wellbeing लोड नहीं हो सका",
-    "unavailable": "कोई वैकल्पिक wellbeing डेटा नहीं दिखाया गया। फिर प्रयास करें।"
+    "unavailable": "कोई वैकल्पिक wellbeing डेटा नहीं दिखाया गया। फिर प्रयास करें।",
+    "crisisBack": "Mental health पर वापस",
+    "crisisEyebrow": "Private crisis contacts",
+    "crisisTitle": "Crisis contacts",
+    "crisisNotice": "केवल owner-scoped contact metadata दिखाई जाती है। Phone numbers masked हैं और call, add या delete उपलब्ध नहीं हैं।",
+    "crisisUnavailableTitle": "Crisis contacts लोड नहीं हो सके",
+    "crisisEmpty": "इस account के लिए कोई crisis contact नहीं मिला।",
+    "contactUnavailable": "Contact name उपलब्ध नहीं"
   },
   "Settings": {
     "eyebrow": "खाता सुरक्षा",

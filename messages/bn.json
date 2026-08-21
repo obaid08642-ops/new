@@ -389,7 +389,14 @@
     "meditationMinutes": "মাইন্ডফুলনেস মিনিট",
     "notAvailable": "উপলব্ধ নয়",
     "unavailableTitle": "সুস্থতা লোড করা যায়নি",
-    "unavailable": "কোনো বিকল্প সুস্থতার ডেটা দেখানো হয়নি। পরে আবার চেষ্টা করুন।"
+    "unavailable": "কোনো বিকল্প সুস্থতার ডেটা দেখানো হয়নি। পরে আবার চেষ্টা করুন।",
+    "crisisBack": "মানসিক স্বাস্থ্যে ফিরে যান",
+    "crisisEyebrow": "ব্যক্তিগত crisis contacts",
+    "crisisTitle": "Crisis contacts",
+    "crisisNotice": "শুধু owner-scoped contact metadata দেখানো হয়। ফোন নম্বর masked এবং call, add বা delete অনুপলব্ধ।",
+    "crisisUnavailableTitle": "Crisis contacts লোড করা যায়নি",
+    "crisisEmpty": "এই account-এর জন্য কোনো crisis contact ফেরত আসেনি।",
+    "contactUnavailable": "Contact name অনুপলব্ধ"
   },
   "Settings": {
     "eyebrow": "অ্যাকাউন্ট সুরক্ষা",
