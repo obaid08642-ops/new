@@ -34,6 +34,28 @@ export function extractOrderRows(payload: unknown): PatientOrderSummary[] {
   });
 }
 
+export type PatientOrderTracking = { status?: string; pharmacyName?: string; deliveryMode?: string; etaMinutes?: number; total?: number; currency?: string; updatedAt?: string };
+
+export function extractOrderTracking(payload: unknown): PatientOrderTracking | null {
+  const root = asRecord(payload);
+  const record = asRecord(root?.data) ?? root;
+  if (!record) return null;
+  const delivery = asRecord(record.delivery);
+  const rawEta = delivery?.eta_minutes ?? delivery?.etaMinutes;
+  const rawTotal = record.total ?? asRecord(record.totals)?.total;
+  const etaMinutes = typeof rawEta === "number" && Number.isFinite(rawEta) ? rawEta : undefined;
+  const total = typeof rawTotal === "number" && Number.isFinite(rawTotal) ? rawTotal : undefined;
+  return {
+    status: stringField(record, ["state", "effective_status", "status"]),
+    pharmacyName: stringField(record, ["pharmacy_name", "pharmacyName"]),
+    deliveryMode: stringField(record, ["delivery_mode", "deliveryMode"]),
+    etaMinutes,
+    total,
+    currency: stringField(record, ["currency"]) ?? stringField(asRecord(record.totals) ?? {}, ["currency"]),
+    updatedAt: stringField(record, ["updated_at", "updatedAt"]),
+  };
+}
+
 export function extractOrderDetail(payload: unknown): Record<string, unknown> | null {
   const root = asRecord(payload);
   return asRecord(root?.data) ?? root;

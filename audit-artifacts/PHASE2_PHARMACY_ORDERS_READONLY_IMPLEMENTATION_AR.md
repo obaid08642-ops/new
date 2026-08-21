@@ -6,11 +6,11 @@
 
 تم توسيع `extractOrderRows` بحدود ثابتة إلى `id`, `status/effective_status`, `reference`, `createdAt`, `itemCount`, `total`, و`currency`. لا يقوم parser بإخراج `patient_account_id` أو `delivery_address` أو `patient_notes` أو `prescription_attachments` أو أسماء الأدوية أو أي raw payload غير مصرح.
 
-ثبتت OpenAPI وجود `GET /orders/{id}/tracking`، لذلك أضيف إلى allowlist كـGET فقط تمهيدًا لبناء سطح tracking read-only. لم تُفتح أي POST/PATCH/DELETE في browser.
+ثبتت OpenAPI وجود `GET /orders/{id}/tracking`، فأضيف إلى allowlist كـGET فقط، وبُني له route SSR read-only مرتبط من Order detail. الـparser يعرض status فقط من tracking payload مع حماية token/private payload. لم تُفتح أي POST/PATCH/DELETE في browser.
 
 ## المقارنة مع Mobile
 
-Mobile Order History يستخدم `/orders/mine` ويعرض filters وstatus وdate/items/total، ويفتح order tracking. Mobile tracking يستخدم `GET /orders/{id}/tracking` ويعرض timeline وpharmacy/ETA/delivery mode/total، مع polling كل 30 ثانية. Web أصبح على patient-scoped contract الصحيح للقائمة/detail، والـparser صار يحتفظ بالحقول المالية/التاريخية كبيانات محدودة للمرحلة التالية، لكن واجهة timeline وpolling وchat وreorder ليست مغلقة بعد.
+Mobile Order History يستخدم `/orders/mine` ويعرض filters وstatus وdate/items/total، ويفتح order tracking. Mobile tracking يستخدم `GET /orders/{id}/tracking` ويعرض timeline وpharmacy/ETA/delivery mode/total، مع polling كل 30 ثانية. Web أصبح على patient-scoped contract الصحيح للقائمة/detail، والـparser صار يحتفظ بالحقول المالية/التاريخية كبيانات محدودة، وأصبح tracking route read-only متاحًا من detail. ما زالت timeline التفصيلية وpolling المتكرر وchat وreorder ليست مغلقة بعد.
 
 ## ما بقي مؤجلًا
 

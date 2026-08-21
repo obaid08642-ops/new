@@ -11,6 +11,11 @@ describe("order response guards", () => {
     expect(extractOrderRows({ data: [{ id: "91047ef2-ad36-422a-a184-629693e7c729", status: "DELIVERED", createdAt: "2026-08-20T10:00:00.000Z", items: [{ name_ar: "private medicine" }], totals: { total: 42, currency: "SAR" }, patient_account_id: "private-patient", delivery_address: "private-address", patient_notes: "private-notes", prescription_attachments: ["private-file"] }] })).toEqual([{ id: "91047ef2-ad36-422a-a184-629693e7c729", status: "DELIVERED", reference: undefined, createdAt: "2026-08-20T10:00:00.000Z", itemCount: 1, total: 42, currency: "SAR" }]);
   });
 
+  it("keeps only server-owned tracking fields", async () => {
+    const { extractOrderTracking } = await import("./orders");
+    expect(extractOrderTracking({ data: { state: "OUT_FOR_DELIVERY", pharmacy_name: "Sandbox Pharmacy", delivery_mode: "DELIVERY", delivery: { eta_minutes: 24 }, total: 18, currency: "SAR", updated_at: "2026-08-21T10:00:00.000Z", patient_account_id: "private", delivery_address: "private", patient_notes: "private", prescription_attachments: ["private"] } })).toEqual({ status: "OUT_FOR_DELIVERY", pharmacyName: "Sandbox Pharmacy", deliveryMode: "DELIVERY", etaMinutes: 24, total: 18, currency: "SAR", updatedAt: "2026-08-21T10:00:00.000Z" });
+  });
+
   it("does not invent rows when the upstream response lacks an order array", () => {
     expect(extractOrderRows({ data: { unknown: true } })).toEqual([]);
   });
