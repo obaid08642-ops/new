@@ -10,15 +10,9 @@ import styles from "./settings.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 const items = [
-  ["general", "الإشعارات العامة", "تحديثات عامة ومعلومات مهمة من التطبيق", Bell],
-  ["appointments", "تذكير المواعيد", "تذكيرات قبل المواعيد المحجوزة", CalendarDays],
-  ["orders", "تحديثات الطلبات", "متابعة حالة طلبات الصيدلية والتوصيل", ShoppingBag],
-  ["offers", "عروض وخصومات", "عروض على الخدمات والمنتجات", Tag],
-  ["medications", "تذكير الأدوية", "تنبيهات بمواعيد تناول الأدوية", Pill],
-  ["doctorMessages", "رسائل الأطباء", "رسائل وملاحظات من الأطباء", MessageCircle],
-  ["emergency", "إشعارات الطوارئ", "تنبيهات السلامة والطوارئ الصحية الحرجة", ShieldAlert],
-  ["sound", "الصوت", "تشغيل صوت عند وصول الإشعارات", Volume2],
-  ["vibration", "الاهتزاز", "تفعيل الاهتزاز مع الإشعارات", Vibrate],
+  ["general", Bell], ["appointments", CalendarDays], ["orders", ShoppingBag], ["offers", Tag],
+  ["medications", Pill], ["doctorMessages", MessageCircle], ["emergency", ShieldAlert],
+  ["sound", Volume2], ["vibration", Vibrate],
 ] as const;
 
 export default async function NotificationSettingsPage({ params }: Props) {
@@ -26,6 +20,7 @@ export default async function NotificationSettingsPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Notifications");
+  const settingsT = await getTranslations("NotificationSettings");
   const token = await requirePatientAccess(locale);
   let response: Response;
   try { response = await getPatientNotificationSettings(token); } catch { return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>; }
@@ -33,5 +28,5 @@ export default async function NotificationSettingsPage({ params }: Props) {
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const settings = extractNotificationSettings(await response.json().catch(() => null));
-  return <main className={`main ${styles.page}`}><section className={styles.header}><div><p className={styles.eyebrow}>{t("eyebrow")}</p><h1>إعدادات الإشعارات</h1><p>القيم المعروضة مصدرها إعدادات حسابك الحالية. لا يمكن تعديلها من هذه النسخة قبل إغلاق عقد التحديث الآمن.</p></div><span className={styles.headerIcon}><Bell size={26} aria-hidden="true" /></span></section><section className={styles.list} aria-label="إعدادات الإشعارات">{items.map(([key, label, description, Icon]) => { const locked = key === "emergency"; const value = settings[key as keyof typeof settings]; return <article className={styles.card} key={key}><span className={styles.icon}><Icon size={20} aria-hidden="true" /></span><div className={styles.copy}><strong>{label}</strong><span>{description}</span></div><span className={`${styles.value} ${locked ? styles.locked : ""}`}>{locked ? <><LockKeyhole size={14} aria-hidden="true" /> مطلوب</> : typeof value === "boolean" ? value ? "مفعّل" : "متوقف" : "غير متاح"}</span></article>; })}</section></main>;
+  return <main className={`main ${styles.page}`}><section className={styles.header}><div><p className={styles.eyebrow}>{settingsT("eyebrow")}</p><h1>{settingsT("title")}</h1><p>{settingsT("notice")}</p></div><span className={styles.headerIcon}><Bell size={26} aria-hidden="true" /></span></section><section className={styles.list} aria-label={settingsT("title")}>{items.map(([key, Icon]) => { const locked = key === "emergency"; const value = settings[key as keyof typeof settings]; return <article className={styles.card} key={key}><span className={styles.icon}><Icon size={20} aria-hidden="true" /></span><div className={styles.copy}><strong>{settingsT(`labels.${key}`)}</strong><span>{settingsT(`descriptions.${key}`)}</span></div><span className={`${styles.value} ${locked ? styles.locked : ""}`}>{locked ? <><LockKeyhole size={14} aria-hidden="true" /> {settingsT("required")}</> : typeof value === "boolean" ? value ? settingsT("enabled") : settingsT("disabled") : settingsT("notAvailable")}</span></article>; })}</section></main>;
 }

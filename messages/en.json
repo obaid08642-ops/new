@@ -396,5 +396,36 @@
     "notAvailable": "Not available",
     "unavailableTitle": "Unable to load settings",
     "unavailable": "No fallback settings data was shown."
+  },
+  "NotificationSettings": {
+    "eyebrow": "Notification controls",
+    "title": "Notification settings",
+    "notice": "These values come from your current account settings. This page is read-only until secure update contracts are closed.",
+    "required": "Required",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "notAvailable": "Not available",
+    "labels": {
+      "general": "General notifications",
+      "appointments": "Appointment reminders",
+      "orders": "Order updates",
+      "offers": "Offers and discounts",
+      "medications": "Medication reminders",
+      "doctorMessages": "Doctor messages",
+      "emergency": "Emergency notifications",
+      "sound": "Sound",
+      "vibration": "Vibration"
+    },
+    "descriptions": {
+      "general": "General updates and important information",
+      "appointments": "Reminders for booked appointments",
+      "orders": "Pharmacy and delivery status updates",
+      "offers": "Offers on services and products",
+      "medications": "Alerts for medication times",
+      "doctorMessages": "Messages and notes from doctors",
+      "emergency": "Critical safety and health emergency alerts",
+      "sound": "Play a sound when notifications arrive",
+      "vibration": "Vibrate with notifications"
+    }
   }
 }

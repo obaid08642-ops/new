@@ -396,5 +396,36 @@
     "notAvailable": "Hindi available",
     "unavailableTitle": "Hindi ma-load ang settings",
     "unavailable": "Walang fallback settings data na ipinakita."
+  },
+  "NotificationSettings": {
+    "eyebrow": "Mga kontrol ng notification",
+    "title": "Mga setting ng notification",
+    "notice": "Mula sa kasalukuyang account settings mo ang mga value na ito. Read-only ang page hanggang makumpleto ang secure update contracts.",
+    "required": "Kailangan",
+    "enabled": "Naka-enable",
+    "disabled": "Naka-disable",
+    "notAvailable": "Hindi available",
+    "labels": {
+      "general": "General notifications",
+      "appointments": "Appointment reminders",
+      "orders": "Order updates",
+      "offers": "Offers at discounts",
+      "medications": "Medication reminders",
+      "doctorMessages": "Mga mensahe ng doktor",
+      "emergency": "Emergency notifications",
+      "sound": "Tunog",
+      "vibration": "Vibration"
+    },
+    "descriptions": {
+      "general": "Mga pangkalahatang update at mahalagang impormasyon",
+      "appointments": "Mga paalala para sa booked appointments",
+      "orders": "Mga update sa status ng pharmacy at delivery",
+      "offers": "Mga offer sa serbisyo at produkto",
+      "medications": "Mga alert sa oras ng gamot",
+      "doctorMessages": "Mga mensahe at tala mula sa mga doktor",
+      "emergency": "Kritikal na safety at health emergency alerts",
+      "sound": "Magpatugtog ng tunog sa pagdating ng notification",
+      "vibration": "Mag-vibrate kasama ng notification"
+    }
   }
 }
