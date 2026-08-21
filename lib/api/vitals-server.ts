@@ -4,3 +4,7 @@ import { callPatientApi } from "@/lib/api/upstream";
 export function getPatientVitalSummary(accessToken: string) {
   return callPatientApi("/health/vitals/summary", {}, accessToken);
 }
+
+export function getPatientHealthScore(accessToken: string) {
+  return callPatientApi("/health/score", {}, accessToken);
+}
