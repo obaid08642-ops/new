@@ -35,3 +35,14 @@ The Arabic and English API responses identify both records as Altibbi consultati
 ## Corrective rule discovered
 
 The taxonomy needs a distinct `service` or `non_catalog_service` product kind, with a publication policy separate from retail products. `purchasable=false` and an empty category array are strong exclusion signals for the static retail catalog, but they are not by themselves medical approval or SEO approval.
+
+### 100434 and 101830
+
+The API evidence shows that both records are ordinary skincare products despite their legacy category being `العروض`.
+
+- `100434` is Cetaphil moisturising cream for face and body, 100 g. The Arabic and English APIs place it under creams and lotions in skincare, expose brand and structured skincare features, and show a time-limited 45% promotion. The promotion is a dynamic offer, not the product taxonomy; the product should map to skincare while the promotion belongs in a separate offer layer.
+- `101830` is QV cream for all skin types, 100 g. The Arabic and English APIs place it under creams and lotions in skincare, expose ingredients and skincare features, and show a time-limited 40% promotion. Again, the promotion must not determine the primary taxonomy.
+
+## Corrective taxonomy rule
+
+Legacy `العروض` is not a product category. The product identity and canonical category must be resolved independently, while promotion data is stored in a time-sensitive offer layer. These two records provide direct evidence that an `offers` legacy value should not automatically reject the underlying product from the catalog; it should reject only the offer label from taxonomy and trigger product-level reclassification.
