@@ -34,6 +34,10 @@ export default async function OrderTrackingPage({ params }: Props) {
       <dl className={styles.grid}>
         <div className={styles.item}><dt>{t("status")}</dt><dd>{status}</dd></div>
         <div className={styles.item}><dt><Hash size={15} aria-hidden="true" />{t("secureId")}</dt><dd>{orderId}</dd></div>
+        {tracking.pharmacyName ? <div className={styles.item}><dt>{t("pharmacy")}</dt><dd>{tracking.pharmacyName}</dd></div> : null}
+        {tracking.deliveryMode ? <div className={styles.item}><dt>{t("deliveryMode")}</dt><dd>{tracking.deliveryMode === "PICKUP" ? t("pickup") : t("delivery")}</dd></div> : null}
+        {tracking.etaMinutes !== undefined ? <div className={styles.item}><dt>{t("eta", { value: tracking.etaMinutes })}</dt><dd>{tracking.updatedAt || t("notAvailable")}</dd></div> : null}
+        {tracking.total !== undefined ? <div className={styles.item}><dt>{t("total")}</dt><dd>{tracking.total} {tracking.currency || ""}</dd></div> : null}
       </dl>
       <p className={styles.notice}>{t("detailNotice")}</p>
     </section>
