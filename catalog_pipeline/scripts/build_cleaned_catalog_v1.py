@@ -86,6 +86,7 @@ def content_for_locale(canonical_locale: dict, raw_fields: dict, counters: Count
         counters["empty_description"] += 1
     content = {
         "description": desc or None,
+        "more_information": more or None,
         "indications": clean_list(raw_fields.get("indications")) or clean_list(canonical_locale.get("content", {}).get("indications")),
         "dosage": first_nonempty(raw_fields.get("dosage"), canonical_locale.get("content", {}).get("dosage")),
         "warnings": clean_list(raw_fields.get("warnings")) or clean_list(canonical_locale.get("content", {}).get("warnings")),

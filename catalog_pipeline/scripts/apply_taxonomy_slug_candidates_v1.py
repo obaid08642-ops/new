@@ -8,9 +8,16 @@ TAX=ROOT/'data/internal/taxonomy_candidates.jsonl'; SLUG=ROOT/'data/internal/slu
 def load(path):
     with path.open(encoding='utf-8') as f:return {str(x['record_id']):x for line in f if line.strip() for x in [json.loads(line)]}
 def main():
-    tax=load(TAX); slugs=load(SLUG); total=tax_attached=slug_attached=0; conflicts=0; out_ids=[]
-    OUT.parent.mkdir(parents=True,exist_ok=True)
-    with gzip.open(IN,'rt',encoding='utf-8') as src,gzip.open(OUT,'wt',encoding='utf-8',compresslevel=9) as dst:
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--input',type=Path,default=IN)
+    parser.add_argument('--taxonomy-candidates',type=Path,default=TAX)
+    parser.add_argument('--slug-candidates',type=Path,default=SLUG)
+    parser.add_argument('--output',type=Path,default=OUT)
+    parser.add_argument('--report',type=Path,default=REPORT)
+    args=parser.parse_args()
+    tax=load(args.taxonomy_candidates); slugs=load(args.slug_candidates); total=tax_attached=slug_attached=0; conflicts=0; out_ids=[]
+    args.output.parent.mkdir(parents=True,exist_ok=True)
+    with gzip.open(args.input,'rt',encoding='utf-8') as src,gzip.open(args.output,'wt',encoding='utf-8',compresslevel=9) as dst:
         for line in src:
             if not line.strip():continue
             row=json.loads(line); rid=str(row.get('id')); meta=row.setdefault('cleaning_metadata',{}); review=meta.setdefault('review_queue',[])
@@ -21,6 +28,6 @@ def main():
             if row.get('governance'):
                 row['governance'].update({'public_eligibility':False,'indexing_eligibility':False,'approval_state':'needs_review'})
             dst.write(json.dumps(row,ensure_ascii=False,separators=(',',':'))+'\n'); total+=1; out_ids.append(rid)
-    result={'records':total,'taxonomy_candidates_attached':tax_attached,'slug_candidates_attached':slug_attached,'final_slugs_written':0,'taxonomy_approved':0,'publication_ready':False,'output':str(OUT)}
-    REPORT.parent.mkdir(parents=True,exist_ok=True); REPORT.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8'); print(json.dumps(result,ensure_ascii=False,indent=2))
+    result={'records':total,'taxonomy_candidates_attached':tax_attached,'slug_candidates_attached':slug_attached,'final_slugs_written':0,'taxonomy_approved':0,'publication_ready':False,'output':str(args.output)}
+    args.report.parent.mkdir(parents=True,exist_ok=True); args.report.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8'); print(json.dumps(result,ensure_ascii=False,indent=2))
 if __name__=='__main__':main()

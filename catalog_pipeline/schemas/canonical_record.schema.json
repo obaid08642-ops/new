@@ -106,9 +106,10 @@
         "content": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["description", "indications", "dosage", "warnings", "storage_conditions"],
+          "required": ["description", "more_information", "indications", "dosage", "warnings", "storage_conditions"],
           "properties": {
             "description": {"type": ["string", "null"]},
+            "more_information": {"type": ["string", "null"]},
             "indications": {"type": "array", "items": {"type": "string"}},
             "dosage": {"type": ["string", "null"]},
             "warnings": {"type": "array", "items": {"type": "string"}},
