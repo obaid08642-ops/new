@@ -13,6 +13,7 @@ const patientReadRoutes = [
   new RegExp("^/health/reports$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
+  new RegExp("^/mental-health/dashboard$"),
 ];
 
 export function isAllowedPatientApiPath(path: string) {

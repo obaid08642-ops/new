@@ -350,5 +350,19 @@
     "plan": "Plan",
     "unavailableTitle": "Hindi ma-load ang insurance",
     "unavailable": "Walang fallback insurance data na ipinakita. Subukan muli mamaya."
+  },
+  "MentalHealth": {
+    "eyebrow": "Pribadong wellbeing",
+    "title": "Wellbeing dashboard",
+    "notice": "Descriptive self-reported statistics lamang ito, hindi diagnosis, risk score o treatment recommendation.",
+    "moodEntries": "Mood entries",
+    "avgMood": "Average mood",
+    "avgEnergy": "Average energy",
+    "avgStress": "Average stress",
+    "meditationSessions": "Mindfulness sessions",
+    "meditationMinutes": "Mindfulness minutes",
+    "notAvailable": "Hindi available",
+    "unavailableTitle": "Hindi ma-load ang wellbeing",
+    "unavailable": "Walang fallback wellbeing data na ipinakita. Subukan muli mamaya."
   }
 }

@@ -350,5 +350,19 @@
     "plan": "Plan",
     "unavailableTitle": "Unable to load insurance",
     "unavailable": "No fallback insurance data was shown. Please retry later."
+  },
+  "MentalHealth": {
+    "eyebrow": "Private wellbeing",
+    "title": "Wellbeing dashboard",
+    "notice": "These descriptive self-reported statistics are not a diagnosis, risk score, or treatment recommendation.",
+    "moodEntries": "Mood entries",
+    "avgMood": "Average mood",
+    "avgEnergy": "Average energy",
+    "avgStress": "Average stress",
+    "meditationSessions": "Mindfulness sessions",
+    "meditationMinutes": "Mindfulness minutes",
+    "notAvailable": "Not available",
+    "unavailableTitle": "Unable to load wellbeing",
+    "unavailable": "No fallback wellbeing data was shown. Please retry later."
   }
 }

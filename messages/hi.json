@@ -350,5 +350,19 @@
     "plan": "प्लान",
     "unavailableTitle": "बीमा लोड नहीं हो सका",
     "unavailable": "कोई वैकल्पिक बीमा डेटा नहीं दिखाया गया। फिर प्रयास करें।"
+  },
+  "MentalHealth": {
+    "eyebrow": "निजी wellbeing",
+    "title": "Wellbeing डैशबोर्ड",
+    "notice": "ये वर्णनात्मक स्वयं-रिपोर्ट किए गए आँकड़े हैं, निदान, जोखिम स्कोर या उपचार की सलाह नहीं।",
+    "moodEntries": "मूड प्रविष्टियाँ",
+    "avgMood": "औसत मूड",
+    "avgEnergy": "औसत ऊर्जा",
+    "avgStress": "औसत तनाव",
+    "meditationSessions": "माइंडफुलनेस सत्र",
+    "meditationMinutes": "माइंडफुलनेस मिनट",
+    "notAvailable": "उपलब्ध नहीं",
+    "unavailableTitle": "Wellbeing लोड नहीं हो सका",
+    "unavailable": "कोई वैकल्पिक wellbeing डेटा नहीं दिखाया गया। फिर प्रयास करें।"
   }
 }

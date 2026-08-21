@@ -1,0 +1,10 @@
+import { notFound, redirect } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { HeartPulse, ShieldCheck } from "lucide-react";
+import { getPatientWellbeingDashboard } from "@/lib/api/mental-health-server";
+import { parseWellbeingDashboard } from "@/lib/api/mental-health";
+import { requirePatientAccess } from "@/lib/auth/session";
+import { isLocale } from "@/lib/i18n";
+import styles from "./mental-health.module.css";
+type Props={params:Promise<{locale:string}>};
+export default async function MentalHealthPage({params}:Props){const {locale}=await params;if(!isLocale(locale))notFound();setRequestLocale(locale);const t=await getTranslations("MentalHealth");const token=await requirePatientAccess(locale);const response=await getPatientWellbeingDashboard(token);if(response.status===401)redirect(`/${locale}/login`);if(response.status===403||response.status===404)notFound();if(!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section></main>;const data=parseWellbeingDashboard(await response.json().catch(()=>null));if(!data)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section></main>;const cards=[ [t("moodEntries"),data.mood.totalEntries],[t("avgMood"),data.mood.avgMood??t("notAvailable")],[t("avgEnergy"),data.mood.avgEnergy??t("notAvailable")],[t("avgStress"),data.mood.avgStress??t("notAvailable")],[t("meditationSessions"),data.meditation.totalSessions],[t("meditationMinutes"),data.meditation.totalMinutes] ];return <main className="main"><section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("notice")}</p></section><section className={styles.grid}>{cards.map(([label,value])=><div className={styles.card} key={String(label)}><span>{label}</span><strong>{value}</strong></div>)}</section></main>;}
