@@ -25,6 +25,11 @@
       "id": "unknown",
       "labels": {"ar-SA": "غير مصنف", "en": "Unknown"},
       "definition": "لا يسمح بتحويله تلقائياً إلى دواء أو غير دواء بلا دليل أو قاعدة معتمدة."
+    },
+    {
+      "id": "service",
+      "labels": {"ar-SA": "خدمة", "en": "Service"},
+      "definition": "خدمة أو منتج نظامي غير قابل للبيع كمنتج تجزئة ثابت، مثل الاستشارة الطبية؛ يعالج في نطاق خدمات منفصل."
     }
   ],
   "categories": [
@@ -91,6 +96,9 @@
     "العناية الشخصية": "personal-care-hygiene_candidate",
     "الأم والطفل": "mother-baby_candidate",
     "الأجهزة الطبية": "medical-devices_candidate",
-    "العروض": "reject_from_taxonomy"
+    "العروض": "reject_from_taxonomy",
+    "منتج استشارة الطبي": "service_candidate",
+    "Altibbi INstant Consultation Product": "service_candidate",
+    "Altibbi GLP Consultation Product": "service_candidate"
   }
 }

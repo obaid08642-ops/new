@@ -61,7 +61,7 @@ def main() -> None:
     if "oral-dental-care" not in category_ids:
         errors.append("Taxonomy is missing the approved tenth oral-dental-care category")
     valid_kinds = {kind["id"] for kind in taxonomy["product_kinds"]}
-    if valid_kinds != {"medicine", "non_medicine", "unknown"}:
+    if valid_kinds != {"medicine", "non_medicine", "unknown", "service"}:
         errors.append("product_kind contract is incomplete")
     for category in categories:
         if not set(category["allowed_product_kinds"]).issubset(valid_kinds):

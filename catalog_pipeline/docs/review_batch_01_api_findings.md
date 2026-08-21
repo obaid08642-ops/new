@@ -27,3 +27,11 @@ The Arabic and English API responses identify Amistop domperidone suspension, 20
 ## Additional decision
 
 The sample confirms that the raw legacy category `أدوية ومكملات` can contain clear medicines such as aripiprazole, acetylcysteine, and captopril, while `الأم والطفل` can also contain medicines. Therefore, category alone must not determine `product_kind`; identity, dosage form, active ingredient, prescription state, and authoritative evidence need a separate review rule.
+
+### 1000228 and 1000229
+
+The Arabic and English API responses identify both records as Altibbi consultation products, not medicines or ordinary retail offers. Both have empty category arrays, `purchasable: false`, and no price value. Record 1000228 is an instant consultation product (`altibbiType: NORMAL`); record 1000229 is a GLP consultation product (`altibbiType: GLP`). These records should be separated into a service/non-catalog domain and must not be forced into the product taxonomy or medicine catalog. Their legacy placement under `تجميل وعناية` is therefore a classification/data-quality issue, not evidence that they are bath/body products.
+
+## Corrective rule discovered
+
+The taxonomy needs a distinct `service` or `non_catalog_service` product kind, with a publication policy separate from retail products. `purchasable=false` and an empty category array are strong exclusion signals for the static retail catalog, but they are not by themselves medical approval or SEO approval.
