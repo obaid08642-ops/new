@@ -405,7 +405,17 @@
     "breathingEmpty": "কোনো breathing session ফেরত আসেনি।",
     "techniqueUnavailable": "Technique অনুপলব্ধ",
     "rounds": "Rounds",
-    "durationSeconds": "Duration seconds"
+    "durationSeconds": "Duration seconds",
+    "moodBack": "মানসিক স্বাস্থ্যে ফিরে যান",
+    "moodEyebrow": "নিজে রিপোর্ট করা mood history",
+    "moodHistoryTitle": "Mood history",
+    "moodHistoryNotice": "এই read-only view গত ৩০ দিনের self-reported mood entries দেখায়। Notes, tags, journaling বা diagnosis দেখানো বা তৈরি করা হয় না।",
+    "moodHistoryUnavailableTitle": "Mood history লোড করা যায়নি",
+    "moodHistoryEmpty": "কোনো mood entry ফেরত আসেনি।",
+    "moodUnavailable": "Mood অনুপলব্ধ",
+    "energy": "Energy",
+    "stress": "Stress",
+    "sleepHours": "Sleep hours"
   },
   "Settings": {
     "eyebrow": "অ্যাকাউন্ট সুরক্ষা",

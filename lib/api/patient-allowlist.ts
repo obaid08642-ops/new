@@ -24,6 +24,7 @@ const patientReadRoutes = [
   new RegExp("^/mental-health/dashboard$"),
   new RegExp("^/mental-health/crisis-contacts$"),
   new RegExp("^/mental-health/breathing$"),
+  new RegExp("^/mental-health/mood\\?days=30$"),
   new RegExp("^/users/me/privacy-settings$"),
   new RegExp("^/users/me/security-settings$"),
   new RegExp("^/users/me/storage$"),

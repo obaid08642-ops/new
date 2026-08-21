@@ -405,7 +405,17 @@
     "breathingEmpty": "No breathing sessions were returned.",
     "techniqueUnavailable": "Technique unavailable",
     "rounds": "Rounds",
-    "durationSeconds": "Duration in seconds"
+    "durationSeconds": "Duration in seconds",
+    "moodBack": "Back to mental health",
+    "moodEyebrow": "Self-reported mood history",
+    "moodHistoryTitle": "Mood history",
+    "moodHistoryNotice": "This read-only view shows self-reported mood entries for the last 30 days. Notes, tags, journaling, and diagnosis are not shown or generated.",
+    "moodHistoryUnavailableTitle": "Unable to load mood history",
+    "moodHistoryEmpty": "No mood entries were returned.",
+    "moodUnavailable": "Mood unavailable",
+    "energy": "Energy",
+    "stress": "Stress",
+    "sleepHours": "Sleep hours"
   },
   "Settings": {
     "eyebrow": "Account safeguards",

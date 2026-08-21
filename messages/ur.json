@@ -405,7 +405,17 @@
     "breathingEmpty": "کوئی breathing session واپس نہیں آئی۔",
     "techniqueUnavailable": "Technique دستیاب نہیں",
     "rounds": "Rounds",
-    "durationSeconds": "Duration seconds میں"
+    "durationSeconds": "Duration seconds میں",
+    "moodBack": "ذہنی صحت پر واپس",
+    "moodEyebrow": "خود رپورٹ کردہ mood history",
+    "moodHistoryTitle": "Mood history",
+    "moodHistoryNotice": "یہ read-only view گزشتہ 30 دن کی self-reported mood entries دکھاتی ہے۔ Notes، tags، journaling یا diagnosis نہیں دکھائے یا بنائے جاتے۔",
+    "moodHistoryUnavailableTitle": "Mood history لوڈ نہیں ہو سکی",
+    "moodHistoryEmpty": "کوئی mood entry واپس نہیں آئی۔",
+    "moodUnavailable": "Mood دستیاب نہیں",
+    "energy": "Energy",
+    "stress": "Stress",
+    "sleepHours": "Sleep hours"
   },
   "Settings": {
     "eyebrow": "اکاؤنٹ تحفظات",

@@ -405,7 +405,17 @@
     "breathingEmpty": "कोई breathing session नहीं लौटा।",
     "techniqueUnavailable": "Technique उपलब्ध नहीं",
     "rounds": "Rounds",
-    "durationSeconds": "Duration seconds में"
+    "durationSeconds": "Duration seconds में",
+    "moodBack": "Mental health पर वापस",
+    "moodEyebrow": "Self-reported mood history",
+    "moodHistoryTitle": "Mood history",
+    "moodHistoryNotice": "यह read-only view पिछले 30 दिनों की self-reported mood entries दिखाती है। Notes, tags, journaling या diagnosis नहीं दिखाए या बनाए जाते।",
+    "moodHistoryUnavailableTitle": "Mood history लोड नहीं हो सकी",
+    "moodHistoryEmpty": "कोई mood entry नहीं लौटी।",
+    "moodUnavailable": "Mood उपलब्ध नहीं",
+    "energy": "Energy",
+    "stress": "Stress",
+    "sleepHours": "Sleep hours"
   },
   "Settings": {
     "eyebrow": "खाता सुरक्षा",

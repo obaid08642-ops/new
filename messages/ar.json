@@ -405,7 +405,17 @@
     "breathingEmpty": "لم تُرجع الحساب جلسات تنفس.",
     "techniqueUnavailable": "التقنية غير متاحة",
     "rounds": "الجولات",
-    "durationSeconds": "المدة بالثواني"
+    "durationSeconds": "المدة بالثواني",
+    "moodBack": "العودة إلى الصحة النفسية",
+    "moodEyebrow": "سجل مزاج مُبلّغ عنه ذاتيًا",
+    "moodHistoryTitle": "سجل المزاج",
+    "moodHistoryNotice": "يعرض هذا العرض للقراءة فقط إدخالات المزاج المبلّغ عنها ذاتيًا خلال آخر 30 يومًا. لا تُعرض الملاحظات أو الوسوم أو اليوميات ولا يتم توليد تشخيص.",
+    "moodHistoryUnavailableTitle": "تعذر تحميل سجل المزاج",
+    "moodHistoryEmpty": "لم تُرجع الحساب إدخالات مزاج.",
+    "moodUnavailable": "المزاج غير متاح",
+    "energy": "الطاقة",
+    "stress": "التوتر",
+    "sleepHours": "ساعات النوم"
   },
   "Settings": {
     "eyebrow": "ضوابط الحساب",

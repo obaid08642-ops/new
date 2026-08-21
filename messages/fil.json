@@ -405,7 +405,17 @@
     "breathingEmpty": "Walang breathing session na ibinalik.",
     "techniqueUnavailable": "Hindi available ang technique",
     "rounds": "Rounds",
-    "durationSeconds": "Duration in seconds"
+    "durationSeconds": "Duration in seconds",
+    "moodBack": "Bumalik sa mental health",
+    "moodEyebrow": "Self-reported mood history",
+    "moodHistoryTitle": "Mood history",
+    "moodHistoryNotice": "Read-only view ito ng self-reported mood entries sa nakaraang 30 araw. Hindi ipinapakita o ginagawa ang notes, tags, journaling, o diagnosis.",
+    "moodHistoryUnavailableTitle": "Hindi ma-load ang mood history",
+    "moodHistoryEmpty": "Walang mood entry na ibinalik.",
+    "moodUnavailable": "Hindi available ang mood",
+    "energy": "Energy",
+    "stress": "Stress",
+    "sleepHours": "Sleep hours"
   },
   "Settings": {
     "eyebrow": "Mga proteksyon ng account",
