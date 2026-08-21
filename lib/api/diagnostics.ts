@@ -13,6 +13,7 @@ export type DiagnosticBooking = {
   scanNameAr?: string;
   scanNameEn?: string;
   medicalReferralRequired?: boolean;
+  hasReport?: boolean;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -46,6 +47,7 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
     scanNameAr: text(record, ["scan_name_ar"]),
     scanNameEn: text(record, ["scan_name_en"]),
     medicalReferralRequired: typeof record.medical_referral_required === "boolean" ? record.medical_referral_required : undefined,
+    hasReport: (Array.isArray(record.reports) && record.reports.length > 0) || (typeof record.signed_report_pdf_url === "string" && record.signed_report_pdf_url.trim().length > 0),
   };
 }
 

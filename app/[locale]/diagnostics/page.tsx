@@ -38,7 +38,7 @@ export default async function DiagnosticsPage({ params }: Props) {
           <span className={styles.cardBody}>
             <strong className={styles.name}>{domain === "labs" ? t("labs.label") : locale === "ar" ? booking.scanNameAr || t("radiology.label") : booking.scanNameEn || booking.scanNameAr || t("radiology.label")}</strong>
             <span className={styles.status}>{booking.state || t("statusUnavailable")}</span>
-            {booking.scheduledAt ? <span className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.scheduledAt))}</span> : null}
+            {booking.scheduledAt ? <span className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(booking.scheduledAt))}</span> : null}{booking.hasReport ? <span className={styles.status}>{t("reportReady")}</span> : null}
           </span>
           <span className={styles.open}>{t("open")}<ArrowUpLeft size={15} aria-hidden="true" /></span>
         </Link>)}</div>}

@@ -159,7 +159,8 @@
     "radiology": {
       "title": "حجوزات الأشعة",
       "label": "حجز أشعة"
-    }
+    },
+    "reportReady": "التقرير جاهز"
   },
   "HomeCare": {
     "eyebrow": "رعاية منزلية خاصة",

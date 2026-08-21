@@ -204,7 +204,8 @@
     "radiology": {
       "title": "Mga booking sa radiology",
       "label": "Booking sa radiology"
-    }
+    },
+    "reportReady": "Handa na ang report"
   },
   "HomeCare": {
     "eyebrow": "Pribadong pangangalaga sa bahay",
