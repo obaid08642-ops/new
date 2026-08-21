@@ -34,7 +34,7 @@ export default async function ProfilePage({ params }: Props) {
   const [identity, medical, insurance] = await Promise.all([
     resolveDomain(profileResponse, ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]),
     resolveDomain(medicalResponse, ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]),
-    resolveDomain(insuranceResponse, ["providerName", "companyName", "policyNumber", "memberId", "status"])
+    resolveDomain(insuranceResponse, ["providerName", "companyName", "status"])
   ]);
   const domains: Domain[] = [{ title: t("identity"), ...identity, kind: "identity" }, { title: t("medical"), ...medical, kind: "medical" }, { title: t("insurance"), ...insurance, kind: "insurance" }];
   const stateMessage = (state: ProfileDomainState) => state === "empty" ? t("empty") : state === "forbidden" ? t("forbidden") : t("unavailable");

@@ -52,7 +52,7 @@ describeSandbox("Sandbox profile contracts", () => {
     const domains = [
       ["/users/me/profile", ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]],
       ["/medical-profile", ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]],
-      ["/users/me/insurance", ["providerName", "companyName", "policyNumber", "memberId", "status"]]
+      ["/users/me/insurance", ["providerName", "companyName", "status"]]
     ] as const;
 
     for (const [path, allowedKeys] of domains) {
@@ -81,7 +81,7 @@ describeSandbox("Sandbox profile contracts", () => {
     expect(medicalFields.length, "Sandbox medical profile must expose at least one allowlisted display field").toBeGreaterThan(0);
     expect(profileDomainState(medicalResponse.status, medicalFields.length)).toBe("available");
 
-    for (const [path, acceptedKeys] of [["/users/me/profile", ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]], ["/users/me/insurance", ["providerName", "companyName", "policyNumber", "memberId", "status"]]] as const) {
+    for (const [path, acceptedKeys] of [["/users/me/profile", ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]], ["/users/me/insurance", ["providerName", "companyName", "status"]]] as const) {
       const response = await fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } });
       expect(response.ok).toBe(true);
       const fields = readProfileFields(extractRecord(await response.json().catch(() => null)), [...acceptedKeys]);
