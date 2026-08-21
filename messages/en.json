@@ -396,7 +396,16 @@
     "crisisNotice": "Only owner-scoped contact metadata is shown. Phone numbers are masked and calling, adding, or deleting contacts is not available in this read-only view.",
     "crisisUnavailableTitle": "Unable to load crisis contacts",
     "crisisEmpty": "No crisis contacts were returned for this account.",
-    "contactUnavailable": "Contact name unavailable"
+    "contactUnavailable": "Contact name unavailable",
+    "breathingBack": "Back to mental health",
+    "breathingEyebrow": "Recorded breathing sessions",
+    "breathingTitle": "Breathing history",
+    "breathingNotice": "This read-only view shows sessions returned by the authorized backend. Starting or logging a new session is not available here.",
+    "breathingUnavailableTitle": "Unable to load breathing history",
+    "breathingEmpty": "No breathing sessions were returned.",
+    "techniqueUnavailable": "Technique unavailable",
+    "rounds": "Rounds",
+    "durationSeconds": "Duration in seconds"
   },
   "Settings": {
     "eyebrow": "Account safeguards",

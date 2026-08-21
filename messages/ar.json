@@ -396,7 +396,16 @@
     "crisisNotice": "تُعرض بيانات جهات الاتصال المملوكة للحساب فقط. أرقام الهاتف مقنعة، والاتصال أو الإضافة أو الحذف غير متاح في هذا العرض للقراءة فقط.",
     "crisisUnavailableTitle": "تعذر تحميل جهات اتصال الأزمات",
     "crisisEmpty": "لم تُرجع الحساب جهة اتصال للأزمات.",
-    "contactUnavailable": "اسم جهة الاتصال غير متاح"
+    "contactUnavailable": "اسم جهة الاتصال غير متاح",
+    "breathingBack": "العودة إلى الصحة النفسية",
+    "breathingEyebrow": "جلسات تنفس مسجلة",
+    "breathingTitle": "سجل التنفس",
+    "breathingNotice": "يعرض هذا العرض للقراءة فقط الجلسات التي أعادها الخادم المصرح به. بدء جلسة أو تسجيل جلسة جديدة غير متاح هنا.",
+    "breathingUnavailableTitle": "تعذر تحميل سجل التنفس",
+    "breathingEmpty": "لم تُرجع الحساب جلسات تنفس.",
+    "techniqueUnavailable": "التقنية غير متاحة",
+    "rounds": "الجولات",
+    "durationSeconds": "المدة بالثواني"
   },
   "Settings": {
     "eyebrow": "ضوابط الحساب",

@@ -396,7 +396,16 @@
     "crisisNotice": "صرف owner-scoped contact metadata دکھائی جاتی ہے۔ فون masked ہیں اور call، add یا delete دستیاب نہیں۔",
     "crisisUnavailableTitle": "Crisis contacts لوڈ نہیں ہو سکے",
     "crisisEmpty": "اس اکاؤنٹ کے لیے کوئی crisis contact واپس نہیں آیا۔",
-    "contactUnavailable": "رابطے کا نام دستیاب نہیں"
+    "contactUnavailable": "رابطے کا نام دستیاب نہیں",
+    "breathingBack": "ذہنی صحت پر واپس",
+    "breathingEyebrow": "درج شدہ breathing sessions",
+    "breathingTitle": "Breathing history",
+    "breathingNotice": "یہ read-only view authorized backend سے واپس آنے والی sessions دکھاتی ہے۔ نئی session شروع یا log کرنا دستیاب نہیں۔",
+    "breathingUnavailableTitle": "Breathing history لوڈ نہیں ہو سکی",
+    "breathingEmpty": "کوئی breathing session واپس نہیں آئی۔",
+    "techniqueUnavailable": "Technique دستیاب نہیں",
+    "rounds": "Rounds",
+    "durationSeconds": "Duration seconds میں"
   },
   "Settings": {
     "eyebrow": "اکاؤنٹ تحفظات",

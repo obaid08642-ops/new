@@ -396,7 +396,16 @@
     "crisisNotice": "Owner-scoped contact metadata lang ang ipinapakita. Masked ang phone numbers at hindi available ang pagtawag, pagdagdag, o pag-delete sa read-only view na ito.",
     "crisisUnavailableTitle": "Hindi ma-load ang crisis contacts",
     "crisisEmpty": "Walang crisis contact na ibinalik para sa account na ito.",
-    "contactUnavailable": "Hindi available ang contact name"
+    "contactUnavailable": "Hindi available ang contact name",
+    "breathingBack": "Bumalik sa mental health",
+    "breathingEyebrow": "Recorded breathing sessions",
+    "breathingTitle": "Breathing history",
+    "breathingNotice": "Read-only view lang ito ng sessions mula sa authorized backend. Hindi available ang pagsisimula o pag-log ng bagong session.",
+    "breathingUnavailableTitle": "Hindi ma-load ang breathing history",
+    "breathingEmpty": "Walang breathing session na ibinalik.",
+    "techniqueUnavailable": "Hindi available ang technique",
+    "rounds": "Rounds",
+    "durationSeconds": "Duration in seconds"
   },
   "Settings": {
     "eyebrow": "Mga proteksyon ng account",

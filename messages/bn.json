@@ -396,7 +396,16 @@
     "crisisNotice": "শুধু owner-scoped contact metadata দেখানো হয়। ফোন নম্বর masked এবং call, add বা delete অনুপলব্ধ।",
     "crisisUnavailableTitle": "Crisis contacts লোড করা যায়নি",
     "crisisEmpty": "এই account-এর জন্য কোনো crisis contact ফেরত আসেনি।",
-    "contactUnavailable": "Contact name অনুপলব্ধ"
+    "contactUnavailable": "Contact name অনুপলব্ধ",
+    "breathingBack": "মানসিক স্বাস্থ্যে ফিরে যান",
+    "breathingEyebrow": "রেকর্ড করা breathing sessions",
+    "breathingTitle": "Breathing history",
+    "breathingNotice": "এই read-only view authorized backend থেকে ফেরত আসা sessions দেখায়। নতুন session শুরু বা log করা অনুপলব্ধ।",
+    "breathingUnavailableTitle": "Breathing history লোড করা যায়নি",
+    "breathingEmpty": "কোনো breathing session ফেরত আসেনি।",
+    "techniqueUnavailable": "Technique অনুপলব্ধ",
+    "rounds": "Rounds",
+    "durationSeconds": "Duration seconds"
   },
   "Settings": {
     "eyebrow": "অ্যাকাউন্ট সুরক্ষা",
