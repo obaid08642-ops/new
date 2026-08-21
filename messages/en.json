@@ -356,7 +356,13 @@
     "claimsNotice": "Only the server-provided service, status, and date are shown. Amounts, identifiers, documents, and payment actions remain hidden.",
     "claimsEmpty": "No claims were returned by the server.",
     "claimServiceUnknown": "Insurance service",
-    "claimStatus": { "approved": "Approved", "reimbursed": "Reimbursed", "pending": "Pending", "rejected": "Rejected", "unknown": "Status unavailable" }
+    "claimStatus": {
+      "approved": "Approved",
+      "reimbursed": "Reimbursed",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "unknown": "Status unavailable"
+    }
   },
   "MentalHealth": {
     "eyebrow": "Private wellbeing",
@@ -371,5 +377,24 @@
     "notAvailable": "Not available",
     "unavailableTitle": "Unable to load wellbeing",
     "unavailable": "No fallback wellbeing data was shown. Please retry later."
+  },
+  "Settings": {
+    "eyebrow": "Account safeguards",
+    "title": "Privacy and security",
+    "notice": "These values are read from your account. This page is read-only until secure update contracts are closed.",
+    "privacyTitle": "Privacy",
+    "profileVisible": "Profile visibility",
+    "dataSharing": "Data sharing",
+    "securityTitle": "Security",
+    "biometric": "Biometric sign-in",
+    "twoFactor": "Two-factor verification",
+    "storageTitle": "Data storage",
+    "storageEmpty": "No storage breakdown was returned.",
+    "readOnlyBoundary": "No privacy, security, password, session, export, or deletion action is performed here.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "notAvailable": "Not available",
+    "unavailableTitle": "Unable to load settings",
+    "unavailable": "No fallback settings data was shown."
   }
 }

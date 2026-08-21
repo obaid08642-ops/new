@@ -377,5 +377,24 @@
     "notAvailable": "Hindi available",
     "unavailableTitle": "Hindi ma-load ang wellbeing",
     "unavailable": "Walang fallback wellbeing data na ipinakita. Subukan muli mamaya."
+  },
+  "Settings": {
+    "eyebrow": "Mga proteksyon ng account",
+    "title": "Privacy at seguridad",
+    "notice": "Mula sa account mo binabasa ang mga value na ito. Read-only ang page hanggang makumpleto ang ligtas na update contracts.",
+    "privacyTitle": "Privacy",
+    "profileVisible": "Visibility ng profile",
+    "dataSharing": "Pagbabahagi ng data",
+    "securityTitle": "Seguridad",
+    "biometric": "Biometric sign-in",
+    "twoFactor": "Two-factor verification",
+    "storageTitle": "Storage ng data",
+    "storageEmpty": "Walang storage breakdown na ibinalik ang server.",
+    "readOnlyBoundary": "Walang privacy, security, password, session, export, o deletion action na ginagawa rito.",
+    "enabled": "Naka-enable",
+    "disabled": "Naka-disable",
+    "notAvailable": "Hindi available",
+    "unavailableTitle": "Hindi ma-load ang settings",
+    "unavailable": "Walang fallback settings data na ipinakita."
   }
 }
