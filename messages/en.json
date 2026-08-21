@@ -350,7 +350,13 @@
     "company": "Company",
     "plan": "Plan",
     "unavailableTitle": "Unable to load insurance",
-    "unavailable": "No fallback insurance data was shown. Please retry later."
+    "unavailable": "No fallback insurance data was shown. Please retry later.",
+    "claimsEyebrow": "Claim history",
+    "claimsTitle": "Insurance claims",
+    "claimsNotice": "Only the server-provided service, status, and date are shown. Amounts, identifiers, documents, and payment actions remain hidden.",
+    "claimsEmpty": "No claims were returned by the server.",
+    "claimServiceUnknown": "Insurance service",
+    "claimStatus": { "approved": "Approved", "reimbursed": "Reimbursed", "pending": "Pending", "rejected": "Rejected", "unknown": "Status unavailable" }
   },
   "MentalHealth": {
     "eyebrow": "Private wellbeing",

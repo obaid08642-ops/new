@@ -350,7 +350,19 @@
     "company": "Kumpanya",
     "plan": "Plan",
     "unavailableTitle": "Hindi ma-load ang insurance",
-    "unavailable": "Walang fallback insurance data na ipinakita. Subukan muli mamaya."
+    "unavailable": "Walang fallback insurance data na ipinakita. Subukan muli mamaya.",
+    "claimsEyebrow": "Kasaysayan ng claim",
+    "claimsTitle": "Mga claim sa insurance",
+    "claimsNotice": "Serbisyo, status, at petsa lamang mula sa server ang ipinapakita. Nakatago ang halaga, identifier, dokumento, at mga aksyon sa bayad.",
+    "claimsEmpty": "Walang claim na ibinalik ang server.",
+    "claimServiceUnknown": "Serbisyong insurance",
+    "claimStatus": {
+      "approved": "Aprubado",
+      "reimbursed": "Na-reimburse",
+      "pending": "Nakabinbin",
+      "rejected": "Tinanggihan",
+      "unknown": "Hindi available ang status"
+    }
   },
   "MentalHealth": {
     "eyebrow": "Pribadong wellbeing",
