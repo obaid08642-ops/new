@@ -7,6 +7,7 @@ vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
 vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
 import CartPage from "./page";
+import CartCheckoutPreviewPage from "./checkout/page";
 
 describe("cart SSR boundary", () => {
   beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue("server-only-cart-token"); state.callPatientApi.mockReset(); });
@@ -16,5 +17,15 @@ describe("cart SSR boundary", () => {
     expect(state.callPatientApi).toHaveBeenCalledWith("/cart", {}, "server-only-cart-token");
     expect(html).toContain("Medicine");
     for (const secret of ["server-only-cart-token", "private-patient", "private-notes", "private"]) expect(html).not.toContain(secret);
+  });
+
+  it("renders checkout totals as a read-only preview without payment mutation", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", subtotal: 12, home_visit_fee: 0, total: 12, currency: "SAR", notes: "private" }), { status: 200 }));
+    const html = renderToStaticMarkup(await CartCheckoutPreviewPage({ params: Promise.resolve({ locale: "en" }) }));
+    expect(state.callPatientApi).toHaveBeenCalledWith("/cart/checkout", {}, "server-only-cart-token");
+    expect(html).toContain("12");
+    expect(html).not.toContain("private-patient");
+    expect(html).not.toContain("private");
+    expect(html).not.toContain("payment");
   });
 });
