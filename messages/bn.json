@@ -278,7 +278,17 @@
     "items": "আইটেম: {count}",
     "unavailableTitle": "প্রেসক্রিপশন লোড করা যায়নি",
     "unavailable": "কোনো বিকল্প ডেটা দেখানো হয়নি। পরে আবার চেষ্টা করুন।",
-    "notice": "অনুমোদিত রোগী রেকর্ড থেকে প্রেসক্রিপশনের অবস্থা, আইটেম সংখ্যা, তারিখ, ডাক্তারের নাম ও ওষুধের নাম দেখানো হতে পারে। ডোজ, নির্ণয় ও ফাইল দেখানো হয় না এবং এই ইন্টারফেস কোনো বিতরণ বা প্রেরণ কার্যক্রম করে না।"
+    "notice": "অনুমোদিত রোগী রেকর্ড থেকে প্রেসক্রিপশনের অবস্থা, আইটেম সংখ্যা, তারিখ, ডাক্তারের নাম ও ওষুধের নাম দেখানো হতে পারে। ডোজ, নির্ণয় ও ফাইল দেখানো হয় না এবং এই ইন্টারফেস কোনো বিতরণ বা প্রেরণ কার্যক্রম করে না।",
+    "detailEyebrow": "ব্যক্তিগত prescription detail",
+    "detailTitle": "Prescription details",
+    "back": "Prescriptions-এ ফিরে যান",
+    "medications": "ওষুধ",
+    "unnamedMedication": "নামহীন ওষুধ",
+    "dose": "ডোজ",
+    "frequencyHours": "প্রতি ঘণ্টায়",
+    "durationDays": "দিনে সময়কাল",
+    "instructions": "নির্দেশনা",
+    "detailNotice": "শুধু authorized backend থেকে ফেরত আসা medication details দেখানো হয়। Diagnosis, upload, renewal, dispensing ও order action অনুপলব্ধ।"
   },
   "Chat": {
     "eyebrow": "ব্যক্তিগত চ্যাট",

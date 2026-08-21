@@ -278,7 +278,17 @@
     "items": "Mga item: {count}",
     "unavailableTitle": "Hindi na-load ang mga reseta",
     "unavailable": "Walang kapalit na data na ipinakita. Subukang muli mamaya.",
-    "notice": "Maaaring ipakita mula sa awtorisadong rekord ng pasyente ang status ng reseta, bilang ng item, petsa, pangalan ng doktor at mga pangalan ng gamot. Hindi ipinapakita ang dosis, diagnosis at mga file, at ang interface na ito ay hindi namamahagi o nagpapadala ng reseta."
+    "notice": "Maaaring ipakita mula sa awtorisadong rekord ng pasyente ang status ng reseta, bilang ng item, petsa, pangalan ng doktor at mga pangalan ng gamot. Hindi ipinapakita ang dosis, diagnosis at mga file, at ang interface na ito ay hindi namamahagi o nagpapadala ng reseta.",
+    "detailEyebrow": "Private prescription detail",
+    "detailTitle": "Prescription details",
+    "back": "Bumalik sa prescriptions",
+    "medications": "Mga gamot",
+    "unnamedMedication": "Hindi pinangalanang gamot",
+    "dose": "Dose",
+    "frequencyHours": "Bawat oras",
+    "durationDays": "Tagal sa araw",
+    "instructions": "Instructions",
+    "detailNotice": "Tanging medication details mula sa authorized backend ang ipinapakita. Hindi available ang diagnosis, upload, renewal, dispensing, at order actions."
   },
   "Chat": {
     "eyebrow": "Pribadong chat",

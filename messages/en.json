@@ -233,7 +233,17 @@
     "items": "Items: {count}",
     "unavailableTitle": "Unable to load prescriptions",
     "unavailable": "No fallback data was shown. Please retry later.",
-    "notice": "Prescription state, item count, date, doctor name, and medication names may be shown from the authorized patient record. Doses, diagnoses, files, dispensing, and sending operations are not exposed in this interface."
+    "notice": "Prescription state, item count, date, doctor name, and medication names may be shown from the authorized patient record. Doses, diagnoses, files, dispensing, and sending operations are not exposed in this interface.",
+    "detailEyebrow": "Private prescription detail",
+    "detailTitle": "Prescription details",
+    "back": "Back to prescriptions",
+    "medications": "Medications",
+    "unnamedMedication": "Unnamed medication",
+    "dose": "Dose",
+    "frequencyHours": "Every hours",
+    "durationDays": "Duration in days",
+    "instructions": "Instructions",
+    "detailNotice": "Only medication details returned by the authorized backend are shown. Diagnosis, upload, renewal, dispensing, and order actions are not available."
   },
   "Chat": {
     "eyebrow": "Private chats",

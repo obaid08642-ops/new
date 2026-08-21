@@ -278,7 +278,17 @@
     "items": "आइटम: {count}",
     "unavailableTitle": "नुस्खे लोड नहीं हो सके",
     "unavailable": "कोई वैकल्पिक डेटा नहीं दिखाया गया। बाद में फिर प्रयास करें।",
-    "notice": "अधिकृत रोगी रिकॉर्ड से नुस्खे की स्थिति, आइटम संख्या, तारीख, डॉक्टर का नाम और दवाओं के नाम दिखाए जा सकते हैं। खुराक, निदान और फ़ाइलें नहीं दिखाई जातीं, और यह इंटरफ़ेस वितरण या भेजने की क्रिया नहीं करता।"
+    "notice": "अधिकृत रोगी रिकॉर्ड से नुस्खे की स्थिति, आइटम संख्या, तारीख, डॉक्टर का नाम और दवाओं के नाम दिखाए जा सकते हैं। खुराक, निदान और फ़ाइलें नहीं दिखाई जातीं, और यह इंटरफ़ेस वितरण या भेजने की क्रिया नहीं करता।",
+    "detailEyebrow": "निजी prescription detail",
+    "detailTitle": "Prescription details",
+    "back": "Prescriptions पर वापस",
+    "medications": "दवाएँ",
+    "unnamedMedication": "अनाम दवा",
+    "dose": "खुराक",
+    "frequencyHours": "हर घंटे",
+    "durationDays": "अवधि दिन में",
+    "instructions": "निर्देश",
+    "detailNotice": "केवल authorized backend से लौटे medication details दिखाई जाती हैं। Diagnosis, upload, renewal, dispensing और order actions उपलब्ध नहीं हैं।"
   },
   "Chat": {
     "eyebrow": "निजी चैट",
