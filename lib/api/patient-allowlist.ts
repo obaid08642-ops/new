@@ -17,6 +17,7 @@ const patientReadRoutes = [
   new RegExp("^/health/chronic-diseases$"),
   new RegExp("^/health/chronic-meds$"),
   new RegExp("^/health/trends$"),
+  new RegExp("^/family/my-group$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
   new RegExp("^/insurance/claims$"),

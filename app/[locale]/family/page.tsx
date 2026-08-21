@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractFamilyMembers } from "@/lib/api/family";
+import { parseFamilyGroup } from "@/lib/api/family-group";
+import { getPatientFamilyGroup } from "@/lib/api/family-group-server";
 import { getPatientFamilyMembers } from "@/lib/api/family-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -16,16 +18,17 @@ export default async function FamilyPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Family");
   const token = await requirePatientAccess(locale);
-  const response = await getPatientFamilyMembers(token);
+  const [response, groupResponse] = await Promise.all([getPatientFamilyMembers(token), getPatientFamilyGroup(token)]);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><UsersRound size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const members = extractFamilyMembers(await response.json().catch(() => null));
+  const group = groupResponse.ok ? parseFamilyGroup(await groupResponse.json().catch(() => null)) : null;
   return <main className={`main ${styles.page}`}>
     <section className={styles.intro}>
       <div className={styles.introText}>
         <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
-        <h1>{t("title")}</h1>
+        <h1>{group?.name || t("title")}</h1><p>{t("membersCount", { count: group?.memberCount ?? members.length })}</p>
       </div>
       <span className={styles.introIcon}><UsersRound size={27} aria-hidden="true" /></span>
     </section>

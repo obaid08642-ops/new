@@ -229,7 +229,8 @@
     "memberRole": "Miyembro",
     "unavailableTitle": "Hindi na-load ang pamilya",
     "unavailable": "Walang kapalit na data na ipinakita. Subukang muli mamaya.",
-    "notice": "Tungkulin ng miyembro at petsa lamang ng pagsali ang ipinapakita. Hindi ipinapakita ang mga identifier, pahintulot, rekord ng kalusugan at imbitasyon."
+    "notice": "Tungkulin ng miyembro at petsa lamang ng pagsali ang ipinapakita. Hindi ipinapakita ang mga identifier, pahintulot, rekord ng kalusugan at imbitasyon.",
+    "membersCount": "{count} members"
   },
   "Notifications": {
     "eyebrow": "Pribadong mga abiso",
