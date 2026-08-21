@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const orderIdSchema = z.string().uuid();
 
-export type PatientOrderSummary = { id: string; status?: string; reference?: string };
+export type PatientOrderSummary = { id: string; status?: string; reference?: string; createdAt?: string; itemCount?: number; total?: number; currency?: string };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -24,7 +24,13 @@ export function extractOrderRows(payload: unknown): PatientOrderSummary[] {
     if (!record) return [];
     const id = stringField(record, ["id", "orderId", "uuid"]);
     if (!id) return [];
-    return [{ id, status: stringField(record, ["status", "state"]), reference: stringField(record, ["orderNumber", "reference", "code"]) }];
+    const items = Array.isArray(record.items) ? record.items : [];
+    const totals = asRecord(record.totals);
+    const rawTotal = totals?.total ?? record.total ?? record.total_price;
+    const total = typeof rawTotal === "number" && Number.isFinite(rawTotal) ? rawTotal : undefined;
+    const createdAt = stringField(record, ["createdAt", "created_at", "updatedAt", "updated_at"]);
+    const currency = stringField(totals ?? {}, ["currency"]) ?? stringField(record, ["currency"]);
+    return [{ id, status: stringField(record, ["effective_status", "status", "state"]), reference: stringField(record, ["orderNumber", "reference", "code"]), createdAt, itemCount: items.length || undefined, total, currency }];
   });
 }
 

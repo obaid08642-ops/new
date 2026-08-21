@@ -17,7 +17,7 @@ export default async function OrderDetailPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Orders");
   const token = await requirePatientAccess(locale);
-  const response = await callPatientApi(`/orders/${orderId}`, {}, token);
+  const response = await callPatientApi(`/patient/pharmacy/orders/${orderId}`, {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><PackageCheck size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;

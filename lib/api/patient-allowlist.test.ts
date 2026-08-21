@@ -10,6 +10,9 @@ describe("patient API allowlist", () => {
     expect(
       isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729")
     ).toBe(true);
+    expect(isAllowedPatientApiPath("/patient/pharmacy/orders")).toBe(true);
+    expect(isAllowedPatientApiPath(`/patient/pharmacy/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}`)).toBe(true);
+    expect(isAllowedPatientApiPath(`/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}/tracking`)).toBe(true);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 
@@ -18,6 +21,9 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/provider/queue")).toBe(false);
     expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking", "POST")).toBe(false);
   });
 
   it("fails closed for malformed or nested order identifiers", () => {
@@ -29,6 +35,9 @@ describe("patient API allowlist", () => {
     ).toBe(false);
     expect(isAllowedPatientApiPath("/orders/../admin/users")).toBe(false);
     expect(isAllowedPatientApiPath("/orders/%2e%2e/admin/users")).toBe(false);
+    expect(isAllowedPatientApiPath("/patient/pharmacy/orders/not-an-id")).toBe(false);
+    expect(isAllowedPatientApiPath("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/items")).toBe(false);
+    expect(isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking/messages")).toBe(false);
   });
 
   it("does not widen the browser surface through method casing or writes", () => {

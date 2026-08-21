@@ -28,7 +28,7 @@ export default async function OrdersPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Orders");
   const token = await requirePatientAccess(locale);
-  const response = await callPatientApi("/orders/mine", {}, token);
+  const response = await callPatientApi("/patient/pharmacy/orders", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
   const Chevron = locale === "ar" || locale === "ur" ? ChevronLeft : ChevronRight;

@@ -1,0 +1,265 @@
+# Phase 1 OpenAPI Contract Scan
+
+OpenAPI: 3.0.0
+Title: Nabdah Plus Enterprise API
+Total path objects: 1234
+
+## Pharmacy/Orders-related paths
+
+- `GET /api/v1/admin/analytics/top-medicines` | tags=AdminAnalytics | security=no | params=limit | request=- | responses=200
+- `POST /api/v1/admin/authority/orders/{id}/force-cancel` | tags=AdminAuthority | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/authority/orders/{id}/force-complete` | tags=AdminAuthority | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/authority/orders/{id}/force-reassign` | tags=AdminAuthority | security=no | params=id | request=- | responses=201
+- `GET /api/v1/admin/command-center/order/{kind}/{id}` | tags=AdminCommandCenter | security=no | params=kind, id | request=- | responses=200
+- `GET /api/v1/admin/finance-engine/fraud/duplicate-payments/{bookingId}` | tags=AdminFinanceEngine | security=no | params=bookingId | request=- | responses=200
+- `POST /api/v1/admin/finance-engine/refunds/{id}/execute` | tags=AdminFinanceEngine | security=no | params=id | request=- | responses=201
+- `GET /api/v1/admin/finance/refunds/queue` | tags=AdminFinanceCore | security=no | params=- | request=- | responses=200
+- `POST /api/v1/admin/finance/refunds/{id}/decide` | tags=AdminFinanceCore | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/override/payment` | tags=AdminOverride | security=no | params=- | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/broadcasts/expire-stale` | tags=AdminBroadcast | security=no | params=- | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/broadcasts/{orderId}/advance` | tags=AdminBroadcast | security=no | params=orderId | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/broadcasts/{orderId}/fallback-split` | tags=AdminBroadcast | security=no | params=orderId | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/chat/sweep-auto-close` | tags=AdminPharmacyChat | security=no | params=- | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/expire-stale-allocations` | tags=AdminPharmacy | security=no | params=- | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/seed` | tags=AdminPharmacy | security=no | params=- | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/seed/sample-order` | tags=AdminPharmacy | security=no | params=- | request=- | responses=201
+- `GET /api/v1/admin/pharmacy/shortage-flags` | tags=AdminShortage | security=no | params=status | request=- | responses=200
+- `POST /api/v1/admin/pharmacy/shortage-flags` | tags=AdminShortage | security=no | params=- | request=- | responses=201
+- `GET /api/v1/admin/pharmacy/shortage-flags/dashboard` | tags=AdminShortage | security=no | params=- | request=- | responses=200
+- `POST /api/v1/admin/pharmacy/shortage-flags/{id}/approve` | tags=AdminShortage | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/shortage-flags/{id}/mark` | tags=AdminShortage | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/shortage-flags/{id}/reject` | tags=AdminShortage | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/shortage-flags/{id}/resolve` | tags=AdminShortage | security=no | params=id | request=- | responses=201
+- `POST /api/v1/admin/pharmacy/split/{orderId}` | tags=AdminPharmacy | security=no | params=orderId | request=- | responses=201
+- `GET /api/v1/admin/refunds` | tags=AdminRefunds | security=no | params=- | request=- | responses=200
+- `GET /api/v1/admin/refunds/pending` | tags=AdminRefunds | security=no | params=- | request=- | responses=200
+- `POST /api/v1/admin/refunds/{id}/decide` | tags=AdminRefunds | security=no | params=id | request=- | responses=201
+- `POST /api/v1/ai/medicine-image-search` | tags=Ai | security=no | params=- | request=- | responses=201
+- `POST /api/v1/ai/prescription-ocr` | tags=Ai | security=no | params=- | request=- | responses=201
+- `POST /api/v1/ai/voice-to-order` | tags=Ai | security=no | params=- | request=- | responses=201
+- `GET /api/v1/booking/flow/payment/{type}/{id}` | tags=BookingOps | security=no | params=type, id | request=- | responses=200
+- `POST /api/v1/booking/flow/payment/{type}/{id}/mark` | tags=BookingOps | security=no | params=type, id | request=- | responses=201
+- `GET /api/v1/cart` | tags=Cart | security=no | params=- | request=- | responses=200
+- `GET /api/v1/cart/checkout` | tags=Cart | security=no | params=- | request=- | responses=200
+- `POST /api/v1/cart/clear` | tags=Cart | security=no | params=- | request=- | responses=201
+- `POST /api/v1/cart/lines` | tags=Cart | security=no | params=- | request=- | responses=201
+- `DELETE /api/v1/cart/lines/{lineId}` | tags=Cart | security=no | params=lineId | request=- | responses=200
+- `PATCH /api/v1/cart/lines/{lineId}` | tags=Cart | security=no | params=lineId | request=- | responses=200
+- `GET /api/v1/cart/prescription` | tags=Cart | security=no | params=- | request=- | responses=200
+- `PUT /api/v1/delivery/base-fees` | tags=AdminDelivery | security=no | params=- | request=- | responses=200
+- `GET /api/v1/delivery/check` | tags=DeliveryCheck | security=no | params=- | request=- | responses=200
+- `GET /api/v1/delivery/rules` | tags=AdminDelivery | security=no | params=- | request=- | responses=200
+- `POST /api/v1/delivery/rules` | tags=AdminDelivery | security=no | params=- | request=- | responses=201
+- `DELETE /api/v1/delivery/rules/{id}` | tags=AdminDelivery | security=no | params=id | request=- | responses=200
+- `PUT /api/v1/delivery/rules/{id}` | tags=AdminDelivery | security=no | params=id | request=- | responses=200
+- `POST /api/v1/delivery/rules/{id}/toggle` | tags=AdminDelivery | security=no | params=id | request=- | responses=201
+- `POST /api/v1/delivery/toggle` | tags=AdminDelivery | security=no | params=- | request=- | responses=201
+- `GET /api/v1/drivers/orders/active` | tags=Drivers | security=no | params=- | request=- | responses=200
+- `GET /api/v1/drivers/orders/available` | tags=Drivers | security=no | params=- | request=- | responses=200
+- `GET /api/v1/drivers/orders/history` | tags=Drivers | security=no | params=- | request=- | responses=200
+- `POST /api/v1/drivers/orders/{id}/accept` | tags=Drivers | security=no | params=id | request=- | responses=201
+- `POST /api/v1/drivers/orders/{id}/deliver` | tags=Drivers | security=no | params=id | request=- | responses=201
+- `POST /api/v1/drivers/orders/{id}/pickup` | tags=Drivers | security=no | params=id | request=- | responses=201
+- `GET /api/v1/export/orders` | tags=Export | security=no | params=- | request=- | responses=200
+- `GET /api/v1/health/prescriptions` | tags=HealthModule | security=no | params=- | request=- | responses=200
+- `POST /api/v1/insurance/payment-confirm` | tags=InsuranceFlow | security=no | params=- | request=- | responses=201
+- `GET /api/v1/medicines` | tags=Medicines | security=no | params=search, q, category, page, limit, cursor, authorization | request=- | responses=200
+- `GET /api/v1/medicines/admin/catalog` | tags=Medicines | security=no | params=q, category, page, limit, include_deleted | request=- | responses=200
+- `POST /api/v1/medicines/admin/catalog` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `DELETE /api/v1/medicines/admin/catalog/{id}` | tags=Medicines | security=no | params=id | request=- | responses=200
+- `PATCH /api/v1/medicines/admin/catalog/{id}` | tags=Medicines | security=no | params=id | request=- | responses=200
+- `POST /api/v1/medicines/admin/catalog/{id}/availability` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/medicines/admin/catalog/{id}/clear-shortage-badge` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/medicines/admin/catalog/{id}/delete` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `GET /api/v1/medicines/admin/change-requests` | tags=Medicines | security=no | params=status, type, page, limit | request=- | responses=200
+- `POST /api/v1/medicines/admin/change-requests/{requestId}/approve` | tags=Medicines | security=no | params=requestId | request=- | responses=201
+- `POST /api/v1/medicines/admin/change-requests/{requestId}/reject` | tags=Medicines | security=no | params=requestId | request=- | responses=201
+- `POST /api/v1/medicines/admin/hot/regenerate` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `GET /api/v1/medicines/admin/image-suggestions` | tags=Medicines | security=no | params=status, page, limit | request=- | responses=200
+- `POST /api/v1/medicines/admin/image-suggestions/{suggestionId}/approve` | tags=Medicines | security=no | params=suggestionId | request=- | responses=201
+- `POST /api/v1/medicines/admin/image-suggestions/{suggestionId}/reject` | tags=Medicines | security=no | params=suggestionId | request=- | responses=201
+- `POST /api/v1/medicines/admin/import-csv` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `POST /api/v1/medicines/admin/import-json` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `GET /api/v1/medicines/admin/pending-review` | tags=Medicines | security=no | params=- | request=- | responses=200
+- `GET /api/v1/medicines/admin/reports` | tags=Medicines | security=no | params=- | request=- | responses=200
+- `GET /api/v1/medicines/admin/shortage-reports` | tags=Medicines | security=no | params=status, page, limit | request=- | responses=200
+- `POST /api/v1/medicines/admin/shortage-reports/{reportId}/approve` | tags=Medicines | security=no | params=reportId | request=- | responses=201
+- `POST /api/v1/medicines/admin/shortage-reports/{reportId}/reject` | tags=Medicines | security=no | params=reportId | request=- | responses=201
+- `GET /api/v1/medicines/autocomplete` | tags=Medicines | security=no | params=q | request=- | responses=200
+- `GET /api/v1/medicines/by-barcode/{code}` | tags=Medicines | security=no | params=code | request=- | responses=200
+- `GET /api/v1/medicines/categories` | tags=Medicines | security=no | params=- | request=- | responses=200
+- `POST /api/v1/medicines/compare` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `GET /api/v1/medicines/filters` | tags=Medicines | security=no | params=- | request=- | responses=200
+- `GET /api/v1/medicines/hot` | tags=Medicines | security=no | params=- | request=- | responses=200
+- `POST /api/v1/medicines/lookup-barcode` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `POST /api/v1/medicines/manual-entry` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `GET /api/v1/medicines/me/recently-viewed` | tags=Medicines | security=no | params=limit | request=- | responses=200
+- `GET /api/v1/medicines/search/did-you-mean` | tags=Medicines | security=no | params=q | request=- | responses=200
+- `GET /api/v1/medicines/search/recent` | tags=Medicines | security=no | params=limit | request=- | responses=200
+- `GET /api/v1/medicines/search/trending` | tags=Medicines | security=no | params=limit | request=- | responses=200
+- `POST /api/v1/medicines/suggest-new-item` | tags=Medicines | security=no | params=- | request=- | responses=201
+- `GET /api/v1/medicines/{id}` | tags=Medicines | security=no | params=id | request=- | responses=200
+- `PATCH /api/v1/medicines/{id}` | tags=Medicines | security=no | params=id | request=- | responses=200
+- `GET /api/v1/medicines/{id}/alternatives` | tags=Medicines | security=no | params=id | request=- | responses=200
+- `POST /api/v1/medicines/{id}/approve` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `GET /api/v1/medicines/{id}/details` | tags=Medicines | security=no | params=id, authorization, lang, accept-language | request=- | responses=200
+- `GET /api/v1/medicines/{id}/recommendations` | tags=SeoSearch | security=no | params=id, limit | request=- | responses=200
+- `POST /api/v1/medicines/{id}/reject` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/medicines/{id}/report-shortage` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/medicines/{id}/shortage` | tags=AdminMedicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/medicines/{id}/suggest-change` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/medicines/{id}/suggest-image` | tags=Medicines | security=no | params=id | request=- | responses=201
+- `POST /api/v1/moyasar/payments` | tags=Moyasar | security=no | params=- | request=- | responses=201
+- `GET /api/v1/moyasar/payments/booking/{bookingId}` | tags=Moyasar | security=no | params=bookingId | request=- | responses=200
+- `GET /api/v1/moyasar/payments/me` | tags=Moyasar | security=no | params=- | request=- | responses=200
+- `GET /api/v1/moyasar/payments/sync/{moyasarId}` | tags=Moyasar | security=no | params=moyasarId | request=- | responses=200
+- `POST /api/v1/moyasar/payments/{moyasarId}/refund` | tags=Moyasar | security=no | params=moyasarId | request=- | responses=201
+- `GET /api/v1/notifications/admin/delivery-stats` | tags=Notifications | security=no | params=- | request=- | responses=200
+- `GET /api/v1/orders` | tags=Orders | security=no | params=state, search | request=- | responses=200
+- `GET /api/v1/orders/admin/escalated` | tags=Orders | security=no | params=- | request=- | responses=200
+- `GET /api/v1/orders/bids/pharmacy/mine` | tags=Orders | security=no | params=- | request=- | responses=200
+- `POST /api/v1/orders/bids/place` | tags=Orders | security=no | params=- | request=- | responses=201
+- `GET /api/v1/orders/bids/request/{id}` | tags=Orders | security=no | params=id | request=- | responses=200
+- `POST /api/v1/orders/bids/{id}/accept` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/create` | tags=Orders | security=no | params=- | request=application/json | responses=201
+- `GET /api/v1/orders/mine` | tags=Orders | security=no | params=type | request=- | responses=200
+- `GET /api/v1/orders/pharmacy/queue` | tags=Orders | security=no | params=state | request=- | responses=200
+- `GET /api/v1/orders/{id}` | tags=Orders | security=no | params=id | request=- | responses=200
+- `POST /api/v1/orders/{id}/accept` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/admin/transition` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/approve-basket` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/assign-delivery` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/cancel` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/delivered` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/delivery/update` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/dispatch` | tags=Orders | security=no | params=id | request=- | responses=201
+- `PATCH /api/v1/orders/{id}/insurance-approval` | tags=Orders | security=no | params=id | request=- | responses=200
+- `PATCH /api/v1/orders/{id}/items/{itemId}/opt-in-cash` | tags=Orders | security=no | params=id, itemId | request=- | responses=200
+- `POST /api/v1/orders/{id}/partial` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/preparing` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/ready` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/reassign` | tags=AdminOrders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/reject` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/reject-basket` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/reorder` | tags=Orders | security=no | params=id | request=- | responses=201
+- `POST /api/v1/orders/{id}/reorder-partial` | tags=Orders | security=no | params=id | request=- | responses=201
+- `GET /api/v1/orders/{id}/report.pdf` | tags=Orders | security=no | params=id | request=- | responses=200
+- `GET /api/v1/orders/{id}/tracking` | tags=Orders | security=no | params=id | request=- | responses=200
+- `POST /api/v1/patient-ux/refund` | tags=PatientUx | security=no | params=- | request=- | responses=201
+- `GET /api/v1/patient-ux/refund/mine` | tags=PatientUx | security=no | params=- | request=- | responses=200
+- `GET /api/v1/patient/pharmacy/orders` | tags=PatientPharmacy | security=no | params=status | request=- | responses=200
+- `POST /api/v1/patient/pharmacy/orders` | tags=PatientPharmacy | security=no | params=- | request=- | responses=201
+- `GET /api/v1/patient/pharmacy/orders/{id}` | tags=PatientPharmacy | security=no | params=id | request=- | responses=200
+- `PATCH /api/v1/patient/pharmacy/orders/{id}` | tags=PatientPharmacy | security=no | params=id | request=- | responses=200
+- `POST /api/v1/patient/pharmacy/orders/{id}/cancel` | tags=PatientPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/patient/pharmacy/orders/{id}/submit` | tags=PatientPharmacy | security=no | params=id | request=- | responses=201
+- `GET /api/v1/patient/pharmacy/shortage-flags/lookup` | tags=PatientShortage | security=no | params=sku, generic_name | request=- | responses=200
+- `GET /api/v1/payments/booking/{type}/{id}` | tags=Payments | security=no | params=type, id | request=- | responses=200
+- `POST /api/v1/payments/capture/{txn}` | tags=Payments | security=no | params=txn | request=- | responses=201
+- `POST /api/v1/payments/intent/{type}/{id}` | tags=Payments | security=no | params=type, id, idempotency-key | request=- | responses=201
+- `POST /api/v1/payments/refund/{txn}` | tags=Payments | security=no | params=txn | request=- | responses=201
+- `POST /api/v1/payments/retry/{type}/{id}` | tags=Payments | security=no | params=type, id, idempotency-key | request=- | responses=201
+- `POST /api/v1/payments/verify/{txn}` | tags=Payments | security=no | params=txn | request=- | responses=201
+- `POST /api/v1/payments/webhook/{provider}` | tags=PaymentsWebhook | security=no | params=provider, moyasar-signature | request=- | responses=200
+- `POST /api/v1/pharmacy/broadcast/respond` | tags=NabdExtensions | security=no | params=- | request=- | responses=201
+- `GET /api/v1/pharmacy/chat/threads` | tags=PharmacyChat | security=no | params=order_id | request=- | responses=200
+- `POST /api/v1/pharmacy/chat/threads/{id}/accept-substitute/{msgId}` | tags=PharmacyChat | security=no | params=id, msgId | request=- | responses=201
+- `GET /api/v1/pharmacy/chat/threads/{id}/messages` | tags=PharmacyChat | security=no | params=id | request=- | responses=200
+- `POST /api/v1/pharmacy/chat/threads/{id}/messages` | tags=PharmacyChat | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/chat/threads/{id}/reject` | tags=PharmacyChat | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/chat/threads/{id}/remove-item` | tags=PharmacyChat | security=no | params=id | request=- | responses=201
+- `GET /api/v1/pharmacy/inventory` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `POST /api/v1/pharmacy/inventory/add` | tags=PharmacyOps | security=no | params=- | request=- | responses=201
+- `GET /api/v1/pharmacy/inventory/expiry` | tags=NabdExtensions | security=no | params=- | request=- | responses=200
+- `POST /api/v1/pharmacy/inventory/stock` | tags=PharmacyOps | security=no | params=- | request=- | responses=201
+- `GET /api/v1/pharmacy/orders/awaiting-approval` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/basket-review` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/completed` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/incoming` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/preparing` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/ready` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/refills` | tags=PharmacyOps | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/orders/{id}` | tags=PharmacyOps | security=no | params=id | request=- | responses=200
+- `POST /api/v1/pharmacy/orders/{id}/accept` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/insurance` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/items/{idx}/qty` | tags=PharmacyOps | security=no | params=id, idx | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/items/{idx}/restore` | tags=PharmacyOps | security=no | params=id, idx | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/items/{idx}/substitute` | tags=PharmacyOps | security=no | params=id, idx | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/items/{idx}/unavailable` | tags=PharmacyOps | security=no | params=id, idx | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/partial` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/preparing` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/ready` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/reject` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/orders/{id}/submit-basket` | tags=PharmacyOps | security=no | params=id | request=- | responses=201
+- `GET /api/v1/pharmacy/prescriptions/{rxNumber}` | tags=PharmacyOps | security=no | params=rxNumber | request=- | responses=200
+- `POST /api/v1/pharmacy/procurement/analyze-file` | tags=Procurement | security=no | params=- | request=- | responses=201
+- `GET /api/v1/pharmacy/procurement/my-requests` | tags=Procurement | security=no | params=- | request=- | responses=200
+- `POST /api/v1/pharmacy/procurement/submit-request` | tags=Procurement | security=no | params=- | request=- | responses=201
+- `POST /api/v1/pharmacy/procurement/{id}/feedback` | tags=Procurement | security=no | params=id | request=- | responses=201
+- `GET /api/v1/pharmacy/products` | tags=PharmacyCompat | security=no | params=q | request=- | responses=200
+- `POST /api/v1/pharmacy/reports/eod` | tags=PharmacyOps | security=no | params=- | request=- | responses=201
+- `GET /api/v1/pharmacy/returns` | tags=Returns | security=no | params=- | request=- | responses=200
+- `POST /api/v1/pharmacy/returns` | tags=Returns | security=no | params=- | request=- | responses=201
+- `GET /api/v1/pharmacy/returns/eligibility/{orderId}` | tags=Returns | security=no | params=orderId | request=- | responses=200
+- `GET /api/v1/pharmacy/returns/provider/list` | tags=Returns | security=no | params=- | request=- | responses=200
+- `GET /api/v1/pharmacy/returns/{id}` | tags=Returns | security=no | params=id | request=- | responses=200
+- `POST /api/v1/pharmacy/returns/{id}/decide` | tags=Returns | security=no | params=id | request=- | responses=201
+- `POST /api/v1/pharmacy/shortages/report` | tags=PharmacyCompat | security=no | params=- | request=- | responses=201
+- `GET /api/v1/prescriptions/active` | tags=Prescriptions | security=no | params=- | request=- | responses=200
+- `POST /api/v1/prescriptions/create` | tags=Prescriptions | security=no | params=- | request=- | responses=201
+- `GET /api/v1/prescriptions/doctor/mine` | tags=Prescriptions | security=no | params=- | request=- | responses=200
+- `POST /api/v1/prescriptions/manual-entry` | tags=Prescriptions | security=no | params=- | request=- | responses=201
+- `GET /api/v1/prescriptions/mine` | tags=Prescriptions | security=no | params=- | request=- | responses=200
+- `GET /api/v1/prescriptions/pharmacy/queue` | tags=Prescriptions | security=no | params=- | request=- | responses=200
+- `POST /api/v1/prescriptions/upload` | tags=Prescriptions | security=no | params=- | request=- | responses=201
+- `GET /api/v1/prescriptions/{id}` | tags=Prescriptions | security=no | params=id | request=- | responses=200
+- `POST /api/v1/prescriptions/{id}/send` | tags=Prescriptions | security=no | params=id | request=- | responses=201
+- `POST /api/v1/prescriptions/{id}/substitute` | tags=Prescriptions | security=no | params=id | request=- | responses=201
+- `POST /api/v1/prescriptions/{id}/transition` | tags=Prescriptions | security=no | params=id | request=- | responses=201
+- `GET /api/v1/provider/capabilities/pharmacy` | tags=ProviderCapabilities | security=no | params=- | request=- | responses=200
+- `POST /api/v1/provider/capabilities/pharmacy` | tags=ProviderCapabilities | security=no | params=- | request=- | responses=201
+- `DELETE /api/v1/provider/capabilities/pharmacy/{id}` | tags=ProviderCapabilities | security=no | params=id | request=- | responses=200
+- `POST /api/v1/provider/doctor-referrals/issue-referrals-and-prescription` | tags=DoctorReferrals | security=no | params=- | request=- | responses=201
+- `POST /api/v1/provider/match/pharmacy` | tags=NabdExtensions | security=no | params=- | request=- | responses=201
+- `GET /api/v1/provider/ops/invoice/{orderId}/pdf` | tags=ProviderOps | security=no | params=orderId | request=- | responses=200
+- `GET /api/v1/provider/pharmacy/allocations` | tags=ProviderPharmacy | security=no | params=status | request=- | responses=200
+- `GET /api/v1/provider/pharmacy/allocations/{id}` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=200
+- `POST /api/v1/provider/pharmacy/allocations/{id}/cancel` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/confirm` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/delivered` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/insurance` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/items/{itemId}` | tags=ProviderPharmacy | security=no | params=id, itemId | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/out-for-delivery` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/preparing` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/allocations/{id}/ready` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/b2b/voice-to-order` | tags=B2BVoice | security=no | params=- | request=- | responses=201
+- `GET /api/v1/provider/pharmacy/broadcasts` | tags=ProviderBroadcast | security=no | params=- | request=- | responses=200
+- `GET /api/v1/provider/pharmacy/broadcasts/{id}` | tags=ProviderBroadcast | security=no | params=id | request=- | responses=200
+- `POST /api/v1/provider/pharmacy/broadcasts/{orderId}/i-have-all` | tags=ProviderBroadcast | security=no | params=orderId | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/broadcasts/{orderId}/i-have-partial` | tags=ProviderBroadcast | security=no | params=orderId | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/broadcasts/{orderId}/reject` | tags=ProviderBroadcast | security=no | params=orderId | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/orders/{id}/accept` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/orders/{id}/dispatch` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/orders/{id}/insurance` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/orders/{id}/preparing` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/orders/{id}/ready` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `POST /api/v1/provider/pharmacy/orders/{id}/submit-basket` | tags=ProviderPharmacy | security=no | params=id | request=- | responses=201
+- `GET /api/v1/provider/pharmacy/shortage-flags` | tags=ProviderShortage | security=no | params=status | request=- | responses=200
+- `POST /api/v1/provider/pharmacy/shortage-flags` | tags=ProviderShortage | security=no | params=- | request=- | responses=201
+- `GET /api/v1/provider/requests/{id}/orders` | tags=ProviderRequests | security=no | params=id | request=- | responses=200
+- `GET /api/v1/refunds` | tags=AdminRefunds | security=no | params=- | request=- | responses=200
+- `POST /api/v1/refunds` | tags=AdminRefunds | security=no | params=- | request=- | responses=201
+- `GET /api/v1/refunds/my` | tags=Refund | security=no | params=- | request=- | responses=200
+- `GET /api/v1/refunds/policy-preview` | tags=Refund | security=no | params=scheduled_at | request=- | responses=200
+- `POST /api/v1/refunds/request` | tags=Refund | security=no | params=- | request=- | responses=201
+- `POST /api/v1/unified-bookings/checkout-cart` | tags=UnifiedBookings | security=no | params=- | request=- | responses=201
+- `GET /api/v1/users/me/addresses` | tags=UsersAddresses | security=no | params=- | request=- | responses=200
+- `POST /api/v1/users/me/addresses` | tags=UsersAddresses | security=no | params=- | request=- | responses=201
+- `DELETE /api/v1/users/me/addresses/{addressId}` | tags=UsersAddresses | security=no | params=addressId | request=- | responses=200
+- `PATCH /api/v1/users/me/addresses/{addressId}` | tags=UsersAddresses | security=no | params=addressId | request=- | responses=200
+- `GET /api/v1/users/me/wishlist` | tags=Users | security=no | params=- | request=- | responses=200
+- `POST /api/v1/users/me/wishlist/{itemId}` | tags=Users | security=no | params=itemId | request=- | responses=201
+
+Filtered operations: 253
+
+## Schemas containing ownership/idempotency/payment/upload clues

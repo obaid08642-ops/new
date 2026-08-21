@@ -1,0 +1,25 @@
+{
+  "/api/v1/orders/{id}/tracking": {
+    "get": {
+      "operationId": "OrdersController_getTracking_v1",
+      "parameters": [
+        {
+          "name": "id",
+          "required": true,
+          "in": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "Orders"
+      ]
+    }
+  }
+}

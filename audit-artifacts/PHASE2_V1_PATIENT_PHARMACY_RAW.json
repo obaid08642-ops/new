@@ -1,0 +1,127 @@
+{
+  "/api/v1/patient/pharmacy/orders": {
+    "post": {
+      "operationId": "PatientPharmacyController_create_v1",
+      "parameters": [],
+      "responses": {
+        "201": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "PatientPharmacy"
+      ]
+    },
+    "get": {
+      "operationId": "PatientPharmacyController_list_v1",
+      "parameters": [
+        {
+          "name": "status",
+          "required": true,
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "PatientPharmacy"
+      ]
+    }
+  },
+  "/api/v1/patient/pharmacy/orders/{id}": {
+    "get": {
+      "operationId": "PatientPharmacyController_detail_v1",
+      "parameters": [
+        {
+          "name": "id",
+          "required": true,
+          "in": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "PatientPharmacy"
+      ]
+    },
+    "patch": {
+      "operationId": "PatientPharmacyController_update_v1",
+      "parameters": [
+        {
+          "name": "id",
+          "required": true,
+          "in": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "PatientPharmacy"
+      ]
+    }
+  },
+  "/api/v1/patient/pharmacy/orders/{id}/submit": {
+    "post": {
+      "operationId": "PatientPharmacyController_submit_v1",
+      "parameters": [
+        {
+          "name": "id",
+          "required": true,
+          "in": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "PatientPharmacy"
+      ]
+    }
+  },
+  "/api/v1/patient/pharmacy/orders/{id}/cancel": {
+    "post": {
+      "operationId": "PatientPharmacyController_cancel_v1",
+      "parameters": [
+        {
+          "name": "id",
+          "required": true,
+          "in": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": ""
+        }
+      },
+      "tags": [
+        "PatientPharmacy"
+      ]
+    }
+  }
+}
