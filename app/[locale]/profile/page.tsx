@@ -6,7 +6,7 @@ import { extractRecord, profileDomainState, readProfileFields, type ProfileDomai
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
-import { ArrowUpLeft, BadgeCheck, Bell, CalendarDays, CircleAlert, FileText, HeartPulse, Pill, Settings, ShieldCheck, ShoppingBag, UserRound, UsersRound } from "lucide-react";
+import { ArrowUpLeft, BadgeCheck, Bell, BookOpen, CalendarDays, CircleAlert, FileText, HeartPulse, Pill, Settings, ShieldCheck, ShoppingBag, UserRound, UsersRound } from "lucide-react";
 import styles from "./profile.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -48,6 +48,7 @@ export default async function ProfilePage({ params }: Props) {
     { key: "family", href: `/${locale}/family`, Icon: UsersRound, accent: "#0D9488" },
     { key: "notifications", href: `/${locale}/notifications`, Icon: Bell, accent: "#64748B" },
     { key: "settings", href: `/${locale}/settings`, Icon: Settings, accent: "#475569" },
+    { key: "articles", href: `/${locale}/articles`, Icon: BookOpen, accent: "#0F766E" },
   ] as const;
   const displayFieldValue = (field: ProfileField): string | null => {
     if (typeof field.value === "boolean") return t(field.value ? "yes" : "no");

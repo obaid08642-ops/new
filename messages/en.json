@@ -56,7 +56,8 @@
     "prescriptions": "Prescriptions",
     "medicines": "Medicines",
     "profile": "My health profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "articles": "Health articles"
   },
   "Orders": {
     "eyebrow": "Private orders",

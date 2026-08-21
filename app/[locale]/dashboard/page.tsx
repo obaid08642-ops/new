@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Activity, Bell, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, FileText, HeartPulse, HousePlus, MessageCircle, Pill, ScanLine, Settings, Stethoscope, UserRound, UsersRound } from "lucide-react";
+import { Activity, Bell, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, FileText, HeartPulse, HousePlus, MessageCircle, Pill, ScanLine, Settings, Stethoscope, UserRound, UsersRound } from "lucide-react";
 import type { CSSProperties } from "react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
@@ -32,6 +32,7 @@ const moreDestinations = [
   { key: "orders", href: "orders", icon: ClipboardList },
   { key: "profile", href: "profile", icon: UserRound },
   { key: "settings", href: "settings", icon: Settings },
+  { key: "articles", href: "articles", icon: BookOpen },
 ] as const;
 
 function formatDate(value: string | null, locale: string) {
