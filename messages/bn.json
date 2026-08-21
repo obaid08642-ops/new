@@ -517,5 +517,20 @@
     "notice": "এগুলো শুধু profile-এ রেকর্ড করা entry। কোনো diagnosis, severity, control assessment বা treatment recommendation দেওয়া হয় না।",
     "unavailableTitle": "Chronic condition লোড করা যায়নি",
     "unavailable": "কোনো fallback condition data দেখানো হয়নি।"
+  },
+  "ChronicMedications": {
+    "eyebrow": "দীর্ঘমেয়াদি ওষুধের রেকর্ড",
+    "title": "দীর্ঘমেয়াদি ওষুধ",
+    "back": "স্বাস্থ্যে ফিরে যান",
+    "active": "সক্রিয়",
+    "inactive": "নিষ্ক্রিয়",
+    "unnamed": "নামহীন ওষুধ",
+    "refillDate": "রিফিল তারিখ",
+    "days": "দিন",
+    "remaining": "রেকর্ড করা অবশিষ্ট ইউনিট",
+    "empty": "কোনো chronic medication ফেরত আসেনি।",
+    "notice": "এই surface শুধু recorded medication schedule ও refill metadata দেখায়। যোগ, সম্পাদনা, বন্ধ, refill এবং reminder action অনুপলব্ধ।",
+    "unavailableTitle": "Chronic medication লোড করা যায়নি",
+    "unavailable": "কোনো fallback medication data দেখানো হয়নি।"
   }
 }

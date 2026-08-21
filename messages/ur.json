@@ -517,5 +517,20 @@
     "notice": "یہ صرف profile میں درج اندراجات ہیں۔ کوئی تشخیص، شدت، کنٹرول assessment یا علاج کی سفارش نہیں دی جاتی۔",
     "unavailableTitle": "دائمی حالتیں لوڈ نہیں ہو سکیں",
     "unavailable": "کوئی متبادل condition data نہیں دکھایا گیا۔"
+  },
+  "ChronicMedications": {
+    "eyebrow": "طویل مدتی ادویات کے ریکارڈ",
+    "title": "دائمی ادویات",
+    "back": "صحت پر واپس",
+    "active": "فعال",
+    "inactive": "غیر فعال",
+    "unnamed": "نامعلوم دوا",
+    "refillDate": "دوبارہ بھرنے کی تاریخ",
+    "days": "دن",
+    "remaining": "درج شدہ باقی units",
+    "empty": "سرور نے دائمی ادویات واپس نہیں کیں۔",
+    "notice": "یہ سطح صرف درج شدہ medication schedules اور refill metadata دکھاتی ہے۔ شامل، ترمیم، روکنا، refill اور reminder actions دستیاب نہیں۔",
+    "unavailableTitle": "دائمی ادویات لوڈ نہیں ہو سکیں",
+    "unavailable": "کوئی متبادل medication data نہیں دکھایا گیا۔"
   }
 }

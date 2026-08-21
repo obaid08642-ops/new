@@ -517,5 +517,20 @@
     "notice": "ये केवल profile में दर्ज entries हैं। कोई diagnosis, severity, control assessment या treatment recommendation नहीं दी जाती।",
     "unavailableTitle": "Chronic conditions लोड नहीं हो सकीं",
     "unavailable": "कोई fallback condition data नहीं दिखाया गया।"
+  },
+  "ChronicMedications": {
+    "eyebrow": "दीर्घकालिक दवा रिकॉर्ड",
+    "title": "दीर्घकालिक दवाएँ",
+    "back": "स्वास्थ्य पर वापस",
+    "active": "सक्रिय",
+    "inactive": "निष्क्रिय",
+    "unnamed": "अनाम दवा",
+    "refillDate": "रीफिल तारीख",
+    "days": "दिन",
+    "remaining": "रिकॉर्ड की गई शेष इकाइयाँ",
+    "empty": "कोई chronic medication नहीं लौटाई गई।",
+    "notice": "यह surface केवल recorded medication schedules और refill metadata दिखाती है। जोड़ना, संपादित करना, रोकना, refill और reminder actions उपलब्ध नहीं हैं।",
+    "unavailableTitle": "Chronic medications लोड नहीं हो सकीं",
+    "unavailable": "कोई fallback medication data नहीं दिखाया गया।"
   }
 }

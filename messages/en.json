@@ -517,5 +517,20 @@
     "notice": "These are self-recorded profile entries only. No diagnosis, severity, control assessment, or treatment recommendation is provided.",
     "unavailableTitle": "Unable to load chronic conditions",
     "unavailable": "No fallback condition data was shown."
+  },
+  "ChronicMedications": {
+    "eyebrow": "Long-term medication records",
+    "title": "Chronic medications",
+    "back": "Back to health",
+    "active": "Active",
+    "inactive": "Inactive",
+    "unnamed": "Unnamed medicine",
+    "refillDate": "Refill date",
+    "days": "days",
+    "remaining": "Recorded units remaining",
+    "empty": "No chronic medications were returned.",
+    "notice": "This surface shows recorded medication schedules and refill metadata only. Add, edit, stop, refill, and reminder actions remain unavailable.",
+    "unavailableTitle": "Unable to load chronic medications",
+    "unavailable": "No fallback medication data was shown."
   }
 }

@@ -517,5 +517,20 @@
     "notice": "Mga entry lang ito mula sa profile. Walang diagnosis, severity, control assessment, o treatment recommendation.",
     "unavailableTitle": "Hindi ma-load ang chronic conditions",
     "unavailable": "Walang fallback condition data na ipinakita."
+  },
+  "ChronicMedications": {
+    "eyebrow": "Mga record ng long-term medication",
+    "title": "Mga chronic medication",
+    "back": "Bumalik sa health",
+    "active": "Active",
+    "inactive": "Inactive",
+    "unnamed": "Hindi pinangalanang gamot",
+    "refillDate": "Petsa ng refill",
+    "days": "araw",
+    "remaining": "Naitalang natitirang units",
+    "empty": "Walang chronic medication na ibinalik.",
+    "notice": "Ipinapakita lang ang recorded medication schedules at refill metadata. Hindi available ang add, edit, stop, refill, at reminder actions.",
+    "unavailableTitle": "Hindi ma-load ang chronic medications",
+    "unavailable": "Walang fallback medication data na ipinakita."
   }
 }
