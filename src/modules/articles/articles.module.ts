@@ -10,7 +10,8 @@ import {
 import { InjectConnection, InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
+import { JwtAuthGuard, Public, Roles, CurrentUser } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { Article, ArticleSchema } from '../../schemas/article.schema';
 import { buildSlug, slugify } from '../../common/slug.util';
@@ -40,6 +41,12 @@ export class ArticlesService {
     if (!doc) throw new NotFoundException('article not found');
     this.model.updateOne({ id: doc.id }, { $inc: { views: 1 } }).exec().catch(() => null);
     return doc;
+  }
+
+  async publishedById(id: string) {
+    const article: any = await this.model.findOne({ id, status: 'PUBLISHED', is_deleted: { $ne: true } }, { id: 1 }).lean();
+    if (!article) throw new NotFoundException('article_not_found');
+    return article;
   }
 
   async create(body: any) {
@@ -110,6 +117,34 @@ export class ArticlesAdminController {
   @Delete(':id') remove(@Param('id') id: string) { return this.svc.remove(id); }
 }
 
+// ── Contract bookmarks (authenticated, owner-scoped and idempotent) ────────
+@Controller('articles')
+@UseGuards(JwtAuthGuard)
+export class ArticleBookmarkContractController {
+  constructor(@InjectConnection() private conn: Connection, private svc: ArticlesService) {}
+  private get col() { return this.conn.db.collection('article_bookmarks'); }
+
+  @Post(':id/bookmark')
+  @RequireIdempotency()
+  async add(@CurrentUser() user: any, @Param('id') id: string) {
+    const article = await this.svc.publishedById(id);
+    await this.col.updateOne(
+      { user_id: user?.id, article_id: article.id },
+      { $setOnInsert: { id: uuidv4(), user_id: user?.id, article_id: article.id, createdAt: new Date() } },
+      { upsert: true },
+    );
+    return { bookmarked: true };
+  }
+
+  @Delete(':id/bookmark')
+  @RequireIdempotency()
+  async remove(@CurrentUser() user: any, @Param('id') id: string) {
+    const article = await this.svc.publishedById(id);
+    await this.col.deleteOne({ user_id: user?.id, article_id: article.id });
+    return { bookmarked: false };
+  }
+}
+
 // ── Patient bookmarks (authenticated) ─────────────────────────────────────
 @Controller('articles/bookmarks')
 @UseGuards(JwtAuthGuard)
@@ -154,7 +189,7 @@ export class ArticleBookmarksController {
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }])],
-  controllers: [ArticlesPublicController, ArticlesAdminController, SeoController, ArticleBookmarksController],
+  controllers: [ArticlesPublicController, ArticlesAdminController, SeoController, ArticleBookmarkContractController, ArticleBookmarksController],
   providers: [ArticlesService],
   exports: [ArticlesService],
 })
