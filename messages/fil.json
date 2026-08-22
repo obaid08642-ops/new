@@ -240,7 +240,8 @@
     "unread": "Hindi pa nababasa",
     "unavailableTitle": "Hindi na-load ang mga abiso",
     "unavailable": "Walang kapalit na data na ipinakita. Subukang muli mamaya.",
-    "notice": "Ito ay listahang pangbasa lamang. Walang payload link, pagmamarka bilang nabasa, pagpaparehistro ng device o pagbabago ng setting na ginagawa mula sa interface na ito."
+    "notice": "Ito ay listahang pangbasa lamang. Walang payload link, pagmamarka bilang nabasa, pagpaparehistro ng device o pagbabago ng setting na ginagawa mula sa interface na ito.",
+    "settings": "Mga setting ng abiso"
   },
   "Health": {
     "eyebrow": "Pribadong kalusugan",

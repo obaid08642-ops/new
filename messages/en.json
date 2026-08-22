@@ -195,7 +195,8 @@
     "unread": "Unread",
     "unavailableTitle": "Unable to load notifications",
     "unavailable": "No fallback data was shown. Please retry later.",
-    "notice": "This is a read-only list. No payload links, read-marking action, device registration, or settings operation is performed from this interface."
+    "notice": "This is a read-only list. No payload links, read-marking action, device registration, or settings operation is performed from this interface.",
+    "settings": "Notification settings"
   },
   "Health": {
     "eyebrow": "Private health",
