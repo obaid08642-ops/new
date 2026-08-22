@@ -6,6 +6,7 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { Prescription, PrescriptionSchema } from '../../schemas/prescription.schema';
+import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
 import { PrescriptionState } from '../../common/enums';
 
 export type CartLineKind = 'lab' | 'radiology' | 'pharmacy' | 'doctor' | 'home_care';
@@ -35,7 +36,10 @@ export const UnifiedCartSchema = SchemaFactory.createForClass(UnifiedCart);
 
 @Injectable()
 export class CartService {
-  constructor(@InjectModel('UnifiedCart') private model: Model<UnifiedCart>) {}
+  constructor(
+    @InjectModel('UnifiedCart') private model: Model<UnifiedCart>,
+    @InjectModel(Medicine.name) private medicines: Model<Medicine>,
+  ) {}
 
   private async ensureCart(patient_id: string) {
     let c = await this.model.findOne({ patient_id });
@@ -90,6 +94,29 @@ export class CartService {
     return this.summarize(c);
   }
 
+  /** Contract-facing pharmacy item path. Server resolves medicine identity, name, and price. */
+  async addContractItem(user: any, body: { medicine_id?: string; manual_name?: string; quantity?: number }) {
+    const quantity = Number(body?.quantity);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) throw new BadRequestException('invalid_quantity');
+    const medicineId = String(body?.medicine_id || '').trim();
+    const manualName = String(body?.manual_name || '').trim();
+    if ((medicineId && manualName) || (!medicineId && !manualName)) throw new BadRequestException('medicine_id_or_manual_name_required');
+    if (medicineId) {
+      const medicine: any = await this.medicines.findOne({ id: medicineId, is_deleted: { $ne: true } }).lean();
+      if (!medicine) throw new NotFoundException('medicine_not_found');
+      return this.addLine(user, {
+        kind: 'pharmacy', service_id: medicine.id, name_ar: medicine.name_ar,
+        name_en: medicine.name_en, price: Number(medicine.price || 0), qty: quantity,
+        meta: { source: 'catalog', requires_prescription: Boolean(medicine.requires_prescription) },
+      });
+    }
+    if (manualName.length > 160) throw new BadRequestException('invalid_manual_name');
+    return this.addLine(user, {
+      kind: 'pharmacy', service_id: `manual:${uuidv4()}`, name_ar: manualName,
+      price: 0, qty: quantity, meta: { source: 'patient_manual', review_status: 'PENDING_REVIEW' },
+    });
+  }
+
   async updateLine(user: any, line_id: string, patch: any) {
     const c = await this.ensureCart(user.id);
     const idx = c.lines.findIndex((l: any) => l.line_id === line_id);
@@ -134,6 +161,9 @@ export class CartController {
     @InjectModel(Prescription.name) private prescriptions: Model<any>,
   ) {}
   @Get('') get(@CurrentUser() u: any) { return this.svc.get(u); }
+  @Post('items') addContractItem(@Body() b: any, @CurrentUser() u: any) { return this.svc.addContractItem(u, b); }
+  @Patch('items/:lineId') updateContractItem(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, { qty: b?.quantity }); }
+  @Delete('items/:lineId') removeContractItem(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
   @Post('lines') add(@Body() b: any, @CurrentUser() u: any) { return this.svc.addLine(u, b); }
   @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
   @Delete('lines/:lineId') rm(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
@@ -165,6 +195,7 @@ export class CartController {
   imports: [MongooseModule.forFeature([
     { name: 'UnifiedCart', schema: UnifiedCartSchema },
     { name: Prescription.name, schema: PrescriptionSchema },
+    { name: Medicine.name, schema: MedicineSchema },
   ])],
   controllers: [CartController],
   providers: [CartService],
