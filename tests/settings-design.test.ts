@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const css = readFileSync(resolve(process.cwd(), "app/[locale]/settings/settings.module.css"), "utf8");
+const page = readFileSync(resolve(process.cwd(), "app/[locale]/settings/page.tsx"), "utf8");
 
 describe("account settings design", () => {
   it("provides structured settings cards, protected boundaries, and honest states", () => {
@@ -11,6 +12,10 @@ describe("account settings design", () => {
     expect(css).toContain(".sessionsSummary");
     expect(css).toContain(".state");
     expect(css).toContain("border: 1px dashed");
+  });
+
+  it("keeps server-provided labels readable when directions are mixed", () => {
+    expect(page).toContain('dir="auto"');
   });
 
   it("collapses safely for narrow screens", () => {

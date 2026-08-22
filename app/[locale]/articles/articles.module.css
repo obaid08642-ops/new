@@ -22,6 +22,7 @@
 .copy { display: grid; gap: .35rem; min-inline-size: 0; }
 .copy strong { color: var(--ink); overflow-wrap: anywhere; }
 .copy span { color: var(--muted); font-size: .84rem; }
+.copy span[dir="auto"] { text-align: match-parent; }
 .arrow { color: var(--brand-deep); }
 .empty, .state { display: grid; justify-items: center; gap: .75rem; padding: clamp(2rem, 7vw, 3.5rem) 1.25rem; border: 1px dashed rgba(8,127,140,.28); border-radius: var(--radius-xl); background: linear-gradient(145deg, rgba(255,255,255,.76), rgba(231,247,247,.58)); color: var(--muted); text-align: center; }
 .empty h2, .empty p, .state h1, .state p { margin: 0; }
