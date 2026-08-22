@@ -1,0 +1,3 @@
+method	path	status
+PATCH	/api/v1/unified-bookings/consultation/{id}/reschedule	401
+POST	/api/v1/unified-bookings/consultation/{id}/reschedule	404

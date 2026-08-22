@@ -126,3 +126,60 @@
 - `sandbox-gate.log`
 
 **الخلاصة:** المسار الآمن ليس إضافة صفحات شكلية لكل ملف Mobile، بل إغلاق كل capability بعقد حي، ملكية، بيانات حقيقية، حالات فشل، اختبارات، وتجربة استخدام كاملة. بهذه الطريقة فقط يمكن الانتقال من “read-only parity candidate” إلى إطلاق إنتاجي قابل للدفاع عنه.
+
+
+## 10. ملحق تصحيح Reschedule وقواعد الإطلاق المضافة
+
+تم اكتشاف أن تنفيذ Reschedule السابق كان يستخدم method غير صحيح. التحقق الحي دون جلسة أثبت أن العقد المنشور هو:
+
+> `PATCH /api/v1/unified-bookings/consultation/{id}/reschedule` يعيد 401 دون جلسة، بينما `POST` على المسار نفسه يعيد 404.
+
+لذلك تم تصحيح BFF إلى `PATCH /api/appointments/[appointmentId]/reschedule`، وتصحيح الاستدعاء من Appointment Detail إلى `PATCH`، وتحديث الاختبار ليثبت `method: "PATCH"` في الطلب المتجه إلى upstream. دليل التحقق محفوظ في `full-audit-20260823/reschedule-method-probe.tsv`. هذه القاعدة أصبحت إلزامية: **قبل بناء أو اعتماد أي mutation يجب إرسال request حي دون جلسة بالـHTTP method والمسار معاً؛ 401 أو 403 يدل على route موجود ومحمي، و404 يدل على route غير موجود، ولا يجوز اعتماد method من mock محلي أو خريطة قديمة.**
+
+## 11. مواصفة التصميم والهوية المتجهية الفاخرة
+
+يجب إنشاء Design System مركزي قبل إعادة تلميع الصفحات المتبقية. يشمل ذلك tokens للون والمسافات والأحجام والـradii والظلال والشفافية، semantic states للصحة والنجاح والتحذير والخطأ، ونظام typography عربي/لاتيني/RTL مضبوطاً. لا تُستخدم emoji أو رموز نصية بديلة أو أيقونات raster غير ضرورية. كل الأيقونات والأزرار والعناصر الزخرفية يجب أن تكون SVG/vector قابلة للتلوين والتكبير، ذات stroke/fill متسق، focus state واضح، وملكية مرخصة أو مصممة داخلياً.
+
+يُعتمد نظام مكونات موحد للأزرار، inputs، select، cards، sheets، dialogs، toast، tabs، breadcrumbs، skeletons، empty/error states، badges، وnavigation. كل component يحتاج variants للـdefault/hover/active/focus/disabled/loading/error وRTL. لا يُسمح بزر مرئي بلا action حقيقي؛ وإذا كان العقد غير منشور يظهر disabled مع حالة `Blocked` صادقة، لا placeholder يوحي بعمل مكتمل.
+
+تُطبق الحركة على فتح الصفحة والانتقال بين الحالات والمحتويات والأيقونات، لكن بحركة هادئة وظيفية لا تشبه قوالب AI الجاهزة: page entrance، shared-element-like transitions حيث لا تكسر accessibility، skeleton shimmer خفيف، button press، modal/drawer، list reveal وsuccess confirmation. يجب أن تكون الحركة transform/opacity غالباً، ضمن 100–300ms للتفاعلات اليومية، مع `prefers-reduced-motion` يعطل الحركة غير الضرورية. لا يبدأ أي عنصر من `scale(0)`، ولا تُستخدم حركة تؤخر المحتوى أو الدفع أو التحقق الطبي.
+
+## 12. مواصفة الرحلة الكاملة من البداية إلى النهاية
+
+لكل خدمة رئيسية تُنشأ رحلة E2E مستقلة تبدأ من discovery وتنتهي بنتيجة server-authoritative:
+
+| الرحلة | مراحل القبول الإلزامية |
+|---|---|
+| Consultation | login/OTP → search/filter → doctor detail → slots → insurance/payment choice → booking lock → pending/confirmed → payment intent/confirmation → appointment detail → cancel/reschedule أو call-token → post-action refresh |
+| Labs | discovery → service/package detail → patient/address/time → insurance/payment → booking → confirmation → sample tracking → results/history → report access |
+| Radiology | list/filter/modality → detail بعد إصلاح backend → booking/payment → confirmation → tracking/result؛ detail لا يُفتح قبل إصلاح bug |
+| Home care/Nursing | service → provider/visit availability → address/consent → booking/payment → confirmation → visit tracking/status → cancellation/reschedule وفق العقد |
+| Pharmacy | catalog/search/detail → cart lines → address/profile → prescription/upload عند الحاجة → checkout/coupon/wallet → order pending/confirmed → tracking → cancel/reorder/return/chat حسب العقد |
+| Health/Reminders | profile/consent → create/edit/log/refill → server refresh → history؛ لا local-only authoritative state |
+| Profile/Insurance | authenticated profile → addresses/insurance/security/preferences → save → refresh → owner isolation |
+
+كل رحلة يجب أن تختبر refresh في كل مرحلة، back/forward، deep link، session expiry، network failure، duplicate click، stale slot، payment failure، empty result، not-found، unauthorized، locale/RTL، keyboard/focus وreduced motion. النتيجة لا تُعتبر ناجحة من واجهة العميل؛ يجب أن تأتي من backend أو PSP أو المصدر المتعاقد.
+
+## 13. الأداء والسرعة والاعتمادية
+
+يجب قياس Core Web Vitals ووقت أول محتوى مفيد ووقت التفاعل وحجم JavaScript لكل route، مع budgets واضحة للصفحات الأساسية. تُستخدم SSR/streaming حيث يلزم، caching آمن للبيانات العامة فقط، no-store للبيانات الخاصة، lazy loading للمكونات الثقيلة، responsive images/vector assets، وتقليل hydration. يجب ألا ينتظر المستخدم animation قبل ظهور المحتوى الأساسي.
+
+يُضاف اختبار ضعف الشبكة، timeout، retry with backoff عند الملاءمة، cancellation للطلبات القديمة، منع double submit، وerror boundary لكل نطاق. يجب أن يكون logging redacted، وأن تتوفر health/readiness checks، metrics، correlation IDs، alerting للـ5xx والـlatency والـpayment failures، وخطة rollback مجربة.
+
+## 14. SEO/GEO/AEO/ASO والاكتشاف
+
+تُبنى metadata فريدة ومترجمة لكل صفحة عامة: title، description، canonical، hreflang للغات الست، Open Graph، Twitter metadata، robots، sitemap، وstructured data صالح مثل Organization، WebSite، BreadcrumbList، Article وFAQ عند انطباقه. لا تُكشف صفحات أو بيانات المريض الخاصة لمحركات البحث.
+
+لـGEO/AEO، تُكتب صفحات الخدمات العامة بمعلومات مباشرة قابلة للاقتباس، عناوين واضحة، تعريفات وأسئلة شائعة صادقة، entity naming ثابت لـNabd Plus، ومصادر/تاريخ تحديث عند الحاجة. لا تُنتج إجابات طبية أو أسعار أو توفر غير مدعوم بعقد حي. تُجهز `llms.txt` وcontent hierarchy دون حشو كلمات افتتاحية.
+
+لـASO، تُراجع الاسم والوصف والكلمات المفتاحية والصور والرسائل بما يتطابق مع الهوية الفعلية للتطبيق، مع عدم خلط SEO الخاص بالموقع ببيانات Mobile غير منشورة. تُضاف مراقبة search console، structured-data validation، broken links، canonical conflicts، وindexability regression إلى بوابة الإطلاق.
+
+## 15. Definition of Done النهائي المحدث
+
+لا يُعلن الإصدار 100% إلا عند تحقق الشروط التالية معاً: register كل Mobile screen/action/journey مغلق أو مصنف بقرار مالك؛ كل route/action له عقد حي أو Blocked موثق؛ لا placeholders أو mock/fake success في production؛ Reschedule method/path متحققان حياً؛ كل mutation يملك owner/stranger/unauth وidempotency/replay evidence؛ كل رحلة حجز/شراء E2E مكتملة؛ design system vector/premium موحد؛ جميع حالات loading/empty/error/unauthorized/not-found موجودة؛ الحركة وreduced-motion وRTL/accessibility مجتازة؛ performance budgets مجتازة؛ SEO/GEO/AEO/ASO checks مجتازة؛ Sandbox كامل ناجح؛ build/type/test/security scans ناجحة؛ production-like smoke وrollback وmonitoring مجربة؛ ثم commit/push و`git ls-remote` مطابق.
+
+أي شرط غير متحقق يجعل القرار **NO-GO** أو **GO محدوداً بنطاق موثق**، ولا يجوز استخدام عبارة “جاهز 100%” لتغطية فجوة محجوبة أو اختبار لم يُشغّل.
+
+## 16. أول خطوة تنفيذية بعد هذا التحديث
+
+تبدأ الدورة الحالية بإغلاق Reschedule المصحح والتحقق من regression، ثم تحديث contract register، ثم تنفيذ P0 Auth/appointments/payments/pharmacy journeys. كل شريحة منفصلة، وكل شريحة لها live method/path probe قبل التنفيذ، ثم implementation، ثم tests، ثم visual/accessibility checks، ثم full gate، ثم push و`git ls-remote` قبل الانتقال إلى التالية.
