@@ -1,0 +1,251 @@
+missing_web_candidate	(auth)	(auth)/_layout.tsx	
+missing_web_candidate	(auth)	(auth)/forgot-password.tsx	
+candidate	(auth)	(auth)/login.tsx	/[locale]/login
+missing_web_candidate	(auth)	(auth)/otp.tsx	
+missing_web_candidate	(auth)	(auth)/privacy.tsx	
+missing_web_candidate	(auth)	(auth)/provider-info.tsx	
+missing_web_candidate	(auth)	(auth)/register.tsx	
+missing_web_candidate	(auth)	(auth)/reset-password.tsx	
+missing_web_candidate	(auth)	(auth)/terms.tsx	
+missing_web_candidate	(auth)	(auth)/welcome.tsx	
+missing_web_candidate	(onboarding)	(onboarding)/_layout.tsx	
+missing_web_candidate	(onboarding)	(onboarding)/index.tsx	
+missing_web_candidate	(onboarding)	(onboarding)/language.tsx	
+missing_web_candidate	(onboarding)	(onboarding)/permissions.tsx	
+missing_web_candidate	(tabs)	(tabs)/_layout.tsx	
+missing_web_candidate	(tabs)	(tabs)/consultations/index.tsx	
+candidate	(tabs)	(tabs)/diagnostics.tsx	/[locale]/diagnostics
+candidate	(tabs)	(tabs)/health.tsx	/[locale]/health
+missing_web_candidate	(tabs)	(tabs)/index.tsx	
+missing_web_candidate	(tabs)	(tabs)/nursing.tsx	
+missing_web_candidate	(tabs)	(tabs)/pharmacy.tsx	
+candidate	(tabs)	(tabs)/services.tsx	/[locale]/home-care/services
+missing_web_candidate	_layout.tsx	_layout.tsx	
+missing_web_candidate	ai	ai/chat-doctor.tsx	
+missing_web_candidate	ai	ai/monthly-report.tsx	
+missing_web_candidate	ai	ai/prescription-translator.tsx	
+missing_web_candidate	ai	ai/skin-analysis.tsx	
+missing_web_candidate	ai	ai/symptom-checker.tsx	
+missing_web_candidate	ai	ai/symptom-timeline.tsx	
+missing_web_candidate	ai	ai/triage.tsx	
+missing_web_candidate	ai-assistant.tsx	ai-assistant.tsx	
+candidate	articles	articles/[slug].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+candidate	articles	articles/bookmarks.tsx	/[locale]/articles/bookmarks
+missing_web_candidate	articles	articles/index.tsx	
+missing_web_candidate	community	community/hub.tsx	
+missing_web_candidate	community	community/post-detail.tsx	
+missing_web_candidate	consultations	consultations/appointment-detail.tsx	
+candidate	consultations	consultations/appointments.tsx	/[locale]/appointments
+candidate	consultations	consultations/book/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	consultations	consultations/booking-confirm.tsx	
+missing_web_candidate	consultations	consultations/booking-pending.tsx	
+missing_web_candidate	consultations	consultations/booking-success.tsx	
+missing_web_candidate	consultations	consultations/call-history.tsx	
+missing_web_candidate	consultations	consultations/cancel-reschedule.tsx	
+missing_web_candidate	consultations	consultations/chat-with-doctor.tsx	
+candidate	consultations	consultations/clinic/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	consultations	consultations/clinic-confirm.tsx	
+missing_web_candidate	consultations	consultations/clinic-location.tsx	
+candidate	consultations	consultations/doctor/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	consultations	consultations/doctor-profile.tsx	
+missing_web_candidate	consultations	consultations/doctor-search.tsx	
+missing_web_candidate	consultations	consultations/follow-up.tsx	
+missing_web_candidate	consultations	consultations/home-visit-tracking.tsx	
+missing_web_candidate	consultations	consultations/incoming-call.tsx	
+candidate	consultations	consultations/offer/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	consultations	consultations/post-call-rating.tsx	
+missing_web_candidate	consultations	consultations/prescription-from-doctor.tsx	
+missing_web_candidate	consultations	consultations/share-report.tsx	
+missing_web_candidate	consultations	consultations/specialty-select.tsx	
+missing_web_candidate	consultations	consultations/summary.tsx	
+candidate	consultations	consultations/video/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	consultations	consultations/video-call.tsx	
+missing_web_candidate	consultations	consultations/virtual-waiting-room.tsx	
+missing_web_candidate	consultations	consultations/waiting-room.tsx	
+missing_web_candidate	delivery	delivery/address-select.tsx	
+missing_web_candidate	diagnostics	diagnostics/book-sample.tsx	
+missing_web_candidate	diagnostics	diagnostics/booking-confirm.tsx	
+missing_web_candidate	diagnostics	diagnostics/booking-success.tsx	
+candidate	diagnostics	diagnostics/cart.tsx	/[locale]/cart
+candidate	diagnostics	diagnostics/checkout.tsx	/[locale]/cart/checkout
+missing_web_candidate	diagnostics	diagnostics/insurance-approval.tsx	
+missing_web_candidate	diagnostics	diagnostics/insurance-upload.tsx	
+candidate	diagnostics	diagnostics/lab/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	diagnostics	diagnostics/lab-comparison.tsx	
+missing_web_candidate	diagnostics	diagnostics/my-results.tsx	
+candidate	diagnostics	diagnostics/order/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+candidate	diagnostics	diagnostics/orders.tsx	/[locale]/orders
+missing_web_candidate	diagnostics	diagnostics/package-detail.tsx	
+candidate	diagnostics	diagnostics/packages.tsx	/[locale]/diagnostics/packages
+missing_web_candidate	diagnostics	diagnostics/results-history.tsx	
+missing_web_candidate	diagnostics	diagnostics/sample-tracking.tsx	
+missing_web_candidate	diagnostics	diagnostics/search.tsx	
+missing_web_candidate	diagnostics	diagnostics/technician-tracking.tsx	
+missing_web_candidate	diagnostics	diagnostics/test-detail.tsx	
+missing_web_candidate	diagnostics	diagnostics/upload-rx.tsx	
+missing_web_candidate	drug-scanner	drug-scanner/index.tsx	
+missing_web_candidate	emergency	emergency/index.tsx	
+missing_web_candidate	emergency	emergency/sos-active.tsx	
+missing_web_candidate	emergency	emergency/sos.tsx	
+candidate	emergency	emergency/tracking.tsx	/[locale]/orders/[orderId]/tracking
+missing_web_candidate	family	family/calendar.tsx	
+candidate	family	family/chat.tsx	/[locale]/chat
+candidate	family	family/emergency-contacts.tsx	/[locale]/health/emergency-contacts
+missing_web_candidate	family	family/hub.tsx	
+missing_web_candidate	family	family/index.tsx	
+missing_web_candidate	family	family/invite.tsx	
+missing_web_candidate	family	family/join.tsx	
+missing_web_candidate	family	family/member-health.tsx	
+missing_web_candidate	family	family/permission-request.tsx	
+missing_web_candidate	family	family/permissions.tsx	
+missing_web_candidate	family	family/scan.tsx	
+missing_web_candidate	family	family/shared-calendar.tsx	
+missing_web_candidate	health	health/actionable-order.tsx	
+missing_web_candidate	health	health/add-family-member.tsx	
+missing_web_candidate	health	health/chronic-disease.tsx	
+candidate	health	health/chronic-medications.tsx	/[locale]/health/chronic-medications
+missing_web_candidate	health	health/conditions-allergies.tsx	
+missing_web_candidate	health	health/edit-profile.tsx	
+candidate	health	health/emergency-contacts.tsx	/[locale]/health/emergency-contacts
+missing_web_candidate	health	health/family-calendar.tsx	
+missing_web_candidate	health	health/family-chat.tsx	
+missing_web_candidate	health	health/family-hub.tsx	
+missing_web_candidate	health	health/family-member-detail.tsx	
+missing_web_candidate	health	health/health-id.tsx	
+missing_web_candidate	health	health/medication-reminder-add.tsx	
+missing_web_candidate	health	health/medication-reminder-list.tsx	
+missing_web_candidate	health	health/medications.tsx	
+candidate	health	health/prescriptions.tsx	/[locale]/prescriptions
+missing_web_candidate	health	health/refills.tsx	
+candidate	health	health/reminders.tsx	/[locale]/reminders
+candidate	health	health/reports.tsx	/[locale]/health/reports
+missing_web_candidate	health	health/sleep-score.tsx	
+missing_web_candidate	health	health/sleep-tracker.tsx	
+missing_web_candidate	health	health/smart-reminders.tsx	
+candidate	health	health/trends.tsx	/[locale]/health/trends
+missing_web_candidate	health	health/vitals-log.tsx	
+candidate	health	health/vitals.tsx	/[locale]/health/vitals
+missing_web_candidate	health	health/wearables.tsx	
+missing_web_candidate	index.tsx	index.tsx	
+missing_web_candidate	insurance	insurance/add-policy.tsx	
+missing_web_candidate	insurance	insurance/approval-pending.tsx	
+missing_web_candidate	insurance	insurance/benefits-summary.tsx	
+missing_web_candidate	insurance	insurance/claim-tracking.tsx	
+missing_web_candidate	insurance	insurance/copay.tsx	
+missing_web_candidate	insurance	insurance/coverage-check.tsx	
+missing_web_candidate	insurance	insurance/hub.tsx	
+missing_web_candidate	insurance	insurance/index.tsx	
+missing_web_candidate	insurance	insurance/network-providers.tsx	
+missing_web_candidate	insurance	insurance/payment-split.tsx	
+missing_web_candidate	insurance	insurance/policy-detail.tsx	
+missing_web_candidate	insurance	insurance/refund-status.tsx	
+missing_web_candidate	insurance	insurance/submit-claim.tsx	
+missing_web_candidate	loyalty	loyalty/challenges.tsx	
+missing_web_candidate	loyalty	loyalty/hub.tsx	
+missing_web_candidate	loyalty	loyalty/leaderboard.tsx	
+missing_web_candidate	loyalty	loyalty/referrals.tsx	
+missing_web_candidate	loyalty	loyalty/rewards.tsx	
+missing_web_candidate	map	map/index.tsx	
+missing_web_candidate	maternity	maternity/baby-development.tsx	
+missing_web_candidate	maternity	maternity/baby-growth.tsx	
+missing_web_candidate	maternity	maternity/fetus-data.ts	
+missing_web_candidate	maternity	maternity/hub.tsx	
+missing_web_candidate	maternity	maternity/maternity-setup.tsx	
+missing_web_candidate	maternity	maternity/ovulation-tracker.tsx	
+missing_web_candidate	maternity	maternity/pregnancy-tracker.tsx	
+candidate	mental-health	mental-health/breathing.tsx	/[locale]/mental-health/breathing
+missing_web_candidate	mental-health	mental-health/crisis-support.tsx	
+missing_web_candidate	mental-health	mental-health/hub.tsx	
+missing_web_candidate	mental-health	mental-health/index.tsx	
+candidate	mental-health	mental-health/meditation.tsx	/[locale]/mental-health/meditation
+missing_web_candidate	mental-health	mental-health/mood-journal.tsx	
+missing_web_candidate	mental-health	mental-health/self-assessment.tsx	
+missing_web_candidate	mental-health	mental-health/therapist-match.tsx	
+missing_web_candidate	notifications	notifications/index.tsx	
+missing_web_candidate	nursing	nursing/live-tracking.tsx	
+missing_web_candidate	nursing	nursing/nurse-profile.tsx	
+missing_web_candidate	nursing	nursing/service-details.tsx	
+missing_web_candidate	nursing	nursing/service-info.tsx	
+missing_web_candidate	nutrition	nutrition/ai-meal-planner.tsx	
+missing_web_candidate	nutrition	nutrition/ai-plan-builder.tsx	
+missing_web_candidate	nutrition	nutrition/body-composition.tsx	
+missing_web_candidate	nutrition	nutrition/body-target.tsx	
+missing_web_candidate	nutrition	nutrition/calorie-analyzer.tsx	
+missing_web_candidate	nutrition	nutrition/daily-tracker.tsx	
+missing_web_candidate	nutrition	nutrition/exercise-plan.tsx	
+missing_web_candidate	nutrition	nutrition/food-scanner.tsx	
+missing_web_candidate	nutrition	nutrition/hub.tsx	
+missing_web_candidate	nutrition	nutrition/index.tsx	
+missing_web_candidate	nutrition	nutrition/log-meal.tsx	
+missing_web_candidate	nutrition	nutrition/nutrition-plan.tsx	
+missing_web_candidate	nutrition	nutrition/water-tracker.tsx	
+candidate	offers	offers/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	offers	offers/index.tsx	
+missing_web_candidate	orders	orders/index.tsx	
+missing_web_candidate	payments	payments/failed.tsx	
+missing_web_candidate	payments	payments/failure.tsx	
+missing_web_candidate	payments	payments/processing.tsx	
+missing_web_candidate	payments	payments/success.tsx	
+missing_web_candidate	pharmacy	pharmacy/barcode-scanner.tsx	
+missing_web_candidate	pharmacy	pharmacy/broadcast-status.tsx	
+candidate	pharmacy	pharmacy/cart.tsx	/[locale]/cart
+missing_web_candidate	pharmacy	pharmacy/chat-with-pharmacist.tsx	
+candidate	pharmacy	pharmacy/checkout.tsx	/[locale]/cart/checkout
+missing_web_candidate	pharmacy	pharmacy/custom-item.tsx	
+missing_web_candidate	pharmacy	pharmacy/drug-not-found.tsx	
+missing_web_candidate	pharmacy	pharmacy/filters.tsx	
+missing_web_candidate	pharmacy	pharmacy/manual-order.tsx	
+missing_web_candidate	pharmacy	pharmacy/medicine-compare.tsx	
+missing_web_candidate	pharmacy	pharmacy/order-confirm.tsx	
+missing_web_candidate	pharmacy	pharmacy/order-history.tsx	
+missing_web_candidate	pharmacy	pharmacy/order-tracking.tsx	
+missing_web_candidate	pharmacy	pharmacy/payment.tsx	
+missing_web_candidate	pharmacy	pharmacy/pharmacist-chat.tsx	
+missing_web_candidate	pharmacy	pharmacy/product-detail.tsx	
+missing_web_candidate	pharmacy	pharmacy/product-search.tsx	
+missing_web_candidate	pharmacy	pharmacy/reorder.tsx	
+missing_web_candidate	pharmacy	pharmacy/rx-order.tsx	
+missing_web_candidate	pharmacy	pharmacy/scan-prescription.tsx	
+missing_web_candidate	pharmacy	pharmacy/waiting-for-pharmacy.tsx	
+missing_web_candidate	pharmacy	pharmacy/wishlist.tsx	
+missing_web_candidate	profile	profile/addresses.tsx	
+missing_web_candidate	profile	profile/edit.tsx	
+missing_web_candidate	profile	profile/index.tsx	
+candidate	profile	profile/insurance.tsx	/[locale]/insurance
+missing_web_candidate	programs	programs/active.tsx	
+missing_web_candidate	reports	reports/ai-analysis.tsx	
+missing_web_candidate	reports	reports/hub.tsx	
+missing_web_candidate	reports	reports/passport.tsx	
+missing_web_candidate	reports	reports/timeline.tsx	
+missing_web_candidate	reports	reports/view-report.tsx	
+missing_web_candidate	returns	returns/detail.tsx	
+missing_web_candidate	returns	returns/hub.tsx	
+missing_web_candidate	returns	returns/new-request.tsx	
+missing_web_candidate	reviews	reviews/index.tsx	
+candidate	room	room/[id].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+candidate	s	s/[type]/[slug].tsx	/[locale],/[locale]/appointments/[appointmentId],/[locale]/articles/[slug],/[locale]/chat/[threadId],/[locale]/diagnostics/[domain]/[bookingId],/[locale]/diagnostics/packages/[packageId],/[locale]/home-care/services/[serviceId],/[locale]/medicines/[medicineId],/[locale]/orders/[orderId],/[locale]/prescriptions/[prescriptionId],/[locale]/consultations/doctors/[doctorId]
+missing_web_candidate	search	search/index.tsx	
+missing_web_candidate	services	services/index.tsx	
+missing_web_candidate	settings	settings/about.tsx	
+missing_web_candidate	settings	settings/data.tsx	
+missing_web_candidate	settings	settings/feedback.tsx	
+missing_web_candidate	settings	settings/help.tsx	
+missing_web_candidate	settings	settings/index.tsx	
+missing_web_candidate	settings	settings/language.tsx	
+missing_web_candidate	settings	settings/notifications-settings.tsx	
+candidate	settings	settings/notifications.tsx	/[locale]/notifications
+missing_web_candidate	settings	settings/privacy.tsx	
+missing_web_candidate	settings	settings/security.tsx	
+missing_web_candidate	settings	settings/support-chat.tsx	
+missing_web_candidate	settings	settings/terms.tsx	
+missing_web_candidate	shared	shared/location-picker.tsx	
+candidate	support	support/chat.tsx	/[locale]/chat
+missing_web_candidate	support	support/ticket.tsx	
+missing_web_candidate	voice	voice/index.tsx	
+missing_web_candidate	wallet	wallet/cards.tsx	
+missing_web_candidate	wallet	wallet/hub.tsx	
+missing_web_candidate	wallet	wallet/topup.tsx	
+missing_web_candidate	wallet	wallet/transactions.tsx	
+missing_web_candidate	wallet	wallet/transfer.tsx	
+missing_web_candidate	wearables	wearables/hub.tsx	
+{"mobile_app_source_screens": 250, "mobile_domains": {"(auth)": 10, "(onboarding)": 4, "(tabs)": 8, "_layout.tsx": 1, "ai": 7, "ai-assistant.tsx": 1, "articles": 3, "community": 2, "consultations": 28, "delivery": 1, "diagnostics": 20, "drug-scanner": 1, "emergency": 4, "family": 12, "health": 26, "index.tsx": 1, "insurance": 13, "loyalty": 5, "map": 1, "maternity": 7, "mental-health": 8, "notifications": 1, "nursing": 4, "nutrition": 13, "offers": 2, "orders": 1, "payments": 4, "pharmacy": 22, "profile": 4, "programs": 1, "reports": 5, "returns": 3, "reviews": 1, "room": 1, "s": 1, "search": 1, "services": 1, "settings": 12, "shared": 1, "support": 2, "voice": 1, "wallet": 5, "wearables": 1}, "with_web_filename_candidate": 38, "without_web_filename_candidate": 212, "mobile_screens_with_actions": 200, "mobile_screens_with_mutation_markers": 88}

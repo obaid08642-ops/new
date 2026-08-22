@@ -1,0 +1,472 @@
+file	line	text
+app/robots.ts	7	const privatePaths = ["/api/", ...locales.flatMap((locale) => privateRouteFamilies.map((route) => `/${locale}/${route}`))];
+app/seo.test.ts	10	expect(rules?.disallow).toEqual(expect.arrayContaining(["/api/", "/ar/dashboard", "/en/profile", "/ur/orders", "/hi/health", "/bn/reminders", "/fil/medicines"]));
+app/[locale]/appointments/appointments-ssr.test.ts	18	vi.mock("@/lib/api/appointments-server", () => ({
+app/[locale]/appointments/page.tsx	6	import { extractAppointmentRows } from "@/lib/api/appointments";
+app/[locale]/appointments/page.tsx	7	import { getPatientAppointments } from "@/lib/api/appointments-server";
+app/[locale]/articles/page.tsx	5	import { getPublicArticleCategories, getPublicArticles } from "@/lib/api/articles-server";
+app/[locale]/articles/page.tsx	6	import { parseArticleCategories, parseArticleList } from "@/lib/api/articles";
+app/[locale]/articles/page.tsx	11	export default async function ArticlesPage({params,searchParams}:Props){const {locale}=await params;if(!isLocale(locale))notFound();setRequestLocale(locale);const t=await getTranslations("Articles");const Chevron=locale==="ar"||locale==="ur"?ChevronLeft:ChevronRight;const query=searchParams?await searchParams:{};const [response,categoriesResponse]=await Promise.all([getPublicArticles({q:query.q,category:query.category}),getPublicArticleCategories()]);if(!response||!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const articles=parseArticleList(await response.json().catch(()=>null));const categories=categoriesResponse?.ok?parseArticleCategories(await categoriesResponse.json().catch(()=>null)):[];return <main className={`main ${styles.page}`}><section className={styles.hero}><p className={styles.eyebrow}><FileText size={15} aria-hidden="true"/>{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("notice")}</p><form className={styles.search} method="get"><Search size={18} aria-hidden="true"/><input name="q" defaultValue={query.q||""} maxLength={80} placeholder={t("searchPlaceholder")} aria-label={t("searchPlaceholder")}/><button type="submit">{t("search")}</button></form>{categories.length?<nav className={styles.chips} aria-label={t("categories")}>{categories.map((category)=><Link className={query.category===category?styles.chipActive:styles.chip} key={category} href={`/${locale}/articles?category=${encodeURIComponent(category)}`}><span dir="auto">{category}</span></Link>)}</nav>:null}</section>{articles.length?<section className={styles.list}>{articles.map((article)=><Link className={styles.card} key={article.slug} href={`/${locale}/articles/${article.slug}`}><span className={styles.icon}><FileText size={20} aria-hidden="true"/></span><span className={styles.copy}><strong dir="auto">{locale==="ar"?article.titleAr||article.titleEn:article.titleEn||article.titleAr||t("untitled")}</strong><span dir="auto">{article.category||t("categoryUnavailable")}</span></span><Chevron className={styles.arrow} size={18} aria-hidden="true"/></Link>)}</section>:<section className={styles.empty}><FileText size={34} aria-hidden="true"/><h2>{t("noResultsTitle")}</h2><p>{query.q||query.category?t("noResults"):t("empty")}</p></section>}</main>}
+app/[locale]/cart/cart-ssr.test.ts	3	const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), requirePatientAccess: vi.fn() }));
+app/[locale]/cart/cart-ssr.test.ts	8	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/[locale]/cart/cart-ssr.test.ts	13	beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue("server-only-cart-token"); state.callPatientApi.mockReset(); });
+app/[locale]/cart/cart-ssr.test.ts	15	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", groups: [{ kind: "pharmacy", count: 1, subtotal: 12, items: [{ line_id: "line-1", service_id: "med-1", name_ar: "Medicine", qty: 2, price: 6, notes: "private-notes", meta: { private: true } }] }], subtotal: 12, total: 12, currency: "SAR" }), { status: 200 }));
+app/[locale]/cart/cart-ssr.test.ts	17	expect(state.callPatientApi).toHaveBeenCalledWith("/cart", {}, "server-only-cart-token");
+app/[locale]/cart/cart-ssr.test.ts	23	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ groups: [{ kind: "pharmacy", items: [{ line_id: "line-1", service_id: "med-1", name_ar: "Medicine" }] }], currency: "SAR" }), { status: 200 }));
+app/[locale]/cart/cart-ssr.test.ts	30	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ currency: "SAR" }), { status: 200 }));
+app/[locale]/cart/cart-ssr.test.ts	37	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", subtotal: 12, home_visit_fee: 0, total: 12, currency: "SAR", notes: "private" }), { status: 200 }));
+app/[locale]/cart/cart-ssr.test.ts	39	expect(state.callPatientApi).toHaveBeenCalledWith("/cart/checkout", {}, "server-only-cart-token");
+app/[locale]/cart/page.tsx	5	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/cart/page.tsx	6	import { extractCartSummary } from "@/lib/api/cart";
+app/[locale]/cart/page.tsx	20	const response = await callPatientApi("/cart", {}, token);
+app/[locale]/chat/chat-ssr.test.ts	10	vi.mock("@/lib/api/chat-server", () => ({ getPatientChatThreads: state.getPatientChatThreads }));
+app/[locale]/chat/page.tsx	3	import { extractChatThreadSummaries } from "@/lib/api/chat";
+app/[locale]/chat/page.tsx	4	import { getPatientChatThreads } from "@/lib/api/chat-server";
+app/[locale]/dashboard/dashboard-ssr.test.ts	10	vi.mock("@/lib/api/dashboard-server", () => ({ getPatientDashboardProfile: state.profile, getPatientDashboardUpcomingAppointment: state.appointment }));
+app/[locale]/dashboard/page.tsx	8	import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
+app/[locale]/dashboard/page.tsx	9	import { parseDashboardAppointment, parseDashboardProfile } from "@/lib/api/dashboard";
+app/[locale]/diagnostics/diagnostics-ssr.test.ts	10	vi.mock("@/lib/api/diagnostics-server", () => ({ getDiagnosticBookings: state.getDiagnosticBookings, getDiagnosticBooking: state.getDiagnosticBooking }));
+app/[locale]/diagnostics/page.tsx	4	import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
+app/[locale]/diagnostics/page.tsx	5	import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
+app/[locale]/family/family-ssr.test.ts	10	vi.mock("@/lib/api/family-server", () => ({ getPatientFamilyMembers: state.getPatientFamilyMembers }));
+app/[locale]/family/page.tsx	3	import { extractFamilyMembers } from "@/lib/api/family";
+app/[locale]/family/page.tsx	4	import { parseFamilyGroup } from "@/lib/api/family-group";
+app/[locale]/family/page.tsx	5	import { getPatientFamilyGroup } from "@/lib/api/family-group-server";
+app/[locale]/family/page.tsx	6	import { getPatientFamilyMembers } from "@/lib/api/family-server";
+app/[locale]/health/health-ssr.test.ts	11	vi.mock("@/lib/api/vitals-server", () => ({ getPatientVitalSummary: state.getPatientVitalSummary }));
+app/[locale]/health/page.tsx	6	import { extractVitalSummary } from "@/lib/api/vitals";
+app/[locale]/health/page.tsx	7	import { getPatientVitalSummary } from "@/lib/api/vitals-server";
+app/[locale]/home-care/home-care-ssr.test.ts	10	vi.mock("@/lib/api/home-care-server", () => ({ getPatientHomeCareBookings: state.getPatientHomeCareBookings }));
+app/[locale]/home-care/page.tsx	4	import { extractHomeCareBookings } from "@/lib/api/home-care";
+app/[locale]/home-care/page.tsx	5	import { getPatientHomeCareBookings } from "@/lib/api/home-care-server";
+app/[locale]/insurance/page.tsx	4	import { getPatientClaims } from "@/lib/api/claims-server";
+app/[locale]/insurance/page.tsx	5	import { parseClaims } from "@/lib/api/claims";
+app/[locale]/insurance/page.tsx	6	import { getPatientInsuranceBenefits, getPatientInsurancePolicy } from "@/lib/api/insurance-server";
+app/[locale]/insurance/page.tsx	7	import { parseInsuranceSummary } from "@/lib/api/insurance";
+app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts	4	const state = vi.hoisted(() => ({ getPublicMedicines: vi.fn() }));
+app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts	8	vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicines: state.getPublicMedicines }));
+app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts	13	beforeEach(() => state.getPublicMedicines.mockReset());
+app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts	16	state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "Ingredient", price: 99, patient_id: "private-patient" }]), { status: 200 }));
+app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts	20	expect(state.getPublicMedicines).toHaveBeenCalledWith({ page: 1 });
+app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts	28	state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "باراسيتامول 500 مجم" }]), { status: 200 }));
+app/[locale]/medicine-catalog/page.tsx	4	import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
+app/[locale]/medicine-catalog/page.tsx	5	import { getPublicMedicines } from "@/lib/api/public-medicines-server";
+app/[locale]/medicine-catalog/page.tsx	38	const response = await getPublicMedicines(search);
+app/[locale]/medicines/medicines-ssr.test.ts	6	getPublicMedicine: vi.fn(),
+app/[locale]/medicines/medicines-ssr.test.ts	14	vi.mock("@/lib/api/medicines-server", () => ({ getPatientMedicines: state.getPatientMedicines }));
+app/[locale]/medicines/medicines-ssr.test.ts	15	vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicine: state.getPublicMedicine }));
+app/[locale]/medicines/medicines-ssr.test.ts	26	state.getPublicMedicine.mockReset();
+app/[locale]/medicines/medicines-ssr.test.ts	42	state.getPublicMedicine.mockResolvedValue(new Response(JSON.stringify({ id: medicineId, name_en: "Catalog medicine", active_ingredient: "Ingredient", price: 99, patient_id: "private-patient" }), { status: 200 }));
+app/[locale]/medicines/medicines-ssr.test.ts	46	expect(state.getPublicMedicine).toHaveBeenCalledWith(medicineId);
+app/[locale]/medicines/page.tsx	4	import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
+app/[locale]/medicines/page.tsx	5	import { getPatientMedicines } from "@/lib/api/medicines-server";
+app/[locale]/mental-health/page.tsx	5	import { getPatientWellbeingDashboard } from "@/lib/api/mental-health-server";
+app/[locale]/mental-health/page.tsx	6	import { parseWellbeingDashboard } from "@/lib/api/mental-health";
+app/[locale]/notifications/notifications-ssr.test.ts	10	vi.mock("@/lib/api/notifications-server", () => ({ getPatientNotifications: state.getPatientNotifications }));
+app/[locale]/notifications/page.tsx	5	import { extractPatientNotifications } from "@/lib/api/notifications";
+app/[locale]/notifications/page.tsx	6	import { getPatientNotifications } from "@/lib/api/notifications-server";
+app/[locale]/orders/orders-ssr.test.ts	3	const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), requirePatientAccess: vi.fn() }));
+app/[locale]/orders/orders-ssr.test.ts	8	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/[locale]/orders/orders-ssr.test.ts	14	describe("orders SSR boundary and visual card", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders the order card through BFF without embedding the session token", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: [{ id: orderId, reference: "Order-123", status: "CONFIRMED" }] }), { status: 200 })); const html = renderToStaticMarkup(await OrdersPage({ params: Promise.resolve({ locale: "ar" }) })); expect(state.callPatientApi).toHaveBeenCalledWith("/patient/pharmacy/orders", {}, serverToken); expect(html).toContain("Order-123"); expect(html).toContain(`/ar/orders/${orderId}`); expect(html).not.toContain(serverToken); }); });
+app/[locale]/orders/orders-ssr.test.ts	16	describe("order detail SSR boundary", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders only the allowlisted order summary without customer, address, price, or token", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: { id: orderId, reference: "Order-123", status: "CONFIRMED", patient_name: "private-customer", delivery_address: "private-address", total_price: 500 } }), { status: 200 })); const html = renderToStaticMarkup(await OrderDetailPage({ params: Promise.resolve({ locale: "en", orderId }) })); expect(state.callPatientApi).toHaveBeenCalledWith(`/patient/pharmacy/orders/${orderId}`, {}, serverToken); expect(html).toContain("Order-123"); expect(html).toContain("CONFIRMED"); expect(html).toContain('href="/en/orders"'); for (const secret of [serverToken, "private-customer", "private-address", "500"]) expect(html).not.toContain(secret); }); });
+app/[locale]/orders/orders-ssr.test.ts	18	describe("order tracking SSR boundary", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders tracking status only from the authorized backend and never serializes private payloads", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: { state: "OUT_FOR_DELIVERY", pharmacy_name: "Sandbox Pharmacy", delivery: { eta_minutes: 24 }, total: 18, delivery_address: "private-address", patient_notes: "private-notes", prescription_attachments: ["private-file"] } }), { status: 200 })); const html = renderToStaticMarkup(await OrderTrackingPage({ params: Promise.resolve({ locale: "en", orderId }) })); expect(state.callPatientApi).toHaveBeenCalledWith(`/orders/${orderId}/tracking`, {}, serverToken); expect(html).toContain("OUT_FOR_DELIVERY"); expect(html).toContain("Sandbox Pharmacy");
+app/[locale]/orders/page.tsx	5	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/orders/page.tsx	6	import { extractOrderRows } from "@/lib/api/orders";
+app/[locale]/orders/page.tsx	31	const response = await callPatientApi("/patient/pharmacy/orders", {}, token);
+app/[locale]/prescriptions/page.tsx	3	import { extractPrescriptionSummaries } from "@/lib/api/prescriptions";
+app/[locale]/prescriptions/page.tsx	4	import { getPatientPrescriptions } from "@/lib/api/prescriptions-server";
+app/[locale]/prescriptions/prescriptions-ssr.test.ts	10	vi.mock("@/lib/api/prescriptions-server", () => ({ getPatientPrescriptions: state.getPatientPrescriptions }));
+app/[locale]/profile/page.tsx	4	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/profile/page.tsx	5	import { extractRecord, profileDomainState, readProfileFields, type ProfileDomainState, type ProfileField } from "@/lib/api/profile";
+app/[locale]/profile/page.tsx	29	callPatientApi("/users/me/profile", {}, token),
+app/[locale]/profile/page.tsx	30	callPatientApi("/medical-profile", {}, token),
+app/[locale]/profile/page.tsx	31	callPatientApi("/users/me/insurance", {}, token)
+app/[locale]/profile/profile-page-ssr.test.ts	11	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: async () => state.responses.shift()! }));
+app/[locale]/reminders/page.tsx	4	import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
+app/[locale]/reminders/page.tsx	5	import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
+app/[locale]/reminders/reminders-ssr.test.ts	10	vi.mock("@/lib/api/reminders-server", () => ({ getPatientMedicationReminders: state.getPatientMedicationReminders }));
+app/[locale]/settings/page.tsx	4	import { getPatientPrivacySettings, getPatientSecuritySettings, getPatientSessions, getPatientStorage } from "@/lib/api/settings-server";
+app/[locale]/settings/page.tsx	5	import { parsePrivacySettings, parseSecuritySettings, parseSessions, parseStorageSummary } from "@/lib/api/settings";
+app/[locale]/appointments/[appointmentId]/page.tsx	4	import { extractAppointmentDetail, parseAppointmentId } from "@/lib/api/appointments";
+app/[locale]/appointments/[appointmentId]/page.tsx	5	import { getPatientAppointment } from "@/lib/api/appointments-server";
+app/[locale]/articles/[slug]/page.tsx	5	import { getPublicArticle } from "@/lib/api/articles-server";
+app/[locale]/articles/[slug]/page.tsx	6	import { articleSlug, parseArticle } from "@/lib/api/articles";
+app/[locale]/articles/[slug]/page.tsx	11	export default async function ArticlePage({params}:Props){const {locale,slug}=await params;if(!isLocale(locale)||!articleSlug(slug))notFound();setRequestLocale(locale);const t=await getTranslations("Articles");const response=await getPublicArticle(slug);if(response?.status===404)notFound();if(!response||!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const article=parseArticle(await response.json().catch(()=>null));if(!article)notFound();const title=locale==="ar"?article.titleAr||article.titleEn||t("untitled"):article.titleEn||article.titleAr||t("untitled");const excerpt=locale==="ar"?article.excerptAr||article.excerptEn:article.excerptEn||article.excerptAr;return <main className={`main ${styles.page}`}><Link className={styles.back} href={`/${locale}/articles`}><ChevronLeft size={17} aria-hidden="true"/>{t("back")}</Link><section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true"/>{t("eyebrow")}</p><h1>{title}</h1><p>{excerpt||t("excerptUnavailable")}</p></section><section className={styles.notice}><FileText size={20} aria-hidden="true"/><p>{t("bodyHidden")}</p></section></main>}
+app/[locale]/articles/bookmarks/page.tsx	5	import { getPatientArticleBookmarks } from "@/lib/api/articles-server";
+app/[locale]/articles/bookmarks/page.tsx	6	import { parseArticleList } from "@/lib/api/articles";
+app/[locale]/cart/checkout/page.tsx	5	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/cart/checkout/page.tsx	6	import { extractCartSummary } from "@/lib/api/cart";
+app/[locale]/cart/checkout/page.tsx	20	const response = await callPatientApi("/cart/checkout", {}, token);
+app/[locale]/cart/prescription/page.tsx	5	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/cart/prescription/page.tsx	19	const response = await callPatientApi("/cart/prescription", {}, token);
+app/[locale]/chat/[threadId]/page.tsx	5	import { extractChatMessageSummaries, extractChatThreadSummaries } from "@/lib/api/chat";
+app/[locale]/chat/[threadId]/page.tsx	6	import { getPatientChatMessages, getPatientChatThread } from "@/lib/api/chat-server";
+app/[locale]/diagnostics/labs/page.tsx	5	import { extractLabServices } from "@/lib/api/labs";
+app/[locale]/diagnostics/labs/page.tsx	6	import { getPublicLabServices } from "@/lib/api/labs-server";
+app/[locale]/diagnostics/labs/page.tsx	18	const response = await getPublicLabServices({ search, homeOnly });
+app/[locale]/diagnostics/labs/labs-ssr.test.ts	3	const state = vi.hoisted(() => ({ getPublicLabServices: vi.fn() }));
+app/[locale]/diagnostics/labs/labs-ssr.test.ts	4	vi.mock("@/lib/api/labs-server", () => ({ getPublicLabServices: state.getPublicLabServices }));
+app/[locale]/diagnostics/labs/labs-ssr.test.ts	21	state.getPublicLabServices.mockResolvedValue(new Response(JSON.stringify([{ id: "cbc", name_en: "CBC", price: 20 }]), { status: 200 }));
+app/[locale]/diagnostics/labs/labs-ssr.test.ts	24	expect(state.getPublicLabServices).toHaveBeenCalledWith({ search: "", homeOnly: false });
+app/[locale]/diagnostics/labs/labs-ssr.test.ts	27	state.getPublicLabServices.mockResolvedValue(new Response("", { status: 503 }));
+app/[locale]/diagnostics/packages/page.tsx	5	import { extractLabServices } from "@/lib/api/labs";
+app/[locale]/diagnostics/packages/page.tsx	6	import { getPublicLabServices } from "@/lib/api/labs-server";
+app/[locale]/diagnostics/packages/page.tsx	17	const response = await getPublicLabServices({ search, category });
+app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts	3	const state = vi.hoisted(() => ({ getPublicLabServices: vi.fn(), getPublicLabPackage: vi.fn() }));
+app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts	4	vi.mock("@/lib/api/labs-server", () => ({ getPublicLabServices: state.getPublicLabServices, getPublicLabPackage: state.getPublicLabPackage }));
+app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts	31	state.getPublicLabServices.mockResolvedValue(new Response(JSON.stringify([{ id: "pkg-1", name_en: "Wellness panel", is_package: true, included_services: ["cbc"] }]), { status: 200 }));
+app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts	37	state.getPublicLabPackage.mockResolvedValue(new Response(JSON.stringify({ id: "pkg-1", name_en: "Wellness panel", is_package: true, price: 120, included_services: ["cbc", "tsh"], preparation_en: ["Bring your request"] }), { status: 200 }));
+app/[locale]/diagnostics/radiology/page.tsx	5	import { extractRadiologyServices } from "@/lib/api/radiology";
+app/[locale]/diagnostics/radiology/page.tsx	6	import { getPublicRadiologyModalities, getPublicRadiologyServices } from "@/lib/api/radiology-server";
+app/[locale]/diagnostics/radiology/page.tsx	16	const servicesResponse = getPublicRadiologyServices({ modality, bodyPart, search, homeVisit: on(query.home_visit) ? "true" : undefined, homeOnly: on(query.home_only) ? "true" : undefined, highestRated: on(query.highest_rated) ? "true" : undefined, nearest: on(query.nearest) ? "true" : undefined, lowestPrice: on(query.lowest_price) ? "true" : undefined });
+app/[locale]/diagnostics/radiology/page.tsx	17	const modalitiesResponse = getPublicRadiologyModalities(); const [servicesResult, modalitiesResult] = await Promise.all([servicesResponse, modalitiesResponse]);
+app/[locale]/diagnostics/radiology/radiology-ssr.test.ts	3	vi.mock("@/lib/api/radiology-server", () => ({ getPublicRadiologyServices: state.services, getPublicRadiologyModalities: state.modalities }));
+app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx	4	import { extractDiagnosticBooking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
+app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx	5	import { getDiagnosticBooking } from "@/lib/api/diagnostics-server";
+app/[locale]/diagnostics/packages/[packageId]/page.tsx	5	import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
+app/[locale]/diagnostics/packages/[packageId]/page.tsx	6	import { getPublicLabPackage } from "@/lib/api/labs-server";
+app/[locale]/diagnostics/packages/[packageId]/page.tsx	17	const response = await getPublicLabPackage(packageId);
+app/[locale]/health/chronic-diseases/page.tsx	5	import { getPatientChronicDiseases } from "@/lib/api/chronic-server";
+app/[locale]/health/chronic-diseases/page.tsx	6	import { parseChronicDiseases } from "@/lib/api/chronic";
+app/[locale]/health/chronic-medications/page.tsx	5	import { getPatientChronicMedications } from "@/lib/api/chronic-meds-server";
+app/[locale]/health/chronic-medications/page.tsx	6	import { parseChronicMedications } from "@/lib/api/chronic-meds";
+app/[locale]/health/emergency-contacts/page.tsx	5	import { getPatientEmergencyContacts } from "@/lib/api/emergency-contacts-server";
+app/[locale]/health/emergency-contacts/page.tsx	6	import { parseEmergencyContacts } from "@/lib/api/emergency-contacts";
+app/[locale]/health/reports/page.tsx	4	import { getPatientReports } from "@/lib/api/vitals-server";
+app/[locale]/health/reports/page.tsx	5	import { parseReports } from "@/lib/api/reports";
+app/[locale]/health/score/page.tsx	5	import { getPatientHealthScore } from "@/lib/api/vitals-server";
+app/[locale]/health/score/page.tsx	6	import { parseHealthScore } from "@/lib/api/health-score";
+app/[locale]/health/sleep/page.tsx	5	import { getPatientSleepReadings } from "@/lib/api/sleep-server";
+app/[locale]/health/sleep/page.tsx	6	import { parseSleepReadings } from "@/lib/api/sleep";
+app/[locale]/health/trends/page.tsx	5	import { getPatientHealthTrends } from "@/lib/api/trends-server";
+app/[locale]/health/trends/page.tsx	6	import { parseHealthTrends } from "@/lib/api/trends";
+app/[locale]/health/vitals/page.tsx	5	import { extractVitalHistory } from "@/lib/api/vitals";
+app/[locale]/health/vitals/page.tsx	6	import { getPatientVitalHistory } from "@/lib/api/vitals-server";
+app/[locale]/home-care/services/page.tsx	5	import { extractHomeCareServices } from "@/lib/api/home-care-services";
+app/[locale]/home-care/services/page.tsx	6	import { getPublicHomeCareServices } from "@/lib/api/home-care-services-server";
+app/[locale]/home-care/services/page.tsx	16	const response = await getPublicHomeCareServices();
+app/[locale]/home-care/services/services-ssr.test.ts	7	vi.mock("@/lib/api/home-care-services-server", () => ({ getPublicHomeCareServices: state.list, getPublicHomeCareService: state.detail }));
+app/[locale]/home-care/services/[serviceId]/page.tsx	5	import { extractHomeCareService } from "@/lib/api/home-care-services";
+app/[locale]/home-care/services/[serviceId]/page.tsx	6	import { getPublicHomeCareService } from "@/lib/api/home-care-services-server";
+app/[locale]/home-care/services/[serviceId]/page.tsx	13	const t = await getTranslations("HomeCareServices"); const response = await getPublicHomeCareService(serviceId);
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts	4	const state = vi.hoisted(() => ({ getPublicMedicine: vi.fn() }));
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts	11	vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicine: state.getPublicMedicine }));
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts	18	beforeEach(() => state.getPublicMedicine.mockReset());
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts	21	state.getPublicMedicine.mockResolvedValue(new Response(JSON.stringify({
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts	37	expect(state.getPublicMedicine).toHaveBeenCalledWith("published-medicine");
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts	47	state.getPublicMedicine.mockResolvedValue(new Response(JSON.stringify({ data: { id: "published-medicine", name_en: "Published medicine" } }), { status: 200 }));
+app/[locale]/medicines/[medicineId]/page.tsx	5	import { extractMedicineDetail, parseMedicineId } from "@/lib/api/medicines";
+app/[locale]/medicines/[medicineId]/page.tsx	6	import { getPublicMedicine } from "@/lib/api/public-medicines-server";
+app/[locale]/medicines/[medicineId]/page.tsx	19	const response = await getPublicMedicine(medicineId);
+app/[locale]/medicines/[medicineId]/page.tsx	45	const response = await getPublicMedicine(medicineId);
+app/[locale]/mental-health/breathing/page.tsx	5	import { parseBreathingHistory } from "@/lib/api/breathing";
+app/[locale]/mental-health/breathing/page.tsx	6	import { getPatientBreathingHistory } from "@/lib/api/breathing-server";
+app/[locale]/mental-health/crisis-contacts/page.tsx	5	import { parseCrisisContacts } from "@/lib/api/crisis-contacts";
+app/[locale]/mental-health/crisis-contacts/page.tsx	6	import { getPatientCrisisContacts } from "@/lib/api/crisis-contacts-server";
+app/[locale]/mental-health/meditation/page.tsx	5	import { parseMeditationHistory } from "@/lib/api/meditation";
+app/[locale]/mental-health/meditation/page.tsx	6	import { getPatientMeditationHistory } from "@/lib/api/meditation-server";
+app/[locale]/mental-health/mood/page.tsx	5	import { parseMoodHistory } from "@/lib/api/mood";
+app/[locale]/mental-health/mood/page.tsx	6	import { getPatientMoodHistory } from "@/lib/api/mood-server";
+app/[locale]/notifications/settings/page.tsx	4	import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
+app/[locale]/notifications/settings/page.tsx	5	import { extractNotificationSettings } from "@/lib/api/notification-settings";
+app/[locale]/orders/[orderId]/page.tsx	4	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/orders/[orderId]/page.tsx	5	import { extractOrderDetail, parseOrderId } from "@/lib/api/orders";
+app/[locale]/orders/[orderId]/page.tsx	20	const response = await callPatientApi(`/patient/pharmacy/orders/${orderId}`, {}, token);
+app/[locale]/orders/[orderId]/tracking/page.tsx	5	import { callPatientApi } from "@/lib/api/upstream";
+app/[locale]/orders/[orderId]/tracking/page.tsx	6	import { extractOrderTracking, parseOrderId } from "@/lib/api/orders";
+app/[locale]/orders/[orderId]/tracking/page.tsx	20	const response = await callPatientApi(`/orders/${orderId}/tracking`, {}, token);
+app/[locale]/consultations/specialties/page.tsx	5	import { extractSpecialties } from "@/lib/api/specialties";
+app/[locale]/consultations/specialties/page.tsx	6	import { getPublicSpecialties } from "@/lib/api/specialties-server";
+app/[locale]/consultations/specialties/page.tsx	18	const response = await getPublicSpecialties();
+app/[locale]/consultations/specialties/specialties-ssr.test.ts	4	const state = vi.hoisted(() => ({ getPublicSpecialties: vi.fn() }));
+app/[locale]/consultations/specialties/specialties-ssr.test.ts	8	vi.mock("@/lib/api/specialties-server", () => ({ getPublicSpecialties: state.getPublicSpecialties }));
+app/[locale]/consultations/specialties/specialties-ssr.test.ts	13	beforeEach(() => state.getPublicSpecialties.mockReset());
+app/[locale]/consultations/specialties/specialties-ssr.test.ts	16	state.getPublicSpecialties.mockResolvedValue(new Response(JSON.stringify({ data: [{ slug: "cardiology", name_ar: "قلب", name_en: "Cardiology", count: 7, patient_id: "private-patient" }] }), { status: 200 }));
+app/[locale]/consultations/specialties/specialties-ssr.test.ts	25	state.getPublicSpecialties.mockResolvedValue(null);
+app/[locale]/consultations/doctors/page.tsx	5	import { extractDoctors } from "@/lib/api/doctors";
+app/[locale]/consultations/doctors/page.tsx	6	import { getPublicDoctors } from "@/lib/api/doctors-server";
+app/[locale]/consultations/doctors/page.tsx	13	const t = await getTranslations("Doctors"); const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined });
+app/[locale]/consultations/doctors/doctors-ssr.test.ts	2	const state=vi.hoisted(()=>({get:vi.fn()})); vi.mock("next-intl/server",()=>({getTranslations:async()=> (k:string)=>k,setRequestLocale:vi.fn()})); vi.mock("@/lib/i18n",()=>({isLocale:()=>true})); vi.mock("@/lib/api/doctors-server",()=>({getPublicDoctors:state.get})); vi.mock("next/navigation",()=>({notFound:vi.fn()})); import DoctorsPage from "./page";
+app/[locale]/consultations/doctors/[doctorId]/page.tsx	5	import { extractDoctor, extractDoctorSlots } from "@/lib/api/doctors";
+app/[locale]/consultations/doctors/[doctorId]/page.tsx	6	import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
+app/[locale]/consultations/doctors/[doctorId]/page.tsx	17	const t = await getTranslations("Doctors"); const response = await getPublicDoctor(doctorId); if (!response || response.status === 404) notFound();
+app/[locale]/consultations/doctors/[doctorId]/page.tsx	20	const slotsResponse = await getPublicDoctorSlots({ id: doctor.id, date, serviceType }); const slots = slotsResponse?.ok ? extractDoctorSlots(await slotsResponse.json().catch(() => null)) : null; const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
+app/api/auth/login/route.ts	4	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/login/route.ts	11	const upstream = await callPatientApi("/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+app/api/auth/logout/route.ts	4	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/logout/route.ts	5	export async function POST() { const token = (await cookies()).get(authCookieNames.access)?.value; if (token) await callPatientApi("/auth/logout", { method: "POST" }, token).catch(() => undefined); const response = NextResponse.json({ success: true }); clearSessionCookies(response); return response; }
+app/api/auth/session/route.ts	4	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/session/route.ts	5	export async function GET() { const token = (await cookies()).get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ authenticated: false }, { status: 401 }); const upstream = await callPatientApi("/auth/me", { method: "GET" }, token); if (!upstream.ok) return NextResponse.json({ authenticated: false }, { status: upstream.status }); return NextResponse.json({ authenticated: true, user: await upstream.json() }, { headers: { "cache-control": "no-store" } }); }
+app/api/auth/verify-2fa/route.ts	4	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/verify-2fa/route.ts	11	const upstream = await callPatientApi("/auth/login/verify-2fa", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+app/api/auth/otp/otp-routes.test.ts	3	const state = vi.hoisted(() => ({ callPatientApi: vi.fn() }));
+app/api/auth/otp/otp-routes.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/auth/otp/otp-routes.test.ts	14	state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 300 }), { status: 201 }));
+app/api/auth/otp/otp-routes.test.ts	15	const response = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }));
+app/api/auth/otp/otp-routes.test.ts	16	expect(response.status).toBe(201); expect(state.callPatientApi).toHaveBeenCalledWith("/auth/otp/request", expect.objectContaining({ method: "POST" }));
+app/api/auth/otp/otp-routes.test.ts	17	expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "x" }))).status).toBe(400);
+app/api/auth/otp/otp-routes.test.ts	20	state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchangeToken: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_otp_exchange=secret; Path=/api/v1/auth/session/exchange; HttpOnly; Secure; SameSite=Strict" } }));
+app/api/auth/otp/otp-routes.test.ts	21	const response = await verifyOtp(jsonRequest("/api/auth/otp/verify", { identifier: "patient@example.com", code: "123456" }));
+app/api/auth/otp/otp-routes.test.ts	23	expect(response.headers.get("set-cookie")).toContain("Path=/api/auth/session/exchange");
+app/api/auth/otp/otp-routes.test.ts	27	state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ authenticated: true, token: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_admin_token=secret; Path=/api/v1; HttpOnly; Secure" } }));
+app/api/auth/otp/otp-routes.test.ts	28	const response = await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST", headers: { cookie: "nabd_otp_exchange=secret; unrelated=drop", "x-nabd-device-id": "device-test" } }));
+app/api/auth/otp/otp-routes.test.ts	30	expect(state.callPatientApi).toHaveBeenCalledWith("/auth/session/exchange", expect.objectContaining({ headers: expect.objectContaining({ cookie: "nabd_otp_exchange=secret", "x-device-id": "device-test" }) }));
+app/api/auth/otp/otp-routes.test.ts	34	expect((await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST" }))).status).toBe(400);
+app/api/auth/session/exchange/route.ts	3	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/session/exchange/route.ts	12	const upstream = await callPatientApi("/auth/session/exchange", { method: "POST", headers: { cookie, "x-device-id": request.headers.get("x-nabd-device-id") || crypto.randomUUID() } });
+app/api/auth/session/exchange/route.ts	20	.replace(/Path=\/api\/v1\/auth\/session\/exchange/gi, "Path=/api/auth/session/exchange")
+app/api/auth/otp/request/route.ts	3	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/otp/request/route.ts	10	const upstream = await callPatientApi("/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+app/api/auth/otp/verify/route.ts	3	import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/otp/verify/route.ts	10	const upstream = await callPatientApi("/auth/otp/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+app/api/auth/otp/verify/route.ts	17	if (setCookie) response.headers.set("set-cookie", setCookie.replace(/Path=\/api\/v1\/auth\/session\/exchange/gi, "Path=/api/auth/session/exchange"));
+app/api/patient/[...path]/route.test.ts	5	callPatientApi: vi.fn(),
+app/api/patient/[...path]/route.test.ts	23	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/patient/[...path]/route.test.ts	24	vi.mock("@/lib/api/response", () => ({
+app/api/patient/[...path]/route.test.ts	34	nextUrl: new URL("https://web.nabd.plus/api/patient/orders/mine"),
+app/api/patient/[...path]/route.test.ts	49	state.callPatientApi.mockReset();
+app/api/patient/[...path]/route.test.ts	55	state.callPatientApi
+app/api/patient/[...path]/route.test.ts	63	expect(state.callPatientApi).toHaveBeenCalledTimes(3);
+app/api/patient/[...path]/route.test.ts	64	expect(state.callPatientApi).toHaveBeenNthCalledWith(1, "/orders/mine", expect.any(Object), "expired-access");
+app/api/patient/[...path]/route.test.ts	65	expect(state.callPatientApi).toHaveBeenNthCalledWith(2, "/auth/refresh", expect.objectContaining({ body: JSON.stringify({ refresh_token: "valid-refresh" }) }));
+app/api/patient/[...path]/route.test.ts	66	expect(state.callPatientApi).toHaveBeenNthCalledWith(3, "/orders/mine", expect.any(Object), "new-access");
+app/api/patient/[...path]/route.test.ts	73	state.callPatientApi.mockResolvedValueOnce(new Response(null, { status: 401 }));
+app/api/patient/[...path]/route.test.ts	78	expect(state.callPatientApi).toHaveBeenCalledTimes(1);
+app/api/patient/[...path]/route.test.ts	84	state.callPatientApi
+app/api/patient/[...path]/route.test.ts	91	expect(state.callPatientApi).toHaveBeenCalledTimes(2);
+app/api/patient/[...path]/route.test.ts	100	expect(state.callPatientApi).not.toHaveBeenCalled();
+app/api/patient/[...path]/route.ts	5	import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
+app/api/patient/[...path]/route.ts	6	import { forwardApiResponse } from "@/lib/api/response";
+app/api/patient/[...path]/route.ts	7	import { callPatientApi } from "@/lib/api/upstream";
+app/api/patient/[...path]/route.ts	9	async function refreshSession() { const store = await cookies(); const refreshToken = store.get(authCookieNames.refresh)?.value; const deviceId = store.get(authCookieNames.device)?.value; if (!refreshToken || !deviceId) return null; const response = await callPatientApi("/auth/refresh", { method: "POST", headers: { "content-type": "application/json", "x-device-id": deviceId }, body: refreshRequestBody(refreshToken) }); if (!response.ok) return null; const tokens = parseRefreshedTokens(await response.json().catch(() => null)); if (!tokens) return null; return { tokens, deviceId }; }
+app/api/patient/[...path]/route.ts	10	async function proxy(request: NextRequest, context: Context) { const { path: parts } = await context.params; const path = `/${parts.map(encodeURIComponent).join("/")}`; if (!isAllowedPatientApiRequest(path, request.method)) return NextResponse.json({ message: "resource_not_found" }, { status: 404 }); const store = await cookies(); let token = store.get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 }); const headers = new Headers(); const target = `${path}${request.nextUrl.search}`; let upstream = await callPatientApi(target, { method: request.method, headers }, token); let rotated: Awaited<ReturnType<typeof refreshSession>> = null; if (upstream.status === 401) { rotated = await refreshSession(); if (rotated) { token = rotated.tokens.accessToken; upstream = await callPatientApi(target, { method: request.method, headers }, token); } } const response = await forwardApiResponse(upstream); if (rotated) setSessionCookies(response, rotated.tokens, rotated.deviceId); if (upstream.status === 401 && !rotated) clearSessionCookies(response); return response; }
+app/api/appointments/book/route.ts	5	import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/book/route.ts	24	const upstream = await callPatientApi("/unified-bookings", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotencyKey, ...(deviceId ? { "x-device-id": deviceId } : {}) }, body: JSON.stringify(input.data) }, accessToken);
+app/api/appointments/book/route.test.ts	3	const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), cookieStore: { get: vi.fn() } }));
+app/api/appointments/book/route.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/appointments/book/route.test.ts	9	function request(body: unknown, headers: HeadersInit = {}) { return new Request("https://web.test/api/appointments/book", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": "idempotency-test-123456", ...headers }, body: JSON.stringify(body) }); }
+app/api/appointments/book/route.test.ts	13	beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : name === "nabd_device" ? { value: "device-1" } : undefined); });
+app/api/appointments/book/route.test.ts	21	expect(state.callPatientApi).not.toHaveBeenCalled();
+app/api/appointments/book/route.test.ts	24	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ booking_id: "22222222-2222-4222-8222-222222222222", status: "pending_payment", patient_id: "must-not-leak" }), { status: 201 }));
+app/api/appointments/book/route.test.ts	27	expect(state.callPatientApi).toHaveBeenCalledWith("/unified-bookings", expect.objectContaining({ headers: expect.objectContaining({ "idempotency-key": "idempotency-test-123456", "x-device-id": "device-1" }) }), "server-access");
+app/api/appointments/book/route.test.ts	30	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ message: "slot_taken" }), { status: 409 }));
+app/api/appointments/[appointmentId]/payment-intent/route.ts	5	import { createPatientPaymentIntent } from "@/lib/api/payments-server";
+app/api/appointments/[appointmentId]/payment-intent/route.ts	6	import { parsePaymentIntent } from "@/lib/api/payments";
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	2	const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), cookieStore: { get: vi.fn() } }));
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	3	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	8	function req(headers: HeadersInit = {}) { return new Request(`https://web.test/api/appointments/${id}/payment-intent`, { method: "POST", headers: { "idempotency-key": "payment-key-123456", ...headers } }); }
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	10	beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : undefined); });
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	15	expect(state.callPatientApi).not.toHaveBeenCalled();
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	18	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: "33333333-3333-4333-8333-333333333333", status: "pending", amount: 120, currency: "SAR", client_secret: "secret", patient_id: "private" }), { status: 201 }));
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	21	expect(state.callPatientApi).toHaveBeenCalledWith("/payments/intent/consultation/22222222-2222-4222-8222-222222222222", expect.objectContaining({ method: "POST", headers: { "idempotency-key": "payment-key-123456" } }), "server-access");
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts	24	state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ message: "not_authorized" }), { status: 400 }));
+app/api/appointments/[appointmentId]/cancel/route.ts	5	import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/[appointmentId]/cancel/route.ts	20	const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/cancel`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(input.data) }, token);
+app/api/appointments/[appointmentId]/cancel/route.test.ts	3	vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+app/api/appointments/[appointmentId]/cancel/route.test.ts	6	function req(headers:HeadersInit={},body:unknown={}){return new Request(`https://web.test/api/appointments/${id}/cancel`,{method:"POST",headers:{"content-type":"application/json","idempotency-key":"cancel-key-123456",...headers},body:JSON.stringify(body)})}
+app/api/appointments/[appointmentId]/reschedule/route.ts	5	import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/[appointmentId]/reschedule/route.ts	20	const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/reschedule`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(parsed.data) }, token);
+app/api/appointments/[appointmentId]/reschedule/route.test.ts	3	vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+app/api/appointments/[appointmentId]/reschedule/route.test.ts	6	function req(headers:HeadersInit={},body:unknown={scheduled_at:"2030-01-01T10:00:00.000Z"}){return new Request(`https://web.test/api/appointments/${id}/reschedule`,{method:"POST",headers:{"content-type":"application/json","idempotency-key":"reschedule-key-123456",...headers},body:JSON.stringify(body)})}
+app/api/appointments/[appointmentId]/call-token/route.ts	5	import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/[appointmentId]/call-token/route.ts	16	const upstream = await callPatientApi(`/unified-bookings/${appointmentId}/call-token`, { method: "GET" }, token);
+app/api/appointments/[appointmentId]/call-token/route.test.ts	3	vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+components-next/login-form.tsx	21	const response = await fetch("/api/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier }) });
+components-next/login-form.tsx	25	const verify = await fetch("/api/auth/otp/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, code }) });
+components-next/login-form.tsx	27	const exchange = await fetch("/api/auth/session/exchange", { method: "POST", headers: { "x-nabd-device-id": crypto.randomUUID() } });
+components-next/login-form.tsx	31	const endpoint = twoFactor ? "/api/auth/verify-2fa" : "/api/auth/login";
+components-next/session-actions.tsx	16	try { await fetch("/api/auth/logout", { method: "POST" }); }
+components-next/appointment-booking-form.tsx	20	const response = await fetch("/api/appointments/book", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotency.current || crypto.randomUUID() }, body: JSON.stringify({ doctor_id: doctorId, type: serviceType, slot_id: selected, ...(notes.trim() ? { notes: notes.trim() } : {}) }) });
+components-next/appointment-actions.tsx	12	async function cancel() { if (busy) return; setBusy(true); setError(null); try { const response = await fetch(`/api/appointments/${appointmentId}/cancel`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key.current || crypto.randomUUID() }, body: JSON.stringify(reason.trim() ? { reason: reason.trim() } : {}) }); if (!response.ok) { setError(response.status === 409 ? t("cancelConflict") : t("cancelFailed")); return; } setOpen(false); router.refresh(); } catch { setError(t("cancelUnavailable")); } finally { setBusy(false); } }
+components-next/appointment-reschedule-form.tsx	13	async function submit(){ if(busy)return; if(!scheduledAt){setError(labels.invalid);return;} setBusy(true);setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/reschedule`,{method:"POST",headers:{"content-type":"application/json","idempotency-key":key.current||crypto.randomUUID()},body:JSON.stringify({scheduled_at:new Date(scheduledAt).toISOString(),...(reason.trim()?{reason:reason.trim()}: {})})});if(!response.ok){setError(response.status===409?labels.conflict:labels.failed);return;}setOpen(false);router.refresh();}catch{setError(labels.unavailable)}finally{setBusy(false)}}
+components-next/call-token-launcher.tsx	11	async function requestToken(){ if(state==="loading")return; setState("loading");setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/call-token`,{method:"GET",cache:"no-store",credentials:"same-origin"});const data=await response.json().catch(()=>null);if(!response.ok||!data?.token||data.provider!=="livekit"||!data.room){setState("error");setError(response.status===409?labels.notReady:labels.unavailable);return;}setCredential({provider:"livekit",token:data.token,room:data.room});setState("ready");}catch{setState("error");setError(labels.unavailable)}}
+lib/api/appointments-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/appointments-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/appointments-server.test.ts	9	beforeEach(() => callPatientApi.mockReset());
+lib/api/appointments-server.test.ts	13	callPatientApi.mockResolvedValue(response);
+lib/api/appointments-server.test.ts	19	expect(callPatientApi).toHaveBeenNthCalledWith(1, "/care/appointments", {}, "server-access-token");
+lib/api/appointments-server.test.ts	20	expect(callPatientApi).toHaveBeenNthCalledWith(2, "/care/appointments/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-access-token");
+lib/api/appointments-server.test.ts	21	expect(callPatientApi).toHaveBeenNthCalledWith(3, "/unified-bookings/consultation/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-access-token");
+lib/api/appointments-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/appointments-server.ts	5	return callPatientApi("/care/appointments", {}, accessToken);
+lib/api/appointments-server.ts	9	return callPatientApi(`/care/appointments/${appointmentId}`, {}, accessToken);
+lib/api/appointments-server.ts	13	return callPatientApi(`/unified-bookings/consultation/${appointmentId}`, {}, accessToken);
+lib/api/articles-server.ts	1	import { articleQuery, articleSlug } from "@/lib/api/articles";
+lib/api/articles-server.ts	2	import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
+lib/api/articles-server.ts	8	export async function getPublicArticles(query: { q?: string; category?: string; page?: number } = {}) {
+lib/api/articles-server.ts	9	try { return await fetch(patientApiUrl(articleQuery(query)), { headers: { Accept: "application/json" }, cache: "force-cache" }); } catch { return null; }
+lib/api/articles-server.ts	11	export async function getPublicArticleCategories() {
+lib/api/articles-server.ts	12	try { return await fetch(patientApiUrl("/articles/categories"), { headers: { Accept: "application/json" }, cache: "force-cache" }); } catch { return null; }
+lib/api/articles-server.ts	14	export async function getPublicArticle(slug: string) {
+lib/api/articles-server.ts	16	try { return await fetch(patientApiUrl(publicArticlePath(`/articles/${slug}`)), { headers: { Accept: "application/json" }, cache: "force-cache" }); } catch { return null; }
+lib/api/articles-server.ts	18	export function getPatientArticleBookmarks(accessToken: string) { return callPatientApi("/articles/bookmarks/mine", {}, accessToken); }
+lib/api/breathing-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/breathing-server.ts	2	export function getPatientBreathingHistory(accessToken:string){return callPatientApi("/mental-health/breathing",{},accessToken);}
+lib/api/chat-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/chat-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/chat-server.test.ts	8	beforeEach(() => callPatientApi.mockReset());
+lib/api/chat-server.test.ts	11	callPatientApi.mockResolvedValue(response);
+lib/api/chat-server.test.ts	13	expect(callPatientApi).toHaveBeenCalledWith("/chat/threads", {}, "server-token");
+lib/api/chat-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/chat-server.ts	5	return callPatientApi("/chat/threads", {}, accessToken);
+lib/api/chat-server.ts	9	return callPatientApi(`/chat/threads/${threadId}`, {}, accessToken);
+lib/api/chat-server.ts	13	return callPatientApi(`/chat/threads/${threadId}/messages?limit=50`, {}, accessToken);
+lib/api/chronic-meds-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/chronic-meds-server.ts	2	export function getPatientChronicMedications(accessToken:string){return callPatientApi("/health/chronic-meds",{},accessToken);}
+lib/api/chronic-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/chronic-server.ts	2	export function getPatientChronicDiseases(accessToken:string){return callPatientApi("/health/chronic-diseases",{},accessToken);}
+lib/api/claims-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/claims-server.ts	4	return callPatientApi("/insurance/claims", {}, accessToken);
+lib/api/crisis-contacts-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/crisis-contacts-server.ts	2	export function getPatientCrisisContacts(accessToken:string){return callPatientApi("/mental-health/crisis-contacts",{},accessToken);}
+lib/api/dashboard-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/dashboard-server.ts	5	return callPatientApi("/users/me/profile", {}, accessToken);
+lib/api/dashboard-server.ts	9	return callPatientApi("/home/upcoming-appointment", {}, accessToken);
+lib/api/diagnostics-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/diagnostics-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/diagnostics-server.test.ts	9	beforeEach(() => callPatientApi.mockReset());
+lib/api/diagnostics-server.test.ts	13	callPatientApi.mockResolvedValue(response);
+lib/api/diagnostics-server.test.ts	16	expect(callPatientApi).toHaveBeenNthCalledWith(1, "/labs/bookings/mine", {}, "server-token");
+lib/api/diagnostics-server.test.ts	17	expect(callPatientApi).toHaveBeenNthCalledWith(2, "/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-token");
+lib/api/diagnostics-server.ts	1	import type { DiagnosticDomain } from "@/lib/api/diagnostics";
+lib/api/diagnostics-server.ts	2	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/diagnostics-server.ts	6	return callPatientApi(`/${domain}/bookings/mine`, {}, accessToken);
+lib/api/diagnostics-server.ts	10	return callPatientApi(`/${domain}/bookings/${bookingId}`, {}, accessToken);
+lib/api/emergency-contacts-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/emergency-contacts-server.ts	2	export function getPatientEmergencyContacts(accessToken:string){return callPatientApi("/health/emergency-contacts",{},accessToken);}
+lib/api/family-group-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/family-group-server.ts	2	export function getPatientFamilyGroup(accessToken:string){return callPatientApi("/family/my-group",{},accessToken);}
+lib/api/family-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/family-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/family-server.test.ts	8	beforeEach(() => callPatientApi.mockReset());
+lib/api/family-server.test.ts	11	callPatientApi.mockResolvedValue(response);
+lib/api/family-server.test.ts	13	expect(callPatientApi).toHaveBeenCalledWith("/family/members", {}, "server-token");
+lib/api/family-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/family-server.ts	5	return callPatientApi("/family/members", {}, accessToken);
+lib/api/home-care-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/home-care-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/home-care-server.test.ts	9	beforeEach(() => callPatientApi.mockReset());
+lib/api/home-care-server.test.ts	12	callPatientApi.mockResolvedValue(response);
+lib/api/home-care-server.test.ts	14	expect(callPatientApi).toHaveBeenCalledWith("/home-care/bookings/my", {}, "server-token");
+lib/api/home-care-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/home-care-server.ts	5	return callPatientApi("/home-care/bookings/my", {}, accessToken);
+lib/api/insurance-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/insurance-server.ts	2	export function getPatientInsurancePolicy(accessToken: string) { return callPatientApi("/insurance/my-policy", {}, accessToken); }
+lib/api/insurance-server.ts	3	export function getPatientInsuranceBenefits(accessToken: string) { return callPatientApi("/insurance/benefits-summary", {}, accessToken); }
+lib/api/medicines-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/medicines-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/medicines-server.test.ts	9	beforeEach(() => callPatientApi.mockReset());
+lib/api/medicines-server.test.ts	13	callPatientApi.mockResolvedValue(response);
+lib/api/medicines-server.test.ts	18	expect(callPatientApi).toHaveBeenNthCalledWith(1, "/medicines?limit=24&page=1&q=query", {}, "server-token");
+lib/api/medicines-server.test.ts	19	expect(callPatientApi).toHaveBeenNthCalledWith(2, "/medicines/91047ef2-ad36-422a-a184-629693e7c729/details", {}, "server-token");
+lib/api/medicines-server.ts	1	import { medicineQuery } from "@/lib/api/medicines";
+lib/api/medicines-server.ts	2	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/medicines-server.ts	6	return callPatientApi(medicineQuery(search), {}, accessToken);
+lib/api/medicines-server.ts	10	return callPatientApi(`/medicines/${medicineId}/details`, {}, accessToken);
+lib/api/meditation-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/meditation-server.ts	2	export function getPatientMeditationHistory(accessToken:string){return callPatientApi("/mental-health/meditation",{},accessToken);}
+lib/api/mental-health-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/mental-health-server.ts	2	export function getPatientWellbeingDashboard(accessToken: string) { return callPatientApi("/mental-health/dashboard", {}, accessToken); }
+lib/api/mood-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/mood-server.ts	2	export function getPatientMoodHistory(accessToken:string){return callPatientApi("/mental-health/mood?days=30",{},accessToken);}
+lib/api/notification-settings-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/notification-settings-server.ts	5	return callPatientApi("/users/me/notification-settings", {}, accessToken);
+lib/api/notifications-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/notifications-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/notifications-server.test.ts	8	beforeEach(() => callPatientApi.mockReset());
+lib/api/notifications-server.test.ts	11	callPatientApi.mockResolvedValue(response);
+lib/api/notifications-server.test.ts	13	expect(callPatientApi).toHaveBeenCalledWith("/notifications", {}, "server-token");
+lib/api/notifications-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/notifications-server.ts	5	return callPatientApi("/notifications", {}, accessToken);
+lib/api/prescriptions-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/prescriptions-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/prescriptions-server.test.ts	8	beforeEach(() => callPatientApi.mockReset());
+lib/api/prescriptions-server.test.ts	11	callPatientApi.mockResolvedValue(response);
+lib/api/prescriptions-server.test.ts	13	expect(callPatientApi).toHaveBeenCalledWith("/prescriptions/mine", {}, "server-token");
+lib/api/prescriptions-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/prescriptions-server.ts	5	return callPatientApi("/prescriptions/mine", {}, accessToken);
+lib/api/public-medicines-server.test.ts	2	import { getPublicMedicines } from "./public-medicines-server";
+lib/api/public-medicines-server.test.ts	9	await expect(getPublicMedicines({ page: 1 })).resolves.toBeNull();
+lib/api/public-medicines-server.ts	1	import { medicineQuery, parseMedicineId } from "@/lib/api/medicines";
+lib/api/public-medicines-server.ts	2	import { patientApiUrl } from "@/lib/api/upstream";
+lib/api/public-medicines-server.ts	12	export async function getPublicMedicines(search: { q?: string; page: number }): Promise<Response | null> {
+lib/api/public-medicines-server.ts	14	return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), {
+lib/api/public-medicines-server.ts	23	export async function getPublicMedicine(medicineId: string): Promise<Response | null> {
+lib/api/public-medicines-server.ts	26	return await fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), {
+lib/api/reminders-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/reminders-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/reminders-server.test.ts	8	beforeEach(() => callPatientApi.mockReset());
+lib/api/reminders-server.test.ts	11	callPatientApi.mockResolvedValue(response);
+lib/api/reminders-server.test.ts	13	expect(callPatientApi).toHaveBeenCalledWith("/health/reminders", {}, "server-token");
+lib/api/reminders-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/reminders-server.ts	5	return callPatientApi("/health/reminders", {}, accessToken);
+lib/api/settings-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/settings-server.ts	4	return callPatientApi("/users/me/privacy-settings", {}, accessToken);
+lib/api/settings-server.ts	8	return callPatientApi("/users/me/security-settings", {}, accessToken);
+lib/api/settings-server.ts	12	return callPatientApi("/users/me/storage", {}, accessToken);
+lib/api/settings-server.ts	16	return callPatientApi("/users/me/sessions", {}, accessToken);
+lib/api/sleep-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/sleep-server.ts	2	export function getPatientSleepReadings(accessToken:string){return callPatientApi("/health/sleep?limit=100",{},accessToken);}
+lib/api/trends-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/trends-server.ts	2	export function getPatientHealthTrends(accessToken:string){return callPatientApi("/health/trends",{},accessToken);}
+lib/api/upstream.test.ts	2	import { callPatientApi, patientApiUrl } from "./upstream";
+lib/api/upstream.test.ts	10	const response = await callPatientApi("/health/vitals/summary", {}, "server-only-token");
+lib/api/upstream.test.ts	17	expect(() => patientApiUrl("health/vitals/summary")).toThrow("invalid_patient_api_path");
+lib/api/upstream.test.ts	18	expect(() => patientApiUrl("/health/../vitals")).toThrow("invalid_patient_api_path");
+lib/api/upstream.ts	1	const API_BASE_URL = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
+lib/api/upstream.ts	2	export function patientApiUrl(path: string) { if (!path.startsWith("/") || path.includes("..")) throw new Error("invalid_patient_api_path"); return `${API_BASE_URL}${path}`; }
+lib/api/upstream.ts	3	export async function callPatientApi(path: string, init: RequestInit = {}, accessToken?: string | null) {
+lib/api/upstream.ts	9	return await fetch(patientApiUrl(path), { ...init, headers, cache: "no-store" });
+lib/api/vitals-server.test.ts	3	const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/vitals-server.test.ts	4	vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/vitals-server.test.ts	8	beforeEach(() => callPatientApi.mockReset());
+lib/api/vitals-server.test.ts	11	callPatientApi.mockResolvedValue(response);
+lib/api/vitals-server.test.ts	13	expect(callPatientApi).toHaveBeenCalledWith("/health/vitals/summary", {}, "server-token");
+lib/api/vitals-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/vitals-server.ts	5	return callPatientApi("/health/vitals/summary", {}, accessToken);
+lib/api/vitals-server.ts	9	return callPatientApi("/health/vitals?limit=100", {}, accessToken);
+lib/api/vitals-server.ts	13	return callPatientApi("/health/score", {}, accessToken);
+lib/api/vitals-server.ts	17	return callPatientApi("/health/reports", {}, accessToken);
+lib/api/specialties-server.ts	1	import { patientApiUrl } from "@/lib/api/upstream";
+lib/api/specialties-server.ts	9	export async function getPublicSpecialties(): Promise<Response | null> {
+lib/api/specialties-server.ts	11	return await fetch(patientApiUrl(specialtiesPath("/care/specialties")), {
+lib/api/specialties-server.test.ts	2	import { getPublicSpecialties } from "./specialties-server";
+lib/api/specialties-server.test.ts	10	await getPublicSpecialties();
+lib/api/home-care-services-server.ts	1	import { patientApiUrl } from "@/lib/api/upstream";
+lib/api/home-care-services-server.ts	12	export async function getPublicHomeCareServices(): Promise<Response | null> {
+lib/api/home-care-services-server.ts	13	try { return await fetch(patientApiUrl(servicePath("/home-care/services")), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/home-care-services-server.ts	16	export async function getPublicHomeCareService(serviceId: string): Promise<Response | null> {
+lib/api/home-care-services-server.ts	18	try { return await fetch(patientApiUrl(servicePath(`/home-care/services/${serviceId}`)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/home-care-services-server.test.ts	2	import { getPublicHomeCareService, getPublicHomeCareServices } from "./home-care-services-server";
+lib/api/home-care-services-server.test.ts	8	it("does not send Authorization for list", async () => { await getPublicHomeCareServices(); const [, options] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]; expect(options.headers).toEqual({ Accept: "application/json" }); });
+lib/api/home-care-services-server.test.ts	9	it("allows only a safe detail identifier", async () => { await getPublicHomeCareService("svc-1"); expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining("/home-care/services/svc-1"), expect.any(Object)); await expect(getPublicHomeCareService("patient@example.com")).rejects.toThrow("invalid_home_care_service_id"); });
+lib/api/doctors-server.ts	1	import { patientApiUrl } from "@/lib/api/upstream";
+lib/api/doctors-server.ts	4	export async function getPublicDoctors(input: { search?: string; specialty?: string; sort?: "rating" | "price" | "wait" } = {}): Promise<Response | null> {
+lib/api/doctors-server.ts	5	try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/doctors-server.ts	8	export async function getPublicDoctor(doctorId: string): Promise<Response | null> {
+lib/api/doctors-server.ts	10	try { return await fetch(patientApiUrl(`/care/doctors/${doctorId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/doctors-server.ts	13	export async function getPublicDoctorSlots(input: { id: string; date: string; serviceType: "clinic" | "video" | "home" }): Promise<Response | null> {
+lib/api/doctors-server.ts	15	try { return await fetch(patientApiUrl(doctorSlotsQuery(input)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/doctors-server.test.ts	2	import { getPublicDoctors } from "./doctors-server";
+lib/api/doctors-server.test.ts	3	describe("public doctors wrapper", () => { const original=globalThis.fetch; beforeEach(()=>{globalThis.fetch=vi.fn().mockResolvedValue(new Response("[]",{status:200}));}); afterEach(()=>{globalThis.fetch=original;vi.restoreAllMocks();}); it("sends Accept only", async()=>{await getPublicDoctors({search:"heart",sort:"rating"}); const [,opts]=(globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]; expect(opts.headers).toEqual({Accept:"application/json"}); expect((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0].toString()).toContain("/care/doctors?search=heart&sort=rating");}); });
+lib/api/doctors-detail-server.test.ts	2	import { getPublicDoctor } from "./doctors-server";
+lib/api/doctors-detail-server.test.ts	3	describe("doctor detail wrapper",()=>{const old=globalThis.fetch;beforeEach(()=>{globalThis.fetch=vi.fn().mockResolvedValue(new Response("{}",{status:200}))});afterEach(()=>{globalThis.fetch=old;vi.restoreAllMocks()});it("uses public GET without Authorization",async()=>{await getPublicDoctor("doc-1");const [,o]=(globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];expect(o.headers).toEqual({Accept:"application/json"});await expect(getPublicDoctor("bad/id")).rejects.toThrow("invalid_doctor_id")})});
+lib/api/doctors-slots-server.test.ts	1	import { afterEach,beforeEach,describe,expect,it,vi } from "vitest"; import { getPublicDoctorSlots } from "./doctors-server";
+lib/api/doctors-slots-server.test.ts	2	describe("doctor slots wrapper",()=>{const old=globalThis.fetch;beforeEach(()=>{globalThis.fetch=vi.fn().mockResolvedValue(new Response("{}",{status:200}))});afterEach(()=>{globalThis.fetch=old;vi.restoreAllMocks()});it("uses GET with no auth header",async()=>{await getPublicDoctorSlots({id:"doc-1",date:"2026-09-01",serviceType:"video"});const [url,o]=(globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];expect(String(url)).toContain("service_type=video");expect(o.headers).toEqual({Accept:"application/json"});await expect(getPublicDoctorSlots({id:"doc-1",date:"bad",serviceType:"video"})).rejects.toThrow("invalid_slots_query")})});
+lib/api/labs-server.ts	1	import { patientApiUrl } from "@/lib/api/upstream";
+lib/api/labs-server.ts	11	export async function getPublicLabPackage(packageId: string): Promise<Response | null> {
+lib/api/labs-server.ts	13	try { return await fetch(patientApiUrl(`/labs/packages/${packageId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/labs-server.ts	16	export async function getPublicLabServices(params: {
+lib/api/labs-server.ts	28	try { return await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/labs-server.test.ts	5	vi.mock("@/lib/api/upstream", () => ({ patientApiUrl: (path: string) => `https://api.test${path}` }));
+lib/api/labs-server.test.ts	7	import { getPublicLabServices } from "./labs-server";
+lib/api/labs-server.test.ts	13	await getPublicLabServices({ search: "cbc", category: "blood", homeOnly: true, lowestPrice: true });
+lib/api/payments-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/payments-server.ts	6	return callPatientApi(`/payments/intent/${kind.data}/${bookingId}`, { method: "POST", headers: { "idempotency-key": idempotencyKey } }, accessToken);
+lib/api/radiology-server.ts	1	import { callPatientApi } from "@/lib/api/upstream";
+lib/api/radiology-server.ts	6	export function getPublicRadiologyModalities() { return callPatientApi("/radiology/modalities", { method: "GET", cache: "no-store" }); }
+lib/api/radiology-server.ts	8	export function getPublicRadiologyServices(query: RadiologyQuery = {}) {
+lib/api/radiology-server.ts	14	return callPatientApi(`/radiology/services${params.toString() ? `?${params}` : ""}`, { method: "GET", cache: "no-store" });
+lib/api/radiology-server.test.ts	3	vi.mock("@/lib/api/upstream", () => ({ callPatientApi: call }));
+lib/api/radiology-server.test.ts	4	import { getPublicRadiologyServices } from "./radiology-server";
+lib/api/radiology-server.test.ts	8	getPublicRadiologyServices({ modality: "mri", bodyPart: "brain", homeVisit: "true", homeOnly: "true", highestRated: "true", lowestPrice: "true", search: "scan", nearest: "evil" });

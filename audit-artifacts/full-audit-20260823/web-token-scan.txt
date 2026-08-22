@@ -1,0 +1,28 @@
+app/api/patient/[...path]/route.test.ts:65:    expect(state.callPatientApi).toHaveBeenNthCalledWith(2, "/auth/refresh", expect.objectContaining({ body: JSON.stringify({ refresh_token: "valid-refresh" }) }));
+lib/auth/refresh.ts:6:  return JSON.stringify({ refresh_token: refreshToken });
+lib/auth/refresh.test.ts:5:  it("uses the backend refresh_token key and accepts only a complete rotated token pair", () => {
+lib/auth/refresh.test.ts:6:    expect(JSON.parse(refreshRequestBody("refresh-value"))).toEqual({ refresh_token: "refresh-value" });
+lib/api/upstream.ts:6:  if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
+lib/api/settings.test.ts:10:    expect(parseSessions([{ id: "private-jti", device: "web", expires_in_seconds: 86400, access_token: "private" }])).toEqual([{ device: "web", expiresInSeconds: 86400 }]);
+lib/api/sandbox-vitals-contract.test.ts:28:    const response = await fetch(`${baseUrl}/health/vitals/summary`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-specialty-provider-count.test.ts:39:    const headers = { authorization: `Bearer ${accessToken}` };
+lib/api/sandbox-reminders-contract.test.ts:28:    const response = await fetch(`${baseUrl}/health/reminders`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-profile-contracts.test.ts:26:        fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } })
+lib/api/sandbox-profile-contracts.test.ts:63:      const response = await fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } });
+lib/api/sandbox-profile-contracts.test.ts:82:    const medicalResponse = await fetch(`${baseUrl}/medical-profile`, { headers: { authorization: `Bearer ${token}` } });
+lib/api/sandbox-profile-contracts.test.ts:89:      const response = await fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } });
+lib/api/sandbox-prescriptions-contract.test.ts:28:    const response = await fetch(`${baseUrl}/prescriptions/mine`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-order-ownership.test.ts:32:    const ownerResponse = await fetch(`${baseUrl}/orders/${sandboxOrderId}`, { headers: { authorization: `Bearer ${ownerToken}` } });
+lib/api/sandbox-order-ownership.test.ts:35:    const otherResponse = await fetch(`${baseUrl}/orders/${sandboxOrderId}`, { headers: { authorization: `Bearer ${otherToken}` } });
+lib/api/sandbox-notifications-contract.test.ts:28:    const headers = { authorization: `Bearer ${accessToken}` };
+lib/api/sandbox-home-care-contract.test.ts:36:    const list = await fetch(`${baseUrl}/home-care/bookings/my`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-home-care-contract.test.ts:40:    const ownerDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-home-care-contract.test.ts:42:    const otherDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-family-contract.test.ts:28:    const list = await fetch(`${baseUrl}/family/members`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-diagnostics-contracts.test.ts:43:      const list = await fetch(`${baseUrl}/${domain}/bookings/mine`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-diagnostics-contracts.test.ts:48:      const ownerDetail = await fetch(`${baseUrl}/${domain}/bookings/${encodeURIComponent(resourceId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-diagnostics-contracts.test.ts:50:      const otherDetail = await fetch(`${baseUrl}/${domain}/bookings/${encodeURIComponent(resourceId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-chat-contract.test.ts:28:    const response = await fetch(`${baseUrl}/chat/threads`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-appointments-contracts.test.ts:42:    const listResponse = await fetch(`${baseUrl}/care/appointments`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-appointments-contracts.test.ts:47:    const ownerDetail = await fetch(`${baseUrl}/care/appointments/${appointmentId}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-appointments-contracts.test.ts:49:    const otherDetail = await fetch(`${baseUrl}/care/appointments/${appointmentId}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });

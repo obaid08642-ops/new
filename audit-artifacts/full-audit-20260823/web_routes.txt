@@ -1,0 +1,69 @@
+/[locale]/appointments/[appointmentId]
+/[locale]/appointments
+/[locale]/articles/[slug]
+/[locale]/articles/bookmarks
+/[locale]/articles
+/[locale]/cart/checkout
+/[locale]/cart
+/[locale]/cart/prescription
+/[locale]/chat/[threadId]
+/[locale]/chat
+/[locale]/consultations/doctors/[doctorId]
+/[locale]/consultations/doctors
+/[locale]/consultations/specialties
+/[locale]/dashboard
+/[locale]/diagnostics/[domain]/[bookingId]
+/[locale]/diagnostics/labs
+/[locale]/diagnostics/packages/[packageId]
+/[locale]/diagnostics/packages
+/[locale]/diagnostics
+/[locale]/diagnostics/radiology
+/[locale]/family
+/[locale]/health/chronic-diseases
+/[locale]/health/chronic-medications
+/[locale]/health/emergency-contacts
+/[locale]/health
+/[locale]/health/reports
+/[locale]/health/score
+/[locale]/health/sleep
+/[locale]/health/trends
+/[locale]/health/vitals
+/[locale]/home-care
+/[locale]/home-care/services/[serviceId]
+/[locale]/home-care/services
+/[locale]/insurance
+/[locale]/login
+/[locale]/medicine-catalog
+/[locale]/medicines/[medicineId]
+/[locale]/medicines
+/[locale]/mental-health/breathing
+/[locale]/mental-health/crisis-contacts
+/[locale]/mental-health/meditation
+/[locale]/mental-health/mood
+/[locale]/mental-health
+/[locale]/notifications
+/[locale]/notifications/settings
+/[locale]/orders/[orderId]
+/[locale]/orders/[orderId]/tracking
+/[locale]/orders
+/[locale]
+/[locale]/prescriptions/[prescriptionId]
+/[locale]/prescriptions
+/[locale]/profile
+/[locale]/reminders
+/[locale]/settings
+API /api/appointments/[appointmentId]/call-token
+API /api/appointments/[appointmentId]/cancel
+API /api/appointments/[appointmentId]/payment-intent
+API /api/appointments/[appointmentId]/reschedule
+API /api/appointments/book
+API /api/auth/login
+API /api/auth/logout
+API /api/auth/otp/request
+API /api/auth/otp/verify
+API /api/auth/session/exchange
+API /api/auth/session
+API /api/auth/verify-2fa
+API /api/patient/[...path]
+API /favicon.ico
+API /llms.txt

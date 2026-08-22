@@ -1,0 +1,2628 @@
+[
+  {
+    "mobile_screen": "(auth)/_layout.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/forgot-password.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/login.tsx",
+    "domain": "(auth)",
+    "web_candidates": [
+      "/[locale]/login"
+    ],
+    "nav_markers": 7,
+    "action_markers": 10,
+    "methods": {
+      "POST": 2
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "(auth)/otp.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 4,
+    "methods": {
+      "POST": 3
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/privacy.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/provider-info.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/register.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 6,
+    "action_markers": 11,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/reset-password.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/terms.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(auth)/welcome.tsx",
+    "domain": "(auth)",
+    "web_candidates": [],
+    "nav_markers": 8,
+    "action_markers": 12,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(onboarding)/_layout.tsx",
+    "domain": "(onboarding)",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(onboarding)/index.tsx",
+    "domain": "(onboarding)",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(onboarding)/language.tsx",
+    "domain": "(onboarding)",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(onboarding)/permissions.tsx",
+    "domain": "(onboarding)",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/_layout.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/consultations/index.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [],
+    "nav_markers": 8,
+    "action_markers": 31,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/diagnostics.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [
+      "/[locale]/diagnostics"
+    ],
+    "nav_markers": 11,
+    "action_markers": 21,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/health.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [
+      "/[locale]/health"
+    ],
+    "nav_markers": 9,
+    "action_markers": 7,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/index.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [],
+    "nav_markers": 19,
+    "action_markers": 19,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/nursing.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 18,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/pharmacy.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [],
+    "nav_markers": 8,
+    "action_markers": 16,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "(tabs)/services.tsx",
+    "domain": "(tabs)",
+    "web_candidates": [
+      "/[locale]/home-care/services"
+    ],
+    "nav_markers": 2,
+    "action_markers": 2,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "_layout.tsx",
+    "domain": "_layout.tsx",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/chat-doctor.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/monthly-report.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 5,
+    "action_markers": 7,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/prescription-translator.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 5,
+    "action_markers": 10,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/skin-analysis.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 8,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/symptom-checker.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/symptom-timeline.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai/triage.tsx",
+    "domain": "ai",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 7,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "ai-assistant.tsx",
+    "domain": "ai-assistant.tsx",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "articles/[slug].tsx",
+    "domain": "articles",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 1,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "articles/bookmarks.tsx",
+    "domain": "articles",
+    "web_candidates": [
+      "/[locale]/articles/bookmarks"
+    ],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "articles/index.tsx",
+    "domain": "articles",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 6,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "community/hub.tsx",
+    "domain": "community",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 7,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "community/post-detail.tsx",
+    "domain": "community",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 6,
+    "methods": {
+      "PUT": 1,
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/appointment-detail.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 8,
+    "action_markers": 10,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/appointments.tsx",
+    "domain": "consultations",
+    "web_candidates": [
+      "/[locale]/appointments"
+    ],
+    "nav_markers": 5,
+    "action_markers": 8,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "consultations/book/[id].tsx",
+    "domain": "consultations",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 3,
+    "action_markers": 9,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "consultations/booking-confirm.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 6,
+    "methods": {
+      "POST": 3
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/booking-pending.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 5,
+    "action_markers": 4,
+    "methods": {
+      "PATCH": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/booking-success.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/call-history.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/cancel-reschedule.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 9,
+    "methods": {
+      "PATCH": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/chat-with-doctor.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 3,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/clinic/[id].tsx",
+    "domain": "consultations",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "consultations/clinic-confirm.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/clinic-location.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/doctor/[id].tsx",
+    "domain": "consultations",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 3,
+    "action_markers": 12,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "consultations/doctor-profile.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/doctor-search.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/follow-up.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 6,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/home-visit-tracking.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/incoming-call.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/offer/[id].tsx",
+    "domain": "consultations",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "consultations/post-call-rating.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/prescription-from-doctor.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 9,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/share-report.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/specialty-select.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/summary.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/video/[id].tsx",
+    "domain": "consultations",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "consultations/video-call.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/virtual-waiting-room.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "consultations/waiting-room.tsx",
+    "domain": "consultations",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "delivery/address-select.tsx",
+    "domain": "delivery",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/book-sample.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/booking-confirm.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/booking-success.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/cart.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [
+      "/[locale]/cart"
+    ],
+    "nav_markers": 1,
+    "action_markers": 9,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/checkout.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [
+      "/[locale]/cart/checkout"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/insurance-approval.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 5,
+    "methods": {
+      "PATCH": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/insurance-upload.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 14,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/lab/[id].tsx",
+    "domain": "diagnostics",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 1,
+    "action_markers": 5,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/lab-comparison.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/my-results.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/order/[id].tsx",
+    "domain": "diagnostics",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 1,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/orders.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [
+      "/[locale]/orders"
+    ],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/package-detail.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/packages.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [
+      "/[locale]/diagnostics/packages"
+    ],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/results-history.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/sample-tracking.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/search.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/technician-tracking.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/test-detail.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "diagnostics/upload-rx.tsx",
+    "domain": "diagnostics",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "drug-scanner/index.tsx",
+    "domain": "drug-scanner",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "emergency/index.tsx",
+    "domain": "emergency",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "emergency/sos-active.tsx",
+    "domain": "emergency",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "emergency/sos.tsx",
+    "domain": "emergency",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "emergency/tracking.tsx",
+    "domain": "emergency",
+    "web_candidates": [
+      "/[locale]/orders/[orderId]/tracking"
+    ],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "family/calendar.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 8,
+    "methods": {
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/chat.tsx",
+    "domain": "family",
+    "web_candidates": [
+      "/[locale]/chat"
+    ],
+    "nav_markers": 0,
+    "action_markers": 4,
+    "methods": {
+      "POST": 1
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "family/emergency-contacts.tsx",
+    "domain": "family",
+    "web_candidates": [
+      "/[locale]/health/emergency-contacts"
+    ],
+    "nav_markers": 3,
+    "action_markers": 6,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "family/hub.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 7,
+    "action_markers": 7,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/index.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/invite.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/join.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/member-health.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/permission-request.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 4,
+    "methods": {
+      "PUT": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/permissions.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 3,
+    "methods": {
+      "PATCH": 1,
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/scan.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "family/shared-calendar.tsx",
+    "domain": "family",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/actionable-order.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/add-family-member.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/chronic-disease.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/chronic-medications.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/health/chronic-medications"
+    ],
+    "nav_markers": 3,
+    "action_markers": 7,
+    "methods": {
+      "POST": 1
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/conditions-allergies.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 4,
+    "methods": {
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/edit-profile.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 5,
+    "methods": {
+      "PATCH": 2,
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/emergency-contacts.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/health/emergency-contacts"
+    ],
+    "nav_markers": 0,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/family-calendar.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/family-chat.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/family-hub.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 6,
+    "action_markers": 8,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/family-member-detail.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/health-id.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/medication-reminder-add.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/medication-reminder-list.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 9,
+    "methods": {
+      "POST": 1,
+      "PATCH": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/medications.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 6,
+    "action_markers": 9,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/prescriptions.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/prescriptions"
+    ],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/refills.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/reminders.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/reminders"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/reports.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/health/reports"
+    ],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/sleep-score.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/sleep-tracker.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/smart-reminders.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/trends.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/health/trends"
+    ],
+    "nav_markers": 0,
+    "action_markers": 7,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/vitals-log.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 7,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "health/vitals.tsx",
+    "domain": "health",
+    "web_candidates": [
+      "/[locale]/health/vitals"
+    ],
+    "nav_markers": 5,
+    "action_markers": 7,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "health/wearables.tsx",
+    "domain": "health",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "index.tsx",
+    "domain": "index.tsx",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/add-policy.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/approval-pending.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/benefits-summary.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/claim-tracking.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/copay.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 1,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/coverage-check.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 6,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/hub.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 8,
+    "action_markers": 11,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/index.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/network-providers.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/payment-split.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 6,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/policy-detail.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/refund-status.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "insurance/submit-claim.tsx",
+    "domain": "insurance",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "loyalty/challenges.tsx",
+    "domain": "loyalty",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "loyalty/hub.tsx",
+    "domain": "loyalty",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "loyalty/leaderboard.tsx",
+    "domain": "loyalty",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "loyalty/referrals.tsx",
+    "domain": "loyalty",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "loyalty/rewards.tsx",
+    "domain": "loyalty",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "map/index.tsx",
+    "domain": "map",
+    "web_candidates": [],
+    "nav_markers": 6,
+    "action_markers": 13,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/baby-development.tsx",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/baby-growth.tsx",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/fetus-data.ts",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/hub.tsx",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/maternity-setup.tsx",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/ovulation-tracker.tsx",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "maternity/pregnancy-tracker.tsx",
+    "domain": "maternity",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "mental-health/breathing.tsx",
+    "domain": "mental-health",
+    "web_candidates": [
+      "/[locale]/mental-health/breathing"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "mental-health/crisis-support.tsx",
+    "domain": "mental-health",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 9,
+    "methods": {
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "mental-health/hub.tsx",
+    "domain": "mental-health",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "mental-health/index.tsx",
+    "domain": "mental-health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "mental-health/meditation.tsx",
+    "domain": "mental-health",
+    "web_candidates": [
+      "/[locale]/mental-health/meditation"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "mental-health/mood-journal.tsx",
+    "domain": "mental-health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "mental-health/self-assessment.tsx",
+    "domain": "mental-health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "mental-health/therapist-match.tsx",
+    "domain": "mental-health",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "notifications/index.tsx",
+    "domain": "notifications",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 6,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nursing/live-tracking.tsx",
+    "domain": "nursing",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nursing/nurse-profile.tsx",
+    "domain": "nursing",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 12,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nursing/service-details.tsx",
+    "domain": "nursing",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 10,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nursing/service-info.tsx",
+    "domain": "nursing",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/ai-meal-planner.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/ai-plan-builder.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/body-composition.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/body-target.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/calorie-analyzer.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/daily-tracker.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 6,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/exercise-plan.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/food-scanner.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/hub.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 7,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/index.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/log-meal.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/nutrition-plan.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "nutrition/water-tracker.tsx",
+    "domain": "nutrition",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "offers/[id].tsx",
+    "domain": "offers",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 1,
+    "action_markers": 5,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "offers/index.tsx",
+    "domain": "offers",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "orders/index.tsx",
+    "domain": "orders",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "payments/failed.tsx",
+    "domain": "payments",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "payments/failure.tsx",
+    "domain": "payments",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "payments/processing.tsx",
+    "domain": "payments",
+    "web_candidates": [],
+    "nav_markers": 5,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "payments/success.tsx",
+    "domain": "payments",
+    "web_candidates": [],
+    "nav_markers": 7,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/barcode-scanner.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 5,
+    "action_markers": 9,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/broadcast-status.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/cart.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [
+      "/[locale]/cart"
+    ],
+    "nav_markers": 3,
+    "action_markers": 12,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/chat-with-pharmacist.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 10,
+    "methods": {
+      "POST": 4
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/checkout.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [
+      "/[locale]/cart/checkout"
+    ],
+    "nav_markers": 4,
+    "action_markers": 7,
+    "methods": {
+      "POST": 3
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/custom-item.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/drug-not-found.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 6,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/filters.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 8,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/manual-order.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/medicine-compare.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/order-confirm.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 3,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/order-history.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/order-tracking.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/payment.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 4,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/pharmacist-chat.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/product-detail.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 4,
+    "action_markers": 17,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/product-search.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/reorder.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 7,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/rx-order.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/scan-prescription.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/waiting-for-pharmacy.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 1,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "pharmacy/wishlist.tsx",
+    "domain": "pharmacy",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "profile/addresses.tsx",
+    "domain": "profile",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {
+      "PATCH": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "profile/edit.tsx",
+    "domain": "profile",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "profile/index.tsx",
+    "domain": "profile",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 6,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "profile/insurance.tsx",
+    "domain": "profile",
+    "web_candidates": [
+      "/[locale]/insurance"
+    ],
+    "nav_markers": 0,
+    "action_markers": 7,
+    "methods": {
+      "POST": 1
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "programs/active.tsx",
+    "domain": "programs",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "reports/ai-analysis.tsx",
+    "domain": "reports",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "reports/hub.tsx",
+    "domain": "reports",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 6,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "reports/passport.tsx",
+    "domain": "reports",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "reports/timeline.tsx",
+    "domain": "reports",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "reports/view-report.tsx",
+    "domain": "reports",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "returns/detail.tsx",
+    "domain": "returns",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "returns/hub.tsx",
+    "domain": "returns",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "returns/new-request.tsx",
+    "domain": "returns",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 10,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "reviews/index.tsx",
+    "domain": "reviews",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "room/[id].tsx",
+    "domain": "room",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 0,
+    "action_markers": 4,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "s/[type]/[slug].tsx",
+    "domain": "s",
+    "web_candidates": [
+      "/[locale]",
+      "/[locale]/appointments/[appointmentId]",
+      "/[locale]/articles/[slug]",
+      "/[locale]/chat/[threadId]",
+      "/[locale]/diagnostics/[domain]/[bookingId]",
+      "/[locale]/diagnostics/packages/[packageId]",
+      "/[locale]/home-care/services/[serviceId]",
+      "/[locale]/medicines/[medicineId]",
+      "/[locale]/orders/[orderId]",
+      "/[locale]/prescriptions/[prescriptionId]",
+      "/[locale]/consultations/doctors/[doctorId]"
+    ],
+    "nav_markers": 2,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "search/index.tsx",
+    "domain": "search",
+    "web_candidates": [],
+    "nav_markers": 9,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "services/index.tsx",
+    "domain": "services",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/about.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 4,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/data.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/feedback.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 5,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/help.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 5,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/index.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/language.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/notifications-settings.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {
+      "PATCH": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/notifications.tsx",
+    "domain": "settings",
+    "web_candidates": [
+      "/[locale]/notifications"
+    ],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "settings/privacy.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {
+      "PATCH": 1,
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/security.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 4,
+    "methods": {
+      "PATCH": 2,
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/support-chat.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 0,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "settings/terms.tsx",
+    "domain": "settings",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 1,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "shared/location-picker.tsx",
+    "domain": "shared",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 11,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "support/chat.tsx",
+    "domain": "support",
+    "web_candidates": [
+      "/[locale]/chat"
+    ],
+    "nav_markers": 0,
+    "action_markers": 5,
+    "methods": {
+      "POST": 2
+    },
+    "status": "candidate"
+  },
+  {
+    "mobile_screen": "support/ticket.tsx",
+    "domain": "support",
+    "web_candidates": [],
+    "nav_markers": 2,
+    "action_markers": 3,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "voice/index.tsx",
+    "domain": "voice",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "wallet/cards.tsx",
+    "domain": "wallet",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 4,
+    "methods": {
+      "DELETE": 1,
+      "POST": 2
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "wallet/hub.tsx",
+    "domain": "wallet",
+    "web_candidates": [],
+    "nav_markers": 3,
+    "action_markers": 8,
+    "methods": {
+      "POST": 1,
+      "DELETE": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "wallet/topup.tsx",
+    "domain": "wallet",
+    "web_candidates": [],
+    "nav_markers": 1,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "wallet/transactions.tsx",
+    "domain": "wallet",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {},
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "wallet/transfer.tsx",
+    "domain": "wallet",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 3,
+    "methods": {
+      "POST": 1
+    },
+    "status": "missing_web_candidate"
+  },
+  {
+    "mobile_screen": "wearables/hub.tsx",
+    "domain": "wearables",
+    "web_candidates": [],
+    "nav_markers": 0,
+    "action_markers": 2,
+    "methods": {
+      "POST": 5
+    },
+    "status": "missing_web_candidate"
+  }
+]

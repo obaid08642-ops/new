@@ -1,0 +1,39 @@
+file	line	text
+src/store/index.ts	22	import { baseApi } from './api/baseApi';
+src/services/index.ts	12	BASE_URL, FASTAPI_BASE_URL, CDN_URL,
+src/services/SyncManager.ts	43	const state = await NetInfo.fetch();
+src/services/SyncManager.ts	61	const resp = await fetch(req.url, {
+src/services/HttpClient.ts	8	? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1`
+src/services/HttpClient.ts	9	: 'https://api.nabd.plus/api/v1';
+src/services/HttpClient.ts	11	export const HttpClient = axios.create({
+src/services/HttpClient.ts	65	export const FASTAPI_BASE_URL = process.env.EXPO_PUBLIC_AI_URL ?? 'https://ai.nabdahplus.com';
+src/context/AppContext.tsx	77	const res = await fetch(`${appConfig.apiBaseUrl}/config`);
+src/constants/index.ts	6	export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL
+src/constants/index.ts	7	?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1` : 'https://api.nabd.plus/api/v1');
+src/utils/api.ts	10	export const FASTAPI_BASE_URL = config.fastapiBaseUrl;
+src/utils/api.ts	54	const res = await fetch(`${BASE_URL}/auth/guest`, {
+src/utils/api.ts	106	return await fetch(url, { ...options, headers, signal: ctrl.signal });
+src/utils/imageUrl.ts	12	BASE_URL.replace('/api/v1', '');
+src/utils/prefetch.ts	28	Image.prefetch(valid, 'memory-disk').catch(() => {});
+src/store/middleware/memoryManager.ts	2	import { baseApi } from '../api/baseApi';
+src/store/integration/EventBusIntegrator.ts	4	import { baseApi } from '../api/baseApi';
+src/guided-tour/engines/AnalyticsCollector.ts	26	// POST /api/v1/tours/analytics/events
+src/data/repositories/RepositoryCoordinator.ts	55	this.registerFeatureRepository('users', '/api/v1/users', dbManager);
+src/core/config/ConfigManager.ts	49	apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'http://localhost:8002/api/v1',
+src/core/config/ConfigManager.ts	50	fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'http://localhost:8000/api',
+src/core/config/ConfigManager.ts	59	apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://staging-api.nabdahplus.com/api/v1',
+src/core/config/ConfigManager.ts	60	fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://staging-fastapi.nabdahplus.com/api',
+src/core/config/ConfigManager.ts	69	apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://api.nabd.plus/api/v1',
+src/core/config/ConfigManager.ts	70	fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.nabd.plus/api/v1',
+src/core/platform/realtime/RealtimeClient.ts	30	const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8002';
+src/core/platform/realtime/RealtimeClient.ts	31	const cleanUrl = baseUrl.replace('/api/v1', '').replace('/api', '');
+src/core/platform/auth/SessionManager.ts	77	const res = await fetch(`${BASE_URL}/auth/refresh`, {
+src/__tests__/utils/testUtils.ts	18	apiBaseUrl:       'http://localhost:8002/api/v1',
+app/pharmacy/order-tracking.tsx	82	fetch();
+app/consultations/booking-confirm.tsx	11	import { STORAGE_KEYS, API_BASE_URL } from '../../src/constants';
+app/consultations/booking-confirm.tsx	122	const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
+app/consultations/booking-confirm.tsx	123	const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {
+app/(auth)/terms.tsx	66	fetch(`${BASE_URL}/legal/policy/patient_terms?lang=${AR ? "ar" : "en"}`)
+app/(auth)/register.tsx	91	scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
+app/(auth)/privacy.tsx	70	fetch(`${BASE_URL}/legal/policy/privacy_policy?lang=${AR ? "ar" : "en"}`)
+app/(auth)/login.tsx	70	scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],

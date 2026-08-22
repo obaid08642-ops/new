@@ -1,0 +1,11 @@
+endpoint	status	content_type	bytes
+/radiology/services	200	application/json; charset=utf-8	68794
+/radiology/modalities	200	application/json; charset=utf-8	53
+/labs/services	200	application/json; charset=utf-8	113585
+/care/specialties	200	application/json; charset=utf-8	6312
+/home-care/services	401	application/json; charset=utf-8	67
+/insurance/companies	200	application/json; charset=utf-8	53460
+/health/vitals-log	401	application/json; charset=utf-8	67
+/users/me/profile	401	application/json; charset=utf-8	67
+/nursing/visits	401	application/json; charset=utf-8	67
+/orders/mine	401	application/json; charset=utf-8	67

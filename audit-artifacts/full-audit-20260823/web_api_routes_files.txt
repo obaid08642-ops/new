@@ -1,0 +1,15 @@
+api/appointments/[appointmentId]/call-token/route.ts
+api/appointments/[appointmentId]/cancel/route.ts
+api/appointments/[appointmentId]/payment-intent/route.ts
+api/appointments/[appointmentId]/reschedule/route.ts
+api/appointments/book/route.ts
+api/auth/login/route.ts
+api/auth/logout/route.ts
+api/auth/otp/request/route.ts
+api/auth/otp/verify/route.ts
+api/auth/session/exchange/route.ts
+api/auth/session/route.ts
+api/auth/verify-2fa/route.ts
+api/patient/[...path]/route.ts
+favicon.ico/route.ts
+llms.txt/route.ts
