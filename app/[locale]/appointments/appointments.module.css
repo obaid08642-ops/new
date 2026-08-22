@@ -28,6 +28,10 @@
   text-wrap: balance;
 }
 
+.specialtiesLink { display: inline-flex; align-items: center; gap: .42rem; margin-top: .85rem; padding: .58rem .78rem; border: 1px solid rgba(8,127,140,.16); border-radius: var(--radius-full); color: var(--brand-deep); background: rgba(231,247,247,.72); font-size: .8rem; font-weight: 760; transition: transform var(--motion-fast) var(--ease-premium), background var(--motion-fast) var(--ease-premium), box-shadow var(--motion-fast) var(--ease-premium); }
+.specialtiesLink:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .specialtiesLink:hover { transform: translateY(-1px); background: rgba(214,243,244,.94); box-shadow: var(--shadow-sm); } }
+
 .headerIcon, .serviceIcon, .stateIcon {
   display: grid;
   place-items: center;
@@ -142,5 +146,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tab, .tabActive, .card { transition: none; }
-  .card:hover, .tab:hover { transform: none; }
+  .card:hover, .tab:hover, .specialtiesLink:hover { transform: none; }
+  .specialtiesLink { transition: none; }
 }

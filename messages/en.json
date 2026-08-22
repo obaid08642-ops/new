@@ -114,7 +114,8 @@
       "clinic": "Clinic visit",
       "video": "Video consultation",
       "home": "Home visit"
-    }
+    },
+    "browseSpecialties": "Browse specialties"
   },
   "Medicines": {
     "eyebrow": "Private catalog",
@@ -604,5 +605,19 @@
       "down": "Moving down",
       "flat": "Stable"
     }
+  },
+  "Specialties": {
+    "eyebrow": "Care discovery",
+    "title": "Medical specialties",
+    "subtitle": "Choose a specialty to continue to available doctors. Results come from the authorized service only.",
+    "searchLabel": "Search specialties",
+    "searchPlaceholder": "Search specialties...",
+    "unavailableTitle": "Unable to load specialties",
+    "unavailableBody": "No fallback or sample data was shown. Please try again later.",
+    "retry": "Retry",
+    "emptyTitle": "No specialties",
+    "emptyBody": "No specialties are currently available from the authorized service.",
+    "noMatch": "No specialties match your search.",
+    "doctorCount": "{count} doctors available"
   }
 }

@@ -159,7 +159,8 @@
       "clinic": "Pagbisita sa klinika",
       "video": "Video na konsultasyon",
       "home": "Pagbisita sa bahay"
-    }
+    },
+    "browseSpecialties": "Tingnan ang mga espesyalisasyon"
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",
@@ -604,5 +605,19 @@
       "down": "Pababa",
       "flat": "Stable"
     }
+  },
+  "Specialties": {
+    "eyebrow": "Hanapin ang pangangalaga",
+    "title": "Mga medikal na espesyalisasyon",
+    "subtitle": "Pumili ng espesyalisasyon para makita ang mga available na doktor. Mula lamang sa awtorisadong serbisyo ang mga resulta.",
+    "searchLabel": "Maghanap ng espesyalisasyon",
+    "searchPlaceholder": "Maghanap ng espesyalisasyon...",
+    "unavailableTitle": "Hindi ma-load ang mga espesyalisasyon",
+    "unavailableBody": "Walang fallback o sample data na ipinakita. Subukan muli mamaya.",
+    "retry": "Subukan muli",
+    "emptyTitle": "Walang espesyalisasyon",
+    "emptyBody": "Walang kasalukuyang available mula sa awtorisadong serbisyo.",
+    "noMatch": "Walang tumugmang espesyalisasyon sa paghahanap.",
+    "doctorCount": "{count} doktor ang available"
   }
 }
