@@ -312,7 +312,8 @@ export class OrdersService {
     if (role === UserRole.ADMIN || role === 'admin' || role === 'super_admin') return;
     if (role === UserRole.PATIENT && order.patient_id === user.id) return;
     if (['pharmacy', 'provider'].includes(role) && order.pharmacy_id === user.id) return;
-    throw new ForbiddenException('order_not_accessible');
+    // Patient-owned order identifiers must not reveal existence to unrelated users.
+    throw new NotFoundException('order_not_found');
   }
 
   async getById(id: string, user?: any) {

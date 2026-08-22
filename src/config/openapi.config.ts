@@ -41,5 +41,47 @@ export function createNabdahOpenApiDocument(app: INestApplication): OpenAPIObjec
   ]);
 
   document.paths = Object.fromEntries(normalizedPaths);
+  addPatientContractPackPaths(document);
   return document;
+}
+
+/**
+ * Explicit documentation for the contract-pack routes that are implemented in
+ * this branch. Do not add aspirational endpoints here: the OpenAPI document is
+ * a deployable client contract, not a roadmap.
+ */
+function addPatientContractPackPaths(document: OpenAPIObject) {
+  const paths: any = document.paths;
+  const json = { 'application/json': { schema: { type: 'object' } } };
+  const bearer = [{ [NABDAH_ACCESS_TOKEN_SECURITY_SCHEME]: [] }];
+  const idempotency = [{ name: 'Idempotency-Key', in: 'header', required: true, schema: { type: 'string', format: 'uuid' } }];
+  Object.assign(paths, {
+    '/auth/otp/request': {
+      post: { summary: 'Request an opaque patient OTP', requestBody: { required: true, content: json }, responses: { 200: { description: 'Opaque delivery result', content: json }, 429: { description: 'Rate limited', content: json } } },
+    },
+    '/auth/otp/verify': {
+      post: { summary: 'Verify a patient OTP and issue a 60-second exchange token', requestBody: { required: true, content: json }, responses: { 200: { description: 'Exchange token', content: json }, 401: { description: 'Invalid OTP', content: json }, 410: { description: 'Expired OTP', content: json }, 429: { description: 'Locked', content: json } } },
+    },
+    '/auth/session/exchange': {
+      post: { summary: 'Exchange the one-time token for HttpOnly cookies', requestBody: { required: true, content: json }, responses: { 200: { description: 'Authenticated; no tokens in response body', content: json }, 401: { description: 'Invalid or consumed exchange token', content: json } } },
+    },
+    '/users/me/display': {
+      get: { summary: 'Get bounded patient display DTO', security: bearer, responses: { 200: { description: 'Display DTO without PII', content: json }, 401: { description: 'Unauthenticated', content: json } } },
+    },
+    '/users/me': {
+      patch: { summary: 'Update allowlisted patient display and health profile', security: bearer, requestBody: { required: true, content: json }, responses: { 200: { description: 'Display DTO', content: json }, 400: { description: 'Invalid allowlist field', content: json }, 401: { description: 'Unauthenticated', content: json } } },
+    },
+    '/users/me/health-id': {
+      get: { summary: 'Issue a signed five-minute health ID QR payload', security: bearer, responses: { 200: { description: 'Health ID DTO', content: json }, 401: { description: 'Unauthenticated', content: json } } },
+    },
+    '/health/vitals-log': {
+      get: { summary: 'List real patient vital readings only', security: bearer, responses: { 200: { description: 'Vital log items', content: json }, 401: { description: 'Unauthenticated', content: json } } },
+    },
+    '/health/vitals': {
+      post: { summary: 'Create a patient-owned vital reading', security: bearer, parameters: idempotency, requestBody: { required: true, content: json }, responses: { 201: { description: 'Reading identifier', content: json }, 400: { description: 'Invalid reading or idempotency key', content: json }, 401: { description: 'Unauthenticated', content: json } } },
+    },
+    '/cart/items': {
+      post: { summary: 'Add a pharmacy cart item resolved by the server catalog', security: bearer, requestBody: { required: true, content: json }, responses: { 201: { description: 'Cart result', content: json }, 404: { description: 'Medicine not found', content: json } } },
+    },
+  });
 }
