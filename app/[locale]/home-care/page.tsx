@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractHomeCareBookings } from "@/lib/api/home-care";
@@ -22,14 +23,14 @@ export default async function HomeCarePage({ params }: Props) {
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><HousePlus size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const bookings = extractHomeCareBookings(await response.json().catch(() => null));
   const serviceName = (booking: typeof bookings[number]) => locale === "ar" ? booking.serviceNameAr || booking.serviceNameEn || t("serviceUnavailable") : booking.serviceNameEn || booking.serviceNameAr || t("serviceUnavailable");
-  return <main className={`main ${styles.page}`}>
-    <section className={styles.intro}>
+  return <main className={`main ${styles.page}`}><section className={styles.intro}>
       <div className={styles.introText}>
         <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
         <h1>{t("title")}</h1>
       </div>
       <span className={styles.introIcon}><HousePlus size={27} aria-hidden="true" /></span>
     </section>
+    <Link href={`/${locale}/home-care/services`} className={styles.notice}>{t("browseServices")}</Link>
     {bookings.length === 0 ? <section className={styles.state}><HousePlus size={25} aria-hidden="true" /><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{bookings.map((booking) => <article className={styles.card} key={booking.id}>
       <span className={styles.cardIcon}><HousePlus size={19} aria-hidden="true" /></span>
       <div className={styles.cardBody}>

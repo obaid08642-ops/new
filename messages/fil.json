@@ -219,7 +219,8 @@
     "sessions": "Mga sesyon: {count}",
     "unavailableTitle": "Hindi na-load ang pangangalaga sa bahay",
     "unavailable": "Walang kapalit na data na ipinakita. Subukang muli mamaya.",
-    "notice": "Serbisyo, status ng booking at iskedyul lamang ang ipinapakita. Hindi ipinapakita sa interface na ito ang lokasyon, pagsubaybay, klinikal na impormasyon at mga presyo."
+    "notice": "Serbisyo, status ng booking at iskedyul lamang ang ipinapakita. Hindi ipinapakita sa interface na ito ang lokasyon, pagsubaybay, klinikal na impormasyon at mga presyo.",
+    "browseServices": "Tingnan ang mga serbisyo sa home care"
   },
   "Family": {
     "eyebrow": "Pribadong pamilya",
@@ -638,5 +639,25 @@
     "insurance": "May insurance",
     "bookingNotice": "Read-only ang detalye ng serbisyo rito. Walang booking na ginagawa sa pahinang ito.",
     "back": "Bumalik sa mga serbisyo"
+  },
+  "Doctors": {
+    "eyebrow": "Pangangalagang medikal",
+    "title": "Maghanap ng doktor",
+    "subtitle": "Mga doktor lang mula sa awtorisadong source ang ipinapakita. Hindi kami gumagawa ng rating o presyo.",
+    "searchLabel": "Maghanap ng doktor",
+    "searchPlaceholder": "Maghanap ayon sa pangalan o specialty...",
+    "search": "Maghanap",
+    "sortLabel": "Ayusin ang resulta",
+    "sortRating": "Pinakamataas na rating",
+    "sortPrice": "Pinakamababang presyo",
+    "sortWait": "Pinakamaikling paghihintay",
+    "unavailableTitle": "Hindi ma-load ang mga doktor",
+    "unavailableBody": "Walang fallback data na ipinakita. Subukan muli mamaya.",
+    "retry": "Subukan muli",
+    "emptyTitle": "Walang resulta",
+    "emptyBody": "Walang tumugmang doktor mula sa awtorisadong source.",
+    "nameUnavailable": "Hindi available ang pangalan",
+    "rating": "Rating {value}",
+    "price": "{value} SAR"
   }
 }

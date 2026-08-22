@@ -174,7 +174,8 @@
     "sessions": "Sessions: {count}",
     "unavailableTitle": "Unable to load home care",
     "unavailable": "No fallback data was shown. Please retry later.",
-    "notice": "Only service, booking status, and schedule are shown. Location, tracking, clinical information, and pricing are not displayed in this interface."
+    "notice": "Only service, booking status, and schedule are shown. Location, tracking, clinical information, and pricing are not displayed in this interface.",
+    "browseServices": "Browse home-care services"
   },
   "Family": {
     "eyebrow": "Private family",
@@ -638,5 +639,25 @@
     "insurance": "Insurance available",
     "bookingNotice": "Service details are read-only here. No booking is created from this page.",
     "back": "Back to services"
+  },
+  "Doctors": {
+    "eyebrow": "Medical care",
+    "title": "Find a doctor",
+    "subtitle": "Only doctors returned by the authorized source are shown. We never invent ratings or prices.",
+    "searchLabel": "Search doctors",
+    "searchPlaceholder": "Search by name or specialty...",
+    "search": "Search",
+    "sortLabel": "Sort results",
+    "sortRating": "Highest rated",
+    "sortPrice": "Lowest price",
+    "sortWait": "Shortest wait",
+    "unavailableTitle": "Unable to load doctors",
+    "unavailableBody": "No fallback data was shown. Please try again later.",
+    "retry": "Retry",
+    "emptyTitle": "No results",
+    "emptyBody": "The authorized source returned no matching doctors.",
+    "nameUnavailable": "Doctor name unavailable",
+    "rating": "Rating {value}",
+    "price": "{value} SAR"
   }
 }
