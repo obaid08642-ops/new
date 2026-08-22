@@ -4,6 +4,7 @@ import { ChatModule } from '../src/modules/chat/chat.module';
 import { JwtAuthGuard } from '../src/common/auth.guard';
 import { EventBusService } from '../src/modules/events/event-bus.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CatalogPublicationService } from '../src/modules/events/catalog-publication.service';
 
 describe('ChatModule application boot', () => {
   let app: INestApplication;
@@ -23,6 +24,7 @@ describe('ChatModule application boot', () => {
       .overrideProvider('SystemEventModel').useValue({})
       .overrideProvider('SystemEventRepository').useValue({})
       .overrideProvider(EventBusService).useValue({ emit: jest.fn() })
+      .overrideProvider(CatalogPublicationService).useValue({ refresh: jest.fn() })
       .overrideGuard(JwtAuthGuard).useValue({ canActivate: () => true })
       .compile();
 
