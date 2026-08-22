@@ -26,6 +26,13 @@ describe("cart SSR boundary", () => {
     expect(html).not.toContain("0 SAR");
   });
 
+  it("renders unavailable checkout totals without inventing a zero amount", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ currency: "SAR" }), { status: 200 }));
+    const html = renderToStaticMarkup(await CartCheckoutPreviewPage({ params: Promise.resolve({ locale: "en" }) }));
+    expect(html).toContain("—");
+    expect(html).not.toContain("0 SAR");
+  });
+
   it("renders checkout totals as a read-only preview without payment mutation", async () => {
     state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", subtotal: 12, home_visit_fee: 0, total: 12, currency: "SAR", notes: "private" }), { status: 200 }));
     const html = renderToStaticMarkup(await CartCheckoutPreviewPage({ params: Promise.resolve({ locale: "en" }) }));
