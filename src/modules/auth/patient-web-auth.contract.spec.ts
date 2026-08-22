@@ -5,7 +5,8 @@ import { AuthService } from './auth.service';
 describe('patient web auth contract', () => {
   const build = () => {
     const data = new Map<string, any>();
-    const userModel = { findOne: jest.fn() };
+    const userModel = { findOne: jest.fn(), create: jest.fn(), updateOne: jest.fn() };
+    const patientModel = { create: jest.fn() };
     const redis = {
       checkRateLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 1 }),
       exists: jest.fn().mockResolvedValue(false),
@@ -27,12 +28,12 @@ describe('patient web auth contract', () => {
     const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
     const service = new AuthService(
       userModel as any,
-      { create: jest.fn() } as any,
+      patientModel as any,
       jwt as any,
       { emit: jest.fn() } as any,
       redis as any,
     );
-    return { data, userModel, redis, jwt, service };
+    return { data, userModel, patientModel, redis, jwt, service };
   };
 
   it('issues a 14-day refresh token and keeps Redis session TTL aligned', () => {
@@ -56,6 +57,35 @@ describe('patient web auth contract', () => {
       expect.any(String),
       'EX',
       14 * 24 * 3600,
+    );
+  });
+
+  it('registers the Contract V1 patient with consents, starts OTP, and returns no session token', async () => {
+    const { service, userModel, patientModel, redis } = build();
+    const user = { id: 'patient-new', full_name: 'Patient Name', role: 'patient', active: true };
+    userModel.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(user);
+    userModel.create.mockResolvedValue(user);
+
+    await expect(service.registerPatientContract({
+      name: 'Patient Name',
+      identifier: 'patient@example.test',
+      password: 'sufficient-password',
+      locale: 'ar',
+      consents: [{ policy_id: 'privacy', version: '2026-08' }],
+    })).resolves.toEqual({ registered: true });
+
+    expect(userModel.create).toHaveBeenCalledWith(expect.objectContaining({
+      full_name: 'Patient Name',
+      email: 'patient@example.test',
+      role: 'patient',
+      preferred_lang: 'ar',
+      legal_consents: [expect.objectContaining({ policy_id: 'privacy', version: '2026-08' })],
+    }));
+    expect(patientModel.create).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'patient-new' }));
+    expect(redis.setJson).toHaveBeenCalledWith(
+      'auth:otp:patient:patient@example.test',
+      expect.objectContaining({ user_id: 'patient-new' }),
+      300,
     );
   });
 

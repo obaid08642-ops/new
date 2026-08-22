@@ -32,11 +32,18 @@ import { IsString, IsOptional, MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums';
 
 class RegisterDto {
-  @IsString() full_name: string;
+  // Legacy registration payload.
+  @IsOptional() @IsString() full_name?: string;
   @IsOptional() @IsString() phone?: string;
   @IsString() @MinLength(6) password: string;
   @IsOptional() @IsString() email?: string;
   @IsOptional() @IsString() role?: UserRole;
+
+  // Patient Contract V1 payload.
+  @IsOptional() @IsString() name?: string;
+  @IsOptional() @IsString() identifier?: string;
+  @IsOptional() @IsString() locale?: string;
+  @IsOptional() consents?: Array<{ policy_id: string; version: string }>;
 }
 class LoginDto {
   @IsString() phone: string;
@@ -119,7 +126,18 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 anti brute-force
   @Post('register')
   register(@Body() dto: RegisterDto) {
-    return this.auth.register(dto);
+    const isPatientContract = dto.name !== undefined || dto.identifier !== undefined || dto.locale !== undefined || dto.consents !== undefined;
+    if (isPatientContract) {
+      return this.auth.registerPatientContract({
+        name: dto.name as string,
+        identifier: dto.identifier as string,
+        password: dto.password,
+        locale: dto.locale as string,
+        consents: dto.consents as Array<{ policy_id: string; version: string }>,
+      });
+    }
+    if (!dto.full_name) throw new BadRequestException('full_name_required');
+    return this.auth.register(dto as Required<Pick<RegisterDto, 'full_name' | 'password'>> & RegisterDto);
   }
 
   @Public()

@@ -346,6 +346,64 @@ export class AuthService {
     return { reset: true };
   }
 
+  /**
+   * Contract V1 patient registration. This deliberately does not issue a
+   * session token: the new account must complete the opaque OTP bridge first.
+   */
+  async registerPatientContract(data: {
+    name: string;
+    identifier: string;
+    password: string;
+    locale: string;
+    consents: Array<{ policy_id: string; version: string }>;
+  }) {
+    AuthService.assertString(data?.name, 'name');
+    AuthService.assertString(data?.identifier, 'identifier');
+    AuthService.assertString(data?.password, 'password');
+    AuthService.assertString(data?.locale, 'locale');
+    if (!Array.isArray(data?.consents) || data.consents.length === 0) {
+      throw new BadRequestException({ message: 'consents_required', code: 'consents_required', statusCode: HttpStatus.BAD_REQUEST });
+    }
+
+    const identifier = this.normalizeOtpIdentifier(data.identifier);
+    const isEmail = identifier.includes('@');
+    const seenPolicies = new Set<string>();
+    const consents = data.consents.map((consent) => {
+      AuthService.assertString(consent?.policy_id, 'consent.policy_id');
+      AuthService.assertString(consent?.version, 'consent.version');
+      const key = `${consent.policy_id}:${consent.version}`;
+      if (seenPolicies.has(key)) {
+        throw new BadRequestException({ message: 'duplicate_consent', code: 'duplicate_consent', statusCode: HttpStatus.BAD_REQUEST });
+      }
+      seenPolicies.add(key);
+      return { policy_id: consent.policy_id.trim(), version: consent.version.trim(), accepted_at: new Date() };
+    });
+
+    const existing = await this.userModel.findOne(isEmail ? { email: identifier } : { phone: identifier });
+    if (existing) {
+      throw new ConflictException({ message: 'identifier_already_registered', code: 'identifier_already_registered', statusCode: HttpStatus.CONFLICT });
+    }
+
+    const user = await this.userModel.create({
+      full_name: data.name.trim(),
+      ...(isEmail ? { email: identifier } : { phone: identifier }),
+      password_hash: await bcrypt.hash(data.password, 12),
+      role: UserRole.PATIENT,
+      preferred_lang: data.locale.trim(),
+      legal_consents: consents,
+    });
+    await this.patientModel.create({
+      user_id: user.id,
+      full_name: user.full_name,
+      ...(isEmail ? { email: identifier } : { phone: identifier }),
+    });
+    this.events.emit(EVENTS.USER_REGISTERED, { user_id: user.id, role: user.role });
+
+    // The response remains minimal; requestPatientOtp emits the opaque delivery DTO.
+    await this.requestPatientOtp(identifier);
+    return { registered: true };
+  }
+
   async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }) {
     if (data.email !== undefined) AuthService.assertString(data.email, 'email');
     if (data.phone !== undefined) AuthService.assertString(data.phone, 'phone');
