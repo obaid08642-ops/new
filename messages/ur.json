@@ -190,7 +190,13 @@
     "rescheduleConflict": "یہ وقت اب دستیاب نہیں ہے۔",
     "rescheduleFailed": "اپوائنٹمنٹ دوبارہ شیڈول نہیں ہوئی۔",
     "rescheduleUnavailable": "ری شیڈولنگ سروس دستیاب نہیں۔",
-    "rescheduleInvalid": "نئی تاریخ اور وقت منتخب کریں۔"
+    "rescheduleInvalid": "نئی تاریخ اور وقت منتخب کریں۔",
+    "callTitle": "محفوظ ویڈیو وزٹ",
+    "callJoin": "ویڈیو وزٹ تیار کریں",
+    "callLoading": "محفوظ وزٹ تیار ہو رہا ہے…",
+    "callReady": "محفوظ سیشن عارضی میموری میں تیار ہے۔ ویڈیو کلائنٹ میں جاری رکھیں۔",
+    "callUnavailable": "ویڈیو سیشن فی الحال دستیاب نہیں۔",
+    "callDiscard": "سیشن ختم کریں"
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",

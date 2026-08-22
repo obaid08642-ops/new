@@ -190,7 +190,13 @@
     "rescheduleConflict": "यह समय अब उपलब्ध नहीं है।",
     "rescheduleFailed": "अपॉइंटमेंट फिर से शेड्यूल नहीं हुई।",
     "rescheduleUnavailable": "रीशेड्यूल सेवा उपलब्ध नहीं है।",
-    "rescheduleInvalid": "नई तारीख और समय चुनें।"
+    "rescheduleInvalid": "नई तारीख और समय चुनें।",
+    "callTitle": "सुरक्षित वीडियो विज़िट",
+    "callJoin": "वीडियो विज़िट तैयार करें",
+    "callLoading": "सुरक्षित विज़िट तैयार हो रही है…",
+    "callReady": "सुरक्षित सत्र अस्थायी मेमोरी में तैयार है। वीडियो क्लाइंट में आगे बढ़ें।",
+    "callUnavailable": "वीडियो सत्र अभी उपलब्ध नहीं है।",
+    "callDiscard": "सत्र हटाएँ"
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",

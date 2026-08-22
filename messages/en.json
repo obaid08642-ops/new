@@ -145,7 +145,13 @@
     "rescheduleConflict": "That time is no longer available.",
     "rescheduleFailed": "The appointment was not rescheduled.",
     "rescheduleUnavailable": "Rescheduling service is unavailable.",
-    "rescheduleInvalid": "Choose a new date and time."
+    "rescheduleInvalid": "Choose a new date and time.",
+    "callTitle": "Secure video visit",
+    "callJoin": "Prepare video visit",
+    "callLoading": "Preparing secure visit…",
+    "callReady": "Secure session prepared in memory. Continue in the video client.",
+    "callUnavailable": "Video session is not available right now.",
+    "callDiscard": "Discard session"
   },
   "Medicines": {
     "eyebrow": "Private catalog",

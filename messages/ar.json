@@ -145,7 +145,13 @@
     "rescheduleConflict": "لم يعد هذا الوقت متاحاً.",
     "rescheduleFailed": "لم تتم إعادة جدولة الموعد.",
     "rescheduleUnavailable": "خدمة إعادة الجدولة غير متاحة.",
-    "rescheduleInvalid": "اختر تاريخاً ووقتاً جديدين."
+    "rescheduleInvalid": "اختر تاريخاً ووقتاً جديدين.",
+    "callTitle": "زيارة مرئية آمنة",
+    "callJoin": "تجهيز الزيارة المرئية",
+    "callLoading": "جارٍ تجهيز الزيارة الآمنة…",
+    "callReady": "تم تجهيز الجلسة الآمنة في الذاكرة. تابع في عميل الفيديو.",
+    "callUnavailable": "الجلسة المرئية غير متاحة حالياً.",
+    "callDiscard": "إلغاء الجلسة"
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",

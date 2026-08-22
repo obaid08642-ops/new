@@ -190,7 +190,13 @@
     "rescheduleConflict": "Hindi na available ang oras na iyon.",
     "rescheduleFailed": "Hindi na-reschedule ang appointment.",
     "rescheduleUnavailable": "Hindi available ang rescheduling service.",
-    "rescheduleInvalid": "Pumili ng bagong petsa at oras."
+    "rescheduleInvalid": "Pumili ng bagong petsa at oras.",
+    "callTitle": "Ligtas na video visit",
+    "callJoin": "Ihanda ang video visit",
+    "callLoading": "Inihahanda ang ligtas na visit…",
+    "callReady": "Nakahanda ang secure session sa memory. Magpatuloy sa video client.",
+    "callUnavailable": "Hindi available ang video session ngayon.",
+    "callDiscard": "Itapon ang session"
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",
