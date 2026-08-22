@@ -1,7 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HttpClient } from '../src/services/HttpClient';
 import { STORAGE_KEYS } from '../src/constants';
+import { secureDelete, secureGet, secureSet } from '../src/utils/security';
 
 /**
  * M1-01 — REAL network client (replaces the former in-memory mock that returned
@@ -24,16 +23,12 @@ const TOKEN_KEYS = [STORAGE_KEYS.AUTH_TOKEN, 'userToken'];
 async function getStoredToken(): Promise<string | null> {
   for (const key of TOKEN_KEYS) {
     try {
-      const t = await SecureStore.getItemAsync(key);
-      if (t) return t;
+      const token = await secureGet(key);
+      if (token) return token;
     } catch {
-      // SecureStore unavailable (web) — fall through to AsyncStorage
-    }
-    try {
-      const t = await AsyncStorage.getItem(key);
-      if (t) return t;
-    } catch {
-      // ignore
+      // A native client without SecureStore is unauthenticated, never downgraded
+      // to plaintext AsyncStorage token retrieval.
+      return null;
     }
   }
   return null;
@@ -41,8 +36,7 @@ async function getStoredToken(): Promise<string | null> {
 
 async function clearStoredSession(): Promise<void> {
   for (const key of [...TOKEN_KEYS, STORAGE_KEYS.REFRESH_TOKEN, STORAGE_KEYS.USER_DATA]) {
-    try { await SecureStore.deleteItemAsync(key); } catch { /* ignore */ }
-    try { await AsyncStorage.removeItem(key); } catch { /* ignore */ }
+    try { await secureDelete(key); } catch { /* best-effort logout cleanup */ }
   }
 }
 
@@ -114,12 +108,13 @@ export async function storeAuthSession(tokenPayload: any): Promise<string | null
 
   if (!accessToken) return null;
 
-  try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, accessToken); }
-  catch { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken); }
-
-  if (refreshToken) {
-    try { await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, refreshToken); }
-    catch { await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken); }
+  try {
+    await secureSet(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+    if (refreshToken) await secureSet(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+    return accessToken;
+  } catch {
+    // Do not claim a durable authenticated session when secure storage failed.
+    await clearStoredSession();
+    return null;
   }
-  return accessToken;
 }
