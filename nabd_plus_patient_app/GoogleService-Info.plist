@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBjH-eiZ0f5MPN4TSlYo55gk3frQxw9mvs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>27198809574</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.patient.nabd</string>
+	<key>PROJECT_ID</key>
+	<string>nabd-plus-72eb9</string>
+	<key>STORAGE_BUCKET</key>
+	<string>nabd-plus-72eb9.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:27198809574:ios:e708e91d91defcfa00a227</string>
+</dict>
+</plist>

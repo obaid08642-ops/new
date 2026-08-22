@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://nabdahplus.com/sitemap.xml
+
+# Main pages
+Allow: /doctors/
+Allow: /medicines/
+Allow: /labs/
+Allow: /nursing/
+Allow: /specialties/
+Allow: /insurance/
+
+# Disallow private pages
+Disallow: /api/
+Disallow: /admin/
+Disallow: /user/
+Disallow: /chat/
+Disallow: /payments/
+Disallow: /wallet/
+
+# Crawl delay
+Crawl-delay: 1
