@@ -672,5 +672,25 @@
     "unavailable": "Booked",
     "slotsClosed": "The doctor is closed on this date.",
     "slotsEmpty": "No slots are available for this selection."
+  },
+  "LabsServices": {
+    "eyebrow": "Laboratory care",
+    "title": "Lab services",
+    "subtitle": "Browse verified laboratory services from the live catalog.",
+    "searchLabel": "Search lab services",
+    "searchPlaceholder": "Search by test or category",
+    "homeOnly": "Home collection",
+    "apply": "Apply",
+    "price": "From {value}",
+    "fasting": "Fasting may be required",
+    "homeVisit": "Home visit",
+    "facilityVisit": "Facility visit",
+    "unavailable": "Currently unavailable",
+    "emptyTitle": "No services found",
+    "emptyBody": "No laboratory services are available right now.",
+    "noMatch": "No service matches these filters.",
+    "unavailableTitle": "Lab catalog unavailable",
+    "unavailableBody": "The live laboratory catalog could not be loaded.",
+    "retry": "Try again"
   }
 }

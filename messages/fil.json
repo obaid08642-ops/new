@@ -672,5 +672,25 @@
     "unavailable": "Booked",
     "slotsClosed": "Sarado ang doktor sa petsang ito.",
     "slotsEmpty": "Walang available na oras para sa pagpiling ito."
+  },
+  "LabsServices": {
+    "eyebrow": "Pangangalaga sa laboratoryo",
+    "title": "Mga serbisyo sa lab",
+    "subtitle": "Tingnan ang mga serbisyo sa laboratoryo mula sa live catalog.",
+    "searchLabel": "Maghanap ng serbisyo",
+    "searchPlaceholder": "Maghanap ayon sa test o kategorya",
+    "homeOnly": "Kolekta sa bahay",
+    "apply": "Ilapat",
+    "price": "Mula {value}",
+    "fasting": "Maaaring kailangan ang fasting",
+    "homeVisit": "Serbisyo sa bahay",
+    "facilityVisit": "Serbisyo sa pasilidad",
+    "unavailable": "Hindi kasalukuyang available",
+    "emptyTitle": "Walang nahanap na serbisyo",
+    "emptyBody": "Walang laboratory service na available ngayon.",
+    "noMatch": "Walang serbisyong tumutugma sa mga filter.",
+    "unavailableTitle": "Hindi available ang lab catalog",
+    "unavailableBody": "Hindi ma-load ang live laboratory catalog.",
+    "retry": "Subukan muli"
   }
 }
