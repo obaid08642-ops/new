@@ -457,7 +457,8 @@
     "sessionsTitle": "الجلسات النشطة",
     "sessionsEmpty": "لم يُرجع الخادم جلسات نشطة.",
     "deviceUnknown": "جهاز غير معروف",
-    "expiresIn": "تنتهي خلال {value} يومًا"
+    "expiresIn": "تنتهي خلال {value} يومًا",
+    "sessionsSummary": "يُعرض أول {shown} من أصل {total} جلسة نشطة."
   },
   "NotificationSettings": {
     "eyebrow": "ضوابط الإشعارات",

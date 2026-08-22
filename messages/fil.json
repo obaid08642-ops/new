@@ -457,7 +457,8 @@
     "sessionsTitle": "Mga aktibong session",
     "sessionsEmpty": "Walang aktibong session na ibinalik ang server.",
     "deviceUnknown": "Hindi kilalang device",
-    "expiresIn": "Mag-e-expire sa loob ng {value} araw"
+    "expiresIn": "Mag-e-expire sa loob ng {value} araw",
+    "sessionsSummary": "Ipinapakita ang unang {shown} sa {total} aktibong session."
   },
   "NotificationSettings": {
     "eyebrow": "Mga kontrol ng notification",

@@ -457,7 +457,8 @@
     "sessionsTitle": "सक्रिय सत्र",
     "sessionsEmpty": "सर्वर ने कोई सक्रिय सत्र नहीं लौटाया।",
     "deviceUnknown": "अज्ञात डिवाइस",
-    "expiresIn": "{value} दिनों में समाप्त"
+    "expiresIn": "{value} दिनों में समाप्त",
+    "sessionsSummary": "{total} सक्रिय सत्रों में से पहले {shown} दिखाए जा रहे हैं।"
   },
   "NotificationSettings": {
     "eyebrow": "सूचना नियंत्रण",

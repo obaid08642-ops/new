@@ -457,7 +457,8 @@
     "sessionsTitle": "সক্রিয় সেশন",
     "sessionsEmpty": "সার্ভার কোনো সক্রিয় সেশন ফেরত দেয়নি।",
     "deviceUnknown": "অজানা ডিভাইস",
-    "expiresIn": "{value} দিনে শেষ হবে"
+    "expiresIn": "{value} দিনে শেষ হবে",
+    "sessionsSummary": "মোট {total} সক্রিয় সেশনের মধ্যে প্রথম {shown}টি দেখানো হচ্ছে।"
   },
   "NotificationSettings": {
     "eyebrow": "নোটিফিকেশন নিয়ন্ত্রণ",

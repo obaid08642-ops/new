@@ -457,7 +457,8 @@
     "sessionsTitle": "Active sessions",
     "sessionsEmpty": "No active sessions were returned.",
     "deviceUnknown": "Unknown device",
-    "expiresIn": "Expires in {value} days"
+    "expiresIn": "Expires in {value} days",
+    "sessionsSummary": "Showing the first {shown} of {total} active sessions."
   },
   "NotificationSettings": {
     "eyebrow": "Notification controls",

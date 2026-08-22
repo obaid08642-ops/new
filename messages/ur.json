@@ -457,7 +457,8 @@
     "sessionsTitle": "فعال سیشنز",
     "sessionsEmpty": "سرور نے کوئی فعال سیشن واپس نہیں کیا۔",
     "deviceUnknown": "نامعلوم ڈیوائس",
-    "expiresIn": "{value} دن میں ختم ہوگا"
+    "expiresIn": "{value} دن میں ختم ہوگا",
+    "sessionsSummary": "فعال {total} سیشنز میں سے پہلے {shown} دکھائے جا رہے ہیں۔"
   },
   "NotificationSettings": {
     "eyebrow": "اطلاعات کے کنٹرولز",
