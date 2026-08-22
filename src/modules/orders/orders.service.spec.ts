@@ -63,7 +63,7 @@ describe('OrdersService', () => {
 
     it('rejects a foreign patient from reading an order', async () => {
       mockModel.findOne.mockResolvedValueOnce(order);
-      await expect(service.getById('order-1', { id: 'patient-2', role: 'patient' })).rejects.toThrow(ForbiddenException);
+      await expect(service.getById('order-1', { id: 'patient-2', role: 'patient' })).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
     });
 
     it('allows the owning patient to read an order', async () => {
@@ -73,12 +73,12 @@ describe('OrdersService', () => {
 
     it('rejects a foreign patient before cancellation policy or financial side effects', async () => {
       mockModel.findOne.mockResolvedValueOnce(order);
-      await expect(service.cancel('order-1', { id: 'patient-2', role: 'patient' }, 'foreign-test')).rejects.toThrow(ForbiddenException);
+      await expect(service.cancel('order-1', { id: 'patient-2', role: 'patient' }, 'foreign-test')).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
     });
 
     it('rejects a foreign patient from downloading the PDF report', async () => {
       mockModel.findOne.mockResolvedValueOnce(order);
-      await expect(service.generatePdf('order-1', { id: 'patient-2', role: 'patient' })).rejects.toThrow(ForbiddenException);
+      await expect(service.generatePdf('order-1', { id: 'patient-2', role: 'patient' })).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
     });
 
     it('generates a PDF Buffer for the owning patient', async () => {
