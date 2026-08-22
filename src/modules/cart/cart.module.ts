@@ -9,6 +9,10 @@ import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { Prescription, PrescriptionSchema } from '../../schemas/prescription.schema';
 import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
 import { PrescriptionState } from '../../common/enums';
+import { OrdersModule } from '../orders/orders.module';
+import { OrdersService } from '../orders/orders.service';
+import { UsersModule } from '../users/users.module';
+import { UsersService } from '../users/users.service';
 
 export type CartLineKind = 'lab' | 'radiology' | 'pharmacy' | 'doctor' | 'home_care';
 
@@ -40,6 +44,8 @@ export class CartService {
   constructor(
     @InjectModel('UnifiedCart') private model: Model<UnifiedCart>,
     @InjectModel(Medicine.name) private medicines: Model<Medicine>,
+    private readonly orders: OrdersService,
+    private readonly users: UsersService,
   ) {}
 
   private async ensureCart(patient_id: string) {
@@ -152,6 +158,49 @@ export class CartService {
     const c = await this.ensureCart(user.id);
     return this.summarize(c);
   }
+
+  /**
+   * Contract-facing pharmacy checkout.  It deliberately accepts only cash
+   * until a server-side payment-method resolver is available: an arbitrary
+   * payment_method_id must never be converted to a paid order locally.
+   */
+  async checkoutContract(user: any, body: { address_id?: string; payment_method_id?: string; coupon_code?: string; prescription_media_ids?: string[] }) {
+    const addressId = String(body?.address_id || '').trim();
+    if (!addressId) throw new BadRequestException('address_id_required');
+    const requestedPayment = String(body?.payment_method_id || 'cash');
+    if (requestedPayment !== 'cash') throw new BadRequestException('payment_method_not_supported');
+    if (Array.isArray(body?.prescription_media_ids) && body.prescription_media_ids.length > 0) {
+      throw new BadRequestException('prescription_media_not_supported');
+    }
+
+    const cart = await this.ensureCart(user.id);
+    const lines = (cart.lines || []).filter((line: any) => line.kind === 'pharmacy');
+    if (!lines.length) throw new BadRequestException('pharmacy_cart_empty');
+    if ((cart.lines || []).some((line: any) => line.kind !== 'pharmacy')) {
+      throw new BadRequestException('checkout_contains_unsupported_items');
+    }
+
+    const profile: any = await this.users.getPatientProfile(user.id);
+    const address = (profile?.addresses || []).find((entry: any) => String(entry?.id) === addressId);
+    if (!address) throw new NotFoundException('address_not_found');
+    if (!Number.isFinite(Number(address.lat)) || !Number.isFinite(Number(address.lng))) {
+      throw new BadRequestException('address_coordinates_required');
+    }
+
+    const created: any = await this.orders.create(user, {
+      items: lines.map((line: any) => line.meta?.source === 'patient_manual'
+        ? { name_ar: line.name_ar, name_en: line.name_en, qty: line.qty }
+        : { medicine_id: line.service_id, qty: line.qty }),
+      delivery_address: { lat: Number(address.lat), lng: Number(address.lng), address: address.street || '', district: '', city: address.city || '' },
+      payment_method: 'cash',
+      coupon_code: body?.coupon_code,
+    });
+
+    cart.lines = [];
+    cart.last_action = 'checkout';
+    await cart.save();
+    return { order_id: created.id, status: created.state, total: created.total };
+  }
 }
 
 @Controller('cart')
@@ -172,6 +221,8 @@ export class CartController {
   @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
   @Delete('lines/:lineId') rm(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
   @Post('clear') clr(@Body() b: any, @CurrentUser() u: any) { return this.svc.clear(u, b?.kind); }
+  @Post('checkout') @RequireIdempotency()
+  checkout(@Body() b: any, @CurrentUser() u: any) { return this.svc.checkoutContract(u, b); }
   @Get('checkout') chk(@CurrentUser() u: any) { return this.svc.prepareCheckout(u); }
   @Get('prescription')
   async prescription(@CurrentUser() u: any) {
@@ -196,7 +247,7 @@ export class CartController {
 }
 
 @Module({
-  imports: [MongooseModule.forFeature([
+  imports: [OrdersModule, UsersModule, MongooseModule.forFeature([
     { name: 'UnifiedCart', schema: UnifiedCartSchema },
     { name: Prescription.name, schema: PrescriptionSchema },
     { name: Medicine.name, schema: MedicineSchema },
