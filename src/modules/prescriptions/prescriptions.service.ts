@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prescription, PrescriptionDocument } from '../../schemas/prescription.schema';
 import { Appointment, AppointmentDocument, APPT_STATES } from '../../schemas/appointment.schema';
+import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { PrescriptionState, PRESCRIPTION_TRANSITIONS, UserRole } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { MedicinesService } from '../medicines/medicines.service';
@@ -17,6 +18,7 @@ export class PrescriptionsService {
     private medicines: MedicinesService,
     private events: EventEmitter2,
     @InjectModel(Appointment.name) private appointments: Model<AppointmentDocument>,
+    @InjectModel(ProviderProfile.name) private providers: Model<ProviderProfileDocument>,
   ) {}
 
   private isPrivilegedAdmin(user: any) {
@@ -288,18 +290,42 @@ export class PrescriptionsService {
   async listForPharmacy(pharmacy_id: string) {
     return this.model.find({ pharmacy_id, state: { $in: [PrescriptionState.SENT_TO_PHARMACY, PrescriptionState.PARTIALLY_EDITED, PrescriptionState.APPROVED] } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(200);
   }
+  private async toPatientWebDto(rx: any) {
+    let doctor: any = null;
+    if (rx.doctor_id) {
+      doctor = await this.providers.findOne({
+        $or: [{ user_id: rx.doctor_id }, { account_id: rx.doctor_id }, { id: rx.doctor_id }],
+      }, { _id: 0, display_name_ar: 1, display_name_en: 1, name_ar: 1, name_en: 1, specialty: 1 }).lean();
+    }
+    return {
+      id: rx.id,
+      status: rx.state,
+      items: (rx.items || []).map((item: any) => ({
+        name: item.medicine_name_ar || item.medicine_name_en || null,
+        dose: item.dose || null,
+        frequency: item.frequency_hours != null ? { every_hours: item.frequency_hours } : (item.times_per_day != null ? { times_per_day: item.times_per_day } : null),
+        duration: item.duration_days ?? null,
+      })),
+      issued_at: rx.createdAt ? new Date(rx.createdAt).toISOString() : null,
+      doctor: {
+        display_name: doctor?.display_name_ar || doctor?.display_name_en || doctor?.name_ar || doctor?.name_en || null,
+        specialty: doctor?.specialty || null,
+      },
+    };
+  }
+
   /**
    * Returns a prescription only to a participating patient, doctor, pharmacy,
    * or privileged administrator. A foreign lookup is deliberately indistinguishable
    * from a missing record so identifiers cannot be used for enumeration.
    */
   async getByIdForUser(id: string, user: any) {
-    const rx = await this.model.findOne({ id }, { _id: 0, __v: 0 });
+    const rx: any = await this.model.findOne({ id }, { _id: 0, __v: 0 });
     if (!rx) throw new NotFoundException();
     const roles = getEffectiveRoles(user);
     const hasPrivilegedAdminRole = roles.includes(UserRole.ADMIN) || roles.includes(UserRole.SUPER_ADMIN);
     const isParticipant = [rx.patient_id, rx.doctor_id, rx.pharmacy_id].filter(Boolean).includes(user?.id);
     if (!hasPrivilegedAdminRole && !isParticipant) throw new NotFoundException();
-    return rx;
+    return this.toPatientWebDto(rx);
   }
 }

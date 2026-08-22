@@ -4,6 +4,7 @@ import { PrescriptionsController } from './prescriptions.controller';
 import { PrescriptionsService } from './prescriptions.service';
 import { Prescription, PrescriptionSchema } from '../../schemas/prescription.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { MedicinesModule } from '../medicines/medicines.module';
 import { PrescriptionRepository } from "./repositories/prescription.repository";
 
@@ -11,6 +12,7 @@ import { PrescriptionRepository } from "./repositories/prescription.repository";
   imports: [MongooseModule.forFeature([
     { name: Prescription.name, schema: PrescriptionSchema },
     { name: Appointment.name, schema: AppointmentSchema },
+    { name: ProviderProfile.name, schema: ProviderProfileSchema },
   ]), MedicinesModule],
   controllers: [PrescriptionsController],
   providers: [PrescriptionsService, { provide: 'PrescriptionRepository', useClass: PrescriptionRepository }],

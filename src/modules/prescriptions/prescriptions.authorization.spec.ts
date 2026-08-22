@@ -7,6 +7,11 @@ describe('PrescriptionsService authorization and verified creation', () => {
     patient_id: 'patient-owner',
     doctor_id: 'doctor-owner',
     pharmacy_id: 'pharmacy-owner',
+    state: 'CREATED_BY_DOCTOR',
+    diagnosis: 'must not be returned',
+    notes: 'must not be returned',
+    createdAt: new Date('2030-01-01T00:00:00.000Z'),
+    items: [{ medicine_name_ar: 'دواء', dose: 'قرص', frequency_hours: 8, duration_days: 5 }],
   };
 
   const createService = (overrides: {
@@ -42,8 +47,9 @@ describe('PrescriptionsService authorization and verified creation', () => {
       } : overrides.appointment),
       updateOne: jest.fn().mockResolvedValue({ acknowledged: true }),
     };
-    const service = new PrescriptionsService(repository as any, medicines as any, events as any, appointments as any);
-    return { service, repository, medicines, events, appointments };
+    const providers = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ display_name_ar: 'د. طبيب', specialty: 'باطنة' }) }) };
+    const service = new PrescriptionsService(repository as any, medicines as any, events as any, appointments as any, providers as any);
+    return { service, repository, medicines, events, appointments, providers };
   };
 
   it.each([
@@ -54,7 +60,13 @@ describe('PrescriptionsService authorization and verified creation', () => {
   ])('returns the prescription to an authorized participant or administrator', async (actor) => {
     const { service, repository } = createService();
 
-    await expect(service.getByIdForUser('rx-sandbox-1', actor)).resolves.toEqual(prescription);
+    await expect(service.getByIdForUser('rx-sandbox-1', actor)).resolves.toEqual({
+      id: 'rx-sandbox-1',
+      status: 'CREATED_BY_DOCTOR',
+      items: [{ name: 'دواء', dose: 'قرص', frequency: { every_hours: 8 }, duration: 5 }],
+      issued_at: '2030-01-01T00:00:00.000Z',
+      doctor: { display_name: 'د. طبيب', specialty: 'باطنة' },
+    });
     expect(repository.findOne).toHaveBeenCalledWith({ id: 'rx-sandbox-1' }, { _id: 0, __v: 0 });
   });
 
