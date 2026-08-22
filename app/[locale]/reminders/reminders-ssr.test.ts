@@ -31,3 +31,17 @@ describe("medication reminders SSR boundary", () => {
     for (const secret of [serverToken, reminderId, "private-patient", "private-instructions", "private-order", "private-lock"]) expect(html).not.toContain(secret);
   });
 });
+
+
+describe("empty medication reminders", () => {
+  beforeEach(() => {
+    state.getPatientMedicationReminders.mockReset().mockResolvedValue(new Response(JSON.stringify({ reminders: [] }), { status: 200 }));
+    state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
+  });
+
+  it("does not render a dose-summary surface when no reminders are returned", async () => {
+    const html = renderToStaticMarkup(await RemindersPage({ params: Promise.resolve({ locale: "en" }) }));
+    expect(html).toContain("empty");
+    expect(html.match(/>notice</g)).toHaveLength(2);
+  });
+});
