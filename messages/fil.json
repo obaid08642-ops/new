@@ -658,6 +658,9 @@
     "emptyBody": "Walang tumugmang doktor mula sa awtorisadong source.",
     "nameUnavailable": "Hindi available ang pangalan",
     "rating": "Rating {value}",
-    "price": "{value} SAR"
+    "price": "{value} SAR",
+    "back": "Bumalik sa mga doktor",
+    "experience": "{value} taong karanasan",
+    "detailNotice": "Read-only ang detalye ng doktor rito. Walang booking o bayad na ginagawa sa pahinang ito."
   }
 }

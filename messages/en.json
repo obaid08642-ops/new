@@ -658,6 +658,9 @@
     "emptyBody": "The authorized source returned no matching doctors.",
     "nameUnavailable": "Doctor name unavailable",
     "rating": "Rating {value}",
-    "price": "{value} SAR"
+    "price": "{value} SAR",
+    "back": "Back to doctors",
+    "experience": "{value} years experience",
+    "detailNotice": "Doctor details are read-only here. No booking or payment is created from this page."
   }
 }
