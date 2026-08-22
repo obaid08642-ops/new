@@ -53,18 +53,18 @@ export class AuthService {
     const jti = require('crypto').randomUUID();
     const refreshToken = this.jwt.sign(
       { sub: user.id, type: 'refresh', jti },
-      { expiresIn: '7d' }
+      { expiresIn: '14d' }
     );
     this.storeRefreshSession(user.id, jti, deviceId).catch(() => {});
     return { accessToken, refreshToken };
   }
 
-  /** Persist the refresh session (7d TTL matches token life), device-bound. */
+  /** Persist the refresh session (14d TTL matches token life), device-bound. */
   private async storeRefreshSession(userId: string, jti: string, deviceId?: string) {
     try {
       const client = (this.redisService as any).getClient?.();
       if (!client) return;
-      await client.set(`refresh:${jti}`, JSON.stringify({ u: userId, d: deviceId || null }), 'EX', 7 * 24 * 3600);
+      await client.set(`refresh:${jti}`, JSON.stringify({ u: userId, d: deviceId || null }), 'EX', 14 * 24 * 3600);
       await client.sadd(`refresh_user:${userId}`, jti);
       await client.expire(`refresh_user:${userId}`, 30 * 24 * 3600);
     } catch { /* session store failure must not break login */ }

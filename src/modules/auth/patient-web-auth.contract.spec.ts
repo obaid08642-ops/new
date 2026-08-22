@@ -35,6 +35,30 @@ describe('patient web auth contract', () => {
     return { data, userModel, redis, jwt, service };
   };
 
+  it('issues a 14-day refresh token and keeps Redis session TTL aligned', () => {
+    const { service, jwt, redis } = build();
+
+    service.signToken({ id: 'patient-1', role: 'patient' });
+
+    expect(jwt.sign).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ sub: 'patient-1' }),
+      expect.objectContaining({ expiresIn: '1h' }),
+    );
+    expect(jwt.sign).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ sub: 'patient-1', type: 'refresh' }),
+      expect.objectContaining({ expiresIn: '14d' }),
+    );
+    const client = redis.getClient.mock.results[0].value;
+    expect(client.set).toHaveBeenCalledWith(
+      expect.stringMatching(/^refresh:/),
+      expect.any(String),
+      'EX',
+      14 * 24 * 3600,
+    );
+  });
+
   it('returns the same bounded OTP response for an unknown account', async () => {
     const { service, userModel } = build();
     userModel.findOne.mockResolvedValue(null);

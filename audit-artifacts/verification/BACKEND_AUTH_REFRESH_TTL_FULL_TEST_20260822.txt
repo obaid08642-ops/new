@@ -1,0 +1,169 @@
+
+> nabd-backend@1.0.0 test
+> jest --runInBand
+
+(node:57261) [MONGOOSE] Warning: `errors` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS src/modules/auth/patient-web-auth.contract.spec.ts (6.09 s)
+(node:57261) [MONGOOSE] Warning: `errors` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+(node:57261) [MONGOOSE] Warning: Duplicate schema index on {"participant_ids":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+PASS src/modules/payments/payments-idor.spec.ts
+(node:57261) [MONGOOSE] Warning: `errors` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+PASS src/modules/auth/auth.service.spec.ts
+  ● Console
+
+    console.warn
+      No OTP delivery channel configured; OTP was not logged.
+
+      775 |         !process.env.INFOBIP_API_KEY
+      776 |       ) {
+    > 777 |         console.warn('No OTP delivery channel configured; OTP was not logged.');
+          |                 ^
+      778 |       }
+      779 |       return { ok: true };
+      780 |     } catch (err: any) {
+
+      at AuthService.sendOtp (modules/auth/auth.service.ts:777:17)
+      at Object.<anonymous> (modules/auth/auth.service.spec.ts:220:7)
+
+PASS src/contracts/insurance-openapi.contract.spec.ts
+PASS src/modules/orders/orders.service.spec.ts
+PASS src/modules/pharmacy/pharmacy.controllers.spec.ts
+PASS src/modules/unified-bookings/unified-bookings.service.spec.ts
+PASS src/modules/patient-ux/patient-ux.service.spec.ts
+PASS src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
+PASS src/modules/labs/labs.service.spec.ts
+PASS src/modules/provider/provider-requests.doctor-contract.spec.ts
+PASS src/modules/orders/orders.ownership.contract.spec.ts
+PASS src/modules/insurance-engine/tests/insurance-flow.spec.ts
+PASS src/modules/ai/ai.service.spec.ts
+PASS src/modules/notifications/notifications.service.spec.ts
+PASS src/modules/compat/compat-family-chat.spec.ts
+PASS src/modules/orders/orders.service.refill-delivery.spec.ts
+PASS src/modules/prescriptions/prescriptions.authorization.spec.ts
+PASS src/modules/approval-workflow/approval-workflow.service.spec.ts
+PASS src/modules/insurance/insurance.service.spec.ts
+PASS src/modules/billing/tests/billing-zatca.spec.ts
+PASS src/modules/ai/ai.admin-containment.spec.ts
+PASS src/modules/health/health.service.spec.ts
+PASS src/contracts/ownership-controllers.spec.ts
+PASS src/modules/home-care/home-care.service.spec.ts
+PASS src/modules/realtime/realtime.gateway.authorization.spec.ts
+PASS src/modules/seo/seo.service.spec.ts
+PASS src/modules/home-care/home-care.controller.spec.ts
+PASS src/modules/community/community.service.spec.ts
+(node:57261) [MONGOOSE] Warning: `errors` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+PASS src/modules/admin-notification-center/admin-notification-center.contract.spec.ts
+PASS src/modules/slot-locks/slot-locks.service.spec.ts
+PASS src/modules/media/media.controller.spec.ts
+(node:57261) [MONGOOSE] Warning: Duplicate schema index on {"participant_ids":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+PASS src/modules/home-care-compat/home-care-compat.controller.spec.ts
+[31m[Nest] 57261  - [39m08/22/2026, 4:54:56 PM [31m  ERROR[39m [38;5;3m[AiService] [39m[31mFailed to parse Excel file[39m
+[31m[Nest] 57261  - [39m08/22/2026, 4:54:56 PM [31m  ERROR[39m [38;5;3m[AiService] [39mError: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+    at ZipEntries.readEndOfCentral [90m(/home/ubuntu/audit_workspace/backend_contract_pack_v1/[39mnode_modules/[4mjszip[24m/lib/zipEntries.js:167:23[90m)[39m
+    at ZipEntries.load [90m(/home/ubuntu/audit_workspace/backend_contract_pack_v1/[39mnode_modules/[4mjszip[24m/lib/zipEntries.js:255:14[90m)[39m
+    at [90m/home/ubuntu/audit_workspace/backend_contract_pack_v1/[39mnode_modules/[4mjszip[24m/lib/load.js:48:24
+    at XLSX.load [90m(/home/ubuntu/audit_workspace/backend_contract_pack_v1/[39mnode_modules/[4mexceljs[24m/lib/xlsx/xlsx.js:279:17[90m)[39m
+    at AiService.parseExcel [90m(/home/ubuntu/audit_workspace/backend_contract_pack_v1/[39msrc/modules/ai/ai.service.ts:155:7[90m)[39m
+    at Object.<anonymous> [90m(/home/ubuntu/audit_workspace/backend_contract_pack_v1/[39msrc/modules/ai/ai.service.excel.spec.ts:20:5[90m)[39m
+PASS src/modules/ai/ai.service.excel.spec.ts
+PASS src/modules/care/tests/appointments-states.spec.ts
+PASS src/common/auth.guard.spec.ts
+PASS src/modules/provider/services/provider-request-engine.service.assignment.spec.ts
+[31m[Nest] 57261  - [39m08/22/2026, 4:54:57 PM [31m  ERROR[39m [38;5;3m[Webhooks] [39m[31mMOYASAR_WEBHOOK_SECRET is not set — rejecting webhook (fail-closed)[39m
+PASS src/modules/webhooks/webhooks.service.spec.ts
+PASS src/modules/emergency/emergency.admin-containment.spec.ts
+PASS src/modules/legal/legal-enterprise.service.excel.spec.ts
+PASS src/modules/recruitment/recruitment.service.spec.ts
+PASS src/modules/pharmacy/tests/procurement.service.spec.ts
+PASS src/modules/facility-ops/facility-ops.service.spec.ts
+PASS src/modules/pharmacy/services/pharmacy-shortage.service.spec.ts
+PASS src/modules/workflow-engine/workflow-engine.module.spec.ts
+PASS src/modules/loyalty/loyalty.service.spec.ts
+PASS src/modules/booking-ops/booking-ops.service.spec.ts
+PASS src/modules/radiology/radiology.service.report-storage.spec.ts
+PASS src/modules/family/family.service.spec.ts
+PASS src/modules/providers/providers.service.spec.ts
+PASS src/modules/mental-health/mental-health.service.spec.ts
+PASS src/modules/radiology/controllers/radiology-provider.controller.spec.ts
+PASS src/modules/hospital/services/hospital.service.spec.ts
+PASS src/modules/booking-flow/booking-flow.service.spec.ts
+PASS src/modules/labs/lab-results.service.spec.ts
+PASS src/modules/livekit/livekit.followup.spec.ts
+[32m[Nest] 57261  - [39m08/22/2026, 4:55:02 PM [32m    LOG[39m [38;5;3m[LiveKitService] [39m[32mProvider provider-1 is pinging patient patient-1[39m
+[32m[Nest] 57261  - [39m08/22/2026, 4:55:02 PM [32m    LOG[39m [38;5;3m[CatalogPublication] [39m[32mprojection_refreshed entity=medicine:med-1 published=true key=catalog-publication:medicine:med-1:medicine_approved:2026-08-20T00:00:00.000Z[39m
+[32m[Nest] 57261  - [39m08/22/2026, 4:55:02 PM [32m    LOG[39m [38;5;3m[CatalogPublication] [39m[32mprojection_refreshed entity=medicine:med-1 published=false key=migration:med-1[39m
+[32m[Nest] 57261  - [39m08/22/2026, 4:55:02 PM [32m    LOG[39m [38;5;3m[EventBus] [39m[32memit_duplicate type=catalog.publication.projected key=same-command[39m
+PASS src/modules/events/catalog-publication.service.spec.ts
+PASS src/modules/emergency/emergency.service.vehicle-integrity.spec.ts
+PASS src/modules/storage/storage.module.spec.ts
+  ● Console
+
+    console.warn
+      S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage
+
+      121 |     if (!S3R2Adapter.configured()) {
+      122 |       // eslint-disable-next-line no-console
+    > 123 |       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
+          |               ^
+      124 |     }
+      125 |   }
+      126 |
+
+      at new StorageService (modules/storage/storage.module.ts:123:15)
+      at Object.<anonymous> (modules/storage/storage.module.spec.ts:10:15)
+
+    console.warn
+      S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage
+
+      121 |     if (!S3R2Adapter.configured()) {
+      122 |       // eslint-disable-next-line no-console
+    > 123 |       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
+          |               ^
+      124 |     }
+      125 |   }
+      126 |
+
+      at new StorageService (modules/storage/storage.module.ts:123:15)
+      at Object.<anonymous> (modules/storage/storage.module.spec.ts:10:15)
+
+    console.warn
+      S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage
+
+      121 |     if (!S3R2Adapter.configured()) {
+      122 |       // eslint-disable-next-line no-console
+    > 123 |       console.warn('S3 storage not configured (S3_BUCKET/S3_ENDPOINT/keys) — falling back to inline base64 storage');
+          |               ^
+      124 |     }
+      125 |   }
+      126 |
+
+      at new StorageService (modules/storage/storage.module.ts:123:15)
+      at Object.<anonymous> (modules/storage/storage.module.spec.ts:10:15)
+
+PASS src/common/audit-log.interceptor.spec.ts
+PASS src/modules/maternity/maternity.service.spec.ts
+PASS src/modules/care/tests/public-discovery.spec.ts
+PASS src/modules/admin-web-core/controllers/admin-governance.controller.spec.ts
+PASS src/modules/medicines/medicines.service.publication.spec.ts
+PASS src/contracts/provider-availability.contract.spec.ts
+PASS src/modules/chat/chat.gateway.followup.spec.ts
+PASS src/modules/cart/cart.contract.spec.ts
+PASS src/modules/events/event-bus.service.spec.ts
+[33m[Nest] 57261  - [39m08/22/2026, 4:55:05 PM [33m   WARN[39m [38;5;3m[EventBus] [39m[33memit_failed type=service.confirmed err=database unavailable[39m
+PASS src/modules/payouts/provider-payouts.controller.spec.ts
+PASS src/modules/nutrition/nutrition.service.spec.ts
+PASS src/contracts/catalog-governance-backfill.contract.spec.ts
+PASS src/contracts/mongoose-indexes.contract.spec.ts
+PASS src/modules/home-care/controllers/home-care-tracking.controller.spec.ts
+PASS src/common/idempotency.interceptor.spec.ts
+PASS src/contracts/phase6-contracts.spec.ts
+PASS src/modules/medicines/med-i18n.spec.ts
+PASS src/config/websocket-cors.spec.ts
+PASS src/modules/compat/admin-nursing-containment.spec.ts
+
+Test Suites: 78 passed, 78 total
+Tests:       426 passed, 426 total
+Snapshots:   0 total
+Time:        29.924 s, estimated 32 s
+Ran all test suites.

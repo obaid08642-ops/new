@@ -1,0 +1,15 @@
+
+> nabd-backend@1.0.0 test:boot
+> jest --config jest.boot.config.js --runInBand
+
+(node:57304) [MONGOOSE] Warning: Duplicate schema index on {"participant_ids":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/app.boot.e2e-spec.ts (5.894 s)
+  ChatModule application boot
+    ✓ initializes ChatModule with ChatGateway and ChatService without DI errors (160 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        6.229 s, estimated 7 s
+Ran all test suites.
