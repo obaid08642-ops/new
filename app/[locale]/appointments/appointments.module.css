@@ -1,9 +1,146 @@
-.page { display: grid; gap: 1.25rem; padding: 1.4rem 0 3.5rem; }.header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }.eyebrow { margin: 0; color: var(--brand-deep); font-size: .78rem; font-weight: 800; letter-spacing: .04em; }.header h1 { margin: .2rem 0 0; color: var(--ink); font-size: clamp(1.5rem,3vw,2rem); }.headerIcon { display:grid; place-items:center; flex: 0 0 auto; width:3.35rem; height:3.35rem; border-radius:1rem; color:#2e86ff; background:#edf4ff; }.notice { margin: 0; color:var(--muted); font-size:.86rem; line-height:1.65; }.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(17rem,1fr)); gap:.8rem; }.card { display:grid; gap:.75rem; padding:1rem; border:1px solid var(--line); border-radius:1.15rem; background:var(--surface); box-shadow:0 5px 18px rgba(20,26,42,.05); transition:transform 160ms var(--ease-out),box-shadow 160ms var(--ease-out),border-color 160ms var(--ease-out); }.card:hover,.card:focus-visible { border-color:#94c4ff; outline:none; box-shadow:0 12px 24px rgba(46,134,255,.11); transform:translateY(-2px); }.cardTop { display:flex; align-items:center; justify-content:space-between; gap:.75rem; }.service { display:inline-flex; align-items:center; gap:.45rem; min-width:0; color:var(--ink); font-size:.9rem; font-weight:800; }.serviceIcon { display:grid; place-items:center; width:2.25rem; height:2.25rem; border-radius:.75rem; color:#2e86ff; background:#edf4ff; }.status { max-width:55%; overflow:hidden; border-radius:999px; padding:.28rem .55rem; color:var(--status-color); background:var(--status-surface); font-size:.72rem; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }.schedule { display:flex; align-items:center; gap:.45rem; color:var(--muted); font-size:.8rem; line-height:1.5; }.footer { display:flex; align-items:center; justify-content:space-between; gap:.75rem; border-top:1px solid var(--line); padding-top:.7rem; color:var(--brand-deep); font-size:.78rem; font-weight:800; }.state { display:grid; justify-items:center; gap:.7rem; padding:2.25rem 1.25rem; border:1px dashed #b9dfe6; border-radius:1.15rem; background:#f8fdfe; color:var(--muted); text-align:center; }.state h2 { margin:0; color:var(--ink); font-size:1rem; }.state p { max-width:38rem; margin:0; line-height:1.7; }.stateIcon { display:grid; place-items:center; width:3.2rem; height:3.2rem; border-radius:1rem; color:var(--brand-deep); background:var(--brand-soft); } @media(max-width:540px){.page{padding-top:.9rem}.grid{grid-template-columns:1fr}} @media(prefers-reduced-motion:reduce){.card{transition:none}}
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem 0 4rem;
+}
 
-.tabs { display: inline-flex; gap: .25rem; margin-top: 1.25rem; padding: .25rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.76); }
-.tab, .tabActive { display: inline-flex; align-items: center; justify-content: center; min-width: 7rem; min-height: 2.6rem; padding: .45rem .85rem; border-radius: 999px; color: var(--muted); font-weight: 800; transition: background 160ms var(--ease-premium), color 160ms var(--ease-premium), transform 160ms var(--ease-premium); }
-.tab:hover, .tab:focus-visible { color: var(--brand-deep); transform: translateY(-1px); outline: none; }
-.tabActive { color: #fff; background: linear-gradient(135deg, #26c4d8, #1598b3); box-shadow: 0 6px 16px rgba(26,159,182,.2); }
-.doctorName { display: block; margin-top: .7rem; color: var(--ink); overflow-wrap: anywhere; }
-@media (max-width: 540px) { .tabs { display: flex; width: 100%; }.tab, .tabActive { flex: 1; min-width: 0; } }
-@media (prefers-reduced-motion: reduce) { .tab, .tabActive { transition: none; } }
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--brand-deep);
+  font-size: .78rem;
+  font-weight: 760;
+  letter-spacing: .02em;
+}
+
+.header h1 {
+  margin: .28rem 0 0;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  letter-spacing: -.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.headerIcon, .serviceIcon, .stateIcon {
+  display: grid;
+  place-items: center;
+  color: var(--brand-deep);
+  background: var(--brand-soft);
+}
+
+.headerIcon {
+  flex: 0 0 auto;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  border: 1px solid rgba(8,127,140,.14);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs {
+  display: inline-flex;
+  inline-size: fit-content;
+  gap: .25rem;
+  padding: .3rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,.78);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab, .tabActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 7.25rem;
+  min-block-size: 2.65rem;
+  padding: .45rem .9rem;
+  border-radius: var(--radius-full);
+  color: var(--muted);
+  font-size: .875rem;
+  font-weight: 730;
+  transition: background var(--motion-fast) var(--ease-premium), color var(--motion-fast) var(--ease-premium), box-shadow var(--motion-fast) var(--ease-premium), transform var(--motion-fast) var(--ease-premium);
+}
+
+.tab:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 2px; }
+.tabActive { color: #fff; background: linear-gradient(135deg, #0a8896, #05616b); box-shadow: 0 6px 14px rgba(5,95,105,.18); }
+
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover { color: var(--brand-deep); background: rgba(231,247,247,.72); transform: translateY(-1px); }
+}
+
+.notice {
+  margin: 0;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.65;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: grid;
+  gap: .9rem;
+  min-inline-size: 0;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: rgba(255,255,255,.92);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--motion-normal) var(--ease-premium), box-shadow var(--motion-normal) var(--ease-premium), border-color var(--motion-normal) var(--ease-premium);
+}
+
+.card:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 3px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { border-color: rgba(8,127,140,.34); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+}
+
+.cardTop { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.service { display: inline-flex; align-items: center; gap: .55rem; min-inline-size: 0; color: var(--ink); font-size: .9rem; font-weight: 750; }
+.serviceIcon { flex: 0 0 auto; inline-size: 2.35rem; block-size: 2.35rem; border-radius: var(--radius-md); }
+.status { max-inline-size: 55%; overflow: hidden; border-radius: var(--radius-full); padding: .3rem .6rem; color: var(--status-color); background: var(--status-surface); font-size: .74rem; font-weight: 760; text-overflow: ellipsis; white-space: nowrap; }
+.doctorName { display: block; color: var(--ink); font-size: 1.05rem; overflow-wrap: anywhere; }
+.schedule { display: flex; align-items: flex-start; gap: .5rem; color: var(--muted); font-size: .84rem; line-height: 1.55; }
+.schedule svg { flex: 0 0 auto; margin-block-start: .08rem; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border-top: 1px solid var(--line); padding-top: .85rem; color: var(--brand-deep); font-size: .82rem; font-weight: 760; }
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: .8rem;
+  padding: clamp(2rem, 7vw, 3.5rem) 1.25rem;
+  border: 1px dashed rgba(8,127,140,.28);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, rgba(255,255,255,.76), rgba(231,247,247,.58));
+  color: var(--muted);
+  text-align: center;
+}
+
+.stateIcon { inline-size: 3.35rem; block-size: 3.35rem; border: 1px solid rgba(8,127,140,.12); border-radius: var(--radius-lg); }
+.state h1, .state h2 { margin: 0; color: var(--ink); font-size: 1.1rem; }
+.state p { max-inline-size: 38rem; margin: 0; line-height: 1.7; }
+
+@media (max-width: 540px) {
+  .page { gap: 1.1rem; padding-top: 1rem; }
+  .headerIcon { inline-size: 3.1rem; block-size: 3.1rem; }
+  .tabs { display: flex; inline-size: 100%; }
+  .tab, .tabActive { flex: 1; min-inline-size: 0; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab, .tabActive, .card { transition: none; }
+  .card:hover, .tab:hover { transform: none; }
+}
