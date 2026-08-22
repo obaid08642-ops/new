@@ -3,12 +3,12 @@ import { lastValueFrom, of } from 'rxjs';
 import { IdempotencyInterceptor } from './idempotency.interceptor';
 
 describe('IdempotencyInterceptor', () => {
-  const handler = (body: any, userId = 'patient-a', path = '/moyasar/payments') => ({
+  const handler = (body: any, userId = 'patient-a', path = '/moyasar/payments', idempotencyKey: string | null = 'same-client-key') => ({
     getHandler: () => ({ name: 'handler' }),
     switchToHttp: () => ({
       getRequest: () => ({
         method: 'POST',
-        headers: { 'idempotency-key': 'same-client-key' },
+        headers: idempotencyKey ? { 'idempotency-key': idempotencyKey } : {},
         user: { id: userId },
         body,
         originalUrl: path,
@@ -25,6 +25,17 @@ describe('IdempotencyInterceptor', () => {
       { getClient: () => redisClient } as any,
       { get: jest.fn().mockReturnValue(false) } as any,
     );
+  });
+
+  it('rejects a contract-required mutation without an Idempotency-Key before running its handler', async () => {
+    const requiredInterceptor = new IdempotencyInterceptor(
+      { getClient: () => redisClient } as any,
+      { get: jest.fn().mockReturnValue(true) } as any,
+    );
+    const next = { handle: jest.fn(() => of({ unexpected: true })) };
+
+    await expect(requiredInterceptor.intercept(handler({ quantity: 1 }, 'patient-a', '/cart/items', null), next)).rejects.toThrow(BadRequestException);
+    expect(next.handle).not.toHaveBeenCalled();
   });
 
   it('persists a successful response under a user-and-route-scoped key after acquiring a lock', async () => {
