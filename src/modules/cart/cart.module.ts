@@ -1,5 +1,6 @@
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { Model } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
@@ -161,9 +162,12 @@ export class CartController {
     @InjectModel(Prescription.name) private prescriptions: Model<any>,
   ) {}
   @Get('') get(@CurrentUser() u: any) { return this.svc.get(u); }
-  @Post('items') addContractItem(@Body() b: any, @CurrentUser() u: any) { return this.svc.addContractItem(u, b); }
-  @Patch('items/:lineId') updateContractItem(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, { qty: b?.quantity }); }
-  @Delete('items/:lineId') removeContractItem(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
+  @Post('items') @RequireIdempotency()
+  addContractItem(@Body() b: any, @CurrentUser() u: any) { return this.svc.addContractItem(u, b); }
+  @Patch('items/:lineId') @RequireIdempotency()
+  updateContractItem(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, { qty: b?.quantity }); }
+  @Delete('items/:lineId') @RequireIdempotency()
+  removeContractItem(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
   @Post('lines') add(@Body() b: any, @CurrentUser() u: any) { return this.svc.addLine(u, b); }
   @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
   @Delete('lines/:lineId') rm(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }

@@ -108,6 +108,7 @@ import { HealthController } from './health.controller';
 import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
 import { AuditLogInterceptor } from './common/audit-log.interceptor';
+import { IdempotencyInterceptor } from './common/idempotency.interceptor';
 
 import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
@@ -259,6 +260,7 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
 })
 export class AppModule implements NestModule {
