@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 
 @Controller('users')
@@ -52,6 +53,7 @@ export class UsersController {
   }
 
   @Patch('me/notification-settings')
+  @RequireIdempotency()
   updateNotificationSettings(@CurrentUser('id') id: string, @Body() body: any) {
     return this.users.updateNotificationSettings(id, body);
   }
@@ -91,6 +93,7 @@ export class UsersController {
     return this.users.getSessions(id);
   }
   @Delete('me/sessions/:jti')
+  @RequireIdempotency()
   revokeSession(@CurrentUser('id') id: string, @Param('jti') jti: string) {
     return this.users.revokeSession(id, jti);
   }

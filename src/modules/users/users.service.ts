@@ -169,11 +169,67 @@ export class UsersService {
     return clean;
   }
 
+  private static readonly NOTIFICATION_CHANNELS = ['push', 'email', 'sms'] as const;
+  private static readonly NOTIFICATION_CATEGORIES = ['appointments', 'orders', 'health', 'chat', 'account', 'marketing'] as const;
+
+  private notificationDefaults() {
+    return {
+      channels: { push: true, email: false, sms: true },
+      categories: { appointments: true, orders: true, health: true, chat: true, account: true, marketing: false },
+    };
+  }
+
+  private normalizeNotificationSettings(value: any) {
+    const defaults = this.notificationDefaults();
+    const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    // Safely migrate the former flat {push,email,sms} shape while excluding all
+    // unknown keys from both old and new records.
+    const sourceChannels = source.channels && typeof source.channels === 'object' ? source.channels : source;
+    const sourceCategories = source.categories && typeof source.categories === 'object' ? source.categories : {};
+    const channels: any = { ...defaults.channels };
+    const categories: any = { ...defaults.categories };
+    for (const key of UsersService.NOTIFICATION_CHANNELS) if (typeof sourceChannels[key] === 'boolean') channels[key] = sourceChannels[key];
+    for (const key of UsersService.NOTIFICATION_CATEGORIES) if (typeof sourceCategories[key] === 'boolean') categories[key] = sourceCategories[key];
+    return { channels, categories };
+  }
+
+  private validateNotificationPatch(body: any) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_notification_settings');
+    const allowedTopLevel = new Set(['channels', 'categories']);
+    for (const key of Object.keys(body)) {
+      if (!allowedTopLevel.has(key) || key.includes('.') || key.startsWith('$')) throw new BadRequestException('notification_setting_not_allowed');
+    }
+    const clean: any = {};
+    const validateGroup = (name: 'channels' | 'categories', keys: readonly string[]) => {
+      if (body[name] === undefined) return;
+      if (!body[name] || typeof body[name] !== 'object' || Array.isArray(body[name])) throw new BadRequestException(`invalid_notification_${name}`);
+      clean[name] = {};
+      for (const [key, value] of Object.entries(body[name])) {
+        if (!keys.includes(key) || typeof value !== 'boolean' || key.includes('.') || key.startsWith('$')) {
+          throw new BadRequestException('notification_setting_not_allowed');
+        }
+        clean[name][key] = value;
+      }
+    };
+    validateGroup('channels', UsersService.NOTIFICATION_CHANNELS);
+    validateGroup('categories', UsersService.NOTIFICATION_CATEGORIES);
+    if (!clean.channels && !clean.categories) throw new BadRequestException('notification_settings_empty');
+    return clean;
+  }
+
   async getNotificationSettings(id: string) {
-    return this.getSetting(id, 'notification_settings', { push: true, email: false, sms: true });
+    const stored = await this.getSetting(id, 'notification_settings', null);
+    return this.normalizeNotificationSettings(stored);
   }
   async updateNotificationSettings(id: string, body: any) {
-    return this.setSetting(id, 'notification_settings', body);
+    const patch = this.validateNotificationPatch(body);
+    const current = await this.getNotificationSettings(id);
+    const next = {
+      channels: { ...current.channels, ...(patch.channels || {}) },
+      categories: { ...current.categories, ...(patch.categories || {}) },
+    };
+    await this.patientRepository.updateOne({ user_id: id }, { $set: { notification_settings: next } }, { upsert: true });
+    return next;
   }
 
   /** Real storage usage computed from the patient's stored content (base64 payloads). */
