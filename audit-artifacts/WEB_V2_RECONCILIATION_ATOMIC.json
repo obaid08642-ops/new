@@ -1,0 +1,2313 @@
+{
+  "source": {
+    "mobile_root": "/home/ubuntu/mobile_reconciliation/source",
+    "web_root": "/home/ubuntu/nabdah_impl/repo"
+  },
+  "counts": {
+    "mobile_route_candidates": 293,
+    "web_route_files": 52,
+    "mobile_api_hit_lines": 360,
+    "allowlist_lines": 37
+  },
+  "mobile_route_candidates": [
+    "app/(auth)/_layout.tsx",
+    "app/(auth)/forgot-password.tsx",
+    "app/(auth)/login.tsx",
+    "app/(auth)/otp.tsx",
+    "app/(auth)/privacy.tsx",
+    "app/(auth)/provider-info.tsx",
+    "app/(auth)/register.tsx",
+    "app/(auth)/reset-password.tsx",
+    "app/(auth)/terms.tsx",
+    "app/(auth)/welcome.tsx",
+    "app/(onboarding)/_layout.tsx",
+    "app/(onboarding)/index.tsx",
+    "app/(onboarding)/language.tsx",
+    "app/(onboarding)/permissions.tsx",
+    "app/(tabs)/_layout.tsx",
+    "app/(tabs)/consultations/index.tsx",
+    "app/(tabs)/diagnostics.tsx",
+    "app/(tabs)/health.tsx",
+    "app/(tabs)/index.tsx",
+    "app/(tabs)/nursing.tsx",
+    "app/(tabs)/pharmacy.tsx",
+    "app/(tabs)/services.tsx",
+    "app/_layout.tsx",
+    "app/ai-assistant.tsx",
+    "app/ai/chat-doctor.tsx",
+    "app/ai/monthly-report.tsx",
+    "app/ai/prescription-translator.tsx",
+    "app/ai/skin-analysis.tsx",
+    "app/ai/symptom-checker.tsx",
+    "app/ai/symptom-timeline.tsx",
+    "app/ai/triage.tsx",
+    "app/articles/[slug].tsx",
+    "app/articles/bookmarks.tsx",
+    "app/articles/index.tsx",
+    "app/community/hub.tsx",
+    "app/community/post-detail.tsx",
+    "app/consultations/appointment-detail.tsx",
+    "app/consultations/appointments.tsx",
+    "app/consultations/book/[id].tsx",
+    "app/consultations/booking-confirm.tsx",
+    "app/consultations/booking-pending.tsx",
+    "app/consultations/booking-success.tsx",
+    "app/consultations/call-history.tsx",
+    "app/consultations/cancel-reschedule.tsx",
+    "app/consultations/chat-with-doctor.tsx",
+    "app/consultations/clinic-confirm.tsx",
+    "app/consultations/clinic-location.tsx",
+    "app/consultations/clinic/[id].tsx",
+    "app/consultations/doctor-profile.tsx",
+    "app/consultations/doctor-search.tsx",
+    "app/consultations/doctor/[id].tsx",
+    "app/consultations/follow-up.tsx",
+    "app/consultations/home-visit-tracking.tsx",
+    "app/consultations/incoming-call.tsx",
+    "app/consultations/offer/[id].tsx",
+    "app/consultations/post-call-rating.tsx",
+    "app/consultations/prescription-from-doctor.tsx",
+    "app/consultations/share-report.tsx",
+    "app/consultations/specialty-select.tsx",
+    "app/consultations/summary.tsx",
+    "app/consultations/video-call.tsx",
+    "app/consultations/video/[id].tsx",
+    "app/consultations/virtual-waiting-room.tsx",
+    "app/consultations/waiting-room.tsx",
+    "app/delivery/address-select.tsx",
+    "app/diagnostics/book-sample.tsx",
+    "app/diagnostics/booking-confirm.tsx",
+    "app/diagnostics/booking-success.tsx",
+    "app/diagnostics/cart.tsx",
+    "app/diagnostics/checkout.tsx",
+    "app/diagnostics/insurance-approval.tsx",
+    "app/diagnostics/insurance-upload.tsx",
+    "app/diagnostics/lab-comparison.tsx",
+    "app/diagnostics/lab/[id].tsx",
+    "app/diagnostics/my-results.tsx",
+    "app/diagnostics/order/[id].tsx",
+    "app/diagnostics/orders.tsx",
+    "app/diagnostics/package-detail.tsx",
+    "app/diagnostics/packages.tsx",
+    "app/diagnostics/results-history.tsx",
+    "app/diagnostics/sample-tracking.tsx",
+    "app/diagnostics/search.tsx",
+    "app/diagnostics/technician-tracking.tsx",
+    "app/diagnostics/test-detail.tsx",
+    "app/diagnostics/upload-rx.tsx",
+    "app/drug-scanner/index.tsx",
+    "app/emergency/index.tsx",
+    "app/emergency/sos-active.tsx",
+    "app/emergency/sos.tsx",
+    "app/emergency/tracking.tsx",
+    "app/family/calendar.tsx",
+    "app/family/chat.tsx",
+    "app/family/emergency-contacts.tsx",
+    "app/family/hub.tsx",
+    "app/family/index.tsx",
+    "app/family/invite.tsx",
+    "app/family/join.tsx",
+    "app/family/member-health.tsx",
+    "app/family/permission-request.tsx",
+    "app/family/permissions.tsx",
+    "app/family/scan.tsx",
+    "app/family/shared-calendar.tsx",
+    "app/health/actionable-order.tsx",
+    "app/health/add-family-member.tsx",
+    "app/health/chronic-disease.tsx",
+    "app/health/chronic-medications.tsx",
+    "app/health/conditions-allergies.tsx",
+    "app/health/edit-profile.tsx",
+    "app/health/emergency-contacts.tsx",
+    "app/health/family-calendar.tsx",
+    "app/health/family-chat.tsx",
+    "app/health/family-hub.tsx",
+    "app/health/family-member-detail.tsx",
+    "app/health/health-id.tsx",
+    "app/health/medication-reminder-add.tsx",
+    "app/health/medication-reminder-list.tsx",
+    "app/health/medications.tsx",
+    "app/health/prescriptions.tsx",
+    "app/health/refills.tsx",
+    "app/health/reminders.tsx",
+    "app/health/reports.tsx",
+    "app/health/sleep-score.tsx",
+    "app/health/sleep-tracker.tsx",
+    "app/health/smart-reminders.tsx",
+    "app/health/trends.tsx",
+    "app/health/vitals-log.tsx",
+    "app/health/vitals.tsx",
+    "app/health/wearables.tsx",
+    "app/index.tsx",
+    "app/insurance/add-policy.tsx",
+    "app/insurance/approval-pending.tsx",
+    "app/insurance/benefits-summary.tsx",
+    "app/insurance/claim-tracking.tsx",
+    "app/insurance/copay.tsx",
+    "app/insurance/coverage-check.tsx",
+    "app/insurance/hub.tsx",
+    "app/insurance/index.tsx",
+    "app/insurance/network-providers.tsx",
+    "app/insurance/payment-split.tsx",
+    "app/insurance/policy-detail.tsx",
+    "app/insurance/refund-status.tsx",
+    "app/insurance/submit-claim.tsx",
+    "app/loyalty/challenges.tsx",
+    "app/loyalty/hub.tsx",
+    "app/loyalty/leaderboard.tsx",
+    "app/loyalty/referrals.tsx",
+    "app/loyalty/rewards.tsx",
+    "app/map/index.tsx",
+    "app/maternity/baby-development.tsx",
+    "app/maternity/baby-growth.tsx",
+    "app/maternity/hub.tsx",
+    "app/maternity/maternity-setup.tsx",
+    "app/maternity/ovulation-tracker.tsx",
+    "app/maternity/pregnancy-tracker.tsx",
+    "app/mental-health/breathing.tsx",
+    "app/mental-health/crisis-support.tsx",
+    "app/mental-health/hub.tsx",
+    "app/mental-health/index.tsx",
+    "app/mental-health/meditation.tsx",
+    "app/mental-health/mood-journal.tsx",
+    "app/mental-health/self-assessment.tsx",
+    "app/mental-health/therapist-match.tsx",
+    "app/notifications/index.tsx",
+    "app/nursing/live-tracking.tsx",
+    "app/nursing/nurse-profile.tsx",
+    "app/nursing/service-details.tsx",
+    "app/nursing/service-info.tsx",
+    "app/nutrition/ai-meal-planner.tsx",
+    "app/nutrition/ai-plan-builder.tsx",
+    "app/nutrition/body-composition.tsx",
+    "app/nutrition/body-target.tsx",
+    "app/nutrition/calorie-analyzer.tsx",
+    "app/nutrition/daily-tracker.tsx",
+    "app/nutrition/exercise-plan.tsx",
+    "app/nutrition/food-scanner.tsx",
+    "app/nutrition/hub.tsx",
+    "app/nutrition/index.tsx",
+    "app/nutrition/log-meal.tsx",
+    "app/nutrition/nutrition-plan.tsx",
+    "app/nutrition/water-tracker.tsx",
+    "app/offers/[id].tsx",
+    "app/offers/index.tsx",
+    "app/orders/index.tsx",
+    "app/payments/failed.tsx",
+    "app/payments/failure.tsx",
+    "app/payments/processing.tsx",
+    "app/payments/success.tsx",
+    "app/pharmacy/barcode-scanner.tsx",
+    "app/pharmacy/broadcast-status.tsx",
+    "app/pharmacy/cart.tsx",
+    "app/pharmacy/chat-with-pharmacist.tsx",
+    "app/pharmacy/checkout.tsx",
+    "app/pharmacy/custom-item.tsx",
+    "app/pharmacy/drug-not-found.tsx",
+    "app/pharmacy/filters.tsx",
+    "app/pharmacy/manual-order.tsx",
+    "app/pharmacy/medicine-compare.tsx",
+    "app/pharmacy/order-confirm.tsx",
+    "app/pharmacy/order-history.tsx",
+    "app/pharmacy/order-tracking.tsx",
+    "app/pharmacy/payment.tsx",
+    "app/pharmacy/pharmacist-chat.tsx",
+    "app/pharmacy/product-detail.tsx",
+    "app/pharmacy/product-search.tsx",
+    "app/pharmacy/reorder.tsx",
+    "app/pharmacy/rx-order.tsx",
+    "app/pharmacy/scan-prescription.tsx",
+    "app/pharmacy/waiting-for-pharmacy.tsx",
+    "app/pharmacy/wishlist.tsx",
+    "app/profile/addresses.tsx",
+    "app/profile/edit.tsx",
+    "app/profile/index.tsx",
+    "app/profile/insurance.tsx",
+    "app/programs/active.tsx",
+    "app/reports/ai-analysis.tsx",
+    "app/reports/hub.tsx",
+    "app/reports/passport.tsx",
+    "app/reports/timeline.tsx",
+    "app/reports/view-report.tsx",
+    "app/returns/detail.tsx",
+    "app/returns/hub.tsx",
+    "app/returns/new-request.tsx",
+    "app/reviews/index.tsx",
+    "app/room/[id].tsx",
+    "app/s/[type]/[slug].tsx",
+    "app/search/index.tsx",
+    "app/services/index.tsx",
+    "app/settings/about.tsx",
+    "app/settings/data.tsx",
+    "app/settings/feedback.tsx",
+    "app/settings/help.tsx",
+    "app/settings/index.tsx",
+    "app/settings/language.tsx",
+    "app/settings/notifications-settings.tsx",
+    "app/settings/notifications.tsx",
+    "app/settings/privacy.tsx",
+    "app/settings/security.tsx",
+    "app/settings/support-chat.tsx",
+    "app/settings/terms.tsx",
+    "app/shared/location-picker.tsx",
+    "app/support/chat.tsx",
+    "app/support/ticket.tsx",
+    "app/voice/index.tsx",
+    "app/wallet/cards.tsx",
+    "app/wallet/hub.tsx",
+    "app/wallet/topup.tsx",
+    "app/wallet/transactions.tsx",
+    "app/wallet/transfer.tsx",
+    "app/wearables/hub.tsx",
+    "src/components/BodyMap3D.tsx",
+    "src/components/BottomNavBar.tsx",
+    "src/components/Header.tsx",
+    "src/components/HeartbeatLogo.tsx",
+    "src/components/Icon.tsx",
+    "src/components/LocalizedText.tsx",
+    "src/components/MapPrimitives.native.tsx",
+    "src/components/MapPrimitives.web.tsx",
+    "src/components/NabdahLogo.tsx",
+    "src/components/NotificationHandler.tsx",
+    "src/components/OfflineBanner.tsx",
+    "src/components/ProductImage.tsx",
+    "src/components/RotatingCardImage.tsx",
+    "src/components/ScreenStates.tsx",
+    "src/components/animations.tsx",
+    "src/components/livekit-view.tsx",
+    "src/components/ui.tsx",
+    "src/context/AppContext.tsx",
+    "src/context/CartContext.tsx",
+    "src/context/ConsultationsContext.tsx",
+    "src/context/DiagnosticsCartContext.tsx",
+    "src/context/SocketContext.tsx",
+    "src/design-system/components/Avatar.tsx",
+    "src/design-system/components/Badge.tsx",
+    "src/design-system/components/BottomSheet.tsx",
+    "src/design-system/components/Button.tsx",
+    "src/design-system/components/Card.tsx",
+    "src/design-system/components/Input.tsx",
+    "src/design-system/components/Loading.tsx",
+    "src/design-system/components/OTPInput.tsx",
+    "src/design-system/components/Progress.tsx",
+    "src/design-system/components/SearchBar.tsx",
+    "src/design-system/components/States.tsx",
+    "src/design-system/components/Text.tsx",
+    "src/design-system/components/Toast.tsx",
+    "src/features/consultation/InsuranceCopayScreen.tsx",
+    "src/features/medical-orders/ActionableOrderScreen.tsx",
+    "src/guided-tour/ui/SpotlightRenderer.tsx",
+    "src/hooks/useGuestGuard.tsx",
+    "src/navigation/guards/AdminGuard.tsx",
+    "src/navigation/guards/AuthGuard.tsx",
+    "src/services/ErrorHandler.tsx",
+    "src/store/utils/testUtils.tsx",
+    "src/utils/performance.tsx"
+  ],
+  "web_route_files": [
+    "[locale]/appointments/[appointmentId]/page.tsx",
+    "[locale]/appointments/page.tsx",
+    "[locale]/articles/[slug]/page.tsx",
+    "[locale]/articles/bookmarks/page.tsx",
+    "[locale]/articles/page.tsx",
+    "[locale]/cart/checkout/page.tsx",
+    "[locale]/cart/page.tsx",
+    "[locale]/cart/prescription/page.tsx",
+    "[locale]/chat/[threadId]/page.tsx",
+    "[locale]/chat/page.tsx",
+    "[locale]/dashboard/page.tsx",
+    "[locale]/diagnostics/[domain]/[bookingId]/page.tsx",
+    "[locale]/diagnostics/page.tsx",
+    "[locale]/family/page.tsx",
+    "[locale]/health/chronic-diseases/page.tsx",
+    "[locale]/health/chronic-medications/page.tsx",
+    "[locale]/health/emergency-contacts/page.tsx",
+    "[locale]/health/page.tsx",
+    "[locale]/health/reports/page.tsx",
+    "[locale]/health/score/page.tsx",
+    "[locale]/health/sleep/page.tsx",
+    "[locale]/health/trends/page.tsx",
+    "[locale]/health/vitals/page.tsx",
+    "[locale]/home-care/page.tsx",
+    "[locale]/insurance/page.tsx",
+    "[locale]/login/page.tsx",
+    "[locale]/medicine-catalog/page.tsx",
+    "[locale]/medicines/[medicineId]/page.tsx",
+    "[locale]/medicines/page.tsx",
+    "[locale]/mental-health/breathing/page.tsx",
+    "[locale]/mental-health/crisis-contacts/page.tsx",
+    "[locale]/mental-health/meditation/page.tsx",
+    "[locale]/mental-health/mood/page.tsx",
+    "[locale]/mental-health/page.tsx",
+    "[locale]/notifications/page.tsx",
+    "[locale]/notifications/settings/page.tsx",
+    "[locale]/orders/[orderId]/page.tsx",
+    "[locale]/orders/[orderId]/tracking/page.tsx",
+    "[locale]/orders/page.tsx",
+    "[locale]/page.tsx",
+    "[locale]/prescriptions/[prescriptionId]/page.tsx",
+    "[locale]/prescriptions/page.tsx",
+    "[locale]/profile/page.tsx",
+    "[locale]/reminders/page.tsx",
+    "[locale]/settings/page.tsx",
+    "api/auth/login/route.ts",
+    "api/auth/logout/route.ts",
+    "api/auth/session/route.ts",
+    "api/auth/verify-2fa/route.ts",
+    "api/patient/[...path]/route.ts",
+    "favicon.ico/route.ts",
+    "llms.txt/route.ts"
+  ],
+  "mobile_api_hit_lines": [
+    {
+      "file": "app/_layout.tsx",
+      "line": 60,
+      "text": "const res: any = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });"
+    },
+    {
+      "file": "app/_layout.tsx",
+      "line": 97,
+      "text": "bgSync.registerBackgroundFetch();"
+    },
+    {
+      "file": "app/ai-assistant.tsx",
+      "line": 49,
+      "text": "const response = await HttpClient.post<{ response: string }>('/ai/triage/chat', {"
+    },
+    {
+      "file": "utils/api.ts",
+      "line": 10,
+      "text": "* The exported signature is intentionally unchanged (`apiFetch(endpoint, options)`)"
+    },
+    {
+      "file": "src/store/index.ts",
+      "line": 22,
+      "text": "import { baseApi } from './api/baseApi';"
+    },
+    {
+      "file": "src/services/SyncManager.ts",
+      "line": 43,
+      "text": "const state = await NetInfo.fetch();"
+    },
+    {
+      "file": "src/services/SyncManager.ts",
+      "line": 61,
+      "text": "const resp = await fetch(req.url, {"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 1,
+      "text": "import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 8,
+      "text": "? `${process.env.EXPO_PUBLIC_API_URL.replace(/\\/$/, '')}/api/v1`"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 9,
+      "text": ": 'https://api.nabd.plus/api/v1';"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 11,
+      "text": "export const HttpClient = axios.create({"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 19,
+      "text": "async (error: AxiosError) => {"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 20,
+      "text": "const config = error.config as InternalAxiosRequestConfig & { _retryCount?: number };"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 35,
+      "text": "const config = error.config as InternalAxiosRequestConfig;"
+    },
+    {
+      "file": "src/services/HttpClient.ts",
+      "line": 68,
+      "text": "export interface HttpRequestConfig extends InternalAxiosRequestConfig {}"
+    },
+    {
+      "file": "src/hooks/usePushNotifications.ts",
+      "line": 184,
+      "text": "HttpClient.post('/push/events', {"
+    },
+    {
+      "file": "src/hooks/usePushNotifications.ts",
+      "line": 235,
+      "text": "await HttpClient.post('/notifications/register-token', {"
+    },
+    {
+      "file": "src/hooks/usePushNotifications.ts",
+      "line": 250,
+      "text": "await HttpClient.post('/notifications/register-token', {"
+    },
+    {
+      "file": "src/hooks/useOfflineData.ts",
+      "line": 38,
+      "text": "const fresh = await apiFetch(endpoint);"
+    },
+    {
+      "file": "src/context/SocketContext.tsx",
+      "line": 57,
+      "text": "await apiFetch(`/chats/threads/${m.threadId}/messages`, {"
+    },
+    {
+      "file": "src/context/ConsultationsContext.tsx",
+      "line": 25,
+      "text": "const res = await apiFetch('/care/appointments');"
+    },
+    {
+      "file": "src/context/CartContext.tsx",
+      "line": 50,
+      "text": "const data = await apiFetch('/cart');"
+    },
+    {
+      "file": "src/context/CartContext.tsx",
+      "line": 86,
+      "text": "const data = await apiFetch('/cart/lines', {"
+    },
+    {
+      "file": "src/context/CartContext.tsx",
+      "line": 132,
+      "text": "await apiFetch(`/cart/lines/${item.line_id}`, { method: 'DELETE' });"
+    },
+    {
+      "file": "src/context/CartContext.tsx",
+      "line": 152,
+      "text": "await apiFetch(`/cart/lines/${item.line_id}`, { method: 'DELETE' });"
+    },
+    {
+      "file": "src/context/CartContext.tsx",
+      "line": 154,
+      "text": "await apiFetch(`/cart/lines/${item.line_id}`, {"
+    },
+    {
+      "file": "src/context/CartContext.tsx",
+      "line": 169,
+      "text": "await apiFetch('/cart/clear', {"
+    },
+    {
+      "file": "src/context/AppContext.tsx",
+      "line": 77,
+      "text": "const res = await fetch(`${appConfig.apiBaseUrl}/config`);"
+    },
+    {
+      "file": "src/constants/index.ts",
+      "line": 7,
+      "text": "?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\\/$/, '')}/api/v1` : 'https://api.nabd.plus/api/v1');"
+    },
+    {
+      "file": "src/components/NotificationHandler.tsx",
+      "line": 13,
+      "text": "HttpClient.post('/push/events', {"
+    },
+    {
+      "file": "src/utils/api.ts",
+      "line": 54,
+      "text": "const res = await fetch(`${BASE_URL}/auth/guest`, {"
+    },
+    {
+      "file": "src/utils/api.ts",
+      "line": 106,
+      "text": "return await fetch(url, { ...options, headers, signal: ctrl.signal });"
+    },
+    {
+      "file": "src/utils/api.ts",
+      "line": 114,
+      "text": "response = await doFetch();"
+    },
+    {
+      "file": "src/utils/api.ts",
+      "line": 122,
+      "text": "try { response = await doFetch(); }"
+    },
+    {
+      "file": "src/utils/callkeep.ts",
+      "line": 72,
+      "text": "await apiFetch(`/calls/${callUUID}/reject`, { method: 'POST' }).catch(() => null);"
+    },
+    {
+      "file": "src/utils/imageUrl.ts",
+      "line": 12,
+      "text": "BASE_URL.replace('/api/v1', '');"
+    },
+    {
+      "file": "src/utils/medication-notifications.ts",
+      "line": 263,
+      "text": "await apiFetch(`/health/reminders/${action.reminder_id}/log`, { method: 'POST', body: JSON.stringify({ status: action.status, time_key: action.time_key, occurred_at: action.occurred_at }) });"
+    },
+    {
+      "file": "src/utils/notifications.ts",
+      "line": 71,
+      "text": "await apiFetch('/push/register', {"
+    },
+    {
+      "file": "src/utils/prefetch.ts",
+      "line": 19,
+      "text": "const data = await apiFetch(endpoint);"
+    },
+    {
+      "file": "src/utils/prefetch.ts",
+      "line": 28,
+      "text": "Image.prefetch(valid, 'memory-disk').catch(() => {});"
+    },
+    {
+      "file": "src/utils/selectedAddress.ts",
+      "line": 47,
+      "text": "const list = await apiFetch('/users/me/addresses');"
+    },
+    {
+      "file": "src/store/middleware/memoryManager.ts",
+      "line": 2,
+      "text": "import { baseApi } from '../api/baseApi';"
+    },
+    {
+      "file": "src/store/integration/EventBusIntegrator.ts",
+      "line": 4,
+      "text": "import { baseApi } from '../api/baseApi';"
+    },
+    {
+      "file": "src/guided-tour/engines/AnalyticsCollector.ts",
+      "line": 26,
+      "text": "// POST /api/v1/tours/analytics/events"
+    },
+    {
+      "file": "src/data/sync/BackgroundSynchronizer.ts",
+      "line": 22,
+      "text": "async registerBackgroundFetch(): Promise<void> {"
+    },
+    {
+      "file": "src/data/repositories/RepositoryCoordinator.ts",
+      "line": 55,
+      "text": "this.registerFeatureRepository('users', '/api/v1/users', dbManager);"
+    },
+    {
+      "file": "src/core/config/ConfigManager.ts",
+      "line": 49,
+      "text": "apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'http://localhost:8002/api/v1',"
+    },
+    {
+      "file": "src/core/config/ConfigManager.ts",
+      "line": 59,
+      "text": "apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://staging-api.nabdahplus.com/api/v1',"
+    },
+    {
+      "file": "src/core/config/ConfigManager.ts",
+      "line": 69,
+      "text": "apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://api.nabd.plus/api/v1',"
+    },
+    {
+      "file": "src/core/config/ConfigManager.ts",
+      "line": 70,
+      "text": "fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.nabd.plus/api/v1',"
+    },
+    {
+      "file": "src/core/platform/realtime/RealtimeClient.ts",
+      "line": 31,
+      "text": "const cleanUrl = baseUrl.replace('/api/v1', '').replace('/api', '');"
+    },
+    {
+      "file": "src/core/platform/auth/SessionManager.ts",
+      "line": 77,
+      "text": "const res = await fetch(`${BASE_URL}/auth/refresh`, {"
+    },
+    {
+      "file": "src/__tests__/utils/testUtils.ts",
+      "line": 18,
+      "text": "apiBaseUrl:       'http://localhost:8002/api/v1',"
+    },
+    {
+      "file": "app/wearables/hub.tsx",
+      "line": 34,
+      "text": "apiFetch(\"/health/vitals\", {"
+    },
+    {
+      "file": "app/wearables/hub.tsx",
+      "line": 47,
+      "text": "apiFetch(\"/health/vitals\", {"
+    },
+    {
+      "file": "app/wearables/hub.tsx",
+      "line": 69,
+      "text": "apiFetch(\"/health/vitals\", {"
+    },
+    {
+      "file": "app/wearables/hub.tsx",
+      "line": 82,
+      "text": "apiFetch(\"/health/vitals\", {"
+    },
+    {
+      "file": "app/wearables/hub.tsx",
+      "line": 95,
+      "text": "apiFetch(\"/health/vitals\", {"
+    },
+    {
+      "file": "app/wallet/transfer.tsx",
+      "line": 62,
+      "text": "const res: any = await apiFetch(\"/wallet/transfer\", {"
+    },
+    {
+      "file": "app/wallet/transactions.tsx",
+      "line": 39,
+      "text": "apiFetch('/wallet/transactions')"
+    },
+    {
+      "file": "app/wallet/hub.tsx",
+      "line": 158,
+      "text": "apiFetch('/wallet/spending-data')"
+    },
+    {
+      "file": "app/wallet/cards.tsx",
+      "line": 65,
+      "text": "const res = await apiFetch(\"/wallet/cards\");"
+    },
+    {
+      "file": "app/wallet/cards.tsx",
+      "line": 106,
+      "text": "const res = await apiFetch(`/wallet/cards/${cardId}`, {"
+    },
+    {
+      "file": "app/wallet/cards.tsx",
+      "line": 347,
+      "text": "const res = await apiFetch(\"/wallet/cards\", {"
+    },
+    {
+      "file": "app/wallet/cards.tsx",
+      "line": 362,
+      "text": "const res = await apiFetch(\"/wallet/cards\", {"
+    },
+    {
+      "file": "app/shared/location-picker.tsx",
+      "line": 82,
+      "text": "const data = await apiFetch(\"/users/me/addresses\");"
+    },
+    {
+      "file": "app/shared/location-picker.tsx",
+      "line": 170,
+      "text": "const saved = await apiFetch(\"/users/me/addresses\", {"
+    },
+    {
+      "file": "app/settings/security.tsx",
+      "line": 53,
+      "text": "apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ biometric: val }) }).catch(() => {});"
+    },
+    {
+      "file": "app/settings/security.tsx",
+      "line": 58,
+      "text": "apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ two_factor: val }) }).catch(() => {});"
+    },
+    {
+      "file": "app/settings/security.tsx",
+      "line": 68,
+      "text": "await apiFetch('/users/me/change-password', {"
+    },
+    {
+      "file": "app/settings/security.tsx",
+      "line": 106,
+      "text": "await apiFetch(`/users/me/sessions/${s.id}`, { method: 'DELETE' });"
+    },
+    {
+      "file": "app/settings/privacy.tsx",
+      "line": 47,
+      "text": "apiFetch('/users/me/privacy-settings', {"
+    },
+    {
+      "file": "app/settings/privacy.tsx",
+      "line": 164,
+      "text": "await apiFetch('/support/requests', {"
+    },
+    {
+      "file": "app/settings/notifications-settings.tsx",
+      "line": 108,
+      "text": "apiFetch('/users/me/notification-settings', {"
+    },
+    {
+      "file": "app/settings/feedback.tsx",
+      "line": 33,
+      "text": "await apiFetch('/support/feedback', {"
+    },
+    {
+      "file": "app/search/index.tsx",
+      "line": 54,
+      "text": "apiFetch(`/home/search?q=${encodeURIComponent(query)}`)"
+    },
+    {
+      "file": "app/room/[id].tsx",
+      "line": 160,
+      "text": "const response = await HttpClient.post<{ token: string }>(`/calls/${id}/join`, {});"
+    },
+    {
+      "file": "app/reviews/index.tsx",
+      "line": 64,
+      "text": "await apiFetch('/patient-ux/review', {"
+    },
+    {
+      "file": "app/returns/new-request.tsx",
+      "line": 66,
+      "text": "await apiFetch('/pharmacy/returns', {"
+    },
+    {
+      "file": "app/reports/view-report.tsx",
+      "line": 70,
+      "text": "const res = await apiFetch(`/reports/${params.id}`);"
+    },
+    {
+      "file": "app/reports/timeline.tsx",
+      "line": 43,
+      "text": "const res = await apiFetch('/medical-reports/timeline');"
+    },
+    {
+      "file": "app/reports/passport.tsx",
+      "line": 38,
+      "text": "apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});"
+    },
+    {
+      "file": "app/reports/passport.tsx",
+      "line": 39,
+      "text": "apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));"
+    },
+    {
+      "file": "app/reports/hub.tsx",
+      "line": 71,
+      "text": "const res = await apiFetch(\"/medical-reports/mine?limit=100\");"
+    },
+    {
+      "file": "app/programs/active.tsx",
+      "line": 44,
+      "text": "const res = await apiFetch('/medical/programs/active');"
+    },
+    {
+      "file": "app/programs/active.tsx",
+      "line": 72,
+      "text": "const res = await apiFetch('/medical/programs/complete-session', {"
+    },
+    {
+      "file": "app/profile/insurance.tsx",
+      "line": 40,
+      "text": "const data = await apiFetch(\"/users/me/insurance\");"
+    },
+    {
+      "file": "app/profile/insurance.tsx",
+      "line": 61,
+      "text": "const list = await apiFetch(\"/insurance/companies\");"
+    },
+    {
+      "file": "app/profile/insurance.tsx",
+      "line": 73,
+      "text": "const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);"
+    },
+    {
+      "file": "app/profile/insurance.tsx",
+      "line": 96,
+      "text": "const saved = await apiFetch(\"/users/me/insurance\", {"
+    },
+    {
+      "file": "app/profile/index.tsx",
+      "line": 44,
+      "text": "apiFetch('/loyalty/account')"
+    },
+    {
+      "file": "app/profile/addresses.tsx",
+      "line": 29,
+      "text": "const data = await apiFetch(\"/users/me/addresses\");"
+    },
+    {
+      "file": "app/profile/addresses.tsx",
+      "line": 46,
+      "text": "await apiFetch(`/users/me/addresses/${id}`, {"
+    },
+    {
+      "file": "app/pharmacy/wishlist.tsx",
+      "line": 37,
+      "text": "const data = await apiFetch('/users/me/wishlist');"
+    },
+    {
+      "file": "app/pharmacy/wishlist.tsx",
+      "line": 47,
+      "text": "await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });"
+    },
+    {
+      "file": "app/pharmacy/waiting-for-pharmacy.tsx",
+      "line": 96,
+      "text": "const order = await apiFetch(`/orders/${orderId}`);"
+    },
+    {
+      "file": "app/pharmacy/waiting-for-pharmacy.tsx",
+      "line": 132,
+      "text": "if (orderId) await apiFetch(`/orders/${orderId}/cancel`, { method: \"POST\" });"
+    },
+    {
+      "file": "app/pharmacy/scan-prescription.tsx",
+      "line": 80,
+      "text": "const response = await apiFetch(\"/ai/prescription-ocr\", {"
+    },
+    {
+      "file": "app/pharmacy/scan-prescription.tsx",
+      "line": 88,
+      "text": "const savedPrescription = await apiFetch('/prescriptions/upload', {"
+    },
+    {
+      "file": "app/pharmacy/rx-order.tsx",
+      "line": 23,
+      "text": "apiFetch('/cart/prescription')"
+    },
+    {
+      "file": "app/pharmacy/reorder.tsx",
+      "line": 26,
+      "text": "const order = await apiFetch(`/orders/${orderId}`);"
+    },
+    {
+      "file": "app/pharmacy/reorder.tsx",
+      "line": 58,
+      "text": "created = await apiFetch(`/orders/${orderId}/reorder`, { method: 'POST' });"
+    },
+    {
+      "file": "app/pharmacy/reorder.tsx",
+      "line": 60,
+      "text": "created = await apiFetch(`/orders/${orderId}/reorder-partial`, {"
+    },
+    {
+      "file": "app/pharmacy/product-detail.tsx",
+      "line": 123,
+      "text": "const data = await apiFetch(`/medicines/${id}/details?lang=${currentDbLang()}`);"
+    },
+    {
+      "file": "app/pharmacy/product-detail.tsx",
+      "line": 162,
+      "text": "await apiFetch(`/medicines/${id}/suggest-change`, {"
+    },
+    {
+      "file": "app/pharmacy/payment.tsx",
+      "line": 41,
+      "text": "const data = await apiFetch(`/orders/${orderId}`);"
+    },
+    {
+      "file": "app/pharmacy/order-tracking.tsx",
+      "line": 71,
+      "text": "const data = await apiFetch(`/orders/${orderIdStr}/tracking`);"
+    },
+    {
+      "file": "app/pharmacy/order-tracking.tsx",
+      "line": 82,
+      "text": "fetch();"
+    },
+    {
+      "file": "app/pharmacy/order-history.tsx",
+      "line": 52,
+      "text": "const res = await apiFetch(\"/orders/mine\");"
+    },
+    {
+      "file": "app/pharmacy/order-confirm.tsx",
+      "line": 38,
+      "text": "const data = await apiFetch(`/orders/${orderId}`);"
+    },
+    {
+      "file": "app/pharmacy/order-confirm.tsx",
+      "line": 54,
+      "text": "await apiFetch(`/orders/${orderId}/approve-basket`, { method: 'POST' });"
+    },
+    {
+      "file": "app/pharmacy/order-confirm.tsx",
+      "line": 65,
+      "text": "await apiFetch(`/orders/${orderId}/reject-basket`, { method: 'POST', body: JSON.stringify({ reason: 'patient-rejected-price' }) });"
+    },
+    {
+      "file": "app/pharmacy/medicine-compare.tsx",
+      "line": 37,
+      "text": "const data = await apiFetch('/medicines/compare', 'POST', { ids });"
+    },
+    {
+      "file": "app/pharmacy/filters.tsx",
+      "line": 64,
+      "text": "const data = await apiFetch('/medicines/filters');"
+    },
+    {
+      "file": "app/pharmacy/drug-not-found.tsx",
+      "line": 32,
+      "text": "const res: any = await apiFetch(`/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}`);"
+    },
+    {
+      "file": "app/pharmacy/custom-item.tsx",
+      "line": 55,
+      "text": "const res = await apiFetch('/media/upload', { method: 'POST', body: form });"
+    },
+    {
+      "file": "app/pharmacy/custom-item.tsx",
+      "line": 79,
+      "text": "await apiFetch('/support/requests', {"
+    },
+    {
+      "file": "app/pharmacy/checkout.tsx",
+      "line": 50,
+      "text": "const profile = await apiFetch('/users/me/profile');"
+    },
+    {
+      "file": "app/pharmacy/checkout.tsx",
+      "line": 67,
+      "text": "apiFetch('/wallet/balance').then((r: any) => setWalletBalance(Number(r?.balance || 0))).catch(() => {});"
+    },
+    {
+      "file": "app/pharmacy/checkout.tsx",
+      "line": 75,
+      "text": "apiFetch('/finance-engine/loyalty/redeem-quote', {"
+    },
+    {
+      "file": "app/pharmacy/checkout.tsx",
+      "line": 86,
+      "text": "const res = await apiFetch('/finance-engine/coupons/validate', {"
+    },
+    {
+      "file": "app/pharmacy/checkout.tsx",
+      "line": 162,
+      "text": "const res = await apiFetch('/orders/create', { method: 'POST', body: JSON.stringify(payload) });"
+    },
+    {
+      "file": "app/pharmacy/chat-with-pharmacist.tsx",
+      "line": 53,
+      "text": "apiFetch(`/orders/${orderId}`)"
+    },
+    {
+      "file": "app/pharmacy/chat-with-pharmacist.tsx",
+      "line": 60,
+      "text": "const threadRes: any = await apiFetch(`/chat/threads/booking`, {"
+    },
+    {
+      "file": "app/pharmacy/chat-with-pharmacist.tsx",
+      "line": 68,
+      "text": "const data: any = await apiFetch(`/chat/threads/${tid}/messages`);"
+    },
+    {
+      "file": "app/pharmacy/chat-with-pharmacist.tsx",
+      "line": 124,
+      "text": "apiFetch(`/chat/threads/${threadId}/messages`, {"
+    },
+    {
+      "file": "app/pharmacy/chat-with-pharmacist.tsx",
+      "line": 168,
+      "text": "await apiFetch(`/chat/threads/${threadId}/messages`, {"
+    },
+    {
+      "file": "app/pharmacy/broadcast-status.tsx",
+      "line": 29,
+      "text": "const response = await apiFetch(`/orders/bids/request/${orderId}`);"
+    },
+    {
+      "file": "app/pharmacy/broadcast-status.tsx",
+      "line": 46,
+      "text": "await apiFetch(`/orders/bids/${bidId}/accept`, { method: 'POST' });"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 80,
+      "text": "safe(apiFetch('/care/appointments/mine')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 81,
+      "text": "safe(apiFetch('/orders/mine')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 82,
+      "text": "safe(apiFetch('/labs/bookings/mine')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 83,
+      "text": "safe(apiFetch('/radiology/bookings/mine')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 84,
+      "text": "safe(apiFetch('/home-care/bookings/my')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 85,
+      "text": "safe(apiFetch('/insurance/claims')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 86,
+      "text": "safe(apiFetch('/pharmacy/returns')),"
+    },
+    {
+      "file": "app/orders/index.tsx",
+      "line": 87,
+      "text": "safe(apiFetch('/emergency/my/active')),"
+    },
+    {
+      "file": "app/offers/index.tsx",
+      "line": 23,
+      "text": "apiFetch('/home/offers')"
+    },
+    {
+      "file": "app/nutrition/log-meal.tsx",
+      "line": 31,
+      "text": "await apiFetch('/nutrition/meals', { method: 'POST', body: JSON.stringify({ name: name.trim(), calories: numericCalories, meal_type: mealType, ...(optional[0] !== undefined ? { protein_g: optional[0] } : {}), ...(optional[1] !== undefined ?"
+    },
+    {
+      "file": "app/nutrition/hub.tsx",
+      "line": 18,
+      "text": "const load = React.useCallback(async () => { setLoading(true); setError(null); try { const [p, s]: any[] = await Promise.all([apiFetch('/nutrition/profile'), apiFetch('/nutrition/daily-summary')]); setProfile(p?.data || p); setSummary(s?.da"
+    },
+    {
+      "file": "app/nutrition/daily-tracker.tsx",
+      "line": 25,
+      "text": "const [summaryResponse, mealsResponse]: any[] = await Promise.all([apiFetch(`/nutrition/daily-summary?date=${date}`), apiFetch(`/nutrition/meals?date=${date}`)]);"
+    },
+    {
+      "file": "app/nutrition/daily-tracker.tsx",
+      "line": 31,
+      "text": "const addWater = async (amount: number) => { setWaterBusy(amount); setError(null); try { await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml: amount }) }); await load(); } catch { setError(t('saveError')); "
+    },
+    {
+      "file": "app/nutrition/body-target.tsx",
+      "line": 18,
+      "text": "React.useEffect(() => { apiFetch('/nutrition/profile').then((response: any) => { const p: Profile = response?.data || response || {}; setGoal(p.goal || 'healthy_lifestyle'); setActivity(p.activity_level || 'moderate'); setHeight(p.height_cm"
+    },
+    {
+      "file": "app/nutrition/body-target.tsx",
+      "line": 21,
+      "text": "const save = async () => { if (![height, weight, targetWeight, calorieTarget, waterTarget].every(finite)) { setError(t('formRequired')); return; } setSaving(true); setError(null); try { const response: any = await apiFetch('/nutrition/profi"
+    },
+    {
+      "file": "app/nursing/service-info.tsx",
+      "line": 27,
+      "text": "apiFetch(`/home-care/services/${serviceId}`)"
+    },
+    {
+      "file": "app/nursing/service-details.tsx",
+      "line": 35,
+      "text": "const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || \"any\"}&availability=${availability || \"any\"}&nationality=${nationality || \"any\"}&search=${search || \"\"}`);"
+    },
+    {
+      "file": "app/nursing/nurse-profile.tsx",
+      "line": 88,
+      "text": "const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);"
+    },
+    {
+      "file": "app/nursing/nurse-profile.tsx",
+      "line": 93,
+      "text": "const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);"
+    },
+    {
+      "file": "app/nursing/nurse-profile.tsx",
+      "line": 133,
+      "text": "const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });"
+    },
+    {
+      "file": "app/nursing/live-tracking.tsx",
+      "line": 85,
+      "text": "const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);"
+    },
+    {
+      "file": "app/notifications/index.tsx",
+      "line": 107,
+      "text": "try { await apiFetch('/notifications/read-all', { method: 'POST' }); }"
+    },
+    {
+      "file": "app/notifications/index.tsx",
+      "line": 114,
+      "text": "apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});"
+    },
+    {
+      "file": "app/mental-health/mood-journal.tsx",
+      "line": 47,
+      "text": "const result: unknown = await apiFetch('/mental-health/mood?days=30');"
+    },
+    {
+      "file": "app/mental-health/mood-journal.tsx",
+      "line": 68,
+      "text": "await apiFetch('/mental-health/mood', { method: 'POST', body: JSON.stringify(payload) });"
+    },
+    {
+      "file": "app/mental-health/crisis-support.tsx",
+      "line": 30,
+      "text": "const result: any = await apiFetch('/mental-health/crisis-contacts');"
+    },
+    {
+      "file": "app/mental-health/crisis-support.tsx",
+      "line": 46,
+      "text": "await apiFetch('/mental-health/crisis-contacts', { method: 'POST', body: JSON.stringify({ contact_name: name.trim(), phone: phone.trim(), ...(relationship.trim() ? { relationship: relationship.trim() } : {}) }) });"
+    },
+    {
+      "file": "app/mental-health/crisis-support.tsx",
+      "line": 53,
+      "text": "try { await apiFetch(`/mental-health/crisis-contacts/${id}`, { method: 'DELETE' }); await loadContacts(); } catch { setDeleteError(true); }"
+    },
+    {
+      "file": "app/maternity/maternity-setup.tsx",
+      "line": 15,
+      "text": "const save = async () => { if (!lmp.trim() || (mode === 'cycle' && !cycleLength.trim())) { setError(t('profileRequired')); return; } setSaving(true); setError(null); try { await apiFetch('/maternity/profile', { method: 'POST', body: JSON.st"
+    },
+    {
+      "file": "app/maternity/hub.tsx",
+      "line": 17,
+      "text": "const load = React.useCallback(async () => { setLoading(true); setError(null); try { const response: any = await apiFetch('/maternity/profile'); setProfile(response?.data || response); } catch { setError(t('error')); setProfile(null); } fin"
+    },
+    {
+      "file": "app/map/index.tsx",
+      "line": 173,
+      "text": "const res = await apiFetch(`/providers/map?${query.toString()}`);"
+    },
+    {
+      "file": "app/map/index.tsx",
+      "line": 216,
+      "text": "const ins = await apiFetch('/user/insurance');"
+    },
+    {
+      "file": "app/loyalty/rewards.tsx",
+      "line": 30,
+      "text": "const acc = await apiFetch('/loyalty/account');"
+    },
+    {
+      "file": "app/loyalty/rewards.tsx",
+      "line": 33,
+      "text": "const catalog = await apiFetch('/loyalty/rewards');"
+    },
+    {
+      "file": "app/loyalty/rewards.tsx",
+      "line": 59,
+      "text": "const res = await apiFetch(`/loyalty/rewards/${reward.id}/claim`, { method: 'POST' });"
+    },
+    {
+      "file": "app/loyalty/referrals.tsx",
+      "line": 53,
+      "text": "const res = await apiFetch(\"/referrals/my\");"
+    },
+    {
+      "file": "app/loyalty/referrals.tsx",
+      "line": 86,
+      "text": "await apiFetch(\"/referrals/apply\", {"
+    },
+    {
+      "file": "app/loyalty/leaderboard.tsx",
+      "line": 36,
+      "text": "apiFetch('/loyalty/leaderboard?limit=50')"
+    },
+    {
+      "file": "app/loyalty/hub.tsx",
+      "line": 61,
+      "text": "const acc = await apiFetch('/loyalty/account');"
+    },
+    {
+      "file": "app/loyalty/hub.tsx",
+      "line": 65,
+      "text": "const txRes = await apiFetch('/loyalty/transactions?page=1');"
+    },
+    {
+      "file": "app/loyalty/hub.tsx",
+      "line": 68,
+      "text": "const configRes = await apiFetch('/loyalty/config').catch(() => null);"
+    },
+    {
+      "file": "app/loyalty/hub.tsx",
+      "line": 74,
+      "text": "const rewardsRes = await apiFetch('/loyalty/rewards').catch(() => null);"
+    },
+    {
+      "file": "app/loyalty/hub.tsx",
+      "line": 294,
+      "text": "await apiFetch(`/loyalty/rewards/${rid}/claim`, { method: 'POST' });"
+    },
+    {
+      "file": "app/loyalty/challenges.tsx",
+      "line": 30,
+      "text": "const res = await apiFetch('/loyalty/challenges');"
+    },
+    {
+      "file": "app/loyalty/challenges.tsx",
+      "line": 52,
+      "text": "await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });"
+    },
+    {
+      "file": "app/insurance/submit-claim.tsx",
+      "line": 27,
+      "text": "await apiFetch(\"/insurance/claims/submit\", {"
+    },
+    {
+      "file": "app/insurance/refund-status.tsx",
+      "line": 33,
+      "text": "apiFetch('/refunds/my')"
+    },
+    {
+      "file": "app/insurance/policy-detail.tsx",
+      "line": 24,
+      "text": "apiFetch('/users/me/profile')"
+    },
+    {
+      "file": "app/insurance/payment-split.tsx",
+      "line": 27,
+      "text": "setRequest(parseInsuranceCopayRequest(await apiFetch(`/insurance/requests/${requestId}`)));"
+    },
+    {
+      "file": "app/insurance/payment-split.tsx",
+      "line": 41,
+      "text": "await apiFetch(`/insurance/requests/${request.id}/pay-copay`, { method: 'POST', body: JSON.stringify({}) });"
+    },
+    {
+      "file": "app/insurance/network-providers.tsx",
+      "line": 52,
+      "text": "const profile = await apiFetch(\"/users/me/profile\").catch(() => null);"
+    },
+    {
+      "file": "app/insurance/network-providers.tsx",
+      "line": 63,
+      "text": "const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);"
+    },
+    {
+      "file": "app/insurance/hub.tsx",
+      "line": 95,
+      "text": "const ins = await apiFetch('/users/me/insurance');"
+    },
+    {
+      "file": "app/insurance/hub.tsx",
+      "line": 122,
+      "text": "const res = await apiFetch('/insurance/claims');"
+    },
+    {
+      "file": "app/insurance/hub.tsx",
+      "line": 161,
+      "text": "const saved = await apiFetch('/insurance/save-policy', {"
+    },
+    {
+      "file": "app/insurance/coverage-check.tsx",
+      "line": 34,
+      "text": "const data = await apiFetch("
+    },
+    {
+      "file": "app/insurance/claim-tracking.tsx",
+      "line": 30,
+      "text": "const res = await apiFetch('/insurance/claims/my');"
+    },
+    {
+      "file": "app/insurance/benefits-summary.tsx",
+      "line": 21,
+      "text": "apiFetch('/insurance/benefits-summary')"
+    },
+    {
+      "file": "app/insurance/approval-pending.tsx",
+      "line": 32,
+      "text": "req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);"
+    },
+    {
+      "file": "app/insurance/approval-pending.tsx",
+      "line": 34,
+      "text": "const list = await apiFetch('/insurance/requests/my').catch(() => []);"
+    },
+    {
+      "file": "app/insurance/approval-pending.tsx",
+      "line": 48,
+      "text": "apiFetch('/users/me/profile').then((p: any) => {"
+    },
+    {
+      "file": "app/insurance/add-policy.tsx",
+      "line": 29,
+      "text": "apiFetch('/insurance/companies')"
+    },
+    {
+      "file": "app/insurance/add-policy.tsx",
+      "line": 44,
+      "text": "const res = await apiFetch('/insurance/ocr-extract', {"
+    },
+    {
+      "file": "app/insurance/add-policy.tsx",
+      "line": 78,
+      "text": "await apiFetch('/insurance/save-policy', {"
+    },
+    {
+      "file": "app/health/wearables.tsx",
+      "line": 45,
+      "text": "apiFetch('/wearables/devices').catch(() => null),"
+    },
+    {
+      "file": "app/health/wearables.tsx",
+      "line": 46,
+      "text": "apiFetch('/wearables/data').catch(() => null),"
+    },
+    {
+      "file": "app/health/wearables.tsx",
+      "line": 62,
+      "text": "await apiFetch('/wearables/devices', {"
+    },
+    {
+      "file": "app/health/vitals.tsx",
+      "line": 27,
+      "text": "const response: any = await apiFetch('/health/vitals/summary');"
+    },
+    {
+      "file": "app/health/vitals-log.tsx",
+      "line": 35,
+      "text": "try { const response: any = await apiFetch(`/health/vitals?type=${type}&limit=30`); const rows = Array.isArray(response) ? response : response?.data; setReadings(Array.isArray(rows) ? rows : []); }"
+    },
+    {
+      "file": "app/health/vitals-log.tsx",
+      "line": 48,
+      "text": "await apiFetch('/health/vitals', { method: 'POST', body: JSON.stringify(payload) });"
+    },
+    {
+      "file": "app/health/trends.tsx",
+      "line": 141,
+      "text": "const res = await apiFetch('/health/trends');"
+    },
+    {
+      "file": "app/health/sleep-tracker.tsx",
+      "line": 36,
+      "text": "const res = await apiFetch('/health/sleep?limit=30');"
+    },
+    {
+      "file": "app/health/sleep-tracker.tsx",
+      "line": 71,
+      "text": "await apiFetch('/health/sleep', {"
+    },
+    {
+      "file": "app/health/sleep-score.tsx",
+      "line": 34,
+      "text": "const res = await apiFetch('/health/sleep?limit=30');"
+    },
+    {
+      "file": "app/health/reports.tsx",
+      "line": 19,
+      "text": "try { const response: any = await apiFetch('/health/reports'); const rows = Array.isArray(response) ? response : response?.data; setReports(Array.isArray(rows) ? rows : []); }"
+    },
+    {
+      "file": "app/health/refills.tsx",
+      "line": 27,
+      "text": "apiFetch('/health/reminders?active=1')"
+    },
+    {
+      "file": "app/health/refills.tsx",
+      "line": 68,
+      "text": "const res = await apiFetch(`/health/reminders/${id}/refill`, { method: 'POST' });"
+    },
+    {
+      "file": "app/health/prescriptions.tsx",
+      "line": 26,
+      "text": "const res = await apiFetch('/health/prescriptions');"
+    },
+    {
+      "file": "app/health/medications.tsx",
+      "line": 23,
+      "text": "try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }"
+    },
+    {
+      "file": "app/health/medication-reminder-list.tsx",
+      "line": 35,
+      "text": "try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }"
+    },
+    {
+      "file": "app/health/medication-reminder-list.tsx",
+      "line": 43,
+      "text": "try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date().toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(remind"
+    },
+    {
+      "file": "app/health/medication-reminder-list.tsx",
+      "line": 49,
+      "text": "try { await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) }); await cancelMedicationNotifications(id); await load(); }"
+    },
+    {
+      "file": "app/health/medication-reminder-add.tsx",
+      "line": 32,
+      "text": "const response: any = await apiFetch('/health/reminders');"
+    },
+    {
+      "file": "app/health/medication-reminder-add.tsx",
+      "line": 52,
+      "text": "const response: any = await apiFetch(editing ? `/health/reminders/${id}` : '/health/reminders', { method: editing ? 'PATCH' : 'POST', body: JSON.stringify(payload) });"
+    },
+    {
+      "file": "app/health/health-id.tsx",
+      "line": 37,
+      "text": "apiFetch('/users/me/profile').catch(() => null),"
+    },
+    {
+      "file": "app/health/health-id.tsx",
+      "line": 38,
+      "text": "apiFetch('/health/emergency-contacts').catch(() => []),"
+    },
+    {
+      "file": "app/health/health-id.tsx",
+      "line": 39,
+      "text": "apiFetch('/health/chronic-meds').catch(() => []),"
+    },
+    {
+      "file": "app/health/family-hub.tsx",
+      "line": 80,
+      "text": "const grp = await apiFetch(\"/family/my-group\");"
+    },
+    {
+      "file": "app/health/family-hub.tsx",
+      "line": 82,
+      "text": "const mems = await apiFetch(\"/family/members\");"
+    },
+    {
+      "file": "app/health/family-hub.tsx",
+      "line": 99,
+      "text": "await apiFetch(\"/family/create\", {"
+    },
+    {
+      "file": "app/health/emergency-contacts.tsx",
+      "line": 38,
+      "text": "const res = await apiFetch('/health/emergency-contacts');"
+    },
+    {
+      "file": "app/health/emergency-contacts.tsx",
+      "line": 56,
+      "text": "const doc = await apiFetch('/health/emergency-contacts', {"
+    },
+    {
+      "file": "app/health/emergency-contacts.tsx",
+      "line": 83,
+      "text": "await apiFetch(`/health/emergency-contacts/${c.id}`, { method: 'DELETE' });"
+    },
+    {
+      "file": "app/health/edit-profile.tsx",
+      "line": 25,
+      "text": "const [medicalResponse, userResponse]: any[] = await Promise.all([apiFetch('/medical-profile'), apiFetch('/users/me/profile')]);"
+    },
+    {
+      "file": "app/health/edit-profile.tsx",
+      "line": 40,
+      "text": "try { await apiFetch('/medical-profile', { method: 'PATCH', body: JSON.stringify({ ...draft, height_cm, weight_kg }) }); router.back(); }"
+    },
+    {
+      "file": "app/health/edit-profile.tsx",
+      "line": 57,
+      "text": "const upload: any = await apiFetch('/media/upload', { method: 'POST', body: formData });"
+    },
+    {
+      "file": "app/health/edit-profile.tsx",
+      "line": 60,
+      "text": "await apiFetch('/users/me/profile', { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) });"
+    },
+    {
+      "file": "app/health/conditions-allergies.tsx",
+      "line": 25,
+      "text": "try { const response: any = await apiFetch('/medical-profile'); const doc = response?.data || response || {}; setProfile({ chronic_diseases: Array.isArray(doc.chronic_diseases) ? doc.chronic_diseases : [], allergies: Array.isArray(doc.aller"
+    },
+    {
+      "file": "app/health/conditions-allergies.tsx",
+      "line": 34,
+      "text": "try { await apiFetch(`/medical-profile/${list}`, { method: 'POST', body: JSON.stringify({ name }) }); list === 'allergies' ? setAllergy('') : setCondition(''); await load(); }"
+    },
+    {
+      "file": "app/health/conditions-allergies.tsx",
+      "line": 40,
+      "text": "try { await apiFetch(`/medical-profile/${list}/${id}`, { method: 'DELETE' }); await load(); }"
+    },
+    {
+      "file": "app/health/chronic-medications.tsx",
+      "line": 25,
+      "text": "const response: any = await apiFetch('/health/chronic-meds');"
+    },
+    {
+      "file": "app/health/chronic-medications.tsx",
+      "line": 41,
+      "text": "const response: any = await apiFetch(`/health/reminders/${id}${suffix}`, { method: 'POST', body: kind === 'snooze' ? JSON.stringify({ days: 3 }) : undefined });"
+    },
+    {
+      "file": "app/health/chronic-disease.tsx",
+      "line": 26,
+      "text": "apiFetch('/health/chronic-diseases').catch(() => null),"
+    },
+    {
+      "file": "app/health/chronic-disease.tsx",
+      "line": 27,
+      "text": "apiFetch('/health/vitals').catch(() => null),"
+    },
+    {
+      "file": "app/family/permissions.tsx",
+      "line": 119,
+      "text": "const group = await apiFetch(\"/family/my-group\");"
+    },
+    {
+      "file": "app/family/permissions.tsx",
+      "line": 147,
+      "text": "await apiFetch(`/family/member/${memberId}/permissions`, {"
+    },
+    {
+      "file": "app/family/permissions.tsx",
+      "line": 153,
+      "text": "await apiFetch(\"/family/permissions/request\", {"
+    },
+    {
+      "file": "app/family/permissions.tsx",
+      "line": 186,
+      "text": "await apiFetch(`/family/remove-member/${memberId}`, {"
+    },
+    {
+      "file": "app/family/permission-request.tsx",
+      "line": 24,
+      "text": "apiFetch('/family/permissions/pending')"
+    },
+    {
+      "file": "app/family/permission-request.tsx",
+      "line": 52,
+      "text": "await apiFetch(`/family/permissions/respond/${requestInfo._id || requestInfo.id}`, {"
+    },
+    {
+      "file": "app/family/member-health.tsx",
+      "line": 49,
+      "text": "const res = await apiFetch(`/family/member-records/${memberId}`);"
+    },
+    {
+      "file": "app/family/join.tsx",
+      "line": 44,
+      "text": "const res = await apiFetch(\"/family/join\", {"
+    },
+    {
+      "file": "app/family/invite.tsx",
+      "line": 31,
+      "text": "const res = await apiFetch('/family/invite', { method: 'POST' });"
+    },
+    {
+      "file": "app/family/hub.tsx",
+      "line": 77,
+      "text": "const mems = await apiFetch(\"/family/members\");"
+    },
+    {
+      "file": "app/family/chat.tsx",
+      "line": 46,
+      "text": "const res = await apiFetch('/family/chat/messages');"
+    },
+    {
+      "file": "app/family/chat.tsx",
+      "line": 62,
+      "text": "const profile = await apiFetch('/users/me/profile');"
+    },
+    {
+      "file": "app/family/chat.tsx",
+      "line": 67,
+      "text": "const mems = await apiFetch('/family/members');"
+    },
+    {
+      "file": "app/family/chat.tsx",
+      "line": 86,
+      "text": "const res = await apiFetch('/family/chat/messages', {"
+    },
+    {
+      "file": "app/family/calendar.tsx",
+      "line": 61,
+      "text": "const [calendar, groupMembers] = await Promise.all([apiFetch(\"/family/calendar\"), apiFetch(\"/family/members\")]);"
+    },
+    {
+      "file": "app/family/calendar.tsx",
+      "line": 82,
+      "text": "await apiFetch(\"/family/calendar/event\", { method: \"POST\", body: JSON.stringify(payload) });"
+    },
+    {
+      "file": "app/family/calendar.tsx",
+      "line": 105,
+      "text": "await apiFetch(`/family/calendar/event/${id}`, {"
+    },
+    {
+      "file": "app/emergency/tracking.tsx",
+      "line": 33,
+      "text": "const res = await apiFetch('/emergency/tracking');"
+    },
+    {
+      "file": "app/emergency/sos-active.tsx",
+      "line": 42,
+      "text": "const res = await apiFetch('/emergency/my/active');"
+    },
+    {
+      "file": "app/emergency/sos-active.tsx",
+      "line": 79,
+      "text": "await apiFetch(`/emergency/${sosId}/cancel`, { method: 'POST' });"
+    },
+    {
+      "file": "app/drug-scanner/index.tsx",
+      "line": 35,
+      "text": "apiFetch('/health/medications')"
+    },
+    {
+      "file": "app/drug-scanner/index.tsx",
+      "line": 47,
+      "text": "const res = await apiFetch('/ai/drug-interactions', {"
+    },
+    {
+      "file": "app/diagnostics/test-detail.tsx",
+      "line": 39,
+      "text": "apiFetch(endpoint)"
+    },
+    {
+      "file": "app/diagnostics/search.tsx",
+      "line": 29,
+      "text": "const res = await apiFetch(\"/labs/services\");"
+    },
+    {
+      "file": "app/diagnostics/packages.tsx",
+      "line": 28,
+      "text": "apiFetch('/labs/packages'),"
+    },
+    {
+      "file": "app/diagnostics/packages.tsx",
+      "line": 29,
+      "text": "apiFetch('/labs/categories')"
+    },
+    {
+      "file": "app/diagnostics/package-detail.tsx",
+      "line": 27,
+      "text": "apiFetch(`/labs/packages/${id}`)"
+    },
+    {
+      "file": "app/diagnostics/orders.tsx",
+      "line": 31,
+      "text": "apiFetch(\"/labs/bookings/mine\").catch(() => null),"
+    },
+    {
+      "file": "app/diagnostics/orders.tsx",
+      "line": 32,
+      "text": "apiFetch(\"/radiology/bookings/mine\").catch(() => null),"
+    },
+    {
+      "file": "app/diagnostics/lab-comparison.tsx",
+      "line": 34,
+      "text": "apiFetch(`/labs/services/${id}`),"
+    },
+    {
+      "file": "app/diagnostics/lab-comparison.tsx",
+      "line": 35,
+      "text": "apiFetch(`/labs/compatible-providers?testIds=${id}`)"
+    },
+    {
+      "file": "app/diagnostics/insurance-upload.tsx",
+      "line": 47,
+      "text": "const res = await apiFetch('/providers?type=lab');"
+    },
+    {
+      "file": "app/diagnostics/insurance-upload.tsx",
+      "line": 55,
+      "text": "const res = await apiFetch('/insurance/companies');"
+    },
+    {
+      "file": "app/diagnostics/insurance-upload.tsx",
+      "line": 73,
+      "text": "const res = await apiFetch(`/insurance/companies/${selCompany}/networks`);"
+    },
+    {
+      "file": "app/diagnostics/insurance-upload.tsx",
+      "line": 124,
+      "text": "const res = await apiFetch('/ai/ocr-translate', {"
+    },
+    {
+      "file": "app/diagnostics/insurance-upload.tsx",
+      "line": 358,
+      "text": "const res = await apiFetch('/orders/create', {"
+    },
+    {
+      "file": "app/diagnostics/insurance-approval.tsx",
+      "line": 37,
+      "text": "const res = await apiFetch(`/orders/${orderId}`);"
+    },
+    {
+      "file": "app/diagnostics/insurance-approval.tsx",
+      "line": 78,
+      "text": "await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {"
+    },
+    {
+      "file": "app/diagnostics/cart.tsx",
+      "line": 30,
+      "text": "apiFetch(`/labs/compatible-providers?testIds=${ids}`)"
+    },
+    {
+      "file": "app/delivery/address-select.tsx",
+      "line": 36,
+      "text": "const data = await apiFetch('/users/me/addresses');"
+    },
+    {
+      "file": "app/consultations/waiting-room.tsx",
+      "line": 31,
+      "text": "apiFetch(`/care/appointments/${appointmentId}`)"
+    },
+    {
+      "file": "app/consultations/virtual-waiting-room.tsx",
+      "line": 47,
+      "text": "apiFetch(`/care/appointments/${appointmentId}`)"
+    },
+    {
+      "file": "app/consultations/video-call.tsx",
+      "line": 59,
+      "text": "const initRes = await apiFetch(`/calls/initiate`, {"
+    },
+    {
+      "file": "app/consultations/video-call.tsx",
+      "line": 66,
+      "text": "const joinRes = await apiFetch(`/calls/${sessionId}/join`, { method: 'POST' });"
+    },
+    {
+      "file": "app/consultations/specialty-select.tsx",
+      "line": 28,
+      "text": "apiFetch('/care/specialties')"
+    },
+    {
+      "file": "app/consultations/share-report.tsx",
+      "line": 53,
+      "text": "const res = await apiFetch(\"/medical-reports/mine?limit=100\");"
+    },
+    {
+      "file": "app/consultations/prescription-from-doctor.tsx",
+      "line": 39,
+      "text": "// In production: apiFetch('/prescriptions/active')"
+    },
+    {
+      "file": "app/consultations/post-call-rating.tsx",
+      "line": 41,
+      "text": "await apiFetch('/patient-ux/review', {"
+    },
+    {
+      "file": "app/consultations/incoming-call.tsx",
+      "line": 64,
+      "text": "await apiFetch(`/calls/${sessionId}/reject`, { method: \"POST\" });"
+    },
+    {
+      "file": "app/consultations/home-visit-tracking.tsx",
+      "line": 23,
+      "text": "apiFetch(`/care/appointments/${appointmentId}`)"
+    },
+    {
+      "file": "app/consultations/follow-up.tsx",
+      "line": 41,
+      "text": "const data = await apiFetch(`/care/appointments/${encodeURIComponent(appointmentId)}`);"
+    },
+    {
+      "file": "app/consultations/follow-up.tsx",
+      "line": 49,
+      "text": "apiFetch(`/care/doctors/${encodeURIComponent(a.doctor_id)}`)"
+    },
+    {
+      "file": "app/consultations/doctor-search.tsx",
+      "line": 44,
+      "text": "const res = await apiFetch(`/care/doctors?${qs.toString()}`);"
+    },
+    {
+      "file": "app/consultations/clinic-location.tsx",
+      "line": 24,
+      "text": "apiFetch(`/care/appointments/${appointmentId}`)"
+    },
+    {
+      "file": "app/consultations/chat-with-doctor.tsx",
+      "line": 41,
+      "text": "apiFetch(`/care/doctors/${doctorId}`)"
+    },
+    {
+      "file": "app/consultations/chat-with-doctor.tsx",
+      "line": 51,
+      "text": "return apiFetch(`/chat/threads/direct`, { method: 'POST', body: JSON.stringify({ other_user_id: doctorUserId }) })"
+    },
+    {
+      "file": "app/consultations/chat-with-doctor.tsx",
+      "line": 58,
+      "text": "return apiFetch(`/chat/threads/${tid}/messages`).then((mres: any) => ({ mres, doctorUserId }));"
+    },
+    {
+      "file": "app/consultations/chat-with-doctor.tsx",
+      "line": 125,
+      "text": "await apiFetch(`/chat/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ body: text, type: 'text', client_message_id: tempId }) });"
+    },
+    {
+      "file": "app/consultations/cancel-reschedule.tsx",
+      "line": 105,
+      "text": "await apiFetch(`/care/appointments/${appointmentId}/cancel`, {"
+    },
+    {
+      "file": "app/consultations/cancel-reschedule.tsx",
+      "line": 118,
+      "text": "await apiFetch(`/care/appointments/${appointmentId}/reschedule`, {"
+    },
+    {
+      "file": "app/consultations/call-history.tsx",
+      "line": 48,
+      "text": "const data = await apiFetch(`/calls/history?page=${pageNum}&limit=20`);"
+    },
+    {
+      "file": "app/consultations/booking-pending.tsx",
+      "line": 108,
+      "text": "await apiFetch(`/care/appointments/${appointmentId}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason: 'patient_cancelled_while_waiting' }) });"
+    },
+    {
+      "file": "app/consultations/booking-confirm.tsx",
+      "line": 46,
+      "text": "const list = await apiFetch('/insurance/companies');"
+    },
+    {
+      "file": "app/consultations/booking-confirm.tsx",
+      "line": 61,
+      "text": "const nets = await apiFetch(`/insurance/companies/${insCompany}/networks`);"
+    },
+    {
+      "file": "app/consultations/booking-confirm.tsx",
+      "line": 122,
+      "text": "const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);"
+    },
+    {
+      "file": "app/consultations/booking-confirm.tsx",
+      "line": 123,
+      "text": "const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {"
+    },
+    {
+      "file": "app/community/post-detail.tsx",
+      "line": 53,
+      "text": "const res = await apiFetch(`/community/posts/${postId}`);"
+    },
+    {
+      "file": "app/community/post-detail.tsx",
+      "line": 68,
+      "text": "const res = await apiFetch(`/community/posts/${postId}/vote`, {"
+    },
+    {
+      "file": "app/community/post-detail.tsx",
+      "line": 87,
+      "text": "const res = await apiFetch(`/community/posts/${postId}/comment`, {"
+    },
+    {
+      "file": "app/community/hub.tsx",
+      "line": 59,
+      "text": "const res = await apiFetch(`/community/posts?page=1&limit=20${qs}`);"
+    },
+    {
+      "file": "app/community/hub.tsx",
+      "line": 74,
+      "text": "await apiFetch(\"/community/posts\", {"
+    },
+    {
+      "file": "app/articles/index.tsx",
+      "line": 48,
+      "text": "const res = await apiFetch(`/articles?${params.toString()}`);"
+    },
+    {
+      "file": "app/articles/index.tsx",
+      "line": 58,
+      "text": "apiFetch(\"/articles/categories\")"
+    },
+    {
+      "file": "app/articles/bookmarks.tsx",
+      "line": 33,
+      "text": "const res = await apiFetch(\"/articles/bookmarks/mine\");"
+    },
+    {
+      "file": "app/articles/[slug].tsx",
+      "line": 38,
+      "text": "const res = await apiFetch(`/articles/${encodeURIComponent(String(slug))}`);"
+    },
+    {
+      "file": "app/articles/[slug].tsx",
+      "line": 42,
+      "text": "const rel = await apiFetch(`/articles?category=${encodeURIComponent(res.category)}&limit=4`).catch(() => []);"
+    },
+    {
+      "file": "app/articles/[slug].tsx",
+      "line": 46,
+      "text": "const st = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/status`).catch(() => null);"
+    },
+    {
+      "file": "app/articles/[slug].tsx",
+      "line": 59,
+      "text": "const res = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/toggle`, { method: \"POST\" });"
+    },
+    {
+      "file": "app/ai/triage.tsx",
+      "line": 41,
+      "text": "const data = await apiFetch('/ai/triage', { method: 'POST', body: JSON.stringify({ symptoms: symptoms.trim(), red_flags: flags.length ? flags : ['none'] }) });"
+    },
+    {
+      "file": "app/ai/skin-analysis.tsx",
+      "line": 37,
+      "text": "const data = await apiFetch('/ai/skin-analysis', { method: 'POST', body: JSON.stringify({ acknowledge_limitations: true, areas, observations: observations.length ? observations : ['none'], ...(note.trim() ? { note: note.trim() } : {}) }) })"
+    },
+    {
+      "file": "app/ai/monthly-report.tsx",
+      "line": 39,
+      "text": "apiFetch('/care/appointments').then(parseReportCollection),"
+    },
+    {
+      "file": "app/ai/monthly-report.tsx",
+      "line": 40,
+      "text": "apiFetch('/health/vitals/summary').then(parseReportCollection),"
+    },
+    {
+      "file": "app/ai/monthly-report.tsx",
+      "line": 41,
+      "text": "apiFetch('/health/chronic-meds').then(parseReportCollection),"
+    },
+    {
+      "file": "app/ai/monthly-report.tsx",
+      "line": 42,
+      "text": "apiFetch('/health/trends').then(parseReportCollection),"
+    },
+    {
+      "file": "app/(tabs)/pharmacy.tsx",
+      "line": 69,
+      "text": "const data = await apiFetch('/medicines/categories');"
+    },
+    {
+      "file": "app/(tabs)/pharmacy.tsx",
+      "line": 131,
+      "text": "const data = await apiFetch(ep);"
+    },
+    {
+      "file": "app/(tabs)/nursing.tsx",
+      "line": 45,
+      "text": "apiFetch('/home-care/services')"
+    },
+    {
+      "file": "app/(tabs)/nursing.tsx",
+      "line": 52,
+      "text": "apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch(console.error);"
+    },
+    {
+      "file": "app/(tabs)/index.tsx",
+      "line": 41,
+      "text": "apiFetch('/users/me/profile'), apiFetch('/health/reminders'), apiFetch('/nutrition/daily-summary'),"
+    },
+    {
+      "file": "app/(tabs)/index.tsx",
+      "line": 42,
+      "text": "apiFetch('/maternity/profile'), apiFetch('/mental-health/mood?days=1'), apiFetch('/health/vitals/summary'), apiFetch('/home/upcoming-appointment'),"
+    },
+    {
+      "file": "app/(tabs)/health.tsx",
+      "line": 103,
+      "text": "apiFetch(\"/health/vitals/summary\").catch(() => null),"
+    },
+    {
+      "file": "app/(tabs)/health.tsx",
+      "line": 104,
+      "text": "apiFetch(\"/health/score\").catch(() => null),"
+    },
+    {
+      "file": "app/(tabs)/health.tsx",
+      "line": 105,
+      "text": "apiFetch('/home/upcoming-appointment').catch(() => null)"
+    },
+    {
+      "file": "app/(tabs)/health.tsx",
+      "line": 113,
+      "text": "const waterRes = await apiFetch(`/nutrition/daily-summary?date=${new Date().toISOString().split(\"T\")[0]}`).catch(() => null);"
+    },
+    {
+      "file": "app/(tabs)/diagnostics.tsx",
+      "line": 59,
+      "text": "apiFetch('/labs/packages').catch(() => ({ data: [] })),"
+    },
+    {
+      "file": "app/(tabs)/diagnostics.tsx",
+      "line": 60,
+      "text": "apiFetch('/labs/services').catch(() => ({ data: [] })),"
+    },
+    {
+      "file": "app/(tabs)/diagnostics.tsx",
+      "line": 61,
+      "text": "apiFetch('/radiology/services').catch(() => ({ data: [] })),"
+    },
+    {
+      "file": "app/(tabs)/diagnostics.tsx",
+      "line": 62,
+      "text": "apiFetch('/providers?type=lab').catch(() => ({ data: [] }))"
+    },
+    {
+      "file": "app/(auth)/welcome.tsx",
+      "line": 28,
+      "text": "const res = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });"
+    },
+    {
+      "file": "app/(auth)/terms.tsx",
+      "line": 66,
+      "text": "fetch(`${BASE_URL}/legal/policy/patient_terms?lang=${AR ? \"ar\" : \"en\"}`)"
+    },
+    {
+      "file": "app/(auth)/reset-password.tsx",
+      "line": 34,
+      "text": "await apiFetch(\"/auth/reset-password\", {"
+    },
+    {
+      "file": "app/(auth)/register.tsx",
+      "line": 91,
+      "text": "scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],"
+    },
+    {
+      "file": "app/(auth)/register.tsx",
+      "line": 112,
+      "text": "const res = await apiFetch('/auth/social-login', {"
+    },
+    {
+      "file": "app/(auth)/register.tsx",
+      "line": 168,
+      "text": "await apiFetch('/auth/send-otp', {"
+    },
+    {
+      "file": "app/(auth)/privacy.tsx",
+      "line": 70,
+      "text": "fetch(`${BASE_URL}/legal/policy/privacy_policy?lang=${AR ? \"ar\" : \"en\"}`)"
+    },
+    {
+      "file": "app/(auth)/otp.tsx",
+      "line": 70,
+      "text": "const resOtp = await apiFetch('/auth/verify-otp', {"
+    },
+    {
+      "file": "app/(auth)/otp.tsx",
+      "line": 90,
+      "text": "const regRes = await apiFetch('/auth/register', {"
+    },
+    {
+      "file": "app/(auth)/login.tsx",
+      "line": 70,
+      "text": "scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],"
+    },
+    {
+      "file": "app/(auth)/login.tsx",
+      "line": 91,
+      "text": "const res = await apiFetch('/auth/social-login', {"
+    },
+    {
+      "file": "app/(auth)/login.tsx",
+      "line": 151,
+      "text": "const res = await apiFetch('/auth/login', {"
+    },
+    {
+      "file": "app/(auth)/forgot-password.tsx",
+      "line": 33,
+      "text": "await apiFetch('/auth/send-otp', {"
+    },
+    {
+      "file": "app/s/[type]/[slug].tsx",
+      "line": 30,
+      "text": "const entity = await apiFetch(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);"
+    },
+    {
+      "file": "app/diagnostics/order/[id].tsx",
+      "line": 29,
+      "text": "// E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,"
+    },
+    {
+      "file": "app/diagnostics/order/[id].tsx",
+      "line": 35,
+      "text": "const res = await apiFetch(`/radiology/bookings/${id}`);"
+    },
+    {
+      "file": "app/diagnostics/order/[id].tsx",
+      "line": 40,
+      "text": "const res = await apiFetch(`/labs/bookings/${id}`);"
+    },
+    {
+      "file": "app/diagnostics/order/[id].tsx",
+      "line": 61,
+      "text": "const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });"
+    },
+    {
+      "file": "app/diagnostics/lab/[id].tsx",
+      "line": 28,
+      "text": "apiFetch(`/providers/${id}`),"
+    },
+    {
+      "file": "app/diagnostics/lab/[id].tsx",
+      "line": 29,
+      "text": "apiFetch(`/labs/services?providerId=${id}`)"
+    },
+    {
+      "file": "app/consultations/doctor/[id].tsx",
+      "line": 51,
+      "text": "const data = await apiFetch(`/care/doctors/${encodeURIComponent(id || 'd1')}`);"
+    },
+    {
+      "file": "app/consultations/doctor/[id].tsx",
+      "line": 149,
+      "text": "const res = await apiFetch(`/care/doctors/${encodeURIComponent(doc.id)}/slots?date=${iso}&service_type=${vt}`);"
+    },
+    {
+      "file": "app/consultations/book/[id].tsx",
+      "line": 73,
+      "text": "const data = await apiFetch(`/care/doctors/${encodeURIComponent(String(id || ''))}`);"
+    },
+    {
+      "file": "app/consultations/book/[id].tsx",
+      "line": 105,
+      "text": "const res = await apiFetch("
+    },
+    {
+      "file": "app/(tabs)/consultations/index.tsx",
+      "line": 66,
+      "text": "const data = await apiFetch('/providers?type=doctor');"
+    },
+    {
+      "file": "app/(tabs)/consultations/index.tsx",
+      "line": 93,
+      "text": "apiFetch('/care/specialties')"
+    },
+    {
+      "file": "app/(tabs)/consultations/index.tsx",
+      "line": 99,
+      "text": "apiFetch('/home/offers')"
+    },
+    {
+      "file": "app/(tabs)/consultations/index.tsx",
+      "line": 105,
+      "text": "apiFetch('/insurance/companies')"
+    },
+    {
+      "file": "app/(tabs)/consultations/index.tsx",
+      "line": 116,
+      "text": "apiFetch(`/insurance/companies/${insCompany}/networks`)"
+    }
+  ],
+  "allowlist_lines": [
+    {
+      "line": 3,
+      "text": "const patientReadRoutes = ["
+    },
+    {
+      "line": 4,
+      "text": "new RegExp(\"^/orders/mine$\"),"
+    },
+    {
+      "line": 5,
+      "text": "new RegExp(`^/orders/${orderId}$`, \"i\"),"
+    },
+    {
+      "line": 6,
+      "text": "new RegExp(\"^/patient/pharmacy/orders$\"),"
+    },
+    {
+      "line": 7,
+      "text": "new RegExp(`^/patient/pharmacy/orders/${orderId}$`, \"i\"),"
+    },
+    {
+      "line": 8,
+      "text": "new RegExp(`^/orders/${orderId}/tracking$`, \"i\"),"
+    },
+    {
+      "line": 9,
+      "text": "new RegExp(\"^/cart$\"),"
+    },
+    {
+      "line": 10,
+      "text": "new RegExp(\"^/cart/checkout$\"),"
+    },
+    {
+      "line": 11,
+      "text": "new RegExp(\"^/cart/prescription$\"),"
+    },
+    {
+      "line": 12,
+      "text": "new RegExp(`^/unified-bookings/consultation/${orderId}$`, \"i\"),"
+    },
+    {
+      "line": 13,
+      "text": "new RegExp(`^/care/appointments/${orderId}$`, \"i\"),"
+    },
+    {
+      "line": 14,
+      "text": "new RegExp(\"^/health/score$\"),"
+    },
+    {
+      "line": 15,
+      "text": "new RegExp(\"^/health/reports$\"),"
+    },
+    {
+      "line": 16,
+      "text": "new RegExp(\"^/health/sleep\\\\?limit=100$\"),"
+    },
+    {
+      "line": 17,
+      "text": "new RegExp(\"^/health/vitals\\\\?limit=100$\"),"
+    },
+    {
+      "line": 18,
+      "text": "new RegExp(\"^/health/emergency-contacts$\"),"
+    },
+    {
+      "line": 19,
+      "text": "new RegExp(\"^/health/chronic-diseases$\"),"
+    },
+    {
+      "line": 20,
+      "text": "new RegExp(\"^/health/chronic-meds$\"),"
+    },
+    {
+      "line": 21,
+      "text": "new RegExp(\"^/health/trends$\"),"
+    },
+    {
+      "line": 22,
+      "text": "new RegExp(\"^/family/my-group$\"),"
+    },
+    {
+      "line": 23,
+      "text": "new RegExp(\"^/insurance/my-policy$\"),"
+    },
+    {
+      "line": 24,
+      "text": "new RegExp(\"^/insurance/benefits-summary$\"),"
+    },
+    {
+      "line": 25,
+      "text": "new RegExp(\"^/insurance/claims$\"),"
+    },
+    {
+      "line": 26,
+      "text": "new RegExp(\"^/mental-health/dashboard$\"),"
+    },
+    {
+      "line": 27,
+      "text": "new RegExp(\"^/mental-health/crisis-contacts$\"),"
+    },
+    {
+      "line": 28,
+      "text": "new RegExp(\"^/mental-health/breathing$\"),"
+    },
+    {
+      "line": 29,
+      "text": "new RegExp(\"^/mental-health/mood\\\\?days=30$\"),"
+    },
+    {
+      "line": 30,
+      "text": "new RegExp(\"^/mental-health/meditation$\"),"
+    },
+    {
+      "line": 31,
+      "text": "new RegExp(\"^/users/me/privacy-settings$\"),"
+    },
+    {
+      "line": 32,
+      "text": "new RegExp(\"^/users/me/security-settings$\"),"
+    },
+    {
+      "line": 33,
+      "text": "new RegExp(\"^/users/me/storage$\"),"
+    },
+    {
+      "line": 34,
+      "text": "new RegExp(\"^/users/me/sessions$\"),"
+    },
+    {
+      "line": 35,
+      "text": "new RegExp(\"^/articles/bookmarks/mine$\"),"
+    },
+    {
+      "line": 36,
+      "text": "new RegExp(\"^/chat/threads$\"),"
+    },
+    {
+      "line": 37,
+      "text": "new RegExp(`^/chat/threads/${threadId}$`, \"i\"),"
+    },
+    {
+      "line": 38,
+      "text": "new RegExp(`^/chat/threads/${threadId}/messages\\\\?limit=50$`, \"i\"),"
+    },
+    {
+      "line": 42,
+      "text": "return patientReadRoutes.some((route) => route.test(path));"
+    }
+  ]
+}

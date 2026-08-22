@@ -1,0 +1,398 @@
+kind	file	line	detail
+mobile_api	app/_layout.tsx	60	const res: any = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });
+mobile_api	app/_layout.tsx	97	bgSync.registerBackgroundFetch();
+mobile_api	app/ai-assistant.tsx	49	const response = await HttpClient.post<{ response: string }>('/ai/triage/chat', {
+mobile_api	utils/api.ts	10	* The exported signature is intentionally unchanged (`apiFetch(endpoint, options)`)
+mobile_api	src/store/index.ts	22	import { baseApi } from './api/baseApi';
+mobile_api	src/services/SyncManager.ts	43	const state = await NetInfo.fetch();
+mobile_api	src/services/SyncManager.ts	61	const resp = await fetch(req.url, {
+mobile_api	src/services/HttpClient.ts	1	import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+mobile_api	src/services/HttpClient.ts	8	? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1`
+mobile_api	src/services/HttpClient.ts	9	: 'https://api.nabd.plus/api/v1';
+mobile_api	src/services/HttpClient.ts	11	export const HttpClient = axios.create({
+mobile_api	src/services/HttpClient.ts	19	async (error: AxiosError) => {
+mobile_api	src/services/HttpClient.ts	20	const config = error.config as InternalAxiosRequestConfig & { _retryCount?: number };
+mobile_api	src/services/HttpClient.ts	35	const config = error.config as InternalAxiosRequestConfig;
+mobile_api	src/services/HttpClient.ts	68	export interface HttpRequestConfig extends InternalAxiosRequestConfig {}
+mobile_api	src/hooks/usePushNotifications.ts	184	HttpClient.post('/push/events', {
+mobile_api	src/hooks/usePushNotifications.ts	235	await HttpClient.post('/notifications/register-token', {
+mobile_api	src/hooks/usePushNotifications.ts	250	await HttpClient.post('/notifications/register-token', {
+mobile_api	src/hooks/useOfflineData.ts	38	const fresh = await apiFetch(endpoint);
+mobile_api	src/context/SocketContext.tsx	57	await apiFetch(`/chats/threads/${m.threadId}/messages`, {
+mobile_api	src/context/ConsultationsContext.tsx	25	const res = await apiFetch('/care/appointments');
+mobile_api	src/context/CartContext.tsx	50	const data = await apiFetch('/cart');
+mobile_api	src/context/CartContext.tsx	86	const data = await apiFetch('/cart/lines', {
+mobile_api	src/context/CartContext.tsx	132	await apiFetch(`/cart/lines/${item.line_id}`, { method: 'DELETE' });
+mobile_api	src/context/CartContext.tsx	152	await apiFetch(`/cart/lines/${item.line_id}`, { method: 'DELETE' });
+mobile_api	src/context/CartContext.tsx	154	await apiFetch(`/cart/lines/${item.line_id}`, {
+mobile_api	src/context/CartContext.tsx	169	await apiFetch('/cart/clear', {
+mobile_api	src/context/AppContext.tsx	77	const res = await fetch(`${appConfig.apiBaseUrl}/config`);
+mobile_api	src/constants/index.ts	7	?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1` : 'https://api.nabd.plus/api/v1');
+mobile_api	src/components/NotificationHandler.tsx	13	HttpClient.post('/push/events', {
+mobile_api	src/utils/api.ts	54	const res = await fetch(`${BASE_URL}/auth/guest`, {
+mobile_api	src/utils/api.ts	106	return await fetch(url, { ...options, headers, signal: ctrl.signal });
+mobile_api	src/utils/api.ts	114	response = await doFetch();
+mobile_api	src/utils/api.ts	122	try { response = await doFetch(); }
+mobile_api	src/utils/callkeep.ts	72	await apiFetch(`/calls/${callUUID}/reject`, { method: 'POST' }).catch(() => null);
+mobile_api	src/utils/imageUrl.ts	12	BASE_URL.replace('/api/v1', '');
+mobile_api	src/utils/medication-notifications.ts	263	await apiFetch(`/health/reminders/${action.reminder_id}/log`, { method: 'POST', body: JSON.stringify({ status: action.status, time_key: action.time_key, occurred_at: action.occurred_at }) });
+mobile_api	src/utils/notifications.ts	71	await apiFetch('/push/register', {
+mobile_api	src/utils/prefetch.ts	19	const data = await apiFetch(endpoint);
+mobile_api	src/utils/prefetch.ts	28	Image.prefetch(valid, 'memory-disk').catch(() => {});
+mobile_api	src/utils/selectedAddress.ts	47	const list = await apiFetch('/users/me/addresses');
+mobile_api	src/store/middleware/memoryManager.ts	2	import { baseApi } from '../api/baseApi';
+mobile_api	src/store/integration/EventBusIntegrator.ts	4	import { baseApi } from '../api/baseApi';
+mobile_api	src/guided-tour/engines/AnalyticsCollector.ts	26	// POST /api/v1/tours/analytics/events
+mobile_api	src/data/sync/BackgroundSynchronizer.ts	22	async registerBackgroundFetch(): Promise<void> {
+mobile_api	src/data/repositories/RepositoryCoordinator.ts	55	this.registerFeatureRepository('users', '/api/v1/users', dbManager);
+mobile_api	src/core/config/ConfigManager.ts	49	apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'http://localhost:8002/api/v1',
+mobile_api	src/core/config/ConfigManager.ts	59	apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://staging-api.nabdahplus.com/api/v1',
+mobile_api	src/core/config/ConfigManager.ts	69	apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://api.nabd.plus/api/v1',
+mobile_api	src/core/config/ConfigManager.ts	70	fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.nabd.plus/api/v1',
+mobile_api	src/core/platform/realtime/RealtimeClient.ts	31	const cleanUrl = baseUrl.replace('/api/v1', '').replace('/api', '');
+mobile_api	src/core/platform/auth/SessionManager.ts	77	const res = await fetch(`${BASE_URL}/auth/refresh`, {
+mobile_api	src/__tests__/utils/testUtils.ts	18	apiBaseUrl:       'http://localhost:8002/api/v1',
+mobile_api	app/wearables/hub.tsx	34	apiFetch("/health/vitals", {
+mobile_api	app/wearables/hub.tsx	47	apiFetch("/health/vitals", {
+mobile_api	app/wearables/hub.tsx	69	apiFetch("/health/vitals", {
+mobile_api	app/wearables/hub.tsx	82	apiFetch("/health/vitals", {
+mobile_api	app/wearables/hub.tsx	95	apiFetch("/health/vitals", {
+mobile_api	app/wallet/transfer.tsx	62	const res: any = await apiFetch("/wallet/transfer", {
+mobile_api	app/wallet/transactions.tsx	39	apiFetch('/wallet/transactions')
+mobile_api	app/wallet/hub.tsx	158	apiFetch('/wallet/spending-data')
+mobile_api	app/wallet/cards.tsx	65	const res = await apiFetch("/wallet/cards");
+mobile_api	app/wallet/cards.tsx	106	const res = await apiFetch(`/wallet/cards/${cardId}`, {
+mobile_api	app/wallet/cards.tsx	347	const res = await apiFetch("/wallet/cards", {
+mobile_api	app/wallet/cards.tsx	362	const res = await apiFetch("/wallet/cards", {
+mobile_api	app/shared/location-picker.tsx	82	const data = await apiFetch("/users/me/addresses");
+mobile_api	app/shared/location-picker.tsx	170	const saved = await apiFetch("/users/me/addresses", {
+mobile_api	app/settings/security.tsx	53	apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ biometric: val }) }).catch(() => {});
+mobile_api	app/settings/security.tsx	58	apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ two_factor: val }) }).catch(() => {});
+mobile_api	app/settings/security.tsx	68	await apiFetch('/users/me/change-password', {
+mobile_api	app/settings/security.tsx	106	await apiFetch(`/users/me/sessions/${s.id}`, { method: 'DELETE' });
+mobile_api	app/settings/privacy.tsx	47	apiFetch('/users/me/privacy-settings', {
+mobile_api	app/settings/privacy.tsx	164	await apiFetch('/support/requests', {
+mobile_api	app/settings/notifications-settings.tsx	108	apiFetch('/users/me/notification-settings', {
+mobile_api	app/settings/feedback.tsx	33	await apiFetch('/support/feedback', {
+mobile_api	app/search/index.tsx	54	apiFetch(`/home/search?q=${encodeURIComponent(query)}`)
+mobile_api	app/room/[id].tsx	160	const response = await HttpClient.post<{ token: string }>(`/calls/${id}/join`, {});
+mobile_api	app/reviews/index.tsx	64	await apiFetch('/patient-ux/review', {
+mobile_api	app/returns/new-request.tsx	66	await apiFetch('/pharmacy/returns', {
+mobile_api	app/reports/view-report.tsx	70	const res = await apiFetch(`/reports/${params.id}`);
+mobile_api	app/reports/timeline.tsx	43	const res = await apiFetch('/medical-reports/timeline');
+mobile_api	app/reports/passport.tsx	38	apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
+mobile_api	app/reports/passport.tsx	39	apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
+mobile_api	app/reports/hub.tsx	71	const res = await apiFetch("/medical-reports/mine?limit=100");
+mobile_api	app/programs/active.tsx	44	const res = await apiFetch('/medical/programs/active');
+mobile_api	app/programs/active.tsx	72	const res = await apiFetch('/medical/programs/complete-session', {
+mobile_api	app/profile/insurance.tsx	40	const data = await apiFetch("/users/me/insurance");
+mobile_api	app/profile/insurance.tsx	61	const list = await apiFetch("/insurance/companies");
+mobile_api	app/profile/insurance.tsx	73	const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+mobile_api	app/profile/insurance.tsx	96	const saved = await apiFetch("/users/me/insurance", {
+mobile_api	app/profile/index.tsx	44	apiFetch('/loyalty/account')
+mobile_api	app/profile/addresses.tsx	29	const data = await apiFetch("/users/me/addresses");
+mobile_api	app/profile/addresses.tsx	46	await apiFetch(`/users/me/addresses/${id}`, {
+mobile_api	app/pharmacy/wishlist.tsx	37	const data = await apiFetch('/users/me/wishlist');
+mobile_api	app/pharmacy/wishlist.tsx	47	await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+mobile_api	app/pharmacy/waiting-for-pharmacy.tsx	96	const order = await apiFetch(`/orders/${orderId}`);
+mobile_api	app/pharmacy/waiting-for-pharmacy.tsx	132	if (orderId) await apiFetch(`/orders/${orderId}/cancel`, { method: "POST" });
+mobile_api	app/pharmacy/scan-prescription.tsx	80	const response = await apiFetch("/ai/prescription-ocr", {
+mobile_api	app/pharmacy/scan-prescription.tsx	88	const savedPrescription = await apiFetch('/prescriptions/upload', {
+mobile_api	app/pharmacy/rx-order.tsx	23	apiFetch('/cart/prescription')
+mobile_api	app/pharmacy/reorder.tsx	26	const order = await apiFetch(`/orders/${orderId}`);
+mobile_api	app/pharmacy/reorder.tsx	58	created = await apiFetch(`/orders/${orderId}/reorder`, { method: 'POST' });
+mobile_api	app/pharmacy/reorder.tsx	60	created = await apiFetch(`/orders/${orderId}/reorder-partial`, {
+mobile_api	app/pharmacy/product-detail.tsx	123	const data = await apiFetch(`/medicines/${id}/details?lang=${currentDbLang()}`);
+mobile_api	app/pharmacy/product-detail.tsx	162	await apiFetch(`/medicines/${id}/suggest-change`, {
+mobile_api	app/pharmacy/payment.tsx	41	const data = await apiFetch(`/orders/${orderId}`);
+mobile_api	app/pharmacy/order-tracking.tsx	71	const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
+mobile_api	app/pharmacy/order-tracking.tsx	82	fetch();
+mobile_api	app/pharmacy/order-history.tsx	52	const res = await apiFetch("/orders/mine");
+mobile_api	app/pharmacy/order-confirm.tsx	38	const data = await apiFetch(`/orders/${orderId}`);
+mobile_api	app/pharmacy/order-confirm.tsx	54	await apiFetch(`/orders/${orderId}/approve-basket`, { method: 'POST' });
+mobile_api	app/pharmacy/order-confirm.tsx	65	await apiFetch(`/orders/${orderId}/reject-basket`, { method: 'POST', body: JSON.stringify({ reason: 'patient-rejected-price' }) });
+mobile_api	app/pharmacy/medicine-compare.tsx	37	const data = await apiFetch('/medicines/compare', 'POST', { ids });
+mobile_api	app/pharmacy/filters.tsx	64	const data = await apiFetch('/medicines/filters');
+mobile_api	app/pharmacy/drug-not-found.tsx	32	const res: any = await apiFetch(`/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}`);
+mobile_api	app/pharmacy/custom-item.tsx	55	const res = await apiFetch('/media/upload', { method: 'POST', body: form });
+mobile_api	app/pharmacy/custom-item.tsx	79	await apiFetch('/support/requests', {
+mobile_api	app/pharmacy/checkout.tsx	50	const profile = await apiFetch('/users/me/profile');
+mobile_api	app/pharmacy/checkout.tsx	67	apiFetch('/wallet/balance').then((r: any) => setWalletBalance(Number(r?.balance || 0))).catch(() => {});
+mobile_api	app/pharmacy/checkout.tsx	75	apiFetch('/finance-engine/loyalty/redeem-quote', {
+mobile_api	app/pharmacy/checkout.tsx	86	const res = await apiFetch('/finance-engine/coupons/validate', {
+mobile_api	app/pharmacy/checkout.tsx	162	const res = await apiFetch('/orders/create', { method: 'POST', body: JSON.stringify(payload) });
+mobile_api	app/pharmacy/chat-with-pharmacist.tsx	53	apiFetch(`/orders/${orderId}`)
+mobile_api	app/pharmacy/chat-with-pharmacist.tsx	60	const threadRes: any = await apiFetch(`/chat/threads/booking`, {
+mobile_api	app/pharmacy/chat-with-pharmacist.tsx	68	const data: any = await apiFetch(`/chat/threads/${tid}/messages`);
+mobile_api	app/pharmacy/chat-with-pharmacist.tsx	124	apiFetch(`/chat/threads/${threadId}/messages`, {
+mobile_api	app/pharmacy/chat-with-pharmacist.tsx	168	await apiFetch(`/chat/threads/${threadId}/messages`, {
+mobile_api	app/pharmacy/broadcast-status.tsx	29	const response = await apiFetch(`/orders/bids/request/${orderId}`);
+mobile_api	app/pharmacy/broadcast-status.tsx	46	await apiFetch(`/orders/bids/${bidId}/accept`, { method: 'POST' });
+mobile_api	app/orders/index.tsx	80	safe(apiFetch('/care/appointments/mine')),
+mobile_api	app/orders/index.tsx	81	safe(apiFetch('/orders/mine')),
+mobile_api	app/orders/index.tsx	82	safe(apiFetch('/labs/bookings/mine')),
+mobile_api	app/orders/index.tsx	83	safe(apiFetch('/radiology/bookings/mine')),
+mobile_api	app/orders/index.tsx	84	safe(apiFetch('/home-care/bookings/my')),
+mobile_api	app/orders/index.tsx	85	safe(apiFetch('/insurance/claims')),
+mobile_api	app/orders/index.tsx	86	safe(apiFetch('/pharmacy/returns')),
+mobile_api	app/orders/index.tsx	87	safe(apiFetch('/emergency/my/active')),
+mobile_api	app/offers/index.tsx	23	apiFetch('/home/offers')
+mobile_api	app/nutrition/log-meal.tsx	31	await apiFetch('/nutrition/meals', { method: 'POST', body: JSON.stringify({ name: name.trim(), calories: numericCalories, meal_type: mealType, ...(optional[0] !== undefined ? { protein_g: optional[0] } : {}), ...(optional[1] !== undefined ?
+mobile_api	app/nutrition/hub.tsx	18	const load = React.useCallback(async () => { setLoading(true); setError(null); try { const [p, s]: any[] = await Promise.all([apiFetch('/nutrition/profile'), apiFetch('/nutrition/daily-summary')]); setProfile(p?.data || p); setSummary(s?.da
+mobile_api	app/nutrition/daily-tracker.tsx	25	const [summaryResponse, mealsResponse]: any[] = await Promise.all([apiFetch(`/nutrition/daily-summary?date=${date}`), apiFetch(`/nutrition/meals?date=${date}`)]);
+mobile_api	app/nutrition/daily-tracker.tsx	31	const addWater = async (amount: number) => { setWaterBusy(amount); setError(null); try { await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml: amount }) }); await load(); } catch { setError(t('saveError')); 
+mobile_api	app/nutrition/body-target.tsx	18	React.useEffect(() => { apiFetch('/nutrition/profile').then((response: any) => { const p: Profile = response?.data || response || {}; setGoal(p.goal || 'healthy_lifestyle'); setActivity(p.activity_level || 'moderate'); setHeight(p.height_cm
+mobile_api	app/nutrition/body-target.tsx	21	const save = async () => { if (![height, weight, targetWeight, calorieTarget, waterTarget].every(finite)) { setError(t('formRequired')); return; } setSaving(true); setError(null); try { const response: any = await apiFetch('/nutrition/profi
+mobile_api	app/nursing/service-info.tsx	27	apiFetch(`/home-care/services/${serviceId}`)
+mobile_api	app/nursing/service-details.tsx	35	const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
+mobile_api	app/nursing/nurse-profile.tsx	88	const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);
+mobile_api	app/nursing/nurse-profile.tsx	93	const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
+mobile_api	app/nursing/nurse-profile.tsx	133	const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
+mobile_api	app/nursing/live-tracking.tsx	85	const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
+mobile_api	app/notifications/index.tsx	107	try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+mobile_api	app/notifications/index.tsx	114	apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+mobile_api	app/mental-health/mood-journal.tsx	47	const result: unknown = await apiFetch('/mental-health/mood?days=30');
+mobile_api	app/mental-health/mood-journal.tsx	68	await apiFetch('/mental-health/mood', { method: 'POST', body: JSON.stringify(payload) });
+mobile_api	app/mental-health/crisis-support.tsx	30	const result: any = await apiFetch('/mental-health/crisis-contacts');
+mobile_api	app/mental-health/crisis-support.tsx	46	await apiFetch('/mental-health/crisis-contacts', { method: 'POST', body: JSON.stringify({ contact_name: name.trim(), phone: phone.trim(), ...(relationship.trim() ? { relationship: relationship.trim() } : {}) }) });
+mobile_api	app/mental-health/crisis-support.tsx	53	try { await apiFetch(`/mental-health/crisis-contacts/${id}`, { method: 'DELETE' }); await loadContacts(); } catch { setDeleteError(true); }
+mobile_api	app/maternity/maternity-setup.tsx	15	const save = async () => { if (!lmp.trim() || (mode === 'cycle' && !cycleLength.trim())) { setError(t('profileRequired')); return; } setSaving(true); setError(null); try { await apiFetch('/maternity/profile', { method: 'POST', body: JSON.st
+mobile_api	app/maternity/hub.tsx	17	const load = React.useCallback(async () => { setLoading(true); setError(null); try { const response: any = await apiFetch('/maternity/profile'); setProfile(response?.data || response); } catch { setError(t('error')); setProfile(null); } fin
+mobile_api	app/map/index.tsx	173	const res = await apiFetch(`/providers/map?${query.toString()}`);
+mobile_api	app/map/index.tsx	216	const ins = await apiFetch('/user/insurance');
+mobile_api	app/loyalty/rewards.tsx	30	const acc = await apiFetch('/loyalty/account');
+mobile_api	app/loyalty/rewards.tsx	33	const catalog = await apiFetch('/loyalty/rewards');
+mobile_api	app/loyalty/rewards.tsx	59	const res = await apiFetch(`/loyalty/rewards/${reward.id}/claim`, { method: 'POST' });
+mobile_api	app/loyalty/referrals.tsx	53	const res = await apiFetch("/referrals/my");
+mobile_api	app/loyalty/referrals.tsx	86	await apiFetch("/referrals/apply", {
+mobile_api	app/loyalty/leaderboard.tsx	36	apiFetch('/loyalty/leaderboard?limit=50')
+mobile_api	app/loyalty/hub.tsx	61	const acc = await apiFetch('/loyalty/account');
+mobile_api	app/loyalty/hub.tsx	65	const txRes = await apiFetch('/loyalty/transactions?page=1');
+mobile_api	app/loyalty/hub.tsx	68	const configRes = await apiFetch('/loyalty/config').catch(() => null);
+mobile_api	app/loyalty/hub.tsx	74	const rewardsRes = await apiFetch('/loyalty/rewards').catch(() => null);
+mobile_api	app/loyalty/hub.tsx	294	await apiFetch(`/loyalty/rewards/${rid}/claim`, { method: 'POST' });
+mobile_api	app/loyalty/challenges.tsx	30	const res = await apiFetch('/loyalty/challenges');
+mobile_api	app/loyalty/challenges.tsx	52	await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });
+mobile_api	app/insurance/submit-claim.tsx	27	await apiFetch("/insurance/claims/submit", {
+mobile_api	app/insurance/refund-status.tsx	33	apiFetch('/refunds/my')
+mobile_api	app/insurance/policy-detail.tsx	24	apiFetch('/users/me/profile')
+mobile_api	app/insurance/payment-split.tsx	27	setRequest(parseInsuranceCopayRequest(await apiFetch(`/insurance/requests/${requestId}`)));
+mobile_api	app/insurance/payment-split.tsx	41	await apiFetch(`/insurance/requests/${request.id}/pay-copay`, { method: 'POST', body: JSON.stringify({}) });
+mobile_api	app/insurance/network-providers.tsx	52	const profile = await apiFetch("/users/me/profile").catch(() => null);
+mobile_api	app/insurance/network-providers.tsx	63	const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);
+mobile_api	app/insurance/hub.tsx	95	const ins = await apiFetch('/users/me/insurance');
+mobile_api	app/insurance/hub.tsx	122	const res = await apiFetch('/insurance/claims');
+mobile_api	app/insurance/hub.tsx	161	const saved = await apiFetch('/insurance/save-policy', {
+mobile_api	app/insurance/coverage-check.tsx	34	const data = await apiFetch(
+mobile_api	app/insurance/claim-tracking.tsx	30	const res = await apiFetch('/insurance/claims/my');
+mobile_api	app/insurance/benefits-summary.tsx	21	apiFetch('/insurance/benefits-summary')
+mobile_api	app/insurance/approval-pending.tsx	32	req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);
+mobile_api	app/insurance/approval-pending.tsx	34	const list = await apiFetch('/insurance/requests/my').catch(() => []);
+mobile_api	app/insurance/approval-pending.tsx	48	apiFetch('/users/me/profile').then((p: any) => {
+mobile_api	app/insurance/add-policy.tsx	29	apiFetch('/insurance/companies')
+mobile_api	app/insurance/add-policy.tsx	44	const res = await apiFetch('/insurance/ocr-extract', {
+mobile_api	app/insurance/add-policy.tsx	78	await apiFetch('/insurance/save-policy', {
+mobile_api	app/health/wearables.tsx	45	apiFetch('/wearables/devices').catch(() => null),
+mobile_api	app/health/wearables.tsx	46	apiFetch('/wearables/data').catch(() => null),
+mobile_api	app/health/wearables.tsx	62	await apiFetch('/wearables/devices', {
+mobile_api	app/health/vitals.tsx	27	const response: any = await apiFetch('/health/vitals/summary');
+mobile_api	app/health/vitals-log.tsx	35	try { const response: any = await apiFetch(`/health/vitals?type=${type}&limit=30`); const rows = Array.isArray(response) ? response : response?.data; setReadings(Array.isArray(rows) ? rows : []); }
+mobile_api	app/health/vitals-log.tsx	48	await apiFetch('/health/vitals', { method: 'POST', body: JSON.stringify(payload) });
+mobile_api	app/health/trends.tsx	141	const res = await apiFetch('/health/trends');
+mobile_api	app/health/sleep-tracker.tsx	36	const res = await apiFetch('/health/sleep?limit=30');
+mobile_api	app/health/sleep-tracker.tsx	71	await apiFetch('/health/sleep', {
+mobile_api	app/health/sleep-score.tsx	34	const res = await apiFetch('/health/sleep?limit=30');
+mobile_api	app/health/reports.tsx	19	try { const response: any = await apiFetch('/health/reports'); const rows = Array.isArray(response) ? response : response?.data; setReports(Array.isArray(rows) ? rows : []); }
+mobile_api	app/health/refills.tsx	27	apiFetch('/health/reminders?active=1')
+mobile_api	app/health/refills.tsx	68	const res = await apiFetch(`/health/reminders/${id}/refill`, { method: 'POST' });
+mobile_api	app/health/prescriptions.tsx	26	const res = await apiFetch('/health/prescriptions');
+mobile_api	app/health/medications.tsx	23	try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }
+mobile_api	app/health/medication-reminder-list.tsx	35	try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }
+mobile_api	app/health/medication-reminder-list.tsx	43	try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date().toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(remind
+mobile_api	app/health/medication-reminder-list.tsx	49	try { await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) }); await cancelMedicationNotifications(id); await load(); }
+mobile_api	app/health/medication-reminder-add.tsx	32	const response: any = await apiFetch('/health/reminders');
+mobile_api	app/health/medication-reminder-add.tsx	52	const response: any = await apiFetch(editing ? `/health/reminders/${id}` : '/health/reminders', { method: editing ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+mobile_api	app/health/health-id.tsx	37	apiFetch('/users/me/profile').catch(() => null),
+mobile_api	app/health/health-id.tsx	38	apiFetch('/health/emergency-contacts').catch(() => []),
+mobile_api	app/health/health-id.tsx	39	apiFetch('/health/chronic-meds').catch(() => []),
+mobile_api	app/health/family-hub.tsx	80	const grp = await apiFetch("/family/my-group");
+mobile_api	app/health/family-hub.tsx	82	const mems = await apiFetch("/family/members");
+mobile_api	app/health/family-hub.tsx	99	await apiFetch("/family/create", {
+mobile_api	app/health/emergency-contacts.tsx	38	const res = await apiFetch('/health/emergency-contacts');
+mobile_api	app/health/emergency-contacts.tsx	56	const doc = await apiFetch('/health/emergency-contacts', {
+mobile_api	app/health/emergency-contacts.tsx	83	await apiFetch(`/health/emergency-contacts/${c.id}`, { method: 'DELETE' });
+mobile_api	app/health/edit-profile.tsx	25	const [medicalResponse, userResponse]: any[] = await Promise.all([apiFetch('/medical-profile'), apiFetch('/users/me/profile')]);
+mobile_api	app/health/edit-profile.tsx	40	try { await apiFetch('/medical-profile', { method: 'PATCH', body: JSON.stringify({ ...draft, height_cm, weight_kg }) }); router.back(); }
+mobile_api	app/health/edit-profile.tsx	57	const upload: any = await apiFetch('/media/upload', { method: 'POST', body: formData });
+mobile_api	app/health/edit-profile.tsx	60	await apiFetch('/users/me/profile', { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) });
+mobile_api	app/health/conditions-allergies.tsx	25	try { const response: any = await apiFetch('/medical-profile'); const doc = response?.data || response || {}; setProfile({ chronic_diseases: Array.isArray(doc.chronic_diseases) ? doc.chronic_diseases : [], allergies: Array.isArray(doc.aller
+mobile_api	app/health/conditions-allergies.tsx	34	try { await apiFetch(`/medical-profile/${list}`, { method: 'POST', body: JSON.stringify({ name }) }); list === 'allergies' ? setAllergy('') : setCondition(''); await load(); }
+mobile_api	app/health/conditions-allergies.tsx	40	try { await apiFetch(`/medical-profile/${list}/${id}`, { method: 'DELETE' }); await load(); }
+mobile_api	app/health/chronic-medications.tsx	25	const response: any = await apiFetch('/health/chronic-meds');
+mobile_api	app/health/chronic-medications.tsx	41	const response: any = await apiFetch(`/health/reminders/${id}${suffix}`, { method: 'POST', body: kind === 'snooze' ? JSON.stringify({ days: 3 }) : undefined });
+mobile_api	app/health/chronic-disease.tsx	26	apiFetch('/health/chronic-diseases').catch(() => null),
+mobile_api	app/health/chronic-disease.tsx	27	apiFetch('/health/vitals').catch(() => null),
+mobile_api	app/family/permissions.tsx	119	const group = await apiFetch("/family/my-group");
+mobile_api	app/family/permissions.tsx	147	await apiFetch(`/family/member/${memberId}/permissions`, {
+mobile_api	app/family/permissions.tsx	153	await apiFetch("/family/permissions/request", {
+mobile_api	app/family/permissions.tsx	186	await apiFetch(`/family/remove-member/${memberId}`, {
+mobile_api	app/family/permission-request.tsx	24	apiFetch('/family/permissions/pending')
+mobile_api	app/family/permission-request.tsx	52	await apiFetch(`/family/permissions/respond/${requestInfo._id || requestInfo.id}`, {
+mobile_api	app/family/member-health.tsx	49	const res = await apiFetch(`/family/member-records/${memberId}`);
+mobile_api	app/family/join.tsx	44	const res = await apiFetch("/family/join", {
+mobile_api	app/family/invite.tsx	31	const res = await apiFetch('/family/invite', { method: 'POST' });
+mobile_api	app/family/hub.tsx	77	const mems = await apiFetch("/family/members");
+mobile_api	app/family/chat.tsx	46	const res = await apiFetch('/family/chat/messages');
+mobile_api	app/family/chat.tsx	62	const profile = await apiFetch('/users/me/profile');
+mobile_api	app/family/chat.tsx	67	const mems = await apiFetch('/family/members');
+mobile_api	app/family/chat.tsx	86	const res = await apiFetch('/family/chat/messages', {
+mobile_api	app/family/calendar.tsx	61	const [calendar, groupMembers] = await Promise.all([apiFetch("/family/calendar"), apiFetch("/family/members")]);
+mobile_api	app/family/calendar.tsx	82	await apiFetch("/family/calendar/event", { method: "POST", body: JSON.stringify(payload) });
+mobile_api	app/family/calendar.tsx	105	await apiFetch(`/family/calendar/event/${id}`, {
+mobile_api	app/emergency/tracking.tsx	33	const res = await apiFetch('/emergency/tracking');
+mobile_api	app/emergency/sos-active.tsx	42	const res = await apiFetch('/emergency/my/active');
+mobile_api	app/emergency/sos-active.tsx	79	await apiFetch(`/emergency/${sosId}/cancel`, { method: 'POST' });
+mobile_api	app/drug-scanner/index.tsx	35	apiFetch('/health/medications')
+mobile_api	app/drug-scanner/index.tsx	47	const res = await apiFetch('/ai/drug-interactions', {
+mobile_api	app/diagnostics/test-detail.tsx	39	apiFetch(endpoint)
+mobile_api	app/diagnostics/search.tsx	29	const res = await apiFetch("/labs/services");
+mobile_api	app/diagnostics/packages.tsx	28	apiFetch('/labs/packages'),
+mobile_api	app/diagnostics/packages.tsx	29	apiFetch('/labs/categories')
+mobile_api	app/diagnostics/package-detail.tsx	27	apiFetch(`/labs/packages/${id}`)
+mobile_api	app/diagnostics/orders.tsx	31	apiFetch("/labs/bookings/mine").catch(() => null),
+mobile_api	app/diagnostics/orders.tsx	32	apiFetch("/radiology/bookings/mine").catch(() => null),
+mobile_api	app/diagnostics/lab-comparison.tsx	34	apiFetch(`/labs/services/${id}`),
+mobile_api	app/diagnostics/lab-comparison.tsx	35	apiFetch(`/labs/compatible-providers?testIds=${id}`)
+mobile_api	app/diagnostics/insurance-upload.tsx	47	const res = await apiFetch('/providers?type=lab');
+mobile_api	app/diagnostics/insurance-upload.tsx	55	const res = await apiFetch('/insurance/companies');
+mobile_api	app/diagnostics/insurance-upload.tsx	73	const res = await apiFetch(`/insurance/companies/${selCompany}/networks`);
+mobile_api	app/diagnostics/insurance-upload.tsx	124	const res = await apiFetch('/ai/ocr-translate', {
+mobile_api	app/diagnostics/insurance-upload.tsx	358	const res = await apiFetch('/orders/create', {
+mobile_api	app/diagnostics/insurance-approval.tsx	37	const res = await apiFetch(`/orders/${orderId}`);
+mobile_api	app/diagnostics/insurance-approval.tsx	78	await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {
+mobile_api	app/diagnostics/cart.tsx	30	apiFetch(`/labs/compatible-providers?testIds=${ids}`)
+mobile_api	app/delivery/address-select.tsx	36	const data = await apiFetch('/users/me/addresses');
+mobile_api	app/consultations/waiting-room.tsx	31	apiFetch(`/care/appointments/${appointmentId}`)
+mobile_api	app/consultations/virtual-waiting-room.tsx	47	apiFetch(`/care/appointments/${appointmentId}`)
+mobile_api	app/consultations/video-call.tsx	59	const initRes = await apiFetch(`/calls/initiate`, {
+mobile_api	app/consultations/video-call.tsx	66	const joinRes = await apiFetch(`/calls/${sessionId}/join`, { method: 'POST' });
+mobile_api	app/consultations/specialty-select.tsx	28	apiFetch('/care/specialties')
+mobile_api	app/consultations/share-report.tsx	53	const res = await apiFetch("/medical-reports/mine?limit=100");
+mobile_api	app/consultations/prescription-from-doctor.tsx	39	// In production: apiFetch('/prescriptions/active')
+mobile_api	app/consultations/post-call-rating.tsx	41	await apiFetch('/patient-ux/review', {
+mobile_api	app/consultations/incoming-call.tsx	64	await apiFetch(`/calls/${sessionId}/reject`, { method: "POST" });
+mobile_api	app/consultations/home-visit-tracking.tsx	23	apiFetch(`/care/appointments/${appointmentId}`)
+mobile_api	app/consultations/follow-up.tsx	41	const data = await apiFetch(`/care/appointments/${encodeURIComponent(appointmentId)}`);
+mobile_api	app/consultations/follow-up.tsx	49	apiFetch(`/care/doctors/${encodeURIComponent(a.doctor_id)}`)
+mobile_api	app/consultations/doctor-search.tsx	44	const res = await apiFetch(`/care/doctors?${qs.toString()}`);
+mobile_api	app/consultations/clinic-location.tsx	24	apiFetch(`/care/appointments/${appointmentId}`)
+mobile_api	app/consultations/chat-with-doctor.tsx	41	apiFetch(`/care/doctors/${doctorId}`)
+mobile_api	app/consultations/chat-with-doctor.tsx	51	return apiFetch(`/chat/threads/direct`, { method: 'POST', body: JSON.stringify({ other_user_id: doctorUserId }) })
+mobile_api	app/consultations/chat-with-doctor.tsx	58	return apiFetch(`/chat/threads/${tid}/messages`).then((mres: any) => ({ mres, doctorUserId }));
+mobile_api	app/consultations/chat-with-doctor.tsx	125	await apiFetch(`/chat/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ body: text, type: 'text', client_message_id: tempId }) });
+mobile_api	app/consultations/cancel-reschedule.tsx	105	await apiFetch(`/care/appointments/${appointmentId}/cancel`, {
+mobile_api	app/consultations/cancel-reschedule.tsx	118	await apiFetch(`/care/appointments/${appointmentId}/reschedule`, {
+mobile_api	app/consultations/call-history.tsx	48	const data = await apiFetch(`/calls/history?page=${pageNum}&limit=20`);
+mobile_api	app/consultations/booking-pending.tsx	108	await apiFetch(`/care/appointments/${appointmentId}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason: 'patient_cancelled_while_waiting' }) });
+mobile_api	app/consultations/booking-confirm.tsx	46	const list = await apiFetch('/insurance/companies');
+mobile_api	app/consultations/booking-confirm.tsx	61	const nets = await apiFetch(`/insurance/companies/${insCompany}/networks`);
+mobile_api	app/consultations/booking-confirm.tsx	122	const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
+mobile_api	app/consultations/booking-confirm.tsx	123	const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {
+mobile_api	app/community/post-detail.tsx	53	const res = await apiFetch(`/community/posts/${postId}`);
+mobile_api	app/community/post-detail.tsx	68	const res = await apiFetch(`/community/posts/${postId}/vote`, {
+mobile_api	app/community/post-detail.tsx	87	const res = await apiFetch(`/community/posts/${postId}/comment`, {
+mobile_api	app/community/hub.tsx	59	const res = await apiFetch(`/community/posts?page=1&limit=20${qs}`);
+mobile_api	app/community/hub.tsx	74	await apiFetch("/community/posts", {
+mobile_api	app/articles/index.tsx	48	const res = await apiFetch(`/articles?${params.toString()}`);
+mobile_api	app/articles/index.tsx	58	apiFetch("/articles/categories")
+mobile_api	app/articles/bookmarks.tsx	33	const res = await apiFetch("/articles/bookmarks/mine");
+mobile_api	app/articles/[slug].tsx	38	const res = await apiFetch(`/articles/${encodeURIComponent(String(slug))}`);
+mobile_api	app/articles/[slug].tsx	42	const rel = await apiFetch(`/articles?category=${encodeURIComponent(res.category)}&limit=4`).catch(() => []);
+mobile_api	app/articles/[slug].tsx	46	const st = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/status`).catch(() => null);
+mobile_api	app/articles/[slug].tsx	59	const res = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/toggle`, { method: "POST" });
+mobile_api	app/ai/triage.tsx	41	const data = await apiFetch('/ai/triage', { method: 'POST', body: JSON.stringify({ symptoms: symptoms.trim(), red_flags: flags.length ? flags : ['none'] }) });
+mobile_api	app/ai/skin-analysis.tsx	37	const data = await apiFetch('/ai/skin-analysis', { method: 'POST', body: JSON.stringify({ acknowledge_limitations: true, areas, observations: observations.length ? observations : ['none'], ...(note.trim() ? { note: note.trim() } : {}) }) })
+mobile_api	app/ai/monthly-report.tsx	39	apiFetch('/care/appointments').then(parseReportCollection),
+mobile_api	app/ai/monthly-report.tsx	40	apiFetch('/health/vitals/summary').then(parseReportCollection),
+mobile_api	app/ai/monthly-report.tsx	41	apiFetch('/health/chronic-meds').then(parseReportCollection),
+mobile_api	app/ai/monthly-report.tsx	42	apiFetch('/health/trends').then(parseReportCollection),
+mobile_api	app/(tabs)/pharmacy.tsx	69	const data = await apiFetch('/medicines/categories');
+mobile_api	app/(tabs)/pharmacy.tsx	131	const data = await apiFetch(ep);
+mobile_api	app/(tabs)/nursing.tsx	45	apiFetch('/home-care/services')
+mobile_api	app/(tabs)/nursing.tsx	52	apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch(console.error);
+mobile_api	app/(tabs)/index.tsx	41	apiFetch('/users/me/profile'), apiFetch('/health/reminders'), apiFetch('/nutrition/daily-summary'),
+mobile_api	app/(tabs)/index.tsx	42	apiFetch('/maternity/profile'), apiFetch('/mental-health/mood?days=1'), apiFetch('/health/vitals/summary'), apiFetch('/home/upcoming-appointment'),
+mobile_api	app/(tabs)/health.tsx	103	apiFetch("/health/vitals/summary").catch(() => null),
+mobile_api	app/(tabs)/health.tsx	104	apiFetch("/health/score").catch(() => null),
+mobile_api	app/(tabs)/health.tsx	105	apiFetch('/home/upcoming-appointment').catch(() => null)
+mobile_api	app/(tabs)/health.tsx	113	const waterRes = await apiFetch(`/nutrition/daily-summary?date=${new Date().toISOString().split("T")[0]}`).catch(() => null);
+mobile_api	app/(tabs)/diagnostics.tsx	59	apiFetch('/labs/packages').catch(() => ({ data: [] })),
+mobile_api	app/(tabs)/diagnostics.tsx	60	apiFetch('/labs/services').catch(() => ({ data: [] })),
+mobile_api	app/(tabs)/diagnostics.tsx	61	apiFetch('/radiology/services').catch(() => ({ data: [] })),
+mobile_api	app/(tabs)/diagnostics.tsx	62	apiFetch('/providers?type=lab').catch(() => ({ data: [] }))
+mobile_api	app/(auth)/welcome.tsx	28	const res = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });
+mobile_api	app/(auth)/terms.tsx	66	fetch(`${BASE_URL}/legal/policy/patient_terms?lang=${AR ? "ar" : "en"}`)
+mobile_api	app/(auth)/reset-password.tsx	34	await apiFetch("/auth/reset-password", {
+mobile_api	app/(auth)/register.tsx	91	scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
+mobile_api	app/(auth)/register.tsx	112	const res = await apiFetch('/auth/social-login', {
+mobile_api	app/(auth)/register.tsx	168	await apiFetch('/auth/send-otp', {
+mobile_api	app/(auth)/privacy.tsx	70	fetch(`${BASE_URL}/legal/policy/privacy_policy?lang=${AR ? "ar" : "en"}`)
+mobile_api	app/(auth)/otp.tsx	70	const resOtp = await apiFetch('/auth/verify-otp', {
+mobile_api	app/(auth)/otp.tsx	90	const regRes = await apiFetch('/auth/register', {
+mobile_api	app/(auth)/login.tsx	70	scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
+mobile_api	app/(auth)/login.tsx	91	const res = await apiFetch('/auth/social-login', {
+mobile_api	app/(auth)/login.tsx	151	const res = await apiFetch('/auth/login', {
+mobile_api	app/(auth)/forgot-password.tsx	33	await apiFetch('/auth/send-otp', {
+mobile_api	app/s/[type]/[slug].tsx	30	const entity = await apiFetch(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);
+mobile_api	app/diagnostics/order/[id].tsx	29	// E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
+mobile_api	app/diagnostics/order/[id].tsx	35	const res = await apiFetch(`/radiology/bookings/${id}`);
+mobile_api	app/diagnostics/order/[id].tsx	40	const res = await apiFetch(`/labs/bookings/${id}`);
+mobile_api	app/diagnostics/order/[id].tsx	61	const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });
+mobile_api	app/diagnostics/lab/[id].tsx	28	apiFetch(`/providers/${id}`),
+mobile_api	app/diagnostics/lab/[id].tsx	29	apiFetch(`/labs/services?providerId=${id}`)
+mobile_api	app/consultations/doctor/[id].tsx	51	const data = await apiFetch(`/care/doctors/${encodeURIComponent(id || 'd1')}`);
+mobile_api	app/consultations/doctor/[id].tsx	149	const res = await apiFetch(`/care/doctors/${encodeURIComponent(doc.id)}/slots?date=${iso}&service_type=${vt}`);
+mobile_api	app/consultations/book/[id].tsx	73	const data = await apiFetch(`/care/doctors/${encodeURIComponent(String(id || ''))}`);
+mobile_api	app/consultations/book/[id].tsx	105	const res = await apiFetch(
+mobile_api	app/(tabs)/consultations/index.tsx	66	const data = await apiFetch('/providers?type=doctor');
+mobile_api	app/(tabs)/consultations/index.tsx	93	apiFetch('/care/specialties')
+mobile_api	app/(tabs)/consultations/index.tsx	99	apiFetch('/home/offers')
+mobile_api	app/(tabs)/consultations/index.tsx	105	apiFetch('/insurance/companies')
+mobile_api	app/(tabs)/consultations/index.tsx	116	apiFetch(`/insurance/companies/${insCompany}/networks`)
+allowlist	patient-allowlist.ts	3	const patientReadRoutes = [
+allowlist	patient-allowlist.ts	4	new RegExp("^/orders/mine$"),
+allowlist	patient-allowlist.ts	5	new RegExp(`^/orders/${orderId}$`, "i"),
+allowlist	patient-allowlist.ts	6	new RegExp("^/patient/pharmacy/orders$"),
+allowlist	patient-allowlist.ts	7	new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i"),
+allowlist	patient-allowlist.ts	8	new RegExp(`^/orders/${orderId}/tracking$`, "i"),
+allowlist	patient-allowlist.ts	9	new RegExp("^/cart$"),
+allowlist	patient-allowlist.ts	10	new RegExp("^/cart/checkout$"),
+allowlist	patient-allowlist.ts	11	new RegExp("^/cart/prescription$"),
+allowlist	patient-allowlist.ts	12	new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
+allowlist	patient-allowlist.ts	13	new RegExp(`^/care/appointments/${orderId}$`, "i"),
+allowlist	patient-allowlist.ts	14	new RegExp("^/health/score$"),
+allowlist	patient-allowlist.ts	15	new RegExp("^/health/reports$"),
+allowlist	patient-allowlist.ts	16	new RegExp("^/health/sleep\\?limit=100$"),
+allowlist	patient-allowlist.ts	17	new RegExp("^/health/vitals\\?limit=100$"),
+allowlist	patient-allowlist.ts	18	new RegExp("^/health/emergency-contacts$"),
+allowlist	patient-allowlist.ts	19	new RegExp("^/health/chronic-diseases$"),
+allowlist	patient-allowlist.ts	20	new RegExp("^/health/chronic-meds$"),
+allowlist	patient-allowlist.ts	21	new RegExp("^/health/trends$"),
+allowlist	patient-allowlist.ts	22	new RegExp("^/family/my-group$"),
+allowlist	patient-allowlist.ts	23	new RegExp("^/insurance/my-policy$"),
+allowlist	patient-allowlist.ts	24	new RegExp("^/insurance/benefits-summary$"),
+allowlist	patient-allowlist.ts	25	new RegExp("^/insurance/claims$"),
+allowlist	patient-allowlist.ts	26	new RegExp("^/mental-health/dashboard$"),
+allowlist	patient-allowlist.ts	27	new RegExp("^/mental-health/crisis-contacts$"),
+allowlist	patient-allowlist.ts	28	new RegExp("^/mental-health/breathing$"),
+allowlist	patient-allowlist.ts	29	new RegExp("^/mental-health/mood\\?days=30$"),
+allowlist	patient-allowlist.ts	30	new RegExp("^/mental-health/meditation$"),
+allowlist	patient-allowlist.ts	31	new RegExp("^/users/me/privacy-settings$"),
+allowlist	patient-allowlist.ts	32	new RegExp("^/users/me/security-settings$"),
+allowlist	patient-allowlist.ts	33	new RegExp("^/users/me/storage$"),
+allowlist	patient-allowlist.ts	34	new RegExp("^/users/me/sessions$"),
+allowlist	patient-allowlist.ts	35	new RegExp("^/articles/bookmarks/mine$"),
+allowlist	patient-allowlist.ts	36	new RegExp("^/chat/threads$"),
+allowlist	patient-allowlist.ts	37	new RegExp(`^/chat/threads/${threadId}$`, "i"),
+allowlist	patient-allowlist.ts	38	new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
+allowlist	patient-allowlist.ts	42	return patientReadRoutes.some((route) => route.test(path));
