@@ -33,8 +33,9 @@
 | Gate | Result |
 |---|---|
 | Targeted Radiology | 3 files / 5 tests passed |
-| Full Vitest | سيتم تسجيل النتيجة النهائية عند الإغلاق |
+| Full Vitest | **127 files passed، 14 skipped؛ 242 tests passed، 23 skipped** |
 | Type-check | passed |
+| Production build | passed؛ ظهر `/[locale]/diagnostics/radiology` |
 | Sandbox | غير مشغل؛ `NABD_SANDBOX_*` غير متاحة |
 
 ## الإصلاح المطلوب في backend
