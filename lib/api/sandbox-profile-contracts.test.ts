@@ -21,8 +21,12 @@ describeSandbox("Sandbox profile contracts", () => {
     expect(loginResponse.ok).toBe(true);
     const token = findAccessToken(await loginResponse.json());
     expect(token).toBeTruthy();
-    for (const path of ["/users/me/profile", "/medical-profile", "/users/me/insurance"]) {
-      const response = await fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } });
+    const responses = await Promise.all(
+      ["/users/me/profile", "/medical-profile", "/users/me/insurance"].map((path) =>
+        fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } })
+      )
+    );
+    for (const response of responses) {
       expect(response.status).not.toBe(401);
       expect(response.status).not.toBe(403);
     }

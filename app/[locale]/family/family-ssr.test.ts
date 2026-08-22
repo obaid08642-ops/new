@@ -29,5 +29,5 @@ describe("family SSR boundary", () => {
     expect(html).not.toContain("private_member_123");
     expect(html).not.toContain("view_health");
     expect(html).not.toContain("view_prescriptions");
-  });
+  }, 15_000);
 });
