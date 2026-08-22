@@ -125,7 +125,7 @@ export class AuthService {
   async recordComplianceConsent(userId: string, documentType: string, version: string) {
     // We update a consent log array inside the user's document
     await this.userModel.updateOne(
-      { _id: userId },
+      { id: userId },
       { $push: { "legal_consents": { policy_id: documentType, version, accepted_at: new Date() } } }
     );
   }

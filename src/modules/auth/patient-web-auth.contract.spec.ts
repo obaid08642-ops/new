@@ -66,7 +66,7 @@ describe('patient web auth contract', () => {
     await service.recordComplianceConsent('patient-1', 'privacy', '2026-08');
 
     expect(userModel.updateOne).toHaveBeenCalledWith(
-      { _id: 'patient-1' },
+      { id: 'patient-1' },
       { $push: { legal_consents: expect.objectContaining({ policy_id: 'privacy', version: '2026-08' }) } },
     );
   });
