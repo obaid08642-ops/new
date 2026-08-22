@@ -1,10 +1,16 @@
 import { patientApiUrl } from "@/lib/api/upstream";
+import { parseLabServiceId } from "./labs";
 
 const allowedSortFlags = new Set(["highest_rated", "nearest", "lowest_price"]);
 function validQuery(value: string | undefined) {
   if (value === undefined) return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 && trimmed.length <= 120 ? trimmed : undefined;
+}
+
+export async function getPublicLabPackage(packageId: string): Promise<Response | null> {
+  if (!parseLabServiceId(packageId).success) throw new Error("invalid_lab_package_id");
+  try { return await fetch(patientApiUrl(`/labs/packages/${packageId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
 }
 
 export async function getPublicLabServices(params: {

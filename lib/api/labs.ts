@@ -17,8 +17,11 @@ const labServiceSchema = z.object({
   home_visit_supported: z.boolean().optional(),
   facility_visit_supported: z.boolean().optional(),
   turnaround_hours: z.number().nonnegative().optional(),
-  preparation_ar: z.string().max(2000).optional(),
-  preparation_en: z.string().max(2000).optional(),
+  preparation_ar: z.array(z.string().max(500)).max(40).optional(),
+  preparation_en: z.array(z.string().max(500)).max(40).optional(),
+  is_package: z.boolean().optional(),
+  included_services: z.array(z.string().max(180)).max(100).optional(),
+  special_notes: z.string().max(2000).optional(),
   insurance_availability: z.boolean().optional(),
   home_collection_availability: z.boolean().optional(),
   in_lab_availability: z.boolean().optional(),
@@ -33,7 +36,7 @@ export type LabService = {
   descriptionAr?: string; descriptionEn?: string; category?: string; sampleType?: string;
   price?: number; oldPrice?: number; fastingRequired?: boolean; fastingHours?: number;
   homeVisitSupported?: boolean; facilityVisitSupported?: boolean; turnaroundHours?: number;
-  preparationAr?: string; preparationEn?: string; insuranceAvailable?: boolean;
+  preparationAr?: string[]; preparationEn?: string[]; isPackage?: boolean; includedServices?: string[]; specialNotes?: string; insuranceAvailable?: boolean;
   homeCollectionAvailable?: boolean; inLabAvailable?: boolean; referralRequired?: boolean;
   unavailable?: boolean; imageUrl?: string; icon?: string;
 };
@@ -59,6 +62,7 @@ function parseLabService(value: unknown): LabService | null {
     fastingRequired: item.fasting_required, fastingHours: item.fasting_hours,
     homeVisitSupported: item.home_visit_supported, facilityVisitSupported: item.facility_visit_supported,
     turnaroundHours: item.turnaround_hours, preparationAr: item.preparation_ar, preparationEn: item.preparation_en,
+    isPackage: item.is_package, includedServices: item.included_services, specialNotes: item.special_notes,
     insuranceAvailable: item.insurance_availability, homeCollectionAvailable: item.home_collection_availability,
     inLabAvailable: item.in_lab_availability, referralRequired: item.medical_referral_required,
     unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon,
