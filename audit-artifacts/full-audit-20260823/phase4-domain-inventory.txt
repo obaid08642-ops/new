@@ -1,0 +1,407 @@
+=== mobile domain API markers ===
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/cart.tsx:30:      apiFetch(`/labs/compatible-providers?testIds=${ids}`)
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-approval.tsx:37:        const res = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-approval.tsx:78:        await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-upload.tsx:47:        const res = await apiFetch('/providers?type=lab');
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-upload.tsx:55:        const res = await apiFetch('/insurance/companies');
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-upload.tsx:73:        const res = await apiFetch(`/insurance/companies/${selCompany}/networks`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-upload.tsx:124:        const res = await apiFetch('/ai/ocr-translate', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/insurance-upload.tsx:358:                const res = await apiFetch('/orders/create', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/lab-comparison.tsx:34:      apiFetch(`/labs/services/${id}`),
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/lab-comparison.tsx:35:      apiFetch(`/labs/compatible-providers?testIds=${id}`)
+/home/ubuntu/nabdah_review/extracted/mobile/app/nursing/live-tracking.tsx:85:        const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/nursing/nurse-profile.tsx:88:        const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/nursing/nurse-profile.tsx:93:          const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
+/home/ubuntu/nabdah_review/extracted/mobile/app/nursing/nurse-profile.tsx:133:      const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/nursing/service-details.tsx:35:      const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/nursing/service-info.tsx:27:    apiFetch(`/home-care/services/${serviceId}`)
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/lab/[id].tsx:28:          apiFetch(`/providers/${id}`),
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/lab/[id].tsx:29:          apiFetch(`/labs/services?providerId=${id}`)
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/broadcast-status.tsx:29:        const response = await apiFetch(`/orders/bids/request/${orderId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/broadcast-status.tsx:46:      await apiFetch(`/orders/bids/${bidId}/accept`, { method: 'POST' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/order/[id].tsx:29:    // E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/order/[id].tsx:35:          const res = await apiFetch(`/radiology/bookings/${id}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/order/[id].tsx:40:          const res = await apiFetch(`/labs/bookings/${id}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/order/[id].tsx:61:          const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/orders.tsx:31:          apiFetch("/labs/bookings/mine").catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/orders.tsx:32:          apiFetch("/radiology/bookings/mine").catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/package-detail.tsx:27:    apiFetch(`/labs/packages/${id}`)
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/payment.tsx:41:      const data = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/product-detail.tsx:123:        const data = await apiFetch(`/medicines/${id}/details?lang=${currentDbLang()}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/product-detail.tsx:162:      await apiFetch(`/medicines/${id}/suggest-change`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/reorder.tsx:26:        const order = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/reorder.tsx:58:        created = await apiFetch(`/orders/${orderId}/reorder`, { method: 'POST' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/reorder.tsx:60:        created = await apiFetch(`/orders/${orderId}/reorder-partial`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/search.tsx:29:        const res = await apiFetch("/labs/services");
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/rx-order.tsx:23:    apiFetch('/cart/prescription')
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/scan-prescription.tsx:80:      const response = await apiFetch("/ai/prescription-ocr", {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/scan-prescription.tsx:88:      const savedPrescription = await apiFetch('/prescriptions/upload', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/medicine-compare.tsx:37:        const data = await apiFetch('/medicines/compare', 'POST', { ids });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/waiting-for-pharmacy.tsx:96:        const order = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/waiting-for-pharmacy.tsx:132:            if (orderId) await apiFetch(`/orders/${orderId}/cancel`, { method: "POST" });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/order-confirm.tsx:38:        const data = await apiFetch(`/orders/${orderId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/order-confirm.tsx:54:      await apiFetch(`/orders/${orderId}/approve-basket`, { method: 'POST' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/order-confirm.tsx:65:      await apiFetch(`/orders/${orderId}/reject-basket`, { method: 'POST', body: JSON.stringify({ reason: 'patient-rejected-price' }) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/wishlist.tsx:37:        const data = await apiFetch('/users/me/wishlist');
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/wishlist.tsx:47:      await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/order-history.tsx:52:      const res = await apiFetch("/orders/mine");
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/order-tracking.tsx:71:        const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/order-tracking.tsx:82:    fetch();
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/drug-not-found.tsx:32:      const res: any = await apiFetch(`/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/filters.tsx:64:        const data = await apiFetch('/medicines/filters');
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/custom-item.tsx:55:      const res = await apiFetch('/media/upload', { method: 'POST', body: form });
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/custom-item.tsx:79:      await apiFetch('/support/requests', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/checkout.tsx:50:        const profile = await apiFetch('/users/me/profile');
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/checkout.tsx:67:    apiFetch('/wallet/balance').then((r: any) => setWalletBalance(Number(r?.balance || 0))).catch(() => {});
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/checkout.tsx:75:    apiFetch('/finance-engine/loyalty/redeem-quote', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/checkout.tsx:86:      const res = await apiFetch('/finance-engine/coupons/validate', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/checkout.tsx:162:        const res = await apiFetch('/orders/create', { method: 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/test-detail.tsx:39:    apiFetch(endpoint)
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/chat-with-pharmacist.tsx:53:      apiFetch(`/orders/${orderId}`)
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/chat-with-pharmacist.tsx:60:        const threadRes: any = await apiFetch(`/chat/threads/booking`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/chat-with-pharmacist.tsx:68:        const data: any = await apiFetch(`/chat/threads/${tid}/messages`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/chat-with-pharmacist.tsx:124:      apiFetch(`/chat/threads/${threadId}/messages`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/pharmacy/chat-with-pharmacist.tsx:168:        await apiFetch(`/chat/threads/${threadId}/messages`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:80:      safe(apiFetch('/care/appointments/mine')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:81:      safe(apiFetch('/orders/mine')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:82:      safe(apiFetch('/labs/bookings/mine')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:83:      safe(apiFetch('/radiology/bookings/mine')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:84:      safe(apiFetch('/home-care/bookings/my')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:85:      safe(apiFetch('/insurance/claims')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:86:      safe(apiFetch('/pharmacy/returns')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/orders/index.tsx:87:      safe(apiFetch('/emergency/my/active')),
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/packages.tsx:28:      apiFetch('/labs/packages'),
+/home/ubuntu/nabdah_review/extracted/mobile/app/diagnostics/packages.tsx:29:      apiFetch('/labs/categories')
+=== current web domain files ===
+app/[locale]/cart/cart-ssr.test.ts
+app/[locale]/cart/cart.module.css
+app/[locale]/cart/checkout/page.tsx
+app/[locale]/cart/page.tsx
+app/[locale]/cart/prescription/page.tsx
+app/[locale]/diagnostics/[domain]/[bookingId]/diagnostic-detail.module.css
+app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx
+app/[locale]/diagnostics/diagnostics-ssr.test.ts
+app/[locale]/diagnostics/diagnostics.module.css
+app/[locale]/diagnostics/labs/labs-ssr.test.ts
+app/[locale]/diagnostics/labs/labs.module.css
+app/[locale]/diagnostics/labs/page.tsx
+app/[locale]/diagnostics/packages/[packageId]/page.tsx
+app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts
+app/[locale]/diagnostics/packages/page.tsx
+app/[locale]/diagnostics/page.tsx
+app/[locale]/diagnostics/radiology/page.tsx
+app/[locale]/diagnostics/radiology/radiology-ssr.test.ts
+app/[locale]/home-care/home-care-ssr.test.ts
+app/[locale]/home-care/home-care.module.css
+app/[locale]/home-care/page.tsx
+app/[locale]/home-care/services/[serviceId]/page.tsx
+app/[locale]/home-care/services/page.tsx
+app/[locale]/home-care/services/services-ssr.test.ts
+app/[locale]/home-care/services/services.module.css
+app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts
+app/[locale]/medicines/[medicineId]/medicine-detail.module.css
+app/[locale]/medicines/[medicineId]/page.tsx
+app/[locale]/medicines/medicines-ssr.test.ts
+app/[locale]/medicines/page.tsx
+app/[locale]/orders/[orderId]/order-detail.module.css
+app/[locale]/orders/[orderId]/page.tsx
+app/[locale]/orders/[orderId]/tracking/page.tsx
+app/[locale]/orders/orders-ssr.test.ts
+app/[locale]/orders/orders.module.css
+app/[locale]/orders/page.tsx
+app/[locale]/prescriptions/[prescriptionId]/page.tsx
+app/[locale]/prescriptions/page.tsx
+app/[locale]/prescriptions/prescriptions-ssr.test.ts
+app/[locale]/prescriptions/prescriptions.module.css
+=== local BFF / upstream wrappers ===
+lib/api/radiology-server.test.ts:4:import { getPublicRadiologyServices } from "./radiology-server";
+lib/api/radiology-server.test.ts:6:describe("radiology public wrapper", () => {
+lib/api/radiology-server.test.ts:8:    getPublicRadiologyServices({ modality: "mri", bodyPart: "brain", homeVisit: "true", homeOnly: "true", highestRated: "true", lowestPrice: "true", search: "scan", nearest: "evil" });
+lib/api/radiology-server.test.ts:9:    expect(call).toHaveBeenCalledWith(expect.stringContaining("/radiology/services?"), expect.objectContaining({ method: "GET", cache: "no-store" }));
+lib/api/radiology.test.ts:2:import { extractRadiologyServices, parseRadiologyServiceId } from "./radiology";
+lib/api/radiology.test.ts:4:describe("radiology parser", () => {
+lib/api/radiology.test.ts:6:    const [service] = extractRadiologyServices([{ _id: "6a7600a27b25eeca204de283", name_en: "Chest X-Ray", name_ar: "أشعة سينية - صدر", modality: "xray", body_part: "chest", price: 90, popularity: 95, patient_id: "private", booking_url: "must-not-leak" }]);
+lib/api/radiology.test.ts:10:  it("accepts only bounded public identifiers", () => { expect(parseRadiologyServiceId("6a7600a27b25eeca204de283").success).toBe(true); expect(parseRadiologyServiceId("https://evil.test").success).toBe(false); });
+lib/api/radiology-server.ts:5:export type RadiologyQuery = { modality?: string; bodyPart?: string; homeVisit?: string; homeOnly?: string; highestRated?: string; nearest?: string; lowestPrice?: string; search?: string };
+lib/api/radiology-server.ts:6:export function getPublicRadiologyModalities() { return callPatientApi("/radiology/modalities", { method: "GET", cache: "no-store" }); }
+lib/api/radiology-server.ts:8:export function getPublicRadiologyServices(query: RadiologyQuery = {}) {
+lib/api/radiology-server.ts:14:  return callPatientApi(`/radiology/services${params.toString() ? `?${params}` : ""}`, { method: "GET", cache: "no-store" });
+lib/api/radiology.ts:15:export type RadiologyService = { id:string; shortCode?:string; nameAr?:string; nameEn?:string; modality?:string; bodyPart?:string; price?:number; oldPrice?:number; contrastRequired?:boolean; fastingRequired?:boolean; descriptionAr?:string; descriptionEn?:string; preparationAr?:string[]; preparationEn?:string[]; popularity?:number; durationMinutes?:number; turnaroundHours?:number; homeVisitSupported?:boolean; facilityVisitSupported?:boolean; imageUrl?:string };
+lib/api/radiology.ts:17:function parse(value: unknown): RadiologyService|null { const p=serviceSchema.safeParse(value); if(!p.success || (!p.data._id&&!p.data.id) || (!p.data.name_ar&&!p.data.name_en)) return null; const x=p.data; return { id:x._id??x.id!, shortCode:x.short_code, nameAr:x.name_ar, nameEn:x.name_en, modality:x.modality, bodyPart:x.body_part, price:x.price, oldPrice:x.old_price, contrastRequired:x.contrast_required, fastingRequired:x.fasting_required, descriptionAr:x.description_ar, descriptionEn:x.description_en, preparationAr:x.preparation_ar, preparationEn:x.preparation_en, popularity:x.popularity, durationMinutes:x.estimated_duration_minutes, turnaroundHours:x.turnaround_hours, homeVisitSupported:x.home_visit_supported, facilityVisitSupported:x.facility_visit_supported, imageUrl:x.image_url }; }
+lib/api/radiology.ts:18:export function parseRadiologyServiceId(value:string){return idSchema.safeParse(value)}
+lib/api/radiology.ts:19:export function extractRadiologyServices(value:unknown){return rows(value).flatMap(v=>{const x=parse(v);return x?[x]:[]})}
+lib/api/dashboard.test.ts:14:      dateLabel: "2026-08-20T10:00:00Z",
+lib/api/payments.ts:15:export function parsePaymentType(value: string) { return z.enum(["consultation", "pharmacy", "lab", "radiology", "nursing", "insurance"]).safeParse(value); }
+lib/api/labs-server.test.ts:7:import { getPublicLabServices } from "./labs-server";
+lib/api/labs-server.test.ts:9:describe("labs server wrapper", () => {
+lib/api/labs-server.test.ts:13:    await getPublicLabServices({ search: "cbc", category: "blood", homeOnly: true, lowestPrice: true });
+lib/api/labs-server.test.ts:15:    expect(url).toBe("https://api.test/labs/services?category=blood&search=cbc&home_visit=true&lowest_price=true");
+lib/api/labs.test.ts:2:import { extractLabService, extractLabServices, parseLabServiceId } from "./labs";
+lib/api/labs.test.ts:4:describe("labs parser", () => {
+lib/api/labs.test.ts:6:    const item = extractLabService({ id: "cbc", name_en: "CBC", price: 20, patient_id: "secret", provider_account_id: "internal", __v: 4 });
+lib/api/labs.test.ts:12:    expect(extractLabServices({ data: [{ id: "a", name_ar: "تحليل" }, { id: "bad id", name_en: "ignored" }] })).toHaveLength(1);
+lib/api/labs.test.ts:13:    expect(parseLabServiceId("bad/id").success).toBe(false);
+lib/api/claims.test.ts:6:    expect(parseClaims({ data: [{ id: "claim-1", service: "Lab", status: "approved", date: "2026-08-20", patient_id: "private", amount: 500, covered: 400, documents: [{ url: "private" }] }] })).toEqual([{ id: "claim-1", service: "Lab", status: "approved", date: "2026-08-20" }]);
+lib/api/claims.test.ts:10:    expect(parseClaims([{ id: "", service: "Lab" }, { id: "claim-2", status: "unknown" }])).toEqual([]);
+lib/api/labs-server.ts:2:import { parseLabServiceId } from "./labs";
+lib/api/labs-server.ts:11:export async function getPublicLabPackage(packageId: string): Promise<Response | null> {
+lib/api/labs-server.ts:12:  if (!parseLabServiceId(packageId).success) throw new Error("invalid_lab_package_id");
+lib/api/labs-server.ts:13:  try { return await fetch(patientApiUrl(`/labs/packages/${packageId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/labs-server.ts:16:export async function getPublicLabServices(params: {
+lib/api/labs-server.ts:27:  const path = `/labs/services${query.toString() ? `?${query.toString()}` : ""}`;
+lib/api/labs.ts:3:const labServiceIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
+lib/api/labs.ts:4:const labServiceSchema = z.object({
+lib/api/labs.ts:5:  id: labServiceIdSchema,
+lib/api/labs.ts:25:  insurance_availability: z.boolean().optional(),
+lib/api/labs.ts:26:  home_collection_availability: z.boolean().optional(),
+lib/api/labs.ts:27:  in_lab_availability: z.boolean().optional(),
+lib/api/labs.ts:29:  unavailable: z.boolean().optional(),
+lib/api/labs.ts:34:export type LabService = {
+lib/api/labs.ts:39:  preparationAr?: string[]; preparationEn?: string[]; isPackage?: boolean; includedServices?: string[]; specialNotes?: string; insuranceAvailable?: boolean;
+lib/api/labs.ts:40:  homeCollectionAvailable?: boolean; inLabAvailable?: boolean; referralRequired?: boolean;
+lib/api/labs.ts:41:  unavailable?: boolean; imageUrl?: string; icon?: string;
+lib/api/labs.ts:53:function parseLabService(value: unknown): LabService | null {
+lib/api/labs.ts:54:  const parsed = labServiceSchema.safeParse(value);
+lib/api/labs.ts:66:    insuranceAvailable: item.insurance_availability, homeCollectionAvailable: item.home_collection_availability,
+lib/api/labs.ts:67:    inLabAvailable: item.in_lab_availability, referralRequired: item.medical_referral_required,
+lib/api/labs.ts:68:    unavailable: item.unavailable, imageUrl: item.image_url, icon: item.icon,
+lib/api/labs.ts:72:export function parseLabServiceId(value: string) { return labServiceIdSchema.safeParse(value); }
+lib/api/labs.ts:73:export function extractLabServices(payload: unknown) { return rowsFrom(payload).flatMap((value) => { const item = parseLabService(value); return item ? [item] : []; }); }
+lib/api/labs.ts:74:export function extractLabService(payload: unknown) {
+lib/api/labs.ts:77:  return parseLabService(item);
+lib/api/doctors-slots.test.ts:3:describe("doctor slots contract parser",()=>{it("keeps only the verified public slot shape",()=>expect(extractDoctorSlots({date:"2026-09-01",service_type:"video",slots:[{start:"2026-09-01T09:00:00.000Z",end:"2026-09-01T09:30:00.000Z",label:"09:00",available:true,patient_id:"secret"},{start:"bad"}]})).toEqual({date:"2026-09-01",serviceType:"video",slots:[{start:"2026-09-01T09:00:00.000Z",end:"2026-09-01T09:30:00.000Z",label:"09:00",available:true}]}));it("bounds the query",()=>expect(doctorSlotsQuery({id:"doc/1",date:"2026-09-01",serviceType:"clinic"})).toBe("/care/doctors/doc%2F1/slots?date=2026-09-01&service_type=clinic"));});
+lib/api/chronic-meds.ts:2:const medSchema=z.object({id:z.string().uuid(),name:z.string().max(200).optional(),dose:z.string().max(160).optional(),frequency:z.string().max(80).optional(),times:z.array(z.string().max(20)).optional(),time_zone:z.string().max(80).optional(),pills_remaining:z.number().int().min(0).max(100000).nullable().optional(),refill_date:z.string().max(80).nullable().optional(),days_until_refill:z.number().int().nullable().optional(),needs_refill_soon:z.boolean().optional(),active:z.boolean().optional()}).passthrough();
+lib/api/chronic-meds.test.ts:5:    expect(parseChronicMedications([{ id: "91047ef2-ad36-422a-a184-629693e7c729", name: "Medicine", dose: "1 tablet", frequency: "daily", times: ["08:00"], pills_remaining: 8, refill_date: "2026-08-30", days_until_refill: 9, needs_refill_soon: true, active: true, patient_id: "private", refill_action: "private", prescription_id: "private" }])).toEqual([{ id: "91047ef2-ad36-422a-a184-629693e7c729", name: "Medicine", dose: "1 tablet", frequency: "daily", times: ["08:00"], timeZone: undefined, pillsRemaining: 8, refillDate: "2026-08-30", daysUntilRefill: 9, needsRefillSoon: true, active: true }]);
+lib/api/doctors.ts:11:  offers_online: z.boolean().optional(), offers_clinic: z.boolean().optional(), offers_home: z.boolean().optional(), accepts_insurance: z.boolean().optional(), facility_name: z.string().max(180).optional(), clinic_name: z.string().max(180).optional(), next_available_slot: z.string().max(80).optional(),
+lib/api/doctors.ts:15:export function extractDoctors(payload: unknown): DoctorRow[] { return rowsFrom(payload).flatMap((value) => { const parsed=doctorSchema.safeParse(value); if(!parsed.success) return []; const d=parsed.data; const id=d.id ?? d._id; if(!id) return []; const name=d.name_ar ?? d.name_en ?? d.name ?? d.display_name; const specialty=d.specialty_ar ?? d.specialty; return [{ id, name, degree:d.degree ?? d.title, specialty, rating:d.rating, reviews:d.review_count ?? d.reviews_count, price:d.consultation_fee ?? d.price, waitMinutes:d.average_wait, experienceYears:d.years_experience ?? d.experience_years, online:d.offers_online ?? false, clinic:d.offers_clinic ?? false, home:d.offers_home ?? false, acceptsInsurance:d.accepts_insurance ?? false, facility:d.facility_name ?? d.clinic_name, nextSlot:d.next_available_slot }]; }); }
+lib/api/doctors.ts:18:export type DoctorSlot = { start: string; end: string; label: string; available: boolean };
+lib/api/doctors.ts:20:export function extractDoctorSlots(payload: unknown): DoctorSlots | null { if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null; const p=payload as Record<string, unknown>; if(typeof p.date!=="string" || !["clinic","video","home"].includes(String(p.service_type))) return null; const slots=Array.isArray(p.slots)?p.slots.flatMap((s)=>{ if(!s||typeof s!=="object") return []; const x=s as Record<string,unknown>; if(typeof x.start!=="string"||typeof x.end!=="string"||typeof x.label!=="string"||typeof x.available!=="boolean") return []; return [{start:x.start,end:x.end,label:x.label,available:x.available}]; }):[]; return {date:p.date,serviceType:p.service_type as DoctorSlots["serviceType"],slots,reason:typeof p.reason==="string"?p.reason:undefined}; }
+lib/api/home-care-services-server.test.ts:2:import { getPublicHomeCareService, getPublicHomeCareServices } from "./home-care-services-server";
+lib/api/home-care-services-server.test.ts:4:describe("home-care public service wrappers", () => {
+lib/api/home-care-services-server.test.ts:9:  it("allows only a safe detail identifier", async () => { await getPublicHomeCareService("svc-1"); expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining("/home-care/services/svc-1"), expect.any(Object)); await expect(getPublicHomeCareService("patient@example.com")).rejects.toThrow("invalid_home_care_service_id"); });
+lib/api/home-care-services.test.ts:2:import { extractHomeCareService, extractHomeCareServices, parseHomeCareServiceId } from "./home-care-services";
+lib/api/home-care-services.test.ts:4:describe("home-care services parser", () => {
+lib/api/home-care-services.test.ts:6:    expect(extractHomeCareServices([{ id: "svc-1", name_ar: "تمريض منزلي", name_en: "Home nursing", description_ar: "وصف", price: 120, duration_value: 2, duration: "hour", insurance_availability: true, patient_id: "private" }])).toMatchObject([{ id: "svc-1", nameAr: "تمريض منزلي", nameEn: "Home nursing", descriptionAr: "وصف", price: 120, durationValue: 2, duration: "hour", insuranceAvailable: true }]);
+lib/api/cart.test.ts:11:    expect(extractCartSummary({ patient_id: "private", groups: [{ kind: "pharmacy", count: 1, subtotal: 12, items: [{ line_id: "line-1", service_id: "med-1", name_ar: "Medicine", qty: 2, price: 6, payment_method: "cash", notes: "private", meta: { private: true } }] }], subtotal: 12, home_visit_fee: 0, total: 12, currency: "SAR" })).toEqual({ groups: [{ kind: "pharmacy", count: 1, subtotal: 12, items: [{ lineId: "line-1", serviceId: "med-1", kind: "pharmacy", name: "Medicine", quantity: 2, price: 6, paymentMethod: "cash", homeVisit: false }] }], subtotal: 12, homeVisitFee: 0, total: 12, currency: "SAR" });
+lib/api/home-care-services-server.ts:2:import { parseHomeCareServiceId } from "./home-care-services";
+lib/api/home-care-services-server.ts:5:  if (path === "/home-care/services") return path;
+lib/api/home-care-services-server.ts:6:  const match = path.match(/^\/home-care\/services\/([^/]+)$/);
+lib/api/home-care-services-server.ts:11:/** Public Home-care catalog contract. No patient credential is sent. */
+lib/api/home-care-services-server.ts:13:  try { return await fetch(patientApiUrl(servicePath("/home-care/services")), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/home-care-services-server.ts:18:  try { return await fetch(patientApiUrl(servicePath(`/home-care/services/${serviceId}`)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+lib/api/home-care-services.ts:16:  insurance_availability: z.boolean().optional(),
+lib/api/home-care-services.ts:29:  insuranceAvailable?: boolean;
+lib/api/home-care-services.ts:48:  return { id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability };
+lib/api/upstream.ts:11:    return new Response(null, { status: 503, statusText: "upstream_unavailable" });
+lib/api/upstream.test.ts:7:  it("converts a network failure to a generic unavailable response", async () => {
+lib/api/upstream.test.ts:13:    expect(response.statusText).toBe("upstream_unavailable");
+lib/api/trends.ts:3:const trendSchema=z.object({id:z.enum(["glucose","heart_rate","bp","spo2","temperature","weight"]),name:z.string().max(120),unit:z.string().max(30),current:z.number().finite(),trendDir:z.enum(["flat","up","down"]),labels:z.array(z.string().max(20)).max(30),data:z.array(pointSchema).max(30)}).passthrough();
+lib/api/trends.ts:4:export type HealthTrend={id:string;name:string;unit:string;current:number;trendDir:"flat"|"up"|"down";labels:string[];data:{value:number;at:string}[]};
+lib/api/trends.ts:5:export function parseHealthTrends(payload:unknown):HealthTrend[]{const rows=Array.isArray(payload)?payload:(payload&&typeof payload==="object"&&Array.isArray((payload as Record<string,unknown>).data)?(payload as Record<string,unknown>).data:[]);return (rows as unknown[]).flatMap((value)=>{const p=trendSchema.safeParse(value);if(!p.success)return[];const r=p.data;return [{id:r.id,name:r.name,unit:r.unit,current:r.current,trendDir:r.trendDir,labels:r.labels,data:r.data}];});}
+lib/api/trends.test.ts:5:    expect(parseHealthTrends([{ id: "glucose", name: "Glucose", unit: "mg/dL", normal: [70, 140], current: 100, trendDir: "flat", labels: ["08-20"], data: [{ value: 100, at: "2026-08-20T08:00:00.000Z" }], patient_id: "private" }])).toEqual([{ id: "glucose", name: "Glucose", unit: "mg/dL", current: 100, trendDir: "flat", labels: ["08-20"], data: [{ value: 100, at: "2026-08-20T08:00:00.000Z" }] }]);
+lib/api/settings.ts:5:const storageItemSchema = z.object({ label: z.string().max(120), val: z.string().max(80), pct: z.number().min(0).max(100) }).passthrough();
+lib/api/settings.ts:7:const sessionSchema = z.object({ device: z.string().max(160).nullable().optional(), expires_in_seconds: z.number().int().min(0).max(31536000).optional() }).passthrough();
+lib/api/settings.ts:17:export type StorageSummary = { used?: string; total?: string; items: { label: string; value: string; percent: number }[] };
+lib/api/settings.ts:39:  return { used: parsed.data.used, total: parsed.data.total, items: (parsed.data.items ?? []).map((item) => ({ label: item.label, value: item.val, percent: item.pct })) };
+lib/api/settings.test.ts:13:    expect(parseStorageSummary({ used: "1 MB", total: "5 GB", items: [{ label: "Reports", val: "1 MB", pct: 2, base64: "private" }], patient_id: "private" })).toEqual({ used: "1 MB", total: "5 GB", items: [{ label: "Reports", value: "1 MB", percent: 2 }] });
+app/api/appointments/[appointmentId]/call-token/route.ts:18:  if (!upstream.ok) return NextResponse.json(data || { message: "call_token_unavailable" }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+lib/api/sandbox-profile-contracts.test.ts:86:    expect(profileDomainState(medicalResponse.status, medicalFields.length)).toBe("available");
+lib/api/sandbox-profile-contracts.test.ts:92:      expect(["available", "empty"]).toContain(profileDomainState(response.status, fields.length));
+lib/api/sandbox-prescriptions-contract.test.ts:23:describeSandbox("Sandbox prescriptions contract", () => {
+lib/api/sandbox-prescriptions-contract.test.ts:24:  it("reads the current patient's prescription list without sending, substituting, or uploading", async () => {
+lib/api/sandbox-prescriptions-contract.test.ts:28:    const response = await fetch(`${baseUrl}/prescriptions/mine`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-prescriptions-contract.test.ts:34:  it("rejects the self-scoped prescription list without a patient session", async () => {
+lib/api/sandbox-prescriptions-contract.test.ts:38:    const response = await fetch(`${baseUrl}/prescriptions/mine`, { signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-order-ownership.test.ts:32:    const ownerResponse = await fetch(`${baseUrl}/orders/${sandboxOrderId}`, { headers: { authorization: `Bearer ${ownerToken}` } });
+lib/api/sandbox-order-ownership.test.ts:35:    const otherResponse = await fetch(`${baseUrl}/orders/${sandboxOrderId}`, { headers: { authorization: `Bearer ${otherToken}` } });
+lib/api/sandbox-medicines-contract.test.ts:5:describeSandbox("Sandbox medicines catalog contract", () => {
+lib/api/sandbox-medicines-contract.test.ts:6:  it("supports bounded list, search, and detail reads without logging medicine records", async () => {
+lib/api/sandbox-medicines-contract.test.ts:9:    const response = await fetch(`${baseUrl}/medicines?limit=1`, { signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-medicines-contract.test.ts:20:    const detail = await fetch(`${baseUrl}/medicines/${encodeURIComponent(id)}/details`, { signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-medicines-contract.test.ts:24:    const search = await fetch(`${baseUrl}/medicines?limit=1&page=1&q=${encodeURIComponent(searchTerm)}`, { signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-home-care-contract.test.ts:30:describeSandbox("Sandbox home-care booking contract", () => {
+lib/api/sandbox-home-care-contract.test.ts:31:  it("allows the owner to read their list and rejects another patient for any available detail", async () => {
+lib/api/sandbox-home-care-contract.test.ts:36:    const list = await fetch(`${baseUrl}/home-care/bookings/my`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-home-care-contract.test.ts:40:    const ownerDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-home-care-contract.test.ts:42:    const otherDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/medicines.ts:3:const medicineIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
+lib/api/medicines.ts:6:export type MedicineRow = {
+lib/api/medicines.ts:14:  requiresPrescription?: boolean;
+lib/api/medicines.ts:15:  availabilityStatus?: string;
+lib/api/medicines.ts:34:function medicineFrom(value: unknown): MedicineRow | null {
+lib/api/medicines.ts:36:  const id = medicineIdSchema.safeParse(record?.id);
+lib/api/medicines.ts:46:    requiresPrescription: typeof record.requires_prescription === "boolean" ? record.requires_prescription : undefined,
+lib/api/medicines.ts:47:    availabilityStatus: text(record, "availability_status"),
+lib/api/medicines.ts:51:export function parseMedicineId(value: string) {
+lib/api/medicines.ts:52:  return medicineIdSchema.safeParse(value);
+lib/api/medicines.ts:55:export function parseMedicineSearch(value: { q?: string | string[]; page?: string | string[] }) {
+lib/api/medicines.ts:61:export function medicineQuery(search: { q?: string; page: number }) {
+lib/api/medicines.ts:64:  return `/medicines?${params.toString()}`;
+lib/api/medicines.ts:67:export function extractMedicineRows(payload: unknown) {
+lib/api/medicines.ts:69:    const medicine = medicineFrom(item);
+lib/api/medicines.ts:70:    return medicine ? [medicine] : [];
+lib/api/medicines.ts:74:export function extractMedicineDetail(payload: unknown) {
+lib/api/medicines.ts:76:  return medicineFrom(asRecord(root?.data) ?? root);
+lib/api/sandbox-diagnostics-contracts.test.ts:35:describeSandbox("Sandbox diagnostic booking contracts", () => {
+lib/api/sandbox-diagnostics-contracts.test.ts:36:  it("allows the owner to read list endpoints and rejects another patient for any available detail", async () => {
+lib/api/sandbox-diagnostics-contracts.test.ts:42:    for (const domain of ["labs", "radiology"]) {
+lib/api/medicines.test.ts:2:import { extractMedicineDetail, extractMedicineRows, medicineQuery, parseMedicineId, parseMedicineSearch } from "./medicines";
+lib/api/medicines.test.ts:4:const medicineId = "91047ef2-ad36-422a-a184-629693e7c729";
+lib/api/medicines.test.ts:6:describe("medicine response guards", () => {
+lib/api/medicines.test.ts:8:    const rows = extractMedicineRows({ data: [{ id: medicineId, name_ar: "Name", active_ingredient: "Ingredient", requires_prescription: true, price: 99, aggregate_stock: 5, updated_by: "private" }] });
+lib/api/medicines.test.ts:9:    expect(rows).toEqual([{ id: medicineId, nameAr: "Name", nameEn: undefined, activeIngredient: "Ingredient", genericName: undefined, form: undefined, strength: undefined, requiresPrescription: true, availabilityStatus: undefined }]);
+lib/api/medicines.test.ts:12:  it("bounds search inputs and accepts only safe medicine identifier characters", () => {
+lib/api/medicines.test.ts:13:    expect(parseMedicineSearch({ q: "  query  ", page: "2" })).toEqual({ q: "query", page: 2 });
+lib/api/medicines.test.ts:14:    expect(medicineQuery({ q: "query", page: 2 })).toBe("/medicines?limit=24&page=2&q=query");
+lib/api/medicines.test.ts:15:    expect(() => parseMedicineSearch({ q: "x".repeat(81) })).toThrow();
+lib/api/medicines.test.ts:16:    expect(parseMedicineId(medicineId).success).toBe(true);
+lib/api/medicines.test.ts:17:    expect(parseMedicineId("aB_12-").success).toBe(true);
+lib/api/medicines.test.ts:18:    expect(parseMedicineId("../unsafe").success).toBe(false);
+lib/api/medicines.test.ts:19:    expect(parseMedicineId("invalid/id").success).toBe(false);
+lib/api/medicines.test.ts:20:    expect(extractMedicineDetail({ id: "invalid/id" })).toBeNull();
+lib/api/reports.ts:2:const row = z.object({ id: z.string().min(1).max(160), date: z.string().nullable().optional(), title: z.string().nullable().optional(), doctor: z.string().nullable().optional(), facility: z.string().nullable().optional(), type: z.string().nullable().optional(), critical: z.boolean().optional(), has_attachments: z.boolean().optional() }).passthrough();
+lib/api/reports.test.ts:3:describe("reports parser", () => { it("keeps metadata and drops report body and attachment data", () => { expect(parseReports([{ id: "report-1", date: "2026-01-01", title: "Lab report", doctor: "Verified doctor", facility: "Verified facility", type: "lab", critical: false, has_attachments: true, body: "private clinical body", attachments: [{ base64: "private-file" }] }])).toEqual([{ id: "report-1", date: "2026-01-01", title: "Lab report", doctor: "Verified doctor", facility: "Verified facility", type: "lab", critical: false, hasAttachments: true }]); }); it("returns empty for malformed rows", () => { expect(parseReports([{ id: "" }, { id: "report-2", title: 42 }])).toEqual([]); }); });
+lib/api/reminders.ts:7:export type MedicationReminderSummary = { id: string; medicineName?: string; dose?: string; times: string[]; frequency?: string; todayDoses: MedicationDoseSummary[] };
+lib/api/reminders.ts:24:  const medicineName = typeof record.medicine_name_ar === "string" && record.medicine_name_ar.trim() ? record.medicine_name_ar : typeof record.medicine_name_en === "string" && record.medicine_name_en.trim() ? record.medicine_name_en : undefined;
+lib/api/reminders.ts:34:  return { id: id.data, medicineName, dose, times, frequency, todayDoses };
+lib/api/reminders.test.ts:8:    const reminders = extractMedicationReminderSummaries({ reminders: [{ id: reminderId, medicine_name_ar: "Medicine", dose: "1 tablet", times: ["08:00", "invalid"], frequency: "daily", today_doses: [{ time_key: "08:00", status: "taken" }, { time_key: "99:99", status: "pending" }, { time_key: "09:00", status: "unknown" }], patient_id: "private", instructions_ar: "private", log: [{ status: "taken" }], refill_pending_order_id: "private" }] });
+lib/api/reminders.test.ts:9:    expect(reminders).toEqual([{ id: reminderId, medicineName: "Medicine", dose: "1 tablet", times: ["08:00"], frequency: "daily", todayDoses: [{ timeKey: "08:00", status: "taken" }] }]);
+lib/api/medicines-server.ts:1:import { medicineQuery } from "@/lib/api/medicines";
+lib/api/medicines-server.ts:5:export function getPatientMedicines(accessToken: string, search: { q?: string; page: number }) {
+lib/api/medicines-server.ts:6:  return callPatientApi(medicineQuery(search), {}, accessToken);
+lib/api/medicines-server.ts:9:export function getPatientMedicine(accessToken: string, medicineId: string) {
+lib/api/medicines-server.ts:10:  return callPatientApi(`/medicines/${medicineId}/details`, {}, accessToken);
+lib/api/medicines-server.test.ts:6:import { getPatientMedicine, getPatientMedicines } from "./medicines-server";
+lib/api/medicines-server.test.ts:8:describe("medicine server boundary", () => {
+lib/api/medicines-server.test.ts:15:    await getPatientMedicines("server-token", { q: "query", page: 1 });
+lib/api/medicines-server.test.ts:16:    await getPatientMedicine("server-token", "91047ef2-ad36-422a-a184-629693e7c729");
+lib/api/medicines-server.test.ts:18:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/medicines?limit=24&page=1&q=query", {}, "server-token");
+lib/api/medicines-server.test.ts:19:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/medicines/91047ef2-ad36-422a-a184-629693e7c729/details", {}, "server-token");
+lib/api/insurance.ts:2:const schema = z.object({ has_policy: z.boolean(), policy: z.object({ company_name: z.string().max(160).optional(), plan_class: z.string().max(80).optional() }).nullable().optional() }).passthrough();
+lib/api/home-care.test.ts:2:import { extractHomeCareBookings } from "./home-care";
+lib/api/home-care.test.ts:6:describe("home-care response guards", () => {
+lib/api/home-care-server.ts:3:/** Server-only BFF boundary for patient home-care booking lists. */
+lib/api/home-care-server.ts:5:  return callPatientApi("/home-care/bookings/my", {}, accessToken);
+lib/api/home-care-server.test.ts:6:import { getPatientHomeCareBookings } from "./home-care-server";
+lib/api/home-care-server.test.ts:8:describe("home-care server boundary", () => {
+lib/api/home-care-server.test.ts:10:  it("uses the bounded home-care list path and server token", async () => {
+lib/api/home-care-server.test.ts:14:    expect(callPatientApi).toHaveBeenCalledWith("/home-care/bookings/my", {}, "server-token");
+lib/api/health-score.ts:4:const scoreSchema = z.object({ score: z.number().finite().min(0).max(100).nullable(), status: z.string().min(1).max(64), components: z.array(componentSchema).max(32).optional() }).passthrough();
+lib/api/notification-settings.ts:1:const SETTINGS_KEYS = ["general", "appointments", "orders", "offers", "medications", "doctorMessages", "emergency", "sound", "vibration"] as const;
+lib/api/mental-health.ts:2:const stat = z.object({ total_entries: z.number().int().min(0).max(100000), avg_mood: z.number().nullable(), avg_energy: z.number().nullable(), avg_stress: z.number().nullable(), avg_sleep: z.number().nullable() }).passthrough();
+lib/api/prescriptions-server.ts:3:/** Server-only BFF boundary for the current patient's prescription summary list. */
+lib/api/prescriptions-server.ts:4:export function getPatientPrescriptions(accessToken: string) {
+lib/api/prescriptions-server.ts:5:  return callPatientApi("/prescriptions/mine", {}, accessToken);
+lib/api/prescriptions-server.test.ts:5:import { getPatientPrescriptions } from "./prescriptions-server";
+lib/api/prescriptions-server.test.ts:7:describe("prescriptions server boundary", () => {
+lib/api/prescriptions-server.test.ts:9:  it("uses the current-patient prescription list path and server token", async () => {
+lib/api/prescriptions-server.test.ts:12:    await getPatientPrescriptions("server-token");
+lib/api/prescriptions-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/prescriptions/mine", {}, "server-token");
+lib/api/patient-allowlist.ts:4:  new RegExp("^/orders/mine$"),
+lib/api/patient-allowlist.ts:5:  new RegExp(`^/orders/${orderId}$`, "i"),
+lib/api/patient-allowlist.ts:6:  new RegExp("^/patient/pharmacy/orders$"),
+lib/api/patient-allowlist.ts:7:  new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i"),
+lib/api/patient-allowlist.ts:8:  new RegExp(`^/orders/${orderId}/tracking$`, "i"),
+lib/api/patient-allowlist.ts:11:  new RegExp("^/cart/prescription$"),
+lib/api/patient-allowlist.test.ts:9:    expect(isAllowedPatientApiPath("/orders/mine")).toBe(true);
+lib/api/patient-allowlist.test.ts:11:      isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729")
+lib/api/patient-allowlist.test.ts:13:    expect(isAllowedPatientApiPath("/patient/pharmacy/orders")).toBe(true);
+lib/api/patient-allowlist.test.ts:14:    expect(isAllowedPatientApiPath(`/patient/pharmacy/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}`)).toBe(true);
+lib/api/patient-allowlist.test.ts:15:    expect(isAllowedPatientApiPath(`/orders/${"91047ef2-ad36-422a-a184-629693e7c729"}/tracking`)).toBe(true);
+lib/api/patient-allowlist.test.ts:19:    expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
+lib/api/patient-allowlist.test.ts:26:    expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
+lib/api/patient-allowlist.test.ts:27:    expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:28:    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:29:    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(false);
+lib/api/patient-allowlist.test.ts:30:    expect(isAllowedPatientApiRequest("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:37:    expect(isAllowedPatientApiPath("/orders/not-an-id")).toBe(false);
+lib/api/patient-allowlist.test.ts:40:        "/orders/91047ef2-ad36-422a-a184-629693e7c729/items"
+lib/api/patient-allowlist.test.ts:43:    expect(isAllowedPatientApiPath("/orders/../admin/users")).toBe(false);
+lib/api/patient-allowlist.test.ts:44:    expect(isAllowedPatientApiPath("/orders/%2e%2e/admin/users")).toBe(false);
+lib/api/patient-allowlist.test.ts:45:    expect(isAllowedPatientApiPath("/patient/pharmacy/orders/not-an-id")).toBe(false);
+lib/api/patient-allowlist.test.ts:46:    expect(isAllowedPatientApiPath("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/items")).toBe(false);
+lib/api/patient-allowlist.test.ts:47:    expect(isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking/messages")).toBe(false);
+lib/api/patient-allowlist.test.ts:53:    expect(isAllowedPatientApiRequest("/orders/mine", "get")).toBe(false);
+lib/api/patient-allowlist.test.ts:54:    expect(isAllowedPatientApiRequest("/orders/mine", "PUT")).toBe(false);
+lib/api/patient-allowlist.test.ts:57:        "/orders/91047ef2-ad36-422a-a184-629693e7c729",
+lib/api/orders.ts:5:export type PatientOrderSummary = { id: string; status?: string; reference?: string; createdAt?: string; itemCount?: number; total?: number; currency?: string };
+lib/api/orders.ts:18:export function extractOrderRows(payload: unknown): PatientOrderSummary[] {
+lib/api/orders.ts:20:  const candidate = Array.isArray(payload) ? payload : [root?.data, root?.orders, root?.items].find(Array.isArray);
+lib/api/orders.ts:37:export type PatientOrderTracking = { status?: string; pharmacyName?: string; deliveryMode?: string; etaMinutes?: number; total?: number; currency?: string; updatedAt?: string };
+lib/api/orders.ts:50:    pharmacyName: stringField(record, ["pharmacy_name", "pharmacyName"]),
+lib/api/orders.test.ts:2:import { extractOrderRows, parseOrderId } from "./orders";
+lib/api/orders.test.ts:10:  it("keeps bounded patient pharmacy summary fields and excludes private payload fields", () => {
+lib/api/orders.test.ts:11:    expect(extractOrderRows({ data: [{ id: "91047ef2-ad36-422a-a184-629693e7c729", status: "DELIVERED", createdAt: "2026-08-20T10:00:00.000Z", items: [{ name_ar: "private medicine" }], totals: { total: 42, currency: "SAR" }, patient_account_id: "private-patient", delivery_address: "private-address", patient_notes: "private-notes", prescription_attachments: ["private-file"] }] })).toEqual([{ id: "91047ef2-ad36-422a-a184-629693e7c729", status: "DELIVERED", reference: undefined, createdAt: "2026-08-20T10:00:00.000Z", itemCount: 1, total: 42, currency: "SAR" }]);
+lib/api/orders.test.ts:15:    const { extractOrderTracking } = await import("./orders");
+lib/api/orders.test.ts:16:    expect(extractOrderTracking({ data: { state: "OUT_FOR_DELIVERY", pharmacy_name: "Sandbox Pharmacy", delivery_mode: "DELIVERY", delivery: { eta_minutes: 24 }, total: 18, currency: "SAR", updated_at: "2026-08-21T10:00:00.000Z", patient_account_id: "private", delivery_address: "private", patient_notes: "private", prescription_attachments: ["private"] } })).toEqual({ status: "OUT_FOR_DELIVERY", pharmacyName: "Sandbox Pharmacy", deliveryMode: "DELIVERY", etaMinutes: 24, total: 18, currency: "SAR", updatedAt: "2026-08-21T10:00:00.000Z" });
+lib/api/prescriptions.ts:3:const prescriptionIdSchema = z.string().uuid();
+lib/api/prescriptions.ts:5:export type PrescriptionItem = { name?: string; dose?: string; frequencyHours?: number; durationDays?: number; instructions?: string };
+lib/api/prescriptions.ts:6:export type PrescriptionSummary = { id: string; state?: string; itemCount: number; createdAt?: string; doctorName?: string; medicationNames: string[]; items: PrescriptionItem[] };
+lib/api/prescriptions.ts:15:  for (const candidate of [root?.data, root?.items, root?.results, root?.prescriptions]) if (Array.isArray(candidate)) return candidate;
+lib/api/prescriptions.ts:19:function itemFrom(value: unknown): PrescriptionItem | null {
+lib/api/prescriptions.ts:23:  const name = [row.name, row.medicine_name, row.medication_name, row.medicine_name_ar, row.medicine_name_en].find((value) => typeof value === "string" && value.trim());
+lib/api/prescriptions.ts:33:function prescriptionFrom(value: unknown): PrescriptionSummary | null {
+lib/api/prescriptions.ts:35:  const id = prescriptionIdSchema.safeParse(record?.id);
+lib/api/prescriptions.ts:46:export function extractPrescriptionSummaries(payload: unknown) {
+lib/api/prescriptions.ts:48:    const prescription = prescriptionFrom(item);
+lib/api/prescriptions.ts:49:    return prescription ? [prescription] : [];
+lib/api/prescriptions.test.ts:2:import { extractPrescriptionSummaries } from "./prescriptions";
+lib/api/prescriptions.test.ts:4:const prescriptionId = "91047ef2-ad36-422a-a184-629693e7c729";
+lib/api/prescriptions.test.ts:6:describe("prescription response guards", () => {
+lib/api/prescriptions.test.ts:8:    const prescriptions = extractPrescriptionSummaries({ prescriptions: [{ id: prescriptionId, state: "CREATED_BY_DOCTOR", createdAt: "2026-08-20T10:00:00.000Z", items: [{ medicine_name_ar: "private", dose: "private" }], patient_id: "private", diagnosis: "private", notes: "private", upload_image: "https://example.test/private" }] });
+lib/api/prescriptions.test.ts:9:    expect(prescriptions).toEqual([{ id: prescriptionId, state: "CREATED_BY_DOCTOR", itemCount: 1, createdAt: "2026-08-20T10:00:00.000Z", doctorName: undefined, medicationNames: ["private"], items: [{ name: "private", dose: "private", frequencyHours: undefined, durationDays: undefined, instructions: undefined }] }]);
+lib/api/profile.ts:2:export type ProfileDomainState = "available" | "empty" | "forbidden" | "error";
+lib/api/profile.ts:27:  return fieldCount > 0 ? "available" : "empty";
+lib/api/profile.test.ts:21:    expect(profileDomainState(200, 1)).toBe("available");
+lib/api/public-medicines-server.test.ts:2:import { getPublicMedicines } from "./public-medicines-server";
+lib/api/public-medicines-server.test.ts:4:describe("public medicine server", () => {
+lib/api/public-medicines-server.test.ts:9:    await expect(getPublicMedicines({ page: 1 })).resolves.toBeNull();
+lib/api/public-medicines-server.ts:1:import { medicineQuery, parseMedicineId } from "@/lib/api/medicines";
+lib/api/public-medicines-server.ts:4:function publicMedicinePath(path: string) {
+lib/api/public-medicines-server.ts:5:  const listPath = /^\/medicines(?:\?(?:[A-Za-z0-9%_=&-]+))?$/;
+lib/api/public-medicines-server.ts:6:  const detailPath = /^\/medicines\/[A-Za-z0-9_-]{1,64}\/details$/;
+lib/api/public-medicines-server.ts:7:  if (!listPath.test(path) && !detailPath.test(path)) throw new Error("invalid_public_medicine_path");
+lib/api/public-medicines-server.ts:12:export async function getPublicMedicines(search: { q?: string; page: number }): Promise<Response | null> {
+lib/api/public-medicines-server.ts:14:    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), {
+lib/api/public-medicines-server.ts:23:export async function getPublicMedicine(medicineId: string): Promise<Response | null> {
+lib/api/public-medicines-server.ts:24:  if (!parseMedicineId(medicineId).success) throw new Error("invalid_public_medicine_id");
+lib/api/public-medicines-server.ts:26:    return await fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), {
+lib/api/emergency-contacts.ts:2:const contactSchema=z.object({id:z.string().max(120).optional(),name:z.string().max(120),relation:z.string().max(60).nullable().optional(),phone:z.string().max(24),isPrimary:z.boolean().optional()}).passthrough();
+app/api/patient/[...path]/route.test.ts:34:    nextUrl: new URL("https://web.nabd.plus/api/patient/orders/mine"),
+app/api/patient/[...path]/route.test.ts:39:  return { params: Promise.resolve({ path: ["orders", "mine"] }) };
+app/api/patient/[...path]/route.test.ts:64:    expect(state.callPatientApi).toHaveBeenNthCalledWith(1, "/orders/mine", expect.any(Object), "expired-access");
+app/api/patient/[...path]/route.test.ts:66:    expect(state.callPatientApi).toHaveBeenNthCalledWith(3, "/orders/mine", expect.any(Object), "new-access");
+lib/api/diagnostics.ts:3:export const diagnosticDomains = ["labs", "radiology"] as const;
+lib/api/diagnostics.ts:4:export type DiagnosticDomain = typeof diagnosticDomains[number];
+lib/api/diagnostics.ts:8:export type DiagnosticBooking = {
+lib/api/diagnostics.ts:38:function bookingFrom(value: unknown): DiagnosticBooking | null {
+lib/api/diagnostics.ts:54:export function parseDiagnosticDomain(value: string): DiagnosticDomain | null {
+lib/api/diagnostics.ts:55:  return diagnosticDomains.includes(value as DiagnosticDomain) ? value as DiagnosticDomain : null;
+lib/api/diagnostics.ts:58:export function parseDiagnosticBookingId(value: string) {
+lib/api/diagnostics.ts:62:export function extractDiagnosticBookings(payload: unknown) {
+lib/api/diagnostics.ts:69:export function extractDiagnosticBooking(payload: unknown) {
+lib/api/dashboard.ts:2:export type DashboardAppointment = { id: string; doctorName: string | null; dateLabel: string | null; status: string | null };
+lib/api/dashboard.ts:28:    dateLabel: date,
+lib/api/diagnostics-server.test.ts:6:import { getDiagnosticBooking, getDiagnosticBookings } from "./diagnostics-server";
+lib/api/diagnostics-server.test.ts:8:describe("diagnostic server boundary", () => {
+lib/api/diagnostics-server.test.ts:11:  it("forwards bounded diagnostic reads with the server access token only", async () => {
+lib/api/diagnostics-server.test.ts:14:    await getDiagnosticBookings("server-token", "labs");
+lib/api/diagnostics-server.test.ts:15:    await getDiagnosticBooking("server-token", "radiology", "91047ef2-ad36-422a-a184-629693e7c729");
+lib/api/diagnostics-server.test.ts:16:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/labs/bookings/mine", {}, "server-token");
+lib/api/diagnostics-server.test.ts:17:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-token");
+lib/api/diagnostics-server.ts:1:import type { DiagnosticDomain } from "@/lib/api/diagnostics";
+lib/api/diagnostics-server.ts:4:/** Server-only BFF boundary for private lab and radiology booking reads. */
+lib/api/diagnostics-server.ts:5:export function getDiagnosticBookings(accessToken: string, domain: DiagnosticDomain) {
+lib/api/diagnostics-server.ts:9:export function getDiagnosticBooking(accessToken: string, domain: DiagnosticDomain, bookingId: string) {
+lib/api/diagnostics.test.ts:2:import { extractDiagnosticBooking, extractDiagnosticBookings, parseDiagnosticBookingId, parseDiagnosticDomain } from "./diagnostics";
+lib/api/diagnostics.test.ts:6:describe("diagnostic booking response guards", () => {
+lib/api/diagnostics.test.ts:8:    const rows = extractDiagnosticBookings({ data: [{ id: bookingId, state: "CONFIRMED", scheduled_at: "2026-08-20T10:00:00.000Z", patient_name: "private", total_price: 500, reports: [{ url: "private" }] }] });
+lib/api/diagnostics.test.ts:12:  it("validates diagnostic domains and UUID booking identifiers", () => {
+lib/api/diagnostics.test.ts:13:    expect(parseDiagnosticDomain("labs")).toBe("labs");
+lib/api/diagnostics.test.ts:14:    expect(parseDiagnosticDomain("radiology")).toBe("radiology");
+lib/api/diagnostics.test.ts:15:    expect(parseDiagnosticDomain("admin")).toBeNull();
+lib/api/diagnostics.test.ts:16:    expect(parseDiagnosticBookingId(bookingId).success).toBe(true);
+lib/api/diagnostics.test.ts:17:    expect(parseDiagnosticBookingId("invalid").success).toBe(false);
+lib/api/diagnostics.test.ts:18:    expect(extractDiagnosticBooking({ id: "invalid" })).toBeNull();
+lib/api/diagnostics-report.test.ts:2:import { extractDiagnosticBooking } from "./diagnostics";
+lib/api/diagnostics-report.test.ts:3:describe("diagnostic report marker", () => { it("keeps only report availability and never exposes the report URL", () => { expect(extractDiagnosticBooking({ id:"00000000-0000-4000-8000-000000000001", state:"REPORT_READY", signed_report_pdf_url:"https://private/report.pdf", reports:[{body:"private"}] })).toMatchObject({ hasReport:true, state:"REPORT_READY" }); }); });
