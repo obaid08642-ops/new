@@ -1,0 +1,23 @@
+=== targeted contract tests ===
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ app/api/appointments/[appointmentId]/reschedule/route.test.ts (3 tests) 8ms
+ ✓ app/api/appointments/[appointmentId]/cancel/route.test.ts (3 tests) 7ms
+ ✓ app/api/auth/otp/otp-routes.test.ts (4 tests) 10ms
+ ✓ app/api/appointments/book/route.test.ts (4 tests) 9ms
+ ✓ app/api/appointments/[appointmentId]/payment-intent/route.test.ts (4 tests) 8ms
+ ✓ app/api/appointments/[appointmentId]/call-token/route.test.ts (3 tests) 7ms
+
+ Test Files  6 passed (6)
+      Tests  21 passed (21)
+   Start at  23:54:30
+   Duration  543ms (transform 202ms, setup 0ms, collect 919ms, tests 49ms, environment 1ms, prepare 263ms)
+
+=== type-check ===
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 check /home/ubuntu/nabdah_impl/repo
+> tsc --noEmit
+

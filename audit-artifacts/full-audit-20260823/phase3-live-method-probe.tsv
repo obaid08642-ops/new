@@ -1,0 +1,8 @@
+method	path	status
+POST	/auth/otp/request	400
+POST	/auth/otp/verify	400
+POST	/auth/session/exchange	400
+POST	/unified-bookings	401
+POST	/unified-bookings/consultation/00000000-0000-4000-8000-000000000000/cancel	401
+PATCH	/unified-bookings/consultation/00000000-0000-4000-8000-000000000000/reschedule	401
+POST	/payments/intent/consultation/00000000-0000-4000-8000-000000000000	401
