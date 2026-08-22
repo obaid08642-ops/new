@@ -74,6 +74,19 @@ describe('CareService public discovery contract', () => {
     expect(result).not.toHaveProperty('insurance_contracts');
   });
 
+  it('reports published provider counts using the canonical specialty slug only', async () => {
+    providers.aggregate.mockResolvedValue([{ _id: 'cardiology', count: 2 }, { _id: 'internal_medicine', count: 1 }]);
+
+    const result = await service.specialties();
+
+    expect(providers.aggregate).toHaveBeenCalledWith([
+      { $match: { type: ProviderType.DOCTOR, status: ProviderStatus.ACTIVE, public_eligibility: true, medical_review_status: 'approved' } },
+      { $group: { _id: '$specialty', count: { $sum: 1 } } },
+    ]);
+    expect(result.find((item: any) => item.slug === 'cardiology')).toMatchObject({ count: 2, published_provider_count: 2 });
+    expect(result.find((item: any) => item.slug === 'internal_medicine')).toMatchObject({ count: 1, published_provider_count: 1 });
+  });
+
   it('escapes user search metacharacters and reports exact total only when it is exact', async () => {
     providers.find.mockReturnValue({ sort: jest.fn(() => ({ limit: jest.fn().mockResolvedValue([]) })) });
 

@@ -97,3 +97,15 @@ export class CareController {
     return this.svc.facilityById(id);
   }
 }
+
+/** Compatibility contract surface for public patient-web discovery. */
+@Controller('public')
+export class PublicSpecialtiesController {
+  constructor(private svc: CareService) {}
+
+  @Public()
+  @Get('specialties')
+  specialties() {
+    return this.svc.specialties();
+  }
+}

@@ -48,13 +48,20 @@ export class CareService {
       { $group: { _id: '$specialty', count: { $sum: 1 } } },
     ]);
     const liveMap = new Map<string, number>(live.map((x) => [x._id, x.count]));
-    return SPECIALTY_MASTER.map((s) => ({
-      slug: s.slug,
-      specialty: s.name_ar,
-      name_ar: s.name_ar,
-      name_en: s.name_en,
-      count: liveMap.get(s.name_ar) || 0,
-    }));
+    return SPECIALTY_MASTER.map((s) => {
+      // Profiles store the canonical specialty slug; Arabic/English fallbacks
+      // retain compatibility with older imported records without counting
+      // unpublished providers.
+      const publishedProviderCount = liveMap.get(s.slug) || liveMap.get(s.name_ar) || liveMap.get(s.name_en) || 0;
+      return {
+        slug: s.slug,
+        specialty: s.name_ar,
+        name_ar: s.name_ar,
+        name_en: s.name_en,
+        count: publishedProviderCount,
+        published_provider_count: publishedProviderCount,
+      };
+    });
   }
 
   /** ===== Insurance companies ===== */
