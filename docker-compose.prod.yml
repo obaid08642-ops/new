@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: nabdah_backend_prod
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/nabdah
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - MOYASAR_API_KEY=${MOYASAR_API_KEY}
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - nabdah_network
+
+  mongo:
+    image: mongo:6.0
+    container_name: nabdah_mongo_prod
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - nabdah_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: nabdah_redis_prod
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - nabdah_network
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  nabdah_network:
+    driver: bridge
