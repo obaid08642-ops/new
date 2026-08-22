@@ -41,6 +41,7 @@ export class ChatMessage {
   @Prop() duration_seconds?: number; // voice note
   @Prop() reply_to_id?: string;
   @Prop() forwarded_from_id?: string;
+  @Prop({ type: [String], default: [] }) media_ids: string[];
   @Prop({ type: Object, default: {} }) reactions: Record<string, string[]>; // emoji -> user_ids
   @Prop({ type: [String], default: [] }) read_by: string[];
   @Prop({ type: [String], default: [] }) delivered_to: string[];

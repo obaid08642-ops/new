@@ -1,9 +1,11 @@
-import { Injectable, ForbiddenException, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException, NotFoundException, ServiceUnavailableException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventBusService } from '../events/event-bus.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChatThread, ChatThreadDocument, ChatMessage, ChatMessageDocument } from './chat.schemas';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const jwt = require('jsonwebtoken');
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
@@ -96,11 +98,48 @@ export class ChatService {
   }
 
   private assertParticipant(thread: any, userId: string): void {
-    if (!thread.participant_ids.includes(userId)) throw new ForbiddenException('not_participant');
+    // Do not reveal that a thread exists to a non-participant.
+    if (!thread.participant_ids.includes(userId)) throw new NotFoundException('thread_not_found');
   }
 
   getModel(name: string): Model<any> {
     return this.threads.db.model(name);
+  }
+
+  async issueRealtimeToken(threadId: string, user: any): Promise<{ token: string; expires_in: number }> {
+    await this.getThread(threadId, user?.id);
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new ServiceUnavailableException('chat_rt_token_not_configured');
+    return {
+      token: jwt.sign(
+        { sub: user.id, purpose: 'chat_rt', thread_id: threadId },
+        secret,
+        { algorithm: 'HS256', audience: 'chat-rt', expiresIn: '10m' },
+      ),
+      expires_in: 600,
+    };
+  }
+
+  private async validateChatMediaIds(threadId: string, senderId: string, mediaIds?: unknown): Promise<string[]> {
+    if (mediaIds === undefined) return [];
+    if (!Array.isArray(mediaIds) || mediaIds.some((id) => typeof id !== 'string' || !id.trim())) {
+      throw new BadRequestException('invalid_media_ids');
+    }
+    const uniqueIds = [...new Set(mediaIds.map((id) => id.trim()))];
+    if (uniqueIds.length > 10) throw new BadRequestException('too_many_media_ids');
+    if (!uniqueIds.length) return [];
+
+    let MediaAssetModel: Model<any>;
+    try {
+      MediaAssetModel = this.getModel('MediaAsset');
+    } catch {
+      throw new ServiceUnavailableException('media_registry_not_available');
+    }
+    const assets = await MediaAssetModel.find({
+      id: { $in: uniqueIds }, owner_id: senderId, purpose: 'chat', thread_id: threadId,
+    }).lean();
+    if (assets.length !== uniqueIds.length) throw new BadRequestException('media_not_owned_or_not_bound_to_thread');
+    return uniqueIds;
   }
 
   async checkIfFamily(participantIds: string[]): Promise<boolean> {
@@ -165,7 +204,7 @@ export class ChatService {
   async sendMessage(threadId: string, senderId: string, senderRole: string, body: {
     body?: string; type?: string; attachment_url?: string; attachment_mime?: string;
     attachment_name?: string; attachment_size?: number; duration_seconds?: number;
-    reply_to_id?: string; forwarded_from_id?: string; client_message_id?: string;
+    reply_to_id?: string; forwarded_from_id?: string; client_message_id?: string; media_ids?: string[];
   }): Promise<ChatMessage> {
     const thread = await this.threads.findOne({ id: threadId });
     if (!thread) throw new NotFoundException('thread_not_found');
@@ -174,23 +213,27 @@ export class ChatService {
     const check = await this.verifyCommunicationAllowed(threadId, senderId);
     if (!check.allowed) throw new ForbiddenException(check.message);
 
+    const mediaIds = await this.validateChatMediaIds(threadId, senderId, body?.media_ids);
+    if (body?.attachment_url) throw new BadRequestException('attachment_url_not_supported_use_media_ids');
+
     // Deduplication check
     if (body.client_message_id) {
-      const existing = await this.msgs.findOne({ client_message_id: body.client_message_id });
+      const existing = await this.msgs.findOne({ client_message_id: body.client_message_id, thread_id: threadId, sender_id: senderId });
       if (existing) {
         return existing.toObject();
       }
     }
 
-    if (!body?.body?.trim() && !body?.attachment_url) throw new BadRequestException('empty_message');
+    if (!body?.body?.trim() && mediaIds.length === 0) throw new BadRequestException('empty_message');
 
     const msg = await this.msgs.create({
       thread_id: threadId,
       sender_id: senderId,
       sender_role: senderRole,
       body: body.body?.trim() || '',
-      type: body.type || (body.attachment_url ? (body.attachment_mime?.startsWith('image/') ? 'image' : body.attachment_mime?.startsWith('audio/') ? 'voice' : 'file') : 'text'),
-      attachment_url: body.attachment_url,
+      type: body.type || (mediaIds.length ? 'file' : 'text'),
+      media_ids: mediaIds,
+      attachment_url: undefined,
       attachment_mime: body.attachment_mime,
       attachment_name: body.attachment_name,
       attachment_size: body.attachment_size,
@@ -208,7 +251,7 @@ export class ChatService {
       if (pid !== senderId) unread[`unread_counts.${pid}`] = (thread.unread_counts?.[pid] || 0) + 1;
     }
     await this.threads.updateOne({ id: threadId }, {
-      $set: { last_message: (body.body || '[مرفق]').slice(0, 150), last_message_at: new Date(), last_message_sender_id: senderId, ...unread },
+      $set: { last_message: (body.body || (mediaIds.length ? '[مرفق]' : '')).slice(0, 150), last_message_at: new Date(), last_message_sender_id: senderId, ...unread },
     });
 
     // Emit event for realtime delivery + push
@@ -217,6 +260,7 @@ export class ChatService {
       msg_id: msg.id,
       body: (body.body || '').slice(0, 120),
       type: msg.type,
+      media_ids: mediaIds,
       sender_id: senderId,
       participant_ids: thread.participant_ids,
       created_at: new Date(),
@@ -262,14 +306,17 @@ export class ChatService {
     return { messages: has_more ? messages.slice(0, limit) : messages, has_more };
   }
 
-  async markRead(threadId: string, userId: string): Promise<void> {
+  async markRead(threadId: string, userId: string, upToMessageId?: string): Promise<void> {
     const thread = await this.threads.findOne({ id: threadId });
     if (!thread) throw new NotFoundException('thread_not_found');
     this.assertParticipant(thread, userId);
-    await this.msgs.updateMany(
-      { thread_id: threadId, sender_id: { $ne: userId }, read_by: { $ne: userId } },
-      { $addToSet: { read_by: userId } },
-    );
+    const query: any = { thread_id: threadId, sender_id: { $ne: userId }, read_by: { $ne: userId } };
+    if (upToMessageId) {
+      const marker: any = await this.msgs.findOne({ id: upToMessageId, thread_id: threadId }).lean();
+      if (!marker) throw new BadRequestException('invalid_up_to_message_id');
+      query.createdAt = { $lte: marker.createdAt };
+    }
+    await this.msgs.updateMany(query, { $addToSet: { read_by: userId } });
     await this.threads.updateOne({ id: threadId }, { $set: { [`unread_counts.${userId}`]: 0 } });
   }
 

@@ -28,4 +28,18 @@ describe('ChatGateway thread membership', () => {
     await expect(gateway.handleJoinThread(socket, { threadId: 'thread-owned' })).resolves.toEqual({ status: 'joined' });
     expect(socket.join).toHaveBeenCalledWith('thread_thread-owned');
   });
+
+  it('does not let a thread-scoped realtime token join a different room', async () => {
+    const getThread = jest.fn();
+    const gateway = new ChatGateway({ getThread } as any);
+    const socket: any = { id: 'socket-rt', join: jest.fn() };
+    (gateway as any).activeUsers.set(socket.id, 'user-rt');
+    (gateway as any).restrictedThreads.set(socket.id, 'thread-authorized');
+
+    await expect(gateway.handleJoinThread(socket, { threadId: 'thread-foreign' }))
+      .resolves.toEqual({ error: 'thread_token_scope_mismatch' });
+
+    expect(getThread).not.toHaveBeenCalled();
+    expect(socket.join).not.toHaveBeenCalled();
+  });
 });

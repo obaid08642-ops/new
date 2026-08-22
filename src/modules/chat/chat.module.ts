@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { EventsModule } from '../events/events.module';
 
 // ─── Controller ────────────────────────────────────────────────────────────
@@ -170,13 +171,19 @@ export class ChatController {
   }
 
   @Post('threads/:threadId/messages')
+  @RequireIdempotency()
   sendMessage(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: any) {
     return this.svc.sendMessage(threadId, u.id, u.role || 'patient', body);
   }
 
   @Post('threads/:threadId/read')
-  markRead(@CurrentUser() u: any, @Param('threadId') threadId: string) {
-    return this.svc.markRead(threadId, u.id);
+  markRead(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: { up_to_message_id?: string }) {
+    return this.svc.markRead(threadId, u.id, body?.up_to_message_id);
+  }
+
+  @Get('threads/:threadId/rt-token')
+  rtToken(@CurrentUser() u: any, @Param('threadId') threadId: string) {
+    return this.svc.issueRealtimeToken(threadId, u);
   }
 
   @Post('threads/:threadId/delivered')

@@ -27,6 +27,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // In a real app, use Redis adapter for multi-instance deployments
   private activeUsers = new Map<string, string>(); // socketId -> userId
+  private restrictedThreads = new Map<string, string>(); // socketId -> thread id for chat_rt tokens
 
   constructor(private readonly chatService: ChatService) {}
 
@@ -41,6 +42,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (!secret) { this.logger.error('Socket rejected: JWT_SECRET not configured'); socket.disconnect(); return; }
         const payload: any = jwt.verify(token, secret);
         userId = payload?.sub || payload?.id || payload?.user_id || null;
+        if (payload?.purpose === 'chat_rt') {
+          if (payload?.aud !== 'chat-rt' || !payload?.thread_id || !userId) throw new Error('invalid_chat_rt_token');
+          this.restrictedThreads.set(socket.id, payload.thread_id);
+        }
       } catch {
         this.logger.warn('Socket rejected: invalid JWT');
       }
@@ -58,6 +63,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = this.activeUsers.get(socket.id);
     if (userId) {
       this.activeUsers.delete(socket.id);
+      this.restrictedThreads.delete(socket.id);
       this.logger.log(`User ${userId} disconnected`);
     }
   }
@@ -69,6 +75,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const userId = this.activeUsers.get(socket.id);
     if (!userId) return { error: 'socket_not_authenticated' };
+    const restrictedThreadId = this.restrictedThreads.get(socket.id);
+    if (restrictedThreadId && restrictedThreadId !== data.threadId) return { error: 'thread_token_scope_mismatch' };
     try {
       await this.chatService.getThread(data.threadId, userId);
     } catch {
