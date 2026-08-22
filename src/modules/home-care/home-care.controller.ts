@@ -388,3 +388,31 @@ export class NursingController {
     };
   }
 }
+
+
+/** Patient-web contract bridge. It deliberately exposes only a bounded booking view. */
+@UseGuards(JwtAuthGuard)
+@Controller('home-care')
+export class HomeCareContractController {
+  constructor(@InjectModel('HomeCareBooking') private readonly bookings: Model<HomeCareBooking>) {}
+
+  @Get('bookings/:bookingId')
+  async getOwnedBooking(@CurrentUser() user: any, @Param('bookingId') bookingId: string) {
+    const booking: any = await this.bookings.findOne({ id: bookingId, patient_id: user?.id }).lean();
+    if (!booking) throw new NotFoundException('home_care_booking_not_found');
+    const timeline = (Array.isArray(booking.state_history) ? booking.state_history : [])
+      .map((entry: any) => ({ status: entry?.to || entry?.state || null, at: entry?.at ? new Date(entry.at).toISOString() : null }))
+      .filter((entry: any) => entry.status && entry.at);
+    return {
+      id: booking.id,
+      status: booking.state,
+      service_type: booking.service_name_ar || booking.service_name_en || null,
+      scheduled_at: booking.scheduled_at ? new Date(booking.scheduled_at).toISOString() : null,
+      nurse: {
+        display_name: booking.provider_name || null,
+        avatar_url: null,
+      },
+      timeline,
+    };
+  }
+}

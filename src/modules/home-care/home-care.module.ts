@@ -1,7 +1,7 @@
 import { Module, OnModuleInit, Logger } from '@nestjs/common';
 import { MongooseModule, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { NursingController } from './home-care.controller';
+import { NursingController, HomeCareContractController } from './home-care.controller';
 import { HomeCareTrackingController } from './controllers/home-care-tracking.controller';
 import { HomeCareSvc } from './home-care.service';
 import { HomeCareBookingSchema, NursingVisitReportSchema, MedicalSupplyRequestSchema, NurseProviderSchema, HomeCarePackageSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
@@ -26,7 +26,7 @@ import { NursingVisitReportRepository } from "./repositories/nursingvisitreport.
       { name: 'MedicalSupplyRequest', schema: MedicalSupplyRequestSchema },
     ]),
   ],
-  controllers: [NursingController, HomeCareTrackingController],
+  controllers: [NursingController, HomeCareContractController, HomeCareTrackingController],
   providers: [HomeCareSvc, { provide: 'CarePlanRepository', useClass: CarePlanRepository }, { provide: 'HomeCareBookingRepository', useClass: HomeCareBookingRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'MedicalSupplyRequestRepository', useClass: MedicalSupplyRequestRepository }, { provide: 'NursingVisitReportRepository', useClass: NursingVisitReportRepository }],
   exports: [HomeCareSvc],
 })
