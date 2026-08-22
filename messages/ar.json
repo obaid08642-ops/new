@@ -749,5 +749,30 @@
     "preparationTitle": "قبل الزيارة",
     "homeAvailable": "هذه الباقة تدعم سحب العينة من المنزل.",
     "homeUnavailable": "لم يُذكر سحب العينة من المنزل لهذه الباقة."
+  },
+  "RadiologyServices": {
+    "eyebrow": "رعاية الأشعة",
+    "title": "خدمات الأشعة",
+    "subtitle": "استكشف خدمات التصوير من كتالوج نبض الحي.",
+    "searchLabel": "البحث في خدمات الأشعة",
+    "searchPlaceholder": "ابحث عن الخدمة أو موضع الجسم",
+    "modalityLabel": "نوع الأشعة",
+    "allModalities": "كل الأنواع",
+    "bodyPartLabel": "موضع الجسم",
+    "bodyPartPlaceholder": "موضع الجسم",
+    "homeVisit": "زيارة منزلية",
+    "highestRated": "الأعلى تقييماً",
+    "lowestPrice": "الأقل سعراً",
+    "apply": "تطبيق الفلاتر",
+    "price": "{value} ريال",
+    "duration": "{value} دقيقة",
+    "contrast": "قد تتطلب مادة تباين",
+    "emptyTitle": "لا توجد خدمات",
+    "emptyBody": "لا تتوفر خدمات أشعة حالياً.",
+    "noMatch": "لا توجد خدمة حية تطابق هذه الفلاتر.",
+    "unavailableTitle": "الأشعة غير متاحة",
+    "unavailableBody": "تعذر تحميل كتالوج الأشعة الحي.",
+    "retry": "حاول مرة أخرى",
+    "detailBlocked": "التفاصيل غير متاحة مؤقتاً"
   }
 }

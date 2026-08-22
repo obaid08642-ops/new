@@ -749,5 +749,30 @@
     "preparationTitle": "Bago ang iyong pagbisita",
     "homeAvailable": "Sinusuportahan ng package na ito ang kolekta sa bahay.",
     "homeUnavailable": "Hindi nakalista ang kolekta sa bahay para sa package na ito."
+  },
+  "RadiologyServices": {
+    "eyebrow": "Radiology care",
+    "title": "Mga serbisyo sa radiology",
+    "subtitle": "Tingnan ang imaging services mula sa live Nabd catalog.",
+    "searchLabel": "Maghanap ng radiology services",
+    "searchPlaceholder": "Maghanap ayon sa serbisyo o bahagi ng katawan",
+    "modalityLabel": "Modality",
+    "allModalities": "Lahat ng modality",
+    "bodyPartLabel": "Bahagi ng katawan",
+    "bodyPartPlaceholder": "Bahagi ng katawan",
+    "homeVisit": "Home visit",
+    "highestRated": "Pinakamataas ang rating",
+    "lowestPrice": "Pinakamababang presyo",
+    "apply": "Ilapat ang filter",
+    "price": "{value} SAR",
+    "duration": "{value} minuto",
+    "contrast": "Maaaring kailanganin ang contrast",
+    "emptyTitle": "Walang serbisyong nakita",
+    "emptyBody": "Walang radiology service na available ngayon.",
+    "noMatch": "Walang live service na tumutugma sa filter.",
+    "unavailableTitle": "Hindi available ang radiology",
+    "unavailableBody": "Hindi ma-load ang live radiology catalog.",
+    "retry": "Subukan muli",
+    "detailBlocked": "Pansamantalang hindi available ang detalye"
   }
 }

@@ -749,5 +749,30 @@
     "preparationTitle": "आपकी विज़िट से पहले",
     "homeAvailable": "इस पैकेज में घर से नमूना लेने की सुविधा है।",
     "homeUnavailable": "इस पैकेज के लिए घर से नमूना सूचीबद्ध नहीं है।"
+  },
+  "RadiologyServices": {
+    "eyebrow": "रेडियोलॉजी केयर",
+    "title": "रेडियोलॉजी सेवाएँ",
+    "subtitle": "Nabd के लाइव कैटलॉग से इमेजिंग सेवाएँ देखें।",
+    "searchLabel": "रेडियोलॉजी सेवाएँ खोजें",
+    "searchPlaceholder": "सेवा या शरीर के भाग से खोजें",
+    "modalityLabel": "मोडैलिटी",
+    "allModalities": "सभी मोडैलिटी",
+    "bodyPartLabel": "शरीर का भाग",
+    "bodyPartPlaceholder": "शरीर का भाग",
+    "homeVisit": "घर पर विज़िट",
+    "highestRated": "सबसे अच्छी रेटिंग",
+    "lowestPrice": "सबसे कम कीमत",
+    "apply": "फ़िल्टर लागू करें",
+    "price": "{value} SAR",
+    "duration": "{value} मिनट",
+    "contrast": "कॉन्ट्रास्ट की आवश्यकता हो सकती है",
+    "emptyTitle": "कोई सेवा नहीं मिली",
+    "emptyBody": "अभी कोई रेडियोलॉजी सेवा उपलब्ध नहीं है।",
+    "noMatch": "इन फ़िल्टर से कोई लाइव सेवा नहीं मिली।",
+    "unavailableTitle": "रेडियोलॉजी उपलब्ध नहीं",
+    "unavailableBody": "लाइव रेडियोलॉजी कैटलॉग लोड नहीं हो सका।",
+    "retry": "फिर कोशिश करें",
+    "detailBlocked": "विवरण अस्थायी रूप से अनुपलब्ध"
   }
 }

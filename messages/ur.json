@@ -749,5 +749,30 @@
     "preparationTitle": "وزٹ سے پہلے",
     "homeAvailable": "یہ پیکج گھر سے نمونہ لینے کی سہولت رکھتا ہے۔",
     "homeUnavailable": "اس پیکج کے لیے گھر سے نمونہ درج نہیں ہے۔"
+  },
+  "RadiologyServices": {
+    "eyebrow": "ریڈیولوجی کیئر",
+    "title": "ریڈیولوجی سروسز",
+    "subtitle": "Nabd کے لائیو کیٹلاگ سے امیجنگ سروسز دیکھیں۔",
+    "searchLabel": "ریڈیولوجی سروسز تلاش کریں",
+    "searchPlaceholder": "سروس یا جسم کے حصے سے تلاش کریں",
+    "modalityLabel": "موڈیلیٹی",
+    "allModalities": "تمام موڈیلیٹیز",
+    "bodyPartLabel": "جسم کا حصہ",
+    "bodyPartPlaceholder": "جسم کا حصہ",
+    "homeVisit": "گھر پر وزٹ",
+    "highestRated": "سب سے زیادہ ریٹڈ",
+    "lowestPrice": "کم ترین قیمت",
+    "apply": "فلٹر لگائیں",
+    "price": "{value} SAR",
+    "duration": "{value} منٹ",
+    "contrast": "کنٹراسٹ درکار ہو سکتا ہے",
+    "emptyTitle": "کوئی سروس نہیں ملی",
+    "emptyBody": "اس وقت کوئی ریڈیولوجی سروس دستیاب نہیں۔",
+    "noMatch": "ان فلٹرز سے کوئی لائیو سروس نہیں ملی۔",
+    "unavailableTitle": "ریڈیولوجی دستیاب نہیں",
+    "unavailableBody": "لائیو ریڈیولوجی کیٹلاگ لوڈ نہیں ہو سکا۔",
+    "retry": "دوبارہ کوشش کریں",
+    "detailBlocked": "تفصیلات عارضی طور پر دستیاب نہیں"
   }
 }

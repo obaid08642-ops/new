@@ -749,5 +749,30 @@
     "preparationTitle": "ভিজিটের আগে",
     "homeAvailable": "এই প্যাকেজে বাড়ি থেকে নমুনা নেওয়া সমর্থিত।",
     "homeUnavailable": "এই প্যাকেজের জন্য বাড়ি থেকে নমুনা তালিকাভুক্ত নেই।"
+  },
+  "RadiologyServices": {
+    "eyebrow": "রেডিওলজি কেয়ার",
+    "title": "রেডিওলজি সেবা",
+    "subtitle": "Nabd-এর লাইভ ক্যাটালগ থেকে ইমেজিং সেবা দেখুন।",
+    "searchLabel": "রেডিওলজি সেবা খুঁজুন",
+    "searchPlaceholder": "সেবা বা শরীরের অংশ দিয়ে খুঁজুন",
+    "modalityLabel": "মোডালিটি",
+    "allModalities": "সব মোডালিটি",
+    "bodyPartLabel": "শরীরের অংশ",
+    "bodyPartPlaceholder": "শরীরের অংশ",
+    "homeVisit": "বাড়িতে ভিজিট",
+    "highestRated": "সর্বোচ্চ রেটিং",
+    "lowestPrice": "সর্বনিম্ন মূল্য",
+    "apply": "ফিল্টার প্রয়োগ",
+    "price": "{value} SAR",
+    "duration": "{value} মিনিট",
+    "contrast": "কনট্রাস্ট লাগতে পারে",
+    "emptyTitle": "কোনো সেবা পাওয়া যায়নি",
+    "emptyBody": "এই মুহূর্তে কোনো রেডিওলজি সেবা নেই।",
+    "noMatch": "এই ফিল্টারে কোনো লাইভ সেবা মেলেনি।",
+    "unavailableTitle": "রেডিওলজি অনুপলভ্য",
+    "unavailableBody": "লাইভ রেডিওলজি ক্যাটালগ লোড করা যায়নি।",
+    "retry": "আবার চেষ্টা করুন",
+    "detailBlocked": "বিস্তারিত সাময়িকভাবে অনুপলভ্য"
   }
 }

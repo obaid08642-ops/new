@@ -749,5 +749,30 @@
     "preparationTitle": "Before your visit",
     "homeAvailable": "Home collection is supported by this package.",
     "homeUnavailable": "Home collection is not listed for this package."
+  },
+  "RadiologyServices": {
+    "eyebrow": "Radiology care",
+    "title": "Radiology services",
+    "subtitle": "Explore imaging services from the live Nabd catalog.",
+    "searchLabel": "Search radiology services",
+    "searchPlaceholder": "Search by service or body part",
+    "modalityLabel": "Modality",
+    "allModalities": "All modalities",
+    "bodyPartLabel": "Body part",
+    "bodyPartPlaceholder": "Body part",
+    "homeVisit": "Home visit",
+    "highestRated": "Highest rated",
+    "lowestPrice": "Lowest price",
+    "apply": "Apply filters",
+    "price": "{value} SAR",
+    "duration": "{value} min",
+    "contrast": "Contrast may be required",
+    "emptyTitle": "No services found",
+    "emptyBody": "No radiology services are available right now.",
+    "noMatch": "No live service matches these filters.",
+    "unavailableTitle": "Radiology is unavailable",
+    "unavailableBody": "The live radiology catalog could not be loaded.",
+    "retry": "Try again",
+    "detailBlocked": "Details temporarily unavailable"
   }
 }
