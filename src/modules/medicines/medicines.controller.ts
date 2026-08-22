@@ -346,3 +346,16 @@ export class MedicinesController {
     return this.svc.bulkImport(rows, by, 'admin', !!body.auto_approve);
   }
 }
+
+
+/** SEO/static fragment contract. The service enforces reviewed and indexable data. */
+@Controller('public/catalog')
+export class PublicCatalogController {
+  constructor(private svc: MedicinesService) {}
+
+  @Public()
+  @Get(':locale/:category.json')
+  fragment(@Param('locale') locale: string, @Param('category') category: string) {
+    return this.svc.publicCatalogFragment(locale, category);
+  }
+}

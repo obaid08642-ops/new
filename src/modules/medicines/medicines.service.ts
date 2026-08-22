@@ -9,7 +9,7 @@ import { EVENTS } from '../../common/events';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
-import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations } from './med-i18n';
+import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 
 @Injectable()
 export class MedicinesService {
@@ -98,8 +98,43 @@ export class MedicinesService {
     return {
       is_deleted: { $ne: true },
       public_eligibility: true,
+      indexing_eligibility: true,
       medical_review_status: 'approved',
     };
+  }
+
+  /** Static-catalog payload for a locale/category shard. This is deliberately
+   * sourced from governed medicine records rather than a seed or client input. */
+  async publicCatalogFragment(locale: string, category: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new BadRequestException('unsupported_catalog_locale');
+    const normalizedCategory = String(category || '').trim();
+    if (!/^[a-z0-9_-]{1,80}$/i.test(normalizedCategory)) throw new BadRequestException('invalid_catalog_category');
+    const dbLocale: DbLang = locale === 'fil' ? 'tl' : locale as DbLang;
+    const rows: any[] = await this.model.find(
+      { ...this.publicCatalogFilter(), category: normalizedCategory },
+      MedicinesService.CARD_PROJECTION,
+    ).sort({ name_ar: 1, id: 1 }).limit(500);
+    return rows.map((row: any) => {
+      const raw = row?.toObject ? row.toObject() : row;
+      const localized = localizeMedicineStructured(raw, dbLocale);
+      const translatedName = dbLocale === 'ar'
+        ? localized.name_ar
+        : dbLocale === 'en'
+          ? (localized.name_en || localized.name_ar)
+          : (raw?.translations?.[dbLocale]?.name || localized.name_en || localized.name_ar);
+      return {
+        id: localized.id,
+        slug: localized.slug || null,
+        name: translatedName || null,
+        category: localized.category || null,
+        form: localized.form || null,
+        strength: localized.strength || null,
+        price: Number(localized.price || 0),
+        image: localized.image || null,
+        requires_prescription: localized.requires_prescription === true,
+        availability_status: localized.availability_status || 'none',
+      };
+    });
   }
 
   private buildQuery(search?: string, category?: string, includeUnverified = true) {
