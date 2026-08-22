@@ -683,7 +683,17 @@
     "available": "متاح",
     "unavailable": "محجوز",
     "slotsClosed": "الطبيب مغلق في هذا اليوم.",
-    "slotsEmpty": "لا توجد مواعيد متاحة لهذا الاختيار."
+    "slotsEmpty": "لا توجد مواعيد متاحة لهذا الاختيار.",
+    "bookingEyebrow": "حجز آمن",
+    "bookingTitle": "اختر الموعد",
+    "lockNotice": "يُحجز الموعد المختار مؤقتاً",
+    "bookingNotes": "ملاحظات لفريق الرعاية (اختياري)",
+    "confirmBooking": "تأكيد الموعد",
+    "bookingSubmitting": "جارٍ تأكيد الموعد…",
+    "bookingAuthRequired": "سجّل الدخول قبل الحجز.",
+    "slotTaken": "لم يعد هذا الموعد متاحاً. اختر موعداً آخر.",
+    "bookingFailed": "تعذر إنشاء الموعد. لم يُسجل حجز محلي.",
+    "bookingUnavailable": "خدمة الحجز غير متاحة. لم يُنشأ أي موعد."
   },
   "LabsServices": {
     "eyebrow": "الرعاية المخبرية",

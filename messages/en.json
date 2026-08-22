@@ -683,7 +683,17 @@
     "available": "Available",
     "unavailable": "Booked",
     "slotsClosed": "The doctor is closed on this date.",
-    "slotsEmpty": "No slots are available for this selection."
+    "slotsEmpty": "No slots are available for this selection.",
+    "bookingEyebrow": "Secure appointment",
+    "bookingTitle": "Choose a time",
+    "lockNotice": "The selected slot is held briefly",
+    "bookingNotes": "Notes for the care team (optional)",
+    "confirmBooking": "Confirm appointment",
+    "bookingSubmitting": "Confirming appointment…",
+    "bookingAuthRequired": "Please sign in before booking.",
+    "slotTaken": "This slot is no longer available. Choose another time.",
+    "bookingFailed": "The appointment could not be created. No local booking was recorded.",
+    "bookingUnavailable": "The booking service is unavailable. No appointment was created."
   },
   "LabsServices": {
     "eyebrow": "Laboratory care",

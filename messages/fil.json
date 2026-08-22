@@ -683,7 +683,17 @@
     "available": "Available",
     "unavailable": "Booked",
     "slotsClosed": "Sarado ang doktor sa petsang ito.",
-    "slotsEmpty": "Walang available na oras para sa pagpiling ito."
+    "slotsEmpty": "Walang available na oras para sa pagpiling ito.",
+    "bookingEyebrow": "Secure na appointment",
+    "bookingTitle": "Pumili ng oras",
+    "lockNotice": "Pansamantalang naka-hold ang napiling slot",
+    "bookingNotes": "Notes para sa care team (opsyonal)",
+    "confirmBooking": "Kumpirmahin ang appointment",
+    "bookingSubmitting": "Kino-confirm ang appointment…",
+    "bookingAuthRequired": "Mag-sign in bago mag-book.",
+    "slotTaken": "Hindi na available ang slot na ito. Pumili ng iba.",
+    "bookingFailed": "Hindi nagawa ang appointment. Walang lokal na booking na naitala.",
+    "bookingUnavailable": "Hindi available ang booking service. Walang appointment na ginawa."
   },
   "LabsServices": {
     "eyebrow": "Pangangalaga sa laboratoryo",
