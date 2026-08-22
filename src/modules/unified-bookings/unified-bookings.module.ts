@@ -20,6 +20,8 @@ import { SlotService } from '../care/slot.service';
 import { OrdersService } from '../orders/orders.service';
 import { CartService } from '../cart/cart.module';
 import { WorkflowEngineModule, WorkflowEngineService, toUniversal } from '../workflow-engine/workflow-engine.module';
+import { LiveKitModule } from '../livekit/livekit.module';
+import { LiveKitService } from '../livekit/livekit.service';
 
 /**
  * UNIFIED BOOKING ORCHESTRATOR
@@ -46,6 +48,7 @@ export class UnifiedBookingsService {
     private ordersSvc: OrdersService,
     private cart: CartService,
     private engine: WorkflowEngineService,
+    private livekit: LiveKitService,
   ) {}
 
   private kindMap: Record<string, ServiceDomain> = {
@@ -215,6 +218,11 @@ export class UnifiedBookingsService {
     const slotStart = await this.resolveConsultationSlot(current.doctor_id, current.service_type, newSlotId || '');
     const booking: any = await this.apptSvc.reschedule(id, user, { slot_start: slotStart });
     return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+  }
+
+  /** Owner/doctor-scoped video call token for the narrow appointment window. */
+  async consultationCallToken(user: any, id: string) {
+    return this.livekit.issueBookingCallToken(id, user);
   }
 
   /**
@@ -403,6 +411,8 @@ export class UnifiedBookingsController {
   @Post(':id/reschedule')
   @RequireIdempotency()
   rescheduleRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.rescheduleConsultationContract(u, id, b.new_slot_id); }
+  @Get(':id/call-token')
+  callToken(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.consultationCallToken(u, id); }
   @Get(':kind/:id') one(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.getOne(u, k, id); }
   @Post(':kind/:id/cancel')
   @RequireIdempotency()
@@ -444,6 +454,7 @@ import { OrdersModule } from '../orders/orders.module';
     OrdersModule,
     CartModule,
     WorkflowEngineModule,
+    LiveKitModule,
   ],
   controllers: [UnifiedBookingsController],
   providers: [UnifiedBookingsService],

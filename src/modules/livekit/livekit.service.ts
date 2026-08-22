@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { APPT_STATES } from '../../schemas/appointment.schema';
 
 @Injectable()
 export class LiveKitService {
@@ -24,10 +25,45 @@ export class LiveKitService {
     }
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
       identity: participantName,
-      ttl: '2h', // short-lived per production hardening policy
+      ttl: '2h', // legacy call-session token policy
     });
     at.addGrant({ roomJoin: true, room: roomName });
     return at.toJwt();
+  }
+
+  /** Patient-web booking token: narrower than legacy sessions and valid 10 minutes only. */
+  async createBookingToken(roomName: string, participantName: string): Promise<string> {
+    if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
+      throw new Error('LIVEKIT_NOT_CONFIGURED');
+    }
+    const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, {
+      identity: participantName,
+      ttl: '10m',
+    });
+    at.addGrant({ roomJoin: true, room: roomName });
+    return at.toJwt();
+  }
+
+  /**
+   * Issues a deterministic consultation room token only for the booked patient
+   * or the assigned doctor during the appointment window. Foreign identities
+   * receive 404 to avoid confirming that a booking exists.
+   */
+  async issueBookingCallToken(bookingId: string, user: any) {
+    const appt: any = await this.appointments.findOne({ id: bookingId }).lean();
+    const isParticipant = appt && [String(appt.patient_id), String(appt.doctor_user_id)].includes(String(user?.id));
+    if (!isParticipant) throw new NotFoundException('booking_not_found');
+    if (appt.service_type !== 'video') throw new BadRequestException('call_token_only_available_for_video_booking');
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+      throw new BadRequestException('call_token_not_available_for_booking_state');
+    }
+    const slotStart = new Date(appt.slot_start).getTime();
+    if (!Number.isFinite(slotStart) || Math.abs(Date.now() - slotStart) > 15 * 60_000) {
+      throw new BadRequestException('call_token_outside_appointment_window');
+    }
+    const room = `booking-${appt.id}`;
+    const token = await this.createBookingToken(room, user?.name || user?.full_name || user?.id);
+    return { provider: 'livekit', token, room };
   }
 
   async getProviderWaitingRoom(providerId: string) {
