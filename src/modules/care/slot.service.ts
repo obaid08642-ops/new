@@ -45,16 +45,20 @@ export class SlotService {
     const openTs = new Date(baseDate.getTime() + oh * 3600_000 + om * 60_000);
     let closeTs = new Date(baseDate.getTime() + ch * 3600_000 + cm * 60_000);
     if (closeTs.getTime() <= openTs.getTime()) closeTs = new Date(closeTs.getTime() + 24 * 3600_000); // overnight
-    const slots: { start: string; end: string; label: string; available: boolean }[] = [];
+    const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
     const now = Date.now();
     for (let t = openTs.getTime(); t + duration_minutes * 60_000 <= closeTs.getTime(); t += duration_minutes * 60_000) {
       const start = new Date(t);
       const end = new Date(t + duration_minutes * 60_000);
       if (start.getTime() < now + 15 * 60_000) continue; // ≥15 min lead time
+      const slotId = start.toISOString();
       slots.push({
-        start: start.toISOString(),
+        // The canonical server-generated start timestamp is the published slot id.
+        // Keeping it equal to `start` prevents accepting an opaque client-made id.
+        id: slotId,
+        start: slotId,
         end: end.toISOString(),
-        label: start.toISOString().substring(11, 16),
+        label: slotId.substring(11, 16),
         available: true,
       });
     }

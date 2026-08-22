@@ -1,7 +1,7 @@
 /**
  * M7 — Appointment state machine + cancellation/refund rules.
  */
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { AppointmentsService } from '../appointments.service';
 import { APPT_STATES, APPT_TRANSITIONS } from '../../../schemas/appointment.schema';
 
@@ -20,7 +20,7 @@ describe('AppointmentsService state machine', () => {
   let engine: any;
 
   beforeEach(() => {
-    apptModel = { findOne: jest.fn(), create: jest.fn() };
+    apptModel = { findOne: jest.fn(), create: jest.fn(), deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }) };
     providerModel = { findOne: jest.fn().mockResolvedValue({ id: 'doc-1', user_id: 'doc-user-1', account_id: 'doc-account-1', type: 'doctor' }) };
     events = { emit: jest.fn() };
     engine = { apply: jest.fn(async (opts: any) => opts.mutate()) };
@@ -147,16 +147,46 @@ describe('AppointmentsService state machine', () => {
   });
 
   describe('reschedule', () => {
-    it('marks old appointment RESCHEDULED and creates a new CONFIRMED one', async () => {
+    const futureQuarterHour = () => {
+      const d = new Date(Date.now() + 72 * 3600000);
+      d.setUTCMinutes(Math.ceil(d.getUTCMinutes() / 15) * 15, 0, 0);
+      return d.toISOString();
+    };
+
+    it('creates the replacement before marking the old appointment RESCHEDULED', async () => {
       const appt = apptIn(APPT_STATES.CONFIRMED, { price: 200, total_price: 215 });
-      apptModel.findOne.mockResolvedValue(appt);
+      apptModel.findOne.mockResolvedValueOnce(appt).mockResolvedValueOnce(null);
       apptModel.create.mockImplementation(async (doc: any) => makeDoc({ id: 'appt-2', ...doc }));
-      const future = new Date(Date.now() + 72 * 3600000).toISOString();
-      const res = await service.reschedule('appt-1', { id: 'pat-1', role: 'patient' }, { slot_start: future });
+      const res = await service.reschedule('appt-1', { id: 'pat-1', role: 'patient' }, { slot_start: futureQuarterHour() });
       expect(appt.status).toBe(APPT_STATES.RESCHEDULED);
       expect(res.status).toBe(APPT_STATES.CONFIRMED);
       expect(res.rescheduled_from_id).toBe('appt-1');
       expect(new Date(res.slot_end).getTime() - new Date(res.slot_start).getTime()).toBe(30 * 60_000);
+      expect(apptModel.create.mock.invocationCallOrder[0]).toBeLessThan(appt.save.mock.invocationCallOrder[0]);
+    });
+
+    it('rejects a conflicting slot while keeping the original appointment unchanged', async () => {
+      const appt = apptIn(APPT_STATES.CONFIRMED);
+      apptModel.findOne.mockResolvedValueOnce(appt).mockResolvedValueOnce({ id: 'occupied-slot' });
+
+      await expect(service.reschedule('appt-1', { id: 'pat-1', role: 'patient' }, { slot_start: futureQuarterHour() }))
+        .rejects.toThrow(ConflictException);
+
+      expect(appt.status).toBe(APPT_STATES.CONFIRMED);
+      expect(apptModel.create).not.toHaveBeenCalled();
+      expect(appt.save).not.toHaveBeenCalled();
+    });
+
+    it('compensates by deleting the replacement if saving the old transition fails', async () => {
+      const appt = apptIn(APPT_STATES.CONFIRMED);
+      appt.save.mockRejectedValueOnce(new Error('old-appointment-save-failed'));
+      apptModel.findOne.mockResolvedValueOnce(appt).mockResolvedValueOnce(null);
+      apptModel.create.mockImplementation(async (doc: any) => makeDoc({ id: 'appt-2', ...doc }));
+
+      await expect(service.reschedule('appt-1', { id: 'pat-1', role: 'patient' }, { slot_start: futureQuarterHour() }))
+        .rejects.toThrow('old-appointment-save-failed');
+
+      expect(apptModel.deleteOne).toHaveBeenCalledWith({ id: 'appt-2' });
     });
 
     it('rejects past/near slot_start', async () => {

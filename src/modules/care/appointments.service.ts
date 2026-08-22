@@ -376,22 +376,36 @@ export class AppointmentsService {
     if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
       throw new ForbiddenException();
     }
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+      throw new BadRequestException('cannot_reschedule');
+    }
     const newStart = new Date(body.slot_start);
     if (isNaN(newStart.getTime()) || newStart.getTime() < Date.now() + 5 * 60_000) {
       throw new BadRequestException('slot_start must be in the future');
     }
-    // Mark current as RESCHEDULED, create a new appointment with same fields/new slot
-    appt.status = APPT_STATES.RESCHEDULED;
-    appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
-    await appt.save();
+    if (newStart.getMinutes() % 15 !== 0 || newStart.getSeconds() !== 0 || newStart.getMilliseconds() !== 0) {
+      throw new BadRequestException('slot_start must be exactly on a 15-minute boundary');
+    }
 
+    const newEnd = new Date(newStart.getTime() + appt.duration_minutes * 60_000);
+    const paddedEnd = new Date(newEnd.getTime() + 5 * 60_000);
+    const overlapping = await this.apptModel.findOne({
+      doctor_id: appt.doctor_id,
+      status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
+      $or: [{ slot_start: { $lt: paddedEnd }, slot_end: { $gt: newStart } }],
+    });
+    if (overlapping) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
+
+    // Create first so a rejected/conflicting replacement preserves the original
+    // appointment. If persisting the original transition subsequently fails,
+    // remove the replacement as a compensating action before surfacing the error.
     const fresh = await this.apptModel.create({
       patient_id: appt.patient_id,
       doctor_id: appt.doctor_id,
       doctor_user_id: appt.doctor_user_id,
       service_type: appt.service_type,
       slot_start: newStart,
-      slot_end: new Date(newStart.getTime() + appt.duration_minutes * 60_000),
+      slot_end: newEnd,
       duration_minutes: appt.duration_minutes,
       status: APPT_STATES.CONFIRMED,
       price: appt.price,
@@ -402,6 +416,14 @@ export class AppointmentsService {
       rescheduled_from_id: appt.id,
       state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
     });
+    try {
+      appt.status = APPT_STATES.RESCHEDULED;
+      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
+      await appt.save();
+    } catch (error) {
+      await this.apptModel.deleteOne({ id: fresh.id }).catch(() => null);
+      throw error;
+    }
     return fresh.toObject();
   }
 
