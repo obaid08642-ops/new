@@ -19,6 +19,13 @@ describe("cart SSR boundary", () => {
     for (const secret of ["server-only-cart-token", "private-patient", "private-notes", "private"]) expect(html).not.toContain(secret);
   });
 
+  it("renders unavailable monetary values without inventing a zero amount", async () => {
+    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ groups: [{ kind: "pharmacy", items: [{ line_id: "line-1", service_id: "med-1", name_ar: "Medicine" }] }], currency: "SAR" }), { status: 200 }));
+    const html = renderToStaticMarkup(await CartPage({ params: Promise.resolve({ locale: "en" }) }));
+    expect(html).toContain("—");
+    expect(html).not.toContain("0 SAR");
+  });
+
   it("renders checkout totals as a read-only preview without payment mutation", async () => {
     state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", subtotal: 12, home_visit_fee: 0, total: 12, currency: "SAR", notes: "private" }), { status: 200 }));
     const html = renderToStaticMarkup(await CartCheckoutPreviewPage({ params: Promise.resolve({ locale: "en" }) }));
