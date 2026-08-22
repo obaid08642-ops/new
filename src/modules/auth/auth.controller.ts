@@ -3,6 +3,17 @@ import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 
 const DEVICE_COOKIE = 'nabd_admin_device';
+const PATIENT_ACCESS_COOKIE = 'nabd_patient_access';
+const PATIENT_REFRESH_COOKIE = 'nabd_patient_refresh';
+const PATIENT_ACCESS_COOKIE_MAX_AGE = 60 * 60 * 1000;
+const PATIENT_REFRESH_COOKIE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+const PATIENT_SESSION_COOKIE_OPTS = (req: Request, maxAge: number) => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  path: '/',
+  maxAge,
+});
 const DEVICE_COOKIE_OPTS = (req: Request) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -35,6 +46,24 @@ class GuestDto {
   @IsOptional() @IsString() phone?: string;
   @IsOptional() @IsString() deviceId?: string;
 }
+class PatientOtpRequestDto {
+  @IsString() identifier: string;
+}
+class PatientOtpVerifyDto {
+  @IsString() identifier: string;
+  @IsString() code: string;
+  @IsOptional() @IsString() device_id?: string;
+}
+class PatientSessionExchangeDto {
+  @IsString() exchange_token: string;
+}
+class PatientForgotPasswordDto {
+  @IsString() identifier: string;
+}
+class PatientResetPasswordDto {
+  @IsString() reset_token: string;
+  @IsString() @MinLength(8) new_password: string;
+}
 class ConvertGuestDto {
   @IsString() full_name: string;
   @IsString() phone: string;
@@ -46,6 +75,45 @@ class ConvertGuestDto {
 @UseGuards(JwtAuthGuard)
 export class AuthController {
   constructor(private auth: AuthService) {}
+
+  /** Patient-web bridge: opaque request response prevents account enumeration. */
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 600000 } })
+  @Post('otp/request')
+  patientOtpRequest(@Body() dto: PatientOtpRequestDto) {
+    return this.auth.requestPatientOtp(dto.identifier);
+  }
+
+  /** Issues an opaque, single-use, 60-second exchange token; never a session token. */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  @Post('otp/verify')
+  patientOtpVerify(@Body() dto: PatientOtpVerifyDto) {
+    return this.auth.verifyPatientOtp(dto.identifier, dto.code, dto.device_id);
+  }
+
+  /** Converts the one-time exchange token to HttpOnly cookies without exposing tokens in JSON. */
+  @Public()
+  @Post('session/exchange')
+  async patientSessionExchange(@Body() dto: PatientSessionExchangeDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.auth.exchangePatientSession(dto.exchange_token);
+    res.cookie(PATIENT_ACCESS_COOKIE, tokens.access_token, PATIENT_SESSION_COOKIE_OPTS(req, PATIENT_ACCESS_COOKIE_MAX_AGE));
+    res.cookie(PATIENT_REFRESH_COOKIE, tokens.refresh_token, PATIENT_SESSION_COOKIE_OPTS(req, PATIENT_REFRESH_COOKIE_MAX_AGE));
+    return { authenticated: true };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 600000 } })
+  @Post('password/forgot')
+  patientForgotPassword(@Body() dto: PatientForgotPasswordDto) {
+    return this.auth.forgotPatientPassword(dto.identifier);
+  }
+
+  @Public()
+  @Post('password/reset')
+  patientResetPassword(@Body() dto: PatientResetPasswordDto) {
+    return this.auth.resetPatientPassword(dto.reset_token, dto.new_password);
+  }
 
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // E5-F4 anti brute-force

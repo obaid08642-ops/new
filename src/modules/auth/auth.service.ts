@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException, ConflictException, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, ConflictException, GoneException, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -26,6 +26,9 @@ export class AuthService {
 
   private readonly OTP_TTL_SECONDS = 5 * 60; // 5 minutes
   private readonly OTP_MAX_VERIFY_ATTEMPTS = 5;
+  private readonly PATIENT_OTP_TTL_SECONDS = 5 * 60;
+  private readonly PATIENT_EXCHANGE_TTL_SECONDS = 60;
+  private readonly PATIENT_OTP_LOCK_TTL_SECONDS = 15 * 60;
 
   constructor(
     @Inject('UserRepository') private userModel: UserRepository,
@@ -146,6 +149,201 @@ export class AuthService {
 
   private otpVerifyRateKey(identifier: string) {
     return `auth:otp:verify:${this.normalizeOtpIdentifier(identifier)}`;
+  }
+
+  private patientOtpKey(identifier: string) {
+    return `auth:otp:patient:${this.normalizeOtpIdentifier(identifier)}`;
+  }
+
+  private patientOtpIssueRateKey(identifier: string) {
+    return `auth:otp:patient:issue:${this.normalizeOtpIdentifier(identifier)}`;
+  }
+
+  private patientOtpVerifyRateKey(identifier: string) {
+    return `auth:otp:patient:verify:${this.normalizeOtpIdentifier(identifier)}`;
+  }
+
+  private patientOtpLockKey(identifier: string) {
+    return `auth:otp:patient:lock:${this.normalizeOtpIdentifier(identifier)}`;
+  }
+
+  private patientExchangeKey(token: string) {
+    return `auth:session:exchange:${token}`;
+  }
+
+  private passwordResetKey(token: string) {
+    return `auth:password:reset:${token}`;
+  }
+
+  private opaqueOtpResponse(identifier: string) {
+    return {
+      otp_sent: true,
+      channel: this.normalizeOtpIdentifier(identifier).includes('@') ? 'email' : 'sms',
+      expires_in: this.PATIENT_OTP_TTL_SECONDS,
+    } as const;
+  }
+
+  /**
+   * Patient-web OTP request bridge. It deliberately returns the same bounded
+   * DTO for an unknown identifier to prevent account enumeration. The OTP and
+   * its bcrypt hash are written only when an active account actually exists.
+   */
+  async requestPatientOtp(identifier: string) {
+    AuthService.assertString(identifier, 'identifier');
+    const normalized = this.normalizeOtpIdentifier(identifier);
+    const rate = await this.redisService.checkRateLimit(
+      this.patientOtpIssueRateKey(normalized),
+      3,
+      10 * 60,
+    );
+    if (!rate.allowed) {
+      throw new HttpException({ message: 'otp_rate_limited', code: 'otp_rate_limited', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
+    if (!user || user.active === false) return this.opaqueOtpResponse(normalized);
+
+    const code = require('crypto').randomInt(100000, 1000000).toString();
+    await this.redisService.setJson(
+      this.patientOtpKey(normalized),
+      { code_hash: await bcrypt.hash(code, 12), user_id: user.id, attempts: 0 },
+      this.PATIENT_OTP_TTL_SECONDS,
+    );
+
+    try {
+      if (normalized.includes('@')) {
+        await this.mail?.sendOtp(normalized, code);
+      } else if (await this.sms?.isEnabled()) {
+        await this.sms?.sendOtp(normalized, code);
+      } else {
+        await this.push?.sendToUser(user.id, 'رمز التحقق — نَبْض', `رمز التحقق الخاص بك: ${code}`, { kind: 'patient_web_otp' });
+      }
+    } catch {
+      // Keep the response opaque and leave delivery observability to providers.
+      // The raw OTP is never returned or logged by this path.
+    }
+    return this.opaqueOtpResponse(normalized);
+  }
+
+  /** Verifies a patient-web OTP and creates a short-lived one-time exchange token. */
+  async verifyPatientOtp(identifier: string, code: string, deviceId?: string) {
+    AuthService.assertString(identifier, 'identifier');
+    if (typeof code !== 'string' || !/^\d{6}$/.test(code)) {
+      throw new UnauthorizedException({ message: 'otp_invalid', code: 'otp_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    }
+    const normalized = this.normalizeOtpIdentifier(identifier);
+    if (await this.redisService.exists(this.patientOtpLockKey(normalized))) {
+      throw new HttpException({ message: 'otp_locked', code: 'otp_locked', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+    const rate = await this.redisService.checkRateLimit(
+      this.patientOtpVerifyRateKey(normalized),
+      this.OTP_MAX_VERIFY_ATTEMPTS,
+      this.PATIENT_OTP_LOCK_TTL_SECONDS,
+    );
+    if (!rate.allowed) {
+      await this.redisService.set(this.patientOtpLockKey(normalized), '1', this.PATIENT_OTP_LOCK_TTL_SECONDS);
+      throw new HttpException({ message: 'otp_locked', code: 'otp_locked', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    const key = this.patientOtpKey(normalized);
+    const entry = await this.redisService.getJson<{ code_hash?: string; user_id?: string; attempts?: number }>(key);
+    if (!entry?.code_hash || !entry.user_id) {
+      throw new GoneException({ message: 'otp_expired', code: 'otp_expired', statusCode: HttpStatus.GONE });
+    }
+    const valid = await bcrypt.compare(code, entry.code_hash);
+    if (!valid) {
+      const attempts = (entry.attempts || 0) + 1;
+      if (attempts >= this.OTP_MAX_VERIFY_ATTEMPTS) {
+        await this.redisService.del(key);
+        await this.redisService.set(this.patientOtpLockKey(normalized), '1', this.PATIENT_OTP_LOCK_TTL_SECONDS);
+        throw new HttpException({ message: 'otp_locked', code: 'otp_locked', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+      }
+      const ttl = await this.redisService.ttl(key);
+      await this.redisService.setJson(key, { ...entry, attempts }, ttl > 0 ? ttl : this.PATIENT_OTP_TTL_SECONDS);
+      throw new UnauthorizedException({ message: 'otp_invalid', code: 'otp_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    }
+
+    await this.redisService.del(key);
+    await this.redisService.del(`ratelimit:${this.patientOtpVerifyRateKey(normalized)}`);
+    const exchangeToken = require('crypto').randomBytes(32).toString('base64url');
+    await this.redisService.setJson(
+      this.patientExchangeKey(exchangeToken),
+      { user_id: entry.user_id, device_id: deviceId || null },
+      this.PATIENT_EXCHANGE_TTL_SECONDS,
+    );
+    return { exchange_token: exchangeToken, expires_in: this.PATIENT_EXCHANGE_TTL_SECONDS };
+  }
+
+  /**
+   * Claims an exchange token with SET NX before reading it, preventing two
+   * concurrent callers from turning the same OTP verification into sessions.
+   */
+  async exchangePatientSession(exchangeToken: string) {
+    AuthService.assertString(exchangeToken, 'exchange_token');
+    const key = this.patientExchangeKey(exchangeToken);
+    const redis = this.redisService.getClient();
+    const claimed = await redis.set(`${key}:claim`, '1', 'EX', this.PATIENT_EXCHANGE_TTL_SECONDS, 'NX');
+    if (!claimed) {
+      throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    }
+    const entry = await this.redisService.getJson<{ user_id?: string; device_id?: string | null }>(key);
+    if (!entry?.user_id) {
+      await redis.del(`${key}:claim`);
+      throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    }
+    await this.redisService.del(key);
+    const user = await this.userModel.findOne({ id: entry.user_id });
+    if (!user || user.active === false) {
+      throw new UnauthorizedException({ message: 'exchange_token_invalid', code: 'exchange_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    }
+    const tokens = this.signToken(user, entry.device_id || undefined);
+    return { access_token: tokens.accessToken, refresh_token: tokens.refreshToken };
+  }
+
+  /** Password-reset request shares the opaque account-discovery behaviour of OTP. */
+  async forgotPatientPassword(identifier: string) {
+    AuthService.assertString(identifier, 'identifier');
+    const normalized = this.normalizeOtpIdentifier(identifier);
+    const rate = await this.redisService.checkRateLimit(`auth:password:forgot:${normalized}`, 3, 10 * 60);
+    if (!rate.allowed) {
+      throw new HttpException({ message: 'password_reset_rate_limited', code: 'password_reset_rate_limited', statusCode: HttpStatus.TOO_MANY_REQUESTS }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+    const user = await this.userModel.findOne(normalized.includes('@') ? { email: normalized } : { phone: normalized });
+    if (!user || user.active === false) return { requested: true };
+    const resetToken = require('crypto').randomBytes(32).toString('base64url');
+    await this.redisService.setJson(this.passwordResetKey(resetToken), { user_id: user.id }, this.PATIENT_EXCHANGE_TTL_SECONDS);
+    try {
+      if (normalized.includes('@')) {
+        await this.mail?.send(normalized, 'Password reset', `Your Nabdah Plus password-reset token is ${resetToken}. It expires in 60 seconds.`);
+      } else if (await this.sms?.isEnabled()) {
+        await this.sms?.sendOtp(normalized, resetToken);
+      }
+    } catch {
+      // Do not disclose account state or the raw token in the HTTP response.
+    }
+    return { requested: true };
+  }
+
+  async resetPatientPassword(resetToken: string, newPassword: string) {
+    AuthService.assertString(resetToken, 'reset_token');
+    AuthService.assertString(newPassword, 'new_password');
+    if (newPassword.length < 8) throw new BadRequestException({ message: 'password_too_short', code: 'password_too_short', statusCode: HttpStatus.BAD_REQUEST });
+    const key = this.passwordResetKey(resetToken);
+    const redis = this.redisService.getClient();
+    const claimed = await redis.set(`${key}:claim`, '1', 'EX', this.PATIENT_EXCHANGE_TTL_SECONDS, 'NX');
+    if (!claimed) throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    const entry = await this.redisService.getJson<{ user_id?: string }>(key);
+    if (!entry?.user_id) {
+      await redis.del(`${key}:claim`);
+      throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    }
+    await this.redisService.del(key);
+    const user = await this.userModel.findOne({ id: entry.user_id });
+    if (!user || user.active === false) throw new UnauthorizedException({ message: 'reset_token_invalid', code: 'reset_token_invalid', statusCode: HttpStatus.UNAUTHORIZED });
+    user.password_hash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+    await this.revokeAllUserSessions(user.id);
+    return { reset: true };
   }
 
   async register(data: { full_name: string; phone?: string; password: string; email?: string; role?: UserRole }) {

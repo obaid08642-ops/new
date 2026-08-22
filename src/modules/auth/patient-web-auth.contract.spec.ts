@@ -1,0 +1,83 @@
+import { GoneException, UnauthorizedException } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
+import { AuthService } from './auth.service';
+
+describe('patient web auth contract', () => {
+  const build = () => {
+    const data = new Map<string, any>();
+    const userModel = { findOne: jest.fn() };
+    const redis = {
+      checkRateLimit: jest.fn().mockResolvedValue({ allowed: true, remaining: 1 }),
+      exists: jest.fn().mockResolvedValue(false),
+      setJson: jest.fn(async (key: string, value: any) => { data.set(key, value); }),
+      getJson: jest.fn(async (key: string) => data.get(key) ?? null),
+      set: jest.fn(async (key: string, value: string) => { data.set(key, value); }),
+      get: jest.fn(async (key: string) => data.get(key) ?? null),
+      del: jest.fn(async (key: string) => { data.delete(key); }),
+      ttl: jest.fn().mockResolvedValue(300),
+      getClient: jest.fn(() => ({
+        set: jest.fn(async (key: string, value: string) => {
+          if (data.has(key)) return null;
+          data.set(key, value);
+          return 'OK';
+        }),
+        del: jest.fn(async (key: string) => { data.delete(key); }),
+      })),
+    };
+    const jwt = { sign: jest.fn().mockReturnValueOnce('access-token').mockReturnValueOnce('refresh-token') };
+    const service = new AuthService(
+      userModel as any,
+      { create: jest.fn() } as any,
+      jwt as any,
+      { emit: jest.fn() } as any,
+      redis as any,
+    );
+    return { data, userModel, redis, jwt, service };
+  };
+
+  it('returns the same bounded OTP response for an unknown account', async () => {
+    const { service, userModel } = build();
+    userModel.findOne.mockResolvedValue(null);
+
+    await expect(service.requestPatientOtp('unknown@example.test')).resolves.toEqual({
+      otp_sent: true,
+      channel: 'email',
+      expires_in: 300,
+    });
+  });
+
+  it('issues a 60-second exchange token only after a valid patient OTP', async () => {
+    const { service, userModel, redis, data } = build();
+    const codeHash = await bcrypt.hash('123456', 4);
+    data.set('auth:otp:patient:patient@example.test', { code_hash: codeHash, user_id: 'patient-1', attempts: 0 });
+
+    const result = await service.verifyPatientOtp('patient@example.test', '123456', 'device-1');
+
+    expect(result.exchange_token).toEqual(expect.any(String));
+    expect(result.expires_in).toBe(60);
+    expect(redis.setJson).toHaveBeenCalledWith(
+      `auth:session:exchange:${result.exchange_token}`,
+      { user_id: 'patient-1', device_id: 'device-1' },
+      60,
+    );
+    expect(userModel.findOne).not.toHaveBeenCalled();
+  });
+
+  it('returns otp_expired when no live OTP exists', async () => {
+    const { service } = build();
+
+    await expect(service.verifyPatientOtp('patient@example.test', '123456')).rejects.toBeInstanceOf(GoneException);
+  });
+
+  it('claims an exchange token once and does not return session tokens in the controller DTO', async () => {
+    const { service, data, userModel } = build();
+    data.set('auth:session:exchange:one-time-token', { user_id: 'patient-1', device_id: null });
+    userModel.findOne.mockResolvedValue({ id: 'patient-1', role: 'patient', active: true });
+
+    await expect(service.exchangePatientSession('one-time-token')).resolves.toEqual({
+      access_token: 'access-token',
+      refresh_token: 'refresh-token',
+    });
+    await expect(service.exchangePatientSession('one-time-token')).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+});
