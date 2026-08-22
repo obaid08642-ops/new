@@ -181,7 +181,16 @@
     "confirmCancel": "Kumpirmahin ang pagkansela",
     "cancelConflict": "Hindi na maaaring kanselahin ang appointment na ito.",
     "cancelFailed": "Hindi nakansela ang appointment.",
-    "cancelUnavailable": "Hindi available ang cancellation service."
+    "cancelUnavailable": "Hindi available ang cancellation service.",
+    "rescheduleTitle": "I-reschedule ang appointment",
+    "rescheduleDate": "Bagong petsa at oras",
+    "rescheduleReason": "Dahilan (opsyonal)",
+    "rescheduleSubmit": "I-reschedule ang appointment",
+    "rescheduleCancel": "Panatilihin ang kasalukuyang oras",
+    "rescheduleConflict": "Hindi na available ang oras na iyon.",
+    "rescheduleFailed": "Hindi na-reschedule ang appointment.",
+    "rescheduleUnavailable": "Hindi available ang rescheduling service.",
+    "rescheduleInvalid": "Pumili ng bagong petsa at oras."
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",

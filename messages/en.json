@@ -136,7 +136,16 @@
     "confirmCancel": "Confirm cancellation",
     "cancelConflict": "This appointment can no longer be cancelled.",
     "cancelFailed": "The appointment was not cancelled.",
-    "cancelUnavailable": "Cancellation service is unavailable."
+    "cancelUnavailable": "Cancellation service is unavailable.",
+    "rescheduleTitle": "Reschedule appointment",
+    "rescheduleDate": "New date and time",
+    "rescheduleReason": "Reason (optional)",
+    "rescheduleSubmit": "Reschedule appointment",
+    "rescheduleCancel": "Keep current time",
+    "rescheduleConflict": "That time is no longer available.",
+    "rescheduleFailed": "The appointment was not rescheduled.",
+    "rescheduleUnavailable": "Rescheduling service is unavailable.",
+    "rescheduleInvalid": "Choose a new date and time."
   },
   "Medicines": {
     "eyebrow": "Private catalog",

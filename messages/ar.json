@@ -136,7 +136,16 @@
     "confirmCancel": "تأكيد الإلغاء",
     "cancelConflict": "لم يعد من الممكن إلغاء هذا الموعد.",
     "cancelFailed": "لم يُلغَ الموعد.",
-    "cancelUnavailable": "خدمة الإلغاء غير متاحة."
+    "cancelUnavailable": "خدمة الإلغاء غير متاحة.",
+    "rescheduleTitle": "إعادة جدولة الموعد",
+    "rescheduleDate": "التاريخ والوقت الجديدان",
+    "rescheduleReason": "السبب (اختياري)",
+    "rescheduleSubmit": "إعادة جدولة الموعد",
+    "rescheduleCancel": "الاحتفاظ بالوقت الحالي",
+    "rescheduleConflict": "لم يعد هذا الوقت متاحاً.",
+    "rescheduleFailed": "لم تتم إعادة جدولة الموعد.",
+    "rescheduleUnavailable": "خدمة إعادة الجدولة غير متاحة.",
+    "rescheduleInvalid": "اختر تاريخاً ووقتاً جديدين."
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",

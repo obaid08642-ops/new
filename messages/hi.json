@@ -181,7 +181,16 @@
     "confirmCancel": "रद्द करने की पुष्टि",
     "cancelConflict": "यह अपॉइंटमेंट अब रद्द नहीं की जा सकती।",
     "cancelFailed": "अपॉइंटमेंट रद्द नहीं हुई।",
-    "cancelUnavailable": "रद्द करने की सेवा उपलब्ध नहीं है।"
+    "cancelUnavailable": "रद्द करने की सेवा उपलब्ध नहीं है।",
+    "rescheduleTitle": "अपॉइंटमेंट फिर से शेड्यूल करें",
+    "rescheduleDate": "नई तारीख और समय",
+    "rescheduleReason": "कारण (वैकल्पिक)",
+    "rescheduleSubmit": "अपॉइंटमेंट फिर से शेड्यूल करें",
+    "rescheduleCancel": "वर्तमान समय रखें",
+    "rescheduleConflict": "यह समय अब उपलब्ध नहीं है।",
+    "rescheduleFailed": "अपॉइंटमेंट फिर से शेड्यूल नहीं हुई।",
+    "rescheduleUnavailable": "रीशेड्यूल सेवा उपलब्ध नहीं है।",
+    "rescheduleInvalid": "नई तारीख और समय चुनें।"
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",

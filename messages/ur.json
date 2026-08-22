@@ -181,7 +181,16 @@
     "confirmCancel": "منسوخی کی تصدیق",
     "cancelConflict": "یہ اپوائنٹمنٹ اب منسوخ نہیں ہو سکتی۔",
     "cancelFailed": "اپوائنٹمنٹ منسوخ نہیں ہوئی۔",
-    "cancelUnavailable": "منسوخی سروس دستیاب نہیں۔"
+    "cancelUnavailable": "منسوخی سروس دستیاب نہیں۔",
+    "rescheduleTitle": "اپوائنٹمنٹ دوبارہ شیڈول کریں",
+    "rescheduleDate": "نئی تاریخ اور وقت",
+    "rescheduleReason": "وجہ (اختیاری)",
+    "rescheduleSubmit": "اپوائنٹمنٹ دوبارہ شیڈول کریں",
+    "rescheduleCancel": "موجودہ وقت برقرار رکھیں",
+    "rescheduleConflict": "یہ وقت اب دستیاب نہیں ہے۔",
+    "rescheduleFailed": "اپوائنٹمنٹ دوبارہ شیڈول نہیں ہوئی۔",
+    "rescheduleUnavailable": "ری شیڈولنگ سروس دستیاب نہیں۔",
+    "rescheduleInvalid": "نئی تاریخ اور وقت منتخب کریں۔"
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",

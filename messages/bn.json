@@ -181,7 +181,16 @@
     "confirmCancel": "বাতিল নিশ্চিত করুন",
     "cancelConflict": "এই অ্যাপয়েন্টমেন্ট আর বাতিল করা যাবে না।",
     "cancelFailed": "অ্যাপয়েন্টমেন্ট বাতিল হয়নি।",
-    "cancelUnavailable": "বাতিল সেবা অনুপলভ্য।"
+    "cancelUnavailable": "বাতিল সেবা অনুপলভ্য।",
+    "rescheduleTitle": "অ্যাপয়েন্টমেন্ট পুনঃনির্ধারণ",
+    "rescheduleDate": "নতুন তারিখ ও সময়",
+    "rescheduleReason": "কারণ (ঐচ্ছিক)",
+    "rescheduleSubmit": "অ্যাপয়েন্টমেন্ট পুনঃনির্ধারণ",
+    "rescheduleCancel": "বর্তমান সময় রাখুন",
+    "rescheduleConflict": "এই সময়টি আর উপলভ্য নেই।",
+    "rescheduleFailed": "অ্যাপয়েন্টমেন্ট পুনঃনির্ধারণ হয়নি।",
+    "rescheduleUnavailable": "পুনঃনির্ধারণ সেবা অনুপলভ্য।",
+    "rescheduleInvalid": "নতুন তারিখ ও সময় বেছে নিন।"
   },
   "Medicines": {
     "eyebrow": "ব্যক্তিগত ক্যাটালগ",
