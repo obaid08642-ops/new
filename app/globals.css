@@ -99,24 +99,37 @@ body { background: radial-gradient(circle at 85% -15%, rgba(35,181,206,.17), tra
 
 /* Phase 5: cross-platform semantic layer sourced from mobile design tokens. */
 :root {
-  --color-primary: #23b5ce;
-  --color-primary-dark: #1a9fb6;
-  --color-primary-surface: #def5f9;
-  --color-secondary: #2bb89c;
-  --color-secondary-surface: #e2f7f2;
-  --color-accent: #7a6bea;
-  --color-success: #5ba84f;
-  --color-success-surface: #ebf6e9;
-  --color-warning: #f0a526;
-  --color-warning-surface: #fef4e0;
-  --color-danger: #f0695c;
-  --color-danger-surface: #feefed;
-  --color-ink: #141a2a;
-  --color-ink-muted: #4c5566;
-  --color-ink-subtle: #8c93a3;
-  --color-canvas: #f2f4f7;
+  color-scheme: light;
+  --canvas: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #101828;
+  --muted: #475467;
+  --line: #dde3ea;
+  --brand: #087f8c;
+  --brand-deep: #055f69;
+  --brand-soft: #e7f7f7;
+  --mint: #e7f7f7;
+  --danger: #b42318;
+  --color-primary: #087f8c;
+  --color-primary-dark: #055f69;
+  --color-primary-surface: #e7f7f7;
+  --color-secondary: #16876b;
+  --color-secondary-surface: #e9f8f2;
+  --color-accent: #5b5fc7;
+  --color-success: #117a55;
+  --color-success-surface: #ecfdf3;
+  --color-warning: #b54708;
+  --color-warning-surface: #fffaeb;
+  --color-danger: #b42318;
+  --color-danger-surface: #fef3f2;
+  --color-ink: #101828;
+  --color-ink-muted: #475467;
+  --color-ink-subtle: #667085;
+  --color-canvas: #f6f7f9;
   --color-surface: #ffffff;
-  --color-line: #e5e8ee;
+  --color-line: #dde3ea;
+  --font-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-ui-arabic: "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
   --space-1: .25rem;
   --space-2: .5rem;
   --space-3: .75rem;
@@ -124,23 +137,23 @@ body { background: radial-gradient(circle at 85% -15%, rgba(35,181,206,.17), tra
   --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
-  --radius-sm: .5rem;
-  --radius-md: .75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
+  --radius-sm: .625rem;
+  --radius-md: .875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.375rem;
+  --radius-2xl: 1.75rem;
   --radius-full: 9999px;
-  --shadow-sm: 0 4px 12px rgba(20,26,42,.06);
-  --shadow-md: 0 14px 32px rgba(20,26,42,.08);
-  --shadow-lg: 0 24px 64px rgba(17,50,68,.12);
+  --shadow-sm: 0 1px 2px rgba(16,24,40,.04), 0 2px 7px rgba(16,24,40,.04);
+  --shadow-md: 0 10px 28px rgba(16,24,40,.07), 0 2px 6px rgba(16,24,40,.03);
+  --shadow-lg: 0 22px 54px rgba(16,24,40,.10), 0 4px 12px rgba(16,24,40,.04);
   --ease-premium: cubic-bezier(.22,1,.36,1);
-  --motion-fast: 150ms;
+  --motion-fast: 140ms;
   --motion-normal: 180ms;
-  --motion-slow: 300ms;
+  --motion-slow: 280ms;
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 3px solid rgba(35,181,206,.38);
+  outline: 3px solid rgba(37, 99, 235, .56);
   outline-offset: 3px;
 }
 
@@ -151,10 +164,12 @@ body { background: radial-gradient(circle at 85% -15%, rgba(35,181,206,.17), tra
   transition: transform var(--motion-normal) var(--ease-premium), box-shadow var(--motion-normal) var(--ease-premium), border-color var(--motion-normal) var(--ease-premium);
 }
 
-:where(.status-card, .appointment-card, .medicine-card, .homecare-card, .family-card, .notification-card, .vital-card, .prescription-card, .chat-card, .reminder-card):hover {
-  border-color: rgba(35,181,206,.42);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  :where(.status-card, .appointment-card, .medicine-card, .homecare-card, .family-card, .notification-card, .vital-card, .prescription-card, .chat-card, .reminder-card):hover {
+    border-color: rgba(8,127,140,.42);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
