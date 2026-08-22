@@ -1,0 +1,17 @@
+.panel { display:grid; gap:.85rem; margin-top:1rem; padding:1.1rem; border:1px solid rgba(8,127,140,.15); border-radius:var(--radius-xl); background:rgba(255,255,255,.84); box-shadow:var(--shadow-sm); }
+.panel h2 { margin:0; color:var(--ink); font-size:1rem; }
+.cancel,.secondary { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; min-block-size:2.8rem; padding:.65rem .9rem; border-radius:var(--radius-md); font:inherit; font-weight:740; cursor:pointer; transition:transform var(--motion-fast) var(--ease-premium),opacity var(--motion-fast) var(--ease-premium); }
+.cancel { border:0; color:#fff; background:#a33a36; }
+.secondary { border:1px solid var(--line); color:var(--ink); background:#fff; }
+.cancel:hover:not(:disabled),.secondary:hover:not(:disabled) { transform:translateY(-1px); }
+.cancel:disabled,.secondary:disabled { cursor:not-allowed; opacity:.55; }
+.confirm { display:grid; gap:.8rem; }
+.confirm p { margin:0; color:var(--muted); font-size:.86rem; }
+.confirm label { display:grid; gap:.35rem; color:var(--ink); font-size:.82rem; font-weight:700; }
+.confirm textarea { min-block-size:4rem; resize:vertical; padding:.7rem; border:1px solid var(--line); border-radius:var(--radius-md); font:inherit; }
+.confirm button:focus-visible,.confirm textarea:focus-visible { outline:3px solid rgba(37,99,235,.44); outline-offset:3px; }
+.row { display:flex; flex-wrap:wrap; gap:.6rem; }
+.error { padding:.65rem .75rem; border-inline-start:3px solid var(--danger); border-radius:var(--radius-md); color:#8d1a13!important; background:var(--color-danger-surface); }
+.spinner { animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .cancel,.secondary { transition:none; } .cancel:hover:not(:disabled),.secondary:hover:not(:disabled) { transform:none; } .spinner { animation:none; } }

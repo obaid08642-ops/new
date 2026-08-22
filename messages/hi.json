@@ -172,7 +172,16 @@
       "video": "वीडियो परामर्श",
       "home": "घर पर विज़िट"
     },
-    "browseSpecialties": "विशेषज्ञताएँ देखें"
+    "browseSpecialties": "विशेषज्ञताएँ देखें",
+    "actionsTitle": "अपॉइंटमेंट कार्रवाइयाँ",
+    "cancelAppointment": "अपॉइंटमेंट रद्द करें",
+    "cancelConfirm": "क्या आप यह अपॉइंटमेंट रद्द करना चाहते हैं?",
+    "cancelReason": "कारण (वैकल्पिक)",
+    "keepAppointment": "अपॉइंटमेंट रखें",
+    "confirmCancel": "रद्द करने की पुष्टि",
+    "cancelConflict": "यह अपॉइंटमेंट अब रद्द नहीं की जा सकती।",
+    "cancelFailed": "अपॉइंटमेंट रद्द नहीं हुई।",
+    "cancelUnavailable": "रद्द करने की सेवा उपलब्ध नहीं है।"
   },
   "Medicines": {
     "eyebrow": "निजी कैटलॉग",

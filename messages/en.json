@@ -127,7 +127,16 @@
       "video": "Video consultation",
       "home": "Home visit"
     },
-    "browseSpecialties": "Browse specialties"
+    "browseSpecialties": "Browse specialties",
+    "actionsTitle": "Appointment actions",
+    "cancelAppointment": "Cancel appointment",
+    "cancelConfirm": "Are you sure you want to cancel this appointment?",
+    "cancelReason": "Reason (optional)",
+    "keepAppointment": "Keep appointment",
+    "confirmCancel": "Confirm cancellation",
+    "cancelConflict": "This appointment can no longer be cancelled.",
+    "cancelFailed": "The appointment was not cancelled.",
+    "cancelUnavailable": "Cancellation service is unavailable."
   },
   "Medicines": {
     "eyebrow": "Private catalog",

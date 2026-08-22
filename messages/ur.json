@@ -172,7 +172,16 @@
       "video": "ویڈیو مشاورت",
       "home": "گھر کا وزٹ"
     },
-    "browseSpecialties": "تخصصات دیکھیں"
+    "browseSpecialties": "تخصصات دیکھیں",
+    "actionsTitle": "اپوائنٹمنٹ کے اقدامات",
+    "cancelAppointment": "اپوائنٹمنٹ منسوخ کریں",
+    "cancelConfirm": "کیا آپ واقعی یہ اپوائنٹمنٹ منسوخ کرنا چاہتے ہیں؟",
+    "cancelReason": "وجہ (اختیاری)",
+    "keepAppointment": "اپوائنٹمنٹ برقرار رکھیں",
+    "confirmCancel": "منسوخی کی تصدیق",
+    "cancelConflict": "یہ اپوائنٹمنٹ اب منسوخ نہیں ہو سکتی۔",
+    "cancelFailed": "اپوائنٹمنٹ منسوخ نہیں ہوئی۔",
+    "cancelUnavailable": "منسوخی سروس دستیاب نہیں۔"
   },
   "Medicines": {
     "eyebrow": "نجی کیٹلاگ",

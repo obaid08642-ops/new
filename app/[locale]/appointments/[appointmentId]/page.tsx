@@ -6,6 +6,7 @@ import { getPatientAppointment } from "@/lib/api/appointments-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
+import { AppointmentActions } from "@/components-next/appointment-actions";
 import { CalendarDays, ChevronLeft, ShieldCheck, Stethoscope } from "lucide-react";
 import styles from "./appointment-detail.module.css";
 
@@ -36,6 +37,6 @@ export default async function AppointmentDetailPage({ params }: Props) {
       <div className={styles.item}><dt>{t("status")}</dt><dd>{status}</dd></div>
       {appointment.slotStart ? <div className={styles.item}><dt><CalendarDays size={15} aria-hidden="true" />{t("scheduled")}</dt><dd>{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(appointment.slotStart))}</dd></div> : null}
       {appointment.specialty ? <div className={styles.item}><dt>{t("specialty")}</dt><dd>{appointment.specialty}</dd></div> : null}
-    </dl><p className={styles.notice}>{t("detailNotice")}</p></section>
+    </dl><p className={styles.notice}>{t("detailNotice")}</p></section>{["pending", "pending_payment", "confirmed", "scheduled"].includes((appointment.status ?? "").toLowerCase()) ? <AppointmentActions appointmentId={appointmentId} labels={{ actionsTitle: t("actionsTitle"), cancelAppointment: t("cancelAppointment"), cancelConfirm: t("cancelConfirm"), cancelReason: t("cancelReason"), keepAppointment: t("keepAppointment"), confirmCancel: t("confirmCancel"), cancelConflict: t("cancelConflict"), cancelFailed: t("cancelFailed"), cancelUnavailable: t("cancelUnavailable") }} /> : null}
   </main>;
 }

@@ -172,7 +172,16 @@
       "video": "Video na konsultasyon",
       "home": "Pagbisita sa bahay"
     },
-    "browseSpecialties": "Tingnan ang mga espesyalisasyon"
+    "browseSpecialties": "Tingnan ang mga espesyalisasyon",
+    "actionsTitle": "Mga action sa appointment",
+    "cancelAppointment": "Kanselahin ang appointment",
+    "cancelConfirm": "Sigurado ka bang gusto mong kanselahin ito?",
+    "cancelReason": "Dahilan (opsyonal)",
+    "keepAppointment": "Panatilihin ang appointment",
+    "confirmCancel": "Kumpirmahin ang pagkansela",
+    "cancelConflict": "Hindi na maaaring kanselahin ang appointment na ito.",
+    "cancelFailed": "Hindi nakansela ang appointment.",
+    "cancelUnavailable": "Hindi available ang cancellation service."
   },
   "Medicines": {
     "eyebrow": "Pribadong katalogo",

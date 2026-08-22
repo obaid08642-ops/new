@@ -127,7 +127,16 @@
       "video": "استشارة مرئية",
       "home": "زيارة منزلية"
     },
-    "browseSpecialties": "استكشف التخصصات"
+    "browseSpecialties": "استكشف التخصصات",
+    "actionsTitle": "إجراءات الموعد",
+    "cancelAppointment": "إلغاء الموعد",
+    "cancelConfirm": "هل أنت متأكد من رغبتك في إلغاء هذا الموعد؟",
+    "cancelReason": "السبب (اختياري)",
+    "keepAppointment": "الاحتفاظ بالموعد",
+    "confirmCancel": "تأكيد الإلغاء",
+    "cancelConflict": "لم يعد من الممكن إلغاء هذا الموعد.",
+    "cancelFailed": "لم يُلغَ الموعد.",
+    "cancelUnavailable": "خدمة الإلغاء غير متاحة."
   },
   "Medicines": {
     "eyebrow": "كتالوج خاص",

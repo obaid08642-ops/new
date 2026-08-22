@@ -8,7 +8,7 @@ const state = vi.hoisted(() => ({
   requirePatientAccess: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({
   getTranslations: async () => (key: string) => key,
   setRequestLocale: vi.fn(),

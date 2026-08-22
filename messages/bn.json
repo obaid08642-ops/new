@@ -172,7 +172,16 @@
       "video": "ভিডিও পরামর্শ",
       "home": "বাড়ি ভিজিট"
     },
-    "browseSpecialties": "বিশেষত্ব দেখুন"
+    "browseSpecialties": "বিশেষত্ব দেখুন",
+    "actionsTitle": "অ্যাপয়েন্টমেন্টের কাজ",
+    "cancelAppointment": "অ্যাপয়েন্টমেন্ট বাতিল করুন",
+    "cancelConfirm": "আপনি কি এই অ্যাপয়েন্টমেন্ট বাতিল করতে চান?",
+    "cancelReason": "কারণ (ঐচ্ছিক)",
+    "keepAppointment": "অ্যাপয়েন্টমেন্ট রাখুন",
+    "confirmCancel": "বাতিল নিশ্চিত করুন",
+    "cancelConflict": "এই অ্যাপয়েন্টমেন্ট আর বাতিল করা যাবে না।",
+    "cancelFailed": "অ্যাপয়েন্টমেন্ট বাতিল হয়নি।",
+    "cancelUnavailable": "বাতিল সেবা অনুপলভ্য।"
   },
   "Medicines": {
     "eyebrow": "ব্যক্তিগত ক্যাটালগ",
