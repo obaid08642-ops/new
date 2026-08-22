@@ -126,7 +126,7 @@ export class AuthService {
     // We update a consent log array inside the user's document
     await this.userModel.updateOne(
       { _id: userId },
-      { $push: { "legal_consents": { document_type: documentType, version, accepted_at: new Date() } } }
+      { $push: { "legal_consents": { policy_id: documentType, version, accepted_at: new Date() } } }
     );
   }
 

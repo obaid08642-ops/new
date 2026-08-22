@@ -60,6 +60,17 @@ describe('patient web auth contract', () => {
     );
   });
 
+  it('stores policy_id and version for a recorded legal consent', async () => {
+    const { service, userModel } = build();
+
+    await service.recordComplianceConsent('patient-1', 'privacy', '2026-08');
+
+    expect(userModel.updateOne).toHaveBeenCalledWith(
+      { _id: 'patient-1' },
+      { $push: { legal_consents: expect.objectContaining({ policy_id: 'privacy', version: '2026-08' }) } },
+    );
+  });
+
   it('registers the Contract V1 patient with consents, starts OTP, and returns no session token', async () => {
     const { service, userModel, patientModel, redis } = build();
     const user = { id: 'patient-new', full_name: 'Patient Name', role: 'patient', active: true };
