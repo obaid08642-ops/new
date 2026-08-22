@@ -619,5 +619,24 @@
     "emptyBody": "Walang kasalukuyang available mula sa awtorisadong serbisyo.",
     "noMatch": "Walang tumugmang espesyalisasyon sa paghahanap.",
     "doctorCount": "{count} doktor ang available"
+  },
+  "HomeCareServices": {
+    "eyebrow": "Home care",
+    "title": "Mga serbisyo sa home care",
+    "subtitle": "Tingnan ang mga serbisyo mula sa awtorisadong source. Hindi ipinapakita ang presyong wala sa response.",
+    "searchLabel": "Maghanap ng serbisyo",
+    "searchPlaceholder": "Maghanap ng serbisyo...",
+    "unavailableTitle": "Hindi ma-load ang mga serbisyo",
+    "unavailableBody": "Walang fallback o sample data na ipinakita. Subukan muli mamaya.",
+    "retry": "Subukan muli",
+    "emptyTitle": "Walang serbisyo",
+    "emptyBody": "Walang kasalukuyang serbisyo mula sa awtorisadong source.",
+    "noMatch": "Walang tumugmang serbisyo sa paghahanap.",
+    "price": "{value} SAR",
+    "priceLabel": "Presyo",
+    "durationLabel": "Tagal",
+    "insurance": "May insurance",
+    "bookingNotice": "Read-only ang detalye ng serbisyo rito. Walang booking na ginagawa sa pahinang ito.",
+    "back": "Bumalik sa mga serbisyo"
   }
 }
