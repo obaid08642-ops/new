@@ -65,9 +65,28 @@ export class HealthService {
   }
 
   async listVitals(user: any, type?: string, limit = 100) {
-    const q: any = { patient_id: user.id };
+    const q: any = { patient_id: user.id, deleted_at: null };
     if (type) q.type = this.normalizeVitalType(type);
     return this.vitals.find(q, { _id: 0, __v: 0 }).sort({ measured_at: -1 }).limit(Math.min(limit, 500));
+  }
+
+  /** Contract bridge for the mobile GET /health/vitals-log call. */
+  async listVitalsLog(user: any, limit = 100) {
+    const rows: any[] = await this.listVitals(user, undefined, limit);
+    return {
+      items: rows.map((row: any) => {
+        const value = typeof row.toObject === 'function' ? row.toObject() : row;
+        return {
+          id: value.id,
+          type: value.type === 'bp' ? 'blood_pressure' : value.type,
+          value: value.value,
+          unit: value.unit,
+          measured_at: value.measured_at,
+          source: value.source === 'device' ? 'device' : 'manual',
+          ...(value.context ? { context: value.context } : {}),
+        };
+      }),
+    };
   }
 
   /** Chart series for one vital across fixed windows — real readings only, empty arrays when none. */
@@ -81,7 +100,7 @@ export class HealthService {
       year: { spanMs: 365 * 24 * 3600e3, buckets: 12 },
     };
     const readings = await this.vitals.find(
-      { patient_id: user.id, type, measured_at: { $gte: new Date(now - windows.year.spanMs) } },
+      { patient_id: user.id, type, deleted_at: null, measured_at: { $gte: new Date(now - windows.year.spanMs) } },
       { _id: 0, value: 1, measured_at: 1 },
     ).sort({ measured_at: 1 });
     const result: Record<string, number[]> = { day: [], week: [], month: [], year: [] };
@@ -106,7 +125,7 @@ export class HealthService {
 
   /** Most recent readings of one vital type. */
   async vitalsRecent(user: any, type: string, limit = 20) {
-    const q: any = { patient_id: user.id };
+    const q: any = { patient_id: user.id, deleted_at: null };
     if (type) q.type = type;
     return this.vitals.find(q, { _id: 0, __v: 0 }).sort({ measured_at: -1 }).limit(Math.min(limit, 100));
   }
@@ -114,7 +133,7 @@ export class HealthService {
   async latestVitals(user: any) {
     const out: any = {};
     for (const t of VALID_TYPES) {
-      const r = await this.vitals.findOne({ patient_id: user.id, type: t }, { _id: 0, __v: 0 }).sort({ measured_at: -1 });
+      const r = await this.vitals.findOne({ patient_id: user.id, type: t, deleted_at: null }, { _id: 0, __v: 0 }).sort({ measured_at: -1 });
       if (r) out[t] = r;
     }
     return out;
@@ -243,17 +262,17 @@ export class HealthService {
   }
 
   async deleteVital(user: any, id: string) {
-    const r = await this.vitals.findOneAndDelete({ id, patient_id: user.id });
+    const r = await this.vitals.findOneAndUpdate({ id, patient_id: user.id, deleted_at: null }, { $set: { deleted_at: new Date() } }, { new: true });
     if (!r) throw new NotFoundException();
     return { ok: true };
   }
 
   async updateVital(user: any, id: string, data: any) {
-    const current: any = await this.vitals.findOne({ id, patient_id: user.id });
+    const current: any = await this.vitals.findOne({ id, patient_id: user.id, deleted_at: null });
     if (!current) throw new NotFoundException();
     const currentData = typeof current.toObject === 'function' ? current.toObject() : current;
     const normalized = this.normalizeVitalInput({ ...currentData, ...(data || {}) });
-    const r = await this.vitals.findOneAndUpdate({ id, patient_id: user.id }, { $set: normalized }, { new: true });
+    const r = await this.vitals.findOneAndUpdate({ id, patient_id: user.id, deleted_at: null }, { $set: normalized }, { new: true });
     return r.toObject();
   }
 

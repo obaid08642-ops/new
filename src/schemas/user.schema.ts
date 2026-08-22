@@ -19,6 +19,8 @@ export class User {
   @Prop() district?: string;
   @Prop({ type: { lat: Number, lng: Number }, _id: false }) location?: { lat: number; lng: number };
   @Prop({ default: 'ar' }) preferred_lang: string;
+  /** Opaque patient-facing identifier; never expose Mongo or account ids to clients. */
+  @Prop({ unique: true, sparse: true, index: true }) health_id?: string;
   @Prop({ default: [] }) device_tokens: string[]; // Native push tokens (FCM/APNs/Expo)
   @Prop() last_login_at?: Date;
   // --- staff / sub-user fields (hospital/clinic) ---

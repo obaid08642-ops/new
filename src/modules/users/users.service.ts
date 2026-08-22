@@ -1,5 +1,6 @@
 import { Injectable, Optional, NotFoundException, ForbiddenException, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { JwtService } from '@nestjs/jwt';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -9,6 +10,7 @@ import { PatientProfileRepository } from './repositories/patient-profile.reposit
 import { ProviderProfileRepository } from './repositories/provider-profile.repository';
 import { PatientProfile } from '../../schemas/patient-profile.schema';
 import { RedisService } from '../redis/redis.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -53,6 +55,84 @@ export class UsersService {
     const o: any = typeof (p as any).toObject === 'function' ? (p as any).toObject() : p;
     // Alias: the app reads/writes `chronic_conditions`; the schema field is `chronic_diseases`.
     return { ...o, chronic_conditions: o.chronic_diseases || [] };
+  }
+
+  private async userForPatientContract(userId: string): Promise<any> {
+    const user: any = await this.userRepository.findOne({ id: userId });
+    if (!user) throw new NotFoundException('user_not_found');
+    return user;
+  }
+
+  private memberSince(user: any): string | null {
+    const value = user?.createdAt || user?.created_at;
+    return value ? new Date(value).toISOString() : null;
+  }
+
+  private async ensureHealthId(user: any): Promise<string> {
+    if (user.health_id) return String(user.health_id);
+    const healthId = `HP-${randomUUID()}`;
+    await this.userRepository.updateOne({ id: user.id }, { $set: { health_id: healthId } });
+    user.health_id = healthId;
+    return healthId;
+  }
+
+  /** Bounded public DTO for a signed-in patient. Never includes email, phone, or internal ids. */
+  async getPatientDisplay(userId: string) {
+    const user = await this.userForPatientContract(userId);
+    const healthId = await this.ensureHealthId(user);
+    return {
+      display_name: String(user.full_name || ''),
+      avatar_url: user.avatar && String(user.avatar).startsWith('https://') ? user.avatar : null,
+      locale: user.preferred_lang || 'ar',
+      member_since: this.memberSince(user),
+      health_id: healthId,
+    };
+  }
+
+  async updatePatientWebProfile(userId: string, body: any) {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_profile_payload');
+    const allowed = new Set(['display_name', 'avatar_media_id', 'locale', 'gender', 'birth_date', 'height_cm', 'weight_kg', 'blood_type']);
+    for (const key of Object.keys(body)) {
+      if (!allowed.has(key) || key.includes('.') || key.startsWith('$')) {
+        throw new BadRequestException('profile_field_not_allowed');
+      }
+    }
+    const user = await this.userForPatientContract(userId);
+    const userPatch: any = {};
+    const profilePatch: any = {};
+    if (body.display_name !== undefined) {
+      const displayName = String(body.display_name).trim();
+      if (!displayName || displayName.length > 160) throw new BadRequestException('invalid_display_name');
+      userPatch.full_name = displayName;
+    }
+    if (body.locale !== undefined) {
+      const locale = String(body.locale);
+      if (!['ar', 'en', 'ur', 'hi', 'bn', 'fil'].includes(locale)) throw new BadRequestException('invalid_locale');
+      userPatch.preferred_lang = locale;
+    }
+    if (body.avatar_media_id !== undefined) {
+      const mediaId = String(body.avatar_media_id).trim();
+      const media = await this.conn.db.collection('storage_objects').findOne({ id: mediaId, owner_account_id: userId });
+      if (!media?.public_url || !String(media.public_url).startsWith('https://')) throw new BadRequestException('avatar_media_not_owned');
+      userPatch.avatar = String(media.public_url);
+    }
+    if (body.gender !== undefined) profilePatch.gender = body.gender;
+    if (body.birth_date !== undefined) profilePatch.date_of_birth = body.birth_date;
+    if (body.height_cm !== undefined) profilePatch.height_cm = body.height_cm;
+    if (body.weight_kg !== undefined) profilePatch.weight_kg = body.weight_kg;
+    if (body.blood_type !== undefined) profilePatch.blood_type = body.blood_type;
+    if (Object.keys(userPatch).length) await this.userRepository.updateOne({ id: userId }, { $set: userPatch });
+    if (Object.keys(profilePatch).length) await this.patientRepository.updateOne({ user_id: userId }, { $set: profilePatch }, { upsert: true });
+    return this.getPatientDisplay(userId);
+  }
+
+  async getHealthId(userId: string) {
+    const user = await this.userForPatientContract(userId);
+    const healthId = await this.ensureHealthId(user);
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new BadRequestException('health_id_signing_unavailable');
+    const qrPayload = new JwtService({ secret }).sign({ sub: userId, health_id: healthId, purpose: 'health_id' }, { expiresIn: '5m' });
+    return { health_id: healthId, qr_payload: qrPayload, issued_at: new Date().toISOString() };
   }
 
   /** S11: patient-editable profile fields — everything else (user_id, verified,

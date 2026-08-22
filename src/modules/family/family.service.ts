@@ -3,6 +3,9 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  ConflictException,
+  GoneException,
+  ServiceUnavailableException,
   Inject,
   Optional,
 } from '@nestjs/common';
@@ -17,7 +20,7 @@ import { FamilyPermissionRequestRepository } from "./repositories/familypermissi
 /** Permission keys a family member can hold — matches the patient app's matrix. */
 const ALLOWED_MEMBER_PERMISSIONS = [
   'vitals', 'meds', 'reports', 'appointments', 'booking',
-  'pharmacy', 'payment', 'location', 'emergency', 'view_health',
+  'pharmacy', 'payment', 'location', 'emergency', 'view_health', 'book_for',
 ];
 
 @Injectable()
@@ -84,15 +87,46 @@ export class FamilyService {
     return { invite_code: code, expires_at: expires };
   }
 
+  /** Contract DTO never reveals a join code. Delivery must be available or fail closed. */
+  async sendInvite(userId: string, channel: string, target: string) {
+    if (!['sms', 'email'].includes(channel)) throw new BadRequestException('invalid_invite_channel');
+    const destination = String(target || '').trim();
+    if (!destination || destination.length > 254) throw new BadRequestException('invalid_invite_target');
+    const generated = await this.generateInvite(userId);
+    if (!this.notificationSvc?.send) {
+      throw new ServiceUnavailableException('family_invite_delivery_unavailable');
+    }
+    await this.notificationSvc.send({
+      channel,
+      target: destination,
+      template: 'family_invite',
+      variables: { invite_code: generated.invite_code, expires_in: 86400 },
+    });
+    return { invite_sent: true, expires_in: 86400 };
+  }
+
+  async listMembersContract(userId: string) {
+    const members = await this.listMembers(userId);
+    return {
+      members: members.map((member: any) => ({
+        display_name: member.display_name || null,
+        role: member.role,
+        joined_at: member.joined_at || null,
+      })),
+    };
+  }
+
   async joinGroup(userId: string, inviteCode: string, displayName?: string, relation?: string) {
     const group = await this.groupM.findOne({
-      invite_code: inviteCode,
+      invite_code: String(inviteCode || '').trim(),
       is_deleted: { $ne: true },
-      invite_expires_at: { $gt: new Date() },
     }).lean();
-    if (!group) throw new BadRequestException('Invalid or expired invite code');
+    if (!group) throw new BadRequestException('invalid_invite_code');
+    if (!(group as any).invite_expires_at || new Date((group as any).invite_expires_at).getTime() <= Date.now()) {
+      throw new GoneException('invite_expired');
+    }
     const alreadyMember = (group as any).members?.some((m: any) => m.user_id === userId);
-    if (alreadyMember) throw new BadRequestException('Already a member of this group');
+    if (alreadyMember) throw new ConflictException('already_member');
     await this.groupM.updateOne(
       { id: (group as any).id },
       {

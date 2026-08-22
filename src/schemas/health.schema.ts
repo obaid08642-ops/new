@@ -14,9 +14,11 @@ export class VitalReading extends Document {
   @Prop() context?: string; // before_meal | after_meal | morning | bedtime
   @Prop() notes?: string;
   @Prop({ default: 'manual' }) source: string; // manual | device | doctor
+  /** Soft-delete marker; reads must always exclude it from patient responses. */
+  @Prop({ default: null, index: true }) deleted_at?: Date | null;
 }
 export const VitalReadingSchema = SchemaFactory.createForClass(VitalReading);
-VitalReadingSchema.index({ patient_id: 1, type: 1, measured_at: -1 });
+VitalReadingSchema.index({ patient_id: 1, type: 1, measured_at: -1, deleted_at: 1 });
 
 @Schema({ timestamps: true })
 export class MedicationReminder extends Document {

@@ -4,6 +4,7 @@ import { IdempotencyInterceptor } from './idempotency.interceptor';
 
 describe('IdempotencyInterceptor', () => {
   const handler = (body: any, userId = 'patient-a', path = '/moyasar/payments') => ({
+    getHandler: () => ({ name: 'handler' }),
     switchToHttp: () => ({
       getRequest: () => ({
         method: 'POST',
@@ -20,7 +21,10 @@ describe('IdempotencyInterceptor', () => {
 
   beforeEach(() => {
     redisClient = { get: jest.fn(), set: jest.fn(), del: jest.fn().mockResolvedValue(undefined) };
-    interceptor = new IdempotencyInterceptor({ getClient: () => redisClient } as any);
+    interceptor = new IdempotencyInterceptor(
+      { getClient: () => redisClient } as any,
+      { get: jest.fn().mockReturnValue(false) } as any,
+    );
   });
 
   it('persists a successful response under a user-and-route-scoped key after acquiring a lock', async () => {
@@ -44,7 +48,7 @@ describe('IdempotencyInterceptor', () => {
     redisClient.get.mockResolvedValue(JSON.stringify({ request_hash: requestHash, response: { payment_id: 'p-1' } }));
     const next = { handle: jest.fn(() => of({ payment_id: 'new' })) };
 
-    await expect(lastValueFrom(await interceptor.intercept(handler({ amount: 50 }), next))).resolves.toEqual({ payment_id: 'p-1' });
+    await expect(lastValueFrom(await interceptor.intercept(handler({ amount: 50 }), next))).resolves.toEqual({ payment_id: 'p-1', idempotent_replay: true });
     expect(next.handle).not.toHaveBeenCalled();
   });
 

@@ -91,7 +91,7 @@ describe('FamilyService', () => {
 
     it('should throw on invalid or expired invite code', async () => {
       groupModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
-      await expect(service.joinGroup('user-2', 'INVALID')).rejects.toThrow('Invalid or expired invite code');
+      await expect(service.joinGroup('user-2', 'INVALID')).rejects.toMatchObject({ response: { message: 'invalid_invite_code' } });
     });
 
     it('should throw if user is already a member', async () => {
@@ -102,7 +102,7 @@ describe('FamilyService', () => {
           invite_expires_at: new Date(Date.now() + 3600000),
         }),
       });
-      await expect(service.joinGroup('user-2', 'ABC123')).rejects.toThrow('Already a member');
+      await expect(service.joinGroup('user-2', 'ABC123')).rejects.toMatchObject({ response: { message: 'already_member' } });
     });
   });
 

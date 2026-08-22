@@ -8,6 +8,23 @@ import { UserRole } from '../../common/enums';
 export class UsersController {
   constructor(private users: UsersService) {}
 
+  /** Contract-pack patient display DTO: no PII or internal identifiers. */
+  @Get('me/display')
+  display(@CurrentUser('id') id: string) {
+    return this.users.getPatientDisplay(id);
+  }
+
+  /** Contract-pack allowlisted patient profile mutation. */
+  @Patch('me')
+  updateDisplay(@CurrentUser('id') id: string, @Body() body: any) {
+    return this.users.updatePatientWebProfile(id, body);
+  }
+
+  @Get('me/health-id')
+  healthId(@CurrentUser('id') id: string) {
+    return this.users.getHealthId(id);
+  }
+
   @Get('me/profile')
   myProfile(@CurrentUser('id') id: string) {
     return this.users.getPatientProfile(id);

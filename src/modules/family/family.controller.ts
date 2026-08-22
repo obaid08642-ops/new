@@ -28,9 +28,10 @@ export class FamilyController {
     return this.familyService.getMyGroup(this.authenticatedUserId(req));
   }
 
+  /** Contract invitation never exposes invite_code in the HTTP response. */
   @Post('invite')
-  generateInvite(@Req() req: any) {
-    return this.familyService.generateInvite(this.authenticatedUserId(req));
+  invite(@Req() req: any, @Body() body: { channel: 'sms' | 'email'; target: string }) {
+    return this.familyService.sendInvite(this.authenticatedUserId(req), body?.channel, body?.target);
   }
 
   @Post('join')
@@ -48,6 +49,11 @@ export class FamilyController {
     return this.familyService.updateMemberRelation(this.authenticatedUserId(req), targetUserId, body.relation);
   }
 
+  @Patch('members/:memberId/permissions')
+  setContractPermissions(@Req() req: any, @Param('memberId') targetUserId: string, @Body() body: { scopes: string[] }) {
+    return this.familyService.setMemberPermissions(this.authenticatedUserId(req), targetUserId, body?.scopes || []);
+  }
+
   @Patch('member/:userId/permissions')
   setPermissions(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: { permissions: string[] }) {
     return this.familyService.setMemberPermissions(this.authenticatedUserId(req), targetUserId, body.permissions);
@@ -58,9 +64,19 @@ export class FamilyController {
     return this.familyService.getMemberRecords(this.authenticatedUserId(req), targetUserId);
   }
 
+  @Delete('members/:memberId')
+  removeContractMember(@Req() req: any, @Param('memberId') targetUserId: string) {
+    return this.familyService.removeMember(this.authenticatedUserId(req), targetUserId);
+  }
+
   @Delete('remove-member/:userId')
   removeMember(@Req() req: any, @Param('userId') targetUserId: string) {
     return this.familyService.removeMember(this.authenticatedUserId(req), targetUserId);
+  }
+
+  @Get('my-group/members')
+  contractMembers(@Req() req: any) {
+    return this.familyService.listMembersContract(this.authenticatedUserId(req));
   }
 
   @Get('members')

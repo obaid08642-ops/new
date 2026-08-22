@@ -1,20 +1,28 @@
-import { BadRequestException, CallHandler, ConflictException, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { BadRequestException, CallHandler, ConflictException, ExecutionContext, Injectable, NestInterceptor, SetMetadata } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
 import { catchError, mergeMap } from 'rxjs/operators';
 import { createHash } from 'crypto';
 import { RedisService } from '../modules/redis/redis.service';
+import { Reflector } from '@nestjs/core';
+
+export const REQUIRE_IDEMPOTENCY = 'require_idempotency';
+export const RequireIdempotency = () => SetMetadata(REQUIRE_IDEMPOTENCY, true);
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
-  constructor(private readonly redis: RedisService) {}
+  constructor(private readonly redis: RedisService, private readonly reflector: Reflector) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const idempotencyKey = request.headers['idempotency-key'];
-
-    if (!idempotencyKey || request.method !== 'POST') {
+    const isMutation = ['POST', 'PATCH', 'DELETE'].includes(request.method);
+    const required = this.reflector.get<boolean>(REQUIRE_IDEMPOTENCY, context.getHandler()) === true;
+    if (!idempotencyKey) {
+      if (required && isMutation) throw new BadRequestException('idempotency_key_required');
       return next.handle();
     }
+    if (!isMutation) return next.handle();
+
     if (typeof idempotencyKey !== 'string' || idempotencyKey.length > 128) {
       throw new BadRequestException('invalid_idempotency_key');
     }
@@ -37,7 +45,8 @@ export class IdempotencyInterceptor implements NestInterceptor {
       if (cached?.request_hash && cached.request_hash !== requestHash) {
         throw new BadRequestException('idempotency_key_reused_with_different_request');
       }
-      return of(cached?.response ?? cached);
+      const response = cached?.response ?? cached;
+      return of(response && typeof response === 'object' ? { ...response, idempotent_replay: true } : response);
     }
 
     const lockKey = `${cacheKey}:lock`;

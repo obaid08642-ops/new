@@ -164,7 +164,7 @@ describe('HealthService vital contract', () => {
   it('uses canonical vital type for a legacy list query and rejects an unknown type', async () => {
     const { service, vitals } = makeVitalService();
     await service.listVitals({ id: 'patient-1' }, 'sugar', 30);
-    expect(vitals.find).toHaveBeenCalledWith({ patient_id: 'patient-1', type: 'glucose' }, { _id: 0, __v: 0 });
+    expect(vitals.find).toHaveBeenCalledWith({ patient_id: 'patient-1', type: 'glucose', deleted_at: null }, { _id: 0, __v: 0 });
     await expect(service.listVitals({ id: 'patient-1' }, 'made-up-vital', 30)).rejects.toBeInstanceOf(BadRequestException);
   });
 });
