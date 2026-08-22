@@ -15,6 +15,7 @@ import { decodeJwt } from '../../src/utils/jwt';
 import { loginSuccess } from '../../src/store/slices/authSlice';
 import { LocalizedText } from '../../src/components/LocalizedText';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { consumeRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
 
 export default function OtpScreen() {
   const { isDark, lang } = useApp() as any;
@@ -22,8 +23,11 @@ export default function OtpScreen() {
   const isGuest = useSelector((state: any) => state.auth.isGuest);
   const params = useLocalSearchParams();
 
-  const phone = (params.phone as string) || '';
   const mode = (params.mode as string) || 'login';
+  const [registrationPayload] = useState(() => mode === 'register'
+    ? consumeRegistrationTransaction(params.transactionId as string | undefined)
+    : null);
+  const phone = registrationPayload?.phone || (params.phone as string) || '';
 
   const isRTL = lang === 'ar' || lang === 'ur' || true;
 
@@ -65,7 +69,7 @@ export default function OtpScreen() {
     
     setLoading(true);
     try {
-      const emailParam = (params.email as string) || '';
+      const emailParam = registrationPayload?.email || (params.email as string) || '';
       
       const resOtp = await apiFetch('/auth/verify-otp', {
         method: 'POST',
@@ -87,32 +91,26 @@ export default function OtpScreen() {
           return;
         }
         if (mode === 'register') {
+          if (!registrationPayload) {
+            showLocalizedAlert('خطأ', 'انتهت معاملة التسجيل. الرجاء العودة وإعادة التسجيل.');
+            setLoading(false);
+            return;
+          }
           const regRes = await apiFetch('/auth/register', {
             method: 'POST',
             body: JSON.stringify({
-              full_name: params.full_name,
-              phone: phone,
-              email: emailParam,
-              password: params.password,
+              full_name: registrationPayload.fullName,
+              phone: registrationPayload.phone,
+              email: registrationPayload.email,
+              password: registrationPayload.password,
             }),
           });
           token = typeof regRes?.token === 'string' ? regRes.token : (regRes?.token?.accessToken || '');
           userData = regRes?.user;
         } else if (isGuest && !token) {
-          try {
-            const convertRes = await apiFetch<any>('/auth/convert-guest', {
-              method: 'POST',
-              body: JSON.stringify({
-                full_name: (params.full_name as string) || 'مريض نبض',
-                phone: phone,
-                password: (params.password as string) || 'Password@123',
-                email: emailParam,
-              }),
-            });
-            token = typeof convertRes?.token === 'string' ? convertRes.token : (convertRes?.token?.accessToken || '');
-            userData = convertRes?.user;
-            await AsyncStorage.setItem(STORAGE_KEYS.GUEST_MODE ?? '@nabdah_guest', 'false');
-          } catch (_) {}
+          showLocalizedAlert('خطأ', 'يلزم إتمام تسجيل آمن قبل تحويل الحساب الضيف.');
+          setLoading(false);
+          return;
         }
       }
 
@@ -122,8 +120,15 @@ export default function OtpScreen() {
         return;
       }
 
-      try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, token); }
-      catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token); }
+      try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, token);
+        // Remove any legacy plaintext mirror but never fall back to it.
+        await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      } catch {
+        showLocalizedAlert('خطأ', 'تعذر تأمين الجلسة على هذا الجهاز.');
+        setLoading(false);
+        return;
+      }
       await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
       
       dispatch(loginSuccess({ user: userData as any, token }));

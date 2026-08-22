@@ -13,6 +13,7 @@ import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../../src/constants';
 import { decodeJwt } from '../../src/utils/jwt';
+import { createRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
 
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -172,14 +173,17 @@ export default function RegisterScreen() {
       setLoading(false);
       // Forcing +966 for real backend
       const fullPhone = form.phone.startsWith('+') ? form.phone : `+966${form.phone.replace(/^0+/, '')}`;
+      const registrationTransactionId = createRegistrationTransaction({
+        fullName: form.name,
+        phone: fullPhone,
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      });
       router.push({
         pathname: '/(auth)/otp',
         params: {
-          phone: fullPhone,
-          email: form.email.trim().toLowerCase(),
+          transactionId: registrationTransactionId,
           mode: 'register',
-          full_name: form.name,
-          password: form.password,
         },
       });
     } catch (err: any) {

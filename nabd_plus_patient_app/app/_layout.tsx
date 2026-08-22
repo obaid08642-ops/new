@@ -20,7 +20,7 @@ import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
 import { useDispatch } from 'react-redux';
-import { guestLogin } from '../src/store/slices/authSlice';
+import { guestLogin, offlineUnauthenticated } from '../src/store/slices/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../src/constants';
 import { apiFetch } from '../src/utils/api';
@@ -62,11 +62,12 @@ function StoreHydrator({ children }: { children: React.ReactNode }) {
               dispatch(guestLogin({ user: res.user, token: res.token }));
               return;
             }
-          } catch { /* offline — fall back to local-only guest shell */ }
-          dispatch(guestLogin({
-            user: { id: 'guest_user', role: 'patient', full_name: 'زائر', phone: '', email: '' } as any,
-            token: 'guest_token',
-          }));
+          } catch {
+            // A network failure must never become a fabricated patient session.
+            dispatch(offlineUnauthenticated());
+            return;
+          }
+          dispatch(offlineUnauthenticated());
         }
       } catch {}
     };

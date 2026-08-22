@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../constants';
-import { getDeviceId } from './deviceId';
 import { config } from '../core/config';
 
 // All runtime URLs resolve through ConfigManager, including explicit local-dev
@@ -10,84 +9,49 @@ export const BASE_URL = config.apiBaseUrl;
 export const FASTAPI_BASE_URL = config.fastapiBaseUrl;
 export const R2_PUBLIC_URL = config.cdnUrl;
 
+export class ApiContractError extends Error {
+  readonly code: 'invalid_response' | 'secure_storage_unavailable';
+  constructor(code: 'invalid_response' | 'secure_storage_unavailable') {
+    super(code);
+    this.code = code;
+  }
+}
+
+async function clearLegacyTokenMirror(): Promise<void> {
+  // Migration cleanup only: a token is never read from or written to AsyncStorage.
+  try { await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN); } catch {}
+}
+
 async function getToken(): Promise<string | null> {
-  const valid = (t: string | null): string | null =>
-    t && t !== '[object Object]' && t.length > 10 ? t : null;
   try {
-    const t = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-    if (valid(t)) return t;
-  } catch { /* fall through to AsyncStorage mirror */ }
-  try {
-    const t = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-    if (valid(t)) return t;
-    if (t) await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN); // corrupted → purge
-  } catch { /* ignore */ }
-  return null;
+    const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
+    if (token && token !== '[object Object]' && token.length > 10) return token;
+    if (token) await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN);
+    await clearLegacyTokenMirror();
+    return null;
+  } catch {
+    await clearLegacyTokenMirror();
+    return null;
+  }
 }
 
 async function saveToken(token: string): Promise<void> {
-  // Guard: AsyncStorage/SecureStore only accept strings — refuse anything else
-  // and clean up a previously corrupted "[object Object]" value.
   if (typeof token !== 'string' || !token || token === '[object Object]') {
-    try { await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN); } catch {}
-    return;
+    await clearLegacyTokenMirror();
+    throw new ApiContractError('secure_storage_unavailable');
   }
   try {
     await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, token);
+    await clearLegacyTokenMirror();
   } catch {
-    try { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token); } catch {}
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Auto guest provisioning: any call made without a valid token transparently
-// obtains a REAL device-bound guest session from the backend and retries once.
-// This eliminates the AUTH_ERROR_401 floods for guests — they can use every
-// service (cart, orders, bookings, wallet, loyalty…) under their guest account.
-// ---------------------------------------------------------------------------
-let guestProvisionPromise: Promise<string | null> | null = null;
-export async function ensureGuestToken(): Promise<string | null> {
-  if (guestProvisionPromise) return guestProvisionPromise;
-  guestProvisionPromise = (async () => {
-    try {
-      const deviceId = await getDeviceId();
-      const res = await fetch(`${BASE_URL}/auth/guest`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceId }),
-      });
-      if (!res.ok) return null;
-      const data = await res.json().catch(() => null);
-      // Backend returns { user, token: { accessToken, refreshToken } } — extract the
-      // string access token; never store the wrapper object (breaks AsyncStorage).
-      const raw = data?.token;
-      const tokenStr =
-        typeof raw === 'string' ? raw :
-        (raw && typeof raw === 'object' ? (raw.accessToken || raw.access_token || raw.token) : null);
-      if (typeof tokenStr === 'string' && tokenStr.length > 10) {
-        await saveToken(tokenStr);
-        try { await AsyncStorage.setItem(STORAGE_KEYS.GUEST_MODE ?? '@nabdah_guest', 'true'); } catch {}
-        return tokenStr;
-      }
-    } catch { /* offline — no guest token */ }
-    return null;
-  })();
-  try {
-    return await guestProvisionPromise;
-  } finally {
-    guestProvisionPromise = null;
+    await clearLegacyTokenMirror();
+    throw new ApiContractError('secure_storage_unavailable');
   }
 }
 
 export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   let token = await getToken();
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
-  const isAuthEndpoint = endpoint.startsWith('/auth/');
-
-  // No token at all → provision a device-bound guest session (except auth calls).
-  if (!token && !isAuthEndpoint) {
-    token = await ensureGuestToken();
-  }
 
   const headers = new Headers(options.headers);
   if (token) {
@@ -139,19 +103,8 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
     // Handle missing/invalid token or auth error
     if (errorMsg.toLowerCase().includes('missing token') || response.status === 401 || response.status === 403) {
       console.warn(`[apiFetch] Auth error for endpoint: ${endpoint}`);
-      try {
-        await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-        await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-      } catch {}
-      // Stale/expired token → drop into a fresh device-bound guest session and
-      // retry this request ONCE (safe: the 401 means the server never ran it).
-      const alreadyRetried = (options as any).__guestRetried === true;
-      if (!alreadyRetried && !isAuthEndpoint) {
-        const guestToken = await ensureGuestToken();
-        if (guestToken) {
-          return apiFetch<T>(endpoint, { ...options, __guestRetried: true } as any);
-        }
-      }
+      try { await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN); } catch {}
+      await clearLegacyTokenMirror();
       throw new Error(`AUTH_ERROR_${response.status}: ${errorMsg}`);
     }
     throw new Error(errorMsg);
@@ -160,6 +113,6 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
   try {
     return await response.json();
   } catch {
-    return { ok: true } as unknown as T;
+    throw new ApiContractError('invalid_response');
   }
 }
