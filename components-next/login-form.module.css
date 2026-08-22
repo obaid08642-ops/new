@@ -66,6 +66,9 @@
 .submit:active:not(:disabled) { transform: scale(.985); }
 .submit:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 3px; }
 .submit:disabled { cursor: wait; opacity: .66; }
+.modeSwitch { border: 0; padding: .35rem; color: var(--brand-deep); background: transparent; font: inherit; font-size: .82rem; font-weight: 750; cursor: pointer; transition: color 160ms ease, opacity 160ms ease; }
+.modeSwitch:hover { color: var(--ink); }
+.modeSwitch:focus-visible { outline: 3px solid rgba(37,99,235,.45); outline-offset: 3px; border-radius: .4rem; }
 
 .error {
   margin: 0;
@@ -84,7 +87,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .field input, .submit { transition: none; }
+  .field input, .submit, .modeSwitch { transition: none; }
   .submit:active:not(:disabled) { transform: none; }
   .spinner { animation: none; }
 }

@@ -37,7 +37,19 @@
     "sandboxNote": "Gamitin lamang ang hiwalay na Sandbox account habang sumusubok. Huwag maglagay ng tunay na data ng pasyente sa environment na ito.",
     "invalid": "Hindi makapag-sign in. Suriin ang iyong detalye at subukang muli.",
     "unavailable": "Hindi maabot ang serbisyo. Walang lokal na alternatibong session na ginawa.",
-    "twoFactor": "Kailangan ng session na ito ng karagdagang beripikasyon. Gamitin ang code na ipinadala ng awtorisadong authentication service."
+    "twoFactor": "Kailangan ng session na ito ng karagdagang beripikasyon. Gamitin ang code na ipinadala ng awtorisadong authentication service.",
+    "useOtp": "Gumamit ng one-time code",
+    "usePassword": "Gumamit na lang ng password",
+    "otpRequest": "Magpadala ng one-time code",
+    "otpVerify": "I-verify ang code",
+    "otpSubmitting": "Sine-secure ang pag-sign in…",
+    "otpCode": "One-time code",
+    "otpCodeBody": "Ilagay ang six-digit code na ipinadala ng secure authentication service.",
+    "otpSent": "Na-request ang one-time code. Tingnan ang iyong aprubadong contact method.",
+    "otpRequestInvalid": "Hindi makapag-request ng code. Suriin ang identifier at subukan muli.",
+    "otpInvalid": "Hindi tinanggap ang one-time code. Subukan muli.",
+    "otpExchangeInvalid": "Hindi naitatag ang secure session. Walang lokal na session na ginawa.",
+    "otpUnavailable": "Hindi available ang authentication service. Walang session na ginawa."
   },
   "Dashboard": {
     "eyebrow": "Pribadong portal",

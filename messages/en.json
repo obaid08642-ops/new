@@ -37,7 +37,19 @@
     "sandboxNote": "Use isolated Sandbox accounts only while testing. Do not enter real patient data in this environment.",
     "invalid": "Unable to sign in. Review your details and retry.",
     "unavailable": "The service could not be reached. No local fallback session was created.",
-    "twoFactor": "This session requires additional verification. The verification form will be enabled after its Sandbox DTO is verified."
+    "twoFactor": "This session requires additional verification. The verification form will be enabled after its Sandbox DTO is verified.",
+    "useOtp": "Use a one-time code",
+    "usePassword": "Use a password instead",
+    "otpRequest": "Send one-time code",
+    "otpVerify": "Verify one-time code",
+    "otpSubmitting": "Securing sign in…",
+    "otpCode": "One-time code",
+    "otpCodeBody": "Enter the six-digit code sent by the secure authentication service.",
+    "otpSent": "A one-time code was requested. Check your approved contact method.",
+    "otpRequestInvalid": "We could not request a code. Check your identifier and try again.",
+    "otpInvalid": "The one-time code was not accepted. Try again.",
+    "otpExchangeInvalid": "The secure session could not be established. No local session was created.",
+    "otpUnavailable": "The authentication service is unavailable. No session was created."
   },
   "Dashboard": {
     "eyebrow": "Private portal",
