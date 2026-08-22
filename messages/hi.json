@@ -661,6 +661,16 @@
     "price": "{value} SAR",
     "back": "डॉक्टरों पर वापस",
     "experience": "{value} वर्ष का अनुभव",
-    "detailNotice": "डॉक्टर विवरण यहाँ केवल पढ़ने के लिए हैं। इस पृष्ठ से बुकिंग या भुगतान नहीं किया जाता।"
+    "detailNotice": "डॉक्टर विवरण यहाँ केवल पढ़ने के लिए हैं। इस पृष्ठ से बुकिंग या भुगतान नहीं किया जाता।",
+    "slotsTitle": "उपलब्ध समय",
+    "serviceTypeLabel": "सेवा प्रकार",
+    "service_video": "वीडियो",
+    "service_clinic": "क्लिनिक",
+    "service_home": "होम विज़िट",
+    "slotsForDate": "{date} के समय",
+    "available": "उपलब्ध",
+    "unavailable": "बुक्ड",
+    "slotsClosed": "इस तारीख को डॉक्टर उपलब्ध नहीं हैं।",
+    "slotsEmpty": "इस चयन के लिए कोई समय उपलब्ध नहीं है।"
   }
 }

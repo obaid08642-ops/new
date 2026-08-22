@@ -661,6 +661,16 @@
     "price": "{value} SAR",
     "back": "ডাক্তারের তালিকায় ফিরুন",
     "experience": "{value} বছরের অভিজ্ঞতা",
-    "detailNotice": "ডাক্তারের বিবরণ এখানে শুধু পড়ার জন্য। এই পৃষ্ঠা থেকে বুকিং বা পেমেন্ট হয় না।"
+    "detailNotice": "ডাক্তারের বিবরণ এখানে শুধু পড়ার জন্য। এই পৃষ্ঠা থেকে বুকিং বা পেমেন্ট হয় না।",
+    "slotsTitle": "উপলব্ধ সময়",
+    "serviceTypeLabel": "সেবার ধরন",
+    "service_video": "ভিডিও",
+    "service_clinic": "ক্লিনিক",
+    "service_home": "বাড়িতে ভিজিট",
+    "slotsForDate": "{date}-এর সময়",
+    "available": "উপলব্ধ",
+    "unavailable": "বুকড",
+    "slotsClosed": "এই তারিখে ডাক্তার বন্ধ।",
+    "slotsEmpty": "এই নির্বাচনের জন্য কোনো সময় নেই।"
   }
 }

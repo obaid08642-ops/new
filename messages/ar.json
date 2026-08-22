@@ -661,6 +661,16 @@
     "price": "{value} ر.س",
     "back": "العودة إلى الأطباء",
     "experience": "{value} سنوات خبرة",
-    "detailNotice": "تفاصيل الطبيب للقراءة فقط. لا يتم إنشاء حجز أو دفع من هذه الصفحة."
+    "detailNotice": "تفاصيل الطبيب للقراءة فقط. لا يتم إنشاء حجز أو دفع من هذه الصفحة.",
+    "slotsTitle": "المواعيد المتاحة",
+    "serviceTypeLabel": "نوع الاستشارة",
+    "service_video": "استشارة فيديو",
+    "service_clinic": "عيادة",
+    "service_home": "زيارة منزلية",
+    "slotsForDate": "المواعيد ليوم {date}",
+    "available": "متاح",
+    "unavailable": "محجوز",
+    "slotsClosed": "الطبيب مغلق في هذا اليوم.",
+    "slotsEmpty": "لا توجد مواعيد متاحة لهذا الاختيار."
   }
 }

@@ -661,6 +661,16 @@
     "price": "{value} SAR",
     "back": "Bumalik sa mga doktor",
     "experience": "{value} taong karanasan",
-    "detailNotice": "Read-only ang detalye ng doktor rito. Walang booking o bayad na ginagawa sa pahinang ito."
+    "detailNotice": "Read-only ang detalye ng doktor rito. Walang booking o bayad na ginagawa sa pahinang ito.",
+    "slotsTitle": "Mga available na oras",
+    "serviceTypeLabel": "Uri ng serbisyo",
+    "service_video": "Video",
+    "service_clinic": "Clinic",
+    "service_home": "Home visit",
+    "slotsForDate": "Mga oras sa {date}",
+    "available": "Available",
+    "unavailable": "Booked",
+    "slotsClosed": "Sarado ang doktor sa petsang ito.",
+    "slotsEmpty": "Walang available na oras para sa pagpiling ito."
   }
 }

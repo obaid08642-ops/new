@@ -661,6 +661,16 @@
     "price": "{value} ریال",
     "back": "ڈاکٹرز پر واپس",
     "experience": "{value} سال کا تجربہ",
-    "detailNotice": "ڈاکٹر کی تفصیلات صرف مطالعے کے لیے ہیں۔ اس صفحے سے بکنگ یا ادائیگی نہیں ہوتی۔"
+    "detailNotice": "ڈاکٹر کی تفصیلات صرف مطالعے کے لیے ہیں۔ اس صفحے سے بکنگ یا ادائیگی نہیں ہوتی۔",
+    "slotsTitle": "دستیاب اوقات",
+    "serviceTypeLabel": "سروس کی قسم",
+    "service_video": "ویڈیو",
+    "service_clinic": "کلینک",
+    "service_home": "گھر کا دورہ",
+    "slotsForDate": "{date} کے اوقات",
+    "available": "دستیاب",
+    "unavailable": "محفوظ",
+    "slotsClosed": "اس تاریخ کو ڈاکٹر بند ہے۔",
+    "slotsEmpty": "اس انتخاب کے لیے کوئی وقت دستیاب نہیں۔"
   }
 }

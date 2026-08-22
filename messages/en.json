@@ -661,6 +661,16 @@
     "price": "{value} SAR",
     "back": "Back to doctors",
     "experience": "{value} years experience",
-    "detailNotice": "Doctor details are read-only here. No booking or payment is created from this page."
+    "detailNotice": "Doctor details are read-only here. No booking or payment is created from this page.",
+    "slotsTitle": "Available slots",
+    "serviceTypeLabel": "Service type",
+    "service_video": "Video",
+    "service_clinic": "Clinic",
+    "service_home": "Home visit",
+    "slotsForDate": "Slots for {date}",
+    "available": "Available",
+    "unavailable": "Booked",
+    "slotsClosed": "The doctor is closed on this date.",
+    "slotsEmpty": "No slots are available for this selection."
   }
 }

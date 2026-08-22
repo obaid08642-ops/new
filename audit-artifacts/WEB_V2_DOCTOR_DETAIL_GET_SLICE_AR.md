@@ -30,3 +30,9 @@
 ## قرار parity
 
 Doctor Detail أصبح **implemented / verified GET**. Booking actions وslot selection تبقى **Deferred pending their own verified contract slice**، وفق Contract-First وZero-Mock policy.
+
+## إضافة Doctor Slots GET
+
+بعد مراجعة كود backend الفعلي، تم التحقق من `GET /api/v1/care/doctors/{id}/slots` ومدخلاته `date` و`service_type` وقيم الخدمات `clinic|video|home`. الاستجابة المثبتة هي `{ date, service_type, slots: [{ start, end, label, available }], reason? }`. أضيف parser لا يسمح بتسريب الحقول الزائدة، وwrapper server لا يرسل Authorization، وواجهة query-driven تعرض الفتحات المتاحة والمحجوزة وحالات `closed`/`no_slots` من backend فقط. لا يوجد اختيار slot ينفذ booking أو payment؛ تلك mutation منفصلة ومؤجلة إلى عقدها واختبار replay الخاص بها.
+
+بوابات الإغلاق: full Vitest ناجح، type-check ناجح، production build ناجح. اختبارات slice: **3 ملفات، 4 اختبارات ناجحة**.
