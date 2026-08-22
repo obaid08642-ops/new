@@ -296,7 +296,8 @@
     "frequencyHours": "ہر گھنٹے",
     "durationDays": "مدت دنوں میں",
     "instructions": "ہدایات",
-    "detailNotice": "صرف authorized backend کی واپس کردہ medication details دکھائی جاتی ہیں۔ diagnosis، upload، renewal، dispensing اور order actions دستیاب نہیں۔"
+    "detailNotice": "صرف authorized backend کی واپس کردہ medication details دکھائی جاتی ہیں۔ diagnosis، upload، renewal، dispensing اور order actions دستیاب نہیں۔",
+    "contractPending": "مجاز prescription-detail معاہدے کے انتظار میں مسدود ہے۔"
   },
   "Chat": {
     "eyebrow": "نجی گفتگو",

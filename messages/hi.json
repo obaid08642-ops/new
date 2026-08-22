@@ -296,7 +296,8 @@
     "frequencyHours": "हर घंटे",
     "durationDays": "अवधि दिन में",
     "instructions": "निर्देश",
-    "detailNotice": "केवल authorized backend से लौटे medication details दिखाई जाती हैं। Diagnosis, upload, renewal, dispensing और order actions उपलब्ध नहीं हैं।"
+    "detailNotice": "केवल authorized backend से लौटे medication details दिखाई जाती हैं। Diagnosis, upload, renewal, dispensing और order actions उपलब्ध नहीं हैं।",
+    "contractPending": "अधिकृत prescription-detail अनुबंध लंबित होने तक अवरुद्ध है।"
   },
   "Chat": {
     "eyebrow": "निजी चैट",

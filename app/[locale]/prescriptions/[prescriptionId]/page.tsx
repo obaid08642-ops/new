@@ -1,12 +1,26 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { CalendarDays, ChevronLeft, Clock3, FileText, ShieldCheck } from "lucide-react";
+import { notFound } from "next/navigation";
+import { FileText } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractPrescriptionSummaries } from "@/lib/api/prescriptions";
-import { getPatientPrescriptions } from "@/lib/api/prescriptions-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { RetryButton } from "@/components-next/retry-button";
 import styles from "../prescriptions.module.css";
-type Props={params:Promise<{locale:string;prescriptionId:string}>};
-export default async function PrescriptionDetailPage({params}:Props){const {locale,prescriptionId}=await params;if(!isLocale(locale)||!/^[0-9a-f-]{36}$/i.test(prescriptionId))notFound();setRequestLocale(locale);const t=await getTranslations("Prescriptions");const token=await requirePatientAccess(locale);const response=await getPatientPrescriptions(token);if(response.status===401)redirect(`/${locale}/login`);if(response.status===403||response.status===404)notFound();if(!response.ok)return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FileText size={25} aria-hidden="true"/><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const prescription=extractPrescriptionSummaries(await response.json().catch(()=>null)).find((item)=>item.id.toLowerCase()===prescriptionId.toLowerCase());if(!prescription)notFound();return <main className={`main ${styles.page}`}><Link className={styles.date} href={`/${locale}/prescriptions`}><ChevronLeft size={17} aria-hidden="true"/>{t("back")}</Link><section className={styles.intro}><div className={styles.introText}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true"/>{t("detailEyebrow")}</p><h1>{t("detailTitle")}</h1></div><span className={styles.introIcon}><FileText size={27} aria-hidden="true"/></span></section><section className={styles.card} aria-label={t("detailTitle")}><span className={styles.cardIcon}><FileText size={19} aria-hidden="true"/></span><div className={styles.cardBody}><strong className={styles.status}>{prescription.state||t("stateUnavailable")}</strong>{prescription.doctorName?<span className={styles.doctor}>{prescription.doctorName}</span>:null}{prescription.createdAt?<span className={styles.date}><CalendarDays size={14} aria-hidden="true"/>{new Intl.DateTimeFormat(locale,{dateStyle:"medium"}).format(new Date(prescription.createdAt))}</span>:null}</div></section><section className={styles.grid} aria-label={t("medications")} >{prescription.items.map((item,index)=><article className={styles.card} key={`${item.name||"item"}-${index}`}><span className={styles.cardIcon}><FileText size={19} aria-hidden="true"/></span><div className={styles.cardBody}><strong className={styles.status}>{item.name||t("unnamedMedication")}</strong>{item.dose?<span className={styles.doctor}>{t("dose")}: {item.dose}</span>:null}{item.frequencyHours!==undefined?<span className={styles.date}><Clock3 size={14} aria-hidden="true"/>{t("frequencyHours")}: {item.frequencyHours}</span>:null}{item.durationDays!==undefined?<span className={styles.date}>{t("durationDays")}: {item.durationDays}</span>:null}{item.instructions?<span className={styles.medications}>{t("instructions")}: {item.instructions}</span>:null}</div></article>)}</section><p className={styles.notice}>{t("detailNotice")}</p></main>}
+
+type Props = { params: Promise<{ locale: string; prescriptionId: string }> };
+
+export default async function PrescriptionDetailPage({ params }: Props) {
+  const { locale, prescriptionId } = await params;
+  if (!isLocale(locale) || !/^[0-9a-f-]{36}$/i.test(prescriptionId)) notFound();
+  setRequestLocale(locale);
+  const t = await getTranslations("Prescriptions");
+  await requirePatientAccess(locale);
+
+  return <main className={`main ${styles.page}`}>
+    <section className={styles.state} role="alert">
+      <FileText size={25} aria-hidden="true" />
+      <h1>{t("detailTitle")}</h1>
+      <p>{t("contractPending")}</p>
+      <Link className={styles.date} href={`/${locale}/prescriptions`}>{t("back")}</Link>
+    </section>
+  </main>;
+}

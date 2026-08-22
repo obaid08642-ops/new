@@ -1,5 +1,5 @@
-import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const state = vi.hoisted(() => ({ getPatientPrescriptions: vi.fn(), requirePatientAccess: vi.fn() }));
 
@@ -10,6 +10,7 @@ vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatien
 vi.mock("@/lib/api/prescriptions-server", () => ({ getPatientPrescriptions: state.getPatientPrescriptions }));
 
 import PrescriptionsPage from "./page";
+import PrescriptionDetailPage from "./[prescriptionId]/page";
 
 const prescriptionId = "91047ef2-ad36-422a-a184-629693e7c729";
 const serverToken = "server-only-prescription-token-never-in-html";
@@ -31,5 +32,20 @@ describe("prescriptions SSR boundary", () => {
     expect(html).toContain("private-medicine");
     for (const secret of [serverToken, prescriptionId, "private-dose", "private-instructions", "private-patient", "private-diagnosis", "private-notes", fileUrl]) expect(html).not.toContain(secret);
     expect(html).not.toMatch(/href="[^"]*private-prescription/i);
+  });
+});
+
+describe("prescription detail contract boundary", () => {
+  beforeEach(() => {
+    state.getPatientPrescriptions.mockReset();
+    state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
+  });
+
+  it("blocks detail rendering until the owned prescription-detail contract is published", async () => {
+    const html = renderToStaticMarkup(await PrescriptionDetailPage({ params: Promise.resolve({ locale: "en", prescriptionId }) }));
+    expect(html).toContain("contractPending");
+    expect(state.requirePatientAccess).toHaveBeenCalledWith("en");
+    expect(state.getPatientPrescriptions).not.toHaveBeenCalled();
+    for (const secret of [serverToken, prescriptionId, "private-dose", "private-instructions"]) expect(html).not.toContain(secret);
   });
 });

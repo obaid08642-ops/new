@@ -296,7 +296,8 @@
     "frequencyHours": "প্রতি ঘণ্টায়",
     "durationDays": "দিনে সময়কাল",
     "instructions": "নির্দেশনা",
-    "detailNotice": "শুধু authorized backend থেকে ফেরত আসা medication details দেখানো হয়। Diagnosis, upload, renewal, dispensing ও order action অনুপলব্ধ।"
+    "detailNotice": "শুধু authorized backend থেকে ফেরত আসা medication details দেখানো হয়। Diagnosis, upload, renewal, dispensing ও order action অনুপলব্ধ।",
+    "contractPending": "অনুমোদিত prescription-detail চুক্তি না হওয়া পর্যন্ত অবরুদ্ধ।"
   },
   "Chat": {
     "eyebrow": "ব্যক্তিগত চ্যাট",

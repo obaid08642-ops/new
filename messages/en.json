@@ -251,7 +251,8 @@
     "frequencyHours": "Every hours",
     "durationDays": "Duration in days",
     "instructions": "Instructions",
-    "detailNotice": "Only medication details returned by the authorized backend are shown. Diagnosis, upload, renewal, dispensing, and order actions are not available."
+    "detailNotice": "Only medication details returned by the authorized backend are shown. Diagnosis, upload, renewal, dispensing, and order actions are not available.",
+    "contractPending": "Blocked pending an authorized prescription-detail contract."
   },
   "Chat": {
     "eyebrow": "Private chats",

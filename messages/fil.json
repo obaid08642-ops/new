@@ -296,7 +296,8 @@
     "frequencyHours": "Bawat oras",
     "durationDays": "Tagal sa araw",
     "instructions": "Instructions",
-    "detailNotice": "Tanging medication details mula sa authorized backend ang ipinapakita. Hindi available ang diagnosis, upload, renewal, dispensing, at order actions."
+    "detailNotice": "Tanging medication details mula sa authorized backend ang ipinapakita. Hindi available ang diagnosis, upload, renewal, dispensing, at order actions.",
+    "contractPending": "Naka-block habang hinihintay ang awtorisadong kontrata para sa detalye ng reseta."
   },
   "Chat": {
     "eyebrow": "Pribadong chat",
