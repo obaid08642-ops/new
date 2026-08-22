@@ -19,12 +19,6 @@ import { SocketProvider } from '../src/context/SocketContext';
 import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
-import { useDispatch } from 'react-redux';
-import { guestLogin, offlineUnauthenticated } from '../src/store/slices/authSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../src/constants';
-import { apiFetch } from '../src/utils/api';
-import { getDeviceId } from '../src/utils/deviceId';
 import NotificationHandler from '../src/components/NotificationHandler';
 import OfflineBanner from '../src/components/OfflineBanner';
 import { initSentry } from '../src/utils/sentry';
@@ -42,39 +36,6 @@ SplashScreen.preventAutoHideAsync();
 function ThemedStatusBar() {
   const { isDark } = useApp();
   return <StatusBar style={isDark ? 'light' : 'dark'} />;
-}
-
-function StoreHydrator({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const hydrate = async () => {
-      try {
-        const guestMode = await AsyncStorage.getItem(STORAGE_KEYS.GUEST_MODE ?? '@nabdah_guest');
-        if (guestMode === 'true') {
-          // Re-authenticate with the backend using the stable device id so the
-          // guest gets a REAL token bound to the SAME guest account — their
-          // orders/bookings/history persist across restarts and merge on signup.
-          try {
-            const deviceId = await getDeviceId();
-            const res: any = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });
-            if (res?.token) {
-              dispatch(guestLogin({ user: res.user, token: res.token }));
-              return;
-            }
-          } catch {
-            // A network failure must never become a fabricated patient session.
-            dispatch(offlineUnauthenticated());
-            return;
-          }
-          dispatch(offlineUnauthenticated());
-        }
-      } catch {}
-    };
-    hydrate();
-  }, [dispatch]);
-
-  return <>{children}</>;
 }
 
 function RootLayout() {
@@ -103,8 +64,7 @@ function RootLayout() {
 
   return (
     <Provider store={store}>
-      <StoreHydrator>
-        <AppProvider>
+      <AppProvider>
           <SocketProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
@@ -132,7 +92,6 @@ function RootLayout() {
             </GestureHandlerRootView>
           </SocketProvider>
         </AppProvider>
-      </StoreHydrator>
     </Provider>
   );
 }

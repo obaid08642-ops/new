@@ -8,35 +8,11 @@ import { useApp } from '../../src/context/AppContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux';
-import { guestLogin } from '../../src/store/slices/authSlice';
-import { apiFetch } from '../../src/utils/api';
-import { getDeviceId } from '../../src/utils/deviceId';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../../src/constants';
 import { LocalizedText } from '../../src/components/LocalizedText';
 
 const { width } = Dimensions.get('window');
 
 export default function Welcome() {
-  const dispatch = useDispatch();
-  const [loadingGuest, setLoadingGuest] = useState(false);
-  const handleGuestLogin = async () => {
-    setLoadingGuest(true);
-    try {
-      const deviceId = await getDeviceId();
-      const res = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({ deviceId }) });
-      if (res?.token) {
-        dispatch(guestLogin({ user: res.user, token: res.token }));
-        try { await AsyncStorage.setItem(STORAGE_KEYS.GUEST_MODE ?? '@nabdah_guest', 'true'); } catch {}
-        router.push('/(tabs)');
-      }
-    } catch (err) {
-      console.log('Guest login error', err);
-    } finally {
-      setLoadingGuest(false);
-    }
-  };
   const { isDark, toggleTheme, lang, setLang } = useApp() as any;
   const toggleDark = toggleTheme;
   const changeLang = setLang;
@@ -143,14 +119,6 @@ export default function Welcome() {
             ? 'رعايتك الصحية المتكاملة في تطبيق واحد — استشارات، صيدلية، تحاليل، وأكثر' 
             : 'Your complete healthcare in one app — consultations, pharmacy, labs, and more'}
         </LocalizedText>
-
-        <TouchableOpacity 
-          style={[styles.primaryBtn, { backgroundColor: colors.n, shadowColor: colors.n, marginBottom: 12 }]} 
-          onPress={handleGuestLogin}
-          activeOpacity={0.8}
-        >
-          <LocalizedText style={[styles.primaryBtnText, { color: '#fff' } ]}>{lang === 'ar' ? 'الاستمرار بدون تسجيل' : 'Continue as Guest'}</LocalizedText>
-        </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.primaryBtn, { backgroundColor: resolveColor('var(--p)'), shadowColor: resolveColor('var(--p)') }]} 
