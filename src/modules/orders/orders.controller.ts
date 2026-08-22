@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Res } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -23,16 +24,19 @@ export class OrdersController {
   }
 
   @Post(':id/reorder')
+  @RequireIdempotency()
   reorder(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.reorder(id, user);
   }
 
   @Post(':id/reorder-partial')
+  @RequireIdempotency()
   reorderPartial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
     return this.svc.reorderPartial(id, user, body);
   }
 
   @Post(':id/cancel')
+  @RequireIdempotency()
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
     return this.svc.cancel(id, user, body?.reason || 'patient-cancel');
   }
