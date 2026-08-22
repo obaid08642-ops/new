@@ -21,3 +21,8 @@
 2cbfe83771afcaeff6cabe755b7840a8ff1714ad6f3b16b55da4a5f9e7cb132b  evidence/visual/ar-orders-design-v1.webp
 96bc3d7ef683fbd5296e664fa88ccabbb0e6b7345c39893e483e3e5a9436bfe5  evidence/visual/ar-medicines-design-v1.webp
 e394fbda42703ef1a0e0218e1004a17187c89d38b6d4402bf8c6cd1eebc498db  evidence/visual/ar-prescriptions-design-v1.webp
+
+| `/ar/medicines/101687` | ناجح | رأس دواء واضح وبطاقات حقول منشورة وتنبـيه غير علاجي | ظهرت معلومات الكتالوج المنشورة فقط، بما فيها النصوص الطويلة، من دون زر شراء أو تعديل أو توصية شخصية. |
+
+**لقطة تفاصيل الدواء:** `/home/ubuntu/screenshots/localhost_2026-08-22_01-07-24_4899.webp`.
+5966ae75bf32228c5f00ec68213e5e4fbdfb917e50b4019440b787b389c78d92  evidence/visual/ar-medicine-detail-design-v1.webp
