@@ -37,3 +37,7 @@ Local render passed for Welcome and Login. الحكم البصري الكامل 
 ## Terms and Privacy route closure
 
 أضيفت مسارا `/[locale]/terms` و`/[locale]/privacy` لتغطية الشاشتين الموجودتين في Mobile. هما صفحات blocked صادقة بمحتوى قانوني غير افتراضي، مع `noindex`، لأن النسخة القانونية المعتمدة لم تصل بعد. اكتمال route لا يعني اكتمال الاعتماد القانوني.
+
+## Live legal endpoint probe note
+
+محاولة قراءة `GET /legal/policy/patient_terms` و`GET /legal/policy/privacy_policy` من API الحي فشلت على مستوى TLS (`SSL_ERROR_SYSCALL`) في بيئة التنفيذ، حتى مع IPv4 وإعادة المحاولة. لذلك لا توجد نتيجة HTTP صالحة لهذه endpoints، ولم يتم تغيير تصنيف المحتوى القانوني: routes Web موجودة، لكن النص المعتمد ما زال blocked حتى نجاح probe أو تسليم controller/contract موثق.
