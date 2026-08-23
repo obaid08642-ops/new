@@ -1,0 +1,13 @@
+Auth live contract probe — 2026-08-23
+Base: https://api.nabd.plus/api/v1
+No credentials, OTP, personal data, or valid mutation payloads were sent.
+
+POST /auth/social-login 400 — route exists; empty payload rejected.
+POST /auth/guest timeout/000 — no reliable contract result; do not enable guest flow.
+POST /auth/forgot-password 404 — route not present at this path.
+POST /auth/password/reset 400 — route exists; empty payload rejected.
+POST /auth/send-otp 400 — route exists; empty payload rejected.
+POST /auth/register 400 — route exists; empty payload rejected.
+POST /auth/verify-otp 400 — route exists; empty payload rejected.
+
+Decision: social-login and password-reset/register/verify-otp have route-level evidence only; their complete DTO, cookie/session behavior, ownership, rate limits, and UI journey still require contract verification. Guest remains blocked because the probe timed out and no trustworthy success/auth contract was established. This artifact is not Sandbox proof.

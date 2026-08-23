@@ -1,0 +1,7 @@
+screen\tmobile_source\tweb_source\tmobile_elements\tweb_current\tdecision
+Welcome\t/home/ubuntu/nabdah_review/extracted/mobile/app/(auth)/welcome.tsx\tMISSING\tlogo;theme;language;guest;register;login;social;stagger animation\tno web surface\tbuild web shell; guest blocked until safe contract
+Login\t/home/ubuntu/nabdah_review/extracted/mobile/app/(auth)/login.tsx\tcomponents-next/login-form.tsx + app/[locale]/login/page.tsx\tback;email/phone;password reveal;forgot;OTP;social Google/Apple/Snapchat/X;register link;error;loading\tidentifier/password/OTP only; no social/forgot/register shell\trebuild UI and preserve secure BFF
+Register\t/home/ubuntu/nabdah_review/extracted/mobile/app/(auth)/register.tsx\tapp/api/auth/register + app/api/auth/send-otp; page missing\tname;phone;email;password;confirm;terms/privacy;social;OTP-first\tBFF only; no web page\tbuild page; verify DTO before enabling submit
+OTP\t/home/ubuntu/nabdah_review/extracted/mobile/app/(auth)/otp.tsx\tno dedicated web page\t6 cells; resend timer; confirm; branch states\tone code input embedded in LoginForm\tbuild dedicated screen and secure exchange
+Social\tlogin.tsx/register.tsx\tno web UI\tGoogle; Apple iOS; Snapchat; X\tmissing\tshow only with proven OAuth config/contract; otherwise honest blocked state
+Guest\twelcome.tsx\tno web UI\tPOST /auth/guest + token storage (mobile defect)\tmissing\tdo not copy token flow; require httpOnly contract first
