@@ -1,0 +1,27 @@
+id	priority	domain	mobile_surface	web_surface	backend_contract	provider_admin_impact	states_required	tests_required	status
+F-001	P0	admin-auth	N/A	N/A	admin access cookie + refresh	admin session	login/me/refresh/logout/revoke	HTTP/E2E + cookie static	planned-unverified
+F-002	P0	social-auth	mobile social providers	web social providers	provider signature issuer audience expiry	role constraints	valid/invalid/expired/revoked	unit/integration	planned-unverified
+F-003	P0	pharmacy-order	pharmacy order screens	cart/checkout/orders	allocation state machine	pharmacy fulfill/admin audit	created/partial/cancelled/unfulfillable/delivered	state/integration/E2E	planned-unverified
+F-004	P1	data-migrations	N/A	N/A	versioned migration + rollback	all domains	upgrade/rollback/checksum mismatch	migration integration	planned-unverified
+F-005	P0	realtime-socket	SocketContext	chat/call UI	JWT handshake + derived rooms	provider communication	connect/deny/join/send/leave/reconnect	multi-user security	planned-unverified
+F-006	P0	chat	chat screens	chat routes	per-event authorization + persistence	provider/admin abuse audit	open/closed/outsider/attachment failure	integration/E2E	planned-unverified
+F-007	P0	rx-media	Rx upload/checkout	prescription checkout	media_id ownership/MIME/size	pharmacy review	pending/uploaded/rejected/accepted	upload contract/E2E	planned-unverified
+F-008	P1	consultation	booking-success/detail	appointment detail	server appointment response/status	provider availability	pending/confirmed/cancelled/no-show	component/integration	planned-unverified
+F-009	P0	diagnostics-checkout	diagnostics checkout	labs/radiology booking	quote/slot/booking/payment or approval	lab/radiology result	no-slot/referral/payment/approval/failure	E2E	planned-unverified
+F-010	P1	multipart-upload	apiFetch/FormData	N/A	multipart boundary and media contract	provider review	progress/retry/failure/success	request assertion	planned-unverified
+F-011	P1	health-privacy	health ID/QR	health pages	short-lived QR + consent	provider verification	create/share/expire/revoke	decode/security	planned-unverified
+F-012	P0	provider-transport	provider app	N/A	HTTPS-only release base URL	provider auth	dev/release transport policy	build/config	planned-unverified
+F-013	P0	admin-token	N/A	admin app	HttpOnly Secure SameSite + CSRF/CSP	admin actions	login/rotate/logout/revoke	HTTP/E2E/static	planned-unverified
+F-014	P1	orders-read	orders hub	orders pages	verified mine endpoint	pharmacy/provider visibility	loading/empty/error/success	integration	planned-unverified
+F-015	P1	dependencies	mobile build	web build	version/CVE remediation	provider/admin builds	upgrade/rollback	CI regression/audit	planned-unverified
+WP-001	P0	web-pharmacy	pharmacy checkout	medicine/cart/checkout/orders	cart/quote/order/payment/tracking	pharmacy fulfillment	validation/payment failure/retry/cancel	contract/E2E	planned-unverified
+WP-002	P0	web-labs	diagnostics packages	labs catalog/booking	service/referral/slot/quote/booking	lab acceptance/results	no referral/no slot/insurance/payment	E2E	planned-unverified
+WP-003	P0	web-radiology	diagnostics radiology	radiology catalog/booking	service/center/home/slot/coverage/payment	radiology acceptance/results	referral/no slot/failure	E2E	planned-unverified
+WP-004	P0	web-home-care	nursing screens	home-care service/provider/booking	eligibility/provider/time/address/recurrence/quote	provider assignment/queue	A vs B/queue/cancel/retry	role E2E	planned-unverified
+WP-005	P0	web-medicine	pharmacy screens	medicine catalog/detail	availability/Rx/cart/order	pharmacy dispense	Rx required/blocked/available	contract/component	planned-unverified
+WP-006	P0	web-parity	all patient screens	all patient routes	capability registry	provider/admin impact	loading/empty/error/retry/cancel	parity PR gate	planned-unverified
+MP-016	P1	mobile-types	199 ts-nocheck files	N/A	DTO/validator boundaries	N/A	type-safe critical flows	strict typecheck	planned-unverified
+MP-017	P2	mobile-tests	Jest/Expo suite	N/A	clean teardown	N/A	zero exit/no open handles	Jest detectOpenHandles	planned-unverified
+MP-019	P0	home-care-provider	service/provider screens	home-care provider	provider_reserved vs queue	provider assignment/admin	selected/unavailable/queue	role E2E	planned-unverified
+MP-020	P1	home-care-options	recurrence/transport UI	home-care booking	visit_count/recurrence/transport pricing	provider schedule	1/20/cash/insurance	contract/E2E	planned-unverified
+MP-021	P1	home-care-idempotency	booking flow	booking flow	key/outcome/replay	provider/admin state	commit timeout/retry	integration/E2E	planned-unverified
