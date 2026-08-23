@@ -143,3 +143,12 @@
 [4]: https://api.nabd.plus/api/v1/care/specialties "Nabd Plus live care specialties endpoint"
 [5]: https://api.nabd.plus/api/v1/insurance/companies "Nabd Plus live insurance companies endpoint"
 [6]: https://github.com/obaid08642-ops/new/tree/agent/web-complete-v2-20260822 "Verified Web branch"
+
+
+## 11. إعادة التحقق النهائي في Phase 11
+
+تم تشغيل `pnpm test:sandbox` فعلياً مرة أخرى. توقفت الدفعة الأولى عند `lib/api/sandbox-secrets.test.ts` لأن `NABD_SANDBOX_OWNER_EMAIL` و`NABD_SANDBOX_OWNER_PASSWORD` و`NABD_SANDBOX_BASE_URL` غير موجودة. النتيجة **محجوبة بمدخلات تشغيلية مفقودة** وليست نجاحاً أو skip صامتاً، ولم تُستخدم credentials بديلة.
+
+بعد آخر تغييرات الأمن، نجحت البوابة المحلية الكاملة بـ**132 ملف اختبار ناجحاً، 254 اختباراً ناجحاً، 14 ملفاً و23 اختباراً متخطياً، type-check ناجح، وproduction build ناجح**. آخر رأس بعيد موثق هو `ed563e46e8d8fb3b6cec41e62c9e42d9938fdc94` قبل تحديثات تدقيق البوابات اللاحقة؛ يجب استخدام ناتج `git ls-remote` من آخر commit عند التسليم النهائي وعدم الاعتماد على هذا الرقم القديم.
+
+تمت إضافة security headers ورفع postcss إلى 8.5.26. بقيت مراجعة advisory @babel/core low، وDocker smoke، وقياسات Core Web Vitals، واختبارات Sandbox الحية كـevidence gaps حتى تُنفذ داخل CI/staging وخارج بيئة التدقيق الحالية.
