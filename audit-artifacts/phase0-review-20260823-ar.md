@@ -49,3 +49,7 @@
 ## نتيجة Mongo integration attempt
 
 حاولت اختبارًا حقيقيًا باستخدام `mongodb-memory-server` فقط. لم يبدأ الخادم المؤقت خلال مهلة 60 ثانية؛ أظهر السجل تنزيل MongoDB 8.2.6 بنسبة 57.1% ثم انتهى الاختبار بالـtimeout وبقيت asynchronous handles. حُذف اختبار البيئة غير المستقر حتى لا يبقى gate أحمر، وسُجلت النتيجة كـblocker: لا توجد حاليًا برهنة Mongo integration فعلية. لا يُعتبر هذا فشلًا في `MongoMigrationStore` نفسه ولا نجاحًا في integration.
+
+## تحديث تطبيع أخطاء العقود
+
+أضيفت طبقة `normalizeContractError` واختباراتها لتصنيف 400/401/403/409/402/500 إلى الأكواد المشتركة، مع منع الرسائل غير النصية أو oversized من التسرب. نجحت بوابة منخفضة الذاكرة: 4 suites و13 tests، و`tsc --noEmit` ناجح. لم تُربط الطبقة عالميًا بعد، لأن ذلك قد يغير response shapes لمسارات قائمة قبل مراجعة عقودها؛ لذلك يبقى response-contract wiring جزءًا مفتوحًا من Phase 0.
