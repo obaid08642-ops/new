@@ -1,0 +1,68 @@
+== security tests ==
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ tests/proxy.test.ts (3 tests) 11ms
+ ✓ app/api/patient/[...path]/route.test.ts (4 tests) 8ms
+ ✓ app/api/auth/otp/otp-routes.test.ts (9 tests) 16ms
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Start at  10:15:04
+   Duration  354ms (transform 159ms, setup 0ms, collect 425ms, tests 36ms, environment 0ms, prepare 131ms)
+
+== typecheck ==
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 check /home/ubuntu/nabdah_impl/repo
+> tsc --noEmit
+
+== audit summary ==
+1102341 esbuild moderate esbuild enables any website to send any requests to the development server and read the response
+1109131 vite moderate vite allows server.fs.deny bypass via backslash on Windows
+1109463 tar moderate node-tar has a race condition leading to uninitialized memory exposure
+1111960 pnpm high pnpm v10+ Bypass "Dependency lifecycle scripts execution disabled by default"
+1111961 pnpm high pnpm Has Lockfile Integrity Bypass that Allows Remote Dynamic Dependencies
+1112536 pnpm moderate pnpm has Path Traversal via arbitrary file permission modification 
+1112639 pnpm moderate pnpm: Binary ZIP extraction allows arbitrary file write via path traversal (Zip Slip)
+1112659 tar high node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal
+1112679 pnpm moderate pnpm has Windows-specific tarball Path Traversal
+1112680 pnpm moderate pnpm scoped bin name Path Traversal allows arbitrary file creation outside node_modules/.bin
+1112681 pnpm moderate pnpm has symlink traversal in file:/git dependencies
+1113300 tar high node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization
+1113375 tar high Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction
+1113515 rollup high Rollup 4 has Arbitrary File Write via Path Traversal
+1114200 tar high tar has Hardlink Path Traversal via Drive-Relative Linkpath
+1114302 tar high node-tar Symlink Path Traversal via Drive-Relative Linkpath
+1114680 tar high Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS
+1116229 vite moderate Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling
+1117386 pnpm high pnpm vulnerable to Command Injection via environment variable substitution
+1120680 esbuild low esbuild allows arbitrary file read when running the development server on Windows
+1120782 tar moderate node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)
+1120784 vite moderate launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows
+1120785 vite moderate launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows
+1121805 pnpm moderate pnpm: Tarball hash of GitHub git dependencies is not stored in lockfile
+1121809 pnpm high pnpm Vulnerable to Arbitrary File Write/Delete via Malicious Patch File (Path Traversal)
+1121811 pnpm moderate pnpm binds unscoped user-level npm auth credentials to a repository-selected registry
+1121813 pnpm high pnpm: Transitive dependency alias path traversal allows project path override via symlink replacement
+1121815 pnpm moderate pnpm: Git Fetch Argument Injection via Lockfile resolution.commit
+1121816 pnpm moderate pnpm Has an Integrity Check Bypass via Missing Lockfile Integrity Field
+1121819 pnpm moderate pnpm: Unsafe default behavior breaks integrity check
+1121824 pnpm high pnpm: Manifest identity spoof satisfies allowBuilds and runs attacker lifecycle
+1121826 pnpm moderate pnpm: Repository config can expand victim environment secrets into registry requests before scripts run
+1121829 pnpm moderate pnpm: Reserved bin name deletes PNPM_HOME during global remove
+1121831 pnpm high pnpm: Project env lockfile can short-circuit package-manager resolution and execute lockfile-selected pnpm bytes
+1121833 pnpm high pnpm: `patch-remove` could delete project-selected files outside the patches directory
+1121835 pnpm high pnpm: Hoisted install imports lockfile alias outside node_modules
+1121837 pnpm high pnpm: Path traversal in configDependencies env lockfile allows symlink creation outside node_modules/.pnpm-config
+1123525 vite high vite: `server.fs.deny` bypass on Windows alternate paths
+1123526 vite high vite: `server.fs.deny` bypass on Windows alternate paths
+1123528 @babel/core low @babel/core: Arbitrary File Read via sourceMappingURL Comment
+1123939 tar moderate node-tar: Process crash via PAX numeric path type confusion
+1123940 tar critical node-tar: Decompression/parse DoS via unlimited input
+1123941 tar high node-tar: Negative tar entry size causes infinite loop in archive replace
+1123942 tar moderate node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records
+1139460 pnpm high pnpm: Repository-controlled configDependencies can select a pacquet native install engine
+1139528 vitest critical When Vitest UI server is listening, arbitrary file can be read and executed
+1145647 tar high node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection
