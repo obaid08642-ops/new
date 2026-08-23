@@ -1,0 +1,19 @@
+[ERROR] Unknown option: 'save-dev'
+Did you mean 'save-prefix'? Use "--config.unknown=value" to force an unknown option.
+For help, run: pnpm help update
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+Progress: resolved 1, reused 0, downloaded 0, added 0
+ WARN  3 deprecated subdependencies found: @esbuild-kit/core-utils@3.3.2, @esbuild-kit/esm-loader@2.6.5, tar@7.5.1
+Packages: +7 -1
++++++++-
+Progress: resolved 614, reused 432, downloaded 3, added 7, done
+ WARN  Issues with peer dependencies found
+.
+└─┬ @builder.io/vite-plugin-jsx-loc 0.1.1
+  └── ✕ unmet peer vite@"^4.0.0 || ^5.0.0": found 7.3.2
+
+devDependencies:
+- vite 7.1.9
++ vite 7.3.2 (8.2.2 is available)
+
+Done in 1.2s using pnpm v10.4.1
