@@ -1,0 +1,295 @@
+== phase6 focused ==
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ lib/api/patient-allowlist.test.ts (4 tests) 3ms
+ ✓ app/api/auth/otp/otp-routes.test.ts (9 tests) 20ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  10:07:39
+   Duration  301ms (transform 83ms, setup 0ms, collect 182ms, tests 23ms, environment 0ms, prepare 74ms)
+
+== full regression ==
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 test /home/ubuntu/nabdah_impl/repo
+> vitest run
+
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ↓ lib/api/sandbox-profile-contracts.test.ts (4 tests | 4 skipped)
+ ✓ lib/api/patient-allowlist.test.ts (4 tests) 3ms
+ ✓ app/api/patient/[...path]/route.test.ts (4 tests) 8ms
+ ✓ app/api/auth/otp/otp-routes.test.ts (9 tests) 18ms
+ ↓ lib/api/sandbox-home-care-contract.test.ts (1 test | 1 skipped)
+ ✓ app/[locale]/orders/orders-ssr.test.ts (3 tests) 41ms
+ ↓ lib/api/sandbox-diagnostics-contracts.test.ts (1 test | 1 skipped)
+ ✓ app/[locale]/cart/cart-ssr.test.ts (4 tests) 39ms
+ ✓ app/[locale]/appointments/appointments-ssr.test.ts (3 tests) 45ms
+ ↓ lib/api/sandbox-appointments-contracts.test.ts (1 test | 1 skipped)
+ ✓ app/[locale]/diagnostics/diagnostics-ssr.test.ts (2 tests) 41ms
+ ✓ app/[locale]/prescriptions/prescriptions-ssr.test.ts (2 tests) 43ms
+ ✓ lib/i18n/messages.test.ts (6 tests) 8ms
+ ✓ app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts (3 tests) 46ms
+ ✓ app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts (2 tests) 33ms
+ ✓ app/[locale]/medicines/medicines-ssr.test.ts (2 tests) 32ms
+ ✓ app/api/orders/[orderId]/order-mutations.test.ts (3 tests) 10ms
+ ↓ lib/api/sandbox-specialty-provider-count.test.ts (1 test | 1 skipped)
+ ✓ app/api/appointments/book/route.test.ts (4 tests) 10ms
+ ✓ app/[locale]/reminders/reminders-ssr.test.ts (2 tests) 32ms
+ ↓ lib/api/sandbox-notifications-contract.test.ts (2 tests | 2 skipped)
+ ✓ app/api/appointments/[appointmentId]/payment-intent/route.test.ts (4 tests) 8ms
+ ✓ app/api/cart/items/[itemId]/route.test.ts (3 tests) 9ms
+ ✓ app/api/cart/checkout/route.test.ts (3 tests) 9ms
+ ✓ app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts (2 tests) 30ms
+ ✓ app/api/cart/items/route.test.ts (3 tests) 13ms
+ ↓ lib/api/sandbox-reminders-contract.test.ts (2 tests | 2 skipped)
+ ✓ app/[locale]/health/health-ssr.test.ts (2 tests) 46ms
+ ✓ app/[locale]/profile/profile-page-ssr.test.ts (2 tests) 37ms
+ ✓ app/[locale]/diagnostics/radiology/radiology-ssr.test.ts (2 tests) 30ms
+ ↓ lib/api/sandbox-prescriptions-contract.test.ts (2 tests | 2 skipped)
+ ↓ lib/api/sandbox-chat-contract.test.ts (2 tests | 2 skipped)
+ ↓ lib/api/sandbox-vitals-contract.test.ts (2 tests | 2 skipped)
+ ↓ lib/api/sandbox-family-contract.test.ts (2 tests | 2 skipped)
+ ↓ lib/api/sandbox-order-ownership.test.ts (1 test | 1 skipped)
+ ✓ app/[locale]/dashboard/dashboard-ssr.test.ts (2 tests) 36ms
+ ✓ app/[locale]/notifications/notifications-ssr.test.ts (1 test) 42ms
+ ✓ app/api/appointments/[appointmentId]/reschedule/route.test.ts (3 tests) 11ms
+ ✓ app/[locale]/chat/chat-ssr.test.ts (1 test) 40ms
+ ✓ lib/api/orders.test.ts (4 tests) 3ms
+ ✓ app/[locale]/diagnostics/radiology/[serviceId]/radiology-detail-ssr.test.ts (2 tests) 31ms
+ ✓ app/api/appointments/[appointmentId]/cancel/route.test.ts (3 tests) 9ms
+ ✓ app/[locale]/home-care/home-care-ssr.test.ts (1 test) 43ms
+ ↓ lib/api/sandbox-medicines-contract.test.ts (1 test | 1 skipped)
+ ✓ app/[locale]/home-care/services/services-ssr.test.ts (2 tests) 32ms
+ ✓ app/[locale]/diagnostics/labs/labs-ssr.test.ts (2 tests) 29ms
+ ✓ app/api/appointments/[appointmentId]/call-token/route.test.ts (3 tests) 9ms
+ ✓ app/[locale]/not-found.test.tsx (2 tests) 7ms
+ ✓ tests/premium-motion.test.ts (4 tests) 3ms
+ ✓ app/[locale]/consultations/specialties/specialties-ssr.test.ts (2 tests) 39ms
+ ✓ tests/proxy.test.ts (3 tests) 8ms
+ ✓ lib/api/medicines.test.ts (2 tests) 4ms
+ ↓ lib/api/sandbox-secrets.test.ts (1 test | 1 skipped)
+ ✓ lib/api/appointments-server.test.ts (1 test) 25ms
+ ✓ lib/api/diagnostics.test.ts (2 tests) 3ms
+ ✓ lib/api/chat.test.ts (2 tests) 2ms
+ ✓ lib/api/profile.test.ts (4 tests) 2ms
+ ✓ tests/premium-brand.test.ts (3 tests) 6ms
+ ✓ lib/api/cart.test.ts (3 tests) 3ms
+ ✓ lib/api/radiology-server.test.ts (2 tests) 4ms
+ ✓ lib/api/nursing-visits.test.ts (3 tests) 5ms
+ ✓ lib/api/articles.test.ts (3 tests) 7ms
+ ✓ tests/login-form.test.tsx (2 tests) 8ms
+ ✓ lib/api/appointments.test.ts (2 tests) 4ms
+ ✓ lib/api/notifications.test.ts (2 tests) 3ms
+ ✓ tests/translation-key-parity.test.ts (2 tests) 17ms
+ ✓ app/seo.test.ts (2 tests) 2ms
+ ✓ tests/articles-design.test.ts (3 tests) 2ms
+ ✓ lib/api/settings.test.ts (3 tests) 3ms
+ ✓ lib/api/home-care-services-server.test.ts (2 tests) 28ms
+ ✓ lib/api/home-care-services.test.ts (2 tests) 4ms
+ ✓ app/[locale]/page.metadata.test.ts (1 test) 2ms
+ ✓ tests/care-detail-design.test.ts (4 tests) 2ms
+ ✓ tests/settings-design.test.ts (3 tests) 2ms
+ ✓ app/[locale]/metadata-indexing.test.ts (2 tests) 2ms
+ ✓ app/[locale]/family/family-ssr.test.ts (1 test) 1331ms
+   ✓ family SSR boundary > renders only member role and join date without identifier, permissions, or access token 1330ms
+ ✓ app/[locale]/route-state-ssr.test.tsx (2 tests) 8ms
+ ✓ lib/api/radiology.test.ts (2 tests) 4ms
+ ✓ lib/api/mental-health.test.ts (2 tests) 4ms
+ ✓ lib/api/prescriptions.test.ts (1 test) 3ms
+ ✓ lib/api/medicines-server.test.ts (1 test) 26ms
+ ✓ lib/api/dashboard.test.ts (2 tests) 2ms
+ ✓ lib/api/diagnostics-server.test.ts (1 test) 24ms
+ ✓ tests/login-design.test.ts (2 tests) 2ms
+ ✓ lib/api/reminders.test.ts (1 test) 3ms
+ ✓ lib/api/health-score.test.ts (3 tests) 3ms
+ ✓ lib/api/labs-server.test.ts (1 test) 24ms
+ ✓ tests/notifications-design.test.ts (2 tests) 2ms
+ ✓ lib/i18n.test.ts (3 tests) 2ms
+ ✓ lib/api/specialties-server.test.ts (1 test) 27ms
+ ✓ app/[locale]/consultations/doctors/doctors-ssr.test.ts (1 test) 33ms
+ ✓ lib/api/labs.test.ts (2 tests) 5ms
+ ✓ app/[locale]/dashboard/dashboard-page.test.ts (1 test) 1297ms
+   ✓ patient dashboard visual shell > renders the reference-inspired private dashboard without embedding the session token 1297ms
+ ✓ lib/api/upstream.test.ts (2 tests) 27ms
+ ✓ lib/api/chronic-meds.test.ts (1 test) 4ms
+ ✓ tests/design-system.test.ts (2 tests) 2ms
+ ✓ tests/medicine-detail-design.test.ts (2 tests) 2ms
+ ✓ tests/diagnostics-design.test.ts (2 tests) 2ms
+ ✓ tests/medicine-catalog-design.test.ts (2 tests) 3ms
+ ✓ tests/order-detail-design.test.ts (2 tests) 2ms
+ ✓ tests/mental-health-design.test.ts (2 tests) 2ms
+ ✓ tests/appointments-design.test.ts (2 tests) 2ms
+ ✓ lib/api/home-care.test.ts (1 test) 2ms
+ ✓ lib/api/reports.test.ts (2 tests) 3ms
+ ✓ tests/health-design.test.ts (2 tests) 2ms
+ ✓ tests/reminders-design.test.ts (2 tests) 1ms
+ ✓ tests/prescriptions-design.test.ts (2 tests) 2ms
+ ✓ tests/profile-design.test.ts (2 tests) 2ms
+ ✓ tests/home-care-design.test.ts (2 tests) 2ms
+ ✓ tests/family-design.test.ts (2 tests) 2ms
+ ✓ lib/api/doctors-slots-server.test.ts (1 test) 28ms
+ ✓ lib/api/doctors-slots.test.ts (2 tests) 8ms
+ ✓ tests/insurance-design.test.ts (2 tests) 2ms
+ ✓ tests/orders-design.test.ts (2 tests) 3ms
+ ✓ lib/api/doctors-server.test.ts (1 test) 27ms
+ ✓ lib/api/doctors.test.ts (2 tests) 4ms
+ ✓ tests/notification-settings-design.test.ts (2 tests) 2ms
+ ✓ lib/api/home-care-server.test.ts (1 test) 23ms
+ ✓ lib/api/specialties.test.ts (2 tests) 5ms
+ ✓ lib/api/vitals.test.ts (2 tests) 2ms
+ ✓ lib/api/profile-security.test.ts (1 test) 2ms
+ ✓ lib/api/prescriptions-server.test.ts (1 test) 24ms
+ ✓ lib/api/reminders-server.test.ts (1 test) 27ms
+ ✓ app/llms.txt/route.test.ts (1 test) 7ms
+ ✓ lib/api/insurance.test.ts (2 tests) 3ms
+ ✓ lib/api/wishlist.test.ts (2 tests) 3ms
+ ✓ lib/api/notifications-server.test.ts (1 test) 29ms
+ ✓ lib/api/family.test.ts (1 test) 2ms
+ ✓ lib/api/family-server.test.ts (1 test) 25ms
+ ✓ lib/api/chat-server.test.ts (1 test) 23ms
+ ✓ lib/api/vitals-server.test.ts (1 test) 24ms
+ ✓ lib/api/claims.test.ts (2 tests) 4ms
+ ✓ lib/api/wishlist-server.test.ts (1 test) 2ms
+ ✓ lib/api/doctors-detail-server.test.ts (1 test) 31ms
+ ✓ lib/api/trends.test.ts (1 test) 4ms
+ ✓ lib/auth/refresh.test.ts (1 test) 3ms
+ ✓ app/favicon.ico/route.test.ts (1 test) 5ms
+ ✓ lib/api/crisis-contacts.test.ts (1 test) 2ms
+ ✓ app/manifest.test.ts (1 test) 2ms
+ ✓ lib/api/mood.test.ts (1 test) 5ms
+ ✓ lib/api/emergency-contacts.test.ts (1 test) 2ms
+ ✓ lib/api/breathing.test.ts (1 test) 2ms
+ ✓ lib/api/notification-settings.test.ts (1 test) 2ms
+ ✓ lib/api/sleep.test.ts (1 test) 3ms
+ ✓ lib/api/family-group.test.ts (1 test) 2ms
+ ✓ lib/api/vitals-history.test.ts (1 test) 2ms
+ ✓ tests/express5-compatibility.test.ts (1 test) 1ms
+ ✓ lib/api/meditation.test.ts (1 test) 2ms
+ ✓ lib/api/diagnostics-report.test.ts (1 test) 2ms
+ ✓ lib/api/chronic.test.ts (1 test) 3ms
+ ✓ lib/api/public-medicines-server.test.ts (1 test) 2ms
+ ✓ lib/api/doctors-detail.test.ts (1 test) 6ms
+
+ Test Files  138 passed | 14 skipped (152)
+      Tests  277 passed | 23 skipped (300)
+   Start at  10:07:40
+   Duration  7.16s (transform 1.48s, setup 0ms, collect 10.07s, tests 4.29s, environment 20ms, prepare 6.69s)
+
+== build ==
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 build /home/ubuntu/nabdah_impl/repo
+> NODE_ENV=production next build
+
+▲ Next.js 16.3.1 (Turbopack)
+✓ Running next.config.ts took 28ms
+- Experiments (use with caution):
+  ✓ globalNotFound
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1335ms
+  Running TypeScript ...
+  Finished TypeScript in 1537ms ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/20) ...
+  Generating static pages using 5 workers (5/20) 
+  Generating static pages using 5 workers (10/20) 
+  Generating static pages using 5 workers (15/20) 
+✓ Generating static pages using 5 workers (20/20) in 111ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/appointments
+├ ƒ /[locale]/appointments/[appointmentId]
+├ ƒ /[locale]/articles
+├ ƒ /[locale]/articles/[slug]
+├ ƒ /[locale]/articles/bookmarks
+├ ƒ /[locale]/cart
+├ ƒ /[locale]/cart/checkout
+├ ƒ /[locale]/cart/prescription
+├ ƒ /[locale]/chat
+├ ƒ /[locale]/chat/[threadId]
+├ ƒ /[locale]/consultations/doctors
+├ ƒ /[locale]/consultations/doctors/[doctorId]
+├ ƒ /[locale]/consultations/specialties
+├ ƒ /[locale]/dashboard
+├ ƒ /[locale]/diagnostics
+├ ƒ /[locale]/diagnostics/[domain]/[bookingId]
+├ ƒ /[locale]/diagnostics/labs
+├ ƒ /[locale]/diagnostics/packages
+├ ƒ /[locale]/diagnostics/packages/[packageId]
+├ ƒ /[locale]/diagnostics/radiology
+├ ƒ /[locale]/diagnostics/radiology/[serviceId]
+├ ƒ /[locale]/family
+├ ƒ /[locale]/health
+├ ƒ /[locale]/health/chronic-diseases
+├ ƒ /[locale]/health/chronic-medications
+├ ƒ /[locale]/health/emergency-contacts
+├ ƒ /[locale]/health/reports
+├ ƒ /[locale]/health/score
+├ ƒ /[locale]/health/sleep
+├ ƒ /[locale]/health/trends
+├ ƒ /[locale]/health/vitals
+├ ƒ /[locale]/home-care
+├ ƒ /[locale]/home-care/services
+├ ƒ /[locale]/home-care/services/[serviceId]
+├ ƒ /[locale]/insurance
+├ ƒ /[locale]/login
+├ ƒ /[locale]/medicine-catalog
+├ ƒ /[locale]/medicines
+├ ƒ /[locale]/medicines/[medicineId]
+├ ƒ /[locale]/mental-health
+├ ƒ /[locale]/mental-health/breathing
+├ ƒ /[locale]/mental-health/crisis-contacts
+├ ƒ /[locale]/mental-health/meditation
+├ ƒ /[locale]/mental-health/mood
+├ ƒ /[locale]/notifications
+├ ƒ /[locale]/notifications/settings
+├ ƒ /[locale]/orders
+├ ƒ /[locale]/orders/[orderId]
+├ ƒ /[locale]/orders/[orderId]/tracking
+├ ƒ /[locale]/prescriptions
+├ ƒ /[locale]/prescriptions/[prescriptionId]
+├ ƒ /[locale]/profile
+├ ƒ /[locale]/reminders
+├ ƒ /[locale]/settings
+├ ƒ /[locale]/wishlist
+├ ƒ /api/appointments/[appointmentId]/call-token
+├ ƒ /api/appointments/[appointmentId]/cancel
+├ ƒ /api/appointments/[appointmentId]/payment-intent
+├ ƒ /api/appointments/[appointmentId]/reschedule
+├ ƒ /api/appointments/book
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/otp/request
+├ ƒ /api/auth/otp/verify
+├ ƒ /api/auth/register
+├ ƒ /api/auth/send-otp
+├ ƒ /api/auth/session
+├ ƒ /api/auth/session/exchange
+├ ƒ /api/auth/verify-2fa
+├ ƒ /api/cart/checkout
+├ ƒ /api/cart/items
+├ ƒ /api/cart/items/[itemId]
+├ ƒ /api/orders/[orderId]/cancel
+├ ƒ /api/orders/[orderId]/reorder
+├ ƒ /api/patient/[...path]
+├ ○ /icon.svg
+├ ƒ /llms.txt
+├ ○ /manifest.webmanifest
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
