@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { createPatientPaymentIntent } from "@/lib/api/payments-server";
 import { parsePaymentIntent } from "@/lib/api/payments";
+import { boundedUpstreamError } from "@/lib/api/error-response";
 
 type Context = { params: Promise<{ appointmentId: string }> };
 const idSchema = z.string().uuid();
@@ -18,7 +19,7 @@ export async function POST(request: Request, context: Context) {
   const upstream = createPatientPaymentIntent(token, "consultation", appointmentId, key);
   if (!upstream) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
   const result = await upstream; const data = await result.json().catch(() => null);
-  if (!result.ok) return NextResponse.json(data || { message: "payment_intent_failed" }, { status: result.status });
+  if (!result.ok) return boundedUpstreamError(data, "payment_intent_failed", result.status);
   const parsed = parsePaymentIntent(data);
   if (!parsed) return NextResponse.json({ message: "unexpected_payment_intent_response" }, { status: 502 });
   return NextResponse.json(parsed, { status: result.status, headers: { "cache-control": "no-store" } });

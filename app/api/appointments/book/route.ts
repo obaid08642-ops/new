@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
+import { boundedUpstreamError } from "@/lib/api/error-response";
 
 const bodySchema = z.object({
   doctor_id: z.string().uuid(),
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   const deviceId = store.get(authCookieNames.device)?.value;
   const upstream = await callPatientApi("/unified-bookings", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotencyKey, ...(deviceId ? { "x-device-id": deviceId } : {}) }, body: JSON.stringify(input.data) }, accessToken);
   const data = await upstream.json().catch(() => null);
-  if (!upstream.ok) return NextResponse.json(data || { message: "booking_failed" }, { status: upstream.status });
+  if (!upstream.ok) return boundedUpstreamError(data, "booking_failed", upstream.status);
   const result = resultSchema.safeParse(data);
   if (!result.success) return NextResponse.json({ message: "unexpected_booking_response" }, { status: 502 });
   return NextResponse.json(result.data, { status: upstream.status, headers: { "cache-control": "no-store" } });

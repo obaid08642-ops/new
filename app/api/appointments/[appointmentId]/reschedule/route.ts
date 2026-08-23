@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
+import { boundedUpstreamError } from "@/lib/api/error-response";
 
 type Context = { params: Promise<{ appointmentId: string }> };
 const idSchema = z.string().uuid();
@@ -19,6 +20,6 @@ export async function PATCH(request: Request, context: Context) {
   if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
   const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/reschedule`, { method: "PATCH", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(parsed.data) }, token);
   const data = await upstream.json().catch(() => null);
-  if (!upstream.ok) return NextResponse.json(data || { message: "reschedule_failed" }, { status: upstream.status });
+  if (!upstream.ok) return boundedUpstreamError(data, "reschedule_failed", upstream.status);
   return NextResponse.json({ ok: true }, { status: upstream.status, headers: { "cache-control": "no-store" } });
 }
