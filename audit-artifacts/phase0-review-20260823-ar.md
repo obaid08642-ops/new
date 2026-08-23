@@ -41,3 +41,7 @@
 ## تحديث Mongo migration store
 
 أضيف `MongoMigrationStore` فوق collection منفصلة اسمها `schema_migrations`، مع اختبار delegation للقراءة المرتبة والإضافة والحذف. نجحت بوابة Phase 0 المستهدفة: 4 suites و8 tests، مع typecheck وbuild ناجحين. ما يزال هذا adapter غير مربوط بـCLI أو lifecycle الإنتاج، ولم تُشغّل Mongo فعلية؛ لذلك لا تزال Phase 0 `PARTIAL`.
+
+## تحديث CLI والـregistry
+
+أضيف `scripts/migrate.ts` وأمر `npm run migrate` مع `status/up/down`. الـCLI يرفض fail-closed عند غياب `MONGO_URL`، ويرفض command أو down بدون migration ID، ولا ينفذ أي migration تلقائيًا. Registry فارغ عمدًا إلى أن تعتمد migrations domain-specific مع rollback. تحققنا من هذا السلوك فعليًا: exit code غير صفري ورسالة `MONGO_URL is required for migrations`، مع نجاح TypeScript وbuild. ما تزال Phase 0 `PARTIAL` لأن Mongo integration الفعلية وmigration domain schemas وresponse-contract wiring لم تُثبت.
