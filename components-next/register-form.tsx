@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
@@ -36,7 +37,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
     <label className={styles.field}><span>{t.email}</span><input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} autoComplete="email" /></label>
     <label className={styles.field}><span>{t.password}</span><span className={styles.inputWrap}><input required type={showPassword ? "text" : "password"} value={form.password} onChange={e=>setForm({...form,password:e.target.value})} autoComplete="new-password" /><button type="button" className={styles.iconButton} onClick={()=>setShowPassword(v=>!v)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}</button></span></label>
     <label className={styles.field}><span>{t.confirm}</span><input required type={showPassword ? "text" : "password"} value={form.confirm_password} onChange={e=>setForm({...form,confirm_password:e.target.value})} autoComplete="new-password" /></label>
-    <label className={styles.consent}><button type="button" className={`${styles.checkbox} ${agreed ? styles.checked : ""}`} onClick={()=>setAgreed(v=>!v)} aria-pressed={agreed}>{agreed ? <Check size={15}/> : null}</button><span>{t.terms}</span></label>
+    <label className={styles.consent}><button type="button" className={`${styles.checkbox} ${agreed ? styles.checked : ""}`} onClick={()=>setAgreed(v=>!v)} aria-pressed={agreed}>{agreed ? <Check size={15}/> : null}</button><span>{locale === "ar" ? <>أوافق على <Link className={styles.textLink} href={`/${locale}/terms`}>الشروط والأحكام</Link> و<Link className={styles.textLink} href={`/${locale}/privacy`}>سياسة الخصوصية</Link></> : <>{t.terms}</>}</span></label>
     {message ? <p className={styles.error} role="alert">{message}</p> : null}
     <button className={styles.submit} disabled={submitting}>{submitting ? <LoaderCircle className={styles.spinner} size={18}/> : null}{submitting ? t.busy : t.submit}</button>
     <p className={styles.registerPrompt}><button type="button" className={styles.textLink} onClick={()=>router.push(`/${locale}/login`)}>{t.login}</button></p>
