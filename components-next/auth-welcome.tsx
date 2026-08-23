@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Globe2, Moon, Sun } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
@@ -16,6 +17,8 @@ const copy: Record<Locale, { brand:string; tagline:string; title:string; body:st
 
 function Logo() { return <span className={styles.logo}><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 52H38l5-22 9 44 6-30 5 8H82" /></svg></span>; }
 export function AuthWelcome({ locale }: { locale: Locale }) {
-  const t=copy[locale]; const router=useRouter();
-  return <main className={styles.page} dir={locale === "ar" || locale === "ur" ? "rtl" : "ltr"}><header className={styles.topbar}><button className={styles.iconButton} type="button" aria-label="Toggle theme"><Moon size={17}/><Sun size={15}/></button><span className={styles.language}><Globe2 size={16}/>{t.language}: {locale.toUpperCase()}</span></header><section className={styles.content}><div className={styles.brand}><Logo/><div><strong>{t.brand}</strong><span>{t.tagline}</span></div></div><h1 className={styles.title}>{t.title}</h1><p className={styles.body}>{t.body}</p><div className={styles.actions}><button type="button" className={styles.guest} onClick={()=>router.push(`/${locale}/login?guest=blocked`)}>{t.guest}</button><button type="button" className={styles.primary} onClick={()=>router.push(`/${locale}/register`)}>{t.register}</button><button type="button" className={styles.secondary} onClick={()=>router.push(`/${locale}/login`)}>{t.login}</button></div><div className={styles.divider}><span>{t.social}</span></div><div className={styles.socials}>{["G","A","S","X"].map((label)=><button type="button" key={label} className={styles.social} onClick={()=>undefined} aria-label={label}>{label}</button>)}</div><p className={styles.blocked}>{t.blocked}</p></section></main>;
+  const t=copy[locale]; const router=useRouter(); const [light,setLight]=useState(false);
+  const locales: Locale[] = ["ar","en","fil","hi","ur","bn"];
+  const nextLocale = locales[(locales.indexOf(locale)+1)%locales.length];
+  return <main className={`${styles.page} ${light ? styles.light : ""}`} dir={locale === "ar" || locale === "ur" ? "rtl" : "ltr"}><header className={styles.topbar}><button className={styles.iconButton} type="button" aria-label="Toggle theme" aria-pressed={light} onClick={()=>setLight(v=>!v)}>{light ? <Sun size={17}/> : <Moon size={17}/>}</button><button className={styles.language} type="button" onClick={()=>router.replace(`/${nextLocale}/welcome`)}><Globe2 size={16}/>{t.language}: {locale.toUpperCase()}</button></header><section className={styles.content}><div className={styles.brand}><Logo/><div><strong>{t.brand}</strong><span>{t.tagline}</span></div></div><h1 className={styles.title}>{t.title}</h1><p className={styles.body}>{t.body}</p><div className={styles.actions}><button type="button" className={styles.guest} onClick={()=>router.push(`/${locale}/login?guest=blocked`)}>{t.guest}</button><button type="button" className={styles.primary} onClick={()=>router.push(`/${locale}/register`)}>{t.register}</button><button type="button" className={styles.secondary} onClick={()=>router.push(`/${locale}/login`)}>{t.login}</button></div><div className={styles.divider}><span>{t.social}</span></div><div className={styles.socials}>{["G","A","S","X"].map((label)=><button type="button" key={label} className={styles.social} onClick={()=>undefined} aria-label={label}>{label}</button>)}</div><p className={styles.blocked}>{t.blocked}</p></section></main>;
 }
