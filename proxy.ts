@@ -9,6 +9,10 @@ function isPublicLocaleHome(pathname: string) {
   return routing.locales.some((locale) => pathname === `/${locale}` || pathname === `/${locale}/`);
 }
 
+function isMarkdownEligible(pathname: string) {
+  return pathname === "/" || pathname === "/en" || pathname === "/ar" || pathname === "/en/articles" || pathname === "/ar/articles";
+}
+
 function createContentSecurityPolicy(nonce: string) {
   const isDevelopment = process.env.NODE_ENV === "development";
   return [
@@ -30,6 +34,13 @@ function createContentSecurityPolicy(nonce: string) {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/api") || pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
+
+  if (request.headers.get("accept")?.toLowerCase().includes("text/markdown") && isMarkdownEligible(pathname)) {
+    const markdownUrl = request.nextUrl.clone();
+    markdownUrl.pathname = "/api/agent-markdown";
+    markdownUrl.search = `?path=${encodeURIComponent(pathname === "/" ? "/" : pathname)}`;
+    return NextResponse.rewrite(markdownUrl);
+  }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const contentSecurityPolicy = createContentSecurityPolicy(nonce);
