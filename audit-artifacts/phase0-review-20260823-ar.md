@@ -37,3 +37,7 @@
 ## قيد تكامل قاعدة البيانات
 
 إعداد Backend يقرأ `MONGO_URL` و`REDIS_URL` ضمن متطلبات البيئة، و`mongodb-memory-server` موجود كاعتماد اختبار، لكن لا توجد migrations domain-specific أو CLI runner حالية. تم العثور على compose Mongo محلي، إلا أن الخطة تمنع تحويل هذا إلى قاعدة تشغيلية أو لمس إنتاج دون بيئة مؤقتة واضحة. لذلك أُبقي migration runner في handoff فقط حتى يُربط بمستودع Backend قابل للتتبع، Mongo مؤقتة، وdry-run/rollback integration tests.
+
+## تحديث Mongo migration store
+
+أضيف `MongoMigrationStore` فوق collection منفصلة اسمها `schema_migrations`، مع اختبار delegation للقراءة المرتبة والإضافة والحذف. نجحت بوابة Phase 0 المستهدفة: 4 suites و8 tests، مع typecheck وbuild ناجحين. ما يزال هذا adapter غير مربوط بـCLI أو lifecycle الإنتاج، ولم تُشغّل Mongo فعلية؛ لذلك لا تزال Phase 0 `PARTIAL`.
