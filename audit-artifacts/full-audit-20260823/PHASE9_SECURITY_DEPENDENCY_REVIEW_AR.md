@@ -36,3 +36,10 @@
 | `@babel/core` | low | Arbitrary File Read via `sourceMappingURL` comment | `<=7.29.0` | `>=7.29.6` |
 
 Reference: [GHSA-4x5r-pxfx-6jf8](https://github.com/advisories/GHSA-4x5r-pxfx-6jf8). يجب تحديد المسار الذي يدخل منه إلى runtime، ثم ترقية dependency إلى نسخة patched متوافقة أو توثيق قبول المخاطر من مالك الإنتاج. لا يكفي اعتبارها dev-only قبل إثبات شجرة production الفعلية.
+
+
+## Container smoke test
+
+تمت مراجعة Dockerfile: البناء multi-stage، التشغيل non-root، و`NODE_ENV=production` مضبوطان. لكن Docker daemon/CLI غير متاح في بيئة التدقيق (`DOCKER_UNAVAILABLE`)، لذلك لم يُنفذ image build أو runtime smoke test ولم يُسجل كنجاح. يجب تشغيله في CI أو خادم البناء قبل GO النهائي، مع secrets runtime injected خارج الصورة.
+
+الدليل الخام محفوظ في `phase9-docker-build.log`.
