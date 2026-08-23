@@ -25,3 +25,7 @@ Local render passed for Welcome and Login. الحكم البصري الكامل 
 ## Arabic RTL pass
 
 تم فتح `/ar/welcome` و`/ar/login` محلياً. النص العربي، اتجاه الصفحة، ترتيب الحقول، ومحاذاة أزرار الرحلة ظهرت من اليمين إلى اليسار بشكل صحيح، مع بقاء القشرة العامة وBETA preview كما في English. لم تظهر بيانات وهمية أو نجاحات مصطنعة. social glyphs المختصرة ما زالت ملاحظة تصميمية مفتوحة، وليست OAuth مفعلاً.
+
+## Six-locale HTTP smoke fallback
+
+تعذر توفر المتصفح عند محاولة فتح Filipino، لذلك لم أعتبر ذلك visual pass. استخدمت فحص HTTP محلياً كبديل محدود: `ar`, `en`, `fil`, `hi`, `ur`, و`bn` أعادت جميعاً `200` لمسار `/welcome`، واحتوت HTML على brand وregister copy المناسبين. هذا يثبت route/render smoke فقط، ولا يستبدل الفحص البصري الكامل لكل locale.
