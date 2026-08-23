@@ -59,3 +59,20 @@ Mobile `diagnostics/package-detail.tsx` يضيف الحزمة إلى `Diagnostic
 اختبارات الشريحة: parser وserver boundary نجحا، وfull test أصبح **132 ملفاً ناجحاً و254 اختباراً ناجحاً** مع بقاء اختبارات Sandbox متخطاة لغياب الحسابات الرسمية، وproduction build نجح وظهر route `/[locale]/wishlist`.
 
 تم intentionally عدم تنفيذ `POST /users/me/wishlist/{id}` لإزالة العنصر أو cart add من Wishlist، لأنهما mutation contracts منفصلة ولم تُغلق بضربة method/path وownership/replay. تبقيهما المصفوفة `Partial/Deferred` بدلاً من اختلاق نجاح.
+
+
+## تحديث عقد mutations
+
+تحقق حي جديد دون جلسة أثبت وجود وحماية المسارات التالية لأن كل واحد أعاد 401، بينما لا توجد دعوة لإنشاء عملية فعلية ببيانات placeholder:
+
+| Method | Path | Status |
+|---|---|---:|
+| POST | `/users/me/wishlist/{id}` | 401 |
+| POST | `/cart/lines` | 401 |
+| PATCH | `/cart/lines/{lineId}` | 401 |
+| DELETE | `/cart/lines/{lineId}` | 401 |
+| POST | `/orders/create` | 401 |
+| POST | `/orders/{id}/reorder` | 401 |
+| POST | `/pharmacy/returns` | 401 |
+
+الدليل الخام في `phase4-mutation-method-probe.tsv`. وجود route محمي لا يكفي لتفعيله: يلزم payload contract موثق، server-authoritative totals، ownership، Idempotency-Key، replay behavior، وSandbox owner/stranger/unauth. لذلك تبقى هذه mutations خلف شريحة تنفيذ منفصلة، بينما لا تُعرض أزرار نجاح وهمية في صفحة Wishlist الحالية.
