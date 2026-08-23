@@ -33,3 +33,7 @@
 ## تحديث بوابة fixtures
 
 أُضيفت fixtures صناعية immutable تحت `src/common/fixtures` بعد تصحيح مسار اكتشاف Jest. تشمل patient A/B وprovider A/B وpharmacy/lab/nursing/catalog/insurance/fake PSP، وجاءت بعناوين `example.test` فقط. نجح اختبارها الفعلي (2/2)، ثم نجحت بوابة Backend الكاملة بعد التحديث: 80 suites و432 tests، وboot test 1/1، وTypeScript وbuild. ما يزال runner غير مربوط بMongo/CLI، لذلك Phase 0 تبقى PARTIAL وليست COMPLETE.
+
+## قيد تكامل قاعدة البيانات
+
+إعداد Backend يقرأ `MONGO_URL` و`REDIS_URL` ضمن متطلبات البيئة، و`mongodb-memory-server` موجود كاعتماد اختبار، لكن لا توجد migrations domain-specific أو CLI runner حالية. تم العثور على compose Mongo محلي، إلا أن الخطة تمنع تحويل هذا إلى قاعدة تشغيلية أو لمس إنتاج دون بيئة مؤقتة واضحة. لذلك أُبقي migration runner في handoff فقط حتى يُربط بمستودع Backend قابل للتتبع، Mongo مؤقتة، وdry-run/rollback integration tests.
