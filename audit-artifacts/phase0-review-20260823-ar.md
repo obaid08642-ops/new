@@ -53,3 +53,7 @@
 ## تحديث تطبيع أخطاء العقود
 
 أضيفت طبقة `normalizeContractError` واختباراتها لتصنيف 400/401/403/409/402/500 إلى الأكواد المشتركة، مع منع الرسائل غير النصية أو oversized من التسرب. نجحت بوابة منخفضة الذاكرة: 4 suites و13 tests، و`tsc --noEmit` ناجح. لم تُربط الطبقة عالميًا بعد، لأن ذلك قد يغير response shapes لمسارات قائمة قبل مراجعة عقودها؛ لذلك يبقى response-contract wiring جزءًا مفتوحًا من Phase 0.
+
+## تحديث duplicate index
+
+أزيل تعريف `index: true` من decorator الخاص بـ`participant_ids` في `ChatThread` مع الإبقاء على الـschema index الصريح، وأضيف assertion يثبت وجود index واحد. نجحت بوابة مستهدفة: 5 suites و14 tests، و`tsc --noEmit` ناجح. هذا يغلق تحذير الفهرس المحدد في المصدر، لكن لا يغلق Phase 0 لأن Mongo integration وdomain migrations وresponse wiring ما تزال مفتوحة.
