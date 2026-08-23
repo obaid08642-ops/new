@@ -1,0 +1,10 @@
+Sandbox live gate — 2026-08-23
+Base: https://api.nabd.plus/api/v1
+Scope: owner credentials authentication + order ownership read contract.
+
+Results:
+- lib/api/sandbox-order-ownership.test.ts: PASS (1 test, 4586ms)
+- lib/api/sandbox-secrets.test.ts: PASS (1 test, 1771ms)
+- Total: 2 test files passed, 2 tests passed.
+- No credentials, access tokens, order response bodies, or health values were written to this artifact.
+- Scope is read/ownership only; no cart mutation, checkout, reorder, or cancel mutation was executed.
