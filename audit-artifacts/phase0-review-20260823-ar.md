@@ -29,3 +29,7 @@
 أضيف في Backend `src/common/migrations/migration-runner.ts` مكوّن مستقل يدعم migration IDs وSHA-256 checksums وup/status/down ورفض checksum mismatch، مع ثلاثة اختبارات وحدات. نجحت الاختبارات الخمسة (runner + contract errors)، ونجح `tsc --noEmit` و`npm run build`.
 
 هذا لا يغلق Phase 0 بالكامل بعد؛ runner لم يُربط بعد بقاعدة Mongo مؤقتة أو CLI/boot lifecycle، ولم تُنشأ migrations domain-specific أو fixtures موحدة. لذلك تظل الحالة `OPEN / PARTIAL`.
+
+## تحديث بوابة fixtures
+
+أُضيفت fixtures صناعية immutable تحت `src/common/fixtures` بعد تصحيح مسار اكتشاف Jest. تشمل patient A/B وprovider A/B وpharmacy/lab/nursing/catalog/insurance/fake PSP، وجاءت بعناوين `example.test` فقط. نجح اختبارها الفعلي (2/2)، ثم نجحت بوابة Backend الكاملة بعد التحديث: 80 suites و432 tests، وboot test 1/1، وTypeScript وbuild. ما يزال runner غير مربوط بMongo/CLI، لذلك Phase 0 تبقى PARTIAL وليست COMPLETE.
