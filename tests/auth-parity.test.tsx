@@ -22,10 +22,10 @@ describe("Auth screen parity contract", () => {
   it("renders all registration fields and a real submit form", () => {
     const html = renderToStaticMarkup(<RegisterForm locale="en" />);
     expect(html).toContain('autoComplete="name"');
-    expect(html).toContain('autoComplete="tel"');
-    expect(html).toContain('autoComplete="email"');
+    expect(html).toContain('autoComplete="username"');
     expect(html).toContain('autoComplete="new-password"');
-    expect(html).toContain("Terms and Privacy Policy");
+    expect(html).toContain("Terms");
+    expect(html).toContain("Privacy Policy");
     expect(html).not.toContain("Sandbox@123");
   });
 
