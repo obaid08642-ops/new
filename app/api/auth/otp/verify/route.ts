@@ -20,6 +20,10 @@ function rewriteExchangeCookie(setCookie: string) {
     .replace(/Path=\/api\/v1/gi, "Path=/api/auth/session/exchange");
 }
 
+function isExchangeCookie(setCookie: string | null) {
+  return Boolean(setCookie?.match(/(?:^|,\s*)nabd_otp_exchange=/));
+}
+
 export async function POST(request: Request) {
   const input = schema.safeParse(await request.json().catch(() => null));
   if (!input.success) return NextResponse.json({ message: "invalid_otp_verify" }, { status: 400 });
@@ -37,12 +41,13 @@ export async function POST(request: Request) {
 
   const upstreamCookie = upstream.headers.get("set-cookie");
   const exchangeToken = parsed.data.exchange_token ?? parsed.data.exchangeToken;
-  if (!upstreamCookie && !exchangeToken) return NextResponse.json({ message: "unexpected_otp_response" }, { status: 502 });
+  const hasExchangeCookie = isExchangeCookie(upstreamCookie);
+  if (!hasExchangeCookie && !exchangeToken) return NextResponse.json({ message: "unexpected_otp_response" }, { status: 502 });
 
   const response = NextResponse.json({ ok: true, expires_in: parsed.data.expires_in }, { status: upstream.status });
-  if (upstreamCookie) response.headers.set("set-cookie", rewriteExchangeCookie(upstreamCookie));
+  if (hasExchangeCookie && upstreamCookie) response.headers.set("set-cookie", rewriteExchangeCookie(upstreamCookie));
 
-  if (exchangeToken && !upstreamCookie) {
+  if (exchangeToken && !hasExchangeCookie) {
     response.cookies.set("nabd_otp_exchange", exchangeToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

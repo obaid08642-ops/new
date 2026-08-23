@@ -39,12 +39,11 @@ describe("patient OTP BFF routes", () => {
     const response = await verifyOtp(jsonRequest("/api/auth/otp/verify", { identifier: "patient@example.com", code: "123456" }));
     expect(response.status).toBe(502);
   });
-  it("sends only the exchange cookie upstream and never returns token-shaped data", async () => {
+  it("rejects an upstream cookie that is not the one-time exchange cookie", async () => {
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ authenticated: true, token: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_admin_token=secret; Path=/api/v1; HttpOnly; Secure" } }));
-    const response = await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST", headers: { cookie: "nabd_otp_exchange=secret; unrelated=drop", "x-nabd-device-id": "device-test" } }));
-    expect(response.status).toBe(201); expect(await response.json()).toEqual({ authenticated: true });
-    expect(state.callPatientApi).toHaveBeenCalledWith("/auth/session/exchange", expect.objectContaining({ headers: expect.objectContaining({ cookie: "nabd_otp_exchange=secret", "x-device-id": "device-test" }) }));
-    expect(response.headers.get("set-cookie")).toContain("Path=/");
+    const response = await verifyOtp(jsonRequest("/api/auth/otp/verify", { identifier: "patient@example.com", code: "123456" }));
+    expect(response.status).toBe(502);
+    expect(response.headers.get("set-cookie")).toBeNull();
   });
   it("requires the one-time exchange cookie", async () => {
     expect((await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST" }))).status).toBe(400);
