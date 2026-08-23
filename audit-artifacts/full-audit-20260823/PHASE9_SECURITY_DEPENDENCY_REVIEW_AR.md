@@ -25,3 +25,14 @@
 
 **Source security boundary: PASS مبدئي.**  
 **Dependency/security production closure: OPEN** بسبب low runtime advisory وhigh/critical toolchain advisories غير المعالجة بعد، وبسبب الحاجة لاختبارات Sandbox والـcontainer runtime.
+
+
+## تحديد advisory الإنتاج
+
+بعد إعادة التحليل، advisory الإنتاج الوحيد هو:
+
+| Package | Severity | Advisory | Affected | Patched |
+|---|---|---|---|---|
+| `@babel/core` | low | Arbitrary File Read via `sourceMappingURL` comment | `<=7.29.0` | `>=7.29.6` |
+
+Reference: [GHSA-4x5r-pxfx-6jf8](https://github.com/advisories/GHSA-4x5r-pxfx-6jf8). يجب تحديد المسار الذي يدخل منه إلى runtime، ثم ترقية dependency إلى نسخة patched متوافقة أو توثيق قبول المخاطر من مالك الإنتاج. لا يكفي اعتبارها dev-only قبل إثبات شجرة production الفعلية.
