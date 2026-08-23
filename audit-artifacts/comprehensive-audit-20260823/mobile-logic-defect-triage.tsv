@@ -1,0 +1,21 @@
+category	file	lines	evidence
+tiny-or-alias	settings/support-chat.tsx	2	manual review required
+tiny-or-alias	pharmacy/product-search.tsx	2	manual review required
+tiny-or-alias	health/family-calendar.tsx	5	manual review required
+tiny-or-alias	health/add-family-member.tsx	5	manual review required
+tiny-or-alias	health/family-member-detail.tsx	5	manual review required
+tiny-or-alias	health/family-chat.tsx	5	manual review required
+tiny-or-alias	family/index.tsx	2	manual review required
+tiny-or-alias	emergency/index.tsx	2	manual review required
+tiny-or-alias	profile/edit.tsx	2	manual review required
+tiny-or-alias	nutrition/nutrition-plan.tsx	2	manual review required
+logic-or-status-marker	app/_layout.tsx	67	user: { id: 'guest_user', role: 'patient', full_name: 'زائر', phone: '', email: '' } as any,
+logic-or-status-marker	app/_layout.tsx	68	token: 'guest_token',
+logic-or-status-marker	docs/KNOWN_LIMITATIONS.md	8	2. **HttpClient:** Does not currently handle WebSockets (planned for Phase 1B/Chat).
+logic-or-status-marker	docs/KNOWN_LIMITATIONS.md	9	3. **Analytics:** Currently uses a `ConsoleProvider` stub. Real providers (e.g., PostHog/Firebase) will be integrated in Phase 3.
+logic-or-status-marker	docs/FUTURE_ROADMAP.md	6	*Status: In Progress*
+logic-or-status-marker	docs/FUTURE_ROADMAP.md	27	*Status: Planned (Guided Tour Phase 0 Architecture)*
+logic-or-status-marker	docs/FUTURE_ROADMAP.md	39	*Status: Planned*
+logic-or-status-marker	docs/FUTURE_ROADMAP.md	52	*Status: Planned*
+logic-or-status-marker	docs/FUTURE_ROADMAP.md	62	*Status: Planned*
+logic-or-status-marker	docs/SECURITY.md	28	- IP Address (Placeholder for networking layer)
