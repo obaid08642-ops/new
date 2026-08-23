@@ -23,3 +23,9 @@
 ## Gate القرار
 
 **القرار: Phase 0 OPEN / NO-GO للانتقال.** لا تبدأ Phase 1 أو أي رحلة دفع/Socket حساسة قبل إغلاق migration/fixtures/body-forwarding وربط error response contracts، مع بقاء تحذير duplicate index مسجلًا.
+
+## تحديث بعد migration runner
+
+أضيف في Backend `src/common/migrations/migration-runner.ts` مكوّن مستقل يدعم migration IDs وSHA-256 checksums وup/status/down ورفض checksum mismatch، مع ثلاثة اختبارات وحدات. نجحت الاختبارات الخمسة (runner + contract errors)، ونجح `tsc --noEmit` و`npm run build`.
+
+هذا لا يغلق Phase 0 بالكامل بعد؛ runner لم يُربط بعد بقاعدة Mongo مؤقتة أو CLI/boot lifecycle، ولم تُنشأ migrations domain-specific أو fixtures موحدة. لذلك تظل الحالة `OPEN / PARTIAL`.
