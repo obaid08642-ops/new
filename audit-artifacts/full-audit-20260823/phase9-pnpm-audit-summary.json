@@ -1,0 +1,403 @@
+{
+  "total_records": 56,
+  "severity_counts": {
+    "moderate": 26,
+    "high": 27,
+    "low": 1,
+    "critical": 2
+  },
+  "records": [
+    {
+      "id": "esbuild",
+      "severity": "moderate",
+      "title": "esbuild enables any website to send any requests to the development server and read the response",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "moderate",
+      "title": "vite allows server.fs.deny bypass via backslash on Windows",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "moderate",
+      "title": "vite allows server.fs.deny bypass via backslash on Windows",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "moderate",
+      "title": "node-tar has a race condition leading to uninitialized memory exposure",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm v10+ Bypass \"Dependency lifecycle scripts execution disabled by default\"",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm Has Lockfile Integrity Bypass that Allows Remote Dynamic Dependencies",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm has Path Traversal via arbitrary file permission modification ",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm: Binary ZIP extraction allows arbitrary file write via path traversal (Zip Slip)",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm has Windows-specific tarball Path Traversal",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm scoped bin name Path Traversal allows arbitrary file creation outside node_modules/.bin",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm has symlink traversal in file:/git dependencies",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "rollup",
+      "severity": "high",
+      "title": "Rollup 4 has Arbitrary File Write via Path Traversal",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "picomatch",
+      "severity": "moderate",
+      "title": "Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "picomatch",
+      "severity": "high",
+      "title": "Picomatch has a ReDoS vulnerability via extglob quantifiers",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "moderate",
+      "title": "Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "moderate",
+      "title": "Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "high",
+      "title": "Vite: `server.fs.deny` bypassed with queries",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "high",
+      "title": "Vite Vulnerable to Arbitrary File Read via Vite Dev Server WebSocket",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "postcss",
+      "severity": "moderate",
+      "title": "PostCSS has XSS via Unescaped </style> in its CSS Stringify Output",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm vulnerable to Command Injection via environment variable substitution",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "moderate",
+      "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "moderate",
+      "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "moderate",
+      "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm: Tarball hash of GitHub git dependencies is not stored in lockfile",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm Vulnerable to Arbitrary File Write/Delete via Malicious Patch File (Path Traversal)",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm binds unscoped user-level npm auth credentials to a repository-selected registry",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: Transitive dependency alias path traversal allows project path override via symlink replacement",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm: Git Fetch Argument Injection via Lockfile resolution.commit",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm Has an Integrity Check Bypass via Missing Lockfile Integrity Field",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm: Unsafe default behavior breaks integrity check",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: Manifest identity spoof satisfies allowBuilds and runs attacker lifecycle",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm: Repository config can expand victim environment secrets into registry requests before scripts run",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "moderate",
+      "title": "pnpm: Reserved bin name deletes PNPM_HOME during global remove",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: Project env lockfile can short-circuit package-manager resolution and execute lockfile-selected pnpm bytes",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: `patch-remove` could delete project-selected files outside the patches directory",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: Hoisted install imports lockfile alias outside node_modules",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: Path traversal in configDependencies env lockfile allows symlink creation outside node_modules/.pnpm-config",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "high",
+      "title": "vite: `server.fs.deny` bypass on Windows alternate paths",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vite",
+      "severity": "high",
+      "title": "vite: `server.fs.deny` bypass on Windows alternate paths",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "@babel/core",
+      "severity": "low",
+      "title": "@babel/core: Arbitrary File Read via sourceMappingURL Comment",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "moderate",
+      "title": "node-tar: Process crash via PAX numeric path type confusion",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "critical",
+      "title": "node-tar: Decompression/parse DoS via unlimited input",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "moderate",
+      "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "postcss",
+      "severity": "high",
+      "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "postcss",
+      "severity": "moderate",
+      "title": "PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "pnpm",
+      "severity": "high",
+      "title": "pnpm: Repository-controlled configDependencies can select a pacquet native install engine",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "postcss",
+      "severity": "high",
+      "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "vitest",
+      "severity": "critical",
+      "title": "When Vitest UI server is listening, arbitrary file can be read and executed",
+      "via": null,
+      "fixAvailable": null
+    },
+    {
+      "id": "tar",
+      "severity": "high",
+      "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+      "via": null,
+      "fixAvailable": null
+    }
+  ]
+}

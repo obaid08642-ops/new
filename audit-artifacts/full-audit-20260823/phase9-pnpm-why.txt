@@ -1,0 +1,62 @@
+Legend: production dependency, optional only, dev only
+
+nabd-plus-web@1.0.0 /home/ubuntu/nabdah_impl/repo
+
+dependencies:
+next 16.3.1
+└── postcss 8.5.23
+next-intl 4.13.7
+└─┬ next 16.3.1 peer
+  └── postcss 8.5.23
+
+devDependencies:
+@builder.io/vite-plugin-jsx-loc 0.1.1
+└─┬ vite 7.1.9 peer
+  ├── esbuild 0.25.10
+  ├── postcss 8.5.6
+  └─┬ tsx 4.20.6 peer
+    └── esbuild 0.25.10
+@tailwindcss/vite 4.1.14
+├─┬ @tailwindcss/oxide 4.1.14
+│ └── tar 7.5.1
+└─┬ vite 7.1.9 peer
+  ├── esbuild 0.25.10
+  ├── postcss 8.5.6
+  └─┬ tsx 4.20.6 peer
+    └── esbuild 0.25.10
+@vitejs/plugin-react 5.0.4
+└─┬ vite 7.1.9 peer
+  ├── esbuild 0.25.10
+  ├── postcss 8.5.6
+  └─┬ tsx 4.20.6 peer
+    └── esbuild 0.25.10
+autoprefixer 10.4.21
+└── postcss 8.5.6 peer
+drizzle-kit 0.31.5
+├─┬ @esbuild-kit/esm-loader 2.6.5
+│ └─┬ @esbuild-kit/core-utils 3.3.2
+│   └── esbuild 0.18.20
+├── esbuild 0.25.10
+└─┬ esbuild-register 3.6.0
+  └── esbuild 0.25.10 peer
+esbuild 0.25.10
+postcss 8.5.6
+tsx 4.20.6
+└── esbuild 0.25.10
+vite 7.1.9
+├── esbuild 0.25.10
+├── postcss 8.5.6
+└─┬ tsx 4.20.6 peer
+  └── esbuild 0.25.10
+vitest 2.1.9
+├─┬ @vitest/mocker 2.1.9
+│ └─┬ vite 5.4.20 peer
+│   ├── esbuild 0.21.5
+│   └── postcss 8.5.6
+├─┬ vite 5.4.20
+│ ├── esbuild 0.21.5
+│ └── postcss 8.5.6
+└─┬ vite-node 2.1.9
+  └─┬ vite 5.4.20
+    ├── esbuild 0.21.5
+    └── postcss 8.5.6

@@ -1,0 +1,736 @@
+=== browser token/storage candidates ===
+lib/auth/refresh.ts:6:  return JSON.stringify({ refresh_token: refreshToken });
+lib/api/upstream.ts:6:  if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
+=== cookie/security headers ===
+next.config.ts:11:      { key: "X-Content-Type-Options", value: "nosniff" },
+next.config.ts:12:      { key: "X-Frame-Options", value: "DENY" },
+next.config.ts:13:      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+next.config.ts:14:      { key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(self), payment=(self)" },
+app/llms.txt/route.ts:28:      "X-Content-Type-Options": "nosniff"
+lib/auth/cookies.ts:5:const commonCookie = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
+app/favicon.ico/route.ts:10:      "X-Content-Type-Options": "nosniff"
+app/[locale]/orders/[orderId]/tracking/page.tsx:36:        <div className={styles.item}><dt><Hash size={15} aria-hidden="true" />{t("secureId")}</dt><dd>{orderId}</dd></div>
+app/[locale]/orders/[orderId]/page.tsx:37:        <div className={styles.item}><dt><Hash size={15} aria-hidden="true" />{t("secureId")}</dt><dd>{orderId}</dd></div>
+app/api/appointments/[appointmentId]/call-token/route.ts:21:  return NextResponse.json(parsed.data, { status: 200, headers: { "cache-control": "no-store", "x-content-type-options": "nosniff" } });
+app/api/auth/otp/verify/route.ts:16:  const setCookie = upstream.headers.get("set-cookie");
+app/api/auth/otp/verify/route.ts:17:  if (setCookie) response.headers.set("set-cookie", setCookie.replace(/Path=\/api\/v1\/auth\/session\/exchange/gi, "Path=/api/auth/session/exchange"));
+app/api/auth/session/exchange/route.ts:18:  const setCookie = upstream.headers.get("set-cookie");
+app/api/auth/session/exchange/route.ts:19:  if (setCookie) response.headers.set("set-cookie", setCookie
+=== dangerous rendering and direct backend calls ===
+components-next/json-ld.tsx:5:  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: value }} />;
+lib/api/upstream.ts:1:const API_BASE_URL = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
+=== allowlist and BFF routes ===
+app/api/appointments/[appointmentId]/call-token/route.ts
+app/api/appointments/[appointmentId]/cancel/route.ts
+app/api/appointments/[appointmentId]/payment-intent/route.ts
+app/api/appointments/[appointmentId]/reschedule/route.ts
+app/api/appointments/book/route.ts
+app/api/auth/login/route.ts
+app/api/auth/logout/route.ts
+app/api/auth/otp/request/route.ts
+app/api/auth/otp/verify/route.ts
+app/api/auth/session/exchange/route.ts
+app/api/auth/session/route.ts
+app/api/auth/verify-2fa/route.ts
+app/api/patient/[...path]/route.ts
+app/api/appointments/[appointmentId]/call-token/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+app/api/appointments/[appointmentId]/call-token/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/[appointmentId]/call-token/route.ts:16:  const upstream = await callPatientApi(`/unified-bookings/${appointmentId}/call-token`, { method: "GET" }, token);
+app/api/appointments/[appointmentId]/reschedule/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+app/api/appointments/[appointmentId]/reschedule/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/[appointmentId]/reschedule/route.ts:20:  const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/reschedule`, { method: "PATCH", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(parsed.data) }, token);
+app/api/appointments/[appointmentId]/cancel/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+app/api/appointments/[appointmentId]/cancel/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/[appointmentId]/cancel/route.ts:20:  const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/cancel`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(input.data) }, token);
+lib/auth/session.ts:5:export async function requirePatientAccess(locale: string) {
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:2:const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), cookieStore: { get: vi.fn() } }));
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:3:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:10:  beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : undefined); });
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:15:    expect(state.callPatientApi).not.toHaveBeenCalled();
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:18:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: "33333333-3333-4333-8333-333333333333", status: "pending", amount: 120, currency: "SAR", client_secret: "secret", patient_id: "private" }), { status: 201 }));
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:21:    expect(state.callPatientApi).toHaveBeenCalledWith("/payments/intent/consultation/22222222-2222-4222-8222-222222222222", expect.objectContaining({ method: "POST", headers: { "idempotency-key": "payment-key-123456" } }), "server-access");
+app/api/appointments/[appointmentId]/payment-intent/route.test.ts:24:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ message: "not_authorized" }), { status: 400 }));
+app/api/appointments/book/route.test.ts:3:const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), cookieStore: { get: vi.fn() } }));
+app/api/appointments/book/route.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/appointments/book/route.test.ts:13:  beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : name === "nabd_device" ? { value: "device-1" } : undefined); });
+app/api/appointments/book/route.test.ts:21:    expect(state.callPatientApi).not.toHaveBeenCalled();
+app/api/appointments/book/route.test.ts:24:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ booking_id: "22222222-2222-4222-8222-222222222222", status: "pending_payment", patient_id: "must-not-leak" }), { status: 201 }));
+app/api/appointments/book/route.test.ts:27:    expect(state.callPatientApi).toHaveBeenCalledWith("/unified-bookings", expect.objectContaining({ headers: expect.objectContaining({ "idempotency-key": "idempotency-test-123456", "x-device-id": "device-1" }) }), "server-access");
+app/api/appointments/book/route.test.ts:30:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ message: "slot_taken" }), { status: 409 }));
+app/api/appointments/book/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+app/api/appointments/book/route.ts:24:  const upstream = await callPatientApi("/unified-bookings", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotencyKey, ...(deviceId ? { "x-device-id": deviceId } : {}) }, body: JSON.stringify(input.data) }, accessToken);
+app/api/patient/[...path]/route.ts:5:import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
+app/api/patient/[...path]/route.ts:7:import { callPatientApi } from "@/lib/api/upstream";
+app/api/patient/[...path]/route.ts:9:async function refreshSession() { const store = await cookies(); const refreshToken = store.get(authCookieNames.refresh)?.value; const deviceId = store.get(authCookieNames.device)?.value; if (!refreshToken || !deviceId) return null; const response = await callPatientApi("/auth/refresh", { method: "POST", headers: { "content-type": "application/json", "x-device-id": deviceId }, body: refreshRequestBody(refreshToken) }); if (!response.ok) return null; const tokens = parseRefreshedTokens(await response.json().catch(() => null)); if (!tokens) return null; return { tokens, deviceId }; }
+app/api/patient/[...path]/route.ts:10:async function proxy(request: NextRequest, context: Context) { const { path: parts } = await context.params; const path = `/${parts.map(encodeURIComponent).join("/")}`; if (!isAllowedPatientApiRequest(path, request.method)) return NextResponse.json({ message: "resource_not_found" }, { status: 404 }); const store = await cookies(); let token = store.get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 }); const headers = new Headers(); const target = `${path}${request.nextUrl.search}`; let upstream = await callPatientApi(target, { method: request.method, headers }, token); let rotated: Awaited<ReturnType<typeof refreshSession>> = null; if (upstream.status === 401) { rotated = await refreshSession(); if (rotated) { token = rotated.tokens.accessToken; upstream = await callPatientApi(target, { method: request.method, headers }, token); } } const response = await forwardApiResponse(upstream); if (rotated) setSessionCookies(response, rotated.tokens, rotated.deviceId); if (upstream.status === 401 && !rotated) clearSessionCookies(response); return response; }
+app/api/patient/[...path]/route.test.ts:5:  callPatientApi: vi.fn(),
+app/api/patient/[...path]/route.test.ts:23:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/patient/[...path]/route.test.ts:49:    state.callPatientApi.mockReset();
+app/api/patient/[...path]/route.test.ts:55:    state.callPatientApi
+app/api/patient/[...path]/route.test.ts:63:    expect(state.callPatientApi).toHaveBeenCalledTimes(3);
+app/api/patient/[...path]/route.test.ts:64:    expect(state.callPatientApi).toHaveBeenNthCalledWith(1, "/orders/mine", expect.any(Object), "expired-access");
+app/api/patient/[...path]/route.test.ts:65:    expect(state.callPatientApi).toHaveBeenNthCalledWith(2, "/auth/refresh", expect.objectContaining({ body: JSON.stringify({ refresh_token: "valid-refresh" }) }));
+app/api/patient/[...path]/route.test.ts:66:    expect(state.callPatientApi).toHaveBeenNthCalledWith(3, "/orders/mine", expect.any(Object), "new-access");
+app/api/patient/[...path]/route.test.ts:73:    state.callPatientApi.mockResolvedValueOnce(new Response(null, { status: 401 }));
+app/api/patient/[...path]/route.test.ts:78:    expect(state.callPatientApi).toHaveBeenCalledTimes(1);
+app/api/patient/[...path]/route.test.ts:84:    state.callPatientApi
+app/api/patient/[...path]/route.test.ts:91:    expect(state.callPatientApi).toHaveBeenCalledTimes(2);
+app/api/patient/[...path]/route.test.ts:100:    expect(state.callPatientApi).not.toHaveBeenCalled();
+lib/api/wishlist-server.test.ts:2:const state = vi.hoisted(() => ({ callPatientApi: vi.fn() }));
+lib/api/wishlist-server.test.ts:3:vi.mock("./upstream", () => ({ callPatientApi: state.callPatientApi }));
+lib/api/wishlist-server.test.ts:7:  beforeEach(() => state.callPatientApi.mockReset());
+lib/api/wishlist-server.test.ts:10:    expect(state.callPatientApi).toHaveBeenCalledWith("/users/me/wishlist", {}, "server-access");
+lib/api/wishlist-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/wishlist-server.ts:4:  return callPatientApi("/users/me/wishlist", {}, accessToken);
+app/api/auth/otp/otp-routes.test.ts:3:const state = vi.hoisted(() => ({ callPatientApi: vi.fn() }));
+app/api/auth/otp/otp-routes.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+app/api/auth/otp/otp-routes.test.ts:14:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 300 }), { status: 201 }));
+app/api/auth/otp/otp-routes.test.ts:16:    expect(response.status).toBe(201); expect(state.callPatientApi).toHaveBeenCalledWith("/auth/otp/request", expect.objectContaining({ method: "POST" }));
+app/api/auth/otp/otp-routes.test.ts:20:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchangeToken: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_otp_exchange=secret; Path=/api/v1/auth/session/exchange; HttpOnly; Secure; SameSite=Strict" } }));
+app/api/auth/otp/otp-routes.test.ts:27:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ authenticated: true, token: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_admin_token=secret; Path=/api/v1; HttpOnly; Secure" } }));
+app/api/auth/otp/otp-routes.test.ts:30:    expect(state.callPatientApi).toHaveBeenCalledWith("/auth/session/exchange", expect.objectContaining({ headers: expect.objectContaining({ cookie: "nabd_otp_exchange=secret", "x-device-id": "device-test" }) }));
+lib/api/radiology-server.test.ts:3:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: call }));
+lib/api/radiology-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/radiology-server.ts:6:export function getPublicRadiologyModalities() { return callPatientApi("/radiology/modalities", { method: "GET", cache: "no-store" }); }
+lib/api/radiology-server.ts:14:  return callPatientApi(`/radiology/services${params.toString() ? `?${params}` : ""}`, { method: "GET", cache: "no-store" });
+lib/api/payments-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/payments-server.ts:6:  return callPatientApi(`/payments/intent/${kind.data}/${bookingId}`, { method: "POST", headers: { "idempotency-key": idempotencyKey } }, accessToken);
+app/api/auth/otp/verify/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/otp/verify/route.ts:10:  const upstream = await callPatientApi("/auth/otp/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+app/api/auth/otp/request/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/otp/request/route.ts:10:  const upstream = await callPatientApi("/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+app/api/auth/verify-2fa/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/verify-2fa/route.ts:11:  const upstream = await callPatientApi("/auth/login/verify-2fa", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+lib/api/dashboard-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/dashboard-server.ts:5:  return callPatientApi("/users/me/profile", {}, accessToken);
+lib/api/dashboard-server.ts:9:  return callPatientApi("/home/upcoming-appointment", {}, accessToken);
+lib/api/crisis-contacts-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/crisis-contacts-server.ts:2:export function getPatientCrisisContacts(accessToken:string){return callPatientApi("/mental-health/crisis-contacts",{},accessToken);}
+lib/api/claims-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/claims-server.ts:4:  return callPatientApi("/insurance/claims", {}, accessToken);
+lib/api/chronic-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/chronic-server.ts:2:export function getPatientChronicDiseases(accessToken:string){return callPatientApi("/health/chronic-diseases",{},accessToken);}
+lib/api/vitals-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/vitals-server.ts:5:  return callPatientApi("/health/vitals/summary", {}, accessToken);
+lib/api/vitals-server.ts:9:  return callPatientApi("/health/vitals?limit=100", {}, accessToken);
+lib/api/vitals-server.ts:13:  return callPatientApi("/health/score", {}, accessToken);
+lib/api/vitals-server.ts:17:  return callPatientApi("/health/reports", {}, accessToken);
+lib/api/chronic-meds-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/chronic-meds-server.ts:2:export function getPatientChronicMedications(accessToken:string){return callPatientApi("/health/chronic-meds",{},accessToken);}
+lib/api/vitals-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/vitals-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/vitals-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+lib/api/vitals-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+lib/api/vitals-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/health/vitals/summary", {}, "server-token");
+lib/api/upstream.ts:3:export async function callPatientApi(path: string, init: RequestInit = {}, accessToken?: string | null) {
+lib/api/upstream.test.ts:2:import { callPatientApi, patientApiUrl } from "./upstream";
+lib/api/upstream.test.ts:10:    const response = await callPatientApi("/health/vitals/summary", {}, "server-only-token");
+lib/api/chat-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/chat-server.ts:5:  return callPatientApi("/chat/threads", {}, accessToken);
+lib/api/chat-server.ts:9:  return callPatientApi(`/chat/threads/${threadId}`, {}, accessToken);
+lib/api/chat-server.ts:13:  return callPatientApi(`/chat/threads/${threadId}/messages?limit=50`, {}, accessToken);
+lib/api/trends-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/trends-server.ts:2:export function getPatientHealthTrends(accessToken:string){return callPatientApi("/health/trends",{},accessToken);}
+lib/api/sleep-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/sleep-server.ts:2:export function getPatientSleepReadings(accessToken:string){return callPatientApi("/health/sleep?limit=100",{},accessToken);}
+lib/api/chat-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/chat-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/chat-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+lib/api/chat-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+lib/api/chat-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/chat/threads", {}, "server-token");
+lib/api/settings-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/settings-server.ts:4:  return callPatientApi("/users/me/privacy-settings", {}, accessToken);
+lib/api/settings-server.ts:8:  return callPatientApi("/users/me/security-settings", {}, accessToken);
+lib/api/settings-server.ts:12:  return callPatientApi("/users/me/storage", {}, accessToken);
+lib/api/settings-server.ts:16:  return callPatientApi("/users/me/sessions", {}, accessToken);
+lib/api/breathing-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/breathing-server.ts:2:export function getPatientBreathingHistory(accessToken:string){return callPatientApi("/mental-health/breathing",{},accessToken);}
+lib/api/meditation-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/meditation-server.ts:2:export function getPatientMeditationHistory(accessToken:string){return callPatientApi("/mental-health/meditation",{},accessToken);}
+lib/api/medicines-server.ts:2:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/medicines-server.ts:6:  return callPatientApi(medicineQuery(search), {}, accessToken);
+lib/api/medicines-server.ts:10:  return callPatientApi(`/medicines/${medicineId}/details`, {}, accessToken);
+lib/api/medicines-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/medicines-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/medicines-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+lib/api/medicines-server.test.ts:13:    callPatientApi.mockResolvedValue(response);
+lib/api/medicines-server.test.ts:18:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/medicines?limit=24&page=1&q=query", {}, "server-token");
+lib/api/medicines-server.test.ts:19:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/medicines/91047ef2-ad36-422a-a184-629693e7c729/details", {}, "server-token");
+lib/api/insurance-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/insurance-server.ts:2:export function getPatientInsurancePolicy(accessToken: string) { return callPatientApi("/insurance/my-policy", {}, accessToken); }
+lib/api/insurance-server.ts:3:export function getPatientInsuranceBenefits(accessToken: string) { return callPatientApi("/insurance/benefits-summary", {}, accessToken); }
+lib/api/reminders-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/reminders-server.ts:5:  return callPatientApi("/health/reminders", {}, accessToken);
+lib/api/home-care-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/home-care-server.ts:5:  return callPatientApi("/home-care/bookings/my", {}, accessToken);
+lib/api/reminders-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/reminders-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/reminders-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+lib/api/reminders-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+lib/api/reminders-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/health/reminders", {}, "server-token");
+lib/api/home-care-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/home-care-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/home-care-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+lib/api/home-care-server.test.ts:12:    callPatientApi.mockResolvedValue(response);
+lib/api/home-care-server.test.ts:14:    expect(callPatientApi).toHaveBeenCalledWith("/home-care/bookings/my", {}, "server-token");
+lib/api/family-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/family-server.ts:5:  return callPatientApi("/family/members", {}, accessToken);
+lib/api/family-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/family-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/family-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+lib/api/family-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+lib/api/family-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/family/members", {}, "server-token");
+lib/api/family-group-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/family-group-server.ts:2:export function getPatientFamilyGroup(accessToken:string){return callPatientApi("/family/my-group",{},accessToken);}
+lib/api/emergency-contacts-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/emergency-contacts-server.ts:2:export function getPatientEmergencyContacts(accessToken:string){return callPatientApi("/health/emergency-contacts",{},accessToken);}
+lib/api/diagnostics-server.ts:2:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/diagnostics-server.ts:6:  return callPatientApi(`/${domain}/bookings/mine`, {}, accessToken);
+lib/api/diagnostics-server.ts:10:  return callPatientApi(`/${domain}/bookings/${bookingId}`, {}, accessToken);
+lib/api/diagnostics-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/diagnostics-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/diagnostics-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+lib/api/diagnostics-server.test.ts:13:    callPatientApi.mockResolvedValue(response);
+lib/api/diagnostics-server.test.ts:16:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/labs/bookings/mine", {}, "server-token");
+lib/api/diagnostics-server.test.ts:17:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-token");
+lib/api/prescriptions-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/prescriptions-server.ts:5:  return callPatientApi("/prescriptions/mine", {}, accessToken);
+lib/api/prescriptions-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/prescriptions-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/prescriptions-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+lib/api/prescriptions-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+lib/api/prescriptions-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/prescriptions/mine", {}, "server-token");
+lib/api/notification-settings-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/notification-settings-server.ts:5:  return callPatientApi("/users/me/notification-settings", {}, accessToken);
+lib/api/patient-allowlist.ts:46:export function isAllowedPatientApiRequest(path: string, method: string) {
+lib/api/mood-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/mood-server.ts:2:export function getPatientMoodHistory(accessToken:string){return callPatientApi("/mental-health/mood?days=30",{},accessToken);}
+lib/api/mental-health-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/mental-health-server.ts:2:export function getPatientWellbeingDashboard(accessToken: string) { return callPatientApi("/mental-health/dashboard", {}, accessToken); }
+app/api/auth/logout/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/logout/route.ts:5:export async function POST() { const token = (await cookies()).get(authCookieNames.access)?.value; if (token) await callPatientApi("/auth/logout", { method: "POST" }, token).catch(() => undefined); const response = NextResponse.json({ success: true }); clearSessionCookies(response); return response; }
+lib/api/appointments-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/appointments-server.ts:5:  return callPatientApi("/care/appointments", {}, accessToken);
+lib/api/appointments-server.ts:9:  return callPatientApi(`/care/appointments/${appointmentId}`, {}, accessToken);
+lib/api/appointments-server.ts:13:  return callPatientApi(`/unified-bookings/consultation/${appointmentId}`, {}, accessToken);
+lib/api/appointments-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/appointments-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/appointments-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+lib/api/appointments-server.test.ts:13:    callPatientApi.mockResolvedValue(response);
+lib/api/appointments-server.test.ts:19:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/care/appointments", {}, "server-access-token");
+lib/api/appointments-server.test.ts:20:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/care/appointments/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-access-token");
+lib/api/appointments-server.test.ts:21:    expect(callPatientApi).toHaveBeenNthCalledWith(3, "/unified-bookings/consultation/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-access-token");
+lib/api/notifications-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+lib/api/notifications-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+lib/api/notifications-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+lib/api/notifications-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+lib/api/notifications-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/notifications", {}, "server-token");
+app/api/auth/session/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/session/route.ts:5:export async function GET() { const token = (await cookies()).get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ authenticated: false }, { status: 401 }); const upstream = await callPatientApi("/auth/me", { method: "GET" }, token); if (!upstream.ok) return NextResponse.json({ authenticated: false }, { status: upstream.status }); return NextResponse.json({ authenticated: true, user: await upstream.json() }, { headers: { "cache-control": "no-store" } }); }
+app/api/auth/login/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/login/route.ts:11:  const upstream = await callPatientApi("/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+lib/api/notifications-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+lib/api/notifications-server.ts:5:  return callPatientApi("/notifications", {}, accessToken);
+lib/api/patient-allowlist.test.ts:4:  isAllowedPatientApiRequest,
+lib/api/patient-allowlist.test.ts:27:    expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
+lib/api/patient-allowlist.test.ts:28:    expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:29:    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:30:    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(false);
+lib/api/patient-allowlist.test.ts:31:    expect(isAllowedPatientApiRequest("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:32:    expect(isAllowedPatientApiRequest("/cart", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:33:    expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);
+lib/api/patient-allowlist.test.ts:34:    expect(isAllowedPatientApiRequest("/cart/clear", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:35:    expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);
+lib/api/patient-allowlist.test.ts:36:    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(false);
+lib/api/patient-allowlist.test.ts:57:    expect(isAllowedPatientApiRequest("/orders/mine", "get")).toBe(false);
+lib/api/patient-allowlist.test.ts:58:    expect(isAllowedPatientApiRequest("/orders/mine", "PUT")).toBe(false);
+lib/api/patient-allowlist.test.ts:60:      isAllowedPatientApiRequest(
+lib/api/articles-server.ts:2:import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
+lib/api/articles-server.ts:18:export function getPatientArticleBookmarks(accessToken: string) { return callPatientApi("/articles/bookmarks/mine", {}, accessToken); }
+app/api/auth/session/exchange/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+app/api/auth/session/exchange/route.ts:12:  const upstream = await callPatientApi("/auth/session/exchange", { method: "POST", headers: { cookie, "x-device-id": request.headers.get("x-nabd-device-id") || crypto.randomUUID() } });
+=== dependency/audit ===
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ critical            │ node-tar: Decompression/parse DoS via unlimited input  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.18                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.19                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-23hp-3jrh-7fpw      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ critical            │ When Vitest UI server is listening, arbitrary file can │
+│                     │ be read and executed                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ vitest                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <3.2.6                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=3.2.6                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > vitest@2.1.9                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-5xrq-8626-4rwp      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm v10+ Bypass "Dependency lifecycle scripts         │
+│                     │ execution disabled by default"                         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=10.0.0 <10.26.0                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.26.0                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-379q-355j-w6rj      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm Has Lockfile Integrity Bypass that Allows Remote  │
+│                     │ Dynamic Dependencies                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.26.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.26.0                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-7vhp-vf5g-r2fw      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar Vulnerable to Arbitrary File                  │
+│                     │ Creation/Overwrite via Hardlink Path Traversal         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <7.5.7                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.7                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-34x7-hfp2-rc4v      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar is Vulnerable to Arbitrary File Overwrite and │
+│                     │ Symlink Poisoning via Insufficient Path Sanitization   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.3                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-8qq5-rm4j-mr97      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Arbitrary File Read/Write via Hardlink Target Escape   │
+│                     │ Through Symlink Chain in node-tar Extraction           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <7.5.8                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.8                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-83g3-92jg-28cx      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Rollup 4 has Arbitrary File Write via Path Traversal   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ rollup                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=4.0.0 <4.59.0                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=4.59.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │ > rollup@4.52.4                                        │
+│                     │                                                        │
+│                     │ . > @tailwindcss/vite@4.1.14 > vite@7.1.9 >            │
+│                     │ rollup@4.52.4                                          │
+│                     │                                                        │
+│                     │ . > @vitejs/plugin-react@5.0.4 > vite@7.1.9 >          │
+│                     │ rollup@4.52.4                                          │
+│                     │                                                        │
+│                     │ ... Found 7 paths, run `pnpm why rollup` for more      │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-mw96-cpmx-2vgc      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ tar has Hardlink Path Traversal via Drive-Relative     │
+│                     │ Linkpath                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.9                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.10                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-qffp-2rhf-9h96      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar Symlink Path Traversal via Drive-Relative     │
+│                     │ Linkpath                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.10                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.11                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-9ppj-qmqm-q256      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Race Condition in node-tar Path Reservations via       │
+│                     │ Unicode Ligature Collisions on macOS APFS              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.3                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.4                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-r6q2-hw4h-h46w      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Picomatch has a ReDoS vulnerability via extglob        │
+│                     │ quantifiers                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ picomatch                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=4.0.0 <4.0.4                                         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=4.0.4                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │ > fdir@6.5.0 > picomatch@4.0.3                         │
+│                     │                                                        │
+│                     │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │ > picomatch@4.0.3                                      │
+│                     │                                                        │
+│                     │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │ > tinyglobby@0.2.15 > fdir@6.5.0 > picomatch@4.0.3     │
+│                     │                                                        │
+│                     │ ... Found 16 paths, run `pnpm why picomatch` for more  │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-c2c7-rcm5-vvqj      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Vite: `server.fs.deny` bypassed with queries           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ vite                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=7.1.0 <=7.3.1                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.3.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │                                                        │
+│                     │ . > @tailwindcss/vite@4.1.14 > vite@7.1.9              │
+│                     │                                                        │
+│                     │ . > @vitejs/plugin-react@5.0.4 > vite@7.1.9            │
+│                     │                                                        │
+│                     │ ... Found 4 paths, run `pnpm why vite` for more        │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-v2wj-q39q-566r      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Vite Vulnerable to Arbitrary File Read via Vite Dev    │
+│                     │ Server WebSocket                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ vite                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=7.0.0 <=7.3.1                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.3.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │                                                        │
+│                     │ . > @tailwindcss/vite@4.1.14 > vite@7.1.9              │
+│                     │                                                        │
+│                     │ . > @vitejs/plugin-react@5.0.4 > vite@7.1.9            │
+│                     │                                                        │
+│                     │ ... Found 4 paths, run `pnpm why vite` for more        │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-p9ff-h696-f583      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm vulnerable to Command Injection via environment   │
+│                     │ variable substitution                                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=6.25.0 <10.27.0                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.27.0                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-2phv-j68v-wwqx      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm Vulnerable to Arbitrary File Write/Delete via     │
+│                     │ Malicious Patch File (Path Traversal)                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.0                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-rxhj-4m44-96r4      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: Transitive dependency alias path traversal       │
+│                     │ allows project path override via symlink replacement   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.0                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-hwx4-2j3j-g496      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: Manifest identity spoof satisfies allowBuilds    │
+│                     │ and runs attacker lifecycle                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.2                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.2                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-5wx6-mg75-v57r      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: Project env lockfile can short-circuit           │
+│                     │ package-manager resolution and execute                 │
+│                     │ lockfile-selected pnpm bytes                           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.2                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.2                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-w466-c33r-3gjp      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: `patch-remove` could delete project-selected     │
+│                     │ files outside the patches directory                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.4                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.4                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-72r4-9c5j-mj57      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: Hoisted install imports lockfile alias outside   │
+│                     │ node_modules                                           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.4                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.4                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-fr4h-3cph-29xv      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: Path traversal in configDependencies env         │
+│                     │ lockfile allows symlink creation outside               │
+│                     │ node_modules/.pnpm-config                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.4                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.4                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-qrv3-253h-g69c      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ vite: `server.fs.deny` bypass on Windows alternate     │
+│                     │ paths                                                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ vite                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=6.4.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=6.4.3                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > vitest@2.1.9 > @vitest/mocker@2.1.9 > vite@5.4.20  │
+│                     │                                                        │
+│                     │ . > vitest@2.1.9 > vite@5.4.20                         │
+│                     │                                                        │
+│                     │ . > vitest@2.1.9 > vite-node@2.1.9 > vite@5.4.20       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-fx2h-pf6j-xcff      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ vite: `server.fs.deny` bypass on Windows alternate     │
+│                     │ paths                                                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ vite                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=7.0.0 <=7.3.4                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.3.5                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │                                                        │
+│                     │ . > @tailwindcss/vite@4.1.14 > vite@7.1.9              │
+│                     │                                                        │
+│                     │ . > @vitejs/plugin-react@5.0.4 > vite@7.1.9            │
+│                     │                                                        │
+│                     │ ... Found 4 paths, run `pnpm why vite` for more        │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-fx2h-pf6j-xcff      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar: Negative tar entry size causes infinite loop │
+│                     │ in archive replace                                     │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.17                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.18                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-8x88-c5mf-7j5w      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ PostCSS: Arbitrary file read and information           │
+│                     │ disclosure via attacker-controlled sourceMappingURL in │
+│                     │ CSS comments                                           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ postcss                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=8.5.11                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=8.5.12                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │ > postcss@8.5.6                                        │
+│                     │                                                        │
+│                     │ . > @tailwindcss/vite@4.1.14 > vite@7.1.9 >            │
+│                     │ postcss@8.5.6                                          │
+│                     │                                                        │
+│                     │ . > @vitejs/plugin-react@5.0.4 > vite@7.1.9 >          │
+│                     │ postcss@8.5.6                                          │
+│                     │                                                        │
+│                     │ ... Found 9 paths, run `pnpm why postcss` for more     │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-6g55-p6wh-862q      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ pnpm: Repository-controlled configDependencies can     │
+│                     │ select a pacquet native install engine                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ pnpm                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <10.34.2                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=10.34.2                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > pnpm@10.18.0                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-gj8w-mvpf-x27x      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ PostCSS: Path Traversal in Previous Source Map         │
+│                     │ Auto-Loading (sourceMappingURL) leads to Arbitrary     │
+│                     │ .map File Disclosure                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ postcss                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=8.5.17                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=8.5.18                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @builder.io/vite-plugin-jsx-loc@0.1.1 > vite@7.1.9 │
+│                     │ > postcss@8.5.6                                        │
+│                     │                                                        │
+│                     │ . > @tailwindcss/vite@4.1.14 > vite@7.1.9 >            │
+│                     │ postcss@8.5.6                                          │
+│                     │                                                        │
+│                     │ . > @vitejs/plugin-react@5.0.4 > vite@7.1.9 >          │
+│                     │ postcss@8.5.6                                          │
+│                     │                                                        │
+│                     │ ... Found 9 paths, run `pnpm why postcss` for more     │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-r28c-9q8g-f849      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar: Uncontrolled recursion in mapHas/filesFilter │
+│                     │ allows uncatchable stack-overflow DoS via crafted      │
+│                     │ long-path tar with member selection                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.20                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.21                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ . > @tailwindcss/vite@4.1.14 >                         │
+│                     │ @tailwindcss/oxide@4.1.14 > tar@7.5.1                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-r292-9mhp-454m      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+57 vulnerabilities found
+Severity: 1 low | 27 moderate | 27 high | 2 critical
