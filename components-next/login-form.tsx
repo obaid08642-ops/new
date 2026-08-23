@@ -39,7 +39,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
         if (!otpRequested) {
           const response = await fetch("/api/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier }) });
           if (!response.ok) { setMessage(response.status === 503 || response.status === 504 ? t("otpUnavailable") : t("otpRequestInvalid")); return; }
-          setOtpRequested(true); setMessage(t("otpSent")); return;
+          setOtpRequested(true); router.push(`/${locale}/otp?identifier=${encodeURIComponent(identifier.trim())}`); return;
         }
         const verify = await fetch("/api/auth/otp/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, code }) });
         if (!verify.ok) { setMessage(responseMessage(verify.status, t("otpUnavailable"), t("otpInvalid"))); return; }

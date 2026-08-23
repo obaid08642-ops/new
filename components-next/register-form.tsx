@@ -27,7 +27,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       const response = await fetch("/api/auth/register", { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify({ ...form, agreed_to_terms:true }) });
       if (!response.ok) { setMessage(response.status >= 500 ? t.unavailable : t.invalid); return; }
       setMessage(t.success);
-      router.push(`/${locale}/login?otp=1&identifier=${encodeURIComponent(form.email.trim().toLowerCase())}`);
+      router.push(`/${locale}/otp?identifier=${encodeURIComponent(form.email.trim().toLowerCase())}`);
     } catch { setMessage(t.unavailable); } finally { setSubmitting(false); }
   }
   return <form className={styles.form} onSubmit={submit} aria-busy={submitting}>
