@@ -45,3 +45,7 @@
 ## تحديث CLI والـregistry
 
 أضيف `scripts/migrate.ts` وأمر `npm run migrate` مع `status/up/down`. الـCLI يرفض fail-closed عند غياب `MONGO_URL`، ويرفض command أو down بدون migration ID، ولا ينفذ أي migration تلقائيًا. Registry فارغ عمدًا إلى أن تعتمد migrations domain-specific مع rollback. تحققنا من هذا السلوك فعليًا: exit code غير صفري ورسالة `MONGO_URL is required for migrations`، مع نجاح TypeScript وbuild. ما تزال Phase 0 `PARTIAL` لأن Mongo integration الفعلية وmigration domain schemas وresponse-contract wiring لم تُثبت.
+
+## نتيجة Mongo integration attempt
+
+حاولت اختبارًا حقيقيًا باستخدام `mongodb-memory-server` فقط. لم يبدأ الخادم المؤقت خلال مهلة 60 ثانية؛ أظهر السجل تنزيل MongoDB 8.2.6 بنسبة 57.1% ثم انتهى الاختبار بالـtimeout وبقيت asynchronous handles. حُذف اختبار البيئة غير المستقر حتى لا يبقى gate أحمر، وسُجلت النتيجة كـblocker: لا توجد حاليًا برهنة Mongo integration فعلية. لا يُعتبر هذا فشلًا في `MongoMigrationStore` نفسه ولا نجاحًا في integration.
