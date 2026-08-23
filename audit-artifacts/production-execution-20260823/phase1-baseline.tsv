@@ -1,0 +1,4 @@
+checkstatus
+branch_and_remotesee phase1-baseline.log
+production_domainssee phase1-baseline.log
+live_contract_methodssee phase1-baseline.log
