@@ -1,0 +1,251 @@
+mobile_file	domain	status	priority	owner	scope	action_markers	navigation_markers	web_route_candidates	evidence_required
+(auth)/_layout.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	0	6		live contract + SSR/security test
+(auth)/forgot-password.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	3	1		live contract + SSR/security test + full journey test
+(auth)/login.tsx	(auth)	PARTIAL_MUTATION_CONTRACT_REQUIRED	P0	Web + Backend	Identity, OTP, registration, guest/session parity	10	7	/[locale]/login	live contract + SSR/security test + full journey test
+(auth)/otp.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	4	3		live contract + SSR/security test + full journey test
+(auth)/privacy.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	1	0		live contract + SSR/security test + full journey test
+(auth)/provider-info.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	2	2		live contract + SSR/security test + full journey test
+(auth)/register.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	11	6		live contract + SSR/security test + full journey test
+(auth)/reset-password.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	3	1		live contract + SSR/security test + full journey test
+(auth)/terms.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	1	0		live contract + SSR/security test + full journey test
+(auth)/welcome.tsx	(auth)	MISSING_WEB_SURFACE	P0	Web + Backend	Identity, OTP, registration, guest/session parity	12	8		live contract + SSR/security test + full journey test
+(onboarding)/_layout.tsx	(onboarding)	MISSING_WEB_SURFACE	P1	Web	Onboarding, language, permissions	0	3		live contract + SSR/security test
+(onboarding)/index.tsx	(onboarding)	MISSING_WEB_SURFACE	P1	Web	Onboarding, language, permissions	2	2		live contract + SSR/security test + full journey test
+(onboarding)/language.tsx	(onboarding)	MISSING_WEB_SURFACE	P1	Web	Onboarding, language, permissions	2	1		live contract + SSR/security test + full journey test
+(onboarding)/permissions.tsx	(onboarding)	MISSING_WEB_SURFACE	P1	Web	Onboarding, language, permissions	3	1		live contract + SSR/security test + full journey test
+(tabs)/_layout.tsx	(tabs)	MISSING_WEB_SURFACE	P0	Web	Primary patient navigation and dashboard	0	0		live contract + SSR/security test
+(tabs)/consultations/index.tsx	(tabs)	MISSING_WEB_SURFACE	P0	Web	Primary patient navigation and dashboard	31	8		live contract + SSR/security test + full journey test
+(tabs)/diagnostics.tsx	(tabs)	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web	Primary patient navigation and dashboard	21	11	/[locale]/diagnostics	live contract + SSR/security test + full journey test
+(tabs)/health.tsx	(tabs)	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web	Primary patient navigation and dashboard	7	9	/[locale]/health	live contract + SSR/security test + full journey test
+(tabs)/index.tsx	(tabs)	MISSING_WEB_SURFACE	P0	Web	Primary patient navigation and dashboard	19	19		live contract + SSR/security test + full journey test
+(tabs)/nursing.tsx	(tabs)	MISSING_WEB_SURFACE	P0	Web	Primary patient navigation and dashboard	18	2		live contract + SSR/security test + full journey test
+(tabs)/pharmacy.tsx	(tabs)	MISSING_WEB_SURFACE	P0	Web	Primary patient navigation and dashboard	16	8		live contract + SSR/security test + full journey test
+(tabs)/services.tsx	(tabs)	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web	Primary patient navigation and dashboard	2	2	/[locale]/home-care/services	live contract + SSR/security test + full journey test
+_layout.tsx	_layout.tsx	MISSING_WEB_SURFACE	P2	Web + Backend	Needs capability review	2	7		live contract + SSR/security test + full journey test
+ai/chat-doctor.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	0	0		live contract + SSR/security test
+ai/monthly-report.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	7	5		live contract + SSR/security test + full journey test
+ai/prescription-translator.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	10	5		live contract + SSR/security test + full journey test
+ai/skin-analysis.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	8	1		live contract + SSR/security test + full journey test
+ai/symptom-checker.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	0	0		live contract + SSR/security test
+ai/symptom-timeline.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	0	0		live contract + SSR/security test
+ai/triage.tsx	ai	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI contracts, guardrails, auditability	8	1		live contract + SSR/security test + full journey test
+ai-assistant.tsx	ai-assistant.tsx	MISSING_WEB_SURFACE	P2	Backend + Medical/Safety	AI triage/chat safety	3	2		live contract + SSR/security test + full journey test
+articles/[slug].tsx	articles	MISSING_WEB_SURFACE	P1	Web + Backend	Article detail, bookmarks, related content	5	1		live contract + SSR/security test + full journey test
+articles/bookmarks.tsx	articles	PARTIAL_ACTION_PROOF_REQUIRED	P1	Web + Backend	Article detail, bookmarks, related content	4	2	/[locale]/articles/bookmarks	live contract + SSR/security test + full journey test
+articles/index.tsx	articles	MISSING_WEB_SURFACE	P1	Web + Backend	Article detail, bookmarks, related content	6	2		live contract + SSR/security test + full journey test
+community/hub.tsx	community	MISSING_WEB_SURFACE	P2	Web + Backend	Posts, votes, moderation	7	1		live contract + SSR/security test + full journey test
+community/post-detail.tsx	community	MISSING_WEB_SURFACE	P2	Web + Backend	Posts, votes, moderation	6	0		live contract + SSR/security test + full journey test
+consultations/appointment-detail.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	10	8		live contract + SSR/security test + full journey test
+consultations/appointments.tsx	consultations	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	8	5	/[locale]/appointments	live contract + SSR/security test + full journey test
+consultations/book/[id].tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	9	3		live contract + SSR/security test + full journey test
+consultations/booking-confirm.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	6	4		live contract + SSR/security test + full journey test
+consultations/booking-pending.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	4	5		live contract + SSR/security test + full journey test
+consultations/booking-success.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	2	4		live contract + SSR/security test + full journey test
+consultations/call-history.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	2	1		live contract + SSR/security test + full journey test
+consultations/cancel-reschedule.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	9	2		live contract + SSR/security test + full journey test
+consultations/chat-with-doctor.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	0		live contract + SSR/security test + full journey test
+consultations/clinic/[id].tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	2	1		live contract + SSR/security test + full journey test
+consultations/clinic-confirm.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	7	4		live contract + SSR/security test + full journey test
+consultations/clinic-location.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	0		live contract + SSR/security test + full journey test
+consultations/doctor/[id].tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	12	3		live contract + SSR/security test + full journey test
+consultations/doctor-profile.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	0	2		live contract + SSR/security test
+consultations/doctor-search.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	2		live contract + SSR/security test + full journey test
+consultations/follow-up.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	6	3		live contract + SSR/security test + full journey test
+consultations/home-visit-tracking.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	1		live contract + SSR/security test + full journey test
+consultations/incoming-call.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	2	1		live contract + SSR/security test + full journey test
+consultations/offer/[id].tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	0	0		live contract + SSR/security test
+consultations/post-call-rating.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	4	2		live contract + SSR/security test + full journey test
+consultations/prescription-from-doctor.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	9	4		live contract + SSR/security test + full journey test
+consultations/share-report.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	4	1		live contract + SSR/security test + full journey test
+consultations/specialty-select.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	1		live contract + SSR/security test + full journey test
+consultations/summary.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	3		live contract + SSR/security test + full journey test
+consultations/video/[id].tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	0	0		live contract + SSR/security test
+consultations/video-call.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	3	1		live contract + SSR/security test + full journey test
+consultations/virtual-waiting-room.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	2	1		live contract + SSR/security test + full journey test
+consultations/waiting-room.tsx	consultations	MISSING_WEB_SURFACE	P0	Web + Backend	Booking, payment, cancel, reschedule, call room	2	1		live contract + SSR/security test + full journey test
+delivery/address-select.tsx	delivery	MISSING_WEB_SURFACE	P1	Web + Backend	Delivery tracking	5	2		live contract + SSR/security test + full journey test
+diagnostics/book-sample.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	2	1		live contract + SSR/security test + full journey test
+diagnostics/booking-confirm.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	0	0		live contract + SSR/security test
+diagnostics/booking-success.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	2	3		live contract + SSR/security test + full journey test
+diagnostics/cart.tsx	diagnostics	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	9	3	/[locale]/cart	live contract + SSR/security test + full journey test
+diagnostics/checkout.tsx	diagnostics	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	0	0	/[locale]/cart/checkout	live contract + SSR/security test
+diagnostics/insurance-approval.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	5	4		live contract + SSR/security test + full journey test
+diagnostics/insurance-upload.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	14	3		live contract + SSR/security test + full journey test
+diagnostics/lab/[id].tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	6	2		live contract + SSR/security test + full journey test
+diagnostics/lab-comparison.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	2	1		live contract + SSR/security test + full journey test
+diagnostics/my-results.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	2	1		live contract + SSR/security test + full journey test
+diagnostics/order/[id].tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	8	1		live contract + SSR/security test + full journey test
+diagnostics/orders.tsx	diagnostics	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	4	1	/[locale]/orders	live contract + SSR/security test + full journey test
+diagnostics/package-detail.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	3	1		live contract + SSR/security test + full journey test
+diagnostics/packages.tsx	diagnostics	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	3	1	/[locale]/diagnostics/packages	live contract + SSR/security test + full journey test
+diagnostics/results-history.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	2	1		live contract + SSR/security test + full journey test
+diagnostics/sample-tracking.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	0	0		live contract + SSR/security test
+diagnostics/search.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	2	1		live contract + SSR/security test + full journey test
+diagnostics/technician-tracking.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	0	0		live contract + SSR/security test
+diagnostics/test-detail.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	4	2		live contract + SSR/security test + full journey test
+diagnostics/upload-rx.tsx	diagnostics	MISSING_WEB_SURFACE	P0	Web + Backend	Lab/radiology booking, cart, uploads, results	0	0		live contract + SSR/security test
+drug-scanner/index.tsx	drug-scanner	MISSING_WEB_SURFACE	P1	Web + Backend	Scan/upload and medicine resolution	6	1		live contract + SSR/security test + full journey test
+emergency/index.tsx	emergency	MISSING_WEB_SURFACE	P0	Web + Backend + Medical	SOS/call routing and escalation	0	0		live contract + SSR/security test
+emergency/sos-active.tsx	emergency	MISSING_WEB_SURFACE	P0	Web + Backend + Medical	SOS/call routing and escalation	5	1		live contract + SSR/security test + full journey test
+emergency/sos.tsx	emergency	MISSING_WEB_SURFACE	P0	Web + Backend + Medical	SOS/call routing and escalation	8	2		live contract + SSR/security test + full journey test
+emergency/tracking.tsx	emergency	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web + Backend + Medical	SOS/call routing and escalation	5	1	/[locale]/orders/[orderId]/tracking	live contract + SSR/security test + full journey test
+family/calendar.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	8	0		live contract + SSR/security test + full journey test
+family/chat.tsx	family	PARTIAL_MUTATION_CONTRACT_REQUIRED	P1	Web + Backend	Members, permissions, ownership	4	0	/[locale]/chat	live contract + SSR/security test + full journey test
+family/emergency-contacts.tsx	family	PARTIAL_ACTION_PROOF_REQUIRED	P1	Web + Backend	Members, permissions, ownership	7	3	/[locale]/health/emergency-contacts	live contract + SSR/security test + full journey test
+family/hub.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	7	7		live contract + SSR/security test + full journey test
+family/index.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	0	0		live contract + SSR/security test
+family/invite.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	5	0		live contract + SSR/security test + full journey test
+family/join.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	6	2		live contract + SSR/security test + full journey test
+family/member-health.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	4	3		live contract + SSR/security test + full journey test
+family/permission-request.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	4	0		live contract + SSR/security test + full journey test
+family/permissions.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	3	0		live contract + SSR/security test + full journey test
+family/scan.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	2	1		live contract + SSR/security test + full journey test
+family/shared-calendar.tsx	family	MISSING_WEB_SURFACE	P1	Web + Backend	Members, permissions, ownership	0	0		live contract + SSR/security test
+health/actionable-order.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	4	3		live contract + SSR/security test + full journey test
+health/add-family-member.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	0	0		live contract + SSR/security test
+health/chronic-disease.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	5	3		live contract + SSR/security test + full journey test
+health/chronic-medications.tsx	health	PARTIAL_MUTATION_CONTRACT_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	7	3	/[locale]/health/chronic-medications	live contract + SSR/security test + full journey test
+health/conditions-allergies.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	4	0		live contract + SSR/security test + full journey test
+health/edit-profile.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	5	1		live contract + SSR/security test + full journey test
+health/emergency-contacts.tsx	health	PARTIAL_MUTATION_CONTRACT_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	7	0	/[locale]/health/emergency-contacts	live contract + SSR/security test + full journey test
+health/family-calendar.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	0	0		live contract + SSR/security test
+health/family-chat.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	0	0		live contract + SSR/security test
+health/family-hub.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	8	6		live contract + SSR/security test + full journey test
+health/family-member-detail.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	0	0		live contract + SSR/security test
+health/health-id.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	6	2		live contract + SSR/security test + full journey test
+health/medication-reminder-add.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	3	1		live contract + SSR/security test + full journey test
+health/medication-reminder-list.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	9	3		live contract + SSR/security test + full journey test
+health/medications.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	9	6		live contract + SSR/security test + full journey test
+health/prescriptions.tsx	health	PARTIAL_ACTION_PROOF_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	4	2	/[locale]/prescriptions	live contract + SSR/security test + full journey test
+health/refills.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	3	2		live contract + SSR/security test + full journey test
+health/reminders.tsx	health	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	0	0	/[locale]/reminders	live contract + SSR/security test
+health/reports.tsx	health	PARTIAL_ACTION_PROOF_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	2	0	/[locale]/health/reports	live contract + SSR/security test + full journey test
+health/sleep-score.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	3	1		live contract + SSR/security test + full journey test
+health/sleep-tracker.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	3	0		live contract + SSR/security test + full journey test
+health/smart-reminders.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	0	0		live contract + SSR/security test
+health/trends.tsx	health	PARTIAL_ACTION_PROOF_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	7	0	/[locale]/health/trends	live contract + SSR/security test + full journey test
+health/vitals-log.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	7	0		live contract + SSR/security test + full journey test
+health/vitals.tsx	health	PARTIAL_ACTION_PROOF_REQUIRED	P1	Web + Backend	Authoritative history, vitals, reports	7	5	/[locale]/health/vitals	live contract + SSR/security test + full journey test
+health/wearables.tsx	health	MISSING_WEB_SURFACE	P1	Web + Backend	Authoritative history, vitals, reports	3	1		live contract + SSR/security test + full journey test
+index.tsx	index.tsx	MISSING_WEB_SURFACE	P2	Web + Backend	Needs capability review	0	3		live contract + SSR/security test
+insurance/add-policy.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	4	1		live contract + SSR/security test + full journey test
+insurance/approval-pending.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	5	4		live contract + SSR/security test + full journey test
+insurance/benefits-summary.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	1	0		live contract + SSR/security test + full journey test
+insurance/claim-tracking.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	4	3		live contract + SSR/security test + full journey test
+insurance/copay.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	1	1		live contract + SSR/security test + full journey test
+insurance/coverage-check.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	6	1		live contract + SSR/security test + full journey test
+insurance/hub.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	11	8		live contract + SSR/security test + full journey test
+insurance/index.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	0	0		live contract + SSR/security test
+insurance/network-providers.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	5	1		live contract + SSR/security test + full journey test
+insurance/payment-split.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	6	2		live contract + SSR/security test + full journey test
+insurance/policy-detail.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	3	2		live contract + SSR/security test + full journey test
+insurance/refund-status.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	1	0		live contract + SSR/security test + full journey test
+insurance/submit-claim.tsx	insurance	MISSING_WEB_SURFACE	P1	Web + Backend	Policies, OCR, claims, approvals	5	0		live contract + SSR/security test + full journey test
+loyalty/challenges.tsx	loyalty	MISSING_WEB_SURFACE	P2	Web + Backend	Points, offers, redemption	2	0		live contract + SSR/security test + full journey test
+loyalty/hub.tsx	loyalty	MISSING_WEB_SURFACE	P2	Web + Backend	Points, offers, redemption	6	3		live contract + SSR/security test + full journey test
+loyalty/leaderboard.tsx	loyalty	MISSING_WEB_SURFACE	P2	Web + Backend	Points, offers, redemption	1	0		live contract + SSR/security test + full journey test
+loyalty/referrals.tsx	loyalty	MISSING_WEB_SURFACE	P2	Web + Backend	Points, offers, redemption	6	0		live contract + SSR/security test + full journey test
+loyalty/rewards.tsx	loyalty	MISSING_WEB_SURFACE	P2	Web + Backend	Points, offers, redemption	2	0		live contract + SSR/security test + full journey test
+map/index.tsx	map	MISSING_WEB_SURFACE	P1	Web + Backend	Location picker and privacy	14	6		live contract + SSR/security test + full journey test
+maternity/baby-development.tsx	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	0	0		live contract + SSR/security test
+maternity/baby-growth.tsx	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	0	0		live contract + SSR/security test
+maternity/fetus-data.ts	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	0	0		live contract + SSR/security test
+maternity/hub.tsx	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	4	2		live contract + SSR/security test + full journey test
+maternity/maternity-setup.tsx	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	2	1		live contract + SSR/security test + full journey test
+maternity/ovulation-tracker.tsx	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	0	0		live contract + SSR/security test
+maternity/pregnancy-tracker.tsx	maternity	MISSING_WEB_SURFACE	P2	Backend + Medical	Programs and dashboards	0	0		live contract + SSR/security test
+mental-health/breathing.tsx	mental-health	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	P1	Web	Mood, meditation, breathing, crisis	0	0	/[locale]/mental-health/breathing	live contract + SSR/security test
+mental-health/crisis-support.tsx	mental-health	MISSING_WEB_SURFACE	P1	Web	Mood, meditation, breathing, crisis	10	1		live contract + SSR/security test + full journey test
+mental-health/hub.tsx	mental-health	MISSING_WEB_SURFACE	P1	Web	Mood, meditation, breathing, crisis	2	1		live contract + SSR/security test + full journey test
+mental-health/index.tsx	mental-health	MISSING_WEB_SURFACE	P1	Web	Mood, meditation, breathing, crisis	0	0		live contract + SSR/security test
+mental-health/meditation.tsx	mental-health	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	P1	Web	Mood, meditation, breathing, crisis	0	0	/[locale]/mental-health/meditation	live contract + SSR/security test
+mental-health/mood-journal.tsx	mental-health	MISSING_WEB_SURFACE	P1	Web	Mood, meditation, breathing, crisis	6	0		live contract + SSR/security test + full journey test
+mental-health/self-assessment.tsx	mental-health	MISSING_WEB_SURFACE	P1	Web	Mood, meditation, breathing, crisis	0	0		live contract + SSR/security test
+mental-health/therapist-match.tsx	mental-health	MISSING_WEB_SURFACE	P1	Web	Mood, meditation, breathing, crisis	0	0		live contract + SSR/security test
+notifications/index.tsx	notifications	MISSING_WEB_SURFACE	P1	Web + Backend	Read state, settings, realtime	6	2		live contract + SSR/security test + full journey test
+nursing/live-tracking.tsx	nursing	MISSING_WEB_SURFACE	P0	Web + Backend	Visit booking, broadcast, GPS, reports	6	2		live contract + SSR/security test + full journey test
+nursing/nurse-profile.tsx	nursing	MISSING_WEB_SURFACE	P0	Web + Backend	Visit booking, broadcast, GPS, reports	12	3		live contract + SSR/security test + full journey test
+nursing/service-details.tsx	nursing	MISSING_WEB_SURFACE	P0	Web + Backend	Visit booking, broadcast, GPS, reports	10	2		live contract + SSR/security test + full journey test
+nursing/service-info.tsx	nursing	MISSING_WEB_SURFACE	P0	Web + Backend	Visit booking, broadcast, GPS, reports	3	1		live contract + SSR/security test + full journey test
+nutrition/ai-meal-planner.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/ai-plan-builder.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/body-composition.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/body-target.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	2	1		live contract + SSR/security test + full journey test
+nutrition/calorie-analyzer.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/daily-tracker.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	6	2		live contract + SSR/security test + full journey test
+nutrition/exercise-plan.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/food-scanner.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/hub.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	7	4		live contract + SSR/security test + full journey test
+nutrition/index.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/log-meal.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	2	1		live contract + SSR/security test + full journey test
+nutrition/nutrition-plan.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+nutrition/water-tracker.tsx	nutrition	MISSING_WEB_SURFACE	P1	Web + Backend	Meal log and plans	0	0		live contract + SSR/security test
+offers/[id].tsx	offers	MISSING_WEB_SURFACE	P2	Web + Backend	Offers and eligibility	5	1		live contract + SSR/security test + full journey test
+offers/index.tsx	offers	MISSING_WEB_SURFACE	P2	Web + Backend	Offers and eligibility	3	1		live contract + SSR/security test + full journey test
+orders/index.tsx	orders	MISSING_WEB_SURFACE	P0	Web + Backend	Order confirmation, tracking, reorder, refund	4	1		live contract + SSR/security test + full journey test
+payments/failed.tsx	payments	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Payment methods and reconciliation	3	2		live contract + SSR/security test + full journey test
+payments/failure.tsx	payments	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Payment methods and reconciliation	3	1		live contract + SSR/security test + full journey test
+payments/processing.tsx	payments	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Payment methods and reconciliation	3	5		live contract + SSR/security test + full journey test
+payments/success.tsx	payments	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Payment methods and reconciliation	5	7		live contract + SSR/security test + full journey test
+pharmacy/barcode-scanner.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	9	5		live contract + SSR/security test + full journey test
+pharmacy/broadcast-status.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	2	1		live contract + SSR/security test + full journey test
+pharmacy/cart.tsx	pharmacy	PARTIAL_ACTION_PROOF_REQUIRED	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	12	3	/[locale]/cart	live contract + SSR/security test + full journey test
+pharmacy/chat-with-pharmacist.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	10	1		live contract + SSR/security test + full journey test
+pharmacy/checkout.tsx	pharmacy	PARTIAL_MUTATION_CONTRACT_REQUIRED	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	7	4	/[locale]/cart/checkout	live contract + SSR/security test + full journey test
+pharmacy/custom-item.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	4	1		live contract + SSR/security test + full journey test
+pharmacy/drug-not-found.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	6	1		live contract + SSR/security test + full journey test
+pharmacy/filters.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	8	1		live contract + SSR/security test + full journey test
+pharmacy/manual-order.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	4	1		live contract + SSR/security test + full journey test
+pharmacy/medicine-compare.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	2	0		live contract + SSR/security test + full journey test
+pharmacy/order-confirm.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	3	2		live contract + SSR/security test + full journey test
+pharmacy/order-history.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	4	2		live contract + SSR/security test + full journey test
+pharmacy/order-tracking.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	4	3		live contract + SSR/security test + full journey test
+pharmacy/payment.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	4	4		live contract + SSR/security test + full journey test
+pharmacy/pharmacist-chat.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	4	3		live contract + SSR/security test + full journey test
+pharmacy/product-detail.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	17	5		live contract + SSR/security test + full journey test
+pharmacy/product-search.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	0	0		live contract + SSR/security test
+pharmacy/reorder.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	7	2		live contract + SSR/security test + full journey test
+pharmacy/rx-order.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	2	1		live contract + SSR/security test + full journey test
+pharmacy/scan-prescription.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	3	1		live contract + SSR/security test + full journey test
+pharmacy/waiting-for-pharmacy.tsx	pharmacy	MISSING_WEB_SURFACE	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	1	2		live contract + SSR/security test + full journey test
+pharmacy/wishlist.tsx	pharmacy	PARTIAL_MUTATION_CONTRACT_REQUIRED	P0	Web + Backend	Cart, checkout, prescription, fulfillment, returns	5	1	/[locale]/wishlist	live contract + SSR/security test + full journey test
+profile/addresses.tsx	profile	MISSING_WEB_SURFACE	P1	Web + Backend	Profile edit, addresses, insurance	2	0		live contract + SSR/security test + full journey test
+profile/edit.tsx	profile	MISSING_WEB_SURFACE	P1	Web + Backend	Profile edit, addresses, insurance	0	0		live contract + SSR/security test
+profile/index.tsx	profile	MISSING_WEB_SURFACE	P1	Web + Backend	Profile edit, addresses, insurance	6	3		live contract + SSR/security test + full journey test
+profile/insurance.tsx	profile	PARTIAL_MUTATION_CONTRACT_REQUIRED	P1	Web + Backend	Profile edit, addresses, insurance	7	0	/[locale]/insurance	live contract + SSR/security test + full journey test
+programs/active.tsx	programs	MISSING_WEB_SURFACE	P2	Web + Backend	Program enrollment and progress	5	1		live contract + SSR/security test + full journey test
+reports/ai-analysis.tsx	reports	MISSING_WEB_SURFACE	P1	Web + Backend	Reports, timeline, downloads, AI analysis	0	0		live contract + SSR/security test
+reports/hub.tsx	reports	MISSING_WEB_SURFACE	P1	Web + Backend	Reports, timeline, downloads, AI analysis	6	3		live contract + SSR/security test + full journey test
+reports/passport.tsx	reports	MISSING_WEB_SURFACE	P1	Web + Backend	Reports, timeline, downloads, AI analysis	3	0		live contract + SSR/security test + full journey test
+reports/timeline.tsx	reports	MISSING_WEB_SURFACE	P1	Web + Backend	Reports, timeline, downloads, AI analysis	4	1		live contract + SSR/security test + full journey test
+reports/view-report.tsx	reports	MISSING_WEB_SURFACE	P1	Web + Backend	Reports, timeline, downloads, AI analysis	4	1		live contract + SSR/security test + full journey test
+returns/detail.tsx	returns	MISSING_WEB_SURFACE	P1	Web + Backend	Return request, status, refund	1	0		live contract + SSR/security test + full journey test
+returns/hub.tsx	returns	MISSING_WEB_SURFACE	P1	Web + Backend	Return request, status, refund	5	3		live contract + SSR/security test + full journey test
+returns/new-request.tsx	returns	MISSING_WEB_SURFACE	P1	Web + Backend	Return request, status, refund	10	2		live contract + SSR/security test + full journey test
+reviews/index.tsx	reviews	MISSING_WEB_SURFACE	P2	Web + Backend	Review submission/moderation	5	0		live contract + SSR/security test + full journey test
+room/[id].tsx	room	MISSING_WEB_SURFACE	P0	Web + Realtime Backend	Call room and token lifecycle	4	1		live contract + SSR/security test + full journey test
+s/[type]/[slug].tsx	s	MISSING_WEB_SURFACE	P2	Web + Backend	Needs capability review	0	2		live contract + SSR/security test
+search/index.tsx	search	MISSING_WEB_SURFACE	P1	Web + Backend	Search contract and filters	3	9		live contract + SSR/security test + full journey test
+services/index.tsx	services	MISSING_WEB_SURFACE	P1	Web + Backend	Service discovery	2	1		live contract + SSR/security test + full journey test
+settings/about.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	5	2		live contract + SSR/security test + full journey test
+settings/data.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	2	1		live contract + SSR/security test + full journey test
+settings/feedback.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	5	0		live contract + SSR/security test + full journey test
+settings/help.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	6	2		live contract + SSR/security test + full journey test
+settings/index.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	3	3		live contract + SSR/security test + full journey test
+settings/language.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	2	0		live contract + SSR/security test + full journey test
+settings/notifications-settings.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	1	0		live contract + SSR/security test + full journey test
+settings/notifications.tsx	settings	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	P1	Web	Settings and policies	0	0	/[locale]/notifications	live contract + SSR/security test
+settings/privacy.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	2	0		live contract + SSR/security test + full journey test
+settings/security.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	4	0		live contract + SSR/security test + full journey test
+settings/support-chat.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	0	0		live contract + SSR/security test
+settings/terms.tsx	settings	MISSING_WEB_SURFACE	P1	Web	Settings and policies	1	0		live contract + SSR/security test + full journey test
+shared/location-picker.tsx	shared	MISSING_WEB_SURFACE	P1	Web	Reusable patient components	11	0		live contract + SSR/security test + full journey test
+support/chat.tsx	support	PARTIAL_MUTATION_CONTRACT_REQUIRED	P1	Web + Backend	Chat/tickets	5	0	/[locale]/chat	live contract + SSR/security test + full journey test
+support/ticket.tsx	support	MISSING_WEB_SURFACE	P1	Web + Backend	Chat/tickets	3	2		live contract + SSR/security test + full journey test
+voice/index.tsx	voice	MISSING_WEB_SURFACE	P2	Backend + Privacy	Voice contract and consent	2	1		live contract + SSR/security test + full journey test
+wallet/cards.tsx	wallet	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Cards, topup, transfer, transactions	4	0		live contract + SSR/security test + full journey test
+wallet/hub.tsx	wallet	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Cards, topup, transfer, transactions	8	3		live contract + SSR/security test + full journey test
+wallet/topup.tsx	wallet	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Cards, topup, transfer, transactions	3	1		live contract + SSR/security test + full journey test
+wallet/transactions.tsx	wallet	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Cards, topup, transfer, transactions	2	0		live contract + SSR/security test + full journey test
+wallet/transfer.tsx	wallet	MISSING_WEB_SURFACE	P0	Backend + Finance/Security	Cards, topup, transfer, transactions	3	0		live contract + SSR/security test + full journey test
+wearables/hub.tsx	wearables	MISSING_WEB_SURFACE	P2	Backend + Privacy	Device permissions and sync	2	0		live contract + SSR/security test + full journey test
