@@ -1,0 +1,1 @@
+OTP official contract gate — OTP validity timer corrected to 300 seconds; exchange token remains server-side 60-second TTL; 141 test files passed; 285 tests passed; 23 skipped; TypeScript and build passed.
