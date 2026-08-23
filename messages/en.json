@@ -215,6 +215,7 @@
     "notice": "Only service, booking status, and schedule are shown. Location, tracking, clinical information, and pricing are not displayed in this interface.",
     "browseServices": "Browse home-care services"
   },
+  "HomeCareProviders": {"eyebrow":"Verified home-care providers","title":"Nursing providers","subtitle":"View approved nursing providers from the protected catalog.","verified":"Verified provider","empty":"No providers are available right now.","unavailable":"Providers are unavailable","unavailableBody":"The approved provider service could not be loaded."},
   "Family": {
     "eyebrow": "Private family",
     "title": "Family members",
