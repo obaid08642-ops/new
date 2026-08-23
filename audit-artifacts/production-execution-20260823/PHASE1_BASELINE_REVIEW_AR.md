@@ -23,6 +23,10 @@
 - Docker build: **لم يُنفذ** لأن أداة Docker أو `Dockerfile` غير متاحة في checkout/البيئة الحالية. لا يُحتسب ذلك نجاحاً، ويظل مطلوباً في بيئة CI أو staging.
 - لم تُشغّل اختبارات Sandbox في هذه المرحلة، لأن اعتماد الحسابات لا يبرر تشغيل mutation قبل إكمال baseline contract source وإثبات العزل الإجرائي؛ ستُشغّل فقط وفق الحسابات المعتمدة وبروتوكول الإلغاء والتنظيف.
 
+## ملاحظة Phase 2 المبكرة — Registration
+
+تم إثبات وجود `POST /auth/send-otp` و`POST /auth/register` و`POST /auth/verify-otp` على الإنتاج عبر HTTP 400 validation. لكن DTO الكامل وتسلسل نجاح التسجيل لم يُثبت في checkout الحالي، بينما Mobile يمرر كلمة المرور ضمن navigation params. لذلك أُغلقت فقط جسور BFF الآمنة ذات العقود المحددة، ولم تُبنَ واجهة تسجيل كاملة توهم باكتمال رحلة لا تزال تحتاج عقد verify-otp واضحاً أو probe Sandbox معتمد. هذا قرار Contract-First مقصود.
+
 ## قرار Phase 1
 
 Phase 1 مغلقة **جزئياً**: baseline التطبيق والاختبارات وbuild موثقة ومدفوعة، لكن Docker ومرجع contract source وإعداد pnpm وprobe Radiology بمعرف حقيقي ما زالت عناصر متابعة إلزامية. يمكن بدء Phase 2 فقط في العقود التي ثبتت حيوياً أو توجد لها wrappers واختبارات قائمة؛ ولا يجوز توسيع allowlist اعتماداً على ملف مفقود.
