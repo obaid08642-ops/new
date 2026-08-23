@@ -6,6 +6,8 @@ vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
 import { POST as requestOtp } from "./request/route";
 import { POST as verifyOtp } from "./verify/route";
 import { POST as exchangeSession } from "../session/exchange/route";
+import { POST as sendRegistrationOtp } from "../send-otp/route";
+import { POST as register } from "../register/route";
 
 function jsonRequest(path: string, body: unknown, headers?: HeadersInit) { return new Request(`https://web.test${path}`, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) }); }
 
@@ -50,6 +52,21 @@ describe("patient OTP BFF routes", () => {
     const response = await verifyOtp(jsonRequest("/api/auth/otp/verify", { identifier: "patient@example.com", code: "123456" }));
     expect(response.status).toBe(502);
     expect(response.headers.get("set-cookie")).toBeNull();
+  });
+  it("validates registration OTP and sanitizes the successful response", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, access_token: "must-not-leak" }), { status: 201 }));
+    const response = await sendRegistrationOtp(jsonRequest("/api/auth/send-otp", { email: "Patient@Example.com", purpose: "register" }));
+    expect(response.status).toBe(502);
+    expect((await sendRegistrationOtp(jsonRequest("/api/auth/send-otp", { email: "bad", purpose: "register" }))).status).toBe(400);
+  });
+  it("validates registration input, strips confirm_password, and rejects token-shaped success", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, requires_otp: true }), { status: 201 }));
+    const response = await register(jsonRequest("/api/auth/register", { name: "Patient Example", phone: "+966501234567", email: "Patient@Example.com", password: "StrongPass123!", confirm_password: "StrongPass123!", agreed_to_terms: true }));
+    expect(response.status).toBe(201);
+    expect(state.callPatientApi).toHaveBeenCalledWith("/auth/register", expect.objectContaining({ body: expect.not.stringContaining("confirm_password") }));
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, access_token: "must-not-leak" }), { status: 201 }));
+    expect((await register(jsonRequest("/api/auth/register", { name: "Patient Example", phone: "+966501234567", email: "patient@example.com", password: "StrongPass123!", confirm_password: "StrongPass123!", agreed_to_terms: true }))).status).toBe(502);
+    expect((await register(jsonRequest("/api/auth/register", { name: "P", phone: "bad", email: "bad", password: "short", confirm_password: "different", agreed_to_terms: false }))).status).toBe(400);
   });
   it("requires the one-time exchange cookie", async () => {
     expect((await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST" }))).status).toBe(400);
