@@ -1,0 +1,16 @@
+phase	implementation_commits	code_or_audit	latest_gate	status	blocker
+1	baseline commits	audit artifacts	phase1 baseline	partial	contract/OpenAPI checkout and Docker verification history needs review
+2	3a35f479, later auth commits	BFF auth code + tests	Auth targeted gates	partial	registration verify-otp end-to-end DTO and Sandbox proof
+3	2ac060d, 5914b8c	booking/payment BFF + tests	17/17 targeted; full regression	partial	live owner/stranger/replay and real payment/staging proof
+4	6526382, 7d94987, e27aaf6, 68d041c	cart/checkout/orders + tests	12/12 targeted; full regression	partial	Sandbox replay/refund/payment and backend fulfillment proof
+5	a68d20a, a375196, 49ad454, b25619e	radiology/nursing reads + audit	4/4 and 7/7; phase gate	partial	Nursing UI, Home-care booking/tracking and live journey proof
+6	9cb4fea, b7e1ab8, 286516b, 12f747a, 5b6a26c	profile/vitals/auth hardening + audit	4/4, 9/9; phase gate	partial	family/insurance/reports/chat/notifications full journeys and mutations
+7	a204ba1, fd25803, 196f165, e357460	Mobile guards/audits	phase gate	partial	Mobile/Web complete journey parity and visual proof
+8	0f05311	audit-only feature classification	probe evidence	partial	advanced features without contracts remain blocked
+9	59a52ce, 230ba28	design audit + gate	138/277; build	partial	visual regression, WCAG/RTL six locales, browser proof
+10	ef23753, b805346, 8986431	Vite update + security audits	16/16; prod audit	partial	dev toolchain advisories and runtime/staging security scan
+11	f322054, 7cc8169	deployment/performance audit	138/277; build	partial	Docker, CI/CD, SBOM, observability, load/CWV
+12	a8e48c9, fde0106, 2510ad0, 8aa2a36	SEO/sitemap/metadata + audit	5/5; 138/277; build	partial	IndexNow, details/body JSON-LD, live crawler validation
+13	aa3d965, 209d5fd, 635effa	llms/content audit	3/3; 138/277; build	partial	local guides from real data and AI citation measurement
+14	0f4bf90, 6a4c0ef	Sandbox preflight + local journey gate	138/277; build	partial	Sandbox credentials absent; staging not run
+15	9fbef6b	release report	preflight 138/277; build	NO-GO	all external blockers above
