@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -301,7 +301,12 @@ export class RadiologyOpsService {
   }
 
   async getById(id: string) {
-    const svc = await this.svcModel.findOne({ id, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' }).lean();
+    // The legacy `id` field on catalog docs is stored as binary garbage, so
+    // public detail lookup must use `_id` (or human `short_code`) instead.
+    const base = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' } as const;
+    const or: Record<string, unknown>[] = [{ short_code: id }];
+    if (Types.ObjectId.isValid(id)) or.unshift({ _id: new Types.ObjectId(id) });
+    const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;
   }
