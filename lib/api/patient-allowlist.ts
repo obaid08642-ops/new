@@ -19,6 +19,7 @@ const patientReadRoutes = [
   new RegExp("^/health/reports$"),
   new RegExp("^/health/sleep\\?limit=100$"),
   new RegExp("^/health/vitals\\?limit=100$"),
+  new RegExp("^/health/vitals-log$"),
   new RegExp("^/health/emergency-contacts$"),
   new RegExp("^/health/chronic-diseases$"),
   new RegExp("^/health/chronic-meds$"),

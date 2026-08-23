@@ -18,6 +18,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
     expect(isAllowedPatientApiPath("/nursing/visits")).toBe(true);
+    expect(isAllowedPatientApiPath("/health/vitals-log")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/profile")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/notification-settings")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
@@ -36,6 +37,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/clear", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/nursing/visits", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/health/vitals-log", "POST")).toBe(false);
+    expect(isAllowedPatientApiPath("/health/vitals-log?limit=10")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/profile", "PATCH")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/notification-settings", "POST")).toBe(false);
     expect(isAllowedPatientApiPath("/nursing/visits?limit=10")).toBe(false);
