@@ -1,0 +1,412 @@
+=== mobile files ===
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/calendar.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/chat.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/emergency-contacts.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/hub.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/index.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/invite.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/join.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/member-health.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permission-request.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permissions.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/scan.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/shared-calendar.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/actionable-order.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/add-family-member.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/chronic-disease.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/chronic-medications.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/conditions-allergies.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/edit-profile.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/emergency-contacts.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-calendar.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-chat.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-hub.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-member-detail.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/health-id.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-add.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-list.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medications.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/prescriptions.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/refills.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/reminders.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/reports.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/sleep-score.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/sleep-tracker.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/smart-reminders.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/trends.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/vitals-log.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/vitals.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/wearables.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/add-policy.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/approval-pending.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/benefits-summary.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/claim-tracking.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/copay.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/coverage-check.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/hub.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/index.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/network-providers.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/payment-split.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/policy-detail.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/refund-status.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/submit-claim.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/notifications/index.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/addresses.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/edit.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/index.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/insurance.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/ai-analysis.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/hub.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/passport.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/timeline.tsx
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/view-report.tsx
+=== mobile API markers ===
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/chronic-disease.tsx:26:          apiFetch('/health/chronic-diseases').catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/chronic-disease.tsx:27:          apiFetch('/health/vitals').catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/chronic-medications.tsx:25:      const response: any = await apiFetch('/health/chronic-meds');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/chronic-medications.tsx:41:      const response: any = await apiFetch(`/health/reminders/${id}${suffix}`, { method: 'POST', body: kind === 'snooze' ? JSON.stringify({ days: 3 }) : undefined });
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/conditions-allergies.tsx:25:    try { const response: any = await apiFetch('/medical-profile'); const doc = response?.data || response || {}; setProfile({ chronic_diseases: Array.isArray(doc.chronic_diseases) ? doc.chronic_diseases : [], allergies: Array.isArray(doc.allergies) ? doc.allergies : [] }); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/conditions-allergies.tsx:34:    try { await apiFetch(`/medical-profile/${list}`, { method: 'POST', body: JSON.stringify({ name }) }); list === 'allergies' ? setAllergy('') : setCondition(''); await load(); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/conditions-allergies.tsx:40:    try { await apiFetch(`/medical-profile/${list}/${id}`, { method: 'DELETE' }); await load(); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/edit-profile.tsx:25:      const [medicalResponse, userResponse]: any[] = await Promise.all([apiFetch('/medical-profile'), apiFetch('/users/me/profile')]);
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/edit-profile.tsx:40:    try { await apiFetch('/medical-profile', { method: 'PATCH', body: JSON.stringify({ ...draft, height_cm, weight_kg }) }); router.back(); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/edit-profile.tsx:57:      const upload: any = await apiFetch('/media/upload', { method: 'POST', body: formData });
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/edit-profile.tsx:60:      await apiFetch('/users/me/profile', { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/addresses.tsx:29:        const data = await apiFetch("/users/me/addresses");
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/addresses.tsx:46:      await apiFetch(`/users/me/addresses/${id}`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/emergency-contacts.tsx:38:      const res = await apiFetch('/health/emergency-contacts');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/emergency-contacts.tsx:56:      const doc = await apiFetch('/health/emergency-contacts', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/emergency-contacts.tsx:83:            await apiFetch(`/health/emergency-contacts/${c.id}`, { method: 'DELETE' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-hub.tsx:80:      const grp = await apiFetch("/family/my-group");
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-hub.tsx:82:      const mems = await apiFetch("/family/members");
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/family-hub.tsx:99:      await apiFetch("/family/create", {
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/index.tsx:44:    apiFetch('/loyalty/account')
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/health-id.tsx:37:          apiFetch('/users/me/profile').catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/health-id.tsx:38:          apiFetch('/health/emergency-contacts').catch(() => []),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/health-id.tsx:39:          apiFetch('/health/chronic-meds').catch(() => []),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-add.tsx:32:        const response: any = await apiFetch('/health/reminders');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-add.tsx:52:      const response: any = await apiFetch(editing ? `/health/reminders/${id}` : '/health/reminders', { method: editing ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-list.tsx:35:    try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-list.tsx:43:    try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date().toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(reminder.id, dose.time_key); await load(); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medication-reminder-list.tsx:49:    try { await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) }); await cancelMedicationNotifications(id); await load(); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/medications.tsx:23:    try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/prescriptions.tsx:26:        const res = await apiFetch('/health/prescriptions');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/refills.tsx:27:    apiFetch('/health/reminders?active=1')
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/refills.tsx:68:              const res = await apiFetch(`/health/reminders/${id}/refill`, { method: 'POST' });
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/reports.tsx:19:    try { const response: any = await apiFetch('/health/reports'); const rows = Array.isArray(response) ? response : response?.data; setReports(Array.isArray(rows) ? rows : []); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/sleep-score.tsx:34:      const res = await apiFetch('/health/sleep?limit=30');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/sleep-tracker.tsx:36:      const res = await apiFetch('/health/sleep?limit=30');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/sleep-tracker.tsx:71:      await apiFetch('/health/sleep', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/trends.tsx:141:        const res = await apiFetch('/health/trends');
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/insurance.tsx:40:      const data = await apiFetch("/users/me/insurance");
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/insurance.tsx:61:      const list = await apiFetch("/insurance/companies");
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/insurance.tsx:73:      const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/profile/insurance.tsx:96:      const saved = await apiFetch("/users/me/insurance", {
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/vitals-log.tsx:35:    try { const response: any = await apiFetch(`/health/vitals?type=${type}&limit=30`); const rows = Array.isArray(response) ? response : response?.data; setReadings(Array.isArray(rows) ? rows : []); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/vitals-log.tsx:48:      await apiFetch('/health/vitals', { method: 'POST', body: JSON.stringify(payload) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/vitals.tsx:27:      const response: any = await apiFetch('/health/vitals/summary');
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/wearables.tsx:45:        apiFetch('/wearables/devices').catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/wearables.tsx:46:        apiFetch('/wearables/data').catch(() => null),
+/home/ubuntu/nabdah_review/extracted/mobile/app/health/wearables.tsx:62:      await apiFetch('/wearables/devices', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/notifications/index.tsx:107:    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+/home/ubuntu/nabdah_review/extracted/mobile/app/notifications/index.tsx:114:      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/hub.tsx:71:      const res = await apiFetch("/medical-reports/mine?limit=100");
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/passport.tsx:38:    apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/passport.tsx:39:    apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/timeline.tsx:43:        const res = await apiFetch('/medical-reports/timeline');
+/home/ubuntu/nabdah_review/extracted/mobile/app/reports/view-report.tsx:70:        const res = await apiFetch(`/reports/${params.id}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/add-policy.tsx:29:    apiFetch('/insurance/companies')
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/add-policy.tsx:44:      const res = await apiFetch('/insurance/ocr-extract', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/add-policy.tsx:78:      await apiFetch('/insurance/save-policy', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/network-providers.tsx:52:        const profile = await apiFetch("/users/me/profile").catch(() => null);
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/network-providers.tsx:63:        const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/policy-detail.tsx:24:    apiFetch('/users/me/profile')
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/approval-pending.tsx:32:          req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/approval-pending.tsx:34:          const list = await apiFetch('/insurance/requests/my').catch(() => []);
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/approval-pending.tsx:48:    apiFetch('/users/me/profile').then((p: any) => {
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/payment-split.tsx:27:      setRequest(parseInsuranceCopayRequest(await apiFetch(`/insurance/requests/${requestId}`)));
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/payment-split.tsx:41:        await apiFetch(`/insurance/requests/${request.id}/pay-copay`, { method: 'POST', body: JSON.stringify({}) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/refund-status.tsx:33:    apiFetch('/refunds/my')
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/benefits-summary.tsx:21:      apiFetch('/insurance/benefits-summary')
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/submit-claim.tsx:27:      await apiFetch("/insurance/claims/submit", {
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/claim-tracking.tsx:30:        const res = await apiFetch('/insurance/claims/my');
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/hub.tsx:95:        const ins = await apiFetch('/users/me/insurance');
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/hub.tsx:122:        const res = await apiFetch('/insurance/claims');
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/hub.tsx:161:          const saved = await apiFetch('/insurance/save-policy', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/insurance/coverage-check.tsx:34:      const data = await apiFetch(
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/join.tsx:44:      const res = await apiFetch("/family/join", {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/member-health.tsx:49:      const res = await apiFetch(`/family/member-records/${memberId}`);
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permission-request.tsx:24:    apiFetch('/family/permissions/pending')
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permission-request.tsx:52:        await apiFetch(`/family/permissions/respond/${requestInfo._id || requestInfo.id}`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/calendar.tsx:61:      const [calendar, groupMembers] = await Promise.all([apiFetch("/family/calendar"), apiFetch("/family/members")]);
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/calendar.tsx:82:      await apiFetch("/family/calendar/event", { method: "POST", body: JSON.stringify(payload) });
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/calendar.tsx:105:              await apiFetch(`/family/calendar/event/${id}`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permissions.tsx:119:        const group = await apiFetch("/family/my-group");
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permissions.tsx:147:        await apiFetch(`/family/member/${memberId}/permissions`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permissions.tsx:153:        await apiFetch("/family/permissions/request", {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/permissions.tsx:186:              await apiFetch(`/family/remove-member/${memberId}`, {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/chat.tsx:46:      const res = await apiFetch('/family/chat/messages');
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/chat.tsx:62:        const profile = await apiFetch('/users/me/profile');
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/chat.tsx:67:        const mems = await apiFetch('/family/members');
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/chat.tsx:86:      const res = await apiFetch('/family/chat/messages', {
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/hub.tsx:77:      const mems = await apiFetch("/family/members");
+/home/ubuntu/nabdah_review/extracted/mobile/app/family/invite.tsx:31:      const res = await apiFetch('/family/invite', { method: 'POST' });
+=== web pages ===
+app/[locale]/chat/[threadId]/page.tsx
+app/[locale]/chat/page.tsx
+app/[locale]/family/page.tsx
+app/[locale]/health/chronic-diseases/page.tsx
+app/[locale]/health/chronic-medications/page.tsx
+app/[locale]/health/emergency-contacts/page.tsx
+app/[locale]/health/page.tsx
+app/[locale]/health/reports/page.tsx
+app/[locale]/health/score/page.tsx
+app/[locale]/health/sleep/page.tsx
+app/[locale]/health/trends/page.tsx
+app/[locale]/health/vitals/page.tsx
+app/[locale]/insurance/page.tsx
+app/[locale]/notifications/page.tsx
+app/[locale]/notifications/settings/page.tsx
+app/[locale]/profile/page.tsx
+=== web wrappers ===
+lib/api/payments.ts:15:export function parsePaymentType(value: string) { return z.enum(["consultation", "pharmacy", "lab", "radiology", "nursing", "insurance"]).safeParse(value); }
+lib/api/labs.ts:25:  insurance_availability: z.boolean().optional(),
+lib/api/labs.ts:39:  preparationAr?: string[]; preparationEn?: string[]; isPackage?: boolean; includedServices?: string[]; specialNotes?: string; insuranceAvailable?: boolean;
+lib/api/labs.ts:66:    insuranceAvailable: item.insurance_availability, homeCollectionAvailable: item.home_collection_availability,
+lib/api/doctors.ts:11:  offers_online: z.boolean().optional(), offers_clinic: z.boolean().optional(), offers_home: z.boolean().optional(), accepts_insurance: z.boolean().optional(), facility_name: z.string().max(180).optional(), clinic_name: z.string().max(180).optional(), next_available_slot: z.string().max(80).optional(),
+lib/api/doctors.ts:13:export type DoctorRow = { id: string; name?: string; degree?: string; specialty?: string; rating?: number; reviews?: number; price?: number; waitMinutes?: number; experienceYears?: number; online: boolean; clinic: boolean; home: boolean; acceptsInsurance: boolean; facility?: string; nextSlot?: string };
+lib/api/doctors.ts:15:export function extractDoctors(payload: unknown): DoctorRow[] { return rowsFrom(payload).flatMap((value) => { const parsed=doctorSchema.safeParse(value); if(!parsed.success) return []; const d=parsed.data; const id=d.id ?? d._id; if(!id) return []; const name=d.name_ar ?? d.name_en ?? d.name ?? d.display_name; const specialty=d.specialty_ar ?? d.specialty; return [{ id, name, degree:d.degree ?? d.title, specialty, rating:d.rating, reviews:d.review_count ?? d.reviews_count, price:d.consultation_fee ?? d.price, waitMinutes:d.average_wait, experienceYears:d.years_experience ?? d.experience_years, online:d.offers_online ?? false, clinic:d.offers_clinic ?? false, home:d.offers_home ?? false, acceptsInsurance:d.accepts_insurance ?? false, facility:d.facility_name ?? d.clinic_name, nextSlot:d.next_available_slot }]; }); }
+lib/api/home-care-services.test.ts:6:    expect(extractHomeCareServices([{ id: "svc-1", name_ar: "تمريض منزلي", name_en: "Home nursing", description_ar: "وصف", price: 120, duration_value: 2, duration: "hour", insurance_availability: true, patient_id: "private" }])).toMatchObject([{ id: "svc-1", nameAr: "تمريض منزلي", nameEn: "Home nursing", descriptionAr: "وصف", price: 120, durationValue: 2, duration: "hour", insuranceAvailable: true }]);
+lib/api/home-care-services.ts:16:  insurance_availability: z.boolean().optional(),
+lib/api/home-care-services.ts:29:  insuranceAvailable?: boolean;
+lib/api/home-care-services.ts:48:  return { id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability };
+lib/api/vitals-server.ts:5:  return callPatientApi("/health/vitals/summary", {}, accessToken);
+lib/api/vitals-server.ts:9:  return callPatientApi("/health/vitals?limit=100", {}, accessToken);
+lib/api/vitals-server.ts:12:export function getPatientHealthScore(accessToken: string) {
+lib/api/vitals-server.ts:13:  return callPatientApi("/health/score", {}, accessToken);
+lib/api/vitals-server.ts:16:export function getPatientReports(accessToken: string) {
+lib/api/vitals-server.ts:17:  return callPatientApi("/health/reports", {}, accessToken);
+lib/api/vitals-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/health/vitals/summary", {}, "server-token");
+lib/api/upstream.test.ts:10:    const response = await callPatientApi("/health/vitals/summary", {}, "server-only-token");
+lib/api/upstream.test.ts:17:    expect(() => patientApiUrl("health/vitals/summary")).toThrow("invalid_patient_api_path");
+lib/api/upstream.test.ts:18:    expect(() => patientApiUrl("/health/../vitals")).toThrow("invalid_patient_api_path");
+lib/api/trends.ts:4:export type HealthTrend={id:string;name:string;unit:string;current:number;trendDir:"flat"|"up"|"down";labels:string[];data:{value:number;at:string}[]};
+lib/api/trends.ts:5:export function parseHealthTrends(payload:unknown):HealthTrend[]{const rows=Array.isArray(payload)?payload:(payload&&typeof payload==="object"&&Array.isArray((payload as Record<string,unknown>).data)?(payload as Record<string,unknown>).data:[]);return (rows as unknown[]).flatMap((value)=>{const p=trendSchema.safeParse(value);if(!p.success)return[];const r=p.data;return [{id:r.id,name:r.name,unit:r.unit,current:r.current,trendDir:r.trendDir,labels:r.labels,data:r.data}];});}
+lib/api/trends.test.ts:2:import { parseHealthTrends } from "./trends";
+lib/api/trends.test.ts:3:describe("health trends response guards", () => {
+lib/api/trends.test.ts:5:    expect(parseHealthTrends([{ id: "glucose", name: "Glucose", unit: "mg/dL", normal: [70, 140], current: 100, trendDir: "flat", labels: ["08-20"], data: [{ value: 100, at: "2026-08-20T08:00:00.000Z" }], patient_id: "private" }])).toEqual([{ id: "glucose", name: "Glucose", unit: "mg/dL", current: 100, trendDir: "flat", labels: ["08-20"], data: [{ value: 100, at: "2026-08-20T08:00:00.000Z" }] }]);
+lib/api/trends-server.ts:2:export function getPatientHealthTrends(accessToken:string){return callPatientApi("/health/trends",{},accessToken);}
+lib/api/sleep-server.ts:2:export function getPatientSleepReadings(accessToken:string){return callPatientApi("/health/sleep?limit=100",{},accessToken);}
+lib/api/settings.ts:3:const privacySchema = z.object({ profile_visible: z.boolean().optional(), share_data: z.boolean().optional() }).passthrough();
+lib/api/settings.ts:15:export type PrivacySettings = { profileVisible?: boolean; shareData?: boolean };
+lib/api/settings.ts:22:  return parsed.success ? { profileVisible: parsed.data.profile_visible, shareData: parsed.data.share_data } : {};
+lib/api/settings.test.ts:6:    expect(parsePrivacySettings({ data: { profile_visible: true, share_data: false, patient_id: "private" } })).toEqual({ profileVisible: true, shareData: false });
+lib/api/settings.test.ts:13:    expect(parseStorageSummary({ used: "1 MB", total: "5 GB", items: [{ label: "Reports", val: "1 MB", pct: 2, base64: "private" }], patient_id: "private" })).toEqual({ used: "1 MB", total: "5 GB", items: [{ label: "Reports", value: "1 MB", percent: 2 }] });
+lib/api/sandbox-vitals-contract.test.ts:24:  it("reads the current patient's vital summary without writing or logging health values", async () => {
+lib/api/sandbox-vitals-contract.test.ts:28:    const response = await fetch(`${baseUrl}/health/vitals/summary`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-vitals-contract.test.ts:38:    const response = await fetch(`${baseUrl}/health/vitals/summary`, { signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-reminders-contract.test.ts:28:    const response = await fetch(`${baseUrl}/health/reminders`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-reminders-contract.test.ts:38:    const response = await fetch(`${baseUrl}/health/reminders`, { signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-profile-contracts.test.ts:2:import { extractRecord, profileDomainState, readProfileFields } from "./profile";
+lib/api/sandbox-profile-contracts.test.ts:14:describeSandbox("Sandbox profile contracts", () => {
+lib/api/sandbox-profile-contracts.test.ts:15:  it("permits the owner to read profile domains without returning an authorization error", async () => {
+lib/api/sandbox-profile-contracts.test.ts:25:      ["/users/me/profile", "/medical-profile", "/users/me/insurance"].map((path) =>
+lib/api/sandbox-profile-contracts.test.ts:35:  it("rejects each self-scoped profile domain without a patient session", async () => {
+lib/api/sandbox-profile-contracts.test.ts:39:    for (const path of ["/users/me/profile", "/medical-profile", "/users/me/insurance"]) {
+lib/api/sandbox-profile-contracts.test.ts:45:  it("enforces the web display allowlist for every successful live profile response", async () => {
+lib/api/sandbox-profile-contracts.test.ts:57:      ["/users/me/profile", ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]],
+lib/api/sandbox-profile-contracts.test.ts:58:      ["/medical-profile", ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]],
+lib/api/sandbox-profile-contracts.test.ts:59:      ["/users/me/insurance", ["providerName", "companyName", "status"]]
+lib/api/sandbox-profile-contracts.test.ts:66:      const fields = readProfileFields(record, [...allowedKeys]);
+lib/api/sandbox-profile-contracts.test.ts:82:    const medicalResponse = await fetch(`${baseUrl}/medical-profile`, { headers: { authorization: `Bearer ${token}` } });
+lib/api/sandbox-profile-contracts.test.ts:84:    const medicalFields = readProfileFields(extractRecord(await medicalResponse.json().catch(() => null)), ["bloodType", "height", "weight", "gender", "is_smoker", "drinks_alcohol", "is_pregnant", "is_breastfeeding"]);
+lib/api/sandbox-profile-contracts.test.ts:85:    expect(medicalFields.length, "Sandbox medical profile must expose at least one allowlisted display field").toBeGreaterThan(0);
+lib/api/sandbox-profile-contracts.test.ts:86:    expect(profileDomainState(medicalResponse.status, medicalFields.length)).toBe("available");
+lib/api/sandbox-profile-contracts.test.ts:88:    for (const [path, acceptedKeys] of [["/users/me/profile", ["fullName", "name", "email", "phone", "mobile", "dateOfBirth"]], ["/users/me/insurance", ["providerName", "companyName", "status"]]] as const) {
+lib/api/sandbox-profile-contracts.test.ts:91:      const fields = readProfileFields(extractRecord(await response.json().catch(() => null)), [...acceptedKeys]);
+lib/api/sandbox-profile-contracts.test.ts:92:      expect(["available", "empty"]).toContain(profileDomainState(response.status, fields.length));
+lib/api/sandbox-notifications-contract.test.ts:23:describeSandbox("Sandbox notifications contract", () => {
+lib/api/sandbox-notifications-contract.test.ts:24:  it("reads notifications and unread count without changing their state", async () => {
+lib/api/sandbox-notifications-contract.test.ts:29:    const list = await fetch(`${baseUrl}/notifications`, { headers, signal: AbortSignal.timeout(25_000) });
+lib/api/sandbox-notifications-contract.test.ts:30:    const count = await fetch(`${baseUrl}/notifications/unread-count`, { headers, signal: AbortSignal.timeout(25_000) });
+lib/api/sandbox-notifications-contract.test.ts:37:  it("rejects notification reads without a patient session", async () => {
+lib/api/sandbox-notifications-contract.test.ts:42:      fetch(`${baseUrl}/notifications`, { signal: AbortSignal.timeout(12_000) }),
+lib/api/sandbox-notifications-contract.test.ts:43:      fetch(`${baseUrl}/notifications/unread-count`, { signal: AbortSignal.timeout(12_000) })
+lib/api/sandbox-family-contract.test.ts:23:describeSandbox("Sandbox family contract", () => {
+lib/api/sandbox-family-contract.test.ts:24:  it("reads only the current patient's family list and never performs mutations", async () => {
+lib/api/sandbox-family-contract.test.ts:28:    const list = await fetch(`${baseUrl}/family/members`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-family-contract.test.ts:34:  it("rejects the self-scoped family list without a patient session", async () => {
+lib/api/sandbox-family-contract.test.ts:38:    const response = await fetch(`${baseUrl}/family/members`, { signal: AbortSignal.timeout(12_000) });
+lib/api/diagnostics-report.test.ts:3:describe("diagnostic report marker", () => { it("keeps only report availability and never exposes the report URL", () => { expect(extractDiagnosticBooking({ id:"00000000-0000-4000-8000-000000000001", state:"REPORT_READY", signed_report_pdf_url:"https://private/report.pdf", reports:[{body:"private"}] })).toMatchObject({ hasReport:true, state:"REPORT_READY" }); }); });
+lib/api/sandbox-chat-contract.test.ts:23:describeSandbox("Sandbox patient chat contract", () => {
+lib/api/sandbox-chat-contract.test.ts:28:    const response = await fetch(`${baseUrl}/chat/threads`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+lib/api/sandbox-chat-contract.test.ts:38:    const response = await fetch(`${baseUrl}/chat/threads`, { signal: AbortSignal.timeout(12_000) });
+lib/api/dashboard.ts:1:export type DashboardProfile = { name: string | null };
+lib/api/dashboard.ts:12:export function parseDashboardProfile(payload: unknown): DashboardProfile {
+lib/api/reports.ts:3:export type ReportSummary = { id: string; date?: string | null; title?: string | null; doctor?: string | null; facility?: string | null; type?: string | null; critical: boolean; hasAttachments: boolean };
+lib/api/reports.ts:4:export function parseReports(payload: unknown): ReportSummary[] { const root=payload&&typeof payload==='object'&&!Array.isArray(payload)?payload as Record<string,unknown>:null; const list=Array.isArray(payload)?payload:Array.isArray(root?.data)?root.data:Array.isArray(root?.reports)?root.reports:[]; return list.flatMap((item)=>{const p=row.safeParse(item); if(!p.success)return []; return [{id:p.data.id,date:p.data.date,title:p.data.title,doctor:p.data.doctor,facility:p.data.facility,type:p.data.type,critical:Boolean(p.data.critical),hasAttachments:Boolean(p.data.has_attachments)}];}); }
+lib/api/reports.test.ts:2:import { parseReports } from "./reports";
+lib/api/reports.test.ts:3:describe("reports parser", () => { it("keeps metadata and drops report body and attachment data", () => { expect(parseReports([{ id: "report-1", date: "2026-01-01", title: "Lab report", doctor: "Verified doctor", facility: "Verified facility", type: "lab", critical: false, has_attachments: true, body: "private clinical body", attachments: [{ base64: "private-file" }] }])).toEqual([{ id: "report-1", date: "2026-01-01", title: "Lab report", doctor: "Verified doctor", facility: "Verified facility", type: "lab", critical: false, hasAttachments: true }]); }); it("returns empty for malformed rows", () => { expect(parseReports([{ id: "" }, { id: "report-2", title: 42 }])).toEqual([]); }); });
+lib/api/dashboard.test.ts:2:import { parseDashboardAppointment, parseDashboardProfile } from "./dashboard";
+lib/api/dashboard.test.ts:5:  it("extracts only approved profile display fields", () => {
+lib/api/dashboard.test.ts:6:    expect(parseDashboardProfile({ data: { name: "  Patient  ", clinical_notes: "must not render" } })).toEqual({ name: "Patient" });
+lib/api/dashboard.test.ts:7:    expect(parseDashboardProfile({ data: { clinical_notes: "private" } })).toEqual({ name: null });
+lib/api/reminders-server.ts:5:  return callPatientApi("/health/reminders", {}, accessToken);
+lib/api/reminders-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/health/reminders", {}, "server-token");
+lib/api/profile.ts:1:export type ProfileField = { key: string; value: string | number | boolean };
+lib/api/profile.ts:2:export type ProfileDomainState = "available" | "empty" | "forbidden" | "error";
+lib/api/profile.ts:13:export function readProfileFields(record: Record<string, unknown> | null, acceptedKeys: string[]) {
+lib/api/profile.ts:14:  if (!record) return [] as ProfileField[];
+lib/api/profile.ts:15:  const fields: ProfileField[] = [];
+lib/api/profile.ts:24:export function profileDomainState(status: number, fieldCount: number): ProfileDomainState {
+lib/api/profile.test.ts:2:import { extractRecord, profileDomainState, readProfileFields } from "./profile";
+lib/api/profile.test.ts:4:describe("profile response guards", () => {
+lib/api/profile.test.ts:7:    expect(readProfileFields(record, ["fullName"])).toEqual([{ key: "fullName", value: "Patient" }]);
+lib/api/profile.test.ts:10:  it("does not create a profile record when the upstream response is malformed", () => {
+lib/api/profile.test.ts:16:    expect(readProfileFields(record, ["is_smoker"])).toEqual([{ key: "is_smoker", value: false }]);
+lib/api/profile.test.ts:20:    expect(profileDomainState(200, 0)).toBe("empty");
+lib/api/profile.test.ts:21:    expect(profileDomainState(200, 1)).toBe("available");
+lib/api/profile.test.ts:22:    expect(profileDomainState(403, 0)).toBe("forbidden");
+lib/api/profile.test.ts:23:    expect(profileDomainState(404, 0)).toBe("forbidden");
+lib/api/profile.test.ts:24:    expect(profileDomainState(503, 0)).toBe("error");
+lib/api/profile-security.test.ts:2:import { extractRecord, readProfileFields } from "./profile";
+lib/api/profile-security.test.ts:4:describe("profile display security", () => {
+lib/api/profile-security.test.ts:5:  it("does not expose insurance identifiers through the web display allowlist", () => {
+lib/api/profile-security.test.ts:6:    const record = extractRecord({ data: { providerName: "Example Insurance", companyName: "Example", status: "active", policyNumber: "private-policy", memberId: "private-member" } });
+lib/api/profile-security.test.ts:7:    expect(readProfileFields(record, ["providerName", "companyName", "status"])).toEqual([
+lib/api/profile-security.test.ts:8:      { key: "providerName", value: "Example Insurance" },
+lib/api/patient-allowlist.ts:15:  new RegExp("^/health/score$"),
+lib/api/patient-allowlist.ts:16:  new RegExp("^/health/reports$"),
+lib/api/patient-allowlist.ts:17:  new RegExp("^/health/sleep\\?limit=100$"),
+lib/api/patient-allowlist.ts:18:  new RegExp("^/health/vitals\\?limit=100$"),
+lib/api/patient-allowlist.ts:19:  new RegExp("^/health/emergency-contacts$"),
+lib/api/patient-allowlist.ts:20:  new RegExp("^/health/chronic-diseases$"),
+lib/api/patient-allowlist.ts:21:  new RegExp("^/health/chronic-meds$"),
+lib/api/patient-allowlist.ts:22:  new RegExp("^/health/trends$"),
+lib/api/patient-allowlist.ts:23:  new RegExp("^/family/my-group$"),
+lib/api/patient-allowlist.ts:24:  new RegExp("^/insurance/my-policy$"),
+lib/api/patient-allowlist.ts:25:  new RegExp("^/insurance/benefits-summary$"),
+lib/api/patient-allowlist.ts:26:  new RegExp("^/insurance/claims$"),
+lib/api/patient-allowlist.ts:27:  new RegExp("^/mental-health/dashboard$"),
+lib/api/patient-allowlist.ts:28:  new RegExp("^/mental-health/crisis-contacts$"),
+lib/api/patient-allowlist.ts:29:  new RegExp("^/mental-health/breathing$"),
+lib/api/patient-allowlist.ts:30:  new RegExp("^/mental-health/mood\\?days=30$"),
+lib/api/patient-allowlist.ts:31:  new RegExp("^/mental-health/meditation$"),
+lib/api/patient-allowlist.ts:37:  new RegExp("^/chat/threads$"),
+lib/api/patient-allowlist.ts:38:  new RegExp(`^/chat/threads/${threadId}$`, "i"),
+lib/api/patient-allowlist.ts:39:  new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
+lib/api/patient-allowlist.test.ts:21:    expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
+lib/api/notifications.ts:3:const notificationIdSchema = z.string().uuid();
+lib/api/notifications.ts:5:export type PatientNotification = { id: string; title?: string; body?: string; priority?: string; createdAt?: string; read?: boolean };
+lib/api/notifications.ts:14:  for (const candidate of [root?.data, root?.items, root?.results, root?.notifications]) if (Array.isArray(candidate)) return candidate;
+lib/api/notifications.ts:28:function notificationFrom(value: unknown): PatientNotification | null {
+lib/api/notifications.ts:30:  const id = notificationIdSchema.safeParse(record?.id);
+lib/api/notifications.ts:42:export function extractPatientNotifications(payload: unknown) {
+lib/api/notifications.ts:44:    const notification = notificationFrom(item);
+lib/api/notifications.ts:45:    return notification ? [notification] : [];
+lib/api/notifications.test.ts:2:import { extractPatientNotifications } from "./notifications";
+lib/api/notifications.test.ts:4:const notificationId = "91047ef2-ad36-422a-a184-629693e7c729";
+lib/api/notifications.test.ts:6:describe("notification response guards", () => {
+lib/api/notifications.test.ts:8:    const notifications = extractPatientNotifications({ notifications: [{ id: notificationId, title: "Title", body: "Body", priority: "HIGH", createdAt: "2026-08-20T10:00:00.000Z", read: false, user_id: "private", title_key: "raw", body_key: "raw", action: { route: "/private" }, delivery: { token: "private" } }] });
+lib/api/notifications.test.ts:9:    expect(notifications).toEqual([{ id: notificationId, title: "Title", body: "Body", priority: "HIGH", createdAt: "2026-08-20T10:00:00.000Z", read: false }]);
+lib/api/notifications.test.ts:13:    const notifications = extractPatientNotifications({ data: [{ id: notificationId, title: "notif.service.confirmed.title", body: "notif.service.confirmed.body", priority: "normal" }] });
+lib/api/notifications.test.ts:14:    expect(notifications).toEqual([{ id: notificationId, priority: "normal" }]);
+lib/api/notifications-server.ts:3:/** Server-only BFF boundary for a patient's notification list. */
+lib/api/notifications-server.ts:4:export function getPatientNotifications(accessToken: string) {
+lib/api/notifications-server.ts:5:  return callPatientApi("/notifications", {}, accessToken);
+lib/api/notifications-server.test.ts:5:import { getPatientNotifications } from "./notifications-server";
+lib/api/notifications-server.test.ts:7:describe("notifications server boundary", () => {
+lib/api/notifications-server.test.ts:9:  it("uses the notifications list path and server token", async () => {
+lib/api/notifications-server.test.ts:12:    await getPatientNotifications("server-token");
+lib/api/notifications-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/notifications", {}, "server-token");
+lib/api/notification-settings.ts:2:export type NotificationSettings = Partial<Record<(typeof SETTINGS_KEYS)[number], boolean>>;
+lib/api/notification-settings.ts:4:export function extractNotificationSettings(payload: unknown): NotificationSettings {
+lib/api/notification-settings.ts:7:  return Object.fromEntries(SETTINGS_KEYS.flatMap((key) => typeof data[key] === "boolean" ? [[key, data[key]]] : [])) as NotificationSettings;
+lib/api/notification-settings.test.ts:2:import { extractNotificationSettings } from "./notification-settings";
+lib/api/notification-settings.test.ts:4:describe("notification settings response guard", () => {
+lib/api/notification-settings.test.ts:6:    expect(extractNotificationSettings({ data: { general: true, emergency: false, sound: "true", patient_id: "private", unknown: true } })).toEqual({ general: true, emergency: false });
+lib/api/notification-settings.test.ts:7:    expect(extractNotificationSettings(null)).toEqual({});
+lib/api/notification-settings-server.ts:4:export function getPatientNotificationSettings(accessToken: string) {
+lib/api/notification-settings-server.ts:5:  return callPatientApi("/users/me/notification-settings", {}, accessToken);
+lib/api/mood.test.ts:4:  it("keeps self-reported scales and drops notes/tags/private fields", () => {
+lib/api/mood-server.ts:2:export function getPatientMoodHistory(accessToken:string){return callPatientApi("/mental-health/mood?days=30",{},accessToken);}
+lib/api/mental-health.test.ts:2:import { parseWellbeingDashboard } from "./mental-health";
+lib/api/mental-health.test.ts:3:describe("mental health wellbeing parser", () => { it("keeps descriptive dashboard stats and drops raw mood/private fields", () => { expect(parseWellbeingDashboard({ mood: { total_entries: 3, avg_mood: 3.2, avg_energy: 2.4, avg_stress: 1.1, avg_sleep: 7.5 }, meditation: { total_sessions: 4, completed_sessions: 3, total_minutes: 22 }, recent_moods: [{ patient_id: "private", mood: "happy" }], diagnosis: "private" })).toEqual({ mood: { totalEntries: 3, avgMood: 3.2, avgEnergy: 2.4, avgStress: 1.1, avgSleep: 7.5 }, meditation: { totalSessions: 4, completedSessions: 3, totalMinutes: 22 } }); }); it("keeps honest empty stats", () => { expect(parseWellbeingDashboard({ mood: { total_entries: 0, avg_mood: null, avg_energy: null, avg_stress: null, avg_sleep: null }, meditation: { total_sessions: 0, completed_sessions: 0, total_minutes: 0 } })).not.toBeNull(); }); });
+lib/api/mental-health-server.ts:2:export function getPatientWellbeingDashboard(accessToken: string) { return callPatientApi("/mental-health/dashboard", {}, accessToken); }
+lib/api/meditation-server.ts:2:export function getPatientMeditationHistory(accessToken:string){return callPatientApi("/mental-health/meditation",{},accessToken);}
+lib/api/insurance.ts:3:export type InsuranceSummary = { hasPolicy: boolean; companyName?: string; planClass?: string };
+lib/api/insurance.ts:4:export function parseInsuranceSummary(payload: unknown): InsuranceSummary | null { const root = payload && typeof payload === "object" && !Array.isArray(payload) ? payload as Record<string, unknown> : null; const parsed = schema.safeParse(root?.data ?? root); if (!parsed.success) return null; return { hasPolicy: parsed.data.has_policy, companyName: parsed.data.policy?.company_name, planClass: parsed.data.policy?.plan_class }; }
+lib/api/insurance.test.ts:2:import { parseInsuranceSummary } from "./insurance";
+lib/api/insurance.test.ts:3:describe("insurance parser", () => { it("keeps only the limited policy summary", () => { expect(parseInsuranceSummary({ has_policy: true, policy: { company_name: "Verified insurer", plan_class: "Gold", policy_number: "private-policy", member_id: "private-member", card_image_url: "private-file" }, claims: [{ id: "private-claim" }] })).toEqual({ hasPolicy: true, companyName: "Verified insurer", planClass: "Gold" }); }); it("handles no policy honestly", () => { expect(parseInsuranceSummary({ has_policy: false, policy: null })).toEqual({ hasPolicy: false }); }); });
+lib/api/insurance-server.ts:2:export function getPatientInsurancePolicy(accessToken: string) { return callPatientApi("/insurance/my-policy", {}, accessToken); }
+lib/api/insurance-server.ts:3:export function getPatientInsuranceBenefits(accessToken: string) { return callPatientApi("/insurance/benefits-summary", {}, accessToken); }
+lib/api/health-score.ts:5:export type HealthScore = { score: number | null; status: string; components: Array<{ key: string; score: number }> };
+lib/api/health-score.ts:6:export function parseHealthScore(payload: unknown): HealthScore | null {
+lib/api/health-score.test.ts:2:import { parseHealthScore } from "./health-score";
+lib/api/health-score.test.ts:4:describe("health score parser", () => {
+lib/api/health-score.test.ts:6:    expect(parseHealthScore({ score: 82, status: "calculated", recommendations: ["private clinical advice"], patient_id: "private", components: [{ key: "bmi", score: 82, detail: { bmi: 31.2 }, recommendation: "private" }] })).toEqual({ score: 82, status: "calculated", components: [{ key: "bmi", score: 82 }] });
+lib/api/health-score.test.ts:9:    expect(parseHealthScore({ score: null, status: "insufficient_data", recommendations: ["do not expose"] })).toEqual({ score: null, status: "insufficient_data", components: [] });
+lib/api/health-score.test.ts:11:  it("rejects malformed payloads", () => { expect(parseHealthScore({ score: "82", status: "calculated" })).toBeNull(); });
+lib/api/family.ts:5:export type FamilyMember = { id: string; role?: "owner" | "member"; joinedAt?: string; displayName?: string; relation?: string };
+lib/api/family.ts:18:function memberFrom(value: unknown): FamilyMember | null {
+lib/api/family.ts:29:export function extractFamilyMembers(payload: unknown) {
+lib/api/family.test.ts:2:import { extractFamilyMembers } from "./family";
+lib/api/family.test.ts:4:describe("family response guards", () => {
+lib/api/family.test.ts:6:    const members = extractFamilyMembers({ members: [{ user_id: "member_123", role: "owner", joined_at: "2026-08-20T10:00:00.000Z", display_name: "عضو خاص", relation: "parent", permissions: ["view_health"], health_summary: "private" }] });
+lib/api/family-server.ts:3:/** Server-only BFF boundary for the current patient's family member list. */
+lib/api/family-server.ts:4:export function getPatientFamilyMembers(accessToken: string) {
+lib/api/family-server.ts:5:  return callPatientApi("/family/members", {}, accessToken);
+lib/api/family-server.test.ts:5:import { getPatientFamilyMembers } from "./family-server";
+lib/api/family-server.test.ts:7:describe("family server boundary", () => {
+lib/api/family-server.test.ts:9:  it("uses the current-patient family list path and server token", async () => {
+lib/api/family-server.test.ts:12:    await getPatientFamilyMembers("server-token");
+lib/api/family-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/family/members", {}, "server-token");
+lib/api/family-group.ts:3:export type FamilyGroupSummary={name?:string;memberCount:number;viewerIsOwner:boolean};
+lib/api/family-group.ts:4:export function parseFamilyGroup(payload:unknown,viewerId?:string):FamilyGroupSummary|null{const root=payload&&typeof payload==="object"&&!Array.isArray(payload)?payload as Record<string,unknown>:null;const p=groupSchema.safeParse(root?.data&&typeof root.data==="object"?root.data:root);if(!p.success)return null;const members=Array.isArray(p.data.members)?p.data.members:[];return {name:p.data.name,memberCount:members.length,viewerIsOwner:typeof viewerId==="string"&&viewerId.length>0&&p.data.owner_id===viewerId};}
+lib/api/family-group.test.ts:2:import { parseFamilyGroup } from "./family-group";
+lib/api/family-group.test.ts:3:describe("family group response guards", () => {
+lib/api/family-group.test.ts:5:    expect(parseFamilyGroup({ id: "private", name: "Home", owner_id: "owner", invite_code: "secret", members: [{ user_id: "u1", permissions: ["*"] }, { user_id: "u2", permissions: ["vitals"] }] }, "owner")).toEqual({ name: "Home", memberCount: 2, viewerIsOwner: true });
+lib/api/family-group-server.ts:2:export function getPatientFamilyGroup(accessToken:string){return callPatientApi("/family/my-group",{},accessToken);}
+lib/api/emergency-contacts-server.ts:2:export function getPatientEmergencyContacts(accessToken:string){return callPatientApi("/health/emergency-contacts",{},accessToken);}
+lib/api/diagnostics.ts:16:  hasReport?: boolean;
+lib/api/diagnostics.ts:50:    hasReport: (Array.isArray(record.reports) && record.reports.length > 0) || (typeof record.signed_report_pdf_url === "string" && record.signed_report_pdf_url.trim().length > 0),
+lib/api/diagnostics.test.ts:7:  it("allows only approved booking fields and ignores patient, pricing, reports, and document fields", () => {
+lib/api/diagnostics.test.ts:8:    const rows = extractDiagnosticBookings({ data: [{ id: bookingId, state: "CONFIRMED", scheduled_at: "2026-08-20T10:00:00.000Z", patient_name: "private", total_price: 500, reports: [{ url: "private" }] }] });
+lib/api/diagnostics.test.ts:9:    expect(rows).toEqual([{ id: bookingId, state: "CONFIRMED", scheduledAt: "2026-08-20T10:00:00.000Z", locationType: undefined, scanNameAr: undefined, scanNameEn: undefined, medicalReferralRequired: undefined, hasReport: true }]);
+lib/api/articles.test.ts:6:    expect(parseArticle({ data: [{ id: "a1", slug: "healthy-reading", title_en: "Healthy", excerpt_en: "Short", category: "Health", body_en: "private html", user_id: "private", views: 99 }] })).toEqual({ id: "a1", slug: "healthy-reading", titleEn: "Healthy", excerptEn: "Short", category: "Health" });
+lib/api/articles.test.ts:10:    expect(parseArticleCategories(["Health", "", 1, "Mental"])).toEqual(["Health", "Mental"]);
+lib/api/breathing-server.ts:2:export function getPatientBreathingHistory(accessToken:string){return callPatientApi("/mental-health/breathing",{},accessToken);}
+lib/api/chat-server.test.ts:5:import { getPatientChatThreads } from "./chat-server";
+lib/api/chat-server.test.ts:7:describe("chat server boundary", () => {
+lib/api/chat-server.test.ts:9:  it("uses the current-patient chat thread list path and server token", async () => {
+lib/api/chat-server.test.ts:12:    await getPatientChatThreads("server-token");
+lib/api/chat-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/chat/threads", {}, "server-token");
+lib/api/chronic.test.ts:5:    expect(parseChronicDiseases([{ id: "cc-0", name: "Asthma", controlled: true, patient_id: "private", severity: "private", source: "patient_profile" }])).toEqual([{ id: "cc-0", name: "Asthma", source: "patient_profile" }]);
+lib/api/chronic-server.ts:2:export function getPatientChronicDiseases(accessToken:string){return callPatientApi("/health/chronic-diseases",{},accessToken);}
+lib/api/chronic-meds-server.ts:2:export function getPatientChronicMedications(accessToken:string){return callPatientApi("/health/chronic-meds",{},accessToken);}
+lib/api/chat.ts:6:export type ChatThreadSummary = { id: string; type: typeof allowedThreadTypes[number]; lastActivityAt?: string };
+lib/api/chat.ts:19:function threadFrom(value: unknown): ChatThreadSummary | null {
+lib/api/chat.ts:23:  if (!id.success || !record || !allowedThreadTypes.includes(type as ChatThreadSummary["type"])) return null;
+lib/api/chat.ts:25:  return { id: id.data, type: type as ChatThreadSummary["type"], lastActivityAt };
+lib/api/chat.ts:28:export function extractChatThreadSummaries(payload: unknown) {
+lib/api/chat.ts:35:export type ChatMessageSummary = { id: string; senderRole: string; type: string; createdAt?: string; edited: boolean; deleted: boolean; hasAttachment: boolean };
+lib/api/chat.ts:36:export function extractChatMessageSummaries(payload: unknown): ChatMessageSummary[] {
+lib/api/chat.test.ts:2:import { extractChatMessageSummaries, extractChatThreadSummaries } from "./chat";
+lib/api/chat.test.ts:6:describe("chat response guards", () => {
+lib/api/chat.test.ts:8:    const threads = extractChatThreadSummaries({ threads: [{ id: threadId, type: "booking", last_message_at: "2026-08-20T10:00:00.000Z", name: "private", last_message: "private", participant_ids: ["private"], avatar_url: "https://example.test/private", unread_counts: { private: 4 }, booking_id: "private" }] });
+lib/api/chat.test.ts:12:    expect(extractChatMessageSummaries({ messages: [{ id: threadId, sender_role: "provider", type: "text", body: "private", sender_id: "private", attachment_url: "private", reactions: { "❤": ["private"] }, createdAt: "2026-08-20T10:00:00.000Z" }] })).toEqual([{ id: threadId, senderRole: "provider", type: "text", createdAt: "2026-08-20T10:00:00.000Z", edited: false, deleted: false, hasAttachment: true }]);
+lib/api/claims.test.ts:4:describe("insurance claim response guards", () => {
+lib/api/claims-server.ts:4:  return callPatientApi("/insurance/claims", {}, accessToken);
+lib/api/crisis-contacts-server.ts:2:export function getPatientCrisisContacts(accessToken:string){return callPatientApi("/mental-health/crisis-contacts",{},accessToken);}
+lib/api/chat-server.ts:3:/** Server-only BFF boundary for the current patient's chat thread list. */
+lib/api/chat-server.ts:4:export function getPatientChatThreads(accessToken: string) {
+lib/api/chat-server.ts:5:  return callPatientApi("/chat/threads", {}, accessToken);
+lib/api/chat-server.ts:7:export function getPatientChatThread(accessToken: string, threadId: string) {
+lib/api/chat-server.ts:8:  if (!/^[0-9a-f-]{36}$/i.test(threadId)) throw new Error("invalid_chat_thread_id");
+lib/api/chat-server.ts:9:  return callPatientApi(`/chat/threads/${threadId}`, {}, accessToken);
+lib/api/chat-server.ts:11:export function getPatientChatMessages(accessToken: string, threadId: string) {
+lib/api/chat-server.ts:12:  if (!/^[0-9a-f-]{36}$/i.test(threadId)) throw new Error("invalid_chat_thread_id");
+lib/api/chat-server.ts:13:  return callPatientApi(`/chat/threads/${threadId}/messages?limit=50`, {}, accessToken);
+lib/api/dashboard-server.ts:4:export function getPatientDashboardProfile(accessToken: string) {
+lib/api/dashboard-server.ts:5:  return callPatientApi("/users/me/profile", {}, accessToken);
+app/api/patient/[...path]/route.test.ts:97:    const response = await GET(request(), { params: Promise.resolve({ path: ["medical-profile"] }) });
