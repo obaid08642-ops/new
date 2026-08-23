@@ -17,6 +17,7 @@
 /[locale]/diagnostics/packages/[packageId]
 /[locale]/diagnostics/packages
 /[locale]/diagnostics
+/[locale]/diagnostics/radiology/[serviceId]
 /[locale]/diagnostics/radiology
 /[locale]/family
 /[locale]/health/chronic-diseases
@@ -52,6 +53,7 @@
 /[locale]/profile
 /[locale]/reminders
 /[locale]/settings
+/[locale]/wishlist
 API /api/appointments/[appointmentId]/call-token
 API /api/appointments/[appointmentId]/cancel
 API /api/appointments/[appointmentId]/payment-intent

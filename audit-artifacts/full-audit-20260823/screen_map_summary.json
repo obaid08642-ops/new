@@ -45,8 +45,8 @@
     "wallet": 5,
     "wearables": 1
   },
-  "with_web_filename_candidate": 38,
-  "without_web_filename_candidate": 212,
+  "with_web_filename_candidate": 39,
+  "without_web_filename_candidate": 211,
   "mobile_screens_with_actions": 200,
   "mobile_screens_with_mutation_markers": 88
 }
