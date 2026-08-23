@@ -1,0 +1,76 @@
+{
+  "actions": [
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1123528,
+          "path": ".>next>styled-jsx>@babel/core",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": null,
+      "target": null,
+      "depth": 4
+    }
+  ],
+  "advisories": {
+    "1123528": {
+      "findings": [
+        {
+          "version": "7.28.4",
+          "paths": [
+            ". > next@16.3.1 > styled-jsx@5.1.6 > @babel/core@7.28.4 > @babel/helper-module-transforms@7.28.3 > @babel/core@7.28.4",
+            ". > next-intl@4.13.7 > next@16.3.1 > styled-jsx@5.1.6 > @babel/core@7.28.4 > @babel/helper-module-transforms@7.28.3 > @babel/core@7.28.4"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/babel/babel/security/advisories/GHSA-4x5r-pxfx-6jf8\n- https://babeljs.io/docs/options#inputsourcemap\n- https://nvd.nist.gov/vuln/detail/CVE-2026-49356\n- https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
+      "created": "2026-06-15T17:14:14.000Z",
+      "id": 1123528,
+      "npm_advisory_id": null,
+      "overview": "## Impact\n\nUsing `@babel/core` to compile maliciously crafted code can allow ab attacker to read any source map from the system that is running Babel, if these conditions are _all_ true:\n- the attacker controls the input source code\n- the attacker can read the output source code\n- the attacker knows the path of the source map file that they want to read\n\n**Users that only compile trusted code are not impacted.**\n\n## Patches\n\nThe vulnerability has been fixed in `@babel/core@7.29.6` and `@babel/core@8.0.0-rc.6`.\n\n## Workarounds\n\nCallers can mitigate the issue without upgrading by setting [`inputSourceMap: false`](https://babeljs.io/docs/options#inputsourcemap) in their Babel options.\n\nCallers can also manually extract the `#sourceMappingURL` comment from the input source code, validate whether the source map that it links to is allowed to be read, and if it is pass an object to `inputSourceMap` (passing `false` when it's not).\n\n## Credits\n\nThanks Teodor-Cristian Radoi for reporting the vulnerability.",
+      "reported_by": null,
+      "title": "@babel/core: Arbitrary File Read via sourceMappingURL Comment",
+      "metadata": null,
+      "cves": [
+        "CVE-2026-49356"
+      ],
+      "access": "public",
+      "severity": "low",
+      "module_name": "@babel/core",
+      "vulnerable_versions": "<=7.29.0",
+      "github_advisory_id": "GHSA-4x5r-pxfx-6jf8",
+      "recommendation": "Upgrade to version 7.29.6 or later",
+      "patched_versions": ">=7.29.6",
+      "updated": "2026-07-15T22:05:27.000Z",
+      "cvss": {
+        "score": 3.2,
+        "vectorString": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:C/C:L/I:N/A:N"
+      },
+      "cwe": [
+        "CWE-22",
+        "CWE-200"
+      ],
+      "url": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8"
+    }
+  },
+  "muted": [],
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "dependencies": 367,
+    "devDependencies": 0,
+    "optionalDependencies": 0,
+    "totalDependencies": 367
+  }
+}
