@@ -1,0 +1,12 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ app/seo.test.ts (2 tests) 3ms
+ ✓ app/llms.txt/route.test.ts (1 test) 4ms
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  10:21:13
+   Duration  242ms (transform 102ms, setup 0ms, collect 151ms, tests 7ms, environment 0ms, prepare 69ms)
+

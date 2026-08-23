@@ -12,6 +12,8 @@ const llmsText = `# Nabd Plus
 - [Hindi home](/hi): Public Nabd Plus patient portal entry point.
 - [Bengali home](/bn): Public Nabd Plus patient portal entry point.
 - [Filipino home](/fil): Public Nabd Plus patient portal entry point.
+- [Arabic articles](/ar/articles): Public article listing, populated only from published backend content.
+- [English articles](/en/articles): Public article listing, populated only from published backend content.
 
 ## Privacy and content boundaries
 
