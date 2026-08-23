@@ -105,3 +105,60 @@ Community، Loyalty، Wallet، AI triage، Voice، Emergency/SOS، Maternity، N
 ## ترتيب التنفيذ
 
 يبدأ التنفيذ بـP0: Auth، consultation، pharmacy/orders، diagnostics، home-care/nursing، ثم P1: profile/family/insurance/health/reports/chat/notifications، ثم P2: advanced. تُنفذ تحسينات UX الآمنة بالتوازي فقط بعد تثبيت العقد، بينما تُؤجل features بلا contract أو fixture إلى نهاية الخطة مع حالة Blocked واضحة.
+
+
+## ملحق مراجعة الاكتمال — بنود لا يجوز إسقاطها
+
+### أولاً: تدقيق منطق المنتج وسلامة Mobile
+
+يجب مراجعة كل Mobile screen على مستويين: هل تنفذ المطلوب فعلاً، وهل المطلوب نفسه منطقي وآمن؟ تُسجل الشاشات alias أو redirect ولا تُحسب مرتين. يُمنع نسخ `guest_token`، optimistic success، clinical score غير موثق، أو fallback يخلق هوية محلية. يجب فحص حالات أول فتح، guest، authenticated، locked، expired، offline، permission denied، account deletion، device change، deep link، refresh، back، duplicate tap، timeout، retry، وcrash recovery في التطبيقين.
+
+### ثانياً: سجل كامل لكل عنصر تفاعلي
+
+لكل button، icon، card، tab، swipe، form، modal، bottom sheet، link، notification، upload، map action، phone/video action، وexternal URL يجب تسجيل: label المترجم، target، preconditions، API method/path، payload schema، success state، validation، error state، retry، loading، disabled state، accessibility label/hint، analytics event بعد consent، وحالة الميزة. أي عنصر بلا target حقيقي أو بلا عقد يُوسم `Missing/Blocked` ولا يظهر كزر نجاح وهمي.
+
+### ثالثاً: رحلة المريض لكل خدمة ولكل وسيلة دفع
+
+يجب اختبار كل domain من discovery إلى detail، اختيار patient أو family member، العنوان والموقع، consent، الموعد أو المنتج، availability/stock، السعر والضريبة/الخصم، cash أو insurance أو online payment أو wallet، التأكيد، الإشعار، التتبع، delivery/visit/room، result/report، ثم cancel/reschedule/return/refund. تُعاد الرحلة مع invalid data، resource unavailable، payment failure، insurance rejection، expired slot، duplicate click، refresh/back، timeout، reconnect، locale، RTL، keyboard، reduced motion، وslow network.
+
+### رابعاً: Healthcare وclinical safety
+
+أي AI triage أو symptom guidance أو mood/crisis أو pregnancy/nutrition أو medication reminder يجب أن يملك حدوداً واضحة بين education وclinical advice، escalation للطوارئ، disclaimer مناسب، human/provider handoff، سجل مصدر وتاريخ، consent، retention/deletion، وعدم تقديم تشخيص أو جرعة أو نتيجة غير واردة من backend. يجب مراجعة النصوص طبياً قبل النشر.
+
+### خامساً: الدفع والبيانات المالية
+
+لا تُخزن بيانات البطاقة أو CVV، ولا تُطبع في logs، ولا يُوثق نجاح الدفع من client. تُختبر currency، rounding، tax، discount، insurance copay، cash-on-delivery، wallet، payment intent، webhook reconciliation، timeout، retry، duplicate charge، refund/partial refund، invoice، وorder state machine. أي test يستخدم Sandbox فقط ويُلغي أو يعكس موارده.
+
+### سادساً: الخصوصية والامتثال التشغيلي
+
+يجب تحديد data inventory وPII/PHI classification، الغرض والاحتفاظ والحذف والتصدير، consent history، access logs، session/device revocation، support access، backup encryption، key rotation، breach response، DPIA أو مراجعة قانونية عند اللزوم، وحدود الأطراف الخارجية. لا تُفهرس أو تُرسل للـanalytics أي صفحة أو query أو معرف مريض خاص.
+
+### سابعاً: API contract وBFF governance
+
+قبل كل slice يجب تنفيذ probe بالـmethod/path مع body آمن؛ `401` route محمي، `400` route وصل لكن body غير صالح، و`404` path/resource غير مثبت. يجب تحديث OpenAPI/DTO/errors، parser allowlist، timeout/retry/circuit breaker، idempotency key، correlation ID، CSRF/CORS، owner/stranger/unauth، pagination/filter/sort، schema drift detection، contract tests، وcompatibility مع Mobile. لا يعتمد التنفيذ على OpenAPI قديم إذا خالفه الإنتاج الحي.
+
+### ثامناً: Web security وMobile security
+
+تُفحص XSS/CSRF/SSRF/open redirect/clickjacking/CORS/CSP، cookies وSameSite/Secure/httpOnly، token leakage، URL/referrer/history، upload MIME/size/virus scan، SQL/NoSQL injection عبر backend، rate limiting، brute force، replay، session fixation، OAuth/deep-link hijacking، certificate/network assumptions في Mobile، secure storage، jailbreak/root limits، screenshots/clipboard للبيانات الحساسة، وredacted crash logs.
+
+### تاسعاً: التصميم والإتاحة
+
+يجب أن تكون كل الأيقونات SVG/vector من icon set موحد، بلا Emoji أو نصوص hardcoded أو placeholders. تُراجع design tokens، الألوان، typography، spacing، states، contrast AA، focus ring، keyboard، screen reader، touch target، RTL/LTR، responsive breakpoints، safe areas، print/share، skeleton، empty/error/success/notice، animation timing، reduced motion، وloading داخل الصفحة. لا يُستخدم glass أو motion لإخفاء نقص وظيفي أو بطء حقيقي.
+
+### عاشراً: الأداء والموثوقية
+
+تُحدد budgets لكل route وdevice، LCP/INP/CLS/TTFB، JS/CSS/images/fonts، API p50/p95/p99، cache hit، memory، battery، startup، bundle size، request waterfalls، retries، offline queue، concurrency، rate limits، WebSocket reconnect، graceful degradation، health/readiness، autoscaling، alerting، tracing، synthetic checks، وerror budgets. يجب تشغيل Docker build/run الحقيقي، container scan، non-root، patches، standalone helpers، healthcheck، graceful shutdown، rollback، وdisaster recovery drill.
+
+### حادي عشر: الفهرسة والاكتشاف
+
+كل public page جديدة يجب أن تحصل تلقائياً على metadata/canonical/hreflang، status 200 عند النشر، نص ظاهر حقيقي، internal links للفئة والمدينة، sitemap inclusion، structured data مطابق للواجهة، OpenGraph، وصورة قابلة للمشاركة. صفحات patient/private/account/checkout لا تُفهرس ولا تدخل sitemap. يجب تدقيق robots وsitemap وlastmod و404/410 وredirects وcanonical conflicts، وتفعيل IndexNow للـcreate/update/delete مع deduplication وretry.
+
+قالب الإعلان العام يجب أن يثبت الصورة والسعر والموقع وتاريخ التحديث والحقائق النصية، ويستخدم `Product/Offer` فقط حين ينطبق، و`ItemList` و`BreadcrumbList` للقوائم. الأدلة المحلية يجب أن تكون أصلية ومسنودة ببيانات فعلية ومنهج وتاريخ ومصدر. تُراجع Google Search Console وتقارير AI وBing AI Performance وgrounding/citation accuracy فقط إن كانت الحسابات متاحة، بلا ادعاء قياسات غير موجودة.
+
+### ثاني عشر: الاختبار النهائي الكامل
+
+تُنفذ مصفوفة اختبارات Web وMobile على الأجهزة والمتصفحات المدعومة، 6 locales، RTL/LTR، anonymous/authenticated/family، cash/insurance/online/wallet، public/private، 2G/3G/4G، offline/online، fresh/cache، reduced motion، keyboard/screen reader، viewport/rotation، accessibility، visual regression، security، contract، unit/integration/E2E، Sandbox mutation، staging Docker، smoke، load، resilience، rollback، وmonitoring.
+
+### بوابة الإصدار غير القابلة للتفاوض
+
+لا يوجد `100% ready` إذا بقيت شاشة أو زر أو رحلة بلا حالة قرار، أو بقيت mutation بلا owner/stranger/replay proof، أو بقيت بيانات وهمية/placeholder في runtime، أو بقي Docker/staging/CWV غير مختبر، أو بقيت private URLs قابلة للفهرسة، أو بقيت ثغرة runtime high/critical، أو لم تُراجع النصوص الطبية، أو لم تُختبر cash/insurance/online/wallet. عندها يكون الحكم NO-GO مع قائمة blockers ومالك وشرط إغلاق محدد.
