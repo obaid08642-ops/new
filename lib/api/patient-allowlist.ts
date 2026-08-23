@@ -11,6 +11,8 @@ const patientReadRoutes = [
   new RegExp("^/cart/prescription$"),
   new RegExp("^/nursing/visits$"),
   new RegExp("^/users/me/wishlist$"),
+  new RegExp("^/users/me/profile$"),
+  new RegExp("^/users/me/notification-settings$"),
   new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
   new RegExp(`^/care/appointments/${orderId}$`, "i"),
   new RegExp("^/health/score$"),
