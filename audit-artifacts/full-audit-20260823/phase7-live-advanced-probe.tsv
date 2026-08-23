@@ -1,0 +1,15 @@
+method	path	status
+GET	/community/posts	401
+GET	/community/posts/00000000-0000-4000-8000-000000000000	401
+POST	/community/posts	401
+POST	/community/posts/00000000-0000-4000-8000-000000000000/vote	404
+POST	/community/posts/00000000-0000-4000-8000-000000000000/comment	401
+GET	/loyalty/rewards	401
+GET	/wallet/balance	401
+GET	/wallet/transactions	401
+GET	/maternity/dashboard	404
+GET	/nutrition/plan	404
+POST	/ai/triage	401
+POST	/mental-health/mood	401
+POST	/pharmacy/returns	401
+GET	/support/tickets	401

@@ -42,3 +42,27 @@ Phase 6 يمر كـ**risk classification PASS** عندما تُسجل كل featu
 **لا توجد بيانات production mock أُضيفت.**  
 **لا توجد ادعاءات تنفيذ لميزات AI/financial/clinical غير متعاقدة.**  
 **Full Mobile parity ما زال NO-GO حتى نشر العقود وإغلاق الرحلات ذات الصلة.**
+
+
+## Live contract re-check for Phase 7
+
+أعيد فحص عدد من المسارات المتقدمة دون جلسة. المسارات التي أعادت 401 موجودة ومحميّة، لكنها لا تُفعّل تلقائياً قبل DTO/ownership/replay/Sandbox. المسارات التي أعادت 404 لا يُبنى لها Web route.
+
+| Method | Path | Status | قرار |
+|---|---|---:|---|
+| GET | `/community/posts` | 401 | عقد محمي يحتاج read slice وmoderation policy |
+| GET | `/community/posts/{id}` | 401 | عقد محمي يحتاج owner/public classification |
+| POST | `/community/posts` | 401 | mutation محتمل؛ يحتاج DTO/idempotency/moderation |
+| POST | `/community/posts/{id}/vote` | 404 | لا يُعتمد؛ المسار غير منشور بهذا الشكل |
+| POST | `/community/posts/{id}/comment` | 401 | mutation يحتاج abuse/ownership controls |
+| GET | `/loyalty/rewards` | 401 | عقد محمي؛ يحتاج ledger/reward semantics |
+| GET | `/wallet/balance` | 401 | عقد مالي محمي؛ يحتاج reconciliation وKYC policy |
+| GET | `/wallet/transactions` | 401 | عقد مالي محمي؛ يحتاج pagination/audit |
+| GET | `/maternity/dashboard` | 404 | لا يُبنى route حتى نشر العقد |
+| GET | `/nutrition/plan` | 404 | لا يُبنى route حتى نشر العقد |
+| POST | `/ai/triage` | 401 | عقد حساس؛ يحتاج consent/clinical safety/escalation |
+| POST | `/mental-health/mood` | 401 | عقد صحي؛ يحتاج privacy and safety review |
+| POST | `/pharmacy/returns` | 401 | عقد موجود؛ يحتاج payload/evidence/refund/idempotency |
+| GET | `/support/tickets` | 401 | عقد محمي؛ يحتاج ticket lifecycle وPII policy |
+
+الدليل الخام محفوظ في `phase7-live-advanced-probe.tsv`. النتيجة لا تعني أن كل 401 feature جاهزة؛ إنها تثبت فقط existence/protection للـmethod/path المختبر.
