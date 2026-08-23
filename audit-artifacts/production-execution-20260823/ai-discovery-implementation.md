@@ -32,3 +32,9 @@ The discovery-specific tests and the full project gates pass after implementatio
 - `git diff --check` passed.
 
 The code is not production-live until the deployment owner publishes the resulting commit and the public routes are probed on `https://nabd.plus`.
+
+## Local production-build smoke
+
+After the production build, `next start -p 3100` was started locally and the following checks passed: API Catalog `200 application/linkset+json`; OpenAPI subset `200 application/vnd.oai.openapi+json`; ARD and Agent Skills index `200 application/json` with CORS; `/auth.md` and the skill document `200 text/markdown`; API Catalog HEAD included the `rel="api-catalog"` Link header; and `Accept: text/markdown` on `/en` returned `200 text/markdown` with `Vary: Accept` and `X-Markdown-Tokens`.
+
+The first smoke attempt used an invalid `pnpm start -- -p 3100` invocation and failed before starting Next. It was corrected to `pnpm exec next start -p 3100`; the corrected smoke passed. This is recorded to distinguish an operator-command error from an application failure.
