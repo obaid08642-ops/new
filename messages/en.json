@@ -798,5 +798,20 @@
     "unavailableBody": "The live radiology catalog could not be loaded.",
     "retry": "Try again",
     "detailBlocked": "Details temporarily unavailable"
+  },
+  "Wishlist": {
+    "eyebrow": "Private wishlist",
+    "title": "My wishlist",
+    "notice": "This list is read only from your authorized account.",
+    "empty": "Your wishlist is empty.",
+    "shop": "Start shopping",
+    "open": "View details",
+    "untitled": "Medicine item",
+    "price": "{value} SAR",
+    "priceUnavailable": "Price unavailable",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "unavailableTitle": "Wishlist unavailable",
+    "unavailableBody": "No fallback data was shown. Please try again later."
   }
 }

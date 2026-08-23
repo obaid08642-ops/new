@@ -50,3 +50,12 @@ Mobile `diagnostics/package-detail.tsx` يضيف الحزمة إلى `Diagnostic
 
 **Phase 4 inventory and risk review: PASS.**  
 **Phase 4 full feature closure: OPEN.** لا يجوز وصف Diagnostics/Home-care/Pharmacy/Orders بأنها مطابقة كاملة حتى تُغلق الفجوات أعلاه، خصوصاً رحلة الحجز/الشراء من البداية للنهاية.
+
+
+## تحديث الشريحة — Pharmacy Wishlist
+
+تم تنفيذ شريحة `GET /users/me/wishlist` للويب كصفحة `/{locale}/wishlist`، مع server wrapper وparser محدود وallowlist GET مملوكة للمريض وترجمات اللغات الست. الصفحة تعرض البيانات الحية فقط، وتتعامل مع 401/403/404/error/empty، وتوفر رابط تفاصيل الدواء دون زر نجاح أو شراء مصطنع.
+
+اختبارات الشريحة: parser وserver boundary نجحا، وfull test أصبح **132 ملفاً ناجحاً و254 اختباراً ناجحاً** مع بقاء اختبارات Sandbox متخطاة لغياب الحسابات الرسمية، وproduction build نجح وظهر route `/[locale]/wishlist`.
+
+تم intentionally عدم تنفيذ `POST /users/me/wishlist/{id}` لإزالة العنصر أو cart add من Wishlist، لأنهما mutation contracts منفصلة ولم تُغلق بضربة method/path وownership/replay. تبقيهما المصفوفة `Partial/Deferred` بدلاً من اختلاق نجاح.

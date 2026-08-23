@@ -798,5 +798,20 @@
     "unavailableBody": "Hindi ma-load ang live radiology catalog.",
     "retry": "Subukan muli",
     "detailBlocked": "Pansamantalang hindi available ang detalye"
+  },
+  "Wishlist": {
+    "eyebrow": "Pribadong wishlist",
+    "title": "Aking wishlist",
+    "notice": "Binabasa lamang ang listahang ito mula sa iyong awtorisadong account.",
+    "empty": "Walang laman ang iyong wishlist.",
+    "shop": "Magsimulang mamili",
+    "open": "Tingnan ang detalye",
+    "untitled": "Item ng gamot",
+    "price": "{value} SAR",
+    "priceUnavailable": "Hindi available ang presyo",
+    "inStock": "May stock",
+    "outOfStock": "Walang stock",
+    "unavailableTitle": "Hindi available ang wishlist",
+    "unavailableBody": "Walang ipinakitang fallback data. Subukan muli mamaya."
   }
 }

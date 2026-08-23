@@ -1,0 +1,15 @@
+import json
+from pathlib import Path
+
+root=Path('/home/ubuntu/nabdah_impl/repo/messages')
+translations={
+'ar':{'eyebrow':'قائمة أمنيات خاصة','title':'قائمة أمنياتي','notice':'تُقرأ القائمة من حسابك المصرّح به فقط.','empty':'قائمة الأمنيات فارغة.','shop':'ابدأ التسوق','open':'عرض التفاصيل','untitled':'عنصر دوائي','price':'{value} ر.س','priceUnavailable':'السعر غير متاح','inStock':'متوفر','outOfStock':'غير متوفر','unavailableTitle':'تعذر تحميل قائمة الأمنيات','unavailableBody':'لم يتم عرض بيانات بديلة. حاول مرة أخرى لاحقاً.'},
+'en':{'eyebrow':'Private wishlist','title':'My wishlist','notice':'This list is read only from your authorized account.','empty':'Your wishlist is empty.','shop':'Start shopping','open':'View details','untitled':'Medicine item','price':'{value} SAR','priceUnavailable':'Price unavailable','inStock':'In stock','outOfStock':'Out of stock','unavailableTitle':'Wishlist unavailable','unavailableBody':'No fallback data was shown. Please try again later.'},
+'ur':{'eyebrow':'نجی خواہشات کی فہرست','title':'میری خواہشات','notice':'یہ فہرست صرف آپ کے مجاز اکاؤنٹ سے پڑھی جاتی ہے۔','empty':'آپ کی خواہشات کی فہرست خالی ہے۔','shop':'خریداری شروع کریں','open':'تفصیل دیکھیں','untitled':'ادویات کا آئٹم','price':'{value} سعودی ریال','priceUnavailable':'قیمت دستیاب نہیں','inStock':'دستیاب','outOfStock':'دستیاب نہیں','unavailableTitle':'خواہشات کی فہرست دستیاب نہیں','unavailableBody':'متبادل ڈیٹا نہیں دکھایا گیا۔ بعد میں دوبارہ کوشش کریں۔'},
+'hi':{'eyebrow':'निजी विशलिस्ट','title':'मेरी विशलिस्ट','notice':'यह सूची केवल आपके अधिकृत खाते से पढ़ी जाती है।','empty':'आपकी विशलिस्ट खाली है।','shop':'खरीदारी शुरू करें','open':'विवरण देखें','untitled':'दवा आइटम','price':'{value} SAR','priceUnavailable':'कीमत उपलब्ध नहीं','inStock':'उपलब्ध','outOfStock':'स्टॉक में नहीं','unavailableTitle':'विशलिस्ट उपलब्ध नहीं','unavailableBody':'कोई वैकल्पिक डेटा नहीं दिखाया गया। बाद में फिर प्रयास करें।'},
+'bn':{'eyebrow':'ব্যক্তিগত ইচ্ছেতালিকা','title':'আমার ইচ্ছেতালিকা','notice':'এই তালিকা শুধু আপনার অনুমোদিত অ্যাকাউন্ট থেকে পড়া হয়।','empty':'আপনার ইচ্ছেতালিকা খালি।','shop':'কেনাকাটা শুরু করুন','open':'বিস্তারিত দেখুন','untitled':'ওষুধের আইটেম','price':'{value} SAR','priceUnavailable':'দাম অনুপলব্ধ','inStock':'মজুত আছে','outOfStock':'মজুত নেই','unavailableTitle':'ইচ্ছেতালিকা অনুপলব্ধ','unavailableBody':'কোনও বিকল্প তথ্য দেখানো হয়নি। পরে আবার চেষ্টা করুন।'},
+'fil':{'eyebrow':'Pribadong wishlist','title':'Aking wishlist','notice':'Binabasa lamang ang listahang ito mula sa iyong awtorisadong account.','empty':'Walang laman ang iyong wishlist.','shop':'Magsimulang mamili','open':'Tingnan ang detalye','untitled':'Item ng gamot','price':'{value} SAR','priceUnavailable':'Hindi available ang presyo','inStock':'May stock','outOfStock':'Walang stock','unavailableTitle':'Hindi available ang wishlist','unavailableBody':'Walang ipinakitang fallback data. Subukan muli mamaya.'},
+}
+for lang, values in translations.items():
+    p=root/f'{lang}.json'; data=json.loads(p.read_text(encoding='utf-8')); data['Wishlist']=values; p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+print('updated',','.join(translations))
