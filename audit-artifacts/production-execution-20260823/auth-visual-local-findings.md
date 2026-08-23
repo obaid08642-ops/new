@@ -29,3 +29,7 @@ Local render passed for Welcome and Login. الحكم البصري الكامل 
 ## Six-locale HTTP smoke fallback
 
 تعذر توفر المتصفح عند محاولة فتح Filipino، لذلك لم أعتبر ذلك visual pass. استخدمت فحص HTTP محلياً كبديل محدود: `ar`, `en`, `fil`, `hi`, `ur`, و`bn` أعادت جميعاً `200` لمسار `/welcome`، واحتوت HTML على brand وregister copy المناسبين. هذا يثبت route/render smoke فقط، ولا يستبدل الفحص البصري الكامل لكل locale.
+
+## Mobile registration flow gap
+
+مراجعة `mobile/app/(auth)/register.tsx` أظهرت أن التطبيق يرسل `POST /auth/send-otp` مع `purpose: register` أولاً، ثم يمرر بيانات التسجيل إلى شاشة OTP التي تكمل التسجيل بعد التحقق. Web الحالي يستدعي `POST /api/auth/register` قبل OTP. لا يجوز نسخ نمط Mobile حرفياً عبر تمرير password في query أو storage؛ ذلك يخرق متطلبات الأمان. يلزم عقد transaction آمن يحتفظ بالبيانات على الخادم أو cookie `httpOnly`/معرّف غير حساس، ثم يربط OTP verification بإنشاء الحساب. حتى توفير هذا العقد، حالة Register-to-OTP المنطقية تبقى `blocked-on-contract` رغم أن الواجهة والمسارات الأساسية مبنية.
