@@ -16,6 +16,12 @@ describe("patient OTP BFF routes", () => {
     expect(response.status).toBe(201); expect(state.callPatientApi).toHaveBeenCalledWith("/auth/otp/request", expect.objectContaining({ method: "POST" }));
     expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "x" }))).status).toBe(400);
   });
+  it("sanitizes a successful OTP request response and never returns token-shaped fields", async () => {
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchange_token: "must-not-leak" }), { status: 201 }));
+    const response = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }));
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ message: "unexpected_otp_response" });
+  });
   it("accepts only the verified shape and rewrites the exchange cookie path", async () => {
     state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchangeToken: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_otp_exchange=secret; Path=/api/v1/auth/session/exchange; HttpOnly; Secure; SameSite=Strict" } }));
     const response = await verifyOtp(jsonRequest("/api/auth/otp/verify", { identifier: "patient@example.com", code: "123456" }));
