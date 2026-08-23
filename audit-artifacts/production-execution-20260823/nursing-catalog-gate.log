@@ -1,0 +1,1 @@
+Nursing catalog gate — live probe GET /nursing/catalog returned 200 without session; parser strips backend metadata; TypeScript passed; 140 test files passed; 282 tests passed; 23 skipped; build passed.

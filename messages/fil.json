@@ -259,6 +259,7 @@
     "notice": "Serbisyo, status ng booking at iskedyul lamang ang ipinapakita. Hindi ipinapakita sa interface na ito ang lokasyon, pagsubaybay, klinikal na impormasyon at mga presyo.",
     "browseServices": "Tingnan ang mga serbisyo sa home care"
   },
+  "NursingCatalog": {"eyebrow":"Mga verified na nursing service","title":"Nursing sa bahay","subtitle":"Tingnan ang mga serbisyong inilathala sa nursing catalogue.","price":"Mula {value}","insurance":"May insurance","empty":"Walang nursing service na available ngayon.","unavailable":"Hindi available ang nursing catalogue","unavailableBody":"Hindi ma-load ang catalogue mula sa awtorisadong serbisyo.","back":"Bumalik"},
   "Family": {
     "eyebrow": "Pribadong pamilya",
     "title": "Mga miyembro ng pamilya",
