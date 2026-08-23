@@ -60,13 +60,14 @@ describe("patient OTP BFF routes", () => {
     expect((await sendRegistrationOtp(jsonRequest("/api/auth/send-otp", { email: "bad", purpose: "register" }))).status).toBe(400);
   });
   it("validates registration input, strips confirm_password, and rejects token-shaped success", async () => {
-    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, requires_otp: true }), { status: 201 }));
-    const response = await register(jsonRequest("/api/auth/register", { name: "Patient Example", phone: "+966501234567", email: "Patient@Example.com", password: "StrongPass123!", confirm_password: "StrongPass123!", agreed_to_terms: true }));
+    process.env.NABD_TERMS_POLICY_ID = "terms"; process.env.NABD_TERMS_POLICY_VERSION = "v1"; process.env.NABD_PRIVACY_POLICY_ID = "privacy"; process.env.NABD_PRIVACY_POLICY_VERSION = "v1";
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true }), { status: 201 }));
+    const response = await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "Patient@Example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }));
     expect(response.status).toBe(201);
     expect(state.callPatientApi).toHaveBeenCalledWith("/auth/register", expect.objectContaining({ body: expect.not.stringContaining("confirm_password") }));
-    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, access_token: "must-not-leak" }), { status: 201 }));
-    expect((await register(jsonRequest("/api/auth/register", { name: "Patient Example", phone: "+966501234567", email: "patient@example.com", password: "StrongPass123!", confirm_password: "StrongPass123!", agreed_to_terms: true }))).status).toBe(502);
-    expect((await register(jsonRequest("/api/auth/register", { name: "P", phone: "bad", email: "bad", password: "short", confirm_password: "different", agreed_to_terms: false }))).status).toBe(400);
+    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ registered: true, access_token: "must-not-leak" }), { status: 201 }));
+    expect((await register(jsonRequest("/api/auth/register", { name: "Patient Example", identifier: "patient@example.com", password: "StrongPass123!", locale: "en", consents: [{ policy_id: "terms", version: "v1" }, { policy_id: "privacy", version: "v1" }] }))).status).toBe(502);
+    expect((await register(jsonRequest("/api/auth/register", { name: "P", identifier: "bad", password: "short", locale: "en", consents: [] }))).status).toBe(400);
   });
   it("requires the one-time exchange cookie", async () => {
     expect((await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST" }))).status).toBe(400);

@@ -1,0 +1,1 @@
+Updated OTP route registration fixture to official identifier/locale/consents contract; no confirm_password forwarding; token-shaped response rejected.
