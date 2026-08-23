@@ -1,0 +1,29 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ lib/api/radiology-server.test.ts (2 tests) 4ms
+ ✓ lib/api/home-care-server.test.ts (1 test) 24ms
+ ✓ lib/api/radiology.test.ts (2 tests) 4ms
+ ❯ app/[locale]/diagnostics/radiology/[serviceId]/radiology-detail-ssr.test.ts (0 test)
+ ✓ app/[locale]/diagnostics/radiology/radiology-ssr.test.ts (2 tests) 28ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  app/[locale]/diagnostics/radiology/[serviceId]/radiology-detail-ssr.test.ts [ app/[locale]/diagnostics/radiology/[serviceId]/radiology-detail-ssr.test.ts ]
+ReferenceError: beforeEach is not defined
+ ❯ app/[locale]/diagnostics/radiology/[serviceId]/radiology-detail-ssr.test.ts:20:3
+     18| 
+     19| describe("Radiology detail SSR", () => {
+     20|   beforeEach(() => state.detail.mockReset());
+       |   ^
+     21| 
+     22|   it("loads detail by the primary id and renders bounded fields", asyn…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  7 passed (7)
+   Start at  08:36:02
+   Duration  380ms (transform 179ms, setup 0ms, collect 380ms, tests 59ms, environment 1ms, prepare 224ms)
+

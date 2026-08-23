@@ -189,3 +189,17 @@
 | `POST /unified-bookings/{id}/call-token` | 404 | method خاطئ وغير منشور |
 
 لم تُشغّل mutations الحية للحجز أو الإلغاء أو إعادة الجدولة أو call-token لأن مجموعة الاختبارات الحالية read-only ولا تملك fixture موثقاً لslot متاح وappointment قابل للإلغاء، ولأن تشغيلها يتطلب عقد payload وبيانات cleanup مؤكدة. لا يجوز اعتبارها ناجحة استناداً إلى اختبارات BFF المحلية فقط.
+
+
+## 13. تحديث ما بعد اعتماد backend الجديد
+
+بعد اعتماد المالك، تم تنفيذ شريحة Radiology Detail فعلياً بالمسار الديناميكي `/{locale}/diagnostics/radiology/{serviceId}`. يعتمد الطلب على `_id` الأساسي، ويدعم أيضاً `short_code` عندما يُمرر كمعرّف صالح. تم التحقق حياً من 200 لمورد حقيقي لكل من `_id` و`short_code`، وأضيف parser محدود، رابط من القائمة، حالات 404/error، RTL وترجمات اللغات الست. لا يوجد زر حجز وهمي؛ الحجز يبقى مشروطاً بعقد mutation مستقل.
+
+تم تصحيح Home-care server wrapper واختبار Sandbox من `/home-care/bookings/my` إلى `GET /unified-bookings/mine`. تبين أن القائمة الموحدة تشمل أنواعاً متعددة، لذلك أصبح الاختبار يبحث عن `kind` الخاص بالرعاية المنزلية فقط ولا يفسر consultation أو lab أو pharmacy كحجز Home-care. اختبار Sandbox المصحح نجح.
+
+أضيف `COPY patches ./patches` إلى Dockerfile، وأضيف `outputFileTracingIncludes` لـ`@swc/helpers`. نجحت اختبارات الشريحة، type-check وproduction build. full gate الأخير نجح بـ**133 ملف اختبار ناجحاً، 257 اختباراً ناجحاً، 14 ملفاً و23 اختباراً متخطياً** بعد تنظيف artifact تالِف مولد داخل `.next/dev`. لكن Docker وPodman وBuildah وnerdctl غير متاحة في بيئة التدقيق، لذلك image build الحقيقي ما زال CI/staging gate.
+
+Commit الدمج الأخير بعد rebase مع notice banner المضاف من المالك:
+`71c7931c86df6a2143bed8ec2f8498db734b667f`
+
+يجب عند التسليم النهائي تحديث هذا الرقم إذا أضيفت تغييرات لاحقة، والتحقق دائماً من `git ls-remote`.
