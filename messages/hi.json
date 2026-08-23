@@ -798,7 +798,15 @@
     "unavailableTitle": "रेडियोलॉजी उपलब्ध नहीं",
     "unavailableBody": "लाइव रेडियोलॉजी कैटलॉग लोड नहीं हो सका।",
     "retry": "फिर कोशिश करें",
-    "detailBlocked": "विवरण अस्थायी रूप से अनुपलब्ध"
+    "detailBlocked": "विवरण अस्थायी रूप से अनुपलब्ध",
+    "backToRadiology": "रेडियोलॉजी पर वापस जाएँ",
+    "detailTitle": "सेवा का विवरण",
+    "invalidResponse": "लाइव सेवा का उत्तर मान्य नहीं है।",
+    "detailDescriptionUnavailable": "इस सेवा का विवरण उपलब्ध नहीं है।",
+    "turnaround": "{value} घंटे",
+    "fasting": "उपवास आवश्यक हो सकता है",
+    "preparationTitle": "तैयारी",
+    "bookingUnavailableNotice": "इस सेवा की ऑनलाइन बुकिंग अभी उपलब्ध नहीं है।"
   },
   "Wishlist": {
     "eyebrow": "निजी विशलिस्ट",

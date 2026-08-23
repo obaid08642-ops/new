@@ -798,7 +798,15 @@
     "unavailableTitle": "Radiology is unavailable",
     "unavailableBody": "The live radiology catalog could not be loaded.",
     "retry": "Try again",
-    "detailBlocked": "Details temporarily unavailable"
+    "detailBlocked": "Details temporarily unavailable",
+    "backToRadiology": "Back to radiology",
+    "detailTitle": "Service details",
+    "invalidResponse": "The live service response was invalid.",
+    "detailDescriptionUnavailable": "No description is available for this service.",
+    "turnaround": "{value} hours",
+    "fasting": "Fasting may be required",
+    "preparationTitle": "Preparation",
+    "bookingUnavailableNotice": "Online booking for this service is not available yet."
   },
   "Wishlist": {
     "eyebrow": "Private wishlist",

@@ -798,7 +798,15 @@
     "unavailableTitle": "ریڈیولوجی دستیاب نہیں",
     "unavailableBody": "لائیو ریڈیولوجی کیٹلاگ لوڈ نہیں ہو سکا۔",
     "retry": "دوبارہ کوشش کریں",
-    "detailBlocked": "تفصیلات عارضی طور پر دستیاب نہیں"
+    "detailBlocked": "تفصیلات عارضی طور پر دستیاب نہیں",
+    "backToRadiology": "ریڈیولوجی پر واپس جائیں",
+    "detailTitle": "سروس کی تفصیلات",
+    "invalidResponse": "براہ راست سروس کا جواب درست نہیں ہے۔",
+    "detailDescriptionUnavailable": "اس سروس کی تفصیل دستیاب نہیں۔",
+    "turnaround": "{value} گھنٹے",
+    "fasting": "روزہ درکار ہو سکتا ہے",
+    "preparationTitle": "تیاری",
+    "bookingUnavailableNotice": "اس سروس کی آن لائن بکنگ ابھی دستیاب نہیں۔"
   },
   "Wishlist": {
     "eyebrow": "نجی خواہشات کی فہرست",

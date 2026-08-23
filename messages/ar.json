@@ -798,7 +798,15 @@
     "unavailableTitle": "الأشعة غير متاحة",
     "unavailableBody": "تعذر تحميل كتالوج الأشعة الحي.",
     "retry": "حاول مرة أخرى",
-    "detailBlocked": "التفاصيل غير متاحة مؤقتاً"
+    "detailBlocked": "التفاصيل غير متاحة مؤقتاً",
+    "backToRadiology": "العودة إلى خدمات الأشعة",
+    "detailTitle": "تفاصيل الخدمة",
+    "invalidResponse": "استجابة الخدمة المباشرة غير صالحة.",
+    "detailDescriptionUnavailable": "لا يوجد وصف متاح لهذه الخدمة.",
+    "turnaround": "{value} ساعة",
+    "fasting": "قد يتطلب صياماً",
+    "preparationTitle": "التحضير",
+    "bookingUnavailableNotice": "الحجز الإلكتروني لهذه الخدمة غير متاح بعد."
   },
   "Wishlist": {
     "eyebrow": "قائمة أمنيات خاصة",

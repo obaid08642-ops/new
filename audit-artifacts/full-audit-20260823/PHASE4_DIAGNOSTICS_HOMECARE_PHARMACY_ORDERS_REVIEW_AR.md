@@ -76,3 +76,12 @@ Mobile `diagnostics/package-detail.tsx` يضيف الحزمة إلى `Diagnostic
 | POST | `/pharmacy/returns` | 401 |
 
 الدليل الخام في `phase4-mutation-method-probe.tsv`. وجود route محمي لا يكفي لتفعيله: يلزم payload contract موثق، server-authoritative totals، ownership، Idempotency-Key، replay behavior، وSandbox owner/stranger/unauth. لذلك تبقى هذه mutations خلف شريحة تنفيذ منفصلة، بينما لا تُعرض أزرار نجاح وهمية في صفحة Wishlist الحالية.
+
+
+## تحديث الاعتماد الحي الأخير
+
+أثبت الفحص الحي أن `GET /radiology/services/{_id}` و`GET /radiology/services/{short_code}` يعيدان 200 لموارد حقيقية. أضيفت صفحة Radiology Detail بالـ`_id` كمعرف أساسي، مع parser محدود، حالات 404/error، دعم RTL واللغات الست، وروابط قائمة حقيقية؛ لا يوجد زر حجز مصطنع لأن عقد mutation الأشعة لم يُثبت.
+
+صُحح Home-care إلى `GET /unified-bookings/mine`، وتبين أن القائمة الموحدة قد تحتوي موارد consultation/lab/pharmacy؛ لذلك لا يُستخدم أول عنصر عشوائياً كحجز Home-care. اختبار Sandbox بعد تصفية `kind` المناسب نجح، بينما لا يوجد fixture Home-care قابل لاختبار detail ownership في الحساب الحالي.
+
+أضيف `COPY patches ./patches` إلى Dockerfile، وأضيف `outputFileTracingIncludes` لـ`@swc/helpers` في Next config. اختبارات الشرائح وtype-check وproduction build نجحت. لم ينفذ image build حقيقي لأن Docker وPodman وBuildah وnerdctl غير متاحة في بيئة التدقيق؛ يبقى CI/staging gate إلزامياً قبل اعتماد صورة الإنتاج.

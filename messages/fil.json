@@ -798,7 +798,15 @@
     "unavailableTitle": "Hindi available ang radiology",
     "unavailableBody": "Hindi ma-load ang live radiology catalog.",
     "retry": "Subukan muli",
-    "detailBlocked": "Pansamantalang hindi available ang detalye"
+    "detailBlocked": "Pansamantalang hindi available ang detalye",
+    "backToRadiology": "Bumalik sa radiology",
+    "detailTitle": "Mga detalye ng serbisyo",
+    "invalidResponse": "Hindi wasto ang live na tugon ng serbisyo.",
+    "detailDescriptionUnavailable": "Walang available na paglalarawan para sa serbisyong ito.",
+    "turnaround": "{value} oras",
+    "fasting": "Maaaring kailanganin ang pag-aayuno",
+    "preparationTitle": "Paghahanda",
+    "bookingUnavailableNotice": "Hindi pa available ang online booking para sa serbisyong ito."
   },
   "Wishlist": {
     "eyebrow": "Pribadong wishlist",

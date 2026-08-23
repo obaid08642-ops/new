@@ -1,0 +1,12 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ lib/api/sandbox-home-care-contract.test.ts (1 test) 3489ms
+   ✓ Sandbox unified home-care booking contract > allows the owner to read their list and rejects another patient for any available detail 3488ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:38:16
+   Duration  3.64s (transform 29ms, setup 0ms, collect 28ms, tests 3.49s, environment 0ms, prepare 34ms)
+

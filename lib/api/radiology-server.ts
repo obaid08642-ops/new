@@ -5,6 +5,11 @@ const bool = (v?: string) => v === "true" ? "true" : v === "false" ? "false" : u
 export type RadiologyQuery = { modality?: string; bodyPart?: string; homeVisit?: string; homeOnly?: string; highestRated?: string; nearest?: string; lowestPrice?: string; search?: string };
 export function getPublicRadiologyModalities() { return callPatientApi("/radiology/modalities", { method: "GET", cache: "no-store" }); }
 
+export function getPublicRadiologyServiceDetail(identifier: string) {
+  const safe = identifier.trim().slice(0, 128);
+  return callPatientApi(`/radiology/services/${encodeURIComponent(safe)}`, { method: "GET", cache: "no-store" });
+}
+
 export function getPublicRadiologyServices(query: RadiologyQuery = {}) {
   const params = new URLSearchParams();
   if (query.modality && modalities.has(query.modality)) params.set("modality", query.modality);

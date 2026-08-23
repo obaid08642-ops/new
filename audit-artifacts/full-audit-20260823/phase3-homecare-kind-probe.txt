@@ -1,0 +1,3 @@
+"kind":"consultation"
+"kind":"lab"
+"kind":"pharmacy"

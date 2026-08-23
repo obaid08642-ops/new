@@ -1,0 +1,4 @@
+GET	/radiology/services/{_id}	200	id-extracted
+GET	/radiology/services/{short_code}	200	short-extracted
+GET	/unified-bookings/mine	401	unauth
+GET	/home-care/bookings/my	401	unauth-old

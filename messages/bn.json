@@ -798,7 +798,15 @@
     "unavailableTitle": "রেডিওলজি অনুপলভ্য",
     "unavailableBody": "লাইভ রেডিওলজি ক্যাটালগ লোড করা যায়নি।",
     "retry": "আবার চেষ্টা করুন",
-    "detailBlocked": "বিস্তারিত সাময়িকভাবে অনুপলভ্য"
+    "detailBlocked": "বিস্তারিত সাময়িকভাবে অনুপলভ্য",
+    "backToRadiology": "রেডিওলজিতে ফিরে যান",
+    "detailTitle": "সেবার বিবরণ",
+    "invalidResponse": "লাইভ সেবার উত্তরটি সঠিক নয়।",
+    "detailDescriptionUnavailable": "এই সেবার কোনো বিবরণ পাওয়া যায়নি।",
+    "turnaround": "{value} ঘণ্টা",
+    "fasting": "উপবাসের প্রয়োজন হতে পারে",
+    "preparationTitle": "প্রস্তুতি",
+    "bookingUnavailableNotice": "এই সেবার অনলাইন বুকিং এখনও উপলব্ধ নয়।"
   },
   "Wishlist": {
     "eyebrow": "ব্যক্তিগত ইচ্ছেতালিকা",

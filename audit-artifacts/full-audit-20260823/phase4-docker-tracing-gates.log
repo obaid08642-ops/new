@@ -1,0 +1,125 @@
+DOCKER_UNAVAILABLE
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+ RUN  v2.1.9 /home/ubuntu/nabdah_impl/repo
+
+ ✓ lib/api/home-care-server.test.ts (1 test) 28ms
+ ✓ lib/api/radiology-server.test.ts (1 test) 3ms
+ ✓ lib/api/radiology.test.ts (2 tests) 4ms
+ ✓ app/[locale]/diagnostics/radiology/radiology-ssr.test.ts (2 tests) 27ms
+
+ Test Files  4 passed (4)
+      Tests  6 passed (6)
+   Start at  08:34:58
+   Duration  385ms (transform 130ms, setup 0ms, collect 397ms, tests 62ms, environment 0ms, prepare 168ms)
+
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 check /home/ubuntu/nabdah_impl/repo
+> tsc --noEmit
+
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 build /home/ubuntu/nabdah_impl/repo
+> NODE_ENV=production next build
+
+▲ Next.js 16.3.1 (Turbopack)
+✓ Running next.config.ts took 28ms
+- Experiments (use with caution):
+  ✓ globalNotFound
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.5s
+  Running TypeScript ...
+  Finished TypeScript in 1316ms ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/16) ...
+  Generating static pages using 5 workers (4/16) 
+  Generating static pages using 5 workers (8/16) 
+  Generating static pages using 5 workers (12/16) 
+✓ Generating static pages using 5 workers (16/16) in 94ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/appointments
+├ ƒ /[locale]/appointments/[appointmentId]
+├ ƒ /[locale]/articles
+├ ƒ /[locale]/articles/[slug]
+├ ƒ /[locale]/articles/bookmarks
+├ ƒ /[locale]/cart
+├ ƒ /[locale]/cart/checkout
+├ ƒ /[locale]/cart/prescription
+├ ƒ /[locale]/chat
+├ ƒ /[locale]/chat/[threadId]
+├ ƒ /[locale]/consultations/doctors
+├ ƒ /[locale]/consultations/doctors/[doctorId]
+├ ƒ /[locale]/consultations/specialties
+├ ƒ /[locale]/dashboard
+├ ƒ /[locale]/diagnostics
+├ ƒ /[locale]/diagnostics/[domain]/[bookingId]
+├ ƒ /[locale]/diagnostics/labs
+├ ƒ /[locale]/diagnostics/packages
+├ ƒ /[locale]/diagnostics/packages/[packageId]
+├ ƒ /[locale]/diagnostics/radiology
+├ ƒ /[locale]/diagnostics/radiology/[serviceId]
+├ ƒ /[locale]/family
+├ ƒ /[locale]/health
+├ ƒ /[locale]/health/chronic-diseases
+├ ƒ /[locale]/health/chronic-medications
+├ ƒ /[locale]/health/emergency-contacts
+├ ƒ /[locale]/health/reports
+├ ƒ /[locale]/health/score
+├ ƒ /[locale]/health/sleep
+├ ƒ /[locale]/health/trends
+├ ƒ /[locale]/health/vitals
+├ ƒ /[locale]/home-care
+├ ƒ /[locale]/home-care/services
+├ ƒ /[locale]/home-care/services/[serviceId]
+├ ƒ /[locale]/insurance
+├ ƒ /[locale]/login
+├ ƒ /[locale]/medicine-catalog
+├ ƒ /[locale]/medicines
+├ ƒ /[locale]/medicines/[medicineId]
+├ ƒ /[locale]/mental-health
+├ ƒ /[locale]/mental-health/breathing
+├ ƒ /[locale]/mental-health/crisis-contacts
+├ ƒ /[locale]/mental-health/meditation
+├ ƒ /[locale]/mental-health/mood
+├ ƒ /[locale]/notifications
+├ ƒ /[locale]/notifications/settings
+├ ƒ /[locale]/orders
+├ ƒ /[locale]/orders/[orderId]
+├ ƒ /[locale]/orders/[orderId]/tracking
+├ ƒ /[locale]/prescriptions
+├ ƒ /[locale]/prescriptions/[prescriptionId]
+├ ƒ /[locale]/profile
+├ ƒ /[locale]/reminders
+├ ƒ /[locale]/settings
+├ ƒ /[locale]/wishlist
+├ ƒ /api/appointments/[appointmentId]/call-token
+├ ƒ /api/appointments/[appointmentId]/cancel
+├ ƒ /api/appointments/[appointmentId]/payment-intent
+├ ƒ /api/appointments/[appointmentId]/reschedule
+├ ƒ /api/appointments/book
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/otp/request
+├ ƒ /api/auth/otp/verify
+├ ƒ /api/auth/session
+├ ƒ /api/auth/session/exchange
+├ ƒ /api/auth/verify-2fa
+├ ƒ /api/patient/[...path]
+├ ○ /icon.svg
+├ ƒ /llms.txt
+├ ○ /manifest.webmanifest
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

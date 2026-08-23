@@ -11,6 +11,6 @@ describe("home-care server boundary", () => {
     const response = new Response(null, { status: 200 });
     callPatientApi.mockResolvedValue(response);
     await getPatientHomeCareBookings("server-token");
-    expect(callPatientApi).toHaveBeenCalledWith("/home-care/bookings/my", {}, "server-token");
+    expect(callPatientApi).toHaveBeenCalledWith("/unified-bookings/mine", { method: "GET", cache: "no-store" }, "server-token");
   });
 });

@@ -8,10 +8,14 @@ function findAccessToken(value: unknown): string | undefined {
   return Object.values(record).map(findAccessToken).find(Boolean);
 }
 
-function firstResourceId(value: unknown): string | undefined {
+function firstHomeCareResourceId(value: unknown): string | undefined {
   const root = value && typeof value === "object" ? value as Record<string, unknown> : null;
   const items = Array.isArray(value) ? value : Array.isArray(root?.data) ? root.data : Array.isArray(root?.items) ? root.items : Array.isArray(root?.results) ? root.results : [];
-  const first = items[0];
+  const first = items.find((item) => {
+    if (!item || typeof item !== "object") return false;
+    const kind = String((item as Record<string, unknown>).kind ?? "").toLowerCase();
+    return ["home-care", "home_care", "homecare", "nursing"].includes(kind);
+  });
   return first && typeof first === "object" && typeof (first as Record<string, unknown>).id === "string" ? (first as Record<string, unknown>).id as string : undefined;
 }
 
@@ -27,19 +31,19 @@ async function login(identifier: string | undefined, password: string | undefine
 
 const describeSandbox = process.env.RUN_SANDBOX_TESTS === "true" ? describe : describe.skip;
 
-describeSandbox("Sandbox home-care booking contract", () => {
+describeSandbox("Sandbox unified home-care booking contract", () => {
   it("allows the owner to read their list and rejects another patient for any available detail", async () => {
     const baseUrl = process.env.NABD_API_BASE_URL;
     expect(baseUrl).toBeTruthy();
     const ownerToken = await login(process.env.NABD_SANDBOX_OWNER_EMAIL, process.env.NABD_SANDBOX_OWNER_PASSWORD, baseUrl as string);
     const otherToken = await login(process.env.NABD_SANDBOX_OTHER_EMAIL, process.env.NABD_SANDBOX_OTHER_PASSWORD, baseUrl as string);
-    const list = await fetch(`${baseUrl}/home-care/bookings/my`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+    const list = await fetch(`${baseUrl}/unified-bookings/mine`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
     expect(list.status).toBe(200);
-    const bookingId = firstResourceId(await list.json().catch(() => null));
+    const bookingId = firstHomeCareResourceId(await list.json().catch(() => null));
     if (!bookingId) return;
-    const ownerDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+    const ownerDetail = await fetch(`${baseUrl}/unified-bookings/home-care/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
     expect(ownerDetail.status).toBe(200);
-    const otherDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+    const otherDetail = await fetch(`${baseUrl}/unified-bookings/home-care/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
     expect([403, 404]).toContain(otherDetail.status);
   }, 40_000);
 });
