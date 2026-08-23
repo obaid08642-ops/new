@@ -33,3 +33,7 @@ Local render passed for Welcome and Login. الحكم البصري الكامل 
 ## Mobile registration flow gap
 
 مراجعة `mobile/app/(auth)/register.tsx` أظهرت أن التطبيق يرسل `POST /auth/send-otp` مع `purpose: register` أولاً، ثم يمرر بيانات التسجيل إلى شاشة OTP التي تكمل التسجيل بعد التحقق. Web الحالي يستدعي `POST /api/auth/register` قبل OTP. لا يجوز نسخ نمط Mobile حرفياً عبر تمرير password في query أو storage؛ ذلك يخرق متطلبات الأمان. يلزم عقد transaction آمن يحتفظ بالبيانات على الخادم أو cookie `httpOnly`/معرّف غير حساس، ثم يربط OTP verification بإنشاء الحساب. حتى توفير هذا العقد، حالة Register-to-OTP المنطقية تبقى `blocked-on-contract` رغم أن الواجهة والمسارات الأساسية مبنية.
+
+## Terms and Privacy route closure
+
+أضيفت مسارا `/[locale]/terms` و`/[locale]/privacy` لتغطية الشاشتين الموجودتين في Mobile. هما صفحات blocked صادقة بمحتوى قانوني غير افتراضي، مع `noindex`، لأن النسخة القانونية المعتمدة لم تصل بعد. اكتمال route لا يعني اكتمال الاعتماد القانوني.
