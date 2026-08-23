@@ -152,3 +152,40 @@
 بعد آخر تغييرات الأمن، نجحت البوابة المحلية الكاملة بـ**132 ملف اختبار ناجحاً، 254 اختباراً ناجحاً، 14 ملفاً و23 اختباراً متخطياً، type-check ناجح، وproduction build ناجح**. آخر رأس بعيد موثق هو `ed563e46e8d8fb3b6cec41e62c9e42d9938fdc94` قبل تحديثات تدقيق البوابات اللاحقة؛ يجب استخدام ناتج `git ls-remote` من آخر commit عند التسليم النهائي وعدم الاعتماد على هذا الرقم القديم.
 
 تمت إضافة security headers ورفع postcss إلى 8.5.26. بقيت مراجعة advisory @babel/core low، وDocker smoke، وقياسات Core Web Vitals، واختبارات Sandbox الحية كـevidence gaps حتى تُنفذ داخل CI/staging وخارج بيئة التدقيق الحالية.
+
+
+## 12. Sandbox الرسمي — إعادة التحقق بالاعتمادات المعتمدة
+
+تم تشغيل Sandbox الرسمي باستخدام الحسابين اللذين قدمهما المالك فقط، مع `NABD_API_BASE_URL=https://api.nabd.plus/api/v1` وcooldown قدره 70 ثانية بين الدفعات. لم تُستخدم بطاقة دفع، ولم يُنشأ حجز تجريبي، ولذلك لم توجد عملية إلغاء مطلوبة.
+
+| النطاق | النتيجة |
+|---|---|
+| Owner authentication | ناجح |
+| Orders ownership | ناجح |
+| Appointments read/ownership | ناجح |
+| Diagnostics read/ownership | ناجح |
+| Specialty/provider discovery | ناجح |
+| Medicines | ناجح |
+| Family | ناجح |
+| Notifications | ناجح |
+| Chat | ناجح |
+| Prescriptions | ناجح |
+| Profile | ناجح |
+| Reminders | ناجح |
+| Vitals | ناجح |
+| Home-care | **فشل صريح**: الحساب authenticated لكن `GET /home-care/bookings/my` أعاد 404 مع `home_care_booking_not_found` |
+
+نجحت 13 حزمة من أصل 14؛ الحزمة الفاشلة أوقفتها قاعدة الاختبار عند Home-care، ثم شُغّلت الحزم الثماني اللاحقة مستقلاً ونجحت كلها. هذا لا يثبت أن Home-care endpoint غير موجود، لأن GET بدون جلسة أعاد 401، لكنه يثبت أن حساب Sandbox الحالي لا يملك مورداً قابلاً للقراءة أو أن backend لا يعالج empty collection كـ200؛ يجب إصلاح/توضيح ذلك قبل اعتبار Home-care parity مغلقاً.
+
+تم فحص unified-bookings دون جلسة وبمعرف UUID غير قابل للاستخدام، دون إنشاء عمليات:
+
+| Method/path | HTTP | الاستنتاج |
+|---|---:|---|
+| `POST /unified-bookings` | 401 | method/path موجود ومحمي |
+| `POST /unified-bookings/consultation/{id}/cancel` | 401 | method/path موجود ومحمي |
+| `PATCH /unified-bookings/consultation/{id}/reschedule` | 401 | method/path موجود ومحمي |
+| `POST /unified-bookings/consultation/{id}/reschedule` | 404 | method خاطئ وغير منشور |
+| `GET /unified-bookings/{id}/call-token` | 401 | method/path الصحيح موجود ومحمي |
+| `POST /unified-bookings/{id}/call-token` | 404 | method خاطئ وغير منشور |
+
+لم تُشغّل mutations الحية للحجز أو الإلغاء أو إعادة الجدولة أو call-token لأن مجموعة الاختبارات الحالية read-only ولا تملك fixture موثقاً لslot متاح وappointment قابل للإلغاء، ولأن تشغيلها يتطلب عقد payload وبيانات cleanup مؤكدة. لا يجوز اعتبارها ناجحة استناداً إلى اختبارات BFF المحلية فقط.

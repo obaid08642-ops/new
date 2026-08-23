@@ -1,0 +1,32 @@
+STATUS=404
+HTTP/2 404 
+date: Sun, 23 Aug 2026 06:16:45 GMT
+content-type: application/json; charset=utf-8
+content-length: 78
+server: cloudflare
+content-security-policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data: https:;object-src 'none';script-src 'self' 'unsafe-inline';script-src-attr 'none';style-src 'self' 'unsafe-inline';upgrade-insecure-requests
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+referrer-policy: strict-origin-when-cross-origin
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=15552000; includeSubDomains
+x-content-type-options: nosniff
+x-content-type-options: nosniff
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: DENY
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-xss-protection: 0
+vary: Origin, Accept-Encoding
+access-control-allow-credentials: true
+x-correlation-id: eecf9820-d724-4e0b-b2cc-d367607aef64
+x-ratelimit-limit: 200
+x-ratelimit-remaining: 199
+x-ratelimit-reset: 60
+etag: W/"4e-LozApjADauEp36dVFrIO/jMO8xw"
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=6CB8mugZeDzofXThyEbqumfRqzQI5qcQB%2BPb%2BHTOBBub4ySIbK1bcsRqk5oW%2FdP4ySynPYL0CVOd9NsYATeMHmr%2BFogMBtrYrcTZQomvYo3U%2FUK4%2BO99uDCVMLbApWef"}]}
+BODY_REDACTED={"message":"home_care_booking_not_found","error":"Not Found","statusCode":404}
