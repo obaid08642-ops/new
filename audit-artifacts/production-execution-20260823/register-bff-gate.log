@@ -1,0 +1,1 @@
+Register BFF gate — traditional /auth/register contract; confirm_password removed before upstream; token-bearing upstream response rejected; TypeScript passed; 141 test files passed; 285 tests passed; 23 skipped; build passed.
