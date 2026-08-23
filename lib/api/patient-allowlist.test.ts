@@ -17,6 +17,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/cart/checkout")).toBe(true);
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
+    expect(isAllowedPatientApiPath("/nursing/visits")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
@@ -32,6 +33,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/cart", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/clear", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/nursing/visits", "POST")).toBe(false);
+    expect(isAllowedPatientApiPath("/nursing/visits?limit=10")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(false);
   });
