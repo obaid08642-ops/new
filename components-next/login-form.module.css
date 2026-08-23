@@ -39,3 +39,8 @@
 @keyframes authRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .brandHero, .field, .utilityRow, .submit, .divider, .socialGrid, .registerPrompt { animation: none; } .field input, .submit, .socialButton { transition: none; } .submit:active:not(:disabled), .socialButton:hover { transform: none; } .spinner { animation: none; } }
 @media (max-width: 540px) { .socialGrid { gap: .5rem; } .socialButton { min-block-size: 3rem; } .utilityRow { align-items: flex-start; flex-direction: column; } }
+
+.consent { display: flex; align-items: flex-start; gap: .6rem; color: var(--muted); font-size: .76rem; line-height: 1.55; animation: authRise .55s var(--ease-premium) .18s both; }
+.checkbox { display: grid; flex: 0 0 auto; place-items: center; inline-size: 1.25rem; block-size: 1.25rem; margin-top: .05rem; border: 1px solid var(--line); border-radius: .4rem; color: #fff; background: transparent; cursor: pointer; }
+.checkbox.checked { border-color: var(--brand); background: var(--brand); }
+.checkbox:focus-visible { outline: 3px solid rgba(37,99,235,.48); outline-offset: 3px; }
