@@ -1,0 +1,251 @@
+mobile_file	domain	mobile_action_markers	mobile_navigation_markers	mobile_methods	web_route_candidates	status	evidence_required
+(auth)/_layout.tsx	(auth)	0	6	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+(auth)/forgot-password.tsx	(auth)	3	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/login.tsx	(auth)	10	7	"{""POST"": 2}"	/[locale]/login	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+(auth)/otp.tsx	(auth)	4	3	"{""POST"": 3}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/privacy.tsx	(auth)	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/provider-info.tsx	(auth)	2	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/register.tsx	(auth)	11	6	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/reset-password.tsx	(auth)	3	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/terms.tsx	(auth)	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(auth)/welcome.tsx	(auth)	12	8	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(onboarding)/_layout.tsx	(onboarding)	0	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+(onboarding)/index.tsx	(onboarding)	2	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(onboarding)/language.tsx	(onboarding)	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(onboarding)/permissions.tsx	(onboarding)	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(tabs)/_layout.tsx	(tabs)	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+(tabs)/consultations/index.tsx	(tabs)	31	8	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(tabs)/diagnostics.tsx	(tabs)	21	11	{}	/[locale]/diagnostics	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+(tabs)/health.tsx	(tabs)	7	9	{}	/[locale]/health	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+(tabs)/index.tsx	(tabs)	19	19	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(tabs)/nursing.tsx	(tabs)	18	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(tabs)/pharmacy.tsx	(tabs)	16	8	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+(tabs)/services.tsx	(tabs)	2	2	{}	/[locale]/home-care/services	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+_layout.tsx	_layout.tsx	2	7	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+ai/chat-doctor.tsx	ai	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+ai/monthly-report.tsx	ai	7	5	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+ai/prescription-translator.tsx	ai	10	5	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+ai/skin-analysis.tsx	ai	8	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+ai/symptom-checker.tsx	ai	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+ai/symptom-timeline.tsx	ai	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+ai/triage.tsx	ai	8	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+ai-assistant.tsx	ai-assistant.tsx	3	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+articles/[slug].tsx	articles	5	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+articles/bookmarks.tsx	articles	4	2	{}	/[locale]/articles/bookmarks	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+articles/index.tsx	articles	6	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+community/hub.tsx	community	7	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+community/post-detail.tsx	community	6	0	"{""POST"": 1, ""PUT"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/appointment-detail.tsx	consultations	10	8	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/appointments.tsx	consultations	8	5	{}	/[locale]/appointments	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+consultations/book/[id].tsx	consultations	9	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/booking-confirm.tsx	consultations	6	4	"{""POST"": 3}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/booking-pending.tsx	consultations	4	5	"{""PATCH"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/booking-success.tsx	consultations	2	4	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/call-history.tsx	consultations	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/cancel-reschedule.tsx	consultations	9	2	"{""PATCH"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/chat-with-doctor.tsx	consultations	3	0	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/clinic/[id].tsx	consultations	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/clinic-confirm.tsx	consultations	7	4	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/clinic-location.tsx	consultations	3	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/doctor/[id].tsx	consultations	12	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/doctor-profile.tsx	consultations	0	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+consultations/doctor-search.tsx	consultations	3	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/follow-up.tsx	consultations	6	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/home-visit-tracking.tsx	consultations	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/incoming-call.tsx	consultations	2	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/offer/[id].tsx	consultations	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+consultations/post-call-rating.tsx	consultations	4	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/prescription-from-doctor.tsx	consultations	9	4	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/share-report.tsx	consultations	4	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/specialty-select.tsx	consultations	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/summary.tsx	consultations	3	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/video/[id].tsx	consultations	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+consultations/video-call.tsx	consultations	3	1	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/virtual-waiting-room.tsx	consultations	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+consultations/waiting-room.tsx	consultations	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+delivery/address-select.tsx	delivery	5	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/book-sample.tsx	diagnostics	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/booking-confirm.tsx	diagnostics	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+diagnostics/booking-success.tsx	diagnostics	2	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/cart.tsx	diagnostics	9	3	{}	/[locale]/cart	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+diagnostics/checkout.tsx	diagnostics	0	0	{}	/[locale]/cart/checkout	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	live contract + SSR/security test
+diagnostics/insurance-approval.tsx	diagnostics	5	4	"{""PATCH"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/insurance-upload.tsx	diagnostics	14	3	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/lab/[id].tsx	diagnostics	6	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/lab-comparison.tsx	diagnostics	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/my-results.tsx	diagnostics	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/order/[id].tsx	diagnostics	8	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/orders.tsx	diagnostics	4	1	{}	/[locale]/orders	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+diagnostics/package-detail.tsx	diagnostics	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/packages.tsx	diagnostics	3	1	{}	/[locale]/diagnostics/packages	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+diagnostics/results-history.tsx	diagnostics	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/sample-tracking.tsx	diagnostics	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+diagnostics/search.tsx	diagnostics	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/technician-tracking.tsx	diagnostics	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+diagnostics/test-detail.tsx	diagnostics	4	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+diagnostics/upload-rx.tsx	diagnostics	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+drug-scanner/index.tsx	drug-scanner	6	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+emergency/index.tsx	emergency	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+emergency/sos-active.tsx	emergency	5	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+emergency/sos.tsx	emergency	8	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+emergency/tracking.tsx	emergency	5	1	{}	/[locale]/orders/[orderId]/tracking	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+family/calendar.tsx	family	8	0	"{""DELETE"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/chat.tsx	family	4	0	"{""POST"": 1}"	/[locale]/chat	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+family/emergency-contacts.tsx	family	7	3	{}	/[locale]/health/emergency-contacts	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+family/hub.tsx	family	7	7	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/index.tsx	family	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+family/invite.tsx	family	5	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/join.tsx	family	6	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/member-health.tsx	family	4	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/permission-request.tsx	family	4	0	"{""PUT"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/permissions.tsx	family	3	0	"{""DELETE"": 1, ""PATCH"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/scan.tsx	family	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+family/shared-calendar.tsx	family	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+health/actionable-order.tsx	health	4	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/add-family-member.tsx	health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+health/chronic-disease.tsx	health	5	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/chronic-medications.tsx	health	7	3	"{""POST"": 1}"	/[locale]/health/chronic-medications	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+health/conditions-allergies.tsx	health	4	0	"{""DELETE"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/edit-profile.tsx	health	5	1	"{""PATCH"": 2, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/emergency-contacts.tsx	health	7	0	"{""DELETE"": 1, ""POST"": 1}"	/[locale]/health/emergency-contacts	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+health/family-calendar.tsx	health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+health/family-chat.tsx	health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+health/family-hub.tsx	health	8	6	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/family-member-detail.tsx	health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+health/health-id.tsx	health	6	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/medication-reminder-add.tsx	health	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/medication-reminder-list.tsx	health	9	3	"{""PATCH"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/medications.tsx	health	9	6	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/prescriptions.tsx	health	4	2	{}	/[locale]/prescriptions	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+health/refills.tsx	health	3	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/reminders.tsx	health	0	0	{}	/[locale]/reminders	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	live contract + SSR/security test
+health/reports.tsx	health	2	0	{}	/[locale]/health/reports	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+health/sleep-score.tsx	health	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/sleep-tracker.tsx	health	3	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/smart-reminders.tsx	health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+health/trends.tsx	health	7	0	{}	/[locale]/health/trends	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+health/vitals-log.tsx	health	7	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+health/vitals.tsx	health	7	5	{}	/[locale]/health/vitals	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+health/wearables.tsx	health	3	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+index.tsx	index.tsx	0	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+insurance/add-policy.tsx	insurance	4	1	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/approval-pending.tsx	insurance	5	4	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/benefits-summary.tsx	insurance	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/claim-tracking.tsx	insurance	4	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/copay.tsx	insurance	1	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/coverage-check.tsx	insurance	6	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/hub.tsx	insurance	11	8	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/index.tsx	insurance	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+insurance/network-providers.tsx	insurance	5	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/payment-split.tsx	insurance	6	2	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/policy-detail.tsx	insurance	3	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/refund-status.tsx	insurance	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+insurance/submit-claim.tsx	insurance	5	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+loyalty/challenges.tsx	loyalty	2	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+loyalty/hub.tsx	loyalty	6	3	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+loyalty/leaderboard.tsx	loyalty	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+loyalty/referrals.tsx	loyalty	6	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+loyalty/rewards.tsx	loyalty	2	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+map/index.tsx	map	14	6	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+maternity/baby-development.tsx	maternity	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+maternity/baby-growth.tsx	maternity	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+maternity/fetus-data.ts	maternity	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+maternity/hub.tsx	maternity	4	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+maternity/maternity-setup.tsx	maternity	2	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+maternity/ovulation-tracker.tsx	maternity	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+maternity/pregnancy-tracker.tsx	maternity	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+mental-health/breathing.tsx	mental-health	0	0	{}	/[locale]/mental-health/breathing	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	live contract + SSR/security test
+mental-health/crisis-support.tsx	mental-health	10	1	"{""DELETE"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+mental-health/hub.tsx	mental-health	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+mental-health/index.tsx	mental-health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+mental-health/meditation.tsx	mental-health	0	0	{}	/[locale]/mental-health/meditation	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	live contract + SSR/security test
+mental-health/mood-journal.tsx	mental-health	6	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+mental-health/self-assessment.tsx	mental-health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+mental-health/therapist-match.tsx	mental-health	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+notifications/index.tsx	notifications	6	2	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nursing/live-tracking.tsx	nursing	6	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nursing/nurse-profile.tsx	nursing	12	3	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nursing/service-details.tsx	nursing	10	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nursing/service-info.tsx	nursing	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nutrition/ai-meal-planner.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/ai-plan-builder.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/body-composition.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/body-target.tsx	nutrition	2	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nutrition/calorie-analyzer.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/daily-tracker.tsx	nutrition	6	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nutrition/exercise-plan.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/food-scanner.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/hub.tsx	nutrition	7	4	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nutrition/index.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/log-meal.tsx	nutrition	2	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+nutrition/nutrition-plan.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+nutrition/water-tracker.tsx	nutrition	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+offers/[id].tsx	offers	5	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+offers/index.tsx	offers	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+orders/index.tsx	orders	4	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+payments/failed.tsx	payments	3	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+payments/failure.tsx	payments	3	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+payments/processing.tsx	payments	3	5	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+payments/success.tsx	payments	5	7	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/barcode-scanner.tsx	pharmacy	9	5	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/broadcast-status.tsx	pharmacy	2	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/cart.tsx	pharmacy	12	3	{}	/[locale]/cart	PARTIAL_ACTION_PROOF_REQUIRED	live contract + SSR/security test + full journey test
+pharmacy/chat-with-pharmacist.tsx	pharmacy	10	1	"{""POST"": 4}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/checkout.tsx	pharmacy	7	4	"{""POST"": 3}"	/[locale]/cart/checkout	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+pharmacy/custom-item.tsx	pharmacy	4	1	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/drug-not-found.tsx	pharmacy	6	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/filters.tsx	pharmacy	8	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/manual-order.tsx	pharmacy	4	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/medicine-compare.tsx	pharmacy	2	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/order-confirm.tsx	pharmacy	3	2	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/order-history.tsx	pharmacy	4	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/order-tracking.tsx	pharmacy	4	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/payment.tsx	pharmacy	4	4	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/pharmacist-chat.tsx	pharmacy	4	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/product-detail.tsx	pharmacy	17	5	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/product-search.tsx	pharmacy	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+pharmacy/reorder.tsx	pharmacy	7	2	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/rx-order.tsx	pharmacy	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/scan-prescription.tsx	pharmacy	3	1	"{""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/waiting-for-pharmacy.tsx	pharmacy	1	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+pharmacy/wishlist.tsx	pharmacy	5	1	"{""POST"": 1}"	/[locale]/wishlist	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+profile/addresses.tsx	profile	2	0	"{""PATCH"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+profile/edit.tsx	profile	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+profile/index.tsx	profile	6	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+profile/insurance.tsx	profile	7	0	"{""POST"": 1}"	/[locale]/insurance	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+programs/active.tsx	programs	5	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+reports/ai-analysis.tsx	reports	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+reports/hub.tsx	reports	6	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+reports/passport.tsx	reports	3	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+reports/timeline.tsx	reports	4	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+reports/view-report.tsx	reports	4	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+returns/detail.tsx	returns	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+returns/hub.tsx	returns	5	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+returns/new-request.tsx	returns	10	2	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+reviews/index.tsx	reviews	5	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+room/[id].tsx	room	4	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+s/[type]/[slug].tsx	s	0	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+search/index.tsx	search	3	9	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+services/index.tsx	services	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/about.tsx	settings	5	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/data.tsx	settings	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/feedback.tsx	settings	5	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/help.tsx	settings	6	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/index.tsx	settings	3	3	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/language.tsx	settings	2	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/notifications-settings.tsx	settings	1	0	"{""PATCH"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/notifications.tsx	settings	0	0	{}	/[locale]/notifications	READ_CANDIDATE_CONTRACT_PROOF_REQUIRED	live contract + SSR/security test
+settings/privacy.tsx	settings	2	0	"{""PATCH"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/security.tsx	settings	4	0	"{""DELETE"": 1, ""PATCH"": 2, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+settings/support-chat.tsx	settings	0	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test
+settings/terms.tsx	settings	1	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+shared/location-picker.tsx	shared	11	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+support/chat.tsx	support	5	0	"{""POST"": 2}"	/[locale]/chat	PARTIAL_MUTATION_CONTRACT_REQUIRED	live contract + SSR/security test + full journey test
+support/ticket.tsx	support	3	2	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+voice/index.tsx	voice	2	1	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+wallet/cards.tsx	wallet	4	0	"{""DELETE"": 1, ""POST"": 2}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+wallet/hub.tsx	wallet	8	3	"{""DELETE"": 1, ""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+wallet/topup.tsx	wallet	3	1	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+wallet/transactions.tsx	wallet	2	0	{}		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+wallet/transfer.tsx	wallet	3	0	"{""POST"": 1}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test
+wearables/hub.tsx	wearables	2	0	"{""POST"": 5}"		MISSING_WEB_SURFACE	live contract + SSR/security test + full journey test

@@ -1,0 +1,856 @@
+{
+  "(auth)": {
+    "mobile_files": 10,
+    "files_with_actions": 9,
+    "files_with_navigation": 8,
+    "files_with_mutation_methods": 6,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 9,
+    "partial_mutation_contract": 1,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "(auth)/_layout.tsx",
+      "(auth)/forgot-password.tsx",
+      "(auth)/otp.tsx",
+      "(auth)/privacy.tsx",
+      "(auth)/provider-info.tsx",
+      "(auth)/register.tsx",
+      "(auth)/reset-password.tsx",
+      "(auth)/terms.tsx",
+      "(auth)/welcome.tsx"
+    ],
+    "journeys": 9,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 9
+    }
+  },
+  "(onboarding)": {
+    "mobile_files": 4,
+    "files_with_actions": 3,
+    "files_with_navigation": 4,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 4,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "(onboarding)/_layout.tsx",
+      "(onboarding)/index.tsx",
+      "(onboarding)/language.tsx",
+      "(onboarding)/permissions.tsx"
+    ],
+    "journeys": 3,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 3
+    }
+  },
+  "(tabs)": {
+    "mobile_files": 8,
+    "files_with_actions": 7,
+    "files_with_navigation": 7,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 3,
+    "missing_web_surface_candidates": 5,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 3,
+    "read_contract_proof": 0,
+    "files": [
+      "(tabs)/_layout.tsx",
+      "(tabs)/consultations/index.tsx",
+      "(tabs)/index.tsx",
+      "(tabs)/nursing.tsx",
+      "(tabs)/pharmacy.tsx"
+    ],
+    "journeys": 4,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 3,
+      "BLOCKED_OR_DEFERRED": 1
+    }
+  },
+  "_layout.tsx": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "_layout.tsx"
+    ]
+  },
+  "ai": {
+    "mobile_files": 7,
+    "files_with_actions": 4,
+    "files_with_navigation": 4,
+    "files_with_mutation_methods": 3,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 7,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "ai/chat-doctor.tsx",
+      "ai/monthly-report.tsx",
+      "ai/prescription-translator.tsx",
+      "ai/skin-analysis.tsx",
+      "ai/symptom-checker.tsx",
+      "ai/symptom-timeline.tsx",
+      "ai/triage.tsx"
+    ]
+  },
+  "ai-assistant.tsx": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "ai-assistant.tsx"
+    ]
+  },
+  "articles": {
+    "mobile_files": 3,
+    "files_with_actions": 3,
+    "files_with_navigation": 3,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 2,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 1,
+    "read_contract_proof": 0,
+    "files": [
+      "articles/[slug].tsx",
+      "articles/index.tsx"
+    ],
+    "journeys": 2,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 2
+    }
+  },
+  "community": {
+    "mobile_files": 2,
+    "files_with_actions": 2,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 2,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 2,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "community/hub.tsx",
+      "community/post-detail.tsx"
+    ],
+    "journeys": 1,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 1
+    }
+  },
+  "consultations": {
+    "mobile_files": 28,
+    "files_with_actions": 25,
+    "files_with_navigation": 24,
+    "files_with_mutation_methods": 7,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 27,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 1,
+    "read_contract_proof": 0,
+    "files": [
+      "consultations/appointment-detail.tsx",
+      "consultations/book/[id].tsx",
+      "consultations/booking-confirm.tsx",
+      "consultations/booking-pending.tsx",
+      "consultations/booking-success.tsx",
+      "consultations/call-history.tsx",
+      "consultations/cancel-reschedule.tsx",
+      "consultations/chat-with-doctor.tsx",
+      "consultations/clinic/[id].tsx",
+      "consultations/clinic-confirm.tsx",
+      "consultations/clinic-location.tsx",
+      "consultations/doctor/[id].tsx",
+      "consultations/doctor-profile.tsx",
+      "consultations/doctor-search.tsx",
+      "consultations/follow-up.tsx",
+      "consultations/home-visit-tracking.tsx",
+      "consultations/incoming-call.tsx",
+      "consultations/offer/[id].tsx",
+      "consultations/post-call-rating.tsx",
+      "consultations/prescription-from-doctor.tsx",
+      "consultations/share-report.tsx",
+      "consultations/specialty-select.tsx",
+      "consultations/summary.tsx",
+      "consultations/video/[id].tsx",
+      "consultations/video-call.tsx",
+      "consultations/virtual-waiting-room.tsx",
+      "consultations/waiting-room.tsx"
+    ],
+    "journeys": 8,
+    "journey_statuses": {
+      "BLOCKED_OR_DEFERRED": 8
+    }
+  },
+  "delivery": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "delivery/address-select.tsx"
+    ]
+  },
+  "diagnostics": {
+    "mobile_files": 20,
+    "files_with_actions": 15,
+    "files_with_navigation": 15,
+    "files_with_mutation_methods": 3,
+    "web_name_candidates": 4,
+    "missing_web_surface_candidates": 16,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 3,
+    "read_contract_proof": 1,
+    "files": [
+      "diagnostics/book-sample.tsx",
+      "diagnostics/booking-confirm.tsx",
+      "diagnostics/booking-success.tsx",
+      "diagnostics/insurance-approval.tsx",
+      "diagnostics/insurance-upload.tsx",
+      "diagnostics/lab/[id].tsx",
+      "diagnostics/lab-comparison.tsx",
+      "diagnostics/my-results.tsx",
+      "diagnostics/order/[id].tsx",
+      "diagnostics/package-detail.tsx",
+      "diagnostics/results-history.tsx",
+      "diagnostics/sample-tracking.tsx",
+      "diagnostics/search.tsx",
+      "diagnostics/technician-tracking.tsx",
+      "diagnostics/test-detail.tsx",
+      "diagnostics/upload-rx.tsx"
+    ]
+  },
+  "drug-scanner": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "drug-scanner/index.tsx"
+    ]
+  },
+  "emergency": {
+    "mobile_files": 4,
+    "files_with_actions": 3,
+    "files_with_navigation": 3,
+    "files_with_mutation_methods": 2,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 3,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 1,
+    "read_contract_proof": 0,
+    "files": [
+      "emergency/index.tsx",
+      "emergency/sos-active.tsx",
+      "emergency/sos.tsx"
+    ]
+  },
+  "family": {
+    "mobile_files": 12,
+    "files_with_actions": 10,
+    "files_with_navigation": 5,
+    "files_with_mutation_methods": 6,
+    "web_name_candidates": 2,
+    "missing_web_surface_candidates": 10,
+    "partial_mutation_contract": 1,
+    "partial_action_proof": 1,
+    "read_contract_proof": 0,
+    "files": [
+      "family/calendar.tsx",
+      "family/hub.tsx",
+      "family/index.tsx",
+      "family/invite.tsx",
+      "family/join.tsx",
+      "family/member-health.tsx",
+      "family/permission-request.tsx",
+      "family/permissions.tsx",
+      "family/scan.tsx",
+      "family/shared-calendar.tsx"
+    ],
+    "journeys": 7,
+    "journey_statuses": {
+      "BLOCKED_OR_DEFERRED": 7
+    }
+  },
+  "health": {
+    "mobile_files": 26,
+    "files_with_actions": 20,
+    "files_with_navigation": 14,
+    "files_with_mutation_methods": 10,
+    "web_name_candidates": 7,
+    "missing_web_surface_candidates": 19,
+    "partial_mutation_contract": 2,
+    "partial_action_proof": 4,
+    "read_contract_proof": 1,
+    "files": [
+      "health/actionable-order.tsx",
+      "health/add-family-member.tsx",
+      "health/chronic-disease.tsx",
+      "health/conditions-allergies.tsx",
+      "health/edit-profile.tsx",
+      "health/family-calendar.tsx",
+      "health/family-chat.tsx",
+      "health/family-hub.tsx",
+      "health/family-member-detail.tsx",
+      "health/health-id.tsx",
+      "health/medication-reminder-add.tsx",
+      "health/medication-reminder-list.tsx",
+      "health/medications.tsx",
+      "health/refills.tsx",
+      "health/sleep-score.tsx",
+      "health/sleep-tracker.tsx",
+      "health/smart-reminders.tsx",
+      "health/vitals-log.tsx",
+      "health/wearables.tsx"
+    ],
+    "journeys": 10,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 10
+    }
+  },
+  "index.tsx": {
+    "mobile_files": 1,
+    "files_with_actions": 0,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "index.tsx"
+    ]
+  },
+  "insurance": {
+    "mobile_files": 13,
+    "files_with_actions": 12,
+    "files_with_navigation": 9,
+    "files_with_mutation_methods": 5,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 13,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "insurance/add-policy.tsx",
+      "insurance/approval-pending.tsx",
+      "insurance/benefits-summary.tsx",
+      "insurance/claim-tracking.tsx",
+      "insurance/copay.tsx",
+      "insurance/coverage-check.tsx",
+      "insurance/hub.tsx",
+      "insurance/index.tsx",
+      "insurance/network-providers.tsx",
+      "insurance/payment-split.tsx",
+      "insurance/policy-detail.tsx",
+      "insurance/refund-status.tsx",
+      "insurance/submit-claim.tsx"
+    ],
+    "journeys": 2,
+    "journey_statuses": {
+      "BLOCKED_OR_DEFERRED": 2
+    }
+  },
+  "loyalty": {
+    "mobile_files": 5,
+    "files_with_actions": 5,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 4,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 5,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "loyalty/challenges.tsx",
+      "loyalty/hub.tsx",
+      "loyalty/leaderboard.tsx",
+      "loyalty/referrals.tsx",
+      "loyalty/rewards.tsx"
+    ]
+  },
+  "map": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "map/index.tsx"
+    ]
+  },
+  "maternity": {
+    "mobile_files": 7,
+    "files_with_actions": 2,
+    "files_with_navigation": 2,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 7,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "maternity/baby-development.tsx",
+      "maternity/baby-growth.tsx",
+      "maternity/fetus-data.ts",
+      "maternity/hub.tsx",
+      "maternity/maternity-setup.tsx",
+      "maternity/ovulation-tracker.tsx",
+      "maternity/pregnancy-tracker.tsx"
+    ]
+  },
+  "mental-health": {
+    "mobile_files": 8,
+    "files_with_actions": 3,
+    "files_with_navigation": 2,
+    "files_with_mutation_methods": 2,
+    "web_name_candidates": 2,
+    "missing_web_surface_candidates": 6,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 2,
+    "files": [
+      "mental-health/crisis-support.tsx",
+      "mental-health/hub.tsx",
+      "mental-health/index.tsx",
+      "mental-health/mood-journal.tsx",
+      "mental-health/self-assessment.tsx",
+      "mental-health/therapist-match.tsx"
+    ],
+    "journeys": 4,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 4
+    }
+  },
+  "notifications": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "notifications/index.tsx"
+    ],
+    "journeys": 1,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 1
+    }
+  },
+  "nursing": {
+    "mobile_files": 4,
+    "files_with_actions": 4,
+    "files_with_navigation": 4,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 4,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "nursing/live-tracking.tsx",
+      "nursing/nurse-profile.tsx",
+      "nursing/service-details.tsx",
+      "nursing/service-info.tsx"
+    ]
+  },
+  "nutrition": {
+    "mobile_files": 13,
+    "files_with_actions": 4,
+    "files_with_navigation": 4,
+    "files_with_mutation_methods": 3,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 13,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "nutrition/ai-meal-planner.tsx",
+      "nutrition/ai-plan-builder.tsx",
+      "nutrition/body-composition.tsx",
+      "nutrition/body-target.tsx",
+      "nutrition/calorie-analyzer.tsx",
+      "nutrition/daily-tracker.tsx",
+      "nutrition/exercise-plan.tsx",
+      "nutrition/food-scanner.tsx",
+      "nutrition/hub.tsx",
+      "nutrition/index.tsx",
+      "nutrition/log-meal.tsx",
+      "nutrition/nutrition-plan.tsx",
+      "nutrition/water-tracker.tsx"
+    ],
+    "journeys": 2,
+    "journey_statuses": {
+      "BLOCKED_OR_DEFERRED": 2
+    }
+  },
+  "offers": {
+    "mobile_files": 2,
+    "files_with_actions": 2,
+    "files_with_navigation": 2,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 2,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "offers/[id].tsx",
+      "offers/index.tsx"
+    ]
+  },
+  "orders": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "orders/index.tsx"
+    ]
+  },
+  "payments": {
+    "mobile_files": 4,
+    "files_with_actions": 4,
+    "files_with_navigation": 4,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 4,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "payments/failed.tsx",
+      "payments/failure.tsx",
+      "payments/processing.tsx",
+      "payments/success.tsx"
+    ]
+  },
+  "pharmacy": {
+    "mobile_files": 22,
+    "files_with_actions": 21,
+    "files_with_navigation": 20,
+    "files_with_mutation_methods": 12,
+    "web_name_candidates": 3,
+    "missing_web_surface_candidates": 19,
+    "partial_mutation_contract": 2,
+    "partial_action_proof": 1,
+    "read_contract_proof": 0,
+    "files": [
+      "pharmacy/barcode-scanner.tsx",
+      "pharmacy/broadcast-status.tsx",
+      "pharmacy/chat-with-pharmacist.tsx",
+      "pharmacy/custom-item.tsx",
+      "pharmacy/drug-not-found.tsx",
+      "pharmacy/filters.tsx",
+      "pharmacy/manual-order.tsx",
+      "pharmacy/medicine-compare.tsx",
+      "pharmacy/order-confirm.tsx",
+      "pharmacy/order-history.tsx",
+      "pharmacy/order-tracking.tsx",
+      "pharmacy/payment.tsx",
+      "pharmacy/pharmacist-chat.tsx",
+      "pharmacy/product-detail.tsx",
+      "pharmacy/product-search.tsx",
+      "pharmacy/reorder.tsx",
+      "pharmacy/rx-order.tsx",
+      "pharmacy/scan-prescription.tsx",
+      "pharmacy/waiting-for-pharmacy.tsx"
+    ],
+    "journeys": 11,
+    "journey_statuses": {
+      "BLOCKED_OR_DEFERRED": 11
+    }
+  },
+  "profile": {
+    "mobile_files": 4,
+    "files_with_actions": 3,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 2,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 3,
+    "partial_mutation_contract": 1,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "profile/addresses.tsx",
+      "profile/edit.tsx",
+      "profile/index.tsx"
+    ]
+  },
+  "programs": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "programs/active.tsx"
+    ]
+  },
+  "reports": {
+    "mobile_files": 5,
+    "files_with_actions": 4,
+    "files_with_navigation": 3,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 5,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "reports/ai-analysis.tsx",
+      "reports/hub.tsx",
+      "reports/passport.tsx",
+      "reports/timeline.tsx",
+      "reports/view-report.tsx"
+    ],
+    "journeys": 1,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 1
+    }
+  },
+  "returns": {
+    "mobile_files": 3,
+    "files_with_actions": 3,
+    "files_with_navigation": 2,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 3,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "returns/detail.tsx",
+      "returns/hub.tsx",
+      "returns/new-request.tsx"
+    ]
+  },
+  "reviews": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 0,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "reviews/index.tsx"
+    ]
+  },
+  "room": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "room/[id].tsx"
+    ]
+  },
+  "s": {
+    "mobile_files": 1,
+    "files_with_actions": 0,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "s/[type]/[slug].tsx"
+    ]
+  },
+  "search": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "search/index.tsx"
+    ],
+    "journeys": 1,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 1
+    }
+  },
+  "services": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "services/index.tsx"
+    ]
+  },
+  "settings": {
+    "mobile_files": 12,
+    "files_with_actions": 10,
+    "files_with_navigation": 4,
+    "files_with_mutation_methods": 4,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 11,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 1,
+    "files": [
+      "settings/about.tsx",
+      "settings/data.tsx",
+      "settings/feedback.tsx",
+      "settings/help.tsx",
+      "settings/index.tsx",
+      "settings/language.tsx",
+      "settings/notifications-settings.tsx",
+      "settings/privacy.tsx",
+      "settings/security.tsx",
+      "settings/support-chat.tsx",
+      "settings/terms.tsx"
+    ],
+    "journeys": 3,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 3
+    }
+  },
+  "shared": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 0,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "shared/location-picker.tsx"
+    ]
+  },
+  "support": {
+    "mobile_files": 2,
+    "files_with_actions": 2,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 1,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 1,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "support/ticket.tsx"
+    ],
+    "journeys": 1,
+    "journey_statuses": {
+      "CONTRACT_STATUS_REQUIRES_RECHECK": 1
+    }
+  },
+  "voice": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 1,
+    "files_with_mutation_methods": 0,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "voice/index.tsx"
+    ]
+  },
+  "wallet": {
+    "mobile_files": 5,
+    "files_with_actions": 5,
+    "files_with_navigation": 2,
+    "files_with_mutation_methods": 4,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 5,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "wallet/cards.tsx",
+      "wallet/hub.tsx",
+      "wallet/topup.tsx",
+      "wallet/transactions.tsx",
+      "wallet/transfer.tsx"
+    ],
+    "journeys": 2,
+    "journey_statuses": {
+      "BLOCKED_OR_DEFERRED": 2
+    }
+  },
+  "wearables": {
+    "mobile_files": 1,
+    "files_with_actions": 1,
+    "files_with_navigation": 0,
+    "files_with_mutation_methods": 1,
+    "web_name_candidates": 0,
+    "missing_web_surface_candidates": 1,
+    "partial_mutation_contract": 0,
+    "partial_action_proof": 0,
+    "read_contract_proof": 0,
+    "files": [
+      "wearables/hub.tsx"
+    ]
+  }
+}
