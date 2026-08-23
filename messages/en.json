@@ -5,7 +5,8 @@
     "language": "العربية",
     "privateAccess": "Private access",
     "account": "Account",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "devNotice": "Development preview under construction and testing — no real services are provided through this site; all content is for testing purposes only. Do not rely on it for any health or medical need."
   },
   "Home": {
     "eyebrow": "Digital patient portal",

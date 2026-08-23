@@ -5,7 +5,8 @@
     "language": "Wika",
     "privateAccess": "Pribadong access",
     "account": "Account",
-    "signOut": "Mag-sign out"
+    "signOut": "Mag-sign out",
+    "devNotice": "Development preview — nasa construction at testing pa. Walang tunay na serbisyong ibinibigay sa site na ito; ang lahat ng nilalaman ay para sa pagsusuri lamang."
   },
   "Home": {
     "eyebrow": "Digital na portal ng pasyente",

@@ -193,3 +193,16 @@ body { background: radial-gradient(circle at 85% -15%, rgba(35,181,206,.17), tra
 [dir="rtl"] .reminder-grid {
   text-align: start;
 }
+
+/* Development/testing notice banner */
+.dev-notice {
+  display: flex; align-items: center; gap: 0.6rem; justify-content: center;
+  background: #7c2d12; color: #fff7ed; padding: 0.55rem 1rem;
+  font-size: 0.85rem; line-height: 1.5; text-align: center;
+  border-bottom: 2px solid #f59e0b;
+}
+.dev-notice-badge {
+  background: #f59e0b; color: #7c2d12; font-weight: 800;
+  padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.72rem;
+  letter-spacing: 0.08em; flex-shrink: 0;
+}
