@@ -1,0 +1,28 @@
+LOCAL_ONLY=true
+NABD_API_BASE_URL_IGNORED=true
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 test:local-sandbox /home/ubuntu/nabdah_impl/repo
+> node scripts/run-local-sandbox-contracts.mjs
+
+{
+  "result": "LOCAL_SIMULATION",
+  "network": "loopback-only",
+  "checks": 9,
+  "passed": [
+    "unauthenticated request is 401",
+    "owner can read booking",
+    "stranger receives 404",
+    "owner can read order",
+    "stranger receives 404 for order",
+    "mutation requires idempotency key",
+    "owner mutation succeeds",
+    "same idempotency key replays same result",
+    "stranger mutation is hidden as 404"
+  ]
+}
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> nabd-plus-web@1.0.0 check /home/ubuntu/nabdah_impl/repo
+> tsc --noEmit
+

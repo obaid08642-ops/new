@@ -10,6 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
+    "test:local-sandbox": "node scripts/run-local-sandbox-contracts.mjs",
     "test:sandbox": "bash scripts/run-sandbox-contracts.sh",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
