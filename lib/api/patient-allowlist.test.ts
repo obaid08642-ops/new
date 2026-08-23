@@ -17,6 +17,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/cart/checkout")).toBe(true);
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
+    expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 
@@ -31,6 +32,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/cart", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/clear", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);
+    expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(false);
   });
 
   it("fails closed for malformed or nested order identifiers", () => {
@@ -46,6 +49,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/items")).toBe(false);
     expect(isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking/messages")).toBe(false);
     expect(isAllowedPatientApiPath("/cart/lines")).toBe(false);
+    expect(isAllowedPatientApiPath("/users/me/wishlist/../admin")).toBe(false);
     expect(isAllowedPatientApiPath("/cart/checkout/payment")).toBe(false);
   });
 
