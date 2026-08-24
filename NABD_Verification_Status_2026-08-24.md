@@ -11,6 +11,8 @@
 | اختبارات إصلاحات Sentry المستهدفة | PASS | 10 suites و50 tests في `92_backend_sentry_remediation_targeted_suite.log` |
 | TypeScript للتطبيق المحمول | PASS | سجلات `84`, `89` إلى `91`, و`94` إلى `97` |
 | اختبارات التطبيق المحمول الكاملة | PASS | 33 suites و73 tests في `98_mobile_full_regression_after_insurance_emergency.log`، بلا `forceExit` |
+| اختبارات Patient Web الكاملة | PASS | 140 ملفات ناجحة و14 متخطاة، و274 اختبارًا ناجحًا و23 متخطى في `109_patient_web_full_regression.log` |
+| بناء Patient Web | PASS | `110_patient_web_build_after_contract_changes.log` |
 | readiness إنتاجي قراءة فقط | PASS لحظيًا | `GET /api/v1/health/readiness` أعاد MongoDB وRedis `up` في 12:41 UTC |
 | أحداث Sentry production في آخر 24 ساعة | لا نتائج | الاستعلام المقيد بـ`environment:production level:error` لم يرجع أحداثًا وقت الفحص |
 | E2E Mongo+Redis+HTTP متعدد الأدوار | UNVERIFIED | boot احتاج تنزيل MongoDB 7.0.24 (81.8 MB) وتوقف عند تقدم بطيء؛ لم تُشغّل المصفوفة |
