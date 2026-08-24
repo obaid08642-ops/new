@@ -30,6 +30,6 @@ The domain reschedule path accepts lab/radiology/nursing/consultation, but the r
 
 ## Related service evidence
 
-Separate `unified-bookings.service.ts:13–30` in the same baseline path defines a Redis lock of 300 seconds and releases by provider/slot key. This conflicts with the 10-minute lock requirement and lacks owner validation on release; it is recorded as finding F-016 pending reconciliation of duplicate service definitions and module imports.
+The baseline contains two separate exported classes named `UnifiedBookingsService`: the controller-backed implementation in `unified-bookings.module.ts:33–397`, and a second implementation in `unified-bookings.service.ts:6–32`. The module registers the former (`unified-bookings.module.ts:459–460`), while the latter defines a Redis lock of 300 seconds and releases by provider/slot key (`unified-bookings.service.ts:13–30`). This duplicate service name is itself a contract/maintenance risk. The lock implementation conflicts with the 10-minute requirement and lacks owner validation on release; it is recorded as finding F-016 pending import/dependency reconciliation and a single authoritative lock implementation.
 
 No Phase 0 remediation was made.
