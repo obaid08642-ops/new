@@ -214,3 +214,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-130 | P1 | ProviderAvailability enforces one document per provider, but working hours, blocked slots and vacation are loose object arrays with no time format/range/overlap/timezone limits, version/CAS, booking reservation reference, exclusion/idempotency claim or audit actor; `instant_available` defaults true. | `src/schemas/provider-availability.schema.ts:4–16`; `audit-artifacts/phase0b-backend/semantic-evidence-provider-availability-schema.md` | Validate timezone-aware intervals and overlaps, default availability safely, use versioned atomic slot claims/reservations and audit/idempotency controls, and test concurrent booking and stale-update races. |
+
+
+## Analytics event finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-131 | P2 | AnalyticsEvent permits free-form event_type/domain and arbitrary metadata, and stores optional IP address/user-agent, without consent/purpose, metadata size/key allowlist, anonymization, TTL/retention, tenant/source authenticity, request idempotency or deduplication controls; generated event ID alone does not prevent replay or forged attribution. | `src/schemas/analytics-event.schema.ts:4–17`; `audit-artifacts/phase0b-backend/semantic-evidence-analytics-event-schema.md` | Define event/domain and metadata contracts, consent/purpose and PII minimization/retention, enforce authenticity and bounded ingestion, and test replay/deduplication and forged user/session attribution. |
