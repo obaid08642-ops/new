@@ -1,0 +1,1279 @@
+# nabd-patient-web
+## files
+audit-work/source/nabd-patient-web/app/[locale]/appointments/[appointmentId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/appointments/appointments-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/appointments/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/articles/[slug]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/articles/bookmarks/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/articles/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/cart/checkout/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/cart/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/cart/prescription/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/chat/[threadId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/chat/chat-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/chat/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/doctors-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/specialties-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/dashboard-page.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/dashboard-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/loading.tsx
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/diagnostics-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/labs-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/radiology-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/error.tsx
+audit-work/source/nabd-patient-web/app/[locale]/family/family-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/family/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-diseases/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-medications/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/emergency-contacts/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/health-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/reports/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/score/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/sleep/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/trends/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/vitals/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/home-care-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/home-care/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/services-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/insurance/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/layout.tsx
+audit-work/source/nabd-patient-web/app/[locale]/loading.tsx
+audit-work/source/nabd-patient-web/app/[locale]/login/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/medicines/medicines-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/medicines/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/breathing/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/crisis-contacts/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/meditation/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/mood/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/metadata-indexing.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/not-found.test.tsx
+audit-work/source/nabd-patient-web/app/[locale]/not-found.tsx
+audit-work/source/nabd-patient-web/app/[locale]/notifications/notifications-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/notifications/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/notifications/settings/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/orders/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/page.metadata.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/prescriptions-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/profile/profile-page-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/reminders/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/reminders/reminders-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/route-state-ssr.test.tsx
+audit-work/source/nabd-patient-web/app/[locale]/settings/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/wishlist/page.tsx
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts
+audit-work/source/nabd-patient-web/app/favicon.ico/route.test.ts
+audit-work/source/nabd-patient-web/app/favicon.ico/route.ts
+audit-work/source/nabd-patient-web/app/global-not-found.tsx
+audit-work/source/nabd-patient-web/app/layout.tsx
+audit-work/source/nabd-patient-web/app/llms.txt/route.test.ts
+audit-work/source/nabd-patient-web/app/llms.txt/route.ts
+audit-work/source/nabd-patient-web/app/manifest.test.ts
+audit-work/source/nabd-patient-web/app/manifest.ts
+audit-work/source/nabd-patient-web/app/robots.ts
+audit-work/source/nabd-patient-web/app/seo.test.ts
+audit-work/source/nabd-patient-web/app/sitemap.ts
+audit-work/source/nabd-patient-web/audit-artifacts/DEVICE_NabdProvider-expo-config.json
+audit-work/source/nabd-patient-web/audit-artifacts/DEVICE_nabd_plus-expo-config.json
+audit-work/source/nabd-patient-web/audit-artifacts/LAB_INBOX_ELIGIBILITY_SUMMARY_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE13_CONTRACT_INVENTORY_V4_20260819.json
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE13_UI_ACTION_INVENTORY_V2_20260819.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT1_SELECTED_ORDER_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT2_BOLA_CANCEL_BEFORE_AFTER_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT2_BOLA_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT2_BOLA_REPORT_RECHECK_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_EXACT_READ_RETRY_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_READONLY_LIVE_MATRIX_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_SINGLE_LOGIN_RETRY_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE1_PHARMACY_CONTRACT_DETAILS.json
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE1_SELECTED_OPERATIONS_RAW.json
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE2_ORDER_TRACKING_CONTRACT_RAW.json
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE2_V1_PATIENT_PHARMACY_RAW.json
+audit-work/source/nabd-patient-web/audit-artifacts/PRODUCTION_HEALTH_GATE_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_ANDROID_EXPORT_METADATA_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_DOCTOR_EXACT_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_DOCTOR_SINGLE_LOGIN_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_HOSPITAL_EXACT_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_HOSPITAL_SINGLE_LOGIN_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_LAB_EXACT_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_LAB_SINGLE_LOGIN_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_NURSING_EXACT_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_NURSING_SINGLE_LOGIN_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_PHARMACY_CORRECT_BROADCAST_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_PHARMACY_EXACT_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_PHARMACY_HISTORY_LIVE_RECHECK_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_PHARMACY_SINGLE_LOGIN_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_RADIOLOGY_EXACT_READ_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_RADIOLOGY_SINGLE_LOGIN_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_READONLY_LIVE_MATRIX_20260818.json
+audit-work/source/nabd-patient-web/audit-artifacts/WEB_V2_RECONCILIATION_ATOMIC.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/PHASE2_MATRIX_SUMMARY.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/mobile_to_web_screen_map.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase9-outdated.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase9-pnpm-audit-after-postcss.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase9-pnpm-audit-prod-after-postcss.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase9-pnpm-audit-summary.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase9-pnpm-audit.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase9-prod-advisories-normalized.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/screen_map_summary.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/summary.json
+audit-work/source/nabd-patient-web/client/public/__manus__/debug-collector.js
+audit-work/source/nabd-patient-web/client/src/App.tsx
+audit-work/source/nabd-patient-web/client/src/_core/hooks/useAuth.ts
+audit-work/source/nabd-patient-web/client/src/components/AIChatBox.tsx
+audit-work/source/nabd-patient-web/client/src/components/DashboardLayout.tsx
+audit-work/source/nabd-patient-web/client/src/components/DashboardLayoutSkeleton.tsx
+audit-work/source/nabd-patient-web/client/src/components/ErrorBoundary.tsx
+audit-work/source/nabd-patient-web/client/src/components/ManusDialog.tsx
+audit-work/source/nabd-patient-web/client/src/components/Map.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/accordion.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/alert-dialog.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/alert.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/aspect-ratio.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/avatar.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/badge.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/breadcrumb.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/button-group.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/button.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/calendar.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/card.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/carousel.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/chart.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/checkbox.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/collapsible.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/command.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/context-menu.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/dialog.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/drawer.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/dropdown-menu.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/empty.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/field.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/form.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/hover-card.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/input-group.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/input-otp.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/input.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/item.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/kbd.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/label.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/menubar.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/navigation-menu.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/pagination.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/popover.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/progress.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/radio-group.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/resizable.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/scroll-area.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/select.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/separator.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/sheet.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/sidebar.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/skeleton.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/slider.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/sonner.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/spinner.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/switch.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/table.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/tabs.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/textarea.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/toggle-group.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/toggle.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/tooltip.tsx
+audit-work/source/nabd-patient-web/client/src/const.ts
+audit-work/source/nabd-patient-web/client/src/contexts/ThemeContext.tsx
+audit-work/source/nabd-patient-web/client/src/hooks/useComposition.ts
+audit-work/source/nabd-patient-web/client/src/hooks/useMobile.tsx
+audit-work/source/nabd-patient-web/client/src/hooks/usePersistFn.ts
+audit-work/source/nabd-patient-web/client/src/lib/trpc.ts
+audit-work/source/nabd-patient-web/client/src/lib/utils.ts
+audit-work/source/nabd-patient-web/client/src/main.tsx
+audit-work/source/nabd-patient-web/client/src/pages/ComponentShowcase.tsx
+audit-work/source/nabd-patient-web/client/src/pages/Home.tsx
+audit-work/source/nabd-patient-web/client/src/pages/NotFound.tsx
+audit-work/source/nabd-patient-web/components-next/appointment-actions.tsx
+audit-work/source/nabd-patient-web/components-next/appointment-booking-form.tsx
+audit-work/source/nabd-patient-web/components-next/appointment-reschedule-form.tsx
+audit-work/source/nabd-patient-web/components-next/call-token-launcher.tsx
+audit-work/source/nabd-patient-web/components-next/json-ld.tsx
+audit-work/source/nabd-patient-web/components-next/locale-selector.test.tsx
+audit-work/source/nabd-patient-web/components-next/locale-selector.tsx
+audit-work/source/nabd-patient-web/components-next/login-form.tsx
+audit-work/source/nabd-patient-web/components-next/premium-health-illustration.tsx
+audit-work/source/nabd-patient-web/components-next/pulse-shield-mark.tsx
+audit-work/source/nabd-patient-web/components-next/retry-button.test.tsx
+audit-work/source/nabd-patient-web/components-next/retry-button.tsx
+audit-work/source/nabd-patient-web/components-next/session-actions.tsx
+audit-work/source/nabd-patient-web/components-next/vital-glyph.tsx
+audit-work/source/nabd-patient-web/components.json
+audit-work/source/nabd-patient-web/drizzle.config.ts
+audit-work/source/nabd-patient-web/drizzle/meta/0000_snapshot.json
+audit-work/source/nabd-patient-web/drizzle/meta/_journal.json
+audit-work/source/nabd-patient-web/drizzle/relations.ts
+audit-work/source/nabd-patient-web/drizzle/schema.ts
+audit-work/source/nabd-patient-web/i18n/request.ts
+audit-work/source/nabd-patient-web/i18n/routing.ts
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/appointments-server.ts
+audit-work/source/nabd-patient-web/lib/api/appointments.test.ts
+audit-work/source/nabd-patient-web/lib/api/appointments.ts
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts
+audit-work/source/nabd-patient-web/lib/api/articles.test.ts
+audit-work/source/nabd-patient-web/lib/api/articles.ts
+audit-work/source/nabd-patient-web/lib/api/breathing-server.ts
+audit-work/source/nabd-patient-web/lib/api/breathing.test.ts
+audit-work/source/nabd-patient-web/lib/api/breathing.ts
+audit-work/source/nabd-patient-web/lib/api/cart.test.ts
+audit-work/source/nabd-patient-web/lib/api/cart.ts
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/chat-server.ts
+audit-work/source/nabd-patient-web/lib/api/chat.test.ts
+audit-work/source/nabd-patient-web/lib/api/chat.ts
+audit-work/source/nabd-patient-web/lib/api/chronic-meds-server.ts
+audit-work/source/nabd-patient-web/lib/api/chronic-meds.test.ts
+audit-work/source/nabd-patient-web/lib/api/chronic-meds.ts
+audit-work/source/nabd-patient-web/lib/api/chronic-server.ts
+audit-work/source/nabd-patient-web/lib/api/chronic.test.ts
+audit-work/source/nabd-patient-web/lib/api/chronic.ts
+audit-work/source/nabd-patient-web/lib/api/claims-server.ts
+audit-work/source/nabd-patient-web/lib/api/claims.test.ts
+audit-work/source/nabd-patient-web/lib/api/claims.ts
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts-server.ts
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts.test.ts
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts.ts
+audit-work/source/nabd-patient-web/lib/api/dashboard-server.ts
+audit-work/source/nabd-patient-web/lib/api/dashboard.test.ts
+audit-work/source/nabd-patient-web/lib/api/dashboard.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics-report.test.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics.test.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-detail-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-detail.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-server.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-slots-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-slots.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors.ts
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts-server.ts
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts.test.ts
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts.ts
+audit-work/source/nabd-patient-web/lib/api/family-group-server.ts
+audit-work/source/nabd-patient-web/lib/api/family-group.test.ts
+audit-work/source/nabd-patient-web/lib/api/family-group.ts
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/family-server.ts
+audit-work/source/nabd-patient-web/lib/api/family.test.ts
+audit-work/source/nabd-patient-web/lib/api/family.ts
+audit-work/source/nabd-patient-web/lib/api/health-score.test.ts
+audit-work/source/nabd-patient-web/lib/api/health-score.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-server.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-services.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-services.ts
+audit-work/source/nabd-patient-web/lib/api/home-care.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care.ts
+audit-work/source/nabd-patient-web/lib/api/insurance-server.ts
+audit-work/source/nabd-patient-web/lib/api/insurance.test.ts
+audit-work/source/nabd-patient-web/lib/api/insurance.ts
+audit-work/source/nabd-patient-web/lib/api/labs-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/labs-server.ts
+audit-work/source/nabd-patient-web/lib/api/labs.test.ts
+audit-work/source/nabd-patient-web/lib/api/labs.ts
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/medicines-server.ts
+audit-work/source/nabd-patient-web/lib/api/medicines.test.ts
+audit-work/source/nabd-patient-web/lib/api/medicines.ts
+audit-work/source/nabd-patient-web/lib/api/meditation-server.ts
+audit-work/source/nabd-patient-web/lib/api/meditation.test.ts
+audit-work/source/nabd-patient-web/lib/api/meditation.ts
+audit-work/source/nabd-patient-web/lib/api/mental-health-server.ts
+audit-work/source/nabd-patient-web/lib/api/mental-health.test.ts
+audit-work/source/nabd-patient-web/lib/api/mental-health.ts
+audit-work/source/nabd-patient-web/lib/api/mood-server.ts
+audit-work/source/nabd-patient-web/lib/api/mood.test.ts
+audit-work/source/nabd-patient-web/lib/api/mood.ts
+audit-work/source/nabd-patient-web/lib/api/notification-settings-server.ts
+audit-work/source/nabd-patient-web/lib/api/notification-settings.test.ts
+audit-work/source/nabd-patient-web/lib/api/notification-settings.ts
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/notifications-server.ts
+audit-work/source/nabd-patient-web/lib/api/notifications.test.ts
+audit-work/source/nabd-patient-web/lib/api/notifications.ts
+audit-work/source/nabd-patient-web/lib/api/orders.test.ts
+audit-work/source/nabd-patient-web/lib/api/orders.ts
+audit-work/source/nabd-patient-web/lib/api/patient-allowlist.test.ts
+audit-work/source/nabd-patient-web/lib/api/patient-allowlist.ts
+audit-work/source/nabd-patient-web/lib/api/payments-server.ts
+audit-work/source/nabd-patient-web/lib/api/payments.ts
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.ts
+audit-work/source/nabd-patient-web/lib/api/prescriptions.test.ts
+audit-work/source/nabd-patient-web/lib/api/prescriptions.ts
+audit-work/source/nabd-patient-web/lib/api/profile-security.test.ts
+audit-work/source/nabd-patient-web/lib/api/profile.test.ts
+audit-work/source/nabd-patient-web/lib/api/profile.ts
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts
+audit-work/source/nabd-patient-web/lib/api/radiology-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/radiology-server.ts
+audit-work/source/nabd-patient-web/lib/api/radiology.test.ts
+audit-work/source/nabd-patient-web/lib/api/radiology.ts
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/reminders-server.ts
+audit-work/source/nabd-patient-web/lib/api/reminders.test.ts
+audit-work/source/nabd-patient-web/lib/api/reminders.ts
+audit-work/source/nabd-patient-web/lib/api/reports.test.ts
+audit-work/source/nabd-patient-web/lib/api/reports.ts
+audit-work/source/nabd-patient-web/lib/api/response.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-appointments-contracts.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-chat-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-diagnostics-contracts.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-family-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-home-care-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-medicines-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-order-ownership.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-prescriptions-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-reminders-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-secrets.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-specialty-provider-count.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-vitals-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts
+audit-work/source/nabd-patient-web/lib/api/settings.test.ts
+audit-work/source/nabd-patient-web/lib/api/settings.ts
+audit-work/source/nabd-patient-web/lib/api/sleep-server.ts
+audit-work/source/nabd-patient-web/lib/api/sleep.test.ts
+audit-work/source/nabd-patient-web/lib/api/sleep.ts
+audit-work/source/nabd-patient-web/lib/api/specialties-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/specialties-server.ts
+audit-work/source/nabd-patient-web/lib/api/specialties.test.ts
+audit-work/source/nabd-patient-web/lib/api/specialties.ts
+audit-work/source/nabd-patient-web/lib/api/trends-server.ts
+audit-work/source/nabd-patient-web/lib/api/trends.test.ts
+audit-work/source/nabd-patient-web/lib/api/trends.ts
+audit-work/source/nabd-patient-web/lib/api/upstream.test.ts
+audit-work/source/nabd-patient-web/lib/api/upstream.ts
+audit-work/source/nabd-patient-web/lib/api/vitals-history.test.ts
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts
+audit-work/source/nabd-patient-web/lib/api/vitals.test.ts
+audit-work/source/nabd-patient-web/lib/api/vitals.ts
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.ts
+audit-work/source/nabd-patient-web/lib/api/wishlist.test.ts
+audit-work/source/nabd-patient-web/lib/api/wishlist.ts
+audit-work/source/nabd-patient-web/lib/auth/cookies.ts
+audit-work/source/nabd-patient-web/lib/auth/refresh.test.ts
+audit-work/source/nabd-patient-web/lib/auth/refresh.ts
+audit-work/source/nabd-patient-web/lib/auth/session.ts
+audit-work/source/nabd-patient-web/lib/i18n.test.ts
+audit-work/source/nabd-patient-web/lib/i18n.ts
+audit-work/source/nabd-patient-web/lib/i18n/global-notfound.ts
+audit-work/source/nabd-patient-web/lib/i18n/messages.test.ts
+audit-work/source/nabd-patient-web/lib/seo.ts
+audit-work/source/nabd-patient-web/messages/ar.json
+audit-work/source/nabd-patient-web/messages/bn.json
+audit-work/source/nabd-patient-web/messages/en.json
+audit-work/source/nabd-patient-web/messages/fil.json
+audit-work/source/nabd-patient-web/messages/hi.json
+audit-work/source/nabd-patient-web/messages/ur.json
+audit-work/source/nabd-patient-web/next-env.d.ts
+audit-work/source/nabd-patient-web/next.config.ts
+audit-work/source/nabd-patient-web/package.json
+audit-work/source/nabd-patient-web/proxy.ts
+audit-work/source/nabd-patient-web/server/_core/context.ts
+audit-work/source/nabd-patient-web/server/_core/cookies.ts
+audit-work/source/nabd-patient-web/server/_core/dataApi.ts
+audit-work/source/nabd-patient-web/server/_core/env.ts
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts
+audit-work/source/nabd-patient-web/server/_core/imageGeneration.ts
+audit-work/source/nabd-patient-web/server/_core/index.ts
+audit-work/source/nabd-patient-web/server/_core/llm.ts
+audit-work/source/nabd-patient-web/server/_core/map.ts
+audit-work/source/nabd-patient-web/server/_core/notification.ts
+audit-work/source/nabd-patient-web/server/_core/oauth.ts
+audit-work/source/nabd-patient-web/server/_core/sdk.ts
+audit-work/source/nabd-patient-web/server/_core/storageProxy.ts
+audit-work/source/nabd-patient-web/server/_core/systemRouter.ts
+audit-work/source/nabd-patient-web/server/_core/trpc.ts
+audit-work/source/nabd-patient-web/server/_core/types/cookie.d.ts
+audit-work/source/nabd-patient-web/server/_core/types/manusTypes.ts
+audit-work/source/nabd-patient-web/server/_core/vite.ts
+audit-work/source/nabd-patient-web/server/_core/voiceTranscription.ts
+audit-work/source/nabd-patient-web/server/auth.logout.test.ts
+audit-work/source/nabd-patient-web/server/db.ts
+audit-work/source/nabd-patient-web/server/routers.ts
+audit-work/source/nabd-patient-web/server/storage.ts
+audit-work/source/nabd-patient-web/shared/_core/errors.ts
+audit-work/source/nabd-patient-web/shared/const.ts
+audit-work/source/nabd-patient-web/shared/types.ts
+audit-work/source/nabd-patient-web/template.json
+audit-work/source/nabd-patient-web/tests/appointments-design.test.ts
+audit-work/source/nabd-patient-web/tests/articles-design.test.ts
+audit-work/source/nabd-patient-web/tests/care-detail-design.test.ts
+audit-work/source/nabd-patient-web/tests/design-system.test.ts
+audit-work/source/nabd-patient-web/tests/diagnostics-design.test.ts
+audit-work/source/nabd-patient-web/tests/express5-compatibility.test.ts
+audit-work/source/nabd-patient-web/tests/family-design.test.ts
+audit-work/source/nabd-patient-web/tests/health-design.test.ts
+audit-work/source/nabd-patient-web/tests/home-care-design.test.ts
+audit-work/source/nabd-patient-web/tests/insurance-design.test.ts
+audit-work/source/nabd-patient-web/tests/login-design.test.ts
+audit-work/source/nabd-patient-web/tests/login-form.test.tsx
+audit-work/source/nabd-patient-web/tests/medicine-catalog-design.test.ts
+audit-work/source/nabd-patient-web/tests/medicine-detail-design.test.ts
+audit-work/source/nabd-patient-web/tests/mental-health-design.test.ts
+audit-work/source/nabd-patient-web/tests/notification-settings-design.test.ts
+audit-work/source/nabd-patient-web/tests/notifications-design.test.ts
+audit-work/source/nabd-patient-web/tests/order-detail-design.test.ts
+audit-work/source/nabd-patient-web/tests/orders-design.test.ts
+audit-work/source/nabd-patient-web/tests/premium-brand.test.ts
+audit-work/source/nabd-patient-web/tests/premium-motion.test.ts
+audit-work/source/nabd-patient-web/tests/prescriptions-design.test.ts
+audit-work/source/nabd-patient-web/tests/profile-design.test.ts
+audit-work/source/nabd-patient-web/tests/proxy.test.ts
+audit-work/source/nabd-patient-web/tests/reminders-design.test.ts
+audit-work/source/nabd-patient-web/tests/settings-design.test.ts
+audit-work/source/nabd-patient-web/tests/translation-key-parity.test.ts
+audit-work/source/nabd-patient-web/tsconfig.json
+audit-work/source/nabd-patient-web/vite.config.ts
+audit-work/source/nabd-patient-web/vitest.config.ts
+## route/controller/gateway/schema/dto/migration/webhook/test files
+audit-work/source/nabd-patient-web/app/[locale]/appointments/appointments-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/chat/chat-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/doctors-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/specialties-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/specialties.module.css
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/dashboard-page.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/dashboard-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/diagnostics-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/labs-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/radiology-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/family/family-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/health/health-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/home-care/home-care-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/services-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/medicines/medicines-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/metadata-indexing.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/not-found.test.tsx
+audit-work/source/nabd-patient-web/app/[locale]/notifications/notifications-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/page.metadata.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/prescriptions-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/profile/profile-page-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/reminders/reminders-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/route-state-ssr.test.tsx
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts
+audit-work/source/nabd-patient-web/app/favicon.ico/route.test.ts
+audit-work/source/nabd-patient-web/app/favicon.ico/route.ts
+audit-work/source/nabd-patient-web/app/llms.txt/route.test.ts
+audit-work/source/nabd-patient-web/app/llms.txt/route.ts
+audit-work/source/nabd-patient-web/app/manifest.test.ts
+audit-work/source/nabd-patient-web/app/seo.test.ts
+audit-work/source/nabd-patient-web/audit-artifacts/ADMIN_QA_ROUTE_BUTTON_INVENTORY_20260818.txt
+audit-work/source/nabd-patient-web/audit-artifacts/DEVICE_SCREEN_ROUTE_INVENTORY_20260817.md
+audit-work/source/nabd-patient-web/audit-artifacts/FULL_E2E_BACKEND_ROUTE_CONTRACTS_20260817.md
+audit-work/source/nabd-patient-web/audit-artifacts/FULL_PRODUCTION_E2E_TRACEABILITY_20260817.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_ACTUAL_API_ROUTE_MATCH_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_BACKEND_COMPILED_ROUTES_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_BACKEND_DEPENDENCY_MIGRATION_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_MATCH_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_RECONCILIATION_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_RECONCILIATION_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_EXPO_MIGRATION_METHOD_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PATIENT_EXPO_SDK57_MIGRATION_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE15_MIGRATION_INDEX_PREFLIGHT_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE2_ADDRESS_CREATE_REMEDIATION_TESTS_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE2_INSURANCE_PAYMENT_SPLIT_MISSING_ROUTE_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE2_NO_EXACT_ROUTE_REVIEW_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE2_PATIENT_METHOD_MISMATCH_REMEDIATION_QUEUE_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE4_ADMIN_AI_GATEWAY_GAPS_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE5_REALTIME_WEBSOCKET_SECURITY_GAPS_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE5_TRANSACTION_SCHEMA_DATA_GAPS_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE8_BATCH_AB_PROVIDER_NURSING_QUEUE_CONTRACT_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE8_BATCH_C_PAYMENT_AUTHORIZATION_WEBHOOKS_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PROVIDER_EXPO_SDK57_MIGRATION_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PROVIDER_FULL_LOCALE_STATIC_TEXT_MIGRATION_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PROVIDER_TEMPLATE_LOCALE_MIGRATION_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_RECONCILIATION_API_ROUTE_MATCH_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_RECONCILIATION_BACKEND_ROUTES_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_ROUTE_MATCH_RECONCILIATION_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_CONSUMER_BACKEND_ROUTE_MAP_20260818.txt
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_EXACT_READ_ROUTE_CONTRACTS_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_QA_ROUTE_BUTTON_INVENTORY_20260818.txt
+audit-work/source/nabd-patient-web/audit-artifacts/PATIENT_ROUTE_CONTRACT_RECONCILIATION_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE6_STAGING_E2E_MATRIX_20260817.md
+audit-work/source/nabd-patient-web/audit-artifacts/POST_REMEDIATION_E2E_EXECUTION_PLAN.md
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_AUTH_CONTROLLER_SOURCE_20260818.txt
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_INTAKE_BACKEND_ROUTE_MAP_20260818.txt
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_OPERATIONAL_ROUTE_CATALOG_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_SCREEN_CONTROLLER_INVENTORY_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_SPECIALTY_CONTRACT_MAP_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/RAW_SCREEN_ROUTE_INVENTORY.txt
+audit-work/source/nabd-patient-web/audit-artifacts/WEB_V2_SPECIALTIES_GATE_RESULT_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/WEB_V2_SPECIALTIES_GET_SLICE_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/phase4-test-files.txt
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/web_api_routes_files.txt
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/web_routes.txt
+audit-work/source/nabd-patient-web/client/src/components/ui/aspect-ratio.tsx
+audit-work/source/nabd-patient-web/components-next/locale-selector.test.tsx
+audit-work/source/nabd-patient-web/components-next/retry-button.test.tsx
+audit-work/source/nabd-patient-web/docs/phase-3-detailed-route-parity-matrix.md
+audit-work/source/nabd-patient-web/drizzle/migrations/.gitkeep
+audit-work/source/nabd-patient-web/drizzle/schema.ts
+audit-work/source/nabd-patient-web/evidence/187_phase9_test_completion_20260822.md
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/appointments.test.ts
+audit-work/source/nabd-patient-web/lib/api/articles.test.ts
+audit-work/source/nabd-patient-web/lib/api/breathing.test.ts
+audit-work/source/nabd-patient-web/lib/api/cart.test.ts
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/chat.test.ts
+audit-work/source/nabd-patient-web/lib/api/chronic-meds.test.ts
+audit-work/source/nabd-patient-web/lib/api/chronic.test.ts
+audit-work/source/nabd-patient-web/lib/api/claims.test.ts
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts.test.ts
+audit-work/source/nabd-patient-web/lib/api/dashboard.test.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics-report.test.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/diagnostics.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-detail-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-detail.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-slots-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors-slots.test.ts
+audit-work/source/nabd-patient-web/lib/api/doctors.test.ts
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts.test.ts
+audit-work/source/nabd-patient-web/lib/api/family-group.test.ts
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/family.test.ts
+audit-work/source/nabd-patient-web/lib/api/health-score.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care-services.test.ts
+audit-work/source/nabd-patient-web/lib/api/home-care.test.ts
+audit-work/source/nabd-patient-web/lib/api/insurance.test.ts
+audit-work/source/nabd-patient-web/lib/api/labs-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/labs.test.ts
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/medicines.test.ts
+audit-work/source/nabd-patient-web/lib/api/meditation.test.ts
+audit-work/source/nabd-patient-web/lib/api/mental-health.test.ts
+audit-work/source/nabd-patient-web/lib/api/mood.test.ts
+audit-work/source/nabd-patient-web/lib/api/notification-settings.test.ts
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/notifications.test.ts
+audit-work/source/nabd-patient-web/lib/api/orders.test.ts
+audit-work/source/nabd-patient-web/lib/api/patient-allowlist.test.ts
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/prescriptions.test.ts
+audit-work/source/nabd-patient-web/lib/api/profile-security.test.ts
+audit-work/source/nabd-patient-web/lib/api/profile.test.ts
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/radiology-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/radiology.test.ts
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/reminders.test.ts
+audit-work/source/nabd-patient-web/lib/api/reports.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-appointments-contracts.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-chat-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-diagnostics-contracts.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-family-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-home-care-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-medicines-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-order-ownership.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-prescriptions-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-reminders-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-secrets.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-specialty-provider-count.test.ts
+audit-work/source/nabd-patient-web/lib/api/sandbox-vitals-contract.test.ts
+audit-work/source/nabd-patient-web/lib/api/settings.test.ts
+audit-work/source/nabd-patient-web/lib/api/sleep.test.ts
+audit-work/source/nabd-patient-web/lib/api/specialties-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/specialties-server.ts
+audit-work/source/nabd-patient-web/lib/api/specialties.test.ts
+audit-work/source/nabd-patient-web/lib/api/specialties.ts
+audit-work/source/nabd-patient-web/lib/api/trends.test.ts
+audit-work/source/nabd-patient-web/lib/api/upstream.test.ts
+audit-work/source/nabd-patient-web/lib/api/vitals-history.test.ts
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/vitals.test.ts
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.test.ts
+audit-work/source/nabd-patient-web/lib/api/wishlist.test.ts
+audit-work/source/nabd-patient-web/lib/auth/refresh.test.ts
+audit-work/source/nabd-patient-web/lib/i18n.test.ts
+audit-work/source/nabd-patient-web/lib/i18n/messages.test.ts
+audit-work/source/nabd-patient-web/scripts/inspect-openapi-gap-contracts.mjs
+audit-work/source/nabd-patient-web/scripts/inspect-specialty-count-contract.mjs
+audit-work/source/nabd-patient-web/scripts/verify-core-routes.sh
+audit-work/source/nabd-patient-web/server/_core/systemRouter.ts
+audit-work/source/nabd-patient-web/server/auth.logout.test.ts
+audit-work/source/nabd-patient-web/server/routers.ts
+audit-work/source/nabd-patient-web/tests/appointments-design.test.ts
+audit-work/source/nabd-patient-web/tests/articles-design.test.ts
+audit-work/source/nabd-patient-web/tests/care-detail-design.test.ts
+audit-work/source/nabd-patient-web/tests/design-system.test.ts
+audit-work/source/nabd-patient-web/tests/diagnostics-design.test.ts
+audit-work/source/nabd-patient-web/tests/express5-compatibility.test.ts
+audit-work/source/nabd-patient-web/tests/family-design.test.ts
+audit-work/source/nabd-patient-web/tests/health-design.test.ts
+audit-work/source/nabd-patient-web/tests/home-care-design.test.ts
+audit-work/source/nabd-patient-web/tests/insurance-design.test.ts
+audit-work/source/nabd-patient-web/tests/login-design.test.ts
+audit-work/source/nabd-patient-web/tests/login-form.test.tsx
+audit-work/source/nabd-patient-web/tests/medicine-catalog-design.test.ts
+audit-work/source/nabd-patient-web/tests/medicine-detail-design.test.ts
+audit-work/source/nabd-patient-web/tests/mental-health-design.test.ts
+audit-work/source/nabd-patient-web/tests/notification-settings-design.test.ts
+audit-work/source/nabd-patient-web/tests/notifications-design.test.ts
+audit-work/source/nabd-patient-web/tests/order-detail-design.test.ts
+audit-work/source/nabd-patient-web/tests/orders-design.test.ts
+audit-work/source/nabd-patient-web/tests/premium-brand.test.ts
+audit-work/source/nabd-patient-web/tests/premium-motion.test.ts
+audit-work/source/nabd-patient-web/tests/prescriptions-design.test.ts
+audit-work/source/nabd-patient-web/tests/profile-design.test.ts
+audit-work/source/nabd-patient-web/tests/proxy.test.ts
+audit-work/source/nabd-patient-web/tests/reminders-design.test.ts
+audit-work/source/nabd-patient-web/tests/settings-design.test.ts
+audit-work/source/nabd-patient-web/tests/translation-key-parity.test.ts
+audit-work/source/nabd-patient-web/vitest.config.ts
+## screen/page/navigation files
+audit-work/source/nabd-patient-web/app/[locale]/appointments/[appointmentId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/appointments/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/articles/[slug]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/articles/bookmarks/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/articles/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/cart/checkout/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/cart/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/cart/prescription/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/chat/[threadId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/chat/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/dashboard-page.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/family/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-diseases/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-medications/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/emergency-contacts/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/reports/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/score/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/sleep/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/trends/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/health/vitals/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/insurance/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/layout.tsx
+audit-work/source/nabd-patient-web/app/[locale]/login/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/medicines/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/breathing/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/crisis-contacts/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/meditation/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/mood/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/notifications/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/notifications/settings/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/orders/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/page.metadata.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/[prescriptionId]/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/profile/profile-page-ssr.test.ts
+audit-work/source/nabd-patient-web/app/[locale]/reminders/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/settings/page.tsx
+audit-work/source/nabd-patient-web/app/[locale]/wishlist/page.tsx
+audit-work/source/nabd-patient-web/app/layout.tsx
+audit-work/source/nabd-patient-web/audit-artifacts/DEVICE_SCREEN_ROUTE_INVENTORY_20260817.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE19_RERUN_STATUS_AND_EXECUTABLE_BLOCKERS_20260820.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_PHASE8_BATCH_E_PATIENT_LOCALE_NAVIGATION_20260819.md
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_SCREEN_BUTTON_CONTRACT_INVENTORY_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/NABDAH_SCREEN_BUTTON_CONTRACT_UNIQUE_20260818.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE4_ARTICLES_NAVIGATION_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE4_CHRONIC_NAVIGATION_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE4_HEALTH_TRENDS_NAVIGATION_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE4_MENTAL_HEALTH_NAVIGATION_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE4_SETTINGS_NAVIGATION_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/PHASE4_SLEEP_NAVIGATION_AR.md
+audit-work/source/nabd-patient-web/audit-artifacts/PROVIDER_SCREEN_CONTROLLER_INVENTORY_20260818.md
+audit-work/source/nabd-patient-web/audit-artifacts/RAW_SCREEN_ROUTE_INVENTORY.txt
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/mobile_navigation_actions.tsv
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/mobile_navigation_actions.txt
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/mobile_screen_files.txt
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/mobile_to_web_screen_map.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/screen_map_summary.json
+audit-work/source/nabd-patient-web/audit-artifacts/full-audit-20260823/web_pages_files.txt
+audit-work/source/nabd-patient-web/audit-artifacts/patient_insurance_screen_source_classification_20260820.txt
+audit-work/source/nabd-patient-web/audit-artifacts/provider_admin_insurance_screen_source_classification_20260820.txt
+audit-work/source/nabd-patient-web/client/src/components/DashboardLayout.tsx
+audit-work/source/nabd-patient-web/client/src/components/DashboardLayoutSkeleton.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/navigation-menu.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/table.tsx
+audit-work/source/nabd-patient-web/client/src/components/ui/tabs.tsx
+audit-work/source/nabd-patient-web/client/src/pages/ComponentShowcase.tsx
+audit-work/source/nabd-patient-web/client/src/pages/Home.tsx
+audit-work/source/nabd-patient-web/client/src/pages/NotFound.tsx
+audit-work/source/nabd-patient-web/docs/phase-2-patient-screen-catalog.md
+audit-work/source/nabd-patient-web/server/_core/systemRouter.ts
+audit-work/source/nabd-patient-web/server/routers.ts
+## HTTP-like definitions
+audit-work/source/nabd-patient-web/proxy.ts:1:import { NextRequest, NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/proxy.ts:32:  if (pathname.startsWith("/api") || pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
+audit-work/source/nabd-patient-web/client/public/__manus__/debug-collector.js:200:      href: href,
+audit-work/source/nabd-patient-web/client/src/const.ts:18:  const redirectUri = `${window.location.origin}/api/oauth/callback`;
+audit-work/source/nabd-patient-web/client/src/main.tsx:43:      url: "/api/trpc",
+audit-work/source/nabd-patient-web/client/src/main.tsx:65:      fetch(input, init) {
+audit-work/source/nabd-patient-web/client/src/main.tsx:66:        return globalThis.fetch(input, {
+audit-work/source/nabd-patient-web/client/src/_core/hooks/useAuth.ts:95:    refresh: () => meQuery.refetch(),
+audit-work/source/nabd-patient-web/client/src/components/Map.tsx:98:    script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
+audit-work/source/nabd-patient-web/client/src/components/DashboardLayout.tsx:31:  { icon: LayoutDashboard, label: "Page 1", path: "/" },
+audit-work/source/nabd-patient-web/client/src/components/DashboardLayout.tsx:32:  { icon: Users, label: "Page 2", path: "/some-path" },
+audit-work/source/nabd-patient-web/app/robots.ts:7:  const privatePaths = ["/api/", ...locales.flatMap((locale) => privateRouteFamilies.map((route) => `/${locale}/${route}`))];
+audit-work/source/nabd-patient-web/app/seo.test.ts:10:    expect(rules?.disallow).toEqual(expect.arrayContaining(["/api/", "/ar/dashboard", "/en/profile", "/ur/orders", "/hi/health", "/bn/reminders", "/fil/medicines"]));
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:10:  if (!input.success) return NextResponse.json({ message: "invalid_login_payload" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:13:  if (!upstream.ok) return NextResponse.json(data || { message: "login_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:14:  if (z.object({ requires_2fa: z.literal(true) }).safeParse(data).success) return NextResponse.json({ requires2fa: true }, { status: 200 });
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:16:  if (!tokens) return NextResponse.json({ message: "unexpected_auth_response" }, { status: 502 });
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:17:  const response = NextResponse.json({ authenticated: true });
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:10:function jsonRequest(path: string, body: unknown, headers?: HeadersInit) { return new Request(`https://web.test${path}`, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) }); }
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:15:    const response = await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "patient@example.com" }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:17:    expect((await requestOtp(jsonRequest("/api/auth/otp/request", { identifier: "x" }))).status).toBe(400);
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:20:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchangeToken: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_otp_exchange=secret; Path=/api/v1/auth/session/exchange; HttpOnly; Secure; SameSite=Strict" } }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:21:    const response = await verifyOtp(jsonRequest("/api/auth/otp/verify", { identifier: "patient@example.com", code: "123456" }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:23:    expect(response.headers.get("set-cookie")).toContain("Path=/api/auth/session/exchange");
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:27:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ authenticated: true, token: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_admin_token=secret; Path=/api/v1; HttpOnly; Secure" } }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:28:    const response = await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST", headers: { cookie: "nabd_otp_exchange=secret; unrelated=drop", "x-nabd-device-id": "device-test" } }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:34:    expect((await exchangeSession(new Request("https://web.test/api/auth/session/exchange", { method: "POST" }))).status).toBe(400);
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts:9:  if (!input.success) return NextResponse.json({ message: "invalid_otp_request" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts:12:  return NextResponse.json(data || { message: "otp_request_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:9:  if (!input.success) return NextResponse.json({ message: "invalid_otp_verify" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:12:  if (!upstream.ok) return NextResponse.json(data || { message: "otp_verify_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:14:  if (!expires.success) return NextResponse.json({ message: "unexpected_otp_response" }, { status: 502 });
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:15:  const response = NextResponse.json(expires.data, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:17:  if (setCookie) response.headers.set("set-cookie", setCookie.replace(/Path=\/api\/v1\/auth\/session\/exchange/gi, "Path=/api/auth/session/exchange"));
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:10:  if (!input.success) return NextResponse.json({ message: "invalid_2fa_payload" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:13:  if (!upstream.ok) return NextResponse.json(data || { message: "verification_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:15:  if (!tokens) return NextResponse.json({ message: "unexpected_auth_response" }, { status: 502 });
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:16:  const response = NextResponse.json({ authenticated: true });
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts:5:export async function GET() { const token = (await cookies()).get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ authenticated: false }, { status: 401 }); const upstream = await callPatientApi("/auth/me", { method: "GET" }, token); if (!upstream.ok) return NextResponse.json({ authenticated: false }, { status: upstream.status }); return NextResponse.json({ authenticated: true, user: await upstream.json() }, { headers: { "cache-control": "no-store" } }); }
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:10:  if (!match?.[1]) return NextResponse.json({ message: "otp_exchange_required" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:14:  if (!upstream.ok) return NextResponse.json(data || { message: "session_exchange_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:16:  if (!parsed.success) return NextResponse.json({ message: "unexpected_session_response" }, { status: 502 });
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:17:  const response = NextResponse.json(parsed.data, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:20:    .replace(/Path=\/api\/v1\/auth\/session\/exchange/gi, "Path=/api/auth/session/exchange")
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts:5:export async function POST() { const token = (await cookies()).get(authCookieNames.access)?.value; if (token) await callPatientApi("/auth/logout", { method: "POST" }, token).catch(() => undefined); const response = NextResponse.json({ success: true }); clearSessionCookies(response); return response; }
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:18:  if (idempotencyKey.length < 16 || idempotencyKey.length > 128) return NextResponse.json({ message: "idempotency_key_required" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:20:  if (!input.success) return NextResponse.json({ message: "invalid_booking_payload" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:22:  if (!accessToken) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:26:  if (!upstream.ok) return NextResponse.json(data || { message: "booking_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:28:  if (!result.success) return NextResponse.json({ message: "unexpected_booking_response" }, { status: 502 });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:29:  return NextResponse.json(result.data, { status: upstream.status, headers: { "cache-control": "no-store" } });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:9:function request(body: unknown, headers: HeadersInit = {}) { return new Request("https://web.test/api/appointments/book", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": "idempotency-test-123456", ...headers }, body: JSON.stringify(body) }); }
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:13:  if (!idSchema.safeParse(appointmentId).success) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:15:  if (key.length < 16 || key.length > 128) return NextResponse.json({ message: "idempotency_key_required" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:17:  if (!parsed.success) return NextResponse.json({ message: "invalid_reschedule_payload" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:19:  if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:22:  if (!upstream.ok) return NextResponse.json(data || { message: "reschedule_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:23:  return NextResponse.json({ ok: true }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts:6:function req(headers:HeadersInit={},body:unknown={scheduled_at:"2030-01-01T10:00:00.000Z"}){return new Request(`https://web.test/api/appointments/${id}/reschedule`,{method:"PATCH",headers:{"content-type":"application/json","idempotency-key":"reschedule-key-123456",...headers},body:JSON.stringify(body)})}
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:5:import { createPatientPaymentIntent } from "@/lib/api/payments-server";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:6:import { parsePaymentIntent } from "@/lib/api/payments";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:13:  if (!idSchema.safeParse(appointmentId).success) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:15:  if (key.length < 16 || key.length > 128) return NextResponse.json({ message: "idempotency_key_required" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:17:  if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:19:  if (!upstream) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:21:  if (!result.ok) return NextResponse.json(data || { message: "payment_intent_failed" }, { status: result.status });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:23:  if (!parsed) return NextResponse.json({ message: "unexpected_payment_intent_response" }, { status: 502 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.ts:24:  return NextResponse.json(parsed, { status: result.status, headers: { "cache-control": "no-store" } });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:3:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:8:function req(headers: HeadersInit = {}) { return new Request(`https://web.test/api/appointments/${id}/payment-intent`, { method: "POST", headers: { "idempotency-key": "payment-key-123456", ...headers } }); }
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:13:  if (!idSchema.safeParse(appointmentId).success) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:15:  if (key.length < 16 || key.length > 128) return NextResponse.json({ message: "idempotency_key_required" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:17:  if (!input.success) return NextResponse.json({ message: "invalid_cancel_payload" }, { status: 400 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:19:  if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:22:  if (!upstream.ok) return NextResponse.json(data || { message: "cancel_failed" }, { status: upstream.status });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:23:  return NextResponse.json({ ok: true }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts:6:function req(headers:HeadersInit={},body:unknown={}){return new Request(`https://web.test/api/appointments/${id}/cancel`,{method:"POST",headers:{"content-type":"application/json","idempotency-key":"cancel-key-123456",...headers},body:JSON.stringify(body)})}
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:2:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:13:  if (!idSchema.safeParse(appointmentId).success) return NextResponse.json({ message: "resource_not_found" }, { status: 404 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:15:  if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:18:  if (!upstream.ok) return NextResponse.json(data || { message: "call_token_unavailable" }, { status: upstream.status, headers: { "cache-control": "no-store" } });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:20:  if (!parsed.success) return NextResponse.json({ message: "invalid_call_token_response" }, { status: 502, headers: { "cache-control": "no-store" } });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:21:  return NextResponse.json(parsed.data, { status: 200, headers: { "cache-control": "no-store", "x-content-type-options": "nosniff" } });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:2:import { NextRequest, NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:5:import { isAllowedPatientApiRequest } from "@/lib/api/patient-allowlist";
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:6:import { forwardApiResponse } from "@/lib/api/response";
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:7:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:8:type Context = { params: Promise<{ path: string[] }> };
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:10:async function proxy(request: NextRequest, context: Context) { const { path: parts } = await context.params; const path = `/${parts.map(encodeURIComponent).join("/")}`; if (!isAllowedPatientApiRequest(path, request.method)) return NextResponse.json({ message: "resource_not_found" }, { status: 404 }); const store = await cookies(); let token = store.get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 }); const headers = new Headers(); const target = `${path}${request.nextUrl.search}`; let upstream = await callPatientApi(target, { method: request.method, headers }, token); let rotated: Awaited<ReturnType<typeof refreshSession>> = null; if (upstream.status === 401) { rotated = await refreshSession(); if (rotated) { token = rotated.tokens.accessToken; upstream = await callPatientApi(target, { method: request.method, headers }, token); } } const response = await forwardApiResponse(upstream); if (rotated) setSessionCookies(response, rotated.tokens, rotated.deviceId); if (upstream.status === 401 && !rotated) clearSessionCookies(response); return response; }
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:23:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:24:vi.mock("@/lib/api/response", () => ({
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:34:    nextUrl: new URL("https://web.nabd.plus/api/patient/orders/mine"),
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:39:  return { params: Promise.resolve({ path: ["orders", "mine"] }) };
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:97:    const response = await GET(request(), { params: Promise.resolve({ path: ["medical-profile"] }) });
+audit-work/source/nabd-patient-web/app/favicon.ico/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/favicon.ico/route.ts:6:  return new NextResponse(faviconSvg, {
+audit-work/source/nabd-patient-web/app/llms.txt/route.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/app/llms.txt/route.ts:24:  return new NextResponse(llmsText, {
+audit-work/source/nabd-patient-web/app/[locale]/profile/profile-page-ssr.test.ts:11:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: async () => state.responses.shift()! }));
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:5:import { extractRecord, profileDomainState, readProfileFields, type ProfileDomainState, type ProfileField } from "@/lib/api/profile";
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:43:    { key: "health", href: `/${locale}/health`, Icon: HeartPulse, accent: "#E11D48" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:44:    { key: "appointments", href: `/${locale}/appointments`, Icon: CalendarDays, accent: "#0284C7" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:45:    { key: "orders", href: `/${locale}/orders`, Icon: ShoppingBag, accent: "#D97706" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:46:    { key: "prescriptions", href: `/${locale}/prescriptions`, Icon: FileText, accent: "#7A6BEA" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:47:    { key: "medicines", href: `/${locale}/medicines`, Icon: Pill, accent: "#16A34A" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:48:    { key: "family", href: `/${locale}/family`, Icon: UsersRound, accent: "#0D9488" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:49:    { key: "notifications", href: `/${locale}/notifications`, Icon: Bell, accent: "#64748B" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:50:    { key: "settings", href: `/${locale}/settings`, Icon: Settings, accent: "#475569" },
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:51:    { key: "articles", href: `/${locale}/articles`, Icon: BookOpen, accent: "#0F766E" },
+audit-work/source/nabd-patient-web/app/[locale]/cart/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/cart/page.tsx:6:import { extractCartSummary } from "@/lib/api/cart";
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:8:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/prescription/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/cart/checkout/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/cart/checkout/page.tsx:6:import { extractCartSummary } from "@/lib/api/cart";
+audit-work/source/nabd-patient-web/app/[locale]/medicines/page.tsx:4:import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
+audit-work/source/nabd-patient-web/app/[locale]/medicines/page.tsx:5:import { getPatientMedicines } from "@/lib/api/medicines-server";
+audit-work/source/nabd-patient-web/app/[locale]/medicines/medicines-ssr.test.ts:14:vi.mock("@/lib/api/medicines-server", () => ({ getPatientMedicines: state.getPatientMedicines }));
+audit-work/source/nabd-patient-web/app/[locale]/medicines/medicines-ssr.test.ts:15:vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicine: state.getPublicMedicine }));
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/page.tsx:5:import { extractMedicineDetail, parseMedicineId } from "@/lib/api/medicines";
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/page.tsx:6:import { getPublicMedicine } from "@/lib/api/public-medicines-server";
+audit-work/source/nabd-patient-web/app/[locale]/medicines/[medicineId]/medicine-detail-public-ssr.test.ts:11:vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicine: state.getPublicMedicine }));
+audit-work/source/nabd-patient-web/app/[locale]/reminders/page.tsx:4:import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
+audit-work/source/nabd-patient-web/app/[locale]/reminders/page.tsx:5:import { getPatientMedicationReminders } from "@/lib/api/reminders-server";
+audit-work/source/nabd-patient-web/app/[locale]/reminders/reminders-ssr.test.ts:10:vi.mock("@/lib/api/reminders-server", () => ({ getPatientMedicationReminders: state.getPatientMedicationReminders }));
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:8:vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicines: state.getPublicMedicines }));
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/page.tsx:4:import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/page.tsx:5:import { getPublicMedicines } from "@/lib/api/public-medicines-server";
+audit-work/source/nabd-patient-web/app/[locale]/notifications/page.tsx:5:import { extractPatientNotifications } from "@/lib/api/notifications";
+audit-work/source/nabd-patient-web/app/[locale]/notifications/page.tsx:6:import { getPatientNotifications } from "@/lib/api/notifications-server";
+audit-work/source/nabd-patient-web/app/[locale]/notifications/notifications-ssr.test.ts:10:vi.mock("@/lib/api/notifications-server", () => ({ getPatientNotifications: state.getPatientNotifications }));
+audit-work/source/nabd-patient-web/app/[locale]/notifications/settings/page.tsx:4:import { getPatientNotificationSettings } from "@/lib/api/notification-settings-server";
+audit-work/source/nabd-patient-web/app/[locale]/notifications/settings/page.tsx:5:import { extractNotificationSettings } from "@/lib/api/notification-settings";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/page.tsx:4:import { extractDiagnosticBookings } from "@/lib/api/diagnostics";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/page.tsx:5:import { getDiagnosticBookings } from "@/lib/api/diagnostics-server";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/diagnostics-ssr.test.ts:10:vi.mock("@/lib/api/diagnostics-server", () => ({ getDiagnosticBookings: state.getDiagnosticBookings, getDiagnosticBooking: state.getDiagnosticBooking }));
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx:4:import { extractDiagnosticBooking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/[domain]/[bookingId]/page.tsx:5:import { getDiagnosticBooking } from "@/lib/api/diagnostics-server";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/page.tsx:5:import { extractLabServices } from "@/lib/api/labs";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/page.tsx:6:import { getPublicLabServices } from "@/lib/api/labs-server";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/labs/labs-ssr.test.ts:4:vi.mock("@/lib/api/labs-server", () => ({ getPublicLabServices: state.getPublicLabServices }));
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/page.tsx:5:import { extractRadiologyServices } from "@/lib/api/radiology";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/page.tsx:6:import { getPublicRadiologyModalities, getPublicRadiologyServices } from "@/lib/api/radiology-server";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/radiology/radiology-ssr.test.ts:3:vi.mock("@/lib/api/radiology-server", () => ({ getPublicRadiologyServices: state.services, getPublicRadiologyModalities: state.modalities }));
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/page.tsx:5:import { extractLabServices } from "@/lib/api/labs";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/page.tsx:6:import { getPublicLabServices } from "@/lib/api/labs-server";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/labs-packages-ssr.test.ts:4:vi.mock("@/lib/api/labs-server", () => ({ getPublicLabServices: state.getPublicLabServices, getPublicLabPackage: state.getPublicLabPackage }));
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx:5:import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
+audit-work/source/nabd-patient-web/app/[locale]/diagnostics/packages/[packageId]/page.tsx:6:import { getPublicLabPackage } from "@/lib/api/labs-server";
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/dashboard-ssr.test.ts:10:vi.mock("@/lib/api/dashboard-server", () => ({ getPatientDashboardProfile: state.profile, getPatientDashboardUpcomingAppointment: state.appointment }));
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:8:import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:9:import { parseDashboardAppointment, parseDashboardProfile } from "@/lib/api/dashboard";
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:15:  { key: "appointments", href: "appointments", icon: CalendarDays, accent: "#2E86FF" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:16:  { key: "medicines", href: "medicines", icon: Pill, accent: "#16A34A" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:17:  { key: "diagnostics", href: "diagnostics", icon: ScanLine, accent: "#7A6BEA" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:18:  { key: "orders", href: "orders", icon: ClipboardList, accent: "#F0A526" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:19:  { key: "health", href: "health", icon: HeartPulse, accent: "#23B5CE" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:20:  { key: "homeCare", href: "home-care", icon: HousePlus, accent: "#E8568E" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:23:  { key: "reminders", href: "reminders", icon: Pill, accent: "#2BB89C" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:24:  { key: "appointments", href: "appointments", icon: Stethoscope, accent: "#2E86FF" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:25:  { key: "health", href: "health", icon: Activity, accent: "#7A6BEA" },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:28:  { key: "prescriptions", href: "prescriptions", icon: FileText },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:29:  { key: "family", href: "family", icon: UsersRound },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:30:  { key: "chat", href: "chat", icon: MessageCircle },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:31:  { key: "notifications", href: "notifications", icon: Bell },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:32:  { key: "orders", href: "orders", icon: ClipboardList },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:33:  { key: "profile", href: "profile", icon: UserRound },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:34:  { key: "settings", href: "settings", icon: Settings },
+audit-work/source/nabd-patient-web/app/[locale]/dashboard/page.tsx:35:  { key: "articles", href: "articles", icon: BookOpen },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:6:import { extractVitalSummary } from "@/lib/api/vitals";
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:7:import { getPatientVitalSummary } from "@/lib/api/vitals-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:16:  { key: "prescriptions", href: "prescriptions", icon: FileText, color: "#7A6BEA" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:17:  { key: "family", href: "family", icon: UsersRound, color: "#EC4899" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:18:  { key: "reminders", href: "reminders", icon: Bell, color: "#F0A526" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:19:  { key: "chat", href: "chat", icon: MessageCircle, color: "#23B5CE" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:20:  { key: "sleep", href: "health/sleep", icon: Moon, color: "#6366F1" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:21:  { key: "chronicDiseases", href: "health/chronic-diseases", icon: HeartPulse, color: "#E11D48" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:22:  { key: "chronicMedications", href: "health/chronic-medications", icon: Pill, color: "#16A34A" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:23:  { key: "trends", href: "health/trends", icon: Activity, color: "#2563EB" },
+audit-work/source/nabd-patient-web/app/[locale]/health/page.tsx:24:  { key: "vitalsHistory", href: "health/vitals", icon: HeartPulse, color: "#0EA5E9" },
+audit-work/source/nabd-patient-web/app/[locale]/health/health-ssr.test.ts:11:vi.mock("@/lib/api/vitals-server", () => ({ getPatientVitalSummary: state.getPatientVitalSummary }));
+audit-work/source/nabd-patient-web/app/[locale]/health/reports/page.tsx:4:import { getPatientReports } from "@/lib/api/vitals-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/reports/page.tsx:5:import { parseReports } from "@/lib/api/reports";
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-diseases/page.tsx:5:import { getPatientChronicDiseases } from "@/lib/api/chronic-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-diseases/page.tsx:6:import { parseChronicDiseases } from "@/lib/api/chronic";
+audit-work/source/nabd-patient-web/app/[locale]/health/trends/page.tsx:5:import { getPatientHealthTrends } from "@/lib/api/trends-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/trends/page.tsx:6:import { parseHealthTrends } from "@/lib/api/trends";
+audit-work/source/nabd-patient-web/app/[locale]/health/vitals/page.tsx:5:import { extractVitalHistory } from "@/lib/api/vitals";
+audit-work/source/nabd-patient-web/app/[locale]/health/vitals/page.tsx:6:import { getPatientVitalHistory } from "@/lib/api/vitals-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/score/page.tsx:5:import { getPatientHealthScore } from "@/lib/api/vitals-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/score/page.tsx:6:import { parseHealthScore } from "@/lib/api/health-score";
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-medications/page.tsx:5:import { getPatientChronicMedications } from "@/lib/api/chronic-meds-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/chronic-medications/page.tsx:6:import { parseChronicMedications } from "@/lib/api/chronic-meds";
+audit-work/source/nabd-patient-web/app/[locale]/health/emergency-contacts/page.tsx:5:import { getPatientEmergencyContacts } from "@/lib/api/emergency-contacts-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/emergency-contacts/page.tsx:6:import { parseEmergencyContacts } from "@/lib/api/emergency-contacts";
+audit-work/source/nabd-patient-web/app/[locale]/health/sleep/page.tsx:5:import { getPatientSleepReadings } from "@/lib/api/sleep-server";
+audit-work/source/nabd-patient-web/app/[locale]/health/sleep/page.tsx:6:import { parseSleepReadings } from "@/lib/api/sleep";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/page.tsx:5:import { getPatientWellbeingDashboard } from "@/lib/api/mental-health-server";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/page.tsx:6:import { parseWellbeingDashboard } from "@/lib/api/mental-health";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/mood/page.tsx:5:import { parseMoodHistory } from "@/lib/api/mood";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/mood/page.tsx:6:import { getPatientMoodHistory } from "@/lib/api/mood-server";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/breathing/page.tsx:5:import { parseBreathingHistory } from "@/lib/api/breathing";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/breathing/page.tsx:6:import { getPatientBreathingHistory } from "@/lib/api/breathing-server";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/crisis-contacts/page.tsx:5:import { parseCrisisContacts } from "@/lib/api/crisis-contacts";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/crisis-contacts/page.tsx:6:import { getPatientCrisisContacts } from "@/lib/api/crisis-contacts-server";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/meditation/page.tsx:5:import { parseMeditationHistory } from "@/lib/api/meditation";
+audit-work/source/nabd-patient-web/app/[locale]/mental-health/meditation/page.tsx:6:import { getPatientMeditationHistory } from "@/lib/api/meditation-server";
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/prescriptions-ssr.test.ts:10:vi.mock("@/lib/api/prescriptions-server", () => ({ getPatientPrescriptions: state.getPatientPrescriptions }));
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/page.tsx:3:import { extractPrescriptionSummaries } from "@/lib/api/prescriptions";
+audit-work/source/nabd-patient-web/app/[locale]/prescriptions/page.tsx:4:import { getPatientPrescriptions } from "@/lib/api/prescriptions-server";
+audit-work/source/nabd-patient-web/app/[locale]/articles/page.tsx:5:import { getPublicArticleCategories, getPublicArticles } from "@/lib/api/articles-server";
+audit-work/source/nabd-patient-web/app/[locale]/articles/page.tsx:6:import { parseArticleCategories, parseArticleList } from "@/lib/api/articles";
+audit-work/source/nabd-patient-web/app/[locale]/articles/[slug]/page.tsx:5:import { getPublicArticle } from "@/lib/api/articles-server";
+audit-work/source/nabd-patient-web/app/[locale]/articles/[slug]/page.tsx:6:import { articleSlug, parseArticle } from "@/lib/api/articles";
+audit-work/source/nabd-patient-web/app/[locale]/articles/bookmarks/page.tsx:5:import { getPatientArticleBookmarks } from "@/lib/api/articles-server";
+audit-work/source/nabd-patient-web/app/[locale]/articles/bookmarks/page.tsx:6:import { parseArticleList } from "@/lib/api/articles";
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts:8:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/[locale]/orders/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/orders/page.tsx:6:import { extractOrderRows } from "@/lib/api/orders";
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/page.tsx:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/page.tsx:5:import { extractOrderDetail, parseOrderId } from "@/lib/api/orders";
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx:6:import { extractOrderTracking, parseOrderId } from "@/lib/api/orders";
+audit-work/source/nabd-patient-web/app/[locale]/wishlist/page.tsx:5:import { getPatientWishlist } from "@/lib/api/wishlist-server";
+audit-work/source/nabd-patient-web/app/[locale]/wishlist/page.tsx:6:import { extractWishlist } from "@/lib/api/wishlist";
+audit-work/source/nabd-patient-web/app/[locale]/appointments/appointments-ssr.test.ts:18:vi.mock("@/lib/api/appointments-server", () => ({
+audit-work/source/nabd-patient-web/app/[locale]/appointments/page.tsx:6:import { extractAppointmentRows } from "@/lib/api/appointments";
+audit-work/source/nabd-patient-web/app/[locale]/appointments/page.tsx:7:import { getPatientAppointments } from "@/lib/api/appointments-server";
+audit-work/source/nabd-patient-web/app/[locale]/appointments/[appointmentId]/page.tsx:4:import { extractAppointmentDetail, parseAppointmentId } from "@/lib/api/appointments";
+audit-work/source/nabd-patient-web/app/[locale]/appointments/[appointmentId]/page.tsx:5:import { getPatientAppointment } from "@/lib/api/appointments-server";
+audit-work/source/nabd-patient-web/app/[locale]/chat/chat-ssr.test.ts:10:vi.mock("@/lib/api/chat-server", () => ({ getPatientChatThreads: state.getPatientChatThreads }));
+audit-work/source/nabd-patient-web/app/[locale]/chat/page.tsx:3:import { extractChatThreadSummaries } from "@/lib/api/chat";
+audit-work/source/nabd-patient-web/app/[locale]/chat/page.tsx:4:import { getPatientChatThreads } from "@/lib/api/chat-server";
+audit-work/source/nabd-patient-web/app/[locale]/chat/[threadId]/page.tsx:5:import { extractChatMessageSummaries, extractChatThreadSummaries } from "@/lib/api/chat";
+audit-work/source/nabd-patient-web/app/[locale]/chat/[threadId]/page.tsx:6:import { getPatientChatMessages, getPatientChatThread } from "@/lib/api/chat-server";
+audit-work/source/nabd-patient-web/app/[locale]/family/page.tsx:3:import { extractFamilyMembers } from "@/lib/api/family";
+audit-work/source/nabd-patient-web/app/[locale]/family/page.tsx:4:import { parseFamilyGroup } from "@/lib/api/family-group";
+audit-work/source/nabd-patient-web/app/[locale]/family/page.tsx:5:import { getPatientFamilyGroup } from "@/lib/api/family-group-server";
+audit-work/source/nabd-patient-web/app/[locale]/family/page.tsx:6:import { getPatientFamilyMembers } from "@/lib/api/family-server";
+audit-work/source/nabd-patient-web/app/[locale]/family/family-ssr.test.ts:10:vi.mock("@/lib/api/family-server", () => ({ getPatientFamilyMembers: state.getPatientFamilyMembers }));
+audit-work/source/nabd-patient-web/app/[locale]/home-care/page.tsx:4:import { extractHomeCareBookings } from "@/lib/api/home-care";
+audit-work/source/nabd-patient-web/app/[locale]/home-care/page.tsx:5:import { getPatientHomeCareBookings } from "@/lib/api/home-care-server";
+audit-work/source/nabd-patient-web/app/[locale]/home-care/home-care-ssr.test.ts:10:vi.mock("@/lib/api/home-care-server", () => ({ getPatientHomeCareBookings: state.getPatientHomeCareBookings }));
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/page.tsx:5:import { extractHomeCareServices } from "@/lib/api/home-care-services";
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/page.tsx:6:import { getPublicHomeCareServices } from "@/lib/api/home-care-services-server";
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/services-ssr.test.ts:7:vi.mock("@/lib/api/home-care-services-server", () => ({ getPublicHomeCareServices: state.list, getPublicHomeCareService: state.detail }));
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx:5:import { extractHomeCareService } from "@/lib/api/home-care-services";
+audit-work/source/nabd-patient-web/app/[locale]/home-care/services/[serviceId]/page.tsx:6:import { getPublicHomeCareService } from "@/lib/api/home-care-services-server";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/page.tsx:5:import { extractSpecialties } from "@/lib/api/specialties";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/page.tsx:6:import { getPublicSpecialties } from "@/lib/api/specialties-server";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/specialties/specialties-ssr.test.ts:8:vi.mock("@/lib/api/specialties-server", () => ({ getPublicSpecialties: state.getPublicSpecialties }));
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/page.tsx:5:import { extractDoctors } from "@/lib/api/doctors";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/page.tsx:6:import { getPublicDoctors } from "@/lib/api/doctors-server";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/doctors-ssr.test.ts:2:const state=vi.hoisted(()=>({get:vi.fn()})); vi.mock("next-intl/server",()=>({getTranslations:async()=> (k:string)=>k,setRequestLocale:vi.fn()})); vi.mock("@/lib/i18n",()=>({isLocale:()=>true})); vi.mock("@/lib/api/doctors-server",()=>({getPublicDoctors:state.get})); vi.mock("next/navigation",()=>({notFound:vi.fn()})); import DoctorsPage from "./page";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx:5:import { extractDoctor, extractDoctorSlots } from "@/lib/api/doctors";
+audit-work/source/nabd-patient-web/app/[locale]/consultations/doctors/[doctorId]/page.tsx:6:import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
+audit-work/source/nabd-patient-web/app/[locale]/settings/page.tsx:4:import { getPatientPrivacySettings, getPatientSecuritySettings, getPatientSessions, getPatientStorage } from "@/lib/api/settings-server";
+audit-work/source/nabd-patient-web/app/[locale]/settings/page.tsx:5:import { parsePrivacySettings, parseSecuritySettings, parseSessions, parseStorageSummary } from "@/lib/api/settings";
+audit-work/source/nabd-patient-web/app/[locale]/insurance/page.tsx:4:import { getPatientClaims } from "@/lib/api/claims-server";
+audit-work/source/nabd-patient-web/app/[locale]/insurance/page.tsx:5:import { parseClaims } from "@/lib/api/claims";
+audit-work/source/nabd-patient-web/app/[locale]/insurance/page.tsx:6:import { getPatientInsuranceBenefits, getPatientInsurancePolicy } from "@/lib/api/insurance-server";
+audit-work/source/nabd-patient-web/app/[locale]/insurance/page.tsx:7:import { parseInsuranceSummary } from "@/lib/api/insurance";
+audit-work/source/nabd-patient-web/server/auth.logout.test.ts:59:      path: "/",
+audit-work/source/nabd-patient-web/server/routers.ts:7:    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
+audit-work/source/nabd-patient-web/server/storage.ts:43:  const presignResp = await fetch(presignUrl, {
+audit-work/source/nabd-patient-web/server/storage.ts:61:  const uploadResp = await fetch(s3Url, {
+audit-work/source/nabd-patient-web/server/storage.ts:86:  const resp = await fetch(getUrl, {
+audit-work/source/nabd-patient-web/server/_core/oauth.ts:14:  app.get("/api/oauth/callback", async (req: Request, res: Response) => {
+audit-work/source/nabd-patient-web/server/_core/oauth.ts:32:    res.clearCookie(OAUTH_STATE_COOKIE, { path: "/", secure: true, sameSite: "none" });
+audit-work/source/nabd-patient-web/server/_core/dataApi.ts:31:  const response = await fetch(fullUrl, {
+audit-work/source/nabd-patient-web/server/_core/sdk.ts:3:import axios, { type AxiosInstance } from "axios";
+audit-work/source/nabd-patient-web/server/_core/sdk.ts:32:  constructor(private client: ReturnType<typeof axios.create>) {
+audit-work/source/nabd-patient-web/server/_core/sdk.ts:79:  axios.create({
+audit-work/source/nabd-patient-web/server/_core/cookies.ts:44:    path: "/",
+audit-work/source/nabd-patient-web/server/_core/imageGeneration.ts:66:  const response = await fetch(fullUrl, {
+audit-work/source/nabd-patient-web/server/_core/imageGeneration.ts:140:  const response = await fetch(fullUrl, {
+audit-work/source/nabd-patient-web/server/_core/index.ts:41:    "/api/trpc",
+audit-work/source/nabd-patient-web/server/_core/notification.ts:88:    const response = await fetch(endpoint, {
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts:12:  /** Callback path. MUST start with `/api/scheduled/`. */
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts:13:  path: string;
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts:83:    response = await fetch(endpoint, {
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts:127:const validateCallbackPath = (path: string): void => {
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts:128:  if (!path || !path.startsWith("/api/scheduled/")) {
+audit-work/source/nabd-patient-web/server/_core/heartbeat.ts:131:      message: "callback path must start with /api/scheduled/",
+audit-work/source/nabd-patient-web/server/_core/voiceTranscription.ts:97:      const response = await fetch(options.audioUrl);
+audit-work/source/nabd-patient-web/server/_core/voiceTranscription.ts:155:    const response = await fetch(fullUrl, {
+audit-work/source/nabd-patient-web/server/_core/storageProxy.ts:24:      const forgeResp = await fetch(forgeUrl, {
+audit-work/source/nabd-patient-web/server/_core/map.ts:49: * @param endpoint - The API endpoint (e.g., "/maps/api/geocode/json")
+audit-work/source/nabd-patient-web/server/_core/map.ts:74:  const response = await fetch(url.toString(), {
+audit-work/source/nabd-patient-web/server/_core/map.ts:240: * Endpoint: /maps/api/geocode/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:247: * Endpoint: /maps/api/directions/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:254: * Endpoint: /maps/api/distancematrix/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:261: * Endpoint: /maps/api/place/textsearch/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:268: * Endpoint: /maps/api/place/nearbysearch/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:275: * Endpoint: /maps/api/place/details/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:282: * Endpoint: /maps/api/elevation/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:289: * Endpoint: /maps/api/timezone/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:296: * - /v1/snapToRoads: Input: { path: string, interpolate?: boolean }  // path: "lat,lng|lat,lng"
+audit-work/source/nabd-patient-web/server/_core/map.ts:298: * - /v1/speedLimits: Input: { path: string, units?: SpeedUnit }
+audit-work/source/nabd-patient-web/server/_core/map.ts:304: * Endpoint: /maps/api/place/autocomplete/json
+audit-work/source/nabd-patient-web/server/_core/map.ts:311: * Endpoint: /maps/api/staticmap
+audit-work/source/nabd-patient-web/server/_core/llm.ts:310:      const response = await fetch(url, init);
+audit-work/source/nabd-patient-web/lib/api/chronic-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/sandbox-specialty-provider-count.test.ts:35:    const login = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-specialty-provider-count.test.ts:41:    const specialtiesResponse = await fetch(`${baseUrl}/care/specialties`, { headers, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-specialty-provider-count.test.ts:42:    const doctorsResponse = await fetch(`${baseUrl}/care/doctors`, { headers, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-order-ownership.test.ts:16:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-order-ownership.test.ts:32:    const ownerResponse = await fetch(`${baseUrl}/orders/${sandboxOrderId}`, { headers: { authorization: `Bearer ${ownerToken}` } });
+audit-work/source/nabd-patient-web/lib/api/sandbox-order-ownership.test.ts:35:    const otherResponse = await fetch(`${baseUrl}/orders/${sandboxOrderId}`, { headers: { authorization: `Bearer ${otherToken}` } });
+audit-work/source/nabd-patient-web/lib/api/doctors-server.ts:1:import { patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/doctors-server.ts:5:  try { return await fetch(patientApiUrl(doctorQuery(input)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/doctors-server.ts:10:  try { return await fetch(patientApiUrl(`/care/doctors/${doctorId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/doctors-server.ts:15:  try { return await fetch(patientApiUrl(doctorSlotsQuery(input)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/claims-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/response.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/lib/api/response.ts:2:export async function forwardApiResponse(upstream: Response) { const contentType = upstream.headers.get("content-type") || "application/json"; const body = await upstream.arrayBuffer(); return new NextResponse(body, { status: upstream.status, headers: { "content-type": contentType, "cache-control": "no-store" } }); }
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/sleep-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/notification-settings-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/radiology-server.test.ts:3:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: call }));
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts:1:import { medicineQuery, parseMedicineId } from "@/lib/api/medicines";
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts:2:import { patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts:4:function publicMedicinePath(path: string) {
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts:14:    return await fetch(patientApiUrl(publicMedicinePath(medicineQuery(search))), {
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts:26:    return await fetch(patientApiUrl(publicMedicinePath(`/medicines/${medicineId}/details`)), {
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:1:import { articleQuery, articleSlug } from "@/lib/api/articles";
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:2:import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:4:function publicArticlePath(path: string) {
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:9:  try { return await fetch(patientApiUrl(articleQuery(query)), { headers: { Accept: "application/json" }, cache: "force-cache" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:12:  try { return await fetch(patientApiUrl("/articles/categories"), { headers: { Accept: "application/json" }, cache: "force-cache" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:16:  try { return await fetch(patientApiUrl(publicArticlePath(`/articles/${slug}`)), { headers: { Accept: "application/json" }, cache: "force-cache" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/mood-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/appointments-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/upstream.ts:1:const API_BASE_URL = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
+audit-work/source/nabd-patient-web/lib/api/upstream.ts:2:export function patientApiUrl(path: string) { if (!path.startsWith("/") || path.includes("..")) throw new Error("invalid_patient_api_path"); return `${API_BASE_URL}${path}`; }
+audit-work/source/nabd-patient-web/lib/api/upstream.ts:3:export async function callPatientApi(path: string, init: RequestInit = {}, accessToken?: string | null) {
+audit-work/source/nabd-patient-web/lib/api/upstream.ts:9:    return await fetch(patientApiUrl(path), { ...init, headers, cache: "no-store" });
+audit-work/source/nabd-patient-web/lib/api/chronic-meds-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/sandbox-appointments-contracts.test.ts:21:  const response = await fetch(`${baseUrl}/auth/login`, {
+audit-work/source/nabd-patient-web/lib/api/sandbox-appointments-contracts.test.ts:42:    const listResponse = await fetch(`${baseUrl}/care/appointments`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-appointments-contracts.test.ts:47:    const ownerDetail = await fetch(`${baseUrl}/care/appointments/${appointmentId}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-appointments-contracts.test.ts:49:    const otherDetail = await fetch(`${baseUrl}/care/appointments/${appointmentId}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.ts:1:import type { DiagnosticDomain } from "@/lib/api/diagnostics";
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.ts:2:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/sandbox-family-contract.test.ts:14:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-family-contract.test.ts:28:    const list = await fetch(`${baseUrl}/family/members`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-family-contract.test.ts:38:    const response = await fetch(`${baseUrl}/family/members`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/mental-health-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/dashboard-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/family-group-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/breathing-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/payments-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/family-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/sandbox-medicines-contract.test.ts:9:    const response = await fetch(`${baseUrl}/medicines?limit=1`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-medicines-contract.test.ts:20:    const detail = await fetch(`${baseUrl}/medicines/${encodeURIComponent(id)}/details`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-medicines-contract.test.ts:24:    const search = await fetch(`${baseUrl}/medicines?limit=1&page=1&q=${encodeURIComponent(searchTerm)}`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:20:    const loginResponse = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:26:        fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } })
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:40:      const response = await fetch(`${baseUrl}${path}`);
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:51:    const loginResponse = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:63:      const response = await fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } });
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:77:    const loginResponse = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:82:    const medicalResponse = await fetch(`${baseUrl}/medical-profile`, { headers: { authorization: `Bearer ${token}` } });
+audit-work/source/nabd-patient-web/lib/api/sandbox-profile-contracts.test.ts:89:      const response = await fetch(`${baseUrl}${path}`, { headers: { authorization: `Bearer ${token}` } });
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/home-care-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/reminders-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/labs-server.ts:1:import { patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/labs-server.ts:13:  try { return await fetch(patientApiUrl(`/labs/packages/${packageId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/labs-server.ts:28:  try { return await fetch(patientApiUrl(path), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/specialties-server.ts:1:import { patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/specialties-server.ts:3:function specialtiesPath(path: string) {
+audit-work/source/nabd-patient-web/lib/api/specialties-server.ts:11:    return await fetch(patientApiUrl(specialtiesPath("/care/specialties")), {
+audit-work/source/nabd-patient-web/lib/api/sandbox-vitals-contract.test.ts:14:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-vitals-contract.test.ts:28:    const response = await fetch(`${baseUrl}/health/vitals/summary`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-vitals-contract.test.ts:38:    const response = await fetch(`${baseUrl}/health/vitals/summary`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/sandbox-secrets.test.ts:22:    const response = await fetch(`${baseUrl}/auth/login`, {
+audit-work/source/nabd-patient-web/lib/api/trends-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/sandbox-prescriptions-contract.test.ts:14:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-prescriptions-contract.test.ts:28:    const response = await fetch(`${baseUrl}/prescriptions/mine`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-prescriptions-contract.test.ts:38:    const response = await fetch(`${baseUrl}/prescriptions/mine`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/chat-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/labs-server.test.ts:5:vi.mock("@/lib/api/upstream", () => ({ patientApiUrl: (path: string) => `https://api.test${path}` }));
+audit-work/source/nabd-patient-web/lib/api/sandbox-home-care-contract.test.ts:21:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-home-care-contract.test.ts:36:    const list = await fetch(`${baseUrl}/home-care/bookings/my`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-home-care-contract.test.ts:40:    const ownerDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-home-care-contract.test.ts:42:    const otherDetail = await fetch(`${baseUrl}/home-care/bookings/${encodeURIComponent(bookingId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-reminders-contract.test.ts:14:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-reminders-contract.test.ts:28:    const response = await fetch(`${baseUrl}/health/reminders`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-reminders-contract.test.ts:38:    const response = await fetch(`${baseUrl}/health/reminders`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/patient-allowlist.ts:42:export function isAllowedPatientApiPath(path: string) {
+audit-work/source/nabd-patient-web/lib/api/patient-allowlist.ts:46:export function isAllowedPatientApiRequest(path: string, method: string) {
+audit-work/source/nabd-patient-web/lib/api/sandbox-chat-contract.test.ts:14:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-chat-contract.test.ts:28:    const response = await fetch(`${baseUrl}/chat/threads`, { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-chat-contract.test.ts:38:    const response = await fetch(`${baseUrl}/chat/threads`, { signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/insurance-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/medicines-server.ts:1:import { medicineQuery } from "@/lib/api/medicines";
+audit-work/source/nabd-patient-web/lib/api/medicines-server.ts:2:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.ts:1:import { patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.ts:4:function servicePath(path: string) {
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.ts:13:  try { return await fetch(patientApiUrl(servicePath("/home-care/services")), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/home-care-services-server.ts:18:  try { return await fetch(patientApiUrl(servicePath(`/home-care/services/${serviceId}`)), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+audit-work/source/nabd-patient-web/lib/api/sandbox-diagnostics-contracts.test.ts:21:  const response = await fetch(`${baseUrl}/auth/login`, {
+audit-work/source/nabd-patient-web/lib/api/sandbox-diagnostics-contracts.test.ts:43:      const list = await fetch(`${baseUrl}/${domain}/bookings/mine`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-diagnostics-contracts.test.ts:48:      const ownerDetail = await fetch(`${baseUrl}/${domain}/bookings/${encodeURIComponent(resourceId)}`, { headers: { authorization: `Bearer ${ownerToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-diagnostics-contracts.test.ts:50:      const otherDetail = await fetch(`${baseUrl}/${domain}/bookings/${encodeURIComponent(resourceId)}`, { headers: { authorization: `Bearer ${otherToken}` }, signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/notifications-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts:14:  const response = await fetch(`${baseUrl}/auth/login`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, password }), signal: AbortSignal.timeout(12_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts:29:    const list = await fetch(`${baseUrl}/notifications`, { headers, signal: AbortSignal.timeout(25_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts:30:    const count = await fetch(`${baseUrl}/notifications/unread-count`, { headers, signal: AbortSignal.timeout(25_000) });
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts:42:      fetch(`${baseUrl}/notifications`, { signal: AbortSignal.timeout(12_000) }),
+audit-work/source/nabd-patient-web/lib/api/sandbox-notifications-contract.test.ts:43:      fetch(`${baseUrl}/notifications/unread-count`, { signal: AbortSignal.timeout(12_000) })
+audit-work/source/nabd-patient-web/lib/api/meditation-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/radiology-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/auth/cookies.ts:1:import { NextResponse } from "next/server";
+audit-work/source/nabd-patient-web/lib/auth/cookies.ts:5:const commonCookie = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
+audit-work/source/nabd-patient-web/lib/auth/cookies.ts:6:export function setSessionCookies(response: NextResponse, tokens: TokenPair, deviceId: string) {
+audit-work/source/nabd-patient-web/lib/auth/cookies.ts:11:export function clearSessionCookies(response: NextResponse) { for (const name of Object.values(authCookieNames)) response.cookies.set(name, "", { ...commonCookie, maxAge: 0 }); }
+audit-work/source/nabd-patient-web/components-next/appointment-reschedule-form.tsx:13:  async function submit(){ if(busy)return; if(!scheduledAt){setError(labels.invalid);return;} setBusy(true);setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/reschedule`,{method:"PATCH",headers:{"content-type":"application/json","idempotency-key":key.current||crypto.randomUUID()},body:JSON.stringify({scheduled_at:new Date(scheduledAt).toISOString(),...(reason.trim()?{reason:reason.trim()}: {})})});if(!response.ok){setError(response.status===409?labels.conflict:labels.failed);return;}setOpen(false);router.refresh();}catch{setError(labels.unavailable)}finally{setBusy(false)}}
+audit-work/source/nabd-patient-web/components-next/session-actions.tsx:16:    try { await fetch("/api/auth/logout", { method: "POST" }); }
+audit-work/source/nabd-patient-web/components-next/appointment-booking-form.tsx:20:      const response = await fetch("/api/appointments/book", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotency.current || crypto.randomUUID() }, body: JSON.stringify({ doctor_id: doctorId, type: serviceType, slot_id: selected, ...(notes.trim() ? { notes: notes.trim() } : {}) }) });
+audit-work/source/nabd-patient-web/components-next/login-form.tsx:21:          const response = await fetch("/api/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier }) });
+audit-work/source/nabd-patient-web/components-next/login-form.tsx:25:        const verify = await fetch("/api/auth/otp/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ identifier, code }) });
+audit-work/source/nabd-patient-web/components-next/login-form.tsx:27:        const exchange = await fetch("/api/auth/session/exchange", { method: "POST", headers: { "x-nabd-device-id": crypto.randomUUID() } });
+audit-work/source/nabd-patient-web/components-next/login-form.tsx:31:      const endpoint = twoFactor ? "/api/auth/verify-2fa" : "/api/auth/login";
+audit-work/source/nabd-patient-web/components-next/login-form.tsx:33:      const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+audit-work/source/nabd-patient-web/components-next/call-token-launcher.tsx:11:  async function requestToken(){ if(state==="loading")return; setState("loading");setError(null);try{const response=await fetch(`/api/appointments/${appointmentId}/call-token`,{method:"GET",cache:"no-store",credentials:"same-origin"});const data=await response.json().catch(()=>null);if(!response.ok||!data?.token||data.provider!=="livekit"||!data.room){setState("error");setError(response.status===409?labels.notReady:labels.unavailable);return;}setCredential({provider:"livekit",token:data.token,room:data.room});setState("ready");}catch{setState("error");setError(labels.unavailable)}}
+audit-work/source/nabd-patient-web/components-next/appointment-actions.tsx:12:  async function cancel() { if (busy) return; setBusy(true); setError(null); try { const response = await fetch(`/api/appointments/${appointmentId}/cancel`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key.current || crypto.randomUUID() }, body: JSON.stringify(reason.trim() ? { reason: reason.trim() } : {}) }); if (!response.ok) { setError(response.status === 409 ? t("cancelConflict") : t("cancelFailed")); return; } setOpen(false); router.refresh(); } catch { setError(t("cancelUnavailable")); } finally { setBusy(false); } }

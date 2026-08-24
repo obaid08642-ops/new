@@ -1,0 +1,170 @@
+# web_admin_dashboard
+## files
+audit-work/source/web_admin_dashboard/next-env.d.ts
+audit-work/source/web_admin_dashboard/next.config.ts
+audit-work/source/web_admin_dashboard/package-lock.json
+audit-work/source/web_admin_dashboard/package.json
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx
+audit-work/source/web_admin_dashboard/src/components/EmptyIcon.tsx
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx
+audit-work/source/web_admin_dashboard/src/components/PublicDirectory.tsx
+audit-work/source/web_admin_dashboard/src/pages/_app.tsx
+audit-work/source/web_admin_dashboard/src/pages/_document.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/health-dashboard.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx
+audit-work/source/web_admin_dashboard/src/pages/api/hello.ts
+audit-work/source/web_admin_dashboard/src/pages/articles/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/doctors/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/facilities/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/home-care-services/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/lab-services/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/login.tsx
+audit-work/source/web_admin_dashboard/src/pages/medicines/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/s/[type]/[slug].tsx
+audit-work/source/web_admin_dashboard/src/utils/api.ts
+audit-work/source/web_admin_dashboard/tsconfig.json
+## route/controller/gateway/schema/dto/migration/webhook/test files
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx
+## screen/page/navigation files
+audit-work/source/web_admin_dashboard/src/pages/_app.tsx
+audit-work/source/web_admin_dashboard/src/pages/_document.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/health-dashboard.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx
+audit-work/source/web_admin_dashboard/src/pages/api/hello.ts
+audit-work/source/web_admin_dashboard/src/pages/articles/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/doctors/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/facilities/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/home-care-services/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/lab-services/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/login.tsx
+audit-work/source/web_admin_dashboard/src/pages/medicines/index.tsx
+audit-work/source/web_admin_dashboard/src/pages/s/[type]/[slug].tsx
+## HTTP-like definitions
+audit-work/source/web_admin_dashboard/src/pages/login.tsx:31:      const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+audit-work/source/web_admin_dashboard/src/pages/login.tsx:62:      const res = await fetch(`${API_BASE}/api/v1/auth/login/verify-2fa`, {
+audit-work/source/web_admin_dashboard/src/pages/login.tsx:84:      const res = await fetch(`${API_BASE}/api/v1/auth/passkey/login/verify`, {
+audit-work/source/web_admin_dashboard/src/pages/login.tsx:103:      const res = await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
+audit-work/source/web_admin_dashboard/src/pages/login.tsx:122:      const res = await fetch(`${API_BASE}/api/v1/auth/reset-password`, {
+audit-work/source/web_admin_dashboard/src/pages/index.tsx:15:  { href:'/doctors', icon:'', title:'الأطباء', desc:'استشارات حضورية وأونلاين مع أطباء مرخصين في كل التخصصات' },
+audit-work/source/web_admin_dashboard/src/pages/index.tsx:16:  { href: '/medicines', icon: '', title: 'الأدوية والمنتجات', desc: 'قاعدة معرفة دوائية شاملة مع البدائل والتداخلات والأسعار' },
+audit-work/source/web_admin_dashboard/src/pages/index.tsx:17:  { href: '/facilities', icon: '', title: 'المنشآت الصحية', desc: 'مستشفيات وعيادات وصيدليات ومعامل ومراكز أشعة قريبة منك' },
+audit-work/source/web_admin_dashboard/src/pages/index.tsx:18:  { href: '/lab-services', icon: '', title: 'التحاليل المخبرية', desc: 'احجز تحاليلك من البيت أو المختبر وتابع نتائجك رقميًا' },
+audit-work/source/web_admin_dashboard/src/pages/index.tsx:19:  { href: '/home-care-services', icon: '', title: 'الرعاية المنزلية', desc: 'تمريض وعلاج طبيعي ورعاية منزلية حتى باب منزلك' },
+audit-work/source/web_admin_dashboard/src/pages/index.tsx:20:  { href: '/articles', icon: '', title: 'المقالات الصحية', desc: 'محتوى صحي موثوق: وقاية وتغذية وأمومة وصحة نفسية' },
+audit-work/source/web_admin_dashboard/src/pages/s/[type]/[slug].tsx:246:    const r = await fetch(`${API_BASE}/api/v1/seo/meta/${type}/${encodeURIComponent(slug)}`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:35:        const alertsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/fraud-alerts`);
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:42:        const logsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/audit-logs`);
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:27:      const res = await fetch(`${API_BASE}/api/v1/admin/governance/audit-logs`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:54:        const summaryRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance-engine/reports/summary?period=monthly`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:62:        const commRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/commissions`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:69:        const withRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/pending`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:80:        const whRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/procurement/pending`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:113:      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:136:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/issue-quote/${order.id}`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:22:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:53:      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`, { 
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:75:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/trigger-emergency-maintenance`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:30:      const res = await fetch(`${API_BASE}/api/v1/admin/disputes`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:48:      await fetch(`${API_BASE}/api/v1/admin/authority/orders/${id}/force-cancel`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:44:    fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${selectedProvider.id}`)
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:59:        const providersRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers?status=pending&limit=100`);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:75:        const deltasRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:100:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({}) });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:118:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${selectedProvider?.id}/suspend`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:140:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas/${id}/approve`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:157:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas/${id}/reject`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:41:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet?status=${tab}`);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:58:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet/${v.id}/approve`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:73:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet/${v.id}/reject`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:34:          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/liveness`),
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:35:          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/readiness`)
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:59:        const heatRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/nabd-extensions/admin/analytics/heatmaps`);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:87:        const ccRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/command-center`);
+audit-work/source/web_admin_dashboard/src/utils/api.ts:10:  const response = await fetch(url, {
+audit-work/source/web_admin_dashboard/src/utils/api.ts:27:  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}/api/v1${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:20:    const sres = await fetchWithAdminGuard(`${API_BASE}/api/v1/storage/${idOrUrl}/signed-url`);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:25:    const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/storage/${idOrUrl}`);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:159:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/provider-onboarding/admin/contracts/${cid}`);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:555:                const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/provider-onboarding/admin/contracts/${cid}/visibility`, { method: 'POST', body: JSON.stringify({ visible: e.target.checked }) });
+audit-work/source/web_admin_dashboard/src/components/PublicDirectory.tsx:123:    const r = await fetch(`${API_BASE}/api/v1${endpoint}`, { headers: { Accept: 'application/json' } });
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:11:const NAV_SECTIONS: { title: string; items: { href: string; label: string; icon: string }[] }[] = [
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:15:      { href: '/admin/dashboard', label: 'مركز القيادة', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:16:      { href: '/admin/sos-monitor', label: 'مراقبة الطوارئ SOS', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:17:      { href:'/admin/fraud-monitoring', label:'مراقبة الاحتيال', icon:'' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:23:      { href: '/admin/payouts', label: 'اعتمادات السحب', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:24:      { href: '/admin/insurance-queue', label: 'التأمين والمستردات', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:25:      { href: '/admin/insurance-companies', label: 'شركات التأمين', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:26:      { href: '/admin/commissions', label: 'العمولات والأستاذ', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:27:      { href: '/admin/financial-ledger', label: 'دفتر الأستاذ المالي', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:28:      { href:'/admin/disputes', label:'النزاعات المالية', icon:'' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:34:      { href: '/admin/users-management', label: 'إدارة المستخدمين', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:35:      { href: '/admin/provider-moderation', label: 'اعتماد المزودين', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:36:      { href: '/admin/provider-audits', label: 'تدقيق المزودين', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:37:      { href: '/admin/ambulance-fleet', label: 'أساطيل الإسعاف', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:38:      { href: '/admin/nursing-portal', label: 'بوابة التمريض', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:39:      { href: '/admin/catalog-manager', label: 'إدارة كتالوج الخدمات', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:40:      { href: '/admin/medicines-catalog', label: 'كتالوج الأدوية', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:41:      { href: '/admin/pharmacy-procurement', label: 'طلبات توريد الصيدليات', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:42:      { href: '/admin/support-tickets', label: 'تذاكر الدعم', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:48:      { href: '/admin/rbac', label: 'الأدوار والصلاحيات', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:49:      { href: '/admin/security', label: 'الأمان ومفاتيح الدخول', icon: '' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:50:      { href:'/admin/config-portal', label:'إعدادات المنصة', icon:'' },
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:51:      { href: '/admin/audit-logs', label: 'سجل التدقيق', icon: '' },

@@ -1,0 +1,147 @@
+BASE=22526bedb77a3d8148219036367e4714f401aecc
+[NabdProvider-provider]
+controllers=0
+schemas=0
+dtos=0
+migrations=0
+tests=1
+pages_routes=0
+screens=14
+openapi_like=3
+[nabd-patient-web]
+controllers=0
+schemas=1
+dtos=3
+migrations=0
+tests=149
+pages_routes=70
+screens=0
+openapi_like=75
+[nabd_plus_patient_app]
+controllers=0
+schemas=0
+dtos=4
+migrations=0
+tests=33
+pages_routes=0
+screens=2
+openapi_like=12
+[nabdah-backend]
+controllers=85
+schemas=103
+dtos=6
+migrations=0
+tests=88
+pages_routes=0
+screens=0
+openapi_like=100
+[web_admin_dashboard]
+controllers=0
+schemas=0
+dtos=0
+migrations=0
+tests=0
+pages_routes=0
+screens=0
+openapi_like=0
+[HTTP_DECORATORS]
+    205 @Get()
+     94 @Post()
+     72 @Get(':id')
+     35 @Get('mine')
+     27 @Post(':id/reject')
+     24 @Get('wallet')
+     24 @Delete(':id')
+     21 @Post('admin/catalog')
+     19 @Post(':id/approve')
+     18 @Post('orders/:id/accept')
+     18 @Get('services')
+     17 @Post('orders/:id/insurance')
+     17 @Get('services/:id')
+     17 @Delete('admin/catalog/:id')
+     15 @Post('bookings')
+     15 @Patch(':id')
+     15 @Get('queue')
+     14 @Post('orders/:id/submit-basket')
+     14 @Post(':id/cancel')
+     14 @Get('categories')
+     14 @Get('catalog')
+     14 @Get('admin/all')
+     13 @Put('admin/catalog/:id')
+     13 @Get('summary')
+     13 @Get('config')
+     12 @Post('finalize-scan/:id')
+     12 @Post('create')
+     12 @Post('allocate-machine/:id')
+     12 @Post(':id/respond')
+     12 @Patch('bookings/:id/insurance')
+     12 @Get('transactions')
+     12 @Get('search')
+     12 @Get('requests')
+     12 @Get('profile')
+     12 @Get('appointments')
+     11 @Post('register')
+     11 @Post('provider-deltas')
+     11 @Post(':id/suspend')
+     11 @Get('me/profile')
+     11 @Get('inventory')
+     11 @Get('insurance')
+     10 @Post('upload')
+     10 @Post('bookings/:id/upload-report')
+     10 @Post('bookings/:id/gps')
+     10 @Post('bookings/:id/documents')
+     10 @Post('bookings/:id/cancel')
+     10 @Post('bookings/:id/assign-technician')
+     10 @Patch('bookings/:id/state')
+     10 @Patch('bookings/:id/reschedule')
+     10 @Patch('admin/bookings/:id/force-state')
+     10 @Get('provider/inbox')
+     10 @Get('me')
+     10 @Get('bookings/mine')
+     10 @Get('bookings/:id/tracking')
+     10 @Get('bookings/:id')
+     10 @Get('audit-logs')
+      9 @Post('requests')
+      9 @Post('orders/:id/ready')
+      9 @Post('orders/:id/preparing')
+      9 @Post('orders/:id/dispatch')
+      9 @Post('apply')
+      9 @Get('requests/:id')
+      9 @Get('pharmacy/queue')
+      9 @Get('orders/:id')
+      9 @Get('orders')
+      9 @Get('my')
+      9 @Get('devices')
+      9 @Get('active')
+      9 @Get('')
+      8 @Post('send-otp')
+      8 @Post('reset-password')
+      8 @Post('request')
+      8 @Post('refresh')
+      8 @Post('profile')
+      8 @Post('logout')
+      8 @Post('login')
+      8 @Post(':id/accept')
+      8 @Patch(':id/complete')
+      8 @Patch(':id/cancel')
+      8 @Get('status')
+      8 @Get('specialties')
+      8 @Get('providers')
+      8 @Get('overview')
+      8 @Get('emergency-contacts')
+      8 @Get('dashboard')
+      8 @Get('companies')
+      8 @Get('balance')
+      8 @Get('admin/pending')
+      7 @Put(':id')
+      7 @Post('seed')
+      7 @Post('save-policy')
+      7 @Post('read-all')
+      7 @Post('manual-entry')
+      7 @Post('invite')
+      7 @Post('inventory')
+      7 @Post('expire-stale')
+      7 @Post('catalog/:id')
+      7 @Post(':key')
+      7 @Post(':id/toggle')
+      7 @Post(':id/resolve')

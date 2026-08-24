@@ -1,0 +1,732 @@
+# nabd_plus_patient_app
+## files
+audit-work/source/nabd_plus_patient_app/.detoxrc.js
+audit-work/source/nabd_plus_patient_app/app.json
+audit-work/source/nabd_plus_patient_app/app/(auth)/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/forgot-password.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/login.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/otp.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/privacy.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/provider-info.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/register.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/reset-password.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/terms.tsx
+audit-work/source/nabd_plus_patient_app/app/(auth)/welcome.tsx
+audit-work/source/nabd_plus_patient_app/app/(onboarding)/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/(onboarding)/index.tsx
+audit-work/source/nabd_plus_patient_app/app/(onboarding)/language.tsx
+audit-work/source/nabd_plus_patient_app/app/(onboarding)/permissions.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/diagnostics.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/health.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/index.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/nursing.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/pharmacy.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/services.tsx
+audit-work/source/nabd_plus_patient_app/app/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/ai-assistant.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/chat-doctor.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/monthly-report.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/prescription-translator.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/skin-analysis.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/symptom-checker.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/symptom-timeline.tsx
+audit-work/source/nabd_plus_patient_app/app/ai/triage.tsx
+audit-work/source/nabd_plus_patient_app/app/articles/[slug].tsx
+audit-work/source/nabd_plus_patient_app/app/articles/bookmarks.tsx
+audit-work/source/nabd_plus_patient_app/app/articles/index.tsx
+audit-work/source/nabd_plus_patient_app/app/authGuestPolicy.test.ts
+audit-work/source/nabd_plus_patient_app/app/community/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/community/post-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/appointment-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/appointments.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/book/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-confirm.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-pending.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-success.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/call-history.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/cancel-reschedule.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/clinic-confirm.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/clinic-location.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/clinic/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/doctor-profile.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/doctor-search.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/doctor/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/follow-up.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/home-visit-tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/incoming-call.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/offer/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/post-call-rating.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/prescription-from-doctor.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/share-report.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/specialty-select.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/summary.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/video-call.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/video/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/virtual-waiting-room.tsx
+audit-work/source/nabd_plus_patient_app/app/consultations/waiting-room.tsx
+audit-work/source/nabd_plus_patient_app/app/delivery/address-select.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/book-sample.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/booking-confirm.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/booking-success.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/cart.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/checkout.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-approval.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/lab-comparison.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/lab/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/my-results.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/order/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/orders.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/package-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/packages.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/results-history.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/sample-tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/search.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/technician-tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/test-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/upload-rx.tsx
+audit-work/source/nabd_plus_patient_app/app/drug-scanner/index.tsx
+audit-work/source/nabd_plus_patient_app/app/emergency/index.tsx
+audit-work/source/nabd_plus_patient_app/app/emergency/sos-active.tsx
+audit-work/source/nabd_plus_patient_app/app/emergency/sos.tsx
+audit-work/source/nabd_plus_patient_app/app/emergency/tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/family/calendar.tsx
+audit-work/source/nabd_plus_patient_app/app/family/chat.tsx
+audit-work/source/nabd_plus_patient_app/app/family/emergency-contacts.tsx
+audit-work/source/nabd_plus_patient_app/app/family/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/family/index.tsx
+audit-work/source/nabd_plus_patient_app/app/family/invite.tsx
+audit-work/source/nabd_plus_patient_app/app/family/join.tsx
+audit-work/source/nabd_plus_patient_app/app/family/member-health.tsx
+audit-work/source/nabd_plus_patient_app/app/family/permission-request.tsx
+audit-work/source/nabd_plus_patient_app/app/family/permissions.tsx
+audit-work/source/nabd_plus_patient_app/app/family/scan.tsx
+audit-work/source/nabd_plus_patient_app/app/family/shared-calendar.tsx
+audit-work/source/nabd_plus_patient_app/app/health/actionable-order.tsx
+audit-work/source/nabd_plus_patient_app/app/health/add-family-member.tsx
+audit-work/source/nabd_plus_patient_app/app/health/chronic-disease.tsx
+audit-work/source/nabd_plus_patient_app/app/health/chronic-medications.tsx
+audit-work/source/nabd_plus_patient_app/app/health/conditions-allergies.tsx
+audit-work/source/nabd_plus_patient_app/app/health/edit-profile.tsx
+audit-work/source/nabd_plus_patient_app/app/health/emergency-contacts.tsx
+audit-work/source/nabd_plus_patient_app/app/health/family-calendar.tsx
+audit-work/source/nabd_plus_patient_app/app/health/family-chat.tsx
+audit-work/source/nabd_plus_patient_app/app/health/family-hub.tsx
+audit-work/source/nabd_plus_patient_app/app/health/family-member-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/health/health-id.tsx
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-add.tsx
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-list.tsx
+audit-work/source/nabd_plus_patient_app/app/health/medications.tsx
+audit-work/source/nabd_plus_patient_app/app/health/prescriptions.tsx
+audit-work/source/nabd_plus_patient_app/app/health/refills.tsx
+audit-work/source/nabd_plus_patient_app/app/health/reminders.tsx
+audit-work/source/nabd_plus_patient_app/app/health/reports.tsx
+audit-work/source/nabd_plus_patient_app/app/health/sleep-score.tsx
+audit-work/source/nabd_plus_patient_app/app/health/sleep-tracker.tsx
+audit-work/source/nabd_plus_patient_app/app/health/smart-reminders.tsx
+audit-work/source/nabd_plus_patient_app/app/health/trends.tsx
+audit-work/source/nabd_plus_patient_app/app/health/vitals-log.tsx
+audit-work/source/nabd_plus_patient_app/app/health/vitals.tsx
+audit-work/source/nabd_plus_patient_app/app/health/wearables.tsx
+audit-work/source/nabd_plus_patient_app/app/index.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/add-policy.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/approval-pending.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/benefits-summary.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/claim-tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/copay.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/coverage-check.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/index.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/network-providers.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/payment-split.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/policy-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/refund-status.tsx
+audit-work/source/nabd_plus_patient_app/app/insurance/submit-claim.tsx
+audit-work/source/nabd_plus_patient_app/app/loyalty/challenges.tsx
+audit-work/source/nabd_plus_patient_app/app/loyalty/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/loyalty/leaderboard.tsx
+audit-work/source/nabd_plus_patient_app/app/loyalty/referrals.tsx
+audit-work/source/nabd_plus_patient_app/app/loyalty/rewards.tsx
+audit-work/source/nabd_plus_patient_app/app/map/index.tsx
+audit-work/source/nabd_plus_patient_app/app/maternity/baby-development.tsx
+audit-work/source/nabd_plus_patient_app/app/maternity/baby-growth.tsx
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts
+audit-work/source/nabd_plus_patient_app/app/maternity/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/maternity/maternity-setup.tsx
+audit-work/source/nabd_plus_patient_app/app/maternity/ovulation-tracker.tsx
+audit-work/source/nabd_plus_patient_app/app/maternity/pregnancy-tracker.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/breathing.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/crisis-support.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/index.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/meditation.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/mood-journal.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/self-assessment.tsx
+audit-work/source/nabd_plus_patient_app/app/mental-health/therapist-match.tsx
+audit-work/source/nabd_plus_patient_app/app/notifications/index.tsx
+audit-work/source/nabd_plus_patient_app/app/nursing/live-tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/nursing/nurse-profile.tsx
+audit-work/source/nabd_plus_patient_app/app/nursing/service-details.tsx
+audit-work/source/nabd_plus_patient_app/app/nursing/service-info.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/ai-meal-planner.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/ai-plan-builder.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/body-composition.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/body-target.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/calorie-analyzer.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/daily-tracker.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/exercise-plan.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/food-scanner.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/index.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/log-meal.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/nutrition-plan.tsx
+audit-work/source/nabd_plus_patient_app/app/nutrition/water-tracker.tsx
+audit-work/source/nabd_plus_patient_app/app/offers/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/offers/index.tsx
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx
+audit-work/source/nabd_plus_patient_app/app/payments/failed.tsx
+audit-work/source/nabd_plus_patient_app/app/payments/failure.tsx
+audit-work/source/nabd_plus_patient_app/app/payments/processing.tsx
+audit-work/source/nabd_plus_patient_app/app/payments/success.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/barcode-scanner.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/broadcast-status.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/cart.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/chat-with-pharmacist.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/checkout.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/custom-item.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/drug-not-found.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/filters.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/manual-order.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/medicine-compare.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-confirm.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-history.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-tracking.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/payment.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/pharmacist-chat.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/product-detail.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/product-search.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/reorder.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/rx-order.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/scan-prescription.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/waiting-for-pharmacy.tsx
+audit-work/source/nabd_plus_patient_app/app/pharmacy/wishlist.tsx
+audit-work/source/nabd_plus_patient_app/app/profile/addresses.tsx
+audit-work/source/nabd_plus_patient_app/app/profile/edit.tsx
+audit-work/source/nabd_plus_patient_app/app/profile/index.tsx
+audit-work/source/nabd_plus_patient_app/app/profile/insurance.tsx
+audit-work/source/nabd_plus_patient_app/app/programs/active.tsx
+audit-work/source/nabd_plus_patient_app/app/reports/ai-analysis.tsx
+audit-work/source/nabd_plus_patient_app/app/reports/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/reports/passport.tsx
+audit-work/source/nabd_plus_patient_app/app/reports/timeline.tsx
+audit-work/source/nabd_plus_patient_app/app/reports/view-report.tsx
+audit-work/source/nabd_plus_patient_app/app/returns/detail.tsx
+audit-work/source/nabd_plus_patient_app/app/returns/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/returns/new-request.tsx
+audit-work/source/nabd_plus_patient_app/app/reviews/index.tsx
+audit-work/source/nabd_plus_patient_app/app/rn_screens.json
+audit-work/source/nabd_plus_patient_app/app/room/[id].tsx
+audit-work/source/nabd_plus_patient_app/app/s/[type]/[slug].tsx
+audit-work/source/nabd_plus_patient_app/app/search/index.tsx
+audit-work/source/nabd_plus_patient_app/app/services/index.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/about.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/data.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/feedback.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/help.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/index.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/language.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/notifications-settings.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/notifications.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/privacy.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/security.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/support-chat.tsx
+audit-work/source/nabd_plus_patient_app/app/settings/terms.tsx
+audit-work/source/nabd_plus_patient_app/app/shared/location-picker.tsx
+audit-work/source/nabd_plus_patient_app/app/support/chat.tsx
+audit-work/source/nabd_plus_patient_app/app/support/ticket.tsx
+audit-work/source/nabd_plus_patient_app/app/voice/index.tsx
+audit-work/source/nabd_plus_patient_app/app/wallet/cards.tsx
+audit-work/source/nabd_plus_patient_app/app/wallet/hub.tsx
+audit-work/source/nabd_plus_patient_app/app/wallet/topup.tsx
+audit-work/source/nabd_plus_patient_app/app/wallet/transactions.tsx
+audit-work/source/nabd_plus_patient_app/app/wallet/transfer.tsx
+audit-work/source/nabd_plus_patient_app/app/wearables/hub.tsx
+audit-work/source/nabd_plus_patient_app/babel.config.js
+audit-work/source/nabd_plus_patient_app/e2e/firstTest.e2e.js
+audit-work/source/nabd_plus_patient_app/e2e/jest.config.js
+audit-work/source/nabd_plus_patient_app/eas.json
+audit-work/source/nabd_plus_patient_app/eslint.config.js
+audit-work/source/nabd_plus_patient_app/google-services.json
+audit-work/source/nabd_plus_patient_app/jest.config.js
+audit-work/source/nabd_plus_patient_app/metro.config.js
+audit-work/source/nabd_plus_patient_app/package-lock.json
+audit-work/source/nabd_plus_patient_app/package.json
+audit-work/source/nabd_plus_patient_app/src/__tests__/auth/AccountLockoutService.test.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/auth/PasswordPolicyService.test.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/auth/SessionManager.test.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/mocks/MockDataSources.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/utils/testUtils.ts
+audit-work/source/nabd_plus_patient_app/src/components/BodyMap3D.tsx
+audit-work/source/nabd_plus_patient_app/src/components/BottomNavBar.tsx
+audit-work/source/nabd_plus_patient_app/src/components/Header.tsx
+audit-work/source/nabd_plus_patient_app/src/components/HeartbeatLogo.tsx
+audit-work/source/nabd_plus_patient_app/src/components/Icon.tsx
+audit-work/source/nabd_plus_patient_app/src/components/LocalizedAlert.ts
+audit-work/source/nabd_plus_patient_app/src/components/LocalizedText.tsx
+audit-work/source/nabd_plus_patient_app/src/components/MapPrimitives.native.tsx
+audit-work/source/nabd_plus_patient_app/src/components/MapPrimitives.web.tsx
+audit-work/source/nabd_plus_patient_app/src/components/NabdahLogo.tsx
+audit-work/source/nabd_plus_patient_app/src/components/NotificationHandler.tsx
+audit-work/source/nabd_plus_patient_app/src/components/OfflineBanner.tsx
+audit-work/source/nabd_plus_patient_app/src/components/ProductImage.tsx
+audit-work/source/nabd_plus_patient_app/src/components/RotatingCardImage.tsx
+audit-work/source/nabd_plus_patient_app/src/components/ScreenStates.tsx
+audit-work/source/nabd_plus_patient_app/src/components/__tests__/bottomNavLocale.test.ts
+audit-work/source/nabd_plus_patient_app/src/components/__tests__/ui-accessibility.test.ts
+audit-work/source/nabd_plus_patient_app/src/components/animations.tsx
+audit-work/source/nabd_plus_patient_app/src/components/bottomNavLocale.ts
+audit-work/source/nabd_plus_patient_app/src/components/livekit-view.tsx
+audit-work/source/nabd_plus_patient_app/src/components/ui.tsx
+audit-work/source/nabd_plus_patient_app/src/config/chatSecurity.ts
+audit-work/source/nabd_plus_patient_app/src/config/deepLinks.ts
+audit-work/source/nabd_plus_patient_app/src/config/seo.ts
+audit-work/source/nabd_plus_patient_app/src/constants/index.ts
+audit-work/source/nabd_plus_patient_app/src/constants/specialties.ts
+audit-work/source/nabd_plus_patient_app/src/context/AppContext.tsx
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx
+audit-work/source/nabd_plus_patient_app/src/context/ConsultationsContext.tsx
+audit-work/source/nabd_plus_patient_app/src/context/DiagnosticsCartContext.tsx
+audit-work/source/nabd_plus_patient_app/src/context/SocketContext.tsx
+audit-work/source/nabd_plus_patient_app/src/core/config/ConfigManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/config/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/AsyncStorageDataSource.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/BaseRepository.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/HttpRemoteDataSource.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/IRepository.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/Interfaces.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/Repository.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/UserRepository.ts
+audit-work/source/nabd_plus_patient_app/src/core/data/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/di/Container.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/Result.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/dtos/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/entities/Clinical.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/entities/Commerce.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/entities/Users.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/entities/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/errors/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/mappers/BaseMapper.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/pagination/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/specifications/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/value-objects/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/events/AuditManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/events/EventBus.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/AccountLockoutService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/AppLockService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/AuthAuditLogger.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/AuthProviders.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/AuthStateMachine.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/BiometricService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/DeviceTracker.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/PasswordPolicyService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/SecureStorageService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/SessionManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/business/FavoritesManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/business/LoyaltyManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/business/ReviewManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/cache/CacheManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/commerce/CartManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/communication/MessagingService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/communication/NotificationCenterManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/id/IdGenerator.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/integration/Adapters.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/jobs/JobManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/location/LocationService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/media/MediaManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/payment/PaymentProvider.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/realtime/RealtimeClient.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/scheduling/QueueEngine.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/scheduling/ScheduleManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/search/SearchEngine.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/time/TimeService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/user/RoleManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/user/UserProfileService.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/user/index.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/ConnectionPool.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseHealthChecker.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseManager.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseProvider.native.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseProvider.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseProvider.web.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/TransactionManager.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/drivers/IDatabaseDriver.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/drivers/SQLiteDriver.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/monitoring/DatabaseLogger.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/monitoring/SyncLogger.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/MigrationRunner.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/indexes.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/tables.ts
+audit-work/source/nabd_plus_patient_app/src/data/mockData.js
+audit-work/source/nabd_plus_patient_app/src/data/repositories/RepositoryCoordinator.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/RepositoryFactory.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/RepositoryRegistry.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/UsersRepository.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/core/BaseRepository.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/core/CompositeRepository.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/core/QuerySpecification.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/core/UnitOfWork.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/interfaces/ILocalDataSource.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/interfaces/IRemoteDataSource.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/interfaces/IRepository.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/sources/RemoteDataSource.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/sources/SQLiteDataSource.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/sources/SecureDatabaseProxy.ts
+audit-work/source/nabd_plus_patient_app/src/data/sync/BackgroundSynchronizer.ts
+audit-work/source/nabd_plus_patient_app/src/data/sync/ConflictResolver.ts
+audit-work/source/nabd_plus_patient_app/src/data/sync/QueueProcessor.ts
+audit-work/source/nabd_plus_patient_app/src/data/sync/RetryScheduler.ts
+audit-work/source/nabd_plus_patient_app/src/data/sync/SyncManager.ts
+audit-work/source/nabd_plus_patient_app/src/data/sync/SyncWorker.ts
+audit-work/source/nabd_plus_patient_app/src/design-system/Icon.ts
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Avatar.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Badge.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/BottomSheet.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Button.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Card.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Input.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Loading.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/OTPInput.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Progress.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/SearchBar.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/States.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Text.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/components/Toast.tsx
+audit-work/source/nabd_plus_patient_app/src/design-system/index.ts
+audit-work/source/nabd_plus_patient_app/src/design-system/tokens.ts
+audit-work/source/nabd_plus_patient_app/src/features/consultation/InsuranceCopayScreen.tsx
+audit-work/source/nabd_plus_patient_app/src/features/medical-orders/ActionableOrderScreen.tsx
+audit-work/source/nabd_plus_patient_app/src/guided-tour/core/TargetResolver.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/core/TourEngine.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/core/TourRegistry.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/engines/AnalyticsCollector.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/engines/CooldownManager.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/index.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/providers/ContentProvider.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/providers/PersistenceManager.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/types/index.ts
+audit-work/source/nabd_plus_patient_app/src/guided-tour/ui/SpotlightRenderer.tsx
+audit-work/source/nabd_plus_patient_app/src/hooks/useBiometricAuth.ts
+audit-work/source/nabd_plus_patient_app/src/hooks/useGuestGuard.tsx
+audit-work/source/nabd_plus_patient_app/src/hooks/useOfflineData.ts
+audit-work/source/nabd_plus_patient_app/src/hooks/usePushNotifications.ts
+audit-work/source/nabd_plus_patient_app/src/hooks/useTheme.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/LanguageManager.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/autoTranslationsPhase5.json
+audit-work/source/nabd_plus_patient_app/src/i18n/guided-care.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/guided-care.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/health-day.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/health-day.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/index.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/index.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/locales/ar.json
+audit-work/source/nabd_plus_patient_app/src/i18n/locales/bn.json
+audit-work/source/nabd_plus_patient_app/src/i18n/locales/en.json
+audit-work/source/nabd_plus_patient_app/src/i18n/locales/hi.json
+audit-work/source/nabd_plus_patient_app/src/i18n/locales/tl.json
+audit-work/source/nabd_plus_patient_app/src/i18n/locales/ur.json
+audit-work/source/nabd_plus_patient_app/src/i18n/maternity.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/maternity.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/medications.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/medications.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/mental-health.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/mental-health.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/nutrition.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/nutrition.ts
+audit-work/source/nabd_plus_patient_app/src/navigation/DeepLinking.ts
+audit-work/source/nabd_plus_patient_app/src/navigation/RouterConfig.ts
+audit-work/source/nabd_plus_patient_app/src/navigation/guards/AdminGuard.tsx
+audit-work/source/nabd_plus_patient_app/src/navigation/guards/AuthGuard.tsx
+audit-work/source/nabd_plus_patient_app/src/navigation/index.ts
+audit-work/source/nabd_plus_patient_app/src/polyfills.ts
+audit-work/source/nabd_plus_patient_app/src/services/Analytics.ts
+audit-work/source/nabd_plus_patient_app/src/services/ErrorHandler.tsx
+audit-work/source/nabd_plus_patient_app/src/services/EventBus.ts
+audit-work/source/nabd_plus_patient_app/src/services/FeatureFlags.ts
+audit-work/source/nabd_plus_patient_app/src/services/FileManager.ts
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.offline.test.ts
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.ts
+audit-work/source/nabd_plus_patient_app/src/services/Logger.ts
+audit-work/source/nabd_plus_patient_app/src/services/Notifications.ts
+audit-work/source/nabd_plus_patient_app/src/services/PermissionsManager.ts
+audit-work/source/nabd_plus_patient_app/src/services/SyncManager.offline.test.ts
+audit-work/source/nabd_plus_patient_app/src/services/SyncManager.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/AuthInterceptor.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/AuthManager.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/RegistrationTransaction.test.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/RegistrationTransaction.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/index.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/providers/EmailAuthProvider.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/types.ts
+audit-work/source/nabd_plus_patient_app/src/services/index.ts
+audit-work/source/nabd_plus_patient_app/src/services/security/EncryptionService.ts
+audit-work/source/nabd_plus_patient_app/src/store/FeatureRegistry.ts
+audit-work/source/nabd_plus_patient_app/src/store/ReducerManager.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/ReducerManager.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/SecureStorageAdapter.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/StoreVersionManager.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/recovery.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/actions/recovery.ts
+audit-work/source/nabd_plus_patient_app/src/store/api/baseApi.ts
+audit-work/source/nabd_plus_patient_app/src/store/api/offlineHelpers.ts
+audit-work/source/nabd_plus_patient_app/src/store/api/paginationHelpers.ts
+audit-work/source/nabd_plus_patient_app/src/store/api/tags.ts
+audit-work/source/nabd_plus_patient_app/src/store/hooks.ts
+audit-work/source/nabd_plus_patient_app/src/store/index.ts
+audit-work/source/nabd_plus_patient_app/src/store/integration/EventBusIntegrator.ts
+audit-work/source/nabd_plus_patient_app/src/store/middleware/backgroundUpdater.ts
+audit-work/source/nabd_plus_patient_app/src/store/middleware/listenerMiddleware.ts
+audit-work/source/nabd_plus_patient_app/src/store/middleware/memoryManager.ts
+audit-work/source/nabd_plus_patient_app/src/store/middleware/observability.ts
+audit-work/source/nabd_plus_patient_app/src/store/persistence/SecureStorageAdapter.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/persistence/SecureStorageAdapter.ts
+audit-work/source/nabd_plus_patient_app/src/store/persistence/StoreVersionManager.ts
+audit-work/source/nabd_plus_patient_app/src/store/persistence/config.ts
+audit-work/source/nabd_plus_patient_app/src/store/selectors.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/adminSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/analyticsSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/appConfigSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/appointmentsSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/authSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/cartSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/connectivitySlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/deviceSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/favoritesSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/featureFlagsSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/localizationSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/loyaltySlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/notificationsSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/ordersSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/otherSlices.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/permissionsSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/searchSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/sessionSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/settingsSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/syncSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/themeSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/userSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/slices/walletSlice.ts
+audit-work/source/nabd_plus_patient_app/src/store/types.ts
+audit-work/source/nabd_plus_patient_app/src/store/utils/testUtils.tsx
+audit-work/source/nabd_plus_patient_app/src/theme/ThemeEngine.ts
+audit-work/source/nabd_plus_patient_app/src/theme/colors.ts
+audit-work/source/nabd_plus_patient_app/src/theme/index.ts
+audit-work/source/nabd_plus_patient_app/src/types/contracts.ts
+audit-work/source/nabd_plus_patient_app/src/types/index.ts
+audit-work/source/nabd_plus_patient_app/src/utils/api.security.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/api.ts
+audit-work/source/nabd_plus_patient_app/src/utils/callkeep.ts
+audit-work/source/nabd_plus_patient_app/src/utils/chronic-refill-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/chronic-refill-contract.ts
+audit-work/source/nabd_plus_patient_app/src/utils/dates.ts
+audit-work/source/nabd_plus_patient_app/src/utils/deviceId.ts
+audit-work/source/nabd_plus_patient_app/src/utils/family-calendar-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/family-calendar-contract.ts
+audit-work/source/nabd_plus_patient_app/src/utils/imageUrl.ts
+audit-work/source/nabd_plus_patient_app/src/utils/insurance-catalog-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/insurance-copay-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/insurance-copay-contract.ts
+audit-work/source/nabd_plus_patient_app/src/utils/jwt.ts
+audit-work/source/nabd_plus_patient_app/src/utils/labMappers.ts
+audit-work/source/nabd_plus_patient_app/src/utils/localize.ts
+audit-work/source/nabd_plus_patient_app/src/utils/medication-notifications.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/medication-notifications.ts
+audit-work/source/nabd_plus_patient_app/src/utils/monthly-health-report-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/monthly-health-report-contract.ts
+audit-work/source/nabd_plus_patient_app/src/utils/mood-journal-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/mood-journal-contract.ts
+audit-work/source/nabd_plus_patient_app/src/utils/notifications.ts
+audit-work/source/nabd_plus_patient_app/src/utils/offlineQueue.security.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/offlineQueue.ts
+audit-work/source/nabd_plus_patient_app/src/utils/payment-idempotency.ts
+audit-work/source/nabd_plus_patient_app/src/utils/performance.tsx
+audit-work/source/nabd_plus_patient_app/src/utils/prefetch.ts
+audit-work/source/nabd_plus_patient_app/src/utils/productNav.ts
+audit-work/source/nabd_plus_patient_app/src/utils/security.storage.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/security.ts
+audit-work/source/nabd_plus_patient_app/src/utils/selectedAddress.ts
+audit-work/source/nabd_plus_patient_app/src/utils/sentry.ts
+audit-work/source/nabd_plus_patient_app/tsconfig.json
+audit-work/source/nabd_plus_patient_app/utils/api.security.test.ts
+audit-work/source/nabd_plus_patient_app/utils/api.ts
+## route/controller/gateway/schema/dto/migration/webhook/test files
+audit-work/source/nabd_plus_patient_app/app/authGuestPolicy.test.ts
+audit-work/source/nabd_plus_patient_app/app/consultations/specialty-select.tsx
+audit-work/source/nabd_plus_patient_app/app/diagnostics/test-detail.tsx
+audit-work/source/nabd_plus_patient_app/docs/DATABASE_SCHEMA.md
+audit-work/source/nabd_plus_patient_app/e2e/firstTest.e2e.js
+audit-work/source/nabd_plus_patient_app/e2e/jest.config.js
+audit-work/source/nabd_plus_patient_app/scripts/ci-e2e.sh
+audit-work/source/nabd_plus_patient_app/src/__tests__/auth/AccountLockoutService.test.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/auth/PasswordPolicyService.test.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/auth/SessionManager.test.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/mocks/MockDataSources.ts
+audit-work/source/nabd_plus_patient_app/src/__tests__/utils/testUtils.ts
+audit-work/source/nabd_plus_patient_app/src/components/__tests__/bottomNavLocale.test.ts
+audit-work/source/nabd_plus_patient_app/src/components/__tests__/ui-accessibility.test.ts
+audit-work/source/nabd_plus_patient_app/src/constants/specialties.ts
+audit-work/source/nabd_plus_patient_app/src/context/SocketContext.tsx
+audit-work/source/nabd_plus_patient_app/src/core/domain/dtos/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/domain/specifications/index.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/jobs/JobManager.ts
+audit-work/source/nabd_plus_patient_app/src/core/platform/scheduling/QueueEngine.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/MigrationRunner.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/indexes.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/tables.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/__tests__/UsersRepository.test.ts.bak
+audit-work/source/nabd_plus_patient_app/src/data/repositories/core/QuerySpecification.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/sync/__tests__/SyncManager.test.ts.bak
+audit-work/source/nabd_plus_patient_app/src/data/sync/QueueProcessor.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/guided-care.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/health-day.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/index.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/maternity.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/medications.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/mental-health.test.ts
+audit-work/source/nabd_plus_patient_app/src/i18n/nutrition.test.ts
+audit-work/source/nabd_plus_patient_app/src/navigation/RouterConfig.ts
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.offline.test.ts
+audit-work/source/nabd_plus_patient_app/src/services/SyncManager.offline.test.ts
+audit-work/source/nabd_plus_patient_app/src/services/auth/RegistrationTransaction.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/HttpClient.test.ts.bak
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/ReducerManager.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/SecureStorageAdapter.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/StoreVersionManager.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/baseApi.test.ts.bak
+audit-work/source/nabd_plus_patient_app/src/store/__tests__/recovery.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/persistence/SecureStorageAdapter.test.ts
+audit-work/source/nabd_plus_patient_app/src/store/utils/testUtils.tsx
+audit-work/source/nabd_plus_patient_app/src/utils/api.security.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/chronic-refill-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/family-calendar-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/insurance-catalog-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/insurance-copay-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/medication-notifications.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/monthly-health-report-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/mood-journal-contract.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/offlineQueue.security.test.ts
+audit-work/source/nabd_plus_patient_app/src/utils/offlineQueue.ts
+audit-work/source/nabd_plus_patient_app/src/utils/security.storage.test.ts
+audit-work/source/nabd_plus_patient_app/utils/api.security.test.ts
+## screen/page/navigation files
+audit-work/source/nabd_plus_patient_app/app/(auth)/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/(onboarding)/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/diagnostics.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/health.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/index.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/nursing.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/pharmacy.tsx
+audit-work/source/nabd_plus_patient_app/app/(tabs)/services.tsx
+audit-work/source/nabd_plus_patient_app/app/_layout.tsx
+audit-work/source/nabd_plus_patient_app/app/rn_screens.json
+audit-work/source/nabd_plus_patient_app/docs/DATABASE_ARCHITECTURE.md
+audit-work/source/nabd_plus_patient_app/docs/DATABASE_SCHEMA.md
+audit-work/source/nabd_plus_patient_app/src/components/ScreenStates.tsx
+audit-work/source/nabd_plus_patient_app/src/data/database/core/ConnectionPool.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseHealthChecker.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseManager.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseProvider.native.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseProvider.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/DatabaseProvider.web.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/core/TransactionManager.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/drivers/IDatabaseDriver.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/drivers/SQLiteDriver.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/monitoring/DatabaseLogger.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/monitoring/SyncLogger.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/MigrationRunner.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/indexes.ts
+audit-work/source/nabd_plus_patient_app/src/data/database/schema/tables.ts
+audit-work/source/nabd_plus_patient_app/src/data/repositories/sources/SecureDatabaseProxy.ts
+audit-work/source/nabd_plus_patient_app/src/features/consultation/InsuranceCopayScreen.tsx
+audit-work/source/nabd_plus_patient_app/src/features/medical-orders/ActionableOrderScreen.tsx
+audit-work/source/nabd_plus_patient_app/src/navigation/DeepLinking.ts
+audit-work/source/nabd_plus_patient_app/src/navigation/RouterConfig.ts
+audit-work/source/nabd_plus_patient_app/src/navigation/guards/AdminGuard.tsx
+audit-work/source/nabd_plus_patient_app/src/navigation/guards/AuthGuard.tsx
+audit-work/source/nabd_plus_patient_app/src/navigation/index.ts
+## HTTP-like definitions
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:10:  image_path: any; // React Native require() path
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:20:    image_path: require('../../assets/images/maternity/fetus/week_1.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:28:    image_path: require('../../assets/images/maternity/fetus/week_2.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:36:    image_path: require('../../assets/images/maternity/fetus/week_3.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:44:    image_path: require('../../assets/images/maternity/fetus/week_4.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:52:    image_path: require('../../assets/images/maternity/fetus/week_5.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:60:    image_path: require('../../assets/images/maternity/fetus/week_6.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:68:    image_path: require('../../assets/images/maternity/fetus/week_7.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:76:    image_path: require('../../assets/images/maternity/fetus/week_8.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:84:    image_path: require('../../assets/images/maternity/fetus/week_9.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:92:    image_path: require('../../assets/images/maternity/fetus/week_17.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:100:    image_path: require('../../assets/images/maternity/fetus/week_17.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:108:    image_path: require('../../assets/images/maternity/fetus/week_12.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:116:    image_path: require('../../assets/images/maternity/fetus/week_13.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:124:    image_path: require('../../assets/images/maternity/fetus/week_14.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:132:    image_path: require('../../assets/images/maternity/fetus/week_15.jpg'),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:140:    image_path: require("../../assets/images/maternity/fetus/week_16.png"),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:148:    image_path: require("../../assets/images/maternity/fetus/week_17.png"),
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:150:  18: { week: 18, size_name: "حبة فلفل حلو", weight_g: 190, length_cm: 18.0, description: "الأذنان تأخذان مكانهما النهائي، وقد تبدأين بالشعور بحركته.", image_path: require("../../assets/images/maternity/fetus/week_18.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:151:  19: { week: 19, size_name: "حبة طماطم", weight_g: 240, length_cm: 20.0, description: "يغطي جسم الجنين مادة بيضاء دهنية تحمي بشرته في السائل الأمينوسي.", image_path: require("../../assets/images/maternity/fetus/week_19.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:152:  20: { week: 20, size_name: "موزة", weight_g: 300, length_cm: 22.0, description: "في منتصف رحلة الحمل، يكسو جسمه شعر دقيق (الزغب) للحماية.", image_path: require("../../assets/images/maternity/fetus/week_20.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:153:  21: { week: 21, size_name: "حبة جزر", weight_g: 360, length_cm: 24.0, description: "يستمر الجنين بابتلاع السائل الأمينوسي لتدريب جهازه الهضمي.", image_path: require("../../assets/images/maternity/fetus/week_21.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:154:  22: { week: 22, size_name: "قرع صيفي", weight_g: 430, length_cm: 26.0, description: "تتطور حواسه بشكل ملحوظ، وتصبح ملامح وجهه واضحة ومكتملة.", image_path: require("../../assets/images/maternity/fetus/week_22.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:155:  23: { week: 23, size_name: "مانجو", weight_g: 500, length_cm: 28.0, description: "يبدأ بالاستجابة للأصوات الخارجية ويسمع نبضات قلبك بوضوح.", image_path: require("../../assets/images/maternity/fetus/week_23.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:156:  24: { week: 24, size_name: "كوز ذرة", weight_g: 600, length_cm: 30.0, description: "تنمو رئتيه وتستعدان للعمل، وتصبح بشرته مجعدة وتكتسب لوناً.", image_path: require("../../assets/images/maternity/fetus/week_24.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:157:  25: { week: 25, size_name: "قرنبيط", weight_g: 660, length_cm: 32.0, description: "تتصلب عظام الجنين تدريجياً، ويبدأ بتخزين الدهون تحت الجلد.", image_path: require("../../assets/images/maternity/fetus/week_25.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:158:  26: { week: 26, size_name: "خس أيسبرغ", weight_g: 760, length_cm: 34.0, description: "يستطيع الجنين الآن فتح وإغلاق عينيه والتمييز بين الضوء والظلام.", image_path: require("../../assets/images/maternity/fetus/week_26.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:159:  27: { week: 27, size_name: "رأس قرنبيط", weight_g: 875, length_cm: 36.0, description: "يستمر في التدرب على التنفس من خلال استنشاق السائل الأمينوسي.", image_path: require("../../assets/images/maternity/fetus/week_27.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:160:  28: { week: 28, size_name: "باذنجان كبير", weight_g: 1000, length_cm: 38.0, description: "يصل الجنين لكيلوغرام واحد تقريباً، وتزداد حركته قوة ووضوحاً.", image_path: require("../../assets/images/maternity/fetus/week_28.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:161:  29: { week: 29, size_name: "قرع الجوز", weight_g: 1150, length_cm: 40.0, description: "تنمو عضلاته بقوة ويصبح الدماغ أكثر تعقيداً لاستيعاب الحواس.", image_path: require("../../assets/images/maternity/fetus/week_29.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:162:  30: { week: 30, size_name: "ملفوف صغير", weight_g: 1300, length_cm: 42.0, description: "يتناقص الزغب الذي يغطي جسمه، وتستمر الدهون بالتراكم للحماية.", image_path: require("../../assets/images/maternity/fetus/week_30.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:163:  31: { week: 31, size_name: "حبة جوز الهند", weight_g: 1500, length_cm: 44.0, description: "يبدأ الجنين باتخاذ وضعية الولادة المقلوبة تدريجياً استعداداً.", image_path: require("../../assets/images/maternity/fetus/week_31.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:164:  32: { week: 32, size_name: "بطيخ أصفر", weight_g: 1700, length_cm: 46.0, description: "تكتمل معظم الأعضاء الحيوية، عدا الرئتين اللتين تستمران بالنضوج.", image_path: require("../../assets/images/maternity/fetus/week_32.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:165:  33: { week: 33, size_name: "أناناس", weight_g: 1900, length_cm: 48.0, description: "جهازه المناعي يصبح أقوى بفضل الأجسام المضادة التي تصله منكِ.", image_path: require("../../assets/images/maternity/fetus/week_33.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:166:  34: { week: 34, size_name: "شمام", weight_g: 2100, length_cm: 49.0, description: "يضيق المساحة داخل الرحم وتصبح حركاته أكثر كتداً بدلاً من الركل.", image_path: require("../../assets/images/maternity/fetus/week_34.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:167:  35: { week: 35, size_name: "بطيخة صغيرة", weight_g: 2400, length_cm: 50.0, description: "يكتسب المزيد من الوزن بسرعة، ويصل الكبد والكلى لعملهما الكامل.", image_path: require("../../assets/images/maternity/fetus/week_35.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:168:  36: { week: 36, size_name: "رأس خس روماني", weight_g: 2600, length_cm: 51.0, description: "يستقر في وضعية الولادة النهائية أسفل الحوض، ويستعد للقائك.", image_path: require("../../assets/images/maternity/fetus/week_36.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:169:  37: { week: 37, size_name: "سلق سويسري", weight_g: 2850, length_cm: 52.0, description: "يعتبر الحمل كاملاً الآن، وتكون الرئتان مستعدتين للتنفس الخارجي.", image_path: require("../../assets/images/maternity/fetus/week_37.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:170:  38: { week: 38, size_name: "قرع شتوي", weight_g: 3100, length_cm: 53.0, description: "تنمو أظافره لتصل إلى حافة أصابعه، وتتساقط معظم مادة الطلاء الدهني.", image_path: require("../../assets/images/maternity/fetus/week_38.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:171:  39: { week: 39, size_name: "بطيخة حمراء", weight_g: 3300, length_cm: 54.0, description: "جسمه مكتمل ومستعد للحياة خارج الرحم، ويبني طبقات الدهون النهائية.", image_path: require("../../assets/images/maternity/fetus/week_39.png") },
+audit-work/source/nabd_plus_patient_app/app/maternity/fetus-data.ts:172:  40: { week: 40, size_name: "يقطينة صغيرة", weight_g: 3500, length_cm: 55.0, description: "اكتمل نمو جنينك تماماً! وهو الآن مستعد للخروج ورؤية العالم.", image_path: require("../../assets/images/maternity/fetus/week_40.png") },
+audit-work/source/nabd_plus_patient_app/app/family/permissions.tsx:146:        // Owner path: replace the member's permission set directly (grant + revoke)
+audit-work/source/nabd_plus_patient_app/app/(tabs)/_layout.tsx:23:      <Tabs.Screen name="nursing" options={{ href: null }} />
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-confirm.tsx:122:          const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-confirm.tsx:123:          const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {
+audit-work/source/nabd_plus_patient_app/app/(auth)/terms.tsx:66:    fetch(`${BASE_URL}/legal/policy/patient_terms?lang=${AR ? "ar" : "en"}`)
+audit-work/source/nabd_plus_patient_app/app/(auth)/login.tsx:70:      scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
+audit-work/source/nabd_plus_patient_app/app/(auth)/register.tsx:92:      scopes: ['https://auth.snapchat.com/oauth2/api/user.display_name'],
+audit-work/source/nabd_plus_patient_app/app/(auth)/privacy.tsx:70:    fetch(`${BASE_URL}/legal/policy/privacy_policy?lang=${AR ? "ar" : "en"}`)
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-tracking.tsx:82:    fetch();
+audit-work/source/nabd_plus_patient_app/src/constants/index.ts:7:  ?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1` : 'https://api.nabd.plus/api/v1');
+audit-work/source/nabd_plus_patient_app/src/data/repositories/RepositoryCoordinator.ts:55:    this.registerFeatureRepository('users', '/api/v1/users', dbManager);
+audit-work/source/nabd_plus_patient_app/src/__tests__/utils/testUtils.ts:18:  apiBaseUrl:       'http://localhost:8002/api/v1',
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.ts:1:import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.ts:7:    ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1`
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.ts:8:    : 'https://api.nabd.plus/api/v1';
+audit-work/source/nabd_plus_patient_app/src/services/HttpClient.ts:10:export const HttpClient = axios.create({
+audit-work/source/nabd_plus_patient_app/src/utils/prefetch.ts:28:  Image.prefetch(valid, 'memory-disk').catch(() => {});
+audit-work/source/nabd_plus_patient_app/src/utils/imageUrl.ts:12:  BASE_URL.replace('/api/v1', '');
+audit-work/source/nabd_plus_patient_app/src/utils/api.ts:70:      return await fetch(url, { ...options, headers, signal: ctrl.signal });
+audit-work/source/nabd_plus_patient_app/src/core/config/ConfigManager.ts:49:    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'http://localhost:8002/api/v1',
+audit-work/source/nabd_plus_patient_app/src/core/config/ConfigManager.ts:59:    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://staging-api.nabdahplus.com/api/v1',
+audit-work/source/nabd_plus_patient_app/src/core/config/ConfigManager.ts:69:    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://api.nabd.plus/api/v1',
+audit-work/source/nabd_plus_patient_app/src/core/config/ConfigManager.ts:70:    fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.nabd.plus/api/v1',
+audit-work/source/nabd_plus_patient_app/src/core/platform/auth/SessionManager.ts:77:    const res = await fetch(`${BASE_URL}/auth/refresh`, {
+audit-work/source/nabd_plus_patient_app/src/core/platform/realtime/RealtimeClient.ts:31:    const cleanUrl = baseUrl.replace('/api/v1', '').replace('/api', '');
+audit-work/source/nabd_plus_patient_app/src/guided-tour/engines/AnalyticsCollector.ts:26:    // POST /api/v1/tours/analytics/events
+audit-work/source/nabd_plus_patient_app/src/store/index.ts:22:import { baseApi } from './api/baseApi';
+audit-work/source/nabd_plus_patient_app/src/store/integration/EventBusIntegrator.ts:4:import { baseApi } from '../api/baseApi';
+audit-work/source/nabd_plus_patient_app/src/store/middleware/memoryManager.ts:2:import { baseApi } from '../api/baseApi';
+audit-work/source/nabd_plus_patient_app/src/context/AppContext.tsx:77:      const res = await fetch(`${appConfig.apiBaseUrl}/config`);

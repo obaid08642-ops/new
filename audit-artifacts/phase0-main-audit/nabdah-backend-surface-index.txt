@@ -1,0 +1,1653 @@
+# nabdah-backend
+## files
+audit-work/source/nabdah-backend/assets/insurance-logos/manifest.json
+audit-work/source/nabdah-backend/audit-artifacts/DEVICE_NabdProvider-expo-config.json
+audit-work/source/nabdah-backend/audit-artifacts/DEVICE_nabd_plus-expo-config.json
+audit-work/source/nabdah-backend/audit-artifacts/LAB_INBOX_ELIGIBILITY_SUMMARY_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE13_CONTRACT_INVENTORY_V4_20260819.json
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE13_UI_ACTION_INVENTORY_V2_20260819.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT1_SELECTED_ORDER_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT2_BOLA_CANCEL_BEFORE_AFTER_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT2_BOLA_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT2_BOLA_REPORT_RECHECK_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_EXACT_READ_RETRY_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_READONLY_LIVE_MATRIX_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_SINGLE_LOGIN_RETRY_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PRODUCTION_HEALTH_GATE_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_ANDROID_EXPORT_METADATA_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_DOCTOR_EXACT_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_DOCTOR_SINGLE_LOGIN_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_HOSPITAL_EXACT_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_HOSPITAL_SINGLE_LOGIN_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_LAB_EXACT_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_LAB_SINGLE_LOGIN_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_NURSING_EXACT_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_NURSING_SINGLE_LOGIN_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_PHARMACY_CORRECT_BROADCAST_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_PHARMACY_EXACT_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_PHARMACY_HISTORY_LIVE_RECHECK_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_PHARMACY_SINGLE_LOGIN_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_RADIOLOGY_EXACT_READ_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_RADIOLOGY_SINGLE_LOGIN_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_READONLY_LIVE_MATRIX_20260818.json
+audit-work/source/nabdah-backend/audit-artifacts/nabd-patient-api-openapi.json
+audit-work/source/nabdah-backend/e2e/boot.js
+audit-work/source/nabdah-backend/e2e/matrix.js
+audit-work/source/nabdah-backend/e2e/matrix2.js
+audit-work/source/nabdah-backend/e2e/package.json
+audit-work/source/nabdah-backend/jest.boot.config.js
+audit-work/source/nabdah-backend/nest-cli.json
+audit-work/source/nabdah-backend/package-lock.json
+audit-work/source/nabdah-backend/package.json
+audit-work/source/nabdah-backend/scripts/backfill-catalog-governance.ts
+audit-work/source/nabdah-backend/scripts/publish-insurance-logo-assets.ts
+audit-work/source/nabdah-backend/scripts/reconcile-insurance-catalog.ts
+audit-work/source/nabdah-backend/scripts/seed-articles.ts
+audit-work/source/nabdah-backend/scripts/seed-insurance-companies.ts
+audit-work/source/nabdah-backend/scripts/seed-loyalty.ts
+audit-work/source/nabdah-backend/scripts/seed-medicines.js
+audit-work/source/nabdah-backend/scripts/seed_test_providers.js
+audit-work/source/nabdah-backend/scripts/test-extensions.ts
+audit-work/source/nabdah-backend/scripts/test-flow.js
+audit-work/source/nabdah-backend/src/app.module.ts
+audit-work/source/nabdah-backend/src/common/audit-log.interceptor.spec.ts
+audit-work/source/nabdah-backend/src/common/audit-log.interceptor.ts
+audit-work/source/nabdah-backend/src/common/auth.guard.spec.ts
+audit-work/source/nabdah-backend/src/common/auth.guard.ts
+audit-work/source/nabdah-backend/src/common/correlation.middleware.ts
+audit-work/source/nabdah-backend/src/common/database/audit.plugin.ts
+audit-work/source/nabdah-backend/src/common/database/base.repository.ts
+audit-work/source/nabdah-backend/src/common/database/mongo.repository.ts
+audit-work/source/nabdah-backend/src/common/enums.ts
+audit-work/source/nabdah-backend/src/common/events.ts
+audit-work/source/nabdah-backend/src/common/guards/device-limit.guard.ts
+audit-work/source/nabdah-backend/src/common/guards/velocity.guard.ts
+audit-work/source/nabdah-backend/src/common/idempotency.interceptor.spec.ts
+audit-work/source/nabdah-backend/src/common/idempotency.interceptor.ts
+audit-work/source/nabdah-backend/src/common/permissions.ts
+audit-work/source/nabdah-backend/src/common/redis-cache.interceptor.ts
+audit-work/source/nabdah-backend/src/common/sentry.filter.ts
+audit-work/source/nabdah-backend/src/common/slug.util.ts
+audit-work/source/nabdah-backend/src/common/tracking.ts
+audit-work/source/nabdah-backend/src/common/validators/iqama.validator.ts
+audit-work/source/nabdah-backend/src/common/validators/password.validator.ts
+audit-work/source/nabdah-backend/src/common/validators/saudi-phone.validator.ts
+audit-work/source/nabdah-backend/src/config/configured-io.adapter.ts
+audit-work/source/nabdah-backend/src/config/env.validation.ts
+audit-work/source/nabdah-backend/src/config/openapi.config.ts
+audit-work/source/nabdah-backend/src/config/websocket-cors.spec.ts
+audit-work/source/nabdah-backend/src/config/websocket-cors.ts
+audit-work/source/nabdah-backend/src/contracts/catalog-governance-backfill.contract.spec.ts
+audit-work/source/nabdah-backend/src/contracts/insurance-openapi.contract.spec.ts
+audit-work/source/nabdah-backend/src/contracts/mongoose-indexes.contract.spec.ts
+audit-work/source/nabdah-backend/src/contracts/ownership-controllers.spec.ts
+audit-work/source/nabdah-backend/src/contracts/phase6-contracts.spec.ts
+audit-work/source/nabdah-backend/src/contracts/phase6-contracts.ts
+audit-work/source/nabdah-backend/src/contracts/provider-availability.contract.spec.ts
+audit-work/source/nabdah-backend/src/health.controller.ts
+audit-work/source/nabdah-backend/src/main.ts
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts
+audit-work/source/nabdah-backend/src/modules/admin-command-center/admin-command-center.module.ts
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts
+audit-work/source/nabdah-backend/src/modules/admin-governance/b2b.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-governance/system-config.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-notification-center/admin-notification-center.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/admin-notification-center/admin-notification-center.module.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/admin-web-core.module.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/guards/roles.guard.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/audit-log.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/commission-ledger.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/fraud-alert.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/heatmap-data.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/procurement-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/provider-delta.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/provider.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/system-config-extended.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/withdrawal-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin/admin.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin/admin.module.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai-gateway.service.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai-provider.service.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.admin-containment.spec.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.module.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.service.excel.spec.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.service.ts
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts
+audit-work/source/nabdah-backend/src/modules/api-security/api-security.module.ts
+audit-work/source/nabdah-backend/src/modules/approval-workflow/approval-workflow.module.ts
+audit-work/source/nabdah-backend/src/modules/approval-workflow/approval-workflow.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/articles/articles.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/articles/articles.module.ts
+audit-work/source/nabdah-backend/src/modules/articles/seo.controller.ts
+audit-work/source/nabdah-backend/src/modules/auth/auth.controller.ts
+audit-work/source/nabdah-backend/src/modules/auth/auth.module.ts
+audit-work/source/nabdah-backend/src/modules/auth/auth.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/auth/auth.service.ts
+audit-work/source/nabdah-backend/src/modules/auth/device-trust.service.ts
+audit-work/source/nabdah-backend/src/modules/auth/passkey.controller.ts
+audit-work/source/nabdah-backend/src/modules/auth/passkey.service.ts
+audit-work/source/nabdah-backend/src/modules/auth/patient-web-auth.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/auth/repositories/patientprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/auth/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/auth/schemas/passkey-credential.schema.ts
+audit-work/source/nabdah-backend/src/modules/auth/schemas/trusted-device.schema.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.controller.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.middleware.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.module.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.schema.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.service.ts
+audit-work/source/nabdah-backend/src/modules/bans/repositories/ban.repository.ts
+audit-work/source/nabdah-backend/src/modules/billing/billing.module.ts
+audit-work/source/nabdah-backend/src/modules/billing/billing.service.ts
+audit-work/source/nabdah-backend/src/modules/billing/tests/billing-zatca.spec.ts
+audit-work/source/nabdah-backend/src/modules/booking-flow/booking-flow.module.ts
+audit-work/source/nabdah-backend/src/modules/booking-flow/booking-flow.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/booking-ops/booking-ops.module.ts
+audit-work/source/nabdah-backend/src/modules/booking-ops/booking-ops.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/business-rules/business-rules.module.ts
+audit-work/source/nabdah-backend/src/modules/care/appointments.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/appointments.dto.ts
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts
+audit-work/source/nabdah-backend/src/modules/care/care.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/care.module.ts
+audit-work/source/nabdah-backend/src/modules/care/care.service.ts
+audit-work/source/nabdah-backend/src/modules/care/doctor-integration.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/doctor-referrals.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/repositories/appointment.repository.ts
+audit-work/source/nabdah-backend/src/modules/care/repositories/facility.repository.ts
+audit-work/source/nabdah-backend/src/modules/care/repositories/providerprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/care/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/care/schemas/doctor-profile-extended.schema.ts
+audit-work/source/nabdah-backend/src/modules/care/schemas/encounter-record.schema.ts
+audit-work/source/nabdah-backend/src/modules/care/schemas/encounter-referrals.schema.ts
+audit-work/source/nabdah-backend/src/modules/care/slot.service.ts
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts
+audit-work/source/nabdah-backend/src/modules/care/tests/public-discovery.spec.ts
+audit-work/source/nabdah-backend/src/modules/cart/cart.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.gateway.followup.spec.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.gateway.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.module.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.schemas.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.service.ts
+audit-work/source/nabdah-backend/src/modules/chat/guards/chat-gateway.guard.ts
+audit-work/source/nabdah-backend/src/modules/chat/schedulers/chat-lifecycle.scheduler.ts
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts
+audit-work/source/nabdah-backend/src/modules/community/community.module.ts
+audit-work/source/nabdah-backend/src/modules/community/community.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/community/community.service.ts
+audit-work/source/nabdah-backend/src/modules/community/repositories/livesession.repository.ts
+audit-work/source/nabdah-backend/src/modules/community/repositories/post.repository.ts
+audit-work/source/nabdah-backend/src/modules/community/repositories/postcomment.repository.ts
+audit-work/source/nabdah-backend/src/modules/compat/admin-nursing-containment.spec.ts
+audit-work/source/nabdah-backend/src/modules/compat/admin-spa.module.ts
+audit-work/source/nabdah-backend/src/modules/compat/compat-family-chat.spec.ts
+audit-work/source/nabdah-backend/src/modules/compat/compat.module.ts
+audit-work/source/nabdah-backend/src/modules/config/config.controller.ts
+audit-work/source/nabdah-backend/src/modules/config/config.module.ts
+audit-work/source/nabdah-backend/src/modules/config/config.service.ts
+audit-work/source/nabdah-backend/src/modules/consistency/consistency.module.ts
+audit-work/source/nabdah-backend/src/modules/coturn/coturn.controller.ts
+audit-work/source/nabdah-backend/src/modules/coturn/coturn.module.ts
+audit-work/source/nabdah-backend/src/modules/coturn/coturn.service.ts
+audit-work/source/nabdah-backend/src/modules/custom-services/custom-services.controller.ts
+audit-work/source/nabdah-backend/src/modules/custom-services/custom-services.module.ts
+audit-work/source/nabdah-backend/src/modules/custom-services/custom-services.service.ts
+audit-work/source/nabdah-backend/src/modules/custom-services/repositories/customservicerequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/device-trust/device-trust.module.ts
+audit-work/source/nabdah-backend/src/modules/doctors/doctors.module.ts
+audit-work/source/nabdah-backend/src/modules/doctors/doctors.schemas.ts
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.controller.ts
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.module.ts
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts
+audit-work/source/nabdah-backend/src/modules/drivers/repositories/delivery.repository.ts
+audit-work/source/nabdah-backend/src/modules/drivers/repositories/drivershift.repository.ts
+audit-work/source/nabdah-backend/src/modules/drivers/repositories/order.repository.ts
+audit-work/source/nabdah-backend/src/modules/drivers/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/emergency/ambulance-fleet.controller.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.admin-containment.spec.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.controller.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.module.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.service.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.service.vehicle-integrity.spec.ts
+audit-work/source/nabdah-backend/src/modules/emergency/repositories/emergencyrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/event-reliability/event-reliability.module.ts
+audit-work/source/nabdah-backend/src/modules/events/catalog-publication.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/events/catalog-publication.service.ts
+audit-work/source/nabdah-backend/src/modules/events/event-bus.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/events/event-bus.service.ts
+audit-work/source/nabdah-backend/src/modules/events/events.controllers.ts
+audit-work/source/nabdah-backend/src/modules/events/events.module.ts
+audit-work/source/nabdah-backend/src/modules/events/repositories/systemevent.repository.ts
+audit-work/source/nabdah-backend/src/modules/events/system-event.schema.ts
+audit-work/source/nabdah-backend/src/modules/export/export.controller.ts
+audit-work/source/nabdah-backend/src/modules/export/export.module.ts
+audit-work/source/nabdah-backend/src/modules/export/export.service.ts
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/family/family.controller.ts
+audit-work/source/nabdah-backend/src/modules/family/family.module.ts
+audit-work/source/nabdah-backend/src/modules/family/family.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/family/family.service.ts
+audit-work/source/nabdah-backend/src/modules/family/repositories/familygroup.repository.ts
+audit-work/source/nabdah-backend/src/modules/family/repositories/familypermissionrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/family/repositories/sharedcalendarevent.repository.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flag.schema.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.module.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.service.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/repositories/featureflag.repository.ts
+audit-work/source/nabdah-backend/src/modules/finance-engine/finance-engine.module.ts
+audit-work/source/nabdah-backend/src/modules/health/health-dashboard.controller.ts
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts
+audit-work/source/nabdah-backend/src/modules/health/health.module.ts
+audit-work/source/nabdah-backend/src/modules/health/health.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/health/health.service.ts
+audit-work/source/nabdah-backend/src/modules/health/repositories/medicationreminder.repository.ts
+audit-work/source/nabdah-backend/src/modules/health/repositories/sleepreading.repository.ts
+audit-work/source/nabdah-backend/src/modules/health/repositories/vitalreading.repository.ts
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts
+audit-work/source/nabdah-backend/src/modules/home-care/controllers/home-care-tracking.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/controllers/home-care-tracking.controller.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.controller.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.module.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.seed.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.service.ts
+audit-work/source/nabdah-backend/src/modules/home-care/repositories/careplan.repository.ts
+audit-work/source/nabdah-backend/src/modules/home-care/repositories/homecarebooking.repository.ts
+audit-work/source/nabdah-backend/src/modules/home-care/repositories/homecareservice.repository.ts
+audit-work/source/nabdah-backend/src/modules/home-care/repositories/medicalsupplyrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/home-care/repositories/nursingvisitreport.repository.ts
+audit-work/source/nabdah-backend/src/modules/home-care/schemas/home-care-booking.schema.ts
+audit-work/source/nabdah-backend/src/modules/home-care/schemas/home-care-nurse.schema.ts
+audit-work/source/nabdah-backend/src/modules/home-care/schemas/medical-supply-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/home/home.controller.ts
+audit-work/source/nabdah-backend/src/modules/home/home.module.ts
+audit-work/source/nabdah-backend/src/modules/home/home.service.ts
+audit-work/source/nabdah-backend/src/modules/hospital-staff/hospital-staff.module.ts
+audit-work/source/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts
+audit-work/source/nabdah-backend/src/modules/hospital/hospital.module.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-branch.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-department.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-invitation.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-staff.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/services/hospital.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/hospital/services/hospital.service.ts
+audit-work/source/nabdah-backend/src/modules/i18n/i18n.controller.ts
+audit-work/source/nabdah-backend/src/modules/i18n/i18n.module.ts
+audit-work/source/nabdah-backend/src/modules/i18n/i18n.service.ts
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts
+audit-work/source/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts
+audit-work/source/nabdah-backend/src/modules/insurance/insurance.controller.ts
+audit-work/source/nabdah-backend/src/modules/insurance/insurance.module.ts
+audit-work/source/nabdah-backend/src/modules/insurance/insurance.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts
+audit-work/source/nabdah-backend/src/modules/labs/lab-pdf.service.ts
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.controller.ts
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.controller.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.module.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.seed.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts
+audit-work/source/nabdah-backend/src/modules/labs/repositories/labbooking.repository.ts
+audit-work/source/nabdah-backend/src/modules/labs/repositories/labresult.repository.ts
+audit-work/source/nabdah-backend/src/modules/labs/repositories/labsample.repository.ts
+audit-work/source/nabdah-backend/src/modules/labs/repositories/labservice.repository.ts
+audit-work/source/nabdah-backend/src/modules/labs/schemas/lab-booking.schema.ts
+audit-work/source/nabdah-backend/src/modules/labs/schemas/lab-catalog.schema.ts
+audit-work/source/nabdah-backend/src/modules/legacy/legacy.module.ts
+audit-work/source/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts
+audit-work/source/nabdah-backend/src/modules/legal/legal-enterprise.service.excel.spec.ts
+audit-work/source/nabdah-backend/src/modules/legal/legal-enterprise.service.ts
+audit-work/source/nabdah-backend/src/modules/legal/legal.module.ts
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.controller.ts
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.followup.spec.ts
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.module.ts
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.service.ts
+audit-work/source/nabdah-backend/src/modules/livekit/repositories/callmetric.repository.ts
+audit-work/source/nabdah-backend/src/modules/livekit/repositories/callsession.repository.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.module.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.service.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/repositories/challengeprogress.repository.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/repositories/loyaltyaccount.repository.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/repositories/loyaltychallenge.repository.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/repositories/loyaltytransaction.repository.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/repositories/reward.repository.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/repositories/rewardclaim.repository.ts
+audit-work/source/nabdah-backend/src/modules/mail/mail.module.ts
+audit-work/source/nabdah-backend/src/modules/maternity/maternity.controller.ts
+audit-work/source/nabdah-backend/src/modules/maternity/maternity.module.ts
+audit-work/source/nabdah-backend/src/modules/maternity/maternity.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/maternity/maternity.service.ts
+audit-work/source/nabdah-backend/src/modules/maternity/repositories/maternityprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/media/media.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/media/media.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/media/media.controller.ts
+audit-work/source/nabdah-backend/src/modules/media/media.module.ts
+audit-work/source/nabdah-backend/src/modules/media/media.schema.ts
+audit-work/source/nabdah-backend/src/modules/media/media.service.ts
+audit-work/source/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts
+audit-work/source/nabdah-backend/src/modules/medical-profile/medical-profile.module.ts
+audit-work/source/nabdah-backend/src/modules/medical-profile/medical-profile.service.ts
+audit-work/source/nabdah-backend/src/modules/medical-profile/repositories/medicalprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/medical-reports/medical-reports.controller.ts
+audit-work/source/nabdah-backend/src/modules/medical-reports/medical-reports.module.ts
+audit-work/source/nabdah-backend/src/modules/medical-reports/medical-reports.service.ts
+audit-work/source/nabdah-backend/src/modules/medical-reports/repositories/medicalreport.repository.ts
+audit-work/source/nabdah-backend/src/modules/medicines/med-i18n.spec.ts
+audit-work/source/nabdah-backend/src/modules/medicines/med-i18n.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.module.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.public-catalog.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.service.publication.spec.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.service.ts
+audit-work/source/nabdah-backend/src/modules/medicines/repositories/medicine.repository.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/mental-health.controller.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/mental-health.module.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/mental-health.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/mental-health.service.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/repositories/breathingsession.repository.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/repositories/crisiscontact.repository.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/repositories/meditationsession.repository.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/repositories/moodentry.repository.ts
+audit-work/source/nabdah-backend/src/modules/moyasar/moyasar.module.ts
+audit-work/source/nabdah-backend/src/modules/moyasar/moyasar.service.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.module.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.service.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/adplacement.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/appointment.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/corporateaccount.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/featureflag.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/fraudalert.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/labresult.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/order.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/prescription.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/providerprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/referralcode.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/referralreward.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/slalog.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/treatmentprogram.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/universalactivity.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/vitalreading.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/wallet.repository.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/repositories/wallettransaction.repository.ts
+audit-work/source/nabdah-backend/src/modules/notification/notification.module.ts
+audit-work/source/nabdah-backend/src/modules/notification/notification.service.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notification-delivery.processor.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.controller.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.module.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.service.ts
+audit-work/source/nabdah-backend/src/modules/notifications/processors/mail.processor.ts
+audit-work/source/nabdah-backend/src/modules/notifications/repositories/notification.repository.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/nutrition.controller.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/nutrition.module.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/nutrition.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/nutrition.service.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/repositories/exerciselog.repository.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/repositories/meallog.repository.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/repositories/nutritionprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/repositories/waterlog.repository.ts
+audit-work/source/nabdah-backend/src/modules/ocr/ocr.service.ts
+audit-work/source/nabdah-backend/src/modules/operations-safety/operations-safety.module.ts
+audit-work/source/nabdah-backend/src/modules/ops/metrics.interceptor.ts
+audit-work/source/nabdah-backend/src/modules/ops/ops.controller.ts
+audit-work/source/nabdah-backend/src/modules/ops/ops.module.ts
+audit-work/source/nabdah-backend/src/modules/orders/dispatch.service.ts
+audit-work/source/nabdah-backend/src/modules/orders/dto/create-order.dto.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.idempotency.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.module.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.ownership.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.refill-delivery.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts
+audit-work/source/nabdah-backend/src/modules/orders/repositories/delivery.repository.ts
+audit-work/source/nabdah-backend/src/modules/orders/repositories/medicine.repository.ts
+audit-work/source/nabdah-backend/src/modules/orders/repositories/order.repository.ts
+audit-work/source/nabdah-backend/src/modules/orders/repositories/pharmacybid.repository.ts
+audit-work/source/nabdah-backend/src/modules/orders/repositories/pharmacyinventory.repository.ts
+audit-work/source/nabdah-backend/src/modules/orders/repositories/providerprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/payments/payments-idor.spec.ts
+audit-work/source/nabdah-backend/src/modules/payments/payments.module.ts
+audit-work/source/nabdah-backend/src/modules/payments/paymob.controller.ts
+audit-work/source/nabdah-backend/src/modules/payments/paymob.module.ts
+audit-work/source/nabdah-backend/src/modules/payments/paymob.service.ts
+audit-work/source/nabdah-backend/src/modules/payouts/provider-payouts.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/payouts/provider-payouts.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/dto/admin-create-quotation.dto.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/dto/create-procurement-request.dto.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/dto/pharmacy-quotation-feedback.dto.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/enums/procurement-status.enum.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/patient-pharmacy.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/pharmacy.controllers.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/pharmacy.controllers.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/pharmacy.module.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/procurement-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/quotation.schema.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-inventory-ext.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-seed.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-shortage.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-shortage.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/procurement.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/drugrejectionlog.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/drugshortageflag.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/medicine.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacyallocation.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacybroadcast.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacychatmessage.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacychatthread.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacyinventoryitem.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacylowstockalert.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/pharmacyorder.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/procurementrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/provideraccount.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/provideraccountprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/provideravailability.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/providerscoresnapshot.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/quotation.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/repositories/systemconfig.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/tests/procurement.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.module.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.service.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/repositories/medicine.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/repositories/order.repository.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/repositories/pharmacyinventory.repository.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.authorization.spec.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.controller.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.module.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.service.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/repositories/prescription.repository.ts
+audit-work/source/nabdah-backend/src/modules/presence/presence.module.ts
+audit-work/source/nabdah-backend/src/modules/presence/presence.service.ts
+audit-work/source/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts
+audit-work/source/nabdah-backend/src/modules/provider-onboarding/contract-pdf.service.ts
+audit-work/source/nabdah-backend/src/modules/provider-onboarding/provider-onboarding.module.ts
+audit-work/source/nabdah-backend/src/modules/provider-ops/provider-ops.module.ts
+audit-work/source/nabdah-backend/src/modules/provider/leave-requests.controller.ts
+audit-work/source/nabdah-backend/src/modules/provider/provider-requests.doctor-contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/provider/provider.controllers.ts
+audit-work/source/nabdah-backend/src/modules/provider/provider.enums.ts
+audit-work/source/nabdah-backend/src/modules/provider/provider.module.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/capabilities.schema.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/delta.schema.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/index.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/requests.schema.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/assignment-strategy.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/geo-engine.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-admin.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-auth.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-dashboard.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-image-processor.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-mailer.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-matching.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-notifications.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-operators.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-otp.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-profile.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-request-engine.service.assignment.spec.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-request-engine.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-schedule.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-scoring.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-seed.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/doctorsessiontype.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/homecareservicecatalogitem.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/imageprocessingjob.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/labtestcatalogitem.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/pharmacyinventoryitem.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/profileimageauditlog.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/profileimagemetadata.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/provideraccount.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/provideraccountprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerassignmentattempt.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerauditlog.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/provideravailability.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerbankaccount.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerdeliveryzone.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerdocument.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providernotification.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/provideroperator.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerotpcode.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerscheduleslot.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providerscoresnapshot.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/providersession.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/radiologyservicecatalogitem.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/scheduling-engine.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/service-capability.service.ts
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.dto.ts
+audit-work/source/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts
+audit-work/source/nabdah-backend/src/modules/providers/providers.controller.ts
+audit-work/source/nabdah-backend/src/modules/providers/providers.module.ts
+audit-work/source/nabdah-backend/src/modules/providers/providers.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/providers/providers.service.ts
+audit-work/source/nabdah-backend/src/modules/providers/repositories/providerprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/providers/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/providers/schemas/hospital-sub-entity.schema.ts
+audit-work/source/nabdah-backend/src/modules/providers/schemas/provider-delta.schema.ts
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts
+audit-work/source/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts
+audit-work/source/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts
+audit-work/source/nabdah-backend/src/modules/radiology/cron/radiology-reminder.cron.ts
+audit-work/source/nabdah-backend/src/modules/radiology/listeners/radiology-notification.listener.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.controller.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.module.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.seed.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.report-storage.spec.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts
+audit-work/source/nabdah-backend/src/modules/radiology/repositories/labresult.repository.ts
+audit-work/source/nabdah-backend/src/modules/radiology/repositories/radiologybooking.repository.ts
+audit-work/source/nabdah-backend/src/modules/radiology/repositories/radiologyservice.repository.ts
+audit-work/source/nabdah-backend/src/modules/radiology/schemas/radiology-booking.schema.ts
+audit-work/source/nabdah-backend/src/modules/ratings/ratings.module.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.gateway.authorization.spec.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.gateway.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.module.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.service.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.sse.ts
+audit-work/source/nabdah-backend/src/modules/recruitment/recruitment.module.ts
+audit-work/source/nabdah-backend/src/modules/recruitment/recruitment.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/redis/redis.module.ts
+audit-work/source/nabdah-backend/src/modules/redis/redis.service.ts
+audit-work/source/nabdah-backend/src/modules/referral/referral.controller.ts
+audit-work/source/nabdah-backend/src/modules/referral/referral.module.ts
+audit-work/source/nabdah-backend/src/modules/referral/referral.service.ts
+audit-work/source/nabdah-backend/src/modules/returns/repositories/returnrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/returns/returns.controller.ts
+audit-work/source/nabdah-backend/src/modules/returns/returns.module.ts
+audit-work/source/nabdah-backend/src/modules/returns/returns.service.ts
+audit-work/source/nabdah-backend/src/modules/security/security.module.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/facility.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/labservice.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/medicine.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/patientprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/pharmacyinventory.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/providerprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/systemconfig.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/seed/seed.data.ts
+audit-work/source/nabdah-backend/src/modules/seed/seed.facilities.ts
+audit-work/source/nabdah-backend/src/modules/seed/seed.module.ts
+audit-work/source/nabdah-backend/src/modules/seed/seed.service.ts
+audit-work/source/nabdah-backend/src/modules/seo-search/seo-search.module.ts
+audit-work/source/nabdah-backend/src/modules/seo/repositories/article.repository.ts
+audit-work/source/nabdah-backend/src/modules/seo/repositories/facility.repository.ts
+audit-work/source/nabdah-backend/src/modules/seo/repositories/homecareservice.repository.ts
+audit-work/source/nabdah-backend/src/modules/seo/repositories/labservice.repository.ts
+audit-work/source/nabdah-backend/src/modules/seo/repositories/medicine.repository.ts
+audit-work/source/nabdah-backend/src/modules/seo/repositories/providerprofile.repository.ts
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts
+audit-work/source/nabdah-backend/src/modules/seo/seo.module.ts
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.ts
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/sms/sms.module.ts
+audit-work/source/nabdah-backend/src/modules/sms/sms.service.ts
+audit-work/source/nabdah-backend/src/modules/socket/socket.gateway.ts
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.spec.ts
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts
+audit-work/source/nabdah-backend/src/modules/support/repositories/patientsettings.repository.ts
+audit-work/source/nabdah-backend/src/modules/support/repositories/supportrequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts
+audit-work/source/nabdah-backend/src/modules/support/support.module.ts
+audit-work/source/nabdah-backend/src/modules/support/support.service.ts
+audit-work/source/nabdah-backend/src/modules/system-health/system-health.controller.ts
+audit-work/source/nabdah-backend/src/modules/system-health/system-health.module.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/appointment.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/customservicerequest.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/homecarebooking.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/labbooking.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/labresult.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/medicalreport.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/medicationreminder.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/order.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/prescription.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/radiologybooking.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/repositories/vitalreading.repository.ts
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.controller.ts
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.module.ts
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.service.ts
+audit-work/source/nabdah-backend/src/modules/tour/tour.controller.ts
+audit-work/source/nabdah-backend/src/modules/tour/tour.module.ts
+audit-work/source/nabdah-backend/src/modules/tour/tour.service.ts
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.ts
+audit-work/source/nabdah-backend/src/modules/users/data-retention.service.ts
+audit-work/source/nabdah-backend/src/modules/users/repositories/patient-profile.repository.ts
+audit-work/source/nabdah-backend/src/modules/users/repositories/provider-profile.repository.ts
+audit-work/source/nabdah-backend/src/modules/users/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/users/user.insurance.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.addresses.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.insurance.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.module.ts
+audit-work/source/nabdah-backend/src/modules/users/users.service.ts
+audit-work/source/nabdah-backend/src/modules/wallet/repositories/user.repository.ts
+audit-work/source/nabdah-backend/src/modules/wallet/repositories/wallet.repository.ts
+audit-work/source/nabdah-backend/src/modules/wallet/repositories/wallettransaction.repository.ts
+audit-work/source/nabdah-backend/src/modules/wallet/wallet.controller.ts
+audit-work/source/nabdah-backend/src/modules/wallet/wallet.module.ts
+audit-work/source/nabdah-backend/src/modules/wallet/wallet.service.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.controller.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.module.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.service.ts
+audit-work/source/nabdah-backend/src/modules/workflow-engine/workflow-engine.module.spec.ts
+audit-work/source/nabdah-backend/src/modules/workflow-engine/workflow-engine.module.ts
+audit-work/source/nabdah-backend/src/schemas/ad-placement.schema.ts
+audit-work/source/nabdah-backend/src/schemas/ambulance-vehicle.schema.ts
+audit-work/source/nabdah-backend/src/schemas/analytics-event.schema.ts
+audit-work/source/nabdah-backend/src/schemas/appointment.schema.ts
+audit-work/source/nabdah-backend/src/schemas/approval-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/article.schema.ts
+audit-work/source/nabdah-backend/src/schemas/audit-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/b2b-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/callmetric.schema.ts
+audit-work/source/nabdah-backend/src/schemas/callsession.schema.ts
+audit-work/source/nabdah-backend/src/schemas/chat-session.schema.ts
+audit-work/source/nabdah-backend/src/schemas/community.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/corporate-account.schema.ts
+audit-work/source/nabdah-backend/src/schemas/custom-service.schema.ts
+audit-work/source/nabdah-backend/src/schemas/delivery.schema.ts
+audit-work/source/nabdah-backend/src/schemas/driver-shift.schema.ts
+audit-work/source/nabdah-backend/src/schemas/drug-rejection-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/emergency.schema.ts
+audit-work/source/nabdah-backend/src/schemas/extra.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/facility.schema.ts
+audit-work/source/nabdah-backend/src/schemas/family.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/feature-flag.schema.ts
+audit-work/source/nabdah-backend/src/schemas/fraud-alert.schema.ts
+audit-work/source/nabdah-backend/src/schemas/health.schema.ts
+audit-work/source/nabdah-backend/src/schemas/home-care.schema.ts
+audit-work/source/nabdah-backend/src/schemas/hospital-operations.schema.ts
+audit-work/source/nabdah-backend/src/schemas/image-processing-job.schema.ts
+audit-work/source/nabdah-backend/src/schemas/insurance.schema.ts
+audit-work/source/nabdah-backend/src/schemas/inventory.schema.ts
+audit-work/source/nabdah-backend/src/schemas/job-board.schema.ts
+audit-work/source/nabdah-backend/src/schemas/lab-result.schema.ts
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts
+audit-work/source/nabdah-backend/src/schemas/leave-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/loyalty.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/maternity.schema.ts
+audit-work/source/nabdah-backend/src/schemas/medical-profile.schema.ts
+audit-work/source/nabdah-backend/src/schemas/medical-report.schema.ts
+audit-work/source/nabdah-backend/src/schemas/medicine.schema.ts
+audit-work/source/nabdah-backend/src/schemas/mental-health.schema.ts
+audit-work/source/nabdah-backend/src/schemas/notification.schema.ts
+audit-work/source/nabdah-backend/src/schemas/nutrition.schema.ts
+audit-work/source/nabdah-backend/src/schemas/order.schema.ts
+audit-work/source/nabdah-backend/src/schemas/outbound-referral.schema.ts
+audit-work/source/nabdah-backend/src/schemas/patient-crm-tag.schema.ts
+audit-work/source/nabdah-backend/src/schemas/patient-profile.schema.ts
+audit-work/source/nabdah-backend/src/schemas/pharmacy-chat.schema.ts
+audit-work/source/nabdah-backend/src/schemas/pharmacy-inventory.schema.ts
+audit-work/source/nabdah-backend/src/schemas/prescription.schema.ts
+audit-work/source/nabdah-backend/src/schemas/profile-image-audit-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/profile-image-metadata.schema.ts
+audit-work/source/nabdah-backend/src/schemas/promotion-campaign.schema.ts
+audit-work/source/nabdah-backend/src/schemas/provider-availability.schema.ts
+audit-work/source/nabdah-backend/src/schemas/provider-branch.schema.ts
+audit-work/source/nabdah-backend/src/schemas/provider-profile.schema.ts
+audit-work/source/nabdah-backend/src/schemas/push-token.schema.ts
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts
+audit-work/source/nabdah-backend/src/schemas/referral.schema.ts
+audit-work/source/nabdah-backend/src/schemas/refund-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/return-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/returns.schema.ts
+audit-work/source/nabdah-backend/src/schemas/review.schema.ts
+audit-work/source/nabdah-backend/src/schemas/sla-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/slot-lock.schema.ts
+audit-work/source/nabdah-backend/src/schemas/support.schema.ts
+audit-work/source/nabdah-backend/src/schemas/system-config.schema.ts
+audit-work/source/nabdah-backend/src/schemas/systemevent.schema.ts
+audit-work/source/nabdah-backend/src/schemas/transaction.schema.ts
+audit-work/source/nabdah-backend/src/schemas/treatment-program.schema.ts
+audit-work/source/nabdah-backend/src/schemas/universal-activity.schema.ts
+audit-work/source/nabdah-backend/src/schemas/user.schema.ts
+audit-work/source/nabdah-backend/src/schemas/wallet.schema.ts
+audit-work/source/nabdah-backend/src/scripts/seed-admin.ts
+audit-work/source/nabdah-backend/src/scripts/seed-insurance-companies.ts
+audit-work/source/nabdah-backend/src/scripts/seed_test.ts
+audit-work/source/nabdah-backend/src/scripts/seed_test_providers.ts
+audit-work/source/nabdah-backend/src/scripts/verify-production.ts
+audit-work/source/nabdah-backend/test/app.boot.e2e-spec.ts
+audit-work/source/nabdah-backend/tsconfig.build.json
+audit-work/source/nabdah-backend/tsconfig.json
+## route/controller/gateway/schema/dto/migration/webhook/test files
+audit-work/source/nabdah-backend/audit-artifacts/ADMIN_QA_ROUTE_BUTTON_INVENTORY_20260818.txt
+audit-work/source/nabdah-backend/audit-artifacts/DEVICE_SCREEN_ROUTE_INVENTORY_20260817.md
+audit-work/source/nabdah-backend/audit-artifacts/FULL_E2E_BACKEND_ROUTE_CONTRACTS_20260817.md
+audit-work/source/nabdah-backend/audit-artifacts/FULL_PRODUCTION_E2E_TRACEABILITY_20260817.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_ACTUAL_API_ROUTE_MATCH_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_BACKEND_COMPILED_ROUTES_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_BACKEND_DEPENDENCY_MIGRATION_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_MATCH_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_RECONCILIATION_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_RECONCILIATION_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_EXPO_MIGRATION_METHOD_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PATIENT_EXPO_SDK57_MIGRATION_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE15_MIGRATION_INDEX_PREFLIGHT_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE2_ADDRESS_CREATE_REMEDIATION_TESTS_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE2_INSURANCE_PAYMENT_SPLIT_MISSING_ROUTE_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE2_NO_EXACT_ROUTE_REVIEW_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE2_PATIENT_METHOD_MISMATCH_REMEDIATION_QUEUE_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE4_ADMIN_AI_GATEWAY_GAPS_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE5_REALTIME_WEBSOCKET_SECURITY_GAPS_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE5_TRANSACTION_SCHEMA_DATA_GAPS_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE8_BATCH_AB_PROVIDER_NURSING_QUEUE_CONTRACT_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE8_BATCH_C_PAYMENT_AUTHORIZATION_WEBHOOKS_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PROVIDER_EXPO_SDK57_MIGRATION_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PROVIDER_FULL_LOCALE_STATIC_TEXT_MIGRATION_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PROVIDER_TEMPLATE_LOCALE_MIGRATION_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_RECONCILIATION_API_ROUTE_MATCH_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_RECONCILIATION_BACKEND_ROUTES_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_ROUTE_MATCH_RECONCILIATION_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_CONSUMER_BACKEND_ROUTE_MAP_20260818.txt
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_EXACT_READ_ROUTE_CONTRACTS_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_QA_ROUTE_BUTTON_INVENTORY_20260818.txt
+audit-work/source/nabdah-backend/audit-artifacts/PATIENT_ROUTE_CONTRACT_RECONCILIATION_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/PHASE6_STAGING_E2E_MATRIX_20260817.md
+audit-work/source/nabdah-backend/audit-artifacts/POST_REMEDIATION_E2E_EXECUTION_PLAN.md
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_AUTH_CONTROLLER_SOURCE_20260818.txt
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_INTAKE_BACKEND_ROUTE_MAP_20260818.txt
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_OPERATIONAL_ROUTE_CATALOG_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_SCREEN_CONTROLLER_INVENTORY_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_SPECIALTY_CONTRACT_MAP_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_ARTICLE_BOOKMARK_CONTRACT_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_ARTICLE_BOOKMARK_CONTRACT_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_AUTH_REFRESH_TTL_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_AUTH_REFRESH_TTL_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_CHAT_MEDIA_CONTRACT_BRIDGE_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_CHAT_MEDIA_CONTRACT_BRIDGE_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_CONTRACT_PACK_V1_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_CONTRACT_PACK_V1_NEST_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_HOME_CARE_BOOKING_CONTRACT_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_HOME_CARE_BOOKING_CONTRACT_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_ORDERS_IDEMPOTENCY_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_ORDERS_IDEMPOTENCY_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PRESCRIPTIONS_DTO_CONTRACT_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PRESCRIPTIONS_DTO_CONTRACT_BUILD_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PRESCRIPTIONS_DTO_CONTRACT_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PRESCRIPTIONS_DTO_CONTRACT_VERIFICATION_20260822.md
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PUBLIC_CATALOG_FRAGMENT_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PUBLIC_CATALOG_FRAGMENT_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PUBLIC_SPECIALTIES_CONTRACT_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PUBLIC_SPECIALTIES_CONTRACT_BUILD_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PUBLIC_SPECIALTIES_CONTRACT_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_PUBLIC_SPECIALTIES_CONTRACT_VERIFICATION_20260822.md
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_UNIFIED_BOOKINGS_CALL_TOKEN_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_UNIFIED_BOOKINGS_CALL_TOKEN_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_UNIFIED_BOOKINGS_CASH_BRIDGE_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_UNIFIED_BOOKINGS_CASH_BRIDGE_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_USERS_SETTINGS_CONTRACT_BOOT_TEST_20260822.txt
+audit-work/source/nabdah-backend/audit-artifacts/verification/BACKEND_USERS_SETTINGS_CONTRACT_FULL_TEST_20260822.txt
+audit-work/source/nabdah-backend/e2e/README.md
+audit-work/source/nabdah-backend/e2e/boot.js
+audit-work/source/nabdah-backend/e2e/matrix.js
+audit-work/source/nabdah-backend/e2e/matrix2.js
+audit-work/source/nabdah-backend/e2e/package.json
+audit-work/source/nabdah-backend/infra/fastapi/ai_routes.py
+audit-work/source/nabdah-backend/infra/fastapi/tests/conftest.py
+audit-work/source/nabdah-backend/infra/fastapi/tests/test_nabd_backend.py
+audit-work/source/nabdah-backend/scripts/seed_test_providers.js
+audit-work/source/nabdah-backend/scripts/seed_test_providers.ts.bak
+audit-work/source/nabdah-backend/scripts/test-extensions.ts
+audit-work/source/nabdah-backend/scripts/test-flow.js
+audit-work/source/nabdah-backend/src/common/audit-log.interceptor.spec.ts
+audit-work/source/nabdah-backend/src/common/auth.guard.spec.ts
+audit-work/source/nabdah-backend/src/common/idempotency.interceptor.spec.ts
+audit-work/source/nabdah-backend/src/config/websocket-cors.spec.ts
+audit-work/source/nabdah-backend/src/config/websocket-cors.ts
+audit-work/source/nabdah-backend/src/contracts/catalog-governance-backfill.contract.spec.ts
+audit-work/source/nabdah-backend/src/contracts/insurance-openapi.contract.spec.ts
+audit-work/source/nabdah-backend/src/contracts/mongoose-indexes.contract.spec.ts
+audit-work/source/nabdah-backend/src/contracts/ownership-controllers.spec.ts
+audit-work/source/nabdah-backend/src/contracts/phase6-contracts.spec.ts
+audit-work/source/nabdah-backend/src/contracts/provider-availability.contract.spec.ts
+audit-work/source/nabdah-backend/src/health.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-governance/b2b.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-governance/system-config.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-notification-center/admin-notification-center.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/audit-log.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/commission-ledger.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/fraud-alert.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/heatmap-data.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/procurement-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/provider-delta.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/provider.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/system-config-extended.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin-web-core/schemas/withdrawal-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/admin/admin.controller.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai-gateway.service.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.admin-containment.spec.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.service.excel.spec.ts
+audit-work/source/nabdah-backend/src/modules/ai/ai.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/approval-workflow/approval-workflow.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/articles/articles.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/articles/seo.controller.ts
+audit-work/source/nabdah-backend/src/modules/auth/auth.controller.ts
+audit-work/source/nabdah-backend/src/modules/auth/auth.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/auth/passkey.controller.ts
+audit-work/source/nabdah-backend/src/modules/auth/patient-web-auth.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/auth/schemas/passkey-credential.schema.ts
+audit-work/source/nabdah-backend/src/modules/auth/schemas/trusted-device.schema.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.controller.ts
+audit-work/source/nabdah-backend/src/modules/bans/bans.schema.ts
+audit-work/source/nabdah-backend/src/modules/billing/tests/billing-zatca.spec.ts
+audit-work/source/nabdah-backend/src/modules/booking-flow/booking-flow.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/booking-ops/booking-ops.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/care/appointments.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/appointments.dto.ts
+audit-work/source/nabdah-backend/src/modules/care/care.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/doctor-integration.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/doctor-referrals.controller.ts
+audit-work/source/nabdah-backend/src/modules/care/schemas/doctor-profile-extended.schema.ts
+audit-work/source/nabdah-backend/src/modules/care/schemas/encounter-record.schema.ts
+audit-work/source/nabdah-backend/src/modules/care/schemas/encounter-referrals.schema.ts
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts
+audit-work/source/nabdah-backend/src/modules/care/tests/public-discovery.spec.ts
+audit-work/source/nabdah-backend/src/modules/cart/cart.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.gateway.followup.spec.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.gateway.ts
+audit-work/source/nabdah-backend/src/modules/chat/chat.schemas.ts
+audit-work/source/nabdah-backend/src/modules/chat/guards/chat-gateway.guard.ts
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts
+audit-work/source/nabdah-backend/src/modules/community/community.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/compat/admin-nursing-containment.spec.ts
+audit-work/source/nabdah-backend/src/modules/compat/compat-family-chat.spec.ts
+audit-work/source/nabdah-backend/src/modules/config/config.controller.ts
+audit-work/source/nabdah-backend/src/modules/coturn/coturn.controller.ts
+audit-work/source/nabdah-backend/src/modules/custom-services/custom-services.controller.ts
+audit-work/source/nabdah-backend/src/modules/doctors/doctors.schemas.ts
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.controller.ts
+audit-work/source/nabdah-backend/src/modules/emergency/ambulance-fleet.controller.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.admin-containment.spec.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.controller.ts
+audit-work/source/nabdah-backend/src/modules/emergency/emergency.service.vehicle-integrity.spec.ts
+audit-work/source/nabdah-backend/src/modules/events/catalog-publication.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/events/event-bus.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/events/events.controllers.ts
+audit-work/source/nabdah-backend/src/modules/events/system-event.schema.ts
+audit-work/source/nabdah-backend/src/modules/export/export.controller.ts
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/family/family.controller.ts
+audit-work/source/nabdah-backend/src/modules/family/family.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flag.schema.ts
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts
+audit-work/source/nabdah-backend/src/modules/health/health-dashboard.controller.ts
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts
+audit-work/source/nabdah-backend/src/modules/health/health.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/controllers/home-care-tracking.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/controllers/home-care-tracking.controller.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.controller.ts
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/home-care/schemas/home-care-booking.schema.ts
+audit-work/source/nabdah-backend/src/modules/home-care/schemas/home-care-nurse.schema.ts
+audit-work/source/nabdah-backend/src/modules/home-care/schemas/medical-supply-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/home/home.controller.ts
+audit-work/source/nabdah-backend/src/modules/hospital/controllers/hospital.controller.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-branch.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-department.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-invitation.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/schemas/hospital-staff.schema.ts
+audit-work/source/nabdah-backend/src/modules/hospital/services/hospital.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/i18n/i18n.controller.ts
+audit-work/source/nabdah-backend/src/modules/insurance-engine/tests/insurance-flow.spec.ts
+audit-work/source/nabdah-backend/src/modules/insurance/insurance.controller.ts
+audit-work/source/nabdah-backend/src/modules/insurance/insurance.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.controller.ts
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.controller.ts
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/labs/schemas/lab-booking.schema.ts
+audit-work/source/nabdah-backend/src/modules/labs/schemas/lab-catalog.schema.ts
+audit-work/source/nabdah-backend/src/modules/legal/legal-enterprise.controller.ts
+audit-work/source/nabdah-backend/src/modules/legal/legal-enterprise.service.excel.spec.ts
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.controller.ts
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.followup.spec.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/maternity/maternity.controller.ts
+audit-work/source/nabdah-backend/src/modules/maternity/maternity.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/media/media.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/media/media.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/media/media.controller.ts
+audit-work/source/nabdah-backend/src/modules/media/media.schema.ts
+audit-work/source/nabdah-backend/src/modules/medical-profile/medical-profile.controller.ts
+audit-work/source/nabdah-backend/src/modules/medical-reports/medical-reports.controller.ts
+audit-work/source/nabdah-backend/src/modules/medicines/med-i18n.spec.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.public-catalog.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.service.publication.spec.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/mental-health.controller.ts
+audit-work/source/nabdah-backend/src/modules/mental-health/mental-health.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/nabd-extensions/nabd-extensions.controller.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.controller.ts
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/nutrition.controller.ts
+audit-work/source/nabdah-backend/src/modules/nutrition/nutrition.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/ops/ops.controller.ts
+audit-work/source/nabdah-backend/src/modules/orders/dto/create-order.dto.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.idempotency.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.ownership.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.refill-delivery.spec.ts
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/payments/payments-idor.spec.ts
+audit-work/source/nabdah-backend/src/modules/payments/paymob.controller.ts
+audit-work/source/nabdah-backend/src/modules/payouts/provider-payouts.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/payouts/provider-payouts.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/controllers/admin-procurement.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/controllers/procurement.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/dto/admin-create-quotation.dto.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/dto/create-procurement-request.dto.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/dto/pharmacy-quotation-feedback.dto.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/patient-pharmacy.controller.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/pharmacy.controllers.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/pharmacy.controllers.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/procurement-request.schema.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/quotation.schema.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-shortage.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy/tests/procurement.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.authorization.spec.ts
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.controller.ts
+audit-work/source/nabdah-backend/src/modules/provider-jobs/provider-jobs.module.ts
+audit-work/source/nabdah-backend/src/modules/provider/leave-requests.controller.ts
+audit-work/source/nabdah-backend/src/modules/provider/provider-requests.doctor-contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/provider/provider.controllers.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/capabilities.schema.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/delta.schema.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/index.ts
+audit-work/source/nabdah-backend/src/modules/provider/schemas/requests.schema.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/provider-request-engine.service.assignment.spec.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/imageprocessingjob.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/services/repositories/labtestcatalogitem.repository.ts
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.dto.ts
+audit-work/source/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts
+audit-work/source/nabdah-backend/src/modules/providers/providers.controller.ts
+audit-work/source/nabdah-backend/src/modules/providers/providers.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/providers/schemas/hospital-sub-entity.schema.ts
+audit-work/source/nabdah-backend/src/modules/providers/schemas/provider-delta.schema.ts
+audit-work/source/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.spec.ts
+audit-work/source/nabdah-backend/src/modules/radiology/controllers/radiology-provider.controller.ts
+audit-work/source/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.controller.ts
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.report-storage.spec.ts
+audit-work/source/nabdah-backend/src/modules/radiology/schemas/radiology-booking.schema.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.gateway.authorization.spec.ts
+audit-work/source/nabdah-backend/src/modules/realtime/realtime.gateway.ts
+audit-work/source/nabdah-backend/src/modules/recruitment/recruitment.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/referral/referral.controller.ts
+audit-work/source/nabdah-backend/src/modules/returns/returns.controller.ts
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/socket/socket.gateway.ts
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.spec.ts
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts
+audit-work/source/nabdah-backend/src/modules/system-health/system-health.controller.ts
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.controller.ts
+audit-work/source/nabdah-backend/src/modules/tour/tour.controller.ts
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/users/user.insurance.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.addresses.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.contract.spec.ts
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts
+audit-work/source/nabdah-backend/src/modules/users/users.insurance.controller.ts
+audit-work/source/nabdah-backend/src/modules/wallet/wallet.controller.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.controller.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.module.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.service.spec.ts
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.service.ts
+audit-work/source/nabdah-backend/src/modules/workflow-engine/workflow-engine.module.spec.ts
+audit-work/source/nabdah-backend/src/schemas/ad-placement.schema.ts
+audit-work/source/nabdah-backend/src/schemas/ambulance-vehicle.schema.ts
+audit-work/source/nabdah-backend/src/schemas/analytics-event.schema.ts
+audit-work/source/nabdah-backend/src/schemas/appointment.schema.ts
+audit-work/source/nabdah-backend/src/schemas/approval-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/article.schema.ts
+audit-work/source/nabdah-backend/src/schemas/audit-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/b2b-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/callmetric.schema.ts
+audit-work/source/nabdah-backend/src/schemas/callsession.schema.ts
+audit-work/source/nabdah-backend/src/schemas/chat-session.schema.ts
+audit-work/source/nabdah-backend/src/schemas/community.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/corporate-account.schema.ts
+audit-work/source/nabdah-backend/src/schemas/custom-service.schema.ts
+audit-work/source/nabdah-backend/src/schemas/delivery.schema.ts
+audit-work/source/nabdah-backend/src/schemas/driver-shift.schema.ts
+audit-work/source/nabdah-backend/src/schemas/drug-rejection-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/emergency.schema.ts
+audit-work/source/nabdah-backend/src/schemas/extra.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/facility.schema.ts
+audit-work/source/nabdah-backend/src/schemas/family.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/feature-flag.schema.ts
+audit-work/source/nabdah-backend/src/schemas/fraud-alert.schema.ts
+audit-work/source/nabdah-backend/src/schemas/health.schema.ts
+audit-work/source/nabdah-backend/src/schemas/home-care.schema.ts
+audit-work/source/nabdah-backend/src/schemas/hospital-operations.schema.ts
+audit-work/source/nabdah-backend/src/schemas/image-processing-job.schema.ts
+audit-work/source/nabdah-backend/src/schemas/insurance.schema.ts
+audit-work/source/nabdah-backend/src/schemas/inventory.schema.ts
+audit-work/source/nabdah-backend/src/schemas/job-board.schema.ts
+audit-work/source/nabdah-backend/src/schemas/lab-result.schema.ts
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts
+audit-work/source/nabdah-backend/src/schemas/leave-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/loyalty.schemas.ts
+audit-work/source/nabdah-backend/src/schemas/maternity.schema.ts
+audit-work/source/nabdah-backend/src/schemas/medical-profile.schema.ts
+audit-work/source/nabdah-backend/src/schemas/medical-report.schema.ts
+audit-work/source/nabdah-backend/src/schemas/medicine.schema.ts
+audit-work/source/nabdah-backend/src/schemas/mental-health.schema.ts
+audit-work/source/nabdah-backend/src/schemas/notification.schema.ts
+audit-work/source/nabdah-backend/src/schemas/nutrition.schema.ts
+audit-work/source/nabdah-backend/src/schemas/order.schema.ts
+audit-work/source/nabdah-backend/src/schemas/outbound-referral.schema.ts
+audit-work/source/nabdah-backend/src/schemas/patient-crm-tag.schema.ts
+audit-work/source/nabdah-backend/src/schemas/patient-profile.schema.ts
+audit-work/source/nabdah-backend/src/schemas/pharmacy-chat.schema.ts
+audit-work/source/nabdah-backend/src/schemas/pharmacy-inventory.schema.ts
+audit-work/source/nabdah-backend/src/schemas/prescription.schema.ts
+audit-work/source/nabdah-backend/src/schemas/profile-image-audit-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/profile-image-metadata.schema.ts
+audit-work/source/nabdah-backend/src/schemas/promotion-campaign.schema.ts
+audit-work/source/nabdah-backend/src/schemas/provider-availability.schema.ts
+audit-work/source/nabdah-backend/src/schemas/provider-branch.schema.ts
+audit-work/source/nabdah-backend/src/schemas/provider-profile.schema.ts
+audit-work/source/nabdah-backend/src/schemas/push-token.schema.ts
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts
+audit-work/source/nabdah-backend/src/schemas/referral.schema.ts
+audit-work/source/nabdah-backend/src/schemas/refund-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/return-request.schema.ts
+audit-work/source/nabdah-backend/src/schemas/returns.schema.ts
+audit-work/source/nabdah-backend/src/schemas/review.schema.ts
+audit-work/source/nabdah-backend/src/schemas/sla-log.schema.ts
+audit-work/source/nabdah-backend/src/schemas/slot-lock.schema.ts
+audit-work/source/nabdah-backend/src/schemas/support.schema.ts
+audit-work/source/nabdah-backend/src/schemas/system-config.schema.ts
+audit-work/source/nabdah-backend/src/schemas/systemevent.schema.ts
+audit-work/source/nabdah-backend/src/schemas/transaction.schema.ts
+audit-work/source/nabdah-backend/src/schemas/treatment-program.schema.ts
+audit-work/source/nabdah-backend/src/schemas/universal-activity.schema.ts
+audit-work/source/nabdah-backend/src/schemas/user.schema.ts
+audit-work/source/nabdah-backend/src/schemas/wallet.schema.ts
+audit-work/source/nabdah-backend/src/scripts/seed_test.ts
+audit-work/source/nabdah-backend/src/scripts/seed_test_providers.ts
+audit-work/source/nabdah-backend/test/app.boot.e2e-spec.ts
+## screen/page/navigation files
+audit-work/source/nabdah-backend/audit-artifacts/DEVICE_SCREEN_ROUTE_INVENTORY_20260817.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE19_RERUN_STATUS_AND_EXECUTABLE_BLOCKERS_20260820.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_PHASE8_BATCH_E_PATIENT_LOCALE_NAVIGATION_20260819.md
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_SCREEN_BUTTON_CONTRACT_INVENTORY_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/NABDAH_SCREEN_BUTTON_CONTRACT_UNIQUE_20260818.tsv
+audit-work/source/nabdah-backend/audit-artifacts/PROVIDER_SCREEN_CONTROLLER_INVENTORY_20260818.md
+audit-work/source/nabdah-backend/audit-artifacts/patient_insurance_screen_source_classification_20260820.txt
+audit-work/source/nabdah-backend/audit-artifacts/provider_admin_insurance_screen_source_classification_20260820.txt
+audit-work/source/nabdah-backend/src/common/database/audit.plugin.ts
+audit-work/source/nabdah-backend/src/common/database/base.repository.ts
+audit-work/source/nabdah-backend/src/common/database/mongo.repository.ts
+## HTTP-like definitions
+audit-work/source/nabdah-backend/scripts/reconcile-insurance-catalog.ts:43:      manifest_path: MANIFEST_PATH,
+audit-work/source/nabdah-backend/e2e/matrix2.js:4:const axios = require('axios');
+audit-work/source/nabdah-backend/e2e/matrix2.js:6:const base = 'http://127.0.0.1:4099/api/v1';
+audit-work/source/nabdah-backend/e2e/matrix2.js:106:    const r = await axios.post(`${base}/auth/register`, { full_name: 'مريض دورة الحياة', email: 'mx2.patient@test.sa', password: 'Str0ng!Pass', role: 'patient' });
+audit-work/source/nabdah-backend/e2e/matrix2.js:109:    const r2 = await axios.post(`${base}/auth/register`, { full_name: 'غريب', email: 'mx2.stranger@test.sa', password: 'Str0ng!Pass', role: 'patient' });
+audit-work/source/nabdah-backend/e2e/matrix2.js:116:    const r = await axios.post(`${base}/auth/login`, { identifier: 'admin@nabdah.sa', password: 'Adm1n!Pass' });
+audit-work/source/nabdah-backend/e2e/matrix2.js:127:    const v = await axios.post(`${base}/auth/login/verify-2fa`, { identifier: '+966500000999', code });
+audit-work/source/nabdah-backend/e2e/matrix2.js:135:      const r = await axios.post(`${base}/auth/login`, { identifier: email, password: 'Test!23456' });
+audit-work/source/nabdah-backend/e2e/matrix2.js:151:    const r = await axios.post(`${base}/provider/auth/register`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:171:    const r = await axios.post(`${base}/provider/auth/verify-email`, { email: 'test.newdoc@nabdah.sa', code });
+audit-work/source/nabdah-backend/e2e/matrix2.js:177:    const r = await axios.post(`${base}/provider/auth/login`, { email: 'test.newdoc@nabdah.sa', password: 'Test!23456' });
+audit-work/source/nabdah-backend/e2e/matrix2.js:183:    await axios.patch(`${base}/provider/profile`, { display_name_ar: 'د. تيست الجديد', address: { city: 'riyadh' } }, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:184:    await axios.post(`${base}/provider/profile/phones`, { type: 'mobile', number: '500001010' }, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:185:    const p = await axios.get(`${base}/provider/profile`, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:193:      await axios.post(`${base}/provider/kyc/documents`, { doc_type: dt, file: { data_base64: pdfB64, mime: 'application/pdf', original_name: dt + '.pdf' } }, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:195:    const docs = await axios.get(`${base}/provider/kyc/documents`, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:203:    const banks = await axios.get(`${base}/provider/banks`);
+audit-work/source/nabdah-backend/e2e/matrix2.js:207:    await axios.post(`${base}/provider/bank-account`, { bank_code, holder_name: 'TEST New Doctor', iban: 'SA0380000000608010167519' }, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:208:    const b = await axios.get(`${base}/provider/bank-account`, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:214:    const r = await axios.post(`${base}/provider/onboarding/submit`, {}, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:220:    const l = await axios.get(`${base}/admin/providers?status=pending_admin_approval`, auth(U.admin.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:224:    await axios.post(`${base}/admin/providers/${K.newdocAccount}/approve`, {}, auth(U.admin.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:225:    const me = await axios.get(`${base}/provider/auth/me`, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:233:    const r = await axios.post(`${base}/labs/bookings`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:247:    const r = await axios.get(`${base}/labs/provider/inbox`, auth(U.lab.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:253:    const r = await axios.patch(`${base}/labs/bookings/${K.lab.id}/state`, { state: 'CONFIRMED' }, auth(U.lab.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:259:    const s = await httpStatus(axios.patch(`${base}/labs/bookings/${K.lab.id}/state`, { state: 'RESULT_UPLOADED' }, auth(U.lab.token)));
+audit-work/source/nabdah-backend/e2e/matrix2.js:265:    const s = await httpStatus(axios.patch(`${base}/labs/bookings/${K.lab.id}/state`, { state: 'SAMPLE_COLLECTED' }, auth(U.patient.token)));
+audit-work/source/nabdah-backend/e2e/matrix2.js:272:      const r = await axios.patch(`${base}/labs/bookings/${K.lab.id}/state`, { state: st }, auth(U.lab.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:280:    const r = await axios.post(`${base}/labs/bookings/${K.lab.id}/upload-report`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:294:    const mine = await axios.get(`${base}/labs/bookings/mine`, auth(U.patient.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:297:    const s = await httpStatus(axios.get(`${base}/labs/bookings/${K.lab.id}`, auth(U.stranger.token)));
+audit-work/source/nabdah-backend/e2e/matrix2.js:303:    const s = await httpStatus(axios.post(`${base}/labs/bookings`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:313:    const mk = () => axios.post(`${base}/labs/bookings`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:325:    const r = await axios.post(`${base}/radiology/bookings`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:334:    const r = await axios.get(`${base}/radiology/provider/queue`, auth(U.rad.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:341:    const s = await httpStatus(axios.post(`${base}/radiology/provider/${K.rad.id}/respond`, { accept: true }));
+audit-work/source/nabdah-backend/e2e/matrix2.js:347:    const r = await axios.post(`${base}/radiology/provider/${K.rad.id}/respond`, { accept: true }, auth(U.rad.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:352:    const r = await axios.post(`${base}/radiology/provider/allocate-machine/${K.rad.id}`, { machineId: 'MACH-TEST-1' }, auth(U.rad.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:358:    const r = await axios.post(`${base}/radiology/provider/finalize-scan/${K.rad.id}`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:365:    const r = await axios.get(`${base}/radiology/bookings/mine`, auth(U.patient.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:373:    const r = await axios.post(`${base}/home-care/bookings`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:388:    const r = await axios.get(`${base}/nursing/visits?provider_id=usr-test-nurse`, auth(U.nurse.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:394:    const r = await axios.post(`${base}/nursing/visits/${K.nurse.id}/respond`, { accept: true }, auth(U.nurse.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:399:    const r = await axios.post(`${base}/nursing/visits/${K.nurse.id}/transit`, {}, auth(U.nurse.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:404:    const s = await httpStatus(axios.post(`${base}/nursing/visits/${K.nurse.id}/arrive`, { lat: 25.2, lng: 47.1 }, auth(U.nurse.token)));
+audit-work/source/nabdah-backend/e2e/matrix2.js:406:    const r = await axios.post(`${base}/nursing/visits/${K.nurse.id}/arrive`, { lat: 24.7137, lng: 46.6754 }, auth(U.nurse.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:412:    const s = await httpStatus(axios.post(`${base}/nursing/visits/${K.nurse.id}/no-show`, {}, auth(U.nurse.token)));
+audit-work/source/nabdah-backend/e2e/matrix2.js:418:    const r = await axios.post(`${base}/nursing/visits/${K.nurse.id}/start-care`, {}, auth(U.nurse.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:423:    const r = await axios.post(`${base}/nursing/visits/${K.nurse.id}/complete`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:431:    const r = await axios.get(`${base}/home-care/bookings/my`, auth(U.patient.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:439:    const r = await axios.get(`${base}/nursing/wallet?provider_id=usr-test-nurse`, auth(U.nurse.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:446:    const r = await axios.post(`${base}/orders/create`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:459:    const r = await axios.get(`${base}/orders/pharmacy/queue`, auth(U.pharm.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:466:    await axios.post(`${base}/orders/${K.order.id}/accept`, {}, auth(U.pharm.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:467:    const p = await axios.post(`${base}/orders/${K.order.id}/preparing`, {}, auth(U.pharm.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:469:    const rdy = await axios.post(`${base}/orders/${K.order.id}/ready`, {}, auth(U.pharm.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:476:    const r = await axios.post(`${base}/orders/${K.order.id}/assign-delivery`, { driver_id: 'usr-test-driver' }, auth(U.pharm.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:482:    const r = await axios.post(`${base}/orders/${K.order.id}/dispatch`, {}, auth(U.driver.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:488:    const r = await axios.post(`${base}/orders/${K.order.id}/delivered`, {}, auth(U.driver.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:494:    const r = await axios.get(`${base}/orders/mine`, auth(U.patient.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:502:    const r = await axios.post(`${base}/orders/create`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:507:    const c = await axios.post(`${base}/orders/${o.id}/cancel`, {}, auth(U.patient.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:515:    await axios.post(`${base}/reviews`, {
+audit-work/source/nabdah-backend/e2e/matrix2.js:519:    const l = await axios.get(`${base}/reviews?target_id=pp-test-nurse`);
+audit-work/source/nabdah-backend/e2e/matrix2.js:528:    const r = await axios.get(`${base}/notifications`, auth(U.patient.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:535:    const r = await axios.get(`${base}/admin/governance/audit-logs`, auth(U.admin.token));
+audit-work/source/nabdah-backend/e2e/matrix2.js:542:    const r = await axios.get(`${base}/provider/kyc/documents`, auth(U.newdoc.token));
+audit-work/source/nabdah-backend/e2e/boot.js:42:  const axios = require('axios');
+audit-work/source/nabdah-backend/e2e/boot.js:47:    try { await axios.get(base + '/api/v1/seo/robots.txt', { timeout: 2000 }); up = true; break; }
+audit-work/source/nabdah-backend/e2e/matrix.js:2:const axios = require('axios');
+audit-work/source/nabdah-backend/e2e/matrix.js:5:const base = 'http://127.0.0.1:4099/api/v1';
+audit-work/source/nabdah-backend/e2e/matrix.js:55:    const r = await axios.post(`${base}/auth/register`, { full_name: 'مريض المصفوفة', email: 'mx.patient@test.sa', password: 'Str0ng!Pass', role: 'patient' });
+audit-work/source/nabdah-backend/e2e/matrix.js:61:    const r = await axios.post(`${base}/auth/login`, { identifier: 'mx.patient@test.sa', password: 'Str0ng!Pass' });
+audit-work/source/nabdah-backend/e2e/matrix.js:65:    const r = await axios.post(`${base}/auth/login`, { identifier: { $gt: '' }, password: { $gt: '' } }).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:71:    const r = await axios.post(`${base}/auth/register`, { full_name: 'X', email: 'weak@test.sa', password: '123', role: 'patient' }).then(() => 'ACCEPTED', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:77:    const r = await axios.post(`${base}/auth/register`, { full_name: 'غريب المصفوفة', email: 'mx.stranger@test.sa', password: 'Str0ng!Pass', role: 'patient' });
+audit-work/source/nabdah-backend/e2e/matrix.js:112:    const r = await axios.post(`${base}/auth/login`, { identifier: 'admin@nabdah.sa', password: 'Adm1n!Pass' });
+audit-work/source/nabdah-backend/e2e/matrix.js:129:    const v = await axios.post(`${base}/auth/login/verify-2fa`, { identifier: '+966500000999', code });
+audit-work/source/nabdah-backend/e2e/matrix.js:135:    const r = await axios.post(`${base}/auth/login`, { identifier: 'mx.doctor@test.sa', password: 'Str0ng!Pass' });
+audit-work/source/nabdah-backend/e2e/matrix.js:151:  const book = (channel, pm, extra = {}) => axios.post(`${base}/care/appointments`, {
+audit-work/source/nabdah-backend/e2e/matrix.js:169:  const tr = (id, action, who = doctor.token, body = {}) => axios.patch(`${base}/care/appointments/${id}/${action}`, body, auth(who));
+audit-work/source/nabdah-backend/e2e/matrix.js:190:    const c = await axios.patch(`${base}/care/appointments/${r.data.id}/cancel`, { reason: 'ظرف طارئ' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:194:    const r = await axios.patch(`${base}/care/appointments/${appt.video}/cancel`, { reason: 'x' }, auth(stranger.token)).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:201:    const rs = await axios.patch(`${base}/care/appointments/${r.data.id}/reschedule`, { slot_start: future(6, 15) }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:209:    const r = await axios.post(`${base}/insurance/requests`, { provider_id: doctor.id, service_type: 'consultation', price: 250, insurance_company_id: 'bupa', policy_number: 'POL-1' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:213:    const r = await axios.post(`${base}/insurance/requests/${insReq.a}/decide`, { decision: 'approve_full' }, auth(doctor.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:217:    const s = await axios.post(`${base}/insurance/requests`, { provider_id: doctor.id, service_type: 'consultation', price: 250, insurance_company_id: 'bupa', policy_number: 'POL-1' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:218:    const d = await axios.post(`${base}/insurance/requests/${s.data.id}/decide`, { decision: 'approve_partial', copay_percent: 20 }, auth(doctor.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:220:    const p = await axios.post(`${base}/insurance/requests/${s.data.id}/pay-copay`, { payment_id: 'pay_e2e_1' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:224:    const s = await axios.post(`${base}/insurance/requests`, { provider_id: doctor.id, service_type: 'consultation', price: 100, insurance_company_id: 'bupa', policy_number: 'P' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:225:    const r = await axios.post(`${base}/insurance/requests/${s.data.id}/decide`, { decision: 'reject' }, auth(doctor.token)).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:227:    const d = await axios.post(`${base}/insurance/requests/${s.data.id}/decide`, { decision: 'reject', reason: 'غير مغطاة' }, auth(doctor.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:231:    const s = await axios.post(`${base}/insurance/requests`, { provider_id: 'other-doc', service_type: 'consultation', price: 100, insurance_company_id: 'bupa', policy_number: 'P' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:232:    const r = await axios.post(`${base}/insurance/requests/${s.data.id}/decide`, { decision: 'approve_full' }, auth(doctor.token)).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:238:    const q = await axios.get(`${base}/admin/insurance/requests`, auth(admin.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:239:    const st = await axios.get(`${base}/admin/insurance/stats`, auth(admin.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:245:    const r = await axios.post(`${base}/orders/create`, { items: [{ medicine_id: 'med-mx-1', qty: 2 }], delivery_address: { lat: 24.7, lng: 46.7, text: 'الرياض' }, payment_method: 'card' }, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:249:    const r = await axios.get(`${base}/orders/mine`, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:255:    const r = await axios.get(`${base}/medicines?q=paracetamol&limit=5`);
+audit-work/source/nabdah-backend/e2e/matrix.js:263:    const r = await axios.get(`${base}/labs/services`);
+audit-work/source/nabdah-backend/e2e/matrix.js:267:    const r = await axios.post(`${base}/labs/bookings`, { service_id: 'svc-cbc', slot_start: future(2), location: { lat: 24.7, lng: 46.7 } }, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:272:    const r = await axios.get(`${base}/labs/bookings/mine`, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:278:    const r = await axios.post(`${base}/radiology/bookings`, { service_id: 'svc-xray', slot_start: future(2) }, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:283:    const r = await axios.get(`${base}/radiology/bookings/mine`, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:290:    const r = await axios.get(`${base}/nursing/catalog`);
+audit-work/source/nabdah-backend/e2e/matrix.js:294:    const r = await axios.post(`${base}/nursing/bookings`, { service_id: 'hc-1', slot_start: future(2), location: { lat: 24.7, lng: 46.7, address: 'الرياض' } }, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:301:    const r = await axios.get(`${base}/doctors/appointments/inbox`, auth(doctor.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:305:    const r = await axios.post(`${base}/provider/availability`, { status: 'online' }, auth(doctor.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:311:    const r = await axios.post(`${base}/provider/leave-requests`, { type: 'vacation', start_date: future(10), end_date: future(14), reason: 'سفر' }, auth(doctor.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:313:    const list = await axios.get(`${base}/provider/leave-requests`, auth(doctor.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:318:    const r = await axios.get(`${base}/provider/requests`, auth(doctor.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:336:      const r = await axios.get(`${base}${path}`, auth(admin.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:345:    const b = await axios.post(`${base}/admin/users/${stranger.id || 'x'}/ban`, {}, auth(admin.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:349:    const r = await axios.get(`${base}/admin/insurance/stats`, auth(doctor.token)).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:354:    const r = await axios.get(`${base}/admin/users`, auth(patient.token)).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/e2e/matrix.js:361:    const r = await axios.get(`${base}/notifications`, auth(patient.token));
+audit-work/source/nabdah-backend/e2e/matrix.js:366:    const r = await axios.post(`${base}/notifications/admin/schedule`, { title: 'اختبار', body: 'إشعار مجدول', audience: 'patients', scheduled_at: future(1) }, auth(admin.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:403:    const r = await axios.post(`${base}/calls/initiate`, { callee_id: doctor.id, call_type: 'video', booking_id: appt.video }, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:412:    const r = await axios.post(`${base}/calls/${callSession}/join`, {}, auth(doctor.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:421:    const r = await axios.get(`${base}/seo/sitemap.xml`);
+audit-work/source/nabdah-backend/e2e/matrix.js:426:    const r = await axios.get(`${base}/seo/meta?type=doctor&id=${doctorId}`).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:431:    const r = await axios.get(`${base}/seo/llms.txt`).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:439:    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx-' + Date.now(), booking_kind: 'appointment', amount_paid: 300, scheduled_at: new Date(Date.now() + 10 * 3600000).toISOString(), reason: 'ظرف طارئ للمريض' }, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:446:    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx2-' + Date.now(), booking_kind: 'appointment', amount_paid: 300, scheduled_at: new Date(Date.now() + 48 * 3600000).toISOString(), reason: 'تغيير خطط' }, auth(patient.token)).catch((e) => e.response);
+audit-work/source/nabdah-backend/e2e/matrix.js:452:    const r = await axios.post(`${base}/refunds/request`, { booking_id: 'bk-mx3-' + Date.now(), booking_kind: 'appointment', amount_paid: 300 }, auth(patient.token)).then(() => 'OPEN', (e) => e.response?.status);
+audit-work/source/nabdah-backend/src/main.ts:129:  if (swaggerEnabled) logger.log(`Swagger UI available at http://0.0.0.0:${port}/api/docs`);
+audit-work/source/nabdah-backend/src/health.controller.ts:15:  @Get()
+audit-work/source/nabdah-backend/src/health.controller.ts:26:  @Get('health/liveness')
+audit-work/source/nabdah-backend/src/health.controller.ts:32:  @Get('health/readiness')
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:31:      { $unwind: { path: '$items', preserveNullAndEmptyArrays: false } },
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:126:  @Get('overview')
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:129:  @Get('top-searched')
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:132:  @Get('top-medicines')
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:135:  @Get('top-doctors')
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:138:  @Get('top-pharmacies')
+audit-work/source/nabdah-backend/src/modules/analytics/analytics.module.ts:141:  @Get('top-services')
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:216:    return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}` };
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:273:    if (o.visibility !== 'public_read') return { url: `/api/v1/storage/${o.id}`, expires_in: null, kind: 'api_authorized_stream' };
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:274:    return { url: o.external_url || `/api/v1/storage/${o.id}`, expires_in: null, kind: o.external_url ? 'cdn_public' : 'api_stream' };
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:342:    return { id: obj.id, mime: obj.mime, size_bytes: obj.size_bytes, url: `/api/v1/storage/${obj.id}`, meta };
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:349:  @Post('upload')
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:360:  @Get(':id')
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:370:  @Get(':id/signed-url')
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:381:  @Post('upload-suggestion-image')
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.ts:398:  @Post('upload-cloudinary')
+audit-work/source/nabdah-backend/src/modules/storage/storage.module.spec.ts:29:    await expect(service.signedUrl('file-1', { id: 'patient-1', role: 'patient' })).resolves.toEqual({ url: '/api/v1/storage/file-1', expires_in: null, kind: 'api_authorized_stream' });
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:13:  @Get('me/display')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:19:  @Patch('me')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:24:  @Get('me/health-id')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:29:  @Get('me/profile')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:34:  @Patch('me/profile')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:39:  @Get('me/wishlist')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:44:  @Post('me/wishlist/:itemId')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:50:  @Get('me/notification-settings')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:55:  @Patch('me/notification-settings')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:61:  @Get('me/storage')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:66:  @Get('me/privacy-settings')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:71:  @Patch('me/privacy-settings')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:76:  @Get('me/security-settings')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:81:  @Patch('me/security-settings')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:86:  @Post('me/change-password')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:91:  @Get('me/sessions')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:95:  @Delete('me/sessions/:jti')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:100:  @Get()
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:106:  @Post(':id/toggle')
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:112:  @Delete(':id')
+audit-work/source/nabdah-backend/src/modules/users/user.insurance.controller.ts:21:  @Get('insurance')
+audit-work/source/nabdah-backend/src/modules/users/users.addresses.controller.ts:11:  @Get()
+audit-work/source/nabdah-backend/src/modules/users/users.addresses.controller.ts:17:  @Post()
+audit-work/source/nabdah-backend/src/modules/users/users.addresses.controller.ts:34:  @Patch(':addressId')
+audit-work/source/nabdah-backend/src/modules/users/users.addresses.controller.ts:52:  @Delete(':addressId')
+audit-work/source/nabdah-backend/src/modules/users/users.insurance.controller.ts:40:  @Get()
+audit-work/source/nabdah-backend/src/modules/users/users.insurance.controller.ts:56:  @Post()
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:179:  @Get('quote') quote(@Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:462:  @Get('companies') companies() { return this.svc.companiesList(); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:463:  @Post('save-policy') savePolicy(@CurrentUser() u: any, @Body() b: any) { return this.svc.savePolicy(u, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:464:  @Get('my-policy') myPolicy(@CurrentUser() u: any) { return this.svc.myPolicy(u); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:466:  @Get('coverage-check') async coverageCheck(@CurrentUser() u: any, @Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:478:  @Get('benefits-summary') async benefits(@CurrentUser() u: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:483:  @Post('requests') createRequest(@CurrentUser() u: any, @Body() b: any) { return this.svc.createRequest(u, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:484:  @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:485:  @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:486:  @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:487:  @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:488:  @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:489:  @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:492:  @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:493:  @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.decide(u, id, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:496:  @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:501:  @Get('claims/my') claimsMy(@CurrentUser() u: any) { return this.svc.myRequests(u); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:510:  @Post('patient/pay-copay') payCopay(@CurrentUser() u: any, @Body() b: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:514:  @Post('home-care/insurance/verify') verify(@CurrentUser() u: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:589:  @Post('request') request(@CurrentUser() u: any, @Body() b: any) { return this.svc.request(u, b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:590:  @Get('my') my(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:591:  @Get('policy-preview') preview(@Query('scheduled_at') s?: string) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:604:  @Get('ledger/summary') summary() { return this.finance.platformSummary(); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:605:  @Get('refunds/queue') refundsQueue() { return this.refunds.adminQueue(); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:606:  @Post('refunds/:id/decide') decideRefund(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:615:  @Get('requests') all(@Query('state') state?: string) { return this.svc.adminAll(state); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:616:  @Get('stats') stats() { return this.svc.adminStats(); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:624:  @Post('ledger/accrue') accrue(@Body() b: any) { return this.finance.accrue(b); }
+audit-work/source/nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:625:  @Get('ledger/provider/summary') providerSummary(@CurrentUser() u: any) { return this.finance.providerSummary(u.id); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:11:  @Post('requests') create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:13:  @Post('tickets') createTicket(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:14:  @Get('requests/mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:15:  @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(u, id); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:16:  @Post('requests/:id/reply') reply(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.reply(u, id, b.message); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:19:  @Get('admin/requests') @Roles(UserRole.ADMIN) adminList(@Query('status') status?: string) { return this.svc.adminList(status); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:20:  @Patch('admin/requests/:id') @Roles(UserRole.ADMIN) adminUpdate(@Param('id') id: string, @Body() b: any) { return this.svc.adminUpdateStatus(id, b.status, b.assigned_to); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:23:  @Get('tickets')
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:29:  @Get('faqs')
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:34:  @Post('feedback')
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:39:  @Get('settings') get(@CurrentUser() u: any) { return this.svc.getSettings(u); }
+audit-work/source/nabdah-backend/src/modules/support/support.controller.ts:40:  @Patch('settings') update(@CurrentUser() u: any, @Body() b: any) { return this.svc.updateSettings(u, b); }
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:14:  @Post('moyasar')
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:24:  @Post('paytabs')
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:34:  @Post('sms')
+audit-work/source/nabdah-backend/src/modules/webhooks/webhooks.controller.ts:42:  @Post('livekit')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:16:  @Get('posts')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:26:  @Post('posts')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:31:  @Get('posts/:id')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:36:  @Post('posts/:id/comment')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:41:  @Put('posts/:id/vote')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:46:  @Delete('posts/:id')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:53:  @Get('admin/pending')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:58:  @Put('admin/:id/moderate')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:65:  @Get('live-sessions')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:70:  @Post('live-sessions')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:75:  @Put('live-sessions/:id/join')
+audit-work/source/nabdah-backend/src/modules/community/community.controller.ts:80:  @Put('live-sessions/:id/status')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:93:  private readonly EXPO_URL = 'https://exp.host/--/api/v2/push/send';
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:147:      const resp = await fetch('https://oauth2.googleapis.com/token', {
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:461:          const resp = await fetch(this.EXPO_URL, {
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:503:            resp = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:552:                resp = await fetch(`https://fcm.googleapis.com/v1/projects/${altProject}/messages:send`, {
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:561:            resp = await fetch('https://fcm.googleapis.com/fcm/send', {
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:697:  @Post('register')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:700:  @Post('unregister')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:703:  @Get('devices')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:706:  @Post('test')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:710:  @Post('web/subscribe')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:722:  @Post('web/unsubscribe')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:729:  @Get('web/vapid-key')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:733:  @Post('events')
+audit-work/source/nabdah-backend/src/modules/push/push.module.ts:736:  @Post('admin/campaign')
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:14:  @Get('prescriptions/:rxNumber') async byRxNumber(@CurrentUser() u: any, @Param('rxNumber') rx: string) {
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:26:  @Post('reports/eod') async eod(@CurrentUser() u: any) {
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:42:  @Get('orders/incoming') incoming(@CurrentUser() u: any) { return this.svc.incoming(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:43:  @Get('orders/preparing') preparing(@CurrentUser() u: any) { return this.svc.preparing(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:44:  @Get('orders/ready') ready(@CurrentUser() u: any) { return this.svc.ready(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:45:  @Get('orders/completed') completed(@CurrentUser() u: any) { return this.svc.completed(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:46:  @Get('orders/basket-review') basketReview(@CurrentUser() u: any) { return this.svc.basketReview(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:47:  @Get('orders/awaiting-approval') awaitingApproval(@CurrentUser() u: any) { return this.svc.awaitingApproval(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:48:  @Get('orders/refills') refills(@CurrentUser() u: any) { return this.svc.refillOrders(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:51:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:52:  @Post('orders/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { reason?: string }) { return this.ordersSvc.reject(id, u, b?.reason || ''); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:53:  @Post('orders/:id/preparing') preparingAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markPreparing(id, u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:54:  @Post('orders/:id/ready') readyAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markReady(id, u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:55:  @Post('orders/:id/partial') partial(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { unavailable_medicine_ids: string[] }) { return this.ordersSvc.markPartial(id, u, b.unavailable_medicine_ids || []); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:58:  @Get('inventory') inventory(@CurrentUser() u: any) { return this.svc.getInventory(u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:59:  @Post('inventory/stock') stock(@CurrentUser() u: any, @Body() b: { medicine_id: string; stock_qty: number; is_available?: boolean }) { return this.svc.updateStock(u, b.medicine_id, b.stock_qty, b.is_available !== false); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:60:  @Post('inventory/add') addMed(@CurrentUser() u: any, @Body() b: any) { return this.svc.addMedicineToInventory(u, b); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:63:  @Get('orders/:id') orderDetail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.orderDetail(u, id); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:64:  @Post('orders/:id/items/:idx/unavailable') itemUnavailable(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.markItemUnavailable(u, id, parseInt(idx, 10)); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:65:  @Post('orders/:id/items/:idx/restore') itemRestore(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.restoreItem(u, id, parseInt(idx, 10)); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:66:  @Post('orders/:id/items/:idx/qty') itemQty(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { qty: number }) { return this.svc.updateItemQty(u, id, parseInt(idx, 10), b.qty); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:67:  @Post('orders/:id/items/:idx/substitute') itemSub(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { name_ar: string; name_en?: string; medicine_id?: string; qty?: number; price?: number; note?: string }) { return this.svc.substituteItem(u, id, parseInt(idx, 10), b); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:70:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { note?: string }) { return this.svc.submitBasket(u, id, b?.note); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:73:  @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: 'approved' | 'rejected' | 'pending'; reason?: string }) {
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:88:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:89:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.submitBasket(u, id, b?.note); }
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:90:  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+audit-work/source/nabdah-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts:93:  @Post('orders/:id/dispatch') dispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:33:  @Get('services') servicesList(@Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:39:  @Get('services/:id') async serviceOne(@Param('id') id: string) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:45:  @Get('providers') async providers(@Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:53:  @Get('providers/:id') async provider(@Param('id') id: string) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:74:  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:98:  @Get('bookings/my') myBookings(@CurrentUser() u: any, @Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:104:  @Get('bookings/nursing/all') nursingQueue(@CurrentUser() u: any, @Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:141:  @Post('bookings/:id/respond') respond(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:151:  @Post('bookings/:id/assign') async assign(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:158:  @Post('bookings/:id/check-in') checkIn(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:162:  @Post('bookings/:id/gps') async gps(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:170:  @Post('bookings/:id/visit-report') visitReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:183:  @Get('care-plans/:patientId') async listCarePlans(@CurrentUser() u: any, @Param('patientId') patientId: string) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:189:  @Post('care-plans/:patientId') async createCarePlan(@CurrentUser() u: any, @Param('patientId') patientId: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:209:  @Post('provider/availability') async setAvailability(@CurrentUser() u: any, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:215:  @Post('inventory/request') async inventoryRequest(@CurrentUser() u: any, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:268:  @Get('checklist') checklist(@Query('category') category?: string) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:271:  @Get('supplies') supplies() { return { items: NURSING_SUPPLIES }; }
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:281:  @Get('chats/provider') providerThreads(@CurrentUser() u: any, @Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:285:  @Get('chat/channels') channels(@CurrentUser() u: any, @Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:289:  @Get('chats/:id/messages') getMessages(@CurrentUser() u: any, @Param('id') id: string, @Query() q: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:293:  @Post('chats/:id/messages') postMessage(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:298:  @Post('chat/messages/:threadId') postLegacy(@CurrentUser() u: any, @Param('threadId') threadId: string, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/home-care-compat/home-care-compat.module.ts:303:  @Post('provider/chat/send') providerSend(@CurrentUser() u: any, @Body() body: any) {
+audit-work/source/nabdah-backend/src/modules/admin-web-core/guards/roles.guard.ts:36:    const path: string = request.route?.path || request.url || '';
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:8:  @Get('sla')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-config.controller.ts:19:  @Put('sla')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts:6:  @Get('liveness')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/system-health.controller.ts:19:  @Get('readiness')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:25:  @Put('trigger-emergency-maintenance')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:33:  @Get('fraud-alerts')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-governance.controller.ts:40:  @Get('audit-logs')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:12:  @Get('procurement/pending')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:22:  @Patch('issue-quote/:procurementId')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:45:  @Post('provider-deltas')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:51:  @Post('provider-deltas/:id/approve')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/provider-moderation.controller.ts:82:  @Post('provider-deltas/:id/reject')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/analytics.controller.ts:36:  @Get('heatmaps')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:32:  @Get('commissions')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:38:  @Get('withdrawals/pending')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:71:  @Post('withdrawals/:id/execute')
+audit-work/source/nabdah-backend/src/modules/admin-web-core/controllers/finance.controller.ts:131:  @Post('withdrawals/:id/reject')
+audit-work/source/nabdah-backend/src/modules/bans/bans.controller.ts:20:  @Post()
+audit-work/source/nabdah-backend/src/modules/bans/bans.controller.ts:25:  @Delete(':value')
+audit-work/source/nabdah-backend/src/modules/bans/bans.controller.ts:30:  @Get()
+audit-work/source/nabdah-backend/src/modules/media/media.controller.ts:19:  @Post('upload')
+audit-work/source/nabdah-backend/src/modules/media/media.controller.ts:53:  @Post('presigned')
+audit-work/source/nabdah-backend/src/modules/media/media.controller.ts:73:  @Get(':id/url')
+audit-work/source/nabdah-backend/src/modules/media/media.controller.ts:163:  @Delete('*key')
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:213:  @Get('') get(@CurrentUser() u: any) { return this.svc.get(u); }
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:214:  @Post('items') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:216:  @Patch('items/:lineId') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:218:  @Delete('items/:lineId') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:220:  @Post('lines') add(@Body() b: any, @CurrentUser() u: any) { return this.svc.addLine(u, b); }
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:221:  @Patch('lines/:lineId') upd(@Param('lineId') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateLine(u, id, b); }
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:222:  @Delete('lines/:lineId') rm(@Param('lineId') id: string, @CurrentUser() u: any) { return this.svc.removeLine(u, id); }
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:223:  @Post('clear') clr(@Body() b: any, @CurrentUser() u: any) { return this.svc.clear(u, b?.kind); }
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:224:  @Post('checkout') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:226:  @Get('checkout') chk(@CurrentUser() u: any) { return this.svc.prepareCheckout(u); }
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:227:  @Get('prescription')
+audit-work/source/nabdah-backend/src/modules/consistency/consistency.module.ts:165:  @Get('audit') audit() { return this.svc.audit(); }
+audit-work/source/nabdah-backend/src/modules/consistency/consistency.module.ts:166:  @Post('reconcile') reconcile() { return this.svc.reconcile(); }
+audit-work/source/nabdah-backend/src/modules/consistency/consistency.module.ts:167:  @Post('fix-orphans') fixOrphans(@Query('dry_run') dry?: string) { return this.svc.fixOrphans(dry !== 'false'); }
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:14:  @Get()
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:25:  @Get()
+audit-work/source/nabdah-backend/src/modules/feature-flags/feature-flags.controller.ts:31:  @Post(':key')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:258:  @Get('wards')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:263:  @Get('wards/:wardId/beds')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:268:  @Post('wards')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:273:  @Post('admission')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:278:  @Get('admissions')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:283:  @Put('discharge/:admissionId')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:294:  @Get()
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:299:  @Post()
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:304:  @Post(':id/substitute')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:309:  @Post('attendance/check-in')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:314:  @Post('attendance/check-out/:attendanceId')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:319:  @Get('attendance')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:330:  @Post('book')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:335:  @Get('schedule')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:352:  @Get('announcements')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:359:  @Post('announcements')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:376:  @Get('resources')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:383:  @Post('resources')
+audit-work/source/nabdah-backend/src/modules/facility-ops/facility-ops.module.ts:405:  @Put('resources/:id')
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:238:  @Get('summary') summary() { return this.svc.globalSummary(); }
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:239:  @Get('providers-performance') perf(@Query() q: any) { return this.svc.providersPerformance({ type: q.type, limit: q.limit ? Number(q.limit) : undefined }); }
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:240:  @Get('patient/:id') patient(@Param('id') id: string) { return this.svc.patientProfile(id); }
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:241:  @Get('trace/:entity_type/:entity_id') trace(@Param('entity_type') et: string, @Param('entity_id') ei: string) { return this.svc.entityTrace(et, ei); }
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:261:  @Get()
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:270:  @Post(':key')
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:301:  @Get()
+audit-work/source/nabdah-backend/src/modules/admin-governance/admin-governance.module.ts:338:  @Put(':id')
+audit-work/source/nabdah-backend/src/modules/admin-governance/system-config.controller.ts:19:  @Get()
+audit-work/source/nabdah-backend/src/modules/admin-governance/system-config.controller.ts:31:  @Put()
+audit-work/source/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:15:  @Get('requests')
+audit-work/source/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:24:  @Post('requests/:id/approve')
+audit-work/source/nabdah-backend/src/modules/admin-governance/b2b.controller.ts:34:  @Post('requests/:id/reject')
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:61:  @Post('reserve') reserve(@CurrentUser() u: any, @Body() b: any) { return this.svc.reserve(u, b); }
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:62:  @Post(':id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { booking_id: string }) { return this.svc.confirm(u, id, b.booking_id); }
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:63:  @Post(':id/release') release(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.release(u, id); }
+audit-work/source/nabdah-backend/src/modules/slot-locks/slot-locks.module.ts:64:  @Get('mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:13:  @Get('config')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:21:  /** GET /api/v1/loyalty/account — Current user's points + tier */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:22:  @Get('account')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:27:  /** GET /api/v1/loyalty/transactions — Points history */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:28:  @Get('transactions')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:33:  /** GET /api/v1/loyalty/leaderboard — Top 50 users this month */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:34:  @Get('leaderboard')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:39:  /** GET /api/v1/loyalty/challenges — Active challenges + user progress */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:40:  @Get('challenges')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:45:  /** POST /api/v1/loyalty/challenges/:id/join — Persisted opt-in to a challenge */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:46:  @Post('challenges/:id/join')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:51:  /** GET /api/v1/loyalty/rewards — Available rewards catalog */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:52:  @Get('rewards')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:57:  /** POST /api/v1/loyalty/rewards/:id/claim — Claim a reward */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:58:  @Post('rewards/:id/claim')
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:63:  /** GET /api/v1/loyalty/rewards/claimed — User's claimed rewards */
+audit-work/source/nabdah-backend/src/modules/loyalty/loyalty.controller.ts:64:  @Get('rewards/claimed')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.service.ts:330:    // Fast path: full-text index (medicines_fts) — index-backed, ms-fast on 21k docs
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.service.ts:340:    // Regex path: substring/normalized/synonym matching (used when FTS misses)
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.service.ts:1014:      resolvedUrl = obj.external_url || `/api/v1/storage/${obj.id}`;
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:12:  @Get()
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:45:  @Get('autocomplete')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:51:  @Post('lookup-barcode')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:57:  @Get('by-barcode/:code')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:63:  @Get('categories')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:69:  @Get('filters')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:75:  @Post('compare')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:85:  @Get('hot')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:92:  @Get('search/did-you-mean')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:99:  @Get('search/trending')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:105:  @Get('search/recent')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:111:  @Post('admin/hot/regenerate')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:118:  @Post(':id/report-shortage')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:124:  @Get('admin/shortage-reports')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:131:  @Post('admin/shortage-reports/:reportId/approve')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:138:  @Post('admin/shortage-reports/:reportId/reject')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:145:  @Post('admin/catalog/:id/clear-shortage-badge')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:152:  @Post('admin/catalog/:id/availability')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:161:  @Post(':id/suggest-image')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:167:  @Get('admin/image-suggestions')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:174:  @Post('admin/image-suggestions/:suggestionId/approve')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:181:  @Post('admin/image-suggestions/:suggestionId/reject')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:189:  @Post(':id/suggest-change')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:196:  @Post('suggest-new-item')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:202:  @Get('admin/change-requests')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:209:  @Post('admin/change-requests/:requestId/approve')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:216:  @Post('admin/change-requests/:requestId/reject')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:223:  @Patch('admin/catalog/:id')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:230:  @Get('admin/catalog')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:247:  @Post('admin/catalog')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:254:  @Post('admin/catalog/:id/delete')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:261:  @Get('admin/reports')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:268:  @Get('me/recently-viewed')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:274:  @Get(':id')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:280:  @Get(':id/details')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:289:  @Get(':id/alternatives')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:294:  @Post('manual-entry')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:299:  @Get('admin/pending-review')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:305:  @Post('admin/catalog')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:311:  @Delete('admin/catalog/:id')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:317:  @Post(':id/approve')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:323:  @Post(':id/reject')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:329:  @Patch(':id')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:336:  @Post('admin/import-json')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:342:  @Post('admin/import-csv')
+audit-work/source/nabdah-backend/src/modules/medicines/medicines.controller.ts:357:  @Get(':locale/:category.json')
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.ts:268:      'Disallow: /api/',
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.ts:276:      `Sitemap: ${PUBLIC_BASE}/api/v1/seo/sitemap.xml`,
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.ts:279:      `# LLMS: ${PUBLIC_BASE}/api/v1/seo/llms.txt`,
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.ts:300:    lines.push(`- [Sitemap](${PUBLIC_BASE}/api/v1/seo/sitemap.xml): every public doctor, medicine, service, facility and article`);
+audit-work/source/nabdah-backend/src/modules/seo/seo.service.ts:419:        await fetch('https://api.indexnow.org/IndexNow', {
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts:19:  @Get('resolve/:type/:slug')
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts:28:  @Get('meta/:type/:slug')
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts:35:  @Get('build/:type/:id')
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts:45:  @Get('sitemap.xml')
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts:58:  @Get('llms.txt')
+audit-work/source/nabdah-backend/src/modules/seo/seo.controller.ts:70:  @Get('robots.txt')
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.controller.ts:13:   * GET /api/v2/timeline?kinds=order,lab,rx,home_care,consultation,vital,reminder,custom
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.controller.ts:17:  @Get()
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.controller.ts:34:  /** GET /api/v2/timeline/summary — counts by kind for quick overview */
+audit-work/source/nabdah-backend/src/modules/timeline/timeline.controller.ts:35:  @Get('summary')
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:190:  @Get('mine/:type') mine(@Param('type') t: 'lab' | 'radiology', @CurrentUser() u: any) { return this.svc.myCatalog(u, t); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:191:  @Post('mine/:type') create(@Param('type') t: 'lab' | 'radiology', @Body() b: any, @CurrentUser() u: any) { return this.svc.createService(u, t, b); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:192:  @Patch('mine/:type/:id') update(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.updateService(u, t, id, b); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:193:  @Post('mine/:type/:id/toggle') toggle(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.toggleService(u, t, id, !!b.active); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:194:  @Delete('mine/:type/:id') del(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @CurrentUser() u: any) { return this.svc.deleteService(u, t, id); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:196:  @Get('schedule/:entity') sched(@Param('entity') e: string, @CurrentUser() u: any) { return this.svc.getSchedule(u, e); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:197:  @Patch('schedule/:entity') setSched(@Param('entity') e: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.upsertSchedule(u, e, b); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:200:  @Get('admin/:type') @Roles(UserRole.ADMIN) adminAll(@Param('type') t: 'lab' | 'radiology', @Query() q: any) { return this.svc.adminListAll(t, q); }
+audit-work/source/nabdah-backend/src/modules/service-catalog/service-catalog.module.ts:201:  @Post('admin/:type/:id/approve') @Roles(UserRole.ADMIN) approve(@Param('type') t: 'lab' | 'radiology', @Param('id') id: string, @Body() b: any, @CurrentUser() u: any) { return this.svc.adminApproveService(t, id, b.approve !== false, u); }
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:14:  @Get('config')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:20:  @Post('config')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:27:  @Get('admin/gateway')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:34:  @Post('admin/gateway/provider/:key')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:41:  @Post('admin/gateway/mode')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:48:  @Get('admin/usage')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:55:  @Post('triage')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:60:  @Get('triage/history')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:65:  @Post('voice-to-order')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:84:  @Post('prescription-ocr')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:90:  @Post('parse-excel')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:106:  @Post('copilot/suggest')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:113:  @Post('ocr-translate')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:119:  @Post('skin-analysis')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:124:  @Post('medicine-image-search')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:129:  @Post('barcode-lookup')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:134:  @Post('analyze-meal')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:143:  @Post('analyze-report')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:149:  @Post('generate-exercise-plan')
+audit-work/source/nabdah-backend/src/modules/ai/ai.controller.ts:154:  @Post('generate-diet-plan')
+audit-work/source/nabdah-backend/src/modules/ai/ai-provider.service.ts:51:    base: 'https://openrouter.ai/api/v1',
+audit-work/source/nabdah-backend/src/modules/ai/ai-provider.service.ts:217:    const resp = await fetch(`${conf.base}/chat/completions`, {
+audit-work/source/nabdah-backend/src/modules/ai/ai-gateway.service.ts:46:  { key: 'openrouter', enabled: true, api_key: '', model: 'meta-llama/llama-3.3-70b-instruct', vision_model: 'openai/gpt-4o-mini', priority: 5, daily_quota: 200, used_today: 0, usage_date: '', base_url: 'https://openrouter.ai/api/v1', note: 'aggregator fallback' },
+audit-work/source/nabdah-backend/src/modules/ai/ai-gateway.service.ts:204:    const resp = await fetch(`${base}/chat/completions`, {
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:148:  @Post('review') rate(@CurrentUser() u: any, @Body() b: any) { return this.svc.rate(u, b); }
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:149:  @Post('refund') refund(@CurrentUser() u: any, @Body() b: any) { return this.svc.requestRefund(u, b); }
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:150:  @Get('refund/mine') refunds(@CurrentUser() u: any) { return this.svc.myRefunds(u); }
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:151:  @Post('rebook') rebook(@CurrentUser() u: any, @Body() b: any) { return this.svc.rebook(u, b); }
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:160:  @Get() list() { return this.svc.adminListRefunds(); }
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:161:  @Get('pending') pending() { return this.svc.adminListRefunds('requested'); }
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:162:  @Post(':id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { decision: 'approved' | 'rejected'; note?: string; amount?: number }) {
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:277:  @Post('cancel') cancel(@CurrentUser() u: any, @Body() body: { kind: string; id: string; reason: string }) {
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:282:  @Post('transition') transition(@CurrentUser() u: any, @Body() body: { kind: string; id: string; state: string; reason: string }) {
+audit-work/source/nabdah-backend/src/modules/patient-ux/patient-ux.module.ts:287:  @Post('payment') markPayment(@CurrentUser() u: any, @Body() body: { kind: string; id: string; payment_status: 'paid' | 'refunded' | 'failed'; amount?: number; reason: string }) {

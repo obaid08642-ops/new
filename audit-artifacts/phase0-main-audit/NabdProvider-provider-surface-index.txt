@@ -1,0 +1,216 @@
+# NabdProvider-provider
+## files
+audit-work/source/NabdProvider-provider/App.tsx
+audit-work/source/NabdProvider-provider/app.json
+audit-work/source/NabdProvider-provider/package-lock.json
+audit-work/source/NabdProvider-provider/package.json
+audit-work/source/NabdProvider-provider/provider-app.contracts.test.js
+audit-work/source/NabdProvider-provider/src/api/catalogs.ts
+audit-work/source/NabdProvider-provider/src/api/client.ts
+audit-work/source/NabdProvider-provider/src/api/otp.ts
+audit-work/source/NabdProvider-provider/src/api/provider.ts
+audit-work/source/NabdProvider-provider/src/components/ContractModal.tsx
+audit-work/source/NabdProvider-provider/src/components/LocationPickerModal.tsx
+audit-work/source/NabdProvider-provider/src/components/OtpModal.tsx
+audit-work/source/NabdProvider-provider/src/components/PlatformMap.native.tsx
+audit-work/source/NabdProvider-provider/src/components/PlatformMap.tsx
+audit-work/source/NabdProvider-provider/src/components/PlatformMap.web.tsx
+audit-work/source/NabdProvider-provider/src/components/SignatureCanvasModal.tsx
+audit-work/source/NabdProvider-provider/src/components/SuccessScreen.tsx
+audit-work/source/NabdProvider-provider/src/components/icons.tsx
+audit-work/source/NabdProvider-provider/src/components/ui.tsx
+audit-work/source/NabdProvider-provider/src/constants/index.ts
+audit-work/source/NabdProvider-provider/src/context/index.tsx
+audit-work/source/NabdProvider-provider/src/polyfills.ts
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/auth/AuthScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/auth/PendingDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/FacilityInvitationsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorHeader.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorQueueList.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorStatsRow.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorUrgentRequests.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAuditLogScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInvitationScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityLeaveRequestsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityPatientTrackerScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityProfileConfigScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityUnifiedCalendarScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/lab/LabQcActions.tsx
+audit-work/source/NabdProvider-provider/src/screens/lab/LabRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/LiveKitRoomProvider.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/PharmacyChatResponder.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/ProviderHome.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/RegistrationSuccess.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx
+audit-work/source/NabdProvider-provider/src/security/Security.ts
+audit-work/source/NabdProvider-provider/src/services/HttpClient.ts
+audit-work/source/NabdProvider-provider/src/services/NotificationService.ts
+audit-work/source/NabdProvider-provider/src/types/FacilityTypes.ts
+audit-work/source/NabdProvider-provider/src/types/contracts.ts
+audit-work/source/NabdProvider-provider/src/utils/PushNotifications.ts
+audit-work/source/NabdProvider-provider/src/utils/api.ts
+audit-work/source/NabdProvider-provider/src/utils/dates.ts
+audit-work/source/NabdProvider-provider/src/utils/imageUrl.ts
+audit-work/source/NabdProvider-provider/src/utils/notifications.ts
+audit-work/source/NabdProvider-provider/tsconfig.json
+## route/controller/gateway/schema/dto/migration/webhook/test files
+audit-work/source/NabdProvider-provider/provider-app.contracts.test.js
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorQueueList.tsx
+## screen/page/navigation files
+audit-work/source/NabdProvider-provider/src/components/SuccessScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/auth/AuthScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/auth/PendingDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/FacilityInvitationsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorHeader.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorQueueList.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorStatsRow.tsx
+audit-work/source/NabdProvider-provider/src/screens/doctor/components/DoctorUrgentRequests.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAuditLogScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInvitationScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityLeaveRequestsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityPatientTrackerScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityProfileConfigScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityUnifiedCalendarScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/lab/LabQcActions.tsx
+audit-work/source/NabdProvider-provider/src/screens/lab/LabRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/LiveKitRoomProvider.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/PharmacyChatResponder.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/ProviderHome.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/RegistrationSuccess.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx
+audit-work/source/NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx
+## HTTP-like definitions
+audit-work/source/NabdProvider-provider/provider-app.contracts.test.js:21:    expect(config.extra.apiBaseUrl).toBe('https://api.nabd.plus/api/v1');
+audit-work/source/NabdProvider-provider/src/constants/index.ts:440:  ? (envApiUrl.endsWith('/api/v1') ? envApiUrl : `${envApiUrl.replace(/\/$/, '')}/api/v1`)
+audit-work/source/NabdProvider-provider/src/constants/index.ts:442:    ? `http://${localIp}:8002/api/v1`
+audit-work/source/NabdProvider-provider/src/constants/index.ts:443:    : 'https://api.nabd.plus/api/v1';
+audit-work/source/NabdProvider-provider/src/screens/lab/LabRegistration.tsx:9:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/lab/LabRegistration.tsx:10:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/lab/LabRegistration.tsx:25:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:12:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/lab/LabQcActions.tsx:11:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/auth/PendingDashboard.tsx:8:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/auth/AuthScreens.tsx:609: const res = await fetch(`${API_BASE}/provider/auth/forgot-password`, {
+audit-work/source/NabdProvider-provider/src/screens/auth/AuthScreens.tsx:631: const res = await fetch(`${API_BASE}/provider/auth/verify-reset-code`, {
+audit-work/source/NabdProvider-provider/src/screens/auth/AuthScreens.tsx:653: const res = await fetch(`${API_BASE}/provider/auth/reset-password`, {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:19:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:25:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:26:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityLeaveRequestsScreen.tsx:6:import { ProviderApi } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityLeaveRequestsScreen.tsx:19:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAuditLogScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityUnifiedCalendarScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityPatientTrackerScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInvitationScreen.tsx:7:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityProfileConfigScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx:7:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:40:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceRegistration.tsx:3:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:20:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/RegistrationSuccess.tsx:5:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/RegistrationSuccess.tsx:6:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:15:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:29:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx:30:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:7:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:28:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:42:import { useInsuranceCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2004:       const res = await fetch(`${API_BASE}/drugs/categories`, { headers });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2024:       const res = await fetch(`${API_BASE}/drugs?${q.toString()}`, { headers });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2044:       const res = await fetch(`${API_BASE}/drugs/${selectedDrug.id}`, { headers });
+audit-work/source/NabdProvider-provider/src/screens/shared/PharmacyChatResponder.tsx:17:    const newSocket = io(process.env.EXPO_PUBLIC_BACKEND_URL || API_BASE.replace('/api/v1', ''), {
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx:9:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:25:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:3:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:9:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:10:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:23:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:15:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:27:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:4079:      const res = await fetch(`${API_BASE}/calls/provider/waiting-room`, { headers });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:4096:      await fetch(`${API_BASE}/calls/provider/ping-patient`, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:4110:      await fetch(`${API_BASE}/calls/provider/no-show`, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:19:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:26:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:27:import { useInsuranceCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/doctor/FacilityInvitationsScreen.tsx:6:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:9:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:10:import { useInsuranceCatalog, useServicesCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:25:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:5:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:142:  useEffect(() => { fetch(); }, [fetch]);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:44:import client from '../../api/client';
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:10:import { ProviderApi, sanitizeWizardData } from '../../api/provider';
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:11:import { useInsuranceCatalog } from '../../api/catalogs';
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:24:import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
+audit-work/source/NabdProvider-provider/src/api/client.ts:1:import axios from 'axios';
+audit-work/source/NabdProvider-provider/src/api/client.ts:5:const client = axios.create({
+audit-work/source/NabdProvider-provider/src/api/client.ts:16:   config.baseURL = `http://${customIp}:8002/api/v1`;
+audit-work/source/NabdProvider-provider/src/services/HttpClient.ts:1:import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+audit-work/source/NabdProvider-provider/src/services/HttpClient.ts:3:export const HttpClient = axios.create({
+audit-work/source/NabdProvider-provider/src/services/HttpClient.ts:4:  baseURL: 'https://api.nabdahplus.com/api/v1',
+audit-work/source/NabdProvider-provider/src/utils/api.ts:2: * apiFetch — thin fetch-style wrapper over the shared axios client.
+audit-work/source/NabdProvider-provider/src/utils/api.ts:5:import client from '../api/client';
+audit-work/source/NabdProvider-provider/src/utils/api.ts:14:export async function apiFetch(path: string, options: ApiFetchOptions = {}): Promise<any> {
+audit-work/source/NabdProvider-provider/src/components/ui.tsx:17:import client from '../api/client';
+audit-work/source/NabdProvider-provider/src/components/ContractModal.tsx:6:import client from '../api/client';
+audit-work/source/NabdProvider-provider/src/context/index.tsx:215:      const isOnline = await fetch('https://1.1.1.1', { method: 'HEAD' }).then(() => true).catch(() => false);
+audit-work/source/NabdProvider-provider/src/context/index.tsx:272:      const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
+audit-work/source/NabdProvider-provider/src/context/index.tsx:273:      const res = await fetch(`${baseUrl}/provider/auth/refresh`, {
+audit-work/source/NabdProvider-provider/src/context/index.tsx:300:      const baseUrl = customIp ? `http://${customIp}:8002/api/v1` : API_BASE;
+audit-work/source/NabdProvider-provider/src/context/index.tsx:301:      const res = await fetch(`${baseUrl}/provider/auth/login`, {
+audit-work/source/NabdProvider-provider/src/context/index.tsx:361:        await fetch(`${API_BASE}/provider/auth/logout`, { method: 'POST', headers, body: JSON.stringify({ session_id: sessionId }) });
+audit-work/source/NabdProvider-provider/src/context/index.tsx:386: const res = await fetch(`${API_BASE}/provider/ops/availability/toggle-instant`, {

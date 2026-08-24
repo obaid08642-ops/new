@@ -1,0 +1,8 @@
+BASE_COMMIT=22526bedb77a3d8148219036367e4714f401aecc
+BRANCH=agent/audit-main-contract-inventory
+TRACKED_TOTAL=361
+TRACKED_TOP_LEVEL=audit-artifacts:353; web_admin_dashboard.zip:1; todo.md:1; nabdah-backend.zip:1; nabd_plus_patient_app.zip:1; nabd-patient-web.zip:1; NabdProvider-provider.zip:1; NABDAH_PROJECT_REFERENCE.md:1; .gitignore:1
+CANDIDATE_SOURCE_SCOPE_DIRECTORIES=0
+GENERATED_DEPENDENCY_TRACKED_CANDIDATES=0
+ROUTE_SCREEN_FILENAME_CANDIDATES=41
+NOTE=main tracks source archives and audit artifacts, not unpacked backend/patient-web/patient-mobile roots. Archives must be inventoried as first-party source containers; no MISSING/PARTIAL conclusion is valid until their contents are inspected.
