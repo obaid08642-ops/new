@@ -10,7 +10,7 @@ Source: `nabdah-backend.zip` materialized from the committed Phase 0A baseline a
 | Owned source/config members | 1149 |
 | Excluded members | 39 |
 | SHA-256 mismatches | 0 |
-| Semantic `fully_read=YES` | 11 |
-| Semantic `fully_read=NO` | 1177 |
+| Semantic `fully_read=YES` | 12 |
+| Semantic `fully_read=NO` | 1176 |
 
-Every member is represented in `NABD_Phase0B_Backend_Semantic_Read_Manifest_2026-08-24.tsv`. SHA-256 is checked against the Phase 0A member inventory. Eleven source members (`src/modules/auth/auth.controller.ts`, `src/modules/pharmacy/patient-pharmacy.controller.ts`, `src/modules/wallet/wallet.controller.ts`, `src/modules/orders/orders.controller.ts`, `src/modules/unified-bookings/unified-bookings.module.ts`, `src/modules/health/health.controller.ts`, `src/modules/home-care/home-care.controller.ts`, `src/modules/radiology/radiology.controller.ts`, `src/modules/labs/labs.controller.ts`, `src/modules/wallet/wallet.service.ts`, and `src/modules/care/appointments.controller.ts`) now have source-specific semantic evidence files; all other members remain explicitly un-read. This artifact does not claim semantic reading for them.
+Every member is represented in `NABD_Phase0B_Backend_Semantic_Read_Manifest_2026-08-24.tsv`. SHA-256 is checked against the Phase 0A member inventory. Twelve source members (`src/modules/auth/auth.controller.ts`, `src/modules/pharmacy/patient-pharmacy.controller.ts`, `src/modules/wallet/wallet.controller.ts`, `src/modules/orders/orders.controller.ts`, `src/modules/unified-bookings/unified-bookings.module.ts`, `src/modules/health/health.controller.ts`, `src/modules/home-care/home-care.controller.ts`, `src/modules/radiology/radiology.controller.ts`, `src/modules/labs/labs.controller.ts`, `src/modules/wallet/wallet.service.ts`, `src/modules/care/appointments.controller.ts`, and `src/modules/care/appointments.service.ts`) now have source-specific semantic evidence files; all other members remain explicitly un-read. This artifact does not claim semantic reading for them.
