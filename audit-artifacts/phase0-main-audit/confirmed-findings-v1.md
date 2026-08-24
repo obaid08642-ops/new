@@ -235,3 +235,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-133 | P1 | Two distinct `AuditLog` schemas exist with materially incompatible contracts: the general model records generated id, optional user/IP/user-agent/resource/details/severity/correlation, while admin-web-core requires actor ObjectId/role/endpoint/action/payloadHash. This can split audit queries, retention, redaction and integrity guarantees, and neither model visibly enforces append-only storage or runtime allowlists. | `src/schemas/audit-log.schema.ts:5–20`; `src/modules/admin-web-core/schemas/audit-log.schema.ts:6–24`; `audit-artifacts/phase0b-backend/semantic-evidence-audit-log-schema.md`; `audit-artifacts/phase0b-backend/semantic-evidence-admin-audit-log-schema.md` | Select one authoritative versioned audit contract or explicitly partition collections, define migration/retention/redaction policy, enforce append-only integrity and event/source/actor contracts, and add cross-module query and security tests. |
+
+
+## System event schema finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-134 | P1 | SystemEvent provides stronger primitives than the legacy audit models—unique event ID, sparse unique idempotency key, actor/entity/account indexes and timelines—but append-only/exactly-once are comments rather than enforced invariants. Free-form type/entity/role/reason and arbitrary before/after/meta can carry unbounded PII/secrets; no retention, immutable sequence/hash, source/session authenticity or atomic outbox coupling is visible. | `src/modules/events/system-event.schema.ts:5–30`; `audit-artifacts/phase0b-backend/semantic-evidence-system-event-schema.md` | Enforce event allowlists, payload bounds/redaction and retention, define idempotency normalization/duplicate handling, make writes append-only with integrity sequencing, and couple domain mutation/event recording through a durable transactional outbox. |
