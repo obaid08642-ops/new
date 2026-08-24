@@ -2,11 +2,12 @@
 
 Repository: https://github.com/obaid08642-ops/new/tree/agent/audit-main-contract-inventory
 Branch: agent/audit-main-contract-inventory
-Local head: d99f476c41e152512fc0cd984f7fd99bff6926e2
-Remote head: d99f476c41e152512fc0cd984f7fd99bff6926e2
+Local head: 617aa1d4ae36f846d4d754251bc8f0fd84d91277
+Remote head: 617aa1d4ae36f846d4d754251bc8f0fd84d91277
 Working tree: clean (verified by git status --short)
 
 ## Recent commits
+- 617aa1d4ae36f846d4d754251bc8f0fd84d91277 audit: add phase zero completeness provenance
 - d99f476c41e152512fc0cd984f7fd99bff6926e2 audit: publish phase zero closure package
 - aa9fa0c7266ced6a6c8d2f9894b1ae7af6a12279 audit: reconcile unified booking routes
 - 8ef71d94d9d7fc54c16a781d360c3bb645e122ad audit: reconcile auth otp and evidence index
@@ -34,9 +35,20 @@ Working tree: clean (verified by git status --short)
 - audit-artifacts/phase0-main-audit/NABD_Main_End_to_End_Traceability_2026-08-24.md
 - audit-artifacts/phase0-main-audit/phase0-coverage-matrix.md
 - audit-artifacts/phase0-main-audit/NABD_DECISION_REQUIRED_2026-08-24.md
+- audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Provenance_2026-08-24.md
+- audit-artifacts/phase0a-main-audit/NABD_Main_Source_Manifest_2026-08-24.md
+- audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Member_Inventory_2026-08-24.tsv
+- audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Exclusions_2026-08-24.tsv
+- audit-artifacts/phase0a-main-audit/PHASE0A_COMMANDS_AND_RESULTS_2026-08-24.md
 
 ## Supporting evidence
 - audit-artifacts/phase0-main-audit/semantic-evidence-*.md
 - audit-artifacts/phase0-main-audit/backend-route-reconciliation-*.md
 - audit-artifacts/phase0-main-audit/backend-route-reconciliation-inventory-2026-08-24.txt
 - audit-artifacts/phase0-main-audit/web-cta-parity-scan-2026-08-24.txt
+
+## Phase 0A status
+- Archive/member inventory: COMPLETE (3,128 members; 2,962 owned candidates; 166 exclusions).
+- Semantic full read: INCOMPLETE and intentionally not claimed (`Fully read=YES: 0; NO: 3,128`).
+- Closure verdict: NO-GO until owned-member semantic reads and evidence linkage are completed.
+- Archive bytes retained at `audit-artifacts/phase0a-main-archives/22526bedb77a3d8148219036367e4714f401aecc/*.zip`.
