@@ -29,7 +29,14 @@ Scope: audit only; no behavior remediation.
 | Notification settings | settings page | settings read | unavailable/retry | emergency locked UI | no update | READ-ONLY |
 | Chat | thread read | thread/messages helpers | unavailable/empty | PHI hidden in UI; API/log pending | no send/upload/realtime | READ-ONLY/PARTIAL |
 | Provider Doctor | dashboard + ContractModal | queue/stats/accept/reject/insurance | fallback/silent fail observed | patient PHI + socket token risks | legal accept failure swallowed | FINDING |
-| Provider Nursing | dashboard + field ops | queue/respond/check-in/report/GPS | silent empty/fallback observed | location/SOS risks | route drift/fallbacks | FINDING |
+| Provider Nursing | dashboard + field ops; `semantic-evidence-provider-nursing-dashboard.md` | queue/respond/check-in/report/GPS; direct compatibility mapping added | silent empty/fallback observed | patient PHI/location/SOS risks | route and payload drift; selected-job context pending | FINDING/PARTIAL |
+| Mobile Pharmacy | `semantic-evidence-mobile-pharmacy.md` | `/medicines`, categories; cart/prescription/order route mapping pending | loading/cache/empty; offline cached state | cache/account isolation pending | local cart add/qty; server price/stock/idempotency pending | PARTIAL/FINDING |
+| Web↔Mobile Pharmacy parity | `semantic-evidence-web-mobile-pharmacy-parity.md` | Web public catalog + `/cart` read versus Mobile commerce surfaces | Web unavailable/empty/retry; Mobile wider states | Web session on cart; Mobile cache isolation pending | Web page read-only; Mobile local commerce pending | PARTIAL |
+| Mobile Nursing | `semantic-evidence-mobile-nursing.md` | `/home-care/services`, packages; booking contract mapping pending | no explicit unavailable state; filters incomplete | JWT/guest policy pending | cash/insurance UI; quote/booking/idempotency pending | FINDING/PARTIAL |
+| Backend Home-care compat | `semantic-evidence-backend-homecare-compat.md` | services/providers/bookings/state transitions/chat aliases | controller-level errors/guards | JWT, patient/provider/admin checks | event durability, chat idempotency/moderation pending | FINDING/PARTIAL |
+| Admin Master Dashboard | `semantic-evidence-admin-master-dashboard.md` | liveness/readiness/heatmap/command-center | loading/empty; retry/staleness pending | admin guard helper; PHI minimization pending | polling read-only; detail authorization pending | FINDING/PARTIAL |
+| Admin Config Portal | `semantic-evidence-admin-config-portal.md` | SLA GET/PUT; emergency maintenance PUT | alerts/console; structured failure pending | backend authorization/audit/re-auth pending | global mutations; replay/rollback pending | FINDING |
+| Admin Security/Passkey | `semantic-evidence-admin-security-passkey.md` | passkey devices/enroll/verify/delete | loading/success/error | designated admin/2FA enforcement pending | enroll/delete; idempotency/re-auth/audit pending | FINDING/PARTIAL |
 
 ## Interpretation
 
