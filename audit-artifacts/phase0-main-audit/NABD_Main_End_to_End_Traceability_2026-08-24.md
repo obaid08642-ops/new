@@ -1,0 +1,40 @@
+# Nabd Plus — Main End-to-End Traceability Matrix
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
+**Audit branch:** `agent/audit-main-contract-inventory`  
+**Rule:** this is a Phase 0 audit artifact. No behavior is changed by this document. `PARTIAL` and `UNVERIFIED` are intentional; they are not production claims.
+
+| Journey family | Patient Mobile entry/actions | Patient Web entry/actions | Backend/API evidence | Required states | Ownership/security | Transaction/tests | Status |
+|---|---|---|---|---|---|---|---|
+| 1. Consultations / booking / video | Doctor search → slot/booking confirm → payment branch → appointment detail/call | Doctor search/detail → booking form → payment intent/cancel/reschedule/call-token BFF surfaces | Mobile `/care/appointments`; Web `/api/appointments/book`; backend UnifiedBookings and call-token evidence | search, no-match, slot conflict, hold expiry, payment pending/failed, cancel/reschedule, call window | patient session, owner 404, stranger 404, short-lived call token | owner/stranger/unauth; booking replay; lock race; payment expiry/refund; call-token window | PARTIAL / FINDING |
+| 2. Pharmacy / medicine / cart / orders | `/medicines`, categories, search/filter, product add/qty, barcode, prescription scan, local cart, order history | public medicine catalog, medicine detail, authenticated read-only `/cart`, order list/detail/tracking | Web catalog/cart helpers; backend pharmacy/order routes require full reconciliation | catalog unavailable/empty, stale cache, prescription required, stock/price change, split order, delivery, cancel/refund | session/cart isolation, PHI prescription protection, server price/stock, owner order access | cart mutation, checkout idempotency/replay, split-order rollback, owner/stranger/unauth | PARTIAL / FINDING |
+| 3. Labs / radiology diagnostics | DiagnosticsHub labs/radiology tabs, search/filter/location/insurance/cart/detail/booking actions | Labs and radiology catalog/read pages; detail/booking coverage differs | Mobile uses labs packages/candidates; Web uses labs services and radiology services/modalities; detail contract needs exact source/live evidence | unavailable vs empty, filters, modality/body part, home visit, detail 404, quote/booking | public catalog versus authenticated booking/PHI, insurance ownership | service/detail/booking/cart tests; server price/availability; no fake reports | PARTIAL / FINDING |
+| 4. Home-care / nursing patient journey | Nursing services/packages, search/filter, cash/insurance, service info/detail, quick-book and provider/address flow | home-care catalog/detail surfaces; booking CTA/contract coverage incomplete | Mobile `/home-care/services` and packages; backend JWT-guarded `/home-care/*`, providers, bookings/my and transitions | service unavailable, filter/no-match, provider match, address invalid, quote/authorization, assigned/en-route/arrived/care/completed/cancelled | JWT patient-only create, owner access, provider assignment, PHI/location | booking idempotency, payment/insurance, transition race, cancellation/refund, event durability | PARTIAL / FINDING |
+| 5. Health / prescriptions / insurance / family | Health/vitals, prescriptions, insurance and family screens/actions require per-screen trace | Read-only health/prescription/profile/family/insurance surfaces audited partially | Read helpers and backend modules need DTO/ownership/test reconciliation | loading, empty, unavailable, stale, consent, claim/preauth decisions | PHI minimization, delegated family access, owner/stranger 404 | vital/reminder mutation contracts, prescription upload/renewal, insurance claim/replay | PARTIAL |
+| 6. Chat / notifications / patient communications | Chat/list/thread and notification/settings surfaces; send/realtime/attachment behavior requires full trace | Chat thread hides message body/attachments and has no composer; notifications/settings read-only | Backend chat aliases include GET and POST variants; patient notification reads identified | unread, empty, blocked, send failure, moderation, attachment, emergency lock, realtime disconnect | participant ownership, PHI, moderation, rate limits, audit | send idempotency, duplicate/replay, attachment scan, mark-read/delete contract | PARTIAL / FINDING |
+| 7. Provider / Admin operations | Provider Doctor/Nursing plus Admin dashboards, config, security and role-specific operations | Patient Web is not the operator surface but must not expose operator routes | Provider Nursing route/payload drift; Admin health/analytics/config/passkey evidence; backend home-care roles | queue failure, assignment, check-in, GPS, report, SLA change, maintenance, passkey recovery | role/tenant separation, PHI minimization, least privilege, audit logs | owner/role/replay, kill-switch rollback, WebAuthn recovery, event/outbox, live telemetry | FINDING / UNVERIFIED |
+
+## Action-to-contract traceability rules
+
+Every actionable UI control must resolve to one exact backend method/path, request schema, response schema, authorization rule, state transition, error mapping, and test identifier. A navigation target alone is not evidence that a feature works. Local calculations of price, VAT, coverage, distance or state must be treated as previews only unless the server contract confirms them.
+
+## Evidence index
+
+- `semantic-evidence-web-mobile-consultation-parity.md`
+- `semantic-evidence-labs-packages-parity.md`
+- `semantic-evidence-mobile-diagnostics-hub.md`
+- `semantic-evidence-mobile-pharmacy.md`
+- `semantic-evidence-web-mobile-pharmacy-parity.md`
+- `semantic-evidence-mobile-nursing.md`
+- `semantic-evidence-backend-homecare-compat.md`
+- `semantic-evidence-provider-nursing-dashboard.md`
+- `semantic-evidence-admin-master-dashboard.md`
+- `semantic-evidence-admin-config-portal.md`
+- `semantic-evidence-admin-security-passkey.md`
+- `backend-booking-contract-inventory.txt`
+- `confirmed-findings-v1.md`
+- `NABD_DECISION_REQUIRED_2026-08-24.md`
+
+## Current conclusion
+
+No journey family is proven end-to-end production-ready on this baseline. The most material blockers are route/payload drift, client-authoritative commerce values, incomplete ownership/idempotency evidence, silently swallowed failures, fabricated operational fallbacks, and unresolved product decisions. This matrix must be updated after every future source or live-contract verification.
