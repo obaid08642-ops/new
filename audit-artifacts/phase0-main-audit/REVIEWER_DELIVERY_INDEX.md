@@ -43,6 +43,7 @@ Working tree: clean (verified by git status --short)
 - audit-artifacts/phase0a-main-audit/PHASE0A_COMMANDS_AND_RESULTS_2026-08-24.md
 - audit-artifacts/phase0a-main-audit/NABD_PHASE0A_SCREEN_ACTION_STATUS_2026-08-24.md
 - audit-artifacts/phase0a-main-audit/NABD_PHASE0A_SCREEN_ROUTE_INVENTORY_2026-08-24.tsv
+- audit-artifacts/phase0a-main-audit/NABD_PHASE0A_EVIDENCE_SOURCE_PATHS_2026-08-24.txt
 
 ## Supporting evidence
 - audit-artifacts/phase0-main-audit/semantic-evidence-*.md
@@ -54,5 +55,6 @@ Working tree: clean (verified by git status --short)
 - Archive/member inventory: COMPLETE (3,128 members; 2,962 owned candidates; 166 exclusions).
 - Semantic full read: INCOMPLETE and intentionally not claimed (`Fully read=YES: 0; NO: 3,128`).
 - Screen/route inventory: 1,614 candidates (466 screen/page; 125 route/controller), all `UNVERIFIED` until full semantic evidence is linked.
+- Existing evidence references 135 distinct source paths as candidate links; this does not imply full archive-member semantic reads.
 - Closure verdict: NO-GO until owned-member semantic reads and evidence linkage are completed.
 - Archive bytes retained at `audit-artifacts/phase0a-main-archives/22526bedb77a3d8148219036367e4714f401aecc/*.zip`.
