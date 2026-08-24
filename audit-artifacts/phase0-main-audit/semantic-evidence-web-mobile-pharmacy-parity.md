@@ -23,3 +23,11 @@ Mobile pharmacy uses `/medicines` with rich filters, cache, barcode and prescrip
 5. SEO/indexing policy is intentionally disabled for Web catalogue and must be reconciled with the launch/legal decision.
 
 No Phase 0 remediation was made.
+
+## Final Web surface inventory checkpoint
+
+The Patient Web route inventory at baseline includes appointments, articles, cart/checkout/prescription, chat, consultations/doctors/specialties, diagnostics/labs/packages/radiology, family, health/reports/vitals/chronic/sleep/trends/score, home-care/services, insurance, medicines/catalog, mental-health, notifications/settings, orders/tracking, prescriptions, profile, reminders, settings and wishlist. It also includes BFF routes for auth/OTP/session, appointment booking/payment/cancel/reschedule/call-token and patient catch-all. The complete file inventory is preserved by the Phase 0 source checkout and the scan artifact `web-cta-parity-scan-2026-08-24.txt`.
+
+The sweep confirms the principal Web↔Mobile gap is not only visual parity: Web generally exposes SSR/read-only pages and narrowly allowlisted mutations, while Mobile exposes broader local/cart, wallet, support, social, settings and program actions. Therefore a matching-looking page is not sufficient; each Mobile action needs an explicit Web contract decision, or Web must state that the capability is intentionally unavailable. Existing Web tests exercise SSR security and route boundaries, but they do not prove parity for every Mobile CTA, state machine, locale, accessibility behavior or live transaction.
+
+The scan artifact is an audit input, not a remediation. No Web route or component was changed in Phase 0.
