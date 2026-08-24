@@ -15,9 +15,11 @@
 أنت وكيل بناء لمشروع Nabd. مهمتك تنفيذ مراحل صغيرة وقابلة للمراجعة، لا تنفيذ المشروع كله في دفعة واحدة.
 
 المستودع: obaid08642-ops/new
-الفرع الأساسي للمراجعة عند البدء: remediation/phase0-backend-baseline
+خط الأساس الإلزامي للتدقيق عند البدء: `main` عند الالتزام `22526bedb77a3d8148219036367e4714f401aecc`.
 
-قبل أي تعديل، اقرأ هذه الملفات بالكامل من الفرع:
+لا تفترض أن فرع `remediation/phase0-backend-baseline` هو main أو أنه مصدر الحقيقة. هو فرع مراجعة منفصل يحتوي ملاحظات وإصلاحات غير مدمجة فقط.
+
+قبل أي تعديل، اقرأ هذه الملفات بالكامل من المرفقات التي قدمها المراجع أو من فرع المراجعة الذي يحدده لاحقًا. لا تعد وجودها في `main`:
 1) NABD_Authoritative_Business_Rules_2026-08-24.md
 2) NABD_Remaining_Build_Backlog_2026-08-24.md
 3) NABD_Agent_Build_Program_2026-08-24.md
@@ -27,7 +29,7 @@
 هذه الملفات تحدد قواعد المنتج وحالة الفجوات. تعليمات المستخدم تتغلب على أي سلوك legacy في المصدر.
 
 قواعد صارمة:
-- لا تعمل على main. أنشئ فرعًا باسم agent/build-<phase>-<topic> من hash الأساس المقدم لك.
+- في المرحلة 0 أنشئ فرعًا باسم `agent/audit-main-<topic>` من `main` عند hash الأساس المقدم لك. في مراحل البناء لاحقًا، ينشئ المراجع فرع العمل/المصدر بعد مراجعة تقرير main؛ لا تبدأ البناء من فرع remediation أو من main مباشرةً دون أمر صريح.
 - لا تعمل merge، لا تنشر، لا تغير متغيرات أو بنية إنتاج، ولا تستخدم credentials حية.
 - لا تضف bypass إنتاجي للتجارب أو الاختبارات. أي hook اختبار يجب أن يتطلب E2E_MODE صريحًا وأن يكون مغطى باختبار يثبت عدم تغير سلوك الإنتاج.
 - لا تقبل السعر أو الإجمالي أو حالة paid أو الموافقة أو تقرير طبي أو عنوان ملف من العميل كمصدر حقيقة. الخادم فقط يشتقها من كتالوج/quote/decision/storage مملوك.
@@ -79,7 +81,7 @@ NO MERGE / NO DEPLOY CONFIRMATION: yes
 لا تبنِ features أو شاشات أو migrations في هذه المرحلة إلا إذا كان تعديل صغير لازمًا لكي يعمل inventory، ولا تصلح defect عرضي خارج النطاق.
 
 المطلوب بالتحديد:
-1) أنشئ فرع agent/build-phase0-contract-inventory من remediation/phase0-backend-baseline.
+1) تحقق أولًا أن `main` يساوي `22526bedb77a3d8148219036367e4714f401aecc` أو أبلغ المراجع بالفرق. أنشئ فرع `agent/audit-main-contract-inventory` من هذا الـmain فقط.
 2) افحص كامل المسارات والموديلات وconsumers في backend وpatient-web وpatient-mobile وواجهات المزوّد/الإدارة لهذه المجالات: orders/pharmacy، insurance، payments/refunds، care appointments/LiveKit، labs، radiology، home-care/nursing، reports/storage.
 3) أنشئ مستندًا باسم NABD_Contract_and_Route_Inventory_2026-08-24.md يحتوي لكل مسار: HTTP route، controller، service، schema/collection، actor، client consumers، state machine، مصدر السعر، payment timing، insurance timing، report/storage behavior، واختبارات موجودة.
 4) علّم أي تعارض بـ INCONSISTENT، خصوصًا مسارات/نماذج الأشعة والحجوزات. لا تقترح إزالة بيانات أو schema من دون خطة compat/migration.
@@ -87,7 +89,9 @@ NO MERGE / NO DEPLOY CONFIRMATION: yes
 6) أنشئ NABD_DECISION_REQUIRED_2026-08-24.md بالأسئلة التي لا تسمح قواعد المنتج بحسمها: split pharmacy orders، توقيت cash، quote expiry، refund policy، geographic broadcast، fallback بعد insurance partial/rejection، والمتطلبات الإلزامية لقرار التأمين اليدوي. لكل سؤال قدم اختيارات وأثرًا، ولا تنفذ أحدها.
 7) أضف اختبارًا أو أكثر فقط إذا كان لازمًا لتوثيق route ownership قائم أو منع regression في conflict واضح. لا تغير behavior المنتج في هذه المرحلة.
 8) نفذ الاختبارات/البناء المتأثرة وفحص git diff --check وفحص أسرار.
-9) commit صغير، push إلى فرعك فقط، ثم قدّم قالب تقرير المرحلة. لا تفتح PR إلى main ولا تنشر.
+9) commit مستندي صغير، push إلى فرع audit فقط، ثم قدّم قالب تقرير المرحلة. لا تفتح PR إلى main ولا تنشر.
+
+المخرج المطلوب من المرحلة 0 هو **تقرير Audit لـmain نفسه**. لا تصنّف أي شيء MISSING أو PARTIAL لمجرد وجوده في فرع آخر أو عدم وجوده في فرع remediation؛ اربط كل حكم بمسار وملف/route/screen/اختبار داخل main.
 
 معايير القبول:
 - inventory يشمل backend + web + mobile + provider/admin، وليس backend فقط.
