@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { doctorSlotsQuery, extractDoctorSlots } from "./doctors";
+describe("doctor slots contract parser",()=>{it("keeps only the verified public slot shape",()=>expect(extractDoctorSlots({date:"2026-09-01",service_type:"video",slots:[{start:"2026-09-01T09:00:00.000Z",end:"2026-09-01T09:30:00.000Z",label:"09:00",available:true,patient_id:"secret"},{start:"bad"}]})).toEqual({date:"2026-09-01",serviceType:"video",slots:[{start:"2026-09-01T09:00:00.000Z",end:"2026-09-01T09:30:00.000Z",label:"09:00",available:true}]}));it("bounds the query",()=>expect(doctorSlotsQuery({id:"doc/1",date:"2026-09-01",serviceType:"clinic"})).toBe("/care/doctors/doc%2F1/slots?date=2026-09-01&service_type=clinic"));});

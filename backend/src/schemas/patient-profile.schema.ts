@@ -30,7 +30,12 @@ export class PatientProfile {
       id: String,
       label: String,
       street: String,
+      address: String,
       city: String,
+      district: String,
+      building: String,
+      floor: String,
+      notes: String,
       lat: Number,
       lng: Number,
       is_default: Boolean,
@@ -42,7 +47,12 @@ export class PatientProfile {
     id: string;
     label: string;
     street: string;
+    address?: string;
     city: string;
+    district?: string;
+    building?: string;
+    floor?: string;
+    notes?: string;
     lat?: number;
     lng?: number;
     is_default?: boolean;

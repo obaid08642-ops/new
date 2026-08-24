@@ -1,0 +1,32 @@
+.page { display: grid; gap: 1.25rem; padding: 1.5rem 0 4rem; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.eyebrow { margin: 0; color: var(--brand-deep); font-size: .78rem; font-weight: 760; letter-spacing: .02em; }
+.header h1 { margin: .28rem 0 0; color: var(--ink); font-size: clamp(1.75rem, 3vw, 2.35rem); letter-spacing: -.035em; line-height: 1.15; text-wrap: balance; }
+.headerActions { display: flex; align-items: center; gap: .65rem; }
+.settingsLink { display: inline-flex; align-items: center; min-block-size: 2.5rem; padding: .4rem .75rem; border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--brand-deep); background: rgba(255,255,255,.9); box-shadow: var(--shadow-sm); font-size: .8rem; font-weight: 730; transition: transform var(--motion-fast) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium), box-shadow var(--motion-fast) var(--ease-premium); }
+.settingsLink:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .settingsLink:hover { border-color: rgba(8,127,140,.35); box-shadow: var(--shadow-md); transform: translateY(-1px); } }
+.headerIcon { display: grid; place-items: center; flex: 0 0 auto; inline-size: 3.4rem; block-size: 3.4rem; border: 1px solid rgba(8,127,140,.14); border-radius: var(--radius-lg); color: var(--brand-deep); background: var(--brand-soft); box-shadow: var(--shadow-sm); }
+
+.list { display: grid; gap: .85rem; }
+.card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: .9rem; padding: 1.15rem; border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255,255,255,.92); box-shadow: var(--shadow-md); }
+.unread { border-color: rgba(8,127,140,.24); background: linear-gradient(135deg, rgba(231,247,247,.7), rgba(255,255,255,.95)); }
+.icon { display: grid; place-items: center; inline-size: 2.7rem; block-size: 2.7rem; border-radius: var(--radius-md); color: var(--brand-deep); background: var(--brand-soft); }
+.iconPriority { color: #995a0d; background: #fff4df; }
+.body { min-inline-size: 0; }
+.titleRow { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.title { overflow-wrap: anywhere; color: var(--ink); font-size: .98rem; font-weight: 760; }
+.dot { flex: 0 0 auto; inline-size: .58rem; block-size: .58rem; margin-block-start: .28rem; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft); }
+.copy { margin: .4rem 0 0; overflow-wrap: anywhere; color: var(--muted); font-size: .86rem; line-height: 1.65; }
+.meta { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .7rem; color: var(--muted); font-size: .78rem; }
+.priority { border-radius: var(--radius-full); padding: .25rem .55rem; color: #8a5a0a; background: #fff3d9; font-weight: 760; }
+.time { display: inline-flex; align-items: center; gap: .3rem; }
+
+.state { display: grid; justify-items: center; gap: .75rem; padding: clamp(2rem, 7vw, 3.5rem) 1.25rem; border: 1px dashed rgba(8,127,140,.28); border-radius: var(--radius-xl); background: linear-gradient(145deg, rgba(255,255,255,.76), rgba(231,247,247,.58)); color: var(--muted); text-align: center; }
+.state h1, .state h2 { margin: 0; color: var(--ink); font-size: 1.1rem; }
+.state p { max-inline-size: 38rem; margin: 0; line-height: 1.7; }
+.stateIcon { display: grid; place-items: center; inline-size: 3.35rem; block-size: 3.35rem; border: 1px solid rgba(8,127,140,.12); border-radius: var(--radius-lg); color: var(--brand-deep); background: var(--brand-soft); }
+.notice { margin: 0; padding: 1rem 1.1rem; border: 1px solid rgba(8,127,140,.12); border-inline-start: 3px solid var(--brand); border-radius: var(--radius-md); color: var(--muted); background: rgba(231,247,247,.56); font-size: .9rem; line-height: 1.7; }
+
+@media (max-width: 540px) { .page { gap: 1rem; padding-top: 1rem; } .headerActions { gap: .45rem; } .settingsLink { padding-inline: .6rem; font-size: .74rem; } .headerIcon { inline-size: 3rem; block-size: 3rem; } }
+@media (prefers-reduced-motion: reduce) { .settingsLink { transition: none; } .settingsLink:hover { transform: none; } }

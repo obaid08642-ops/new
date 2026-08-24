@@ -1,0 +1,3 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getPublicDoctors } from "./doctors-server";
+describe("public doctors wrapper", () => { const original=globalThis.fetch; beforeEach(()=>{globalThis.fetch=vi.fn().mockResolvedValue(new Response("[]",{status:200}));}); afterEach(()=>{globalThis.fetch=original;vi.restoreAllMocks();}); it("sends Accept only", async()=>{await getPublicDoctors({search:"heart",sort:"rating"}); const [,opts]=(globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]; expect(opts.headers).toEqual({Accept:"application/json"}); expect((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0].toString()).toContain("/care/doctors?search=heart&sort=rating");}); });

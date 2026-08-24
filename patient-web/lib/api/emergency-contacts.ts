@@ -1,0 +1,5 @@
+import { z } from "zod";
+const contactSchema=z.object({id:z.string().max(120).optional(),name:z.string().max(120),relation:z.string().max(60).nullable().optional(),phone:z.string().max(24),isPrimary:z.boolean().optional()}).passthrough();
+export type EmergencyContact={id?:string;name:string;relation?:string;maskedPhone:string;isPrimary:boolean};
+function maskPhone(phone:string){const compact=phone.replace(/\s+/g,""); return compact.length<=4?"••••":`${"•".repeat(Math.max(4,compact.length-4))}${compact.slice(-4)}`;}
+export function parseEmergencyContacts(payload:unknown):EmergencyContact[]{const rows=Array.isArray(payload)?payload:(payload&&typeof payload==="object"&&Array.isArray((payload as Record<string,unknown>).data)?(payload as Record<string,unknown>).data:[]);return (rows as unknown[]).flatMap((value)=>{const p=contactSchema.safeParse(value);if(!p.success)return[];return [{id:p.data.id,name:p.data.name,relation:p.data.relation||undefined,maskedPhone:maskPhone(p.data.phone),isPrimary:p.data.isPrimary===true}];});}
