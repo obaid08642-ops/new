@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 4 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 52 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 61 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 62 | Confirmed source findings recorded to date. |
+| Total | 71 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-062 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-071 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -75,6 +75,15 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-060 | Mobile coverage check | Coverage/preauthorization result needs typed policy/provider context and a real authorization lifecycle. |
 | F-061 | Mobile medical reports | Report read/share flows need owner, mark-read, validation and PHI export controls. |
 | F-062 | Mobile report AI | AI report analysis is blocked but its CTA drops context and lacks governed UX/contract. |
+| F-063 | Mobile return detail | Return failure path renders synthetic financial data and lacks settlement/ownership semantics. |
+| F-064 | Mobile return request | Return policy/amounts/attachments/success ID are locally fabricated or unverified. |
+| F-065 | Mobile active programs | Empty/error programs fall back to a synthetic clinical program and attendance is false-success. |
+| F-066 | Mobile reviews | Review write lacks eligibility, ownership, idempotency and moderation status proof. |
+| F-067 | Mobile video room | Video join route/token/end-call lifecycle is not reconciled or fully guarded. |
+| F-068 | Mobile services hub | Static service catalogue advertises unverified routes and capabilities without blocked states. |
+| F-069 | Mobile search | Search state, local query retention, sponsored provenance and result routes are unverified. |
+| F-070 | Mobile support chat | Support destination is an unproven redirect and can lose preauthorization context. |
+| F-071 | Mobile help center | FAQ/config/contact failure and availability semantics are incomplete or unverified. |
 | F-044 | Mobile family permissions | Sensitive delegation can fall back across authorization paths and report false success without step-up/audit proof. |
 | F-046 | Mobile family invite | Invite lifecycle and optional metadata are not proven to be bound to an owner-scoped contract. |
 | F-045 | Mobile family member health | PHI access failure is rendered as normal empty data; proxy booking/chat lack member consent context. |
@@ -87,7 +96,7 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-034 | Mobile language/RTL | Locale persistence, RTL reinitialization and six-language completeness are unproven; flags render empty. |
 | F-031, F-032 | Mobile notifications | Preference and read acknowledgements have optimistic/fire-and-forget semantics, while delivery, route translation and PHI content policy are not fully proven. |
 | F-034 | Localization | The Mobile locale selector does not prove persistence/synchronization/RTL behavior and renders empty flag slots. |
-| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037, F-038, F-039, F-041, F-043, F-044, F-045, F-046, F-047, F-048, F-049, F-050, F-051, F-052, F-053, F-054, F-055, F-056, F-057, F-058, F-059, F-060, F-061, F-062 | Patient parity | Web is read-only while Mobile exposes security/privacy/notification/profile/address/health/prescription/family actions with incomplete contract, guest policy, consent and failure semantics. |
+| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037, F-038, F-039, F-041, F-043, F-044, F-045, F-046, F-047, F-048, F-049, F-050, F-051, F-052, F-053, F-054, F-055, F-056, F-057, F-058, F-059, F-060, F-061, F-062, F-063, F-064, F-065, F-066, F-067, F-068, F-069, F-070, F-071 | Patient parity | Web is read-only while Mobile exposes security/privacy/notification/profile/address/health/prescription/family actions with incomplete contract, guest policy, consent and failure semantics. |
 
 ### Contract, state and end-to-end parity
 
