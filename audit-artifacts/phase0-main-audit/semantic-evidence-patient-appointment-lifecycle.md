@@ -29,3 +29,7 @@ The BFF uses GET, UUID validation, httpOnly authentication, calls `/unified-book
 ## Phase 0 conclusion
 
 The Web appointment BFF layer has explicit validation and idempotency boundaries for mutations, but it is not enough to claim a complete patient journey. The following remain separate acceptance gates: canonical Backend contract and exact status codes, owner/stranger/unauth, idempotent replay for booking/payment/cancel/reschedule, slot locking, server quote/total, payment provider settlement/refund, insurance and cash branches, notification/outbox, and UI continuation after each response. No remediation was made.
+
+## Payment helper/parser evidence
+
+`lib/api/payments-server.ts` validates payment kind and a UUID booking id, then calls `POST /payments/intent/:kind/:bookingId` with the idempotency key and access token; it does not accept client amount or provider credentials. `lib/api/payments.ts` accepts a UUID transaction id, status, optional finite nonnegative amount, currency and optional checkout URL, normalizing common upstream field names. This is a server-authoritative shape at the web boundary, but the upstream provider, amount source, expiry, settlement, and redirect/callback security are not proven by these helpers. No Phase 0 remediation was made.
