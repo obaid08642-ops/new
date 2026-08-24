@@ -263,3 +263,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-137 | P2 | ProfileImageMetadata has owner/type, image variants and a pending/processing/completed/failed lifecycle, but owner binding/type scope and URL provenance are weak; there is no current-image/version, object hash, job lease/attempt/dead-letter, request idempotency, cleanup linkage, retention/redaction or provider allowlist. The free-form error field may expose internals. | `src/schemas/profile-image-metadata.schema.ts:4–21`; `audit-artifacts/phase0b-backend/semantic-evidence-profile-image-metadata-schema.md` | Bind owner to canonical account/profile, validate object provenance and variants, add versioned job claims/retries/cleanup/idempotency, constrain providers, redact errors and define retention/PII-safe projections. |
+
+
+## Duplicate ProviderDelta model finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-138 | P1 | Two distinct `ProviderDelta` schemas exist: `src/modules/providers` uses providerId/oldData/newData/reviewedBy/reviewedAt/rejectionReason, while admin-web-core uses provider_id/provider_type/old_profile_snapshot/proposed_new_metadata and no reviewer fields. Their incompatible contracts and missing version/idempotency/atomic-apply/redaction controls can split provider moderation state and allow inconsistent canonical-profile updates. | `src/modules/providers/schemas/provider-delta.schema.ts:4–34`; `src/modules/admin-web-core/schemas/provider-delta.schema.ts:6–24`; `audit-artifacts/phase0b/backend/semantic-evidence-provider-delta-schema.md`; `audit-artifacts/phase0b-backend/semantic-evidence-admin-provider-delta-schema.md` | Map consumers/collections, select one authoritative moderation contract or explicitly partition them, enforce allowlisted immutable diffs/versioned transitions/reviewer separation/idempotency, and atomically apply approved metadata with durable audit. |
