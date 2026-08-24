@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 4 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 61 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 63 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 71 | Confirmed source findings recorded to date. |
+| Total | 73 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-071 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-073 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -84,6 +84,8 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-069 | Mobile search | Search state, local query retention, sponsored provenance and result routes are unverified. |
 | F-070 | Mobile support chat | Support destination is an unproven redirect and can lose preauthorization context. |
 | F-071 | Mobile help center | FAQ/config/contact failure and availability semantics are incomplete or unverified. |
+| F-072 | Mobile health passport | PHI sharing and QR/profile failure/lifecycle controls are not proven; emergency call is false-success. |
+| F-073 | Mobile medical timeline | Timeline failure and document download states are untruthful or lack typed PHI/ownership controls. |
 | F-044 | Mobile family permissions | Sensitive delegation can fall back across authorization paths and report false success without step-up/audit proof. |
 | F-046 | Mobile family invite | Invite lifecycle and optional metadata are not proven to be bound to an owner-scoped contract. |
 | F-045 | Mobile family member health | PHI access failure is rendered as normal empty data; proxy booking/chat lack member consent context. |
