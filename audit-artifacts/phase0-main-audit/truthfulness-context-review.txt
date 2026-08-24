@@ -1,0 +1,712 @@
+# Context review of candidate truthfulness/security hits
+## nabdah-backend
+nabdah-backend/scripts/seed-loyalty.ts:1:// @ts-nocheck
+nabdah-backend/scripts/test-extensions.ts:1:// @ts-nocheck
+nabdah-backend/scripts/test-extensions.ts:217:    // Add mock clinical data
+nabdah-backend/scripts/seed-articles.ts:1:// @ts-nocheck
+nabdah-backend/scripts/seed-medicines.js:18:    const mockMedicines = [
+nabdah-backend/scripts/seed-medicines.js:89:    await col.insertMany(mockMedicines);
+nabdah-backend/src/modules/insurance-engine/insurance-engine.module.ts:424:  /** The payment event is the normal post-checkout settlement path; it cannot be faked by a client body. */
+nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:10:      process.env.LIVEKIT_API_KEY || 'fake_key',
+nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:11:      process.env.LIVEKIT_API_SECRET || 'fake_secret'
+nabdah-backend/src/modules/admin-web-core/controllers/admin-extended-operations.controller.ts:19:  // deltas APPROVED with a placeholder instead of applying them. The canonical,
+nabdah-backend/src/modules/ai/ai.service.ts:304:   * EPIC4/S21: AI-generated weekly exercise plan (replaces a hardcoded
+nabdah-backend/src/modules/home/home.service.ts:19:    // Resolve real provider names/ratings — never expose raw ids or fake ratings
+nabdah-backend/src/modules/notifications/notifications.service.ts:272:          content: { templateName: n.title_key, templateData: { body: { placeholders: [n.body_key] } }, language: 'ar' }
+nabdah-backend/src/modules/auth/auth.service.ts:23:  // M0-01: hardcoded admin seeding removed from boot — use scripts/seed-admin.ts instead.
+nabdah-backend/src/modules/api-security/api-security.module.ts:6: *  - Honeypot endpoints: attractive-looking fake routes that no legit
+nabdah-backend/src/modules/api-security/api-security.module.ts:155:    // Honeypot: any hit = instant blacklist + event (serve convincing fake data)
+nabdah-backend/src/modules/i18n/i18n.service.ts:52:  'home.search_placeholder': { ar: 'ابحث عن دواء، فيتامين، أو طبيب...', en: 'Search medicine, vitamin, doctor...', ur: 'دوا، وٹامن، ڈاکٹر تلاش...' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:80:  'coming_soon.body': { ar: 'هذه الخدمة قيد التطوير وستكون متاحة قريباً ضمن منظومة نبض الصحية الموحّدة. سنبلغك فور إطلاقها.', en: 'This service is coming soon as part of the unified Nabd Healthcare ecosystem. We will notify you on launch.', ur: 'یہ سروس جلد دستیاب ہوگی' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:144:  'cart.street_placeholder': { ar: 'الشارع / المعلم', en: 'Street / landmark', ur: 'گلی' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:145:  'cart.notes_placeholder': { ar: 'ملاحظات للسائق (اختياري)', en: 'Notes for driver (optional)', ur: 'نوٹس' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:216:  'cons.search_placeholder': { ar: 'ابحث عن طبيب، مستشفى، أو تخصص...', en: 'Search doctor, hospital, specialty...', ur: 'تلاش' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:418:  'notif.lab_processing.body': { ar: 'سيتم إصدار النتيجة قريباً', en: 'Results coming soon', ur: 'جلد نتائج' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:438:  'notif.radiology_in_progress.body': { ar: 'سيتم إصدار التقرير قريباً', en: 'Report coming soon', ur: 'جلد' },
+nabdah-backend/src/modules/i18n/i18n.service.ts:456:  'care.search_placeholder': { ar: 'ابحث عن دكتور / تخصص / مستشفى', en: 'Search doctor / specialty / hospital', ur: 'ڈاکٹر / تخصص تلاش' },
+nabdah-backend/src/modules/compat/compat.module.ts:7: * with ownership/role checks — no mocks, no stubs.
+nabdah-backend/src/modules/compat/admin-spa.module.ts:5: * CompatModule) and admin-role guarded — no mocks, no stubs.
+nabdah-backend/src/modules/device-trust/device-trust.module.ts:10: * Keys (placeholders until provided — verification reports not_configured):
+nabdah-backend/src/modules/device-trust/device-trust.module.ts:75:      return { trusted: false, reason: 'play_integrity_not_configured', signals: { placeholder: true } };
+nabdah-backend/src/modules/device-trust/device-trust.module.ts:109:  /** Apple App Attest / DeviceCheck — structure with APNS key placeholders. */
+nabdah-backend/src/modules/device-trust/device-trust.module.ts:113:      return { trusted: false, reason: 'app_attest_not_configured', signals: { placeholder: true } };
+nabdah-backend/src/modules/provider/services/provider-seed.service.ts:61:   * (idempotent). Real DB records, no mocking. Each marked `seeded: true`.
+nabdah-backend/src/modules/care/doctor-integration.controller.ts:18:    // Perform upsert database transactions removing mockup values dynamically
+nabdah-backend/src/modules/insurance/insurance.controller.ts:53:  /** EPIC4/S21: active insurance companies catalog (replaces a hardcoded
+## nabd-patient-web
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:413:                  <Input id="email" type="email" placeholder="Email" />
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:419:                    placeholder="Type your message here."
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:426:                      <SelectValue placeholder="Select a fruit" />
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:562:                        <CommandInput placeholder="Search frameworks..." />
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:630:                          <SelectValue placeholder="MM" />
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:655:                          <SelectValue placeholder="YYYY" />
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:1039:                            placeholder="Type something..."
+nabd-patient-web/client/src/pages/ComponentShowcase.tsx:1413:                    placeholder="Try sending a message..."
+nabd-patient-web/client/src/_core/hooks/useAuth.ts:54:    localStorage.setItem(
+nabd-patient-web/client/src/contexts/ThemeContext.tsx:26:      const stored = localStorage.getItem("theme");
+nabd-patient-web/client/src/contexts/ThemeContext.tsx:41:      localStorage.setItem("theme", theme);
+nabd-patient-web/client/src/components/DashboardLayout.tsx:46:    const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+nabd-patient-web/client/src/components/DashboardLayout.tsx:52:    localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
+nabd-patient-web/client/src/components/AIChatBox.tsx:38:  placeholder?: string;
+nabd-patient-web/client/src/components/AIChatBox.tsx:117:  placeholder = "Type your message...",
+nabd-patient-web/client/src/components/AIChatBox.tsx:316:          placeholder={placeholder}
+nabd-patient-web/client/src/components/ui/input.tsx:57:        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+nabd-patient-web/client/src/components/ui/textarea.tsx:56:        "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+nabd-patient-web/client/src/components/ui/select.tsx:38:        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+nabd-patient-web/client/src/components/ui/command.tsx:76:          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+nabd-patient-web/app/[locale]/diagnostics/labs/page.tsx:24:    <form className={styles.filters} method="get" role="search"><label className={styles.search}><Search size={18} aria-hidden="true" /><span className="sr-only">{t("searchLabel")}</span><input name="q" defaultValue={search} placeholder={t("searchPlaceholder")} /></label><label className={styles.toggle}><input type="checkbox" name="home" value="1" defaultChecked={homeOnly} />{t("homeOnly")}</label><button className={styles.submit} type="submit">{t("apply")}</button></form>
+nabd-patient-web/app/[locale]/diagnostics/radiology/page.tsx:21:  return <main className={`main ${styles.page}`}><section className={styles.hero}><div><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><p className={styles.subtitle}>{t("subtitle")}</p></div><span className={styles.heroIcon}><Image size={28} aria-hidden="true" /></span></section><form className={styles.filters} method="get" role="search"><label className={styles.search}><Search size={18} aria-hidden="true" /><span className="sr-only">{t("searchLabel")}</span><input name="search" defaultValue={search} placeholder={t("searchPlaceholder")} /></label><select name="modality" defaultValue={modality} aria-label={t("modalityLabel")}><option value="">{t("allModalities")}</option>{modalityList.map((item) => <option key={item} value={item}>{item.toUpperCase()}</option>)}</select><input name="body_part" defaultValue={bodyPart} placeholder={t("bodyPartPlaceholder")} aria-label={t("bodyPartLabel")} /><label className={styles.toggle}><input type="checkbox" name="home_visit" value="1" defaultChecked={on(query.home_visit)} />{t("homeVisit")}</label><label className={styles.toggle}><input type="checkbox" name="highest_rated" value="1" defaultChecked={on(query.highest_rated)} />{t("highestRated")}</label><label className={styles.toggle}><input type="checkbox" name="lowest_price" value="1" defaultChecked={on(query.lowest_price)} />{t("lowestPrice")}</label><button className={styles.submit} type="submit">{t("apply")}</button></form>{services.length === 0 ? <section className={styles.state}><Image size={26} aria-hidden="true" /><h2>{t("emptyTitle")}</h2><p>{search || modality || bodyPart ? t("noMatch") : t("emptyBody")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{services.map((service) => { const name = rtl ? service.nameAr ?? service.nameEn : service.nameEn ?? service.nameAr; const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr; return <article className={styles.card} key={service.id}><span className={styles.icon}><Image size={21} aria-hidden="true" /></span><div className={styles.copy}><strong>{name}</strong>{service.shortCode ? <small>{service.shortCode}</small> : null}{description ? <p>{description}</p> : null}<div className={styles.meta}>{service.modality ? <span>{service.modality}</span> : null}{service.bodyPart ? <span>{service.bodyPart}</span> : null}{service.price !== undefined ? <span>{t("price", { value: service.price })}</span> : null}{service.durationMinutes !== undefined ? <span>{t("duration", { value: service.durationMinutes })}</span> : null}</div><div className={styles.badges}>{service.homeVisitSupported ? <span>{t("homeVisit")}</span> : null}{service.facilityVisitSupported ? <span>{t("facilityVisit")}</span> : null}{service.contrastRequired ? <span>{t("contrast")}</span> : null}</div><p className={styles.notice}>{t("detailBlocked")}</p></div><Arrow size={18} aria-hidden="true" /></article>; })}</section>}</main>;
+nabd-patient-web/app/[locale]/diagnostics/packages/page.tsx:24:    <form className={styles.filters} method="get" role="search"><label className={styles.search}><Search size={18} aria-hidden="true" /><span className="sr-only">{t("searchLabel")}</span><input name="q" defaultValue={search} placeholder={t("searchPlaceholder")} /></label><label className={styles.selectLabel}><span>{t("category")}</span><select name="category" defaultValue={category}><option value="">{t("allCategories")}</option>{categories.map((item) => <option key={item} value={item}>{item}</option>)}</select></label><button className={styles.submit} type="submit">{t("apply")}</button></form>
+nabd-patient-web/app/[locale]/articles/page.tsx:11:export default async function ArticlesPage({params,searchParams}:Props){const {locale}=await params;if(!isLocale(locale))notFound();setRequestLocale(locale);const t=await getTranslations("Articles");const Chevron=locale==="ar"||locale==="ur"?ChevronLeft:ChevronRight;const query=searchParams?await searchParams:{};const [response,categoriesResponse]=await Promise.all([getPublicArticles({q:query.q,category:query.category}),getPublicArticleCategories()]);if(!response||!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const articles=parseArticleList(await response.json().catch(()=>null));const categories=categoriesResponse?.ok?parseArticleCategories(await categoriesResponse.json().catch(()=>null)):[];return <main className={`main ${styles.page}`}><section className={styles.hero}><p className={styles.eyebrow}><FileText size={15} aria-hidden="true"/>{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("notice")}</p><form className={styles.search} method="get"><Search size={18} aria-hidden="true"/><input name="q" defaultValue={query.q||""} maxLength={80} placeholder={t("searchPlaceholder")} aria-label={t("searchPlaceholder")}/><button type="submit">{t("search")}</button></form>{categories.length?<nav className={styles.chips} aria-label={t("categories")}>{categories.map((category)=><Link className={query.category===category?styles.chipActive:styles.chip} key={category} href={`/${locale}/articles?category=${encodeURIComponent(category)}`}><span dir="auto">{category}</span></Link>)}</nav>:null}</section>{articles.length?<section className={styles.list}>{articles.map((article)=><Link className={styles.card} key={article.slug} href={`/${locale}/articles/${article.slug}`}><span className={styles.icon}><FileText size={20} aria-hidden="true"/></span><span className={styles.copy}><strong dir="auto">{locale==="ar"?article.titleAr||article.titleEn:article.titleEn||article.titleAr||t("untitled")}</strong><span dir="auto">{article.category||t("categoryUnavailable")}</span></span><Chevron className={styles.arrow} size={18} aria-hidden="true"/></Link>)}</section>:<section className={styles.empty}><FileText size={34} aria-hidden="true"/><h2>{t("noResultsTitle")}</h2><p>{query.q||query.category?t("noResults"):t("empty")}</p></section>}</main>}
+nabd-patient-web/app/[locale]/home-care/services/page.tsx:22:  return <main className={`main ${styles.page}`}><section className={styles.hero}><div><p className={styles.eyebrow}>{t("eyebrow")}</p><h1>{t("title")}</h1><p className={styles.subtitle}>{t("subtitle")}</p></div><span className={styles.heroIcon}><HousePlus size={28} aria-hidden="true" /></span></section><form className={styles.search} method="get" role="search"><Search size={18} aria-hidden="true" /><label className="sr-only" htmlFor="home-care-search">{t("searchLabel")}</label><input id="home-care-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} /></form>{filtered.length === 0 ? <section className={styles.state}><HousePlus size={26} aria-hidden="true" /><h2>{t("emptyTitle")}</h2><p>{services.length === 0 ? t("emptyBody") : t("noMatch")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{filtered.map((service, index) => { const name = rtl ? service.nameAr ?? service.nameEn : service.nameEn ?? service.nameAr; const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr; const color = ["#1499a7", "#6a5bd5", "#c27629", "#1b9277", "#c45572"][index % 5]; return <Link href={`/${locale}/home-care/services/${service.id}`} className={styles.card} key={service.id}><span className={styles.icon} style={{ backgroundColor: `${color}18`, color }}><HousePlus size={22} aria-hidden="true" /></span><span className={styles.copy}><strong>{name}</strong>{description ? <small>{description}</small> : null}{service.price !== undefined ? <small>{t("price", { value: service.price })}</small> : null}</span><Arrow size={18} aria-hidden="true" /></Link>; })}</section>}</main>;
+nabd-patient-web/app/[locale]/consultations/specialties/page.tsx:31:    <form className={styles.search} method="get" role="search"><Search size={18} aria-hidden="true" /><label className="sr-only" htmlFor="specialty-search">{t("searchLabel")}</label><input id="specialty-search" name="q" defaultValue={q} placeholder={t("searchPlaceholder")} /></form>
+nabd-patient-web/app/[locale]/consultations/doctors/page.tsx:17:  return <main className={`main ${styles.page}`}><section className={styles.hero}><div><p className={styles.eyebrow}>{t("eyebrow")}</p><h1>{t("title")}</h1><p className={styles.subtitle}>{t("subtitle")}</p></div><span className={styles.heroIcon}><Stethoscope size={28} aria-hidden="true" /></span></section><form className={styles.search} method="get" role="search"><Search size={18} aria-hidden="true" /><label className="sr-only" htmlFor="doctor-search">{t("searchLabel")}</label><input id="doctor-search" name="q" defaultValue={sp.q ?? sp.specialty ?? ""} placeholder={t("searchPlaceholder")} /><button type="submit">{t("search")}</button></form><nav className={styles.sorts} aria-label={t("sortLabel")}>{([["rating", "sortRating"], ["price", "sortPrice"], ["wait", "sortWait"]] as const).map(([sort, key]) => <Link key={sort} href={`/${locale}/consultations/doctors?${new URLSearchParams({ ...(sp.q ? { q: sp.q } : sp.specialty ? { specialty: sp.specialty } : {}), sort }).toString()}`} className={sp.sort === sort ? styles.sortActive : styles.sort}>{t(key)}</Link>)}</nav>{doctors.length === 0 ? <section className={styles.state}><Stethoscope size={26} aria-hidden="true" /><h2>{t("emptyTitle")}</h2><p>{t("emptyBody")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{doctors.map((doctor) => <Link key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card}><span className={styles.avatar}><Stethoscope size={21} aria-hidden="true" /></span><span className={styles.copy}><strong>{doctor.name ?? t("nameUnavailable")}</strong>{doctor.degree ? <small>{doctor.degree}</small> : null}{doctor.specialty ? <small>{doctor.specialty}</small> : null}<span className={styles.meta}>{doctor.rating !== undefined ? t("rating", { value: doctor.rating }) : null}{doctor.price !== undefined ? t("price", { value: doctor.price }) : null}</span></span><Arrow size={18} aria-hidden="true" /></Link>)}</section>}</main>;
+## nabd_plus_patient_app
+nabd_plus_patient_app/jest.config.js:8:    '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
+nabd_plus_patient_app/app/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/index.tsx:6:import AsyncStorage from "@react-native-async-storage/async-storage";
+nabd_plus_patient_app/app/index.tsx:26:      const isGuest = await AsyncStorage.getItem(STORAGE_KEYS.GUEST_MODE ?? "@nabdah_guest");
+nabd_plus_patient_app/app/_layout.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/ai-assistant.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/ai-assistant.tsx:138:            placeholder="اكتب استفسارك الطبي..."
+nabd_plus_patient_app/app/support/chat.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/support/chat.tsx:242:            placeholder="اكتب رسالتك..."
+nabd_plus_patient_app/app/support/chat.tsx:243:            placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/support/ticket.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/community/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/community/hub.tsx:249:                placeholder="اكتب استفسارك أو تجربتك الصحية للمجتمع الطبي..."
+nabd_plus_patient_app/app/community/hub.tsx:250:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/community/post-detail.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/community/post-detail.tsx:274:          placeholder="أضف تعليقاً..."
+nabd_plus_patient_app/app/community/post-detail.tsx:275:          placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/reports/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/reports/hub.tsx:3:// EPIC4/S21: the previous version rendered a hardcoded REPORTS array with
+nabd_plus_patient_app/app/reports/timeline.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/reports/view-report.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/reports/passport.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/profile/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/profile/index.tsx:40:  // E2: real loyalty balance for the points badge (was hardcoded '1,250')
+nabd_plus_patient_app/app/profile/addresses.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/profile/insurance.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/profile/insurance.tsx:260:            placeholder="رقم الوثيقة"
+nabd_plus_patient_app/app/profile/insurance.tsx:261:            placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/profile/insurance.tsx:268:            placeholder="رقم العضوية (اختياري)"
+nabd_plus_patient_app/app/profile/insurance.tsx:269:            placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/profile/edit.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/offers/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/offers/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/loyalty/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/loyalty/hub.tsx:20:// Pre-load placeholders only — /loyalty/config overwrites with the live table.
+nabd_plus_patient_app/app/loyalty/referrals.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/loyalty/referrals.tsx:210:            placeholder="أدخل كود الإحالة"
+nabd_plus_patient_app/app/loyalty/challenges.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/loyalty/rewards.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/loyalty/leaderboard.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/ai/monthly-report.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/ai/monthly-report.tsx:3:// E2: was 100% fabricated — fake health scores (78/100), fake BP trends ("تحسّن"),
+nabd_plus_patient_app/app/ai/monthly-report.tsx:4:// fake appointments and fake AI recommendations. In a medical app that is a safety
+nabd_plus_patient_app/app/ai/skin-analysis.tsx:48:  return <View style={[styles.container, { backgroundColor: colors.background }]}><View style={[styles.header, { backgroundColor: '#0F766E', paddingTop: insets.top + 12 }]}><TouchableOpacity onPress={() => router.back()} style={styles.backButton}><Icon name="back" size={21} color="#FFFFFF" /></TouchableOpacity><AppText variant="h4" color="#FFFFFF">{t('skinTitle')}</AppText><AppText variant="caption" color="rgba(255,255,255,0.82)">{t('skinSubtitle')}</AppText></View><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"><View style={[styles.notice, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}><Icon name="info" size={18} color="#047857" /><AppText variant="caption" color={colors.textPrimary} style={styles.noticeText}>{t('skinNotice')}</AppText></View><View style={[styles.card, { backgroundColor: colors.surface }]}><AppText variant="h6" color={colors.textPrimary}>{t('chooseAreas')}</AppText><View style={styles.chips}>{areaOptions.map((option) => { const active = areas.includes(option.value); return <TouchableOpacity key={option.value} accessibilityRole="checkbox" accessibilityState={{ checked: active }} onPress={() => toggleArea(option.value)} style={[styles.chip, { borderColor: active ? '#0F766E' : colors.border, backgroundColor: active ? '#CCFBF1' : 'transparent' }]}><AppText variant="caption" color={active ? '#115E59' : colors.textPrimary}>{t(option.key)}</AppText></TouchableOpacity>; })}</View></View><View style={[styles.card, { backgroundColor: colors.surface }]}><AppText variant="h6" color={colors.textPrimary}>{t('observations')}</AppText>{observationOptions.map((option) => { const active = observations.includes(option.value); return <TouchableOpacity key={option.value} accessibilityRole="checkbox" accessibilityState={{ checked: active }} onPress={() => toggleObservation(option.value)} style={[styles.option, { borderColor: active ? '#0F766E' : colors.border, backgroundColor: active ? '#CCFBF1' : 'transparent' }]}><View style={[styles.checkbox, { borderColor: active ? '#0F766E' : colors.border, backgroundColor: active ? '#0F766E' : 'transparent' }]}>{active ? <Icon name="check" size={14} color="#FFFFFF" /> : null}</View><AppText variant="bodySM" color={colors.textPrimary} style={styles.optionText}>{t(option.key)}</AppText></TouchableOpacity>; })}<AppText variant="caption" color={colors.textSecondary}>{t('noteOptional')}</AppText><TextInput value={note} onChangeText={setNote} maxLength={500} multiline textAlignVertical="top" placeholder={t('notePlaceholder')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /></View><TouchableOpacity accessibilityRole="checkbox" accessibilityState={{ checked: acknowledged }} onPress={() => setAcknowledged((value) => !value)} style={[styles.ack, { borderColor: acknowledged ? '#0F766E' : colors.border, backgroundColor: acknowledged ? '#ECFDF5' : colors.surface }]}><View style={[styles.checkbox, { borderColor: acknowledged ? '#0F766E' : colors.border, backgroundColor: acknowledged ? '#0F766E' : 'transparent' }]}>{acknowledged ? <Icon name="check" size={14} color="#FFFFFF" /> : null}</View><AppText variant="caption" color={colors.textPrimary} style={styles.optionText}>{t('acknowledge')}</AppText></TouchableOpacity>{error ? <AppText variant="caption" color="#B91C1C" style={styles.error}>{error}</AppText> : null}<TouchableOpacity disabled={submitting} onPress={() => void submit()} style={[styles.primaryAction, { backgroundColor: '#0F766E', opacity: submitting ? 0.65 : 1 }]}>{submitting ? <ActivityIndicator color="#FFFFFF" /> : <AppText variant="h6" color="#FFFFFF">{t('reviewSkin')}</AppText>}</TouchableOpacity></ScrollView></View>;
+nabd_plus_patient_app/app/ai/prescription-translator.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/ai/triage.tsx:70:      <View style={[styles.card, { backgroundColor: colors.surface }]}><AppText variant="h6" color={colors.textPrimary}>{t('symptoms')}</AppText><TextInput value={symptoms} onChangeText={setSymptoms} maxLength={1000} multiline textAlignVertical="top" placeholder={t('symptomsPlaceholder')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /></View>
+nabd_plus_patient_app/app/notifications/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/search/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/search/index.tsx:5:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/search/index.tsx:33:    AsyncStorage.getItem(RECENT_KEY)
+nabd_plus_patient_app/app/search/index.tsx:43:      AsyncStorage.setItem(RECENT_KEY, JSON.stringify(next)).catch(() => {});
+nabd_plus_patient_app/app/search/index.tsx:112:            style={{ flex: 1, fontSize: 13, color: colors.n, textAlign: isRTL ? 'right' : 'left' }} placeholder={lang === 'ar' ? 'ابحث عن طبيب، دواء، تحليل، مقال، تأمين...' : 'Search doctor, medicine, lab, article, insurance...'}
+nabd_plus_patient_app/app/search/index.tsx:113:            placeholderTextColor={colors.t3}
+nabd_plus_patient_app/app/voice/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wearables/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wearables/hub.tsx:202:                placeholder={f.hint}
+nabd_plus_patient_app/app/wearables/hub.tsx:203:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/services/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/search.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/search.tsx:67:            placeholder="ابحث عن تحليل..."
+nabd_plus_patient_app/app/diagnostics/cart.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/booking-success.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/orders.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/my-results.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/results-history.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/insurance-approval.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/upload-rx.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/upload-rx.tsx:3:// This file previously rendered a bare "Upload" placeholder stub.
+nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:119:      // EPIC4/S21: REAL OCR via the AI gateway — the old code faked a 3s
+nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:120:      // "AI processing" then displayed hardcoded tests (CBC, Vitamin D).
+nabd_plus_patient_app/app/diagnostics/test-detail.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/packages.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/packages.tsx:66:            placeholder="ابحث عن باقة..."
+nabd_plus_patient_app/app/diagnostics/packages.tsx:67:            placeholderTextColor={theme.colors.textSecondary}
+nabd_plus_patient_app/app/diagnostics/lab-comparison.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/package-detail.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/lab/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/diagnostics/order/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/edit-profile.tsx:72:      <Card style={styles.section}><AppText variant="h6" align="right">المعلومات الصحية الأساسية</AppText><AppText variant="caption" color={colors.textTertiary} align="right">فصيلة الدم</AppText><SegmentedControl value={draft.blood_type} onChange={(blood_type) => setDraft((state) => ({ ...state, blood_type }))} options={['unknown', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((key) => ({ key, label: key === 'unknown' ? 'غير معروف' : key }))} /><Input value={draft.height_cm} onChangeText={(height_cm) => setDraft((state) => ({ ...state, height_cm }))} placeholder="الطول بالسنتيمتر" keyboardType="numeric" /><Input value={draft.weight_kg} onChangeText={(weight_kg) => setDraft((state) => ({ ...state, weight_kg }))} placeholder="الوزن بالكيلوغرام" keyboardType="numeric" /><AppText variant="caption" color={colors.textTertiary} align="right">النوع</AppText><SegmentedControl value={draft.gender} onChange={(gender) => setDraft((state) => ({ ...state, gender }))} options={[{ key: 'unspecified', label: 'لا أريد التحديد' }, { key: 'female', label: 'أنثى' }, { key: 'male', label: 'ذكر' }]} /></Card>
+nabd_plus_patient_app/app/health/actionable-order.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/prescriptions.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/medication-reminder-add.tsx:69:      <Animated.View entering={FadeInDown.duration(300)}><Card style={styles.section}><SectionTitle index="1" title={t('medicationAndDose')} colors={colors} /><Input value={name} onChangeText={setName} placeholder={t('medicationName')} /><Input value={dose} onChangeText={setDose} placeholder={t('dosePlaceholder')} /><Input value={count} onChangeText={setCount} placeholder={t('unitsPerDose')} keyboardType="numeric" /><AppText variant="caption" color={colors.textTertiary} align="right">{t('doseSafety')}</AppText></Card></Animated.View>
+nabd_plus_patient_app/app/health/medication-reminder-add.tsx:70:      <Animated.View entering={FadeInDown.delay(70).duration(300)}><Card style={styles.section}><SectionTitle index="2" title={t('schedule')} colors={colors} /><View style={styles.times}>{TIME_OPTIONS.map((time) => { const selected = times.includes(time); return <TouchableOpacity key={time} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleTime(time)} style={[styles.time, { backgroundColor: selected ? colors.primary : colors.surfaceSecondary, borderColor: selected ? colors.primary : colors.border }]}><AppText variant="labelSM" color={selected ? '#fff' : colors.textPrimary}>{time}</AppText></TouchableOpacity>; })}</View><AppText variant="caption" color={colors.textTertiary} align="right">{t('timeZone')}</AppText><Input value={timeZone} onChangeText={setTimeZone} placeholder="Asia/Riyadh" /><AppText variant="caption" color={colors.textTertiary} align="right">{t('timeZoneHint')}</AppText></Card></Animated.View>
+nabd_plus_patient_app/app/health/medication-reminder-add.tsx:71:      <Animated.View entering={FadeInDown.delay(140).duration(300)}><Card style={styles.section}><SectionTitle index="3" title={t('frequencyAndDuration')} colors={colors} /><SegmentedControl value={frequency} onChange={setFrequency} options={[{ key: 'daily', label: t('daily') }, { key: 'weekly', label: t('weekly') }, { key: 'as_needed', label: t('asNeeded') }]} /><SegmentedControl value={chronic ? 'chronic' : 'limited'} onChange={(value) => setChronic(value === 'chronic')} options={[{ key: 'limited', label: t('limitedDuration') }, { key: 'chronic', label: t('chronicMedication') }]} />{!chronic && <Input value={duration} onChangeText={setDuration} placeholder={t('durationDays')} keyboardType="numeric" />}</Card></Animated.View>
+nabd_plus_patient_app/app/health/medication-reminder-add.tsx:73:      {chronic && <Animated.View entering={FadeInDown.duration(260)}><Card style={[styles.section, { borderColor: colors.warning + '55' }]}><SectionTitle index="5" title={t('refillTracking')} colors={colors} /><Input value={pillsRemaining} onChangeText={setPillsRemaining} placeholder={t('remainingUnits')} keyboardType="numeric" /><Input value={refillDate} onChangeText={setRefillDate} placeholder={t('refillDate')} /><SegmentedControl value={String(refillLeadDays)} onChange={(value) => setRefillLeadDays(value === '2' ? 2 : 3)} options={[{ key: '2', label: t('twoDays') }, { key: '3', label: t('threeDays') }]} /><AppText variant="caption" color={colors.textTertiary} align="right">{t('refillHint')}</AppText></Card></Animated.View>}
+nabd_plus_patient_app/app/health/medication-reminder-add.tsx:74:      <Animated.View entering={FadeInDown.delay(230).duration(300)}><Card style={styles.section}><AppText variant="h6" align="right">{t('instructions')}</AppText><Input value={instructions} onChangeText={setInstructions} placeholder={t('instructionsHint')} multiline /></Card></Animated.View>
+nabd_plus_patient_app/app/health/health-id.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/sleep-score.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/add-family-member.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/refills.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/conditions-allergies.tsx:51:      <ItemSection title="الأمراض المزمنة" value={condition} onChange={setCondition} placeholder="أدخل اسماً كما ورد في سجلك" items={profile.chronic_diseases || []} addLabel="إضافة مرض" adding={action === 'add-chronic-diseases'} onAdd={() => add('chronic-diseases', condition)} onRemove={(id) => remove('chronic-diseases', id)} action={action} colors={colors} />
+nabd_plus_patient_app/app/health/conditions-allergies.tsx:52:      <ItemSection title="الحساسية" value={allergy} onChange={setAllergy} placeholder="أدخل الحساسية المعروفة" items={profile.allergies || []} addLabel="إضافة حساسية" adding={action === 'add-allergies'} onAdd={() => add('allergies', allergy)} onRemove={(id) => remove('allergies', id)} action={action} colors={colors} />
+nabd_plus_patient_app/app/health/conditions-allergies.tsx:57:function ItemSection({ title, value, onChange, placeholder, items, addLabel, adding, onAdd, onRemove, action, colors }: { title: string; value: string; onChange: (value: string) => void; placeholder: string; items: ProfileItem[]; addLabel: string; adding: boolean; onAdd: () => void; onRemove: (id: string) => void; action: string | null; colors: any }) {
+nabd_plus_patient_app/app/health/conditions-allergies.tsx:58:  return <Card style={styles.section}><AppText variant="h6" align="right">{title}</AppText><Input value={value} onChangeText={onChange} placeholder={placeholder} /><Button label={addLabel} variant="outline" size="sm" full={false} loading={adding} onPress={onAdd} />{items.length === 0 ? <AppText variant="caption" color={colors.textTertiary} align="right">لا توجد عناصر مسجلة.</AppText> : items.map((item) => <View key={item.id} style={[styles.item, { borderTopColor: colors.borderLight }]}><AppText variant="bodySM" style={{ flex: 1, textAlign: 'right' }}>{itemText(item)}</AppText><Button label="حذف" variant="ghost" size="sm" full={false} loading={action === `delete-${item.id}`} onPress={() => onRemove(item.id)} /></View>)}</Card>;
+nabd_plus_patient_app/app/health/chronic-disease.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/family-hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/family-chat.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/sleep-tracker.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/sleep-tracker.tsx:178:              <Input value={hours} onChangeText={setHours} placeholder="عدد الساعات (مثال: 7.5)" icon="bedtime" keyboardType="numeric" />
+nabd_plus_patient_app/app/health/sleep-tracker.tsx:179:              <Input value={score} onChangeText={setScore} placeholder="تقييم الجودة من 100 (مثال: 80)" icon="sparkles" keyboardType="numeric" />
+nabd_plus_patient_app/app/health/trends.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/family-member-detail.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:175:                placeholder="الاسم"
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:176:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:183:                placeholder="صلة القرابة (اختياري)"
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:184:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:191:                placeholder="رقم الجوال"
+nabd_plus_patient_app/app/health/emergency-contacts.tsx:192:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/health/family-calendar.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/health/vitals-log.tsx:63:    {showForm && <View style={[styles.overlay, { backgroundColor: colors.overlay }]}><View style={[styles.sheet, { backgroundColor: colors.surface }]}><View style={styles.sheetHeader}><View style={{ width: 36 }} /><AppText variant="h4">إضافة {config.label}</AppText><IconButton icon="close" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => setShowForm(false)} /></View>{type === 'bp' ? <View style={styles.bp}><Input value={primary} onChangeText={setPrimary} placeholder="الانقباضي" keyboardType="numeric" style={{ flex: 1 }} /><Input value={secondary} onChangeText={setSecondary} placeholder="الانبساطي" keyboardType="numeric" style={{ flex: 1 }} /></View> : <Input value={primary} onChangeText={setPrimary} placeholder={`القراءة (${config.unit})`} keyboardType="numeric" />}<SegmentedControl value={context} onChange={setContext} options={[{ key: 'morning', label: 'صباحاً' }, { key: 'afternoon', label: 'ظهراً' }, { key: 'evening', label: 'مساءً' }]} /><Button label="حفظ القراءة" variant="gradient" icon="check_circle" loading={saving} onPress={save} /></View></View>}
+nabd_plus_patient_app/app/health/wearables.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/reviews/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/reviews/index.tsx:63:      // E2: real review endpoint (was a fake 1.5s success — nothing was ever saved)
+nabd_plus_patient_app/app/reviews/index.tsx:192:            placeholder="شارك تجربتك مع الآخرين..."
+nabd_plus_patient_app/app/reviews/index.tsx:193:            placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/mental-health/mood-journal.tsx:106:          <TextInput value={sleep} onChangeText={setSleep} keyboardType="decimal-pad" maxLength={4} placeholder="0–24" placeholderTextColor={colors.textTertiary} style={[styles.shortInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />
+nabd_plus_patient_app/app/mental-health/mood-journal.tsx:113:          <TextInput value={note} onChangeText={setNote} maxLength={500} multiline textAlignVertical="top" placeholder={t('notePlaceholder')} placeholderTextColor={colors.textTertiary} style={[styles.noteInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />
+nabd_plus_patient_app/app/mental-health/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/mental-health/crisis-support.tsx:80:        <View style={styles.modalBackdrop}><View style={[styles.modal, { backgroundColor: colors.surface }]}><AppText variant="h5" color={colors.textPrimary}>{t('addContact')}</AppText><TextInput value={name} onChangeText={setName} placeholder={t('contactName')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /><TextInput value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder={t('contactPhone')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /><TextInput value={relationship} onChangeText={setRelationship} placeholder={t('contactRelationship')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />{formError && <AppText variant="caption" color="#B91C1C">{t('contactError')}</AppText>}<View style={styles.modalActions}><TouchableOpacity onPress={() => setShowForm(false)} style={[styles.modalCancel, { borderColor: colors.border }]}><AppText variant="caption" color={colors.textSecondary}>{t('cancel')}</AppText></TouchableOpacity><TouchableOpacity disabled={saving} onPress={() => void saveContact()} style={[styles.modalSave, { backgroundColor: '#312E81', opacity: saving ? 0.6 : 1 }]}>{saving ? <ActivityIndicator color="#FFFFFF" /> : <AppText variant="caption" color="#FFFFFF">{t('add')}</AppText>}</TouchableOpacity></View></View></View>
+nabd_plus_patient_app/app/articles/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/articles/index.tsx:96:          placeholder="ابحث في المقالات…"
+nabd_plus_patient_app/app/articles/bookmarks.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/articles/[slug].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/drug-scanner/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/maternity/maternity-setup.tsx:16:  return <View style={[styles.container, { backgroundColor: colors.background }]}><StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} /><View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><View style={styles.titleWrap}><AppText variant="h3">{t('setup')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('choosePath')}</AppText></View><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View><ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}>{error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText></Card>}<Animated.View entering={FadeInDown.duration(300)}><Card style={styles.section}><SegmentedControl value={mode} onChange={(value) => setMode(value as Mode)} options={[{ key:'cycle', label:t('cycle') }, { key:'pregnancy', label:t('pregnancy') }]} /><AppText variant="bodySM" color={colors.textSecondary} align="right">{mode === 'pregnancy' ? t('pregnantSetup') : t('cycleSetup')}</AppText></Card></Animated.View><Animated.View entering={FadeInDown.delay(80).duration(300)}><Card style={styles.section}><Input value={lmp} onChangeText={setLmp} placeholder={t('lmp')} autoCapitalize="none" /><AppText variant="caption" color={colors.textTertiary} align="right">{t('dateFormat')}</AppText>{mode === 'pregnancy' ? <Input value={dueDate} onChangeText={setDueDate} placeholder={t('dueDate')} autoCapitalize="none" /> : <><Input value={cycleLength} onChangeText={setCycleLength} placeholder={t('cycleLength')} keyboardType="numeric" /><SegmentedControl value={regular} onChange={setRegular} options={[{ key:'true', label:t('regular') }, { key:'false', label:t('irregular') }]} /></>}</Card></Animated.View><Animated.View entering={FadeInDown.delay(150).duration(300)}><Card style={[styles.notice, { backgroundColor: colors.warningSurface, borderColor: colors.warning + '55' }]}><AppText variant="bodySM" color={colors.textSecondary} align="right">{mode === 'pregnancy' ? t('pregnancyNotice') : t('cycleNotice')}</AppText><AppText variant="caption" color={colors.textTertiary} align="right">{t('notContraception')}</AppText></Card></Animated.View><Animated.View entering={FadeInDown.delay(220).duration(300)}><Button label={saving ? t('saving') : t('save')} variant="gradient" icon="check_circle" loading={saving} onPress={save} /></Animated.View></ScrollView></View>;
+nabd_plus_patient_app/app/maternity/fetus-data.ts:1:// @ts-nocheck
+nabd_plus_patient_app/app/room/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/orders/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/nutrition/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/nutrition/log-meal.tsx:42:      <Animated.View entering={FadeInDown.delay(75).duration(300)}><Card style={styles.section}><SectionHeading value="2" title={t('logMeal')} colors={colors} /><Input value={name} onChangeText={setName} placeholder={t('mealName')} /><Input value={calories} onChangeText={setCalories} placeholder={t('caloriesInput')} keyboardType="decimal-pad" /><AppText variant="caption" color={colors.textTertiary} align="right">{t('mealNameHint')}</AppText></Card></Animated.View>
+nabd_plus_patient_app/app/nutrition/log-meal.tsx:43:      <Animated.View entering={FadeInDown.delay(150).duration(300)}><Card style={styles.section}><SectionHeading value="3" title={t('summary')} colors={colors} /><Input value={protein} onChangeText={setProtein} placeholder={t('proteinInput')} keyboardType="decimal-pad" /><Input value={carbs} onChangeText={setCarbs} placeholder={t('carbsInput')} keyboardType="decimal-pad" /><Input value={fat} onChangeText={setFat} placeholder={t('fatInput')} keyboardType="decimal-pad" /><Input value={fiber} onChangeText={setFiber} placeholder={t('fiberInput')} keyboardType="decimal-pad" /></Card></Animated.View>
+nabd_plus_patient_app/app/nutrition/body-target.tsx:23:  return <View style={[styles.container, { backgroundColor: colors.background }]}><StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} /><View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><View style={styles.titleWrap}><AppText variant="h3">{t('bodyGoals')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('setupHint')}</AppText></View><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>{loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>{t('loading')}</AppText></View> : <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>{error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText></Card>}<Animated.View entering={FadeInDown.duration(300)}><Card style={styles.section}><Heading count="1" title={t('goal')} colors={colors} /><SegmentedControl value={goal} onChange={setGoal} options={goals.map((value) => ({ key: value, label: t(value === 'healthy_lifestyle' ? 'healthy' : value) }))} /><SegmentedControl value={activity} onChange={setActivity} options={activities.map((value) => ({ key: value, label: t(value) }))} /></Card></Animated.View><Animated.View entering={FadeInDown.delay(70).duration(300)}><Card style={styles.section}><Heading count="2" title={t('bodyGoals')} colors={colors} /><Input value={height} onChangeText={setHeight} placeholder={t('height')} keyboardType="decimal-pad" /><Input value={weight} onChangeText={setWeight} placeholder={t('weight')} keyboardType="decimal-pad" /><Input value={targetWeight} onChangeText={setTargetWeight} placeholder={t('targetWeight')} keyboardType="decimal-pad" />{bmi != null && <AppText variant="caption" color={colors.textTertiary} align="right">{`BMI: ${bmi}`}</AppText>}</Card></Animated.View><Animated.View entering={FadeInDown.delay(140).duration(300)}><Card style={styles.section}><Heading count="3" title={t('summary')} colors={colors} /><Input value={calorieTarget} onChangeText={setCalorieTarget} placeholder={t('calorieTarget')} keyboardType="numeric" /><Input value={waterTarget} onChangeText={setWaterTarget} placeholder={t('waterTarget')} keyboardType="numeric" /></Card></Animated.View><Animated.View entering={FadeInDown.delay(210).duration(300)}><Card style={styles.section}><Heading count="4" title={t('setup')} colors={colors} /><Input value={restrictions} onChangeText={setRestrictions} placeholder={t('dietaryRestrictions')} /><Input value={allergies} onChangeText={setAllergies} placeholder={t('allergies')} /></Card></Animated.View><Animated.View entering={FadeInDown.delay(280).duration(300)}><Button label={saving ? t('saving') : t('save')} variant="gradient" icon="check_circle" loading={saving} onPress={save} /></Animated.View></ScrollView>}</View>;
+nabd_plus_patient_app/app/s/[type]/[slug].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/shared/location-picker.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/shared/location-picker.tsx:593:              placeholder: "اسم العنوان (مثال: المنزل)",
+nabd_plus_patient_app/app/shared/location-picker.tsx:596:            { key: "street", placeholder: "الشارع والحي", icon: "location" },
+nabd_plus_patient_app/app/shared/location-picker.tsx:599:              placeholder: "رقم المبنى / اسمه",
+nabd_plus_patient_app/app/shared/location-picker.tsx:604:              placeholder: "الطابق (اختياري)",
+nabd_plus_patient_app/app/shared/location-picker.tsx:609:              placeholder: "ملاحظات للمندوب (اختياري)",
+nabd_plus_patient_app/app/shared/location-picker.tsx:623:                placeholder={field.placeholder}
+nabd_plus_patient_app/app/shared/location-picker.tsx:624:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/nursing/live-tracking.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/nursing/live-tracking.tsx:92:    // E2: poll the live API every 15s (was: fetch once + a fake local ETA countdown)
+nabd_plus_patient_app/app/nursing/service-info.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/nursing/service-details.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/nursing/nurse-profile.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/payments/processing.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/payments/failure.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/payments/failed.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/payments/success.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/map/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/map/index.tsx:179:        // and providers without real coordinates never appear as map markers at a fake Riyadh location
+nabd_plus_patient_app/app/map/index.tsx:422:              placeholder="ابحث عن دكتور، صيدلية، مستشفى..."
+nabd_plus_patient_app/app/map/index.tsx:423:              placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/family/scan.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/calendar.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/calendar.tsx:256:            <TextInput value={title} onChangeText={setTitle} placeholder="عنوان الحدث" placeholderTextColor={colors.textTertiary} style={[st.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.background }]} textAlign="right" maxLength={160} />
+nabd_plus_patient_app/app/family/calendar.tsx:257:            <TextInput value={eventDate} onChangeText={setEventDate} placeholder="الموعد بصيغة 2026-09-01T10:00:00Z" placeholderTextColor={colors.textTertiary} style={[st.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.background }]} textAlign="left" autoCapitalize="none" />
+nabd_plus_patient_app/app/family/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/chat.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/chat.tsx:173:          <TextInput value={msg} onChangeText={setMsg} placeholder="اكتب رسالة..." placeholderTextColor={colors.textTertiary} style={[st.input, { backgroundColor: colors.surfaceSecondary, color: colors.textPrimary }]} onSubmitEditing={send} />
+nabd_plus_patient_app/app/family/shared-calendar.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/join.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/join.tsx:147:              placeholder="مثال: F7X2K9"
+nabd_plus_patient_app/app/family/emergency-contacts.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/permissions.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/permission-request.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/invite.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/invite.tsx:79:            <Input value={name} onChangeText={setName} placeholder="اسم الفرد" icon="user" />
+nabd_plus_patient_app/app/family/member-health.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/family/member-health.tsx:105:      // Honest failure: no permission or network — show empty state, not dummy data
+nabd_plus_patient_app/app/(onboarding)/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(onboarding)/index.tsx:11:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/(onboarding)/index.tsx:80:      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
+nabd_plus_patient_app/app/(onboarding)/index.tsx:93:      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
+nabd_plus_patient_app/app/(onboarding)/language.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(onboarding)/permissions.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(onboarding)/permissions.tsx:13:import AsyncStorage from "@react-native-async-storage/async-storage";
+nabd_plus_patient_app/app/(onboarding)/permissions.tsx:69:      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, "true");
+nabd_plus_patient_app/app/(onboarding)/_layout.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:111:            placeholder={mainTab === 'labs' ? "ابحث عن تحليل، باقة، أو مختبر..." : "ابحث عن نوع الأشعة أو المركز..."}
+nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:112:            placeholderTextColor={colors.textSecondary}
+nabd_plus_patient_app/app/(tabs)/services.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:25:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:127:          const raw = await AsyncStorage.getItem(ck);
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:134:          AsyncStorage.setItem(ck, JSON.stringify({ data: rows, ts: Date.now() })).catch(() => {});
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:136:          // Offline — cached copy (if any) already shown above; never mock data
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:229:                placeholder={lang === 'ar' ? 'ابحث بالاسم أو المادة الفعالة...' : 'Search medicines...'}
+nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:230:                placeholderTextColor={colors.t3}
+nabd_plus_patient_app/app/(tabs)/health.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/_layout.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/nursing.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/nursing.tsx:120:              placeholder="ابحث عن خدمة أو ممرض..."
+nabd_plus_patient_app/app/(tabs)/nursing.tsx:124:              placeholderTextColor="#94A3B8"
+nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:211:            placeholder="ابحث عن دكتور أو تخصص..."
+nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:212:            placeholderTextColor={colors.t3}
+nabd_plus_patient_app/app/delivery/address-select.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/delivery/address-select.tsx:42:        // No mock fallback — show the honest empty state
+nabd_plus_patient_app/app/consultations/specialty-select.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/specialty-select.tsx:61:          placeholder="ابحث عن تخصص..."
+nabd_plus_patient_app/app/consultations/share-report.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/share-report.tsx:2:// EPIC4/S21: was a hardcoded REPORTS list + setTimeout "share" that did
+nabd_plus_patient_app/app/consultations/appointments.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/video-call.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/video-call.tsx:57:        // (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
+nabd_plus_patient_app/app/consultations/virtual-waiting-room.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/prescription-from-doctor.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/summary.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/doctor-search.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/doctor-search.tsx:113:          placeholder="ابحث بالاسم أو التخصص..."
+nabd_plus_patient_app/app/consultations/incoming-call.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/booking-success.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/clinic-confirm.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/appointment-detail.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/doctor-profile.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/follow-up.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/home-visit-tracking.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/waiting-room.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/booking-confirm.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/booking-confirm.tsx:7:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/consultations/booking-confirm.tsx:119:            token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+nabd_plus_patient_app/app/consultations/clinic-location.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/booking-pending.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/cancel-reschedule.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/post-call-rating.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/post-call-rating.tsx:98:            placeholder="اكتب رأيك في الخدمة..."
+nabd_plus_patient_app/app/consultations/post-call-rating.tsx:99:            placeholderTextColor={colors.t3}
+nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:189:          placeholder="اكتب رسالة..."
+nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:190:          placeholderTextColor={colors.t3}
+nabd_plus_patient_app/app/consultations/call-history.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/book/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/book/[id].tsx:345:            placeholder="اكتب الأعراض أو أي معلومات تود إخبار الطبيب بها"
+nabd_plus_patient_app/app/consultations/book/[id].tsx:346:            placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/consultations/clinic/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/offer/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/offer/[id].tsx:3:// E2: this screen was fully broken — `promos` was a hardcoded empty array so
+nabd_plus_patient_app/app/consultations/video/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/consultations/video/[id].tsx:3:// This file previously rendered a "VideoCall - s64" placeholder stub.
+nabd_plus_patient_app/app/consultations/doctor/[id].tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wallet/cards.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wallet/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wallet/hub.tsx:337:                placeholder="الاسم على البطاقة"
+nabd_plus_patient_app/app/wallet/hub.tsx:338:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/wallet/hub.tsx:344:                placeholder="رقم البطاقة"
+nabd_plus_patient_app/app/wallet/hub.tsx:345:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/wallet/hub.tsx:352:                placeholder="تاريخ الانتهاء (MM/YY)"
+nabd_plus_patient_app/app/wallet/hub.tsx:353:                placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/wallet/topup.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wallet/topup.tsx:151:            placeholder="المبلغ (ر.س)"
+nabd_plus_patient_app/app/wallet/topup.tsx:152:            placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/wallet/transactions.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/wallet/transfer.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/welcome.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/terms.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/forgot-password.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/forgot-password.tsx:108:          placeholder="البريد الإلكتروني"
+nabd_plus_patient_app/app/(auth)/reset-password.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/reset-password.tsx:116:          placeholder="كلمة المرور الجديدة"
+nabd_plus_patient_app/app/(auth)/reset-password.tsx:126:          placeholder="تأكيد كلمة المرور"
+nabd_plus_patient_app/app/(auth)/login.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/login.tsx:8:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/(auth)/login.tsx:95:      // M1: no more dummy token fallback — a real session or an explicit error
+nabd_plus_patient_app/app/(auth)/login.tsx:99:      catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
+nabd_plus_patient_app/app/(auth)/login.tsx:246:              placeholder="example@mail.com"
+nabd_plus_patient_app/app/(auth)/login.tsx:247:              placeholderTextColor={resolveColor('var(--t3)', isDark)}
+nabd_plus_patient_app/app/(auth)/login.tsx:266:              placeholder="••••••••"
+nabd_plus_patient_app/app/(auth)/login.tsx:267:              placeholderTextColor={resolveColor('var(--t3)', isDark)}
+nabd_plus_patient_app/app/(auth)/register.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/register.tsx:11:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/(auth)/register.tsx:26:const AuthField = ({ label, icon, placeholder, value, onChangeText, isPass, isDark, isRTL, focusedInput, setFocusedInput, showPassword, setShowPassword }: any) => (
+nabd_plus_patient_app/app/(auth)/register.tsx:35:        placeholder={placeholder}
+nabd_plus_patient_app/app/(auth)/register.tsx:36:        placeholderTextColor={resolveColor('var(--t3)', isDark)}
+nabd_plus_patient_app/app/(auth)/register.tsx:117:      // M1: real session only — no dummy token fallback
+nabd_plus_patient_app/app/(auth)/register.tsx:121:      catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
+nabd_plus_patient_app/app/(auth)/register.tsx:226:          placeholder={'أحمد السالم'} 
+nabd_plus_patient_app/app/(auth)/register.tsx:235:          placeholder={'0500000000'} 
+nabd_plus_patient_app/app/(auth)/register.tsx:244:          placeholder="example@mail.com" 
+nabd_plus_patient_app/app/(auth)/register.tsx:253:          placeholder="••••••••" 
+nabd_plus_patient_app/app/(auth)/register.tsx:263:          placeholder="••••••••" 
+nabd_plus_patient_app/app/(auth)/otp.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/otp.tsx:6:import AsyncStorage from '@react-native-async-storage/async-storage';
+nabd_plus_patient_app/app/(auth)/otp.tsx:82:      // M1: backend returns { ok: true } from /auth/verify-otp (older mocks used `verified`)
+nabd_plus_patient_app/app/(auth)/otp.tsx:126:        await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+nabd_plus_patient_app/app/(auth)/otp.tsx:132:      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
+nabd_plus_patient_app/app/(auth)/provider-info.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/_layout.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/(auth)/privacy.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/returns/hub.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/returns/detail.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/returns/new-request.tsx:1:// @ts-nocheck
+nabd_plus_patient_app/app/returns/new-request.tsx:182:                  placeholder="مثال: ORD-2024-001" placeholderTextColor={colors.textTertiary} textAlign="right" />
+nabd_plus_patient_app/app/returns/new-request.tsx:205:                placeholder="اشرح مشكلتك بالتفصيل..." placeholderTextColor={colors.textTertiary}
+nabd_plus_patient_app/app/pharmacy/cart.tsx:1:// @ts-nocheck
+## NabdProvider-provider
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:217:        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabdah Medical Lab'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:225:        placeholder="Nabdah Medical Lab"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:236:        placeholder={AR ? 'محمد أحمد' : 'Mohamed Ahmed'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:244:        placeholder="lab@email.com"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:272:        placeholder={AR ? 'خالد المالكي' : 'Khalid Al-Malki'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:280:        placeholder="123456"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:291:        placeholder="••••••••" value={data.password}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:301:        placeholder="••••••••" value={data.confirmPass}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:481:        placeholder="1234567890" value={data.crNumber}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:487:        placeholder="MOH-LAB-XXXXX" value={data.mohLicense}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:496:            placeholder={AR ? 'فئة أ / فئة ب / فئة ج' : 'Class A / Class B / Class C'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:503:            placeholder={AR ? 'CBAHI, CAP, ISO 15189' : 'CBAHI, CAP, ISO 15189'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:514:            placeholder="RSO-RAD-XXXXX"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:521:            placeholder={AR ? 'رنين مغناطيسي MRI، أشعة مقطعية CT، موجات فوق صوتية US' : 'MRI, CT, Ultrasound, X-Ray'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:531:        placeholder="SA0000000000000000000000" value={data.iban}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:537:        placeholder="300XXXXXXXXX003" value={data.taxNumber}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:639:        placeholder={AR ? 'حي الورود' : 'Al-Wurud'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:643:        placeholder={AR ? 'شارع الأمير سلطان، الرياض' : 'Prince Sultan Road, Riyadh'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:728:              placeholder="0"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:746:              placeholder="2"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:910:        placeholder={AR ? 'ابحث عن فحص...' : 'Search test/scan...'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:987:                      placeholder={`${test.hours}h`}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1219:            placeholder={AR ? 'باقة الفحص الشامل' : 'Full Checkup Package'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1226:            placeholder="Full Checkup Package"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1262:                placeholder="20" value={bundle.discount}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1390:            <NInput label={AR ? 'وقت البدء (صباحاً)' : 'Morning Open'} placeholder="08:00"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1393:            <NInput label={AR ? 'وقت الإغلاق (صباحاً)' : 'Morning Close'} placeholder="14:00"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1401:            <NInput label={AR ? 'وقت البدء (مساءً)' : 'Evening Open'} placeholder="16:00"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1404:            <NInput label={AR ? 'وقت الإغلاق (مساءً)' : 'Evening Close'} placeholder="22:00"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1437:            <NInput label={AR ? 'من' : 'From'} placeholder="07:00"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1440:            <NInput label={AR ? 'إلى' : 'To'} placeholder="14:00"
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1449:        <NInput label={AR ? 'إجازة مخطط لها' : 'Planned Vacation'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Select vacation date...'} value={data.vacationDate} editable={false} onChange={() => {}} />
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1753:<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1756:<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير العام' : 'e.g. Owner, General Manager'} />
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1772:              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
+NabdProvider-provider/src/screens/lab/LabRegistration.tsx:1778:              placeholder="SA0000000000000000000000"
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:551:          <NInput label={AR ? 'الموعد الجديد' : 'New Date/Time'} placeholder="YYYY-MM-DD HH:MM" value={rescheduleDate} onChange={setRescheduleDate} icon="event" />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:559:          <NInput label={AR ? 'رقم الموافقة' : 'Approval Code'} placeholder="NPH-12345" value={nphiesCode} onChange={setNphiesCode} icon="verified" />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:560:          <NInput label={AR ? 'نسبة التحمل (Co-Pay)' : 'Co-Pay SAR'} placeholder="0.00" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:568:          <NInput label={AR ? 'ابحث عن فني' : 'Search Technician'} placeholder={AR ? 'مثال: أحمد' : 'e.g. Ahmed'} value={techName} onChange={setTechName} icon="search" />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:576:          <NInput label={AR ? 'باركود العينة' : 'Sample Barcode'} placeholder="SMP-XXXXXXXX" value={barcode} onChange={setBarcode} icon="qr-code-scanner" />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:578:          <NInput label={AR ? 'ملاحظات' : 'Notes'} placeholder={AR ? 'ملاحظات اختيارية...' : 'Optional notes...'} value={notes} onChange={setNotes} icon="edit" />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:769: <View style={{flex:2}}><NInput placeholder="0.0" value={vals[p.id]??''} onChange={v=>setVals(pv=>({...pv,[p.id]:v}))} kbType="decimal-pad" style={{marginBottom:0}} /></View>
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:813: <NInput label={AR?'ملاحظات الفني':'Technician Notes'} placeholder={AR?'ملاحظات إضافية...':'Additional notes...'} value={notes} onChange={setNotes} multi lines={3} />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:993: <NInput label={AR?'اسم الفحص بالعربي':'Name (Arabic)'} placeholder={AR?'فحص الفيريتين المتقدم':'Advanced Ferritin'} value={nameAr} onChange={setNameAr} required />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:994: <NInput label={AR?'اسم الفحص بالإنجليزي':'Name (English)'} placeholder="Advanced Ferritin" value={nameEn} onChange={setNameEn} required />
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:997: <View style={{flex:1}}><NInput label={AR?'وقت النتيجة (ساعة)':'Turnaround (h)'} placeholder="2" value={hours} onChange={v=>setHours(v.replace(/\D/g,''))} kbType="numeric" maxLen={3} /></View>
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1000: <View style={{flex:1}}><NInput label={AR?'الحد الأدنى':'Ref Low'} placeholder="0" value={refLow} onChange={setRefLow} kbType="decimal-pad" /></View>
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1001: <View style={{flex:1}}><NInput label={AR?'الحد الأعلى':'Ref High'} placeholder="100" value={refHigh} onChange={setRefHigh} kbType="decimal-pad" /></View>
+NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1002: <View style={{flex:1}}><NInput label={AR?'الوحدة':'Unit'} placeholder="mg/dL" value={unit} onChange={setUnit} /></View>
+NabdProvider-provider/src/screens/lab/LabQcActions.tsx:116:              placeholder={AR ? 'مثال: K+ 6.8 — بوتاسيوم مرتفع حرج' : 'e.g. K+ 6.8 critical'}
+NabdProvider-provider/src/screens/lab/LabQcActions.tsx:138:              placeholder={AR ? 'السبب (مثال: عينة متحللة)' : 'Reason (e.g. hemolyzed sample)'}
+NabdProvider-provider/src/screens/auth/PendingDashboard.tsx:99:                  placeholder="123456"
+NabdProvider-provider/src/screens/auth/AuthScreens.tsx:460: placeholder={AR ? 'example@email.com أو 05X...' : 'example@email.com or 05X...'}
+NabdProvider-provider/src/screens/auth/AuthScreens.tsx:466: placeholder="••••••••"
+NabdProvider-provider/src/screens/auth/AuthScreens.tsx:550:         placeholder="e.g. 192.168.1.10"
+NabdProvider-provider/src/screens/auth/AuthScreens.tsx:713: placeholder="example@email.com"
+NabdProvider-provider/src/screens/auth/AuthScreens.tsx:737: placeholder="••••••••"
+NabdProvider-provider/src/screens/auth/AuthScreens.tsx:745: placeholder="••••••••"
+NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx:62:              placeholder={AR ? 'اكتب التعميم هنا وسيظهر لجميع المزودين المرتبطين...' : 'Type announcement here to broadcast to all linked providers...'}
+NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx:63:              placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:569:                            <TextInput value={tempSub[mode.prc]} onChangeText={v => setTempSub({...tempSub, [mode.prc]: v})} placeholder="0" style={{ backgroundColor: theme.surface, padding: 4, paddingHorizontal: 8, borderRadius: R.xs, width: 60, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:625:                        <TextInput value={tempSub.testPrices?.[t.id] || ''} onChangeText={v => setTempSub({ ...tempSub, testPrices: { ...(tempSub.testPrices || {}), [t.id]: v } })} placeholder={AR ? 'السعر (رس)' : 'Price'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:638:                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={AR ? 'الرسوم (رس)' : 'Fee'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:686:                        <TextInput value={tempSub.scanPrices?.[s.id] || ''} onChangeText={v => setTempSub({ ...tempSub, scanPrices: { ...(tempSub.scanPrices || {}), [s.id]: v } })} placeholder={AR ? 'السعر (رس)' : 'Price'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:699:                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={AR ? 'الرسوم (رس)' : 'Fee'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:747:                        <TextInput value={tempSub.nursingPrices?.[s.id] || ''} onChangeText={v => setTempSub({ ...tempSub, nursingPrices: { ...(tempSub.nursingPrices||{}), [s.id]: v } })} placeholder={AR ? 'السعر (رس)' : 'Price'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: AR ? 'right' : 'left' }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:760:                      <TextInput value={tempSub.priceHome} onChangeText={v => setTempSub({...tempSub, priceHome: v})} placeholder={AR ? 'الرسوم (رس)' : 'Fee'} style={{ backgroundColor: theme.bg, padding: 8, borderRadius: 8, width: 100, textAlign: 'center', borderWidth: 1, borderColor: theme.border }} keyboardType="numeric" />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:1108:<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:1111:<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير العام' : 'e.g. Owner, General Manager'} />
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:1126:              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
+NabdProvider-provider/src/screens/facility/FacilityRegistration.tsx:1132:              placeholder="SA0000000000000000000000"
+NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx:100:              <NInput label={AR ? 'الاسم بالعربية' : 'Arabic name'} placeholder={AR ? 'مثال: غرفة عمليات ب' : 'e.g. OR B'} value={nameAr} onChange={setNameAr} />
+NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx:101:              <NInput label={AR ? 'الاسم بالإنجليزية' : 'English name'} placeholder="e.g. Operating Room B" value={nameEn} onChange={setNameEn} />
+NabdProvider-provider/src/screens/facility/FacilityInvitationScreen.tsx:107:        placeholder={AR ? 'مثال: +966500000000 أو NBD-1234' : 'e.g., +966500000000 or NBD-1234'}
+NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:121:                placeholder={AR ? 'اكتب التشخيص...' : 'Enter diagnosis...'}
+NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:122:                placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:137:                placeholder={AR ? 'أدخل الأدوية...' : 'Enter medications...'}
+NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:138:                placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:153:                placeholder={AR ? 'تعليمات الراحة والمراجعة...' : 'Rest and follow-up instructions...'}
+NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:154:                placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx:83:            placeholder={AR ? 'اكتب رسالتك...' : 'Type a message...'}
+NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx:84:            placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:614: placeholder={AR ? 'ابحث عن طبيب أو موظف...' : 'Search staff...'} style={{ marginBottom: SP.lg }} />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:868: placeholder={AR ? 'محمد أحمد السعودي' : 'Mohamed Ahmed'}
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:873: placeholder="doctor@hospital.com"
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:905: placeholder="123456" value={scfhs} onChange={setScfhs}
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1315: <NInput label={AR ? 'معرف المريض (Patient ID)' : 'Patient ID'} placeholder={AR ? 'أدخل معرف المريض...' : 'Enter patient ID...'} value={patientId} onChange={setPatientId} required />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1323: <NInput label={AR ? 'اسم الجناح' : 'Ward Name'} placeholder={AR ? 'مثل: العناية المركزة، أجنحة الجراحة...' : 'e.g. ICU, General Surgery...'} value={wardName} onChange={setWardName} required />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1324: <NInput label={AR ? 'عدد الأسرّة' : 'Total Beds'} placeholder="10" value={wardBedsCount} onChange={setWardBedsCount} kbType="numeric" required />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1507: {/* QR Scanner placeholder */}
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1535: placeholder={AR ? 'APT-2025-XXXXX' : 'APT-2025-XXXXX'}
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2048: <NInput label={AR ? 'معرف المريض (Patient ID)' : 'Patient ID'} placeholder={AR ? 'أدخل معرف المريض...' : 'Enter patient ID...'} value={patientId} onChange={setPatientId} required />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2049: <NInput label={AR ? 'معرف الجراح الرئيسي' : 'Surgeon ID'} placeholder={AR ? 'أدخل معرف الجراح...' : 'Enter surgeon ID...'} value={surgeonId} onChange={setSurgeonId} required />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2051: <NInput label={AR ? 'التاريخ والوقت (YYYY-MM-DD HH:MM)' : 'Date & Time (YYYY-MM-DD HH:MM)'} placeholder="2026-06-18 10:00" value={scheduledAt} onChange={setScheduledAt} required />
+NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2052: <NInput label={AR ? 'المدة بالدقائق' : 'Duration (mins)'} placeholder="90" value={duration} onChange={setDuration} kbType="numeric" required />
+NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:286:          placeholder={AR ? 'مثال: مستشفى الملك فهد' : 'e.g. King Fahad Hospital'} />
+NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:288:          placeholder={AR ? 'حالة المريض عند التسليم…' : 'Patient condition on arrival…'} />
+NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:345:          placeholder={AR ? 'وجدنا المريض… قمنا بـ…' : 'Found patient… performed…'} />
+NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:349:          <View style={{ flex: 1 }}><NInput label="BP" value={bp} onChange={setBp} placeholder="120/80" /></View>
+NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:350:          <View style={{ flex: 1 }}><NInput label="HR" value={hr} onChange={setHr} placeholder="72" /></View>
+NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:351:          <View style={{ flex: 1 }}><NInput label="SpO2" value={spo2} onChange={setSpo2} placeholder="98%" /></View>
+NabdProvider-provider/src/screens/shared/RegistrationSuccess.tsx:120:                  placeholder={AR ? 'أدخل الرمز المكون من 6 أرقام' : 'Enter 6-digit code'}
+NabdProvider-provider/src/screens/shared/LiveKitRoomProvider.tsx:1:// @ts-nocheck
+NabdProvider-provider/src/screens/shared/RealScreens.tsx:68:                  placeholder={AR ? 'اكتب ردك هنا...' : 'Type your reply...'}
+NabdProvider-provider/src/screens/shared/RealScreens.tsx:271:          <NInput placeholder={AR ? 'كلمة المرور الحالية' : 'Current Password'} secure value={oldPassword} onChange={setOldPassword} />
+NabdProvider-provider/src/screens/shared/RealScreens.tsx:273:          <NInput placeholder={AR ? 'كلمة المرور الجديدة' : 'New Password'} secure value={newPassword} onChange={setNewPassword} />
+NabdProvider-provider/src/screens/shared/RealScreens.tsx:393:          <NInput placeholder={AR ? 'عنوان المشكلة أو الاستفسار' : 'Subject'} value={subject} onChange={setSubject} />
+NabdProvider-provider/src/screens/shared/RealScreens.tsx:395:          <NInput placeholder={AR ? 'تفاصيل المشكلة والتوضيح...' : 'Problem details...'} value={message} onChange={setMessage} />
+NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:230:                  placeholder="20"
+NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:231:                  placeholderTextColor={theme.textHint}
+NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:254:                  placeholder={AR ? 'مثال: الخدمة غير مغطاة في وثيقتك' : 'e.g. Service not covered by your policy'}
+NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:255:                  placeholderTextColor={theme.textHint}
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:157: <NInput label={AR ? 'عنوان الحملة' : 'Campaign Title'} placeholder={AR ? 'مثال: باقة الفحص السريع' : 'e.g. Rapid Checkup Package'} value={title} onChange={setTitle} required />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:160: <NInput label={AR ? 'تاريخ البدء' : 'Start Date'} placeholder="YYYY-MM-DD" value={startDate} onChange={setStartDate} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:161: <NInput label={AR ? 'تاريخ الانتهاء' : 'End Date'} placeholder="YYYY-MM-DD" value={endDate} onChange={setEndDate} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:230: // Current subscription — from the provider profile (never hardcoded).
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:668: <NInput label={AR ? 'سبب الحظر' : 'Block Reason'} value={blockReason} onChange={setBlockReason} placeholder={AR ? 'مثال: عدم الحضور المتكرر للمواعيد' : 'e.g. Frequent no-show'} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:683: <NInput label={AR ? 'إضافة ملاحظة جديدة' : 'Add New Note'} value={noteText} onChange={setNoteText} placeholder={AR ? 'اكتب ملاحظتك الطبية الخاصة هنا...' : 'Type note...'} multi lines={3} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:905: <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "شكوى المريض..." : "Patient complaint..."} placeholderTextColor={theme.textSub} value={soap.s} onChangeText={t => setSoap({...soap, s: t})} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:910: <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "العلامات الحيوية..." : "Vitals, observations..."} placeholderTextColor={theme.textSub} value={soap.o} onChangeText={t => setSoap({...soap, o: t})} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:915: <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "التشخيص المبدئي..." : "Initial diagnosis..."} placeholderTextColor={theme.textSub} value={soap.a} onChangeText={t => setSoap({...soap, a: t})} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:920: <TextInput style={{ backgroundColor: theme.surface, color: theme.text, padding: SP.md, borderRadius: R.md, height: 80, textAlignVertical: 'top', textAlign: AR ? 'right' : 'left' }} multiline placeholder={AR ? "الخطة العلاجية..." : "Treatment plan..."} placeholderTextColor={theme.textSub} value={soap.p} onChangeText={t => setSoap({...soap, p: t})} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1011: <NInput label={AR ? 'اسم أو رقم المريض' : 'Patient Name / ID'} value={patientId} onChange={setPatientId} placeholder={AR ? 'أدخل اسم المريض أو هويته...' : 'Enter patient name/ID...'} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1013: <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث عن معمل تحاليل أو مركز أشعة...' : 'Search lab networks / radiologies...'} />
+NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1367:          placeholder="SMP-…"
+NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx:9: * No fake "connected" UI: while connecting shows a spinner, on failure an
+NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx:10: * honest error with retry — never a fake video feed.
+NabdProvider-provider/src/screens/shared/ProviderHome.tsx:1:// @ts-nocheck
+NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:246:          <NInput placeholder={AR ? 'اسم الدواء (العلمي والتجاري)' : 'Drug Name'} value={name} onChange={setName} />
+NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:248:          <NInput placeholder={AR ? 'السعر المحدد (ر.س)' : 'Price (SAR)'} kbType="numeric" value={price} onChange={setPrice} />
+NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:250:          <NInput placeholder={AR ? 'رمز البار كود SFDA' : 'SFDA Barcode'} value={code} onChange={setCode} />
+NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:363:          <NInput placeholder={AR ? 'اسم الدواء المفقود بالأسواق' : 'Shortage Drug Name'} value={drug} onChange={setDrug} required />
+NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:365:          <NInput placeholder={AR ? 'تفاصيل إضافية (الكمية المطلوبة، آخر موعد توفر...)' : 'Additional details (quantity needed, last available date...)'} value={details} onChange={setDetails} multiline />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:98:        <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث في المحادثات...' : 'Search conversations...'} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:238: placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:239: placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:422: <NInput label={AR ? 'عنوان التذكرة' : 'Ticket Subject'} placeholder={AR ? 'صف مشكلتك باختصار' : 'Brief description'} value={subject} onChange={setSubject} required />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:423: <NInput label={AR ? 'التفاصيل' : 'Details'} placeholder={AR ? 'اشرح مشكلتك بالتفصيل...' : 'Explain your issue...'} value={body} onChange={setBody} multi lines={6} required />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:641: <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث...' : 'Search...'} style={{ marginBottom: SP.lg }} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:950: <NInput placeholder={AR ? 'اكتب ردك هنا...' : 'Type your reply...'} value={replyText} onChange={setReplyText} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1177:              placeholder="SA00 0000 0000 0000 0000 0000"
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1535:          <NInput label={AR ? 'سنوات الخبرة' : 'Years of Experience'} placeholder="5" value={applyExp} onChange={setApplyExp} kbType="numeric" />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1536:          <NInput label={AR ? 'الجاهزية للعمل (المدة)' : 'Ready to Start (Notice Period)'} placeholder={AR ? 'جاهز فوراً، شهر، إلخ' : 'Immediately, 1 month, etc.'} value={applyReady} onChange={setApplyReady} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1628:              <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث بالمهنة، المستشفى، التخصص...' : 'Search profession, hospital...'} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1685:          <NInput label={postType === 'offer' ? (AR ? 'المسمى الوظيفي المطلوب' : 'Job Title') : (AR ? 'الوظيفة التي تبحث عنها' : 'Desired Title')} placeholder={AR ? 'مثال: أخصائي باطنة' : 'e.g. Internal Med'} value={postTitle} onChange={setPostTitle} required />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1687:          <NInput label={postType === 'offer' ? (AR ? 'اسم المنشأة أو المستشفى (اختياري)' : 'Facility Name') : (AR ? 'جهة العمل الحالية (اختياري)' : 'Current Facility')} placeholder={AR ? 'اكتب اسم المنشأة...' : 'Facility Name'} value={postCompany} onChange={setPostCompany} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1709:              <NInput label={AR ? 'المدينة' : 'City'} placeholder={AR ? 'مثال: الرياض' : 'e.g. Riyadh'} value={postCity} onChange={setPostCity} required />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1712:              <NInput label={AR ? 'الجنسية المطلوبة' : 'Nationality'} placeholder={AR ? 'مثال: مفتوح، سعودي' : 'e.g. Any, Saudi'} value={postNat} onChange={setPostNat} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1715:              <NInput label={AR ? 'سنوات الخبرة' : 'Experience'} placeholder="5" value={postExp} onChange={setPostExp} kbType="numeric" />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1731:              <NInput label={AR ? 'الراتب (اختياري)' : 'Salary (Optional)'} placeholder={AR ? 'يحدد لاحقاً' : 'Negotiable'} value={postSalary} onChange={setPostSalary} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1761:            <NInput label={AR ? 'رقم الواتساب للتواصل' : 'WhatsApp Number'} placeholder="05xxxxxxxx" value={postPhone} onChange={setPostPhone} kbType="phone-pad" required />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1764:          <NInput label={AR ? 'الوصف والتفاصيل' : 'Details'} placeholder={AR ? 'اكتب التفاصيل هنا...' : 'Write details...'} value={postDesc} onChange={setPostDesc} multi lines={4} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2252:               placeholder={AR ? 'سبب الاقتراح أو مصدر المعلومة…' : 'Reason or source…'}
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2287: <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث باسم الدواء أو المادة الفعالة...' : 'Search drug name or active ingredient...'} />
+NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2452: // as onboarding, the patient app and the admin dashboard) — never hardcoded.
+NabdProvider-provider/src/screens/shared/PharmacyChatResponder.tsx:1:// @ts-nocheck
+NabdProvider-provider/src/screens/shared/PharmacyChatResponder.tsx:77:          placeholder="اكتب ردك..."
+NabdProvider-provider/src/screens/shared/PharmacyChatResponder.tsx:78:          placeholderTextColor={theme.textMuted}
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:751: <NInput label={AR?'عنوان الخطة':'Plan title'} placeholder={AR?'مثال: خطة ما بعد الجراحة':'e.g. Post-surgery plan'} value={title} onChange={setTitle} icon="edit" />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:752: <NInput label={AR?'المهام (سطر لكل مهمة)':'Tasks (one per line)'} placeholder={AR?'قياس العلامات الحيوية يومياً / تغيير الضماد':'e.g. Measure vitals daily / change dressing'} value={taskText} onChange={setTaskText} multi lines={4} icon="list" />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:794: <NInput label={AR?'الضغط':'BP'} placeholder="120/80" value={vitals.bp} onChange={v=>setVitals(p=>({...p,bp:v}))} style={{flex:1,marginBottom:0,minWidth:80}} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:795: <NInput label={AR?'النبض':'Pulse'} placeholder="72" value={vitals.pulse} onChange={v=>setVitals(p=>({...p,pulse:v}))} kbType="numeric" style={{flex:1,marginBottom:0,minWidth:60}} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:796: <NInput label={AR?'الحرارة':'Temp'} placeholder="36.8" value={vitals.temp} onChange={v=>setVitals(p=>({...p,temp:v}))} kbType="decimal-pad" style={{flex:1,marginBottom:0,minWidth:60}} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:799: <NInput label="SpO2" placeholder="98%" value={vitals.spo2} onChange={v=>setVitals(p=>({...p,spo2:v}))} style={{flex:1,marginBottom:0}} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:800: <NInput label={AR?'السكر':'Glucose'} placeholder="145" value={vitals.glucose} onChange={v=>setVitals(p=>({...p,glucose:v}))} kbType="numeric" style={{flex:1,marginBottom:0}} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:802: <NInput label={AR?'الملاحظات السريرية':'Clinical Notes'} placeholder={AR?'اكتب ملاحظاتك عن حالة المريض...':'Write your observations about patient condition...'} value={note} onChange={setNote} multi lines={5} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:904: <NInput label={AR?'ملخص الزيارة':'Visit Summary'} placeholder={AR?'ملخص ما تم خلال الزيارة...':'Summary of visit activities...'} value={summary} onChange={setSummary} multi lines={6} required />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:905: <NInput label={AR?'التوصيات والمتابعة':'Recommendations & Follow-up'} placeholder={AR?'تعليمات المتابعة والزيارة القادمة...':'Follow-up instructions and next visit...'} value={followUp} onChange={setFollowUp} multi lines={4} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1007: <NInput label={AR?'اسم المستلزم':'Supply Name'} placeholder={AR?'قفازات طبية L':'Medical Gloves L'} value={newItem} onChange={setNewItem} />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1008: <NInput label={AR?'الكمية':'Quantity'} placeholder="1" value={newQty} onChange={v=>setNewQty(v.replace(/\D/g,''))} kbType="numeric" />
+NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1659:        <TextInput value={msg} onChangeText={setMsg} placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} style={{ flex: 1, backgroundColor: theme.bg, padding: SP.md, borderRadius: R.md, color: theme.text, textAlign: AR ? 'right' : 'left' }} />
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:192:      <TextInput placeholder="Blood Pressure (e.g. 120/80)" value={vitals.bp} onChangeText={t => setVitals({...vitals, bp: t})} style={[styles.input, { borderColor: theme.border, color: theme.text, textAlign: AR ? 'right' : 'left' }]} placeholderTextColor={theme.textSub} />
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:193:      <TextInput placeholder="Heart Rate (bpm)" value={vitals.hr} onChangeText={t => setVitals({...vitals, hr: t})} keyboardType="numeric" style={[styles.input, { borderColor: theme.border, color: theme.text, textAlign: AR ? 'right' : 'left' }]} placeholderTextColor={theme.textSub} />
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:194:      <TextInput placeholder="Temperature (°C)" value={vitals.temp} onChangeText={t => setVitals({...vitals, temp: t})} keyboardType="numeric" style={[styles.input, { borderColor: theme.border, color: theme.text, textAlign: AR ? 'right' : 'left' }]} placeholderTextColor={theme.textSub} />
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:195:      <TextInput placeholder="SpO2 (%)" value={vitals.spo2} onChangeText={t => setVitals({...vitals, spo2: t})} keyboardType="numeric" style={[styles.input, { borderColor: theme.border, color: theme.text, textAlign: AR ? 'right' : 'left' }]} placeholderTextColor={theme.textSub} />
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:196:      <TextInput placeholder="Pain Scale (0-10)" value={vitals.pain_scale} onChangeText={t => setVitals({...vitals, pain_scale: t})} keyboardType="numeric" style={[styles.input, { borderColor: theme.border, color: theme.text, textAlign: AR ? 'right' : 'left' }]} placeholderTextColor={theme.textSub} />
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:206:        placeholder={AR ? "ملاحظات الإجراء وما تم تنفيذه..." : "Procedure notes..."} 
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:209:        placeholderTextColor={theme.textSub} 
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:212:        placeholder={AR ? "التوصيات وخطة المتابعة..." : "Recommendations and follow-up..."} 
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:215:        placeholderTextColor={theme.textSub} 
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:257:          placeholder={AR ? "سبب الإلغاء الطارئ..." : "Reason for emergency abort..."} 
+NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:260:          placeholderTextColor={theme.textSub} 
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:197:      <NInput innerRef={nameArRef} label={AR ? 'الاسم الكامل بالعربي' : 'Name (Arabic)'} placeholder={AR ? (data.mode === 'company' ? 'شركة نبضة للتمريض' : 'ممرض/ة محمد أحمد') : (data.mode === 'company' ? 'Nabdah Nursing Co.' : 'Nurse Mohamed')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:198:      <NInput innerRef={nameEnRef} label={AR ? 'الاسم الكامل بالإنجليزي' : 'Name (English)'} placeholder="Nabdah Nursing" value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:221:      <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني' : 'Email'} placeholder="nurse@email.com" value={data.managerEmail} onChange={v => update({ managerEmail: v.toLowerCase() })} required error={errs.email} kbType="email-address" returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:223:      <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} placeholder="••••••••" value={data.password} onChange={v => update({ password: v })} secure required error={errs.pass} returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:225:      <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} placeholder="••••••••" value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure required error={errs.conf} returnKey="done" onSubmit={handleNext} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:354:          <NInput label={AR ? 'رقم ترخيص SCFHS' : 'SCFHS License Number'} placeholder="123456" value={data.scfhsNumber} onChange={v => update({ scfhsNumber: v.replace(/\D/g, '') })} required error={errs.scfhs} kbType="numeric" maxLen={8} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:355:          <NInput label={AR ? 'تاريخ انتهاء الترخيص' : 'License Expiry'} placeholder="YYYY-MM-DD" value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:356:          <NInput label={AR ? 'رقم الهوية الوطنية' : 'National ID'} placeholder="1XXXXXXXXX" value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:360:          <NInput label={AR ? 'رقم السجل التجاري CR' : 'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v => update({ crNumber: v.replace(/\D/g, '') })} required error={errs.cr} kbType="numeric" maxLen={10} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:361:          <NInput label={AR ? 'ترخيص وزارة الصحة MOH' : 'MOH License'} placeholder="MOH-NRS-XXXXX" value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:365:      <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:546:      <NInput label={AR ? 'الحي' : 'District'} placeholder={AR ? 'حي الورود' : 'Al-Wurud'} value={data.district} onChange={v => update({ district: v })} caps="words" />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:683:                  <View style={{ flex: 1 }}><NInput label={AR?'من':'From'} value={data.openTime} onChange={v=>update({openTime:v})} placeholder="07:00" /></View>
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:684:                  <View style={{ flex: 1 }}><NInput label={AR?'إلى':'To'} value={data.closeTime} onChange={v=>update({closeTime:v})} placeholder="15:00" /></View>
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:693:                  <View style={{ flex: 1 }}><NInput label={AR?'من':'From'} value={data.eveningOpenTime} onChange={v=>update({eveningOpenTime:v})} placeholder="15:00" /></View>
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:694:                  <View style={{ flex: 1 }}><NInput label={AR?'إلى':'To'} value={data.eveningCloseTime} onChange={v=>update({eveningCloseTime:v})} placeholder="23:00" /></View>
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:704:        <NInput label={AR ? 'إجازة مخططة (إيقاف الحجوزات)' : 'Planned Vacation'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Choose vacation date...'} value={data.vacationDate} editable={false} onChange={() => {}} icon="calendar" />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:974:<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:977:<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير العام' : 'e.g. Owner, General Manager'} />
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:992:              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
+NabdProvider-provider/src/screens/nursing/NursingRegistration.tsx:998:              placeholder="SA0000000000000000000000"
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:88:          <View style={{ flex: 1 }}><NInput label={AR ? 'من (YYYY-MM-DD)' : 'From'} value={start} onChange={setStart} placeholder="2026-08-10" /></View>
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:89:          <View style={{ flex: 1 }}><NInput label={AR ? 'إلى (YYYY-MM-DD)' : 'To'} value={end} onChange={setEnd} placeholder="2026-08-15" /></View>
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:169:        <NInput label={AR ? 'اسم القالب' : 'Template name'} value={name} onChange={setName} placeholder={AR ? 'مثال: باقة البرد' : 'e.g. Flu pack'} />
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:173:          placeholder={'Paracetamol 500 - 1x3\nVitamin C - 1x1'}
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:242:        <NInput label={AR ? 'الاسم بالعربي *' : 'Arabic name *'} value={nameAr} onChange={setNameAr} placeholder={AR ? 'مثال: التهاب الحلق' : ''} />
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:244:          <View style={{ flex: 2 }}><NInput label={AR ? 'الاسم بالإنجليزي' : 'English name'} value={nameEn} onChange={setNameEn} placeholder="Pharyngitis" /></View>
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:245:          <View style={{ flex: 1 }}><NInput label="ICD" value={icd} onChange={setIcd} placeholder="J02.9" /></View>
+NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:249:        <NInput label={AR ? 'بحث' : 'Search'} value={search} onChange={(v: string) => { setSearch(v); load(v); }} placeholder={AR ? 'ابحث في تشخيصاتك…' : 'Search your diagnoses…'} />
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:416:  <NInput label={AR ? 'نسبة تحمل المريض (SAR)' : 'Patient Co-Pay (SAR)'} value={patientCopay} onChange={setPatientCopay} kbType="numeric" placeholder="e.g. 50" icon="" />
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:417:  <NInput label={AR ? 'تحمل شركة التأمين (SAR)' : 'Insurance Coverage (SAR)'} value={insuranceCoverage} onChange={setInsuranceCoverage} kbType="numeric" placeholder="e.g. 150" icon="" />
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:418:  <NInput label={AR ? 'رقم الموافقة المرجعي (Approval Code)' : 'Approval Code'} value={approvalCode} onChange={setApprovalCode} placeholder="e.g. NPH-9213" icon="" />
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:789:            <TextInput style={{ flex: 1, backgroundColor: theme.surface2, borderRadius: R.full, paddingHorizontal: SP.md, paddingVertical: SP.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }} placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} placeholderTextColor={theme.textSub} value={msgInput} onChangeText={setMsgInput} onSubmitEditing={() => {
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:987: <NInput label={AR ? 'الجرعة' : 'Dosage'} placeholder={AR ? 'مثال: قرص واحد' : 'e.g., 1 tablet'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1032: placeholder={AR ? 'مثال: تناول الدواء بعد الأكل، الإكثار من الماء...' : 'e.g., Take with food, drink plenty of water...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1067: <NSearch value={search} onChange={setSearch} placeholder={AR ? 'اسم الدواء...' : 'Medication name...'} />
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1106: <NInput label={AR ? 'اسم النموذج' : 'Template Title'} value={templateName} onChange={setTemplateName} placeholder={AR ? 'مثال: نموذج علاج الربو' : 'e.g., Asthma Treatment'} />
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1173: <NInput label={AR ? 'التشخيص' : 'Diagnosis'}  placeholder={AR ? 'سبب الإجازة الطبية' : 'Medical reason for leave'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1176: <NInput label={AR ? 'تاريخ البداية' : 'Start Date'} placeholder="YYYY-MM-DD"
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1308:  placeholder={AR ? 'اشرح سبب التحويل ومعلومات ذات صلة...' : 'Explain the reason and relevant information...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1668: placeholder={AR ? 'أضف وسماً (مثال: متعاون، مدخن)' : 'Add tag (e.g. Cooperative, Smoker)'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1696: placeholder={AR ? 'اكتب ملاحظة خاصة عن المريض (سرية ولن تظهر له)...' : 'Write a private note (confidential, hidden from patient)...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1901:// CHAT TAB (placeholder — full chat in Phase 6)
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2008:              placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2009:              placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2302: placeholder="J06.9"
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2412: placeholder={AR ? 'اذكر الأعراض والفحوصات والنتائج...' : 'State symptoms, examinations and findings...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2417: placeholder={AR ? 'التشخيص النهائي...' : 'Final diagnosis...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2422: placeholder={AR ? 'العلاج والتوصيات...' : 'Treatment and recommendations...'}
+NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:4203:        <View style={{ flex: 1 }}><NInput value={msg} onChange={setMsg} placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} /></View>
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:351:        placeholder={AR ? 'اختر التخصص...' : 'Select Specialty...'}
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:359:        placeholder={AR ? 'اختر الدرجة...' : 'Select Degree...'}
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:363:      <NInput label={AR ? 'النبذة التعريفية (Bio)' : 'Bio'} value={data.bio} onChange={v=>update({bio:v})} multi lines={4} placeholder={AR ? 'تحدث عن خبرتك...' : 'Talk about your experience...'} />
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:686:        <NInput label={AR ? 'إجازة مخطط لها' : 'Planned Vacation'} placeholder={AR ? 'اضغط لاختيار تاريخ إجازتك...' : 'Choose vacation date...'} value={data.vacationDate} onChange={(val) => { update({ vacationDate: val }); setShowVacationCal(false); }} editable={false} icon="calendar" />
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:1049:              placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'}
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:1055:              placeholder={AR ? 'مثل: مالك، مدير عام' : 'e.g., Owner, General Manager'}
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:1069:              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
+NabdProvider-provider/src/screens/doctor/DoctorRegistration.tsx:1075:              placeholder="SA0000000000000000000000"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:217:        placeholder={AR ? 'معمل نبضة للتحاليل الطبية' : 'Nabdah Medical Radiology'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:225:        placeholder="Nabdah Medical Radiology"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:236:        placeholder={AR ? 'محمد أحمد' : 'Mohamed Ahmed'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:244:        placeholder="lab@email.com"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:272:        placeholder={AR ? 'خالد المالكي' : 'Khalid Al-Malki'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:280:        placeholder="123456"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:291:        placeholder="••••••••" value={data.password}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:301:        placeholder="••••••••" value={data.confirmPass}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:481:        placeholder="1234567890" value={data.crNumber}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:487:        placeholder="MOH-LAB-XXXXX" value={data.mohLicense}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:496:            placeholder={AR ? 'فئة أ / فئة ب / فئة ج' : 'Class A / Class B / Class C'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:503:            placeholder={AR ? 'CBAHI, CAP, ISO 15189' : 'CBAHI, CAP, ISO 15189'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:514:            placeholder="RSO-RAD-XXXXX"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:521:            placeholder={AR ? 'رنين مغناطيسي MRI، أشعة مقطعية CT، موجات فوق صوتية US' : 'MRI, CT, Ultrasound, X-Ray'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:531:        placeholder="SA0000000000000000000000" value={data.iban}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:537:        placeholder="300XXXXXXXXX003" value={data.taxNumber}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:639:        placeholder={AR ? 'حي الورود' : 'Al-Wurud'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:643:        placeholder={AR ? 'شارع الأمير سلطان، الرياض' : 'Prince Sultan Road, Riyadh'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:728:              placeholder="0"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:746:              placeholder="2"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:910:        placeholder={AR ? 'ابحث عن فحص...' : 'Search test/scan...'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:987:                      placeholder={`${test.hours}h`}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1219:            placeholder={AR ? 'باقة الفحص الشامل' : 'Full Checkup Package'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1226:            placeholder="Full Checkup Package"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1262:                placeholder="20" value={bundle.discount}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1390:            <NInput label={AR ? 'وقت البدء (صباحاً)' : 'Morning Open'} placeholder="08:00"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1393:            <NInput label={AR ? 'وقت الإغلاق (صباحاً)' : 'Morning Close'} placeholder="14:00"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1401:            <NInput label={AR ? 'وقت البدء (مساءً)' : 'Evening Open'} placeholder="16:00"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1404:            <NInput label={AR ? 'وقت الإغلاق (مساءً)' : 'Evening Close'} placeholder="22:00"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1437:            <NInput label={AR ? 'من' : 'From'} placeholder="07:00"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1440:            <NInput label={AR ? 'إلى' : 'To'} placeholder="14:00"
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1449:        <NInput label={AR ? 'إجازة مخطط لها' : 'Planned Vacation'} placeholder={AR ? 'اختر التاريخ من التقويم...' : 'Select vacation date...'} value={data.vacationDate} editable={false} onChange={() => {}} />
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1753:<NInput value={data.signerName} onChange={v => update({ signerName: v })} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1756:<NInput value={data.signerRole} onChange={v => update({ signerRole: v })} placeholder={AR ? 'مثال: المالك، المدير العام' : 'e.g. Owner, General Manager'} />
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1772:              placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'}
+NabdProvider-provider/src/screens/radiology/RadiologyRegistration.tsx:1778:              placeholder="SA0000000000000000000000"
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:1:// @ts-nocheck
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:292:        <NInput label={AR ? 'رمز الموافقة (NPHIES)' : 'NPHIES Approval Code'} value={nphiesCode} onChange={setNphiesCode} placeholder="NPH-2024-XXXXX" />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:382:        <NInput label={AR ? 'رابط HTTPS لتقرير PDF الموقّع' : 'HTTPS URL for the signed PDF report'} value={pdfUrl} onChange={setPdfUrl} placeholder="https://authorized-storage.example/report.pdf" />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:383:        <NInput label={AR ? 'النتائج السريرية (Findings)' : 'Clinical Findings'} value={findings} onChange={setFindings} multi lines={4} placeholder={AR ? 'اذكر النتائج الإشعاعية...' : 'Describe radiology findings...'} />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:391:        <NInput label={AR ? 'رابط PACS/DICOM الخارجي' : 'External PACS/DICOM URL'} value={dicomUrl} onChange={setDicomUrl} placeholder="https://pacs.hospital.com/viewer/..." />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:481:        <NInput label={AR ? 'اسم الفحص (عربي)' : 'Scan Name (Arabic)'} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:482:        <NInput label={AR ? 'اسم الفحص (إنجليزي)' : 'Scan Name (English)'} value={nameEn} onChange={setNameEn} placeholder="MRI Brain with Contrast" />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:484:        <NInput label={AR ? 'المدة المتوقعة (دقيقة)' : 'Expected Duration (minutes)'} value={duration} onChange={setDuration} placeholder="30" />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:525:        <NInput label={AR ? 'من' : 'From'} value={morningFrom} onChange={setMorningFrom} placeholder="08:00" style={{ flex: 1 }} />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:526:        <NInput label={AR ? 'إلى' : 'To'} value={morningTo} onChange={setMorningTo} placeholder="14:00" style={{ flex: 1 }} />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:530:        <NInput label={AR ? 'من' : 'From'} value={eveningFrom} onChange={setEveningFrom} placeholder="17:00" style={{ flex: 1 }} />
+NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:531:        <NInput label={AR ? 'إلى' : 'To'} value={eveningTo} onChange={setEveningTo} placeholder="22:00" style={{ flex: 1 }} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:439:            <NInput value={rxNumber} onChange={setRxNumber} placeholder={AR ? 'رقم الوصفة / رقم التتبع' : 'Rx / tracking number'} icon="" />
+NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:625:                <TextInput placeholder={AR ? 'اكتب أسماء الأدوية المطلوبة هنا...' : 'Type medication names here...'} value={b2bText} onChangeText={setB2bText} multiline style={{ height: 120, textAlignVertical: 'top', backgroundColor: theme.surface, padding: 12, borderRadius: 8, color: theme.text }} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1319:            <NInput placeholder={AR ? 'ابحث في المخزون...' : 'Search inventory...'} value={subSearch} onChange={(v: string) => setSubSearch(v)} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1547:        <NInput placeholder={AR ? 'ابحث عن منتج...' : 'Search product...'} value={search} onChange={(v: string) => setSearch(v)} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1694:              placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'}
+NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1695:              placeholderTextColor={theme.textSub}
+NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:189:      <NInput innerRef={nameArRef} label={AR?'اسم الصيدلية بالعربي':'Pharmacy Name (Arabic)'} placeholder={AR?'صيدلية نبضة الصحة':'Nabdah Health Pharmacy'} value={data.nameAr} onChange={v=>update({nameAr:v})} required error={errs.nameAr} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:190:      <NInput innerRef={nameEnRef} label={AR?'اسم الصيدلية بالإنجليزي':'Pharmacy Name (English)'} placeholder="Nabdah Health Pharmacy" value={data.nameEn} onChange={v=>update({nameEn:v})} caps="words" returnKey="next" onSubmit={() => pharmaRef.current?.focus()} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:193:      <NInput innerRef={pharmaRef} label={AR?'اسم الصيدلاني المسؤول':'Head Pharmacist Name'} placeholder={AR?'محمد أحمد السعودي':'Mohamed Ahmed'} value={data.pharmacistName} onChange={v=>update({pharmacistName:v})} required error={errs.pharma} caps="words" hint={AR?'يجب أن يكون مرخصاً من هيئة الصحة SCFHS':'Must hold valid SCFHS pharmacy license'} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:196:      <NInput innerRef={mgrNameRef} label={AR?'اسم المدير التنفيذي':'Manager Name'} placeholder={AR?'خالد عمر المالكي':'Khalid Omar'} value={data.managerName} onChange={v=>update({managerName:v})} required error={errs.mgr} caps="words" returnKey="next" onSubmit={() => emailRef.current?.focus()} />
+NabdProvider-provider/src/screens/pharmacy/PharmacyRegistration.tsx:197:      <NInput innerRef={emailRef} label={AR?'البريد الإلكتروني':'Email'} placeholder="pharmacy@email.com" value={data.managerEmail} onChange={v=>update({managerEmail:v.toLowerCase()})} required error={errs.email} kbType="email-address" returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+## web_admin_dashboard
+web_admin_dashboard/src/pages/login.tsx:148:    localStorage.setItem('admin_token', data?.token?.accessToken || data?.token || '');
+web_admin_dashboard/src/pages/login.tsx:149:    localStorage.setItem('admin_refresh_token', data?.token?.refreshToken || '');
+web_admin_dashboard/src/pages/login.tsx:150:    localStorage.setItem('admin_role', role);
+web_admin_dashboard/src/pages/login.tsx:151:    localStorage.setItem('admin_user', JSON.stringify(data?.user || {}));
+web_admin_dashboard/src/pages/login.tsx:211:                  placeholder="+9665XXXXXXXX"
+web_admin_dashboard/src/pages/login.tsx:222:                  placeholder="••••••••••••"
+web_admin_dashboard/src/pages/login.tsx:255:                placeholder="name@example.com"
+web_admin_dashboard/src/pages/login.tsx:287:                placeholder="——————"
+web_admin_dashboard/src/pages/login.tsx:295:                placeholder="كلمة المرور الجديدة (8 أحرف فأكثر)"
+web_admin_dashboard/src/pages/login.tsx:355:                placeholder="——————"
+web_admin_dashboard/src/pages/admin/users-management.tsx:203:            placeholder="بحث بالاسم أو الهاتف أو البريد..."
+web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:246:              <input value={q} onChange={e => { setQ(e.target.value); setPage(1); }} placeholder="بحث بالاسم / المادة الفعالة / الباركود / الشركة..." className="border rounded px-4 py-2 w-80" />
+web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:247:              <input value={category} onChange={e => { setCategory(e.target.value); setPage(1); }} placeholder="الفئة (اختياري)" className="border rounded px-3 py-2 w-48" />
+web_admin_dashboard/src/pages/admin/audit-logs.tsx:26:      const token = localStorage.getItem('admin_token');
+web_admin_dashboard/src/pages/admin/financial-ledger.tsx:53:        // Live finance summary — never render placeholder KPIs in production.
+web_admin_dashboard/src/pages/admin/financial-ledger.tsx:175:          {/* Quad financial widget cards — live Finance Engine summary (no placeholders). */}
+web_admin_dashboard/src/pages/admin/financial-ledger.tsx:318:                                placeholder="0.00"
+web_admin_dashboard/src/pages/admin/support-tickets.tsx:130:                            placeholder="اكتب رد الدعم…"
+web_admin_dashboard/src/pages/admin/payouts.tsx:146:                                placeholder="سبب الرفض (يظهر للمزود)"
+web_admin_dashboard/src/pages/admin/security.tsx:109:              placeholder="اسم الجهاز (مثال: iPhone 15 / MacBook)"
+web_admin_dashboard/src/pages/admin/insurance-queue.tsx:166:                        <input value={decideNote} onChange={(e) => setDecideNote(e.target.value)} placeholder="ملاحظة (اختياري)" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:173:              <input value={newCode} onChange={e => setNewCode(e.target.value)} placeholder="مثال: cigna" className="border rounded px-3 py-2 w-44" dir="ltr" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:177:              <input value={newNameAr} onChange={e => setNewNameAr(e.target.value)} placeholder="سيجنا" className="border rounded px-3 py-2 w-52" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:181:              <input value={newNameEn} onChange={e => setNewNameEn(e.target.value)} placeholder="Cigna" className="border rounded px-3 py-2 w-52" dir="ltr" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:247:                          <input value={tierCode} onChange={e => setTierCode(e.target.value)} placeholder="الكود: vip" className="border rounded px-2 py-1.5 w-28" dir="ltr" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:248:                          <input value={tierNameAr} onChange={e => setTierNameAr(e.target.value)} placeholder="الاسم: VIP" className="border rounded px-2 py-1.5 w-36" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:249:                          <input value={tierNameEn} onChange={e => setTierNameEn(e.target.value)} placeholder="Name: VIP" className="border rounded px-2 py-1.5 w-36" dir="ltr" />
+web_admin_dashboard/src/pages/admin/insurance-companies.tsx:250:                          <input value={tierLevel} onChange={e => setTierLevel(e.target.value.replace(/\D/g, ''))} placeholder="المستوى" className="border rounded px-2 py-1.5 w-20" dir="ltr" />
+web_admin_dashboard/src/pages/admin/sos-monitor.tsx:153:                            placeholder="معرّف المستشفى المستقبِل"
+web_admin_dashboard/src/pages/admin/sos-monitor.tsx:165:                              placeholder="ملاحظات الإنهاء (ماذا تم مع الحالة؟)"
+web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:150:                                  placeholder="0.00"
+web_admin_dashboard/src/pages/admin/notification-center.tsx:140:            <input value={title} onChange={e => setTitle(e.target.value)} className="w-full border rounded p-2" placeholder="عنوان الإشعار" />
+web_admin_dashboard/src/pages/admin/notification-center.tsx:152:              <input value={singleUser} onChange={e => setSingleUser(e.target.value)} className="w-full border rounded p-2" placeholder="user_id" />
+web_admin_dashboard/src/pages/admin/notification-center.tsx:157:            <textarea value={body} onChange={e => setBody(e.target.value)} rows={3} className="w-full border rounded p-2" placeholder="محتوى الرسالة..." />
+web_admin_dashboard/src/pages/admin/notification-center.tsx:161:            <input value={deepLink} onChange={e => setDeepLink(e.target.value)} className="w-full border rounded p-2" placeholder="/pharmacy/cart" dir="ltr" />
+web_admin_dashboard/src/pages/admin/disputes.tsx:29:      const token = localStorage.getItem('admin_token');
+web_admin_dashboard/src/pages/admin/disputes.tsx:47:      const token = localStorage.getItem('admin_token');
+web_admin_dashboard/src/pages/admin/provider-moderation.tsx:304:              placeholder="الرجاء إدخال سبب الإيقاف أو أكواد الرفض (Reason Codes)..."
+web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:160:                  placeholder="سبب الرفض (يظهر للمزود)"
+web_admin_dashboard/src/pages/admin/catalog-manager.tsx:128:      <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث بالاسم أو الكود أو الفئة…"
+web_admin_dashboard/src/utils/api.ts:2:  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+web_admin_dashboard/src/components/PublicDirectory.tsx:86:            placeholder={`ابحث في ${config.title}…`}
+web_admin_dashboard/src/components/AdminGuard.tsx:61:    const token = localStorage.getItem('admin_token');
+web_admin_dashboard/src/components/AdminGuard.tsx:62:    const role = localStorage.getItem('admin_role');
+web_admin_dashboard/src/components/AdminGuard.tsx:112:              localStorage.removeItem('admin_token');
+web_admin_dashboard/src/components/AdminGuard.tsx:113:              localStorage.removeItem('admin_role');

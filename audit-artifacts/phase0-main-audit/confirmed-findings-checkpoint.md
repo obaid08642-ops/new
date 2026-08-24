@@ -1,0 +1,19 @@
+# Confirmed findings checkpoint — main baseline
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+These are confirmed observations from files read semantically. They are not yet the complete F-001…F-015 list; final severity, owner, and acceptance require reading the remaining source and matching the authoritative plan.
+
+| ID | Evidence | Confirmed observation | Classification | Required follow-up |
+|---|---|---|---|---|
+| CF-001 | `nabd-patient-web/app/layout.tsx:4-7` | Root metadata sets `robots: { index: false, follow: false }` globally. | Confirmed indexing blocker/candidate; scope impact must be checked against route-specific metadata and legal launch policy. | Reconcile root/route metadata with owner/legal decision; prove intended indexability by locale/page. |
+| CF-002 | `nabd-patient-web/lib/api/patient-allowlist.ts:3-48`; `app/api/patient/[...path]/route.ts:10-11` | Catch-all exports all HTTP verbs but `isAllowedPatientApiRequest` requires GET and the route returns 404 for disallowed methods/paths. | Confirmed read-only BFF surface; not a defect until mutation scope is explicitly required. | Map every web mutation to a concrete route; leave unsupported mutations Blocked. |
+| CF-003 | `nabd_plus_patient_app/src/services/auth/providers/EmailAuthProvider.ts:8-34` | Concrete email provider expects `access_token`/`refresh_token` and returns client-held tokens in session state. | Confirmed auth contract mismatch candidate versus the SecureStore transport and web httpOnly contract; severity pending cross-client contract reconciliation. | Compare with authoritative backend auth contract and remove/replace legacy provider path if not supported. |
+| CF-004 | `nabd_plus_patient_app/app/index.tsx:1` | Mobile splash file has `@ts-nocheck`. | Confirmed quality debt; not automatically a runtime defect. | Remove incrementally with type errors fixed and regression gates. |
+| CF-005 | `nabd_plus_patient_app/app/index.tsx:17-35`; `src/utils/api.ts:20-31` | Splash preserves guest mode in AsyncStorage while auth token is stored in SecureStore and legacy token mirror is cleared. | Confirmed split guest/auth state; not a token leak by itself. | Trace guest provisioning, logout, expiry, deep link, and privacy semantics. |
+| CF-006 | `nabdah-backend/src/modules/webhooks/guards/livekit-webhook.guard.ts:8-12` | LiveKit webhook receiver uses literal `fake_key`/`fake_secret` fallbacks when environment values are absent. | Confirmed fail-closed concern; actual route behavior and production env validation still need proof. | Replace fallback with startup/config validation or reject guard construction without real secrets; add production boot test. |
+| CF-007 | `nabdah-backend/src/main.ts:27-41` | `USE_MEMORY_MONGO=true` starts an ephemeral Mongo server outside production, but catches startup errors and continues. | Confirmed dev/test behavior; potential silent fallback hazard outside production. | Make test mode explicit and fail closed when requested memory DB cannot start; prove production cannot enable it. |
+| CF-008 | `nabdah-backend/src/main.ts:89-96` | JSON and urlencoded body limits are 25 MB and raw body is captured globally. | Confirmed operational/security surface, not automatically a defect. | Verify upload routes, memory pressure, content-type limits, and webhook signature raw-body requirements. |
+| CF-009 | `nabdah-backend/src/app.module.ts:156-164` | Mongo URI defaults to `mongodb://localhost:27017` when `MONGO_URL` is missing. | Confirmed configuration fallback candidate; production validation must determine whether this is reachable. | Require MONGO_URL in production and add fail-closed boot gate. |
+
+No finding is classified as fixed, production-safe, or release-blocking solely from these observations. Each requires route-level tests and deployment evidence where applicable.
