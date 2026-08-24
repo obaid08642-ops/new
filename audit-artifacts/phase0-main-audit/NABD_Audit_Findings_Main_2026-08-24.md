@@ -16,12 +16,12 @@ The baseline contains broad source coverage and many real backend routes, but th
 |---|---:|---|
 | P0 | 3 | Release-blocking security, operational or contract risk requiring closure before production claim. |
 | P1 | 30 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
-| P2 | 5 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 38 | Confirmed source findings recorded to date. |
+| P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
+| Total | 39 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-039 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-040 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -53,7 +53,9 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-036 | Mobile address data | Address add/edit/delete and delivery eligibility are incomplete; default selection needs contract/ownership/idempotency proof. |
 | F-037 | Mobile medical profile | Sensitive medical and avatar mutations lack complete atomicity, upload policy, ownership and replay evidence. |
 | F-038 | Mobile health home | Health reads and appointment navigation contain silent failures, fabricated identifier fallback and unverified modality. |
+| F-040 | Mobile medication reminders | Local dose aggregation and “sync alerts” navigation do not prove notification/dose state reconciliation. |
 | F-039 | Mobile vitals log | Vital submissions need finite/range/unit validation and duplicate/replay/audit proof. |
+| F-040 | Mobile medications | Reminder progress, device-alert synchronization and dose lifecycle require server/timezone/delivery proof. |
 | F-034 | Mobile language/RTL | Locale persistence, RTL reinitialization and six-language completeness are unproven; flags render empty. |
 | F-031, F-032 | Mobile notifications | Preference and read acknowledgements have optimistic/fire-and-forget semantics, while delivery, route translation and PHI content policy are not fully proven. |
 | F-034 | Localization | The Mobile locale selector does not prove persistence/synchronization/RTL behavior and renders empty flag slots. |
