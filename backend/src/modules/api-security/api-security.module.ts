@@ -152,6 +152,10 @@ export class ApiSecurityMiddleware implements NestMiddleware {
   constructor(private readonly sec: ApiSecurityService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    // The live E2E harness runs against disposable Mongo/Redis and explicitly
+    // opts in. Do not make DISABLE_RATE_LIMIT alone a production escape hatch.
+    if (process.env.E2E_MODE === 'true' && process.env.DISABLE_RATE_LIMIT === 'true') return next();
+
     // Honeypot: any hit = instant blacklist + event (serve convincing fake data)
     const url = (req as any).originalUrl || req.url || '';
     if (HONEYPOTS.has(url.split('?')[0])) {

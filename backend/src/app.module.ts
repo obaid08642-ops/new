@@ -168,7 +168,15 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200 }]),
+    // Only the isolated E2E harness may relax throttling. A generic
+    // DISABLE_RATE_LIMIT variable must never silently disable production
+    // authentication protection.
+    ThrottlerModule.forRoot([{
+      ttl: 60_000,
+      limit: process.env.E2E_MODE === 'true' && process.env.DISABLE_RATE_LIMIT === 'true'
+        ? 1_000_000
+        : (process.env.THROTTLER_LIMIT ? parseInt(process.env.THROTTLER_LIMIT, 10) : 200),
+    }]),
     I18nCoreModule,
     AuthModule,
     UsersModule,

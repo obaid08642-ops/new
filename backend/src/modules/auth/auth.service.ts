@@ -783,7 +783,10 @@ export class AuthService {
     const u = await this.userModel.findOne(isEmail ? { email: normalized } : { phone: normalized });
     if (!u) throw new UnauthorizedException('User not found');
 
-    const code = require('crypto').randomInt(100000, 1000000).toString();
+    const e2eCode = process.env.E2E_MODE === 'true' ? process.env.E2E_OTP_CODE : undefined;
+    const code = e2eCode && /^\d{6}$/.test(e2eCode)
+      ? e2eCode
+      : require('crypto').randomInt(100000, 1000000).toString();
     // Store only a bcrypt hash. The plaintext code must never persist in Redis or logs.
     await this.redisService.setJson(
       this.otpKey(normalized),

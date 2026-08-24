@@ -184,7 +184,10 @@ export class LiveKitService {
     const appt: any = await this.appointments.findOne(appointmentFilter).lean();
     if (!appt) throw new NotFoundException('Appointment not found');
     const patientId = String(appt.patient_id || appt.user_id || '');
-    const providerId = String(appt.provider_id || appt.doctor_id || appt.provider_account_id || '');
+    // Consultation appointments persist the clinician account in `doctor_user_id`;
+    // profile IDs (`doctor_id`) are not authenticated identities and must not be
+    // used to authorize a LiveKit participant.
+    const providerId = String(appt.doctor_user_id || appt.provider_id || appt.provider_account_id || appt.doctor_id || '');
     if (!patientId || !providerId || ![patientId, providerId].includes(String(callerId))) {
       throw new ForbiddenException('Caller is not an appointment participant');
     }

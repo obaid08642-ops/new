@@ -26,21 +26,29 @@ export class RadiologyController {
   async book(@CurrentUser() user: any, @Body() body: any) {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_booking_payload');
     if (typeof body.service_id !== 'string' || !body.service_id.trim() || body.service_id.length > 160) throw new BadRequestException('service_id_required');
-    if (typeof body.scheduled_at !== 'string' || Number.isNaN(new Date(body.scheduled_at).getTime()) || new Date(body.scheduled_at).getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('scheduled_at_required');
+    const scheduledAt = new Date(body.scheduled_at);
+    if (typeof body.scheduled_at !== 'string' || Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() + 5 * 60_000) {
+      throw new BadRequestException('scheduled_at_must_be_in_the_future');
+    }
     if (body.delivery_mode !== undefined && !['IN_CENTER', 'MOBILE_HOME_VISIT'].includes(body.delivery_mode)) throw new BadRequestException('invalid_delivery_mode');
     const patient: any = await this.userModel.findOne({ id: user.id }).lean();
     if (!patient) throw new BadRequestException('patient_not_found');
 
-    let scan: any = {};
-    if (body.service_id) {
-      const svc: any = await this.radServiceModel.findOne({ id: body.service_id, is_deleted: { $ne: true }, active: { $ne: false }, public_eligibility: { $ne: false } }).lean();
-      if (!svc) throw new BadRequestException('service_not_found');
-      scan = { scan_type_code: svc.id, scan_name_ar: svc.name_ar, scan_name_en: svc.name_en };
-    }
-    const scan_type_code = scan.scan_type_code;
-    const scan_name_ar = scan.scan_name_ar;
-    const scan_name_en = scan.scan_name_en;
-    if (!scan_type_code || !scan_name_ar || !scan_name_en) throw new BadRequestException('service_not_found');
+    const svc: any = await this.radServiceModel.findOne({
+      id: body.service_id, is_deleted: { $ne: true }, active: { $ne: false }, public_eligibility: true, medical_review_status: 'approved',
+    }).lean();
+    if (!svc) throw new BadRequestException('service_not_found');
+    const deliveryMode = body.delivery_mode === 'MOBILE_HOME_VISIT' ? 'MOBILE_HOME_VISIT' : 'IN_CENTER';
+    if (deliveryMode === 'MOBILE_HOME_VISIT' && !svc.home_visit_supported) throw new BadRequestException('service_not_available_for_home_visit');
+    const paymentMethod = ['cash', 'card', 'insurance'].includes(body.payment_method) ? body.payment_method : 'cash';
+    if (deliveryMode === 'MOBILE_HOME_VISIT' && paymentMethod === 'cash') throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    if ((svc.requires_referral || svc.medical_referral_required) && !body.referral) throw new BadRequestException('referral_required');
+
+    const scan_type_code = svc.short_code || svc.id;
+    const scan_name_ar = svc.name_ar;
+    const scan_name_en = svc.name_en;
+    const price = Number(svc.price);
+    if (!Number.isFinite(price) || price < 0) throw new BadRequestException('service_price_invalid');
 
     let centerId: Types.ObjectId | null = null;
     if (body.provider_account_id) {
@@ -52,8 +60,16 @@ export class RadiologyController {
       id: uuidv4(),
       patient_id: patient._id,
       radiology_center_id: centerId,
-      delivery_mode: body.delivery_mode === 'MOBILE_HOME_VISIT' ? 'MOBILE_HOME_VISIT' : 'IN_CENTER',
+      service_id: svc.id,
+      scheduled_at: scheduledAt,
+      delivery_mode: deliveryMode,
+      facility_id: body.facility_id || null,
+      address: body.address || null,
+      price,
+      total: price,
+      payment_method: paymentMethod,
       referring_doctor_id: body.referring_doctor_id || null,
+      referral: body.referral || null,
       scan_type_code,
       scan_name_ar,
       scan_name_en,

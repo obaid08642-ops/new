@@ -32,6 +32,17 @@ export class RadiologyBooking {
   @Prop({ required: true })
   scan_name_en: string;
 
+  // Patient booking snapshot. These values are derived server-side from the
+  // reviewed catalog rather than accepted as client-controlled price/name data.
+  @Prop({ type: String, index: true }) service_id?: string;
+  @Prop() scheduled_at?: Date;
+  @Prop() facility_id?: string;
+  @Prop({ type: Object }) address?: { lat?: number; lng?: number; address?: string; city?: string; district?: string };
+  @Prop({ default: 0 }) price?: number;
+  @Prop({ default: 0 }) total?: number;
+  @Prop({ enum: ['cash', 'card', 'insurance'], default: 'cash' }) payment_method?: string;
+  @Prop({ type: Object }) referral?: any;
+
   @Prop({ type: String, default: null })
   allocated_machine_id: string; // Bound in Screen 2 to prevent hardware race conditions
 

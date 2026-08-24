@@ -312,20 +312,47 @@ export class RadiologyOpsService {
   }
 
   async book(user: any, body: any) {
-    // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
-    if (body?.service_id) {
-      const dupe = await this.bkgModel.findOne({
-        patient_id: user.id,
-        service_id: body.service_id,
-        createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
-        state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
-      }).lean();
-      if (dupe) return dupe;
+    const serviceId = String(body?.service_id || '').trim();
+    if (!serviceId) throw new BadRequestException('service_id_required');
+    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at_required');
+    const scheduledAt = new Date(body.scheduled_at);
+    if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() + 5 * 60_000) {
+      throw new BadRequestException('scheduled_at_must_be_in_the_future');
     }
-    const booking = await this.bkgModel.create({
-      ...body,
-      id: require('uuid').v4(),
+    const service: any = await this.svcModel.findOne({
+      id: serviceId, is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved',
+    }).lean();
+    if (!service) throw new NotFoundException('radiology_service_not_found');
+
+    const deliveryMode = body?.delivery_mode === 'MOBILE_HOME_VISIT' ? 'MOBILE_HOME_VISIT' : 'IN_CENTER';
+    if (deliveryMode === 'MOBILE_HOME_VISIT' && !service.home_visit_supported) {
+      throw new BadRequestException('service_not_available_for_home_visit');
+    }
+    const paymentMethod = ['cash', 'card', 'insurance'].includes(body?.payment_method) ? body.payment_method : 'cash';
+    if (deliveryMode === 'MOBILE_HOME_VISIT' && paymentMethod === 'cash') {
+      throw new BadRequestException('payment_method_cash_not_allowed_for_home_visit');
+    }
+    if (service.requires_referral && !body?.referral) throw new BadRequestException('referral_required');
+
+    // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes.
+    const dupe = await this.bkgModel.findOne({
       patient_id: user.id,
+      service_id: serviceId,
+      createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
+      state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
+    }).lean();
+    if (dupe) return dupe;
+
+    const price = Number(service.price);
+    const booking = await this.bkgModel.create({
+      id: require('uuid').v4(), patient_id: user.id, service_id: serviceId,
+      items: [{ service_id: service.id, name_ar: service.name_ar, name_en: service.name_en, modality: service.modality, body_part: service.body_part, price }],
+      total: price, total_price: price, scheduled_at: scheduledAt,
+      location_type: deliveryMode === 'MOBILE_HOME_VISIT' ? 'home' : 'facility', facility_id: body?.facility_id,
+      address: body?.address, delivery_mode: deliveryMode, payment_method: paymentMethod,
+      insurance_provider: body?.insurance_provider, insurance_member_id: body?.insurance_member_id,
+      referral: body?.referral, scan_type_code: service.short_code || service.id,
+      scan_name_ar: service.name_ar, scan_name_en: service.name_en,
       state: RadiologyBookingState.NEW_REQUEST,
     });
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });

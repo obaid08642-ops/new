@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
 import { HomeCareBooking, NursingBookingState, HomeCareService, NurseProvider } from '../../schemas/home-care.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
+import { HomeCareSvc } from './home-care.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('nursing')
@@ -18,6 +19,7 @@ export class NursingController {
     @InjectConnection() private readonly conn: Connection,
     private readonly events: EventEmitter2,
     private readonly engine: WorkflowEngineService,
+    private readonly homeCareSvc: HomeCareSvc,
   ) {}
 
   private isAdmin(user: any): boolean {
@@ -89,6 +91,28 @@ export class NursingController {
     return this.conn.db.collection('nursing_notes')
       .find({ patient_id: patientId }, { projection: { _id: 0 } } as any)
       .sort({ createdAt: -1 }).limit(100).toArray();
+  }
+
+  // Patient booking contract — delegates to the bounded service layer, keeping
+  // ownership checks and workflow transitions out of the field-operations routes.
+  @Post('bookings')
+  async createBooking(@CurrentUser() user: any, @Body() body: any) {
+    return this.homeCareSvc.book(user, body || {});
+  }
+
+  @Get('bookings/mine')
+  async myBookings(@CurrentUser() user: any) {
+    return this.homeCareSvc.mineFor(user);
+  }
+
+  @Get('bookings/:id')
+  async myBooking(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.homeCareSvc.getBooking(id, user);
+  }
+
+  @Post('bookings/:id/cancel')
+  async cancelBooking(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.homeCareSvc.cancel(id, user);
   }
 
   // 1. SERVICES CATALOG (Pillar 2)

@@ -14,8 +14,27 @@ describe('NursingController ownership', () => {
     const conn: any = { db: { collection: jest.fn() } };
     const events: any = { emit: jest.fn() };
     const engine: any = { apply: jest.fn(async (opts: any) => opts.mutate()) };
-    return { controller: new NursingController(model, serviceModel, nurseModel, conn, events, engine), model, engine };
+    const homeCareSvc: any = {
+      book: jest.fn().mockResolvedValue({ id: 'booking-1', state: NursingBookingState.NEW_REQUEST }),
+      mineFor: jest.fn().mockResolvedValue([]),
+      getBooking: jest.fn().mockResolvedValue({ id: 'booking-1', patient_id: 'patient-1' }),
+      cancel: jest.fn().mockResolvedValue({ id: 'booking-1', state: NursingBookingState.CANCELLED }),
+    };
+    return { controller: new NursingController(model, serviceModel, nurseModel, conn, events, engine, homeCareSvc), model, engine, homeCareSvc };
   }
+
+  it('delegates patient booking, owned read, and cancellation to the bounded home-care service', async () => {
+    const { controller, homeCareSvc } = makeController(undefined);
+    const user = { id: 'patient-1', role: 'patient' };
+    const body = { service_id: 'svc-1', scheduled_at: new Date(Date.now() + 3600000).toISOString() };
+
+    await expect(controller.createBooking(user, body)).resolves.toEqual({ id: 'booking-1', state: NursingBookingState.NEW_REQUEST });
+    await expect(controller.myBooking('booking-1', user)).resolves.toEqual({ id: 'booking-1', patient_id: 'patient-1' });
+    await expect(controller.cancelBooking('booking-1', user)).resolves.toEqual({ id: 'booking-1', state: NursingBookingState.CANCELLED });
+    expect(homeCareSvc.book).toHaveBeenCalledWith(user, body);
+    expect(homeCareSvc.getBooking).toHaveBeenCalledWith('booking-1', user);
+    expect(homeCareSvc.cancel).toHaveBeenCalledWith('booking-1', user);
+  });
 
   it('rejects a patient from reading another patient visit', async () => {
     const booking: any = { id: 'visit-1', patient_id: 'patient-1', provider_id: 'nurse-1' };

@@ -124,6 +124,24 @@ describe('LiveKit follow-up ownership fixes', () => {
     expect(service.createBookingToken).not.toHaveBeenCalled();
   });
 
+  it('uses doctor_user_id rather than doctor profile id for a consultation call participant', async () => {
+    const findOne = jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        id: 'appt-identity-1', patient_id: 'patient-1', doctor_id: 'doctor-profile-1', doctor_user_id: 'doctor-account-1',
+      }),
+    });
+    const callSessions = { insertOne: jest.fn().mockResolvedValue({ acknowledged: true }) };
+    const identityConn = { collection: jest.fn(() => callSessions) } as any;
+    const service: any = new LiveKitService({ findOne } as any, identityConn, events as any);
+    service.createToken = jest.fn().mockResolvedValue('patient-token');
+
+    await expect(service.initiateCall('patient-1', 'Patient', 'doctor-account-1', 'video', 'appt-identity-1'))
+      .resolves.toEqual(expect.objectContaining({ token: 'patient-token', session_id: expect.stringMatching(/^call_/) }));
+    expect(callSessions.insertOne).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-1', provider_id: 'doctor-account-1', appointment_id: 'appt-identity-1',
+    }));
+  });
+
   it('rejects call-token issuance outside the appointment window', async () => {
     const findOne = jest.fn().mockReturnValue({
       lean: jest.fn().mockResolvedValue({

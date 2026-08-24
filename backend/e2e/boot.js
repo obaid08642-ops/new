@@ -2,12 +2,12 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const { spawn } = require('child_process');
 const fs = require('fs');
 async function main() {
-  const mongod = await MongoMemoryServer.create({ instance: { port: 27077, dbName: 'nabdah_e2e' } });
+  const mongod = await MongoMemoryServer.create({ binary: { version: '8.2.6' }, instance: { port: 27077, dbName: 'nabdah_e2e' } });
   const mongoUri = mongod.getUri('nabdah_e2e');
   // BullMQ queues need a REAL Redis — use an existing one on 6388 or spawn a local binary.
   // Resolution order: $REDIS_E2E_BIN → system redis-server → assume already running.
   const fsx = require('fs');
-  const candidates = [process.env.REDIS_E2E_BIN, '/tmp/redis-bin/redis-server', 'redis-server'].filter(Boolean);
+  const candidates = [process.env.REDIS_E2E_BIN, '/tmp/redis-bin/redis-server', '/usr/bin/redis-server'].filter(Boolean);
   let redisBin = null;
   for (const c of candidates) { try { fsx.accessSync(c, fsx.constants.X_OK); redisBin = c; break; } catch { /* next */ } }
   const redisEnv = { ...process.env, LD_LIBRARY_PATH: process.env.REDIS_E2E_LD || '/tmp/liblzf/usr/lib/x86_64-linux-gnu' };
@@ -25,10 +25,10 @@ async function main() {
     await new Promise((r) => setTimeout(r, 500));
   }
   const env = { ...process.env,
-    NODE_ENV: 'development', PORT: '4099',
+    NODE_ENV: 'development', E2E_MODE: 'true', PORT: '4099',
     MONGO_URL: mongoUri, DB_NAME: 'nabdah_e2e',
     REDIS_HOST: '127.0.0.1', REDIS_PORT: '6388',
-    JWT_SECRET: 'e2e-jwt-secret-0123456789abcdef', JWT_EXPIRES_IN: '1h',
+    JWT_SECRET: 'e2e-jwt-secret-0123456789abcdef', JWT_EXPIRES_IN: '1h', E2E_OTP_CODE: '123456',
     BCRYPT_ROUNDS: '4', ALLOWED_ORIGINS: '*', DISABLE_RATE_LIMIT: 'true',
     OTP_PROVIDER: 'mock', SENTRY_DSN: '',
     MOYASAR_API_KEY: 'sk_test_e2e_boot_only', MOYASAR_PUBLISHABLE_KEY: 'pk_test_e2e_boot_only',
