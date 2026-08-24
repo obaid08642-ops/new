@@ -22,6 +22,7 @@ Scope: source audit only; no remediation.
 | F-013 | P2 | Insurance page is read-only; claim submission, eligibility/preauthorization and checkout insurance selection are absent. | `app/[locale]/insurance/page.tsx:14–38` | Define insurance decision flow and contracts for each service/payment branch. |
 | F-014 | P2 | Diagnostics Labs and Radiology pages are catalog-only in the read source; there is no booking CTA; Radiology detail is explicitly blocked. | `diagnostics/labs/page.tsx:12–26`; `diagnostics/radiology/page.tsx:13–21` | Verify service detail/slot/quote/booking contracts, then enable only tested paths. |
 | F-015 | P2 | Medicine detail links back to `/medicine-catalog` while the list source is `/medicines`, requiring route reconciliation. | `medicines/page.tsx:44`; `medicines/[medicineId]/page.tsx:61` | Establish one canonical route and test all locale links/redirects. |
+| F-016 | P1 | Unified-bookings service acquires a Redis slot lock for 300 seconds (5 minutes), while the accepted contract/launch requirement specifies a 10-minute booking lock; release also deletes by provider/slot without validating the lock owner. | `audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.ts:13–30`; `audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:94–98` | Reconcile one authoritative TTL, test concurrent owner/stranger/replay behavior, and release only the lock owned by the same patient/transaction. |
 
 ## Verification gaps (not findings yet)
 
