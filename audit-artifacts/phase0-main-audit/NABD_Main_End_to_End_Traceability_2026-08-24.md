@@ -92,6 +92,10 @@ Every actionable UI control must resolve to one exact backend method/path, reque
 - `semantic-evidence-admin-config-portal.md`
 - `semantic-evidence-admin-security-passkey.md`
 - `backend-booking-contract-inventory.txt`
+- `backend-route-reconciliation-auth-otp.md`
+- `backend-route-reconciliation-wallet-pharmacy.md`
+- `backend-route-reconciliation-support-community-programs.md`
+- `backend-route-reconciliation-inventory-2026-08-24.txt`
 - `confirmed-findings-v1.md`
 - `NABD_DECISION_REQUIRED_2026-08-24.md`
 
