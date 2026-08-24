@@ -207,3 +207,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-129 | P2 | ProfileImageAuditLog requires both `user_id` and `provider_id` as owner fields even though a profile-image operation may have only one owner, and stores `selected_provider` plus `api_key_index_used` without visible projection/redaction. It lacks action/source/job/hash/request idempotency, retention/expiry and immutable audit correlation fields. | `src/schemas/profile-image-audit-log.schema.ts:4–16`; `audit-artifacts/phase0b-backend/semantic-evidence-profile-image-audit-log-schema.md` | Model actor/owner shape explicitly, minimize operational routing metadata, add job/request correlation and unique idempotency claim, define retention/redaction and prove immutable audit writes. |
+
+
+## Provider availability finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-130 | P1 | ProviderAvailability enforces one document per provider, but working hours, blocked slots and vacation are loose object arrays with no time format/range/overlap/timezone limits, version/CAS, booking reservation reference, exclusion/idempotency claim or audit actor; `instant_available` defaults true. | `src/schemas/provider-availability.schema.ts:4–16`; `audit-artifacts/phase0b-backend/semantic-evidence-provider-availability-schema.md` | Validate timezone-aware intervals and overlaps, default availability safely, use versioned atomic slot claims/reservations and audit/idempotency controls, and test concurrent booking and stale-update races. |
