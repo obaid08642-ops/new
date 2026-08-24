@@ -17,6 +17,7 @@
 | 9. Wallet / financial account | Mobile Wallet hub/cards/topup/transactions/transfer; card/default/topup/ledger actions | Web wallet parity not proven | `/wallet/balance`, `/wallet/cards`, `/wallet/topup`, `/wallet/transfer`, transaction routes; financial reconciliation pending | loading/empty, pending/failed/reversed/refunded, duplicate credit, hosted return, card verification, transfer unknown outcome | wallet/card/beneficiary ownership, PCI/tokenization, step-up/fraud | Idempotency/replay, ledger/webhook settlement, receipt/refund/chargeback, owner/stranger/unauth | FINDING / PARTIAL |
 | 10. Support / community / ticketing | Support chat/ticket, Community hub/post detail, feedback/help | Web communication parity not proven | `/support/chat`, `/support/tickets`, `/support/feedback`, `/support/faqs`, `/config`; thread/ticket/post contracts pending | empty versus failure, pending/send failure, moderation, attachment, handoff, ticket status/SLA | participant/post ownership, PHI minimization, attachment access, moderation/audit | send/publish/vote/comment/feedback idempotency, realtime/reconnect, ticket context and escalation tests | FINDING / PARTIAL |
 | 11. Settings / rights / localization | Privacy/security/notifications/data/language/about/terms; toggles, password, session revoke, export/delete actions | Patient Web settings remains read-only summary | `/users/me/privacy-settings`, `/users/me/security-settings`, `/users/me/notification-settings`, `/users/me/sessions`, `/users/me/storage`, support deletion; legal/config source pending | defaults, sync failure, rollback, re-auth, export/delete lifecycle, six-locale/RTL | consent/audit/identity assurance, session/device ownership, legal retention | PATCH/POST/DELETE idempotency/replay, password/session invalidation, export/deletion status tests | FINDING / PARTIAL |
+| 12. Therapeutic programs | Active programs, tabs, progress, next session, attendance/reschedule, complete session, reward/loyalty handoff | Web program parity not proven | `GET /medical/programs/active`, `POST /medical/programs/complete-session`; attendance/reschedule/reward contracts absent in screen | no program versus error, paused/expired/completed, session conflict, completion pending/failure, reward settlement | patient enrollment/clinical consent, session ownership, program identity | owner/stranger/unauth, complete-session idempotency/replay, schedule/attendance, reward ledger and notification tests | FINDING / PARTIAL |
 
 ## Action-to-contract traceability rules
 
@@ -68,6 +69,7 @@ Every actionable UI control must resolve to one exact backend method/path, reque
 - `semantic-evidence-mobile-offers-index.md`
 - `semantic-evidence-mobile-offers-detail.md`
 - `semantic-evidence-mobile-map.md`
+- `semantic-evidence-mobile-programs-active.md`
 - `semantic-evidence-mobile-pharmacy-reorder.md`
 - `semantic-evidence-mobile-pharmacy-order-confirm.md`
 - `semantic-evidence-mobile-returns-hub.md`
