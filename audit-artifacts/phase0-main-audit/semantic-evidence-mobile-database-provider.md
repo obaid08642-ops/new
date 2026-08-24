@@ -6,4 +6,6 @@ Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
 
 `getConnection` always requests `createDriver('sqlite')` regardless of configuration (`:26–32`). Therefore, this file does not provide SQLCipher-backed storage on native; selecting the SQLCipher option fails closed, while normal connection creation uses unencrypted SQLite unless a separate storage/encryption layer is proven elsewhere.
 
-This is classified as a verification candidate rather than a confirmed production security defect until repository usage, sensitive data persistence, migration path, device threat model and whether this provider is reachable for PHI/session/cache data are traced. No Phase 0 remediation was made.
+A repository trace found `src/data/database/core/DatabaseManager.ts:2,31` imports `DatabaseProvider` and calls `DatabaseProvider.getConnection(dbName)`, while both `DatabaseProvider.native.ts:29–32` and `DatabaseProvider.web.ts:35–37` construct the SQLite driver. The provider is therefore reachable through the database manager, although the trace still does not prove which entities/data are persisted there or whether sensitive PHI/session/cache data uses this path.
+
+This remains a verification candidate rather than a confirmed production security defect until repository usage, sensitive data persistence, migration path, device threat model and whether this provider is reachable for PHI/session/cache data are fully traced. No Phase 0 remediation was made.
