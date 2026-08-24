@@ -178,3 +178,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-124 | P1 | RefundRequest has a useful four-state lifecycle and indexed booking/patient references, but amount is optional and unbounded, booking_kind is unrestricted, and there is no currency/precision, provider refund reference, unique active claim/idempotency key, remaining-refundable balance, settlement/error state or immutable refund audit/outbox linkage. | `src/schemas/refund-request.schema.ts:4–17`; `audit-artifacts/phase0b-backend/semantic-evidence-refund-request-schema.md` | Add strict booking/amount/currency contracts, unique idempotent refund claims, source payment/refund linkage, atomic partial/full settlement transitions, owner/admin authorization and durable audit/outbox records. |
+
+
+## Transaction schema finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-125 | P1 | Transaction schema has positive partial unique indexes for one active intent per booking, booking idempotency key and gateway intent reference, but still leaves booking_kind/method/amount/currency weakly constrained, cannot enforce patient/booking ownership, stores client_secret and raw webhook_payload without visible retention/redaction policy, and lacks provider-event monotonicity or refund settlement linkage. Index deployment also depends on a duplicate-active-intent preflight. | `src/schemas/transaction.schema.ts:7–46`; `audit-artifacts/phase0b-backend/semantic-evidence-transaction-schema.md` | Preserve and verify the unique indexes with preflight, add strict amount/currency/booking contracts and ownership checks, minimize secrets/webhook data, add provider event claims/versioned settlement/refund linkage, and test concurrency/replay/index rollout. |
