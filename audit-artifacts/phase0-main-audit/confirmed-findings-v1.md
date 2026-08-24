@@ -277,3 +277,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-139 | P2 | ProviderBranch has a parent ProviderProfile reference, bilingual names, required location and doctor roster, but no business uniqueness for a branch, coordinate bounds/CRS/geocoding provenance, tenant/provider authorization, roster role/duplicate/active validation, branch lifecycle or version/CAS. Stale branches/doctors may remain selectable for discovery or booking. | `src/schemas/provider-branch.schema.ts:7–33`; `audit-artifacts/phase0b-backend/semantic-evidence-provider-branch-schema.md` | Bind branch to canonical provider/tenant, validate and normalize geo/name fields, enforce business uniqueness and roster membership, add active/closed/versioned lifecycle and audit controls, and test stale/concurrent updates and booking visibility. |
+
+
+## Medical profile finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-140 | P1 | MedicalProfile binds uniquely to patient_id and documents authorized-provider visibility, but blood/gender/pregnancy/physiology fields lack runtime cross-field bounds, all chronic/allergy/surgery/medication/family arrays are `any[]`, and emergency contact/notes are unbounded sensitive text. The schema has no field-level provider/family access grants, consent/revocation, encryption/redaction, version/CAS, history or retention enforcement; last_updated_by_id is informational only. | `src/schemas/medical-profile.schema.ts:10–56`; `audit-artifacts/phase0b-backend/semantic-evidence-medical-profile-schema.md` | Add strict nested health DTOs and cross-field validation, canonical patient/family/provider authorization and consent scopes, sensitive-field protection/redaction/retention, versioned updates and durable audit/history; test owner/authorized-provider/stranger/unauth and stale-update cases. |
