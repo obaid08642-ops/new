@@ -1,0 +1,298 @@
+/**
+ * Seed dataset for Nabd Healthcare.
+ * Real Saudi-localized data for pharmacies, doctors, delivery drivers, and medicines.
+ */
+export const SEED_USERS = [
+  // Test patient
+  { kind: 'patient', full_name: 'أحمد السالم', phone: '+966509999999', password: 'Test@123', city: 'الرياض', district: 'العليا' },
+];
+
+export const SEED_PHARMACIES = [
+  {
+    full_name: 'صيدلية النهدي — العليا', phone: '+966555000001', password: 'Pharm@123',
+    name_ar: 'صيدلية النهدي', name_en: 'Al-Nahdi Pharmacy', pharmacy_chain: 'Al Nahdi',
+    city: 'الرياض', district: 'العليا', location: { lat: 24.7136, lng: 46.6753 },
+    has_own_drivers: true, delivery_radius_km: 12, rating: 4.7,
+    working_hours: [
+      { day: 'sat', open: '08:00', close: '23:00' },
+      { day: 'sun', open: '08:00', close: '23:00' },
+      { day: 'mon', open: '08:00', close: '23:00' },
+      { day: 'tue', open: '08:00', close: '23:00' },
+      { day: 'wed', open: '08:00', close: '23:00' },
+      { day: 'thu', open: '08:00', close: '23:00' },
+      { day: 'fri', open: '14:00', close: '23:00' },
+    ],
+  },
+  {
+    full_name: 'صيدلية الدواء — الملقا', phone: '+966555000002', password: 'Pharm@123',
+    name_ar: 'صيدلية الدواء', name_en: 'Al-Dawaa Pharmacy', pharmacy_chain: 'Al Dawaa',
+    city: 'الرياض', district: 'الملقا', location: { lat: 24.7741, lng: 46.7385 },
+    has_own_drivers: false, delivery_radius_km: 10, rating: 4.5,
+    working_hours: [{ day: 'all', open: '09:00', close: '00:00' }],
+  },
+  {
+    full_name: 'صيدلية الحياة — الربوة', phone: '+966555000003', password: 'Pharm@123',
+    name_ar: 'صيدلية الحياة', name_en: 'Life Pharmacy', pharmacy_chain: '',
+    city: 'الرياض', district: 'الربوة', location: { lat: 24.6973, lng: 46.7280 },
+    has_own_drivers: true, delivery_radius_km: 8, rating: 4.3,
+    working_hours: [{ day: 'all', open: '08:00', close: '23:00' }],
+  },
+];
+
+/**
+ * Standard weekly hours used by most doctors. Each doctor can override.
+ * day ∈ sat..fri; open/close = 'HH:MM'.
+ */
+const STD_HOURS = [
+  { day: 'sat', open: '09:00', close: '21:00' },
+  { day: 'sun', open: '09:00', close: '21:00' },
+  { day: 'mon', open: '09:00', close: '21:00' },
+  { day: 'tue', open: '09:00', close: '21:00' },
+  { day: 'wed', open: '09:00', close: '21:00' },
+  { day: 'thu', open: '09:00', close: '17:00' },
+  { day: 'fri', open: '16:00', close: '21:00' },
+];
+const MORNING_HOURS = [
+  { day: 'sat', open: '09:00', close: '14:00' },
+  { day: 'sun', open: '09:00', close: '14:00' },
+  { day: 'mon', open: '09:00', close: '14:00' },
+  { day: 'tue', open: '09:00', close: '14:00' },
+  { day: 'wed', open: '09:00', close: '14:00' },
+  { day: 'thu', open: '09:00', close: '14:00' },
+  { day: 'fri', open: '00:00', close: '00:00', closed: true },
+];
+const EVENING_HOURS = [
+  { day: 'sat', open: '16:00', close: '23:00' },
+  { day: 'sun', open: '16:00', close: '23:00' },
+  { day: 'mon', open: '16:00', close: '23:00' },
+  { day: 'tue', open: '16:00', close: '23:00' },
+  { day: 'wed', open: '16:00', close: '23:00' },
+  { day: 'thu', open: '16:00', close: '23:00' },
+  { day: 'fri', open: '17:00', close: '23:00' },
+];
+
+export const SEED_DOCTORS = [
+  // 1
+  { full_name: 'د. سعد القحطاني', phone: '+966544000001', password: 'Doctor@123',
+    name_ar: 'د. سعد القحطاني', name_en: 'Dr. Saad Al-Qahtani',
+    specialty: 'باطنة', title: 'د.', license_number: 'KSA-MED-12345', years_experience: 12,
+    academic_degree: 'consultant', facility_slug: 'king-faisal-specialist',
+    city: 'الرياض', district: 'العليا', hospital: 'مستشفى الملك فيصل التخصصي',
+    location: { lat: 24.7142, lng: 46.6859 },
+    consultation_modes: ['clinic', 'video', 'home'],
+    price_clinic: 250, price_online: 150, price_home: 400, rating: 4.8, working_hours: STD_HOURS,
+    bio: 'استشاري الباطنة العامة بخبرة 12 عاماً في تشخيص وعلاج أمراض الجهاز الهضمي والسكري والضغط.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa'] },
+  // 2
+  { full_name: 'د. فاطمة الجبر', phone: '+966544000002', password: 'Doctor@123',
+    name_ar: 'د. فاطمة الجبر', name_en: 'Dr. Fatima Al-Jabr',
+    specialty: 'أطفال', title: 'د.', license_number: 'KSA-MED-23456', years_experience: 9,
+    academic_degree: 'consultant', facility_slug: 'dallah-hospital',
+    city: 'الرياض', district: 'النخيل', hospital: 'مستشفى دله',
+    location: { lat: 24.7762, lng: 46.6378 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 300, price_online: 180, rating: 4.9, working_hours: MORNING_HOURS,
+    bio: 'استشارية طب الأطفال متخصصة في الرضع وحديثي الولادة والتطعيمات.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'rajhi_takaful', 'walaa'] },
+  // 3
+  { full_name: 'د. خالد العتيبي', phone: '+966544000003', password: 'Doctor@123',
+    name_ar: 'د. خالد العتيبي', name_en: 'Dr. Khalid Al-Otaibi',
+    specialty: 'جلدية', title: 'د.', license_number: 'KSA-MED-34567', years_experience: 7,
+    academic_degree: 'specialist', facility_slug: 'andalusia-clinic',
+    city: 'الرياض', district: 'الياسمين', hospital: 'مجمع الأندلسية الطبي',
+    location: { lat: 24.8245, lng: 46.6712 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 200, price_online: 120, rating: 4.6, working_hours: EVENING_HOURS,
+    bio: 'متخصص في علاج حب الشباب، الإكزيما، الصدفية، وعلاجات تجميلية بالليزر.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['tawuniya', 'rajhi_takaful', 'malath'] },
+  // 4
+  { full_name: 'د. نورة السبيعي', phone: '+966544000004', password: 'Doctor@123',
+    name_ar: 'د. نورة السبيعي', name_en: 'Dr. Noura Al-Subaie',
+    specialty: 'نساء وولادة', title: 'د.', license_number: 'KSA-MED-44444', years_experience: 14,
+    academic_degree: 'professor', facility_slug: 'dallah-hospital',
+    city: 'الرياض', district: 'النخيل', hospital: 'مستشفى دله',
+    location: { lat: 24.7762, lng: 46.6378 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 350, price_online: 200, rating: 4.9, working_hours: STD_HOURS,
+    bio: 'أستاذة وأستشارية أمراض النساء والولادة، خبرة 14 عاماً في متابعة الحمل والولادات.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa', 'arabian_shield'] },
+  // 5
+  { full_name: 'د. عبدالله الحربي', phone: '+966544000005', password: 'Doctor@123',
+    name_ar: 'د. عبدالله الحربي', name_en: 'Dr. Abdullah Al-Harbi',
+    specialty: 'قلب وأوعية', title: 'د.', license_number: 'KSA-MED-55555', years_experience: 18,
+    academic_degree: 'professor', facility_slug: 'prince-sultan-cardiac',
+    city: 'الرياض', district: 'العليا', hospital: 'مركز الأمير سلطان للقلب',
+    location: { lat: 24.7218, lng: 46.6754 },
+    consultation_modes: ['clinic', 'video', 'home'],
+    price_clinic: 450, price_online: 250, price_home: 700, rating: 4.9, working_hours: STD_HOURS,
+    bio: 'أستاذ وأستشاري أمراض القلب والقسطرة العلاجية. زميل الكلية الملكية البريطانية.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa', 'malath', 'salama'] },
+  // 6
+  { full_name: 'د. منى الفهد', phone: '+966544000006', password: 'Doctor@123',
+    name_ar: 'د. منى الفهد', name_en: 'Dr. Mona Al-Fahad',
+    specialty: 'أسنان', title: 'د.', license_number: 'KSA-DEN-66666', years_experience: 8,
+    academic_degree: 'specialist', facility_slug: 'andalusia-clinic',
+    city: 'الرياض', district: 'الياسمين', hospital: 'مجمع الأندلسية الطبي',
+    location: { lat: 24.8245, lng: 46.6712 },
+    consultation_modes: ['clinic'],
+    price_clinic: 180, rating: 4.7, working_hours: MORNING_HOURS,
+    bio: 'تجميل الأسنان، تركيبات الزيركون، تبييض الأسنان، وعلاجات اللثة.',
+    languages: ['ar', 'en'],
+    accepts_insurance: false, accepted_insurance: [] },
+  // 7
+  { full_name: 'د. أحمد الزهراني', phone: '+966544000007', password: 'Doctor@123',
+    name_ar: 'د. أحمد الزهراني', name_en: 'Dr. Ahmed Al-Zahrani',
+    specialty: 'عظام', title: 'د.', license_number: 'KSA-MED-77777', years_experience: 11,
+    academic_degree: 'consultant', facility_slug: 'saudi-german-hospital',
+    city: 'الرياض', district: 'الربوة', hospital: 'مستشفى السعودي الألماني',
+    location: { lat: 24.7488, lng: 46.7227 },
+    consultation_modes: ['clinic', 'home'],
+    price_clinic: 280, price_home: 500, rating: 4.5, working_hours: STD_HOURS,
+    bio: 'استشاري جراحة العظام والكسور والمفاصل، متخصص في إصابات الملاعب.',
+    languages: ['ar'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'gulf_union'] },
+  // 8
+  { full_name: 'د. ريم الدوسري', phone: '+966544000008', password: 'Doctor@123',
+    name_ar: 'د. ريم الدوسري', name_en: 'Dr. Reem Al-Dossari',
+    specialty: 'نفسي', title: 'د.', license_number: 'KSA-MED-88888', years_experience: 10,
+    academic_degree: 'consultant', facility_slug: null,
+    city: 'الرياض', district: 'الياسمين', hospital: 'عيادات الصحة النفسية',
+    location: { lat: 24.8201, lng: 46.6488 },
+    consultation_modes: ['video', 'clinic'],
+    price_clinic: 320, price_online: 220, rating: 4.8, working_hours: EVENING_HOURS,
+    bio: 'استشارية الطب النفسي للبالغين، علاج القلق والاكتئاب واضطرابات النوم.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya'] },
+  // 9
+  { full_name: 'د. ياسر الشمري', phone: '+966544000009', password: 'Doctor@123',
+    name_ar: 'د. ياسر الشمري', name_en: 'Dr. Yasser Al-Shammari',
+    specialty: 'أنف وأذن وحنجرة', title: 'د.', license_number: 'KSA-MED-99999', years_experience: 9,
+    academic_degree: 'senior_specialist', facility_slug: 'kingdom-hospital',
+    city: 'الرياض', district: 'العليا', hospital: 'مستشفى المملكة',
+    location: { lat: 24.7045, lng: 46.6816 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 230, price_online: 140, rating: 4.6, working_hours: STD_HOURS,
+    bio: 'أخصائي أول أنف وأذن وحنجرة، عمليات الجيوب الأنفية والتهابات الأذن المزمنة.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf_a', 'walaa', 'allianz'] },
+  // 10
+  { full_name: 'د. سارة المطيري', phone: '+966544000010', password: 'Doctor@123',
+    name_ar: 'د. سارة المطيري', name_en: 'Dr. Sarah Al-Mutairi',
+    specialty: 'عيون', title: 'د.', license_number: 'KSA-MED-10101', years_experience: 6,
+    academic_degree: 'specialist', facility_slug: 'kingdom-hospital',
+    city: 'الرياض', district: 'العليا', hospital: 'مستشفى المملكة',
+    location: { lat: 24.7045, lng: 46.6816 },
+    consultation_modes: ['clinic'],
+    price_clinic: 270, rating: 4.7, working_hours: STD_HOURS,
+    bio: 'فحص النظر، علاج جفاف العين، عمليات الليزك وتصحيح النظر.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'walaa', 'globemed'] },
+  // 11
+  { full_name: 'د. ماجد الغامدي', phone: '+966544000011', password: 'Doctor@123',
+    name_ar: 'د. ماجد الغامدي', name_en: 'Dr. Majed Al-Ghamdi',
+    specialty: 'مخ وأعصاب', title: 'د.', license_number: 'KSA-MED-11111', years_experience: 16,
+    academic_degree: 'professor', facility_slug: 'king-faisal-specialist',
+    city: 'الرياض', district: 'العليا', hospital: 'مستشفى الملك فيصل التخصصي',
+    location: { lat: 24.7142, lng: 46.6859 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 400, price_online: 240, rating: 4.8, working_hours: STD_HOURS,
+    bio: 'أستاذ وأستشاري المخ والأعصاب، تشخيص الصرع، الصداع النصفي، التصلب اللويحي.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'axa', 'walaa'] },
+  // 12
+  { full_name: 'د. هند الرشيد', phone: '+966544000012', password: 'Doctor@123',
+    name_ar: 'د. هند الرشيد', name_en: 'Dr. Hind Al-Rasheed',
+    specialty: 'تغذية', title: 'د.', license_number: 'KSA-NUT-12121', years_experience: 5,
+    academic_degree: 'specialist', facility_slug: 'andalusia-clinic',
+    city: 'الرياض', district: 'النرجس', hospital: 'مجمع الأندلسية الطبي',
+    location: { lat: 24.8245, lng: 46.6712 },
+    consultation_modes: ['video', 'home'],
+    price_online: 150, price_home: 350, rating: 4.7, working_hours: EVENING_HOURS,
+    bio: 'أخصائية تغذية علاجية، برامج تخسيس صحية، تغذية مرضى السكري والكلى.',
+    languages: ['ar', 'en'],
+    accepts_insurance: false, accepted_insurance: [] },
+  // 13
+  { full_name: 'د. تركي العنزي', phone: '+966544000013', password: 'Doctor@123',
+    name_ar: 'د. تركي العنزي', name_en: 'Dr. Turki Al-Anzi',
+    specialty: 'مسالك بولية', title: 'د.', license_number: 'KSA-MED-13131', years_experience: 13,
+    academic_degree: 'consultant', facility_slug: 'saudi-german-hospital',
+    city: 'الرياض', district: 'الربوة', hospital: 'مستشفى السعودي الألماني',
+    location: { lat: 24.7488, lng: 46.7227 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 320, price_online: 200, rating: 4.7, working_hours: STD_HOURS,
+    bio: 'استشاري المسالك البولية، حصوات الكلى، تضخم البروستاتا.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'arabian_shield'] },
+  // 14
+  { full_name: 'د. لمى الخالدي', phone: '+966544000014', password: 'Doctor@123',
+    name_ar: 'د. لمى الخالدي', name_en: 'Dr. Lama Al-Khaledi',
+    specialty: 'سكر وغدد', title: 'د.', license_number: 'KSA-MED-14141', years_experience: 11,
+    academic_degree: 'consultant', facility_slug: 'king-faisal-specialist',
+    city: 'الرياض', district: 'العليا', hospital: 'مستشفى الملك فيصل التخصصي',
+    location: { lat: 24.7142, lng: 46.6859 },
+    consultation_modes: ['clinic', 'video'],
+    price_clinic: 340, price_online: 210, rating: 4.8, working_hours: STD_HOURS,
+    bio: 'استشارية السكري والغدد الصماء، علاج اضطرابات الغدة الدرقية والهرمونات.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'walaa', 'nextcare'] },
+  // 15
+  { full_name: 'د. فهد البلوي', phone: '+966544000015', password: 'Doctor@123',
+    name_ar: 'د. فهد البلوي', name_en: 'Dr. Fahad Al-Balawi',
+    specialty: 'علاج طبيعي', title: 'د.', license_number: 'KSA-PT-15151', years_experience: 6,
+    academic_degree: 'specialist', facility_slug: null,
+    city: 'الرياض', district: 'النرجس', hospital: 'مركز العلاج الطبيعي',
+    location: { lat: 24.8401, lng: 46.6315 },
+    consultation_modes: ['clinic', 'home'],
+    price_clinic: 200, price_home: 380, rating: 4.6, working_hours: STD_HOURS,
+    bio: 'أخصائي علاج طبيعي، تأهيل الإصابات الرياضية، إعادة تأهيل بعد الجراحة.',
+    languages: ['ar'],
+    accepts_insurance: true, accepted_insurance: ['tawuniya', 'walaa', 'malath'] },
+  // 16
+  { full_name: 'د. عائشة الزهراني', phone: '+966544000016', password: 'Doctor@123',
+    name_ar: 'د. عائشة الزهراني', name_en: 'Dr. Aisha Al-Zahrani',
+    specialty: 'طب الأسرة', title: 'د.', license_number: 'KSA-FM-16161', years_experience: 8,
+    academic_degree: 'specialist', facility_slug: 'andalusia-clinic',
+    city: 'الرياض', district: 'الياسمين', hospital: 'مجمع الأندلسية الطبي',
+    location: { lat: 24.8245, lng: 46.6712 },
+    consultation_modes: ['clinic', 'video', 'home'],
+    price_clinic: 180, price_online: 100, price_home: 350, rating: 4.7, working_hours: STD_HOURS,
+    bio: 'أخصائية طب الأسرة، الكشف الدوري، متابعة الأمراض المزمنة.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['tawuniya', 'rajhi_takaful', 'walaa', 'malath', 'salama'] },
+  // 17
+  { full_name: 'د. ناصر الدوسري', phone: '+966544000017', password: 'Doctor@123',
+    name_ar: 'د. ناصر الدوسري', name_en: 'Dr. Nasser Al-Dossari',
+    specialty: 'جراحة عامة', title: 'د.', license_number: 'KSA-SURG-17171', years_experience: 17,
+    academic_degree: 'professor', facility_slug: 'saudi-german-hospital',
+    city: 'الرياض', district: 'الربوة', hospital: 'مستشفى السعودي الألماني',
+    location: { lat: 24.7488, lng: 46.7227 },
+    consultation_modes: ['clinic'],
+    price_clinic: 420, rating: 4.7, working_hours: STD_HOURS,
+    bio: 'أستاذ وأستشاري الجراحة العامة، جراحات المرارة والفتق والمناظير.',
+    languages: ['ar', 'en'],
+    accepts_insurance: true, accepted_insurance: ['bupa', 'tawuniya', 'medgulf', 'arabian_shield'] },
+];
+
+export const SEED_DELIVERY = [
+  { full_name: 'محمد الأحمدي (سائق توصيل)', phone: '+966577000001', password: 'Driver@123', city: 'الرياض' },
+  { full_name: 'علي الشمري (سائق توصيل)', phone: '+966577000002', password: 'Driver@123', city: 'الرياض' },
+];
+
+export const SEED_MEDICINES = [
+  // Analgesics & antipyretics
+  // Antibiotics
+  // Antihistamines / cold & flu
+  // GI / Acid
+  // Diabetes & Endocrine
+  // Cardio / Hypertension
+  // Vitamins & Supplements
+  // Skincare
+  // Baby
+  // Personal care
+  // Medical devices
+];
