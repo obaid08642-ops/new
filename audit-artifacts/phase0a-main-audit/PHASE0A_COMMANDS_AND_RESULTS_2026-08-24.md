@@ -60,3 +60,9 @@ git ls-remote origin refs/heads/agent/audit-main-contract-inventory
 ```
 
 The branch must be pushed with artifacts only, the local and remote heads must match, `git diff --check` must be clean, and `git status --short` must return no output. Any remaining owned source member with `Fully read=NO` keeps Phase 0A in `NO-GO` status.
+
+## Secret-scan interpretation
+
+The broad heuristic scan returned five matches in the pre-existing audit artifact `audit-artifacts/phase0-main-audit/nabdah-backend-surface-index.txt`. The matches are embedded historical E2E test fixtures (`*.test.sa`, localhost `127.0.0.1`, and passwords such as `Str0ng!Pass`, `Adm1n!Pass`, and `Test!23456`); they are not credentials loaded from an environment or production secret store. They remain a review finding because test credentials are committed as historical source evidence, but they are not classified as live secret leakage.
+
+A targeted private-key/access-token scan over the Phase 0A artifacts returned no private-key header, AWS access-key, GitHub token or OpenAI-style secret. The general password heuristic therefore requires reviewer awareness of the five test-fixture lines rather than a false claim of a clean all-text scan. No source or production file was modified to suppress the matches.
