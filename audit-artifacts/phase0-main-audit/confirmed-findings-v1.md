@@ -270,3 +270,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-138 | P1 | Two distinct `ProviderDelta` schemas exist: `src/modules/providers` uses providerId/oldData/newData/reviewedBy/reviewedAt/rejectionReason, while admin-web-core uses provider_id/provider_type/old_profile_snapshot/proposed_new_metadata and no reviewer fields. Their incompatible contracts and missing version/idempotency/atomic-apply/redaction controls can split provider moderation state and allow inconsistent canonical-profile updates. | `src/modules/providers/schemas/provider-delta.schema.ts:4–34`; `src/modules/admin-web-core/schemas/provider-delta.schema.ts:6–24`; `audit-artifacts/phase0b/backend/semantic-evidence-provider-delta-schema.md`; `audit-artifacts/phase0b-backend/semantic-evidence-admin-provider-delta-schema.md` | Map consumers/collections, select one authoritative moderation contract or explicitly partition them, enforce allowlisted immutable diffs/versioned transitions/reviewer separation/idempotency, and atomically apply approved metadata with durable audit. |
+
+
+## Provider branch finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-139 | P2 | ProviderBranch has a parent ProviderProfile reference, bilingual names, required location and doctor roster, but no business uniqueness for a branch, coordinate bounds/CRS/geocoding provenance, tenant/provider authorization, roster role/duplicate/active validation, branch lifecycle or version/CAS. Stale branches/doctors may remain selectable for discovery or booking. | `src/schemas/provider-branch.schema.ts:7–33`; `audit-artifacts/phase0b-backend/semantic-evidence-provider-branch-schema.md` | Bind branch to canonical provider/tenant, validate and normalize geo/name fields, enforce business uniqueness and roster membership, add active/closed/versioned lifecycle and audit controls, and test stale/concurrent updates and booking visibility. |
