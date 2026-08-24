@@ -100,14 +100,11 @@ export default function InsuranceHubScreen() {
             logo: 'shield',
             color: '#E30613', // could map based on provider
             policyNumber: ins.policy_number,
-            memberId: ins.national_id || 'M-000',
-            type: 'شامل طبي',
+            memberId: ins.member_id || ins.policy_number || 'غير متاح',
+            type: 'تتطلب التغطية مراجعة لكل خدمة',
             endDate: ins.expiry_date || 'غير محدد',
-            isActive: true,
+            isActive: Boolean(ins.active ?? true),
             isDefault: true,
-            coverage: { consultations: 90, medicines: 80, diagnostics: 85, nursing: 70, hospitalization: 95, dental: 50, optical: 60 },
-            limits: { annual: 500000, used: 0, remaining: 500000 },
-            deductible: { amount: 50, used: 0 },
             network: ins.network,
           }]);
         }
@@ -119,7 +116,7 @@ export default function InsuranceHubScreen() {
     }
     async function loadClaims() {
       try {
-        const res = await apiFetch('/insurance/claims');
+        const res = await apiFetch('/insurance/claims/my');
         setClaims(res || []);
       } catch (err) {
         console.error('Error fetching claims', err);
@@ -130,7 +127,6 @@ export default function InsuranceHubScreen() {
   }, []);
 
   const defaultPolicy = policies.find(p => p.isDefault) || policies[0];
-  const usedPct = defaultPolicy ? Math.round((defaultPolicy.limits.used / defaultPolicy.limits.annual) * 100) : 0;
 
   // ── CHI WebView scraper state ─────────────────────────────────────────────
   const [chiVisible, setChiVisible] = useState(false);
@@ -246,15 +242,8 @@ export default function InsuranceHubScreen() {
           </View>
 
           <View style={styles.limitSection}>
-            <View style={styles.limitRow}>
-              <AppText variant="caption" color="rgba(255,255,255,0.7)">تم استخدام {(defaultPolicy.limits.used / 1000).toFixed(1)}k ريال ({usedPct}%)</AppText>
-              <AppText variant="caption" color="rgba(255,255,255,0.7)">الحد السنوي: {(defaultPolicy.limits.annual / 1000).toFixed(0)}k ريال</AppText>
-            </View>
-            <View style={styles.limitBar}>
-              <View style={[styles.limitFill, { width: `${usedPct}%` as any }]} />
-            </View>
-            <AppText variant="caption" color="#4ADE80" style={{ textAlign: 'left' }}>
-              {(defaultPolicy.limits.remaining / 1000).toFixed(0)}k ريال متبقي
+            <AppText variant="caption" color="rgba(255,255,255,0.8)" style={{ textAlign: 'right', lineHeight: 18 }}>
+              لا توجد لدينا حدود سنوية أو أرصدة تغطية مؤكدة من شركة التأمين. افحص تغطية الخدمة قبل الحجز، وتبقى الموافقة النهائية لمراجعة المزود.
             </AppText>
           </View>
         </View>
@@ -299,27 +288,11 @@ export default function InsuranceHubScreen() {
             </TouchableOpacity>
             <AppText variant="h6">ملخص التغطية</AppText>
           </View>
-          <View style={styles.coverageGrid}>
-            {[
-              { label: 'استشارات', pct: defaultPolicy.coverage.consultations, icon: 'consultations' },
-              { label: 'أدوية', pct: defaultPolicy.coverage.medicines, icon: 'medication' },
-              { label: 'تحاليل', pct: defaultPolicy.coverage.diagnostics, icon: 'science' },
-              { label: 'تنويم', pct: defaultPolicy.coverage.hospitalization, icon: 'hospital' },
-              { label: 'أسنان', pct: defaultPolicy.coverage.dental, icon: 'tooth' },
-              { label: 'نظارات', pct: defaultPolicy.coverage.optical, icon: 'eye' },
-            ].map((cov, i) => (
-              <View key={i} style={[styles.covCard, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
-                <Icon name={cov.icon as any} size={18} color={cov.pct >= 80 ? '#5BA84F' : cov.pct >= 50 ? '#F0A526' : '#F0695C'} />
-                <AppText variant="h6" style={{ fontFamily: 'Cairo-ExtraBold' }}>{cov.pct}%</AppText>
-                <AppText variant="caption">{cov.label}</AppText>
-                <View style={[styles.covBar, { backgroundColor: colors.border } ]}>
-                  <View style={[styles.covFill, {
-                    width: `${cov.pct}%` as any,
-                    backgroundColor: cov.pct >= 80 ? '#5BA84F' : cov.pct >= 50 ? '#F0A526' : '#F0695C'
-                  }]} />
-                </View>
-              </View>
-            ))}
+          <View style={[styles.covCard, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary, flex: 1 }]}>
+            <Icon name="shield" size={22} color={colors.primary} />
+            <AppText variant="bodySM" style={{ textAlign: 'right', lineHeight: 21, marginTop: 8 }}>
+              لا تتوفر نسب تغطية مؤكدة في التطبيق. استخدم «فحص التغطية» لكل خدمة؛ الطلب يبقى قيد مراجعة المزود أو شركة التأمين ولا يُعد موافقة تلقائية.
+            </AppText>
           </View>
         </View>
 
@@ -331,15 +304,9 @@ export default function InsuranceHubScreen() {
             </TouchableOpacity>
             <AppText variant="h6">التحمّل</AppText>
           </View>
-          <View style={{ flexDirection: 'row-reverse', marginBottom: 10, gap: 8 }}>
-            <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#F0FDF4' } ]}>
-              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy.deductible.amount}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>ريال / زيارة</AppText>
-            </View>
-            <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#EFF6FF' } ]}>
-              <AppText variant="h4" style={{ fontFamily: 'Cairo-ExtraBold' }}>{defaultPolicy.deductible.used}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>ريال مدفوع</AppText>
-            </View>
+          <View style={[styles.deductItem, { backgroundColor: isDark ? colors.surfaceSecondary : '#EFF6FF', marginBottom: 10 }]}>
+            <AppText variant="bodySM" style={{ textAlign: 'right' }}>غير مؤكد</AppText>
+            <AppText variant="caption" color={colors.textSecondary}>يحدد التحمل الفعلي بعد مراجعة طلب الخدمة</AppText>
           </View>
           <View style={[{ backgroundColor: isDark ? colors.surfaceSecondary : '#EBF3FF', borderRadius: 12, padding: 10 } ]}>
             <AppText variant="caption" style={{ textAlign: 'right', lineHeight: 18 }}>

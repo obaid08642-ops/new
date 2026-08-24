@@ -127,11 +127,17 @@ export class EmergencyService {
   }
 
   async trigger(patient: any, data: { location?: any; symptoms?: string; severity?: string }) {
+    const lat = Number(data?.location?.lat);
+    const lng = Number(data?.location?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+      throw new BadRequestException('emergency_location_required');
+    }
     const e = await this.model.create({
+
       patient_id: patient.id,
       patient_name: patient.full_name,
       patient_phone: patient.phone,
-      location: data.location,
+      location: { ...data.location, lat, lng },
       symptoms: data.symptoms,
       severity: data.severity || 'critical',
       state: EmergencyState.TRIGGERED,

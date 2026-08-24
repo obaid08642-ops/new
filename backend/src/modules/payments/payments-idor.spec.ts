@@ -7,8 +7,12 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
   let svc: any;
   let txns: any;
   let orders: any;
+  const originalOnlinePayments = process.env.PAYMENTS_ONLINE_ENABLED;
+  const originalMoyasarKey = process.env.MOYASAR_API_KEY;
 
   beforeEach(() => {
+    process.env.PAYMENTS_ONLINE_ENABLED = 'true';
+    process.env.MOYASAR_API_KEY = 'test-gateway-key';
     txns = {
       find: jest.fn(() => ({ sort: () => ({ lean: async () => [{ id: 'tx1' }] }) })),
       findOne: jest.fn(async (q: any) => ({ id: q.id, patient_id: 'patient-1', gateway_intent_id: 'pi_1' })),
@@ -22,9 +26,16 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
     svc.events = { emit: jest.fn() };
     svc.realtime = { emitToUser: jest.fn() };
     svc.fraud = { detectDuplicatePayments: jest.fn(), checkPaymentVelocity: jest.fn() };
-    svc.adapter = { verify: jest.fn(async () => ({ status: 'failed', raw: {} })), name: 'moyasar' };
+    svc.adapter = { createIntent: jest.fn(), verify: jest.fn(async () => ({ status: 'failed', raw: {} })), name: 'moyasar' };
     svc.logger = { error: jest.fn() };
     svc.modelFor = jest.fn(() => orders);
+  });
+
+  afterAll(() => {
+    if (originalOnlinePayments === undefined) delete process.env.PAYMENTS_ONLINE_ENABLED;
+    else process.env.PAYMENTS_ONLINE_ENABLED = originalOnlinePayments;
+    if (originalMoyasarKey === undefined) delete process.env.MOYASAR_API_KEY;
+    else process.env.MOYASAR_API_KEY = originalMoyasarKey;
   });
 
   it('listForBooking rejects a non-owner patient (IDOR closed)', async () => {
@@ -94,6 +105,28 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
       .rejects.toThrow('not_authorized');
     await expect(svc.refundPayment({ id: 'ph-1', role: 'pharmacy' }, 'tx1'))
       .rejects.toThrow('not_authorized');
+  });
+
+  it('reports online card capability only after explicit production opt-in', () => {
+    expect(svc.paymentCapabilities()).toEqual({ online_card: true, gateway: 'moyasar' });
+    delete process.env.PAYMENTS_ONLINE_ENABLED;
+    expect(svc.paymentCapabilities()).toEqual({ online_card: false, gateway: null });
+  });
+
+  it('fails closed before creating a transaction when online payments are not explicitly enabled', async () => {
+    delete process.env.PAYMENTS_ONLINE_ENABLED;
+
+    const error = await svc.createPaymentIntent({ id: 'patient-1', role: 'patient' }, 'pharmacy', 'b1', 'disabled-gateway-key')
+      .catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(BadGatewayException);
+    expect(error.getStatus()).toBe(502);
+    expect(error.getResponse()).toEqual({
+      code: 'online_payments_unavailable',
+      message: 'الدفع الإلكتروني غير متاح حالياً',
+    });
+    expect(txns.create).not.toHaveBeenCalled();
+    expect(svc.adapter.createIntent).not.toHaveBeenCalled();
   });
 
   it('maps gateway intent failures to a safe 502 without exposing PSP text', async () => {

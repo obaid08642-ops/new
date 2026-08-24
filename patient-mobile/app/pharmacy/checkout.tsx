@@ -41,6 +41,7 @@ export default function PharmacyCheckoutScreen() {
   const [walletBalance, setWalletBalance] = useState(0);
   const [loyaltyQuote, setLoyaltyQuote] = useState<any>(null); // {max_points_for_order, point_value_sar, balance}
   const [usePoints, setUsePoints] = useState(false);
+  const [onlinePaymentsAvailable, setOnlinePaymentsAvailable] = useState(false);
 
   // "Online Exclusive" is a badge only — both home delivery and pharmacy
   // pickup remain available (business decision: never block checkout).
@@ -66,7 +67,16 @@ export default function PharmacyCheckoutScreen() {
     // Wallet balance + loyalty quote are display aids only — the server
     // re-validates everything (balance, caps, coupon rules) at order creation.
     apiFetch('/wallet/balance').then((r: any) => setWalletBalance(Number(r?.balance || 0))).catch(() => {});
+    apiFetch('/payments/capabilities')
+      .then((r: any) => setOnlinePaymentsAvailable(r?.online_card === true))
+      .catch(() => setOnlinePaymentsAvailable(false));
   }, []);
+
+  useEffect(() => {
+    if (!onlinePaymentsAvailable && (paymentType === 'card' || paymentType === 'wallet_split')) {
+      setPaymentType('cash');
+    }
+  }, [onlinePaymentsAvailable, paymentType, setPaymentType]);
 
   const deliveryFee = deliveryMode === 'delivery' ? 15 : 0;
   const preTotal = subtotal + deliveryFee;
@@ -98,6 +108,10 @@ export default function PharmacyCheckoutScreen() {
   };
 
   const handlePaymentSelect = (id: 'cash' | 'card' | 'insurance' | 'wallet' | 'wallet_split') => {
+    if ((id === 'card' || id === 'wallet_split') && !onlinePaymentsAvailable) {
+      showLocalizedAlert('الدفع الإلكتروني غير متاح', 'اختر الدفع عند الاستلام أو المحفظة الكاملة عند توفر الرصيد.');
+      return;
+    }
     if (id === 'insurance' && !hasInsurance) {
       showLocalizedAlert(
         'التأمين غير مضاف',
@@ -307,9 +321,9 @@ export default function PharmacyCheckoutScreen() {
         {/* ─── Payment Mode ────────────────────────────────────────────────────── */}
         <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>طريقة الدفع</LocalizedText>
         {[
-          { id: 'card' as const, icon: 'credit_card', label: 'بطاقة بنكية / مدى / Apple Pay', sub: 'دفع إلكتروني آمن عبر Moyasar', show: true },
+          { id: 'card' as const, icon: 'credit_card', label: 'بطاقة بنكية / مدى / Apple Pay', sub: 'دفع إلكتروني آمن', show: onlinePaymentsAvailable },
           { id: 'wallet' as const, icon: 'account_balance_wallet', label: 'المحفظة', sub: `رصيدك: ${walletBalance.toFixed(2)} ر.س — دفع كامل من المحفظة`, show: walletBalance >= total && total > 0 },
-          { id: 'wallet_split' as const, icon: 'account_balance_wallet', label: 'محفظة + بطاقة', sub: `${walletBalance.toFixed(2)} ر.س من المحفظة والباقي بالبطاقة`, show: walletBalance > 0 && walletBalance < total },
+          { id: 'wallet_split' as const, icon: 'account_balance_wallet', label: 'محفظة + بطاقة', sub: `${walletBalance.toFixed(2)} ر.س من المحفظة والباقي بالبطاقة`, show: onlinePaymentsAvailable && walletBalance > 0 && walletBalance < total },
           { id: 'cash' as const, icon: 'payments', label: 'الدفع عند الاستلام', sub: 'نقداً أو بالشبكة عند التوصيل', show: true },
           { id: 'insurance' as const, icon: 'health_and_safety', label: 'التأمين الطبي', sub: 'التعاونية · بوبا · ميدغلف', show: true },
         ].filter(o => o.show).map(opt => (

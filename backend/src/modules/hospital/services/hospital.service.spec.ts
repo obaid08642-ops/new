@@ -30,6 +30,19 @@ describe('HospitalService UUID and ownership contract', () => {
     expect(staffModel.find).toHaveBeenCalledWith({ hospital_id: 'mongo-hospital-id' });
   });
 
+  it('resolves a receptionist UUID through its parent facility before querying staff', async () => {
+    const { service, staffModel, userModel } = make();
+    userModel.findOne
+      .mockReturnValueOnce({ select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'mongo-receptionist-id', parent_provider_account_id: 'hospital-uuid' }) }) })
+      .mockReturnValueOnce({ select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'mongo-hospital-id' }) }) });
+    staffModel.find.mockResolvedValue([]);
+
+    await service.getStaff('receptionist-uuid', { id: 'receptionist-uuid', role: 'receptionist' });
+
+    expect(staffModel.find).toHaveBeenCalledWith({ hospital_id: 'mongo-hospital-id' });
+    expect(userModel.findOne).toHaveBeenNthCalledWith(2, { id: 'hospital-uuid' });
+  });
+
   it('rejects a patient-shaped actor and a non-facility provider before querying facility data', async () => {
     const { service, staffModel } = make();
     await expect(service.getStaff('hospital-uuid', { id: 'patient-1', role: 'patient' })).rejects.toBeInstanceOf(ForbiddenException);

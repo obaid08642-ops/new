@@ -25,17 +25,32 @@ import { Request } from 'express';
  * exercises the full state lifecycle so the rest of the app behaves correctly.
  */
 interface GatewayAdapter {
-  name: 'stripe' | 'tap' | 'moyasar';
+  name: 'stripe' | 'tap' | 'moyasar' | 'disabled';
   createIntent(opts: { amount: number; currency: string; description: string; metadata: any }): Promise<{ intent_id: string; client_secret?: string; checkout_url?: string }>;
   verify(intentId: string): Promise<{ status: 'paid' | 'pending' | 'failed' | 'cancelled'; charge_id?: string; raw?: any }>;
   refund(chargeId: string, amount?: number): Promise<{ refunded: boolean; raw?: any }>;
+}
+
+function onlinePaymentsEnabled(): boolean {
+  // A key alone is not evidence that a PSP live account is active. Production
+  // must opt in only after a sandbox/live readiness check has succeeded.
+  return process.env.PAYMENTS_ONLINE_ENABLED === 'true'
+    && Boolean(process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY || process.env.MOYASAR_API_KEY);
+}
+
+class DisabledGatewayAdapter implements GatewayAdapter {
+  name = 'disabled' as const;
+  private unavailable(): never { throw new Error('online_payments_disabled'); }
+  async createIntent(_opts: any) { return this.unavailable(); }
+  async verify(_id: string) { return this.unavailable(); }
+  async refund(_id: string, _amount?: number) { return this.unavailable(); }
 }
 
 function selectAdapter(): GatewayAdapter {
   if (process.env.STRIPE_SECRET_KEY) return new StripeAdapter();
   if (process.env.TAP_API_KEY) return new TapAdapter();
   if (process.env.MOYASAR_API_KEY) return new MoyasarAdapter();
-  throw new Error('NO_PAYMENT_GATEWAY_CONFIGURED');
+  return new DisabledGatewayAdapter();
 }
 
 
@@ -157,9 +172,21 @@ export class PaymentsService {
     }
   }
 
+  paymentCapabilities() {
+    return {
+      online_card: onlinePaymentsEnabled(),
+      gateway: onlinePaymentsEnabled() ? this.adapter.name : null,
+      // Cash and insurance eligibility remains service, provider, and order
+      // specific; callers must not treat this endpoint as an authorization.
+    };
+  }
+
   async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
+    if (!onlinePaymentsEnabled()) {
+      throw new BadGatewayException({ code: 'online_payments_unavailable', message: 'الدفع الإلكتروني غير متاح حالياً' });
+    }
     const kind = normalizeKind(type);
     const M = this.modelFor(type);
     const booking: any = await M.findOne({ id }).lean();
@@ -377,6 +404,7 @@ export class PaymentsService {
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
   constructor(private svc: PaymentsService) {}
+  @Get('capabilities') capabilities() { return this.svc.paymentCapabilities(); }
   @Post('intent/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
   intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }

@@ -55,6 +55,14 @@ export default function EmergencySOSScreen() {
                 };
               }
 
+              if (!locationData) {
+                // Never create an SOS record that dispatch cannot locate. The
+                // emergency number remains an immediate fallback when GPS is
+                // denied or unavailable.
+                Linking.openURL(`tel:${EMERGENCY_NUMBERS.ambulance}`);
+                return;
+              }
+
               const res = await apiFetch<any>("/emergency/trigger", {
                 method: "POST",
                 body: JSON.stringify({

@@ -3,12 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SegmentedControl, SectionHeader } from '../../src/components/ui';
-import { STORAGE_KEYS, API_BASE_URL } from '../../src/constants';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { apiFetch } from '../../src/utils/api';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
@@ -28,7 +25,9 @@ export default function BookingConfirmScreen() {
   const { colors, isDark } = useApp();
   const params = useLocalSearchParams();
   const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
-  const [payMethod, setPayMethod] = useState('card');
+  // Cash is safe for clinic visits by default. Card is revealed only after the
+  // API confirms that a PSP is explicitly enabled and ready.
+  const [payMethod, setPayMethod] = useState('cash');
   const [loading, setLoading] = useState(false);
   const [showInsurance, setShowInsurance] = useState(false);
   const [insCompany, setInsCompany] = useState('');
@@ -38,6 +37,7 @@ export default function BookingConfirmScreen() {
   const [insCompanies, setInsCompanies] = useState<any[]>([]);
   const [insCategories, setInsCategories] = useState<any[]>([]);
   const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
+  const [onlinePaymentsAvailable, setOnlinePaymentsAvailable] = useState(false);
 
   useEffect(() => {
     if (!showInsurance) return;
@@ -108,29 +108,27 @@ export default function BookingConfirmScreen() {
     }
   }, [isGuest]);
   useEffect(() => {
+    apiFetch('/payments/capabilities')
+      .then((r: any) => setOnlinePaymentsAvailable(r?.online_card === true))
+      .catch(() => setOnlinePaymentsAvailable(false));
+  }, []);
+
+  useEffect(() => {
+    if (!onlinePaymentsAvailable && payMethod === 'card') {
+      setPayMethod(visitType === 'clinic' ? 'cash' : 'insurance');
+      setShowInsurance(visitType !== 'clinic');
+    }
+  }, [onlinePaymentsAvailable, payMethod, visitType]);
+
+  useEffect(() => {
     if (payMethod === 'insurance') {
       const checkCoverage = async () => {
         setLoadingCoverage(true);
         try {
-          let token = null;
-          try {
-            token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-          } catch {
-            token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-          }
-          if (!token) return;
-          const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
-          const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setCoverage(data);
-          }
-        } catch (err) {
-          console.log('Error checking coverage', err);
+          const data = await apiFetch(`/insurance/coverage-check?provider_id=${encodeURIComponent(String(params.doctorId || ''))}&service_type=consultation`);
+          setCoverage(data);
+        } catch {
+          setCoverage(null);
         } finally {
           setLoadingCoverage(false);
         }
@@ -161,6 +159,10 @@ export default function BookingConfirmScreen() {
   }
 
   const handleConfirm = async () => {
+    if (visitType === 'video' && !onlinePaymentsAvailable) {
+      showLocalizedAlert('الدفع الإلكتروني غير متاح', 'لا يمكن إنشاء استشارة فيديو قبل تفعيل الدفع الإلكتروني بأمان. اختر عيادة نقدية أو حاول لاحقاً.');
+      return;
+    }
     // Guests CAN book — only paying via INSURANCE requires a registered account.
     if (isGuest && payMethod === 'insurance') {
       requireAuth('insurance');
@@ -315,20 +317,24 @@ export default function BookingConfirmScreen() {
             video → card only · home → card/insurance · clinic → cash/card/insurance */}
         <Card>
           <SectionHeader title="طريقة الدفع" />
-          <SegmentedControl value={payMethod} onChange={(v) => { setPayMethod(v); setShowInsurance(v === 'insurance'); }} options={
-            visitType === 'video'
-              ? [{ key: 'card', label: 'بطاقة', icon: 'card' }]
-              : visitType === 'home'
-                ? [
-                    { key: 'card', label: 'بطاقة', icon: 'card' },
-                    { key: 'insurance', label: 'تأمين', icon: 'shield' },
-                  ]
-                : [
-                    { key: 'card', label: 'بطاقة', icon: 'card' },
-                    { key: 'cash', label: 'كاش', icon: 'wallet' },
-                    { key: 'insurance', label: 'تأمين', icon: 'shield' },
-                  ]
-          } />
+          {visitType === 'video' && !onlinePaymentsAvailable ? (
+            <AppText variant="bodySM" color={colors.error}>الدفع الإلكتروني غير متاح حاليًا؛ لا يمكن حجز استشارة فيديو قبل تفعيله بأمان.</AppText>
+          ) : (
+            <SegmentedControl value={payMethod} onChange={(v) => { setPayMethod(v); setShowInsurance(v === 'insurance'); }} options={
+              visitType === 'video'
+                ? [{ key: 'card', label: 'بطاقة', icon: 'card' }]
+                : visitType === 'home'
+                  ? [
+                      ...(onlinePaymentsAvailable ? [{ key: 'card', label: 'بطاقة', icon: 'card' }] : []),
+                      { key: 'insurance', label: 'تأمين', icon: 'shield' },
+                    ]
+                  : [
+                      ...(onlinePaymentsAvailable ? [{ key: 'card', label: 'بطاقة', icon: 'card' }] : []),
+                      { key: 'cash', label: 'كاش', icon: 'wallet' },
+                      { key: 'insurance', label: 'تأمين', icon: 'shield' },
+                    ]
+            } />
+          )}
         </Card>
 
         {/* Insurance details — visible only when insurance selected */}

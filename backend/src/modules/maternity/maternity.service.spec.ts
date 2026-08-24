@@ -41,4 +41,19 @@ describe('MaternityService truthful reproductive tracking contract', () => {
     await expect(service.logKick('patient-1', 5, 600)).rejects.toBeInstanceOf(BadRequestException);
     await expect(service.logContraction('patient-1', 5, 60)).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  it('persists both required contraction interval and duration for pregnancy tracking', async () => {
+    const { service, getStored } = makeService();
+    const lmp = new Date(Date.now() - 42 * 24 * 60 * 60 * 1000).toISOString();
+    await service.updateProfile('patient-1', { is_pregnant: true, lmp_date: lmp });
+
+    const profile = await service.logContraction('patient-1', 240, 55);
+
+    expect(getStored().contractions_log).toEqual(expect.arrayContaining([
+      expect.objectContaining({ interval_seconds: 240, duration_seconds: 55 }),
+    ]));
+    expect(profile.contractions_log).toEqual(expect.arrayContaining([
+      expect.objectContaining({ interval_seconds: 240, duration_seconds: 55 }),
+    ]));
+  });
 });

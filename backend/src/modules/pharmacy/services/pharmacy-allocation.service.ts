@@ -26,6 +26,20 @@ export class PharmacyAllocationService {
     private engine: WorkflowEngineService,
   ) {}
 
+  /**
+   * Allocation documents predate the current schema in some deployments. Do not
+   * let a malformed historical document turn a provider mutation into a 500, and
+   * never infer missing item data as an empty order (which could falsely reject
+   * or complete a fulfillment). Timeline and totals are safe derived defaults;
+   * item lines and the state machine are not.
+   */
+  private prepareMutableAllocation(a: any): any {
+    if (!Array.isArray(a?.items)) throw new BadRequestException('allocation_items_invalid');
+    if (!a.totals || typeof a.totals !== 'object') a.totals = { subtotal: 0, delivery_fee: 0, total: 0 };
+    if (!Array.isArray(a.timeline)) a.timeline = [];
+    return a;
+  }
+
   async listForProvider(user: any, status?: string) {
     assertProvider(user);
     const q: any = { pharmacy_account_id: user.id };
@@ -55,6 +69,7 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id: allocId });
     if (!a) throw new NotFoundException('allocation_not_found');
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException('not_yours');
+    this.prepareMutableAllocation(a);
     if (![PharmacyAllocationState.PENDING_REVIEW, PharmacyAllocationState.PARTIALLY_CONFIRMED].includes(a.status)) {
       throw new BadRequestException(`cannot_change_items_in_${a.status}`);
     }
@@ -131,8 +146,10 @@ export class PharmacyAllocationService {
   }
 
   private transition(a: PharmacyAllocation, to: PharmacyAllocationState, by?: string, meta?: any) {
-    if (!ALLOCATION_TRANSITIONS[a.status].includes(to)) {
-      throw new BadRequestException(`invalid_transition_${a.status}_to_${to}`);
+    this.prepareMutableAllocation(a);
+    const allowed = ALLOCATION_TRANSITIONS[a.status];
+    if (!Array.isArray(allowed) || !allowed.includes(to)) {
+      throw new BadRequestException(`invalid_transition_${a.status || 'unknown'}_to_${to}`);
     }
     a.status = to;
     a.timeline.push({ ts: new Date(), event: to, by, meta });
@@ -143,6 +160,7 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    this.prepareMutableAllocation(a);
     const anyUnavailable = a.items.some(i => i.action === AllocationItemAction.UNAVAILABLE);
     const anyAvailable = a.items.some(i => i.action !== AllocationItemAction.UNAVAILABLE);
     if (!anyAvailable) {
@@ -215,6 +233,7 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    this.prepareMutableAllocation(a);
     const fromStatus = a.status;
     this.transition(a, to, user.id);
     await a.save();
@@ -229,6 +248,7 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    this.prepareMutableAllocation(a);
     if ([PharmacyAllocationState.DELIVERED, PharmacyAllocationState.CANCELLED].includes(a.status)) throw new BadRequestException('already_terminal');
     await this.split.releaseStockForAllocation(a);
     this.transition(a, PharmacyAllocationState.CANCELLED, user.id, { reason });
@@ -259,6 +279,7 @@ export class PharmacyAllocationService {
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: nextStatus,
       actor_role: 'system', patient_account_id: order.patient_account_id, reason: event,
       mutate: async () => {
+        if (!Array.isArray(order.timeline)) order.timeline = [];
         order.status = nextStatus!;
         order.timeline.push({ ts: new Date(), event });
         if (nextStatus === PharmacyOrderState.DELIVERED) {
@@ -276,6 +297,7 @@ export class PharmacyAllocationService {
     const stale = await this.allocs.find({ status: PharmacyAllocationState.PENDING_REVIEW, review_expires_at: { $lt: now } });
     let expired = 0;
     for (const a of stale) {
+      this.prepareMutableAllocation(a);
       await this.split.releaseStockForAllocation(a);
       this.transition(a, PharmacyAllocationState.EXPIRED, 'system', { reason: 'review_timeout' });
       await a.save();

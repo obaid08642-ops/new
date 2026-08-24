@@ -51,6 +51,21 @@ export class HospitalService {
     return new Types.ObjectId(value);
   }
 
+  /**
+   * Hospital APIs are used by the hospital owner and by invited staff such as
+   * receptionists. Staff tokens carry a UUID for the staff account, not the
+   * Mongo _id nor necessarily the hospital account ID. Resolve the persisted
+   * parent facility first so every read uses one canonical facility ObjectId.
+   */
+  private async facilityObjectId(hospitalId: string, actor?: any): Promise<Types.ObjectId> {
+    const actorId = String(actor?.id || hospitalId || '');
+    const actorRecord: any = actorId
+      ? await this.userModel.findOne({ id: actorId }).select({ _id: 1, parent_provider_account_id: 1 }).lean()
+      : null;
+    const parentId = actor?.parent_provider_account_id || actorRecord?.parent_provider_account_id;
+    return this.objectIdForUser(String(parentId || hospitalId));
+  }
+
   // ── Facility → provider invitations (additive) ────────────────────────────
 
   async createInvitation(facilityId: string, body: { identifier?: string; role?: string; permissions?: Record<string, boolean> }) {
@@ -112,27 +127,27 @@ export class HospitalService {
 
   async createBranch(hospitalId: string, data: Partial<HospitalBranch>, actor?: any) {
     this.assertFacilityActor(actor, true);
-    return this.branchModel.create({ ...data, hospital_id: await this.objectIdForUser(hospitalId) });
+    return this.branchModel.create({ ...data, hospital_id: await this.facilityObjectId(hospitalId, actor) });
   }
 
   async getBranches(hospitalId: string, actor?: any) {
     this.assertFacilityActor(actor);
-    return this.branchModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
+    return this.branchModel.find({ hospital_id: await this.facilityObjectId(hospitalId, actor) });
   }
 
   async createDepartment(hospitalId: string, data: Partial<HospitalDepartment>, actor?: any) {
     this.assertFacilityActor(actor, true);
-    return this.departmentModel.create({ ...data, hospital_id: await this.objectIdForUser(hospitalId) });
+    return this.departmentModel.create({ ...data, hospital_id: await this.facilityObjectId(hospitalId, actor) });
   }
 
   async getDepartments(hospitalId: string, actor?: any) {
     this.assertFacilityActor(actor);
-    return this.departmentModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
+    return this.departmentModel.find({ hospital_id: await this.facilityObjectId(hospitalId, actor) });
   }
 
   async addStaff(hospitalId: string, data: Partial<HospitalStaff>, actor?: any) {
     this.assertFacilityActor(actor, true);
-    const hospitalObjectId = await this.objectIdForUser(hospitalId);
+    const hospitalObjectId = await this.facilityObjectId(hospitalId, actor);
     const userObjectId = data.user_id ? await this.objectIdForUser(String(data.user_id)) : null;
     if (!userObjectId) throw new BadRequestException('user_id_required');
     const staff: any = { ...data, user_id: userObjectId, hospital_id: hospitalObjectId };
@@ -143,12 +158,12 @@ export class HospitalService {
 
   async getStaff(hospitalId: string, actor?: any) {
     this.assertFacilityActor(actor);
-    return this.staffModel.find({ hospital_id: await this.objectIdForUser(hospitalId) });
+    return this.staffModel.find({ hospital_id: await this.facilityObjectId(hospitalId, actor) });
   }
 
   async onboardDoctor(hospitalId: string, doctorId: string, actor?: any) {
     this.assertFacilityActor(actor, true);
-    const hospitalObjectId = await this.objectIdForUser(hospitalId);
+    const hospitalObjectId = await this.facilityObjectId(hospitalId, actor);
     const doctorObjId = await this.objectIdForUser(doctorId);
     const doctorProfile = await this.doctorModel.findOneAndUpdate(
       { doctor_id: doctorObjId },
@@ -161,7 +176,7 @@ export class HospitalService {
 
   async getUnifiedAppointments(hospitalId: string, branchId?: string, actor?: any) {
     this.assertFacilityActor(actor);
-    const affiliatedHospitalId = await this.objectIdForUser(hospitalId);
+    const affiliatedHospitalId = await this.facilityObjectId(hospitalId, actor);
     const doctors = await this.doctorModel.find({ affiliated_hospital_id: affiliatedHospitalId });
     const doctorIds = doctors.map(d => d.doctor_id.toString());
     const query: any = { doctor_id: { $in: doctorIds } };
@@ -174,7 +189,7 @@ export class HospitalService {
     if (!['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'].includes(String(status))) {
       throw new BadRequestException('invalid_appointment_status');
     }
-    const affiliatedHospitalId = await this.objectIdForUser(hospitalId);
+    const affiliatedHospitalId = await this.facilityObjectId(hospitalId, actor);
     const doctors = await this.doctorModel.find({ affiliated_hospital_id: affiliatedHospitalId }).select({ doctor_id: 1 }).lean();
     const doctorIds = doctors.map((d: any) => d.doctor_id);
     const appointment = await this.appointmentModel.findOneAndUpdate(
@@ -189,7 +204,7 @@ export class HospitalService {
   async getAggregatedWallet(hospitalId: string, userRole: string, actor?: any) {
     this.assertFacilityActor(actor);
     if (userRole === 'receptionist') throw new UnauthorizedException('Access Denied: Financial data restricted.');
-    const affiliatedHospitalId = await this.objectIdForUser(hospitalId);
+    const affiliatedHospitalId = await this.facilityObjectId(hospitalId, actor);
     const doctors = await this.doctorModel.find({ affiliated_hospital_id: affiliatedHospitalId });
     const doctorIds = doctors.map(d => d.doctor_id.toString());
     const completed = await this.appointmentModel.find({ doctor_id: { $in: doctorIds }, status: 'COMPLETED' });

@@ -41,7 +41,10 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [prescriptionUrl, setPrescriptionUrl] = useState<string | null>(null);
-  const [paymentType, setPaymentType] = useState<'cash' | 'card' | 'insurance' | 'wallet' | 'wallet_split'>('card');
+  // Cash is the conservative default. Card availability is determined by the
+  // server at checkout after a verified PSP readiness signal, never by a key
+  // or a hard-coded provider label in the client.
+  const [paymentType, setPaymentType] = useState<'cash' | 'card' | 'insurance' | 'wallet' | 'wallet_split'>('cash');
 
   // Load from backend on mount
   useEffect(() => {

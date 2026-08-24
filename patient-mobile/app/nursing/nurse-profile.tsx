@@ -127,8 +127,16 @@ export default function NursingMegaProfile() {
         service_id: serviceId || undefined,
         service_name_ar: nurse?.service_name_ar || undefined,
         scheduled_at: scheduled.toISOString(),
-        address: formatAddressLine(addressObj),
-        payment_method: flow === 'insurance' ? 'insurance' : 'card',
+        address: {
+          address: formatAddressLine(addressObj),
+          ...(typeof addressObj?.city === 'string' ? { city: addressObj.city } : {}),
+          ...(typeof addressObj?.district === 'string' ? { district: addressObj.district } : {}),
+          ...(Number.isFinite(Number(addressObj?.lat)) ? { lat: Number(addressObj.lat) } : {}),
+          ...(Number.isFinite(Number(addressObj?.lng)) ? { lng: Number(addressObj.lng) } : {}),
+        },
+        // The current home-care backend contract supports cash or insurance.
+        // Do not label an unimplemented direct-card flow as a completed booking.
+        payment_method: flow === 'insurance' ? 'insurance' : 'cash',
         sessions_count: daysCount,
       };
       const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });

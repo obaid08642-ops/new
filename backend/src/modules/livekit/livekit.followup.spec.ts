@@ -16,20 +16,37 @@ describe('LiveKit follow-up ownership fixes', () => {
     expect(events.emit).not.toHaveBeenCalled();
   });
 
-  it('uses the UUID business id for markNoShow', async () => {
-    const save = jest.fn().mockResolvedValue(undefined);
-    const findOne = jest.fn().mockResolvedValue({ id: 'appt-uuid-1', status: 'CHECKED_IN', save });
-    const service = new LiveKitService({ findOne } as any, conn, events as any);
+  it('uses an atomic UUID business-id update for no-show and repairs only the legacy video-call service type', async () => {
+    const lean = jest.fn().mockResolvedValue({ id: 'appt-uuid-1', provider_id: 'provider-1', status: 'CONFIRMED', service_type: 'consultation' });
+    const findOne = jest.fn().mockReturnValue({ lean });
+    const updateOne = jest.fn().mockResolvedValue({ modifiedCount: 1 });
+    const service = new LiveKitService({ findOne, updateOne } as any, conn, events as any);
 
     await expect(service.markNoShow('provider-1', 'appt-uuid-1')).resolves.toEqual({ success: true, message: 'Marked as no-show' });
-    expect(findOne).toHaveBeenCalledWith({ id: 'appt-uuid-1', provider_id: 'provider-1' });
-    expect(save).toHaveBeenCalled();
+    expect(findOne).toHaveBeenCalledWith(expect.objectContaining({ $and: expect.any(Array) }));
+    expect(updateOne).toHaveBeenCalledWith(
+      expect.objectContaining({ $and: expect.any(Array) }),
+      expect.objectContaining({
+        $set: expect.objectContaining({ status: 'NO_SHOW', service_type: 'video' }),
+        $push: expect.objectContaining({ state_history: expect.objectContaining({ state: 'NO_SHOW', by_user_id: 'provider-1' }) }),
+      }),
+      { runValidators: true },
+    );
   });
 
     it('rejects markNoShow when the UUID is not owned by the provider', async () => {
-    const findOne = jest.fn().mockResolvedValue(null);
+    const findOne = jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
     const service = new LiveKitService({ findOne } as any, conn, events as any);
     await expect(service.markNoShow('provider-1', 'unknown-appointment')).rejects.toThrow(NotFoundException);
+  });
+
+  it('does not transition completed appointments to no-show', async () => {
+    const findOne = jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'appt-complete', doctor_user_id: 'provider-1', status: 'COMPLETED', service_type: 'video' }) });
+    const updateOne = jest.fn();
+    const service = new LiveKitService({ findOne, updateOne } as any, conn, events as any);
+
+    await expect(service.markNoShow('provider-1', 'appt-complete')).rejects.toThrow(BadRequestException);
+    expect(updateOne).not.toHaveBeenCalled();
   });
 
   it('creates a booking-room token with a ten-minute expiry', async () => {

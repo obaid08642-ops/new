@@ -120,20 +120,41 @@ export class LiveKitService {
   }
 
   async markNoShow(providerId: string, appointmentId: string) {
-    const appointmentFilter: any = { id: appointmentId, provider_id: providerId };
-    if (Types.ObjectId.isValid(appointmentId)) {
-      appointmentFilter.$or = [
-        { id: appointmentId, provider_id: providerId },
-        { _id: new Types.ObjectId(appointmentId), provider_id: providerId },
-      ];
-      delete appointmentFilter.id;
-      delete appointmentFilter.provider_id;
-    }
-    const appt = await this.appointments.findOne(appointmentFilter);
+    const idFilter = Types.ObjectId.isValid(appointmentId)
+      ? { $or: [{ id: appointmentId }, { _id: new Types.ObjectId(appointmentId) }] }
+      : { id: appointmentId };
+    const ownershipFilter = {
+      $or: [
+        { doctor_user_id: providerId },
+        { doctor_id: providerId },
+        // Compatibility for historical appointment documents created before the
+        // doctor_user_id contract was standardized.
+        { provider_id: providerId },
+      ],
+    };
+    const appointmentFilter: any = { $and: [idFilter, ownershipFilter] };
+    const appt: any = await this.appointments.findOne(appointmentFilter).lean();
     if (!appt) throw new NotFoundException('Appointment not found');
+    if (![APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN].includes(appt.status)) {
+      throw new BadRequestException('appointment_not_no_show_eligible');
+    }
 
-    appt.status = 'NO_SHOW';
-    await appt.save();
+    // Do not call document.save(): a legacy record may contain the obsolete
+    // service_type='consultation', which Mongoose rejects while validating every
+    // field on save. A video call is authoritative evidence of the real service
+    // type, so normalize only that historical value as part of the atomic state
+    // transition. New records are already restricted by the appointment schema.
+    const set: any = { status: APPT_STATES.NO_SHOW, updatedAt: new Date() };
+    if (appt.service_type === 'consultation') set.service_type = 'video';
+    const result: any = await this.appointments.updateOne(
+      { $and: [idFilter, ownershipFilter, { status: appt.status }] },
+      {
+        $set: set,
+        $push: { state_history: { state: APPT_STATES.NO_SHOW, at: new Date(), by_user_id: providerId, by_role: 'doctor', note: 'provider_no_show' } },
+      },
+      { runValidators: true },
+    );
+    if (!result?.modifiedCount) throw new BadRequestException('appointment_state_changed_retry');
     return { success: true, message: 'Marked as no-show' };
   }
 

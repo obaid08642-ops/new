@@ -12,6 +12,14 @@ describe('EmergencyService verified ambulance binding', () => {
     return { service, model, vehicles };
   };
 
+  it('rejects an SOS without usable coordinates before creating a dispatch record', async () => {
+    const { service, model } = make(null);
+
+    await expect(service.trigger({ id: 'patient-1' }, { location: null })).rejects.toBeInstanceOf(BadRequestException);
+
+    expect(model.create).toBeUndefined();
+  });
+
   it('fails closed when a provider claims without naming an approved vehicle', async () => {
     const { service, model } = make(null);
     await expect(service.claim('emergency-1', 'provider-1', undefined)).rejects.toBeInstanceOf(BadRequestException);

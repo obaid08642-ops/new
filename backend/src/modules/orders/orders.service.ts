@@ -65,11 +65,14 @@ export class OrdersService {
     for (const it of data.items) {
       let med: any = it.medicine_id ? medById.get(it.medicine_id) || null : null;
       const qty = Math.max(1, it.qty || 1);
-      const price = med?.price ?? it.price ?? 0;
+      // Never accept a patient-supplied medicine price. A known catalog item
+      // receives its authoritative catalog price; an unknown/manual item must
+      // be quoted by the assigned pharmacy before it can become payable.
+      const price = med ? Number(med.price || 0) : 0;
       if (!med && it.name_ar) {
         med = await this.medModel.create({
           name_ar: it.name_ar, name_en: it.name_en, active_ingredient: it.active_ingredient,
-          price, category: 'medications', verified: false, source: 'patient',
+          price: 0, category: 'medications', verified: false, source: 'patient',
           created_by_user_id: patient.id, created_by_role: patient.role,
         });
         this.events.emit(EVENTS.MEDICINE_PENDING_REVIEW, { medicine_id: med.id, by_role: patient.role });
