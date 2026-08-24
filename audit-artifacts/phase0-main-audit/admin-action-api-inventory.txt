@@ -1,0 +1,462 @@
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:1:import React, { useEffect, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:57:  const [isAuthenticated, setIsAuthenticated] = useState(false);
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:60:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:66:      router.push('/login');
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:88:                  const active = router.pathname === item.href;
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:111:            onClick={() => {
+audit-work/source/web_admin_dashboard/src/components/AdminGuard.tsx:114:              router.push('/login');
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:1:import React, { useEffect, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:10:  const { kind, id } = router.query as { kind?: string; id?: string };
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:11:  const [data, setData] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:12:  const [error, setError] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:13:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:15:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/order-detail.tsx:29:      <button onClick={() => router.back()} className="text-teal-700 font-bold text-sm">→ عودة لمركز القيادة</button>
+audit-work/source/web_admin_dashboard/src/components/PublicDirectory.tsx:1:import React, { useState } from 'react';
+audit-work/source/web_admin_dashboard/src/components/PublicDirectory.tsx:51:  const [q, setQ] = useState('');
+audit-work/source/web_admin_dashboard/src/components/PublicDirectory.tsx:123:    const r = await fetch(`${API_BASE}/api/v1${endpoint}`, { headers: { Accept: 'application/json' } });
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:1:import React, { useEffect, useMemo, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:38:  const [tab, setTab] = useState<TabKey>('labs');
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:39:  const [items, setItems] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:40:  const [loading, setLoading] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:41:  const [search, setSearch] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:42:  const [editing, setEditing] = useState<any | null>(null); // {} = new item
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:43:  const [saving, setSaving] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:44:  const [msg, setMsg] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:60:  useEffect(() => { setSearch(''); load(); }, [tab]);
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:116:          <button key={t.key} onClick={() => setTab(t.key)}
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:123:        <button onClick={() => setEditing({ active: true })} style={{ padding: '8px 18px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700, background: '#0F172A', color: '#fff' }}>
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:144:              <button onClick={() => setEditing({ ...item })} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #CBD5E1', background: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>تعديل</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:145:              <button onClick={() => remove(item)} style={{ padding: '6px 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#B91C1C', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>حذف</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:154:          onClick={() => setEditing(null)}>
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:156:            onClick={(e) => e.stopPropagation()}>
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:176:              <button onClick={() => setEditing(null)} style={{ padding: '10px 20px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>إلغاء</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/catalog-manager.tsx:177:              <button onClick={save} disabled={saving} style={{ padding: '10px 20px', borderRadius: 12, border: 'none', background: '#23B5CE', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:20:    const sres = await fetchWithAdminGuard(`${API_BASE}/api/v1/storage/${idOrUrl}/signed-url`);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:25:    const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/storage/${idOrUrl}`);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:38:  const [src, setSrc] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:39:  const [failed, setFailed] = useState(false);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:40:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:57:  const [href, setHref] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:58:  const [failed, setFailed] = useState(false);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:59:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:152:  const [contractMeta, setContractMeta] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:153:  const [contractBusy, setContractBusy] = useState(false);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:159:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/provider-onboarding/admin/contracts/${cid}`);
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:545:            onClick={downloadContract}
+audit-work/source/web_admin_dashboard/src/components/ProviderFullDetail.tsx:555:                const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/provider-onboarding/admin/contracts/${cid}/visibility`, { method: 'POST', body: JSON.stringify({ visible: e.target.checked }) });
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:13:  const [tab, setTab] = useState('pending');
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:14:  const [items, setItems] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:15:  const [total, setTotal] = useState(0);
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:16:  const [page, setPage] = useState(1);
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:17:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:18:  const [acting, setActing] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:33:  useEffect(() => { load(); }, [tab, page]);
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:67:          <button key={t.key} onClick={() => { setTab(t.key); setPage(1); }}
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:107:                    <button onClick={() => act(s.id, 'approve')} disabled={acting === s.id}
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:111:                    <button onClick={() => act(s.id, 'reject')} disabled={acting === s.id}
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:124:          <button onClick={() => setPage(p => Math.max(1, p - 1))} className="px-3 py-1 border rounded bg-white">السابق</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/image-suggestions.tsx:126:          <button onClick={() => setPage(p => p + 1)} className="px-3 py-1 border rounded bg-white">التالي</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:1:import React, { useEffect, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:25:  const [alerts, setAlerts] = useState<FraudAlert[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:26:  const [logs, setLogs] = useState<AuditLog[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:27:  const [isLoading, setIsLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:29:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:35:        const alertsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/fraud-alerts`);
+audit-work/source/web_admin_dashboard/src/pages/admin/fraud-monitoring.tsx:42:        const logsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/audit-logs`);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:1:import React, { useEffect, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:22:  const [healthData, setHealthData] = useState<HealthData | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:23:  const [heatmapData, setHeatmapData] = useState<HeatmapData[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:24:  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:25:  const [isLoading, setIsLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:26:  const [selectedCluster, setSelectedCluster] = useState<HeatmapData | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:28:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:34:          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/liveness`),
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:35:          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/readiness`)
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:59:        const heatRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/nabd-extensions/admin/analytics/heatmaps`);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:87:        const ccRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/command-center`);
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:180:                    <tr key={`${o.kind}-${o.id || i}`} className="hover:bg-teal-50 cursor-pointer" onClick={() => { if (o.kind && o.id) window.location.href = `/admin/order-detail?kind=${encodeURIComponent(o.kind)}&id=${encodeURIComponent(o.id)}`; }}>
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:216:                <button key={index} onClick={() => setSelectedCluster(cluster)} className="absolute flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer" style={{ left: `${cluster.coordinates?.[0] ?? 50}%`, top: `${cluster.coordinates?.[1] ?? 50}%` }}>
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:233:        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setSelectedCluster(null)}>
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:234:          <div className="bg-white rounded-2xl p-6 max-w-md w-full space-y-4" onClick={e => e.stopPropagation()}>
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:237:              <button onClick={() => setSelectedCluster(null)} className="text-slate-400 hover:text-slate-700 text-xl leading-none">✕</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/dashboard.tsx:245:            <button onClick={() => setSelectedCluster(null)} className="w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold">إغلاق</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:16:  const [data, setData] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:17:  const [usage, setUsage] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:18:  const [days, setDays] = useState(7);
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:19:  const [busy, setBusy] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:29:  useEffect(() => { load(); }, [days]);
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:53:          onClick={() => setMode('auto')}
+audit-work/source/web_admin_dashboard/src/pages/admin/ai-control.tsx:95:                onClick={() => toggle(p.key, p.enabled)}
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:12:  const [tab, setTab] = useState('pending');
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:13:  const [reports, setReports] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:14:  const [counts, setCounts] = useState<any>({});
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:15:  const [total, setTotal] = useState(0);
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:16:  const [page, setPage] = useState(1);
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:17:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:18:  const [acting, setActing] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:34:  useEffect(() => { load(); }, [tab, page]);
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:76:            onClick={() => { setTab(t.key); setPage(1); }}
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:120:                            onClick={() => act(r.id, 'approve')}
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:127:                            onClick={() => act(r.id, 'reject')}
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:137:                          onClick={() => clearBadge(r.medicine_id)}
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:152:            <button onClick={() => setPage(p => Math.max(1, p - 1))} className="px-3 py-1 border rounded">السابق</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/shortage-reports.tsx:154:            <button onClick={() => setPage(p => p + 1)} className="px-3 py-1 border rounded">التالي</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:5:  const [activeTab, setActiveTab] = useState<'sla' | 'maintenance'>('sla');
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:8:  const [consultationDuration, setConsultationDuration] = useState(15);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:9:  const [callRingingDuration, setCallRingingDuration] = useState(45);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:10:  const [jwtExpiry, setJwtExpiry] = useState(24);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:13:  const [killSwitchChecked1, setKillSwitchChecked1] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:14:  const [killSwitchChecked2, setKillSwitchChecked2] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:15:  const [isSubmitting, setIsSubmitting] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:16:  const [systemStatus, setSystemStatus] = useState<'online' | 'maintenance'>('online');
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:18:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:22:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`);
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:53:      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`, { 
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:75:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/trigger-emergency-maintenance`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:114:          onClick={() => setActiveTab('sla')}
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:120:          onClick={() => setActiveTab('maintenance')}
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:160:              <button disabled={isSubmitting} onClick={handleUpdateSLA} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-8 rounded-lg shadow disabled:opacity-50 transition">
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:195:                    onClick={() => handleTriggerEmergencyKillSwitch(true)}
+audit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:206:                    onClick={() => handleTriggerEmergencyKillSwitch(false)}
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:1:import React, { useState, useEffect, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:30:  const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:31:  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:32:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:33:  const [error, setError] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:34:  const [rejectingId, setRejectingId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:35:  const [rejectReason, setRejectReason] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:36:  const [busyId, setBusyId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:41:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet?status=${tab}`);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:53:  useEffect(() => { load(); }, [load]);
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:58:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet/${v.id}/approve`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:73:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet/${v.id}/reject`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:98:          <button key={t} onClick={() => setTab(t)}
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:109:          <button onClick={load} className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm">إعادة المحاولة</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:146:                  <button onClick={() => approve(v)} disabled={busyId === v.id}
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:150:                  <button onClick={() => { setRejectingId(rejectingId === v.id ? null : v.id); setRejectReason(''); }}
+audit-work/source/web_admin_dashboard/src/pages/admin/ambulance-fleet.tsx:162:                <button onClick={() => reject(v)} disabled={busyId === v.id}
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:1:import React, { useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:63:  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:64:  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:84:            <button onClick={() => setSelectedRole(null)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${!selectedRole ? 'bg-teal-600 text-white' : 'bg-white border border-slate-200'}`}>الكل</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:86:              <button key={r.key} onClick={() => setSelectedRole(selectedRole === r.key ? null : r.key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${selectedRole === r.key ? 'bg-teal-600 text-white' : 'bg-white border border-slate-200'}`}>{r.ar}</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:91:            <button onClick={() => setSelectedGroup(null)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${!selectedGroup ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200'}`}>الكل</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/rbac.tsx:93:              <button key={g} onClick={() => setSelectedGroup(selectedGroup === g ? null : g)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${selectedGroup === g ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200'}`}>{g}</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:19:  const [tickets, setTickets] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:20:  const [filter, setFilter] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:21:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:22:  const [error, setError] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:23:  const [openId, setOpenId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:24:  const [replyText, setReplyText] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:39:  useEffect(() => { load(); }, [load]);
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:65:                onClick={() => setFilter(s)}
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:72:            <button onClick={load} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm">تحديث </button>
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:105:                          <button onClick={() => setStatus(t.id, 'IN_PROGRESS')} className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold">بدء المعالجة</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:108:                          <button onClick={() => setStatus(t.id, 'RESOLVED')} className="px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-bold">حلّها</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:110:                        <button onClick={() => setOpenId(isOpen ? null : t.id)} className="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold">
+audit-work/source/web_admin_dashboard/src/pages/admin/support-tickets.tsx:134:                          <button onClick={() => sendReply(t.id)} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold">إرسال</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:29:  const [activeTab, setActiveTab] = useState<'onboarding' | 'deltas'>('onboarding');
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:30:  const [pendingProviders, setPendingProviders] = useState<Provider[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:31:  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:33:  const [pendingDeltas, setPendingDeltas] = useState<DeltaMutation[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:34:  const [selectedDelta, setSelectedDelta] = useState<DeltaMutation | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:35:  const [providerDetail, setProviderDetail] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:36:  const [detailLoading, setDetailLoading] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:40:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:44:    fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${selectedProvider.id}`)
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:50:  const [suspendReason, setSuspendReason] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:51:  const [isModalOpen, setIsModalOpen] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:52:  const [isLoading, setIsLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:54:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:59:        const providersRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers?status=pending&limit=100`);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:75:        const deltasRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:100:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({}) });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:118:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${selectedProvider?.id}/suspend`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:140:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas/${id}/approve`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:157:        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas/${id}/reject`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:180:          <button className={`px-6 py-2 font-bold ${activeTab === 'onboarding' ? 'bg-teal-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`} onClick={() => { setActiveTab('onboarding'); setSelectedDelta(null); }}>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:183:          <button className={`px-6 py-2 font-bold ${activeTab === 'deltas' ? 'bg-teal-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`} onClick={() => { setActiveTab('deltas'); setSelectedProvider(null); }}>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:197:              <div key={p.id} onClick={() => setSelectedProvider(p)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedProvider?.id === p.id ? 'border-teal-500 bg-teal-50 shadow-md' : 'border-gray-200 hover:border-teal-300'}`}>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:203:              <div key={d.id} onClick={() => setSelectedDelta(d)} className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedDelta?.id === d.id ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-gray-200 hover:border-amber-300'}`}>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:236:                <button onClick={() => handleApprove(selectedProvider.id)} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow transition text-lg">
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:239:                <button onClick={() => setIsModalOpen(true)} className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-3 rounded-lg shadow-sm border border-red-200 transition text-lg">
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:280:                <button onClick={() => handleCommitDelta(selectedDelta.id)} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg shadow transition text-lg">
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:283:                <button onClick={() => handleRejectDelta(selectedDelta.id)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg shadow-sm border border-gray-300 transition text-lg">
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:309:              <button onClick={handleSuspend} className="flex-1 bg-red-600 text-white font-bold py-2 rounded">تأكيد الإيقاف الحرج</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-moderation.tsx:310:              <button onClick={() => setIsModalOpen(false)} className="flex-1 bg-gray-200 text-gray-800 font-bold py-2 rounded">تراجع</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:2:import { fetchWithAdminGuard } from '@/utils/api';
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:35:  const [activeTab, setActiveTab] = useState<'ledger' | 'warehouse'>('ledger');
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:37:  const [commissions, setCommissions] = useState<CommissionRow[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:38:  const [withdrawals, setWithdrawals] = useState<WithdrawalRow[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:39:  const [warehouseOrders, setWarehouseOrders] = useState<WarehouseOrder[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:40:  const [summary, setSummary] = useState<FinanceSummary | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:41:  const [payoutQueueTotal, setPayoutQueueTotal] = useState<number | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:42:  const [financeUnavailable, setFinanceUnavailable] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:44:  const [isLoading, setIsLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:46:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:54:        const summaryRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance-engine/reports/summary?period=monthly`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:62:        const commRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/commissions`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:69:        const withRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/pending`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:80:        const whRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/procurement/pending`);
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:113:      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:136:      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/issue-quote/${order.id}`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:164:          <button className={`px-6 py-2 font-bold ${activeTab === 'ledger' ? 'bg-teal-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`} onClick={() => setActiveTab('ledger')}>
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:167:          <button className={`px-6 py-2 font-bold ${activeTab === 'warehouse' ? 'bg-teal-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`} onClick={() => setActiveTab('warehouse')}>
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:253:                        <button onClick={() => handleExecutePayout(w.id)} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded shadow transition">
+audit-work/source/web_admin_dashboard/src/pages/admin/financial-ledger.tsx:289:                      <button onClick={() => handleIssueQuotation(order)} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded shadow transition">
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:17:  const [disputes, setDisputes] = useState<DisputeItem[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:18:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:19:  const [selectedDispute, setSelectedDispute] = useState<DisputeItem | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:21:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:30:      const res = await fetch(`${API_BASE}/api/v1/admin/disputes`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:48:      await fetch(`${API_BASE}/api/v1/admin/authority/orders/${id}/force-cancel`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:76:            onClick={fetchDisputes}
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:121:                          onClick={() => handleResolve(item.id, 'refund')}
+audit-work/source/web_admin_dashboard/src/pages/admin/disputes.tsx:127:                          onClick={() => handleResolve(item.id, 'reject')}
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:15:  const [logs, setLogs] = useState<AuditLogItem[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:16:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:18:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:27:      const res = await fetch(`${API_BASE}/api/v1/admin/governance/audit-logs`, {
+audit-work/source/web_admin_dashboard/src/pages/admin/audit-logs.tsx:54:            onClick={fetchLogs}
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx:5:  const [requests, setRequests] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx:6:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx:8:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/nursing-portal.tsx:61:                  onClick={() => handleAssignNurse(req.id || req._id)}
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:5:  const [policies, setPolicies] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:6:  const [commissions, setCommissions] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:7:  const [editing, setEditing] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:8:  const [editContent, setEditContent] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:9:  const [saving, setSaving] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:19:  useEffect(() => { load(); }, []);
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:102:            <button onClick={() => openEdit(p.key)} className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700">
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:111:        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-8" onClick={() => setEditing(null)}>
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:112:          <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[85vh] overflow-auto" onClick={e => e.stopPropagation()} dir="rtl">
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:122:              <button onClick={save} disabled={saving} className="bg-teal-600 text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50">
+audit-work/source/web_admin_dashboard/src/pages/admin/legal-policies.tsx:125:              <button onClick={() => setEditing(null)} className="bg-gray-100 px-6 py-2 rounded-lg">إلغاء</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:15:  const [stats, setStats] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:16:  const [segmentCounts, setSegmentCounts] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:17:  const [campaigns, setCampaigns] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:18:  const [total, setTotal] = useState(0);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:19:  const [page, setPage] = useState(1);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:20:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:21:  const [sending, setSending] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:24:  const [title, setTitle] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:25:  const [body, setBody] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:26:  const [segment, setSegment] = useState('all');
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:27:  const [singleUser, setSingleUser] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:28:  const [deepLink, setDeepLink] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:29:  const [scheduledAt, setScheduledAt] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:30:  const [asCampaign, setAsCampaign] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:49:  useEffect(() => { load(); }, [page]);
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:175:          <button onClick={send} disabled={sending} className="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 disabled:opacity-50">
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:178:          <button onClick={runRetarget} className="bg-amber-500 text-white px-4 py-2 rounded hover:bg-amber-600">
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:189:            <button onClick={() => setPage(p => Math.max(1, p - 1))} className="px-3 py-1 border rounded">السابق</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:191:            <button onClick={() => setPage(p => p + 1)} className="px-3 py-1 border rounded">التالي</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:228:                          <button onClick={() => sendNow(c.id)} className="text-green-600 hover:underline text-xs">إرسال الآن</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/notification-center.tsx:229:                          <button onClick={() => cancel(c.id)} className="text-red-600 hover:underline text-xs">إلغاء</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:23:  const [requests, setRequests] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:24:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:25:  const [error, setError] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:26:  const [selected, setSelected] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:27:  const [itemPrices, setItemPrices] = useState<Record<number, string>>({});
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:28:  const [busy, setBusy] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:49:  useEffect(() => { load(); }, [load]);
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:87:          <button onClick={load} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold text-sm">تحديث</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:119:                      onClick={() => { setSelected(isOpen ? null : r); setItemPrices({}); }}
+audit-work/source/web_admin_dashboard/src/pages/admin/pharmacy-procurement.tsx:166:                          <button onClick={issueQuote} disabled={busy} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg disabled:opacity-50">
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:13:  const [overview, setOverview] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:14:  const [section, setSection] = useState('top-searched');
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:15:  const [rows, setRows] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:16:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:18:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:22:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/analytics.tsx:63:          <button key={s.key} onClick={() => setSection(s.key)}
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:20:  const [summary, setSummary] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:21:  const [legacy, setLegacy] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:22:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:23:  const [error, setError] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:42:  useEffect(() => { load(); }, [load]);
+audit-work/source/web_admin_dashboard/src/pages/admin/commissions.tsx:51:            <button onClick={load} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium">تحديث </button>
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:1:import React, { useEffect, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:21:  const [devices, setDevices] = useState<PasskeyDevice[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:22:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:23:  const [busy, setBusy] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:24:  const [deviceName, setDeviceName] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:25:  const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:39:  useEffect(() => { load(); }, []);
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:117:              onClick={enroll} disabled={busy}
+audit-work/source/web_admin_dashboard/src/pages/admin/security.tsx:156:                    onClick={() => remove(d.credential_id)} disabled={busy}
+audit-work/source/web_admin_dashboard/src/pages/admin/health-dashboard.tsx:1:import { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/health-dashboard.tsx:5:  const [d, setD] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/health-dashboard.tsx:6:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/health-dashboard.tsx:14:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:1:import React, { useState, useEffect } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:24:  const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:25:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:26:  const [error, setError] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:27:  const [rejectingId, setRejectingId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:28:  const [rejectReason, setRejectReason] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:43:  useEffect(() => { fetchPayouts(); }, []);
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:76:            <button onClick={fetchPayouts} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors font-medium text-sm">
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:86:              <button onClick={fetchPayouts} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm">إعادة المحاولة</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:125:                              onClick={() => handleExecutePayout(item.id)}
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:131:                              onClick={() => setRejectingId(rejectingId === item.id ? null : item.id)}
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:149:                              <button onClick={() => handleReject(item.id)} className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold">تأكيد الرفض</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/payouts.tsx:150:                              <button onClick={() => { setRejectingId(null); setRejectReason(''); }} className="px-4 py-2 bg-slate-200 rounded-lg text-sm">تراجع</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx:1:import { useEffect, useState } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx:5:  const [deltas, setDeltas] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx:7:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx:58:              <button onClick={() => handleApprove(d._id)} className="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700">اعتماد التعديل</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/provider-audits.tsx:59:              <button onClick={() => handleReject(d._id)} className="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700">رفض التعديل</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:20:  const [tab, setTab] = useState<'requests' | 'refunds'>('requests');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:21:  const [stats, setStats] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:22:  const [requests, setRequests] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:23:  const [refunds, setRefunds] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:24:  const [stateFilter, setStateFilter] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:25:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:26:  const [error, setError] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:27:  const [decidingId, setDecidingId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:28:  const [decideNote, setDecideNote] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:29:  const [selectedReq, setSelectedReq] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:50:  useEffect(() => { load(); }, [load]);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:66:      onClick={() => setStateFilter(stateFilter === key ? '' : key)}
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:96:                onClick={() => setTab(t.k)}
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:103:            <button onClick={load} className="px-4 py-2 mb-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm">تحديث </button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:126:                        <tr key={r.id} className="hover:bg-teal-50 cursor-pointer" onClick={() => setSelectedReq(r)}>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:168:                          <button onClick={() => decideRefund(f.id, true)} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold">اعتماد الاسترداد</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:169:                          <button onClick={() => decideRefund(f.id, false)} className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold">رفض</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:170:                          <button onClick={() => { setDecidingId(null); setDecideNote(''); }} className="px-4 py-2 bg-slate-200 rounded-lg text-sm">تراجع</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:174:                      <button onClick={() => setDecidingId(f.id)} className="mt-4 px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold">اتخاذ القرار</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:185:        <div className="fixed inset-0 z-50 bg-black/50 flex justify-end" onClick={() => setSelectedReq(null)}>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:186:          <div className="bg-white w-full max-w-lg h-full overflow-y-auto p-6 space-y-4" onClick={e => e.stopPropagation()}>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:189:              <button onClick={() => setSelectedReq(null)} className="text-slate-400 hover:text-slate-700 text-xl">✕</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-queue.tsx:215:            <button onClick={() => setSelectedReq(null)} className="w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-bold">إغلاق</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:18:  const [companies, setCompanies] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:19:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:20:  const [error, setError] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:21:  const [expanded, setExpanded] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:22:  const [busy, setBusy] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:25:  const [showAdd, setShowAdd] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:26:  const [newCode, setNewCode] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:27:  const [newNameAr, setNewNameAr] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:28:  const [newNameEn, setNewNameEn] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:31:  const [editId, setEditId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:32:  const [editNameAr, setEditNameAr] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:33:  const [editNameEn, setEditNameEn] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:36:  const [tierCompany, setTierCompany] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:37:  const [tierCode, setTierCode] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:38:  const [tierNameAr, setTierNameAr] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:39:  const [tierNameEn, setTierNameEn] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:40:  const [tierLevel, setTierLevel] = useState('1');
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:55:  useEffect(() => { load(); }, [load]);
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:160:            onClick={() => setShowAdd(!showAdd)}
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:183:            <button onClick={addCompany} disabled={busy === 'add'} className="bg-teal-600 text-white font-bold px-6 py-2 rounded-xl disabled:opacity-50">
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:199:                    <button onClick={() => setExpanded(isOpen ? null : id)} className="text-slate-400 w-6">{isOpen ? '▾' : '◂'}</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:205:                          <button onClick={saveEdit} disabled={busy === id} className="bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded">حفظ</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:206:                          <button onClick={() => setEditId(null)} className="text-xs text-slate-500 px-2">إلغاء</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:219:                      onClick={() => { setEditId(id); setEditNameAr(c.name_ar || ''); setEditNameEn(c.name_en || ''); }}
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:225:                      onClick={toggleActive}
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:238:                          onClick={() => { setTierCompany(tierCompany === id ? null : id); setTierCode(''); setTierNameAr(''); setTierNameEn(''); }}
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:251:                          <button onClick={addTier} disabled={busy === id} className="bg-teal-600 text-white text-sm font-bold px-4 py-1.5 rounded disabled:opacity-50">حفظ الفئة</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/insurance-companies.tsx:263:                              <button onClick={() => removeTier(id, t)} disabled={busy === (t.id || t._id)} className="text-red-500 hover:text-red-700 font-bold" title="حذف الفئة">×</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:56:  const [tab, setTab] = useState<'catalog' | 'requests' | 'reports'>('catalog');
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:59:  const [items, setItems] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:60:  const [total, setTotal] = useState(0);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:61:  const [page, setPage] = useState(1);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:62:  const [q, setQ] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:63:  const [category, setCategory] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:64:  const [includeDeleted, setIncludeDeleted] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:65:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:66:  const [error, setError] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:67:  const [busy, setBusy] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:70:  const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:71:  const [form, setForm] = useState<any>(EMPTY_FORM);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:72:  const [editId, setEditId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:73:  const [imageUrls, setImageUrls] = useState<string[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:74:  const [imgBusy, setImgBusy] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:77:  const [requests, setRequests] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:78:  const [reqStatus, setReqStatus] = useState('pending');
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:80:  const [fieldSel, setFieldSel] = useState<Record<string, Record<string, boolean>>>({});
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:81:  const [overrides, setOverrides] = useState<Record<string, Record<string, any>>>({});
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:84:  const [reports, setReports] = useState<any>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:118:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:233:              <button key={t} onClick={() => setTab(t)}
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:251:              <button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-5 py-2 rounded-lg mr-auto">+ إضافة صنف جديد</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:283:                          <button type="button" onClick={() => setImageUrls(imageUrls.filter((_, x) => x !== i))}
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:318:                  <button onClick={saveForm} disabled={busy === 'form'} className="bg-teal-600 text-white font-bold px-8 py-2 rounded-lg disabled:opacity-50">
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:321:                  <button onClick={() => setFormMode('closed')} className="text-slate-500 font-bold px-4">إلغاء</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:355:                            <button onClick={() => toggleBadge(m)} disabled={busy === m.id}
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:362:                              <button onClick={() => openEdit(m)} className="text-teal-700 font-bold text-xs">تعديل</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:364:                                <button onClick={() => softDelete(m, true)} disabled={busy === m.id} className="text-green-700 font-bold text-xs">استرجاع</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:366:                                <button onClick={() => softDelete(m)} disabled={busy === m.id} className="text-red-600 font-bold text-xs">حذف</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:379:                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="px-3 py-1 border rounded disabled:opacity-40">السابق</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:380:                    <button onClick={() => setPage(p => Math.min(pages, p + 1))} disabled={page >= pages} className="px-3 py-1 border rounded disabled:opacity-40">التالي</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:392:                <button key={s} onClick={() => setReqStatus(s)} className={`px-3 py-1.5 rounded-lg text-sm font-bold ${reqStatus === s ? 'bg-teal-600 text-white' : 'bg-white border text-slate-600'}`}>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:459:                          <button onClick={() => decideRequest(r, 'approve')} disabled={busy === (r.id || r._id)} className="bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-lg text-sm disabled:opacity-50">اعتماد</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/medicines-catalog.tsx:460:                          <button onClick={() => decideRequest(r, 'reject')} disabled={busy === (r.id || r._id)} className="bg-red-100 text-red-700 font-bold px-4 py-1.5 rounded-lg text-sm disabled:opacity-50">رفض</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:1:import { useState, useEffect, useMemo } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:34:  const [users, setUsers] = useState<any[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:35:  const [total, setTotal] = useState(0);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:36:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:37:  const [searchTerm, setSearchTerm] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:38:  const [roleFilter, setRoleFilter] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:39:  const [statusFilter, setStatusFilter] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:40:  const [actionBusy, setActionBusy] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:41:  const [errorMsg, setErrorMsg] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:44:  const [viewUser, setViewUser] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:45:  const [viewLoading, setViewLoading] = useState(false);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:46:  const [userOverview, setUserOverview] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:47:  const [providerFile, setProviderFile] = useState<any | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:48:  const [activityDays, setActivityDays] = useState(30);
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:97:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:275:                            onClick={() => openUserFile(u)}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:282:                              onClick={() => handleReactivate(u)}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:290:                              onClick={() => handleSuspend(u)}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:298:                            onClick={() => handleDelete(u)}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:330:                <button onClick={() => setViewUser(null)} className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold px-4 py-2 rounded-lg">← عودة لإدارة المستخدمين</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:331:                <button onClick={() => setViewUser(null)} className="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-4 py-2 rounded-lg">✕ خروج</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:344:                        <button key={p.d} onClick={() => reloadActivity(p.d)}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:454:                    <button onClick={() => handleProviderAction('approve')} disabled={!!actionBusy}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:456:                    <button onClick={() => handleProviderAction('reject')} disabled={!!actionBusy}
+audit-work/source/web_admin_dashboard/src/pages/admin/users-management.tsx:458:                    <button onClick={() => handleProviderAction('suspend')} disabled={!!actionBusy}
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:1:import React, { useEffect, useState, useCallback } from 'react';
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:31:  const [cases, setCases] = useState<SosCase[]>([]);
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:32:  const [loading, setLoading] = useState(true);
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:33:  const [error, setError] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:34:  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:35:  const [resolvingId, setResolvingId] = useState<string | null>(null);
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:36:  const [resolveNotes, setResolveNotes] = useState('');
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:37:  const [hospitalFor, setHospitalFor] = useState<Record<string, string>>({});
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:53:  useEffect(() => {
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:90:            <button onClick={() => load(true)} className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium">تحديث الآن </button>
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:98:              <button onClick={() => load(true)} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm">إعادة المحاولة</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:156:                          <button onClick={() => assign(c.id)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold">
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:169:                              <button onClick={() => resolve(c.id)} className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold">تأكيد إنهاء الحالة</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:170:                              <button onClick={() => { setResolvingId(null); setResolveNotes(''); }} className="px-4 py-2 bg-slate-200 rounded-lg text-sm">تراجع</button>
+audit-work/source/web_admin_dashboard/src/pages/admin/sos-monitor.tsx:174:                          <button onClick={() => setResolvingId(c.id)} className="w-full px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-lg text-sm font-bold transition-colors">
