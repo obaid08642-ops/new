@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 4 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 35 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 46 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 45 | Confirmed source findings recorded to date. |
+| Total | 56 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-046 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-056 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -59,6 +59,16 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-043 | Mobile family sharing | Group creation and member-health actions lack complete consent/ownership/revocation evidence. |
 | F-045 | Mobile family health | Member record display, proxy booking and family chat require explicit permission and consent trace. |
 | F-046 | Mobile family invite | Bearer invite creation and sharing require expiry, audience, revoke, abuse and audit controls. |
+| F-047 | Mobile permission request | Permission response needs exact request identity, explicit scope selection and real dependency/error/idempotency proof. |
+| F-048 | Mobile pharmacy checkout | Checkout must be server-authoritative and idempotent across cash/card/wallet/insurance branches. |
+| F-049 | Mobile insurance | Policy load/save must distinguish failure from empty and prove validation, eligibility and persisted truth. |
+| F-050 | Mobile family join | Join preview/accept/reject are conflated and local group/permission data is fabricated. |
+| F-051 | Mobile family QR | QR parsing lacks issuer/origin/audience/lifecycle validation and recovery semantics. |
+| F-052 | Mobile family chat | Membership, idempotent send, delivery/moderation/PHI semantics and realtime contract are unproven. |
+| F-053 | Mobile pharmacy payment | Payment/order transitions and insurance/cash reconciliation require server-state and replay proof. |
+| F-054 | Mobile nursing details | Provider error/claims/prescription/slot/quote/payment semantics are incomplete. |
+| F-055 | Web cart | Web cart remains read-only without commerce continuation. |
+| F-056 | Mobile orders center | Unified order routes/status/error handling are not resource-specific or fully reconciled. |
 | F-044 | Mobile family permissions | Sensitive delegation can fall back across authorization paths and report false success without step-up/audit proof. |
 | F-046 | Mobile family invite | Invite lifecycle and optional metadata are not proven to be bound to an owner-scoped contract. |
 | F-045 | Mobile family member health | PHI access failure is rendered as normal empty data; proxy booking/chat lack member consent context. |
@@ -71,7 +81,7 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-034 | Mobile language/RTL | Locale persistence, RTL reinitialization and six-language completeness are unproven; flags render empty. |
 | F-031, F-032 | Mobile notifications | Preference and read acknowledgements have optimistic/fire-and-forget semantics, while delivery, route translation and PHI content policy are not fully proven. |
 | F-034 | Localization | The Mobile locale selector does not prove persistence/synchronization/RTL behavior and renders empty flag slots. |
-| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037, F-038, F-039, F-041, F-043, F-044, F-045, F-046 | Patient parity | Web is read-only while Mobile exposes security/privacy/notification/profile/address/health/prescription/family actions with incomplete contract, guest policy, consent and failure semantics. |
+| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037, F-038, F-039, F-041, F-043, F-044, F-045, F-046, F-047, F-048, F-049, F-050, F-051, F-052, F-053, F-054, F-055, F-056 | Patient parity | Web is read-only while Mobile exposes security/privacy/notification/profile/address/health/prescription/family actions with incomplete contract, guest policy, consent and failure semantics. |
 
 ### Contract, state and end-to-end parity
 
@@ -79,7 +89,7 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 |---|---|---|
 | F-007, F-008, F-009, F-014, F-015 | Patient Web | Service detail, prescription, diagnostics booking and medicine route continuity are incomplete or inconsistent. |
 | F-016 | Unified booking | Lock TTL is 5 minutes in one service definition versus required 10 minutes; release ownership is not validated. |
-| F-018, F-023, F-026, F-027 | Provider operations | Consumer routes/payloads and backend compatibility routes are not fully reconciled; operational lifecycle tests are missing. |
+| F-018, F-023, F-026, F-027, F-048, F-053, F-054, F-055, F-056 | Provider/patient operations | Consumer routes/payloads, commerce/payment transitions and unified order detail routes are not fully reconciled; operational lifecycle tests are missing. |
 
 ## P0 release blockers
 
