@@ -76,29 +76,46 @@ NO MERGE / NO DEPLOY CONFIRMATION: yes
 ## Prompt بدء المرحلة 0 — أرسله الآن للوكيل
 
 ```text
-نفّذ المرحلة 0 فقط من NABD_Agent_Build_Program_2026-08-24.md: اكتشاف وإغلاق حدود العقود.
+نفّذ المرحلة 0 فقط بوصفها **تدقيقًا جذريًا كاملًا لخط أساس main**. هذه ليست مرحلة اكتشاف خفيف ولا مرحلة بناء. المطلوب قراءة وتحليل كل ملف مصدر مملوك وكل route وكل شاشة وكل schema وكل migration وكل اختبار في المشروع، ثم إنتاج manifest قابل للتدقيق يثبت نطاق ما قُرئ وما استُبعد وسبب الاستبعاد.
 
-لا تبنِ features أو شاشات أو migrations في هذه المرحلة إلا إذا كان تعديل صغير لازمًا لكي يعمل inventory، ولا تصلح defect عرضي خارج النطاق.
+لا تبنِ features أو شاشات أو migrations، ولا تصلح defect عرضي، ولا تغير سلوك المنتج في هذه المرحلة. الاستثناء الوحيد هو اختبار تدقيقي صغير لا يغير behavior ويثبت تعارضًا أو ownership قائمًا؛ لا تضفه إلا إذا كان ضروريًا لتقرير audit.
+
+### حدود المصدر التي يجب تدقيقها حرفيًا
+
+اعتبر `git ls-files` مصدر قائمة العمل. اقرأ وصنف كل ملف first-party متعقب داخل أو المرتبط بـ:
+
+- `backend/`: كل TypeScript/JavaScript، modules، controllers، services، guards، DTOs، schemas، repositories، migrations، jobs/queues، gateways، config، OpenAPI، tests، scripts، Docker/CI وملفات البيئة النموذجية.
+- `patient-web/`: كل route/page/layout/component/hook/store/client API/i18n/style/test/config وملفات E2E إن وجدت.
+- `patient-mobile/`: كل route/screen/component/hook/store/client API/navigation/i18n/style/test/config وملفات E2E إن وجدت.
+- كل تطبيق أو واجهة مزوّد أو إدارة أو حزمة مشتركة أو infrastructure مملوك يظهر في `git ls-files`، حتى لو كان اسمه غير متوقع أو أرشيفه مُستعادًا.
+- database: schemas، indexes، migrations، seed scripts، model-to-collection mapping، backup/restore/deployment configuration المملوكة.
+- documentation/contracts الموجودة داخل المصدر إذا كانت تصف route أو حالة أو تهيئة تشغيلية.
+
+استبعد فقط dependencies والمنتجات المولدة وغير المملوكة، مثل `node_modules/` و`dist/` و`.next/` و`coverage/` وcaches وملفات binaries. لا تستبعد ملف مصدر لمجرد أنه legacy أو غير موصول ظاهريًا؛ صنفه ووضح هل هو dead/duplicate/consumer محتمل.
 
 المطلوب بالتحديد:
 1) تحقق أولًا أن `main` يساوي `22526bedb77a3d8148219036367e4714f401aecc` أو أبلغ المراجع بالفرق. أنشئ فرع `agent/audit-main-contract-inventory` من هذا الـmain فقط.
-2) افحص كامل المسارات والموديلات وconsumers في backend وpatient-web وpatient-mobile وواجهات المزوّد/الإدارة لهذه المجالات: orders/pharmacy، insurance، payments/refunds، care appointments/LiveKit، labs، radiology، home-care/nursing، reports/storage.
-3) أنشئ مستندًا باسم NABD_Contract_and_Route_Inventory_2026-08-24.md يحتوي لكل مسار: HTTP route، controller، service، schema/collection، actor، client consumers، state machine، مصدر السعر، payment timing، insurance timing، report/storage behavior، واختبارات موجودة.
-4) علّم أي تعارض بـ INCONSISTENT، خصوصًا مسارات/نماذج الأشعة والحجوزات. لا تقترح إزالة بيانات أو schema من دون خطة compat/migration.
-5) أنشئ NABD_CORE_REQUEST_ADR_2026-08-24.md يقترح مصدر حقيقة موحد للـServiceRequest/Quote/InsuranceDecision. يجب أن يشمل بديلين على الأقل، أثر كل بديل على البيانات الحالية، توصيتك، وخطة انتقال غير مدمرة.
-6) أنشئ NABD_DECISION_REQUIRED_2026-08-24.md بالأسئلة التي لا تسمح قواعد المنتج بحسمها: split pharmacy orders، توقيت cash، quote expiry، refund policy، geographic broadcast، fallback بعد insurance partial/rejection، والمتطلبات الإلزامية لقرار التأمين اليدوي. لكل سؤال قدم اختيارات وأثرًا، ولا تنفذ أحدها.
-7) أضف اختبارًا أو أكثر فقط إذا كان لازمًا لتوثيق route ownership قائم أو منع regression في conflict واضح. لا تغير behavior المنتج في هذه المرحلة.
-8) نفذ الاختبارات/البناء المتأثرة وفحص git diff --check وفحص أسرار.
-9) commit مستندي صغير، push إلى فرع audit فقط، ثم قدّم قالب تقرير المرحلة. لا تفتح PR إلى main ولا تنشر.
+2) أنشئ `NABD_Main_Source_Manifest_2026-08-24.md` أو CSV/JSON مكافئًا يضم **كل ملف مصدر مملوك متعقب** ضمن النطاق. لكل صف: path، النوع، السطور/الحجم، المجال، الدور، routes/screens/consumers ذات الصلة، DB/schema أو API المتصل، الاختبارات، الحالة (`ACTIVE`/`LEGACY`/`DUPLICATE`/`DEAD_CANDIDATE`/`CONFIG`)، وهل قُرئ كاملًا. أدرج ملفًا منفصلًا `NABD_Main_Source_Exclusions_2026-08-24.md` لكل استبعاد مع النمط والعدد والسبب.
+3) اقرأ كود كل ملف في manifest. لا يكفي البحث بالاسم أو count أو قراءة snippets. اربط كل route backend بـcontroller/service/schema/actor/auth/ownership/state transition/price source/payment timing/insurance timing/audit/tests؛ واربط كل endpoint بمستهلكيه في web/mobile/provider/admin إن وجدوا.
+4) أنشئ `NABD_Contract_and_Route_Inventory_2026-08-24.md` لكل route وjob/event/socket وendpoint webhook: HTTP/event name، controller/gateway، service، schema/collection، DTO، roles، ownership، state machine، مصدر السعر، التوقيت المالي/التأميني، storage/report، consumer screens، tests، والملاحظات المثبتة.
+5) أنشئ `NABD_Screen_and_User_Journey_Manifest_2026-08-24.md` لكل شاشة وroute في Patient Web وPatient Mobile وواجهات المزوّد/الإدارة: purpose، entry points، API calls، loading/empty/error/auth/deep-link states، actions/buttons، state outcomes، الدور، والشاشة/المسار التالي. لا تكتفِ بعدد الشاشات أو الصور؛ تتبع كل button/action إلى API ثم DB/state ثم دور المزوّد/المريض ثم النتيجة.
+6) أنشئ `NABD_Main_End_to_End_Traceability_2026-08-24.md`: لكل خدمة وكل scenario—صيدلية cash/card/insurance/Rx/no-Rx/delivery/pickup/offers/substitutes، استشارات clinic/video/home، مختبر home/facility، أشعة، تمريض، تأمين full/partial/rejected، دفع/failure/cancel/retry/refund/results—اربط الشاشة → endpoint → service → schema/state → provider action → payment/insurance → report/delivery/final UI → الاختبار الموجود. صنف كل رابط بدليل: `IMPLEMENTED_AND_TESTED` أو `IMPLEMENTED_UNVERIFIED` أو `PARTIAL` أو `MISSING` أو `INCONSISTENT` أو `BROKEN`.
+7) علّم أي تعارض بـ`INCONSISTENT`، خصوصًا مسارات/نماذج الأشعة والحجوزات. لا تقترح حذف data/schema أو بناء بديل قبل إثبات كل consumers وخطة compat/migration.
+8) أنشئ `NABD_Audit_Findings_Main_2026-08-24.md` بقائمة findings مرقمة. كل finding يجب أن يحمل: الدليل (path + line ranges/routes/screens)، وصف السلوك الحالي، السيناريو المتأثر، التصنيف، الأثر، الاختبار المفقود أو الفاشل، والتوصية. لا تكتب finding بلا دليل، ولا تصنف شيئًا MISSING إذا كان موجودًا في main بلا أن تثبت سبب عدم اكتماله في الرحلة.
+9) لا تكتب ADR أو backlog بناء جديدين إلا بعد الانتهاء من manifest والـtraceability. عندها فقط أنشئ `NABD_DECISION_REQUIRED_2026-08-24.md` لقرارات المنتج المفتوحة، مع البدائل والأثر، بلا اختيار مزيف.
+10) شغّل inventory آليًا وعمليات build/test المتاحة لتحديد consumers أو dead code، لكن لا تعتبر automation بديلًا عن القراءة والتحليل. سجل كل command ونتيجته.
+11) نفذ `git diff --check` وفحص أسرار. اعمل commit مستنديًا صغيرًا، push إلى فرع audit فقط، ثم قدّم قالب تقرير المرحلة. لا تفتح PR إلى main ولا تنشر.
 
-المخرج المطلوب من المرحلة 0 هو **تقرير Audit لـmain نفسه**. لا تصنّف أي شيء MISSING أو PARTIAL لمجرد وجوده في فرع آخر أو عدم وجوده في فرع remediation؛ اربط كل حكم بمسار وملف/route/screen/اختبار داخل main.
+المخرج المطلوب من المرحلة 0 هو **تقرير Audit حرفي لـmain نفسه**، لا تقرير لفرع remediation. لا تصنف أي شيء MISSING أو PARTIAL لمجرد وجوده في فرع آخر أو عدم وجوده في فرع remediation؛ اربط كل حكم بمسار وملف/line range/route/screen/اختبار داخل main.
 
 معايير القبول:
-- inventory يشمل backend + web + mobile + provider/admin، وليس backend فقط.
-- يربط كل رحلة بتوقيت الطلب/quote/insurance/payment/fulfillment كما تحدده قواعد المستخدم.
-- يثبت أين يوجد route أو schema متنازع عليه بدل تخمين حل.
+- manifest يغطي كل ملفات المصدر المملوكة المتعقبة ضمن النطاق، وله exclusions مبررة وقابلة للعد.
+- كل route/backend/schema/event له consumer trace أو تصنيف legacy/dead مثبت.
+- كل شاشة/route في التطبيقات له journey trace وشروط الحالات والأزرار والنتائج، وليس مجرد قائمة ملفات.
+- traceability يغطي كل سيناريوهات قواعد الأعمال الإيجابية والسلبية والتأمين والدفع والنتيجة.
+- كل finding له دليل قابل للتتبع في main؛ ولا توجد أوامر بناء مبكرة أو تغيير behavior.
 - يسجل قرارات المنتج المفتوحة بلا اختيار مزيف.
-- لا توجد تعديلات واسعة أو features مبكرة.
+- لا توجد تعديلات واسعة أو features أو migrations أو دمج أو نشر.
 ```
 
 ---
