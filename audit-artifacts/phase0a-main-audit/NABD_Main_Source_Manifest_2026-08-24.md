@@ -15,7 +15,7 @@ This manifest is generated from archive bytes materialized with `git show <basel
 
 ## Member-level fields
 
-Every archive member is represented in `NABD_Main_Archive_Member_Inventory_2026-08-24.tsv` with archive/member path, SHA-256, line count, kind, role, domain, status, and read state. Excluded binary/generated/dependency members are listed separately in `NABD_Main_Archive_Exclusions_2026-08-24.tsv`.
+Every archive member is represented in `NABD_Main_Archive_Member_Inventory_2026-08-24.tsv` with archive/member path, SHA-256, line count, kind, role, domain, status, read state, evidence reference, routes/screens/consumers field, and schema/API/tests field. Excluded binary/generated/dependency members are listed separately in `NABD_Main_Archive_Exclusions_2026-08-24.tsv`.
 
 ## Closure gate
 

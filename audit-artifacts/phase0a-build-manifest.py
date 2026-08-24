@@ -71,15 +71,15 @@ for zip_dir in sorted(p for p in ARCHIVE_ROOT.iterdir() if p.is_dir()):
         rows.append({
             'archive': archive, 'member': rel, 'sha256': sha256(p), 'lines': line_count(p),
             'kind': status, 'role': role, 'domain': domain(archive, rel), 'status': 'INVENTORIED',
-            'fully_read': read, 'evidence': 'UNVERIFIED — semantic read not yet demonstrated for this member' if read == 'NO' else 'evidence index pending'
+            'fully_read': read, 'evidence': 'UNVERIFIED — semantic read not yet demonstrated for this member' if read == 'NO' else 'evidence index pending', 'routes_screens_consumers': 'UNVERIFIED', 'schema_api_tests': 'UNVERIFIED'
         })
 
 # Machine-readable complete member inventory.
 tsv = OUT_ROOT / 'NABD_Main_Archive_Member_Inventory_2026-08-24.tsv'
 with tsv.open('w', encoding='utf-8') as f:
-    f.write('archive\tmember_path\tsha256\tline_count\tkind\trole\tdomain\tstatus\tfully_read\tevidence\n')
+    f.write('archive\tmember_path\tsha256\tline_count\tkind\trole\tdomain\tstatus\tfully_read\tevidence\troutes_screens_consumers\tschema_api_tests\n')
     for r in rows:
-        vals = [str(r[k]).replace('\t',' ').replace('\n',' ') for k in ('archive','member','sha256','lines','kind','role','domain','status','fully_read','evidence')]
+        vals = [str(r[k]).replace('\t',' ').replace('\n',' ') for k in ('archive','member','sha256','lines','kind','role','domain','status','fully_read','evidence','routes_screens_consumers','schema_api_tests')]
         f.write('\t'.join(vals) + '\n')
 
 # Exclusion inventory.
@@ -107,7 +107,7 @@ with summary.open('w', encoding='utf-8') as f:
     owned_total = sum(r['kind']=='OWNED_SOURCE_MEMBER' for r in rows)
     excl_total = len(rows)-owned_total
     f.write(f'| **TOTAL** | **{len(rows)}** | **{owned_total}** | **{excl_total}** | **0** | **{len(rows)}** |\n\n')
-    f.write('## Member-level fields\n\nEvery archive member is represented in `NABD_Main_Archive_Member_Inventory_2026-08-24.tsv` with archive/member path, SHA-256, line count, kind, role, domain, status, and read state. Excluded binary/generated/dependency members are listed separately in `NABD_Main_Archive_Exclusions_2026-08-24.tsv`.\n\n')
+    f.write('## Member-level fields\n\nEvery archive member is represented in `NABD_Main_Archive_Member_Inventory_2026-08-24.tsv` with archive/member path, SHA-256, line count, kind, role, domain, status, read state, evidence reference, routes/screens/consumers field, and schema/API/tests field. Excluded binary/generated/dependency members are listed separately in `NABD_Main_Archive_Exclusions_2026-08-24.tsv`.\n\n')
     f.write('## Closure gate\n\nThis is an inventory-complete but semantic-read-incomplete state. The audit must not claim Root Audit Final Closure until every owned member has either a defensible full semantic read with evidence and route/screen/schema/test linkage, or a documented first-party exclusion approved by the reviewer.\n')
 
 print(f'rows={len(rows)} owned={sum(r["kind"]=="OWNED_SOURCE_MEMBER" for r in rows)} exclusions={sum(r["kind"]!="OWNED_SOURCE_MEMBER" for r in rows)}')
