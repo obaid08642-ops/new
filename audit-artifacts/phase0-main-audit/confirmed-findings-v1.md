@@ -221,3 +221,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-131 | P2 | AnalyticsEvent permits free-form event_type/domain and arbitrary metadata, and stores optional IP address/user-agent, without consent/purpose, metadata size/key allowlist, anonymization, TTL/retention, tenant/source authenticity, request idempotency or deduplication controls; generated event ID alone does not prevent replay or forged attribution. | `src/schemas/analytics-event.schema.ts:4–17`; `audit-artifacts/phase0b-backend/semantic-evidence-analytics-event-schema.md` | Define event/domain and metadata contracts, consent/purpose and PII minimization/retention, enforce authenticity and bounded ingestion, and test replay/deduplication and forged user/session attribution. |
+
+
+## Audit log schema finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-132 | P1 | AuditLog has useful unique id, indexed action/createdAt, actor/resource references and correlation_id, but action/role/resource_kind/severity lack runtime allowlists, details is arbitrary, IP/user-agent have no minimization or retention policy, and there is no append-only/immutability enforcement, event deduplication, actor-session/source or tenant scope. The TypeScript severity union does not constitute runtime validation. | `src/schemas/audit-log.schema.ts:5–20`; `audit-artifacts/phase0b-backend/semantic-evidence-audit-log-schema.md` | Add runtime event contracts and severity enum, redact/minimize PII, define TTL/retention, enforce append-only integrity and source/actor scope, and test forged/replayed events and cross-tenant reads. |
