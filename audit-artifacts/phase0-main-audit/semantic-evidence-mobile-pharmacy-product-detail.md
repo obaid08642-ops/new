@@ -1,0 +1,11 @@
+# Semantic evidence — Mobile Pharmacy Product Detail
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/pharmacy/product-detail.tsx:117–137` loads `/medicines/{id}/details?lang=...` and exposes loading/not-found states, but the source does not visibly validate `id`, distinguish 401/403/404/unavailable, or provide a retry action after failure. The response is accepted when `data.id` exists; structured product fields, images, alternatives and similar items are rendered through `@ts-nocheck` without typed schema, currency, stock, expiry, prescription or provenance validation (`:101–143,224–227,344–415`). Missing images use a generic icon fallback (`:263–265`), while shortage/discount/online-exclusive badges are trusted from response fields and the item remains purchasable even when potentially unavailable (`:139–143,302–312`).
+
+The sticky add-to-cart action uses the local `CartContext.addItem` with product fields copied from the loaded response (`:177–204,464–484`). There is no visible server cart mutation, Idempotency-Key, account/cache isolation, stock/price revalidation, prescription upload/eligibility enforcement, quantity bounds or server quote; product price falls back to zero in multiple render paths (`:326–333,370,392`). Quantity changes use local `updateQty` only (`:466–475`). The prescription alert states a prescription will be uploaded in cart, but this screen neither verifies the requirement nor binds the resulting cart line to a prescription.
+
+The “suggest an edit” mutation posts `/medicines/{id}/suggest-change` (`:157–175`) with user-entered changes and note. It has a local sending guard but no visible Idempotency-Key, duplicate/replay handling, ownership/auth policy, moderation/rate-limit contract, field allowlist enforcement beyond UI choices, or server suggestion ID/status. Success is shown after transport completion without a persisted review state.
+
+The product detail provides edge-swipe navigation and external/native zoom only (`:74–99,486–510`), not a server action. Alternatives and similar cards route with their IDs without visible identifier validation or unavailable/error handling (`:356–398`). No Phase 0 remediation was made.
