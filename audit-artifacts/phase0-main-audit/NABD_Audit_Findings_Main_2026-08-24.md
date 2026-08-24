@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 3 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 32 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 33 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 41 | Confirmed source findings recorded to date. |
+| Total | 42 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-042 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-043 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -56,14 +56,16 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-040 | Mobile medication reminders | Local dose aggregation and “sync alerts” navigation do not prove notification/dose state reconciliation. |
 | F-039 | Mobile vitals log | Vital submissions need finite/range/unit validation and duplicate/replay/audit proof. |
 | F-041 | Mobile prescription data | Prescription CTA and sharing expose contract/PHI/OCR provenance gaps. |
+| F-043 | Mobile family sharing | Group creation and member-health actions lack complete consent/ownership/revocation evidence. |
 | F-042 | Mobile medication reminders | Add/edit reminder, notification preference and local scheduling are non-atomic and incompletely reconciled. |
+| F-043 | Mobile family hub | Family creation and member health-sharing surfaces require explicit consent, ownership, and replay/audit controls. |
 | F-040 | Mobile medications | Reminder progress, device-alert synchronization and dose lifecycle require server/timezone/delivery proof. |
 | F-042 | Mobile reminder mutation | Reminder save and notification scheduling span separate steps without replay/partial-failure proof. |
 | F-041 | Mobile prescriptions | Prescription loading, ordering linkage, sharing and OCR claims require explicit error, ownership and PHI controls. |
 | F-034 | Mobile language/RTL | Locale persistence, RTL reinitialization and six-language completeness are unproven; flags render empty. |
 | F-031, F-032 | Mobile notifications | Preference and read acknowledgements have optimistic/fire-and-forget semantics, while delivery, route translation and PHI content policy are not fully proven. |
 | F-034 | Localization | The Mobile locale selector does not prove persistence/synchronization/RTL behavior and renders empty flag slots. |
-| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037, F-038, F-039, F-041 | Patient parity | Web is read-only while Mobile exposes security/privacy/notification/profile/address/health/prescription actions with incomplete contract, guest policy, delivery and failure semantics. |
+| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037, F-038, F-039, F-041, F-043 | Patient parity | Web is read-only while Mobile exposes security/privacy/notification/profile/address/health/prescription/family actions with incomplete contract, guest policy, consent and failure semantics. |
 
 ### Contract, state and end-to-end parity
 
