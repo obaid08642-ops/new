@@ -1,0 +1,11 @@
+# Semantic evidence — Mobile Insurance Hub
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/insurance/hub.tsx:92–130` calls `/users/me/insurance` and `/insurance/claims`, but the policy response is transformed into a locally constructed object with fixed `id: '1'`, type, coverage percentages, annual limit 500000, used 0, remaining 500000, deductible 50 and active/default flags (`:95–112`). These values are displayed as current coverage/financial limits without server provenance or schema validation. Claims failure is logged only and does not create an error/retry state (`:120–130`); an empty result is rendered as “no previous claims.”
+
+The quick-action catalogue includes coverage, submit claim, network providers and `/insurance/benefits-summary` (`:74–79`), but this screen does not prove that every destination exists or that context/policy ID is preserved. Coverage and deductible details use `defaultPolicy` directly even when no policy exists (`:294–349`), creating a potential null/exception path. Policy list items use locally assigned IDs and route a `policyId`, while the detail screen previously ignores that parameter and reloads the profile policy.
+
+The CHI WebView loads a hard-coded external portal URL and injects JavaScript that scrapes table cells using broad selectors (`:21–70,459–469`). It trusts cell text for company/class/policy/network/expiry and takes only the first row (`:142–157`). The save mutation posts `/insurance/save-policy` with a hard-coded fallback policy number/class, empty member/national IDs, `verified: true` and `ocr_extracted: true` (`:158–173`), with no visible Idempotency-Key, provenance/consent/identity verification, data validation, duplicate policy handling, retention, or ownership binding. The response is caught to `null` yet the UI proceeds to close and show success and mutates local policy state (`:160–188`), producing false-success if persistence failed.
+
+The injected scraper runs on a third-party page with DOM/storage access and no visible origin/navigation restriction or sensitive-input handling (`:459–469`). The banner instructs the user to enter a national ID in the WebView and claims automatic safe saving (`:436–440`) without privacy/third-party disclosure or consent. No Phase 0 remediation was made.
