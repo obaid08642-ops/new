@@ -13,6 +13,10 @@
 | 5. Health / prescriptions / insurance / family | Health/vitals, prescriptions, insurance add/update/coverage-check, family invite/scan/join/chat/permissions/member health and orders actions, medical reports | Read-only health/prescription/profile/family/insurance surfaces audited partially | Mobile insurance/family/reports evidence; Web read helpers and backend modules need DTO/ownership/test reconciliation | loading, empty, unavailable, stale, consent, expired/used/revoked invite, permission request, claim/preauth decisions, report share/AI blocked | PHI minimization, delegated family access, owner/stranger 404, audience binding, report share consent | vital/reminder mutation contracts, prescription upload/renewal, insurance eligibility/claim replay, family consent/revoke/audit, report mark-read/share/AI governance | PARTIAL / FINDING |
 | 6. Chat / notifications / patient communications | Chat/list/thread and notification/settings surfaces; family chat and support-chat handoffs; send/realtime/attachment behavior requires full trace | Chat thread hides message body/attachments and has no composer; notifications/settings read-only | Backend chat aliases include GET and POST variants; Mobile family chat evidence and coverage/preauth support handoff | unread, empty, blocked, send failure, moderation, attachment, emergency lock, realtime disconnect, membership revoked | participant ownership, PHI, moderation, rate limits, audit | send idempotency, duplicate/replay, attachment scan, mark-read/delete contract | PARTIAL / FINDING |
 | 7. Provider / Admin operations | Provider Doctor/Nursing plus Admin dashboards, config, security and role-specific operations | Patient Web is not the operator surface but must not expose operator routes | Provider Nursing route/payload drift; Admin health/analytics/config/passkey evidence; backend home-care roles | queue failure, assignment, check-in, GPS, report, SLA change, maintenance, passkey recovery | role/tenant separation, PHI minimization, least privilege, audit logs | owner/role/replay, kill-switch rollback, WebAuthn recovery, event/outbox, live telemetry | FINDING / UNVERIFIED |
+| 8. Offers / map / discovery | Mobile Offers list/detail, Map search/filter/provider sheet and directions | Web offer/map parity and indexability not proven | `/home/offers`, `/offers/{id}`, `/promotions/offers/{id}/providers`, `/providers/map`, `/user/insurance`; typed contract/freshness/eligibility pending | no offers/provider results, stale location, permission denied, expired offer, invalid coordinates, external maps failure | location consent/minimization, provider identity, insurance eligibility, link safety | offer redemption/booking binding, map search freshness, provider/service/price context tests | FINDING / PARTIAL |
+| 9. Wallet / financial account | Mobile Wallet hub/cards/topup/transactions/transfer; card/default/topup/ledger actions | Web wallet parity not proven | `/wallet/balance`, `/wallet/cards`, `/wallet/topup`, `/wallet/transfer`, transaction routes; financial reconciliation pending | loading/empty, pending/failed/reversed/refunded, duplicate credit, hosted return, card verification, transfer unknown outcome | wallet/card/beneficiary ownership, PCI/tokenization, step-up/fraud | Idempotency/replay, ledger/webhook settlement, receipt/refund/chargeback, owner/stranger/unauth | FINDING / PARTIAL |
+| 10. Support / community / ticketing | Support chat/ticket, Community hub/post detail, feedback/help | Web communication parity not proven | `/support/chat`, `/support/tickets`, `/support/feedback`, `/support/faqs`, `/config`; thread/ticket/post contracts pending | empty versus failure, pending/send failure, moderation, attachment, handoff, ticket status/SLA | participant/post ownership, PHI minimization, attachment access, moderation/audit | send/publish/vote/comment/feedback idempotency, realtime/reconnect, ticket context and escalation tests | FINDING / PARTIAL |
+| 11. Settings / rights / localization | Privacy/security/notifications/data/language/about/terms; toggles, password, session revoke, export/delete actions | Patient Web settings remains read-only summary | `/users/me/privacy-settings`, `/users/me/security-settings`, `/users/me/notification-settings`, `/users/me/sessions`, `/users/me/storage`, support deletion; legal/config source pending | defaults, sync failure, rollback, re-auth, export/delete lifecycle, six-locale/RTL | consent/audit/identity assurance, session/device ownership, legal retention | PATCH/POST/DELETE idempotency/replay, password/session invalidation, export/deletion status tests | FINDING / PARTIAL |
 
 ## Action-to-contract traceability rules
 
@@ -32,6 +36,38 @@ Every actionable UI control must resolve to one exact backend method/path, reque
 - `semantic-evidence-mobile-order-tracking.md`
 - `semantic-evidence-mobile-orders-center.md`
 - `semantic-evidence-mobile-pharmacy-order-history.md`
+- `semantic-evidence-mobile-pharmacy-barcode.md`
+- `semantic-evidence-mobile-pharmacy-product-search.md`
+- `semantic-evidence-mobile-pharmacy-manual-order.md`
+- `semantic-evidence-mobile-pharmacy-rx-order.md`
+- `semantic-evidence-mobile-pharmacy-scan-prescription.md`
+- `semantic-evidence-mobile-pharmacy-filters.md`
+- `semantic-evidence-mobile-pharmacy-compare.md`
+- `semantic-evidence-mobile-pharmacy-wishlist.md`
+- `semantic-evidence-mobile-pharmacy-chat.md`
+- `semantic-evidence-mobile-pharmacist-chat.md`
+- `semantic-evidence-mobile-pharmacy-waiting.md`
+- `semantic-evidence-mobile-settings-security.md`
+- `semantic-evidence-mobile-settings-privacy.md`
+- `semantic-evidence-mobile-settings-notifications.md`
+- `semantic-evidence-mobile-settings-data.md`
+- `semantic-evidence-mobile-settings-language.md`
+- `semantic-evidence-mobile-settings-about.md`
+- `semantic-evidence-mobile-settings-feedback.md`
+- `semantic-evidence-mobile-settings-help.md`
+- `semantic-evidence-mobile-settings-terms.md`
+- `semantic-evidence-mobile-support-chat-real.md`
+- `semantic-evidence-mobile-support-ticket.md`
+- `semantic-evidence-mobile-community-hub.md`
+- `semantic-evidence-mobile-community-detail.md`
+- `semantic-evidence-mobile-wallet-hub.md`
+- `semantic-evidence-mobile-wallet-topup.md`
+- `semantic-evidence-mobile-wallet-transactions.md`
+- `semantic-evidence-mobile-wallet-cards.md`
+- `semantic-evidence-mobile-wallet-transfer.md`
+- `semantic-evidence-mobile-offers-index.md`
+- `semantic-evidence-mobile-offers-detail.md`
+- `semantic-evidence-mobile-map.md`
 - `semantic-evidence-mobile-pharmacy-reorder.md`
 - `semantic-evidence-mobile-pharmacy-order-confirm.md`
 - `semantic-evidence-mobile-returns-hub.md`
@@ -59,4 +95,4 @@ Every actionable UI control must resolve to one exact backend method/path, reque
 
 ## Current conclusion
 
-No journey family is proven end-to-end production-ready on this baseline. The newly audited Mobile Family, Insurance, Pharmacy Checkout/Payment/Tracking, Unified Orders, Nursing Service Details and Web Cart/Checkout surfaces remain PARTIAL/FINDING until exact contracts, ownership, state transitions and approved runtime tests exist. The most material blockers are route/payload drift, client-authoritative commerce values, incomplete ownership/idempotency evidence, silently swallowed failures, fabricated operational fallbacks, and unresolved product decisions. This matrix must be updated after every future source or live-contract verification.
+No journey family is proven end-to-end production-ready on this baseline. The newly audited Mobile Pharmacy, Community, Wallet, Offers, Map, Support and Settings surfaces remain PARTIAL/FINDING until exact contracts, ownership, state transitions, locale/accessibility review and approved runtime tests exist. The most material blockers are route/payload drift, client-authoritative commerce values, hard-coded/test financial data, unimplemented actions, false-success paths, incomplete ownership/idempotency evidence, silently swallowed failures, unsafe PHI/attachment sharing, fixed legal/security claims, and unresolved product decisions. This matrix must be updated after every future source or live-contract verification.
