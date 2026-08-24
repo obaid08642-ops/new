@@ -37,6 +37,7 @@ Scope: audit only; no behavior remediation.
 | Admin Master Dashboard | `semantic-evidence-admin-master-dashboard.md` | liveness/readiness/heatmap/command-center | loading/empty; retry/staleness pending | admin guard helper; PHI minimization pending | polling read-only; detail authorization pending | FINDING/PARTIAL |
 | Admin Config Portal | `semantic-evidence-admin-config-portal.md` | SLA GET/PUT; emergency maintenance PUT | alerts/console; structured failure pending | backend authorization/audit/re-auth pending | global mutations; replay/rollback pending | FINDING |
 | Admin Security/Passkey | `semantic-evidence-admin-security-passkey.md` | passkey devices/enroll/verify/delete | loading/success/error | designated admin/2FA enforcement pending | enroll/delete; idempotency/re-auth/audit pending | FINDING/PARTIAL |
+| Patient Web Settings | `semantic-evidence-patient-web-settings.md` | privacy/security/storage/sessions GET helpers | loading/unavailable/401/403/404/empty | patient session; DTO/PHI review pending | explicit read-only; no revoke/password/2FA mutation | READ-ONLY/PARTIAL |
 
 ## Interpretation
 
