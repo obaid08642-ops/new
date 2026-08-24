@@ -695,8 +695,20 @@
     "priceLabel": "Price",
     "durationLabel": "Duration",
     "insurance": "Insurance available",
-    "bookingNotice": "Service details are read-only here. No booking is created from this page.",
-    "back": "Back to services"
+    "bookingNotice": "Choose an approved provider, a saved delivery address, and a future time before creating a cash home-care booking.",
+    "back": "Back to services",
+    "book": "Book home care",
+    "findProviders": "Load approved providers",
+    "providers": "Approved providers",
+    "noProviders": "No approved provider is currently available.",
+    "chooseProvider": "Choose a provider",
+    "chooseAddress": "Choose a saved address",
+    "noAddresses": "Add a saved address from the cart checkout before booking home care.",
+    "scheduledAt": "Preferred care time",
+    "sessions": "Number of sessions",
+    "booking": "Creating booking…",
+    "bookingFailed": "The home-care booking could not be created. Please review the selected provider, address, and time.",
+    "bookingCreated": "Home-care booking created."
   },
   "Doctors": {
     "eyebrow": "Medical care",
@@ -759,7 +771,16 @@
     "noMatch": "No service matches these filters.",
     "unavailableTitle": "Lab catalog unavailable",
     "unavailableBody": "The live laboratory catalog could not be loaded.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "book": "Book lab test",
+    "findProviders": "Find available providers",
+    "providers": "Available providers",
+    "noProviders": "No compatible provider is currently available.",
+    "chooseProvider": "Choose a provider",
+    "scheduledAt": "Preferred appointment time",
+    "booking": "Creating booking…",
+    "bookingFailed": "The lab booking could not be created. Please review the provider and time.",
+    "bookingCreated": "Lab booking created."
   },
   "LabsPackages": {
     "eyebrow": "Laboratory care",
@@ -819,7 +840,12 @@
     "unavailableTitle": "Radiology is unavailable",
     "unavailableBody": "The live radiology catalog could not be loaded.",
     "retry": "Try again",
-    "detailBlocked": "Details temporarily unavailable"
+    "detailBlocked": "Book an in-center scan by choosing an available future time. Home imaging is not offered here until an address-safe contract is available.",
+    "book": "Book scan",
+    "scheduledAt": "Preferred appointment time",
+    "booking": "Creating booking…",
+    "bookingFailed": "The scan booking could not be created. Please try another time.",
+    "bookingCreated": "Scan request created."
   },
   "Wishlist": {
     "eyebrow": "Private wishlist",

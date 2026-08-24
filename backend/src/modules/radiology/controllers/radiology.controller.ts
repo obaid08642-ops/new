@@ -1,11 +1,13 @@
-import { Controller, Post, Body, Param, Patch, Get, BadRequestException, NotFoundException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Param, Patch, Get, BadRequestException, NotFoundException, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
-import { CurrentUser } from '../../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard } from '../../../common/auth.guard';
+import { RequireIdempotency } from '../../../common/idempotency.interceptor';
 
 @Controller('radiology/bookings')
+@UseGuards(JwtAuthGuard)
 export class RadiologyController {
   constructor(
     @InjectModel('RadiologyCenterBooking') private radBookingModel: Model<RadiologyBooking>,
@@ -19,24 +21,26 @@ export class RadiologyController {
    * Accepts either a catalog `service_id` (names auto-filled) or explicit scan fields.
    */
   @Post()
+  @RequireIdempotency()
   @HttpCode(HttpStatus.CREATED)
   async book(@CurrentUser() user: any, @Body() body: any) {
-    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_booking_payload');
+    if (typeof body.service_id !== 'string' || !body.service_id.trim() || body.service_id.length > 160) throw new BadRequestException('service_id_required');
+    if (typeof body.scheduled_at !== 'string' || Number.isNaN(new Date(body.scheduled_at).getTime()) || new Date(body.scheduled_at).getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('scheduled_at_required');
+    if (body.delivery_mode !== undefined && !['IN_CENTER', 'MOBILE_HOME_VISIT'].includes(body.delivery_mode)) throw new BadRequestException('invalid_delivery_mode');
     const patient: any = await this.userModel.findOne({ id: user.id }).lean();
     if (!patient) throw new BadRequestException('patient_not_found');
 
     let scan: any = {};
     if (body.service_id) {
-      const svc: any = await this.radServiceModel.findOne({ id: body.service_id, is_deleted: { $ne: true } }).lean();
+      const svc: any = await this.radServiceModel.findOne({ id: body.service_id, is_deleted: { $ne: true }, active: { $ne: false }, public_eligibility: { $ne: false } }).lean();
       if (!svc) throw new BadRequestException('service_not_found');
       scan = { scan_type_code: svc.id, scan_name_ar: svc.name_ar, scan_name_en: svc.name_en };
     }
-    const scan_type_code = body.scan_type_code || scan.scan_type_code;
-    const scan_name_ar = body.scan_name_ar || scan.scan_name_ar;
-    const scan_name_en = body.scan_name_en || scan.scan_name_en;
-    if (!scan_type_code || !scan_name_ar || !scan_name_en) {
-      throw new BadRequestException('scan details required (pass service_id or scan_type_code + names)');
-    }
+    const scan_type_code = scan.scan_type_code;
+    const scan_name_ar = scan.scan_name_ar;
+    const scan_name_en = scan.scan_name_en;
+    if (!scan_type_code || !scan_name_ar || !scan_name_en) throw new BadRequestException('service_not_found');
 
     let centerId: Types.ObjectId | null = null;
     if (body.provider_account_id) {

@@ -10,7 +10,8 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { ChatModule } from '../chat/chat.module';
 import { ChatService } from '../chat/chat.service';
 import { HomeCareBookingSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
@@ -30,12 +31,14 @@ export class HomeCareCompatController {
   ) {}
 
   // ---- Catalog ----
+  @Public()
   @Get('services') servicesList(@Query() q: any) {
     const filter: any = { active: true };
     if (q?.category) filter.category = q.category;
     return this.services.find(filter, { _id: 0, __v: 0 }).lean();
   }
 
+  @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
     const svc = await this.services.findOne({ id, active: true }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
@@ -71,25 +74,56 @@ export class HomeCareCompatController {
     throw new ForbiddenException('booking_access_denied');
   }
 
-  @Post('bookings') async createBooking(@CurrentUser() u: any, @Body() body: any) {
+  @Post('bookings')
+  @RequireIdempotency()
+  async createBooking(@CurrentUser() u: any, @Body() body: any) {
     if (u?.role !== 'patient') throw new ForbiddenException('patient_only');
-    if (!body?.service_id) throw new BadRequestException('service_id is required');
-    if (!body?.scheduled_at) throw new BadRequestException('scheduled_at is required');
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new BadRequestException('invalid_booking_payload');
+    if (typeof body.service_id !== 'string' || !body.service_id.trim() || body.service_id.length > 160) throw new BadRequestException('service_id_required');
+    if (typeof body.scheduled_at !== 'string') throw new BadRequestException('scheduled_at_required');
+    const scheduledAt = new Date(body.scheduled_at);
+    if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now() - 5 * 60_000) throw new BadRequestException('scheduled_at_required');
+    const sessionsCount = body.sessions_count === undefined ? 1 : Number(body.sessions_count);
+    if (!Number.isInteger(sessionsCount) || sessionsCount < 1 || sessionsCount > 60) throw new BadRequestException('invalid_sessions_count');
+    const paymentMethod = ['cash', 'card', 'insurance'].includes(body.payment_method) ? body.payment_method : 'cash';
     const svc: any = await this.services.findOne({ id: body.service_id, active: true }).lean();
-    if (!svc) throw new NotFoundException('service not found');
+    if (!svc) throw new NotFoundException('service_not_found');
+    if (paymentMethod === 'cash' && svc.cash_availability === false) throw new BadRequestException('cash_not_available');
+    if (paymentMethod === 'insurance' && svc.insurance_availability === false) throw new BadRequestException('insurance_not_available');
+    let provider: any = null;
+    if (body.provider_id !== undefined) {
+      if (typeof body.provider_id !== 'string' || !body.provider_id.trim() || body.provider_id.length > 200) throw new BadRequestException('invalid_provider_id');
+      provider = await this.profiles.findOne({ id: body.provider_id, provider_type: 'nursing', active: true, approval_status: 'approved' }).lean();
+      if (!provider) throw new NotFoundException('provider_not_available');
+    }
+    const rawAddress = body.address;
+    const address = typeof rawAddress === 'string' && rawAddress.trim() ? { address: rawAddress.trim() } : rawAddress && typeof rawAddress === 'object' && !Array.isArray(rawAddress) ? {
+      ...(typeof rawAddress.address === 'string' ? { address: rawAddress.address.slice(0, 500) } : {}),
+      ...(typeof rawAddress.city === 'string' ? { city: rawAddress.city.slice(0, 100) } : {}),
+      ...(typeof rawAddress.district === 'string' ? { district: rawAddress.district.slice(0, 100) } : {}),
+      ...(typeof rawAddress.lat === 'number' && Number.isFinite(rawAddress.lat) && Math.abs(rawAddress.lat) <= 90 ? { lat: rawAddress.lat } : {}),
+      ...(typeof rawAddress.lng === 'number' && Number.isFinite(rawAddress.lng) && Math.abs(rawAddress.lng) <= 180 ? { lng: rawAddress.lng } : {}),
+    } : null;
+    if (!address || !address.address) throw new BadRequestException('address_required');
+    const state = provider ? 'PROVIDER_ASSIGNED' : 'NEW_REQUEST';
+    const total = Number(svc.price || 0) * sessionsCount;
     const doc = await this.bookings.create({
       patient_id: u.id,
-      service_id: svc?.id || body.service_id,
-      service_name_ar: svc?.name_ar || body.service_name_ar,
+      service_id: svc.id,
+      service_name_ar: svc.name_ar,
+      service_name_en: svc.name_en,
       duration: svc.duration || 'hour',
-      total: svc.price,
-      total_price: svc.price,
-      scheduled_at: new Date(body.scheduled_at),
-      address: body.address,
-      payment_method: body.payment_method,
-      provider_id: undefined,
-      state: 'NEW_REQUEST',
-      state_history: [{ state: 'NEW_REQUEST', at: new Date(), by: u.id }],
+      sessions_count: sessionsCount,
+      total,
+      total_price: total,
+      service_fee: total,
+      scheduled_at: scheduledAt,
+      address,
+      payment_method: paymentMethod,
+      provider_id: provider?.id,
+      provider_name: provider?.full_name,
+      state,
+      state_history: [{ state, at: new Date(), by: u.id }],
     });
     try { this.emitter?.emit('homecare.booking_created', { booking_id: doc.id, patient_id: u.id }); } catch {}
     return doc.toObject();

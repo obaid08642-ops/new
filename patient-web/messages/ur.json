@@ -695,8 +695,20 @@
     "priceLabel": "قیمت",
     "durationLabel": "مدت",
     "insurance": "انشورنس دستیاب",
-    "bookingNotice": "خدمت کی تفصیلات یہاں صرف مطالعے کے لیے ہیں۔ اس صفحے سے بکنگ نہیں بنتی۔",
-    "back": "خدمات پر واپس"
+    "bookingNotice": "Choose an approved provider, a saved delivery address, and a future time before creating a cash home-care booking.",
+    "back": "خدمات پر واپس",
+    "book": "Book home care",
+    "findProviders": "Load approved providers",
+    "providers": "Approved providers",
+    "noProviders": "No approved provider is currently available.",
+    "chooseProvider": "Choose a provider",
+    "chooseAddress": "Choose a saved address",
+    "noAddresses": "Add a saved address from the cart checkout before booking home care.",
+    "scheduledAt": "Preferred care time",
+    "sessions": "Number of sessions",
+    "booking": "Creating booking…",
+    "bookingFailed": "The home-care booking could not be created. Please review the selected provider, address, and time.",
+    "bookingCreated": "Home-care booking created."
   },
   "Doctors": {
     "eyebrow": "طبی نگہداشت",
@@ -759,7 +771,16 @@
     "noMatch": "کوئی سروس ان فلٹرز سے مطابقت نہیں رکھتی۔",
     "unavailableTitle": "لیب کیٹلاگ دستیاب نہیں",
     "unavailableBody": "لائیو لیب کیٹلاگ لوڈ نہیں ہو سکا۔",
-    "retry": "دوبارہ کوشش کریں"
+    "retry": "دوبارہ کوشش کریں",
+    "book": "Book lab test",
+    "findProviders": "Find available providers",
+    "providers": "Available providers",
+    "noProviders": "No compatible provider is currently available.",
+    "chooseProvider": "Choose a provider",
+    "scheduledAt": "Preferred appointment time",
+    "booking": "Creating booking…",
+    "bookingFailed": "The lab booking could not be created. Please review the provider and time.",
+    "bookingCreated": "Lab booking created."
   },
   "LabsPackages": {
     "eyebrow": "لیبارٹری کیئر",
@@ -819,7 +840,12 @@
     "unavailableTitle": "ریڈیولوجی دستیاب نہیں",
     "unavailableBody": "لائیو ریڈیولوجی کیٹلاگ لوڈ نہیں ہو سکا۔",
     "retry": "دوبارہ کوشش کریں",
-    "detailBlocked": "تفصیلات عارضی طور پر دستیاب نہیں"
+    "detailBlocked": "Book an in-center scan by choosing an available future time. Home imaging is not offered here until an address-safe contract is available.",
+    "book": "Book scan",
+    "scheduledAt": "Preferred appointment time",
+    "booking": "Creating booking…",
+    "bookingFailed": "The scan booking could not be created. Please try another time.",
+    "bookingCreated": "Scan request created."
   },
   "Wishlist": {
     "eyebrow": "نجی خواہشات کی فہرست",
