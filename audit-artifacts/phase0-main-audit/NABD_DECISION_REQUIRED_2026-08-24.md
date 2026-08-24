@@ -1,0 +1,29 @@
+# Nabd Plus — DECISION_REQUIRED register
+
+Baseline under audit: `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
+Scope: product and contract decisions required before remediation or production GO. This register records ambiguity; it does not decide policy.
+
+| ID | Decision required | Evidence / trigger | Affected layers | Consequence if unresolved |
+|---|---|---|---|---|
+| D-001 | Is launch scope read-only limited, or may patient Web/Mobile mutations be enabled? | Web patient allowlist is GET-only; many Mobile screens contain mutation-looking CTAs. | Web, Mobile, BFF, Backend, QA | No honest production scope or parity verdict. |
+| D-002 | Which consultation create boundary is authoritative: `/care/appointments`, `/unified-bookings`, or Web BFF `/api/appointments/book`? | Mobile, Backend, and Web use different routes. | Web, Mobile, Backend | Cannot prove identical states, idempotency or ownership. |
+| D-003 | Which payment methods are supported per service and mode? | Mobile supports card/insurance/cash branches; UnifiedBookings consultation bridge is cash-only. | All patient surfaces, payments, insurance | Risk of offering a path the backend cannot settle. |
+| D-004 | Is the appointment hold exactly 10 minutes, and which lock implementation is authoritative? | Duplicate `UnifiedBookingsService` definitions; one lock implementation uses 300 seconds. | Backend, BFF, Mobile/Web booking | Race, overbooking, and incorrect expiry behavior. |
+| D-005 | Are guest patients allowed to create appointments, and how are identity, cancellation and refunds handled? | Mobile allows guests except insurance; backend routes are JWT guarded. | Auth, booking, payment, privacy | Unclear ownership and post-booking access. |
+| D-006 | Does insurance coverage use server quote/decision only, or may clients calculate VAT/copay previews? | Mobile computes totals locally and uses manual token fetch for coverage. | Mobile, Backend, payment/insurance | Potential price/coverage mismatch and PHI risk. |
+| D-007 | Are pharmacy split orders allowed when a cart contains multiple providers/domains? | Unified checkout loops groups and performs best-effort rollback; partial failure semantics require policy. | Cart, orders, payment, notifications | Unclear settlement, refund and user messaging. |
+| D-008 | What is the authoritative price and availability source for cart lines? | Mobile Diagnostics and backend checkout accept line name/price fields at orchestration boundary. | Mobile, Web, Backend | Client tampering or stale-price checkout. |
+| D-009 | What is the supported chat scope: read-only, send, attachments, realtime, or provider-only? | Web thread masks body/attachments and has no composer/realtime in source. | Patient, Provider, Backend, moderation | Cannot classify missing behavior as bug or intentional limitation. |
+| D-010 | What family-member consent and ownership model is required? | Family page is read-only; no add/invite/remove/member-switch contract traced. | Patient, auth, PHI, admin | High-risk delegated access ambiguity. |
+| D-011 | Which notification preferences are user-editable, and why is emergency locked? | Settings page renders booleans but no mutation; emergency is visually locked. | Patient, notifications, backend | UI promises cannot be matched to server behavior. |
+| D-012 | Which home-care provider matching and booking model is intended? | Mobile/Web flows and backend include radius matching, providers, addresses, and auto-booking paths with incomplete parity. | Patient, Provider, Backend, location | Cannot prove complete home-care journey or safety. |
+| D-013 | Which legal/contract copy is server-authoritative and versioned? | Provider ContractModal has hard-coded fallback and closes on acceptance failure. | Provider, Admin, legal, audit | Regulatory/consent evidence may be invalid. |
+| D-014 | What public indexing policy applies before licensing and for entity/detail pages? | Existing robots/noindex decisions conflict with desired SEO/GEO/AEO scope; detail contracts vary. | Web, SEO, Admin/content | Risk of indexing unlicensed/incomplete facts. |
+| D-015 | Are x402, MPP, UCP, and ACP in launch scope? | Agent-native payment/discovery requirements were proposed but no baseline contract decision is recorded here. | Backend, Web, API discovery, security | Additional payment/auth/discovery work may be required or should be explicitly out of scope. |
+| D-016 | Which six locales are release-blocking and what content completeness threshold applies? | Web i18n and Mobile localized strings are not yet fully cross-checked. | Web, Mobile, SEO/accessibility | Cannot claim locale parity or indexable quality. |
+| D-017 | Are Admin surfaces in scope for this release, and what role/approval evidence is required? | Admin contains finance, insurance, moderation, security, catalog and support surfaces not yet semantically closed. | Admin, Backend, audit | Production operations and governance remain unverified. |
+| D-018 | What are the required sandbox/live test boundaries and rollback policy? | Transactional journeys need owner/stranger/unauth/replay and cancellation cleanup; test credentials and live provider behavior require explicit limits. | QA, Backend, payment, operations | No defensible end-to-end release evidence. |
+
+## Decision rule
+
+Until each P0/P1 decision is resolved, the affected capability remains `BLOCKED` or `INCONCLUSIVE`; the UI must not present a fake success state or silently fall back to invented data. Decisions must include owner, date, contract version, affected journeys, and acceptance tests.
