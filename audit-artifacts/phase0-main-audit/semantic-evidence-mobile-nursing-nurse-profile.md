@@ -1,0 +1,11 @@
+# Semantic evidence — Mobile Nursing Nurse Profile
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/nursing/nurse-profile.tsx:82–103` loads `/home-care/providers/{nurseId}` and, for insurance flow, calls `/insurance/coverage-check?provider_id=...&service_type=home_nursing`. The source comment states the expected `/home-care/insurance/verify` endpoint does not exist (`:91–94`), so coverage is routed through a generic contract whose ownership, policy binding and home-care eligibility semantics are not proven. Provider load failure only logs to console and leaves an indefinite spinner (`:86–103`); nurse ID/service ID are not visibly validated.
+
+The profile renders provider name/facility/rating/degree and the first review directly (`:182–204`) without schema/range/provenance/moderation validation or a safe empty-review state. Dates are generated locally for the next 30 days and times are a hard-coded array (`:62–80,207–239`), with no provider availability/slot contract, timezone, blackout, hold or expiry semantics. Frequency 1–20 days is local state and does not prove recurring-visit support.
+
+The selected address is resolved locally (`:49–60,242–255`), while transport mode is local UI state (`:44–47,260–273`) and is sent nowhere in the booking payload. Cash/card pricing is estimated as `nurse.price * daysCount` (`:105–107,289–296`) and explicitly admits the final price is confirmed later; there is no server quote, coupon, insurance copay, address/transport fee or payment-intent reconciliation.
+
+`handleSubmit` posts `/home-care/bookings` (`:109–149`) with provider/service/time/address/payment method but no visible Idempotency-Key, client correlation, slot lock, ownership/precondition or replay guard beyond the local `processing` boolean. The insurance branch treats any successful HTTP response as a local “request under review” screen without a booking/request ID or approval lifecycle (`:133–161`). The non-insurance branch routes only when an ID exists; otherwise it shows a generic “request sent” success. No explicit declined, duplicate, expired, provider unavailable, quote changed, payment failure, booking cancel/reschedule or insurance preauthorization semantics are shown. No Phase 0 remediation was made.
