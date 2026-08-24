@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 3 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 27 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 28 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 5 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 35 | Confirmed source findings recorded to date. |
+| Total | 36 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-036 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-037 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -46,12 +46,14 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-020 | Admin telemetry | Invalid coordinates become synthetic map positions; failed fetches lack visible retry; localhost fallback exists. |
 | F-024, F-025 | Pharmacy parity | Web commerce is read-only/noindex while Mobile uses local cart/cache without complete server reconciliation proof. |
 | F-027 | Provider Radiology | Failed inbox becomes empty/zero dashboard; safety data and mutation lifecycle require clinical integrity proof. |
+| F-037 | Mobile health profile | Medical profile and avatar updates span multiple requests with incomplete PHI/media integrity evidence. |
 | F-030 | Mobile privacy | Privacy toggles and data deletion use optimistic/silent paths with unverified legal/security claims and incomplete request lifecycle. |
 | F-036 | Mobile address data | Address add/edit/delete and delivery eligibility are incomplete; default selection needs contract/ownership/idempotency proof. |
+| F-037 | Mobile medical profile | Sensitive medical and avatar mutations lack complete atomicity, upload policy, ownership and replay evidence. |
 | F-034 | Mobile language/RTL | Locale persistence, RTL reinitialization and six-language completeness are unproven; flags render empty. |
 | F-031, F-032 | Mobile notifications | Preference and read acknowledgements have optimistic/fire-and-forget semantics, while delivery, route translation and PHI content policy are not fully proven. |
 | F-034 | Localization | The Mobile locale selector does not prove persistence/synchronization/RTL behavior and renders empty flag slots. |
-| F-028, F-029, F-030, F-031, F-032, F-035, F-036 | Settings/profile/address parity | Web is read-only while backend/Mobile expose security/privacy/notification/profile/address actions with incomplete contract, guest policy, delivery and failure semantics. |
+| F-028, F-029, F-030, F-031, F-032, F-035, F-036, F-037 | Settings/profile/address parity | Web is read-only while backend/Mobile expose security/privacy/notification/profile/address/health-profile actions with incomplete contract, guest policy, delivery and failure semantics. |
 
 ### Contract, state and end-to-end parity
 
