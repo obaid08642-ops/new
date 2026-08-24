@@ -16,12 +16,12 @@ The baseline contains broad source coverage and many real backend routes, but th
 |---|---:|---|
 | P0 | 3 | Release-blocking security, operational or contract risk requiring closure before production claim. |
 | P1 | 25 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
-| P2 | 4 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 32 | Confirmed source findings recorded to date. |
+| P2 | 5 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
+| Total | 33 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-032 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-034 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -45,7 +45,9 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-024, F-025 | Pharmacy parity | Web commerce is read-only/noindex while Mobile uses local cart/cache without complete server reconciliation proof. |
 | F-027 | Provider Radiology | Failed inbox becomes empty/zero dashboard; safety data and mutation lifecycle require clinical integrity proof. |
 | F-030 | Mobile privacy | Privacy toggles and data deletion use optimistic/silent paths with unverified legal/security claims and incomplete request lifecycle. |
+| F-034 | Mobile language/RTL | Locale persistence, RTL reinitialization and six-language completeness are unproven; flags render empty. |
 | F-031, F-032 | Mobile notifications | Preference and read acknowledgements have optimistic/fire-and-forget semantics, while delivery, route translation and PHI content policy are not fully proven. |
+| F-034 | Localization | The Mobile locale selector does not prove persistence/synchronization/RTL behavior and renders empty flag slots. |
 | F-028, F-029, F-030, F-031, F-032 | Settings/notification parity | Web is read-only while backend/Mobile expose security/privacy/notification mutations and read acknowledgements with incomplete contract, delivery and failure semantics. |
 
 ### Contract, state and end-to-end parity
