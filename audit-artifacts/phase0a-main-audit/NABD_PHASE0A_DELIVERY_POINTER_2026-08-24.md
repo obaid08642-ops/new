@@ -1,23 +1,23 @@
 # Nabd Phase 0A.1 Delivery Pointer
 
-**Baseline under audit:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
-**Audit branch:** `agent/audit-main-contract-inventory`  
-**Index artifact generated from:** `480abfccb84de9b73bbf0dcac04b2f89057f0de1`  
+**Baseline under audit:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+**Audit branch:** `agent/audit-main-contract-inventory`
+**Index artifact generated from:** `480abfccb84de9b73bbf0dcac04b2f89057f0de1`
 **Important:** The value above identifies the commit from which the prior index snapshot was generated; it is not a claim about the current branch head. A branch head is time-dependent and must be taken at delivery time.
 
 ## Current content hashes at pointer generation
 
 | Artifact | SHA-256 |
 |---|---|
-| `audit-artifacts/phase0-main-audit/REVIEWER_DELIVERY_INDEX.md` | `1bd4e075442f9282283c456e53cc438e3ec96cc8129286bceb174cea0835b446` |
+| `audit-artifacts/phase0-main-audit/REVIEWER_DELIVERY_INDEX.md` | `bdfdf4803dd964b23cabe3479f68e3fbf5e39f796fdb875b6489c21bdec2b5ca` |
 | `audit-artifacts/phase0-main-audit/NABD_PHASE0_FINAL_CLOSURE_2026-08-24.md` | `a70f24153e932e31fa3e02605b579f09bb12dd602874c8993783d764d8d65843` |
 | `audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Provenance_2026-08-24.md` | `40b567b0010a3c7f613a57bc5f139d7d376ee3f1d5126d9644682204e429988f` |
 | `audit-artifacts/phase0a-main-audit/NABD_Main_Source_Manifest_2026-08-24.md` | `767237c240de2894cc8b3fbe0978532ac4b05218d56cb38178a0e350c6c35e4f` |
 | `audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Member_Inventory_2026-08-24.tsv` | `3783db13da0d1048f52cca0ec1276aafd1ea5669710594e75b3cd7d59aa49bb4` |
 | `audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Exclusions_2026-08-24.tsv` | `4b57a8a4b8db4d2ac53f14e7ccc5d6199b37c6851ebcd1834cdc39158051bfb8` |
-| `audit-artifacts/phase0a-main-audit/PHASE0A_COMMANDS_AND_RESULTS_2026-08-24.md` | `b20c329b5ebf29a1aa3ab17a0d70e3ff4e7f5f2c5fc32c55669a13b05e0d7709` |
+| `audit-artifacts/phase0a-main-audit/PHASE0A_COMMANDS_AND_RESULTS_2026-08-24.md` | `53ea5d0d176cd555427f4c19f77a5907ee69c8115d133402b41816f2f06c5715` |
 
-These hashes must be recomputed after the pointer and index are committed; the table is a generation-time snapshot, not a substitute for final verification.
+These hashes describe the current inputs at pointer generation. Because the pointer and index themselves are delivery artifacts, recompute all hashes immediately before final delivery; the table is not a substitute for final verification.
 
 ## `.gitignore` decision
 
