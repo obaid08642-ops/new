@@ -1,0 +1,11 @@
+# Semantic evidence — Mobile Wallet Hub
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/wallet/hub.tsx:21–26` defines `BALANCE = 847.50`, but the constant is not used for display. More critically, the render references `CASHBACK_PENDING` (`:195–200`) without a declaration in the file, while the project uses `@ts-nocheck`; this is a runtime ReferenceError risk when the component renders. The header displays `balance` from `/wallet/balance` (`:126–130,186–202`), but failure is swallowed and leaves zero, with no error/retry/stale indicator. A comment says guests have device-bound wallet accounts (`:53–57`) but no auth boundary or recovery/ownership proof is shown.
+
+Cards load from `/wallet/cards` (`:69–73,126–134`). Add-card accepts holder name, a locally entered full card number and expiry, then sends only holderName/last4/expiry/type to `POST /wallet/cards` (`:82–106`). No visible PCI/tokenization/SDK boundary, input masking, Luhn/expiry validation, Idempotency-Key, 3DS/verification, duplicate-card handling, default-card selection, or card deletion ownership/replay proof is present. The statement that only basic data is saved and payment uses a gateway (`:362–364`) is a product/security claim requiring backend/provider evidence. Card number state is held in the component and needs secure handling review.
+
+Transactions and spending data load from `/wallet/transactions?page=1&limit=4` and `/wallet/spending-data` (`:135–161`), with failures swallowed. Transaction mapping assumes fields and classifies categories from `referenceType`, while spending bars trust server `amount`, `pct` and `color` without range/schema validation (`:137–149,258–280`). There is no pagination in the hub, last-updated/freshness, retry, empty/error state for either widget, or typed currency/ledger reconciliation.
+
+Quick actions route to topup/transfer/history (`:204–219`), while the hub itself does not establish amount limits, beneficiary/ownership, transfer confirmation, top-up payment intent, replay/idempotency or fraud/rate-limit controls. The loyalty card claims real rewards (`:314–326`) but does not expose balance/ledger/campaign status. No Phase 0 remediation was made.
