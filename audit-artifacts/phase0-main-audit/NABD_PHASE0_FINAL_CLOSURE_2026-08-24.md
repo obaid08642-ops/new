@@ -1,8 +1,8 @@
 # Nabd Plus — Phase 0A Root Audit Completeness Correction Package
 
-**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
-**Audit branch:** `agent/audit-main-contract-inventory`  
-**Scope:** Backend, Patient Web, Patient Mobile, Provider and Admin source/contract audit only.  
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+**Audit branch:** `agent/audit-main-contract-inventory`
+**Scope:** Backend, Patient Web, Patient Mobile, Provider and Admin source/contract audit only.
 **Disposition:** `PHASE 0A CORRECTION IN PROGRESS — NO-GO`; artifacts only. No remediation, feature activation, deployment, migration or production mutation was performed.
 
 ## Executive conclusion

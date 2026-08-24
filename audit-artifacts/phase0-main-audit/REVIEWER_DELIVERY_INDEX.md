@@ -2,12 +2,14 @@
 
 Repository: https://github.com/obaid08642-ops/new/tree/agent/audit-main-contract-inventory
 Branch: agent/audit-main-contract-inventory
-Local head: 73b6e4d960f3a9da10c900e7f548efafc8b292eb
-Remote head: 73b6e4d960f3a9da10c900e7f548efafc8b292eb
+Index artifact generated from: 73b6e4d960f3a9da10c900e7f548efafc8b292eb
+Current branch head: verify at delivery with `git rev-parse HEAD` and `git ls-remote origin refs/heads/agent/audit-main-contract-inventory`
+Remote-head claim: not stored as a fixed value in this index
 Working tree: clean (verified by git status --short)
 
 ## Recent commits
 - 73b6e4d960f3a9da10c900e7f548efafc8b292eb audit: expand archive member traceability fields
+- 506c80a1c1295bfda8f0d1620381182055211c75 audit: previous delivery index refresh
 - 2660f5a3380db6f5441b52ef1202ddbf85276e88 audit: record phase zero gate results
 - 617aa1d4ae36f846d4d754251bc8f0fd84d91277 audit: add phase zero completeness provenance
 - d99f476c41e152512fc0cd984f7fd99bff6926e2 audit: publish phase zero closure package
@@ -45,6 +47,8 @@ Working tree: clean (verified by git status --short)
 - audit-artifacts/phase0a-main-audit/NABD_PHASE0A_SCREEN_ACTION_STATUS_2026-08-24.md
 - audit-artifacts/phase0a-main-audit/NABD_PHASE0A_SCREEN_ROUTE_INVENTORY_2026-08-24.tsv
 - audit-artifacts/phase0a-main-audit/NABD_PHASE0A_EVIDENCE_SOURCE_PATHS_2026-08-24.txt
+- audit-artifacts/phase0a-main-audit/NABD_PHASE0A_DELIVERY_POINTER_2026-08-24.md
+- audit-artifacts/phase0-main-audit/NABD_AUDIT_ARTIFACT_WHITESPACE_EXCEPTIONS_2026-08-24.md
 
 ## Supporting evidence
 - audit-artifacts/phase0-main-audit/semantic-evidence-*.md
@@ -59,3 +63,5 @@ Working tree: clean (verified by git status --short)
 - Existing evidence references 135 distinct source paths as candidate links; this does not imply full archive-member semantic reads.
 - Closure verdict: NO-GO until owned-member semantic reads and evidence linkage are completed.
 - Archive bytes retained at `audit-artifacts/phase0a-main-archives/22526bedb77a3d8148219036367e4714f401aecc/*.zip`.
+- Delivery Pointer defines the delivery-time head and content-hash checks.
+- Whitespace exceptions are line-specific only; the final diff check must be run after the final commit.

@@ -1,7 +1,7 @@
 # Nabd Plus Phase 0 coverage matrix — semantic checkpoint
 
-Baseline: `22526bedb77a3d8148219036367e4714f401aecc`  
-Branch: `agent/audit-main-contract-inventory`  
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`
+Branch: `agent/audit-main-contract-inventory`
 Scope: audit only; no behavior remediation.
 
 | Surface / journey | Evidence read | Backend/API contract | UI states | Ownership/security | Mutation/transaction | Status |

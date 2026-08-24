@@ -1,6 +1,6 @@
 # Phase 0A Screen / Route / Action status
 
-**Baseline:** `22526bedb77a3d8148219036367e4714f401aecc`  
+**Baseline:** `22526bedb77a3d8148219036367e4714f401aecc`
 **Status:** Inventory and previously documented evidence are preserved; full semantic closure is not claimed.
 
 ## Scope covered by existing evidence

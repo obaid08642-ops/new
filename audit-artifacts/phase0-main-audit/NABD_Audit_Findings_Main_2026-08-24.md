@@ -1,7 +1,7 @@
 # Nabd Plus — Main Root Audit Findings Register
 
-**Baseline audited:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
-**Audit branch:** `agent/audit-main-contract-inventory`  
+**Baseline audited:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+**Audit branch:** `agent/audit-main-contract-inventory`
 **Audit mode:** source and contract traceability only; no feature remediation, deployment, migration, payment activation, or production mutation.
 
 ## Executive verdict

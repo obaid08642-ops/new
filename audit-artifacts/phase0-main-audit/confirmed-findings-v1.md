@@ -1,6 +1,6 @@
 # Nabd Plus Phase 0 findings register — v1
 
-Baseline: `22526bedb77a3d8148219036367e4714f401aecc`  
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`
 Scope: source audit only; no remediation.
 
 ## Confirmed source findings

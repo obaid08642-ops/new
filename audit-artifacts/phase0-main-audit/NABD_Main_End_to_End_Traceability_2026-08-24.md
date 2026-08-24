@@ -1,7 +1,7 @@
 # Nabd Plus — Main End-to-End Traceability Matrix
 
-**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
-**Audit branch:** `agent/audit-main-contract-inventory`  
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+**Audit branch:** `agent/audit-main-contract-inventory`
 **Rule:** this is a Phase 0 audit artifact. No behavior is changed by this document. `PARTIAL` and `UNVERIFIED` are intentional; they are not production claims.
 
 | Journey family | Patient Mobile entry/actions | Patient Web entry/actions | Backend/API evidence | Required states | Ownership/security | Transaction/tests | Status |

@@ -1,6 +1,6 @@
 # Nabd Plus — DECISION_REQUIRED register
 
-Baseline under audit: `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
+Baseline under audit: `main @ 22526bedb77a3d8148219036367e4714f401aecc`
 Scope: product and contract decisions required before remediation or production GO. This register records ambiguity; it does not decide policy.
 
 | ID | Decision required | Evidence / trigger | Affected layers | Consequence if unresolved |

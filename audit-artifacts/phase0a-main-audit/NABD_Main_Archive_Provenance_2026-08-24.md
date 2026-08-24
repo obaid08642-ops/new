@@ -1,6 +1,6 @@
 # Nabd Main Archive Provenance — Phase 0A
 
-**Baseline commit:** `22526bedb77a3d8148219036367e4714f401aecc`  
+**Baseline commit:** `22526bedb77a3d8148219036367e4714f401aecc`
 **Source rule:** Every archive byte below was materialized by `git show <baseline>:<archive>` from the baseline commit. No working-tree copy, later branch, or deployed artifact was used.
 
 ## Archive-level provenance
