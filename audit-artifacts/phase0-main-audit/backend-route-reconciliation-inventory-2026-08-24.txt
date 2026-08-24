@@ -1,0 +1,239 @@
+# Backend route reconciliation inventory
+Baseline backend source audited against Mobile/Web consumers
+## src/modules/home-care-compat/home-care-compat.controller.spec.ts
+## src/modules/home-care/controllers/home-care-tracking.controller.spec.ts
+## src/modules/home-care/controllers/home-care-tracking.controller.ts
+20:@Controller('home-care/tracking')
+52:  @Post('verify-attendance/:bookingId')
+91:  @Post('submit-supplies-request')
+## src/modules/home-care/home-care.controller.spec.ts
+## src/modules/home-care/home-care.controller.ts
+12:@Controller('nursing')
+395:@Controller('home-care')
+82:  @Get('notes/:patientId')
+95:  @Public() @Get('catalog')
+117:  @Get('visits')
+124:  @Get('visits/:id')
+133:  @Get('visits/:id/tracking')
+336:  @Get('wallet')
+399:  @Get('bookings/:bookingId')
+54:  @Post('notes')
+101:  @Post('admin/catalog')
+175:  @Post('visits/:id/respond')
+202:  @Post('visits/:id/transit')
+220:  @Post('visits/:id/arrive')
+255:  @Post('visits/:id/start-care')
+271:  @Post('visits/:id/no-show')
+291:  @Post('visits/:id/emergency-abort')
+308:  @Post('visits/:id/complete')
+106:  @Put('admin/catalog/:id')
+111:  @Delete('admin/catalog/:id')
+## src/modules/nabd-extensions/nabd-extensions.controller.ts
+7:@Controller()
+24:  @Get('wallet/balance')
+69:  @Get('config/flags')
+85:  @Get('patients/timeline')
+90:  @Get('patients/passport')
+101:  @Get('medical/programs/active')
+126:  @Get('provider/rankings')
+132:  @Get('provider/fraud-alerts')
+147:  @Get('nursing/visit/checklist')
+158:  @Get('pharmacy/inventory/expiry')
+178:  @Get('admin/analytics/heatmaps')
+30:  @Post('wallet/credit')
+43:  @Post('wallet/debit')
+56:  @Post('referral/code')
+62:  @Post('referral/claim')
+95:  @Post('medical/programs/enroll')
+106:  @Post('medical/programs/complete-session')
+116:  @Post('provider/match/pharmacy')
+121:  @Post('provider/match/nurse')
+142:  @Post('nursing/attendance/verify')
+152:  @Post('pharmacy/broadcast/respond')
+163:  @Post('labs/samples/barcode-verify')
+169:  @Post('labs/results/verify')
+184:  @Post('admin/ads/bid')
+190:  @Post('corporate/enroll')
+16:  @Patch('notifications/:id/read')
+74:  @Put('admin/config/flags')
+## src/modules/orders/orders.controller.ts
+8:@Controller('orders')
+21:  @Get('mine')
+55:  @Get('pharmacy/queue')
+61:  @Get(':id')
+66:  @Get(':id/report.pdf')
+74:  @Get(':id/tracking')
+148:  @Get()
+154:  @Get('admin/escalated')
+177:  @Get('bids/request/:id')
+182:  @Get('bids/pharmacy/mine')
+14:  @Post('create')
+26:  @Post(':id/reorder')
+32:  @Post(':id/reorder-partial')
+38:  @Post(':id/cancel')
+45:  @Post(':id/approve-basket')
+49:  @Post(':id/reject-basket')
+92:  @Post(':id/accept')
+98:  @Post(':id/reject')
+104:  @Post(':id/preparing')
+110:  @Post(':id/ready')
+116:  @Post(':id/partial')
+123:  @Post(':id/assign-delivery')
+129:  @Post(':id/delivery/update')
+135:  @Post(':id/dispatch')
+141:  @Post(':id/delivered')
+160:  @Post(':id/admin/transition')
+166:  @Post('bids/place')
+172:  @Post('bids/:id/accept')
+79:  @Patch(':id/items/:itemId/opt-in-cash')
+86:  @Patch(':id/insurance-approval')
+## src/modules/payments/paymob.controller.ts
+9:@Controller('payments/paymob')
+14:  @Get('methods')
+19:  @Post('initiate')
+25:  @Post('verify')
+## src/modules/pharmacy/controllers/admin-procurement.controller.ts
+19:@Controller('admin/procurement')
+26:  @Get()
+32:  @Get('summary')
+38:  @Get(':id/export')
+47:  @Get(':id')
+70:  @Get(':id/quotation')
+59:  @Post(':id/quotation')
+53:  @Patch(':id/review')
+76:  @Patch(':id/cancel')
+82:  @Patch(':id/complete')
+## src/modules/pharmacy/controllers/procurement.controller.ts
+18:@Controller('pharmacy/procurement')
+53:  @Get('my-requests')
+29:  @Post('submit-request')
+61:  @Post(':id/feedback')
+75:  @Post('analyze-file')
+## src/modules/pharmacy/patient-pharmacy.controller.ts
+5:@Controller('patient/pharmacy')
+10:  @Get('shortage-flags/lookup')
+## src/modules/pharmacy/pharmacy.controllers.spec.ts
+## src/modules/pharmacy/pharmacy.controllers.ts
+18:@Controller('patient/pharmacy')
+34:@Controller('provider/pharmacy')
+99:@Controller('provider/inventory')
+112:@Controller('admin/pharmacy')
+141:@Controller('provider/pharmacy/broadcasts')
+152:@Controller('admin/pharmacy/broadcasts')
+162:@Controller('pharmacy/chat')
+174:@Controller('admin/pharmacy/chat')
+182:@Controller('provider/pharmacy/shortage-flags')
+190:@Controller('admin/pharmacy/shortage-flags')
+204:@Controller('patient/pharmacy/shortage-flags')
+24:  @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
+25:  @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
+43:  @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
+47:  @Get('allocations/:id') detail(@CurrentUser() u: any, @Param('id') id: string) {
+103:  @Get('search') search(@CurrentUser() u: any, @Query('q') q?: string, @Query('barcode') bc?: string) { return this.svc.search(u, q, bc); }
+105:  @Get('low-stock-alerts') alerts(@CurrentUser() u: any) { return this.svc.listLowStockAlerts(u); }
+145:  @Get() list(@CurrentUser() u: any) { return this.bc.listForPharmacy(u); }
+146:  @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.bc.detail(u, id); }
+166:  @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
+167:  @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
+187:  @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
+196:  @Get() list(@CurrentUser() u: any, @Query('status') st?: string) { return this.svc.list(u, st); }
+197:  @Get('dashboard') getDashboard(@CurrentUser() u: any) { return this.svc.getShortageDashboard(u); }
+209:  @Get('lookup') lookup(@Query('sku') sku?: string, @Query('generic_name') gn?: string) { return this.svc.lookupForPatient(sku, gn); }
+23:  @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
+27:  @Post('orders/:id/submit') submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
+28:  @Post('orders/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
+51:  @Post('allocations/:id/items/:itemId') itemAction(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string, @Body() b: any) {
+54:  @Post('allocations/:id/confirm') confirm(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.confirm(u, id); }
+55:  @Post('allocations/:id/preparing') preparing(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.preparing(u, id); }
+56:  @Post('allocations/:id/ready') ready(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.ready(u, id); }
+57:  @Post('allocations/:id/out-for-delivery') out(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.outForDelivery(u, id, b); }
+58:  @Post('allocations/:id/delivered') delivered(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.delivered(u, id); }
+59:  @Post('allocations/:id/insurance') updateInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.updateInsurance(u, id, b); }
+60:  @Post('allocations/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.cancel(u, id, b?.reason || ''); }
+65:  @Post('orders/:id/accept')
+70:  @Post('orders/:id/submit-basket')
+75:  @Post('orders/:id/insurance')
+80:  @Post('orders/:id/preparing')
+85:  @Post('orders/:id/ready')
+90:  @Post('orders/:id/dispatch')
+104:  @Post(':id/restock') restock(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.restock(u, id, Number(b?.qty) || 0); }
+106:  @Post('low-stock-alerts/:id/ack') ack(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acknowledgeAlert(u, id); }
+128:  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
+129:  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
+130:  @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
+135:  @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
+147:  @Post(':orderId/i-have-all') haveAll(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.claimHaveAll(u, oid, b); }
+148:  @Post(':orderId/i-have-partial') havePartial(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondPartial(u, oid, b); }
+149:  @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
+157:  @Post(':orderId/advance') advance(@Param('orderId') id: string) { return this.bc.advanceRound(id); }
+158:  @Post(':orderId/fallback-split') fallback(@Param('orderId') id: string) { return this.bc.fallbackSplit(id); }
+159:  @Post('expire-stale') expireStale() { return this.bc.expireStaleBroadcasts(); }
+168:  @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.chat.postMessage(u, id, b); }
+169:  @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
+170:  @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
+171:  @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
+179:  @Post('sweep-auto-close') sweep() { return this.chat.sweepAutoClose(); }
+186:  @Post() report(@CurrentUser() u: any, @Body() b: any) { return this.svc.reportByPharmacy(u, b); }
+195:  @Post() create(@CurrentUser() u: any, @Body() b: any) { return this.svc.createByAdmin(u, b); }
+198:  @Post(':id/mark') markShortage(@CurrentUser() u: any, @Param('id') medicineId: string, @Body() b: any) { return this.svc.adminMarkShortage(u, medicineId, b); }
+199:  @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approve(u, id); }
+200:  @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.reject(u, id, b?.reason); }
+201:  @Post(':id/resolve') resolve(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.resolve(u, id); }
+26:  @Patch('orders/:id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
+## src/modules/pharmacy_ops/pharmacy_ops.controller.ts
+7:@Controller('pharmacy')
+83:@Controller('provider/pharmacy')
+14:  @Get('prescriptions/:rxNumber') async byRxNumber(@CurrentUser() u: any, @Param('rxNumber') rx: string) {
+42:  @Get('orders/incoming') incoming(@CurrentUser() u: any) { return this.svc.incoming(u); }
+43:  @Get('orders/preparing') preparing(@CurrentUser() u: any) { return this.svc.preparing(u); }
+44:  @Get('orders/ready') ready(@CurrentUser() u: any) { return this.svc.ready(u); }
+45:  @Get('orders/completed') completed(@CurrentUser() u: any) { return this.svc.completed(u); }
+46:  @Get('orders/basket-review') basketReview(@CurrentUser() u: any) { return this.svc.basketReview(u); }
+47:  @Get('orders/awaiting-approval') awaitingApproval(@CurrentUser() u: any) { return this.svc.awaitingApproval(u); }
+48:  @Get('orders/refills') refills(@CurrentUser() u: any) { return this.svc.refillOrders(u); }
+58:  @Get('inventory') inventory(@CurrentUser() u: any) { return this.svc.getInventory(u); }
+63:  @Get('orders/:id') orderDetail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.orderDetail(u, id); }
+26:  @Post('reports/eod') async eod(@CurrentUser() u: any) {
+51:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+52:  @Post('orders/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { reason?: string }) { return this.ordersSvc.reject(id, u, b?.reason || ''); }
+53:  @Post('orders/:id/preparing') preparingAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markPreparing(id, u); }
+54:  @Post('orders/:id/ready') readyAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markReady(id, u); }
+55:  @Post('orders/:id/partial') partial(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { unavailable_medicine_ids: string[] }) { return this.ordersSvc.markPartial(id, u, b.unavailable_medicine_ids || []); }
+59:  @Post('inventory/stock') stock(@CurrentUser() u: any, @Body() b: { medicine_id: string; stock_qty: number; is_available?: boolean }) { return this.svc.updateStock(u, b.medicine_id, b.stock_qty, b.is_available !== false); }
+60:  @Post('inventory/add') addMed(@CurrentUser() u: any, @Body() b: any) { return this.svc.addMedicineToInventory(u, b); }
+64:  @Post('orders/:id/items/:idx/unavailable') itemUnavailable(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.markItemUnavailable(u, id, parseInt(idx, 10)); }
+65:  @Post('orders/:id/items/:idx/restore') itemRestore(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.restoreItem(u, id, parseInt(idx, 10)); }
+66:  @Post('orders/:id/items/:idx/qty') itemQty(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { qty: number }) { return this.svc.updateItemQty(u, id, parseInt(idx, 10), b.qty); }
+67:  @Post('orders/:id/items/:idx/substitute') itemSub(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { name_ar: string; name_en?: string; medicine_id?: string; qty?: number; price?: number; note?: string }) { return this.svc.substituteItem(u, id, parseInt(idx, 10), b); }
+70:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { note?: string }) { return this.svc.submitBasket(u, id, b?.note); }
+73:  @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: 'approved' | 'rejected' | 'pending'; reason?: string }) {
+88:  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+89:  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.submitBasket(u, id, b?.note); }
+90:  @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+93:  @Post('orders/:id/dispatch') dispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+## src/modules/support/support.controller.ts
+8:@Controller('support')
+14:  @Get('requests/mine') mine(@CurrentUser() u: any) { return this.svc.mine(u); }
+15:  @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(u, id); }
+19:  @Get('admin/requests') @Roles(UserRole.ADMIN) adminList(@Query('status') status?: string) { return this.svc.adminList(status); }
+23:  @Get('tickets')
+29:  @Get('faqs')
+39:  @Get('settings') get(@CurrentUser() u: any) { return this.svc.getSettings(u); }
+11:  @Post('requests') create(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+13:  @Post('tickets') createTicket(@CurrentUser() u: any, @Body() b: any) { return this.svc.create(u, b); }
+16:  @Post('requests/:id/reply') reply(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.reply(u, id, b.message); }
+34:  @Post('feedback')
+20:  @Patch('admin/requests/:id') @Roles(UserRole.ADMIN) adminUpdate(@Param('id') id: string, @Body() b: any) { return this.svc.adminUpdateStatus(id, b.status, b.assigned_to); }
+40:  @Patch('settings') update(@CurrentUser() u: any, @Body() b: any) { return this.svc.updateSettings(u, b); }
+## src/modules/wallet/wallet.controller.ts
+5:@Controller('wallet')
+10:  @Get('balance')
+17:  @Get('transactions')
+23:  @Get('spending-data')
+48:  @Get('topup/:id')
+61:  @Get('cards')
+34:  @Post('topup')
+42:  @Post('topup/confirm')
+53:  @Post('transfer')
+68:  @Post('cards')
+75:  @Delete('cards/:id')
