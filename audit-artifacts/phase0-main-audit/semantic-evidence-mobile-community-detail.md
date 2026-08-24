@@ -1,0 +1,9 @@
+# Semantic evidence — Mobile Community Post Detail
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/community/post-detail.tsx:42–62` reads `/community/posts/{postId}` and expects `res.post` plus `res.comments`. Invalid/missing IDs only stop loading, while API failures are logged and the screen proceeds (`:33–48,50–61`) with no visible error, retry, not-found, deleted, moderated or unauthorized state. Display title can fall back to the route-provided title, body to a generic “no content”, date to “الآن”, author to “طبيب معتمد”, and category to generic values (`:115–118,145–172`), so missing/unverified server facts can appear authoritative.
+
+Voting sends `PUT /community/posts/{postId}/vote` with `vote: up` (`:64–82`) and interprets one response action, but has no visible Idempotency-Key, initial vote-state hydration, concurrency/version handling, duplicate/replay semantics beyond backend toggle assumption, rate limit, or owner/moderation policy. Count is updated optimistically from local state and can drift after reload or concurrent voters. Comments send `POST /community/posts/{postId}/comment` with `is_anonymous:false` (`:84–95`), append the returned object without schema validation, idempotency, length/content/PHI moderation, rate-limit, retry, or user-visible sending state. There is no comment deletion/edit/report/block flow.
+
+Native sharing sends full rendered title and body through `Share.share` (`:174–186`) without privacy classification, redaction, consent confirmation, or share-target policy; health/community content may contain PHI or sensitive details. Share errors are swallowed. The comment list assumes `cmt.id` and renders body/date/upvotes directly (`:205–241`), with absent dates rendered “الآن” and missing counts as zero. No pagination, refresh, live update, or moderation status is present. No Phase 0 remediation was made.
