@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 4 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 76 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 88 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 86 | Confirmed source findings recorded to date. |
+| Total | 98 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-086 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-098 with direct file/line evidence and acceptance conditions. The latest expansion covers remaining Mobile Pharmacy, Community, Wallet, Offers, Map, Support and Settings surfaces. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -99,6 +99,18 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-084 | Mobile pharmacy barcode scanner | Camera/barcode/AI identification and product handoff controls are incomplete or unverified. |
 | F-085 | Mobile pharmacy product detail | Local cart/Rx/price controls and catalog suggestion lifecycle are incomplete or unverified. |
 | F-086 | Mobile drug-not-found flow | Manual shortage request/image upload and false-success lifecycle are incomplete or unverified. |
+| F-087 | Mobile pharmacy checkout/payment | Client prescription/price/local-total trust and incomplete quote/ownership/replay/reconciliation semantics remain. |
+| F-088 | Mobile pharmacy chat | Competing chat implementations and divergent thread/socket/false-action semantics remain. |
+| F-089 | Mobile pharmacy order lifecycle | Tracking/confirmation/waiting states simplify server truth and lack complete mutation/reconciliation semantics. |
+| F-090 | Mobile pharmacy catalog actions | Search/filter/compare/wishlist contain fallback/local behavior and an unimplemented cart action. |
+| F-091 | Mobile prescription evidence | Manual/RX/scan flows use unvalidated local/base64 evidence and zero-priced/client-copied lines. |
+| F-092 | Mobile wallet cards/transfer | Hard-coded test-card submission, local default selection and unguarded free-text transfer actions remain. |
+| F-093 | Mobile wallet topup/ledger | Amount, idempotency, ledger reconciliation, hosted return and duplicate-credit states remain unproven. |
+| F-094 | Mobile offers | Untyped pricing/expiry/provider handoff and absent purchase/redeem lifecycle remain. |
+| F-095 | Mobile map | Location fallback, derived ETA, client insurance comparison and provider-only booking handoff remain. |
+| F-096 | Mobile support/community | Synthetic/false conversational states, lost ticket context and missing moderation/PHI controls remain. |
+| F-097 | Mobile settings security/privacy/notifications | Optimistic defaults and silent failures can misstate consent/security/notification state. |
+| F-098 | Mobile settings data/support/legal/language | Nonfunctional data actions, feedback false-success, hard-coded claims and incomplete locale assurance remain. |
 | F-044 | Mobile family permissions | Sensitive delegation can fall back across authorization paths and report false success without step-up/audit proof. |
 | F-046 | Mobile family invite | Invite lifecycle and optional metadata are not proven to be bound to an owner-scoped contract. |
 | F-045 | Mobile family member health | PHI access failure is rendered as normal empty data; proxy booking/chat lack member consent context. |
@@ -128,6 +140,8 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-021 | Admin SLA and emergency kill-switch control plane | Backend role/audit/rollback proof; no hard-coded identity; re-auth/approval/replay protection; failure and rollback tests. |
 | F-023 | Provider Nursing route/payload drift and fabricated operational values | Exact method/path/body reconciliation; live 401/404/2xx checks; visible failure states; real selected booking context; provider/stranger/unauth/state tests. |
 | F-021 plus F-023 | Operational governance and PHI | Least privilege, audit events, PHI minimization, incident/rollback evidence and no silent fallback of safety-critical data. |
+| F-087, F-092, F-093 | Commerce and financial truthfulness | Client-authoritative or un-reconciled financial state, hard-coded payment data and missing replay/settlement evidence. |
+| F-096, F-097 | PHI and consent integrity | False support/social state, unsafe sharing and silently changed consent/security/notification preferences. |
 
 ## Verification gaps still open
 
@@ -139,4 +153,4 @@ A finding can be closed only with: (1) first-party code evidence at a fixed comm
 
 ## Current disposition
 
-`OPEN/PARTIAL — NO-GO`. This report is a traceability and risk register, not authorization to build or deploy. Remediation must begin only after Phase 0 review approval and after all `DECISION_REQUIRED` items in `NABD_DECISION_REQUIRED_2026-08-24.md` have owners and explicit decisions.
+`OPEN/PARTIAL — NO-GO`. This report is a traceability and risk register, not authorization to build or deploy. Remediation must begin only after Phase 0 review approval and after all `DECISION_REQUIRED` items in `NABD_DECISION_REQUIRED_2026-08-24.md` have owners and explicit decisions. The additional findings F-087–F-098 are source-confirmed and do not represent completed fixes.
