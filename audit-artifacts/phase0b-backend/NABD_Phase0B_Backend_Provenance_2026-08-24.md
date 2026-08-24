@@ -10,7 +10,7 @@ Source: `nabdah-backend.zip` materialized from the committed Phase 0A baseline a
 | Owned source/config members | 1149 |
 | Excluded members | 39 |
 | SHA-256 mismatches | 0 |
-| Semantic `fully_read=YES` | 3 |
-| Semantic `fully_read=NO` | 1185 |
+| Semantic `fully_read=YES` | 4 |
+| Semantic `fully_read=NO` | 1184 |
 
-Every member is represented in `NABD_Phase0B_Backend_Semantic_Read_Manifest_2026-08-24.tsv`. SHA-256 is checked against the Phase 0A member inventory. Three source members (`src/modules/auth/auth.controller.ts`, `src/modules/pharmacy/patient-pharmacy.controller.ts`, and `src/modules/wallet/wallet.controller.ts`) now have source-specific semantic evidence files; all other members remain explicitly un-read. This artifact does not claim semantic reading for them.
+Every member is represented in `NABD_Phase0B_Backend_Semantic_Read_Manifest_2026-08-24.tsv`. SHA-256 is checked against the Phase 0A member inventory. Four source members (`src/modules/auth/auth.controller.ts`, `src/modules/pharmacy/patient-pharmacy.controller.ts`, `src/modules/wallet/wallet.controller.ts`, and `src/modules/orders/orders.controller.ts`) now have source-specific semantic evidence files; all other members remain explicitly un-read. This artifact does not claim semantic reading for them.
