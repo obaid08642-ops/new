@@ -1,0 +1,390 @@
+audit-work/source/nabdah-backend/src/schemas/appointment.schema.ts:17:export const APPT_STATES = {
+audit-work/source/nabdah-backend/src/schemas/appointment.schema.ts:27:export type ApptState = typeof APPT_STATES[keyof typeof APPT_STATES];
+audit-work/source/nabdah-backend/src/schemas/appointment.schema.ts:71:  @Prop({ type: String, enum: Object.values(APPT_STATES), default: APPT_STATES.PENDING, index: true })
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:56:export enum LabBookingState {
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:72:  [LabBookingState.NEW_REQUEST]: [LabBookingState.PENDING_INSURANCE, LabBookingState.CONFIRMED, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:73:  [LabBookingState.PENDING_INSURANCE]: [LabBookingState.WAITING_COPAY, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:74:  [LabBookingState.WAITING_COPAY]: [LabBookingState.CONFIRMED, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:75:  [LabBookingState.CONFIRMED]: [LabBookingState.IN_TRANSIT, LabBookingState.SAMPLE_COLLECTED, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:76:  [LabBookingState.IN_TRANSIT]: [LabBookingState.IN_LAB, LabBookingState.SAMPLE_COLLECTED, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:77:  [LabBookingState.IN_LAB]: [LabBookingState.SAMPLE_COLLECTED, LabBookingState.PROCESSING, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:78:  [LabBookingState.SAMPLE_COLLECTED]: [LabBookingState.PROCESSING, LabBookingState.SAMPLE_REJECTED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:79:  [LabBookingState.PROCESSING]: [LabBookingState.RESULT_UPLOADED, LabBookingState.SAMPLE_REJECTED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:80:  [LabBookingState.RESULT_UPLOADED]: [LabBookingState.REPORTED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:81:  [LabBookingState.SAMPLE_REJECTED]: [LabBookingState.CONFIRMED, LabBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:82:  [LabBookingState.CANCELLED]: [],
+audit-work/source/nabdah-backend/src/schemas/lab.schema.ts:105:  @Prop({ default: LabBookingState.NEW_REQUEST, enum: Object.values(LabBookingState) }) state: LabBookingState;
+audit-work/source/nabdah-backend/src/schemas/home-care.schema.ts:7:export enum NursingBookingState {
+audit-work/source/nabdah-backend/src/schemas/home-care.schema.ts:22:export const HomeCareBookingState = NursingBookingState;
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:81:export enum RadiologyBookingState {
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:98:  [RadiologyBookingState.NEW_REQUEST]:       [RadiologyBookingState.PENDING_INSURANCE, RadiologyBookingState.CONFIRMED, RadiologyBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:99:  [RadiologyBookingState.PENDING_INSURANCE]: [RadiologyBookingState.WAITING_COPAY, RadiologyBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:100:  [RadiologyBookingState.WAITING_COPAY]:     [RadiologyBookingState.CONFIRMED, RadiologyBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:101:  [RadiologyBookingState.CONFIRMED]:         [RadiologyBookingState.ARRIVED_CHECKIN, RadiologyBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:102:  [RadiologyBookingState.ARRIVED_CHECKIN]:   [RadiologyBookingState.IN_SCANNING, RadiologyBookingState.SCAN_ABORTED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:103:  [RadiologyBookingState.IN_SCANNING]:       [RadiologyBookingState.REPORT_DRAFT, RadiologyBookingState.SCAN_ABORTED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:104:  [RadiologyBookingState.REPORT_DRAFT]:      [RadiologyBookingState.UNDER_REVIEW],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:105:  [RadiologyBookingState.UNDER_REVIEW]:      [RadiologyBookingState.REPORT_READY, RadiologyBookingState.REPORT_DRAFT],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:106:  [RadiologyBookingState.REPORT_READY]:      [],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:107:  [RadiologyBookingState.SCAN_ABORTED]:      [RadiologyBookingState.CONFIRMED, RadiologyBookingState.CANCELLED],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:108:  [RadiologyBookingState.CANCELLED]:         [],
+audit-work/source/nabdah-backend/src/schemas/radiology.schema.ts:132:  @Prop({ default: RadiologyBookingState.PENDING, enum: Object.values(RadiologyBookingState) }) state: RadiologyBookingState;
+audit-work/source/nabdah-backend/src/modules/articles/articles.module.ts:14:import { RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/articles/articles.module.ts:128:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/articles/articles.module.ts:140:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/notifications/notifications.service.ts:536:  async onLabBookingStateChanged(p: any) {
+audit-work/source/nabdah-backend/src/schemas/order.schema.ts:3:import { OrderState, OrderRejectionReason } from '../common/enums';
+audit-work/source/nabdah-backend/src/schemas/order.schema.ts:59:  @Prop({ type: String, enum: Object.values(OrderState), default: OrderState.NEW, index: true })
+audit-work/source/nabdah-backend/src/schemas/order.schema.ts:60:  state: OrderState;
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:3:import { RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:214:  @Post('items') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:216:  @Patch('items/:lineId') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:218:  @Delete('items/:lineId') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/cart/cart.module.ts:224:  @Post('checkout') @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:6:import { APPT_STATES, APPT_TRANSITIONS } from '../../../schemas/appointment.schema';
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:47:    expect(APPT_TRANSITIONS[APPT_STATES.PENDING]).toContain(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:48:    expect(APPT_TRANSITIONS[APPT_STATES.CONFIRMED]).toContain(APPT_STATES.CHECKED_IN);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:49:    expect(APPT_TRANSITIONS[APPT_STATES.CHECKED_IN]).toContain(APPT_STATES.IN_PROGRESS);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:50:    expect(APPT_TRANSITIONS[APPT_STATES.IN_PROGRESS]).toContain(APPT_STATES.COMPLETED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:51:    expect(APPT_TRANSITIONS[APPT_STATES.COMPLETED]).toEqual([]);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:52:    expect(APPT_TRANSITIONS[APPT_STATES.CANCELLED]).toEqual([]);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:56:    apptModel.findOne.mockResolvedValue(apptIn(APPT_STATES.PENDING));
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:57:    await expect(service.transition('appt-1', APPT_STATES.COMPLETED, { id: 'doc-user-1', role: 'doctor' })).rejects.toThrow(BadRequestException);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:62:    apptModel.findOne.mockResolvedValue(apptIn(APPT_STATES.COMPLETED));
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:63:    await expect(service.transition('appt-1', APPT_STATES.CANCELLED, { id: 'x', role: 'admin' })).rejects.toThrow(BadRequestException);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:67:    const appt = apptIn(APPT_STATES.PENDING);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:70:    expect(res.status).toBe(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:78:    const appt = apptIn(APPT_STATES.PENDING);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:81:    const res = await service.transition('appt-1', APPT_STATES.CONFIRMED, { id: 'system', role: 'system' }, 'auto-confirmed (cash)');
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:83:    expect(res.status).toBe(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:89:    const appt = apptIn(APPT_STATES.CHECKED_IN);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:92:    expect(res.status).toBe(APPT_STATES.IN_PROGRESS);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:97:    await expect(service.transition('nope', APPT_STATES.CONFIRMED, { id: 'x' })).rejects.toThrow(NotFoundException);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:102:      const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 48 * 3600000) });
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:112:      const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 5 * 3600000) });
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:120:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:127:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:136:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:142:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:145:      expect(res.status).toBe(APPT_STATES.CANCELLED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:157:      const appt = apptIn(APPT_STATES.CONFIRMED, { price: 200, total_price: 215 });
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:161:      expect(appt.status).toBe(APPT_STATES.RESCHEDULED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:162:      expect(res.status).toBe(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:169:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:175:      expect(appt.status).toBe(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:181:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/care/tests/appointments-states.spec.ts:193:      const appt = apptIn(APPT_STATES.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.service.ts:7:import { APPT_STATES } from '../../schemas/appointment.schema';
+audit-work/source/nabdah-backend/src/modules/livekit/livekit.service.ts:57:    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:5:import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:111:      status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:154:        status: APPT_STATES.PENDING,
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:167:          { state: APPT_STATES.PENDING, at: new Date(), by_user_id: user.id, by_role: user.role || UserRole.PATIENT, note: 'created' },
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:176:        await this.transition(appt.id, APPT_STATES.CONFIRMED, { id: 'system', role: 'system' }, `auto-confirmed (${pm})`);
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:265:        if (to === APPT_STATES.CONFIRMED) appt.confirmed_at = new Date();
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:266:        if (to === APPT_STATES.COMPLETED) appt.completed_at = new Date();
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:323:    return this.transition(id, APPT_STATES.CANCELLED, user, reason);
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:328:    return this.transition(id, APPT_STATES.CONFIRMED, user, 'doctor-confirmed');
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:332:    return this.transition(id, APPT_STATES.CHECKED_IN, user);
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:336:    return this.transition(id, APPT_STATES.IN_PROGRESS, user);
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:340:    return this.transition(id, APPT_STATES.COMPLETED, user);
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:358:    const done = await this.transition(id, APPT_STATES.COMPLETED, user);
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:379:    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:394:      status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:410:      status: APPT_STATES.CONFIRMED,
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:417:      state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:420:      appt.status = APPT_STATES.RESCHEDULED;
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:421:      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:460:    if (appt.status !== APPT_STATES.PENDING) {
+audit-work/source/nabdah-backend/src/modules/care/appointments.service.ts:467:    await this.transition(appt.id, APPT_STATES.CONFIRMED, { id: 'system', role: 'system' }, 'payment-confirmed');
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.service.ts:6:import { Appointment, AppointmentDocument, APPT_STATES } from '../../schemas/appointment.schema';
+audit-work/source/nabdah-backend/src/modules/prescriptions/prescriptions.service.ts:59:      status: APPT_STATES.IN_PROGRESS,
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:8:import { OrderState } from '../../common/enums';
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:11:import { LabBookingSchema, LabBooking, LabBookingState } from '../../schemas/lab.schema';
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:12:import { RadiologyBookingSchema, RadiologyBooking, RadiologyBookingState } from '../../schemas/radiology.schema';
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:55:    o.state_history.push({ from: o.state, to: OrderState.CANCELLED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: 'admin_force: ' + reason } as any);
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:56:    o.state = OrderState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:66:    o.state_history.push({ from: o.state, to: OrderState.DELIVERED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: reason } as any);
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:67:    o.state = OrderState.DELIVERED;
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:78:    o.state = OrderState.PHARMACY_RECEIVED;
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:79:    o.state_history.push({ from: before.state, to: OrderState.PHARMACY_RECEIVED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: 'reassigned: ' + reason } as any);
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:90:    b.state_history.push({ from: b.state, to: LabBookingState.CANCELLED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: reason });
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:91:    b.state = LabBookingState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:100:    b.state_history.push({ from: b.state, to: LabBookingState.REPORTED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: reason });
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:101:    b.state = LabBookingState.REPORTED;
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:122:    b.state_history.push({ from: b.state, to: RadiologyBookingState.CANCELLED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: reason });
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:123:    b.state = RadiologyBookingState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:132:    b.state_history.push({ from: b.state, to: RadiologyBookingState.REPORT_PUBLISHED, by_user_id: admin.id, by_role: 'admin', at: new Date(), note: reason });
+audit-work/source/nabdah-backend/src/modules/admin-authority/admin-authority.module.ts:133:    b.state = RadiologyBookingState.REPORT_PUBLISHED;
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts:3:import { LabBookingState } from '../../schemas/lab.schema';
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts:15:    bookings.findOne.mockResolvedValue({ id: 'b1', provider_account_id: 'lab-a', state: LabBookingState.RESULT_UPLOADED });
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts:21:    bookings.findOne.mockResolvedValue({ id: 'b1', provider_account_id: 'lab-a', state: LabBookingState.PROCESSING });
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts:27:    const booking: any = { id: 'b1', patient_id: 'p1', provider_account_id: 'lab-a', state: LabBookingState.RESULT_UPLOADED, state_history: [], reports: [], items: [], save: jest.fn() };
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts:31:    expect(engine.apply).toHaveBeenCalledWith(expect.objectContaining({ from_domain: LabBookingState.RESULT_UPLOADED, to_domain: LabBookingState.REPORTED }));
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.spec.ts:37:      id: 'booking-1', patient_id: 'patient-1', state: LabBookingState.REPORTED,
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts:11:import { HomeCareBooking, HomeCareBookingState, NursingVisitReport } from '../../schemas/home-care.schema';
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts:12:import { RadiologyBooking, RadiologyBookingState } from '../../schemas/radiology.schema';
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts:133:    booking.state = HomeCareBookingState.IN_PROGRESS;
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts:152:    booking.state = HomeCareBookingState.COMPLETED;
+audit-work/source/nabdah-backend/src/modules/provider/simulated-features.controller.ts:192:    booking.state = RadiologyBookingState.REPORT_PUBLISHED;
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.ts:7:import { LabBookingState } from '../../schemas/lab.schema';
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.ts:42:    if (b.state !== LabBookingState.RESULT_UPLOADED) throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.ts:54:      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.REPORTED,
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.ts:66:        (b.state_history as any).push({ from: b.state, to: LabBookingState.REPORTED, by_user_id: user.id, by_role: user.role, at: new Date() });
+audit-work/source/nabdah-backend/src/modules/labs/lab-results.service.ts:67:        (b as any).state = LabBookingState.REPORTED;
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:5:import { LabBookingState } from '../../schemas/lab.schema';
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:74:      const booking = { id: 'order1', patient_id: 'p1', provider_account_id: 'provider-account', state: LabBookingState.NEW_REQUEST, state_history: [], save: jest.fn(), toObject: jest.fn().mockReturnThis() };
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:76:      const result = await service.transition('order1', LabBookingState.CONFIRMED, {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:79:      expect(result.state).toBe(LabBookingState.CONFIRMED);
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:130:        state: LabBookingState.CONFIRMED,
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:145:      expect(mockWorkflowEngine.apply).toHaveBeenCalledWith(expect.objectContaining({ to_domain: LabBookingState.SAMPLE_COLLECTED }));
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:149:      mockLabBooking.findOne.mockResolvedValueOnce({ id: 'order1', patient_id: 'p1', provider_account_id: 'u1', state: LabBookingState.NEW_REQUEST, state_history: [] });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:177:      const booking = { id: 'order-a', patient_id: 'patient-a', provider_account_id: 'lab-a', state: LabBookingState.SAMPLE_COLLECTED, state_history: [], save: jest.fn() };
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:180:      expect(mockWorkflowEngine.apply).toHaveBeenCalledWith(expect.objectContaining({ to_domain: LabBookingState.PROCESSING }));
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.spec.ts:186:      mockLabBooking.findOne.mockResolvedValueOnce({ id: 'order-a', provider_account_id: 'lab-a', state: LabBookingState.SAMPLE_COLLECTED });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:4:import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:130:        state: { $nin: [LabBookingState.CANCELLED, LabBookingState.REPORTED] },
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:144:      state: { $nin: [LabBookingState.CANCELLED, LabBookingState.REPORTED] },
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:161:      state: LabBookingState.NEW_REQUEST,
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:162:      state_history: [{ from: '', to: LabBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:253:    if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) return b.toObject();
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:255:      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.CANCELLED,
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:258:        b.state_history.push({ from: b.state, to: LabBookingState.CANCELLED, by_user_id: user.id, by_role: user.role, at: new Date() });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:259:        b.state = LabBookingState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:269:  async transition(id: string, to: LabBookingState, user: any, note?: string) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:319:    const reportable = [LabBookingState.RESULT_UPLOADED, LabBookingState.REPORTED];
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:345:      if (b.state !== LabBookingState.REPORTED) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:346:        b.state_history.push({ from: b.state, to: LabBookingState.REPORTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'report_uploaded' });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:347:        b.state = LabBookingState.REPORTED;
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:353:    if (b.state === LabBookingState.REPORTED) return persist();
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:355:      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.REPORTED,
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:371:      q.state = { $nin: [LabBookingState.REPORTED, LabBookingState.CANCELLED] };
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:391:      if (b.state !== LabBookingState.SAMPLE_COLLECTED) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:392:        b.state_history.push({ from: b.state, to: LabBookingState.SAMPLE_COLLECTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'sample_registered' });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:393:        b.state = LabBookingState.SAMPLE_COLLECTED;
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:398:    if (b.state === LabBookingState.SAMPLE_COLLECTED) return persist();
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:399:    if (![LabBookingState.CONFIRMED, LabBookingState.IN_TRANSIT, LabBookingState.IN_LAB].includes(b.state)) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:403:      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.SAMPLE_COLLECTED,
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:422:    const targetBookingState = stage === 'analyzing' ? LabBookingState.PROCESSING
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:423:      : stage === 'result_ready' ? LabBookingState.RESULT_UPLOADED : null;
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:424:    if (stage === 'sent' && b.state !== LabBookingState.REPORTED) throw new BadRequestException('sample_cannot_be_sent_before_reported');
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:493:  async adminForceState(user: any, id: string, targetState: LabBookingState, note: string) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:555:    if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:560:    b.state_history.push({ from: b.state, to: LabBookingState.CANCELLED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Emergency declared: ${body.reason}` });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:561:    b.state = LabBookingState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:572:    if ([LabBookingState.CANCELLED, LabBookingState.REPORTED].includes(b.state)) {
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:577:    b.state_history.push({ from: b.state, to: LabBookingState.CONFIRMED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `reassigned: technician ${prevTech || 'none'} unassigned, returned to pool` });
+audit-work/source/nabdah-backend/src/modules/labs/labs.service.ts:578:    b.state = LabBookingState.CONFIRMED;
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.refill-delivery.spec.ts:2:import { OrderState } from '../../common/enums';
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.refill-delivery.spec.ts:8:      id: 'refill-order-1', patient_id: 'patient-1', pharmacy_id: 'pharmacy-1', state: OrderState.CREATED, state_history: [],
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.refill-delivery.spec.ts:28:    await service.transition('refill-order-1', OrderState.DELIVERED, { id: 'admin-1', role: 'admin' });
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:4:import { RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:5:import { OrderState, UserRole, DeliveryState } from '../../common/enums';
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:27:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:33:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:39:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:57:  pharmacyQueue(@CurrentUser('id') id: string, @Query('state') state: OrderState) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:138:    return this.svc.transition(id, OrderState.OUT_FOR_DELIVERY, user);
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:144:    return this.svc.transition(id, OrderState.DELIVERED, user);
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:150:  list(@Query('state') state: OrderState, @Query('search') search: string) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.controller.ts:162:  adminTransition(@Param('id') id: string, @CurrentUser() user: any, @Body() body: { to: OrderState; reason?: string }) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:12:import { OrderState, ORDER_TRANSITIONS, UserRole, DeliveryState } from '../../common/enums';
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:109:      state: OrderState.CREATED,
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:110:      state_history: [{ from: '', to: OrderState.CREATED, by_user_id: patient.id, by_role: patient.role, at: new Date() }],
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:201:        fresh.state = OrderState.ESCALATED_TO_ADMIN;
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:203:        fresh.state_history.push({ from: OrderState.CREATED, to: OrderState.ESCALATED_TO_ADMIN, by_user_id: 'system', by_role: 'system', reason: 'no-pharmacy-available', at: new Date() } as any);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:211:    await this.transition(order.id, OrderState.VALIDATED, patient);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:212:    await this.transition(order.id, OrderState.PHARMACY_RECEIVED, { id: 'system', role: 'system' });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:232:        state: splitResult.ok ? OrderState.PHARMACY_RECEIVED : OrderState.ESCALATED_TO_ADMIN,
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:233:        state_history: [{ from: '', to: OrderState.CREATED, by_user_id: patient.id, by_role: patient.role, at: new Date() }],
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:255:  async transition(orderId: string, to: OrderState, by: any, reason?: string) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:269:        if (to === OrderState.REJECTED) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:273:          order.state_history.push({ from: to, to: OrderState.ESCALATED_TO_ADMIN, by_user_id: 'system', by_role: 'system', reason: 'auto-escalate-on-reject', at: new Date() } as any);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:274:          order.state = OrderState.ESCALATED_TO_ADMIN;
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:277:        if (to === OrderState.READY_FOR_DISPATCH) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:282:        if (to === OrderState.ASSIGNED_TO_DELIVERY) this.events.emit(EVENTS.ORDER_ASSIGNED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:283:        if (to === OrderState.OUT_FOR_DELIVERY) this.events.emit(EVENTS.ORDER_OUT_FOR_DELIVERY, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:284:        if (to === OrderState.DELIVERED) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:294:        if (to === OrderState.CANCELLED) this.events.emit(EVENTS.ORDER_CANCELLED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:295:        if (to === OrderState.ACCEPTED) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:299:        if (to === OrderState.PREPARING) this.events.emit(EVENTS.ORDER_PREPARING, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:300:        if (to === OrderState.PARTIALLY_FULFILLED) this.events.emit(EVENTS.ORDER_PARTIAL, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:301:        if (to === OrderState.PHARMACY_RECEIVED) this.events.emit(EVENTS.ORDER_RECEIVED_BY_PHARMACY, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:337:  async listForPharmacy(pharmacy_id: string, state?: OrderState) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:342:  async listAll(state?: OrderState, search?: string) {
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:349:    return this.orderModel.find({ escalated: true, state: { $ne: OrderState.DELIVERED } }, { _id: 0, __v: 0 });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:353:  async accept(orderId: string, by: any) { return this.transition(orderId, OrderState.ACCEPTED, by); }
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:359:    await this.transition(orderId, OrderState.REJECTED, by, reason);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:369:        order.state = OrderState.CREATED;
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:370:        order.state_history.push({ from: OrderState.ESCALATED_TO_ADMIN, to: OrderState.CREATED, by_user_id: 'system', by_role: 'system', reason: 're-dispatch-after-rejection', at: new Date() } as any);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:372:        await this.transition(orderId, OrderState.PHARMACY_RECEIVED, { id: 'system', role: 'system' });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:377:  async markPreparing(orderId: string, by: any) { return this.transition(orderId, OrderState.PREPARING, by); }
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:378:  async markReady(orderId: string, by: any) { return this.transition(orderId, OrderState.READY_FOR_DISPATCH, by); }
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:387:    const result = await this.transition(orderId, OrderState.PARTIALLY_FULFILLED, by);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:485:    return this.transition(orderId, OrderState.CANCELLED, by, reason);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:563:    return this.transition(orderId, OrderState.ASSIGNED_TO_DELIVERY, by);
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:630:    o.state = OrderState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:677:      order.state = OrderState.ACCEPTED;
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:678:      order.state_history.push({ from: order.state, to: OrderState.ACCEPTED, by_user_id: user.id, by_role: user.role, at: new Date(), reason: 'bid_accepted' });
+audit-work/source/nabdah-backend/src/modules/orders/orders.service.ts:760:        await this.transition(id, status as OrderState, user);
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:4:import { RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:56:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/users/users.controller.ts:96:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.spec.ts:2:import { UnifiedBookingsService } from './unified-bookings.module';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.spec.ts:8:describe('UnifiedBookingsService access contract', () => {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.spec.ts:10:    const service: any = Object.create(UnifiedBookingsService.prototype);
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.service.ts:6:export class UnifiedBookingsService {
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:6:import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:37:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:43:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:46:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:50:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:53:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:59:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:62:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:73:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:78:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/health/health.controller.ts:82:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:3:import { UnifiedBookingsController, UnifiedBookingsService } from './unified-bookings.module';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:13:  const service: any = Object.create(UnifiedBookingsService.prototype);
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:31:describe('UnifiedBookingsService patient-web contract bridge', () => {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:35:    await expect(service.createConsultationContract(USER, {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:56:    await expect(service.createConsultationContract(USER, {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:67:    await expect(service.createConsultationContract(USER, {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:77:    await expect(service.createConsultationContract(USER, {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:95:    expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, UnifiedBookingsController.prototype.create)).toBe(true);
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:96:    expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, UnifiedBookingsController.prototype.cancelRoot)).toBe(true);
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.contract.spec.ts:97:    expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, UnifiedBookingsController.prototype.rescheduleRoot)).toBe(true);
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:8:import { OrderState, DeliveryState, UserRole } from '../../common/enums';
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:88:      { state: OrderState.READY_FOR_DISPATCH, delivery_id: { $exists: false } },
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:108:    if (order.state !== OrderState.READY_FOR_DISPATCH) throw new BadRequestException('Order not ready for dispatch');
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:115:    order.state = OrderState.ASSIGNED_TO_DELIVERY;
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:116:    order.state_history.push({ from: OrderState.READY_FOR_DISPATCH, to: OrderState.ASSIGNED_TO_DELIVERY, by_user_id: driver.id, by_role: 'delivery', at: new Date() } as any);
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:129:    order.state = OrderState.OUT_FOR_DELIVERY;
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:130:    order.state_history.push({ from: OrderState.ASSIGNED_TO_DELIVERY, to: OrderState.OUT_FOR_DELIVERY, by_user_id: driver.id, by_role: 'delivery', at: new Date() } as any);
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:146:    order.state = OrderState.DELIVERED;
+audit-work/source/nabdah-backend/src/modules/drivers/drivers.service.ts:147:    order.state_history.push({ from: OrderState.OUT_FOR_DELIVERY, to: OrderState.DELIVERED, by_user_id: driver.id, by_role: 'delivery', at: new Date() } as any);
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:5:import { RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:7:import { LabBooking, LabBookingSchema, LabBookingState } from '../../schemas/lab.schema';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:8:import { RadiologyBooking, RadiologyBookingSchema, RadiologyBookingState } from '../../schemas/radiology.schema';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:9:import { HomeCareBooking, HomeCareBookingSchema, HomeCareBookingState } from '../../schemas/home-care.schema';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:10:import { Appointment, AppointmentSchema, APPT_STATES } from '../../schemas/appointment.schema';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:11:import { OrderState, ServiceState, ServiceDomain } from '../../common/enums';
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:33:export class UnifiedBookingsService {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:136:      if (![LabBookingState.NEW_REQUEST, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:144:      if (![RadiologyBookingState.PENDING, RadiologyBookingState.CONFIRMED, RadiologyBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:152:      if ([HomeCareBookingState.COMPLETED, HomeCareBookingState.CANCELLED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:188:  async createConsultationContract(user: any, body: {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:283:      kind: 'nursing', entity_id: booking.id, from_domain: booking.state, to_domain: HomeCareBookingState.PROVIDER_ASSIGNED,
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:288:          b.state = HomeCareBookingState.PROVIDER_ASSIGNED;
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:290:          b.state_history.push({ from: booking.state, to: HomeCareBookingState.PROVIDER_ASSIGNED, by_user_id: 'system', at: new Date() });
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:304:  async checkoutFromCart(user: any, body: { provider_account_id?: string; address?: any; scheduled_at?: string; insurance?: any; location_type?: 'home' | 'facility'; delivery_address?: any }) {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:401:export class UnifiedBookingsController {
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:402:  constructor(private svc: UnifiedBookingsService) {}
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:406:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:407:  create(@CurrentUser() u: any, @Body() b: any) { return this.svc.createConsultationContract(u, b); }
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:409:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:412:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:418:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:421:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:425:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:428:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:429:  checkout(@CurrentUser() u: any, @Body() b: any) { return this.svc.checkoutFromCart(u, b); }
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:459:  controllers: [UnifiedBookingsController],
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:460:  providers: [UnifiedBookingsService],
+audit-work/source/nabdah-backend/src/modules/unified-bookings/unified-bookings.module.ts:462:export class UnifiedBookingsModule {}
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:15:export enum PharmacyOrderState {
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:71:export const ORDER_TRANSITIONS: Record<PharmacyOrderState, PharmacyOrderState[]> = {
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:72:  [PharmacyOrderState.DRAFT]: [PharmacyOrderState.INTAKE_PROCESSING, PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.BROADCASTING, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:73:  [PharmacyOrderState.INTAKE_PROCESSING]: [PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.BROADCASTING, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:74:  [PharmacyOrderState.READY_FOR_SPLIT]: [PharmacyOrderState.BROADCASTING, PharmacyOrderState.ALLOCATING, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:75:  [PharmacyOrderState.BROADCASTING]: [PharmacyOrderState.AWAITING_FULL_ACCEPTANCE, PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.ALLOCATING, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:76:  [PharmacyOrderState.AWAITING_FULL_ACCEPTANCE]: [PharmacyOrderState.BROADCASTING, PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.ALLOCATING, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:77:  [PharmacyOrderState.NEGOTIATING_SUBSTITUTES]: [PharmacyOrderState.ALLOCATING, PharmacyOrderState.PARTIALLY_ALLOCATED, PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:78:  [PharmacyOrderState.ALLOCATING]: [PharmacyOrderState.PARTIALLY_ALLOCATED, PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:79:  [PharmacyOrderState.PARTIALLY_ALLOCATED]: [PharmacyOrderState.FULLY_ALLOCATED, PharmacyOrderState.NEGOTIATING_SUBSTITUTES, PharmacyOrderState.CONFIRMED, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:80:  [PharmacyOrderState.FULLY_ALLOCATED]: [PharmacyOrderState.CONFIRMED, PharmacyOrderState.MANUAL_REVIEW, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:81:  [PharmacyOrderState.MANUAL_REVIEW]: [PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.BROADCASTING, PharmacyOrderState.CANCELLED, PharmacyOrderState.CONFIRMED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:82:  [PharmacyOrderState.CONFIRMED]: [PharmacyOrderState.IN_FULFILLMENT, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:83:  [PharmacyOrderState.IN_FULFILLMENT]: [PharmacyOrderState.OUT_FOR_DELIVERY, PharmacyOrderState.DELIVERED, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:84:  [PharmacyOrderState.OUT_FOR_DELIVERY]: [PharmacyOrderState.DELIVERED, PharmacyOrderState.CANCELLED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:85:  [PharmacyOrderState.DELIVERED]: [PharmacyOrderState.COMPLETED],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:86:  [PharmacyOrderState.COMPLETED]: [],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:87:  [PharmacyOrderState.CANCELLED]: [],
+audit-work/source/nabdah-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts:108:  @Prop({ required: true, default: PharmacyOrderState.DRAFT, enum: Object.values(PharmacyOrderState), index: true }) status: PharmacyOrderState;
+audit-work/source/nabdah-backend/src/modules/chat/chat.module.ts:14:import { RequireIdempotency } from '../../common/idempotency.interceptor';
+audit-work/source/nabdah-backend/src/modules/chat/chat.module.ts:174:  @RequireIdempotency()
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.service.ts:3:import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.service.ts:139:    await this.transition(bookingId, HomeCareBookingState.IN_PROGRESS, user, 'check_in');
+audit-work/source/nabdah-backend/src/modules/home-care/home-care.service.ts:169:    await this.transition(report.booking_id, HomeCareBookingState.COMPLETED, user, 'visit_completed');
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:4:import { PharmacyOrder, PharmacyOrderState, PharmacyAllocation, PharmacyAllocationState, ALLOCATION_TRANSITIONS, AllocationItemAction } from '../schemas/pharmacy.schema';
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:251:    let nextStatus: PharmacyOrderState | null = null;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:253:    if (allDelivered && order.status !== PharmacyOrderState.DELIVERED && order.status !== PharmacyOrderState.COMPLETED) { nextStatus = PharmacyOrderState.DELIVERED; event = 'all_allocations_delivered'; }
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:254:    else if (anyOut && order.status !== PharmacyOrderState.OUT_FOR_DELIVERY) { nextStatus = PharmacyOrderState.OUT_FOR_DELIVERY; event = 'first_out_for_delivery'; }
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:255:    else if (anyPreparing && order.status !== PharmacyOrderState.IN_FULFILLMENT) { nextStatus = PharmacyOrderState.IN_FULFILLMENT; event = 'fulfillment_started'; }
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:256:    else if (allConfirmed && order.status === PharmacyOrderState.FULLY_ALLOCATED) { nextStatus = PharmacyOrderState.CONFIRMED; event = 'all_allocations_confirmed'; }
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts:264:        if (nextStatus === PharmacyOrderState.DELIVERED) {
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts:9:import { PharmacyChatThread, PharmacyChatMessage, PharmacyOrder, PharmacyOrderState, PharmacyAllocation, AllocationItemAction } from '../schemas/pharmacy.schema';
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts:161:    const completedOrders = await this.orders.find({ status: { $in: [PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED, PharmacyOrderState.CANCELLED] }, updatedAt: { $lt: cutoff } }, { id: 1 }).lean();
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:4:import { PharmacyOrder, PharmacyOrderState, ORDER_TRANSITIONS, OrderItemMatchStatus, PharmacyAllocation } from '../schemas/pharmacy.schema';
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:46:      status: PharmacyOrderState.DRAFT,
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:91:    if (order.status !== PharmacyOrderState.DRAFT) throw new BadRequestException(`not_editable_in_${order.status}`);
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:118:    if (!ORDER_TRANSITIONS[order.status].includes(PharmacyOrderState.READY_FOR_SPLIT) && order.status !== PharmacyOrderState.READY_FOR_SPLIT) {
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:120:      if (order.status !== PharmacyOrderState.DRAFT) {
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:125:      kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.READY_FOR_SPLIT,
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:128:        order.status = PharmacyOrderState.READY_FOR_SPLIT;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:144:    if ([PharmacyOrderState.DELIVERED, PharmacyOrderState.COMPLETED, PharmacyOrderState.CANCELLED].includes(order.status)) {
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:148:      kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.CANCELLED,
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-order.service.ts:151:        order.status = PharmacyOrderState.CANCELLED;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-seed.service.ts:5:import { PharmacyOrder, PharmacyOrderState, OrderItemMatchStatus } from '../schemas/pharmacy.schema';
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-seed.service.ts:119:      status: PharmacyOrderState.DRAFT,
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:11:  PharmacyOrder, PharmacyOrderState,
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:97:    order.status = PharmacyOrderState.BROADCASTING;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:198:    order.status = PharmacyOrderState.FULLY_ALLOCATED;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:248:    if (order && order.status === PharmacyOrderState.BROADCASTING) {
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:249:      order.status = PharmacyOrderState.AWAITING_FULL_ACCEPTANCE;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:409:    order.status = PharmacyOrderState.NEGOTIATING_SUBSTITUTES;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts:448:    order.status = PharmacyOrderState.ALLOCATING;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:14:import { PharmacyAllocation, PharmacyAllocationState, AllocationItemAction, PharmacyOrder, PharmacyOrderState, OrderItemMatchStatus } from '../schemas/pharmacy.schema';
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:52:    if (![PharmacyOrderState.READY_FOR_SPLIT, PharmacyOrderState.ALLOCATING, PharmacyOrderState.PARTIALLY_ALLOCATED].includes(order.status)) {
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:58:    order.status = PharmacyOrderState.ALLOCATING;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:153:      order.status = PharmacyOrderState.FULLY_ALLOCATED;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:155:      order.status = PharmacyOrderState.PARTIALLY_ALLOCATED;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:157:      order.status = PharmacyOrderState.MANUAL_REVIEW;
+audit-work/source/nabdah-backend/src/modules/pharmacy/services/smart-split.service.ts:160:      order.status = PharmacyOrderState.MANUAL_REVIEW;
+audit-work/source/nabdah-backend/src/modules/radiology/schemas/radiology-booking.schema.ts:40:    // Center vocabulary + full ops vocabulary (RadiologyBookingState) — the two
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:4:import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:39:  async transition(id: string, targetState: RadiologyBookingState, user: any, note?: string) {
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:47:    const allowed = RADIOLOGY_BOOKING_TRANSITIONS[current as RadiologyBookingState] ?? [];
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:67:    if (b.state !== RadiologyBookingState.CONFIRMED) throw new BadRequestException('Booking must be CONFIRMED to check-in');
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:68:    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.ARRIVED_CHECKIN, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Patient checked-in at reception' });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:69:    b.state = RadiologyBookingState.ARRIVED_CHECKIN;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:72:    this.events.emit('radiology.state_changed', { bookingId: id, state: RadiologyBookingState.ARRIVED_CHECKIN, patientId: b.patient_id });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:82:    if (b.state !== RadiologyBookingState.ARRIVED_CHECKIN) throw new BadRequestException('Patient must check-in first');
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:83:    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.IN_SCANNING, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Scan started — patient called into scanning room' });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:84:    b.state = RadiologyBookingState.IN_SCANNING;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:87:    this.events.emit('radiology.state_changed', { bookingId: id, state: RadiologyBookingState.IN_SCANNING, patientId: b.patient_id });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:103:    const abortable = [RadiologyBookingState.ARRIVED_CHECKIN, RadiologyBookingState.IN_SCANNING];
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:104:    if (!abortable.includes(b.state as RadiologyBookingState)) {
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:108:    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.SCAN_ABORTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `EMERGENCY ABORT: ${reason}` });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:109:    b.state = RadiologyBookingState.SCAN_ABORTED;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:138:    (b.state_history = b.state_history || []).push({ from: b.state || b.status, to: RadiologyBookingState.REPORT_DRAFT, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report files uploaded by technician' });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:139:    b.state = RadiologyBookingState.REPORT_DRAFT;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:140:    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_DRAFT as any;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:152:    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.UNDER_REVIEW, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Submitted for radiologist quality review' });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:153:    b.state = RadiologyBookingState.UNDER_REVIEW;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:154:    if (b.status !== undefined) b.status = RadiologyBookingState.UNDER_REVIEW as any;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:165:    if ((b.state || b.status) !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:169:    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:170:    b.state = RadiologyBookingState.REPORT_READY;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:171:    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:181:    this.events.emit('radiology.state_changed', { bookingId: id, state: RadiologyBookingState.REPORT_READY, patientId: b.patient_id });
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:198:    const insurancePhase = [RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.PENDING_INSURANCE, RadiologyBookingState.WAITING_COPAY];
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:199:    if (!insurancePhase.includes(b.state as RadiologyBookingState)) {
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:205:    const nextState = body.copay > 0 ? RadiologyBookingState.WAITING_COPAY : RadiologyBookingState.CONFIRMED;
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:321:        state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:329:      state: RadiologyBookingState.NEW_REQUEST,
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:346:    return this.transition(id, RadiologyBookingState.CANCELLED, user, 'Cancelled by user');
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:394:      this.bkgModel.find({ patient_id: { $in: ids }, state: RadiologyBookingState.REPORT_READY }, { _id: 0, __v: 0 }).lean(),
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:395:      this.centerBkgModel.find({ patient_id: { $in: ids }, status: RadiologyBookingState.REPORT_READY }, { _id: 0, __v: 0 }).lean(),
+audit-work/source/nabdah-backend/src/modules/radiology/radiology.service.ts:420:  async adminForceState(user: any, id: string, targetState: RadiologyBookingState, note: string) {
