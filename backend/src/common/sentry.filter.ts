@@ -1,6 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
 import * as Sentry from '@sentry/node';
+import { normalizeContractError } from './contract-error-normalizer';
 
 @Catch()
 export class SentryExceptionFilter extends BaseExceptionFilter {
@@ -26,8 +27,13 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
     // Report only server-side errors (500+) to keep Sentry clean of validation/auth (4xx) noise
     if (status >= 500) {
       Sentry.captureException(exception);
+      const normalized = normalizeContractError(exception);
+      // Never return raw 5xx messages: they may contain provider, database, or stack details.
+      ctx.getResponse().status(normalized.status).json(normalized.payload);
+      return;
     }
 
+    // Preserve existing 4xx response shapes until each public contract is explicitly migrated.
     super.catch(exception, host);
   }
 }
