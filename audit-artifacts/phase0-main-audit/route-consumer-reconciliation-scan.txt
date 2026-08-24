@@ -1,0 +1,861 @@
+# Route consumer reconciliation scan
+Baseline: 22526bedb77a3d8148219036367e4714f401aecc
+
+## Provider client calls
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:177:        const res = await client.get(`/provider/ops/ambulance/${mission.id}/eta`, {
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:194:        await client.post(`/emergency/${mission.id}/track`, { lat: pos.coords.latitude, lng: pos.coords.longitude });
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:264:      await client.post(`/provider/ops/ambulance/${mission.id}/handover`, { hospital_name: hospital.trim(), notes: notes.trim() });
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:316:      await client.post(`/provider/ops/ambulance/${mission.id}/complete`, {
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:370:    client.get('/provider/ops/wallet/ledger?limit=50')
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:403:    client.get(`/emergency/driver/missions`).then((res: any) => {
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:42:      const res = await client.get('/emergency/driver/missions');
+audit-work/source/NabdProvider-provider/src/screens/ambulance/AmbulanceDashboard.tsx:63:      await client.post(`/emergency/${id}/claim`, {});
+audit-work/source/NabdProvider-provider/src/screens/auth/PendingDashboard.tsx:34:      await client.post('/auth/send-otp', { identifier: user.email });
+audit-work/source/NabdProvider-provider/src/screens/auth/PendingDashboard.tsx:47:      await client.post('/auth/verify-otp', { identifier: user.email, code: otp });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1211:     await client.post(`/provider/requests/${apt?.id || 'new'}/sick-leave`, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1325:  await client.post('/provider/features/referrals', {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1439:      await client.post(endpoint, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1838:        const res = await client.get('/provider/wallet');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1840:        const txRes = await client.get('/provider/wallet/transactions');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1920:        const res = await client.get('/chats/provider');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:192:	const resIncoming = await client.get('/provider/jobs/queue?status=incoming&kind=consultation');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1938:      const res = await client.get(`/chats/${chat.id}/messages`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:1952:      await client.post(`/chats/${activeChat.id}/messages`, { text: sentText });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:202: const resToday = await client.get('/provider/jobs/queue?status=active');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2109:      await client.post('/provider/settings/delta', {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:210: const resStats = await client.get('/provider/stats/today');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:225:	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/accept`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2333: await client.post(`/provider/jobs/consultation/${apt.id}/insurance`, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:235:	await client.post(`/provider/jobs/${req.kind || 'consultation'}/${req.id}/reject`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2443:     await client.post(`/provider/requests/${apt.id}/medical-report`, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2469:    client.get('/provider/notifications').then(res => {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2485:    client.get('/provider/directory')
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:248:     await client.post(`/provider/jobs/consultation/${insuranceModalReq.id}/insurance`, {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2896: const res = await client.get('/provider/capabilities/doctor-sessions');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2944: await client.post('/provider/capabilities/doctor-sessions', payload);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2972: await client.post('/provider/capabilities/doctor-sessions', payload);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:2987: await client.delete(`/provider/capabilities/doctor-sessions/${id}`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:3012: await client.post('/provider/capabilities/doctor-sessions', payload);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:3365:      await client.post('/provider/settings/delta', { newData: { weeklySchedule, exceptions, insurances } });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:3663: const res = await client.get('/provider/profile');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:3682: await client.patch('/provider/profile', {
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:4177:      await client.post('/provider/chat/send', { appointment_id: apt?.id, message: msg });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:447: client.get('/provider/jobs/queue?status=active&kind=consultation')
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:656:      await client.post('/provider/consultation/end', payload);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:890:   client.get('/medicines')
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorDashboard.tsx:935:  await client.post('/prescriptions/create', payload);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:134:      const res = await client.get('/provider/ops/doctor/templates');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:148:      await client.post('/provider/ops/doctor/templates', { name: name.trim(), items: parsed });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:159:      await client.delete(`/provider/ops/doctor/templates/${id}`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:218:      const res = await client.get('/provider/ops/doctor/diagnoses', { params: q ? { search: q } : {} });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:228:      await client.post('/provider/ops/doctor/diagnoses', { name_ar: nameAr.trim(), name_en: nameEn.trim() || undefined, icd: icd.trim() || undefined });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:281:      const res = await client.get('/provider/ops/doctor/blacklist');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:289:      await client.delete(`/provider/ops/doctor/blacklist/${patientId}`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:41:      const res = await client.get('/provider/ops/doctor/leave');
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:51:      await client.post('/provider/ops/doctor/leave', { start_date: start, end_date: end, type, note: note || undefined });
+audit-work/source/NabdProvider-provider/src/screens/doctor/DoctorOpsScreens.tsx:62:      await client.delete(`/provider/ops/doctor/leave/${id}`);
+audit-work/source/NabdProvider-provider/src/screens/doctor/FacilityInvitationsScreen.tsx:35:      const res = await client.get('/hospital/invitations/inbox');
+audit-work/source/NabdProvider-provider/src/screens/doctor/FacilityInvitationsScreen.tsx:57:      await client.post(`/hospital/invitations/${id}/respond`, { accept });
+audit-work/source/NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:25:    client.get('/facility/beds/admissions')
+audit-work/source/NabdProvider-provider/src/screens/facility/DischargeSummaryScreen.tsx:45:      await client.put(`/facility/beds/discharge/${selected.id}`, {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx:21:      const res = await client.get('/facility/announcements');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAnnouncementsScreen.tsx:32:      await client.post('/facility/announcements', { text: message.trim() });
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityAuditLogScreen.tsx:16:    client.get('/provider/facility/audit-logs')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1017: useEffect(() => { client.get('/provider/facility/shifts').then(r => setShifts(r.data || [])).catch(() => {}); }, []);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1062:     await client.post(`/facility/shifts/${needingSub.id}/substitute`, {});
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1133: const res = await client.get(`/facility/beds/wards/${ward.id}/beds`);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1147: const res = await client.post('/facility/beds/admission', {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1175: await client.put(`/facility/beds/discharge/${admissionId}`);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1192: await client.post('/facility/beds/wards', {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1341: useEffect(() => { client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {}); }, []);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:140:        client.get('/facility/beds/wards'),
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:141:        client.get('/facility/surgeries/schedule')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1440: await client.patch(`/care/appointments/${encodeURIComponent(apptId)}/check-in`);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1472:   client.get('/provider/facility/patients/active')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1593:   client.get('/insurance/requests/provider/queue')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:160:    client.get('/hospital/branches').then(r => {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1691:   client.get('/provider/ops/wallet/ledger')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1842:   client.get('/facility/shifts/attendance')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:1955: await client.post('/facility/surgeries/book', {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2072:   client.get('/hospital/staff')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2170:   await client.post('/provider/settings/delta', { 
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2187:      await client.post('/provider/settings/delta', { newData });
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2335: const resBookings = await client.get('/home-care/bookings/nursing/all');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2338: const resNurses = await client.get('/home-care/providers?availability=now');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2355: await client.post(`/home-care/bookings/${selectedBooking.id}/assign`, {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2450:      await client.post(`/provider/jobs/${kind}/${order.id}/${action}`);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:263:   client.get('/provider/jobs/queue?status=active&kind=appointment&today=true').then(r => setTodayApts(r.data || [])).catch(() => {});
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:264:   client.get('/hospital/staff').then(r => setSubaccounts(r.data || [])).catch(() => {});
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:265:   client.get('/provider/stats/today').then(r => setTodayStats(r.data || null)).catch(() => {});
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:272: client.get('/provider/jobs/queue?status=active&kind=appointment&today=true'),
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:273: client.get('/hospital/staff'),
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:274: client.get('/provider/stats/today'),
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:555: const res = await client.get('/hospital/staff');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:579:     await client.delete(`/hospital/staff/${showDelete}`);
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:759: const response = await client.post('/hospital/staff', {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:77:    client.get('/facility/inbox').then(res => setOrders(res.data || []));
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:939:   client.get('/hospital/staff')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx:22:    client.get('/chat/threads')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx:37:      client.get(`/chat/threads/${activeChat}/messages`)
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInternalChatScreen.tsx:55:      await client.post(`/chat/threads/${activeChat}/messages`, { body: inputText, type: 'text' });
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityInvitationScreen.tsx:53:      await client.post('/hospital/invitations', {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityLeaveRequestsScreen.tsx:33:      const res = await client.get('/provider/leave-requests');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityLeaveRequestsScreen.tsx:44:      await client.post('/provider/leave-requests/action', { id, action });
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityPatientTrackerScreen.tsx:16:    client.get('/provider/facility/patients/active')
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityProfileConfigScreen.tsx:26:        const res = await client.get('/provider/profile');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityProfileConfigScreen.tsx:43:      await client.patch('/provider/profile', {
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx:33:      const res = await client.get('/facility/resources');
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx:47:      await client.post('/facility/resources', { name_ar: nameAr.trim(), name_en: nameEn.trim(), type: addType });
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityResourcesScreen.tsx:60:      await client.put(`/facility/resources/${res.id}`, { status: next });
+audit-work/source/NabdProvider-provider/src/screens/facility/FacilityUnifiedCalendarScreen.tsx:16:    client.get('/provider/facility/calendar')
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1009:    await client.post('/approval-workflow/requests', {
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1045:          await client.post(`/labs/bookings/${order.id}/gps`, { eta, distance });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1081:              await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_LAB', note: 'ARRIVED at location' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1091:              await client.patch(`/labs/bookings/${order?.id}/state`, { state: 'IN_TRANSIT' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1102:            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'PATIENT_ABSENT' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1107:            await client.post(`/labs/bookings/${order?.id}/emergency`, { reason: 'WRONG_LOCATION' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1112:            await client.post(`/labs/bookings/${order?.id}/reassign`);
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1140:                    await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: col.id });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1242: const res = await client.get('/labs/provider/inbox');
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1256: await client.patch(`/labs/bookings/${selectedOrder.id}/insurance`, {
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1508:      const res = await client.get('/provider/capabilities/lab-services');
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1520:      await client.post('/approval-workflow/requests', {
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:1541:      await client.post('/approval-workflow/requests', {
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:224: const inboxRes = await client.get('/labs/provider/inbox');
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:241: const resSamples = await client.get('/labs/samples');
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:373:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'SAMPLE_REJECTED' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:383:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'WAITING_COPAY', note: `nphies_code: ${nphiesCode}, copay: ${copay}` });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:397:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'CONFIRMED' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:410:      await client.post(`/labs/bookings/${order.id}/assign-technician`, { technician_id: techName });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:425:      await client.patch(`/labs/bookings/${order.id}/reschedule`, { new_date: rescheduleDate, reason: 'Provider Reschedule' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:440:      await client.patch(`/labs/bookings/${order.id}/state`, { state: 'PROCESSING', note: `Barcode: ${barcode}. ${notes}` });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:56:    client.get('/labs/provider/inbox')
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:614: const res = await client.get('/labs/samples');
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:629: await client.patch(`/labs/samples/${sam.id}/stage`, { stage: 'analyzing' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:741:   await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { file: 'lab_report_signature.pdf' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:826:            await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'result_uploaded', approved_by_supervisor: true });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:849:              await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sample_rejected', reason: rejectReason });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:882: await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { results: RESULTS, send_to: sendTo });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:883: await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
+audit-work/source/NabdProvider-provider/src/screens/lab/LabDashboard.tsx:943: useEffect(() => { client.get('/labs/packages').then(r => setBundlesList(r.data || [])).catch(() => {}); }, []);
+audit-work/source/NabdProvider-provider/src/screens/lab/LabQcActions.tsx:27:      await client.post(`/provider/ops/lab/bookings/${booking.id}/qc/${action}`, body);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1031: client.get('/provider/wallet'),
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1032: client.get('/provider/wallet/transactions'),
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1047: await client.post('/provider/payouts/request', { amount });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1119:      await client.post('/provider/settings/delta', { newData });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1216:   await client.post('/provider/settings/delta', { newData: { services, includeKit, kitPrice } });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1308:   await client.post('/provider/settings/delta', { 
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1402:   await client.post('/nursing/coverage/verify-gps', { radius });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:143:               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: true });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1471:      await client.post('/provider/settings/delta', { newData: { radius } });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1514: const res = await client.get('/provider/profile');
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1532: await client.patch('/provider/profile', {
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:153:               await client.post(`/nursing/visits/${incomingRequest.id}/respond`, { accept: false });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1600:        const res = await client.post('/chats/threads/booking', { booking_kind: 'nursing', booking_id: order?.id || order?.raw?.id });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1613:        const res = await client.get(`/chats/threads/${threadId}/messages`);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1628:      await client.post(`/chats/threads/${threadId}/messages`, { body: txt, client_message_id: `n_${Date.now()}` });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1629:      const res = await client.get(`/chats/threads/${threadId}/messages`);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1677:      await client.post('/provider/schedule/settings', { shifts, maxVisits: parseInt(maxVisits), emergencyReady });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:230: await client.post('/home-care/provider/availability', { available: nextVal });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:362:    client.get('/nursing/jobs/active').then(res => setJobs(res.data || []));
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:424: await client.post(`/home-care/bookings/${order.id}/respond`, { accept: true });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:435: await client.post(`/home-care/bookings/${order.id}/respond`, { accept: false });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:510: useEffect(() => { client.get('/provider/nursing/checklist').then(r => setItems(r.data || [])).catch(() => {}); }, []);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:580: if (p) await client.post(`/home-care/bookings/${order.id}/gps`, p);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:602: await client.post(`/home-care/bookings/${order.id}/gps`, p);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:615: const res = await client.post(`/home-care/bookings/${order.id}/check-in`, p);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:670: await client.post(`/home-care/bookings/${order.id}/visit-report`, { complete: true });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:699: const res = await client.get(`/home-care/care-plans/${patientId}`);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:710: await client.post(`/home-care/care-plans/${patientId}`, {
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:774: const res = await client.get(`/nursing/notes/${patientId}`);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:808:     await client.post('/nursing/notes', { patient_id: patientId, booking_id: patient?.id, vitals, note });
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:84: client.get('/provider/jobs/queue?kind=nursing&status=incoming'),
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:85: client.get('/provider/jobs/queue?kind=nursing&status=active'),
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:86: client.get('/provider/jobs/queue?kind=nursing&status=completed')
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:870: await client.post(`/home-care/bookings/${order.id}/visit-report`, {
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:950: useEffect(() => { client.get('/provider/nursing/supplies').then(r => setSupplies(r.data || [])).catch(() => {}); }, []);
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:956: await client.post('/home-care/inventory/request', {
+audit-work/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:67:      const res = await client.post(`/nursing/visits/${order.id}/${endpoint}`, payload);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1000:        client.get('/provider/pharmacy/allocations', { params: { status: 'out_for_delivery' } }),
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1025:      await client.post(`/provider/pharmacy/orders/${selected.order_id}/dispatch`, {
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1046:      await client.post(`/provider/pharmacy/allocations/${alloc.id}/delivered`);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1160:    client.get('/provider/pharmacy/allocations')
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1197:      client.get('/provider/inventory/search', { params: { q: subSearch } })
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1215:      const res = await client.post(`/provider/pharmacy/orders/${orderId}/insurance`, { policyNo: nphiesData.policyNo, authCode: nphiesData.authCode, copay: Number(nphiesData.copay) || 0, status: 'APPROVED' });
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1239:      await client.post(`/provider/pharmacy/orders/${orderId}/submit-basket`, { basket, insuranceStatus, copay });
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1391:      const res = await client.get('/provider/pharmacy/broadcasts');
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1407:      await client.post(`/provider/pharmacy/orders/${orderId}/accept`);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1453:    client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1505:      const res = await client.get('/provider/capabilities/pharmacy');
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1518:      await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1620:      const res = await client.get(`/pharmacy/chat/threads/${threadId}/messages`);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1628:    client.get('/pharmacy/chat/threads')
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1645:      await client.post(`/pharmacy/chat/threads/${activeThread.id}/messages`, { text: input.trim() });
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1721:      await client.post('/provider/settings/delta', { 
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:221:      client.get('/provider/pharmacy/broadcasts') // real open broadcasts for this pharmacy
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:256:      const res = await client.post(`/provider/pharmacy/orders/${orderId}/accept`);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:275:      await client.post(`/provider/pharmacy/broadcasts/${rejectOrderId}/reject`, { reason: reasonId });
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:384:      const res = await client.get(`/pharmacy/prescriptions/${encodeURIComponent(rxNumber.trim())}`);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:405:      await client.post(`/pharmacy/orders/${order.id}/ready`);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:510:    client.get('/pharmacy/returns/provider/list')
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:527:      const res: any = await client.get('/pharmacy/procurement/my-requests');
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:536:      const res: any = await client.post('/pharmacy/procurement/analyze-file', payload);
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:575:      await client.post('/pharmacy/procurement/submit-request', {
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:770:        client.get('/provider/wallet'),
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:771:        client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:793:      const res = await client.post('/pharmacy/reports/eod');
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:932:    client.get('/pharmacy/returns/provider/list')
+audit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:999:        client.get('/provider/pharmacy/allocations', { params: { status: 'ready_for_pickup' } }),
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:141:  const fetch = useCallback(async () => { try { setLoading(true); const res = await client.get('/radiology/provider/inbox'); setOrders(res.data || []); } catch {} finally { setLoading(false); } }, []);
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:194:  const refresh = async () => { try { const res = await client.get(`/radiology/bookings/${order.id}`); setCurrentOrder(res.data); } catch {} };
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:197:    try { await client.post(`/radiology/bookings/${currentOrder.id}/${action}`, body || {}); show(AR ? 'تم بنجاح' : 'Done', 'success'); await refresh(); }
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:205:    try { await client.post(`/radiology/bookings/${currentOrder.id}/insurance-approval`, { approval_code: nphiesCode, copay: parseFloat(copay) || 0 }); show(AR ? 'تم إرسال التأمين للمريض' : 'Insurance approval sent', 'success'); setShowNphies(false); await refresh(); }
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:212:    try { await client.post(`/radiology/bookings/${currentOrder.id}/abort`, { reason: abortReason }); show(AR ? 'تم إلغاء الفحص وإنشاء طلب استرداد' : 'Scan aborted. Refund ticket created.', 'info'); setShowAbort(false); await refresh(); }
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:228:      await client.patch(`/radiology/bookings/${currentOrder.id}/reschedule`, { new_date: newDate, reason: 'reschedule_after_abort' });
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:270:          <NBtn label={AR?' تأكيد الطلب (كاش)':' Confirm Order (Cash)'} loading={loading} onPress={async () => { setLoading(true); try { await client.patch(`/radiology/bookings/${currentOrder.id}/state`, { state:'CONFIRMED', note:'Cash confirmed' }); show(AR?'تم التأكيد':'Confirmed','success'); await refresh(); } catch(e:any){show(e.message,'error');} finally{setLoading(false);} }} />
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:272:          <NBtn label={AR?' رفض الطلب':' Decline Order'} variant="danger" loading={loading} onPress={async () => { setLoading(true); try { await client.patch(`/radiology/bookings/${currentOrder.id}/state`, { state:'CANCELLED', note:'Rejected by center' }); show(AR?'تم الرفض':'Declined','info'); onBack(); } catch(e:any){show(e.message,'error');} finally{setLoading(false);} }} />
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:344:      await client.post(`/radiology/bookings/${order.id}/upload-report`, { pdf_url: normalizedPdfUrl, dicom_url: dicomUrl.trim() || null, findings: findings.trim() });
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:353:    try { await client.post(`/radiology/bookings/${order.id}/submit-report-for-review`, {}); setReportStatus('under_review'); show(AR ? 'تم الإرسال للمراجعة' : 'Sent for review', 'success'); }
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:359:    try { await client.post(`/radiology/bookings/${order.id}/approve-report`, {}); setReportStatus('ready'); show(AR?'تم نشر التقرير للمريض':'Report published','success'); onBack(); }
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:435:  useEffect(() => { client.get('/provider/capabilities/radiology').then(r => setServices(r.data || [])).catch(() => {}).finally(() => setLoading(false)); }, []);
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:440:      await client.post('/radiology/catalog/delta-request', { name_ar: nameAr, name_en: nameEn, modality_category: modality, price: parseFloat(price), estimated_duration_minutes: parseInt(duration) || 30, insurance_availability: insAvail, portable_ultrasound: portableUS, requires_pregnancy_check: riskPregnancy, requires_metal_implant_check: riskMetal, requires_contrast_allergy_check: riskContrast, preparation_keys: prepItems });
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:512:    try { await client.post('/radiology/catalog/delta-request', { type: 'schedule_update', working_days: workingDays, morning_shift: { from: morningFrom, to: morningTo }, evening_shift: { from: eveningFrom, to: eveningTo }, emergency_available: emergencyAvailable }); show(AR ? 'تم حفظ الجدول وإرساله للمراجعة' : 'Schedule saved and sent for review', 'success'); }
+audit-work/source/NabdProvider-provider/src/screens/radiology/RadiologyDashboard.tsx:91:      const res = await client.get('/radiology/provider/inbox');
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1099:     const r = await client.get('/emergency/active');
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1117:     await client.post('/emergency/trigger', { location, severity: 'critical' });
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1129:     await client.post(`/emergency/${id}/claim`, {});
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1207:           await client.post(`/emergency/${emergencyId}/track`, {
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1330:      const res = await client.get('/labs/samples');
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:1351:      await client.patch(`/labs/samples/${sam.id}/stage`, { stage: 'analyzing' });
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:135: await client.post('/provider/features/promotions', {
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:232: client.get('/provider-onboarding/my-profile')
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:249: await client.post('/provider/features/promotions', {
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:310:   client.get('/referrals/my')
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:559:   client.get('/provider/features/crm/patients')
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:581: const res = await client.get(`/provider/features/crm/patients/${pat.id}`);
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:59: const res = await client.get('/provider/features/promotions');
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:603: await client.patch(`/provider/features/crm/patients/${selectedPat.id}`, {
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:702:   client.get('/provider/ops/wallet/ledger')
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:796:   client.get('/provider/jobs/queue?status=active')
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:812:     const r = await client.post('/ai/copilot/suggest', { notes });
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:837:     await client.post('/home-care/notes', { patient_id: patientId, note });
+audit-work/source/NabdProvider-provider/src/screens/shared/BlueprintScreens.tsx:980:      const res = await client.post('/provider/features/referrals', {
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx:162:      const res = await client.post('/provider/ambulance/fleet', {
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx:35:      const res = await client.get('/provider/ambulance/fleet');
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx:48:      await client.patch(`/provider/ambulance/fleet/${v.id}`, { is_available: !v.is_available });
+audit-work/source/NabdProvider-provider/src/screens/shared/FleetScreen.tsx:65:              await client.delete(`/provider/ambulance/fleet/${v.id}`);
+audit-work/source/NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:49:      const res = await client.get('/insurance/requests/provider/queue');
+audit-work/source/NabdProvider-provider/src/screens/shared/InsuranceRequestsScreen.tsx:90:      const res = await client.post(`/insurance/requests/${target.id}/decide`, body);
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:116:      const res = await client.get('/provider/working-hours');
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:160:      await client.put('/provider/working-hours', { hours });
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:19:    client.get('/provider/reviews')
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:241:      await client.post('/users/me/change-password', { oldPassword, newPassword });
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:27:      await client.post(`/provider/reviews/${id}/reply`, { reply: replyText });
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:313:    client.get('/provider/notifications')
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreens.tsx:373:      await client.post('/support/tickets', { subject: subject.trim(), message: message.trim() });
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:162:    client.get('/pharmacy/orders/refills')
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:227:      await client.post('/approval-workflow/requests', {
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:268:      const res = await client.get('/pharmacy/inventory/expiry');
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:342:      await client.post('/support/tickets', {
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:383:      const res = await client.get('/provider/capabilities/lab');
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:38:    client.get('/pharmacy/orders/refills')
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:451:      const res = await client.get('/provider/zones');
+audit-work/source/NabdProvider-provider/src/screens/shared/RealScreensExtended.tsx:99:    client.get('/provider/pharmacy/allocations', { params: { status: 'out_for_delivery' } })
+audit-work/source/NabdProvider-provider/src/screens/shared/RegistrationSuccess.tsx:56:      const res = await client.get('/provider-onboarding/contract');
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1025:        await client.post('/provider/bank-account', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1031:      await client.post('/provider/payouts/request', { amount: amt, iban: cleanIban });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1309:        const res = await client.get('/recruitment/jobs');
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1329:        const jobsRes = await client.get('/recruitment/jobs', { params: { facility_id: user.id } });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1334:            const appsRes = await client.get(`/recruitment/jobs/${job.id}/applications`);
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1370:      const res = await client.post('/recruitment/jobs', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1406:      await client.post(`/recruitment/jobs/${selectedJob.id}/apply`, {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:149:        const res = await client.get(`/chats/${conv.id}/messages`);
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:171:      await client.post(`/chats/${conv.id}/messages`, { text: txt });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1944:     await client.post(`/medicines/${selectedDrug.id}/suggest-change`, {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1969:       up = await client.post('/storage/upload', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1977:       up = await client.post('/storage/upload-suggestion-image', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:1985:     await client.post(`/medicines/${selectedDrug.id}/suggest-image`, {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2464:       const res = await client.get('/provider-onboarding/my-profile').catch(() => null);
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2502:     await client.post('/provider/settings/delta', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2609: const res = await client.get('/provider/kyc/documents');
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2630: await client.post('/provider/kyc/documents', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2788:     const r = await client.get(`/storage/${storageId}/signed-url`);
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2796:       const res = await client.get('/provider-onboarding/my-profile');
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2811:   await client.post('/provider/settings/delta', { changes: { clinic_images: ids } });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2838:     const up = await client.post('/storage/upload', {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2936:          client.get('/provider/wallet'),
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2937:          client.get('/provider/wallet/transactions').catch(() => ({ data: [] })),
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:293:   client.get('/provider/notifications')
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:2940:        client.get('/provider/me').then((meRes: any) => {
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:428:     await client.post('/support/tickets', { subject, body });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:62:        const res = await client.get('/chats/threads');
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:793:    client.get(`/provider/dashboard/stats?period=${period}`)
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:880: client.get('/provider/reviews')
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:890: await client.post(`/provider/reviews/${id}/reply`, { reply: text });
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:989:        client.get('/provider/payouts/balance'),
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:990:        client.get('/provider/bank-account').catch(() => ({ data: null })),
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:991:        client.get('/provider/payouts/mine').catch(() => ({ data: [] })),
+audit-work/source/NabdProvider-provider/src/screens/shared/SharedScreens.tsx:999:        const banksRes = await client.get('/provider/banks').catch(() => ({ data: [] }));
+audit-work/source/NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx:164:      try { await client.post(`/calls/${encodeURIComponent(sid)}/end`); } catch { /* session end is best-effort; room is already closed */ }
+audit-work/source/NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx:85:      const initRes = await client.post('/calls/initiate', { appointmentId, call_type: voiceOnly ? 'voice' : 'video' });
+audit-work/source/NabdProvider-provider/src/screens/shared/VideoCallRoom.tsx:91:      const joinRes = await client.post(`/calls/${encodeURIComponent(sessionId)}/join`);
+
+## Patient Mobile apiFetch calls
+audit-work/source/nabd_plus_patient_app/app/(auth)/forgot-password.tsx:33:      await apiFetch('/auth/send-otp', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/login.tsx:151:        const res = await apiFetch('/auth/login', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/login.tsx:91:      const res = await apiFetch('/auth/social-login', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/otp.tsx:74:      const resOtp = await apiFetch('/auth/verify-otp', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/otp.tsx:99:          const regRes = await apiFetch('/auth/register', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/register.tsx:113:      const res = await apiFetch('/auth/social-login', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/register.tsx:169:      await apiFetch('/auth/send-otp', {
+audit-work/source/nabd_plus_patient_app/app/(auth)/reset-password.tsx:34:      await apiFetch("/auth/reset-password", {
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:105:    apiFetch('/insurance/companies')
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:116:    apiFetch(`/insurance/companies/${insCompany}/networks`)
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:66:        const data = await apiFetch('/providers?type=doctor');
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:93:    apiFetch('/care/specialties')
+audit-work/source/nabd_plus_patient_app/app/(tabs)/consultations/index.tsx:99:    apiFetch('/home/offers')
+audit-work/source/nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:59:          apiFetch('/labs/packages').catch(() => ({ data: [] })),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:60:          apiFetch('/labs/services').catch(() => ({ data: [] })),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:61:          apiFetch('/radiology/services').catch(() => ({ data: [] })),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/diagnostics.tsx:62:          apiFetch('/providers?type=lab').catch(() => ({ data: [] }))
+audit-work/source/nabd_plus_patient_app/app/(tabs)/health.tsx:103:          apiFetch("/health/vitals/summary").catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/health.tsx:104:          apiFetch("/health/score").catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/health.tsx:105:          apiFetch('/home/upcoming-appointment').catch(() => null)
+audit-work/source/nabd_plus_patient_app/app/(tabs)/health.tsx:113:        const waterRes = await apiFetch(`/nutrition/daily-summary?date=${new Date().toISOString().split("T")[0]}`).catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/(tabs)/index.tsx:41:      apiFetch('/users/me/profile'), apiFetch('/health/reminders'), apiFetch('/nutrition/daily-summary'),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/index.tsx:42:      apiFetch('/maternity/profile'), apiFetch('/mental-health/mood?days=1'), apiFetch('/health/vitals/summary'), apiFetch('/home/upcoming-appointment'),
+audit-work/source/nabd_plus_patient_app/app/(tabs)/nursing.tsx:45:    apiFetch('/home-care/services')
+audit-work/source/nabd_plus_patient_app/app/(tabs)/nursing.tsx:52:    apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch(console.error);
+audit-work/source/nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:131:          const data = await apiFetch(ep);
+audit-work/source/nabd_plus_patient_app/app/(tabs)/pharmacy.tsx:69:        const data = await apiFetch('/medicines/categories');
+audit-work/source/nabd_plus_patient_app/app/ai/monthly-report.tsx:39:        apiFetch('/care/appointments').then(parseReportCollection),
+audit-work/source/nabd_plus_patient_app/app/ai/monthly-report.tsx:40:        apiFetch('/health/vitals/summary').then(parseReportCollection),
+audit-work/source/nabd_plus_patient_app/app/ai/monthly-report.tsx:41:        apiFetch('/health/chronic-meds').then(parseReportCollection),
+audit-work/source/nabd_plus_patient_app/app/ai/monthly-report.tsx:42:        apiFetch('/health/trends').then(parseReportCollection),
+audit-work/source/nabd_plus_patient_app/app/ai/skin-analysis.tsx:37:      const data = await apiFetch('/ai/skin-analysis', { method: 'POST', body: JSON.stringify({ acknowledge_limitations: true, areas, observations: observations.length ? observations : ['none'], ...(note.trim() ? { note: note.trim() } : {}) }) });
+audit-work/source/nabd_plus_patient_app/app/ai/triage.tsx:41:      const data = await apiFetch('/ai/triage', { method: 'POST', body: JSON.stringify({ symptoms: symptoms.trim(), red_flags: flags.length ? flags : ['none'] }) });
+audit-work/source/nabd_plus_patient_app/app/articles/[slug].tsx:38:      const res = await apiFetch(`/articles/${encodeURIComponent(String(slug))}`);
+audit-work/source/nabd_plus_patient_app/app/articles/[slug].tsx:42:        const rel = await apiFetch(`/articles?category=${encodeURIComponent(res.category)}&limit=4`).catch(() => []);
+audit-work/source/nabd_plus_patient_app/app/articles/[slug].tsx:46:      const st = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/status`).catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/articles/[slug].tsx:59:      const res = await apiFetch(`/articles/bookmarks/${encodeURIComponent(String(slug))}/toggle`, { method: "POST" });
+audit-work/source/nabd_plus_patient_app/app/articles/bookmarks.tsx:33:      const res = await apiFetch("/articles/bookmarks/mine");
+audit-work/source/nabd_plus_patient_app/app/articles/index.tsx:48:      const res = await apiFetch(`/articles?${params.toString()}`);
+audit-work/source/nabd_plus_patient_app/app/articles/index.tsx:58:    apiFetch("/articles/categories")
+audit-work/source/nabd_plus_patient_app/app/community/hub.tsx:59:      const res = await apiFetch(`/community/posts?page=1&limit=20${qs}`);
+audit-work/source/nabd_plus_patient_app/app/community/hub.tsx:74:      await apiFetch("/community/posts", {
+audit-work/source/nabd_plus_patient_app/app/community/post-detail.tsx:53:      const res = await apiFetch(`/community/posts/${postId}`);
+audit-work/source/nabd_plus_patient_app/app/community/post-detail.tsx:68:      const res = await apiFetch(`/community/posts/${postId}/vote`, {
+audit-work/source/nabd_plus_patient_app/app/community/post-detail.tsx:87:      const res = await apiFetch(`/community/posts/${postId}/comment`, {
+audit-work/source/nabd_plus_patient_app/app/consultations/book/[id].tsx:105:        const res = await apiFetch(
+audit-work/source/nabd_plus_patient_app/app/consultations/book/[id].tsx:73:      const data = await apiFetch(`/care/doctors/${encodeURIComponent(String(id || ''))}`);
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-confirm.tsx:46:        const list = await apiFetch('/insurance/companies');
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-confirm.tsx:61:        const nets = await apiFetch(`/insurance/companies/${insCompany}/networks`);
+audit-work/source/nabd_plus_patient_app/app/consultations/booking-pending.tsx:108:              await apiFetch(`/care/appointments/${appointmentId}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason: 'patient_cancelled_while_waiting' }) });
+audit-work/source/nabd_plus_patient_app/app/consultations/call-history.tsx:48:      const data = await apiFetch(`/calls/history?page=${pageNum}&limit=20`);
+audit-work/source/nabd_plus_patient_app/app/consultations/cancel-reschedule.tsx:105:        await apiFetch(`/care/appointments/${appointmentId}/cancel`, {
+audit-work/source/nabd_plus_patient_app/app/consultations/cancel-reschedule.tsx:118:        await apiFetch(`/care/appointments/${appointmentId}/reschedule`, {
+audit-work/source/nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:125:      await apiFetch(`/chat/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ body: text, type: 'text', client_message_id: tempId }) });
+audit-work/source/nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:41:      apiFetch(`/care/doctors/${doctorId}`)
+audit-work/source/nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:51:          return apiFetch(`/chat/threads/direct`, { method: 'POST', body: JSON.stringify({ other_user_id: doctorUserId }) })
+audit-work/source/nabd_plus_patient_app/app/consultations/chat-with-doctor.tsx:58:              return apiFetch(`/chat/threads/${tid}/messages`).then((mres: any) => ({ mres, doctorUserId }));
+audit-work/source/nabd_plus_patient_app/app/consultations/clinic-location.tsx:24:      apiFetch(`/care/appointments/${appointmentId}`)
+audit-work/source/nabd_plus_patient_app/app/consultations/doctor-search.tsx:44:      const res = await apiFetch(`/care/doctors?${qs.toString()}`);
+audit-work/source/nabd_plus_patient_app/app/consultations/doctor/[id].tsx:149:        const res = await apiFetch(`/care/doctors/${encodeURIComponent(doc.id)}/slots?date=${iso}&service_type=${vt}`);
+audit-work/source/nabd_plus_patient_app/app/consultations/doctor/[id].tsx:51:        const data = await apiFetch(`/care/doctors/${encodeURIComponent(id || 'd1')}`);
+audit-work/source/nabd_plus_patient_app/app/consultations/follow-up.tsx:41:      const data = await apiFetch(`/care/appointments/${encodeURIComponent(appointmentId)}`);
+audit-work/source/nabd_plus_patient_app/app/consultations/follow-up.tsx:49:          apiFetch(`/care/doctors/${encodeURIComponent(a.doctor_id)}`)
+audit-work/source/nabd_plus_patient_app/app/consultations/home-visit-tracking.tsx:23:      apiFetch(`/care/appointments/${appointmentId}`)
+audit-work/source/nabd_plus_patient_app/app/consultations/incoming-call.tsx:64:        await apiFetch(`/calls/${sessionId}/reject`, { method: "POST" });
+audit-work/source/nabd_plus_patient_app/app/consultations/post-call-rating.tsx:41:        await apiFetch('/patient-ux/review', {
+audit-work/source/nabd_plus_patient_app/app/consultations/prescription-from-doctor.tsx:39:      // In production: apiFetch('/prescriptions/active')
+audit-work/source/nabd_plus_patient_app/app/consultations/share-report.tsx:53:        const res = await apiFetch("/medical-reports/mine?limit=100");
+audit-work/source/nabd_plus_patient_app/app/consultations/specialty-select.tsx:28:    apiFetch('/care/specialties')
+audit-work/source/nabd_plus_patient_app/app/consultations/video-call.tsx:59:          const initRes = await apiFetch(`/calls/initiate`, {
+audit-work/source/nabd_plus_patient_app/app/consultations/video-call.tsx:66:            const joinRes = await apiFetch(`/calls/${sessionId}/join`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/consultations/virtual-waiting-room.tsx:47:      apiFetch(`/care/appointments/${appointmentId}`)
+audit-work/source/nabd_plus_patient_app/app/consultations/waiting-room.tsx:31:      apiFetch(`/care/appointments/${appointmentId}`)
+audit-work/source/nabd_plus_patient_app/app/delivery/address-select.tsx:36:        const data = await apiFetch('/users/me/addresses');
+audit-work/source/nabd_plus_patient_app/app/diagnostics/cart.tsx:30:      apiFetch(`/labs/compatible-providers?testIds=${ids}`)
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-approval.tsx:37:        const res = await apiFetch(`/orders/${orderId}`);
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-approval.tsx:78:        await apiFetch(`/orders/${orderId}/items/${item.id}/opt-in-cash`, {
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:124:        const res = await apiFetch('/ai/ocr-translate', {
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:358:                const res = await apiFetch('/orders/create', {
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:47:        const res = await apiFetch('/providers?type=lab');
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:55:        const res = await apiFetch('/insurance/companies');
+audit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:73:        const res = await apiFetch(`/insurance/companies/${selCompany}/networks`);
+audit-work/source/nabd_plus_patient_app/app/diagnostics/lab-comparison.tsx:34:      apiFetch(`/labs/services/${id}`),
+audit-work/source/nabd_plus_patient_app/app/diagnostics/lab-comparison.tsx:35:      apiFetch(`/labs/compatible-providers?testIds=${id}`)
+audit-work/source/nabd_plus_patient_app/app/diagnostics/lab/[id].tsx:28:          apiFetch(`/providers/${id}`),
+audit-work/source/nabd_plus_patient_app/app/diagnostics/lab/[id].tsx:29:          apiFetch(`/labs/services?providerId=${id}`)
+audit-work/source/nabd_plus_patient_app/app/diagnostics/order/[id].tsx:29:    // E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
+audit-work/source/nabd_plus_patient_app/app/diagnostics/order/[id].tsx:35:          const res = await apiFetch(`/radiology/bookings/${id}`);
+audit-work/source/nabd_plus_patient_app/app/diagnostics/order/[id].tsx:40:          const res = await apiFetch(`/labs/bookings/${id}`);
+audit-work/source/nabd_plus_patient_app/app/diagnostics/order/[id].tsx:61:          const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/diagnostics/orders.tsx:31:          apiFetch("/labs/bookings/mine").catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/diagnostics/orders.tsx:32:          apiFetch("/radiology/bookings/mine").catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/diagnostics/package-detail.tsx:27:    apiFetch(`/labs/packages/${id}`)
+audit-work/source/nabd_plus_patient_app/app/diagnostics/packages.tsx:28:      apiFetch('/labs/packages'),
+audit-work/source/nabd_plus_patient_app/app/diagnostics/packages.tsx:29:      apiFetch('/labs/categories')
+audit-work/source/nabd_plus_patient_app/app/diagnostics/search.tsx:29:        const res = await apiFetch("/labs/services");
+audit-work/source/nabd_plus_patient_app/app/diagnostics/test-detail.tsx:39:    apiFetch(endpoint)
+audit-work/source/nabd_plus_patient_app/app/drug-scanner/index.tsx:35:    apiFetch('/health/medications')
+audit-work/source/nabd_plus_patient_app/app/drug-scanner/index.tsx:47:      const res = await apiFetch('/ai/drug-interactions', {
+audit-work/source/nabd_plus_patient_app/app/emergency/sos-active.tsx:42:        const res = await apiFetch('/emergency/my/active');
+audit-work/source/nabd_plus_patient_app/app/emergency/sos-active.tsx:79:              await apiFetch(`/emergency/${sosId}/cancel`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/emergency/tracking.tsx:33:        const res = await apiFetch('/emergency/tracking');
+audit-work/source/nabd_plus_patient_app/app/family/calendar.tsx:105:              await apiFetch(`/family/calendar/event/${id}`, {
+audit-work/source/nabd_plus_patient_app/app/family/calendar.tsx:61:      const [calendar, groupMembers] = await Promise.all([apiFetch("/family/calendar"), apiFetch("/family/members")]);
+audit-work/source/nabd_plus_patient_app/app/family/calendar.tsx:82:      await apiFetch("/family/calendar/event", { method: "POST", body: JSON.stringify(payload) });
+audit-work/source/nabd_plus_patient_app/app/family/chat.tsx:46:      const res = await apiFetch('/family/chat/messages');
+audit-work/source/nabd_plus_patient_app/app/family/chat.tsx:62:        const profile = await apiFetch('/users/me/profile');
+audit-work/source/nabd_plus_patient_app/app/family/chat.tsx:67:        const mems = await apiFetch('/family/members');
+audit-work/source/nabd_plus_patient_app/app/family/chat.tsx:86:      const res = await apiFetch('/family/chat/messages', {
+audit-work/source/nabd_plus_patient_app/app/family/hub.tsx:77:      const mems = await apiFetch("/family/members");
+audit-work/source/nabd_plus_patient_app/app/family/invite.tsx:31:      const res = await apiFetch('/family/invite', { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/family/join.tsx:44:      const res = await apiFetch("/family/join", {
+audit-work/source/nabd_plus_patient_app/app/family/member-health.tsx:49:      const res = await apiFetch(`/family/member-records/${memberId}`);
+audit-work/source/nabd_plus_patient_app/app/family/permission-request.tsx:24:    apiFetch('/family/permissions/pending')
+audit-work/source/nabd_plus_patient_app/app/family/permission-request.tsx:52:        await apiFetch(`/family/permissions/respond/${requestInfo._id || requestInfo.id}`, {
+audit-work/source/nabd_plus_patient_app/app/family/permissions.tsx:119:        const group = await apiFetch("/family/my-group");
+audit-work/source/nabd_plus_patient_app/app/family/permissions.tsx:147:        await apiFetch(`/family/member/${memberId}/permissions`, {
+audit-work/source/nabd_plus_patient_app/app/family/permissions.tsx:153:        await apiFetch("/family/permissions/request", {
+audit-work/source/nabd_plus_patient_app/app/family/permissions.tsx:186:              await apiFetch(`/family/remove-member/${memberId}`, {
+audit-work/source/nabd_plus_patient_app/app/health/chronic-disease.tsx:26:          apiFetch('/health/chronic-diseases').catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/health/chronic-disease.tsx:27:          apiFetch('/health/vitals').catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/health/chronic-medications.tsx:25:      const response: any = await apiFetch('/health/chronic-meds');
+audit-work/source/nabd_plus_patient_app/app/health/chronic-medications.tsx:41:      const response: any = await apiFetch(`/health/reminders/${id}${suffix}`, { method: 'POST', body: kind === 'snooze' ? JSON.stringify({ days: 3 }) : undefined });
+audit-work/source/nabd_plus_patient_app/app/health/conditions-allergies.tsx:25:    try { const response: any = await apiFetch('/medical-profile'); const doc = response?.data || response || {}; setProfile({ chronic_diseases: Array.isArray(doc.chronic_diseases) ? doc.chronic_diseases : [], allergies: Array.isArray(doc.allergies) ? doc.allergies : [] }); }
+audit-work/source/nabd_plus_patient_app/app/health/conditions-allergies.tsx:34:    try { await apiFetch(`/medical-profile/${list}`, { method: 'POST', body: JSON.stringify({ name }) }); list === 'allergies' ? setAllergy('') : setCondition(''); await load(); }
+audit-work/source/nabd_plus_patient_app/app/health/conditions-allergies.tsx:40:    try { await apiFetch(`/medical-profile/${list}/${id}`, { method: 'DELETE' }); await load(); }
+audit-work/source/nabd_plus_patient_app/app/health/edit-profile.tsx:25:      const [medicalResponse, userResponse]: any[] = await Promise.all([apiFetch('/medical-profile'), apiFetch('/users/me/profile')]);
+audit-work/source/nabd_plus_patient_app/app/health/edit-profile.tsx:40:    try { await apiFetch('/medical-profile', { method: 'PATCH', body: JSON.stringify({ ...draft, height_cm, weight_kg }) }); router.back(); }
+audit-work/source/nabd_plus_patient_app/app/health/edit-profile.tsx:57:      const upload: any = await apiFetch('/media/upload', { method: 'POST', body: formData });
+audit-work/source/nabd_plus_patient_app/app/health/edit-profile.tsx:60:      await apiFetch('/users/me/profile', { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) });
+audit-work/source/nabd_plus_patient_app/app/health/emergency-contacts.tsx:38:      const res = await apiFetch('/health/emergency-contacts');
+audit-work/source/nabd_plus_patient_app/app/health/emergency-contacts.tsx:56:      const doc = await apiFetch('/health/emergency-contacts', {
+audit-work/source/nabd_plus_patient_app/app/health/emergency-contacts.tsx:83:            await apiFetch(`/health/emergency-contacts/${c.id}`, { method: 'DELETE' });
+audit-work/source/nabd_plus_patient_app/app/health/family-hub.tsx:80:      const grp = await apiFetch("/family/my-group");
+audit-work/source/nabd_plus_patient_app/app/health/family-hub.tsx:82:      const mems = await apiFetch("/family/members");
+audit-work/source/nabd_plus_patient_app/app/health/family-hub.tsx:99:      await apiFetch("/family/create", {
+audit-work/source/nabd_plus_patient_app/app/health/health-id.tsx:37:          apiFetch('/users/me/profile').catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/health/health-id.tsx:38:          apiFetch('/health/emergency-contacts').catch(() => []),
+audit-work/source/nabd_plus_patient_app/app/health/health-id.tsx:39:          apiFetch('/health/chronic-meds').catch(() => []),
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-add.tsx:32:        const response: any = await apiFetch('/health/reminders');
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-add.tsx:52:      const response: any = await apiFetch(editing ? `/health/reminders/${id}` : '/health/reminders', { method: editing ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-list.tsx:35:    try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-list.tsx:43:    try { await apiFetch(`/health/reminders/${reminder.id}/log`, { method: 'POST', body: JSON.stringify({ status, time_key: dose.time_key, occurred_at: new Date().toISOString() }) }); if (status === 'taken') await cancelMedicationSnoozes(reminder.id, dose.time_key); await load(); }
+audit-work/source/nabd_plus_patient_app/app/health/medication-reminder-list.tsx:49:    try { await apiFetch(`/health/reminders/${id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) }); await cancelMedicationNotifications(id); await load(); }
+audit-work/source/nabd_plus_patient_app/app/health/medications.tsx:23:    try { const response: any = await apiFetch('/health/reminders'); const rows = Array.isArray(response) ? response : response?.data; setReminders(Array.isArray(rows) ? rows : []); }
+audit-work/source/nabd_plus_patient_app/app/health/prescriptions.tsx:26:        const res = await apiFetch('/health/prescriptions');
+audit-work/source/nabd_plus_patient_app/app/health/refills.tsx:27:    apiFetch('/health/reminders?active=1')
+audit-work/source/nabd_plus_patient_app/app/health/refills.tsx:68:              const res = await apiFetch(`/health/reminders/${id}/refill`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/health/reports.tsx:19:    try { const response: any = await apiFetch('/health/reports'); const rows = Array.isArray(response) ? response : response?.data; setReports(Array.isArray(rows) ? rows : []); }
+audit-work/source/nabd_plus_patient_app/app/health/sleep-score.tsx:34:      const res = await apiFetch('/health/sleep?limit=30');
+audit-work/source/nabd_plus_patient_app/app/health/sleep-tracker.tsx:36:      const res = await apiFetch('/health/sleep?limit=30');
+audit-work/source/nabd_plus_patient_app/app/health/sleep-tracker.tsx:71:      await apiFetch('/health/sleep', {
+audit-work/source/nabd_plus_patient_app/app/health/trends.tsx:141:        const res = await apiFetch('/health/trends');
+audit-work/source/nabd_plus_patient_app/app/health/vitals-log.tsx:35:    try { const response: any = await apiFetch(`/health/vitals?type=${type}&limit=30`); const rows = Array.isArray(response) ? response : response?.data; setReadings(Array.isArray(rows) ? rows : []); }
+audit-work/source/nabd_plus_patient_app/app/health/vitals-log.tsx:48:      await apiFetch('/health/vitals', { method: 'POST', body: JSON.stringify(payload) });
+audit-work/source/nabd_plus_patient_app/app/health/vitals.tsx:27:      const response: any = await apiFetch('/health/vitals/summary');
+audit-work/source/nabd_plus_patient_app/app/health/wearables.tsx:45:        apiFetch('/wearables/devices').catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/health/wearables.tsx:46:        apiFetch('/wearables/data').catch(() => null),
+audit-work/source/nabd_plus_patient_app/app/health/wearables.tsx:62:      await apiFetch('/wearables/devices', {
+audit-work/source/nabd_plus_patient_app/app/insurance/add-policy.tsx:29:    apiFetch('/insurance/companies')
+audit-work/source/nabd_plus_patient_app/app/insurance/add-policy.tsx:44:      const res = await apiFetch('/insurance/ocr-extract', {
+audit-work/source/nabd_plus_patient_app/app/insurance/add-policy.tsx:78:      await apiFetch('/insurance/save-policy', {
+audit-work/source/nabd_plus_patient_app/app/insurance/approval-pending.tsx:32:          req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/insurance/approval-pending.tsx:34:          const list = await apiFetch('/insurance/requests/my').catch(() => []);
+audit-work/source/nabd_plus_patient_app/app/insurance/approval-pending.tsx:48:    apiFetch('/users/me/profile').then((p: any) => {
+audit-work/source/nabd_plus_patient_app/app/insurance/benefits-summary.tsx:21:      apiFetch('/insurance/benefits-summary')
+audit-work/source/nabd_plus_patient_app/app/insurance/claim-tracking.tsx:30:        const res = await apiFetch('/insurance/claims/my');
+audit-work/source/nabd_plus_patient_app/app/insurance/coverage-check.tsx:34:      const data = await apiFetch(
+audit-work/source/nabd_plus_patient_app/app/insurance/hub.tsx:122:        const res = await apiFetch('/insurance/claims');
+audit-work/source/nabd_plus_patient_app/app/insurance/hub.tsx:161:          const saved = await apiFetch('/insurance/save-policy', {
+audit-work/source/nabd_plus_patient_app/app/insurance/hub.tsx:95:        const ins = await apiFetch('/users/me/insurance');
+audit-work/source/nabd_plus_patient_app/app/insurance/network-providers.tsx:52:        const profile = await apiFetch("/users/me/profile").catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/insurance/network-providers.tsx:63:        const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);
+audit-work/source/nabd_plus_patient_app/app/insurance/payment-split.tsx:27:      setRequest(parseInsuranceCopayRequest(await apiFetch(`/insurance/requests/${requestId}`)));
+audit-work/source/nabd_plus_patient_app/app/insurance/payment-split.tsx:41:        await apiFetch(`/insurance/requests/${request.id}/pay-copay`, { method: 'POST', body: JSON.stringify({}) });
+audit-work/source/nabd_plus_patient_app/app/insurance/policy-detail.tsx:24:    apiFetch('/users/me/profile')
+audit-work/source/nabd_plus_patient_app/app/insurance/refund-status.tsx:33:    apiFetch('/refunds/my')
+audit-work/source/nabd_plus_patient_app/app/insurance/submit-claim.tsx:27:      await apiFetch("/insurance/claims/submit", {
+audit-work/source/nabd_plus_patient_app/app/loyalty/challenges.tsx:30:      const res = await apiFetch('/loyalty/challenges');
+audit-work/source/nabd_plus_patient_app/app/loyalty/challenges.tsx:52:      await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/loyalty/hub.tsx:294:                        await apiFetch(`/loyalty/rewards/${rid}/claim`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/loyalty/hub.tsx:61:      const acc = await apiFetch('/loyalty/account');
+audit-work/source/nabd_plus_patient_app/app/loyalty/hub.tsx:65:      const txRes = await apiFetch('/loyalty/transactions?page=1');
+audit-work/source/nabd_plus_patient_app/app/loyalty/hub.tsx:68:      const configRes = await apiFetch('/loyalty/config').catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/loyalty/hub.tsx:74:      const rewardsRes = await apiFetch('/loyalty/rewards').catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/loyalty/leaderboard.tsx:36:    apiFetch('/loyalty/leaderboard?limit=50')
+audit-work/source/nabd_plus_patient_app/app/loyalty/referrals.tsx:53:      const res = await apiFetch("/referrals/my");
+audit-work/source/nabd_plus_patient_app/app/loyalty/referrals.tsx:86:      await apiFetch("/referrals/apply", {
+audit-work/source/nabd_plus_patient_app/app/loyalty/rewards.tsx:30:      const acc = await apiFetch('/loyalty/account');
+audit-work/source/nabd_plus_patient_app/app/loyalty/rewards.tsx:33:      const catalog = await apiFetch('/loyalty/rewards');
+audit-work/source/nabd_plus_patient_app/app/loyalty/rewards.tsx:59:              const res = await apiFetch(`/loyalty/rewards/${reward.id}/claim`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/map/index.tsx:173:      const res = await apiFetch(`/providers/map?${query.toString()}`);
+audit-work/source/nabd_plus_patient_app/app/map/index.tsx:216:        const ins = await apiFetch('/user/insurance');
+audit-work/source/nabd_plus_patient_app/app/maternity/hub.tsx:17:  const load = React.useCallback(async () => { setLoading(true); setError(null); try { const response: any = await apiFetch('/maternity/profile'); setProfile(response?.data || response); } catch { setError(t('error')); setProfile(null); } finally { setLoading(false); } }, [lang]); React.useEffect(() => { load(); }, [load]);
+audit-work/source/nabd_plus_patient_app/app/maternity/maternity-setup.tsx:15:  const save = async () => { if (!lmp.trim() || (mode === 'cycle' && !cycleLength.trim())) { setError(t('profileRequired')); return; } setSaving(true); setError(null); try { await apiFetch('/maternity/profile', { method: 'POST', body: JSON.stringify(mode === 'pregnancy' ? { is_pregnant: true, lmp_date: lmp.trim(), ...(dueDate.trim() ? { due_date: dueDate.trim() } : {}) } : { is_pregnant: false, last_period_date: lmp.trim(), cycle_length: Number(cycleLength), is_regular: regular === 'true' }) }); router.replace('/maternity/hub'); } catch { setError(t('saveError')); } finally { setSaving(false); } };
+audit-work/source/nabd_plus_patient_app/app/mental-health/crisis-support.tsx:30:      const result: any = await apiFetch('/mental-health/crisis-contacts');
+audit-work/source/nabd_plus_patient_app/app/mental-health/crisis-support.tsx:46:      await apiFetch('/mental-health/crisis-contacts', { method: 'POST', body: JSON.stringify({ contact_name: name.trim(), phone: phone.trim(), ...(relationship.trim() ? { relationship: relationship.trim() } : {}) }) });
+audit-work/source/nabd_plus_patient_app/app/mental-health/crisis-support.tsx:53:    try { await apiFetch(`/mental-health/crisis-contacts/${id}`, { method: 'DELETE' }); await loadContacts(); } catch { setDeleteError(true); }
+audit-work/source/nabd_plus_patient_app/app/mental-health/mood-journal.tsx:47:      const result: unknown = await apiFetch('/mental-health/mood?days=30');
+audit-work/source/nabd_plus_patient_app/app/mental-health/mood-journal.tsx:68:      await apiFetch('/mental-health/mood', { method: 'POST', body: JSON.stringify(payload) });
+audit-work/source/nabd_plus_patient_app/app/notifications/index.tsx:107:    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+audit-work/source/nabd_plus_patient_app/app/notifications/index.tsx:114:      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+audit-work/source/nabd_plus_patient_app/app/nursing/live-tracking.tsx:85:        const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
+audit-work/source/nabd_plus_patient_app/app/nursing/nurse-profile.tsx:133:      const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
+audit-work/source/nabd_plus_patient_app/app/nursing/nurse-profile.tsx:88:        const nurseData = await apiFetch(`/home-care/providers/${nurseId}`);
+audit-work/source/nabd_plus_patient_app/app/nursing/nurse-profile.tsx:93:          const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
+audit-work/source/nabd_plus_patient_app/app/nursing/service-details.tsx:35:      const res = await apiFetch(`/home-care/providers?type=${serviceId}&sort=${sortType}&gender=${gender || "any"}&availability=${availability || "any"}&nationality=${nationality || "any"}&search=${search || ""}`);
+audit-work/source/nabd_plus_patient_app/app/nursing/service-info.tsx:27:    apiFetch(`/home-care/services/${serviceId}`)
+audit-work/source/nabd_plus_patient_app/app/nutrition/body-target.tsx:18:  React.useEffect(() => { apiFetch('/nutrition/profile').then((response: any) => { const p: Profile = response?.data || response || {}; setGoal(p.goal || 'healthy_lifestyle'); setActivity(p.activity_level || 'moderate'); setHeight(p.height_cm == null ? '' : String(p.height_cm)); setWeight(p.weight_kg == null ? '' : String(p.weight_kg)); setTargetWeight(p.target_weight_kg == null ? '' : String(p.target_weight_kg)); setCalorieTarget(p.daily_calorie_target == null ? '' : String(p.daily_calorie_target)); setWaterTarget(p.daily_water_target_ml == null ? '' : String(p.daily_water_target_ml)); setRestrictions((p.dietary_restrictions || []).join(', ')); setAllergies((p.allergies || []).join(', ')); setBmi(p.bmi ?? null); }).catch(() => setError(t('error'))).finally(() => setLoading(false)); }, [lang]);
+audit-work/source/nabd_plus_patient_app/app/nutrition/body-target.tsx:21:  const save = async () => { if (![height, weight, targetWeight, calorieTarget, waterTarget].every(finite)) { setError(t('formRequired')); return; } setSaving(true); setError(null); try { const response: any = await apiFetch('/nutrition/profile', { method: 'POST', body: JSON.stringify({ goal, activity_level: activity, height_cm: Number(height), weight_kg: Number(weight), target_weight_kg: Number(targetWeight), daily_calorie_target: Number(calorieTarget), daily_water_target_ml: Number(waterTarget), dietary_restrictions: list(restrictions), allergies: list(allergies) }) }); const saved: Profile = response?.data || response; setBmi(saved.bmi ?? null); router.replace('/nutrition/hub'); } catch { setError(t('saveError')); } finally { setSaving(false); } };
+audit-work/source/nabd_plus_patient_app/app/nutrition/daily-tracker.tsx:25:      const [summaryResponse, mealsResponse]: any[] = await Promise.all([apiFetch(`/nutrition/daily-summary?date=${date}`), apiFetch(`/nutrition/meals?date=${date}`)]);
+audit-work/source/nabd_plus_patient_app/app/nutrition/daily-tracker.tsx:31:  const addWater = async (amount: number) => { setWaterBusy(amount); setError(null); try { await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml: amount }) }); await load(); } catch { setError(t('saveError')); } finally { setWaterBusy(null); } };
+audit-work/source/nabd_plus_patient_app/app/nutrition/hub.tsx:18:  const load = React.useCallback(async () => { setLoading(true); setError(null); try { const [p, s]: any[] = await Promise.all([apiFetch('/nutrition/profile'), apiFetch('/nutrition/daily-summary')]); setProfile(p?.data || p); setSummary(s?.data || s); } catch { setError(t('error')); } finally { setLoading(false); } }, [lang]);
+audit-work/source/nabd_plus_patient_app/app/nutrition/log-meal.tsx:31:      await apiFetch('/nutrition/meals', { method: 'POST', body: JSON.stringify({ name: name.trim(), calories: numericCalories, meal_type: mealType, ...(optional[0] !== undefined ? { protein_g: optional[0] } : {}), ...(optional[1] !== undefined ? { carbs_g: optional[1] } : {}), ...(optional[2] !== undefined ? { fat_g: optional[2] } : {}), ...(optional[3] !== undefined ? { fiber_g: optional[3] } : {}) }) });
+audit-work/source/nabd_plus_patient_app/app/offers/index.tsx:23:    apiFetch('/home/offers')
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:80:      safe(apiFetch('/care/appointments/mine')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:81:      safe(apiFetch('/orders/mine')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:82:      safe(apiFetch('/labs/bookings/mine')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:83:      safe(apiFetch('/radiology/bookings/mine')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:84:      safe(apiFetch('/home-care/bookings/my')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:85:      safe(apiFetch('/insurance/claims')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:86:      safe(apiFetch('/pharmacy/returns')),
+audit-work/source/nabd_plus_patient_app/app/orders/index.tsx:87:      safe(apiFetch('/emergency/my/active')),
+audit-work/source/nabd_plus_patient_app/app/pharmacy/broadcast-status.tsx:29:        const response = await apiFetch(`/orders/bids/request/${orderId}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/broadcast-status.tsx:46:      await apiFetch(`/orders/bids/${bidId}/accept`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/chat-with-pharmacist.tsx:124:      apiFetch(`/chat/threads/${threadId}/messages`, {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/chat-with-pharmacist.tsx:168:        await apiFetch(`/chat/threads/${threadId}/messages`, {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/chat-with-pharmacist.tsx:53:      apiFetch(`/orders/${orderId}`)
+audit-work/source/nabd_plus_patient_app/app/pharmacy/chat-with-pharmacist.tsx:60:        const threadRes: any = await apiFetch(`/chat/threads/booking`, {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/chat-with-pharmacist.tsx:68:        const data: any = await apiFetch(`/chat/threads/${tid}/messages`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/checkout.tsx:162:        const res = await apiFetch('/orders/create', { method: 'POST', body: JSON.stringify(payload) });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/checkout.tsx:50:        const profile = await apiFetch('/users/me/profile');
+audit-work/source/nabd_plus_patient_app/app/pharmacy/checkout.tsx:67:    apiFetch('/wallet/balance').then((r: any) => setWalletBalance(Number(r?.balance || 0))).catch(() => {});
+audit-work/source/nabd_plus_patient_app/app/pharmacy/checkout.tsx:75:    apiFetch('/finance-engine/loyalty/redeem-quote', {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/checkout.tsx:86:      const res = await apiFetch('/finance-engine/coupons/validate', {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/custom-item.tsx:55:      const res = await apiFetch('/media/upload', { method: 'POST', body: form });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/custom-item.tsx:79:      await apiFetch('/support/requests', {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/drug-not-found.tsx:32:      const res: any = await apiFetch(`/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/filters.tsx:64:        const data = await apiFetch('/medicines/filters');
+audit-work/source/nabd_plus_patient_app/app/pharmacy/medicine-compare.tsx:37:        const data = await apiFetch('/medicines/compare', 'POST', { ids });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-confirm.tsx:38:        const data = await apiFetch(`/orders/${orderId}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-confirm.tsx:54:      await apiFetch(`/orders/${orderId}/approve-basket`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-confirm.tsx:65:      await apiFetch(`/orders/${orderId}/reject-basket`, { method: 'POST', body: JSON.stringify({ reason: 'patient-rejected-price' }) });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-history.tsx:52:      const res = await apiFetch("/orders/mine");
+audit-work/source/nabd_plus_patient_app/app/pharmacy/order-tracking.tsx:71:        const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/payment.tsx:41:      const data = await apiFetch(`/orders/${orderId}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/product-detail.tsx:123:        const data = await apiFetch(`/medicines/${id}/details?lang=${currentDbLang()}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/product-detail.tsx:162:      await apiFetch(`/medicines/${id}/suggest-change`, {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/reorder.tsx:26:        const order = await apiFetch(`/orders/${orderId}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/reorder.tsx:58:        created = await apiFetch(`/orders/${orderId}/reorder`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/reorder.tsx:60:        created = await apiFetch(`/orders/${orderId}/reorder-partial`, {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/rx-order.tsx:23:    apiFetch('/cart/prescription')
+audit-work/source/nabd_plus_patient_app/app/pharmacy/scan-prescription.tsx:80:      const response = await apiFetch("/ai/prescription-ocr", {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/scan-prescription.tsx:88:      const savedPrescription = await apiFetch('/prescriptions/upload', {
+audit-work/source/nabd_plus_patient_app/app/pharmacy/waiting-for-pharmacy.tsx:132:            if (orderId) await apiFetch(`/orders/${orderId}/cancel`, { method: "POST" });
+audit-work/source/nabd_plus_patient_app/app/pharmacy/waiting-for-pharmacy.tsx:96:        const order = await apiFetch(`/orders/${orderId}`);
+audit-work/source/nabd_plus_patient_app/app/pharmacy/wishlist.tsx:37:        const data = await apiFetch('/users/me/wishlist');
+audit-work/source/nabd_plus_patient_app/app/pharmacy/wishlist.tsx:47:      await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+audit-work/source/nabd_plus_patient_app/app/profile/addresses.tsx:29:        const data = await apiFetch("/users/me/addresses");
+audit-work/source/nabd_plus_patient_app/app/profile/addresses.tsx:46:      await apiFetch(`/users/me/addresses/${id}`, {
+audit-work/source/nabd_plus_patient_app/app/profile/index.tsx:44:    apiFetch('/loyalty/account')
+audit-work/source/nabd_plus_patient_app/app/profile/insurance.tsx:40:      const data = await apiFetch("/users/me/insurance");
+audit-work/source/nabd_plus_patient_app/app/profile/insurance.tsx:61:      const list = await apiFetch("/insurance/companies");
+audit-work/source/nabd_plus_patient_app/app/profile/insurance.tsx:73:      const nets = await apiFetch(`/insurance/companies/${c.id || c.code}/networks`);
+audit-work/source/nabd_plus_patient_app/app/profile/insurance.tsx:96:      const saved = await apiFetch("/users/me/insurance", {
+audit-work/source/nabd_plus_patient_app/app/programs/active.tsx:44:      const res = await apiFetch('/medical/programs/active');
+audit-work/source/nabd_plus_patient_app/app/programs/active.tsx:72:              const res = await apiFetch('/medical/programs/complete-session', {
+audit-work/source/nabd_plus_patient_app/app/reports/hub.tsx:71:      const res = await apiFetch("/medical-reports/mine?limit=100");
+audit-work/source/nabd_plus_patient_app/app/reports/passport.tsx:38:    apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
+audit-work/source/nabd_plus_patient_app/app/reports/passport.tsx:39:    apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
+audit-work/source/nabd_plus_patient_app/app/reports/timeline.tsx:43:        const res = await apiFetch('/medical-reports/timeline');
+audit-work/source/nabd_plus_patient_app/app/reports/view-report.tsx:70:        const res = await apiFetch(`/reports/${params.id}`);
+audit-work/source/nabd_plus_patient_app/app/returns/new-request.tsx:66:      await apiFetch('/pharmacy/returns', {
+audit-work/source/nabd_plus_patient_app/app/reviews/index.tsx:64:      await apiFetch('/patient-ux/review', {
+audit-work/source/nabd_plus_patient_app/app/s/[type]/[slug].tsx:30:        const entity = await apiFetch(`/seo/resolve/${type}/${encodeURIComponent(String(slug))}`);
+audit-work/source/nabd_plus_patient_app/app/search/index.tsx:54:      apiFetch(`/home/search?q=${encodeURIComponent(query)}`)
+audit-work/source/nabd_plus_patient_app/app/settings/feedback.tsx:33:      await apiFetch('/support/feedback', {
+audit-work/source/nabd_plus_patient_app/app/settings/notifications-settings.tsx:108:      apiFetch('/users/me/notification-settings', {
+audit-work/source/nabd_plus_patient_app/app/settings/privacy.tsx:164:                      await apiFetch('/support/requests', {
+audit-work/source/nabd_plus_patient_app/app/settings/privacy.tsx:47:      apiFetch('/users/me/privacy-settings', {
+audit-work/source/nabd_plus_patient_app/app/settings/security.tsx:106:            await apiFetch(`/users/me/sessions/${s.id}`, { method: 'DELETE' });
+audit-work/source/nabd_plus_patient_app/app/settings/security.tsx:53:    apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ biometric: val }) }).catch(() => {});
+audit-work/source/nabd_plus_patient_app/app/settings/security.tsx:58:    apiFetch('/users/me/security-settings', { method: 'PATCH', body: JSON.stringify({ two_factor: val }) }).catch(() => {});
+audit-work/source/nabd_plus_patient_app/app/settings/security.tsx:68:      await apiFetch('/users/me/change-password', {
+audit-work/source/nabd_plus_patient_app/app/shared/location-picker.tsx:170:      const saved = await apiFetch("/users/me/addresses", {
+audit-work/source/nabd_plus_patient_app/app/shared/location-picker.tsx:82:        const data = await apiFetch("/users/me/addresses");
+audit-work/source/nabd_plus_patient_app/app/wallet/cards.tsx:106:              const res = await apiFetch(`/wallet/cards/${cardId}`, {
+audit-work/source/nabd_plus_patient_app/app/wallet/cards.tsx:347:                  const res = await apiFetch("/wallet/cards", {
+audit-work/source/nabd_plus_patient_app/app/wallet/cards.tsx:362:                  const res = await apiFetch("/wallet/cards", {
+audit-work/source/nabd_plus_patient_app/app/wallet/cards.tsx:65:      const res = await apiFetch("/wallet/cards");
+audit-work/source/nabd_plus_patient_app/app/wallet/hub.tsx:158:    apiFetch('/wallet/spending-data')
+audit-work/source/nabd_plus_patient_app/app/wallet/transactions.tsx:39:    apiFetch('/wallet/transactions')
+audit-work/source/nabd_plus_patient_app/app/wallet/transfer.tsx:62:                      const res: any = await apiFetch("/wallet/transfer", {
+audit-work/source/nabd_plus_patient_app/app/wearables/hub.tsx:34:      apiFetch("/health/vitals", {
+audit-work/source/nabd_plus_patient_app/app/wearables/hub.tsx:47:      apiFetch("/health/vitals", {
+audit-work/source/nabd_plus_patient_app/app/wearables/hub.tsx:69:      apiFetch("/health/vitals", {
+audit-work/source/nabd_plus_patient_app/app/wearables/hub.tsx:82:      apiFetch("/health/vitals", {
+audit-work/source/nabd_plus_patient_app/app/wearables/hub.tsx:95:      apiFetch("/health/vitals", {
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx:132:        await apiFetch(`/cart/lines/${item.line_id}`, { method: 'DELETE' });
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx:152:          await apiFetch(`/cart/lines/${item.line_id}`, { method: 'DELETE' });
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx:154:          await apiFetch(`/cart/lines/${item.line_id}`, {
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx:169:      await apiFetch('/cart/clear', {
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx:50:        const data = await apiFetch('/cart');
+audit-work/source/nabd_plus_patient_app/src/context/CartContext.tsx:86:      const data = await apiFetch('/cart/lines', {
+audit-work/source/nabd_plus_patient_app/src/context/ConsultationsContext.tsx:25:      const res = await apiFetch('/care/appointments');
+audit-work/source/nabd_plus_patient_app/src/context/SocketContext.tsx:57:            await apiFetch(`/chats/threads/${m.threadId}/messages`, {
+audit-work/source/nabd_plus_patient_app/src/hooks/useOfflineData.ts:38:      const fresh = await apiFetch(endpoint);
+audit-work/source/nabd_plus_patient_app/src/utils/api.security.test.ts:29:    await apiFetch('/public-data');
+audit-work/source/nabd_plus_patient_app/src/utils/api.security.test.ts:40:    await expect(apiFetch('/malformed')).rejects.toEqual(expect.objectContaining({ code: 'invalid_response' }));
+audit-work/source/nabd_plus_patient_app/src/utils/api.security.test.ts:46:    await expect(apiFetch('/patient-only')).rejects.toThrow('AUTH_ERROR_401');
+audit-work/source/nabd_plus_patient_app/src/utils/callkeep.ts:72:        await apiFetch(`/calls/${callUUID}/reject`, { method: 'POST' }).catch(() => null);
+audit-work/source/nabd_plus_patient_app/src/utils/medication-notifications.ts:263:      await apiFetch(`/health/reminders/${action.reminder_id}/log`, { method: 'POST', body: JSON.stringify({ status: action.status, time_key: action.time_key, occurred_at: action.occurred_at }) });
+audit-work/source/nabd_plus_patient_app/src/utils/notifications.ts:71:    await apiFetch('/push/register', {
+audit-work/source/nabd_plus_patient_app/src/utils/prefetch.ts:19:    const data = await apiFetch(endpoint);
+audit-work/source/nabd_plus_patient_app/src/utils/selectedAddress.ts:47:    const list = await apiFetch('/users/me/addresses');
+
+## Web upstream/BFF calls
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:13:  beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue("server-only-cart-token"); state.callPatientApi.mockReset(); });
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:15:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", groups: [{ kind: "pharmacy", count: 1, subtotal: 12, items: [{ line_id: "line-1", service_id: "med-1", name_ar: "Medicine", qty: 2, price: 6, notes: "private-notes", meta: { private: true } }] }], subtotal: 12, total: 12, currency: "SAR" }), { status: 200 }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:17:    expect(state.callPatientApi).toHaveBeenCalledWith("/cart", {}, "server-only-cart-token");
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:23:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ groups: [{ kind: "pharmacy", items: [{ line_id: "line-1", service_id: "med-1", name_ar: "Medicine" }] }], currency: "SAR" }), { status: 200 }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:30:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ currency: "SAR" }), { status: 200 }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:37:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ patient_id: "private-patient", subtotal: 12, home_visit_fee: 0, total: 12, currency: "SAR", notes: "private" }), { status: 200 }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:39:    expect(state.callPatientApi).toHaveBeenCalledWith("/cart/checkout", {}, "server-only-cart-token");
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:3:const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), requirePatientAccess: vi.fn() }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/cart-ssr.test.ts:8:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/[locale]/cart/checkout/page.tsx:20:  const response = await callPatientApi("/cart/checkout", {}, token);
+audit-work/source/nabd-patient-web/app/[locale]/cart/checkout/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/cart/page.tsx:20:  const response = await callPatientApi("/cart", {}, token);
+audit-work/source/nabd-patient-web/app/[locale]/cart/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/cart/prescription/page.tsx:19:  const response = await callPatientApi("/cart/prescription", {}, token);
+audit-work/source/nabd-patient-web/app/[locale]/cart/prescription/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:13:  beforeEach(() => state.getPublicMedicines.mockReset());
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:16:    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "Ingredient", price: 99, patient_id: "private-patient" }]), { status: 200 }));
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:20:    expect(state.getPublicMedicines).toHaveBeenCalledWith({ page: 1 });
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:28:    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "باراسيتامول 500 مجم" }]), { status: 200 }));
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:4:const state = vi.hoisted(() => ({ getPublicMedicines: vi.fn() }));
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/medicine-catalog-ssr.test.ts:8:vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicines: state.getPublicMedicines }));
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/page.tsx:38:  const response = await getPublicMedicines(search);
+audit-work/source/nabd-patient-web/app/[locale]/medicine-catalog/page.tsx:5:import { getPublicMedicines } from "@/lib/api/public-medicines-server";
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/page.tsx:20:  const response = await callPatientApi(`/patient/pharmacy/orders/${orderId}`, {}, token);
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/page.tsx:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx:20:  const response = await callPatientApi(`/orders/${orderId}/tracking`, {}, token);
+audit-work/source/nabd-patient-web/app/[locale]/orders/[orderId]/tracking/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts:14:describe("orders SSR boundary and visual card", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders the order card through BFF without embedding the session token", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: [{ id: orderId, reference: "Order-123", status: "CONFIRMED" }] }), { status: 200 })); const html = renderToStaticMarkup(await OrdersPage({ params: Promise.resolve({ locale: "ar" }) })); expect(state.callPatientApi).toHaveBeenCalledWith("/patient/pharmacy/orders", {}, serverToken); expect(html).toContain("Order-123"); expect(html).toContain(`/ar/orders/${orderId}`); expect(html).not.toContain(serverToken); }); });
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts:16:describe("order detail SSR boundary", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders only the allowlisted order summary without customer, address, price, or token", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: { id: orderId, reference: "Order-123", status: "CONFIRMED", patient_name: "private-customer", delivery_address: "private-address", total_price: 500 } }), { status: 200 })); const html = renderToStaticMarkup(await OrderDetailPage({ params: Promise.resolve({ locale: "en", orderId }) })); expect(state.callPatientApi).toHaveBeenCalledWith(`/patient/pharmacy/orders/${orderId}`, {}, serverToken); expect(html).toContain("Order-123"); expect(html).toContain("CONFIRMED"); expect(html).toContain('href="/en/orders"'); for (const secret of [serverToken, "private-customer", "private-address", "500"]) expect(html).not.toContain(secret); }); });
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts:18:describe("order tracking SSR boundary", () => { beforeEach(() => { state.requirePatientAccess.mockReset().mockResolvedValue(serverToken); state.callPatientApi.mockReset(); }); it("renders tracking status only from the authorized backend and never serializes private payloads", async () => { state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ data: { state: "OUT_FOR_DELIVERY", pharmacy_name: "Sandbox Pharmacy", delivery: { eta_minutes: 24 }, total: 18, delivery_address: "private-address", patient_notes: "private-notes", prescription_attachments: ["private-file"] } }), { status: 200 })); const html = renderToStaticMarkup(await OrderTrackingPage({ params: Promise.resolve({ locale: "en", orderId }) })); expect(state.callPatientApi).toHaveBeenCalledWith(`/orders/${orderId}/tracking`, {}, serverToken); expect(html).toContain("OUT_FOR_DELIVERY"); expect(html).toContain("Sandbox Pharmacy");
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts:3:const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), requirePatientAccess: vi.fn() }));
+audit-work/source/nabd-patient-web/app/[locale]/orders/orders-ssr.test.ts:8:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/[locale]/orders/page.tsx:31:  const response = await callPatientApi("/patient/pharmacy/orders", {}, token);
+audit-work/source/nabd-patient-web/app/[locale]/orders/page.tsx:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:29:    callPatientApi("/users/me/profile", {}, token),
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:30:    callPatientApi("/medical-profile", {}, token),
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:31:    callPatientApi("/users/me/insurance", {}, token)
+audit-work/source/nabd-patient-web/app/[locale]/profile/page.tsx:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/[locale]/profile/profile-page-ssr.test.ts:11:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: async () => state.responses.shift()! }));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:16:  const upstream = await callPatientApi(`/unified-bookings/${appointmentId}/call-token`, { method: "GET" }, token);
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/call-token/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:20:  const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/cancel`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(input.data) }, token);
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/cancel/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:10:  beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : undefined); });
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:15:    expect(state.callPatientApi).not.toHaveBeenCalled();
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:18:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ id: "33333333-3333-4333-8333-333333333333", status: "pending", amount: 120, currency: "SAR", client_secret: "secret", patient_id: "private" }), { status: 201 }));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:21:    expect(state.callPatientApi).toHaveBeenCalledWith("/payments/intent/consultation/22222222-2222-4222-8222-222222222222", expect.objectContaining({ method: "POST", headers: { "idempotency-key": "payment-key-123456" } }), "server-access");
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:24:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ message: "not_authorized" }), { status: 400 }));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:2:const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), cookieStore: { get: vi.fn() } }));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/payment-intent/route.test.ts:3:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.test.ts:3:vi.mock("@/lib/api/upstream",()=>({callPatientApi:state.call})); vi.mock("next/headers",()=>({cookies:async()=>state.cookies}));
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:20:  const upstream = await callPatientApi(`/unified-bookings/consultation/${appointmentId}/reschedule`, { method: "PATCH", headers: { "content-type": "application/json", "idempotency-key": key }, body: JSON.stringify(parsed.data) }, token);
+audit-work/source/nabd-patient-web/app/api/appointments/[appointmentId]/reschedule/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:13:  beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : name === "nabd_device" ? { value: "device-1" } : undefined); });
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:21:    expect(state.callPatientApi).not.toHaveBeenCalled();
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:24:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ booking_id: "22222222-2222-4222-8222-222222222222", status: "pending_payment", patient_id: "must-not-leak" }), { status: 201 }));
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:27:    expect(state.callPatientApi).toHaveBeenCalledWith("/unified-bookings", expect.objectContaining({ headers: expect.objectContaining({ "idempotency-key": "idempotency-test-123456", "x-device-id": "device-1" }) }), "server-access");
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:30:    state.callPatientApi.mockResolvedValue(new Response(JSON.stringify({ message: "slot_taken" }), { status: 409 }));
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:3:const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), cookieStore: { get: vi.fn() } }));
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:24:  const upstream = await callPatientApi("/unified-bookings", { method: "POST", headers: { "content-type": "application/json", "idempotency-key": idempotencyKey, ...(deviceId ? { "x-device-id": deviceId } : {}) }, body: JSON.stringify(input.data) }, accessToken);
+audit-work/source/nabd-patient-web/app/api/appointments/book/route.ts:5:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:11:  const upstream = await callPatientApi("/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+audit-work/source/nabd-patient-web/app/api/auth/login/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/logout/route.ts:5:export async function POST() { const token = (await cookies()).get(authCookieNames.access)?.value; if (token) await callPatientApi("/auth/logout", { method: "POST" }, token).catch(() => undefined); const response = NextResponse.json({ success: true }); clearSessionCookies(response); return response; }
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:14:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 300 }), { status: 201 }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:16:    expect(response.status).toBe(201); expect(state.callPatientApi).toHaveBeenCalledWith("/auth/otp/request", expect.objectContaining({ method: "POST" }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:20:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, expires_in: 60, exchangeToken: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_otp_exchange=secret; Path=/api/v1/auth/session/exchange; HttpOnly; Secure; SameSite=Strict" } }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:27:    state.callPatientApi.mockResolvedValueOnce(new Response(JSON.stringify({ authenticated: true, token: "must-not-leak" }), { status: 201, headers: { "set-cookie": "nabd_admin_token=secret; Path=/api/v1; HttpOnly; Secure" } }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:30:    expect(state.callPatientApi).toHaveBeenCalledWith("/auth/session/exchange", expect.objectContaining({ headers: expect.objectContaining({ cookie: "nabd_otp_exchange=secret", "x-device-id": "device-test" }) }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:3:const state = vi.hoisted(() => ({ callPatientApi: vi.fn() }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/otp-routes.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts:10:  const upstream = await callPatientApi("/auth/otp/request", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+audit-work/source/nabd-patient-web/app/api/auth/otp/request/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:10:  const upstream = await callPatientApi("/auth/otp/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+audit-work/source/nabd-patient-web/app/api/auth/otp/verify/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:12:  const upstream = await callPatientApi("/auth/session/exchange", { method: "POST", headers: { cookie, "x-device-id": request.headers.get("x-nabd-device-id") || crypto.randomUUID() } });
+audit-work/source/nabd-patient-web/app/api/auth/session/exchange/route.ts:3:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/auth/session/route.ts:5:export async function GET() { const token = (await cookies()).get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ authenticated: false }, { status: 401 }); const upstream = await callPatientApi("/auth/me", { method: "GET" }, token); if (!upstream.ok) return NextResponse.json({ authenticated: false }, { status: upstream.status }); return NextResponse.json({ authenticated: true, user: await upstream.json() }, { headers: { "cache-control": "no-store" } }); }
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:11:  const upstream = await callPatientApi("/auth/login/verify-2fa", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input.data) });
+audit-work/source/nabd-patient-web/app/api/auth/verify-2fa/route.ts:4:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:100:    expect(state.callPatientApi).not.toHaveBeenCalled();
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:23:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:49:    state.callPatientApi.mockReset();
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:55:    state.callPatientApi
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:5:  callPatientApi: vi.fn(),
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:63:    expect(state.callPatientApi).toHaveBeenCalledTimes(3);
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:64:    expect(state.callPatientApi).toHaveBeenNthCalledWith(1, "/orders/mine", expect.any(Object), "expired-access");
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:65:    expect(state.callPatientApi).toHaveBeenNthCalledWith(2, "/auth/refresh", expect.objectContaining({ body: JSON.stringify({ refresh_token: "valid-refresh" }) }));
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:66:    expect(state.callPatientApi).toHaveBeenNthCalledWith(3, "/orders/mine", expect.any(Object), "new-access");
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:73:    state.callPatientApi.mockResolvedValueOnce(new Response(null, { status: 401 }));
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:78:    expect(state.callPatientApi).toHaveBeenCalledTimes(1);
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:84:    state.callPatientApi
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.test.ts:91:    expect(state.callPatientApi).toHaveBeenCalledTimes(2);
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:10:async function proxy(request: NextRequest, context: Context) { const { path: parts } = await context.params; const path = `/${parts.map(encodeURIComponent).join("/")}`; if (!isAllowedPatientApiRequest(path, request.method)) return NextResponse.json({ message: "resource_not_found" }, { status: 404 }); const store = await cookies(); let token = store.get(authCookieNames.access)?.value; if (!token) return NextResponse.json({ message: "authentication_required" }, { status: 401 }); const headers = new Headers(); const target = `${path}${request.nextUrl.search}`; let upstream = await callPatientApi(target, { method: request.method, headers }, token); let rotated: Awaited<ReturnType<typeof refreshSession>> = null; if (upstream.status === 401) { rotated = await refreshSession(); if (rotated) { token = rotated.tokens.accessToken; upstream = await callPatientApi(target, { method: request.method, headers }, token); } } const response = await forwardApiResponse(upstream); if (rotated) setSessionCookies(response, rotated.tokens, rotated.deviceId); if (upstream.status === 401 && !rotated) clearSessionCookies(response); return response; }
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:7:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/app/api/patient/[...path]/route.ts:9:async function refreshSession() { const store = await cookies(); const refreshToken = store.get(authCookieNames.refresh)?.value; const deviceId = store.get(authCookieNames.device)?.value; if (!refreshToken || !deviceId) return null; const response = await callPatientApi("/auth/refresh", { method: "POST", headers: { "content-type": "application/json", "x-device-id": deviceId }, body: refreshRequestBody(refreshToken) }); if (!response.ok) return null; const tokens = parseRefreshedTokens(await response.json().catch(() => null)); if (!tokens) return null; return { tokens, deviceId }; }
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:13:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:19:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/care/appointments", {}, "server-access-token");
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:20:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/care/appointments/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-access-token");
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:21:    expect(callPatientApi).toHaveBeenNthCalledWith(3, "/unified-bookings/consultation/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-access-token");
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/appointments-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/appointments-server.ts:13:  return callPatientApi(`/unified-bookings/consultation/${appointmentId}`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/appointments-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/appointments-server.ts:5:  return callPatientApi("/care/appointments", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/appointments-server.ts:9:  return callPatientApi(`/care/appointments/${appointmentId}`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:18:export function getPatientArticleBookmarks(accessToken: string) { return callPatientApi("/articles/bookmarks/mine", {}, accessToken); }
+audit-work/source/nabd-patient-web/lib/api/articles-server.ts:2:import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/breathing-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/breathing-server.ts:2:export function getPatientBreathingHistory(accessToken:string){return callPatientApi("/mental-health/breathing",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/chat/threads", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/chat-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/chat-server.ts:13:  return callPatientApi(`/chat/threads/${threadId}/messages?limit=50`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/chat-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/chat-server.ts:5:  return callPatientApi("/chat/threads", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/chat-server.ts:9:  return callPatientApi(`/chat/threads/${threadId}`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/chronic-meds-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/chronic-meds-server.ts:2:export function getPatientChronicMedications(accessToken:string){return callPatientApi("/health/chronic-meds",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/chronic-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/chronic-server.ts:2:export function getPatientChronicDiseases(accessToken:string){return callPatientApi("/health/chronic-diseases",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/claims-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/claims-server.ts:4:  return callPatientApi("/insurance/claims", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/crisis-contacts-server.ts:2:export function getPatientCrisisContacts(accessToken:string){return callPatientApi("/mental-health/crisis-contacts",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/dashboard-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/dashboard-server.ts:5:  return callPatientApi("/users/me/profile", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/dashboard-server.ts:9:  return callPatientApi("/home/upcoming-appointment", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:13:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:16:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/labs/bookings/mine", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:17:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/radiology/bookings/91047ef2-ad36-422a-a184-629693e7c729", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.ts:10:  return callPatientApi(`/${domain}/bookings/${bookingId}`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.ts:2:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/diagnostics-server.ts:6:  return callPatientApi(`/${domain}/bookings/mine`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/emergency-contacts-server.ts:2:export function getPatientEmergencyContacts(accessToken:string){return callPatientApi("/health/emergency-contacts",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/family-group-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/family-group-server.ts:2:export function getPatientFamilyGroup(accessToken:string){return callPatientApi("/family/my-group",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/family/members", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/family-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/family-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/family-server.ts:5:  return callPatientApi("/family/members", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts:12:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts:14:    expect(callPatientApi).toHaveBeenCalledWith("/home-care/bookings/my", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/home-care-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/home-care-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/home-care-server.ts:5:  return callPatientApi("/home-care/bookings/my", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/insurance-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/insurance-server.ts:2:export function getPatientInsurancePolicy(accessToken: string) { return callPatientApi("/insurance/my-policy", {}, accessToken); }
+audit-work/source/nabd-patient-web/lib/api/insurance-server.ts:3:export function getPatientInsuranceBenefits(accessToken: string) { return callPatientApi("/insurance/benefits-summary", {}, accessToken); }
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:13:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:18:    expect(callPatientApi).toHaveBeenNthCalledWith(1, "/medicines?limit=24&page=1&q=query", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:19:    expect(callPatientApi).toHaveBeenNthCalledWith(2, "/medicines/91047ef2-ad36-422a-a184-629693e7c729/details", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/medicines-server.test.ts:9:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/medicines-server.ts:10:  return callPatientApi(`/medicines/${medicineId}/details`, {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/medicines-server.ts:2:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/medicines-server.ts:6:  return callPatientApi(medicineQuery(search), {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/meditation-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/meditation-server.ts:2:export function getPatientMeditationHistory(accessToken:string){return callPatientApi("/mental-health/meditation",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/mental-health-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/mental-health-server.ts:2:export function getPatientWellbeingDashboard(accessToken: string) { return callPatientApi("/mental-health/dashboard", {}, accessToken); }
+audit-work/source/nabd-patient-web/lib/api/mood-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/mood-server.ts:2:export function getPatientMoodHistory(accessToken:string){return callPatientApi("/mental-health/mood?days=30",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/notification-settings-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/notification-settings-server.ts:5:  return callPatientApi("/users/me/notification-settings", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/notifications", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/notifications-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/notifications-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/notifications-server.ts:5:  return callPatientApi("/notifications", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/payments-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/payments-server.ts:6:  return callPatientApi(`/payments/intent/${kind.data}/${bookingId}`, { method: "POST", headers: { "idempotency-key": idempotencyKey } }, accessToken);
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/prescriptions/mine", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/prescriptions-server.ts:5:  return callPatientApi("/prescriptions/mine", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.test.ts:2:import { getPublicMedicines } from "./public-medicines-server";
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.test.ts:9:    await expect(getPublicMedicines({ page: 1 })).resolves.toBeNull();
+audit-work/source/nabd-patient-web/lib/api/public-medicines-server.ts:12:export async function getPublicMedicines(search: { q?: string; page: number }): Promise<Response | null> {
+audit-work/source/nabd-patient-web/lib/api/radiology-server.test.ts:3:vi.mock("@/lib/api/upstream", () => ({ callPatientApi: call }));
+audit-work/source/nabd-patient-web/lib/api/radiology-server.ts:14:  return callPatientApi(`/radiology/services${params.toString() ? `?${params}` : ""}`, { method: "GET", cache: "no-store" });
+audit-work/source/nabd-patient-web/lib/api/radiology-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/radiology-server.ts:6:export function getPublicRadiologyModalities() { return callPatientApi("/radiology/modalities", { method: "GET", cache: "no-store" }); }
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/health/reminders", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/reminders-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/reminders-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/reminders-server.ts:5:  return callPatientApi("/health/reminders", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts:12:  return callPatientApi("/users/me/storage", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts:16:  return callPatientApi("/users/me/sessions", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts:4:  return callPatientApi("/users/me/privacy-settings", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/settings-server.ts:8:  return callPatientApi("/users/me/security-settings", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/sleep-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/sleep-server.ts:2:export function getPatientSleepReadings(accessToken:string){return callPatientApi("/health/sleep?limit=100",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/trends-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/trends-server.ts:2:export function getPatientHealthTrends(accessToken:string){return callPatientApi("/health/trends",{},accessToken);}
+audit-work/source/nabd-patient-web/lib/api/upstream.test.ts:10:    const response = await callPatientApi("/health/vitals/summary", {}, "server-only-token");
+audit-work/source/nabd-patient-web/lib/api/upstream.test.ts:2:import { callPatientApi, patientApiUrl } from "./upstream";
+audit-work/source/nabd-patient-web/lib/api/upstream.ts:3:export async function callPatientApi(path: string, init: RequestInit = {}, accessToken?: string | null) {
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts:11:    callPatientApi.mockResolvedValue(response);
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts:13:    expect(callPatientApi).toHaveBeenCalledWith("/health/vitals/summary", {}, "server-token");
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts:3:const callPatientApi = vi.hoisted(() => vi.fn());
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts:4:vi.mock("@/lib/api/upstream", () => ({ callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/vitals-server.test.ts:8:  beforeEach(() => callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts:13:  return callPatientApi("/health/score", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts:17:  return callPatientApi("/health/reports", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts:5:  return callPatientApi("/health/vitals/summary", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/vitals-server.ts:9:  return callPatientApi("/health/vitals?limit=100", {}, accessToken);
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.test.ts:10:    expect(state.callPatientApi).toHaveBeenCalledWith("/users/me/wishlist", {}, "server-access");
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.test.ts:2:const state = vi.hoisted(() => ({ callPatientApi: vi.fn() }));
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.test.ts:3:vi.mock("./upstream", () => ({ callPatientApi: state.callPatientApi }));
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.test.ts:7:  beforeEach(() => state.callPatientApi.mockReset());
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.ts:1:import { callPatientApi } from "@/lib/api/upstream";
+audit-work/source/nabd-patient-web/lib/api/wishlist-server.ts:4:  return callPatientApi("/users/me/wishlist", {}, accessToken);
