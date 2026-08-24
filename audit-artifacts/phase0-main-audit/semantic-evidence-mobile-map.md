@@ -1,0 +1,13 @@
+# Semantic evidence — Mobile Map
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/map/index.tsx:165–208` calls `/providers/map` with type, coordinates and a hard-coded 15 km radius. Response normalization is untyped and uses generic names/types plus derived ETA (`distance * 4`) when ETA is absent (`:177–202`); this is an estimate presented as arrival time without provenance or disclaimer. If the response is empty or fails, the code keeps providers as-is and shows no error/empty/stale state (`:204–208`); no explicit initial fallback is declared in this file, so behavior depends on prior state/other code. Unknown fields are defaulted to generic doctor-like presentation.
+
+The map initializes at fixed Riyadh coordinates (`:356–361`) and, when location permission is denied or location fails, fetches providers without coordinates (`:224–247`). This needs backend proof of default-area semantics and can show a map centered away from the patient. Permission denial has no explanatory/retry/settings path. Location is collected and used for provider query, but privacy consent, precision minimization, background policy and retention are not visible.
+
+Search and filtering are entirely local over currently loaded providers (`:249–283,466–489`), with case-sensitive `includes`, no server search, pagination, normalization, empty/no-result state, or query freshness. Auto-centering can use null coordinates from normalized results (`:277–281`), although markers filter non-numeric coordinates. `selectSearchResult` schedules `openSheet` with a timeout (`:285–296`) without cancellation/unmount safety.
+
+Provider sheet displays raw name/specialties/ratings/reviews/distance/ETA/price and derives insurance acceptance from `/user/insurance` plus `selectedProvider.insurance` (`:210–221,560–620`), without schemas, ownership, freshness, coverage verification or benefit/preauthorization contract. If insurance is absent/not matched, a tap redirects to profile edit rather than a coverage check. Directions construct an external maps URL with unsanitized provider name/coordinates (`:336–345`).
+
+Booking actions route by provider type only (`:622–660`): doctors use doctor profile, pharmacy opens pharmacy tab, labs open a generic diagnostics confirmation, hospitals consultations tab, nursing nursing tab. The provider ID/offer/service/price/selected location is not consistently carried, so the map does not prove an end-to-end booking or purchase journey. Image URI may be null (`:560–566`) and no accessibility/error state is shown. No Phase 0 remediation was made.
