@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PrescriptionsService } from './prescriptions.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { PrescriptionState, UserRole } from '../../common/enums';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 
 @Controller('prescriptions')
 @UseGuards(JwtAuthGuard)
@@ -15,6 +16,7 @@ export class PrescriptionsController {
   }
 
   @Post('upload')
+  @RequireIdempotency()
   upload(@Body() body: any, @CurrentUser() user: any) {
     return this.svc.uploadByPatient(user, body);
   }

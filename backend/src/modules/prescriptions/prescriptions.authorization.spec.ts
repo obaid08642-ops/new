@@ -264,6 +264,32 @@ describe('PrescriptionsService authorization and verified creation', () => {
     expect(events.emit).toHaveBeenCalledWith('prescription.sent_to_pharmacy', expect.objectContaining({ prescription_id: 'rx-sandbox-1', pharmacy_id: 'pharmacy-owner' }));
   });
 
+  it('accepts a bounded, signature-validated patient prescription image and binds it to the authenticated patient', async () => {
+    const { service, repository, events } = createService();
+    const pngDataUrl = 'data:image/png;base64,iVBORw0KGgo=';
+
+    await expect(service.uploadByPatient(
+      { id: 'patient-owner', role: 'patient' },
+      { upload_image: pngDataUrl, notes: 'visible image only' },
+    )).resolves.toEqual({ id: 'rx-created', patient_id: 'patient-owner' });
+
+    expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({
+      patient_id: 'patient-owner', upload_image: pngDataUrl, notes: 'visible image only', items: [],
+    }));
+    expect(events.emit).toHaveBeenCalledWith('prescription.created', expect.objectContaining({ patient_id: 'patient-owner' }));
+  });
+
+  it('rejects a payload with an image MIME label but an invalid binary signature before persistence', async () => {
+    const { service, repository } = createService();
+
+    await expect(service.uploadByPatient(
+      { id: 'patient-owner', role: 'patient' },
+      { upload_image: 'data:image/jpeg;base64,aGVsbG8=' },
+    )).rejects.toThrow(BadRequestException);
+
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
   it('persists only approved catalogue medicines against the verified owned appointment', async () => {
     const { service, repository, appointments, events } = createService();
 

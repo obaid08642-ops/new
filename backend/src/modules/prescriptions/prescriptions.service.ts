@@ -34,6 +34,29 @@ export class PrescriptionsService {
     return getEffectiveRoles(user).includes(UserRole.PHARMACY) && String(rx?.pharmacy_id || '') === String(user?.id || '');
   }
 
+  private validatePatientUploadImage(value: unknown): string {
+    const upload = typeof value === 'string' ? value.trim() : '';
+    const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(upload);
+    if (!match || match[2].length % 4 !== 0) {
+      throw new BadRequestException('prescription_image_must_be_a_supported_base64_image');
+    }
+
+    const [, mime, payload] = match;
+    const bytes = Buffer.from(payload, 'base64');
+    const maxBytes = 5 * 1024 * 1024;
+    if (!bytes.length || bytes.length > maxBytes) {
+      throw new BadRequestException('prescription_image_size_invalid');
+    }
+
+    const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+    const isPng = bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    const isWebp = bytes.length >= 12 && bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP';
+    const signatureMatches = (mime === 'image/jpeg' && isJpeg) || (mime === 'image/png' && isPng) || (mime === 'image/webp' && isWebp);
+    if (!signatureMatches) {
+      throw new BadRequestException('prescription_image_signature_invalid');
+    }
+    return `data:${mime};base64,${payload}`;
+  }
   /**
    * Creates a prescription only from a verified, in-progress doctor appointment.
    * Patient and doctor identifiers are derived and checked against the server-owned
@@ -153,9 +176,18 @@ export class PrescriptionsService {
 
   // Patient uploads scan (image OCR pending in AI module)
   async uploadByPatient(patient: any, data: { upload_image: string; items?: any[]; notes?: string }) {
+    if (!patient?.id || !data || typeof data !== 'object') {
+      throw new BadRequestException('invalid_prescription_upload');
+    }
+    const uploadImage = this.validatePatientUploadImage(data.upload_image);
+    const uploadedItems = Array.isArray(data.items) ? data.items : [];
+    if (uploadedItems.length > 100) throw new BadRequestException('too_many_prescription_items');
+    const notes = data.notes === undefined ? undefined : String(data.notes).trim();
+    if (notes && notes.length > 2000) throw new BadRequestException('prescription_notes_too_long');
+
     const items: any[] = [];
     let hasManual = false;
-    for (const it of data.items || []) {
+    for (const it of uploadedItems) {
       // Normalize the name field — OCR may return any of these keys.
       const medName = (it.name_ar || it.medicine_name_ar || it.name || it.name_en || '').toString().trim();
       const medNameEn = (it.name_en || it.medicine_name_en || '').toString().trim() || undefined;
@@ -192,13 +224,13 @@ export class PrescriptionsService {
     }
     const rx = await this.model.create({
       patient_id: patient.id,
-      upload_image: data.upload_image,
-      notes: data.notes,
+      upload_image: uploadImage,
+      notes,
       state: PrescriptionState.CREATED_BY_DOCTOR, // patient-uploaded but starts here for pharmacy review
       items,
       has_manual_entries: hasManual,
     });
-    this.events.emit(EVENTS.PRESCRIPTION_CREATED, { prescription_id: rx.id, patient_id: rx.patient_id });
+    this.events.emit(EVENTS.PRESCRIPTION_CREATED, { prescription_id: rx.id, patient_id: patient.id });
     return rx.toObject();
   }
 

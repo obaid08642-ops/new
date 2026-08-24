@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "160885886737",
+    "project_id": "napd-plus",
+    "storage_bucket": "napd-plus.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160885886737:android:2d4b8b37200b19ae1246b0",
+        "android_client_info": {
+          "package_name": "com.nabd.provider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqJSl2QjT2KW9NM7cPvooPdP9jMZ_O2gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160885886737:android:139e95cbef5d4da91246b0",
+        "android_client_info": {
+          "package_name": "com.patient.nabd"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqJSl2QjT2KW9NM7cPvooPdP9jMZ_O2gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

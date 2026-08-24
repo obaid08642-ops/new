@@ -1,0 +1,113 @@
+// @ts-nocheck
+// app/_layout.tsx — Root Layout (Expo SDK 54)
+
+// Polyfills must run before ANY other import (LiveKit expects DOMException).
+import '../src/polyfills';
+
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { Provider } from 'react-redux';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { I18nManager } from 'react-native';
+import { store } from '../src/store';
+import { AppProvider, useApp } from '../src/context/AppContext';
+import { SocketProvider } from '../src/context/SocketContext';
+import { CartProvider } from '../src/context/CartContext';
+import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
+import { ConsultationsProvider } from '../src/context/ConsultationsContext';
+import NotificationHandler from '../src/components/NotificationHandler';
+import OfflineBanner from '../src/components/OfflineBanner';
+import { initSentry } from '../src/utils/sentry';
+import { SyncManager } from '../src/data/sync/SyncManager';
+import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
+import { DatabaseManager } from '../src/data/database/core/DatabaseManager';
+
+I18nManager.allowRTL(true);
+I18nManager.forceRTL(true);
+
+initSentry();
+
+SplashScreen.preventAutoHideAsync();
+
+function ThemedStatusBar() {
+  const { isDark } = useApp();
+  return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
+
+function RootLayout() {
+  const [loaded, error] = useFonts({
+    'Cairo-Regular': require('../assets/fonts/Cairo-Regular.ttf'),
+    'Cairo-Medium': require('../assets/fonts/Cairo-Medium.ttf'),
+    'Cairo-SemiBold': require('../assets/fonts/Cairo-SemiBold.ttf'),
+    'Cairo-Bold': require('../assets/fonts/Cairo-Bold.ttf'),
+    'Cairo-ExtraBold': require('../assets/fonts/Cairo-ExtraBold.ttf'),
+    'Cairo-Black': require('../assets/fonts/Cairo-Black.ttf'),
+    'MaterialSymbolsRounded': require('../assets/fonts/MaterialSymbolsRounded.ttf'),
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+      // Initialize background sync
+      const dbManager = DatabaseManager.getInstance();
+      const syncManager = SyncManager.initialize(dbManager);
+      const bgSync = new BackgroundSynchronizer(syncManager);
+      bgSync.registerBackgroundFetch();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) return null;
+
+  return (
+    <Provider store={store}>
+      <AppProvider>
+          <SocketProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <SafeAreaProvider>
+                <CartProvider>
+                  <DiagnosticsCartProvider>
+                    <ConsultationsProvider>
+                      <ThemedStatusBar />
+                      <NotificationHandler />
+                      <OfflineBanner />
+                      <Stack
+                        screenOptions={{ headerShown: false }}
+                      >
+                        <Stack.Screen name="index" />
+                        <Stack.Screen name="(onboarding)" />
+                        <Stack.Screen name="(auth)" />
+                        <Stack.Screen name="(tabs)" />
+                        <Stack.Screen name="room/[id]" />
+                        <Stack.Screen name="ai-assistant" />
+                        <Stack.Screen name="shared/location-picker" options={{ presentation: 'modal' }} />
+                      </Stack>
+                    </ConsultationsProvider>
+                  </DiagnosticsCartProvider>
+                </CartProvider>
+              </SafeAreaProvider>
+            </GestureHandlerRootView>
+          </SocketProvider>
+        </AppProvider>
+    </Provider>
+  );
+}
+
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+
+let RootComponent = RootLayout;
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+if (!isExpoGo) {
+  try {
+    const Sentry = require('@sentry/react-native');
+    RootComponent = Sentry.wrap(RootLayout);
+  } catch (e) {
+    console.warn('[Sentry] Failed to wrap root component with Sentry:', e);
+  }
+}
+
+export default RootComponent;

@@ -1,0 +1,838 @@
+[
+  {
+    "file": "index.tsx",
+    "lines": 51
+  },
+  {
+    "file": "settings/notifications-settings.tsx",
+    "lines": 274
+  },
+  {
+    "file": "settings/support-chat.tsx",
+    "lines": 2
+  },
+  {
+    "file": "settings/index.tsx",
+    "lines": 85
+  },
+  {
+    "file": "settings/terms.tsx",
+    "lines": 160
+  },
+  {
+    "file": "settings/data.tsx",
+    "lines": 86
+  },
+  {
+    "file": "settings/notifications.tsx",
+    "lines": 127
+  },
+  {
+    "file": "settings/language.tsx",
+    "lines": 61
+  },
+  {
+    "file": "settings/privacy.tsx",
+    "lines": 72
+  },
+  {
+    "file": "settings/help.tsx",
+    "lines": 136
+  },
+  {
+    "file": "settings/feedback.tsx",
+    "lines": 96
+  },
+  {
+    "file": "settings/security.tsx",
+    "lines": 156
+  },
+  {
+    "file": "settings/about.tsx",
+    "lines": 264
+  },
+  {
+    "file": "offers/[id].tsx",
+    "lines": 266
+  },
+  {
+    "file": "drug-scanner/index.tsx",
+    "lines": 273
+  },
+  {
+    "file": "pharmacy/drug-not-found.tsx",
+    "lines": 154
+  },
+  {
+    "file": "pharmacy/cart.tsx",
+    "lines": 180
+  },
+  {
+    "file": "pharmacy/rx-order.tsx",
+    "lines": 231
+  },
+  {
+    "file": "pharmacy/broadcast-status.tsx",
+    "lines": 263
+  },
+  {
+    "file": "pharmacy/product-detail.tsx",
+    "lines": 323
+  },
+  {
+    "file": "pharmacy/wishlist.tsx",
+    "lines": 115
+  },
+  {
+    "file": "pharmacy/order-confirm.tsx",
+    "lines": 307
+  },
+  {
+    "file": "pharmacy/chat-with-pharmacist.tsx",
+    "lines": 526
+  },
+  {
+    "file": "pharmacy/order-history.tsx",
+    "lines": 146
+  },
+  {
+    "file": "pharmacy/order-tracking.tsx",
+    "lines": 220
+  },
+  {
+    "file": "pharmacy/prescription-upload.tsx",
+    "lines": 122
+  },
+  {
+    "file": "pharmacy/reorder.tsx",
+    "lines": 143
+  },
+  {
+    "file": "pharmacy/product-search.tsx",
+    "lines": 2
+  },
+  {
+    "file": "pharmacy/custom-item.tsx",
+    "lines": 97
+  },
+  {
+    "file": "pharmacy/medicine-compare.tsx",
+    "lines": 133
+  },
+  {
+    "file": "pharmacy/barcode-scanner.tsx",
+    "lines": 119
+  },
+  {
+    "file": "payments/failed.tsx",
+    "lines": 76
+  },
+  {
+    "file": "payments/success.tsx",
+    "lines": 104
+  },
+  {
+    "file": "payments/processing.tsx",
+    "lines": 540
+  },
+  {
+    "file": "payments/failure.tsx",
+    "lines": 48
+  },
+  {
+    "file": "health/reports.tsx",
+    "lines": 100
+  },
+  {
+    "file": "health/family-calendar.tsx",
+    "lines": 5
+  },
+  {
+    "file": "health/medication-reminder-list.tsx",
+    "lines": 144
+  },
+  {
+    "file": "health/family-hub.tsx",
+    "lines": 159
+  },
+  {
+    "file": "health/vitals-log.tsx",
+    "lines": 248
+  },
+  {
+    "file": "health/medication-reminder-add.tsx",
+    "lines": 201
+  },
+  {
+    "file": "health/vitals.tsx",
+    "lines": 75
+  },
+  {
+    "file": "health/add-family-member.tsx",
+    "lines": 5
+  },
+  {
+    "file": "health/family-member-detail.tsx",
+    "lines": 5
+  },
+  {
+    "file": "health/chronic-disease.tsx",
+    "lines": 211
+  },
+  {
+    "file": "health/refills.tsx",
+    "lines": 148
+  },
+  {
+    "file": "health/smart-reminders.tsx",
+    "lines": 220
+  },
+  {
+    "file": "health/conditions-allergies.tsx",
+    "lines": 137
+  },
+  {
+    "file": "health/family-chat.tsx",
+    "lines": 5
+  },
+  {
+    "file": "health/chronic-medications.tsx",
+    "lines": 111
+  },
+  {
+    "file": "health/reminders.tsx",
+    "lines": 139
+  },
+  {
+    "file": "health/prescriptions.tsx",
+    "lines": 141
+  },
+  {
+    "file": "health/wearables.tsx",
+    "lines": 194
+  },
+  {
+    "file": "health/edit-profile.tsx",
+    "lines": 227
+  },
+  {
+    "file": "health/health-id.tsx",
+    "lines": 242
+  },
+  {
+    "file": "health/sleep-score.tsx",
+    "lines": 175
+  },
+  {
+    "file": "health/emergency-contacts.tsx",
+    "lines": 61
+  },
+  {
+    "file": "health/trends.tsx",
+    "lines": 337
+  },
+  {
+    "file": "health/medications.tsx",
+    "lines": 61
+  },
+  {
+    "file": "health/sleep-tracker.tsx",
+    "lines": 150
+  },
+  {
+    "file": "(tabs)/index.tsx",
+    "lines": 497
+  },
+  {
+    "file": "(tabs)/health.tsx",
+    "lines": 171
+  },
+  {
+    "file": "(tabs)/services.tsx",
+    "lines": 97
+  },
+  {
+    "file": "(tabs)/diagnostics.tsx",
+    "lines": 126
+  },
+  {
+    "file": "(tabs)/consultations.tsx",
+    "lines": 252
+  },
+  {
+    "file": "(tabs)/pharmacy.tsx",
+    "lines": 187
+  },
+  {
+    "file": "family/permission-request.tsx",
+    "lines": 135
+  },
+  {
+    "file": "family/index.tsx",
+    "lines": 2
+  },
+  {
+    "file": "family/hub.tsx",
+    "lines": 129
+  },
+  {
+    "file": "family/join.tsx",
+    "lines": 110
+  },
+  {
+    "file": "family/invite.tsx",
+    "lines": 148
+  },
+  {
+    "file": "family/permissions.tsx",
+    "lines": 179
+  },
+  {
+    "file": "family/calendar.tsx",
+    "lines": 170
+  },
+  {
+    "file": "family/member-health.tsx",
+    "lines": 153
+  },
+  {
+    "file": "family/shared-calendar.tsx",
+    "lines": 171
+  },
+  {
+    "file": "family/chat.tsx",
+    "lines": 103
+  },
+  {
+    "file": "family/emergency-contacts.tsx",
+    "lines": 70
+  },
+  {
+    "file": "family/voice-call.tsx",
+    "lines": 62
+  },
+  {
+    "file": "emergency/index.tsx",
+    "lines": 2
+  },
+  {
+    "file": "emergency/sos-active.tsx",
+    "lines": 154
+  },
+  {
+    "file": "emergency/tracking.tsx",
+    "lines": 111
+  },
+  {
+    "file": "emergency/sos.tsx",
+    "lines": 197
+  },
+  {
+    "file": "loyalty/hub.tsx",
+    "lines": 414
+  },
+  {
+    "file": "loyalty/leaderboard.tsx",
+    "lines": 130
+  },
+  {
+    "file": "loyalty/rewards.tsx",
+    "lines": 160
+  },
+  {
+    "file": "loyalty/challenges.tsx",
+    "lines": 191
+  },
+  {
+    "file": "loyalty/referrals.tsx",
+    "lines": 126
+  },
+  {
+    "file": "search/index.tsx",
+    "lines": 204
+  },
+  {
+    "file": "programs/active.tsx",
+    "lines": 232
+  },
+  {
+    "file": "nursing/hub.tsx",
+    "lines": 93
+  },
+  {
+    "file": "nursing/nurse-profile.tsx",
+    "lines": 110
+  },
+  {
+    "file": "nursing/service-detail.tsx",
+    "lines": 118
+  },
+  {
+    "file": "nursing/live-doctor-tracking.tsx",
+    "lines": 143
+  },
+  {
+    "file": "nursing/live-tracking.tsx",
+    "lines": 203
+  },
+  {
+    "file": "nursing/booking-confirm.tsx",
+    "lines": 240
+  },
+  {
+    "file": "map/index.tsx",
+    "lines": 652
+  },
+  {
+    "file": "(onboarding)/index.tsx",
+    "lines": 320
+  },
+  {
+    "file": "(onboarding)/permissions.tsx",
+    "lines": 95
+  },
+  {
+    "file": "(onboarding)/language.tsx",
+    "lines": 61
+  },
+  {
+    "file": "profile/index.tsx",
+    "lines": 84
+  },
+  {
+    "file": "profile/edit.tsx",
+    "lines": 2
+  },
+  {
+    "file": "support/ticket.tsx",
+    "lines": 72
+  },
+  {
+    "file": "support/chat.tsx",
+    "lines": 146
+  },
+  {
+    "file": "voice/index.tsx",
+    "lines": 296
+  },
+  {
+    "file": "ai/prescription-translator.tsx",
+    "lines": 320
+  },
+  {
+    "file": "ai/symptom-timeline.tsx",
+    "lines": 54
+  },
+  {
+    "file": "ai/chat-doctor.tsx",
+    "lines": 273
+  },
+  {
+    "file": "ai/triage.tsx",
+    "lines": 224
+  },
+  {
+    "file": "ai/monthly-report.tsx",
+    "lines": 255
+  },
+  {
+    "file": "ai/symptom-checker.tsx",
+    "lines": 592
+  },
+  {
+    "file": "ai/skin-analysis.tsx",
+    "lines": 323
+  },
+  {
+    "file": "consultations/doctor-search.tsx",
+    "lines": 135
+  },
+  {
+    "file": "consultations/share-report.tsx",
+    "lines": 87
+  },
+  {
+    "file": "consultations/clinic-location.tsx",
+    "lines": 103
+  },
+  {
+    "file": "consultations/cancel-reschedule.tsx",
+    "lines": 198
+  },
+  {
+    "file": "consultations/call-history.tsx",
+    "lines": 275
+  },
+  {
+    "file": "consultations/post-call-rating.tsx",
+    "lines": 172
+  },
+  {
+    "file": "consultations/incoming-call.tsx",
+    "lines": 138
+  },
+  {
+    "file": "consultations/home-visit-tracking.tsx",
+    "lines": 100
+  },
+  {
+    "file": "consultations/virtual-waiting-room.tsx",
+    "lines": 375
+  },
+  {
+    "file": "consultations/waiting-room.tsx",
+    "lines": 309
+  },
+  {
+    "file": "consultations/livekit-view.tsx",
+    "lines": 197
+  },
+  {
+    "file": "consultations/doctor-profile.tsx",
+    "lines": 676
+  },
+  {
+    "file": "consultations/chat-with-doctor.tsx",
+    "lines": 710
+  },
+  {
+    "file": "consultations/video-call.tsx",
+    "lines": 486
+  },
+  {
+    "file": "consultations/booking-success.tsx",
+    "lines": 112
+  },
+  {
+    "file": "consultations/follow-up.tsx",
+    "lines": 126
+  },
+  {
+    "file": "consultations/prescription-from-doctor.tsx",
+    "lines": 162
+  },
+  {
+    "file": "consultations/booking-confirm.tsx",
+    "lines": 366
+  },
+  {
+    "file": "consultations/specialty-select.tsx",
+    "lines": 62
+  },
+  {
+    "file": "consultations/appointment-detail.tsx",
+    "lines": 163
+  },
+  {
+    "file": "consultations/appointments.tsx",
+    "lines": 220
+  },
+  {
+    "file": "diagnostics/cart.tsx",
+    "lines": 137
+  },
+  {
+    "file": "diagnostics/results-history.tsx",
+    "lines": 124
+  },
+  {
+    "file": "diagnostics/package-detail.tsx",
+    "lines": 63
+  },
+  {
+    "file": "diagnostics/sample-tracking.tsx",
+    "lines": 260
+  },
+  {
+    "file": "diagnostics/book-sample.tsx",
+    "lines": 108
+  },
+  {
+    "file": "diagnostics/search.tsx",
+    "lines": 90
+  },
+  {
+    "file": "diagnostics/packages.tsx",
+    "lines": 107
+  },
+  {
+    "file": "diagnostics/technician-tracking.tsx",
+    "lines": 84
+  },
+  {
+    "file": "diagnostics/test-detail.tsx",
+    "lines": 222
+  },
+  {
+    "file": "diagnostics/my-results.tsx",
+    "lines": 115
+  },
+  {
+    "file": "diagnostics/booking-confirm.tsx",
+    "lines": 275
+  },
+  {
+    "file": "diagnostics/lab-comparison.tsx",
+    "lines": 140
+  },
+  {
+    "file": "wallet/hub.tsx",
+    "lines": 342
+  },
+  {
+    "file": "wallet/transactions.tsx",
+    "lines": 102
+  },
+  {
+    "file": "wallet/transfer.tsx",
+    "lines": 126
+  },
+  {
+    "file": "wallet/topup.tsx",
+    "lines": 116
+  },
+  {
+    "file": "wallet/cards.tsx",
+    "lines": 366
+  },
+  {
+    "file": "delivery/address-select.tsx",
+    "lines": 99
+  },
+  {
+    "file": "mental-health/index.tsx",
+    "lines": 6
+  },
+  {
+    "file": "mental-health/hub.tsx",
+    "lines": 62
+  },
+  {
+    "file": "mental-health/crisis-support.tsx",
+    "lines": 184
+  },
+  {
+    "file": "mental-health/self-assessment.tsx",
+    "lines": 171
+  },
+  {
+    "file": "mental-health/mood-journal.tsx",
+    "lines": 216
+  },
+  {
+    "file": "mental-health/meditation.tsx",
+    "lines": 261
+  },
+  {
+    "file": "mental-health/therapist-match.tsx",
+    "lines": 140
+  },
+  {
+    "file": "mental-health/breathing.tsx",
+    "lines": 194
+  },
+  {
+    "file": "returns/hub.tsx",
+    "lines": 206
+  },
+  {
+    "file": "returns/new-request.tsx",
+    "lines": 345
+  },
+  {
+    "file": "returns/detail.tsx",
+    "lines": 139
+  },
+  {
+    "file": "(auth)/login.tsx",
+    "lines": 261
+  },
+  {
+    "file": "(auth)/register.tsx",
+    "lines": 185
+  },
+  {
+    "file": "(auth)/otp.tsx",
+    "lines": 182
+  },
+  {
+    "file": "(auth)/provider-info.tsx",
+    "lines": 65
+  },
+  {
+    "file": "(auth)/reset-password.tsx",
+    "lines": 79
+  },
+  {
+    "file": "(auth)/forgot-password.tsx",
+    "lines": 67
+  },
+  {
+    "file": "(auth)/welcome.tsx",
+    "lines": 124
+  },
+  {
+    "file": "community/hub.tsx",
+    "lines": 112
+  },
+  {
+    "file": "community/post-detail.tsx",
+    "lines": 197
+  },
+  {
+    "file": "community/live-session.tsx",
+    "lines": 139
+  },
+  {
+    "file": "nutrition/food-scanner.tsx",
+    "lines": 223
+  },
+  {
+    "file": "nutrition/index.tsx",
+    "lines": 6
+  },
+  {
+    "file": "nutrition/hub.tsx",
+    "lines": 66
+  },
+  {
+    "file": "nutrition/ai-meal-planner.tsx",
+    "lines": 336
+  },
+  {
+    "file": "nutrition/daily-tracker.tsx",
+    "lines": 170
+  },
+  {
+    "file": "nutrition/exercise-plan.tsx",
+    "lines": 73
+  },
+  {
+    "file": "nutrition/body-target.tsx",
+    "lines": 115
+  },
+  {
+    "file": "nutrition/ai-plan-builder.tsx",
+    "lines": 211
+  },
+  {
+    "file": "nutrition/calorie-analyzer.tsx",
+    "lines": 150
+  },
+  {
+    "file": "nutrition/nutrition-plan.tsx",
+    "lines": 2
+  },
+  {
+    "file": "nutrition/body-composition.tsx",
+    "lines": 90
+  },
+  {
+    "file": "nutrition/water-tracker.tsx",
+    "lines": 173
+  },
+  {
+    "file": "nutrition/log-meal.tsx",
+    "lines": 208
+  },
+  {
+    "file": "maternity/hub.tsx",
+    "lines": 523
+  },
+  {
+    "file": "maternity/ovulation-tracker.tsx",
+    "lines": 558
+  },
+  {
+    "file": "maternity/baby-growth.tsx",
+    "lines": 242
+  },
+  {
+    "file": "maternity/baby-development.tsx",
+    "lines": 737
+  },
+  {
+    "file": "maternity/pregnancy-tracker.tsx",
+    "lines": 268
+  },
+  {
+    "file": "insurance/index.tsx",
+    "lines": 6
+  },
+  {
+    "file": "insurance/submit-claim.tsx",
+    "lines": 96
+  },
+  {
+    "file": "insurance/hub.tsx",
+    "lines": 495
+  },
+  {
+    "file": "insurance/coverage-check.tsx",
+    "lines": 323
+  },
+  {
+    "file": "insurance/claim-tracking.tsx",
+    "lines": 143
+  },
+  {
+    "file": "insurance/approval-pending.tsx",
+    "lines": 135
+  },
+  {
+    "file": "insurance/benefits-summary.tsx",
+    "lines": 157
+  },
+  {
+    "file": "insurance/policy-detail.tsx",
+    "lines": 72
+  },
+  {
+    "file": "insurance/refund-status.tsx",
+    "lines": 58
+  },
+  {
+    "file": "insurance/payment-split.tsx",
+    "lines": 421
+  },
+  {
+    "file": "insurance/network-providers.tsx",
+    "lines": 150
+  },
+  {
+    "file": "insurance/add-policy.tsx",
+    "lines": 184
+  },
+  {
+    "file": "wearables/hub.tsx",
+    "lines": 196
+  },
+  {
+    "file": "notifications/index.tsx",
+    "lines": 109
+  },
+  {
+    "file": "reports/hub.tsx",
+    "lines": 74
+  },
+  {
+    "file": "reports/passport.tsx",
+    "lines": 195
+  },
+  {
+    "file": "reports/ai-analysis.tsx",
+    "lines": 182
+  },
+  {
+    "file": "reports/timeline.tsx",
+    "lines": 180
+  },
+  {
+    "file": "reports/view-report.tsx",
+    "lines": 199
+  },
+  {
+    "file": "reviews/index.tsx",
+    "lines": 138
+  }
+]
