@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 3 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 20 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 22 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 4 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 27 | Confirmed source findings recorded to date. |
+| Total | 29 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-027 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-029 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -33,6 +33,7 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-012, F-013, F-019 | Family/Insurance/Home-care | Consent, ownership, guest policy and insurance decision flow remain unresolved. |
 | F-022 | Admin Passkey | 2FA enforcement/recovery/replay/audit lifecycle is asserted but not proven by the page evidence. |
 | F-023 | Provider Nursing | Patient PHI and operational actions are exposed through drifted routes and fallback values. |
+| F-028, F-029 | User settings/security | Backend mutations exist, but typed DTOs, re-auth/idempotency consistency, optimistic rollback and session identifier reconciliation are not proven. |
 
 ### Truthfulness and data integrity
 
@@ -43,6 +44,7 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-020 | Admin telemetry | Invalid coordinates become synthetic map positions; failed fetches lack visible retry; localhost fallback exists. |
 | F-024, F-025 | Pharmacy parity | Web commerce is read-only/noindex while Mobile uses local cart/cache without complete server reconciliation proof. |
 | F-027 | Provider Radiology | Failed inbox becomes empty/zero dashboard; safety data and mutation lifecycle require clinical integrity proof. |
+| F-028, F-029 | Settings parity | Web is read-only while backend/Mobile expose security/settings mutations with incomplete contract and failure semantics. |
 
 ### Contract, state and end-to-end parity
 
