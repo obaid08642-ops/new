@@ -1,9 +1,9 @@
-# Nabd Plus — Phase 0 Root Audit Final Closure Package
+# Nabd Plus — Phase 0A Root Audit Completeness Correction Package
 
 **Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`  
 **Audit branch:** `agent/audit-main-contract-inventory`  
 **Scope:** Backend, Patient Web, Patient Mobile, Provider and Admin source/contract audit only.  
-**Disposition:** `OPEN/PARTIAL — NO-GO`; no remediation, feature activation, deployment, migration or production mutation was performed in Phase 0.
+**Disposition:** `PHASE 0A CORRECTION IN PROGRESS — NO-GO`; artifacts only. No remediation, feature activation, deployment, migration or production mutation was performed.
 
 ## Executive conclusion
 
@@ -13,20 +13,33 @@ The audit now covers the previously outstanding Mobile Pharmacy, Community, Wall
 
 | Severity | Count | Interpretation |
 |---|---:|---|
-| P0 | 4 | Release-blocking operational/security/contract risks remain. |
+| P0 | 3 | Release-blocking operational/security/contract risks remain. |
 | P1 | 88 | Material correctness, security, truthfulness, lifecycle and parity gaps. |
-| P2 | 6 | Important governance/product/parity gaps. |
+| P2 | 7 | Important governance/product/parity gaps. |
 | **Total** | **98** | `F-001` through `F-098`, each with file/line evidence and acceptance criteria. |
 
 The authoritative register is `confirmed-findings-v1.md`. The latest findings F-087–F-098 consolidate the newly audited Pharmacy checkout/chat/order/prescription surfaces, Wallet, Offers, Map, Support/Community and Settings. They are findings, not completed fixes.
 
-## Coverage status
+The severity totals were recalculated directly from the register with:
+
+```sh
+awk -F'|' '$2 ~ /F-[0-9]+/ {gsub(/[[:space:]]/,"",$3); c[$3]++} END {for (k in c) print k, c[k]}' audit-artifacts/phase0-main-audit/confirmed-findings-v1.md | sort
+awk -F'|' '$2 ~ /F-[0-9]+/ {n++} END {print n}' audit-artifacts/phase0-main-audit/confirmed-findings-v1.md
+```
+
+Observed output: `P0 3`, `P1 88`, `P2 7`, `TOTAL=98`.
+
+## Coverage and source-read status
 
 `phase0-coverage-matrix.md` records all audited domains as `PARTIAL`, `FINDING/PARTIAL`, `READ-ONLY/PARTIAL`, or `VERIFICATION CANDIDATE`; no surface is marked production-complete. The matrix now includes Mobile Therapeutic Programs and the Settings/Support/Data/Language/Wallet/Offers/Map surfaces. `NABD_Main_End_to_End_Traceability_2026-08-24.md` contains twelve journey families and an evidence index.
+
+Phase 0A is **inventory-complete at archive-member level but semantic-full-read incomplete**. `NABD_Main_Source_Manifest_2026-08-24.md` and `NABD_Main_Archive_Member_Inventory_2026-08-24.tsv` account for 3,128 archive members: 2,962 owned source/config candidates and 166 exclusions. At this checkpoint, `Fully read=YES: 0` and `Fully read=NO: 3,128` are intentionally preserved; no source file is falsely marked as semantically read. The package must not be called Root Audit Final Closure until this is resolved.
 
 ## Route and contract reconciliation completed
 
 The following fixed-source reconciliations are included:
+
+The archive provenance and member inventory are in `phase0a-main-audit/NABD_Main_Archive_Provenance_2026-08-24.md`, `NABD_Main_Archive_Member_Inventory_2026-08-24.tsv`, and `NABD_Main_Archive_Exclusions_2026-08-24.tsv`.
 
 | Artifact | Confirmed points |
 |---|---|
@@ -63,4 +76,4 @@ The audit branch was repeatedly pushed and verified after each artifact batch. T
 
 > **NO-GO for a 100% production-readiness claim.**
 
-The project has a substantially stronger, verifiable audit baseline, not a finished production application. Remediation/build work may begin only after reviewer approval of this closure package, explicit decisions D-001–D-026, and a new phase plan that preserves contract-first, truthfulness, ownership, idempotency, PHI and live-verification gates.
+The project has a substantially stronger, verifiable inventory and evidence baseline, not a finished production application or accepted Root Audit closure. Remediation/build work may begin only after reviewer approval of the Phase 0A correction, completion of owned-member semantic reading, explicit decisions D-001–D-026, and a new phase plan that preserves contract-first, truthfulness, ownership, idempotency, PHI and live-verification gates.
