@@ -15,13 +15,13 @@ The baseline contains broad source coverage and many real backend routes, but th
 | Severity | Count | Meaning |
 |---|---:|---|
 | P0 | 4 | Release-blocking security, operational or contract risk requiring closure before production claim. |
-| P1 | 66 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
+| P1 | 71 | Material correctness, security, parity, truthfulness or lifecycle gaps. |
 | P2 | 6 | Important product/parity or governance gaps; may be scheduled only after launch scope decision. |
-| Total | 76 | Confirmed source findings recorded to date. |
+| Total | 81 | Confirmed source findings recorded to date. |
 
 ## Confirmed findings
 
-The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-076 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
+The authoritative detailed register is `confirmed-findings-v1.md`; it contains F-001 through F-081 with direct file/line evidence and acceptance conditions. The findings are grouped below for reviewer triage.
 
 ### Security, identity and ownership
 
@@ -89,6 +89,11 @@ The authoritative detailed register is `confirmed-findings-v1.md`; it contains F
 | F-074 | Mobile insurance network | Provider failures/queries/filters and coverage/booking handoffs are not fully typed or verified. |
 | F-075 | Mobile insurance policy detail | Policy display/verification/PHI and coverage context are not fully owner-scoped or lifecycle-backed. |
 | F-076 | Mobile insurance refund status | Refund failure/status/settlement/linkage semantics are incomplete or unverified. |
+| F-077 | Mobile insurance claims | Claim creation lacks policy/evidence/ownership/idempotency and truthful server lifecycle. |
+| F-078 | Mobile insurance payment split | Zero-copay and payment settlement/reconciliation controls are incomplete or unverified. |
+| F-079 | Mobile insurance hub | Policy/coverage/CHI-scraped data and linked claim/benefit routes are not fully server-authoritative. |
+| F-080 | Mobile insurance benefits | Limits/renewal/coverage values include stale or hard-coded semantics. |
+| F-081 | Mobile nursing tracking | Tracking failures/statuses/completion/location/PHI and contact semantics are incomplete or unverified. |
 | F-044 | Mobile family permissions | Sensitive delegation can fall back across authorization paths and report false success without step-up/audit proof. |
 | F-046 | Mobile family invite | Invite lifecycle and optional metadata are not proven to be bound to an owner-scoped contract. |
 | F-045 | Mobile family member health | PHI access failure is rendered as normal empty data; proxy booking/chat lack member consent context. |
