@@ -1,0 +1,9 @@
+# Semantic evidence — Mobile Wallet Transfer
+
+Baseline: `22526bedb77a3d8148219036367e4714f401aecc`.
+
+`audit-work/source/nabd_plus_patient_app/app/wallet/transfer.tsx:25–29` reads `/wallet/balance`; failure is swallowed and leaves zero with no retry/error/stale indicator. The transfer journey is implemented through `Alert.prompt` (`:31–87`), which is iOS-specific and has no Android-equivalent UI in this source, creating a platform parity failure. Recipient is accepted as arbitrary phone/email text and amount as raw prompt text; only non-empty recipient, numeric positive amount, and `amount <= balance` are checked locally (`:38–60`). There is no formatting/precision/min-max/currency/beneficiary lookup, OTP/step-up, recipient confirmation, or anti-fraud/rate-limit evidence.
+
+The mutation sends `POST /wallet/transfer` with `{ recipient, amount }` (`:61–65`) without visible Idempotency-Key, transfer token, ownership/beneficiary authorization, duplicate/replay protection, server balance/version precondition, or client amount assertion. Any successful response triggers a “transfer successful” alert and sets local balance to `res.balance || balance - amount` (`:66–70`), which is an unsafe client fallback if the server omits or returns an unvalidated balance. Failure collapses all domain states into a generic message (`:71–75`), with no pending/processing/unknown-outcome recovery, receipt/transaction ID, reversal/refund or reconciliation flow.
+
+The UI offers “family member” and “pay doctor” cards (`:129–167`), but both feed the same free-text endpoint with a local type that is never sent (`handleTransfer` receives type only to change prompt copy). Therefore family relationship, doctor identity, appointment/order linkage and permitted transfer purpose are not enforced. No Phase 0 remediation was made.
