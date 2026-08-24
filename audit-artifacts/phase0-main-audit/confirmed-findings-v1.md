@@ -228,3 +228,10 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | ID | Severity | Finding | Direct evidence | Required acceptance condition |
 |---|---|---|---|---|
 | F-132 | P1 | AuditLog has useful unique id, indexed action/createdAt, actor/resource references and correlation_id, but action/role/resource_kind/severity lack runtime allowlists, details is arbitrary, IP/user-agent have no minimization or retention policy, and there is no append-only/immutability enforcement, event deduplication, actor-session/source or tenant scope. The TypeScript severity union does not constitute runtime validation. | `src/schemas/audit-log.schema.ts:5–20`; `audit-artifacts/phase0b-backend/semantic-evidence-audit-log-schema.md` | Add runtime event contracts and severity enum, redact/minimize PII, define TTL/retention, enforce append-only integrity and source/actor scope, and test forged/replayed events and cross-tenant reads. |
+
+
+## Duplicate audit model finding added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-133 | P1 | Two distinct `AuditLog` schemas exist with materially incompatible contracts: the general model records generated id, optional user/IP/user-agent/resource/details/severity/correlation, while admin-web-core requires actor ObjectId/role/endpoint/action/payloadHash. This can split audit queries, retention, redaction and integrity guarantees, and neither model visibly enforces append-only storage or runtime allowlists. | `src/schemas/audit-log.schema.ts:5–20`; `src/modules/admin-web-core/schemas/audit-log.schema.ts:6–24`; `audit-artifacts/phase0b-backend/semantic-evidence-audit-log-schema.md`; `audit-artifacts/phase0b-backend/semantic-evidence-admin-audit-log-schema.md` | Select one authoritative versioned audit contract or explicitly partition collections, define migration/retention/redaction policy, enforce append-only integrity and event/source/actor contracts, and add cross-module query and security tests. |
