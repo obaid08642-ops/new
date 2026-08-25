@@ -3765,3 +3765,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2482 | P1 | No rollback/compensation test covers projection write success with cache/event failure or partial multi-surface publication. | `src/modules/events/catalog-publication.service.spec.ts:27–65` | Failure-safe publication workflow. |
 | F-2483 | P1 | Approved fixture remains noindex and does not establish a valid indexable production lifecycle. | `src/modules/events/catalog-publication.service.spec.ts:5–13,27–49` | Explicit legal/indexability acceptance path. |
 | F-2484 | P1 | The spec was not executed during this audit and cannot establish current publication/event readiness. | `src/modules/events/catalog-publication.service.spec.ts:1–94` | Baseline-pinned executed and live evidence. |
+
+## Sentry exception-filter findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2485 | P0 | The filter sends authenticated user ID, email and name/username directly to Sentry without visible minimization, hashing, consent or tenant scope. | `src/common/sentry.filter.ts:11–18` | Privacy-reviewed observability identity policy. |
+| F-2486 | P0 | Exception messages/stacks and SDK context are captured without visible redaction of tokens, secrets, PII or medical content. | `src/common/sentry.filter.ts:21–29` | Central redaction and secret-scan gate. |
+| F-2487 | P1 | `Sentry.setUser` uses global SDK state and is never cleared, creating possible stale/concurrent user association. | `src/common/sentry.filter.ts:12–18` | Request-scoped user context isolation. |
+| F-2488 | P1 | All 4xx telemetry is suppressed without a separate privacy-safe security/abuse audit path. | `src/common/sentry.filter.ts:21–29` | Security signal and privacy policy. |
+| F-2489 | P1 | Filter assumes HTTP context and does not cover WebSocket, RPC, queues, scheduled jobs or worker failures. | `src/common/sentry.filter.ts:7–10,31` | Cross-transport exception policy. |
+| F-2490 | P1 | Sentry capture failures, sampling, rate limiting, environment gating and correlation/trace identifiers are not handled here. | `src/common/sentry.filter.ts:26–29` | Resilient observability configuration. |
+| F-2491 | P0 | No visible request URL/query/body/header sanitization exists before exception capture. | `src/common/sentry.filter.ts:21–29` | Request-context redaction policy. |
+| F-2492 | P1 | No visible retention, deletion/DSAR or regional data-residency policy is enforced for user context. | `src/common/sentry.filter.ts:11–18` | Sentry data-governance acceptance. |
+| F-2493 | P1 | `username` falls back to the user ID and email falls back to an empty string, but no canonical identity/PII classification is enforced. | `src/common/sentry.filter.ts:14–18` | Typed telemetry identity contract. |
+| F-2494 | P1 | Unknown non-HTTP exceptions are treated as 500 for capture, while HTTP status classification can miss wrapped/domain errors. | `src/common/sentry.filter.ts:21–29` | Exception taxonomy and telemetry matrix. |
+| F-2495 | P1 | No test proves Nest response handling remains privacy-safe after Sentry capture or when Sentry throws. | `src/common/sentry.filter.ts:26–31` | Capture-failure isolation test. |
+| F-2496 | P1 | The filter was not executed or privacy-tested during this audit and cannot establish observability readiness. | `src/common/sentry.filter.ts:1–33` | Baseline-pinned redaction and runtime evidence. |
