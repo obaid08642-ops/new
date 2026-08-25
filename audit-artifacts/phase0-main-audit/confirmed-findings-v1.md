@@ -2163,3 +2163,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1335 | P1 | Existing records are skipped but stale/renamed/removed companies are never reconciled or deactivated. | `src/scripts/seed-insurance-companies.ts:27–32` | Full desired-state reconciliation with deactivation policy. |
 | F-1336 | P1 | Failure path logs only to console, exits without a visible `finally` disconnect, and provides no structured/redacted incident evidence. | `src/scripts/seed-insurance-companies.ts:21–24,36–38` | Guaranteed cleanup and structured redacted operational logging. |
 | F-1337 | P2 | Documentation says `npx ts-node` and labels the script idempotent but does not document permissions, source version or operational safety prerequisites. | `src/scripts/seed-insurance-companies.ts:1–4` | Accurate runbook with preflight and safety constraints. |
+
+## Admin seed script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1338 | P0 | Admin seed script has no production/non-production gate or database identity assertion, so manual invocation can create a privileged account in the wrong environment. | `src/scripts/seed-admin.ts:19–36` | Environment allowlist, database identity assertion and explicit privileged bootstrap approval. |
+| F-1339 | P0 | `DB_NAME` silently defaults to `nabd`, creating wrong-database write risk when deployment configuration is missing. | `src/scripts/seed-admin.ts:20,30–36` | Required DB_NAME in controlled environments; no implicit fallback. |
+| F-1340 | P0 | Claimed idempotency is non-atomic phone check-then-insert; concurrent invocations can create duplicate admin accounts absent a verified unique index. | `src/scripts/seed-admin.ts:38–58` | Atomic upsert/unique index and concurrent replay tests. |
+| F-1341 | P1 | Script checks phone but not existing email conflicts before inserting a lowercased email, risking duplicate/ambiguous identity credentials. | `src/scripts/seed-admin.ts:38–50` | Phone/email uniqueness and conflict rejection. |
+| F-1342 | P0 | Raw collection insert directly assigns `role:'admin'` and `active:true` without least-privilege bootstrap role, approval, MFA enrollment or one-time activation policy. | `src/scripts/seed-admin.ts:45–58` | Controlled admin activation with MFA/approval and immutable audit. |
+| F-1343 | P1 | Password policy is only a 12-character minimum; no breach screening, complexity, rotation, expiry or revocation contract is enforced. | `src/scripts/seed-admin.ts:26–29,45–51` | Strong policy, one-time credential flow, expiry and revocation. |
+| F-1344 | P1 | The “change password after first login” requirement is printed but not enforced by a persisted must-change/expiry flag. | `src/scripts/seed-admin.ts:52–60` | Server-enforced first-login rotation. |
+| F-1345 | P1 | No operator identity, approval ticket, seed run ID, source/provenance or rollback marker is persisted for privileged account creation. | `src/scripts/seed-admin.ts:45–58` | Immutable privileged bootstrap audit and reversible procedure. |
+| F-1346 | P1 | Raw collection access bypasses application schema/DTO/validation and index readiness checks. | `src/scripts/seed-admin.ts:35–58` | Governed typed migration path with schema/index preflight. |
+| F-1347 | P1 | Failure path logs to console and exits without a visible `finally` disconnect or structured redacted incident record. | `src/scripts/seed-admin.ts:64–67` | Guaranteed cleanup and structured redacted logging. |
+| F-1348 | P1 | No dry-run, explicit once-only lock, bounded execution or post-insert verification exists despite documentation saying “ONCE per environment.” | `src/scripts/seed-admin.ts:2–13,19–61` | Audited one-time command with lock, dry-run and verification. |
+| F-1349 | P1 | The generated admin identity has no visible tenant/scope, recovery contact verification, status history or revocation metadata beyond basic fields. | `src/scripts/seed-admin.ts:46–57` | Scoped identity lifecycle and verified recovery controls. |
+| F-1350 | P2 | Documentation names a “secure” replacement and claims idempotency without documenting permissions, database selection, unique-index prerequisite or operational rollback. | `src/scripts/seed-admin.ts:1–14` | Accurate runbook with safety prerequisites and rollback. |
