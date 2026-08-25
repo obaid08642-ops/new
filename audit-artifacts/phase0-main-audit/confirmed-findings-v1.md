@@ -2938,3 +2938,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1885 | P1 | Restore can overwrite live data without coordination with application traffic, migrations, queues or cache invalidation. | `scripts/db-backup-restore.sh:36–50` | Quiescence/traffic gate, migration compatibility and cache/queue reconciliation. |
 | F-1886 | P1 | No restore drill, RTO/RPO measurement or disaster-recovery acceptance evidence is coupled to the CLI. | `scripts/db-backup-restore.sh:1–60` | Scheduled restore drills with measured RTO/RPO. |
 | F-1887 | P2 | CLI usage is minimal and does not surface safety confirmation, environment, encryption, archive provenance or destructive-restore warnings. | `scripts/db-backup-restore.sh:8–12,36–50` | Safety-aware operator UX and machine-readable CLI contract. |
+
+## Test provider seeder findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1888 | P0 | Test provider seeder defaults to localhost Mongo with no test-database identity or production denial gate. | `scripts/seed_test_providers.js:3–5,19–21` | Fail-closed test target and production guard. |
+| F-1889 | P0 | Six predictable provider accounts use one hardcoded shared password, and the plaintext password is printed with each phone in logs. | `scripts/seed_test_providers.js:23,26–36` | Managed ephemeral credentials and zero secret logging. |
+| F-1890 | P0 | Test providers are marked `APPROVED` and `is_online: true` without license/capability/readiness verification or quarantine from operational visibility. | `scripts/seed_test_providers.js:25–32` | Test-only quarantine and explicit capability/approval gates. |
+| F-1891 | P0 | Upsert by phone writes status, online state and password on every rerun, potentially re-enabling or changing accounts without review. | `scripts/seed_test_providers.js:34–37` | Versioned, state-preserving test-account reconciliation. |
+| F-1892 | P0 | Script defines a local provider schema/model instead of visibly using the canonical provider schema, risking field/security/role drift. | `scripts/seed_test_providers.js:7–17` | Canonical schema/model and contract tests. |
+| F-1893 | P1 | No expiry, cleanup, account quarantine, tenant isolation or audit lifecycle exists for seeded test providers. | `scripts/seed_test_providers.js:25–40` | Ephemeral test lifecycle and immutable seed audit. |
+| F-1894 | P1 | No unique-index assertion, deterministic seed release/version, rollback or reconciliation of expected provider accounts is performed. | `scripts/seed_test_providers.js:25–37` | Unique/reconciliation/rollback contract. |
+| F-1895 | P0 | Hardcoded phone numbers and names can be mistaken for real operational provider identities or collide with actual accounts. | `scripts/seed_test_providers.js:25–32` | Reserved test namespace and collision-proof identity. |
+| F-1896 | P1 | `status: APPROVED` and `is_online: true` are directly persisted without an actor/audit record or authorization boundary. | `scripts/seed_test_providers.js:26–31,34–37` | Audited test-state transitions and authorization. |
+| F-1897 | P1 | No protection prevents seeded provider credentials from being accepted by production authentication or exposed in provider discovery. | `scripts/seed_test_providers.js:23–36` | Environment-bound auth/discovery exclusion tests. |
+| F-1898 | P1 | No provider license, service capability, facility, location, schedule or insurance readiness data is created, making “approved/online” semantically incomplete. | `scripts/seed_test_providers.js:7–15,25–32` | Complete test fixture contract or explicit unavailable states. |
+| F-1899 | P1 | Error handling records only a generic console error and does not emit structured partial-seed/recovery evidence. | `scripts/seed_test_providers.js:42–47` | Structured failure report and recovery/cleanup evidence. |
+| F-1900 | P1 | No transaction or compensation protects a partial loop of provider upserts. | `scripts/seed_test_providers.js:34–37` | Transactional/compensating fixture provisioning. |
+| F-1901 | P2 | Decorative emoji and plaintext account details in operational logs violate the audit's zero-PII/secret logging requirement. | `scripts/seed_test_providers.js:20,36,43` | Structured redacted logs. |
+| F-1902 | P2 | JavaScript fixture/schema is untyped and has no static contract or schema-drift gate. | `scripts/seed_test_providers.js:1,7–17,25–37` | Strict typing and CI fixture checks. |
