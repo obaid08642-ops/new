@@ -3483,3 +3483,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2290 | P1 | `is_active` defaults true without approval, operational readiness, publication or deactivation metadata. | `src/modules/hospital/schemas/hospital-department.schema.ts:26–27` | Fail-closed activation/publication lifecycle. |
 | F-2291 | P0 | Schema does not bind department access or booking eligibility to facility/branch ownership; ObjectId references alone cannot prevent cross-facility BOLA. | `src/modules/hospital/schemas/hospital-department.schema.ts:8–12` | Facility-scoped negative tests for reads and mutations. |
 | F-2292 | P1 | No audit actor, version or optimistic concurrency policy is encoded for fee/status/specialty edits. | `src/modules/hospital/schemas/hospital-department.schema.ts:6–27` | Audited, versioned, race-safe state changes. |
+
+## HospitalInvitation schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2293 | P0 | No uniqueness/idempotency key prevents duplicate active invitations for one facility/invitee/role. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:15–32` | Unique active invitation and replay-safe creation. |
+| F-2294 | P0 | No expiry or TTL field exists, so pending invitations can remain valid indefinitely absent proven service policy. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:31–34` | Explicit expiry/TTL and expired-state handling. |
+| F-2295 | P1 | `invitee_identifier` may retain raw phone/email/user input without normalization, hashing/masking or retention policy. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:23–24` | Minimized audited identifier handling. |
+| F-2296 | P0 | `role` is an unconstrained string and `permissions` is an open object despite comments claiming a whitelist. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:26–29` | Typed capability allowlist and least-privilege validation. |
+| F-2297 | P0 | Schema does not prove facility/provider identity, provider type, authorization or that invitee belongs to the intended account. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:17–21` | Actor/target ownership and provider-type checks. |
+| F-2298 | P1 | Invitation IDs use strings/business UUIDs while related hospital schemas use ObjectIds, creating an identifier-boundary mismatch risk. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:15,18,21` | Explicit identifier mapping and negative tests. |
+| F-2299 | P0 | Status enum lacks transition actor/reason, cancellation/rejection timestamps and optimistic concurrency. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:31–34` | Audited race-safe state machine. |
+| F-2300 | P0 | Accepted invitation is not schema-bound to exactly one HospitalStaff membership; repeated accept can duplicate links unless service/database prevents it. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:7–11,31–34` | Atomic acceptance and unique staff membership. |
+| F-2301 | P1 | No audit provenance records who created, responded to or revoked the invitation beyond generic timestamps. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:13–34` | Actor-attributed audit trail. |
+| F-2302 | P1 | No schema-level field minimization/serialization policy is present for invitation identifiers and permission data. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:18–29` | Safe projections and API response contract. |
