@@ -3594,3 +3594,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2366 | P0 | No live provider webhook, gateway signature, duplicate delivery or settlement acceptance exists in this spec. | `src/modules/webhooks/webhooks.service.spec.ts:1–95` | Authorized live sandbox provider proof. |
 | F-2367 | P1 | No signature secret audit/rotation/revocation or per-provider credential isolation is encoded. | `src/modules/webhooks/webhooks.service.spec.ts:31–94` | Managed credential lifecycle. |
 | F-2368 | P1 | The spec was not executed during this audit and cannot establish current webhook readiness. | `src/modules/webhooks/webhooks.service.spec.ts:1–95` | Baseline-pinned executed and live evidence. |
+
+## LiveKit follow-up test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2369 | P0 | LiveKit spec mocks `issueBookingCallToken`'s token creator for participant/window tests, so end-to-end signing and claims are not proven. | `src/modules/livekit/livekit.followup.spec.ts:52–122` | Signed-token integration and claims matrix. |
+| F-2370 | P0 | No test proves LiveKit room ACLs, participant grants, identity uniqueness or room isolation. | `src/modules/livekit/livekit.followup.spec.ts:35–122` | Room/participant security acceptance. |
+| F-2371 | P0 | No token revocation, cancellation/completion invalidation, replay or duplicate device/session coverage exists. | `src/modules/livekit/livekit.followup.spec.ts:35–122` | Token lifecycle and revocation contract. |
+| F-2372 | P1 | Window tests rely on real wall clock and do not cover exact boundaries, timezone, DST or clock skew. | `src/modules/livekit/livekit.followup.spec.ts:52–122` | Fixed-clock temporal matrix. |
+| F-2373 | P0 | No test covers appointment consent, participant authorization beyond two IDs, family/on-behalf booking or facility scope. | `src/modules/livekit/livekit.followup.spec.ts:52–94` | Full participant/consent ownership matrix. |
+| F-2374 | P1 | `markNoShow` tests assert lookup/save only and do not prove allowed timing, state transition, audit, notification or idempotency. | `src/modules/livekit/livekit.followup.spec.ts:19–33` | No-show state/audit/notification contract. |
+| F-2375 | P1 | No call initiation/join/end/reject, media failure, reconnect, background, audio/video permission or device compatibility tests exist. | `src/modules/livekit/livekit.followup.spec.ts:35–122` | Signed-device media acceptance. |
+| F-2376 | P1 | Mocked connection/events do not prove persistence, event durability or failure behavior. | `src/modules/livekit/livekit.followup.spec.ts:4–8,19–33` | Durable call session/event tests. |
+| F-2377 | P1 | Error tests assert exception classes only and do not prove privacy-safe HTTP status, rate limits or resource-existence side-channel behavior. | `src/modules/livekit/livekit.followup.spec.ts:82–122` | HTTP/error/rate-limit contract. |
+| F-2378 | P1 | The spec was not executed during this audit and cannot establish current deployed video-call readiness. | `src/modules/livekit/livekit.followup.spec.ts:1–123` | Baseline-pinned executed and live/device evidence. |
