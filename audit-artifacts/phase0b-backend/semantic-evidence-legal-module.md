@@ -1,0 +1,11 @@
+# Phase 0B semantic evidence — Legal module
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/legal/legal.module.ts:1–212`
+
+`LegalService` reads and writes raw Mongo collections for legal policies, acceptances and finance configuration (`30–46`). `getPolicy` exposes policy content/version/effective date/change log publicly through a language fallback that treats every non-Arabic language as English and falls back from English to Arabic (`48–61`); `listPolicies` publicly exposes titles, versions, last-updated, acceptance requirement and applicability (`64–66`). Policy upsert accepts an untyped patch, defaults missing titles/version/content/applicability, auto-increments only minor version, and spreads arbitrary fields into updates (`68–96`). No schema/DTO validation, key allowlist, publication/effective-date invariant, legal review/approval, rollback or transaction is visible here.
+
+Acceptance uses a `findOne` then `insertOne` for `{user_id, policy_key, version}` and then creates an enterprise snapshot (`98–120`), with no visible atomic unique guarantee, idempotency key or compensation if snapshot fails after insertion. It stores device ID, client-derived platform, IP and user-agent; the route accepts any key/request metadata and there is no visible PII minimization/retention policy in this member. Pending acceptance queries all required policies and all user acceptances, using broad `any` values and permissive applicability logic (`123–128`).
+
+Finance configuration is lazily initialized with hardcoded Saudi commission, payout and VAT defaults (`16–28,41–46`), and `updateCommissions` spreads arbitrary admin patch fields into the config without field allowlist, bounds, currency/tax validation, optimistic versioning or transaction; it records history only after the update (`130–145`). `commissionFor` trusts arbitrary provider/service identifiers and falls back to 10% for unknown service types (`147–153`). Public policy routes, authenticated acceptance, admin policy/commission routes and authenticated commission lookup are declared with `any` bodies/queries and no visible idempotency on acceptance or finance mutations (`156–203`). No product code was changed and no tests/builds were executed during this semantic read.
