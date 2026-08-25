@@ -6063,3 +6063,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4130 | P0 | No health/metrics/tracing/alerting or allocation-failure observability is represented. | `infra/turnserver.conf:1–29` | TURN observability gate. |
 | F-4131 | P0 | No HA/failover, capacity, backup, upgrade or disaster-recovery policy is represented. | `infra/turnserver.conf:1–29` | TURN resilience gate. |
 | F-4132 | P1 | No runtime TURN/TLS/NAT/authentication/network validation was established during this baseline source read. | `infra/turnserver.conf:1–29` | Baseline-pinned TURN runtime evidence. |
+
+## Infrastructure compose findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4133 | P0 | MongoDB is published on `27017:27017` without auth, TLS, network restriction, healthcheck, replica/init or resource controls represented. | `infra/docker-compose.infra.yml:4–11` | Database network/security gate. |
+| F-4134 | P0 | Redis is published on `6379:6379` without auth, TLS, network restriction, healthcheck, resource controls or namespace isolation represented. | `infra/docker-compose.infra.yml:13–21` | Redis network/security gate. |
+| F-4135 | P0 | Coturn and LiveKit use host networking, bypassing normal container network isolation and exposing media listeners directly. | `infra/docker-compose.infra.yml:23–38` | Media network isolation gate. |
+| F-4136 | P0 | Coturn and LiveKit images use mutable `latest` tags, so supply-chain provenance and reproducible rollback are not guaranteed. | `infra/docker-compose.infra.yml:23–38` | Digest-pinned image gate. |
+| F-4137 | P0 | No image digest/signature/provenance, vulnerability scanning or update/rollback policy is represented. | `infra/docker-compose.infra.yml:4–38` | Container supply-chain gate. |
+| F-4138 | P0 | No secrets/environment injection is represented; services depend on configuration files with known placeholder risk. | `infra/docker-compose.infra.yml:23–38` | Runtime secret injection gate. |
+| F-4139 | P0 | No non-root user, read-only filesystem, capabilities drop, seccomp/AppArmor or least-privilege hardening is represented. | `infra/docker-compose.infra.yml:3–38` | Container runtime hardening gate. |
+| F-4140 | P0 | No healthchecks or dependency health ordering exists, so `restart: always` does not establish service readiness. | `infra/docker-compose.infra.yml:3–38` | Service readiness/dependency gate. |
+| F-4141 | P0 | Persistent Mongo/Redis volumes have no backup, encryption, retention, restore test or disaster-recovery policy represented. | `infra/docker-compose.infra.yml:10–21,40–43` | Data resilience gate. |
+| F-4142 | P0 | Published ports and host-network media services have no firewall/ACL/rate-limit/egress restriction or capacity policy represented. | `infra/docker-compose.infra.yml:8–9,17–18,23–38` | Network exposure/capacity gate. |
+| F-4143 | P0 | No logging driver/rotation/redaction/access/retention policy is represented. | `infra/docker-compose.infra.yml:1–43` | Infrastructure log governance gate. |
+| F-4144 | P0 | No graceful shutdown, rolling upgrade, health-gated restart or failover policy is represented. | `infra/docker-compose.infra.yml:7,16,26,34` | Deployment lifecycle gate. |
+| F-4145 | P0 | LiveKit/Coturn config mounts are mutable host paths without ownership/permissions/integrity or secret-file controls represented. | `infra/docker-compose.infra.yml:28–29,36–38` | Config mount integrity gate. |
+| F-4146 | P1 | No runtime compose validation of service isolation, ports, authentication, TLS, health, persistence or recovery was established during this baseline source read. | `infra/docker-compose.infra.yml:1–43` | Baseline-pinned infra runtime evidence. |
