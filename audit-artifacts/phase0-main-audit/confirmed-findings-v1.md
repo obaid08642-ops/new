@@ -4136,3 +4136,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2738 | P1 | No aggregate/rating calculation provenance or stale-cache invalidation linkage is represented. | `src/schemas/review.schema.ts:11–15` | Truthful ratings aggregation contract. |
 | F-2739 | P1 | No index strategy is visible for public provider/status/time moderation or aggregation queries beyond basic fields. | `src/schemas/review.schema.ts:7–18` | Review query/index plan. |
 | F-2740 | P1 | The schema was not executed or integrated with booking/review moderation during this audit and cannot establish review readiness. | `src/schemas/review.schema.ts:1–18` | Baseline-pinned review runtime evidence. |
+
+## Inventory schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2741 | P0 | `stock_qty` and `reserved_qty` are unconstrained numbers with no integer/non-negative or `reserved_qty <= stock_qty` invariant. | `src/schemas/inventory.schema.ts:10–11` | Quantity invariant contract. |
+| F-2742 | P0 | No atomic reservation/decrement, version, compare-and-set or oversell protection is visible. | `src/schemas/inventory.schema.ts:10–11,19` | Race-safe inventory transaction. |
+| F-2743 | P0 | Price is optional and unconstrained with no currency, scale, tax, effective time, source or immutable history. | `src/schemas/inventory.schema.ts:12` | Server-authoritative money contract. |
+| F-2744 | P0 | Availability has no relationship to stock, expiry, licensing, approval or public publication status. | `src/schemas/inventory.schema.ts:13–15` | Eligibility/publication contract. |
+| F-2745 | P1 | Restock and expiry dates lack lot/batch, timezone, stale-stock, recall or quarantine semantics. | `src/schemas/inventory.schema.ts:14–15` | Expiry/recall safety policy. |
+| F-2746 | P0 | Pharmacy/medicine IDs lack visible account/facility/license/tenant ownership and catalog identity validation. | `src/schemas/inventory.schema.ts:8–9` | Pharmacy/medicine ownership matrix. |
+| F-2747 | P0 | Compound uniqueness prevents duplicate rows but does not prevent stale writes or concurrent reservation races. | `src/schemas/inventory.schema.ts:19` | Versioned reservation/decrement test. |
+| F-2748 | P0 | No idempotency, audit actor, update provenance, price/stock history or reservation-expiry fields are represented. | `src/schemas/inventory.schema.ts:7–15` | Audited inventory mutation contract. |
+| F-2749 | P0 | No role-safe patient projection or policy prevents internal reservation/stock metadata leakage. | `src/schemas/inventory.schema.ts:8–15` | Safe inventory projections. |
+| F-2750 | P1 | No operational indexes for available/expired/stale/reserved stock selection or cleanup are visible. | `src/schemas/inventory.schema.ts:8–19` | Inventory query/index plan. |
+| F-2751 | P1 | No deletion/retention/soft-delete or medication recall/quarantine governance is visible. | `src/schemas/inventory.schema.ts:5–15` | Inventory lifecycle governance. |
+| F-2752 | P1 | The schema was not executed or integrated with checkout/reservation/restock flows during this audit. | `src/schemas/inventory.schema.ts:1–19` | Baseline-pinned inventory runtime evidence. |
