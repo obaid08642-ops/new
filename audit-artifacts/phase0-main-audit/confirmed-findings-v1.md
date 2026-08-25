@@ -3444,3 +3444,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2266 | P1 | The same generic repository can be reused across public discovery and private provider contexts without member-level field minimization or purpose separation. | `src/modules/care/repositories/providerprofile.repository.ts:9–12` | Purpose-specific repositories/projections or audited callers. |
 | F-2267 | P1 | No pagination, concurrency/session, transaction, sort or error-translation behavior is defined at this care persistence boundary. | `src/modules/care/repositories/providerprofile.repository.ts:9–12` | Explicit persistence contract where required by lifecycle. |
 | F-2268 | P1 | The repository has no direct contract tests proving model injection, generic delegation, or safe behavior under missing/foreign provider identities. | `src/modules/care/repositories/providerprofile.repository.ts:1–13` | Repository/caller negative and integration coverage. |
+
+## HospitalStaff schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2269 | P0 | HospitalStaff stores user/hospital/branch/department references but the schema does not enforce that branch and department belong to the referenced hospital. | `src/modules/hospital/schemas/hospital-staff.schema.ts:8–18` | Service/database cross-reference validation. |
+| F-2270 | P1 | No compound uniqueness prevents duplicate staff membership records for the same user/facility/scope. | `src/modules/hospital/schemas/hospital-staff.schema.ts:8–18` | Unique membership key and race-safe creation. |
+| F-2271 | P1 | `is_active` defaults true without schema-level approval, verification or employment-state requirements. | `src/modules/hospital/schemas/hospital-staff.schema.ts:23–24` | Fail-closed provisioning and audited activation. |
+| F-2272 | P1 | Role enum is not linked to capability scopes, provider type, least privilege or role-transition audit. | `src/modules/hospital/schemas/hospital-staff.schema.ts:20–21` | Explicit role/capability policy and transition evidence. |
+| F-2273 | P1 | No credential expiry, revocation reason, deactivation actor or access-review metadata exists beyond timestamps. | `src/modules/hospital/schemas/hospital-staff.schema.ts:6,23–24` | Revocation/access-review lifecycle. |
+| F-2274 | P0 | ObjectId references alone do not prevent a caller from selecting another facility's staff record; schema presence cannot prove BOLA resistance. | `src/modules/hospital/schemas/hospital-staff.schema.ts:8–18` | Facility-scoped owner/role negative tests. |
+| F-2275 | P1 | Finance and doctor/lab_tech roles are accepted as strings without schema-bound permission separation or sensitive-data minimization. | `src/modules/hospital/schemas/hospital-staff.schema.ts:20–21` | Permission matrix and field-level access controls. |
+| F-2276 | P1 | No version/optimistic concurrency field or audit trail is encoded for competing staff activation/deactivation/role changes. | `src/modules/hospital/schemas/hospital-staff.schema.ts:6–24` | Race-safe state transitions with audit. |
