@@ -2731,3 +2731,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1733 | P1 | No identity uniqueness/normalization contract is visible for driver phone/email/account linkage. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Canonical identity uniqueness tests. |
 | F-1734 | P0 | No authentication-sensitive transaction boundary is defined for driver credential/status/role changes. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Transactional credential/status commands and recovery tests. |
 | F-1735 | P2 | Non-functional import comment and repository simplicity obscure ownership of this security-sensitive driver identity boundary. | `src/modules/drivers/repositories/user.repository.ts:4–6` | Remove stale comment and document driver identity boundary. |
+
+## DriverShift repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1736 | P0 | DriverShift repository has no driver/account/tenant scope; inherited generic operations can expose or mutate another driver's availability. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Mandatory driver/tenant-scoped methods and stranger tests. |
+| F-1737 | P0 | No timezone, start/end validity, overlap uniqueness or driver capacity invariant is enforced. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Typed schedule contract, compound uniqueness and race tests. |
+| F-1738 | P0 | No availability/open/active/paused/closed/cancelled state machine or actor authorization is represented. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Guarded shift lifecycle with actor/audit. |
+| F-1739 | P0 | No order/delivery assignment relationship or rule prevents assigning work outside a valid shift. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Shift/assignment relationship and serviceability checks. |
+| F-1740 | P1 | No optimistic concurrency or atomic lock prevents simultaneous shift edits and assignments from conflicting. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Version checks, atomic assignment and race tests. |
+| F-1741 | P1 | No idempotency/replay or deterministic shift command policy is defined for opening, updating, closing or syncing shifts. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Stable command keys and replay tests. |
+| F-1742 | P1 | No location/route/geofence or driver minimum-necessary projection policy is enforced. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Geospatial/serviceability and privacy projection tests. |
+| F-1743 | P1 | No credential, vehicle or operational-readiness boundary is represented for shift activation. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Driver/vehicle readiness gate. |
+| F-1744 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for shifts, schedules and location history. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Shift data lifecycle and erasure/hold tests. |
+| F-1745 | P1 | No audit/provenance records who opened, changed, assigned, closed or accessed a driver shift. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Immutable shift/access/assignment audit. |
+| F-1746 | P1 | No bounded query, pagination or index contract is visible for operational shift searches and availability windows. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Bounded queries, schedule indexes and pagination tests. |
+| F-1747 | P2 | Non-functional import comment and repository simplicity obscure ownership of this operationally sensitive scheduling boundary. | `src/modules/drivers/repositories/drivershift.repository.ts:4–6` | Remove stale comment and document shift boundary. |
