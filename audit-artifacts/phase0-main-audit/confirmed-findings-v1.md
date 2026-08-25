@@ -3513,3 +3513,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2310 | P1 | Specialties test validates only two aggregate outputs and does not cover unknown/duplicate/empty/retired specialty slugs or localization. | `src/modules/care/tests/public-discovery.spec.ts:77–88` | Versioned specialty catalog and locale coverage. |
 | F-2311 | P1 | No test covers public cache invalidation, stale approval, canonical metadata, sitemap/indexability or structured data. | `src/modules/care/tests/public-discovery.spec.ts:7–102` | Discovery/SEO/cache integration evidence. |
 | F-2312 | P1 | The spec is a source regression artifact, not proof of live availability or production parity; it was not executed during this audit. | `src/modules/care/tests/public-discovery.spec.ts:1–102` | Baseline-pinned executed evidence plus live acceptance. |
+
+## Care appointment-state test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2313 | P1 | Appointment state spec is mock-only and cannot prove Mongo transactions, controller guards, HTTP status or live ownership. | `src/modules/care/tests/appointments-states.spec.ts:8–31` | Integration/live lifecycle gates. |
+| F-2314 | P0 | System auto-confirm is tested by accepting a forged-looking `{id:'system',role:'system'}` object; no test proves only an internal trusted path can mint it. | `src/modules/care/tests/appointments-states.spec.ts:77–86` | Cryptographically/structurally trusted internal actor boundary. |
+| F-2315 | P0 | Refund assertions cover returned percentage/destination/penalty and event emission but not actual gateway refund, wallet credit, ledger balance or exactly-once settlement. | `src/modules/care/tests/appointments-states.spec.ts:100–147` | Sandbox financial E2E with ledger before/after and replay. |
+| F-2316 | P1 | Admin cancellation is broad in the unit test and lacks admin scope, reason/audit and sensitive-data authorization coverage. | `src/modules/care/tests/appointments-states.spec.ts:141–146` | Scoped admin authorization and audit tests. |
+| F-2317 | P0 | Cancellation tests do not prove concurrent cancellation/reschedule safety, atomic state+refund behavior or idempotency. | `src/modules/care/tests/appointments-states.spec.ts:100–147` | Race-safe idempotent mutation contract. |
+| F-2318 | P0 | Reschedule uses compensation deletion rather than proven atomic transaction; delete failure/orphan replacement paths are untested. | `src/modules/care/tests/appointments-states.spec.ts:156–190` | Transaction/rollback/orphan cleanup evidence. |
+| F-2319 | P0 | Reschedule tests do not prove unique slot locking or concurrent double-booking prevention. | `src/modules/care/tests/appointments-states.spec.ts:156–178` | Database/Redis lock and race tests. |
+| F-2320 | P1 | Time tests rely on `Date.now()` and UTC rounding without provider timezone, DST, clock-skew or boundary-hour coverage. | `src/modules/care/tests/appointments-states.spec.ts:149–199` | Fixed-clock timezone/DST matrix. |
+| F-2321 | P1 | No notification, event replay, audit history persistence or failure-compensation test is present beyond one mocked emit assertion. | `src/modules/care/tests/appointments-states.spec.ts:66–75,100–108` | Durable event/audit/notification acceptance. |
+| F-2322 | P1 | No test covers illegal transition matrix exhaustively across every actor/provider type/status. | `src/modules/care/tests/appointments-states.spec.ts:46–64,88–98` | Exhaustive state×actor transition matrix. |
+| F-2323 | P1 | Provider identity test covers one account alias but not foreign provider, wrong provider_type, facility scope or revoked provider. | `src/modules/care/tests/appointments-states.spec.ts:88–93` | Full provider identity and role negative matrix. |
+| F-2324 | P1 | The spec was not run during this audit; local source regression evidence must not be reported as current live acceptance. | `src/modules/care/tests/appointments-states.spec.ts:1–201` | Baseline-pinned executed and live evidence. |
