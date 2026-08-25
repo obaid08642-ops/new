@@ -3498,3 +3498,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2300 | P0 | Accepted invitation is not schema-bound to exactly one HospitalStaff membership; repeated accept can duplicate links unless service/database prevents it. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:7–11,31–34` | Atomic acceptance and unique staff membership. |
 | F-2301 | P1 | No audit provenance records who created, responded to or revoked the invitation beyond generic timestamps. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:13–34` | Actor-attributed audit trail. |
 | F-2302 | P1 | No schema-level field minimization/serialization policy is present for invitation identifiers and permission data. | `src/modules/hospital/schemas/hospital-invitation.schema.ts:18–29` | Safe projections and API response contract. |
+
+## Care public-discovery test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2303 | P1 | Public-discovery spec uses only mocked models/services and cannot prove controller, guard, serialization or live HTTP behavior. | `src/modules/care/tests/public-discovery.spec.ts:7–24` | Integration/live public endpoint gates. |
+| F-2304 | P0 | Selected sensitive fields are excluded, but the test does not assert an exhaustive allowlist, so newly added PII/financial/clinical fields could leak unnoticed. | `src/modules/care/tests/public-discovery.spec.ts:26–50,59–75` | Exhaustive public DTO/projection contract. |
+| F-2305 | P1 | Facility/doctor public tests do not prove cross-facility ownership or provider-role boundaries. | `src/modules/care/tests/public-discovery.spec.ts:26–75` | Foreign/invalid-facility and role negative tests. |
+| F-2306 | P1 | Eligibility tests do not cover revoked, expired, quarantined, incomplete-license or catalog-publication states. | `src/modules/care/tests/public-discovery.spec.ts:26–57,59–75` | Full publication-state matrix. |
+| F-2307 | P1 | Slot test covers only a null doctor and does not prove slot ownership, timezone/date validation, stale slot handling, locking or race behavior. | `src/modules/care/tests/public-discovery.spec.ts:52–57` | Slot lifecycle and concurrency tests. |
+| F-2308 | P1 | Search test covers regex metacharacter escaping but not Unicode/locale normalization, length/limit bounds, regex DoS or malformed pagination. | `src/modules/care/tests/public-discovery.spec.ts:90–100` | Bounded normalized search contract. |
+| F-2309 | P1 | Search test assumes exact count and does not cover count/query mismatch, failure, stable ordering or empty/large pages. | `src/modules/care/tests/public-discovery.spec.ts:90–100` | Count semantics and pagination edge tests. |
+| F-2310 | P1 | Specialties test validates only two aggregate outputs and does not cover unknown/duplicate/empty/retired specialty slugs or localization. | `src/modules/care/tests/public-discovery.spec.ts:77–88` | Versioned specialty catalog and locale coverage. |
+| F-2311 | P1 | No test covers public cache invalidation, stale approval, canonical metadata, sitemap/indexability or structured data. | `src/modules/care/tests/public-discovery.spec.ts:7–102` | Discovery/SEO/cache integration evidence. |
+| F-2312 | P1 | The spec is a source regression artifact, not proof of live availability or production parity; it was not executed during this audit. | `src/modules/care/tests/public-discovery.spec.ts:1–102` | Baseline-pinned executed evidence plus live acceptance. |
