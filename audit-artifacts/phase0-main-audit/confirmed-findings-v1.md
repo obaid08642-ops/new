@@ -3530,3 +3530,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2322 | P1 | No test covers illegal transition matrix exhaustively across every actor/provider type/status. | `src/modules/care/tests/appointments-states.spec.ts:46–64,88–98` | Exhaustive state×actor transition matrix. |
 | F-2323 | P1 | Provider identity test covers one account alias but not foreign provider, wrong provider_type, facility scope or revoked provider. | `src/modules/care/tests/appointments-states.spec.ts:88–93` | Full provider identity and role negative matrix. |
 | F-2324 | P1 | The spec was not run during this audit; local source regression evidence must not be reported as current live acceptance. | `src/modules/care/tests/appointments-states.spec.ts:1–201` | Baseline-pinned executed and live evidence. |
+
+## HospitalService test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2325 | P1 | HospitalService spec is mock-only and does not prove controller decorators, guards, unauthenticated rejection or live HTTP status. | `src/modules/hospital/services/hospital.service.spec.ts:4–17` | Integration/live authorization gates. |
+| F-2326 | P0 | UUID-to-Mongo mapping test assumes a single expected user `_id` and does not cover missing, ambiguous, non-hospital or foreign facility identities. | `src/modules/hospital/services/hospital.service.spec.ts:19–24` | Fail-closed identity resolution matrix. |
+| F-2327 | P0 | Positive hospital provider test proves only one `provider_type` value; it does not cover aliases, inactive/revoked providers, facility membership or account/profile mismatches. | `src/modules/hospital/services/hospital.service.spec.ts:26–31` | Full effective-role and membership matrix. |
+| F-2328 | P1 | Negative actor tests cover patient and doctor but not unauthenticated, pharmacy/lab/nursing, hospital from another facility or malformed actor identities. | `src/modules/hospital/services/hospital.service.spec.ts:33–38` | Exhaustive actor/type negative tests. |
+| F-2329 | P0 | Appointment update query constrains doctor IDs but does not prove doctor records belong to the requested hospital/branch or that hospital actor owns the facility. | `src/modules/hospital/services/hospital.service.spec.ts:40–50` | Facility/branch ownership proof. |
+| F-2330 | P0 | Appointment status update test does not validate allowed state transitions, terminal states, before/after history, audit event or invalid status input. | `src/modules/hospital/services/hospital.service.spec.ts:40–50` | State-machine and audit acceptance. |
+| F-2331 | P0 | No transaction, optimistic concurrency or idempotency test covers staff/appointment mutation races. | `src/modules/hospital/services/hospital.service.spec.ts:40–50` | Race-safe mutation contract. |
+| F-2332 | P1 | No invitation acceptance/staff provisioning, duplicate membership, role capability or revocation workflow is tested. | `src/modules/hospital/services/hospital.service.spec.ts:4–51` | Full hospital membership lifecycle. |
+| F-2333 | P1 | Model failure/null/error paths are not covered for user, doctor, staff or appointment operations. | `src/modules/hospital/services/hospital.service.spec.ts:5–16,19–50` | Failure taxonomy and negative persistence tests. |
+| F-2334 | P1 | The spec was not executed during this audit and cannot serve as current baseline or live deployment proof. | `src/modules/hospital/services/hospital.service.spec.ts:1–51` | Pinned executed evidence and post-deploy sandbox proof. |
