@@ -1,0 +1,11 @@
+# Phase 0B semantic evidence — Recruitment module
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/recruitment/recruitment.module.ts:1–300`
+
+The module registers candidate, job and application schemas and exposes authenticated recruitment endpoints, with public job listing/detail exceptions (`recruitment.module.ts:220–299`). Service and controller DTOs/principals are broadly typed as `any`, and no ValidationPipe/DTO schema is defined at this module boundary (`1–15,18–67,220–284`). Candidate profile upsert accepts CV URL, SCFHS license fields, expiry, experience and skills with minimal checks; existing profiles are fetched without `is_deleted:false`, and license status is client-controlled (`23–49`).
+
+Job creation accepts client-provided `facility_id` and `status` (defaulting only when absent), despite passing creator identity; this permits ownership/status attribution and publication control to depend on request data (`52–68`). Update authorizes by facility/admin but allows arbitrary status/title/description/location/salary updates without a transition policy, validation or idempotency (`70–88`). Public job list applies published filtering for ordinary callers, but returns broad `lean()` records and accepts unvalidated filters; public job detail returns any non-deleted job without requiring `published` status (`90–117`). `softDeleteJob` exists in the service but has no controller route (`120–131,241–285`).
+
+Application flow checks candidate profile and published job, then performs a non-atomic duplicate check followed by create; concurrent requests can create duplicate applications (`133–159`). Job application listing authorizes facility/admin but returns full candidate profiles, creating PII/license/CV exposure risk (`162–181`). `getMyApplications` enriches with jobs without `is_deleted:false` or publication filtering (`184–196`). Status updates use a small allowlist but do not enforce legal state transitions, compare-and-set, idempotency, actor role matrix or audit decorator (`199–217,280–284`). No rate limit, upload ownership/validation, malware scan, expiry enforcement, consent/retention, notification transaction, pagination, projection or audit evidence is present in this module. No product code was changed and no tests/builds were executed during this semantic read.
