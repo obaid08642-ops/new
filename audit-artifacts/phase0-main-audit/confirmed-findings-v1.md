@@ -4119,3 +4119,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2726 | P1 | No deletion/retention/soft-delete or medication recall/quarantine field is visible. | `src/schemas/pharmacy-inventory.schema.ts:5–13` | Inventory lifecycle governance. |
 | F-2727 | P1 | No schema/integration tests cover price truth, stock bounds, expiry, reservation races or pharmacy authorization. | `src/schemas/pharmacy-inventory.schema.ts:1–18` | Comprehensive inventory acceptance matrix. |
 | F-2728 | P1 | The schema was not executed or integrated with live pharmacy checkout/catalog flows during this audit. | `src/schemas/pharmacy-inventory.schema.ts:1–18` | Baseline-pinned inventory runtime evidence. |
+
+## Review schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2729 | P0 | Booking kind is an unconstrained string and booking ID/patient/provider relationships are not cross-validated. | `src/schemas/review.schema.ts:7–11` | Typed booking ownership/eligibility contract. |
+| F-2730 | P1 | Unique `(booking_kind, booking_id)` prevents duplicate review rows but does not prove actor ownership or completed-service eligibility. | `src/schemas/review.schema.ts:10,18` | Ownership and eligibility transaction. |
+| F-2731 | P1 | Aspects is a generic object and its rating-like values have no min/max or key allowlist. | `src/schemas/review.schema.ts:13` | Typed aspect validation. |
+| F-2732 | P0 | Comment has no length, content, HTML/link, control-character, PII/PHI or language policy. | `src/schemas/review.schema.ts:12` | Safe moderated text contract. |
+| F-2733 | P0 | Status defaults to `approved`, bypassing visible moderation for newly created reviews. | `src/schemas/review.schema.ts:14–15` | Fail-closed moderation default. |
+| F-2734 | P0 | Status has no reviewer identity, reason, transition graph, timestamps, appeal/edit history or audit integrity. | `src/schemas/review.schema.ts:14–15` | Audited moderation lifecycle. |
+| F-2735 | P0 | No anonymity/public projection policy prevents patient IDs or private review metadata from reaching public/provider clients. | `src/schemas/review.schema.ts:7–15` | Role-safe review projections. |
+| F-2736 | P1 | No consent, deletion/retention/DSAR, provider response or review correction policy is represented. | `src/schemas/review.schema.ts:4–15` | Review governance contract. |
+| F-2737 | P1 | No abuse/rate-limit, fraud/incentive, block/report or duplicate retry/idempotency policy is visible. | `src/schemas/review.schema.ts:7–15` | Review abuse and exactly-once controls. |
+| F-2738 | P1 | No aggregate/rating calculation provenance or stale-cache invalidation linkage is represented. | `src/schemas/review.schema.ts:11–15` | Truthful ratings aggregation contract. |
+| F-2739 | P1 | No index strategy is visible for public provider/status/time moderation or aggregation queries beyond basic fields. | `src/schemas/review.schema.ts:7–18` | Review query/index plan. |
+| F-2740 | P1 | The schema was not executed or integrated with booking/review moderation during this audit and cannot establish review readiness. | `src/schemas/review.schema.ts:1–18` | Baseline-pinned review runtime evidence. |
