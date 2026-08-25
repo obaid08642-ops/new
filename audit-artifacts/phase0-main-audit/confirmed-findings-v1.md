@@ -3259,3 +3259,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2131 | P0 | `@/*` path aliases are declared without a visible runtime/compiled-output resolution contract. | `tsconfig.json:22–24` | Verified source-to-dist alias resolution. |
 | F-2132 | P1 | Operational scripts and scratch content are excluded from the TypeScript contract, allowing untyped production-affecting drift. | `tsconfig.json:26` | Explicit script typecheck or governed exclusion. |
 | F-2133 | P1 | Only `src/**/*` is included, so generated/configuration/worker surfaces outside src are not covered by compiler assurance. | `tsconfig.json:27` | Audited inclusion boundary and supplemental checks. |
+
+## Nest CLI configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2134 | P1 | The build deletes the output directory before compilation, making the build destructive to prior artifacts without an explicit recovery/reproducibility policy. | `nest-cli.json:5–7` | Clean deterministic build policy with artifact preservation outside output. |
+| F-2135 | P1 | Nest uses `tsconfig.build.json`, but the relationship and overrides versus `tsconfig.json` are not established by this member. | `nest-cli.json:7` | Verified build-config parity and exception register. |
+| F-2136 | P0 | Assets rely on `assets/**/*` glob with no explicit destination or proof that all runtime assets are included in packaged `dist`. | `nest-cli.json:8` | Asset manifest plus packaged-runtime verification. |
+| F-2137 | P1 | Missing asset detection is not configured; builds may succeed while runtime-required files are absent. | `nest-cli.json:8` | Build fails on missing required assets. |
+| F-2138 | P1 | No asset permissions, ownership, cache invalidation or integrity policy is represented. | `nest-cli.json:8` | Audited asset delivery policy. |
+| F-2139 | P1 | External schema URL is not pinned/localized and no schema validation gate is represented. | `nest-cli.json:2` | Versioned schema validation. |
+| F-2140 | P1 | No deterministic build metadata, compiler version, source commit or asset manifest is emitted. | `nest-cli.json:1–10` | Traceable build manifest. |
+| F-2141 | P0 | No post-build runtime smoke contract verifies imports, aliases, assets and startup against the output produced by Nest CLI. | `nest-cli.json:4–8` | Verified post-build smoke test. |
+| F-2142 | P1 | No source-map production policy or public-exposure control is represented in the CLI configuration. | `nest-cli.json:5–8; tsconfig.json:10` | Controlled source-map packaging/access policy. |
+| F-2143 | P1 | The configured `src`/asset build boundary does not demonstrate that worker, script, FastAPI or other operational surfaces are intentionally excluded from production. | `nest-cli.json:4–8` | Explicit production boundary and supplemental build checks. |
