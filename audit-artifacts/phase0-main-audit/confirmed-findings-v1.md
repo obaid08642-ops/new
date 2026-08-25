@@ -3878,3 +3878,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2560 | P1 | No consumer compatibility, replay, dead-letter or exactly-once acceptance is represented by this member. | `src/common/events.ts:1–48` | Consumer/replay delivery tests. |
 | F-2561 | P1 | No explicit security/audit events are visible for login abuse, authorization denial, data access, consent or privacy actions. | `src/common/events.ts:3–45` | Security/audit event contract. |
 | F-2562 | P1 | The event catalog was not executed or reconciled against live producers/consumers during this audit. | `src/common/events.ts:1–48` | Baseline-pinned registry/live parity evidence. |
+
+## Presence module findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2563 | P1 | Presence module wiring registers only a service and Redis dependency; it provides no module-level controller/gateway/guard boundary. | `src/modules/presence/presence.module.ts:5–9` | Explicit presence surface ownership. |
+| F-2564 | P0 | No module-level evidence establishes authenticated actor/tenant binding or anti-spoofing for presence updates. | `src/modules/presence/presence.module.ts:5–9` | Authenticated presence identity contract. |
+| F-2565 | P1 | No TTL, heartbeat, disconnect cleanup, stale-state or clock policy is represented in module metadata. | `src/modules/presence/presence.module.ts:5–9` | Presence lifecycle contract. |
+| F-2566 | P1 | No schema/repository/config provider is registered here for typed presence state or retention. | `src/modules/presence/presence.module.ts:5–9` | Typed bounded presence storage. |
+| F-2567 | P1 | No event/audit/notification/metrics provider is wired at module level. | `src/modules/presence/presence.module.ts:5–9` | Observable presence operations. |
+| F-2568 | P1 | Redis degraded-mode, connection/retry, namespace and data-isolation policy are not evidenced by this module. | `src/modules/presence/presence.module.ts:3,5–8` | Resilient isolated Redis contract. |
+| F-2569 | P1 | No module-level readiness/health or graceful shutdown hook is visible. | `src/modules/presence/presence.module.ts:5–9` | Presence dependency readiness gate. |
+| F-2570 | P1 | The module wiring was not executed or integration-tested during this audit and cannot establish presence readiness. | `src/modules/presence/presence.module.ts:1–10` | Baseline-pinned runtime presence evidence. |
