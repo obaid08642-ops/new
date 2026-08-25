@@ -3414,3 +3414,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2246 | P0 | No idempotency, duplicate submission protection, audit event or deletion lifecycle exists for image/OCR processing. | `ocr_worker.py:15–60` | Audited idempotent PHI processing lifecycle. |
 | F-2247 | P1 | Missing-key and parse failure semantics are not connected to a clinical unavailable/review state; downstream caller could misclassify output. | `ocr_worker.py:23–28,51–60` | Explicit unavailable/review/failed contract. |
 | F-2248 | P1 | Worker imports dotenv/integration dependencies and assumes `/app/backend/.env`/package layout without a deployment/runtime compatibility contract. | `ocr_worker.py:8–13,30` | Reproducible worker packaging and startup checks. |
+
+## Project reference findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2249 | P1 | The project reference explicitly states it is not source-of-truth code or an API/security/legal contract; it must not support implementation or readiness claims by itself. | `NABDAH_PROJECT_REFERENCE.md:11–18` | Current source/contract evidence for every claim. |
+| F-2250 | P1 | The reference embeds historical branch/head information that predates the current main baseline, so commit references are provenance only. | `NABDAH_PROJECT_REFERENCE.md:7–9,207–216` | Current baseline-to-evidence mapping. |
+| F-2251 | P1 | Generated appendices use absolute sandbox paths and are not portable or reliable as repository navigation without normalization. | `NABDAH_PROJECT_REFERENCE.md:285–1800` | Normalized relative-path inventories. |
+| F-2252 | P0 | Presence of an indexed screen/route/schema is explicitly not proof of a complete wired business workflow. | `NABDAH_PROJECT_REFERENCE.md:15,49,257–283` | Screen/action/state/controller/database evidence per record. |
+| F-2253 | P0 | The reference retains unactivated consent, QR, emergency-location and error-code contracts, confirming high-risk surfaces are not production-ready by inventory presence. | `NABDAH_PROJECT_REFERENCE.md:89–100` | Approved contracts plus negative/live tests. |
+| F-2254 | P0 | Payment and realtime acceptance remain deployment/live-gated; local source/build evidence is insufficient. | `NABDAH_PROJECT_REFERENCE.md:73–100,184–205,218–229` | Authorized live sandbox/E2E and reconciliation. |
+| F-2255 | P0 | Real-device, push, calls, GPS, maps, accessibility and six-language acceptance remains open in the reference. | `NABDAH_PROJECT_REFERENCE.md:132,158–160,218–229` | Signed artifacts and device/human evidence. |
+| F-2256 | P1 | The reference lists many compatibility/legacy modules and routes without proving each is mounted, current or governed. | `NABDAH_PROJECT_REFERENCE.md:59–69,285–1800` | Mounted-route and legacy-boundary reconciliation. |
+| F-2257 | P1 | Business identifiers include UUID and Mongo ObjectId with a documented historical mismatch risk; inventories do not encode identifier type per route. | `NABDAH_PROJECT_REFERENCE.md:67–71,154–156` | Typed identifier matrix and negative tests. |
+| F-2258 | P1 | The scenario matrix is normative but not an execution result; every acceptance row requires current baseline/live evidence. | `NABDAH_PROJECT_REFERENCE.md:184–200` | Scenario evidence register. |
+| F-2259 | P0 | The document records an explicit NO-GO state and lists unclosed deployment, payment, WebSocket, OTP/2FA, sensitive-policy, device and resilience gates. | `NABDAH_PROJECT_REFERENCE.md:218–229` | Reissue readiness verdict only after gates pass. |
+| F-2260 | P1 | References to archived components and historical reports can become stale; no automated freshness/hash/parity gate is represented. | `NABDAH_PROJECT_REFERENCE.md:13–18,239–251` | Generated current-reference parity. |
+| F-2261 | P1 | The reference separates build/typecheck from live E2E and operational acceptance, but the indexed test counts are historical and not tied to current main. | `NABDAH_PROJECT_REFERENCE.md:201–205` | Baseline-pinned current test evidence. |
+| F-2262 | P1 | The file describes intended security controls but cannot verify controllers, guards, storage or external provider behavior; static prose must not substitute for negative tests. | `NABDAH_PROJECT_REFERENCE.md:32–71,180–205` | Source-level and live negative authorization evidence. |
+| F-2263 | P1 | Four application components are described as one platform while their archives/branches may have separate source authorities and build contracts. | `NABDAH_PROJECT_REFERENCE.md:23–30,239–251` | Component authority/hash/build matrix. |
+| F-2264 | P1 | The generated inventories are incomplete as semantic audit evidence because they list paths/routes but not full per-member consumer, state, ownership, data and test semantics. | `NABDAH_PROJECT_REFERENCE.md:235–269,285–1800` | Master manifest reconciliation and 100% member semantic read. |
