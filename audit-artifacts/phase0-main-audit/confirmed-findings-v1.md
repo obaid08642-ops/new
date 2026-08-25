@@ -6012,3 +6012,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4094 | P1 | The success output claims “State Machine Integrity 100% Validated” and “flow verified” despite local simulation scope and no runtime evidence. | `scripts/test-flow.js:67–68` | Truthful test-reporting gate. |
 | F-4095 | P1 | Console output contains emoji and informal assertions, reducing machine-readable auditability and conflicting with professional evidence requirements. | `scripts/test-flow.js:31,67–68` | Structured evidence output gate. |
 | F-4096 | P1 | Errors are caught and printed without explicitly setting a non-zero exit code, so failures may be reported without reliable CI failure semantics. | `scripts/test-flow.js:69–71` | CI exit-code gate. |
+
+## Extensions integration test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4097 | P0 | The script performs broad destructive `deleteMany({})` on multiple collections without a namespace/tenant safety guard. | `scripts/test-extensions.ts:53–69` | Destructive-test isolation gate. |
+| F-4098 | P0 | Fixed JWT secret and DB_NAME are injected, so this harness is non-production and can mask configuration/session failures. | `scripts/test-extensions.ts:23–30` | Production-parity configuration gate. |
+| F-4099 | P0 | Direct Mongoose model access/seeding bypasses HTTP DTOs, guards, ownership, validation and persistence routes. | `scripts/test-extensions.ts:34–146` | Route-to-persistence integration gate. |
+| F-4100 | P0 | Synthetic patient, medical, provider, inventory, lab and corporate data cannot prove real data provenance, privacy or external integration behavior. | `scripts/test-extensions.ts:70–146` | Approved sandbox/live-data boundary gate. |
+| F-4101 | P0 | No owner/stranger/unauth, tenant, cookie/session, BOLA or RBAC route assertions exist. | `scripts/test-extensions.ts:161–298` | Authorization matrix gate. |
+| F-4102 | P0 | Wallet/referral/corporate checks do not prove atomic ledger operations, idempotent replay, limits under concurrency, settlement, refund or reconciliation. | `scripts/test-extensions.ts:161–207,279–285` | Financial integrity gate. |
+| F-4103 | P0 | Medical timeline/passport/QR assertions do not prove PHI projection, access audit, consent, token expiry/revocation or cross-patient privacy. | `scripts/test-extensions.ts:215–234` | Clinical privacy/token gate. |
+| F-4104 | P0 | Geo matching and nurse attendance checks do not test spoofing, stale coordinates, boundary precision, authorization or device attestation. | `scripts/test-extensions.ts:241–267` | Location/attestation security gate. |
+| F-4105 | P0 | Lab critical-range and AI triage assertions lack unit/reference provenance, clinician escalation, safety disclaimer, grounding, confidence and prompt-data governance. | `scripts/test-extensions.ts:269–296` | Clinical AI/lab safety gate. |
+| F-4106 | P0 | AI assertions depend on exact hard-coded outputs and do not validate failure/fallback/unsafe-output paths. | `scripts/test-extensions.ts:287–296` | AI robustness/safety gate. |
+| F-4107 | P0 | Cleanup only closes application context and does not restore/delete seeded records or verify process/database isolation. | `scripts/test-extensions.ts:303–305` | Test cleanup/isolation gate. |
+| F-4108 | P1 | Top-level catch logs errors without explicitly setting a non-zero exit code, weakening CI failure semantics. | `scripts/test-extensions.ts:309` | Deterministic CI exit gate. |
