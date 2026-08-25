@@ -31,3 +31,7 @@ No product code was changed and no tests/builds were executed during this semant
 `src/modules/notifications/notification-delivery.processor.ts:2–26` was read in full: the BullMQ processor accepts only `deliver` jobs and delegates directly to `NotificationsService.deliverById`; it adds no deduplication, lease, ownership or independent retry policy.
 
 `src/modules/health/repositories/medicationreminder.repository.ts:2–13`, `sleepreading.repository.ts:2–13`, and `vitalreading.repository.ts:2–13` were read in full. Each is a constructor-only `MongoRepository` wrapper around the canonical health schema; none adds validation, ownership, atomic update, idempotency or transaction behavior.
+
+## Health dashboard dependency
+
+`src/modules/health/health-dashboard.controller.ts:2–133` was read in full. The endpoint is guarded by JWT plus ADMIN role, probes Mongo/Redis/LiveKit/Coturn/R2/FCM/Resend in parallel, reads broad operational counts and recent error metadata, enumerates up to ten BullMQ wait queues, and returns static cron metadata plus a host-log note. Probe failures are collapsed to `down`/null; queue and recent-error failures become null/empty. The response exposes service configuration booleans and bucket name, user/call/order/cart/medicine counts, system-event `meta`, queue names/depths and static cron claims. There is no visible pagination/redaction/tenant boundary, freshness/version marker for metrics, audit of dashboard access, or proof that static cron entries reflect actual registered schedules.
