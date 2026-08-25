@@ -3953,3 +3953,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2610 | P0 | No idempotent create/update/cancel, duplicate suppression, transaction or optimistic concurrency boundary is visible. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Race-safe mutation contract. |
 | F-2611 | P1 | Import comment does not enforce import correctness or schema/model parity. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:5–6` | CI/type/runtime parity gate. |
 | F-2612 | P1 | Repository was not executed or integration-tested during this audit and cannot establish custom-service persistence readiness. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:1–13` | Baseline-pinned custom-service evidence. |
+
+## Admin nursing containment spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2613 | P1 | The spec reads source text and checks two error-message substrings rather than executing the guarded admin nursing behavior. | `src/modules/compat/admin-nursing-containment.spec.ts:4–10` | Runtime containment test. |
+| F-2614 | P1 | Substring matching is brittle and can pass with dead/unreachable code or formatting changes while behavior is wrong. | `src/modules/compat/admin-nursing-containment.spec.ts:7–10` | Reachability/deployed-artifact assertion. |
+| F-2615 | P0 | No authenticated admin role, permission, facility scope or denial matrix is tested. | `src/modules/compat/admin-nursing-containment.spec.ts:4–10` | Admin authorization matrix. |
+| F-2616 | P0 | No test proves nursing request addresses are redacted or unavailable in actual responses. | `src/modules/compat/admin-nursing-containment.spec.ts:7–10` | Address/PII projection test. |
+| F-2617 | P0 | No test proves provider assignment cannot be arbitrary, cross-facility or outside a licensed fleet. | `src/modules/compat/admin-nursing-containment.spec.ts:7–10` | Authorized assignment test. |
+| F-2618 | P1 | No route, DTO, status-code, feature-flag or compiled artifact parity is exercised. | `src/modules/compat/admin-nursing-containment.spec.ts:4–10` | Route/build parity gate. |
+| F-2619 | P1 | No audit, event, notification or failure-recovery behavior is asserted for blocked nursing operations. | `src/modules/compat/admin-nursing-containment.spec.ts:7–10` | Containment audit/ops contract. |
+| F-2620 | P1 | Alternate admin controllers/routes or stale module artifacts could escape this single source-file assertion. | `src/modules/compat/admin-nursing-containment.spec.ts:4–10` | Cross-surface route inventory. |
+| F-2621 | P1 | No live/deployed backend or client acceptance proves the containment remains active. | `src/modules/compat/admin-nursing-containment.spec.ts:1–11` | Sandbox/deployed containment evidence. |
+| F-2622 | P1 | The spec was not executed during this audit and cannot establish admin nursing safety. | `src/modules/compat/admin-nursing-containment.spec.ts:1–11` | Baseline-pinned executed evidence. |
