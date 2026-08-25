@@ -2318,3 +2318,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1440 | P1 | No audit/provenance records who accessed or changed meal records, under what purpose or caregiver relationship. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Immutable access/change audit with actor and purpose. |
 | F-1441 | P1 | No repository-level invariant guarantees daily calories/macros or nutrition-goal aggregates remain consistent after updates/deletes. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Atomic aggregate/reconciliation contract and tests. |
 | F-1442 | P2 | Non-functional import comment and formatting drift obscure ownership of this patient nutrition repository. | `src/modules/nutrition/repositories/meallog.repository.ts:4–6` | Remove stale comment and document data boundary. |
+
+## NutritionProfile repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1443 | P0 | NutritionProfile repository has no patient owner/tenant/caregiver/clinician scope or consent boundary; inherited generic reads/writes depend on callers. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Mandatory patient-scoped methods and sharing/consent tests. |
+| F-1444 | P0 | No minimum-necessary projection or redaction is enforced for allergies, goals, activity and clinical nutrition fields. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Deny-by-default projection and sensitive-field redaction tests. |
+| F-1445 | P1 | No validation of goals, units, age/activity inputs, allergies or physiologic bounds is enforced at the repository boundary. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Typed validation and nutrition-safety invariant tests. |
+| F-1446 | P1 | No optimistic versioning or conflict handling prevents concurrent profile updates from losing dietary/clinical changes. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1447 | P1 | No idempotency or deterministic patient/profile key is defined for repeated profile creation/update submissions. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Stable key and replay tests. |
+| F-1448 | P1 | No repository-level invariant guarantees nutrition goals remain consistent with water/meal logs and later profile edits. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Atomic aggregate/reconciliation contract and tests. |
+| F-1449 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for nutrition profiles. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1450 | P1 | No audit/provenance records who accessed or changed a nutrition profile, under what purpose, consent or caregiver/clinician relationship. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Immutable access/change audit with actor and purpose. |
+| F-1451 | P1 | Generic inherited operations expose no schema-level validation of profile source, locale, effective dates or status lifecycle in this member. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:8–13` | Typed lifecycle validation and source provenance tests. |
+| F-1452 | P2 | Non-functional import comment and formatting drift obscure ownership of this patient nutrition repository. | `src/modules/nutrition/repositories/nutritionprofile.repository.ts:4–6` | Remove stale comment and document data boundary. |
