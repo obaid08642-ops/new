@@ -3701,3 +3701,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2438 | P1 | Environment restoration is tested only by assignment and does not cover concurrent/test isolation or unknown NODE_ENV policy. | `src/config/websocket-cors.spec.ts:3–5` | Isolated typed environment matrix. |
 | F-2439 | P1 | No HTTP/WebSocket CORS parity, logging/redaction or configuration audit coverage exists. | `src/config/websocket-cors.spec.ts:1–27` | Cross-surface policy parity evidence. |
 | F-2440 | P1 | The spec was not executed during this audit and cannot establish current live CORS readiness. | `src/config/websocket-cors.spec.ts:1–27` | Baseline-pinned executed and live evidence. |
+
+## OpenAPI configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2441 | P0 | Injected patient contract paths use generic object schemas, so clients cannot verify field types, requiredness, formats, error taxonomy or sensitive-field exclusion. | `src/config/openapi.config.ts:53–86` | Complete DTO/error schemas. |
+| F-2442 | P0 | `/cart/items` is a mutation with no explicit bearer `security` or Idempotency-Key declaration. | `src/config/openapi.config.ts:83–85` | Explicit protected idempotent operation contract. |
+| F-2443 | P0 | `/users/me` mutation has bearer security but no Idempotency-Key declaration. | `src/config/openapi.config.ts:68–72` | Idempotent profile mutation contract. |
+| F-2444 | P1 | OTP exchange token single-use/60-second semantics and HttpOnly cookie behavior are prose-only, not machine-readable schemas/headers. | `src/config/openapi.config.ts:62–66` | Typed security/token/cookie response contract. |
+| F-2445 | P1 | Single bearer scheme expresses authentication but not roles, ownership, facility scope or operation-level authorization. | `src/config/openapi.config.ts:20–32,56` | Security/authorization extension contract. |
+| F-2446 | P0 | Manual path injection can drift from scanned controllers and has no collision/duplicate/operationId/route-existence assertion. | `src/config/openapi.config.ts:36–45,53–86` | Generated-document parity gate. |
+| F-2447 | P1 | Path normalization strips prefixes but does not verify every resulting path resolves against the declared production base URL. | `src/config/openapi.config.ts:36–44` | Live route/path parity check. |
+| F-2448 | P1 | No deprecation, tag, version, content negotiation or consistent error-schema policy is enforced for injected/legacy operations. | `src/config/openapi.config.ts:17–24,53–86` | Document governance validation. |
+| F-2449 | P0 | No cookieAuth/CSRF, webhook/callback, payment intent or settlement contract is represented in this config. | `src/config/openapi.config.ts:20–32,53–86` | Complete browser/payment security contract. |
+| F-2450 | P1 | Hardcoded public/local servers do not model environment-specific deployments or TLS/proxy/API-host variants. | `src/config/openapi.config.ts:10–11,25–26` | Environment-aware server metadata. |
+| F-2451 | P1 | No x402/MPP/UCP/ACP machine-payment/discovery metadata is present despite the commerce/payment surface. | `src/config/openapi.config.ts:53–86` | Explicit approved agent-commerce protocol decision/contract. |
+| F-2452 | P1 | OpenAPI document generation was not executed or compared to the live published document during this audit. | `src/config/openapi.config.ts:36–45` | Baseline-pinned generation and live diff evidence. |
