@@ -3470,3 +3470,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2282 | P0 | Schema does not enforce that branch records are scoped to their facility in every read/update; generic serialization can expose cross-facility data. | `src/modules/hospital/schemas/hospital-branch.schema.ts:8–30` | Facility-scoped ownership and field-minimization tests. |
 | F-2283 | P1 | No public eligibility/publication status or projection is encoded, so active does not mean approved for discovery/maps. | `src/modules/hospital/schemas/hospital-branch.schema.ts:29–30` | Separate approval/publication contract. |
 | F-2284 | P1 | No audit actor, version or optimistic concurrency policy is encoded for branch edits and activation races. | `src/modules/hospital/schemas/hospital-branch.schema.ts:6–30` | Versioned, audited, race-safe mutations. |
+
+## HospitalDepartment schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2285 | P0 | HospitalDepartment does not enforce that `branch_id` belongs to `hospital_id` or that the referenced hospital is an authorized facility. | `src/modules/hospital/schemas/hospital-department.schema.ts:8–12` | Cross-reference and facility-type validation. |
+| F-2286 | P1 | `consultation_fee` defaults to zero without non-negative/finite/precision, currency, tax or insurance/cash semantics. | `src/modules/hospital/schemas/hospital-department.schema.ts:23–24` | Server-priced typed money contract. |
+| F-2287 | P0 | A zero default can be indistinguishable from a free service versus incomplete price provisioning, risking misleading checkout/display behavior. | `src/modules/hospital/schemas/hospital-department.schema.ts:23–24` | Explicit price status and truthful UI contract. |
+| F-2288 | P1 | `specialty_code` has no vocabulary, normalization or medical-owner validation. | `src/modules/hospital/schemas/hospital-department.schema.ts:20–21` | Versioned specialty catalog and validation. |
+| F-2289 | P1 | No compound uniqueness prevents duplicate department/specialty records within a hospital branch. | `src/modules/hospital/schemas/hospital-department.schema.ts:8–21` | Unique membership key and race-safe creation. |
+| F-2290 | P1 | `is_active` defaults true without approval, operational readiness, publication or deactivation metadata. | `src/modules/hospital/schemas/hospital-department.schema.ts:26–27` | Fail-closed activation/publication lifecycle. |
+| F-2291 | P0 | Schema does not bind department access or booking eligibility to facility/branch ownership; ObjectId references alone cannot prevent cross-facility BOLA. | `src/modules/hospital/schemas/hospital-department.schema.ts:8–12` | Facility-scoped negative tests for reads and mutations. |
+| F-2292 | P1 | No audit actor, version or optimistic concurrency policy is encoded for fee/status/specialty edits. | `src/modules/hospital/schemas/hospital-department.schema.ts:6–27` | Audited, versioned, race-safe state changes. |
