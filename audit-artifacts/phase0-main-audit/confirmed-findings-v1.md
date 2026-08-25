@@ -4427,3 +4427,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2949 | P1 | Error mapping is asserted only for one mocked ForbiddenException; other service/database errors and safe disclosure are untested. | `src/modules/chat/chat.gateway.followup.spec.ts:6,14` | Error taxonomy and non-disclosure matrix. |
 | F-2950 | P1 | Successful join assertion checks room string but not post-join access policy, stale-user cleanup or leave behavior. | `src/modules/chat/chat.gateway.followup.spec.ts:19–30` | Room lifecycle and cleanup gate. |
 | F-2951 | P1 | This spec cannot certify production chat security because it is unit-only and mock-bound. | `src/modules/chat/chat.gateway.followup.spec.ts:1–45` | End-to-end security evidence pinned to baseline. |
+
+## Chat contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2952 | P0 | The spec instantiates `ChatService` via `Object.create` and mocked models, bypassing constructor/module wiring and real guards. | `src/modules/chat/chat.contract.spec.ts:11–29` | Module-integrated contract test. |
+| F-2953 | P0 | No HTTP/controller test proves 401 unauthenticated, 404 stranger, or safe response projection for chat operations. | `src/modules/chat/chat.contract.spec.ts:31–68,99–101` | HTTP owner/stranger/unauth matrix. |
+| F-2954 | P0 | Realtime token assertions do not verify signature, issuer, subject, nonce, key rotation, revocation or replay resistance. | `src/modules/chat/chat.contract.spec.ts:70–85` | Full JWT verification/revocation gate. |
+| F-2955 | P0 | No expired-token, wrong-user, wrong-role or cross-tenant token case is tested. | `src/modules/chat/chat.contract.spec.ts:70–85` | Token identity/tenant negative matrix. |
+| F-2956 | P0 | Message body schema, size, content safety, PII/PHI handling and attachment count/type limits are not tested. | `src/modules/chat/chat.contract.spec.ts:39–68` | Message validation/privacy gate. |
+| F-2957 | P0 | Idempotency is checked only by reflection; duplicate replay, mismatched-key reuse, crash retry and side-effect uniqueness are not tested. | `src/modules/chat/chat.contract.spec.ts:99–101` | End-to-end idempotency replay gate. |
+| F-2958 | P0 | Message creation and event emission transactionality/order is not tested. | `src/modules/chat/chat.contract.spec.ts:17–24,39–49` | Atomic persistence/event contract. |
+| F-2959 | P0 | Media ownership is asserted against mocked query results, not real storage ACLs, signed URL expiry, malware scanning or deletion. | `src/modules/chat/chat.contract.spec.ts:25–27,39–59` | Live media security gate. |
+| F-2960 | P0 | No test proves sender is a participant with the correct patient/pharmacy/doctor role at send time. | `src/modules/chat/chat.contract.spec.ts:39–49` | Dynamic participant authorization. |
+| F-2961 | P1 | `markRead` coverage checks one marker but not monotonicity, message ownership, idempotent replay, unread count races or cross-thread access. | `src/modules/chat/chat.contract.spec.ts:87–97` | Read-state concurrency/ownership gate. |
+| F-2962 | P1 | No rate limiting, abuse prevention, moderation or audit-log behavior is tested for chat mutation. | `src/modules/chat/chat.contract.spec.ts:39–68,99–101` | Abuse/audit control matrix. |
+| F-2963 | P1 | No live MongoDB/index/transaction or Socket.IO transport evidence is produced by this spec. | `src/modules/chat/chat.contract.spec.ts:9–29` | Baseline-pinned integration evidence. |
+| F-2964 | P1 | This spec cannot by itself certify the production chat contract because all critical dependencies are mocks. | `src/modules/chat/chat.contract.spec.ts:1–102` | Production-like acceptance suite. |
