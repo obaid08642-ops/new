@@ -3844,3 +3844,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2536 | P1 | No tests cover known valid/invalid national IDs/Iqamas, checksum boundaries, type confusion or malformed lengths. | `src/common/validators/iqama.validator.ts:5–24` | Comprehensive validator test matrix. |
 | F-2537 | P1 | The detailed default error message reveals identity category and format expectations without a privacy-safe error policy. | `src/common/validators/iqama.validator.ts:27–29` | Safe validation error contract. |
 | F-2538 | P1 | The validator was not executed or integrated with onboarding/provider verification during this audit. | `src/common/validators/iqama.validator.ts:1–42` | Baseline-pinned identity runtime evidence. |
+
+## Slug utility findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2539 | P1 | Arabic transliteration is rough and incomplete for marks, Persian/non-Arabic Unicode, diacritics and confusables. | `src/common/slug.util.ts:13–29` | Locale-aware canonical slug policy. |
+| F-2540 | P1 | Falsey/fully filtered names fall back to `item`, creating generic collision risk without namespace enforcement. | `src/common/slug.util.ts:21–33` | Collision-safe fallback policy. |
+| F-2541 | P1 | `maxLen` is not validated and truncation can create awkward/duplicate slugs. | `src/common/slug.util.ts:21,30–32` | Bounded length and collision resolution. |
+| F-2542 | P0 | ID suffix uses only six characters without uniqueness, reservation or database collision handling. | `src/common/slug.util.ts:35–40` | Unique slug/index contract. |
+| F-2543 | P1 | `buildSlug` accepts arbitrary/empty IDs and can produce a trailing hyphen or non-hex suffix. | `src/common/slug.util.ts:36–40` | Typed ID format validation. |
+| F-2544 | P1 | `parseSlugSuffix` accepts only six hex characters, so generation and parsing are asymmetric for arbitrary IDs. | `src/common/slug.util.ts:36–46` | Symmetric slug/ID contract. |
+| F-2545 | P0 | No tenant/entity namespace or authorization policy is present; suffixes may aid enumeration if exposed in lookup routes. | `src/common/slug.util.ts:35–46` | Scoped non-enumerable slug lookup. |
+| F-2546 | P1 | No immutable-slug/version/canonical-redirect policy is defined for renamed entities or collisions. | `src/common/slug.util.ts:21–47` | Canonical URL lifecycle. |
+| F-2547 | P1 | No URL safety policy covers delimiter/control characters, encoded traversal, reserved words or host-specific routing. | `src/common/slug.util.ts:21–32` | Route-safe slug validation. |
+| F-2548 | P1 | No SEO test covers canonical tags, redirects, localized slugs, sitemap consistency or duplicate content. | `src/common/slug.util.ts:1–47` | SEO/route integration gate. |
+| F-2549 | P1 | No tests cover Unicode normalization, collision rates, boundary lengths, empty IDs or malformed suffixes. | `src/common/slug.util.ts:21–46` | Comprehensive slug test matrix. |
+| F-2550 | P1 | The utilities were not executed or integrated with live public routes during this audit and cannot establish URL readiness. | `src/common/slug.util.ts:1–47` | Baseline-pinned route and SEO evidence. |
