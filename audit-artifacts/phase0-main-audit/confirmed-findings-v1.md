@@ -4673,3 +4673,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3125 | P1 | Timestamp/index fields do not establish stable ordering, locale publication policy or cache invalidation. | `src/schemas/article.schema.ts:8,23–24,31` | Publication query/cache plan. |
 | F-3126 | P1 | No tenant, author, reviewer or role-scoped read/write boundary is represented by the schema. | `src/schemas/article.schema.ts:8–28` | Content access-control contract. |
 | F-3127 | P1 | The schema was not executed or reconciled against article APIs, SEO metadata, sitemap and indexing behavior during this audit read. | `src/schemas/article.schema.ts:1–31` | Baseline-pinned article runtime evidence. |
+
+## Delivery schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3128 | P0 | Pickup, dropoff and current_location use `any`, weakening runtime shape and safety validation. | `src/schemas/delivery.schema.ts:14–16` | Typed location DTO/schema. |
+| F-3129 | P0 | Coordinates have no range, precision, geospatial, timestamp, source, accuracy or spoofing validation. | `src/schemas/delivery.schema.ts:14–16` | Geo truthfulness/security contract. |
+| F-3130 | P0 | Order, pharmacy and driver identifiers have no visible cross-document ownership, tenant or pharmacy assignment integrity. | `src/schemas/delivery.schema.ts:9–11` | Delivery ownership/tenant gate. |
+| F-3131 | P0 | Driver role is a comment only; no runtime role/eligibility/license/availability constraint is represented. | `src/schemas/delivery.schema.ts:11` | Driver authorization contract. |
+| F-3132 | P0 | DeliveryState enum has no transition actor/time/reason/history, optimistic version or terminal-state protection. | `src/schemas/delivery.schema.ts:12–13,23` | Audited race-safe delivery state machine. |
+| F-3133 | P0 | No idempotent assignment, pickup, delivery, retry or completion semantics are represented. | `src/schemas/delivery.schema.ts:12–23` | Exactly-once delivery lifecycle. |
+| F-3134 | P0 | Attempts is an unconstrained counter with no nonnegative/max/atomic increment or abuse policy. | `src/schemas/delivery.schema.ts:17` | Bounded authoritative retry counter. |
+| F-3135 | P0 | ETA is an unconstrained number with no unit, server calculation, freshness, confidence or route provenance. | `src/schemas/delivery.schema.ts:18` | ETA truthfulness contract. |
+| F-3136 | P0 | Fee is an unconstrained number with no currency, tax, calculation source, order linkage or payment reconciliation. | `src/schemas/delivery.schema.ts:19` | Server-authoritative delivery pricing. |
+| F-3137 | P0 | Notes have no length, PII/PHI, injection, moderation, encryption or retention controls. | `src/schemas/delivery.schema.ts:20` | Safe delivery-notes contract. |
+| F-3138 | P0 | Signature and photo proof are opaque strings without signer identity, hash, capture time, private storage, scan or chain-of-custody controls. | `src/schemas/delivery.schema.ts:21–22` | Verifiable proof-of-delivery contract. |
+| F-3139 | P0 | delivered_at has no invariant requiring terminal delivered state or ordering after pickup/start. | `src/schemas/delivery.schema.ts:23` | Completion/time consistency. |
+| F-3140 | P1 | No delivery location retention/deletion, customer privacy, redaction or access projection policy is represented. | `src/schemas/delivery.schema.ts:14–23` | Location/proof privacy governance. |
+| F-3141 | P1 | Indexes cover order/state only; no visible driver/time/geospatial/active delivery query plan exists. | `src/schemas/delivery.schema.ts:9,12–16` | Operational delivery indexes. |
+| F-3142 | P1 | The schema was not executed or integrated with live dispatch, tracking, fee reconciliation or proof verification during this audit read. | `src/schemas/delivery.schema.ts:1–26` | Baseline-pinned delivery runtime evidence. |
