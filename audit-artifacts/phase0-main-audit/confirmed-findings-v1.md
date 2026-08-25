@@ -2363,3 +2363,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1470 | P1 | No audit/provenance records who created, joined, ended, revoked or accessed a call session and under which appointment purpose. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Immutable session access/change audit. |
 | F-1471 | P1 | Generic inherited operations expose no schema-level validation of room names, participant IDs, timestamps, status or token claims in this member. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Typed validation and token/session invariant tests. |
 | F-1472 | P2 | Non-functional import comment and formatting drift obscure ownership of this security-sensitive realtime repository. | `src/modules/livekit/repositories/callsession.repository.ts:4–6` | Remove stale comment and document session privacy boundary. |
+
+## CallMetric repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1473 | P0 | CallMetric repository has no session/booking/participant/tenant scope; inherited generic writes can attach metrics to the wrong telehealth session. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Mandatory session/booking-scoped methods and linkage tests. |
+| F-1474 | P0 | No trusted telemetry-source, anti-forgery or replay policy is enforced for call metrics. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Authenticated source registry, signatures/replay keys and negative tests. |
+| F-1475 | P1 | No validation of duration, latency, packet loss, jitter, quality score, timestamps or physiologic/operational bounds is enforced at the repository boundary. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Typed metric validation and bounds tests. |
+| F-1476 | P1 | No minimum-necessary projection or redaction is enforced for participant/device/IP/network metadata. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Deny-by-default metric projection and PII redaction tests. |
+| F-1477 | P1 | No idempotency, event sequence or duplicate policy is defined for repeated telemetry delivery. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Deterministic source event key, ordering and replay tests. |
+| F-1478 | P1 | No optimistic versioning or conflict handling prevents late/out-of-order metric updates from corrupting session summaries. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Sequence/version checks and out-of-order tests. |
+| F-1479 | P1 | No aggregation/reconciliation invariant guarantees stored metrics match call-session quality or billing summaries. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Atomic aggregation and reconciliation contract. |
+| F-1480 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for call metrics and network metadata. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1481 | P1 | No audit/provenance records the source, actor, session, collection time or purpose for metric changes. | `src/modules/livekit/repositories/callmetric.repository.ts:8–13` | Immutable telemetry provenance and change audit. |
+| F-1482 | P2 | Non-functional import comment and formatting drift obscure ownership of this security-sensitive metric repository. | `src/modules/livekit/repositories/callmetric.repository.ts:4–6` | Remove stale comment and document telemetry boundary. |
