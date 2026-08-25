@@ -3829,3 +3829,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2526 | P1 | No explicit policy exists for null/undefined/empty values versus optional DTO fields beyond falsey rejection. | `src/common/validators/saudi-phone.validator.ts:5–6` | Required/optional field contract. |
 | F-2527 | P1 | No tests cover valid/invalid prefixes, second-digit set, length boundaries, control characters or oversized input. | `src/common/validators/saudi-phone.validator.ts:5–9` | Comprehensive validator test matrix. |
 | F-2528 | P1 | The validator was not executed or integrated into account/OTP flows during this audit and cannot establish identity readiness. | `src/common/validators/saudi-phone.validator.ts:1–26` | Baseline-pinned runtime/auth evidence. |
+
+## Saudi ID/Iqama validator findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2529 | P1 | Validator does not explicitly enforce runtime string type before regex and character parsing. | `src/common/validators/iqama.validator.ts:5–24` | Typed input/transform policy. |
+| F-2530 | P1 | Whitespace, separators, Arabic-Indic digits and Unicode confusables are not normalized or explicitly rejected. | `src/common/validators/iqama.validator.ts:5–10` | Canonical identity-input matrix. |
+| F-2531 | P0 | Checksum and prefix prove format only, not existence, issuing authority, ownership, expiry or legal status. | `src/common/validators/iqama.validator.ts:8–24` | Official identity verification contract. |
+| F-2532 | P0 | National ID and Iqama are distinguished only by first digit and have no separate policy/lifecycle validation. | `src/common/validators/iqama.validator.ts:8–10` | Typed identity-type/eligibility policy. |
+| F-2533 | P0 | Identity PII is handled without visible redaction, logging, retention, consent or failed-attempt policy. | `src/common/validators/iqama.validator.ts:5–28` | PII-safe identity governance. |
+| F-2534 | P0 | No link exists here to duplicate-account prevention, actor ownership or OTP/onboarding abuse controls. | `src/common/validators/iqama.validator.ts:1–42` | Identity linkage and abuse-control integration. |
+| F-2535 | P1 | Falsey rejection does not define required/optional DTO semantics for null, undefined, empty or whitespace input. | `src/common/validators/iqama.validator.ts:5–6` | Required/optional field contract. |
+| F-2536 | P1 | No tests cover known valid/invalid national IDs/Iqamas, checksum boundaries, type confusion or malformed lengths. | `src/common/validators/iqama.validator.ts:5–24` | Comprehensive validator test matrix. |
+| F-2537 | P1 | The detailed default error message reveals identity category and format expectations without a privacy-safe error policy. | `src/common/validators/iqama.validator.ts:27–29` | Safe validation error contract. |
+| F-2538 | P1 | The validator was not executed or integrated with onboarding/provider verification during this audit. | `src/common/validators/iqama.validator.ts:1–42` | Baseline-pinned identity runtime evidence. |
