@@ -3220,3 +3220,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2102 | P1 | No migration/seed/backup/rollback policy is coupled to the image. | `Dockerfile:1–14` | Deployment lifecycle and recovery contract. |
 | F-2103 | P1 | Root image does not prove exclusion of legacy/FastAPI/seed content from the authoritative production boundary. | `Dockerfile:5,10` | Explicit production inclusion/exclusion verification. |
 | F-2104 | P1 | No post-build vulnerability/license/admission gate is declared for this image path. | `Dockerfile:1–14` | Enforced signed-image release pipeline. |
+
+## Compose orchestration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2105 | P0 | Compose builds from `.` without an explicit production profile or authoritative image boundary. | `docker-compose.yml:3–5` | Explicit environment/profile and image ownership policy. |
+| F-2106 | P0 | Backend publishes host port 8002 while Dockerfiles expose 3000; application/deployment port parity is unproven. | `docker-compose.yml:6–7; Dockerfile:13; Dockerfile.production:32–33` | Verified end-to-end port contract. |
+| F-2107 | P0 | Backend consumes opaque `.env` directly, with no secret manager, required-variable validation, environment separation or redaction policy. | `docker-compose.yml:8–9` | Managed secrets and fail-closed configuration validation. |
+| F-2108 | P1 | `depends_on` provides ordering only and does not ensure Mongo readiness before backend startup. | `docker-compose.yml:10–11` | Healthcheck/readiness-gated dependency. |
+| F-2109 | P0 | Mongo uses mutable `mongo:latest` without digest pinning or supply-chain evidence. | `docker-compose.yml:13–14` | Pinned signed database image with SBOM/scan. |
+| F-2110 | P0 | Mongo port 27017 is published to the host, unnecessarily exposing the database surface. | `docker-compose.yml:15–16` | Private database network and restricted access. |
+| F-2111 | P0 | Mongo authentication, TLS, authorization and encryption-at-rest policy are absent from the composition. | `docker-compose.yml:13–18` | Authenticated encrypted database deployment. |
+| F-2112 | P1 | Mongo has persistence but no backup, restore, retention, encryption, disaster-recovery or rollback contract. | `docker-compose.yml:17–22` | Tested backup/restore and recovery evidence. |
+| F-2113 | P1 | No resource limits, restart policy, healthcheck, init process, signal or graceful shutdown policy is defined. | `docker-compose.yml:3–18` | Bounded resilient service lifecycle. |
+| F-2114 | P1 | No explicit private network is defined; default service connectivity is relied upon. | `docker-compose.yml:3–18` | Backend/database network isolation. |
+| F-2115 | P1 | No environment allowlist prevents accidental propagation of sensitive or irrelevant `.env` values into the backend container. | `docker-compose.yml:8–9` | Minimal audited environment contract. |
+| F-2116 | P1 | No health/readiness endpoints are wired into orchestration, so a running process can be treated as ready without dependency truth. | `docker-compose.yml:3–18` | Orchestrator probes tied to real health/readiness. |
+| F-2117 | P1 | No migration/seed ordering or idempotency policy is represented. | `docker-compose.yml:3–18` | Explicit database lifecycle orchestration. |
+| F-2118 | P1 | No image labels, commit provenance, SBOM, vulnerability/license scan or admission/signing gate is represented. | `docker-compose.yml:3–18` | Traceable and policy-enforced release stack. |
+| F-2119 | P1 | Compose does not prove that the backend service's runtime image includes all assets/native dependencies or excludes legacy surfaces. | `docker-compose.yml:4–5` | Image-content manifest and production-boundary verification. |
