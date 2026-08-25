@@ -4251,3 +4251,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2818 | P0 | No payment, insurance, licensing or clinical-review gate is proven before a catalog entity becomes eligible. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:123–128,152–156,179–184` | Eligibility/compliance gate. |
 | F-2819 | P1 | No malformed/oversized/malicious localized content, identifier or attachment input is tested before publication. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:69–86,108–190` | Input safety matrix. |
 | F-2820 | P1 | The spec was not executed during this audit and cannot establish approval-workflow production readiness. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:1–193` | Baseline-pinned executed evidence. |
+
+## Approval workflow module findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2821 | P0 | Controller bodies and current-user values use `any`, so runtime DTO and actor shape validation is not established. | `src/modules/approval-workflow/approval-workflow.module.ts:174–199` | Typed DTO/actor validation. |
+| F-2822 | P0 | Request details is JWT-guarded but has no explicit owner/admin role check; service lookup is by request ID alone. | `src/modules/approval-workflow/approval-workflow.module.ts:69–73,190–193` | Request ownership/404 matrix. |
+| F-2823 | P0 | Service methods trust caller-supplied IDs/roles and are callable without controller decorators, weakening defense-in-depth. | `src/modules/approval-workflow/approval-workflow.module.ts:29–35,61–87` | Service-layer authorization boundary. |
+| F-2824 | P0 | Next version is computed from a latest-request read without transaction or compare-and-set, allowing concurrent version collisions. | `src/modules/approval-workflow/approval-workflow.module.ts:41–58` | Atomic version allocation/idempotency. |
+| F-2825 | P0 | `dto.edit_data` is merged and spread into target entities without field allowlist or immutable-field protection. | `src/modules/approval-workflow/approval-workflow.module.ts:75–114` | Allowlisted approval payload. |
+| F-2826 | P0 | Unknown/unsupported service types fall through to `radiology_service` and radiology model rather than fail closed. | `src/modules/approval-workflow/approval-workflow.module.ts:142–152` | Explicit service-type enum/rejection. |
+| F-2827 | P0 | Target entity write, request save and publication refresh are sequential and lack an explicit transaction/outbox/rollback boundary. | `src/modules/approval-workflow/approval-workflow.module.ts:117–164` | Atomic approval/publication settlement. |
+| F-2828 | P0 | Publication refresh occurs after request save; refresh failure can leave approved state/entity changes without publication completion or recovery proof. | `src/modules/approval-workflow/approval-workflow.module.ts:156–165` | Failure/retry/reconciliation contract. |
+| F-2829 | P1 | `publicationType!` and `entityId!` use non-null assertions despite incomplete/unsupported branch handling. | `src/modules/approval-workflow/approval-workflow.module.ts:115,157–164` | Exhaustive branch validation. |
+| F-2830 | P0 | Create request accepts arbitrary `change_data` and has no size, content, PII/PHI, attachment or source provenance policy. | `src/modules/approval-workflow/approval-workflow.module.ts:29–58` | Bounded safe change payload. |
+| F-2831 | P1 | Pending listing has no explicit tenant/facility/queue ownership scope or pagination bound visible. | `src/modules/approval-workflow/approval-workflow.module.ts:61–63` | Scoped bounded admin queue. |
+| F-2832 | P1 | My-request listing relies on submitter ID but has no pagination, projection or sensitive-field redaction policy. | `src/modules/approval-workflow/approval-workflow.module.ts:65–67` | Safe bounded request projection. |
+| F-2833 | P0 | Role decorator/audit are present on selected routes, but no proof shows `Roles` enforcement, audit failure behavior or admin actor integrity at runtime. | `src/modules/approval-workflow/approval-workflow.module.ts:184–199` | Guard/audit integration evidence. |
+| F-2834 | P1 | No notification/event/cache/indexing/withdrawal/SEO consistency behavior is wired or proven in the module. | `src/modules/approval-workflow/approval-workflow.module.ts:156–164` | Publication lifecycle contract. |
+| F-2835 | P0 | No payment, insurance, licensing or clinical-review gate is enforced before setting public eligibility. | `src/modules/approval-workflow/approval-workflow.module.ts:107–114` | Compliance eligibility gate. |
+| F-2836 | P1 | No live database, deployed route, failure-recovery or end-to-end approval evidence was executed during this audit. | `src/modules/approval-workflow/approval-workflow.module.ts:1–219` | Baseline-pinned runtime evidence. |
