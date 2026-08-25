@@ -4153,3 +4153,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2750 | P1 | No operational indexes for available/expired/stale/reserved stock selection or cleanup are visible. | `src/schemas/inventory.schema.ts:8–19` | Inventory query/index plan. |
 | F-2751 | P1 | No deletion/retention/soft-delete or medication recall/quarantine governance is visible. | `src/schemas/inventory.schema.ts:5–15` | Inventory lifecycle governance. |
 | F-2752 | P1 | The schema was not executed or integrated with checkout/reservation/restock flows during this audit. | `src/schemas/inventory.schema.ts:1–19` | Baseline-pinned inventory runtime evidence. |
+
+## Separate return-request schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2753 | P0 | Order, patient and pharmacy identifiers are stored independently without a visible cross-document ownership/fulfillment check. | `src/schemas/return-request.schema.ts:8–10` | Ownership/eligibility transaction. |
+| F-2754 | P0 | No item, quantity, condition, delivery/completion date or return-window field is represented. | `src/schemas/return-request.schema.ts:8–15` | Item-level return eligibility contract. |
+| F-2755 | P0 | `photo_url` is an opaque string without private-object, owner, content, malware, expiry or retention controls. | `src/schemas/return-request.schema.ts:12` | Secure return-evidence media contract. |
+| F-2756 | P1 | Reason and rejection reason have no length, content, PII/PHI, moderation or localization policy. | `src/schemas/return-request.schema.ts:11,15` | Safe bounded return text. |
+| F-2757 | P0 | Status enum lacks transition actor, reviewer/time/reason, optimistic version, appeal and audit linkage. | `src/schemas/return-request.schema.ts:13–15` | Audited race-safe status machine. |
+| F-2758 | P0 | No refund amount/currency/method/transaction or server-authoritative settlement field is represented. | `src/schemas/return-request.schema.ts:8–15` | Refund ledger contract. |
+| F-2759 | P0 | No inventory/restock/quarantine/recall linkage is represented for approved returns. | `src/schemas/return-request.schema.ts:13–15` | Atomic return/inventory settlement. |
+| F-2760 | P0 | No idempotency/deduplication or duplicate order/item constraint is visible. | `src/schemas/return-request.schema.ts:7–15` | Exactly-once return creation/review. |
+| F-2761 | P1 | No operational compound index for patient/order/status/time or stale review selection is visible. | `src/schemas/return-request.schema.ts:8–15` | Return query/index plan. |
+| F-2762 | P1 | No soft-delete/TTL/retention/DSAR or evidence-document deletion policy is visible. | `src/schemas/return-request.schema.ts:5–15` | Return-record governance. |
+| F-2763 | P1 | No projection test prevents patient/provider exposure of pharmacy/internal return information or evidence URLs. | `src/schemas/return-request.schema.ts:8–15` | Role-safe return projections. |
+| F-2764 | P1 | The schema was not executed or integrated with the return/refund workflow during this audit. | `src/schemas/return-request.schema.ts:1–19` | Baseline-pinned return runtime evidence. |
