@@ -4002,3 +4002,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2644 | P1 | No multiple-active-family ambiguity or membership-change invalidation behavior is tested. | `src/modules/compat/compat-family-chat.spec.ts:19–33` | Deterministic membership lifecycle. |
 | F-2645 | P1 | No live backend, sandbox account, device or end-to-end family-chat journey is present. | `src/modules/compat/compat-family-chat.spec.ts:1–40` | Sandbox/live chat evidence. |
 | F-2646 | P1 | The spec was not executed during this audit and cannot establish family-chat compatibility readiness. | `src/modules/compat/compat-family-chat.spec.ts:1–40` | Baseline-pinned executed evidence. |
+
+## Return request repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2647 | P0 | Return repository is a thin generic wrapper with no patient/order/item authorization or query boundary. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Explicit return access policy. |
+| F-2648 | P0 | No repository-level tenant, patient, order or item ownership scope is enforced or evidenced. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Ownership matrix. |
+| F-2649 | P0 | No return eligibility window, inspection, approval, condition evidence or state-transition policy is represented. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Complete return lifecycle. |
+| F-2650 | P0 | No refund/payment/insurance truth, restocking or inventory reservation boundary is visible. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Commercial return contract. |
+| F-2651 | P0 | No idempotent creation/cancellation/approval, duplicate suppression, transaction or optimistic concurrency boundary is visible. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Race-safe return mutation contract. |
+| F-2652 | P0 | No sensitive-field projection, attachment/condition-photo privacy, retention or audit policy is visible. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Privacy/audit projection policy. |
+| F-2653 | P1 | Import comment does not enforce import correctness or schema/model parity. | `src/modules/returns/repositories/returnrequest.repository.ts:5–6` | CI/type/runtime parity gate. |
+| F-2654 | P1 | Repository was not executed or integration-tested during this audit and cannot establish return persistence readiness. | `src/modules/returns/repositories/returnrequest.repository.ts:1–13` | Baseline-pinned return evidence. |
