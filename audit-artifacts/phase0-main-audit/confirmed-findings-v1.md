@@ -1992,3 +1992,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1214 | P1 | No validation separates harmless settings from security/payment/integration-critical settings, so seed data can bypass impact-specific controls. | `src/modules/seed/repositories/systemconfig.repository.ts:8–13` | Typed key registry with impact classes and control matrix. |
 | F-1215 | P1 | No seed run ID, source snapshot or provenance marker distinguishes bootstrap configuration from operator changes. | `src/modules/seed/repositories/systemconfig.repository.ts:8–13` | Immutable seed provenance and operator audit metadata. |
 | F-1216 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and privileged configuration separation. | `src/modules/seed/repositories/systemconfig.repository.ts:4–6` | Remove stale comments and document repository provenance. |
+
+## Facility seed repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1217 | P0 | Facility seed repository has no production-environment hard stop or seed-only capability boundary; bootstrap writes could target live facility records. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Hard fail in production and isolate facility seed capability. |
+| F-1218 | P0 | No license/approval/readiness or operating-status invariant is enforced, so seeded facts can be mistaken for verified operational facilities. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Server-controlled readiness lifecycle and public projection. |
+| F-1219 | P0 | No tenant/facility/actor scope is represented, leaving inherited reads/writes dependent on seed callers to prevent cross-facility changes. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Mandatory scope and authorized seed principal. |
+| F-1220 | P1 | No deterministic reconciliation key, uniqueness/idempotency or stale-record policy is defined for rerunning facility seed data. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Idempotent versioned reconciliation with uniqueness tests. |
+| F-1221 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting live facility/location changes. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Version/source checks and conflict rejection. |
+| F-1222 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to facility persistence. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
+| F-1223 | P1 | No separation between seeded facility facts and service availability, coverage or commercial/operational truth is enforced. | `src/modules/seed/repositories/facility.repository.ts:8–13` | Explicit catalog-vs-operational boundaries. |
+| F-1224 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and facility-data separation. | `src/modules/seed/repositories/facility.repository.ts:4–6` | Remove stale comments and document repository provenance. |
