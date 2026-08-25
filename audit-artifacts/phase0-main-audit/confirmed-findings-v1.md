@@ -5931,3 +5931,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4036 | P0 | No soft-delete, archival, correction, suspension or legal retention lifecycle is represented. | `src/schemas/facility.schema.ts:11–60` | Facility lifecycle gate. |
 | F-4037 | P1 | Provenance is free-form and does not identify source document, reviewer, decision evidence or version. | `src/schemas/facility.schema.ts:57–60` | Facility provenance gate. |
 | F-4038 | P1 | No live facility publication, insurance, hours, review, rating, location or index runtime evidence was established during this baseline source read. | `src/schemas/facility.schema.ts:1–64` | Baseline-pinned facility runtime evidence. |
+
+## Mental health schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4041 | P0 | Mood score map has no version/source or clinical interpretation boundary. | `src/schemas/mental-health.schema.ts:7–21` | Mood model provenance gate. |
+| F-4042 | P0 | Mood tags/notes can contain sensitive mental-health narratives without classification, consent, projection, encryption, redaction or retention controls. | `src/schemas/mental-health.schema.ts:43–50` | Mental-health PII governance. |
+| F-4043 | P0 | Mood/sleep/energy/stress records lack source, timezone, repeat-entry, trend-quality and clinical threshold/alert semantics. | `src/schemas/mental-health.schema.ts:40–50` | Wellbeing data-quality/safety gate. |
+| F-4044 | P0 | Meditation/breathing records lack content/source version, actual start/end, pause/replay/correction provenance and adherence semantics. | `src/schemas/mental-health.schema.ts:57–83` | Wellbeing session integrity gate. |
+| F-4045 | P0 | Meditation `completed` is a boolean without completion timestamp, actor or transition audit. | `src/schemas/mental-health.schema.ts:61–64` | Session completion audit gate. |
+| F-4046 | P0 | Breathing rounds/duration have no cross-field consistency or technique-specific clinical safety constraints. | `src/schemas/mental-health.schema.ts:71–78` | Breathing safety gate. |
+| F-4047 | P0 | No distress/emergency detection, guidance acknowledgement, clinician escalation or safe crisis workflow is represented. | `src/schemas/mental-health.schema.ts:40–97` | Mental-health crisis-safety gate. |
+| F-4048 | P0 | Crisis contacts are unverified raw personal contacts; no emergency service identity, jurisdiction, priority, consent, availability or notification acknowledgement exists. | `src/schemas/mental-health.schema.ts:85–93` | Crisis-contact verification/consent gate. |
+| F-4049 | P0 | Patient ownership is a plain ID with no caregiver/delegation, tenant, active-patient or actor-provenance invariant. | `src/schemas/mental-health.schema.ts:42–50,59–78,87–92` | Mental-health identity/tenant gate. |
+| F-4050 | P0 | Wellbeing/crisis writes have no idempotency, duplicate prevention, immutable correction, CAS/version or bounded-history protection. | `src/schemas/mental-health.schema.ts:40–97` | Mental-health replay/atomicity gate. |
+| F-4051 | P0 | No notification delivery/retry, crisis escalation outcome, audit actor, soft-delete, deletion/DSAR or legal-hold lifecycle exists. | `src/schemas/mental-health.schema.ts:40–97` | Mental-health lifecycle/side-effect gate. |
+| F-4052 | P1 | Logged dates use application time without timezone/source-clock provenance or correction ordering. | `src/schemas/mental-health.schema.ts:50,64,78` | Mental-health time provenance gate. |
+| F-4053 | P1 | No live mood, session, crisis-contact, safety or index runtime evidence was established during this baseline source read. | `src/schemas/mental-health.schema.ts:1–98` | Baseline-pinned mental-health runtime evidence. |
