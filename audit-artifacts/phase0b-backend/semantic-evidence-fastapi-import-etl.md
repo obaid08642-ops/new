@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — FastAPI ETL product importer
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `infra/fastapi/import_etl_products.py:1–202`
+
+The importer is a standalone Python script that reads 18 JSON files from a developer-specific absolute path `/Users/ahmedobaid/Desktop/NabdahPlus_ETL` and writes to a hardcoded MongoDB endpoint `mongodb://35.159.129.187:27017`, database `nabdah_db`, collection `pharmacy_products` (`1–17`). No environment variables, secret management, TLS/authentication, target/environment confirmation, allowlist, provenance manifest, source checksum, input schema/version or operator authorization is present. The Mongo endpoint is a literal public IP and the script prints it at completion (`15,188–198`).
+
+The field contract separates universal EN-derived fields from translated fields and supports six language files and three parts (`19–44`). Records are merged by array index, not by product ID/barcode/locale key (`124–165`), so missing/reordered/duplicated language rows can attach translations to the wrong product. The cleaner treats strings such as `"0"`, `"null"`, `"none"`, `"nan"`, numeric zero and empty values as empty while preserving booleans (`46–68`); this can erase legitimate zero values or semantic fields and has no type/range/regulatory validation. Missing files are logged and treated as empty, and a part is skipped only when EN is absent (`70–79,124–133`), allowing incomplete multilingual/catalog imports without fail-closed behavior.
+
+Before importing, the script counts the target collection and drops it entirely when non-empty (`97–105`). There is no dry-run, backup, destructive confirmation, transactional swap, target identity gate, rollback, blue/green collection, snapshot or application quiescence. It creates indexes including a unique productId index but does not verify existing index/schema compatibility or plan duplicate handling before destructive replacement (`107–116`).
+
+The importer inserts batches of 500 with `ordered=False` and catches `BulkWriteError`, adding `nInserted` to a running total while continuing (`118–186`). Partial batches/duplicate conflicts can therefore leave a silently incomplete or mixed catalog; no quarantine, retry, reconciliation, failed-record report, idempotency, provenance or compensation is written. Product IDs are taken from EN only and there is no validation of barcode uniqueness, image ownership, SFDA/drugs.com links, price/currency/tax, prescription status, inventory, seller/pharmacy, publication or effective date (`135–168`).
+
+Final verification only counts documents and prints completion plus the endpoint/database (`188–198`); it does not compare expected IDs/counts, translation completeness, duplicates, indexes, source hashes, price/stock integrity, public visibility or canonical catalog parity. The client is closed only on the normal path (`198`); exceptions outside the handled bulk writes can leave the process without structured cleanup/evidence. The script was not executed; no product code was changed and no tests/builds were run during this semantic read.
