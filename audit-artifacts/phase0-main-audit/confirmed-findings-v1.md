@@ -4581,3 +4581,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3058 | P1 | No idempotency, replay, rate-limit or audit behavior is tested for draft contract requests. | `src/contracts/phase6-contracts.spec.ts:17–21` | Request governance gate. |
 | F-3059 | P1 | No consumer/controller/OpenAPI drift check is represented for draft metadata. | `src/contracts/phase6-contracts.spec.ts:9–21` | Contract registry consistency gate. |
 | F-3060 | P1 | This spec was not executed against HTTP/bootstrap/deployment behavior during this audit read. | `src/contracts/phase6-contracts.spec.ts:1–22` | Baseline-pinned runtime evidence. |
+
+## AI service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3061 | P0 | AI tests construct the service with mocked collections/gateway and do not prove controller authentication or patient ownership. | `src/modules/ai/ai.service.spec.ts:5–11,27–32` | HTTP auth/ownership integration gate. |
+| F-3062 | P0 | No test covers persistence failure, partial write, retry, duplicate session or atomic emergency escalation. | `src/modules/ai/ai.service.spec.ts:6–10,13–25` | Failure/transaction/replay gate. |
+| F-3063 | P0 | No consent, age, jurisdiction, capacity or emergency-disclaimer policy is tested. | `src/modules/ai/ai.service.spec.ts:13–25,34–54` | Clinical consent/safety gate. |
+| F-3064 | P0 | Red-flag escalation is asserted as a return value but no notification delivery, acknowledgment, handoff or SLA is tested. | `src/modules/ai/ai.service.spec.ts:13–25` | Emergency escalation delivery gate. |
+| F-3065 | P0 | Input coverage omits size, encoding, language, body-region enum, duplicate flags, contradictory flags and abuse payloads. | `src/modules/ai/ai.service.spec.ts:27–32,34–47` | Strict AI input contract. |
+| F-3066 | P0 | No rate limit, replay or automated abuse control is tested for triage/skin endpoints. | `src/modules/ai/ai.service.spec.ts:13–59` | AI abuse-control gate. |
+| F-3067 | P0 | No retention, deletion, DSAR, audit provenance or data-minimization test exists for stored symptoms/observations. | `src/modules/ai/ai.service.spec.ts:6–8,23,44` | Clinical-data governance gate. |
+| F-3068 | P0 | Skin safety boundary rejects images in this path, but no test proves image input cannot reach another AI/media route or storage pipeline. | `src/modules/ai/ai.service.spec.ts:34–47` | Cross-route image safety gate. |
+| F-3069 | P0 | No localization/translation correctness or patient-readable emergency wording test is present. | `src/modules/ai/ai.service.spec.ts:13–25,49–54` | Multilingual safety-copy gate. |
+| F-3070 | P0 | No prompt-injection, malicious symptom text, output contamination or model gateway isolation test is present. | `src/modules/ai/ai.service.spec.ts:9,13–25,34–47` | AI input/output security gate. |
+| F-3071 | P0 | No model/prompt/version, grounding, evaluation, drift or human-review provenance is tested. | `src/modules/ai/ai.service.spec.ts:9,13–59` | Model governance gate. |
+| F-3072 | P0 | No metrics/tracing/alerting test ensures unsafe or failed AI requests are observable without leaking clinical PII. | `src/modules/ai/ai.service.spec.ts:5–10,13–59` | Safe observability gate. |
+| F-3073 | P1 | Report interpretation rejection checks exception class only, not stable status/code/body or alternate route bypasses. | `src/modules/ai/ai.service.spec.ts:56–59` | Governed-review error contract. |
+| F-3074 | P1 | The generation gateway non-invocation assertion does not verify no downstream async/background invocation occurs. | `src/modules/ai/ai.service.spec.ts:24,45` | Async side-effect isolation. |
+| F-3075 | P1 | This spec was not executed against live AI policy, storage, notification or governed-review integrations during this audit read. | `src/modules/ai/ai.service.spec.ts:1–60` | Baseline-pinned AI runtime evidence. |

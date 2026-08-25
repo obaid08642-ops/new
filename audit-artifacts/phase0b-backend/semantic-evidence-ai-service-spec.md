@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — AiService spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/ai/ai.service.spec.ts:1–60`
+
+The test factory creates an `AiService` with mocked Mongo collection handles and a mocked generation gateway (`5–11`). It verifies that selected red flags escalate to emergency care while returning null diagnosis/treatment, persisting patient ID/care level and not invoking generation (`13–25`). It checks rejection when patient ID is absent, symptoms are empty or red flags are unknown (`27–32`). It verifies skin self-check uses selected areas/observations, returns clinical-assessment guidance without image analysis/diagnosis/treatment, persists selected observations, does not call generation, and rejects image_base64 (`34–47`). It verifies `none` observations do not rule out disease and include a `cannot_rule_out` notice (`49–54`). It verifies automated report interpretation is rejected outside governed review workflow (`56–59`).
+
+These tests encode a conservative safety boundary and avoid making a clinical diagnosis or pretending to analyze images. They are bound to mocked collections/gateway and direct service construction. They do not prove controller authentication/authorization, patient ownership of persisted sessions, consent/age/region policy, rate limits/abuse controls, input size/content/Unicode limits, persistence atomicity/retry behavior, deletion/retention/DSAR, audit/provenance, emergency escalation delivery/acknowledgment, clinician handoff, localization correctness, model/prompt/version governance, prompt injection resistance, data minimization, or failure behavior when DB/gateway writes fail. No code was changed and no build/test/application operation was performed during this read.
