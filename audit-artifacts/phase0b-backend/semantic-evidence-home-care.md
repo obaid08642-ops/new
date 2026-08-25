@@ -19,3 +19,24 @@
 The read supports: offer price/discount truthfulness gaps, public/search projection and privacy issues, authentication contract ambiguity, broad PHI/GPS/signature/checklist storage, client/state/history mutation risk in dependent surfaces, and missing bounds/retention/consent/legal controls in home-care schemas.
 
 No product code was changed and no tests/builds were executed during this semantic read.
+
+## Additional members read — booking, tracking and module
+
+The following additional baseline members were read in full:
+- `src/modules/home-care/home-care.service.ts:2–201`
+- `src/modules/home-care/controllers/home-care-tracking.controller.ts:2–107`
+- `src/modules/home-care/home-care.module.ts:2–70`
+
+`HomeCareSvc` provides active service listing/category counts/detail, booking, patient mine/detail, cancellation, provider/admin state transitions, check-in/report completion, care plans and supplies (`home-care.service.ts:24–201`). Catalog search is regex-escaped and limited to 120; booking resolves service price server-side but trusts contact/address/notes/payment method and uses a recent three-minute duplicate lookup rather than a caller idempotency key or unique booking constraint (`24–33,50–85`). It persists patient name/phone, address, total and notes and emits/announces creation after insert. Cancellation/detail use patient ID or exact role `'admin'`; state transitions delegate to workflow engine but mutate a loaded document and save inside the callback (`87–130`).
+
+Provider check-in/report methods allow admin/nurse/hospital roles but do not visibly bind the operator to the booking's assigned provider before check-in/report; report lookup is by report ID only. GPS values are stored without range/freshness validation (`133–171`). Care-plan creation allows several roles to write for arbitrary patient ID and returns broad records; getCarePlans has no visible requester/relationship check or pagination (`174–190`). Supplies accept raw item arrays and attach only nurse ID (`192–200`).
+
+`HomeCareTrackingController` is JWT guarded. `assignedBooking` permits admin/super_admin or provider roles where `booking.provider_id === user.id`, then verify-attendance uses patient address and nurse coordinates to calculate a 500m geofence; it validates finite numbers but not coordinate bounds, timestamp/freshness or spoof resistance (`20–89`). Supplies request duplicates a separate flow, accepts raw items/priority, and creates a record with booking/nurse object IDs (`91–105`).
+
+`HomeCareModule` registers multiple schemas/controllers/repositories and WorkflowEngine. On module init it counts services and seeds missing catalog documents using per-document upsert, mapping seed title/basePrice/duration/icon to schema fields (`home-care.module.ts:16–70`). Seeding is startup side effect with partial-error logging and no visible version/reconciliation/deprecation lifecycle.
+
+### New findings candidates
+
+The additional read supports: contact/address/PII handling gaps, weak duplicate booking protection, provider/admin ownership gaps, arbitrary care-plan patient targeting, unbounded plans/supplies, GPS/geofence limits, duplicate supply workflows and startup seed drift.
+
+No product code was changed and no tests/builds were executed during this semantic read.
