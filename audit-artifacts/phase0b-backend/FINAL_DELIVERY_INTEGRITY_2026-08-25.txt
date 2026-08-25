@@ -1,0 +1,15 @@
+Root Audit Phase 0B final delivery verification
+Baseline: main @ 22526bed (audit-only baseline)
+Branch: agent/audit-main-contract-inventory
+Local HEAD: de929891a8645986a4672fd186eb33f9d3efed81
+Remote HEAD: de929891a8645986a4672fd186eb33f9d3efed81
+Remote equality: YES
+Manifest total rows: 1188
+Manifest fully_read=YES: 753
+Manifest fully_read=N/A: 435
+Manifest fully_read=NO: 0
+Findings count: 4243
+Evidence file exists: YES
+Product code changes in this audit: NO
+Build/test execution in this continuation: NO (semantic read only)
+Working tree before integrity commit: DIRTY
