@@ -5188,3 +5188,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3478 | P1 | No notifications, downstream census/availability updates, cache invalidation or event publication are asserted. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–82` | Facility side-effect contract. |
 | F-3479 | P1 | The imported NotFoundException is unused, indicating no explicit missing-resource contract in this spec. | `src/modules/facility-ops/facility-ops.service.spec.ts:4,52–82` | Missing-resource/404 matrix. |
 | F-3480 | P1 | This spec was not executed against live Mongo, facility records, staffing, surgery resources or clinical workflows during this audit read. | `src/modules/facility-ops/facility-ops.service.spec.ts:1–83` | Baseline-pinned facility runtime evidence. |
+
+## Loyalty service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3481 | P0 | Loyalty coverage uses mocked repositories and does not prove live HTTP/auth/account ownership or persistence. | `src/modules/loyalty/loyalty.service.spec.ts:14–58` | Live loyalty integration gate. |
+| F-3482 | P0 | The stated 500-point silver boundary is asserted as bronze, contradicting the test comment and leaving tier truthfulness unresolved. | `src/modules/loyalty/loyalty.service.spec.ts:73–81` | Approved tier-boundary truth table. |
+| F-3483 | P0 | Point award is not bound to an authenticated, authoritative source event or provider/order completion state. | `src/modules/loyalty/loyalty.service.spec.ts:60–86` | Source-event authenticity gate. |
+| F-3484 | P0 | Duplicate awards, idempotency replay, reversal/refund and concurrent award behavior are not tested despite mocked idempotency lookup. | `src/modules/loyalty/loyalty.service.spec.ts:21–27,60–86` | Exactly-once loyalty ledger contract. |
+| F-3485 | P0 | Account point/lifetime updates and transaction ledger creation lack atomic transaction, CAS, overflow/negative and failure-rollback coverage. | `src/modules/loyalty/loyalty.service.spec.ts:61–81` | Atomic points/ledger gate. |
+| F-3486 | P0 | Unknown actions silently award zero without an explicit allowlist, audit, alert or caller-facing error policy. | `src/modules/loyalty/loyalty.service.spec.ts:83–86` | Unknown-event governance. |
+| F-3487 | P0 | Reward claim does not prove user/account ownership, active status, eligibility, exact balance deduction or tenant isolation. | `src/modules/loyalty/loyalty.service.spec.ts:89–117` | Reward claim authorization matrix. |
+| F-3488 | P0 | Reward stock decrement and claim creation are not atomic; concurrent last-stock claims and duplicate claims are untested. | `src/modules/loyalty/loyalty.service.spec.ts:90–105` | Stock/claim concurrency gate. |
+| F-3489 | P0 | Reward expiry, coupon uniqueness, code secrecy, fulfillment, cancellation/refund and external benefit reconciliation are untested. | `src/modules/loyalty/loyalty.service.spec.ts:89–117` | Reward lifecycle/fulfillment contract. |
+| F-3490 | P0 | Reward points/stock/value and transaction monetary equivalence are mocked; no authoritative value or accounting reconciliation is tested. | `src/modules/loyalty/loyalty.service.spec.ts:90–105` | Loyalty value/accounting gate. |
+| F-3491 | P0 | Daily-cap and duplicate-check mocks are configured but no assertions prove either control is applied. | `src/modules/loyalty/loyalty.service.spec.ts:21–27,60–86` | Applied cap/idempotency evidence. |
+| F-3492 | P0 | Leaderboard coverage is one pre-shaped record and does not test rank/order/ties, pagination limits, deleted users, tenant scope or PII projection. | `src/modules/loyalty/loyalty.service.spec.ts:119–127` | Safe leaderboard query contract. |
+| F-3493 | P0 | No fraud, abuse, farming, rate-limit, suspicious-award detection or administrative correction audit is tested. | `src/modules/loyalty/loyalty.service.spec.ts:60–127` | Loyalty abuse/audit gate. |
+| F-3494 | P1 | No notification, cache, challenge-progress, claim fulfillment or downstream event consistency is asserted. | `src/modules/loyalty/loyalty.service.spec.ts:60–127` | Loyalty side-effect contract. |
+| F-3495 | P1 | This spec was not executed against live Mongo, account/transaction/reward data or benefit providers during this audit read. | `src/modules/loyalty/loyalty.service.spec.ts:1–129` | Baseline-pinned loyalty runtime evidence. |
