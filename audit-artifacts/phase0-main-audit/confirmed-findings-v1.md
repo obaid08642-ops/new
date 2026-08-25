@@ -4943,3 +4943,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3325 | P1 | Indexes support eventType/time but not actor/subject/tenant or operational retention query plans. | `src/schemas/universal-activity.schema.ts:15–29` | Activity index/query plan. |
 | F-3326 | P1 | No rate limit, producer authentication or ingestion abuse control is represented. | `src/schemas/universal-activity.schema.ts:12–25` | Event ingestion security gate. |
 | F-3327 | P1 | The schema was not executed or integrated with live activity producers, timelines or audit consumers during this audit read. | `src/schemas/universal-activity.schema.ts:1–29` | Baseline-pinned activity runtime evidence. |
+
+## Outbound referral schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3328 | P0 | No doctor-patient relationship, facility, tenant, clinical authorization or target-provider ownership is represented. | `src/schemas/outbound-referral.schema.ts:10–20` | Referral ownership/consent gate. |
+| F-3329 | P0 | referral_code has no visible entropy, format, expiry, audience, one-time redemption, revocation or enumeration protection. | `src/schemas/outbound-referral.schema.ts:16–17,28–33` | Secure referral-code lifecycle. |
+| F-3330 | P0 | No patient consent, disclosure purpose, target acknowledgement or referral access audit is represented. | `src/schemas/outbound-referral.schema.ts:10–29` | Clinical referral consent/audit. |
+| F-3331 | P0 | target_type enum does not ensure target-specific provider/catalog ownership or service capability. | `src/schemas/outbound-referral.schema.ts:19–20` | Target service integrity. |
+| F-3332 | P0 | requested_tests is an unconstrained string array without catalog IDs, target-specific allowlist, duplicate/order/size validation or clinical rationale. | `src/schemas/outbound-referral.schema.ts:25–26` | Typed requested-test contract. |
+| F-3333 | P0 | notes has no length, medical PII/PHI, encryption, access projection, moderation or retention controls. | `src/schemas/outbound-referral.schema.ts:22–23` | Safe referral-notes governance. |
+| F-3334 | P0 | Status has no transition actor/time/reason/history, redemption evidence, expiry timestamp, CAS or terminal-state protection. | `src/schemas/outbound-referral.schema.ts:28–29` | Audited referral state machine. |
+| F-3335 | P0 | No idempotency/duplicate prevention for referral creation or redemption is represented beyond unique code. | `src/schemas/outbound-referral.schema.ts:16–17,28–33` | Exactly-once referral actions. |
+| F-3336 | P0 | Expired status has no expiry timestamp or server-time derivation. | `src/schemas/outbound-referral.schema.ts:28–29` | Authoritative expiry contract. |
+| F-3337 | P0 | No notification, target handoff, appointment/order linkage or lab/radiology reconciliation is represented. | `src/schemas/outbound-referral.schema.ts:19–29` | Referral fulfillment contract. |
+| F-3338 | P0 | No PII/PHI minimization, deletion/anonymization, retention or legal-hold policy is represented. | `src/schemas/outbound-referral.schema.ts:5–29` | Referral-data governance. |
+| F-3339 | P1 | No access authorization or safe patient-facing projection is represented for referral notes/tests/code. | `src/schemas/outbound-referral.schema.ts:5–29` | Referral disclosure contract. |
+| F-3340 | P1 | Indexes support doctor/patient/code/status basics but no target, expiry, tenant or redemption query plan is visible. | `src/schemas/outbound-referral.schema.ts:10–33` | Referral index/query plan. |
+| F-3341 | P1 | The schema was not executed or integrated with live doctor, patient, lab/radiology redemption and clinical audit flows during this audit read. | `src/schemas/outbound-referral.schema.ts:1–33` | Baseline-pinned referral runtime evidence. |
