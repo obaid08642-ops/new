@@ -4170,3 +4170,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2762 | P1 | No soft-delete/TTL/retention/DSAR or evidence-document deletion policy is visible. | `src/schemas/return-request.schema.ts:5–15` | Return-record governance. |
 | F-2763 | P1 | No projection test prevents patient/provider exposure of pharmacy/internal return information or evidence URLs. | `src/schemas/return-request.schema.ts:8–15` | Role-safe return projections. |
 | F-2764 | P1 | The schema was not executed or integrated with the return/refund workflow during this audit. | `src/schemas/return-request.schema.ts:1–19` | Baseline-pinned return runtime evidence. |
+
+## AI admin containment spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2765 | P1 | AI admin containment spec calls the controller directly with `any` dependencies and does not exercise Nest route/guard behavior. | `src/modules/ai/ai.admin-containment.spec.ts:4–6` | Runtime route/auth gate. |
+| F-2766 | P0 | No authenticated admin role, permission, tenant or denial matrix is tested for AI administration. | `src/modules/ai/ai.admin-containment.spec.ts:7–11` | Admin authorization matrix. |
+| F-2767 | P0 | Four methods throwing `ServiceUnavailableException` do not prove all alternate AI/admin routes are contained. | `src/modules/ai/ai.admin-containment.spec.ts:7–11` | Complete route inventory/containment test. |
+| F-2768 | P0 | No test proves provider credentials, model fallback or routing state cannot be exposed through another surface. | `src/modules/ai/ai.admin-containment.spec.ts:5–11` | Credential/fallback isolation evidence. |
+| F-2769 | P0 | No usage-report projection, retention, PII minimization or financial/quota truth policy is tested. | `src/modules/ai/ai.admin-containment.spec.ts:7–11` | Usage privacy and quota contract. |
+| F-2770 | P1 | No provider/mode update audit, actor, reason, replay/idempotency, rate limit or concurrency behavior is covered. | `src/modules/ai/ai.admin-containment.spec.ts:7–11` | Audited admin mutation contract. |
+| F-2771 | P1 | The test can pass on a source/controller path while compiled/deployed artifacts or feature flags expose a different path. | `src/modules/ai/ai.admin-containment.spec.ts:4–12` | Compiled/deployed parity gate. |
+| F-2772 | P1 | No error serialization, observability, alerting or operational recovery behavior is asserted for contained AI operations. | `src/modules/ai/ai.admin-containment.spec.ts:7–11` | Containment operations contract. |
+| F-2773 | P1 | No provider allowlist, model capability, data residency, patient-data isolation or prompt/response privacy policy is exercised. | `src/modules/ai/ai.admin-containment.spec.ts:5–11` | AI provider governance test. |
+| F-2774 | P1 | The spec was not executed during this audit and cannot establish AI admin safety or production readiness. | `src/modules/ai/ai.admin-containment.spec.ts:1–13` | Baseline-pinned executed evidence. |
