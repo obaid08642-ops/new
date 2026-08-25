@@ -6162,3 +6162,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4195 | P1 | No structured JSON/JUnit artifact, duration, request correlation or environment/version manifest is emitted. | `e2e/matrix.js:31–40,458–465` | Reproducible report gate. |
 | F-4196 | P1 | Mongo client is closed on normal completion but not in the top-level crash path; process cleanup is incomplete. | `e2e/matrix.js:82–87,458–465` | Failure-path cleanup gate. |
 | F-4197 | P1 | No runtime execution was performed during this baseline source read, so the matrix’s effective pass/fail/skip state remains unverified here. | `e2e/matrix.js:1–466` | Baseline-pinned E2E execution artifact. |
+
+## Public discovery handoff findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4207 | P0 | Public entity pages depend on governed resolve/meta endpoints and approved public eligibility; no local fallback or soft preview is permitted. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:5–19` | Governed public-route contract gate. |
+| F-4208 | P0 | The handoff requires real 404 for unavailable/unapproved records and noindex/404 based on medical/indexing governance flags. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:11–19` | Public visibility fail-closed gate. |
+| F-4209 | P0 | Web pages must not invent diagnosis, dosage, contraindication, price, availability, credentials or insurance facts when API data is absent. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:15–19` | Truthful content projection gate. |
+| F-4210 | P0 | Canonical/locale metadata must use final `NABD_PUBLIC_URL` and reviewed translations only; domain configuration is a release prerequisite. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:15–19,34–36` | Canonical/locale correctness gate. |
+| F-4211 | P0 | Sitemap/robots/llms/share artifacts require final-domain verification and must not expose raw operational database rows or private data. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:21–28` | Discovery privacy/domain gate. |
+| F-4212 | P0 | Android Digital Asset Links and Apple App Site Association are required before claiming verified HTTPS deep links; their hosting/verification is not evidenced in this handoff. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:30–32` | Mobile/web association gate. |
+| F-4213 | P0 | Indexing release requires approved/unapproved crawl sampling and canonical/robots/sitemap validation, which remains a gate rather than completed evidence. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:34–36` | Crawl/index release gate. |
+| F-4214 | P0 | Operational database presence must not itself make records indexable; public/medical/indexing flags need fail-closed enforcement. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:11–19,34–36` | Database-to-public isolation gate. |
+| F-4215 | P0 | The patient Next.js source is explicitly absent from the baseline, blocking proof of SSR/ISR, locale routing, analytics, visual QA and production web build/deployment. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:38–41` | Patient web source delivery gate. |
+| F-4216 | P1 | The handoff does not itself provide executable contract tests for 404/noindex/metadata/deep-link/indexing behavior. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:1–41` | Executable discovery test gate. |
+| F-4217 | P1 | No verified final domain, `NABD_PUBLIC_URL`, association files, crawl report or deployment artifact is included in the handoff. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:30–40` | Domain/release evidence gate. |
+| F-4218 | P1 | No runtime discovery validation was performed during this baseline source read. | `docs/PATIENT_WEB_PUBLIC_DISCOVERY_HANDOFF.md:1–41` | Baseline-pinned discovery evidence. |
