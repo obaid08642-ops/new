@@ -3121,3 +3121,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2028 | P1 | `set -e` does not provide compensation/rollback for prior successful package, service or firewall changes after a later failure. | `infra/fastapi/setup_server.sh:6–78` | Transactional/idempotent provisioning and rollback. |
 | F-2029 | P1 | MongoDB and package service status output is not a readiness check and does not verify application/dependency health. | `infra/fastapi/setup_server.sh:66–76` | End-to-end readiness probe. |
 | F-2030 | P0 | Script declares “server ready for deployment” without evidence of security hardening, TLS, secrets, app health, backup, rollback or effective firewall posture. | `infra/fastapi/setup_server.sh:66–78` | Evidence-backed readiness declaration or remove claim. |
+
+## FastAPI requirements findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2031 | P0 | Most dependencies use lower-bound-only constraints, allowing resolver drift and non-reproducible production deployments. | `infra/fastapi/requirements.txt:3–6,8–10,12–13,15–26` | Fully locked/hashes-verified dependency set. |
+| F-2032 | P0 | No hashes, lock/constraints file, approved package index, SBOM, vulnerability policy or dependency provenance is declared. | `infra/fastapi/requirements.txt:1–29` | Reproducible signed supply-chain artifacts. |
+| F-2033 | P1 | Runtime requirements include pytest, black, isort, flake8 and mypy, unnecessarily expanding production image and attack surface. | `infra/fastapi/requirements.txt:15–19` | Separate production and development dependency sets. |
+| F-2034 | P1 | Both `pyjwt` and `python-jose` are installed, creating competing JWT implementations and algorithm/configuration drift. | `infra/fastapi/requirements.txt:10,20` | One approved JWT implementation and shared auth contract. |
+| F-2035 | P1 | `requests`/`requests-oauthlib` and `httpx` coexist without a documented client boundary, increasing duplicate HTTP/auth behavior. | `infra/fastapi/requirements.txt:4,21,28` | Explicit client ownership and policy. |
+| F-2036 | P0 | `emergentintegrations` is commented out although AI code imports it dynamically, making AI installability environment-dependent and undocumented. | `infra/fastapi/requirements.txt:27; infra/fastapi/ai_service.py:64` | Declared pinned dependency or explicitly disabled AI path. |
+| F-2037 | P1 | Motor and PyMongo versions are separately pinned without documented compatibility, Python/runtime or transitive constraints. | `infra/fastapi/requirements.txt:7,14` | Verified compatibility matrix and lockfile. |
+| F-2038 | P1 | Boto3, cryptography, pydantic, passlib, tzdata, pandas, numpy, jq and Typer use floating lower bounds, risking behavior/security drift. | `infra/fastapi/requirements.txt:3,5,8,12–13,22–26` | Pinned reviewed versions and scans. |
+| F-2039 | P1 | No Python version/platform/ABI constraint or build-isolation policy is specified. | `infra/fastapi/requirements.txt:1–29` | Declared supported runtime and reproducible build environment. |
+| F-2040 | P1 | Runtime and development dependencies are not separated, preventing least-privilege/minimal production packaging. | `infra/fastapi/requirements.txt:15–19,22–26` | Minimal production image and dev-only tooling. |
+| F-2041 | P1 | No license inventory or policy is coupled to third-party dependencies. | `infra/fastapi/requirements.txt:1–29` | Automated license compliance evidence. |
+| F-2042 | P1 | No CVE/advisory gate or transitive dependency denylist is visible. | `infra/fastapi/requirements.txt:1–29` | CI vulnerability gate and exception register. |
+| F-2043 | P1 | Dependency file does not document import owners, optional extras, feature flags or failure behavior for integrations. | `infra/fastapi/requirements.txt:1–29` | Dependency-to-feature manifest. |
+| F-2044 | P2 | The dependency contract cannot by itself prove that the parallel FastAPI stack matches the NestJS production runtime/toolchain. | `infra/fastapi/requirements.txt:1–29` | Cross-stack runtime parity or explicit decommissioning. |
