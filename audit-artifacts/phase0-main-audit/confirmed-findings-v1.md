@@ -3630,3 +3630,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2392 | P0 | `expires_at` is stored but schema does not enforce expiry or prevent post-expiry acceptance. | `src/schemas/order.schema.ts:145–147` | TTL/clock-checked bid acceptance. |
 | F-2393 | P1 | PharmacyBid has no decision actor/time/reason or optimistic concurrency metadata. | `src/schemas/order.schema.ts:145–147` | Audited race-safe bid state machine. |
 | F-2394 | P0 | String UUID/order IDs and optional cross-document references are not schema-bound to patient/pharmacy ownership, creating BOLA and linkage risks. | `src/schemas/order.schema.ts:49–54,71,100–101,130–132` | Cross-document ownership and referential integrity tests. |
+
+## Storage private-media test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2395 | P0 | Storage spec is mock-only and cannot prove controller/session guards, tenant scope, live object ACLs or uniform HTTP privacy behavior. | `src/modules/storage/storage.module.spec.ts:4–12,14–30` | Integration/live storage authorization gates. |
+| F-2396 | P0 | Only one patient foreign-owner case is tested; facility/provider/family/admin roles, deleted records and cross-tenant identifiers are absent. | `src/modules/storage/storage.module.spec.ts:14–18` | Full actor/tenant ownership matrix. |
+| F-2397 | P0 | Private origin redaction is asserted on one returned object but not response headers, serialization paths, logs, errors, metadata endpoints or other adapters. | `src/modules/storage/storage.module.spec.ts:20–25` | Exhaustive private-media projection/redaction. |
+| F-2398 | P0 | API-stream fallback returns `expires_in:null`, and no test proves time-bound authorization, revocation or download replay control. | `src/modules/storage/storage.module.spec.ts:27–30` | Authenticated bounded stream contract. |
+| F-2399 | P0 | No upload filename/path traversal, MIME/content sniffing, size, malware, archive-bomb or object-key validation coverage exists. | `src/modules/storage/storage.module.spec.ts:1–31` | Secure upload/content pipeline. |
+| F-2400 | P1 | No upload/delete/restore/retention/purge lifecycle or deletion race coverage exists. | `src/modules/storage/storage.module.spec.ts:1–31` | Audited lifecycle and retention gates. |
+| F-2401 | P1 | Mock adapter/model do not prove S3/R2 ACL, presign, bucket/tenant policy, adapter failure or metadata/object consistency. | `src/modules/storage/storage.module.spec.ts:8–12,27–30` | Real object-store integration evidence. |
+| F-2402 | P1 | No range/cache/content-disposition/header injection or safe download filename tests are present. | `src/modules/storage/storage.module.spec.ts:20–30` | Safe HTTP media delivery contract. |
+| F-2403 | P1 | No download audit, access alert, consent, medical-document retention or privacy erasure evidence exists. | `src/modules/storage/storage.module.spec.ts:1–31` | Medical-media governance controls. |
+| F-2404 | P1 | No duplicate upload/idempotency or concurrent read/delete behavior is tested. | `src/modules/storage/storage.module.spec.ts:1–31` | Exactly-once and race-safe storage mutations. |
+| F-2405 | P1 | Fixtures use permissive `any` and do not enforce runtime metadata/schema constraints. | `src/modules/storage/storage.module.spec.ts:5–11` | Typed fixtures and runtime validation. |
+| F-2406 | P1 | The spec was not executed during this audit and cannot establish current storage readiness. | `src/modules/storage/storage.module.spec.ts:1–31` | Baseline-pinned executed and live object-store evidence. |
