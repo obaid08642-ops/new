@@ -5826,3 +5826,27 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3956 | P0 | CV, license, cover letter, candidate identity and facility/job content lack projection, access audit, encryption, retention, deletion/DSAR and legal-hold controls. | `src/schemas/job-board.schema.ts:17–25,33–58` | Recruitment PII governance. |
 | F-3957 | P0 | No application idempotency, notification delivery/retry, transaction/rollback, concurrent status/CAS or search-index consistency state is represented. | `src/schemas/job-board.schema.ts:15–58` | Recruitment atomicity/side-effect gate. |
 | F-3958 | P1 | No live license verification, CV upload, posting publication, application workflow or index runtime evidence was established during this baseline source read. | `src/schemas/job-board.schema.ts:1–61` | Baseline-pinned job-board runtime evidence. |
+
+## Lab schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3959 | P0 | LabService category/sample_type/included_services are free-form and package membership/catalog integrity is not enforced. | `src/schemas/lab.schema.ts:12–16,26–27` | Lab catalog typed-integrity gate. |
+| F-3960 | P0 | LabService prices, old_price, fasting_hours, turnaround and reference_ranges lack positive/range/unit/currency validation. | `src/schemas/lab.schema.ts:17–24,48` | Lab catalog numeric truth gate. |
+| F-3961 | P0 | Eligibility/public/indexing/active/unavailable/deleted and availability flags lack reviewer actor, evidence, expiry and cross-field publication invariants. | `src/schemas/lab.schema.ts:29–40,43–46` | Lab catalog governance/SEO gate. |
+| F-3962 | P0 | LabService image/icon are raw strings without secure media/storage/access/retention controls. | `src/schemas/lab.schema.ts:49–50` | Catalog media security gate. |
+| F-3963 | P0 | LabBooking items are `[Object]` and totals/fees are separate untyped fields without line, quote, currency, tax, discount, package or server-total invariant. | `src/schemas/lab.schema.ts:92–100` | Lab booking financial truth gate. |
+| F-3964 | P0 | `total` and `total_price` can diverge; no immutable price snapshot or source-of-truth rule is declared. | `src/schemas/lab.schema.ts:93–100` | Lab total consistency gate. |
+| F-3965 | P0 | Cash/card/insurance/payment and copay fields lack authorization, currency, insurance approval, preauth, refund or settlement consistency. | `src/schemas/lab.schema.ts:110–115` | Lab payment/insurance gate. |
+| F-3966 | P0 | Transition map lacks actor authorization, transition preconditions, time windows, refund/cancellation rules, retry/version/CAS and atomic transaction semantics. | `src/schemas/lab.schema.ts:56–83,105–107` | Lab workflow state/atomicity gate. |
+| F-3967 | P0 | State history is `[any]` with no immutable from/to actor/role/reason/time provenance. | `src/schemas/lab.schema.ts:105–107` | Lab state audit gate. |
+| F-3968 | P0 | Patient/facility/provider/technician IDs lack referential integrity, patient ownership, active provider/capability and tenant/facility scope. | `src/schemas/lab.schema.ts:87–90,102,108,125` | Lab ownership/tenant gate. |
+| F-3969 | P0 | scheduled_at, location/address and GPS lack timezone, slot/availability, coordinate bounds, freshness, consent and privacy controls. | `src/schemas/lab.schema.ts:101–104,128–132` | Lab scheduling/location gate. |
+| F-3970 | P0 | Reports/documents/referral/prescription/medical files are raw strings/objects without typed kind, secure storage, MIME/size/malware, signed access, expiry or retention. | `src/schemas/lab.schema.ts:107,116,120–123` | Lab clinical-document security gate. |
+| F-3971 | P0 | Referral requirements are fields only; no invariant enforces required referral/prescription/report per selected service/item/state. | `src/schemas/lab.schema.ts:118–123` | Lab referral enforcement gate. |
+| F-3972 | P0 | No idempotency, duplicate booking/order/sample prevention, notification delivery/retry or atomic payment/insurance/booking side-effect contract is represented. | `src/schemas/lab.schema.ts:85–136` | Lab replay/side-effect gate. |
+| F-3973 | P0 | LabSample lacks lab-order/patient matching, test/specimen identity, barcode format/issuance, chain-of-custody and stage actor/timestamp/CAS. | `src/schemas/lab.schema.ts:138–149` | Specimen chain-of-custody gate. |
+| F-3974 | P0 | Lab samples have no result linkage, lab/tenant scope, rejection/quality-control reason or correction/retention lifecycle. | `src/schemas/lab.schema.ts:140–147` | Specimen/result lifecycle gate. |
+| F-3975 | P0 | Patient/contact, address/GPS, insurance, referral and clinical documents have no projection, consent/delegation, encryption, access audit, deletion/DSAR or legal-hold governance. | `src/schemas/lab.schema.ts:87–132` | Lab PII/PHI governance. |
+| F-3976 | P0 | No soft-delete, immutable correction, source provenance, maintenance/index migration or live catalog/booking/insurance/sample evidence is represented. | `src/schemas/lab.schema.ts:7–149` | Lab lifecycle/runtime evidence gate. |
+| F-3977 | P1 | LabService version exists but no optimistic-concurrency or catalog mutation semantics are declared. | `src/schemas/lab.schema.ts:40,52–55` | Catalog version/CAS gate. |
