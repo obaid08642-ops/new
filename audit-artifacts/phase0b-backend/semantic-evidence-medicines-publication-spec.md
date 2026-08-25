@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — Medicines publication governance spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/medicines/medicines.service.publication.spec.ts:1–53`
+
+The spec constructs MedicinesService with mocked model, events, Redis, connection and publication refresh collaborators (`3–15`). It verifies a direct admin catalog edit to an approved/public/indexable medicine returns `requires_reapproval: true` and updates description while setting verified=false, public_eligibility=false, indexing_eligibility=false, medical_review_status=pending and provenance=`admin_direct_edit_pending_review` (`18–37`). It verifies editing an already non-public pending draft does not add the direct-edit provenance or promote the draft (`39–52`).
+
+These tests establish a useful narrow publication-state invariant, but all collaborators are mocks and the adminUpdateCatalog call is made directly on the service. No HTTP authentication, admin scope, tenant/catalog ownership, reviewer separation or authorization audit is proven (`4–15,18–52`). Only description_ar is edited; field-level sensitivity, bulk edits, image/price/prescription/clinical fields, multilingual synchronization, validation and malicious content sanitization are not covered (`18–37`). The spec does not assert transactionality, optimistic concurrency, revision history, idempotency/replay, failure rollback or publication refresh/event behavior despite injecting those collaborators (`9–14,27–36`). It does not verify canonical/indexing/sitemap/JSON-LD truthfulness, cache invalidation, 404/410 lifecycle or public read exposure (`18–52`). No PII/medical provenance, retention, emergency withdrawal or live database/publication evidence exists. No code was changed and no build/test/application operation was performed during this read.

@@ -5208,3 +5208,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3493 | P0 | No fraud, abuse, farming, rate-limit, suspicious-award detection or administrative correction audit is tested. | `src/modules/loyalty/loyalty.service.spec.ts:60–127` | Loyalty abuse/audit gate. |
 | F-3494 | P1 | No notification, cache, challenge-progress, claim fulfillment or downstream event consistency is asserted. | `src/modules/loyalty/loyalty.service.spec.ts:60–127` | Loyalty side-effect contract. |
 | F-3495 | P1 | This spec was not executed against live Mongo, account/transaction/reward data or benefit providers during this audit read. | `src/modules/loyalty/loyalty.service.spec.ts:1–129` | Baseline-pinned loyalty runtime evidence. |
+
+## Medicine publication governance findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3496 | P0 | Publication governance is mock-bound and calls adminUpdateCatalog directly, so HTTP/admin authentication is unproven. | `src/modules/medicines/medicines.service.publication.spec.ts:3–15,18–52` | Live admin publication gate. |
+| F-3497 | P0 | Admin actor, tenant/catalog ownership, reviewer separation and least-privilege scope are not tested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Catalog admin/reviewer authorization matrix. |
+| F-3498 | P0 | Only description_ar is covered; price, prescription, active ingredient, images, regulatory and other sensitive fields lack field-level policy tests. | `src/modules/medicines/medicines.service.publication.spec.ts:18–37` | Field sensitivity/change policy. |
+| F-3499 | P0 | Multilingual synchronization, content validation, medical claim sanitization and malicious payload handling are untested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–37` | Medical catalog content-safety gate. |
+| F-3500 | P0 | Publication state change lacks revision history, actor/time audit, optimistic concurrency, replay/idempotency and failure rollback coverage. | `src/modules/medicines/medicines.service.publication.spec.ts:24–36` | Audited CAS publication transition. |
+| F-3501 | P0 | A model may be updated but publication refresh/event behavior is not asserted despite mocked collaborators being injected. | `src/modules/medicines/medicines.service.publication.spec.ts:9–14,27–36` | Publication side-effect consistency. |
+| F-3502 | P0 | The draft non-promotion test only checks absence of one provenance value and does not prove all public/indexed/verified gates remain false. | `src/modules/medicines/medicines.service.publication.spec.ts:39–52` | Complete draft-state invariant. |
+| F-3503 | P0 | No emergency withdrawal, reapproval, reviewer decision, reinstatement or rejection-reason lifecycle is tested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Medicine review lifecycle. |
+| F-3504 | P0 | No canonical, sitemap, JSON-LD, cache invalidation or 404/410 behavior is tested after publication withdrawal. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Public indexing lifecycle gate. |
+| F-3505 | P0 | No medical provenance, license/source verification, consent, PII/PHI classification or retention behavior is tested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Medicine data provenance/privacy gate. |
+| F-3506 | P1 | Error mapping for missing medicine, duplicate update, DB/Redis/publication failures and safe response schema is untested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Publication failure contract. |
+| F-3507 | P1 | No bulk-edit, rate-limit, audit-read or abuse-control behavior is tested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Admin catalog abuse/audit gate. |
+| F-3508 | P1 | This spec was not executed against live HTTP, Mongo, Redis, publication worker or public medicine surfaces during this audit read. | `src/modules/medicines/medicines.service.publication.spec.ts:1–53` | Baseline-pinned publication runtime evidence. |
