@@ -2232,3 +2232,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1384 | P1 | No audit/provenance marker records who accessed or changed a mental-health entry, for what purpose, or under which consent. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Immutable access/change audit with purpose and actor. |
 | F-1385 | P1 | Generic inherited repository operations expose no schema-level validation of mood scale, date, source or clinical context in this member. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Typed validation and boundary rejection tests. |
 | F-1386 | P2 | Non-functional import comment and formatting drift obscure ownership of this high-sensitivity repository. | `src/modules/mental-health/repositories/moodentry.repository.ts:4–6` | Remove stale comment and document privacy boundary. |
+
+## MeditationSession repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1387 | P0 | MeditationSession repository has no owner/tenant/participant scope or consent/purpose boundary; inherited generic reads/writes depend on callers to protect mental-health sessions. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Mandatory user/participant-scoped methods and consent-aware access tests. |
+| F-1388 | P0 | No session-token/access control or expiry policy is enforced at the repository boundary, so records can outlive intended access windows. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Server-controlled access expiry and participant authorization. |
+| F-1389 | P0 | No minimum-necessary projection or content redaction is enforced for mental-health session records. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Deny-by-default projection and redaction tests. |
+| F-1390 | P1 | No deterministic session key, idempotency or duplicate policy is defined for repeated session creation/events. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Replay-safe event/session key and idempotency tests. |
+| F-1391 | P1 | No optimistic versioning or conflict handling prevents stale session writes from overwriting live progress. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1392 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for mental-health sessions. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1393 | P1 | No audit/provenance marker records who accessed or changed a session, for what purpose, or under which consent. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Immutable access/change audit with purpose and actor. |
+| F-1394 | P1 | Generic inherited operations expose no schema-level validation of session status, duration, timestamps, source or completion semantics in this member. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Typed validation and lifecycle invariant tests. |
+| F-1395 | P2 | Non-functional import comment and formatting drift obscure ownership of this high-sensitivity repository. | `src/modules/mental-health/repositories/meditationsession.repository.ts:4–6` | Remove stale comment and document privacy boundary. |
