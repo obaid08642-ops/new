@@ -1815,3 +1815,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1097 | P1 | No soft-delete, redirect or 404/410 lifecycle is represented for discontinued or unavailable lab services. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Explicit withdrawal/index lifecycle with stale-index tests. |
 | F-1098 | P1 | No optimistic versioning, audited approval or conflict policy exists for service edits racing with SEO generation/indexing. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Versioned/audited publication projection with conflict handling. |
 | F-1099 | P2 | Non-functional import comment and formatting drift obscure the intended repository contract and ownership. | `src/modules/seo/repositories/labservice.repository.ts:4–6` | Remove stale comments and document repository provenance. |
+
+## Facility SEO repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1100 | P1 | FacilityRepository uses `MongoRepository<any>` and `Model<any>`, removing compile-time guarantees for indexed facility documents. | `src/modules/seo/repositories/facility.repository.ts:8–11` | Use typed FacilityDocument/model and reject unsafe any. |
+| F-1101 | P0 | No licensed/approved/public or operating-status filter is enforced, allowing unlicensed, closed or unverified facilities to reach index-facing callers. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Purpose-scoped public query requiring license and readiness. |
+| F-1102 | P1 | No service-availability, coverage-area or location freshness contract exists, so facility pages can advertise unavailable or stale services/locations. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Canonical service/location projection with freshness tests. |
+| F-1103 | P1 | No tenant/role/safe public projection policy is enforced, leaving internal operational and licensing fields to caller redaction. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Role-scoped projection and deny-broad-read policy. |
+| F-1104 | P1 | No locale projection or content completeness gate exists for facility pages, permitting mixed-language or incomplete indexed content. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Locale-aware publication readiness and parity fixtures. |
+| F-1105 | P1 | No canonical/slug uniqueness or JSON-LD/visible-facts parity contract is represented, risking duplicate or misleading facility pages. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Unique normalized canonical and structured-data parity validation. |
+| F-1106 | P1 | No soft-delete, redirect or 404/410 lifecycle is represented for closed, relocated or withdrawn facilities. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Explicit facility withdrawal/index lifecycle with stale-index tests. |
+| F-1107 | P1 | No optimistic versioning, audited approval or conflict handling exists for facility edits racing with SEO generation/indexing. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Versioned/audited publication projection with conflict tests. |
+| F-1108 | P2 | Non-functional import comment and formatting drift obscure the intended repository contract and provenance. | `src/modules/seo/repositories/facility.repository.ts:4–6` | Remove stale comments and document repository ownership. |
