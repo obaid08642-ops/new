@@ -6132,3 +6132,33 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4204 | P1 | `mongodb-memory-server` enables ephemeral DB tests but the manifest does not pin binary version/download policy or cache integrity. | `e2e/package.json:1` | Ephemeral database reproducibility gate. |
 | F-4205 | P1 | Package does not define cleanup/signal/timeout helpers or test lifecycle tooling. | `e2e/package.json:1` | Harness lifecycle gate. |
 | F-4206 | P1 | Package is private but has no declared publication/audit ownership, retention or artifact collection policy. | `e2e/package.json:1` | Test artifact governance gate. |
+
+## Comprehensive E2E matrix findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4173 | P0 | Matrix directly seeds admin/doctor/provider/medicine/insurance records in Mongo, bypassing production creation, validation and authorization flows. | `e2e/matrix.js:82–147` | Route-first sandbox fixture gate. |
+| F-4174 | P0 | Matrix extracts OTPs from Redis or backend logs, coupling tests to sensitive internals and bypassing the real OTP delivery/session contract. | `e2e/matrix.js:111–132` | Approved OTP verification gate. |
+| F-4175 | P0 | Fixed test identities, passwords, PII-like records, prices and credentials are embedded in the matrix. | `e2e/matrix.js:54–79,88–108` | Test secret/PII isolation gate. |
+| F-4176 | P0 | Matrix uses bearer tokens only and does not validate the required httpOnly cookie/session behavior or token leakage. | `e2e/matrix.js:41,54–79,151–154` | Session security gate. |
+| F-4177 | P0 | Missing routes are converted to SKIP and many cases accept any non-5xx/status response, allowing green results despite unavailable contracts. | `e2e/matrix.js:33–40,155–166,262–341,400–417` | Fail-closed contract availability gate. |
+| F-4178 | P0 | Mutation scenarios do not systematically test idempotency keys, replay, duplicate requests or concurrent conflicts. | `e2e/matrix.js:149–235,243–315,343–370,437–455` | Mutation replay/concurrency gate. |
+| F-4179 | P0 | Appointment/insurance tests do not prove complete owner/stranger/unauth/BOLA/tenant coverage across all object operations. | `e2e/matrix.js:149–240` | Authorization matrix gate. |
+| F-4180 | P0 | Consultation payment combinations are tested with synthetic requests but no server-price, tax/currency, capture, refund, reconciliation or external provider settlement assertions. | `e2e/matrix.js:149–166,437–455` | Financial truth/settlement gate. |
+| F-4181 | P0 | Insurance tests do not validate real eligibility, policy ownership, claims submission, provider authorization, evidence or race handling. | `e2e/matrix.js:206–240` | Insurance integrity gate. |
+| F-4182 | P0 | Pharmacy/lab/radiology/nursing scenarios mostly assert status/count and use hard-coded IDs; they do not prove persistence, ownership, pricing, availability or cleanup. | `e2e/matrix.js:243–297` | Service journey completion gate. |
+| F-4183 | P0 | Provider/admin mutations lack idempotency, audit, reason, RBAC scope, concurrency and rollback assertions; admin ban is not verified by a follow-up denial. | `e2e/matrix.js:299–357` | Governance mutation gate. |
+| F-4184 | P0 | Notification test does not prove delivery, recipient privacy, scheduling, retry, deduplication or cancellation. | `e2e/matrix.js:359–370` | Notification delivery gate. |
+| F-4185 | P0 | Socket tests only check connect/reject and do not verify namespace/event authorization, room membership, message privacy, replay or session expiry. | `e2e/matrix.js:372–398` | Realtime security gate. |
+| F-4186 | P0 | LiveKit tests accept token-shaped output but do not verify TTL, room/participant binding, call window, revocation, TLS or media privacy. | `e2e/matrix.js:400–417` | Call-token/media security gate. |
+| F-4187 | P0 | SEO/GEO tests only check substring/meta existence and non-empty llms.txt; canonical, JSON-LD truth, index lifecycle, links and content provenance are not asserted. | `e2e/matrix.js:419–435` | SEO/GEO correctness gate. |
+| F-4188 | P0 | Refund tests use synthetic booking IDs and assert policy percentages without proving paid ledger linkage, owner, idempotency, refund execution or reconciliation. | `e2e/matrix.js:437–455` | Refund truth/idempotency gate. |
+| F-4189 | P0 | No systematic cleanup/cancellation/deletion is performed for created users, bookings, orders, insurance requests, provider records, notifications or refunds. | `e2e/matrix.js:49–465` | Test data lifecycle gate. |
+| F-4190 | P0 | Direct Redis RESP access has no auth/TLS/namespace validation and assumes OTP JSON key format, making the test coupled to internal storage. | `e2e/matrix.js:7–28,111–126` | Redis test isolation gate. |
+| F-4191 | P1 | Local HTTP endpoints are used for socket/call checks, so production DNS/TLS/network/certificate behavior is untested. | `e2e/matrix.js:372–417` | Production media endpoint gate. |
+| F-4192 | P1 | Tests use status/count-only assertions for catalog and provider surfaces, allowing malformed response shapes or wrong-owner data to pass. | `e2e/matrix.js:243–321` | Schema/ownership response gate. |
+| F-4193 | P1 | The matrix summary reports skipped scenarios separately but exits only on FAIL, not on missing prerequisites or skipped required contracts. | `e2e/matrix.js:33–40,458–465` | Required-scenario fail-closed gate. |
+| F-4194 | P1 | Failure messages serialize response data and internal error details without a declared redaction policy. | `e2e/matrix.js:34–38,128,166,268,279,405,415,442` | Redacted evidence gate. |
+| F-4195 | P1 | No structured JSON/JUnit artifact, duration, request correlation or environment/version manifest is emitted. | `e2e/matrix.js:31–40,458–465` | Reproducible report gate. |
+| F-4196 | P1 | Mongo client is closed on normal completion but not in the top-level crash path; process cleanup is incomplete. | `e2e/matrix.js:82–87,458–465` | Failure-path cleanup gate. |
+| F-4197 | P1 | No runtime execution was performed during this baseline source read, so the matrix’s effective pass/fail/skip state remains unverified here. | `e2e/matrix.js:1–466` | Baseline-pinned E2E execution artifact. |
