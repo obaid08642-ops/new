@@ -3718,3 +3718,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2450 | P1 | Hardcoded public/local servers do not model environment-specific deployments or TLS/proxy/API-host variants. | `src/config/openapi.config.ts:10–11,25–26` | Environment-aware server metadata. |
 | F-2451 | P1 | No x402/MPP/UCP/ACP machine-payment/discovery metadata is present despite the commerce/payment surface. | `src/config/openapi.config.ts:53–86` | Explicit approved agent-commerce protocol decision/contract. |
 | F-2452 | P1 | OpenAPI document generation was not executed or compared to the live published document during this audit. | `src/config/openapi.config.ts:36–45` | Baseline-pinned generation and live diff evidence. |
+
+## Medicines public-catalog test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2453 | P1 | Public catalog spec is mock-only and cannot prove live route, serialization, cache or deployed catalog parity. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:4–12,14–30` | Live catalog integration gate. |
+| F-2454 | P1 | Only Filipino locale and one category are tested; all supported locales, category vocabulary, fallback and RTL behavior are absent. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:15–26,33–38` | Full locale/category matrix. |
+| F-2455 | P0 | Catalog price is returned from a mock without currency, precision, server provenance, effective date or inventory reconciliation. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:17–25` | Truthful typed price contract. |
+| F-2456 | P0 | Availability `'none'` is asserted without stock/fulfillment semantics, freshness, pharmacy scope or prescription gating. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:18–25` | Availability/prescription eligibility contract. |
+| F-2457 | P1 | Image URL is only an example and has no asset existence, host allowlist, transformation or private-origin safety validation. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:18–25` | Safe verified asset contract. |
+| F-2458 | P1 | Test does not assert actual query limit, sort order, projection completeness, count/has-more, empty or backend error behavior. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:4–11,23–30` | Pagination/projection/error gates. |
+| F-2459 | P1 | Unsafe category rejection covers one path traversal string only and does not cover encoded traversal, Unicode confusables, injection or oversized inputs. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:33–38` | Bounded canonical category validation. |
+| F-2460 | P1 | No deleted/withdrawn/recalled/unreviewed/price-expired or cache-stale lifecycle cases are tested. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:15–30` | Publication/inventory lifecycle matrix. |
+| F-2461 | P1 | No canonical/JSON-LD/sitemap/indexing or stale-cache invalidation evidence exists for the public medicine surface. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:14–39` | SEO/cache integration acceptance. |
+| F-2462 | P1 | The spec was not executed during this audit and cannot establish current catalog readiness. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:1–39` | Baseline-pinned executed and live evidence. |
