@@ -3181,3 +3181,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2073 | P1 | No repository/license/engines/package-manager/exports/files metadata is declared for a reproducible operational package boundary. | `package.json:1–108` | Complete package operational metadata. |
 | F-2074 | P1 | No centralized dependency policy prevents duplicate JWT, HTTP, queue or storage implementations from drifting. | `package.json:16–67` | Approved integration matrix and CI drift guard. |
 | F-2075 | P1 | Package scripts do not encode the audit's required fail-closed production readiness, deployment rollback or security verification workflow. | `package.json:6–14` | Evidence-backed release pipeline contract. |
+
+## Production Dockerfile findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2076 | P0 | Build and runtime use mutable `node:20-alpine` tags without digest pinning, base provenance, SBOM, vulnerability scan or signature policy. | `Dockerfile.production:1–2,12–13` | Pinned signed base image with supply-chain evidence. |
+| F-2077 | P1 | Builder copies the entire context with `COPY . .` without an explicit sensitive-content exclusion visible in this Dockerfile. | `Dockerfile.production:4–10` | Minimal audited context and secret exclusion. |
+| F-2078 | P0 | npm dependency installation has no explicit lockfile/version/integrity check, registry policy or reproducibility evidence. | `Dockerfile.production:6–7,20–22` | Locked reproducible dependency install. |
+| F-2079 | P1 | Production image copies only `dist` from builder and does not prove runtime imports, assets, templates, localization, native modules or patches are present. | `Dockerfile.production:24–25` | Runtime manifest and smoke verification. |
+| F-2080 | P0 | No patches/overlays or standalone tracing/runtime dependency handling is included, risking missing generated/native runtime files. | `Dockerfile.production:20–25` | Explicit runtime dependency packaging and verification. |
+| F-2081 | P1 | Non-root user is configured without ownership/permissions, read-only root filesystem, dropped capabilities, no-new-privileges or writable-temp policy. | `Dockerfile.production:27–30` | Hardened least-privilege container runtime. |
+| F-2082 | P1 | No resource limits, init process, graceful shutdown, signal policy or log/redaction policy is configured. | `Dockerfile.production:27–36` | Operational container lifecycle contract. |
+| F-2083 | P0 | No Docker `HEALTHCHECK` or readiness/liveness contract is defined. | `Dockerfile.production:32–36` | Verified health/readiness probe. |
+| F-2084 | P0 | Image exposes port 3000 without proving it matches application listen configuration and deployment edge. | `Dockerfile.production:32–36` | Port parity check against runtime/deployment. |
+| F-2085 | P0 | Image starts `node dist/main` without environment/secret/dependency preflight or fail-closed readiness behavior. | `Dockerfile.production:32–36` | Startup validation and safe failure contract. |
+| F-2086 | P1 | No image labels identify source commit, release, version, dependency provenance or runtime ownership. | `Dockerfile.production:1–36` | Traceable release metadata. |
+| F-2087 | P1 | No multi-architecture/platform policy or verified native-module build strategy is declared. | `Dockerfile.production:1–36` | Supported platform matrix and build evidence. |
+| F-2088 | P1 | No migration/seed policy, backup coordination or rollback strategy is coupled to image release. | `Dockerfile.production:1–36` | Deployment lifecycle and recovery contract. |
+| F-2089 | P1 | Dockerfile does not prove exclusion of legacy/FastAPI/seed surfaces from the authoritative production image. | `Dockerfile.production:4–10,24–25` | Explicit production boundary and exclusion verification. |
+| F-2090 | P1 | No image signing, registry admission or post-build vulnerability/license gate is declared. | `Dockerfile.production:1–36` | Enforced signed-image release pipeline. |
