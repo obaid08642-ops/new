@@ -1950,3 +1950,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1187 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting live user changes. | `src/modules/seed/repositories/user.repository.ts:8–13` | Version/source checks and conflict rejection. |
 | F-1188 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to identity persistence. | `src/modules/seed/repositories/user.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
 | F-1189 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and identity-data separation. | `src/modules/seed/repositories/user.repository.ts:4–6` | Remove stale comments and document repository provenance. |
+
+## PatientProfile seed repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1190 | P0 | PatientProfile seed repository has no production-environment hard stop or seed-only capability boundary; bootstrap persistence could target live health profiles. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Hard fail in production and isolate profile seed capability. |
+| F-1191 | P0 | No minimum-necessary projection, clinical-field protection or consent policy is enforced at the patient-profile repository boundary. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Deny-by-default clinical/PII projection and consent tests. |
+| F-1192 | P0 | No user/tenant/actor scope is represented, so inherited operations depend on seed callers to prevent cross-patient profile access or writes. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Mandatory owner/tenant-scoped methods and stranger tests. |
+| F-1193 | P1 | No deterministic reconciliation key, uniqueness/idempotency or duplicate policy is defined for rerunning patient profile seed data. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Idempotent versioned reconciliation with uniqueness tests. |
+| F-1194 | P1 | No activation/consent/deletion lifecycle is enforced; seeded health profiles could be mistaken for verified or consented production records. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Explicit seed status and server-controlled profile lifecycle. |
+| F-1195 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting live patient changes. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Version/source checks and conflict rejection. |
+| F-1196 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to patient-profile persistence. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
+| F-1197 | P1 | Generic inherited operations provide no soft-delete/retention/anonymization boundary for patient health data. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Retention, deletion/anonymization and recovery policy. |
+| F-1198 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and health-data separation. | `src/modules/seed/repositories/patientprofile.repository.ts:4–6` | Remove stale comments and document repository provenance. |
