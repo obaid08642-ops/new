@@ -4868,3 +4868,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3270 | P1 | Compound index supports entity/status lookup but does not visibly enforce one active request or tenant-scoped query plans. | `src/schemas/approval-request.schema.ts:28` | Approval index/uniqueness plan. |
 | F-3271 | P1 | No deletion/anonymization/retention/legal-hold policy is represented for approval changes and reasons. | `src/schemas/approval-request.schema.ts:12–24` | Approval-data lifecycle governance. |
 | F-3272 | P1 | The schema was not executed or integrated with live approval controllers, target writes or publication flows during this audit read. | `src/schemas/approval-request.schema.ts:1–28` | Baseline-pinned approval runtime evidence. |
+
+## Corporate account schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3273 | P0 | Corporate account has no tenant/legal-entity identifier, owner, billing contact, verification or lifecycle state. | `src/schemas/corporate-account.schema.ts:7–25` | Enterprise identity/lifecycle contract. |
+| F-3274 | P0 | `companyName` uniqueness is not normalized or scoped by tenant/region/legal entity. | `src/schemas/corporate-account.schema.ts:12–13` | Canonical enterprise identity. |
+| F-3275 | P0 | `employeeLimit` is an unconstrained number with no integer, nonnegative, maximum or membership invariant. | `src/schemas/corporate-account.schema.ts:15–16` | Employee-limit validation. |
+| F-3276 | P0 | Credit limit fields are unconstrained numeric values without currency, precision, nonnegative or maximum bounds. | `src/schemas/corporate-account.schema.ts:18–22` | Monetary/credit validation. |
+| F-3277 | P0 | No invariant ensures usedCredit is within the individual/enterprise credit limit. | `src/schemas/corporate-account.schema.ts:18–22` | Available-credit truthfulness. |
+| F-3278 | P0 | usedCredit has no immutable ledger, transaction/order/member attribution, reversal, refund or reconciliation linkage. | `src/schemas/corporate-account.schema.ts:21–22` | Enterprise credit ledger. |
+| F-3279 | P0 | No atomic/CAS/idempotent spend, release, refund or concurrent credit-update semantics are represented. | `src/schemas/corporate-account.schema.ts:18–22` | Credit race/replay gate. |
+| F-3280 | P0 | billingCycleEnd lacks cycle start/current period, timezone, renewal/status, grace, overdue or suspension policy. | `src/schemas/corporate-account.schema.ts:24–25` | Billing-cycle state contract. |
+| F-3281 | P0 | No employee/member association or per-user spend authorization is represented by the account schema. | `src/schemas/corporate-account.schema.ts:12–25` | Enterprise member authorization. |
+| F-3282 | P0 | No admin role, approval, audit actor/reason or account-change provenance is represented. | `src/schemas/corporate-account.schema.ts:7–25` | Enterprise governance audit. |
+| F-3283 | P0 | No PII/classification, billing-data retention, deletion/anonymization or legal-hold policy is represented. | `src/schemas/corporate-account.schema.ts:7–25` | Enterprise data governance. |
+| F-3284 | P1 | No billing currency, tax, invoice, payment-provider or settlement linkage is represented. | `src/schemas/corporate-account.schema.ts:18–25` | Billing reconciliation contract. |
+| F-3285 | P1 | No indexes support active-cycle, overdue, membership or tenant-scoped operational queries. | `src/schemas/corporate-account.schema.ts:9–25` | Enterprise query/index plan. |
+| F-3286 | P1 | The schema was not executed or integrated with live enterprise billing, membership, credit or payment flows during this audit read. | `src/schemas/corporate-account.schema.ts:1–28` | Baseline-pinned enterprise runtime evidence. |
