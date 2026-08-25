@@ -3201,3 +3201,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2088 | P1 | No migration/seed policy, backup coordination or rollback strategy is coupled to image release. | `Dockerfile.production:1–36` | Deployment lifecycle and recovery contract. |
 | F-2089 | P1 | Dockerfile does not prove exclusion of legacy/FastAPI/seed surfaces from the authoritative production image. | `Dockerfile.production:4–10,24–25` | Explicit production boundary and exclusion verification. |
 | F-2090 | P1 | No image signing, registry admission or post-build vulnerability/license gate is declared. | `Dockerfile.production:1–36` | Enforced signed-image release pipeline. |
+
+## Root Dockerfile findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2091 | P0 | Root Dockerfile is a second image contract alongside Dockerfile.production, with no visible authoritative selection or drift gate. | `Dockerfile:1–15; Dockerfile.production:1–37` | One authoritative image contract or verified equivalence. |
+| F-2092 | P0 | Both stages use mutable `node:20-alpine` tags without digest/provenance/SBOM/scan/signing policy. | `Dockerfile:1,8` | Pinned signed base image with supply-chain evidence. |
+| F-2093 | P1 | Builder copies the entire context without an explicit sensitive-content exclusion visible in this file. | `Dockerfile:2–6` | Minimal audited build context. |
+| F-2094 | P0 | npm installs lack explicit lockfile/integrity/version/registry reproducibility assertion. | `Dockerfile:3–4,11–12` | Reproducible verified dependency installation. |
+| F-2095 | P1 | Runtime copies only `dist` and package manifests, with no proof of assets/templates/localization/patches/native runtime support. | `Dockerfile:10–12` | Runtime manifest and smoke verification. |
+| F-2096 | P0 | Root image runs as the default container user with no non-root, filesystem, capability or no-new-privileges hardening. | `Dockerfile:8–14` | Hardened least-privilege runtime. |
+| F-2097 | P1 | Runtime starts through npm rather than directly invoking the application and has no signal/init/graceful-shutdown policy. | `Dockerfile:13–14` | Explicit process lifecycle contract. |
+| F-2098 | P0 | No Docker healthcheck/readiness/liveness contract exists. | `Dockerfile:8–14` | Verified health/readiness probe. |
+| F-2099 | P0 | No startup secret/dependency preflight, resource limit, log/redaction policy or runtime security configuration exists. | `Dockerfile:8–14` | Fail-closed operational runtime. |
+| F-2100 | P0 | Port 3000 is exposed without proving parity with application listen/deployment configuration. | `Dockerfile:13` | Port parity evidence. |
+| F-2101 | P1 | No image labels identify source commit, release, ownership or dependency provenance. | `Dockerfile:1–14` | Traceable release metadata. |
+| F-2102 | P1 | No migration/seed/backup/rollback policy is coupled to the image. | `Dockerfile:1–14` | Deployment lifecycle and recovery contract. |
+| F-2103 | P1 | Root image does not prove exclusion of legacy/FastAPI/seed content from the authoritative production boundary. | `Dockerfile:5,10` | Explicit production inclusion/exclusion verification. |
+| F-2104 | P1 | No post-build vulnerability/license/admission gate is declared for this image path. | `Dockerfile:1–14` | Enforced signed-image release pipeline. |
