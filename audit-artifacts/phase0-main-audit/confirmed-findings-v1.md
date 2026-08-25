@@ -5752,3 +5752,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3902 | P0 | AI log has no model/provider/policy version, prompt-injection provenance, safety/refusal outcome, human escalation or source-record linkage. | `src/schemas/extra.schemas.ts:84–89` | AI safety/provenance gate. |
 | F-3903 | P0 | No soft-delete, deletion/DSAR lifecycle, referential/tenant constraints or immutable correction policy is represented across extra models. | `src/schemas/extra.schemas.ts:7–92` | Extra-schema lifecycle/tenant gate. |
 | F-3904 | P1 | No live runtime/index, medication, appointment, health-record or AI logging evidence was established during this baseline source read. | `src/schemas/extra.schemas.ts:1–93` | Baseline-pinned extra-schema runtime evidence. |
+
+## Ambulance vehicle schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3905 | P0 | Plate/model/year/equipment/paramedic_count/base_city lack normalization, jurisdiction, range, capability and uniqueness validation. | `src/schemas/ambulance-vehicle.schema.ts:14–20,26` | Fleet identity/data-quality gate. |
+| F-3906 | P0 | `has_icu`, vehicle_type, equipment and paramedic_count can contradict each other; no capability/qualified-crew safety invariant exists. | `src/schemas/ambulance-vehicle.schema.ts:18–22` | Ambulance capability safety gate. |
+| F-3907 | P0 | last_location has no lat/lng bounds, precision, freshness/accuracy/source, timezone or geospatial index validation. | `src/schemas/ambulance-vehicle.schema.ts:23–25` | Ambulance location-quality gate. |
+| F-3908 | P0 | Crew-app location has no authenticated device/crew provenance, spoofing detection, consent, audit or stale-location policy. | `src/schemas/ambulance-vehicle.schema.ts:23–25` | Location provenance/privacy gate. |
+| F-3909 | P0 | Vehicle documents are raw URL strings without type, expiry, ownership, verification, ACL/signed access, content/size/malware or retention metadata. | `src/schemas/ambulance-vehicle.schema.ts:27–28` | Fleet compliance-document security gate. |
+| F-3910 | P0 | Review/status fields lack transition authorization, reviewer-role, rejection/suspension reason, approval evidence, CAS or append-only audit. | `src/schemas/ambulance-vehicle.schema.ts:29–33` | Fleet review/state audit gate. |
+| F-3911 | P0 | is_available is independent of status and has no approved-status, valid-document, maintenance, crew-readiness, freshness or dispatch-exclusion invariant. | `src/schemas/ambulance-vehicle.schema.ts:29–34` | Availability safety gate. |
+| F-3912 | P0 | provider_account_id is a plain string with no provider-type, tenant/facility, active account, ownership or transfer invariant; plate uniqueness is not scoped or enforced. | `src/schemas/ambulance-vehicle.schema.ts:13–15` | Fleet ownership/tenant gate. |
+| F-3913 | P0 | No maintenance/inspection/insurance expiry, crew/shift, de-registration, incident or vehicle-use audit state is represented. | `src/schemas/ambulance-vehicle.schema.ts:14–34` | Fleet operational-readiness gate. |
+| F-3914 | P0 | No dispatch assignment/trip/ETA source, reservation lock, idempotency, transaction or concurrent availability/CAS protection is represented. | `src/schemas/ambulance-vehicle.schema.ts:14–34` | Ambulance dispatch atomicity gate. |
+| F-3915 | P0 | Location and document fields can expose operational/security-sensitive data without projection, access, retention or deletion/legal-hold lifecycle. | `src/schemas/ambulance-vehicle.schema.ts:23–28` | Fleet sensitive-data governance. |
+| F-3916 | P0 | No notification, admin-review delivery, document-expiry alert, location heartbeat or dispatch acknowledgement/retry state exists. | `src/schemas/ambulance-vehicle.schema.ts:23–34` | Fleet side-effect contract. |
+| F-3917 | P1 | Soft-delete, archival and correction provenance are absent despite a mutable availability/status model. | `src/schemas/ambulance-vehicle.schema.ts:11–34` | Fleet lifecycle/retention gate. |
+| F-3918 | P1 | No live compliance, location, review, dispatch or index runtime evidence was established during this baseline source read. | `src/schemas/ambulance-vehicle.schema.ts:1–38` | Baseline-pinned fleet runtime evidence. |
