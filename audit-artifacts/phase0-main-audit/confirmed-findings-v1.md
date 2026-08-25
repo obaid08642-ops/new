@@ -5445,3 +5445,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3670 | P1 | No rate limit, enumeration prevention or abuse control is tested for invoice, payment or attachment operations. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking abuse-control gate. |
 | F-3671 | P1 | No transaction/rollback protects multi-resource payment, invoice or attachment operations. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking transaction gate. |
 | F-3672 | P1 | This spec was not executed against live HTTP, Mongo, storage, payment provider or booking workflows during this audit read. | `src/modules/booking-ops/booking-ops.service.spec.ts:1–48` | Baseline-pinned booking-ops runtime evidence. |
+
+## Family service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3673 | P0 | Family tests use mocked repositories and direct service calls, so HTTP authentication, verified identity and live persistence are unproven. | `src/modules/family/family.service.spec.ts:5–41,43–205` | Live family integration gate. |
+| F-3674 | P0 | Group creation/membership lacks name/member-count limits, owner transfer, leave/delete/restore and concurrent join protection. | `src/modules/family/family.service.spec.ts:43–60,78–107` | Family membership lifecycle gate. |
+| F-3675 | P0 | Invite coverage does not prove code secrecy, uniqueness, one-time redemption, expiry race, account-state or invite-target policy. | `src/modules/family/family.service.spec.ts:62–107` | Invite security/replay contract. |
+| F-3676 | P0 | Group/family ownership, tenant scope, active/deleted user state and cross-family isolation are not tested end-to-end. | `src/modules/family/family.service.spec.ts:43–107` | Family ownership/tenant matrix. |
+| F-3677 | P0 | Calendar event validation lacks type/title/date timezone/range, linked-resource ownership, update, group-owner delete, soft-delete and audit coverage. | `src/modules/family/family.service.spec.ts:109–152` | Shared calendar lifecycle gate. |
+| F-3678 | P0 | Calendar duplicate/replay, concurrent create/delete, idempotency and transaction behavior are untested. | `src/modules/family/family.service.spec.ts:109–152` | Calendar atomicity/replay gate. |
+| F-3679 | P0 | Permission requests do not validate permission allowlist, least privilege, requester/target relationship, health-data consent or target capability. | `src/modules/family/family.service.spec.ts:154–164` | Delegated-access consent contract. |
+| F-3680 | P0 | Permission approval coverage omits rejection, expiry, revocation, terminal state, duplicate request and concurrent approval semantics. | `src/modules/family/family.service.spec.ts:185–205` | Permission state-machine gate. |
+| F-3681 | P0 | Permission request and group-member grant are updated separately without a tested atomic/CAS invariant. | `src/modules/family/family.service.spec.ts:185–205` | Delegated-access atomicity gate. |
+| F-3682 | P0 | Permission update accepts a permission array in the test without proving payload normalization, dangerous scope rejection or audit reason. | `src/modules/family/family.service.spec.ts:167–182` | Permission payload/audit validation gate. |
+| F-3683 | P0 | Family health-data PII/PHI projection, field-level disclosure, consent withdrawal, retention/deletion and DSAR behavior are untested. | `src/modules/family/family.service.spec.ts:154–205` | Family data governance. |
+| F-3684 | P0 | No notifications, consent prompts, event publication, cache invalidation or downstream access acknowledgement is asserted. | `src/modules/family/family.service.spec.ts:154–205` | Family side-effect contract. |
+| F-3685 | P0 | Invite, group, calendar and permission operations have no rate-limit, enumeration or abuse-control coverage. | `src/modules/family/family.service.spec.ts:43–205` | Family abuse-control gate. |
+| F-3686 | P1 | Malformed IDs, repository failures, stable 401/403/404/error schema and safe retry mapping are incompletely covered. | `src/modules/family/family.service.spec.ts:43–205` | Family failure contract. |
+| F-3687 | P1 | This spec was not executed against live HTTP, Mongo, notifications or delegated-health-data workflows during this audit read. | `src/modules/family/family.service.spec.ts:1–207` | Baseline-pinned family runtime evidence. |
