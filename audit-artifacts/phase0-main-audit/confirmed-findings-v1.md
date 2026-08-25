@@ -3688,3 +3688,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2430 | P1 | No test proves adapter installation at bootstrap or parity between HTTP and WebSocket CORS configurations. | `src/config/configured-io.adapter.ts:5–16` | Bootstrap/config parity integration tests. |
 | F-2431 | P1 | No proxy/load-balancer/transport or connection-error integration evidence exists for this adapter. | `src/config/configured-io.adapter.ts:11–16` | Deployment-faithful Socket.IO tests. |
 | F-2432 | P1 | Adapter was not executed or integration-tested during this audit; static options do not establish realtime readiness. | `src/config/configured-io.adapter.ts:1–17` | Pinned executed and live gateway evidence. |
+
+## WebSocket CORS spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2433 | P1 | CORS spec covers only three helper outputs and does not cover the development/test arbitrary-origin credentialed fallback. | `src/config/websocket-cors.spec.ts:7–25` | Explicit safe local fallback test and deployment guard. |
+| F-2434 | P1 | No tests cover malformed/unsafe/non-HTTPS origins, duplicate/equivalent origins, ports, subdomains or normalization. | `src/config/websocket-cors.spec.ts:19–25` | Canonical secure-origin matrix. |
+| F-2435 | P0 | Explicit-origin test asserts credentials enabled but does not establish cookie/CSRF trust safety. | `src/config/websocket-cors.spec.ts:19–25` | Credentialed WebSocket threat-model tests. |
+| F-2436 | P0 | No test proves the configured options reach the Socket.IO adapter or every gateway. | `src/config/websocket-cors.spec.ts:1–27` | Bootstrap/adapter integration proof. |
+| F-2437 | P0 | No handshake, proxy, transport, auth-token, session or unauthorized-connection test exists. | `src/config/websocket-cors.spec.ts:1–27` | Deployment-faithful handshake tests. |
+| F-2438 | P1 | Environment restoration is tested only by assignment and does not cover concurrent/test isolation or unknown NODE_ENV policy. | `src/config/websocket-cors.spec.ts:3–5` | Isolated typed environment matrix. |
+| F-2439 | P1 | No HTTP/WebSocket CORS parity, logging/redaction or configuration audit coverage exists. | `src/config/websocket-cors.spec.ts:1–27` | Cross-surface policy parity evidence. |
+| F-2440 | P1 | The spec was not executed during this audit and cannot establish current live CORS readiness. | `src/config/websocket-cors.spec.ts:1–27` | Baseline-pinned executed and live evidence. |
