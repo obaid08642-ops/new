@@ -4015,3 +4015,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2652 | P0 | No sensitive-field projection, attachment/condition-photo privacy, retention or audit policy is visible. | `src/modules/returns/repositories/returnrequest.repository.ts:8–13` | Privacy/audit projection policy. |
 | F-2653 | P1 | Import comment does not enforce import correctness or schema/model parity. | `src/modules/returns/repositories/returnrequest.repository.ts:5–6` | CI/type/runtime parity gate. |
 | F-2654 | P1 | Repository was not executed or integration-tested during this audit and cannot establish return persistence readiness. | `src/modules/returns/repositories/returnrequest.repository.ts:1–13` | Baseline-pinned return evidence. |
+
+## ReturnRequest schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2655 | P0 | `service_type` and `refund_method` are plain strings; comments do not enforce their allowed values. | `src/schemas/returns.schema.ts:10,13` | Typed enum/contract validation. |
+| F-2656 | P0 | Refund amount is a mutable numeric field defaulting to zero, with no currency, tax, original line-item, gateway transaction or ledger reference. | `src/schemas/returns.schema.ts:13–14` | Server-authoritative refund ledger. |
+| F-2657 | P0 | Patient/order relationship and return eligibility are not enforced by cross-document constraints in the schema. | `src/schemas/returns.schema.ts:8–11` | Ownership/eligibility transaction. |
+| F-2658 | P0 | Attached document values are opaque strings without private-object, ownership, content type, malware, expiry or retention controls. | `src/schemas/returns.schema.ts:15` | Safe evidence-document contract. |
+| F-2659 | P0 | Reason/details/admin note fields have no length, content, PII/PHI or serialization policy. | `src/schemas/returns.schema.ts:11–12,19` | Safe text/projection policy. |
+| F-2660 | P0 | Status enum lacks actor authorization, valid transition graph, version/compare-and-set, resolution reason and refund completion linkage. | `src/schemas/returns.schema.ts:16–18` | Audited race-safe return state machine. |
+| F-2661 | P0 | No idempotency or duplicate-per-order/item constraint is visible for return creation and review. | `src/schemas/returns.schema.ts:7–16` | Exactly-once return workflow. |
+| F-2662 | P0 | No inventory/restock/quarantine linkage or atomicity boundary is visible after approval/completion. | `src/schemas/returns.schema.ts:16–18` | Atomic return/inventory settlement. |
+| F-2663 | P1 | Resolver identity/time and admin note are optional scalars without audited actor/reason or privacy controls. | `src/schemas/returns.schema.ts:17–19` | Audited reviewer metadata. |
+| F-2664 | P1 | No TTL/soft-delete/retention or deletion-request policy is visible for return evidence and financial records. | `src/schemas/returns.schema.ts:5–19` | Retention/legal-hold policy. |
+| F-2665 | P1 | No compound/index strategy is visible for patient/order/status queries, duplicate prevention or operational queues beyond individual fields. | `src/schemas/returns.schema.ts:7–16` | Query/uniqueness index plan. |
+| F-2666 | P1 | No projection test proves admin notes, attached docs or resolver data are not exposed to patients/providers. | `src/schemas/returns.schema.ts:11–19` | Role-based serialization tests. |
+| F-2667 | P1 | No schema/integration tests cover refund truth, status races, order ownership, evidence documents or inventory settlement. | `src/schemas/returns.schema.ts:1–22` | Comprehensive return acceptance matrix. |
+| F-2668 | P1 | The schema was not executed or integrated during this audit and cannot establish return readiness. | `src/schemas/returns.schema.ts:1–22` | Baseline-pinned return runtime evidence. |
