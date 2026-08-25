@@ -3336,3 +3336,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2188 | P1 | No log redaction/audit/PII handling or observability contract is configured for app, Mongo or Redis. | `docker-compose.prod.yml:3–49` | Operational privacy and observability policy. |
 | F-2189 | P1 | No explicit platform/architecture policy or native dependency verification is declared for the production image. | `docker-compose.prod.yml:4–7` | Supported platform and runtime smoke evidence. |
 | F-2190 | P0 | The production composition does not prove complete environment coverage for the documented integrations; missing values may silently disable or misconfigure critical features. | `docker-compose.prod.yml:12–17; ENVIRONMENT.md:9–170` | Generated env parity and fail-closed startup validation. |
+
+## Jest boot configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2191 | P0 | The boot config selects a narrow filename regex but does not assert discovery completeness or that tests boot the compiled production artifact. | `jest.boot.config.js:2–4` | Explicit real-boot discovery and artifact gate. |
+| F-2192 | P0 | Empty `moduleNameMapper` does not map the TypeScript `@/*` alias, creating test/runtime import parity risk. | `jest.boot.config.js:7; tsconfig.json:22–24` | Verified alias mapping in tests and runtime. |
+| F-2193 | P1 | ts-jest has no diagnostics, compiler-config, module-format or Node-version parity policy. | `jest.boot.config.js:5–6` | Explicit transformer/Node compatibility gate. |
+| F-2194 | P1 | No global setup/teardown or environment validation proves required secrets/dependencies are present and isolated. | `jest.boot.config.js:1–8` | Controlled setup/teardown with fail-closed config. |
+| F-2195 | P1 | No external-service readiness contract exists for boot tests. | `jest.boot.config.js:1–8` | Deterministic real-dependency readiness. |
+| F-2196 | P1 | No timeout, retry, open-handle detection, worker or leak-isolation policy is defined. | `jest.boot.config.js:1–8` | Bounded deterministic test execution. |
+| F-2197 | P1 | No coverage threshold or changed-surface assurance is defined for the boot suite. | `jest.boot.config.js:1–8` | Coverage/critical-path gate. |
+| F-2198 | P1 | No mock prohibition or real-vs-sandbox environment tagging is configured. | `jest.boot.config.js:1–8` | Explicit test authenticity policy. |
+| F-2199 | P1 | No test-discovery count, missing-suite failure or contract coverage assertion is present. | `jest.boot.config.js:2–4` | Discovery completeness gate. |
+| F-2200 | P1 | No source-map/cache/reproducibility policy is configured for transformed tests. | `jest.boot.config.js:5` | Reproducible transform policy. |
+| F-2201 | P1 | Root-level test config and package `test:boot` command have no visible parity assertion in this member. | `jest.boot.config.js:1–8; package.json:13` | Single verified boot-test entrypoint. |
+| F-2202 | P1 | The config does not establish cleanup of spawned servers, queues, sockets or database handles after boot tests. | `jest.boot.config.js:1–8` | Verified resource cleanup/open-handle gate. |
