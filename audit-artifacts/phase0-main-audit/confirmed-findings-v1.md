@@ -5035,3 +5035,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3392 | P1 | Error handling exits after logging but does not guarantee disconnect/cleanup on failure. | `src/scripts/seed_test_providers.ts:165–174` | Finally-based resource cleanup. |
 | F-3393 | P1 | No schema validation or cross-field check verifies fixture prices, provider details and enum compatibility before writes. | `src/scripts/seed_test_providers.ts:17–96,136–164` | Pre-write fixture validation. |
 | F-3394 | P1 | The script was not executed during this audit read, and no live database contamination/cleanup evidence is claimed. | `src/scripts/seed_test_providers.ts:1–174` | Baseline-pinned seed safety evidence. |
+
+## Test catalog seed script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3395 | P0 | Seed safety depends on NODE_ENV/ALLOW_TEST_SEED and does not verify target database identity, host or collection isolation. | `src/scripts/seed_test.ts:7–14,237–243` | Disposable database identity preflight. |
+| F-3396 | P0 | Doctor fixtures include synthetic consultation prices, ratings, review counts and experience without fixture provenance. | `src/scripts/seed_test.ts:16–212` | Explicit synthetic-data labeling and production exclusion. |
+| F-3397 | P0 | Medicine fixtures include synthetic prices and `example.com` image URLs that are placeholders, not verified catalog media. | `src/scripts/seed_test.ts:214–235` | Real media/catalog provenance or blocked fixture surface. |
+| F-3398 | P0 | Medicines are persisted with `verified: true` without licensing, regulatory or catalog provenance. | `src/scripts/seed_test.ts:265–273` | Verification provenance gate. |
+| F-3399 | P0 | Doctor profiles are created with generated user_id values but no corresponding User record or explicit account linkage. | `src/scripts/seed_test.ts:247–258` | Provider identity/account integrity. |
+| F-3400 | P0 | Fixed fixture names are used as lookup keys without normalization, conflict detection or stable run identity. | `src/scripts/seed_test.ts:248,267` | Collision-safe fixture identity. |
+| F-3401 | P0 | Create-only behavior leaves stale or conflicting existing records and does not reconcile fixture updates. | `src/scripts/seed_test.ts:248–260,267–275` | Deterministic fixture reconciliation. |
+| F-3402 | P0 | No transaction or rollback protects against partial provider/medicine creation. | `src/scripts/seed_test.ts:237–280` | Atomic seed or compensating rollback. |
+| F-3403 | P0 | No dry-run, DB-name allowlist, host restriction or preflight collision report is present. | `src/scripts/seed_test.ts:9–14,237–248` | Destructive-operation guard. |
+| F-3404 | P0 | No cleanup/delete/revert path exists for synthetic providers, medicines or profiles. | `src/scripts/seed_test.ts:237–287` | Fixture lifecycle cleanup. |
+| F-3405 | P0 | No fixture marker, source URL, generated run ID or data-provenance fields distinguish test data from catalog truth. | `src/scripts/seed_test.ts:251–273` | Synthetic-data provenance. |
+| F-3406 | P0 | No schema/cross-field validation checks prices, enums, image URLs, consultation modes or medicine prescription semantics before writes. | `src/scripts/seed_test.ts:16–235,247–273` | Pre-write fixture validation. |
+| F-3407 | P1 | Failure handling logs/exits but does not guarantee Mongo disconnect or cleanup on partial failure. | `src/scripts/seed_test.ts:280–287` | Finally-based resource cleanup. |
+| F-3408 | P1 | No credential, rate-limit or account-isolation policy is represented for generated provider fixture identities. | `src/scripts/seed_test.ts:247–258` | Test identity governance. |
+| F-3409 | P1 | The script was not executed during this audit read, and no live fixture isolation/cleanup evidence is claimed. | `src/scripts/seed_test.ts:1–287` | Baseline-pinned seed safety evidence. |
