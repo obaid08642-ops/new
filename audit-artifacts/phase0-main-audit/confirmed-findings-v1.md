@@ -2806,3 +2806,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1788 | P1 | No database/Redis version, schema, index or backward/forward compatibility check is performed. | `scripts/deploy.sh:20–28` | Compatibility and index/migration gates. |
 | F-1789 | P1 | No backup restoration test or documented recovery point/object is tied to the deployment operation. | `scripts/deploy.sh:20–28` | Verified backup/restore drill and deployment linkage. |
 | F-1790 | P2 | Operational output includes decorative emoji and generic status text rather than structured, machine-readable deployment evidence. | `scripts/deploy.sh:10,13,17,21,24,30,36` | Structured release report and evidence artifacts. |
+
+## Seed articles script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1791 | P0 | Article seed script has a localhost Mongo fallback and no production/database identity gate, so accidental execution can mutate the wrong database. | `scripts/seed-articles.ts:7–9,47–55` | Fail-closed environment gate and explicit target confirmation. |
+| F-1792 | P0 | Script is executable directly with no operator authorization, dry-run, audit actor, medical approval or provenance requirement. | `scripts/seed-articles.ts:2–5,47–61` | Authorized, auditable, review-gated content import. |
+| F-1793 | P0 | Three articles are hardcoded and unconditionally published, bypassing draft/review/approval workflow and creating incomplete catalog truth. | `scripts/seed-articles.ts:11–45,51–55` | Versioned medically reviewed publication lifecycle. |
+| F-1794 | P0 | Medical claims/advice have no citation, evidence date, clinical reviewer identity, approval/version or disclaimer. | `scripts/seed-articles.ts:16–17,27–28,38–39` | Evidence-backed medical content, review metadata and disclaimer. |
+| F-1795 | P0 | Diabetes article contains prevalence and screening assertions without visible jurisdiction/source/date validation. | `scripts/seed-articles.ts:35–39` | Sourced, current, jurisdiction-aware clinical claims. |
+| F-1796 | P1 | English title exists but English excerpt/body are absent, creating incomplete locale parity and potentially inconsistent SEO representation. | `scripts/seed-articles.ts:13–17,24–28,35–39` | Complete reviewed locale fields or explicit unavailable-state contract. |
+| F-1797 | P1 | No image/media, canonical URL, structured data, author profile, category hierarchy or internal-link metadata is seeded for SEO/article truth. | `scripts/seed-articles.ts:11–45` | UI-matching canonical/JSON-LD/media/author/category contract. |
+| F-1798 | P1 | Fixed starter catalog has no source, content version, effective date, expiry or retirement/410 lifecycle. | `scripts/seed-articles.ts:11–45,51–55` | Content provenance and lifecycle with stale-content handling. |
+| F-1799 | P1 | Upsert by slug lacks visible unique-index verification, collision policy, version conflict or reconciliation of expected IDs/content. | `scripts/seed-articles.ts:50–55` | Unique slug/index and deterministic reconciliation. |
+| F-1800 | P1 | Reruns overwrite `published_at` and `is_deleted`, potentially reviving/de-dating article records without review or audit. | `scripts/seed-articles.ts:51–55` | Immutable publication timestamps and reviewed update semantics. |
+| F-1801 | P1 | No moderation, plagiarism/quality, language, safety or clinical-content validation is performed before publication. | `scripts/seed-articles.ts:11–55` | Automated and human content safety/quality gates. |
+| F-1802 | P1 | No article-to-service/source-of-truth link guarantees CTA claims such as available home labs or consultations are actually live and serviceable. | `scripts/seed-articles.ts:17,28,39` | Live serviceability/source verification for CTAs. |
+| F-1803 | P1 | No explicit indexing/noindex, sitemap, IndexNow, canonical or 404/410 lifecycle is coupled to publication state. | `scripts/seed-articles.ts:47–55` | Publication-indexing lifecycle and URL-status tests. |
+| F-1804 | P1 | Mongo disconnect occurs only on success; catch logs and exits without guaranteed cleanup or structured operational result. | `scripts/seed-articles.ts:47–61` | Finally-based cleanup and structured failure/audit reporting. |
+| F-1805 | P2 | `@ts-nocheck` disables compile-time safety for a script publishing medical/SEO content into production-adjacent storage. | `scripts/seed-articles.ts:1` | Strict typing and CI/static checks for content seed scripts. |
