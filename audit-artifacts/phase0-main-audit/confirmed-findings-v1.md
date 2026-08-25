@@ -2713,3 +2713,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1720 | P1 | No audit/provenance records who assigned, accepted, moved, delivered, failed or accessed a delivery and under what order purpose. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Immutable delivery/access/proof audit. |
 | F-1721 | P1 | No driver capability, vehicle, geography or operational readiness boundary is represented for assignment. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Driver/vehicle/serviceability eligibility checks. |
 | F-1722 | P2 | Non-functional import comment and repository simplicity obscure ownership of this privacy- and financially sensitive fulfillment boundary. | `src/modules/drivers/repositories/delivery.repository.ts:4–6` | Remove stale comment and document delivery boundary. |
+
+## Driver User repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1723 | P0 | Driver User repository has no secret-excluding projection; inherited generic reads may expose passwords, tokens or credentials. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Secret-excluding repository methods and negative tests. |
+| F-1724 | P0 | No driver/account/tenant/role/assignment scope is enforced, risking cross-account or cross-tenant driver disclosure. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Mandatory identity/tenant-scoped methods and stranger tests. |
+| F-1725 | P0 | No license, vehicle, credential, verification or operational-readiness invariant is represented. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Verified driver/vehicle eligibility gate. |
+| F-1726 | P0 | No assignment authorization or order/delivery participant relationship boundary is enforced. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Assignment relationship and least-privilege tests. |
+| F-1727 | P1 | No active/verified/suspended/deleted/credential-expiry lifecycle is defined for driver identity. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Guarded driver account lifecycle. |
+| F-1728 | P1 | No optimistic versioning or conflict policy prevents concurrent driver status, capability or assignment changes from overwriting security-relevant data. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Versioned commands and race tests. |
+| F-1729 | P1 | No idempotency/replay policy is defined for driver verification, profile, capability or status mutations. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Deterministic command keys and replay tests. |
+| F-1730 | P0 | No minimum-necessary location/contact projection or redaction policy is enforced for driver-facing fulfillment data. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Role-scoped driver projection and location privacy tests. |
+| F-1731 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for driver identity, credentials and location history. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Driver data lifecycle and erasure/hold tests. |
+| F-1732 | P1 | No audit/provenance records who verified, changed, assigned, suspended or accessed driver identity and credentials. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Immutable driver account/access audit. |
+| F-1733 | P1 | No identity uniqueness/normalization contract is visible for driver phone/email/account linkage. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Canonical identity uniqueness tests. |
+| F-1734 | P0 | No authentication-sensitive transaction boundary is defined for driver credential/status/role changes. | `src/modules/drivers/repositories/user.repository.ts:8–13` | Transactional credential/status commands and recovery tests. |
+| F-1735 | P2 | Non-functional import comment and repository simplicity obscure ownership of this security-sensitive driver identity boundary. | `src/modules/drivers/repositories/user.repository.ts:4–6` | Remove stale comment and document driver identity boundary. |
