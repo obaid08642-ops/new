@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — Hospital operations schemas
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/schemas/hospital-operations.schema.ts:1–90`
+
+The file defines Ward, Bed, Admission, Shift, Attendance and SurgeryBooking Mongoose schemas (`5–90`). Wards carry facility_id/name/total_beds/available_beds (`7–16`); beds carry ward_id/bed_number/type/status and optional occupied patient (`18–28`); admissions carry patient/facility/bed IDs, admitted/discharged dates, active/discharged status and an Object-shaped discharge summary (`30–42`). Shifts carry user/facility/department IDs, string start/end time, day-of-week and scheduled/substitute/cancelled status (`46–58`). Attendance carries user/facility IDs, check-in/out, optional coordinates and present/absent/late/excused status (`60–72`). Surgery bookings carry facility/patient/surgeon IDs, assistants, OT room, scheduled time, duration and pending/confirmed/completed/cancelled status (`76–90`).
+
+Only selected enum fields and required/index annotations provide basic constraints. Ward totals/available beds have no nonnegative or invariant validation, and no facility/ward uniqueness or atomic capacity reservation is declared (`9–16`). Bed ward linkage, bed-number uniqueness, occupied_by/status consistency, patient ownership and facility consistency are unvalidated (`20–28`). Admission bed/facility/patient relationships, active-admission uniqueness, date ordering, discharge/status consistency and structured discharge-summary clinical data are unproven (`32–42`).
+
+Shift time/day fields are free-form strings with no timezone, interval, overnight, overlap, staff credential, department/facility capability or substitute approval semantics (`48–58`). Attendance coordinates have no range, geofence, accuracy, anti-spoofing, clock or source validation; check-in/out/status have no ordering or state invariant (`62–72`). Surgery duration, room, assistant identity and schedule have no positive/range, credential, conflict, room capability, consent, anesthesia/safety, overlap or atomic booking constraints (`78–89`).
+
+All identifiers are plain strings with no schema-level referential integrity, tenant isolation or role/capability rules (`9–13,20–25,32–35,48–50,62–64,78–82`). Clinical discharge summary and patient/staff/location data have no field-level projection, encryption, consent, retention, access audit or DSAR semantics (`33–39,61–69`). No financial/insurance fields or authoritative charge/settlement model exists for admissions/surgery (`30–42,76–90`).
+
+No append-only event/state history, actor/reason, CAS/version, idempotency, transaction/rollback, notification/dispatch, audit or soft-delete lifecycle is declared. Status enums do not enforce transitions (`24,38,55,69,86`). No TTL/deletion/legal hold or index migration/runtime evidence is present beyond single facility/user/patient indexes. No code was changed and no build/test/application operation was performed during this read.

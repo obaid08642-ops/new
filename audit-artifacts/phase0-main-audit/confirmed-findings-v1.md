@@ -5653,3 +5653,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3828 | P0 | Patient names/phones, address, instructions, notes, reports, referrals, DICOM and insurance fields have no schema-level projection/encryption/consent policy. | `src/schemas/radiology.schema.ts:115–157,172–189` | Radiology PII/PHI projection gate. |
 | F-3829 | P0 | No TTL, soft-delete, deletion/410, legal hold or DSAR lifecycle is declared for clinical media and booking records. | `src/schemas/radiology.schema.ts:111–207` | Radiology retention/deletion gate. |
 | F-3830 | P1 | Schema indexes cover patient-createdAt and state-scheduled_at but no evidence proves tenant/facility/query governance or live index creation. | `src/schemas/radiology.schema.ts:205–207` | Radiology index/runtime evidence gate. |
+
+## Hospital operations schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3831 | P0 | Ward capacity fields have no nonnegative, available≤total, facility uniqueness or atomic reservation invariant. | `src/schemas/hospital-operations.schema.ts:7–16` | Bed-capacity truthfulness/atomicity gate. |
+| F-3832 | P0 | Bed ward linkage, bed-number uniqueness, occupancy/patient consistency and facility isolation are not constrained. | `src/schemas/hospital-operations.schema.ts:18–28` | Bed assignment integrity gate. |
+| F-3833 | P0 | Admissions lack active-admission uniqueness, bed/patient/facility referential integrity, date ordering and status/discharge consistency. | `src/schemas/hospital-operations.schema.ts:30–42` | Admission lifecycle gate. |
+| F-3834 | P0 | Discharge summary is an untyped Object containing clinical fields without validation, provenance, consent or access policy. | `src/schemas/hospital-operations.schema.ts:36–42` | Discharge clinical-data contract. |
+| F-3835 | P0 | Shift start/end/day are free-form strings without timezone, overnight, interval, overlap, credential or facility-capability validation. | `src/schemas/hospital-operations.schema.ts:46–58` | Staff scheduling integrity gate. |
+| F-3836 | P0 | Shift substitute/cancelled states have no actor, approval, reason, conflict or audit semantics. | `src/schemas/hospital-operations.schema.ts:52–58` | Shift state/audit contract. |
+| F-3837 | P0 | Attendance coordinates lack range/geofence/accuracy/anti-spoofing/time-source validation; check-in/out/status ordering is unconstrained. | `src/schemas/hospital-operations.schema.ts:60–72` | Attendance geo/time gate. |
+| F-3838 | P0 | Surgery duration/room/schedule have no positive/range, room capability, overlap, assistant credential or concurrent booking constraint. | `src/schemas/hospital-operations.schema.ts:76–89` | Surgery scheduling/conflict gate. |
+| F-3839 | P0 | Surgery patient/surgeon/facility/assistant references lack consent, license, role, assignment and tenant/facility scope controls. | `src/schemas/hospital-operations.schema.ts:78–86` | Surgical authorization gate. |
+| F-3840 | P0 | All operational identifiers are plain strings with no schema-level referential integrity or tenant isolation. | `src/schemas/hospital-operations.schema.ts:9–13,20–25,32–35,48–50,62–64,78–82` | Cross-collection identity/tenant gate. |
+| F-3841 | P0 | Bed/admission/attendance/surgery statuses are declarative enums only and do not enforce transitions, CAS, actor/reason or append-only history. | `src/schemas/hospital-operations.schema.ts:24,38,55,69,86` | Operational state-machine gate. |
+| F-3842 | P0 | No idempotency, transaction/rollback or concurrency behavior protects capacity, admission, attendance or surgery writes. | `src/schemas/hospital-operations.schema.ts:7–89` | Operational atomicity/replay gate. |
+| F-3843 | P0 | No access projection, encryption, consent, retention/DSAR or audit policy is declared for discharge clinical data, patient IDs or staff location data. | `src/schemas/hospital-operations.schema.ts:33–39,61–69` | Hospital data governance gate. |
+| F-3844 | P0 | No notifications, dispatch, scheduling conflict alerts, patient acknowledgements or downstream cache/event consistency is represented. | `src/schemas/hospital-operations.schema.ts:7–89` | Operational side-effect contract. |
+| F-3845 | P1 | No financial/insurance, authorization, deposit, surgery charge or settlement source of truth is represented for admissions/surgery. | `src/schemas/hospital-operations.schema.ts:30–42,76–89` | Hospital financial model gate. |
+| F-3846 | P1 | No TTL/deletion/legal-hold lifecycle or live index creation/migration evidence is present for operational records. | `src/schemas/hospital-operations.schema.ts:7–89` | Operational retention/index runtime gate. |
