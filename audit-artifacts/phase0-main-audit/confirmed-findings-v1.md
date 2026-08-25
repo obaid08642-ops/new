@@ -2846,3 +2846,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1818 | P1 | No medication safety metadata such as dosage, contraindications, interactions, warnings or age/pregnancy restrictions is represented. | `scripts/seed-medicines.js:18–87` | Safety metadata source and pharmacist review. |
 | F-1819 | P1 | Errors are logged but do not set an explicit nonzero process result, while success logging claims four medicines without post-write validation. | `scripts/seed-medicines.js:89–95,99–100` | Fail-closed exit and post-seed reconciliation. |
 | F-1820 | P2 | The script relies on untyped JavaScript and inline catalog objects for a regulated/financial-adjacent source. | `scripts/seed-medicines.js:1,18–87` | Strict schema/types and CI/static checks. |
+
+## Insurance logo publisher findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1821 | P0 | Apply mode requires storage/database credentials but no approved operator, release, target bucket/account or Mongo database identity gate. | `scripts/publish-insurance-logo-assets.ts:32–42` | Authorized target-bound release gate and immutable audit record. |
+| F-1822 | P1 | Manifest companies are typed `any` and no manifest signature/version, company uniqueness or complete expected-catalog reconciliation is validated. | `scripts/publish-insurance-logo-assets.ts:18–22,32–35` | Strict manifest schema/signature and reconciliation. |
+| F-1823 | P1 | Checksum validation does not verify image MIME, dimensions, content safety, source authenticity or asset/insurer identity beyond the manifest entry. | `scripts/publish-insurance-logo-assets.ts:24–29` | Asset type/source/identity validation. |
+| F-1824 | P0 | S3 upload uses deterministic keys without conditional versioning, existence/metadata verification or rollback; retries can overwrite public assets. | `scripts/publish-insurance-logo-assets.ts:39–46` | Immutable/versioned object publish and verification. |
+| F-1825 | P0 | S3 object upload and Mongo logo-link update are not atomic; partial failure can create orphan objects or DB links to unavailable assets. | `scripts/publish-insurance-logo-assets.ts:43–46` | Transactional/outbox/compensating publication with reconciliation. |
+| F-1826 | P0 | Mongo `updateOne` by company code does not assert unique insurer existence, expected current state or matched/modified result. | `scripts/publish-insurance-logo-assets.ts:42–46` | Unique target assertion and fail-closed update result. |
+| F-1827 | P1 | Logo link update lacks operator/source-review/version/approval provenance and does not preserve an immutable asset history. | `scripts/publish-insurance-logo-assets.ts:43–49` | Asset publication provenance and history. |
+| F-1828 | P1 | No cache invalidation, public URL reachability, accessibility metadata or CDN/object availability verification occurs after upload. | `scripts/publish-insurance-logo-assets.ts:43–49` | Post-publish URL/cache/accessibility checks. |
+| F-1829 | P1 | No orphan-object, superseded-logo or deletion lifecycle is defined despite public immutable cache headers. | `scripts/publish-insurance-logo-assets.ts:43–46` | Asset lifecycle and orphan reconciliation. |
+| F-1830 | P1 | No idempotency/replay or release version protects repeated apply runs from silently replacing approved assets and timestamps. | `scripts/publish-insurance-logo-assets.ts:18,43–49` | Deterministic release key and replay-safe publication. |
+| F-1831 | P1 | `S3_PUBLIC_BASE_URL` is trusted as a concatenated public URL without origin/HTTPS/tenant/path validation. | `scripts/publish-insurance-logo-assets.ts:22,44–46` | Validated allowed origin and URL contract. |
+| F-1832 | P1 | Asset source URLs are copied from the manifest without revalidation or legal/licensing evidence at publication time. | `scripts/publish-insurance-logo-assets.ts:43–46` | Source/licensing provenance and review record. |
+| F-1833 | P1 | S3 client lifecycle and network retry/timeouts are not explicitly managed; partial network failures are not compensated. | `scripts/publish-insurance-logo-assets.ts:39–51` | Bounded retries/timeouts and failure reconciliation. |
+| F-1834 | P2 | Type assertions and inline `require`/`any` reduce compile-time assurance for a public asset publication path. | `scripts/publish-insurance-logo-assets.ts:21,33,35,39–40,51` | Strict types and static checks. |
