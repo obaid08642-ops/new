@@ -3609,3 +3609,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2376 | P1 | Mocked connection/events do not prove persistence, event durability or failure behavior. | `src/modules/livekit/livekit.followup.spec.ts:4–8,19–33` | Durable call session/event tests. |
 | F-2377 | P1 | Error tests assert exception classes only and do not prove privacy-safe HTTP status, rate limits or resource-existence side-channel behavior. | `src/modules/livekit/livekit.followup.spec.ts:82–122` | HTTP/error/rate-limit contract. |
 | F-2378 | P1 | The spec was not executed during this audit and cannot establish current deployed video-call readiness. | `src/modules/livekit/livekit.followup.spec.ts:1–123` | Baseline-pinned executed and live/device evidence. |
+
+## Order and PharmacyBid schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2379 | P0 | Order totals, fees and discounts are independently persisted numeric fields with no schema invariant deriving or reconciling them. | `src/schemas/order.schema.ts:55–58,79–89` | Server-side money derivation and reconciliation. |
+| F-2380 | P0 | Money/payment fields lack currency, precision, non-negative, tax, ledger and server-provenance constraints. | `src/schemas/order.schema.ts:56–58,76–90,118` | Typed money/payment contract. |
+| F-2381 | P0 | Payment/refund statuses are free strings and optional timestamps do not encode a settlement/refund state machine. | `src/schemas/order.schema.ts:76–90` | Closed financial lifecycle with audit. |
+| F-2382 | P1 | Manual/substitute/unavailable order items permit free or unverified medicine paths without schema catalogue, dosage, quantity, substitution or price validation. | `src/schemas/order.schema.ts:18–33` | Validated item/catalogue contract. |
+| F-2383 | P0 | Patient PII, phone, delivery address/coordinates, notes, insurance identifiers/card image and medical results have no explicit minimization/retention/redaction policy in the schema. | `src/schemas/order.schema.ts:50–54,69–75,112–121` | Field-level privacy and retention controls. |
+| F-2384 | P1 | Delivery coordinates/address and contact fields lack bounds and format validation. | `src/schemas/order.schema.ts:52,69–70` | Normalized bounded delivery DTO. |
+| F-2385 | P1 | State history/timeline actor fields have no schema-level transition allowlist, authenticity, monotonicity or optimistic concurrency. | `src/schemas/order.schema.ts:36–45,61–66` | Audited state machine and concurrency control. |
+| F-2386 | P0 | Geo dispatch is an open object with no candidate authorization, distance/score validation, timeout/lock or atomic selected-pharmacy invariant. | `src/schemas/order.schema.ts:91–98` | Race-safe dispatch contract. |
+| F-2387 | P1 | Split-order parent/sub-order links lack referential, acyclic, ownership and uniqueness constraints. | `src/schemas/order.schema.ts:99–101` | Validated order graph. |
+| F-2388 | P0 | Basket review fields do not enforce item/total reconciliation, actor authorization, transition ordering or payment gating. | `src/schemas/order.schema.ts:102–110` | Basket-review state and financial truth contract. |
+| F-2389 | P0 | Insurance fields lack provider/member/card asset validation, secure storage/retention, decision actor and copay reconciliation. | `src/schemas/order.schema.ts:111–119` | Insurance preauth and secure asset contract. |
+| F-2390 | P0 | PharmacyBid has no compound uniqueness or accepted-bid exclusivity, allowing duplicate/conflicting bids unless service/database compensates. | `src/schemas/order.schema.ts:128–149` | Unique bid lifecycle and atomic acceptance. |
+| F-2391 | P1 | PharmacyBid amount/items have no currency, precision, non-negative or item-total reconciliation constraints. | `src/schemas/order.schema.ts:133–147` | Typed bid money contract. |
+| F-2392 | P0 | `expires_at` is stored but schema does not enforce expiry or prevent post-expiry acceptance. | `src/schemas/order.schema.ts:145–147` | TTL/clock-checked bid acceptance. |
+| F-2393 | P1 | PharmacyBid has no decision actor/time/reason or optimistic concurrency metadata. | `src/schemas/order.schema.ts:145–147` | Audited race-safe bid state machine. |
+| F-2394 | P0 | String UUID/order IDs and optional cross-document references are not schema-bound to patient/pharmacy ownership, creating BOLA and linkage risks. | `src/schemas/order.schema.ts:49–54,71,100–101,130–132` | Cross-document ownership and referential integrity tests. |
