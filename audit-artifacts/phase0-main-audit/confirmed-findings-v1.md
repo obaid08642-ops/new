@@ -2748,3 +2748,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1745 | P1 | No audit/provenance records who opened, changed, assigned, closed or accessed a driver shift. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Immutable shift/access/assignment audit. |
 | F-1746 | P1 | No bounded query, pagination or index contract is visible for operational shift searches and availability windows. | `src/modules/drivers/repositories/drivershift.repository.ts:8–13` | Bounded queries, schedule indexes and pagination tests. |
 | F-1747 | P2 | Non-functional import comment and repository simplicity obscure ownership of this operationally sensitive scheduling boundary. | `src/modules/drivers/repositories/drivershift.repository.ts:4–6` | Remove stale comment and document shift boundary. |
+
+## Driver Order repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1748 | P0 | Driver Order repository has no patient/driver/tenant/delivery-participant scope; inherited generic operations depend on callers to prevent cross-order access. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Mandatory order/participant-scoped methods and stranger tests. |
+| F-1749 | P0 | No order-to-delivery/driver assignment relationship or least-privilege invariant is enforced. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Canonical order/delivery/driver linkage and authorization. |
+| F-1750 | P0 | No item, quantity, price, currency, tax, discount or server-authoritative total validation boundary is represented. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Typed order totals and server-price reconciliation. |
+| F-1751 | P0 | No payment, authorization, capture, refund, chargeback or settlement reconciliation boundary is defined. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Atomic payment/order settlement and replay tests. |
+| F-1752 | P0 | No guarded order state machine covers pending, paid, assigned, picked-up, shipped, delivered, cancelled, failed, returned or refunded states. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Complete versioned order lifecycle. |
+| F-1753 | P0 | No idempotency/replay or deterministic order command policy is defined for creation, payment, cancellation, delivery and retry operations. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Stable command keys and replay tests. |
+| F-1754 | P1 | No optimistic concurrency or transaction/outbox boundary prevents concurrent order, delivery and financial updates from overwriting truth. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Version checks, atomic commands and outbox reconciliation. |
+| F-1755 | P0 | No minimum-necessary projection or redaction is enforced for patient address, phone, order items, payment and delivery metadata. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Role-scoped projections and PII/payment redaction tests. |
+| F-1756 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for order, delivery and payment-linked data. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Order data lifecycle and erasure/hold tests. |
+| F-1757 | P1 | No audit/provenance records who created, paid, assigned, changed, delivered, cancelled, refunded or accessed an order. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Immutable order/payment/delivery audit. |
+| F-1758 | P1 | No bounded query, pagination or index contract is visible for patient history and operational order searches. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Bounded queries, indexes and pagination tests. |
+| F-1759 | P1 | No inventory/catalog/product source-of-truth or availability reservation boundary is represented for order items. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Canonical catalog/inventory reservation and reconciliation. |
+| F-1760 | P2 | Non-functional import comment and repository simplicity obscure ownership of this financially and privacy-sensitive order boundary. | `src/modules/drivers/repositories/order.repository.ts:4–6` | Remove stale comment and document order boundary. |
