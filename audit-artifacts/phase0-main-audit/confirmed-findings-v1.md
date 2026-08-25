@@ -5346,3 +5346,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3596 | P1 | No QR scanner interoperability, UTF-8 edge, non-Arabic locale or consumer/mobile rendering behavior is tested. | `src/modules/billing/tests/billing-zatca.spec.ts:19–55` | QR interoperability matrix. |
 | F-3597 | P1 | No audit event, notification, cache invalidation or downstream accounting consistency is asserted. | `src/modules/billing/tests/billing-zatca.spec.ts:19–69` | Billing side-effect contract. |
 | F-3598 | P1 | This spec was not executed against live invoices, tax configuration, payment/order data, ZATCA validators or QR consumers during this audit read. | `src/modules/billing/tests/billing-zatca.spec.ts:1–69` | Baseline-pinned billing runtime evidence. |
+
+## Provider payouts controller spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3599 | P0 | Payout reservation tests call the controller directly with mocked collections and do not prove HTTP authentication or live financial persistence. | `src/modules/payouts/provider-payouts.controller.spec.ts:4–23,25–51` | Live payout integration gate. |
+| F-3600 | P0 | Provider identity, active/verified state, tenant scope, bank-account ownership and admin approval authorization are untested. | `src/modules/payouts/provider-payouts.controller.spec.ts:25–51` | Payout authorization matrix. |
+| F-3601 | P0 | Amount validation omits zero/negative/fractional/precision/overflow, currency and available-balance edge cases; configured minimum payout is not asserted. | `src/modules/payouts/provider-payouts.controller.spec.ts:16,25–49` | Payout amount/currency gate. |
+| F-3602 | P0 | Ledger aggregate fields are mocked and no proof validates earned/paid/debits/locked/pending semantics or server-authoritative available balance. | `src/modules/payouts/provider-payouts.controller.spec.ts:42–49` | Ledger balance truthfulness contract. |
+| F-3603 | P0 | Duplicate idempotency behavior is tested by a pre-shaped lookup only; unique index, request fingerprint mismatch and concurrent requests are untested. | `src/modules/payouts/provider-payouts.controller.spec.ts:34–40` | Payout idempotency/concurrency gate. |
+| F-3604 | P0 | Transaction wrapper is mocked to execute the callback and does not prove abort/rollback, partial write compensation or stale-lock recovery. | `src/modules/payouts/provider-payouts.controller.spec.ts:17,42–50` | Atomic payout reservation gate. |
+| F-3605 | P0 | Bank IBAN/account validation, destination verification, bank-change approval and sensitive bank-field projection are untested. | `src/modules/payouts/provider-payouts.controller.spec.ts:42–49` | Payout destination/privacy gate. |
+| F-3606 | P0 | Payout lifecycle after pending approval—approve/reject, settlement, retry, cancellation, chargeback/refund and ledger unlock—is absent. | `src/modules/payouts/provider-payouts.controller.spec.ts:42–50` | Complete payout state machine. |
+| F-3607 | P0 | Provider payout amount, platform fees, tax/withholding, currency and settlement reconciliation are not tested. | `src/modules/payouts/provider-payouts.controller.spec.ts:42–49` | Payout financial truthfulness gate. |
+| F-3608 | P0 | No audit actor/time/reason, notification, finance event, cache or downstream accounting consistency is asserted. | `src/modules/payouts/provider-payouts.controller.spec.ts:25–51` | Payout audit/side-effect contract. |
+| F-3609 | P0 | No PII/financial retention, access audit, masking/encryption, deletion or DSAR behavior is tested. | `src/modules/payouts/provider-payouts.controller.spec.ts:42–49` | Financial privacy governance. |
+| F-3610 | P0 | Safe error mapping for missing/invalid account, duplicate key, insufficient balance, transaction failure and provider outages is untested. | `src/modules/payouts/provider-payouts.controller.spec.ts:25–50` | Payout failure contract. |
+| F-3611 | P1 | Minimum threshold and finance configuration are supplied as a fixture but no assertion proves policy enforcement or configuration provenance. | `src/modules/payouts/provider-payouts.controller.spec.ts:16,25–49` | Finance policy provenance gate. |
+| F-3612 | P1 | Rate limits, replay abuse, suspicious payout detection and manual finance correction controls are not tested. | `src/modules/payouts/provider-payouts.controller.spec.ts:34–50` | Payout abuse-control gate. |
+| F-3613 | P1 | This spec was not executed against live Mongo, finance configuration, bank verification, payout provider or accounting workflows during this audit read. | `src/modules/payouts/provider-payouts.controller.spec.ts:1–52` | Baseline-pinned payout runtime evidence. |
