@@ -4962,3 +4962,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3339 | P1 | No access authorization or safe patient-facing projection is represented for referral notes/tests/code. | `src/schemas/outbound-referral.schema.ts:5–29` | Referral disclosure contract. |
 | F-3340 | P1 | Indexes support doctor/patient/code/status basics but no target, expiry, tenant or redemption query plan is visible. | `src/schemas/outbound-referral.schema.ts:10–33` | Referral index/query plan. |
 | F-3341 | P1 | The schema was not executed or integrated with live doctor, patient, lab/radiology redemption and clinical audit flows during this audit read. | `src/schemas/outbound-referral.schema.ts:1–33` | Baseline-pinned referral runtime evidence. |
+
+## Medicine i18n spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3342 | P0 | Public locale contract names Filipino as `fil` while fixture uses internal `tl`, creating a mapping/drift boundary. | `src/modules/medicines/med-i18n.spec.ts:10–14,19–20,27–32` | Canonical locale mapping contract. |
+| F-3343 | P0 | Completeness checks only field presence, not semantic translation quality, clinical terminology or prohibited machine-placeholder content. | `src/modules/medicines/med-i18n.spec.ts:23–25` | Clinical translation quality gate. |
+| F-3344 | P0 | No runtime locale negotiation, fallback, missing-locale response or mixed-language prevention is tested. | `src/modules/medicines/med-i18n.spec.ts:18–34` | Runtime i18n behavior matrix. |
+| F-3345 | P0 | No Unicode/script normalization, directionality, encoding or locale-specific number/unit formatting is tested. | `src/modules/medicines/med-i18n.spec.ts:3–16` | Multilingual serialization safety. |
+| F-3346 | P0 | No required-field matrix proves all public medicine display fields for all six locales. | `src/modules/medicines/med-i18n.spec.ts:3–16,23–33` | Complete display-field registry. |
+| F-3347 | P0 | No search/indexing consistency test proves localized medicine names and fields are discoverable per locale. | `src/modules/medicines/med-i18n.spec.ts:18–34` | Locale-aware search/index gate. |
+| F-3348 | P0 | No cache invalidation/versioning test protects against stale or mixed-locale medicine responses. | `src/modules/medicines/med-i18n.spec.ts:18–34` | Translation cache contract. |
+| F-3349 | P0 | No API/UI/SEO serialization or canonical-language metadata consistency is tested. | `src/modules/medicines/med-i18n.spec.ts:18–34` | Public localization/SEO contract. |
+| F-3350 | P1 | Fixture contains sample/test medicine values but the spec does not assert production catalog provenance or placeholder exclusion. | `src/modules/medicines/med-i18n.spec.ts:3–16` | Real-catalog data integrity gate. |
+| F-3351 | P1 | No right-to-left layout/accessibility or screen-reader language metadata behavior is represented. | `src/modules/medicines/med-i18n.spec.ts:18–34` | Localization accessibility gate. |
+| F-3352 | P1 | No malformed/missing translation error code, telemetry or remediation queue behavior is tested. | `src/modules/medicines/med-i18n.spec.ts:27–33` | Translation failure operations contract. |
+| F-3353 | P1 | This spec was not executed against live catalog data, locale loaders, search, UI or SEO surfaces during this audit read. | `src/modules/medicines/med-i18n.spec.ts:1–34` | Baseline-pinned i18n runtime evidence. |
