@@ -4924,3 +4924,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3311 | P1 | No source/care-plan version or migration policy supports changing step definitions over time. | `src/schemas/treatment-program.schema.ts:15–22` | Versioned program catalog. |
 | F-3312 | P1 | Indexes support patient/type/status/schedule basics but no clinician/tenant/next-due query plan is visible. | `src/schemas/treatment-program.schema.ts:12,15,18,24,29` | Program query/index plan. |
 | F-3313 | P1 | The schema was not executed or integrated with live clinical programs, reminders, measurements or clinician review during this audit read. | `src/schemas/treatment-program.schema.ts:1–29` | Baseline-pinned treatment runtime evidence. |
+
+## Universal activity schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3314 | P0 | eventType is a free-form string with no runtime registry, producer, version or payload schema. | `src/schemas/universal-activity.schema.ts:12–13` | Versioned event registry. |
+| F-3315 | P0 | Optional userId/providerId do not distinguish actor, subject, system producer or tenant. | `src/schemas/universal-activity.schema.ts:15–19` | Actor/subject/tenant provenance. |
+| F-3316 | P0 | No organization, facility, patient-family or cross-document ownership boundary is represented. | `src/schemas/universal-activity.schema.ts:12–19` | Activity tenant/access contract. |
+| F-3317 | P0 | Mixed metadata permits arbitrary secret/PII/PHI fields without size, depth, type, redaction or safe projection constraints. | `src/schemas/universal-activity.schema.ts:21–22` | Typed metadata/privacy gate. |
+| F-3318 | P0 | No event time source, sequence, ingestion time, clock-skew or ordering contract is represented. | `src/schemas/universal-activity.schema.ts:24–25` | Authoritative activity ordering. |
+| F-3319 | P0 | No correlation/request/causation ID supports cross-service traceability or audit reconstruction. | `src/schemas/universal-activity.schema.ts:12–25` | Distributed event provenance. |
+| F-3320 | P0 | No idempotency/event key or duplicate suppression beyond generated document ID is represented. | `src/schemas/universal-activity.schema.ts:9–25` | Exactly-once activity contract. |
+| F-3321 | P0 | Collection is not explicitly append-only; no immutable update/delete or tamper-evidence control is represented. | `src/schemas/universal-activity.schema.ts:7–29` | Append-only audit policy. |
+| F-3322 | P0 | No retention/TTL, deletion/anonymization, legal hold or subject-access policy is represented. | `src/schemas/universal-activity.schema.ts:7–25` | Activity data governance. |
+| F-3323 | P0 | No access authorization, role-scoped projection or enumeration protection is represented. | `src/schemas/universal-activity.schema.ts:7–29` | Safe activity disclosure contract. |
+| F-3324 | P1 | No event state/retraction/correction lifecycle supports correcting inaccurate activity records. | `src/schemas/universal-activity.schema.ts:12–25` | Event correction contract. |
+| F-3325 | P1 | Indexes support eventType/time but not actor/subject/tenant or operational retention query plans. | `src/schemas/universal-activity.schema.ts:15–29` | Activity index/query plan. |
+| F-3326 | P1 | No rate limit, producer authentication or ingestion abuse control is represented. | `src/schemas/universal-activity.schema.ts:12–25` | Event ingestion security gate. |
+| F-3327 | P1 | The schema was not executed or integrated with live activity producers, timelines or audit consumers during this audit read. | `src/schemas/universal-activity.schema.ts:1–29` | Baseline-pinned activity runtime evidence. |
