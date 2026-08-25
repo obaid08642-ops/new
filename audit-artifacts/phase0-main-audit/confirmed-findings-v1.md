@@ -2696,3 +2696,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1708 | P1 | No patient consent withdrawal, caregiver sharing or emergency-access boundary is represented. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Consent withdrawal, sharing and break-glass tests. |
 | F-1709 | P1 | No repository-specific query bounds, chronology, pagination or active-plan uniqueness contract is visible. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Bounded queries, indexes and active-plan invariant. |
 | F-1710 | P2 | Non-functional import comment and repository simplicity obscure ownership of this high-sensitivity clinical planning boundary. | `src/modules/home-care/repositories/careplan.repository.ts:4–6` | Remove stale comment and document clinical boundary. |
+
+## Delivery repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1711 | P0 | Delivery repository has no order/patient/driver/tenant/recipient scope; inherited generic operations depend on callers to prevent cross-order or cross-patient access. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Mandatory relationship-scoped methods and owner/driver/recipient tests. |
+| F-1712 | P0 | No driver assignment authorization, order linkage or delivery-participant invariant is enforced at the repository boundary. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Assignment and order relationship checks. |
+| F-1713 | P0 | No guarded delivery state machine covers assigned, picked-up, in-transit, delivered, failed, cancelled, returned or disputed states. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Complete versioned delivery transition matrix. |
+| F-1714 | P0 | No route/geospatial, address, recipient verification or proof-of-delivery validation boundary is represented. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Typed delivery/proof contract and negative tests. |
+| F-1715 | P0 | No server-authoritative delivery fee, payment, refund or order settlement reconciliation boundary is defined. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Settlement linkage and financial reconciliation tests. |
+| F-1716 | P0 | No idempotency/replay or deterministic delivery command policy is defined for assignment, status, proof or retry operations. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Stable command keys and replay tests. |
+| F-1717 | P1 | No optimistic concurrency or transaction boundary prevents concurrent driver/status/proof updates from overwriting delivery truth. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Version checks, atomic commands and race tests. |
+| F-1718 | P0 | No minimum-necessary projection or redaction is enforced for patient address, phone, location, recipient identity or proof media. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Role-scoped projections, media access and PII redaction tests. |
+| F-1719 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for delivery history, addresses, routes and proof media. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1720 | P1 | No audit/provenance records who assigned, accepted, moved, delivered, failed or accessed a delivery and under what order purpose. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Immutable delivery/access/proof audit. |
+| F-1721 | P1 | No driver capability, vehicle, geography or operational readiness boundary is represented for assignment. | `src/modules/drivers/repositories/delivery.repository.ts:8–13` | Driver/vehicle/serviceability eligibility checks. |
+| F-1722 | P2 | Non-functional import comment and repository simplicity obscure ownership of this privacy- and financially sensitive fulfillment boundary. | `src/modules/drivers/repositories/delivery.repository.ts:4–6` | Remove stale comment and document delivery boundary. |
