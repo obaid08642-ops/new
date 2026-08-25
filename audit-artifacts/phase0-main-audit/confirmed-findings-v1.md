@@ -4635,3 +4635,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3097 | P1 | No PII/PHI redaction, cache-control or referrer-leak behavior is tested. | `src/modules/media/media.controller.spec.ts:10–21` | Media privacy/header gate. |
 | F-3098 | P1 | Only delete authorization metadata is tested; other media endpoints and lifecycle operations are unverified. | `src/modules/media/media.controller.spec.ts:7–21` | Complete media surface inventory. |
 | F-3099 | P1 | This spec was not executed against real auth, controller, R2 or storage behavior during this audit read. | `src/modules/media/media.controller.spec.ts:1–22` | Baseline-pinned media runtime evidence. |
+
+## Drug rejection log schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3100 | P0 | Log records medicine/order/pharmacy IDs but no actor identity, actor role or decision authority. | `src/schemas/drug-rejection-log.schema.ts:9–14` | Decision provenance contract. |
+| F-3101 | P0 | No rejection/acceptance reason, source, rule, quantity or prescription line-item linkage is represented. | `src/schemas/drug-rejection-log.schema.ts:9–16` | Medication decision audit contract. |
+| F-3102 | P0 | Medicine/order/pharmacy IDs have no visible cross-document ownership or tenant integrity. | `src/schemas/drug-rejection-log.schema.ts:9–11` | Pharmacy/order ownership gate. |
+| F-3103 | P0 | No idempotency/event key or uniqueness prevents duplicate accept/reject events. | `src/schemas/drug-rejection-log.schema.ts:7–16,22` | Exactly-once event contract. |
+| F-3104 | P0 | Collection is not explicitly append-only; no update/delete guard or immutable provenance is represented. | `src/schemas/drug-rejection-log.schema.ts:5–22` | Append-only audit policy. |
+| F-3105 | P0 | `timestamp` default does not establish authoritative event time, ordering, timezone or clock-skew policy. | `src/schemas/drug-rejection-log.schema.ts:16` | Server-time event contract. |
+| F-3106 | P0 | No status transition/decision consistency prevents accept after reject or contradictory duplicate decisions. | `src/schemas/drug-rejection-log.schema.ts:13–16` | Decision state machine. |
+| F-3107 | P0 | No correlation/request/order-line provenance supports reconciliation with financial or fulfillment outcomes. | `src/schemas/drug-rejection-log.schema.ts:9–16` | Cross-system traceability. |
+| F-3108 | P0 | No PII/PHI minimization, redaction, retention, TTL, archival or legal-hold policy is represented. | `src/schemas/drug-rejection-log.schema.ts:5–16` | Pharmacy audit-data governance. |
+| F-3109 | P1 | Indexes support medicine/type/time lookup but do not evidence order/pharmacy/time query plans or tenant isolation. | `src/schemas/drug-rejection-log.schema.ts:9–11,22` | Complete index/access-plan gate. |
+| F-3110 | P1 | No safe read authorization or administrative reporting projection is represented by the schema. | `src/schemas/drug-rejection-log.schema.ts:5–22` | Audit-log disclosure contract. |
+| F-3111 | P1 | No validation constrains ID formats, type transition source or timestamp ranges. | `src/schemas/drug-rejection-log.schema.ts:7–16` | Strict event input contract. |
+| F-3112 | P1 | The schema was not executed or integrated with live pharmacy decision/fulfillment reconciliation during this audit read. | `src/schemas/drug-rejection-log.schema.ts:1–22` | Baseline-pinned decision-log runtime evidence. |
