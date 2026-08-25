@@ -4775,3 +4775,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3202 | P1 | No notification, audit, cache invalidation or provider availability side-effect contract is tested. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:31–92` | Booking side-effect gate. |
 | F-3203 | P1 | Error assertions do not verify stable HTTP code/body/headers or retry guidance for all failure paths. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:53–82` | Error taxonomy/non-disclosure gate. |
 | F-3204 | P1 | This spec was not executed against live booking, payment, slot-lock or call-token integrations during this audit read. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:1–99` | Baseline-pinned booking runtime evidence. |
+
+## Legal enterprise settlement Excel spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3205 | P0 | The export test mocks `settlementData`, so source query, provider ownership and tenant authorization are not exercised. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:6–12` | Live source/authorization export gate. |
+| F-3206 | P0 | Gross total, commission, VAT and net are fixture values; no arithmetic or ledger reconciliation is asserted. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:7–10,16–19` | Financial truthfulness reconciliation. |
+| F-3207 | P0 | No commission-rate bounds, currency, tax policy, rounding or signed/negative amount behavior is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:8–10` | Monetary validation contract. |
+| F-3208 | P0 | No payout status/reference/date, transfer state, refund, chargeback or settlement finality behavior is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:8–10` | Payout reconciliation contract. |
+| F-3209 | P0 | No date range, timezone, pagination, completeness or duplicate-order behavior is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:7–12` | Settlement extraction completeness gate. |
+| F-3210 | P0 | No authenticated/unauthenticated/stranger/cross-tenant export matrix or export audit event is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:5–12` | Export access/audit gate. |
+| F-3211 | P0 | No formula injection, CSV/XLSX cell escaping, malicious hyperlink, macro or external-link safety is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:12–19` | Spreadsheet output threat-model gate. |
+| F-3212 | P0 | No workbook size, row/cell limit, timeout, memory or streaming behavior is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:12–19` | Export resource-safety gate. |
+| F-3213 | P0 | No PII/PHI minimization, masking, retention, secure download URL or cache-control behavior is tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:7–19` | Export privacy contract. |
+| F-3214 | P1 | The sheet-name and three-cell assertions do not verify all columns, row totals, formulas, number formats or locale/date rendering. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:16–19` | Complete workbook contract. |
+| F-3215 | P1 | Database/export failure, partial data, retry and idempotent generation behavior are not tested. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:5–19` | Export failure/replay gate. |
+| F-3216 | P1 | No signed provenance, generated-by actor, report version or reproducibility metadata is asserted. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:7–10` | Report provenance contract. |
+| F-3217 | P1 | No access isolation is tested for provider-1 versus another provider or administrator scope. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:12` | Provider/admin isolation matrix. |
+| F-3218 | P1 | This spec was not executed against live settlement data, payment ledger, transfer system or export delivery during this audit read. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:1–21` | Baseline-pinned settlement runtime evidence. |
