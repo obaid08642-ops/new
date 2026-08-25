@@ -4068,3 +4068,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2690 | P0 | No PII/PHI minimization, attachment/private-document, access projection or deletion policy is visible. | `src/schemas/b2b-request.schema.ts:10–13` | Privacy-safe B2B intake governance. |
 | F-2691 | P1 | Indexes are limited to pharmacy/status and do not visibly cover tenant/actor queues, submitted time or operational deduplication. | `src/schemas/b2b-request.schema.ts:7–11,14` | Operational compound index plan. |
 | F-2692 | P1 | The schema was not executed or integrated with B2B/OCR/voice workflows during this audit and cannot establish readiness. | `src/schemas/b2b-request.schema.ts:1–18` | Baseline-pinned B2B runtime evidence. |
+
+## CallMetric schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2693 | P0 | `raw?: any` accepts arbitrary metric content without schema, size, redaction, secret/PII or projection controls. | `src/schemas/callmetric.schema.ts:15` | Typed privacy-safe raw telemetry contract. |
+| F-2694 | P1 | Bitrate, packet loss, jitter and RTT have no numeric bounds, units, source or sampling validation. | `src/schemas/callmetric.schema.ts:10–13` | Validated metric ranges/units. |
+| F-2695 | P1 | `quality_score` is comment-described as 1–5 but has no visible runtime min/max constraint. | `src/schemas/callmetric.schema.ts:14` | Runtime quality-score validation. |
+| F-2696 | P0 | Session/participant identifiers lack visible call-session linkage, actor/tenant/facility scope or consent boundary. | `src/schemas/callmetric.schema.ts:8–9` | Authorized call telemetry linkage. |
+| F-2697 | P1 | No sample timestamp/freshness/clock field beyond generic schema timestamps is defined. | `src/schemas/callmetric.schema.ts:5–15` | Explicit metric sample time policy. |
+| F-2698 | P1 | No duplicate sample key, idempotency, aggregation window or concurrency policy is visible. | `src/schemas/callmetric.schema.ts:7–15` | Deduplicated telemetry contract. |
+| F-2699 | P0 | No retention/TTL/deletion/DSAR or role-specific projection policy is represented for call telemetry. | `src/schemas/callmetric.schema.ts:5–15` | Call telemetry governance. |
+| F-2700 | P1 | No operational index for session/time or participant/time selection is visible beyond individual identifiers. | `src/schemas/callmetric.schema.ts:7–9` | Telemetry query/index plan. |
+| F-2701 | P0 | No privacy-safe policy prevents network/IP/device/user data from entering `raw`. | `src/schemas/callmetric.schema.ts:15` | Raw telemetry allowlist/redaction gate. |
+| F-2702 | P1 | No call consent, recording/analytics disclosure or participant deletion semantics are visible. | `src/schemas/callmetric.schema.ts:8–15` | Consent and deletion contract. |
+| F-2703 | P1 | No schema/projection tests cover metric ranges, raw leakage, session ownership or stale/duplicate samples. | `src/schemas/callmetric.schema.ts:1–18` | Comprehensive telemetry test matrix. |
+| F-2704 | P1 | The schema was not executed or integrated with LiveKit/call analytics during this audit and cannot establish readiness. | `src/schemas/callmetric.schema.ts:1–18` | Baseline-pinned call telemetry evidence. |
