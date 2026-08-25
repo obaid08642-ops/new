@@ -5674,3 +5674,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3844 | P0 | No notifications, dispatch, scheduling conflict alerts, patient acknowledgements or downstream cache/event consistency is represented. | `src/schemas/hospital-operations.schema.ts:7–89` | Operational side-effect contract. |
 | F-3845 | P1 | No financial/insurance, authorization, deposit, surgery charge or settlement source of truth is represented for admissions/surgery. | `src/schemas/hospital-operations.schema.ts:30–42,76–89` | Hospital financial model gate. |
 | F-3846 | P1 | No TTL/deletion/legal-hold lifecycle or live index creation/migration evidence is present for operational records. | `src/schemas/hospital-operations.schema.ts:7–89` | Operational retention/index runtime gate. |
+
+## Family schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3847 | P0 | FamilyGroup stores members as `[Object]`, so nested user_id/role/permissions/joined_at lacks runtime schema validation. | `src/schemas/family.schemas.ts:5–13,17–29` | Nested family-member schema gate. |
+| F-3848 | P0 | FamilyMember role and permissions are free-form with no owner cardinality, unique membership, group-size, capability or least-privilege invariant. | `src/schemas/family.schemas.ts:6–10` | Family membership/permission contract. |
+| F-3849 | P0 | Invite expiry is a field only; no TTL, one-time redemption, consumed state, hashed secret, issuer/target binding or attempt control exists. | `src/schemas/family.schemas.ts:23–27` | Invite security/replay gate. |
+| F-3850 | P0 | FamilyGroup owner/member IDs have no referential integrity, active-user check, tenant isolation or owner-transfer semantics. | `src/schemas/family.schemas.ts:19–27` | Family identity/tenant gate. |
+| F-3851 | P0 | Shared calendar event type and ref_id are free-form and do not bind to a member, group or authoritative booking/order/lab/medication source. | `src/schemas/family.schemas.ts:34–46` | Calendar source-binding contract. |
+| F-3852 | P0 | Calendar date/time, labels and display fields have no timezone, normalization, range or privacy constraints. | `src/schemas/family.schemas.ts:36–50` | Calendar time/PII gate. |
+| F-3853 | P0 | Calendar created_by/member_user_id are plain IDs without membership, delegated-consent, owner/family or tenant scope. | `src/schemas/family.schemas.ts:35,45–46` | Calendar ownership/consent gate. |
+| F-3854 | P0 | Calendar soft-delete is a boolean with no deleted_at, actor/reason, restore/legal hold or retention/DSAR lifecycle. | `src/schemas/family.schemas.ts:50–52` | Calendar deletion governance. |
+| F-3855 | P0 | Permission request status and requested_permissions are free-form and lack allowlist, requester/target relationship, consent scope, expiry or revocation semantics. | `src/schemas/family.schemas.ts:55–67` | Delegated-access state/consent contract. |
+| F-3856 | P0 | Permission requests have no compound uniqueness for duplicate pending requests and no approval actor/reason/CAS or atomic grant invariant. | `src/schemas/family.schemas.ts:57–67` | Permission approval atomicity gate. |
+| F-3857 | P0 | responded_at/response_note do not have state, moderation, privacy or provenance constraints. | `src/schemas/family.schemas.ts:64–67` | Permission response audit gate. |
+| F-3858 | P0 | Family display/avatar, calendar labels/descriptions and response notes can contain PII/health context without projection, consent, encryption or retention controls. | `src/schemas/family.schemas.ts:12–13,36–49,66–67` | Family PII/PHI governance. |
+| F-3859 | P0 | No CAS/version, append-only audit, idempotency, transaction/rollback or concurrency protection is represented for membership, invites, events or permissions. | `src/schemas/family.schemas.ts:17–69` | Family atomicity/replay gate. |
+| F-3860 | P0 | No notification, acknowledgement, rate limit, enumeration/abuse control or cache/event consistency is represented. | `src/schemas/family.schemas.ts:17–69` | Family side-effect/abuse gate. |
+| F-3861 | P1 | No TTL/deletion/legal-hold lifecycle or live index migration/runtime evidence is present beyond selected ID indexes. | `src/schemas/family.schemas.ts:17–69` | Family retention/index runtime gate. |
