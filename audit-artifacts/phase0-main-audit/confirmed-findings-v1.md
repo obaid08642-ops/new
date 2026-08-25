@@ -5997,3 +5997,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4084 | P0 | E2E logs can contain OTPs and backend output in `/tmp/e2e/backend.log` without declared redaction/access/retention controls. | `e2e/boot.js:38–41` | Test log privacy/retention gate. |
 | F-4085 | P1 | Boot does not verify that the app binds only intended interfaces or that CORS/CSRF/session headers match production policy. | `e2e/boot.js:27–37,42–50` | Network/session security gate. |
 | F-4086 | P1 | No boot failure artifact captures dependency versions, effective environment policy or process exit diagnostics in a structured reproducible format. | `e2e/boot.js:37–52` | Reproducible boot evidence gate. |
+
+## Local test-flow findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4087 | P0 | test-flow uses hard-coded `{ id: 'usr_123', role: 'PATIENT' }` and only simulates authentication; it proves no real auth/session behavior. | `scripts/test-flow.js:30–36` | Real auth/session evidence gate. |
+| F-4088 | P0 | Booking and prescription state maps are duplicated local policy, not imported or queried from production implementation, so drift can produce false assurance. | `scripts/test-flow.js:8–28` | Single-source state contract gate. |
+| F-4089 | P0 | The script performs no HTTP/DB/Redis call and does not exercise actual controllers, services, guards, schemas or persistence. | `scripts/test-flow.js:1–71` | Runtime integration test gate. |
+| F-4090 | P0 | No ownership, tenant, role, unauthenticated or stranger/BOLA assertions exist. | `scripts/test-flow.js:30–68` | Authorization matrix gate. |
+| F-4091 | P0 | No slot-lock/timezone/availability, payment/insurance, idempotency/replay, notification, audit or rollback assertion exists. | `scripts/test-flow.js:38–68` | End-to-end business integrity gate. |
+| F-4092 | P0 | State coverage is narrow: no booking failure/cancel path execution, illegal transitions besides one jump, prescription cancellation/invalid transitions or concurrent/CAS behavior. | `scripts/test-flow.js:9–22,38–65` | Complete state-machine gate. |
+| F-4093 | P0 | No cleanup, test isolation, deterministic exit status or structured artifact is produced. | `scripts/test-flow.js:30–71` | Reproducible test harness gate. |
+| F-4094 | P1 | The success output claims “State Machine Integrity 100% Validated” and “flow verified” despite local simulation scope and no runtime evidence. | `scripts/test-flow.js:67–68` | Truthful test-reporting gate. |
+| F-4095 | P1 | Console output contains emoji and informal assertions, reducing machine-readable auditability and conflicting with professional evidence requirements. | `scripts/test-flow.js:31,67–68` | Structured evidence output gate. |
+| F-4096 | P1 | Errors are caught and printed without explicitly setting a non-zero exit code, so failures may be reported without reliable CI failure semantics. | `scripts/test-flow.js:69–71` | CI exit-code gate. |
