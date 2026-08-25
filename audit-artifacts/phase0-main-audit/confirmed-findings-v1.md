@@ -3376,3 +3376,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2218 | P1 | Catalog publication/backfill is source-tested but external worker, CDN, migration and live sitemap/feed operations remain unperformed. | `todo.md:1057–1058,1072,1087–1104` | Authorized migration/CDN/worker evidence. |
 | F-2219 | P1 | Insurance logos/categories retain provenance, reviewer and DevOps dependencies; generated/legacy categories are not proof of official product coverage. | `todo.md:1063–1104` | Official per-company evidence and approved asset linkage. |
 | F-2220 | P0 | The final recorded readiness verdict is NO-GO and explicitly lists unclosed deployment, E2E, native, human, legal and payment gates; this is the controlling status in the baseline governance record. | `todo.md:1032–1035` | Reissue GO only after every mandatory gate passes with evidence. |
+
+## Lockfile findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2221 | P0 | Lockfile integrity was traversed, but no repository/build gate is evidenced here to require frozen installation with the matching package.json. | `package-lock.json` root and all entries; `package.json:1–108` | Enforced package-lock/package parity and immutable install. |
+| F-2222 | P1 | No package manager/npm version or registry policy is encoded in the lockfile. | `package-lock.json` root metadata | Pinned installer/toolchain and trusted registry policy. |
+| F-2223 | P1 | 548 package entries lack an `engines` declaration, leaving broad runtime compatibility uncertainty. | `package-lock-full-traversal.txt` summary | Reviewed engine compatibility or accepted-risk register. |
+| F-2224 | P1 | 11 package entries contain deprecation metadata and require dependency review. | `package-lock-full-traversal.txt` summary and `PKG` rows | Reviewed/de-risked deprecated transitive packages. |
+| F-2225 | P1 | 128 entries are optional, including potential native/platform-specific packages, without a documented production platform matrix. | `package-lock-full-traversal.txt` summary | Platform-aware optional/native dependency verification. |
+| F-2226 | P1 | Lockfile does not provide SBOM, license compliance, vulnerability threshold, provenance attestation or signature evidence. | `package-lock.json:1–18299` | Supply-chain evidence and enforced release gates. |
+| F-2227 | P1 | Lockfile does not prove runtime dependency minimization or that Docker production packaging contains only required modules. | `package-lock.json:1–18299` | Runtime bundle manifest and minimization check. |
+| F-2228 | P1 | No registry/cache poisoning, dependency substitution or artifact integrity policy is represented. | `package-lock.json:1–18299` | Trusted registry/cache and artifact verification. |
+| F-2229 | P1 | No package-lock diff review, owner approval or dependency exception workflow is encoded. | `package-lock.json:1–18299` | Reviewed dependency-change governance. |
+| F-2230 | P1 | Lockfile contains integrity for resolved packages but that positive fact does not validate license, CVE, malicious-package or runtime compatibility status. | `package-lock-full-traversal.txt` summary | Distinct integrity/security/compatibility gates. |
+| F-2231 | P1 | No proof exists in this member that Docker's `npm ci` uses the intended lockfile in every image path or that lockfile presence is mandatory. | `package-lock.json:1–18299; Dockerfile:3–4,11–12; Dockerfile.production:6–7,21–22` | Docker lockfile assertion and image install verification. |
+| F-2232 | P1 | The resolver graph contains no legacy top-level dependencies object, but no migration/lockfile reproducibility report ties it to the baseline commit and release artifact. | `package-lock.json` root metadata | Commit-pinned dependency/release manifest. |
