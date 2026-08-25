@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — Insurance module
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/insurance/insurance.module.ts:1–517` (read as 1–500 and 338–517; full source content reconciled).
+
+The module injects company/network/rule/provider/facility/patient/claim models and the AI gateway, and defines company/network/rule catalog operations, patient/provider/facility coverage checks, insurance-card OCR, policy upload/save, explicitly non-live NPHIES eligibility, claim submission/listing, controller routes and model/module wiring (`1–30,36–132,134–225,227–365,368–516`).
+
+Positive controls include public annotations for company/network/rule read routes, ADMIN/SUPER_ADMIN decorators on catalog mutations, a whitelist for company updates, JWT guard at controller level, current-user binding for coverage/policy/claim routes, explicit rejection of invalid OCR placeholders, and explicit `nphies_live: false` for stored-policy matching (`373–449,451–496,227–251,285–312`).
+
+The public company catalog queries active companies but includes all non-retired networks without requiring network verified status; public network/rule routes accept raw IDs and `listRules` has no company/active/verified filter (`43–60,111–125,427–448`). Catalog create methods and most controller bodies use `any`, with no typed DTO validation, source/license approval or comprehensive idempotency (`63–131,389–448`). Coverage accepts patient profile insurance and provider/facility embedded contracts, exposes `patient_policy` in both negative and positive results, uses free-form service type/key and unconstrained copay values, and does not show policy expiry/verification or effective-date enforcement (`134–224`).
+
+OCR strips code fences and limits extracted string length but receives arbitrary base64/mime values, has no visible size/content/consent/retention/malware controls, and returns sensitive fields including national ID/member name (`227–251`). Policy upload accepts client fields, stores national ID/member/policy/PDF URL, forces `verified:false`, upserts by patient without transaction/version/idempotency and returns the full policy (`254–283`). NPHIES eligibility searches stored national ID and uses substring company matching, explicitly reports non-live status, and returns stored policy data (`285–312`).
+
+`savePolicy` accepts client-controlled `verified`, `nphies_eligible`, national/member/URL fields and saves without source verification or concurrency control (`315–336`). `submitClaim` validates only service and positive amount, sets `covered` from client input, creates a pending claim, then spreads all `claimData` into the response, risking response inconsistency or sensitive echo (`338–365`). Claims are listed by patient ID but there is no pagination/projection/retention policy (`363–365`). The module registers `AiModule`, seven models, one controller/service and exports both service and `MongooseModule` (`499–516`). No code was changed and no build/test/application operation was performed during this read.
