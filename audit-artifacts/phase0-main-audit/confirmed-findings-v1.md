@@ -4185,3 +4185,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2772 | P1 | No error serialization, observability, alerting or operational recovery behavior is asserted for contained AI operations. | `src/modules/ai/ai.admin-containment.spec.ts:7–11` | Containment operations contract. |
 | F-2773 | P1 | No provider allowlist, model capability, data residency, patient-data isolation or prompt/response privacy policy is exercised. | `src/modules/ai/ai.admin-containment.spec.ts:5–11` | AI provider governance test. |
 | F-2774 | P1 | The spec was not executed during this audit and cannot establish AI admin safety or production readiness. | `src/modules/ai/ai.admin-containment.spec.ts:1–13` | Baseline-pinned executed evidence. |
+
+## Emergency admin containment spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2775 | P1 | Emergency admin containment uses direct controller calls with `any` dependency stubs and does not prove Nest route/guard behavior. | `src/modules/emergency/emergency.admin-containment.spec.ts:4–6` | Runtime route/auth gate. |
+| F-2776 | P0 | No authenticated admin role, permission, tenant or facility denial matrix is tested. | `src/modules/emergency/emergency.admin-containment.spec.ts:7–12` | Emergency admin authorization matrix. |
+| F-2777 | P0 | Five thrown exceptions do not prove all alternate admin/emergency routes are contained. | `src/modules/emergency/emergency.admin-containment.spec.ts:7–12` | Complete route inventory/containment test. |
+| F-2778 | P0 | No patient/paramedic/hospital ownership or assignment scope is tested. | `src/modules/emergency/emergency.admin-containment.spec.ts:9–12` | Dispatch ownership/eligibility contract. |
+| F-2779 | P0 | No emergency PII/location/symptom projection or address-redaction behavior is tested. | `src/modules/emergency/emergency.admin-containment.spec.ts:7–12` | Safe emergency data projection. |
+| F-2780 | P0 | No vehicle/hospital/paramedic assignment integrity, availability, licensing or cross-facility validation is exercised. | `src/modules/emergency/emergency.admin-containment.spec.ts:10–12` | Authorized dispatch assignment test. |
+| F-2781 | P0 | No state machine, concurrent dispatch, idempotency/replay, escalation, cancellation or resolution audit behavior is covered. | `src/modules/emergency/emergency.admin-containment.spec.ts:7–12` | Race-safe emergency lifecycle. |
+| F-2782 | P1 | No notification, telemetry, failure recovery or operational alert behavior is asserted for contained admin operations. | `src/modules/emergency/emergency.admin-containment.spec.ts:7–12` | Emergency operations contract. |
+| F-2783 | P1 | No compiled/deployed artifact or live backend proof confirms the containment remains active. | `src/modules/emergency/emergency.admin-containment.spec.ts:4–13` | Deployed parity/sandbox evidence. |
+| F-2784 | P1 | The spec was not executed during this audit and cannot establish emergency admin safety or production readiness. | `src/modules/emergency/emergency.admin-containment.spec.ts:1–14` | Baseline-pinned executed evidence. |
