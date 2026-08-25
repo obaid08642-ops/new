@@ -3921,3 +3921,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2588 | P1 | Dependency failure behavior for vehicle query, emergency update or event emission is not tested. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:5–12,28–34` | Failure-safe dispatch workflow. |
 | F-2589 | P1 | No live vehicle/provider/dispatch or device/location acceptance is present. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:1–36` | Sandbox/live emergency acceptance. |
 | F-2590 | P1 | The spec was not executed during this audit and cannot establish emergency vehicle readiness. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:1–36` | Baseline-pinned executed evidence. |
+
+## EmergencyRequest schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2591 | P0 | Emergency schema persists patient PII, symptoms and exact location without visible minimization, encryption, retention or consent policy. | `src/schemas/emergency.schema.ts:9–14` | Emergency PII/location governance. |
+| F-2592 | P0 | Live unit coordinates are stored without bounds, precision, freshness, access or retention constraints. | `src/schemas/emergency.schema.ts:27–28` | Bounded live-location contract. |
+| F-2593 | P0 | Internal provider ID is only comment-protected; schema metadata does not enforce patient-safe projection/redaction. | `src/schemas/emergency.schema.ts:20–25` | Role-specific emergency projections. |
+| F-2594 | P1 | `severity` is a free string with a default of `critical`, lacking typed values and clinical/dispatch validation. | `src/schemas/emergency.schema.ts:14–16` | Typed severity policy. |
+| F-2595 | P0 | State/history fields have no transition allowlist, actor authenticity, optimistic concurrency, idempotency or audit integrity. | `src/schemas/emergency.schema.ts:16–17,32–33` | Audited race-safe emergency state machine. |
+| F-2596 | P0 | Hospital/ambulance/provider assignment fields lack compound uniqueness, active availability, fleet authorization, facility scope or expiry. | `src/schemas/emergency.schema.ts:18–21,26` | Authorized assignment contract. |
+| F-2597 | P1 | Patient-safe unit/paramedic labels are not validated or bound to a current assignment, allowing stale/misleading display. | `src/schemas/emergency.schema.ts:22–26` | Assignment-derived public projection. |
+| F-2598 | P1 | Resolver/admin fields have no actor-role, reason, timestamp or privacy policy beyond optional scalar storage. | `src/schemas/emergency.schema.ts:29–31` | Audited resolution contract. |
+| F-2599 | P0 | No deduplication/incident correlation key or unique constraint prevents duplicate emergency incidents for one trigger. | `src/schemas/emergency.schema.ts:8–17` | Exactly-once emergency trigger policy. |
+| F-2600 | P1 | No geospatial index or coordinate validation is visible for dispatch/location queries. | `src/schemas/emergency.schema.ts:12–13,27–28` | Validated geospatial dispatch schema. |
+| F-2601 | P1 | No TTL/auto-close/retention/soft-delete policy is represented for sensitive emergency records. | `src/schemas/emergency.schema.ts:6–33` | Emergency lifecycle/retention controls. |
+| F-2602 | P1 | No schema-level payment/insurance/consent linkage is visible for emergency service scenarios. | `src/schemas/emergency.schema.ts:6–33` | Explicit emergency service contract where applicable. |
+| F-2603 | P1 | No field-level serialization/projection test proves internal IDs and admin notes never reach patient/responder clients. | `src/schemas/emergency.schema.ts:20–31` | Projection/privacy test matrix. |
+| F-2604 | P1 | The schema was not executed or integration-tested during this audit and cannot establish emergency data readiness. | `src/schemas/emergency.schema.ts:1–36` | Baseline-pinned schema/live dispatch evidence. |
