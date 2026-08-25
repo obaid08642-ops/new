@@ -4887,3 +4887,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3284 | P1 | No billing currency, tax, invoice, payment-provider or settlement linkage is represented. | `src/schemas/corporate-account.schema.ts:18–25` | Billing reconciliation contract. |
 | F-3285 | P1 | No indexes support active-cycle, overdue, membership or tenant-scoped operational queries. | `src/schemas/corporate-account.schema.ts:9–25` | Enterprise query/index plan. |
 | F-3286 | P1 | The schema was not executed or integrated with live enterprise billing, membership, credit or payment flows during this audit read. | `src/schemas/corporate-account.schema.ts:1–28` | Baseline-pinned enterprise runtime evidence. |
+
+## SLA log schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3287 | P0 | durationSeconds and slaLimit are unconstrained numeric fields without nonnegative, integer, maximum or unit validation. | `src/schemas/sla-log.schema.ts:18–22` | Strict SLA duration contract. |
+| F-3288 | P0 | isBreached is caller-persisted boolean with no invariant deriving it from authoritative event times and policy. | `src/schemas/sla-log.schema.ts:18–25` | Server-derived breach truth. |
+| F-3289 | P0 | No start/end timestamps, timezone, clock source, SLA policy ID/version or service category is represented. | `src/schemas/sla-log.schema.ts:18–25` | Authoritative SLA event contract. |
+| F-3290 | P0 | No breach actor, detector, calculation provenance, evidence or recalculation/dispute metadata is represented. | `src/schemas/sla-log.schema.ts:18–25` | Breach provenance/audit. |
+| F-3291 | P0 | Provider/order IDs have no visible facility, tenant, order ownership or delivery linkage integrity. | `src/schemas/sla-log.schema.ts:12–16` | SLA ownership/tenant gate. |
+| F-3292 | P0 | No idempotency/event key, duplicate prevention or append-only/immutable guard is represented. | `src/schemas/sla-log.schema.ts:7–25` | Exactly-once SLA event contract. |
+| F-3293 | P0 | No state transition, remediation, compensation or breach resolution lifecycle is represented. | `src/schemas/sla-log.schema.ts:24–25` | SLA breach state machine. |
+| F-3294 | P0 | No notification, escalation, acknowledgement or operational response contract is represented. | `src/schemas/sla-log.schema.ts:7–25` | SLA response contract. |
+| F-3295 | P0 | No PII minimization, retention/TTL, deletion/legal hold or access projection policy is represented. | `src/schemas/sla-log.schema.ts:7–25` | SLA data governance. |
+| F-3296 | P1 | Indexes support provider/order/breach lookup but no event-time, active-breach or tenant-scoped query plan is visible. | `src/schemas/sla-log.schema.ts:12–25` | SLA index/query plan. |
+| F-3297 | P1 | No monitoring freshness, clock-skew, ingestion lag or missing-event policy is represented. | `src/schemas/sla-log.schema.ts:7–25` | SLA observability contract. |
+| F-3298 | P1 | No access authorization or role-scoped reporting projection is represented by the schema. | `src/schemas/sla-log.schema.ts:7–25` | SLA disclosure contract. |
+| F-3299 | P1 | The schema was not executed or integrated with live order delivery timing, breach detection or alerting during this audit read. | `src/schemas/sla-log.schema.ts:1–28` | Baseline-pinned SLA runtime evidence. |
