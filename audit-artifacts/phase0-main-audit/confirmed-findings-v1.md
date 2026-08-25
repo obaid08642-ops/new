@@ -4200,3 +4200,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2782 | P1 | No notification, telemetry, failure recovery or operational alert behavior is asserted for contained admin operations. | `src/modules/emergency/emergency.admin-containment.spec.ts:7–12` | Emergency operations contract. |
 | F-2783 | P1 | No compiled/deployed artifact or live backend proof confirms the containment remains active. | `src/modules/emergency/emergency.admin-containment.spec.ts:4–13` | Deployed parity/sandbox evidence. |
 | F-2784 | P1 | The spec was not executed during this audit and cannot establish emergency admin safety or production readiness. | `src/modules/emergency/emergency.admin-containment.spec.ts:1–14` | Baseline-pinned executed evidence. |
+
+## Event bus service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2785 | P1 | Event bus durability spec uses direct service construction and `any` mocks, not real persistence/emitter wiring. | `src/modules/events/event-bus.service.spec.ts:3–7,12–15` | Integration broker/repository test. |
+| F-2786 | P0 | Persistence-before-fanout does not close the crash window between database commit and emitter delivery. | `src/modules/events/event-bus.service.spec.ts:12–18` | Transactional outbox/recovery evidence. |
+| F-2787 | P0 | No atomic transaction/outbox, broker acknowledgement, retry/backoff or dead-letter behavior is tested. | `src/modules/events/event-bus.service.spec.ts:3–18` | Durable event delivery contract. |
+| F-2788 | P0 | Duplicate/replay behavior is not tested beyond a single `{ duplicate: false }` success result. | `src/modules/events/event-bus.service.spec.ts:12–17` | Idempotent duplicate matrix. |
+| F-2789 | P0 | No event payload schema, field allowlist, version, actor/tenant or PII/PHI policy is tested. | `src/modules/events/event-bus.service.spec.ts:8,16–17` | Typed privacy-safe event contract. |
+| F-2790 | P1 | No ordering, partition/key, concurrency or exactly-once consumer semantics are established. | `src/modules/events/event-bus.service.spec.ts:12–18` | Ordering/concurrency acceptance matrix. |
+| F-2791 | P1 | No consumer failure, acknowledgement, poison-message or compensating action behavior is covered. | `src/modules/events/event-bus.service.spec.ts:3–18` | Consumer lifecycle/recovery contract. |
+| F-2792 | P1 | No event retention, replay window, deletion/DSAR or audit-integrity policy is represented. | `src/modules/events/event-bus.service.spec.ts:3–18` | Event governance policy. |
+| F-2793 | P1 | No notification/workflow/catalog/payment event consistency is tested across consumers. | `src/modules/events/event-bus.service.spec.ts:8,16–17` | Cross-consumer consistency tests. |
+| F-2794 | P1 | The mock repository only throws/succeeds and cannot prove database uniqueness, transactions or process recovery. | `src/modules/events/event-bus.service.spec.ts:5–7,13–15` | Real DB failure/recovery evidence. |
+| F-2795 | P1 | No live broker/deployed artifact or operational telemetry proof is present. | `src/modules/events/event-bus.service.spec.ts:1–19` | Live event delivery evidence. |
+| F-2796 | P1 | The spec was not executed during this audit and cannot establish event-bus readiness. | `src/modules/events/event-bus.service.spec.ts:1–19` | Baseline-pinned executed evidence. |
