@@ -4377,3 +4377,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2914 | P1 | Public/admin route projection and cache/indexing/SEO/withdrawal behavior are not specified in the controller. | `src/modules/insurance/insurance.module.ts:368–449` | Catalog publication lifecycle. |
 | F-2915 | P1 | `AiModule` and gateway are wired, but timeout, provider allowlist, fallback, data residency and failure observability are not visible here. | `src/modules/insurance/insurance.module.ts:16–17,227–251,499–510` | AI dependency governance. |
 | F-2916 | P1 | No live route, database, NPHIES, OCR, claim or deployed artifact evidence was executed during this audit. | `src/modules/insurance/insurance.module.ts:1–517` | Baseline-pinned runtime evidence. |
+
+## Chat session schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2917 | P0 | Clinical/family `type` is not constrained to match the presence and validity of appointment/family-group references. | `src/schemas/chat-session.schema.ts:8–15` | Type/reference consistency contract. |
+| F-2918 | P0 | Appointment and family-group references are strings with no visible existence, ownership, membership or tenant integrity constraints. | `src/schemas/chat-session.schema.ts:11–15` | Cross-document membership/ownership gate. |
+| F-2919 | P0 | No patient/provider participant identity or role fields are represented, so session membership cannot be derived from this schema alone. | `src/schemas/chat-session.schema.ts:8–23` | Participant authorization model. |
+| F-2920 | P0 | No session/call token binding, expiry, revocation or consent linkage is represented. | `src/schemas/chat-session.schema.ts:8–23` | Secure session-token contract. |
+| F-2921 | P0 | Status enum has no transition actor/time/reason/history, optimistic version or terminal-state protection. | `src/schemas/chat-session.schema.ts:17–23` | Audited race-safe chat lifecycle. |
+| F-2922 | P0 | No message count/last-message/unread/message-store linkage, moderation, encryption or safe projection fields are represented. | `src/schemas/chat-session.schema.ts:6–23` | Chat data/projection contract. |
+| F-2923 | P0 | No consent, clinical record linkage, retention/deletion/DSAR or medical-privacy policy is represented. | `src/schemas/chat-session.schema.ts:6–23` | Clinical chat governance. |
+| F-2924 | P1 | No compound uniqueness prevents duplicate active sessions for the same appointment or family group. | `src/schemas/chat-session.schema.ts:6–25` | Session deduplication constraint. |
+| F-2925 | P0 | No idempotency/replay or concurrent session-creation/close behavior is represented. | `src/schemas/chat-session.schema.ts:6–25` | Exactly-once session lifecycle. |
+| F-2926 | P1 | Indexes cover individual type/reference/status lookups but no active/participant/time/cleanup query plan is visible. | `src/schemas/chat-session.schema.ts:8–23` | Operational index/retention plan. |
+| F-2927 | P1 | Timestamp option alone does not establish timezone, close deadline, inactivity timeout or retention enforcement. | `src/schemas/chat-session.schema.ts:6–23` | Time/retention policy. |
+| F-2928 | P1 | The schema was not executed or integrated with live chat/gateway/call flows during this audit. | `src/schemas/chat-session.schema.ts:1–25` | Baseline-pinned chat runtime evidence. |
