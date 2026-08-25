@@ -3748,3 +3748,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2470 | P1 | `expect.objectContaining` does not detect unintended fields written by the migration. | `src/contracts/catalog-governance-backfill.contract.spec.ts:35–40,47–50` | Exact update-set assertions. |
 | F-2471 | P0 | No post-migration public API, cache invalidation, sitemap/indexing or search consistency acceptance is present. | `src/contracts/catalog-governance-backfill.contract.spec.ts:1–52` | Post-migration publication/cache gates. |
 | F-2472 | P1 | The contract spec was not executed during this audit and cannot establish migration readiness. | `src/contracts/catalog-governance-backfill.contract.spec.ts:1–52` | Baseline-pinned executed migration evidence. |
+
+## Catalog publication and event bus test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2473 | P0 | Publication spec uses mocked source/projection/Redis/event boundaries and cannot prove real persistence, cache or live public projection behavior. | `src/modules/events/catalog-publication.service.spec.ts:16–25,27–65` | Real DB/cache/live publication gate. |
+| F-2474 | P1 | Only medicine approved/pending states are tested; provider/facility, deletion, recall, expiry and revocation states are absent. | `src/modules/events/catalog-publication.service.spec.ts:5–65` | Full entity/lifecycle publication matrix. |
+| F-2475 | P0 | Actor ID/reason are passed but authorization, role scope and audit actor validity are not tested. | `src/modules/events/catalog-publication.service.spec.ts:30–36,55–57` | Authorized audited publication mutation. |
+| F-2476 | P1 | Cache invalidation asserts three calls only and does not prove exact keys, failure handling, stale reads or multi-region propagation. | `src/modules/events/catalog-publication.service.spec.ts:38–49` | Deterministic cache invalidation contract. |
+| F-2477 | P0 | No test proves sitemap/feed/JSON-LD/canonical/IndexNow consistency beyond selected result flags. | `src/modules/events/catalog-publication.service.spec.ts:52–64` | End-to-end publication metadata gate. |
+| F-2478 | P1 | No slug collision, locale projection, deep-link safety or exhaustive PII/public-field allowlist test exists. | `src/modules/events/catalog-publication.service.spec.ts:38–49` | Safe localized public projection. |
+| F-2479 | P0 | Event idempotency uses mocked duplicate-key behavior and does not prove real unique index, concurrency, retry or multi-worker exactly-once semantics. | `src/modules/events/catalog-publication.service.spec.ts:68–92` | Real repository/race/replay evidence. |
+| F-2480 | P0 | Persist-before-fanout test does not cover emitter failure, durable outbox/retry/dead-letter or consumer acknowledgment. | `src/modules/events/catalog-publication.service.spec.ts:81–92` | Durable event delivery contract. |
+| F-2481 | P1 | Event payload validation, schema/version compatibility, unknown event rejection and sensitive-field minimization are absent. | `src/modules/events/catalog-publication.service.spec.ts:68–92` | Typed versioned event contract. |
+| F-2482 | P1 | No rollback/compensation test covers projection write success with cache/event failure or partial multi-surface publication. | `src/modules/events/catalog-publication.service.spec.ts:27–65` | Failure-safe publication workflow. |
+| F-2483 | P1 | Approved fixture remains noindex and does not establish a valid indexable production lifecycle. | `src/modules/events/catalog-publication.service.spec.ts:5–13,27–49` | Explicit legal/indexability acceptance path. |
+| F-2484 | P1 | The spec was not executed during this audit and cannot establish current publication/event readiness. | `src/modules/events/catalog-publication.service.spec.ts:1–94` | Baseline-pinned executed and live evidence. |
