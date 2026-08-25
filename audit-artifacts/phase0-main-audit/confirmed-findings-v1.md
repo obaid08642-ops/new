@@ -4830,3 +4830,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3242 | P1 | No deletion/anonymization/retention policy is represented for leave reasons and approval history. | `src/schemas/leave-request.schema.ts:5–19` | HR/workforce data governance. |
 | F-3243 | P1 | Indexes cover IDs/status only and do not visibly support date-overlap or active-provider query plans. | `src/schemas/leave-request.schema.ts:7–16` | Leave query/index plan. |
 | F-3244 | P1 | The schema was not executed or reconciled with live workforce approval, scheduling or notification flows during this audit read. | `src/schemas/leave-request.schema.ts:1–22` | Baseline-pinned leave runtime evidence. |
+
+## Notifications service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3245 | P0 | Notification ownership coverage is mock-only and does not execute HTTP authentication or authorization. | `src/modules/notifications/notifications.service.spec.ts:5–27` | HTTP notification access gate. |
+| F-3246 | P0 | Role/all filter semantics are not tenant/facility scoped and could match another organization's notification. | `src/modules/notifications/notifications.service.spec.ts:17–20` | Tenant-scoped recipient contract. |
+| F-3247 | P0 | No invalid-user, suspended/deleted-user or cross-role access matrix is tested. | `src/modules/notifications/notifications.service.spec.ts:15–26` | Recipient/identity matrix. |
+| F-3248 | P0 | Notification creation, recipient validation, template authorization and content classification are not tested. | `src/modules/notifications/notifications.service.spec.ts:4–28` | Safe notification creation contract. |
+| F-3249 | P0 | No delivery channel authentication, token privacy, provider failure, retry/DLQ or delivery acknowledgment is tested. | `src/modules/notifications/notifications.service.spec.ts:4–28` | Notification delivery reliability/security. |
+| F-3250 | P0 | `read_by` mutation has no read timestamp, actor/device provenance or audit event assertion. | `src/modules/notifications/notifications.service.spec.ts:17–20` | Read-state audit contract. |
+| F-3251 | P0 | Idempotency is implicit through `$addToSet` only; replay, concurrent update and stale notification behavior are untested. | `src/modules/notifications/notifications.service.spec.ts:17–20` | Read mutation replay/concurrency gate. |
+| F-3252 | P0 | Model errors/timeouts and safe error-code/body mapping are not tested. | `src/modules/notifications/notifications.service.spec.ts:6,15–26` | Notification failure contract. |
+| F-3253 | P0 | No PII/PHI minimization, redaction, retention, deletion or notification-content access projection is tested. | `src/modules/notifications/notifications.service.spec.ts:4–28` | Notification privacy governance. |
+| F-3254 | P1 | No pagination, unread counts, ordering, cache invalidation or event consistency is covered. | `src/modules/notifications/notifications.service.spec.ts:4–28` | Notification query contract. |
+| F-3255 | P1 | No CSRF/session-cookie, rate-limit or notification enumeration protection is tested. | `src/modules/notifications/notifications.service.spec.ts:4–28` | Notification abuse-control gate. |
+| F-3256 | P1 | Only one mark-read path is tested; bulk read, delete, archive and channel preference behavior are unverified. | `src/modules/notifications/notifications.service.spec.ts:5–27` | Complete notification lifecycle inventory. |
+| F-3257 | P1 | This spec was not executed against live notifications, delivery providers, tenant data or HTTP routes during this audit read. | `src/modules/notifications/notifications.service.spec.ts:1–28` | Baseline-pinned notification runtime evidence. |
