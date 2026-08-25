@@ -5912,3 +5912,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4022 | P0 | No soft-delete, deletion/DSAR/legal-hold or immutable correction lifecycle is represented. | `src/schemas/promotion-campaign.schema.ts:7–40` | Campaign retention/lifecycle gate. |
 | F-4023 | P0 | target_parameters may encode sensitive audience information without consent, minimization, access audit or retention controls. | `src/schemas/promotion-campaign.schema.ts:39–40` | Targeting PII governance. |
 | F-4024 | P1 | No live campaign creation/review/target evaluation/price application/media or index runtime evidence was established during this baseline source read. | `src/schemas/promotion-campaign.schema.ts:1–44` | Baseline-pinned promotion runtime evidence. |
+
+## Facility schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4025 | P0 | parent_facility_id is a plain field with no hierarchy cycle prevention, parent type/tenant, ownership, active-parent or merge/deletion semantics. | `src/schemas/facility.schema.ts:13–18` | Facility hierarchy/tenant gate. |
+| F-4026 | P0 | Facility identity/name/type/description/city/district/address/departments are free-form beyond type enum, with no normalization or canonical registry validation. | `src/schemas/facility.schema.ts:15–25,40` | Facility identity/data-quality gate. |
+| F-4027 | P0 | Location lacks coordinate bounds, precision, geocoding/freshness source and privacy/access policy. | `src/schemas/facility.schema.ts:23–27` | Facility location gate. |
+| F-4028 | P0 | Logo/images and contact URLs/phone/WhatsApp/email are raw fields without verification, secure storage/access/content/retention or contact-consent controls. | `src/schemas/facility.schema.ts:29–37` | Facility media/contact security gate. |
+| F-4029 | P0 | Insurance arrays/contracts and accepts_insurance have no effective dates, payer/network/plan validity, authorization, source freshness or consistency invariant. | `src/schemas/facility.schema.ts:39–44` | Facility insurance gate. |
+| F-4030 | P0 | Working hours use free-form day/open/close strings with no timezone, day uniqueness, interval/holiday/overnight or version semantics. | `src/schemas/facility.schema.ts:46–48` | Facility schedule truth gate. |
+| F-4031 | P0 | Rating/reviews_count are denormalized without range, source, moderation, aggregation or anti-manipulation controls. | `src/schemas/facility.schema.ts:50–52` | Facility rating integrity gate. |
+| F-4032 | P0 | is_active, public/indexing eligibility and medical review state lack fail-closed publication consistency, reviewer actor/evidence, expiry/suspension reason and CAS semantics. | `src/schemas/facility.schema.ts:53–60` | Facility publication/review gate. |
+| F-4033 | P0 | Facility/provider/doctor/department/service references lack referential integrity, capability/credential, tenant/facility and ownership constraints. | `src/schemas/facility.schema.ts:9,40–48` | Facility capability/ownership gate. |
+| F-4034 | P0 | Facility contacts, location, insurance and review/provenance fields lack projection, access audit, encryption, consent, retention, deletion/DSAR and legal-hold governance. | `src/schemas/facility.schema.ts:23–60` | Facility PII governance. |
+| F-4035 | P0 | No audit actor, notification, search/cache-index consistency, idempotency, transaction/rollback or concurrent facility mutation contract is represented. | `src/schemas/facility.schema.ts:11–60` | Facility atomicity/side-effect gate. |
+| F-4036 | P0 | No soft-delete, archival, correction, suspension or legal retention lifecycle is represented. | `src/schemas/facility.schema.ts:11–60` | Facility lifecycle gate. |
+| F-4037 | P1 | Provenance is free-form and does not identify source document, reviewer, decision evidence or version. | `src/schemas/facility.schema.ts:57–60` | Facility provenance gate. |
+| F-4038 | P1 | No live facility publication, insurance, hours, review, rating, location or index runtime evidence was established during this baseline source read. | `src/schemas/facility.schema.ts:1–64` | Baseline-pinned facility runtime evidence. |
