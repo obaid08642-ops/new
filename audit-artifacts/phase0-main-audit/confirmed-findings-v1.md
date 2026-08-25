@@ -4754,3 +4754,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3186 | P1 | No rate limit or abuse control is tested on booking detail access. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–24` | Access abuse gate. |
 | F-3187 | P1 | No live MongoDB/index or deployed unified-booking route evidence is produced. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:4–13` | Baseline-pinned runtime evidence. |
 | F-3188 | P1 | This spec cannot certify unified booking production readiness because it covers one mocked read path only. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:1–25` | Production-like unified booking suite. |
+
+## Unified bookings contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3189 | P0 | The contract factory uses `Object.create` and mocked dependencies, bypassing constructor/module wiring and live guards. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:8–29` | Module-integrated contract test. |
+| F-3190 | P0 | Cash booking is covered, but non-cash/card identifiers are explicitly rejected; no published payment-intent/capture path is proved here. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:53–62` | Live card/insurance/payment contract. |
+| F-3191 | P0 | Idempotency is reflection-only; duplicate/replay, mismatched key, concurrent retry and side-effect uniqueness are untested. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:94–97` | End-to-end idempotency replay gate. |
+| F-3192 | P0 | Server slot lookup is mocked and no atomic lock acquisition or race prevention is tested between availability and appointment creation. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:15–18,32–51` | Atomic slot-lock/booking transaction. |
+| F-3193 | P0 | Slot validation covers exact start match and one unavailable response only; timezone, duration, provider schedule and malformed input are untested. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:32–82` | Complete slot validation matrix. |
+| F-3194 | P0 | No HTTP/controller authentication, unauthenticated behavior or DTO validation is executed. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:31–98` | HTTP owner/stranger/unauth gate. |
+| F-3195 | P0 | Owner-scoped cancellation is asserted through a mocked `getOne`, not a live query or tenant/provider authorization boundary. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:84–92` | Live ownership/tenant gate. |
+| F-3196 | P0 | Reschedule idempotency metadata is checked but reschedule behavior, slot release/reacquisition and failure compensation are not tested. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:20–23,94–97` | Reschedule lifecycle contract. |
+| F-3197 | P0 | No call-token issuance/expiry/audience/participant binding is covered. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:31–98` | Call-token security gate. |
+| F-3198 | P0 | No payment amount/currency/tax/authorization/capture/refund truthfulness or booking-payment reconciliation is covered. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:53–62` | Financial truthfulness gate. |
+| F-3199 | P0 | No provider, organization, patient-family or cross-tenant isolation matrix is tested. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:31–92` | Tenant/participant isolation. |
+| F-3200 | P0 | No transaction/compensation behavior is tested for slot availability, appointment write, payment or notification failure. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:32–92` | Distributed booking transaction gate. |
+| F-3201 | P1 | Response status/projection and sensitive-field non-disclosure are not asserted. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:35–50,77–92` | Safe booking response contract. |
+| F-3202 | P1 | No notification, audit, cache invalidation or provider availability side-effect contract is tested. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:31–92` | Booking side-effect gate. |
+| F-3203 | P1 | Error assertions do not verify stable HTTP code/body/headers or retry guidance for all failure paths. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:53–82` | Error taxonomy/non-disclosure gate. |
+| F-3204 | P1 | This spec was not executed against live booking, payment, slot-lock or call-token integrations during this audit read. | `src/modules/unified-bookings/unified-bookings.contract.spec.ts:1–99` | Baseline-pinned booking runtime evidence. |
