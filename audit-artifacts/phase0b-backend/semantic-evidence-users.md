@@ -29,3 +29,7 @@
 The read supports: generic privacy/security setting mass assignment, password/session lifecycle gaps, address raw merge/race/false-success behavior, wishlist unverified identifiers, canonical insurance persistence mismatch and legacy duplicate route, retention incompleteness, raw profile PII edits and split user/profile updates, and Redis failure being represented as an empty session list.
 
 No product code was changed and no tests/builds were executed during this semantic read.
+
+## Users wiring dependency
+
+`src/modules/users/users.module.ts:2–34` and `src/modules/users/repositories/user.repository.ts:2–12`, `patient-profile.repository.ts:2–12`, `provider-profile.repository.ts:2–12` were read in full. UsersModule registers canonical User/PatientProfile/ProviderProfile schemas, four controllers, UsersService and DataRetentionService, and aliases three constructor-only MongoRepository wrappers. The repositories add no ownership, validation, transaction or audit behavior; all such guarantees must exist in service/controller/database contracts.
