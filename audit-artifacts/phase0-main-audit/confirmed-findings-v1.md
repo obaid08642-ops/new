@@ -4500,3 +4500,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3002 | P1 | No live MongoDB indexes, TTL monitor, transaction or persistence evidence is produced. | `src/modules/slot-locks/slot-locks.service.spec.ts:10–26` | Baseline-pinned database evidence. |
 | F-3003 | P1 | No rate limit, abuse or denial-of-service behavior is tested for reservation attempts. | `src/modules/slot-locks/slot-locks.service.spec.ts:28–63` | Reservation abuse-control gate. |
 | F-3004 | P1 | This spec cannot certify production slot-lock correctness because it covers only three mocked reserve cases. | `src/modules/slot-locks/slot-locks.service.spec.ts:1–64` | Production-like lock acceptance suite. |
+
+## Root feature flag schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3005 | P0 | A separate root FeatureFlag schema exists alongside the module feature-flag schema; schema identity/consumer ownership is not reconciled in this member. | `src/schemas/feature-flag.schema.ts:5–22` | Single authoritative schema/consumer map. |
+| F-3006 | P0 | Global unique `flagName` has no environment, tenant, application, platform or version scope. | `src/schemas/feature-flag.schema.ts:12–13` | Scoped flag identity contract. |
+| F-3007 | P0 | Boolean-only `isEnabled` cannot express blocked, degraded, emergency-disabled, pending-contract or staged rollout states. | `src/schemas/feature-flag.schema.ts:15–16` | Typed lifecycle/evaluation contract. |
+| F-3008 | P0 | No percentage rollout, cohort, user/role, geography/device targeting or deterministic bucketing is represented. | `src/schemas/feature-flag.schema.ts:12–16` | Safe rollout targeting. |
+| F-3009 | P0 | No effective start/end, expiration or kill-switch reason is represented. | `src/schemas/feature-flag.schema.ts:15–19` | Time-bounded flag governance. |
+| F-3010 | P0 | `updatedBy` is optional free-form text and is not tied to authenticated actor, authorization, approval or immutable change history. | `src/schemas/feature-flag.schema.ts:18–19` | Audited authorized mutation. |
+| F-3011 | P0 | No optimistic version/CAS, idempotency or concurrent-update semantics are represented. | `src/schemas/feature-flag.schema.ts:7–19` | Race-safe configuration update. |
+| F-3012 | P0 | No dependency/constraint prevents enabling a flag whose backend contract, migration, license or prerequisite is unavailable. | `src/schemas/feature-flag.schema.ts:12–16` | Fail-closed dependency gate. |
+| F-3013 | P1 | No cache invalidation, propagation, stale-read, evaluation provenance or exposure metric fields are represented. | `src/schemas/feature-flag.schema.ts:7–19` | Distributed evaluation consistency. |
+| F-3014 | P1 | Timestamps alone do not establish the actor, reason, deployment, rollback or effective time of a change. | `src/schemas/feature-flag.schema.ts:7,18–19` | Change provenance record. |
+| F-3015 | P1 | No privacy/tenant boundary is represented for targeted flag evaluation. | `src/schemas/feature-flag.schema.ts:12–19` | Targeting privacy/tenant contract. |
+| F-3016 | P1 | The root schema was not executed or reconciled against all feature-flag consumers during this audit read. | `src/schemas/feature-flag.schema.ts:1–22` | Baseline-pinned consumer integration evidence. |
