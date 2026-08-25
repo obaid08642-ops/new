@@ -3314,3 +3314,25 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2171 | P1 | Asset inclusion is not declared in the TypeScript build config, relying on separate Nest CLI behavior without parity verification. | `tsconfig.build.json:1–4; nest-cli.json:8` | Unified build/asset manifest. |
 | F-2172 | P0 | No parity gate proves Docker, package scripts, Nest CLI and CI all use this same build configuration. | `tsconfig.build.json:1–4` | Single verified build entrypoint. |
 | F-2173 | P1 | No generated build manifest records config hash, compiler version, source commit or excluded surface. | `tsconfig.build.json:1–4` | Traceable build provenance. |
+
+## Production Compose findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2174 | P0 | Production Compose injects only two secrets from the operator environment and hardcodes unauthenticated Mongo/Redis URLs. | `docker-compose.prod.yml:12–17` | Managed authenticated TLS configuration with complete env schema. |
+| F-2175 | P0 | Compose uses `MONGO_URI` while documented core configuration uses `MONGO_URL`, creating configuration alias drift and possible unintended database behavior. | `docker-compose.prod.yml:14; ENVIRONMENT.md:13` | One canonical database variable with parity test. |
+| F-2176 | P0 | Secret interpolation is not a secret-manager boundary and has no presence, entropy, scope, rotation or leakage controls. | `docker-compose.prod.yml:16–17` | Secret lifecycle and fail-closed validation. |
+| F-2177 | P0 | `depends_on` is order-only; app can start before Mongo/Redis are ready. | `docker-compose.prod.yml:18–20` | Health-gated readiness dependencies. |
+| F-2178 | P1 | App has no healthcheck/readiness/liveness wiring despite restart policy. | `docker-compose.prod.yml:8–22` | Verified orchestrator health contract. |
+| F-2179 | P1 | Static container name can collide across releases and obstruct parallel rollout/rollback. | `docker-compose.prod.yml:8,26,35` | Release-safe naming strategy. |
+| F-2180 | P0 | Mongo uses mutable `mongo:6.0` without digest, authentication, TLS, ACL, healthcheck or resource policy. | `docker-compose.prod.yml:24–31` | Hardened pinned database service. |
+| F-2181 | P0 | Redis uses mutable `redis:7-alpine` without authentication, TLS/ACL, persistence integrity, healthcheck or resource policy. | `docker-compose.prod.yml:33–40` | Hardened pinned cache/queue service. |
+| F-2182 | P1 | Mongo and Redis named volumes have no backup, restore, encryption, retention, integrity or disaster-recovery contract. | `docker-compose.prod.yml:28–29,37–44` | Tested recovery evidence. |
+| F-2183 | P1 | All services share one bridge network without app/data-plane separation, internal-only flags or egress policy. | `docker-compose.prod.yml:21–22,30–31,39–49` | Segmented private network policy. |
+| F-2184 | P0 | App publishes port 3000 directly without edge/TLS/rate-limit/trusted-proxy/security-header contract in this composition. | `docker-compose.prod.yml:10–11` | Verified secure ingress boundary. |
+| F-2185 | P1 | `restart: always` is used without resource limits, backoff/circuit policy or dependency-failure observability. | `docker-compose.prod.yml:8–9,26–27,35–36` | Bounded resilient lifecycle. |
+| F-2186 | P1 | No image digest/provenance/SBOM/vulnerability/license scan/signing/admission gate is represented. | `docker-compose.prod.yml:4–7,24–34` | Enforced signed release stack. |
+| F-2187 | P1 | No migration/seed sequencing, backup coordination or rollback contract is coupled to the production stack. | `docker-compose.prod.yml:3–49` | Deployment/recovery lifecycle evidence. |
+| F-2188 | P1 | No log redaction/audit/PII handling or observability contract is configured for app, Mongo or Redis. | `docker-compose.prod.yml:3–49` | Operational privacy and observability policy. |
+| F-2189 | P1 | No explicit platform/architecture policy or native dependency verification is declared for the production image. | `docker-compose.prod.yml:4–7` | Supported platform and runtime smoke evidence. |
+| F-2190 | P0 | The production composition does not prove complete environment coverage for the documented integrations; missing values may silently disable or misconfigure critical features. | `docker-compose.prod.yml:12–17; ENVIRONMENT.md:9–170` | Generated env parity and fail-closed startup validation. |
