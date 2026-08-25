@@ -3457,3 +3457,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2274 | P0 | ObjectId references alone do not prevent a caller from selecting another facility's staff record; schema presence cannot prove BOLA resistance. | `src/modules/hospital/schemas/hospital-staff.schema.ts:8–18` | Facility-scoped owner/role negative tests. |
 | F-2275 | P1 | Finance and doctor/lab_tech roles are accepted as strings without schema-bound permission separation or sensitive-data minimization. | `src/modules/hospital/schemas/hospital-staff.schema.ts:20–21` | Permission matrix and field-level access controls. |
 | F-2276 | P1 | No version/optimistic concurrency field or audit trail is encoded for competing staff activation/deactivation/role changes. | `src/modules/hospital/schemas/hospital-staff.schema.ts:6–24` | Race-safe state transitions with audit. |
+
+## HospitalBranch schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2277 | P0 | `hospital_id` is only an indexed User reference; the schema does not prove that the referenced identity is an authorized hospital/facility owner. | `src/modules/hospital/schemas/hospital-branch.schema.ts:8–9` | Facility-type and owner validation in service/database boundary. |
+| F-2278 | P1 | No coordinate range/finite-value validation exists for latitude/longitude. | `src/modules/hospital/schemas/hospital-branch.schema.ts:23–24` | Geographic validation and map safety tests. |
+| F-2279 | P1 | Contact number, city, district and bilingual names have no format, length, vocabulary or language-content validation. | `src/modules/hospital/schemas/hospital-branch.schema.ts:11–27` | Typed normalized field validation. |
+| F-2280 | P1 | No branch code or compound uniqueness prevents duplicate branches for a facility. | `src/modules/hospital/schemas/hospital-branch.schema.ts:8–30` | Unique identity and race-safe creation. |
+| F-2281 | P1 | `is_active` defaults true without approval, verification, operating-state or deactivation metadata. | `src/modules/hospital/schemas/hospital-branch.schema.ts:29–30` | Fail-closed lifecycle and audited activation. |
+| F-2282 | P0 | Schema does not enforce that branch records are scoped to their facility in every read/update; generic serialization can expose cross-facility data. | `src/modules/hospital/schemas/hospital-branch.schema.ts:8–30` | Facility-scoped ownership and field-minimization tests. |
+| F-2283 | P1 | No public eligibility/publication status or projection is encoded, so active does not mean approved for discovery/maps. | `src/modules/hospital/schemas/hospital-branch.schema.ts:29–30` | Separate approval/publication contract. |
+| F-2284 | P1 | No audit actor, version or optimistic concurrency policy is encoded for branch edits and activation races. | `src/modules/hospital/schemas/hospital-branch.schema.ts:6–30` | Versioned, audited, race-safe mutations. |
