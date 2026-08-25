@@ -5074,3 +5074,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3421 | P1 | No notification/audit event or downstream consumer acknowledgement is asserted. | `src/contracts/provider-availability.contract.spec.ts:11–31` | Availability event contract. |
 | F-3422 | P1 | No PII/device/session binding or location disclosure policy is represented by the contract. | `src/contracts/provider-availability.contract.spec.ts:11–37` | Provider privacy/device governance. |
 | F-3423 | P1 | This contract was not executed against live Mongo, HTTP, dispatch or availability consumers during this audit read. | `src/contracts/provider-availability.contract.spec.ts:1–38` | Baseline-pinned availability runtime evidence. |
+
+## Patient-owned controller contract findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3424 | P0 | Ownership contract is mock delegation and does not execute HTTP guards, pipes or real service access. | `src/contracts/ownership-controllers.spec.ts:10–35` | HTTP ownership integration gate. |
+| F-3425 | P0 | Test descriptions mention verified patients, but request fixture contains only an ID; verified/active/suspended/deleted state is not proven. | `src/contracts/ownership-controllers.spec.ts:7–16,19–25,28–34` | Authenticated-user state matrix. |
+| F-3426 | P0 | No stranger-resource/404 matrix proves resource-level ownership for maternity, nutrition or family data. | `src/contracts/ownership-controllers.spec.ts:10–35` | Owner/stranger/unauth contract. |
+| F-3427 | P0 | No role, facility, organization or tenant boundary is tested. | `src/contracts/ownership-controllers.spec.ts:7–35` | Patient tenant/role isolation. |
+| F-3428 | P0 | Family set-permissions flow has no consent, relationship, guardian/dependent or delegated-scope validation. | `src/contracts/ownership-controllers.spec.ts:28–35` | Family delegation authorization. |
+| F-3429 | P0 | No path/body/query ID mismatch, malformed ID or DTO validation coverage exists. | `src/contracts/ownership-controllers.spec.ts:23–34` | Input identity/DTO gate. |
+| F-3430 | P0 | No database ownership predicate, cross-document authorization or transaction boundary is exercised because services are mocked. | `src/contracts/ownership-controllers.spec.ts:11,20,29` | Live service/database ownership evidence. |
+| F-3431 | P0 | Nutrition amount validation and unit/range/negative-value behavior are not tested. | `src/contracts/ownership-controllers.spec.ts:19–25` | Nutrition input contract. |
+| F-3432 | P0 | Family permission allowlist, escalation, revocation, audit and idempotent replay behavior are untested. | `src/contracts/ownership-controllers.spec.ts:28–35` | Family permissions lifecycle. |
+| F-3433 | P0 | No PII/PHI projection, field-level disclosure, retention or access audit behavior is tested. | `src/contracts/ownership-controllers.spec.ts:10–35` | Patient data disclosure governance. |
+| F-3434 | P1 | Only one method per controller is exercised; broader route surface, errors, pagination and rate limits are unverified. | `src/contracts/ownership-controllers.spec.ts:10–35` | Complete patient-owned route matrix. |
+| F-3435 | P1 | No CSRF/session-cookie, enumeration or abuse protection is tested. | `src/contracts/ownership-controllers.spec.ts:10–35` | Patient mutation abuse gate. |
+| F-3436 | P1 | No notification, audit event, cache invalidation or downstream consistency is asserted after nutrition/family mutations. | `src/contracts/ownership-controllers.spec.ts:19–35` | Patient mutation side-effect contract. |
+| F-3437 | P1 | This contract was not executed against live HTTP, database, auth or patient/family records during this audit read. | `src/contracts/ownership-controllers.spec.ts:1–36` | Baseline-pinned ownership runtime evidence. |
