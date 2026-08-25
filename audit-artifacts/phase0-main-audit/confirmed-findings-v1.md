@@ -4531,3 +4531,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3023 | P1 | No concurrency/version or conditional-write policy is added for event writes. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Race-safe event persistence. |
 | F-3024 | P1 | The generic MongoRepository behavior is an unverified dependency from this member’s perspective. | `src/modules/events/repositories/systemevent.repository.ts:4,9–12` | Base repository semantic audit. |
 | F-3025 | P1 | This adapter was not executed or integrated with event producers/consumers during this audit read. | `src/modules/events/repositories/systemevent.repository.ts:1–13` | Baseline-pinned event runtime evidence. |
+
+## Admin events controller findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3026 | P0 | Event query parameters have no DTO/class-validator boundary or explicit allowlists for event/entity types. | `src/modules/events/events.controllers.ts:12–23` | Validated query contract. |
+| F-3027 | P0 | `parseInt` accepts prefixes and can yield NaN; no finite/range validation exists for since_minutes or limit. | `src/modules/events/events.controllers.ts:19–23` | Strict numeric range validation. |
+| F-3028 | P0 | Negative, zero, oversized and invalid since_minutes/limit behavior is not constrained. | `src/modules/events/events.controllers.ts:19–23` | Bounded pagination/time window. |
+| F-3029 | P0 | List endpoint has no cursor pagination, stable sort, maximum result cap or timeout contract. | `src/modules/events/events.controllers.ts:12–24` | Operationally bounded listing. |
+| F-3030 | P0 | Trace requires no explicit nonempty/format validation for entity_type/entity_id and exposes a fixed 500-event response without cursor/time bound. | `src/modules/events/events.controllers.ts:26–29` | Validated trace/pagination contract. |
+| F-3031 | P0 | Admin role is the only visible authorization layer; no tenant, organization, patient/pharmacy scope or least-privilege policy is represented. | `src/modules/events/events.controllers.ts:6–9,14–23` | Scoped administrative access. |
+| F-3032 | P0 | No PII/PHI redaction, field allowlist or safe response projection is visible at the controller boundary. | `src/modules/events/events.controllers.ts:12–29` | Event disclosure policy. |
+| F-3033 | P1 | No audit event is visible for administrative event-log reads or trace access. | `src/modules/events/events.controllers.ts:12–29` | Admin read auditing. |
+| F-3034 | P1 | No rate limit, abuse protection or cost control is visible for event enumeration/trace. | `src/modules/events/events.controllers.ts:12–29` | Admin query abuse gate. |
+| F-3035 | P1 | Invalid `since_minutes` can create invalid date arithmetic and no explicit clock/timezone semantics are established. | `src/modules/events/events.controllers.ts:19–23` | Time input contract. |
+| F-3036 | P1 | Filters are forwarded directly to EventBusService with no visible normalization or field-presence policy. | `src/modules/events/events.controllers.ts:14–23` | Filter normalization contract. |
+| F-3037 | P1 | Error mapping for invalid query, unauthorized admin, missing entity and backend failures is not defined in this member. | `src/modules/events/events.controllers.ts:12–29` | Stable safe error taxonomy. |
+| F-3038 | P1 | This controller was not executed against live auth/event data during this audit read. | `src/modules/events/events.controllers.ts:1–30` | Baseline-pinned admin event runtime evidence. |
