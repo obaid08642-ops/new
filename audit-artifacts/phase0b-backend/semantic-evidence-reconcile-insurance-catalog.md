@@ -1,0 +1,11 @@
+# Phase 0B semantic evidence — Insurance catalog reconciliation
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `scripts/reconcile-insurance-catalog.ts:1–88`
+
+The script documents a non-destructive dry-run/apply workflow and claims it will only add missing manifest entities as disabled, pending-review records without changing existing activation/status or logo fields (`1–11`). It defines a TypeScript `ManifestCompany` shape with code, Arabic/English names and optional source/logo/hash fields, but the runtime manifest validation checks only that `manifest.companies` is an array (`18–35`). It does not validate non-empty/unique codes, locale completeness, URL schemes, hash format, duplicate normalized codes, manifest signature/version or expected company count.
+
+Apply mode requires only `MONGO_URI` and connects to the database; there is no explicit environment/database identity, operator authorization, approval artifact, target-collection assertion or dry-run result binding (`28–30,38–53`). Each company is processed sequentially via `updateOne` with a lowercased code filter and `upsert: true`; missing records receive a UUID, names, optional regulatory URL, manifest basename provenance, fixed `catalog_version: 1`, `pending_review`, `is_active: false` and timestamps (`56–75`). Existing records are not validated for uniqueness, conflicts, stale source, expected current state or provenance mismatch; the script counts `upsertedCount` versus existing but does not verify matched/modified semantics or reconcile duplicates/orphans/completeness (`76–79`).
+
+The operation is not wrapped in a transaction, import lock, backup/recovery or compensation process; a mid-loop failure can leave a partial catalog. `catalog_version` is fixed, source provenance is only the manifest basename, and no operator/time/signature/change audit is recorded (`60–72`). The success message reports counts without post-write invariant checks (`79`). Mongo disconnect is called on success and attempted in the catch, but no structured release artifact or explicit safe handling of connection state is present (`80–87`). The script was not executed; no product code was changed and no tests/builds were run during this semantic read.

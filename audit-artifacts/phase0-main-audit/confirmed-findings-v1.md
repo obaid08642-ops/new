@@ -2865,3 +2865,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1832 | P1 | Asset source URLs are copied from the manifest without revalidation or legal/licensing evidence at publication time. | `scripts/publish-insurance-logo-assets.ts:43–46` | Source/licensing provenance and review record. |
 | F-1833 | P1 | S3 client lifecycle and network retry/timeouts are not explicitly managed; partial network failures are not compensated. | `scripts/publish-insurance-logo-assets.ts:39–51` | Bounded retries/timeouts and failure reconciliation. |
 | F-1834 | P2 | Type assertions and inline `require`/`any` reduce compile-time assurance for a public asset publication path. | `scripts/publish-insurance-logo-assets.ts:21,33,35,39–40,51` | Strict types and static checks. |
+
+## Insurance catalog reconciliation findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1835 | P0 | Runtime manifest validation checks only that `companies` is an array; code/name/URL/hash completeness, uniqueness, signature and version are not validated. | `scripts/reconcile-insurance-catalog.ts:18–35` | Strict signed manifest schema and reconciliation validation. |
+| F-1836 | P0 | Apply mode requires only `MONGO_URI` and has no database/environment identity, target collection, operator or approval gate. | `scripts/reconcile-insurance-catalog.ts:28–53` | Fail-closed target/authorization gate. |
+| F-1837 | P1 | Lowercasing codes without validating duplicates can collapse distinct manifest entries onto one target; no unique-index assertion is performed. | `scripts/reconcile-insurance-catalog.ts:56–75` | Canonical normalized code and unique-index checks. |
+| F-1838 | P1 | Sequential upserts are not transactionally protected; mid-loop failure can leave a partial insurance catalog with no rollback/reconciliation. | `scripts/reconcile-insurance-catalog.ts:56–79` | Import transaction/lock, recovery and post-run reconciliation. |
+| F-1839 | P1 | Existing records are not checked for source/provenance/version/status conflicts; `$setOnInsert` silently treats stale or conflicting records as valid existing data. | `scripts/reconcile-insurance-catalog.ts:56–75` | Conflict detection and reviewed reconciliation. |
+| F-1840 | P1 | New records receive fixed `catalog_version: 1` and basename-only provenance, without immutable manifest digest, source review or operator/change identity. | `scripts/reconcile-insurance-catalog.ts:60–72` | Content-addressed version/provenance and audit. |
+| F-1841 | P1 | Inserted records are marked pending/inactive, but no subsequent review/approval/readiness workflow is coupled to this script. | `scripts/reconcile-insurance-catalog.ts:67–70` | Explicit reviewer queue and activation gate. |
+| F-1842 | P1 | Regulatory source URLs are copied without URL/HTTPS/domain/source-date or verification evidence validation. | `scripts/reconcile-insurance-catalog.ts:18–25,60–66` | Validated regulatory source and evidence metadata. |
+| F-1843 | P1 | Script does not reconcile expected manifest entities against database duplicates, orphans, missing records, field drift and inactive/pending counts after import. | `scripts/reconcile-insurance-catalog.ts:76–79` | Deterministic completeness/drift reconciliation. |
+| F-1844 | P1 | No backup, recovery point, import lock or change-ticket linkage is tied to apply mode. | `scripts/reconcile-insurance-catalog.ts:38–80` | Backup/lock/recovery and change record. |
+| F-1845 | P1 | No explicit idempotency/replay key or manifest digest prevents repeated apply runs from being ambiguous across catalog revisions. | `scripts/reconcile-insurance-catalog.ts:28,56–75` | Manifest-digest idempotency and revision semantics. |
+| F-1846 | P1 | No source/asset approval, logo status/hash/URL reconciliation is performed despite the manifest containing logo fields. | `scripts/reconcile-insurance-catalog.ts:18–25,39–46` | Complete logo/source reconciliation or explicit separation. |
+| F-1847 | P1 | Success output reports inserted/existing counts without proving database target, unique records, expected fields or post-write integrity. | `scripts/reconcile-insurance-catalog.ts:76–80` | Fail-closed machine-readable integrity report. |
+| F-1848 | P2 | Catalog reconciliation depends on a basename-only provenance label and local file path rather than a durable content-addressed source record. | `scripts/reconcile-insurance-catalog.ts:30,65–67` | Durable source digest, URI and review provenance. |
