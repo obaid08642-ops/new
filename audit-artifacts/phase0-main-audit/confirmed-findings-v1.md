@@ -4794,3 +4794,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3216 | P1 | No signed provenance, generated-by actor, report version or reproducibility metadata is asserted. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:7–10` | Report provenance contract. |
 | F-3217 | P1 | No access isolation is tested for provider-1 versus another provider or administrator scope. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:12` | Provider/admin isolation matrix. |
 | F-3218 | P1 | This spec was not executed against live settlement data, payment ledger, transfer system or export delivery during this audit read. | `src/modules/legal/legal-enterprise.service.excel.spec.ts:1–21` | Baseline-pinned settlement runtime evidence. |
+
+## Driver shift schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3219 | P0 | No unique active-shift constraint prevents simultaneous online shifts for one driver. | `src/schemas/driver-shift.schema.ts:11–15` | One-active-shift invariant. |
+| F-3220 | P0 | Driver ID has no visible role, organization, branch, eligibility or tenant ownership integrity. | `src/schemas/driver-shift.schema.ts:12` | Driver assignment/tenant gate. |
+| F-3221 | P0 | Status enum has no transition actor/time/reason/history, optimistic version or terminal protection. | `src/schemas/driver-shift.schema.ts:13–15` | Audited shift state machine. |
+| F-3222 | P0 | No idempotent or concurrent go-online/offline/on-delivery semantics are represented. | `src/schemas/driver-shift.schema.ts:13–15` | Shift replay/CAS gate. |
+| F-3223 | P0 | started_at is optional and no end-after-start, timezone, maximum-shift or break/compliance invariant exists. | `src/schemas/driver-shift.schema.ts:14–15` | Shift time/compliance contract. |
+| F-3224 | P0 | current_location uses `Object` without coordinate range, accuracy/source/sequence/geospatial/freshness or anti-spoofing controls. | `src/schemas/driver-shift.schema.ts:16` | Location integrity contract. |
+| F-3225 | P0 | No location privacy, retention, customer disclosure or device/session binding policy is represented. | `src/schemas/driver-shift.schema.ts:16` | Driver location governance. |
+| F-3226 | P0 | deliveries_completed is an unconstrained mutable counter with no atomicity, reconciliation or duplicate-delivery protection. | `src/schemas/driver-shift.schema.ts:17` | Authoritative delivery counter. |
+| F-3227 | P0 | earnings is an unconstrained numeric amount with no currency, period, ledger source, payout status or reconciliation. | `src/schemas/driver-shift.schema.ts:18` | Earnings truthfulness contract. |
+| F-3228 | P0 | No shift-to-delivery/order linkage or evidence supports attribution of completed deliveries and earnings. | `src/schemas/driver-shift.schema.ts:12,17–18` | Delivery/earnings provenance. |
+| F-3229 | P1 | No rate limit, device attestation or abuse control is represented for location/shift mutations. | `src/schemas/driver-shift.schema.ts:12–18` | Driver-operation abuse gate. |
+| F-3230 | P1 | No audit/deletion/anonymization policy is represented for driver location and earnings history. | `src/schemas/driver-shift.schema.ts:9–18` | Shift-data lifecycle governance. |
+| F-3231 | P1 | The schema was not executed or integrated with live dispatch, location, delivery ledger or payout flows during this audit read. | `src/schemas/driver-shift.schema.ts:1–21` | Baseline-pinned driver runtime evidence. |
