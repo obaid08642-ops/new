@@ -1829,3 +1829,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1106 | P1 | No soft-delete, redirect or 404/410 lifecycle is represented for closed, relocated or withdrawn facilities. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Explicit facility withdrawal/index lifecycle with stale-index tests. |
 | F-1107 | P1 | No optimistic versioning, audited approval or conflict handling exists for facility edits racing with SEO generation/indexing. | `src/modules/seo/repositories/facility.repository.ts:8–13` | Versioned/audited publication projection with conflict tests. |
 | F-1108 | P2 | Non-functional import comment and formatting drift obscure the intended repository contract and provenance. | `src/modules/seo/repositories/facility.repository.ts:4–6` | Remove stale comments and document repository ownership. |
+
+## ProviderProfile SEO repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1109 | P1 | ProviderProfileRepository uses `MongoRepository<any>` and `Model<any>`, removing compile-time guarantees for indexed provider profiles. | `src/modules/seo/repositories/providerprofile.repository.ts:8–11` | Use typed ProviderProfileDocument/model and reject unsafe any. |
+| F-1110 | P0 | No verified/licensed/approved/public gate is enforced, allowing unverified, suspended or withdrawn providers to reach public/index callers. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Purpose-scoped public query requiring credential and approval readiness. |
+| F-1111 | P0 | No consent/privacy/redaction policy exists at the repository boundary, so private contact, identifiers or operational data rely on caller discipline. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Explicit public projection, PII denylist and role-scoped queries. |
+| F-1112 | P1 | No provider-to-facility/service scope or current availability contract is enforced, risking misleading provider service pages. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Canonical provider-service/facility projection with availability checks. |
+| F-1113 | P1 | No locale projection or profile-content completeness gate exists, permitting mixed-language or incomplete indexed profiles. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Locale-aware publication readiness and content parity tests. |
+| F-1114 | P1 | No canonical/slug uniqueness or JSON-LD/visible-facts parity contract is represented for provider pages. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Unique normalized canonical and structured-data parity validation. |
+| F-1115 | P1 | No soft-delete, suspension, redirect or 404/410 index lifecycle is represented for provider profiles. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Explicit profile withdrawal/index lifecycle with stale-index tests. |
+| F-1116 | P1 | No optimistic versioning, audited approval or conflict policy exists for provider edits racing with SEO generation/indexing. | `src/modules/seo/repositories/providerprofile.repository.ts:8–13` | Versioned/audited publication projection and conflict handling. |
+| F-1117 | P2 | Non-functional import comment and formatting drift obscure the intended repository contract and provenance. | `src/modules/seo/repositories/providerprofile.repository.ts:4–6` | Remove stale comments and document repository ownership. |
