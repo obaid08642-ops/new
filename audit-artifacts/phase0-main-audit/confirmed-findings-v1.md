@@ -1787,3 +1787,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1079 | P1 | No soft-delete, redirect or 404/410 index lifecycle is represented, leaving withdrawn services vulnerable to stale search results. | `src/modules/seo/repositories/homecareservice.repository.ts:8–13` | Explicit withdrawal/index lifecycle with 404/410 tests. |
 | F-1080 | P1 | Generic inherited operations provide no optimistic versioning or audited approval transition for service edits and publication races. | `src/modules/seo/repositories/homecareservice.repository.ts:8–13` | Versioned, audited service publication commands with conflict tests. |
 | F-1081 | P2 | Non-functional “Ensure correct import” comment and formatting drift obscure the intended repository contract. | `src/modules/seo/repositories/homecareservice.repository.ts:4–6` | Remove stale comments and document repository ownership/provenance. |
+
+## SEO MedicineRepository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1082 | P1 | SEO MedicineRepository uses `MongoRepository<any>` and `Model<any>`, removing compile-time guarantees for indexed medicine documents. | `src/modules/seo/repositories/medicine.repository.ts:8–11` | Use typed MedicineDocument/model and reject unsafe any. |
+| F-1083 | P0 | No canonical catalog projection/source-of-truth link is enforced, allowing indexed medicine facts to diverge from the patient catalog. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Reuse one approved public medicine projection for SEO and app reads. |
+| F-1084 | P0 | No current price, stock or availability parity is enforced, so SEO Product/Offer data can be commercially stale or misleading. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Server-authoritative price/stock projection with freshness policy. |
+| F-1085 | P1 | No approved/public/readiness filter exists, permitting draft, withdrawn or incomplete medicines to reach index-facing callers. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Purpose-scoped public query with publication and safety readiness checks. |
+| F-1086 | P1 | No locale projection/completeness policy exists, so indexed pages may contain mixed-language, Arabic fallback or missing medicine fields. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Locale-aware content projection and translation parity gate. |
+| F-1087 | P1 | No slug/canonical uniqueness or normalization contract is present, risking duplicate medicine URLs and canonical conflicts. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Unique normalized canonical policy and collision tests. |
+| F-1088 | P1 | No JSON-LD/visible-content parity validation is represented for Product/Offer facts, enabling structured data to disagree with UI. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Validate structured data against the same public projection. |
+| F-1089 | P1 | No soft-delete, redirect or 404/410 index lifecycle is represented for discontinued medicines. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Explicit discontinued lifecycle and stale-index acceptance tests. |
+| F-1090 | P1 | No versioning/audit/conflict policy exists for medicine catalog edits that can race with SEO generation or indexing. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Versioned catalog/SEO projection with auditable publication and conflict handling. |
