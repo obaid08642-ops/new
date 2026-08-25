@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — e2e/matrix2.js
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `e2e/matrix2.js:1–563`
+
+The matrix is a deep lifecycle E2E runner against `http://127.0.0.1:4099/api/v1`, with Axios, direct MongoDB access and a helper that records PASS/FAIL/SKIP (`1–28`). It reads `/tmp/e2e/boot.ok`, connects to `nabdah_e2e`, hashes test passwords with bcrypt and directly upserts TEST users, provider accounts, catalog records, provider profiles and pharmacy inventory (`30–102`). This is a deliberately test-only fixture setup, not production data.
+
+The suite covers patient/stranger registration, admin login with log-extracted 2FA, six provider/driver logins, provider onboarding/email OTP/profile/phone/KYC documents/bank account/submit/admin approval (`104–229`). It covers lab booking/provider inbox/state transitions/invalid transition/role guard/pipeline/report/patient-stranger access/referral rejection/capacity (`231–321`), radiology booking/provider queue/anonymous rejection/provider response/machine allocation/scan finalization/patient report (`323–369`), home-nursing booking/provider queue/accept/transit/geofence/no-show/start/complete/patient list/wallet (`371–442`), pharmacy order/queue/accept-preparing-ready/driver dispatch-delivery/history/cancel (`444–511`), and cross-cutting reviews/aggregate, notifications, admin audit log and KYC persistence (`513–546`). Summary counts passes/fails/skips and closes Mongo (`548–562`).
+
+The suite directly seeds the database and uses fixed synthetic identities, test emails/phone numbers, placeholder clinical/catalog values and a fake PDF base64 payload (`31–102,190–199,280–290,423–426`). This is appropriate as a local E2E fixture but cannot prove production data truth, real storage, real credential verification, payment settlement or live external provider behavior. It does not use the owner/stranger sandbox accounts described in the later audit workflow and should not be confused with sandbox-contract coverage.
+
+Several assertions are permissive: some responses only check a state if present, pharmacy transitions accept multiple states, and provider/radiology/home-care flows often assert presence/status rather than ownership/404 for a stranger (`279–299,333–369,387–442,465–510`). Direct Mongo seed access bypasses public authorization and may conceal route-level provisioning/foreign-key failures. The suite does not globally assert idempotent replay, duplicate prevention, cross-tenant BOLA across every surface, cookies/httpOnly/token absence, payment-intent truth, refund/reconciliation, or cleanup/cancellation of every created entity; it closes Mongo but has no explicit entity cleanup before exit (`30–102,548–562`). It relies on log OTP extraction and `/tmp/e2e/backend.log`, which is brittle and log-sensitive (`115–130,161–173`).
+
+No execution was performed during this semantic read, so the documented reference result of 65/0/0 in README is not independently re-established here, and no product code was changed.

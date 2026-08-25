@@ -5964,3 +5964,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4061 | P0 | No notification, blocked-contact enforcement, risk escalation, cache/search consistency or side-effect acknowledgement state exists. | `src/schemas/patient-crm-tag.schema.ts:16–32` | CRM side-effect contract. |
 | F-4062 | P1 | Timestamps are automatic only and do not provide per-field change provenance, actor or authoritative event time. | `src/schemas/patient-crm-tag.schema.ts:5–6,16–32` | CRM time/provenance gate. |
 | F-4063 | P1 | No live CRM authorization, privacy, block enforcement, audit or index runtime evidence was established during this baseline source read. | `src/schemas/patient-crm-tag.schema.ts:1–36` | Baseline-pinned CRM runtime evidence. |
+
+## E2E matrix2 findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4064 | P0 | matrix2 directly upserts users/accounts/catalogs/profiles/inventory in Mongo, bypassing route-level provisioning, authorization and foreign-key validation. | `e2e/matrix2.js:30–102` | E2E fixture isolation and route-provisioning gate. |
+| F-4065 | P0 | The suite uses synthetic credentials, seeded records and fake PDF/signature values; it cannot prove production data, external storage, credential verification or settlement truth. | `e2e/matrix2.js:31–102,190–199,280–290,423–426` | Separate approved sandbox/live integration evidence. |
+| F-4066 | P0 | Assertions are permissive or incomplete on report/upload, pharmacy transitions, provider flows and list responses, allowing missing fields/states to pass. | `e2e/matrix2.js:279–299,333–369,387–442,465–510` | Strict schema/status/ownership assertions. |
+| F-4067 | P0 | matrix2 does not globally assert idempotent replay/duplicate prevention across booking, order, payment, upload or state mutations. | `e2e/matrix2.js:231–510` | Mutation replay matrix. |
+| F-4068 | P0 | Stranger/owner BOLA coverage is narrow and absent for many provider, radiology, nursing, pharmacy, admin and output surfaces. | `e2e/matrix2.js:293–299,323–546` | Owner/stranger/unauth assertion per protected route. |
+| F-4069 | P0 | Cookie/httpOnly/token-in-body/URL, refresh/revocation and browser-session security are not asserted by this bearer-token-only matrix. | `e2e/matrix2.js:18,104–147` | Session security gate. |
+| F-4070 | P0 | Payment tests check requested mode or numeric totals but do not prove payment authorization, capture, refund, reconciliation or no-client-total trust. | `e2e/matrix2.js:231–321,371–510` | Financial settlement/reconciliation sandbox gate. |
+| F-4071 | P0 | OTP extraction from backend logs makes admin/provider auth tests log-sensitive and does not prove real delivery, single-use or expiry semantics. | `e2e/matrix2.js:115–130,161–173` | Approved OTP delivery/TTL/replay gate. |
+| F-4072 | P0 | Direct fake fixture setup and no explicit per-entity cleanup leave no proof of isolation/cleanup of created bookings, orders, accounts and reviews before Mongo close. | `e2e/matrix2.js:30–102,548–562` | Test isolation/cleanup gate. |
+| F-4073 | P0 | Lab/radiology/home-care assertions lack complete cross-tenant provider ownership and patient privacy checks for every read/write route. | `e2e/matrix2.js:246–369,387–442` | Vertical owner/stranger/unauth matrix. |
+| F-4074 | P0 | Critical operational flows do not assert webhook/event/notification delivery, retry, queue durability or side-effect consistency. | `e2e/matrix2.js:231–510,513–546` | Side-effect/queue evidence gate. |
+| F-4075 | P1 | The README claims a 65/0/0 reference result but this read did not execute or independently reproduce it. | `e2e/README.md:22–46` | Reproducible pinned execution artifact. |
