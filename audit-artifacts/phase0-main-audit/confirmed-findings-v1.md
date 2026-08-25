@@ -4272,3 +4272,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2834 | P1 | No notification/event/cache/indexing/withdrawal/SEO consistency behavior is wired or proven in the module. | `src/modules/approval-workflow/approval-workflow.module.ts:156–164` | Publication lifecycle contract. |
 | F-2835 | P0 | No payment, insurance, licensing or clinical-review gate is enforced before setting public eligibility. | `src/modules/approval-workflow/approval-workflow.module.ts:107–114` | Compliance eligibility gate. |
 | F-2836 | P1 | No live database, deployed route, failure-recovery or end-to-end approval evidence was executed during this audit. | `src/modules/approval-workflow/approval-workflow.module.ts:1–219` | Baseline-pinned runtime evidence. |
+
+## Insurance OpenAPI contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2837 | P1 | Insurance OpenAPI spec uses mocked providers/models and generated-document assertions; it does not issue endpoint requests. | `src/contracts/insurance-openapi.contract.spec.ts:15–40,42–91` | Request-level contract suite. |
+| F-2838 | P0 | Bearer scheme and documented security metadata do not prove runtime JWT guard enforcement. | `src/contracts/insurance-openapi.contract.spec.ts:42–54,56–86` | Runtime auth integration matrix. |
+| F-2839 | P0 | No owner/stranger/unauthenticated matrix proves patient insurance ownership or 401/404 behavior. | `src/contracts/insurance-openapi.contract.spec.ts:56–86` | Insurance ownership/denial matrix. |
+| F-2840 | P0 | Canonical POST is checked for a response string only; DTO validation, verification workflow, idempotency and duplicate policy are absent. | `src/contracts/insurance-openapi.contract.spec.ts:69–85` | Typed insurance mutation contract. |
+| F-2841 | P0 | No claim submission, approval/rejection, active-policy, eligibility, insurer/provider or expiry lifecycle behavior is tested. | `src/contracts/insurance-openapi.contract.spec.ts:69–86` | Insurance lifecycle matrix. |
+| F-2842 | P0 | No amounts, currency, co-pay, coverage, settlement or payment truth policy is represented. | `src/contracts/insurance-openapi.contract.spec.ts:69–86` | Financial insurance contract. |
+| F-2843 | P0 | No attachment/document, policy-number, member identity or PII/PHI projection/privacy behavior is tested. | `src/contracts/insurance-openapi.contract.spec.ts:19–28,69–86` | Sensitive insurance-data projection gate. |
+| F-2844 | P1 | Legacy route deprecation/compatibility is documented but redirect, sunset, migration and stale-client behavior are not covered. | `src/contracts/insurance-openapi.contract.spec.ts:56–67` | Legacy lifecycle policy. |
+| F-2845 | P1 | OpenAPI assertions do not prove all operations have complete schemas, operation IDs, error shapes, pagination or idempotency headers. | `src/contracts/insurance-openapi.contract.spec.ts:42–86` | OpenAPI completeness linter. |
+| F-2846 | P1 | Active and company catalog 403 documentation does not prove role/feature-policy enforcement or public/private boundary behavior. | `src/contracts/insurance-openapi.contract.spec.ts:69–86` | Policy enforcement test. |
+| F-2847 | P1 | Module registration check does not prove route reachability or absence of duplicate/conflicting controller paths. | `src/contracts/insurance-openapi.contract.spec.ts:88–91` | Route registration/runtime smoke gate. |
+| F-2848 | P1 | The spec was not executed during this audit and cannot establish insurance production readiness. | `src/contracts/insurance-openapi.contract.spec.ts:1–92` | Baseline-pinned executed evidence. |
