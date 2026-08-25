@@ -3891,3 +3891,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2568 | P1 | Redis degraded-mode, connection/retry, namespace and data-isolation policy are not evidenced by this module. | `src/modules/presence/presence.module.ts:3,5–8` | Resilient isolated Redis contract. |
 | F-2569 | P1 | No module-level readiness/health or graceful shutdown hook is visible. | `src/modules/presence/presence.module.ts:5–9` | Presence dependency readiness gate. |
 | F-2570 | P1 | The module wiring was not executed or integration-tested during this audit and cannot establish presence readiness. | `src/modules/presence/presence.module.ts:1–10` | Baseline-pinned runtime presence evidence. |
+
+## Emergency request repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2571 | P0 | Emergency repository is a thin generic Mongo wrapper with no emergency-specific authorization or query boundary. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Explicit emergency access policy. |
+| F-2572 | P0 | No repository-level patient/responder/facility/tenant ownership scope is enforced or evidenced. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Actor/tenant ownership matrix. |
+| F-2573 | P0 | No exact-location minimization, redaction, retention or emergency privacy handling is represented. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Emergency location/privacy contract. |
+| F-2574 | P0 | No dispatch assignment, responder authority, vehicle integrity or state-transition constraint exists in this repository layer. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Race-safe dispatch lifecycle. |
+| F-2575 | P0 | No idempotent trigger/cancel/resolve, duplicate suppression or optimistic concurrency boundary is visible. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Emergency mutation contract. |
+| F-2576 | P1 | No expiry/auto-close, notification/event, audit or deletion policy is represented by the repository. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Audited emergency lifecycle. |
+| F-2577 | P1 | The import comment does not enforce import correctness or runtime schema/model parity. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:5–6` | CI/type/runtime parity gate. |
+| F-2578 | P1 | The repository was not executed or integration-tested during this audit and cannot establish emergency persistence readiness. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:1–13` | Baseline-pinned emergency persistence evidence. |
