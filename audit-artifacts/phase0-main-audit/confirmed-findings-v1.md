@@ -3968,3 +3968,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2620 | P1 | Alternate admin controllers/routes or stale module artifacts could escape this single source-file assertion. | `src/modules/compat/admin-nursing-containment.spec.ts:4–10` | Cross-surface route inventory. |
 | F-2621 | P1 | No live/deployed backend or client acceptance proves the containment remains active. | `src/modules/compat/admin-nursing-containment.spec.ts:1–11` | Sandbox/deployed containment evidence. |
 | F-2622 | P1 | The spec was not executed during this audit and cannot establish admin nursing safety. | `src/modules/compat/admin-nursing-containment.spec.ts:1–11` | Baseline-pinned executed evidence. |
+
+## Home-care compatibility controller spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2623 | P1 | Controller spec supplies role objects directly and mocks dependencies; it does not prove Nest guard/session authenticity. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:5–11,14–33` | Runtime auth/role gate. |
+| F-2624 | P0 | No unauthenticated, stranger, foreign-booking or ownership/404 matrix is tested. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:14–33` | Patient/provider ownership matrix. |
+| F-2625 | P1 | Queue access and availability denial are unit assertions only and do not prove route-level exposure or deployed containment. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:14–24` | Route/deployed runtime evidence. |
+| F-2626 | P0 | No provider license, facility membership, service eligibility or actor/provider relationship is tested. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:20–33` | Provider eligibility contract. |
+| F-2627 | P0 | One invalid state transition is covered, but valid lifecycle, cancellation, reschedule, no-show, expiry and terminal-state rules are absent. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:26–33` | Complete home-care state machine. |
+| F-2628 | P0 | No transaction, optimistic concurrency, idempotency or duplicate replay test exists for booking/availability/state mutations. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:20–33` | Race-safe mutation contract. |
+| F-2629 | P0 | No address/medical-data projection, consent, privacy or patient/provider PII test exists. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:14–33` | PII-safe home-care projections. |
+| F-2630 | P0 | No server-authoritative price, cash/card/insurance payment or refund truth test exists. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:4–33` | Commercial journey contract. |
+| F-2631 | P1 | No notification, event, audit, queue consistency, failure-recovery or provider handoff behavior is asserted. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:4–33` | Audited operational workflow. |
+| F-2632 | P1 | Mock objects are incomplete and cast to `any`, weakening compile-time and schema fidelity. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:5–11,28–33` | Typed schema-faithful fixtures. |
+| F-2633 | P1 | No live backend, sandbox account, device or end-to-end patient home-care journey is present. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:1–34` | Sandbox/live E2E evidence. |
+| F-2634 | P1 | The spec was not executed during this audit and cannot establish home-care compatibility readiness. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:1–34` | Baseline-pinned executed evidence. |
