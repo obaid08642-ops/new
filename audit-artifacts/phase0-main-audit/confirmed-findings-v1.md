@@ -2304,3 +2304,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1431 | P1 | No audit/provenance records who accessed or changed hydration records, under what purpose or caregiver relationship. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Immutable access/change audit with actor and purpose. |
 | F-1432 | P1 | No repository-level invariant guarantees daily totals/goal calculations remain consistent with individual entries after updates or deletes. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Atomic aggregate/reconciliation contract and tests. |
 | F-1433 | P2 | Non-functional import comment and formatting drift obscure ownership of this patient nutrition repository. | `src/modules/nutrition/repositories/waterlog.repository.ts:4–6` | Remove stale comment and document data boundary. |
+
+## MealLog repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1434 | P0 | MealLog repository has no patient owner/tenant/caregiver scope; inherited generic reads/writes depend on callers to protect dietary and clinical records. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Mandatory patient-scoped methods and caregiver authorization tests. |
+| F-1435 | P1 | No validation of meal date/type, calories, macros, ingredients, allergens or physiologic bounds is enforced at the repository boundary. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Typed validation and allergy/nutrition-safety invariant tests. |
+| F-1436 | P0 | No minimum-necessary projection or redaction policy is enforced for patient dietary and health data. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Deny-by-default projection and sensitive-field redaction tests. |
+| F-1437 | P1 | No deterministic day/event key, duplicate policy or idempotency is defined for repeated meal submissions. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Replay-safe key and duplicate/day aggregation tests. |
+| F-1438 | P1 | No optimistic versioning or conflict handling prevents concurrent corrections from losing meal records. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1439 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for meal logs. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1440 | P1 | No audit/provenance records who accessed or changed meal records, under what purpose or caregiver relationship. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Immutable access/change audit with actor and purpose. |
+| F-1441 | P1 | No repository-level invariant guarantees daily calories/macros or nutrition-goal aggregates remain consistent after updates/deletes. | `src/modules/nutrition/repositories/meallog.repository.ts:8–13` | Atomic aggregate/reconciliation contract and tests. |
+| F-1442 | P2 | Non-functional import comment and formatting drift obscure ownership of this patient nutrition repository. | `src/modules/nutrition/repositories/meallog.repository.ts:4–6` | Remove stale comment and document data boundary. |
