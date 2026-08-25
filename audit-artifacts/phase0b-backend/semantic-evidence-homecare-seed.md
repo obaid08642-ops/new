@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — Home-care seed data
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/home-care/home-care.seed.ts:1–140`
+
+`HOME_CARE_SEED` is an exported in-process array of 12 home-care/nursing service records grouped into `basic_nursing`, `advanced_nursing` and `specialized_care` (`1–140`). Every record embeds Arabic/English title and description, a hardcoded `basePrice`, duration, tags, external Unsplash image URL, icon name and required specialty (`3–138`). The data has no stable explicit service ID, source/provenance, approval/publication status, effective dates, currency/tax/price version, region/availability, insurance eligibility, capacity, license/readiness gate or deletion lifecycle. Repeated generic image URLs are reused across clinically distinct procedures, making visual assets non-specific and potentially misleading (`10,21,32,43,56,67,78,89,102,113,124,135`).
+
+Several entries describe invasive/high-risk clinical work (IV/IM injections, IV drips, diabetic-foot wound care, urinary catheter, tracheostomy, oxygen therapy and home ICU) but the seed records contain no clinical eligibility, prescription/order requirement, contraindication, acuity escalation, equipment dependency, nurse credential or emergency boundary (`25–45,49–91,128–138`). Prices and durations are fixed constants rather than server-authoritative quotes or effective-dated catalog values (`7–8,18–19,29–30,40–41,53–54,64–65,75–76,86–87,99–100,110–111,121–122,132–133`). Tags and `requiredSpecialty` are free strings, and the comments/labels do not constitute runtime validation. This is seed/mock-like catalog content and must not be treated as production truth without an explicit seeding gate and reconciliation process. No product code was changed and no tests/builds were executed during this semantic read.
