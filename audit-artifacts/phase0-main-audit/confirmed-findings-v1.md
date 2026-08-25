@@ -2958,3 +2958,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1900 | P1 | No transaction or compensation protects a partial loop of provider upserts. | `scripts/seed_test_providers.js:34–37` | Transactional/compensating fixture provisioning. |
 | F-1901 | P2 | Decorative emoji and plaintext account details in operational logs violate the audit's zero-PII/secret logging requirement. | `scripts/seed_test_providers.js:20,36,43` | Structured redacted logs. |
 | F-1902 | P2 | JavaScript fixture/schema is untyped and has no static contract or schema-drift gate. | `scripts/seed_test_providers.js:1,7–17,25–37` | Strict typing and CI fixture checks. |
+
+## Backup test provider seeder findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1903 | P0 | A second complete test-provider seeder remains as a `.bak` file under `scripts/`, creating duplicate executable-looking entry-point drift. | `scripts/seed_test_providers.ts.bak:1–101` | Remove/quarantine backup executable and enforce duplicate-seeder CI scan. |
+| F-1904 | P0 | Backup seeder defaults to localhost Mongo with no environment/test-database identity or production denial gate. | `scripts/seed_test_providers.ts.bak:4,18–20` | Fail-closed target and environment gate. |
+| F-1905 | P0 | Hardcoded shared password `Nabd@1234` is reused and printed alongside predictable phones in logs. | `scripts/seed_test_providers.ts.bak:22,81–88` | Managed ephemeral credentials and zero plaintext secret logging. |
+| F-1906 | P0 | All six test providers are seeded as `APPROVED` and `is_online: true` without quarantine, license/capability/readiness or discovery exclusion. | `scripts/seed_test_providers.ts.bak:24–79` | Test-only quarantine and explicit readiness gates. |
+| F-1907 | P0 | Upsert by phone writes password/status/online state on every rerun without version, review or state-preservation policy. | `scripts/seed_test_providers.ts.bak:81–88` | Versioned fixture reconciliation preserving state. |
+| F-1908 | P0 | Backup seeder defines a local provider schema/model rather than visibly using the canonical provider schema, duplicating the JS seeder's drift risk. | `scripts/seed_test_providers.ts.bak:6–16` | Canonical schema/model and contract tests. |
+| F-1909 | P1 | No expiry, cleanup, tenant isolation, reserved identity namespace or immutable audit lifecycle exists for the seeded accounts. | `scripts/seed_test_providers.ts.bak:24–91` | Ephemeral isolated account lifecycle and audit. |
+| F-1910 | P1 | No unique-index assertion, deterministic fixture release/version, rollback or expected-account reconciliation is performed. | `scripts/seed_test_providers.ts.bak:24–88` | Unique/reconciliation/rollback contract. |
+| F-1911 | P0 | Predictable provider phones/names can collide with real identities or be mistaken for live operational providers. | `scripts/seed_test_providers.ts.bak:24–79` | Collision-proof reserved test identities. |
+| F-1912 | P1 | No protection prevents these credentials from being accepted by production authentication or provider discovery. | `scripts/seed_test_providers.ts.bak:22–88` | Environment-bound auth/discovery exclusion tests. |
+| F-1913 | P1 | No transaction or compensation protects partial provider upserts. | `scripts/seed_test_providers.ts.bak:81–88` | Transactional/compensating fixture provisioning. |
+| F-1914 | P1 | Error/complete logs provide no structured partial-seed state, target identity or cleanup evidence. | `scripts/seed_test_providers.ts.bak:90–100` | Structured redacted result and recovery evidence. |
+| F-1915 | P2 | Backup fixture is untyped at runtime and duplicates an active JS fixture, increasing schema and behavior drift. | `scripts/seed_test_providers.ts.bak:1–16,24–88` | Single typed fixture source and CI drift guard. |
