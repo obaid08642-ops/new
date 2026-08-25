@@ -4549,3 +4549,19 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3036 | P1 | Filters are forwarded directly to EventBusService with no visible normalization or field-presence policy. | `src/modules/events/events.controllers.ts:14–23` | Filter normalization contract. |
 | F-3037 | P1 | Error mapping for invalid query, unauthorized admin, missing entity and backend failures is not defined in this member. | `src/modules/events/events.controllers.ts:12–29` | Stable safe error taxonomy. |
 | F-3038 | P1 | This controller was not executed against live auth/event data during this audit read. | `src/modules/events/events.controllers.ts:1–30` | Baseline-pinned admin event runtime evidence. |
+
+## Mongoose index contract findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3039 | P1 | Index governance covers only LabResult and three mental-health schemas, not the full schema inventory. | `src/contracts/mongoose-indexes.contract.spec.ts:1–2,9–20` | Complete schema/index inventory gate. |
+| F-3040 | P1 | Duplicate detection compares only key documents and ignores index options, names, partial filters, collation, sparse and TTL semantics. | `src/contracts/mongoose-indexes.contract.spec.ts:4–7` | Full index-definition comparison. |
+| F-3041 | P0 | No test proves actual MongoDB index creation or migration alignment. | `src/contracts/mongoose-indexes.contract.spec.ts:9–20` | Database index integration gate. |
+| F-3042 | P1 | No query-plan/selectivity/latency assertion proves indexes support production access patterns. | `src/contracts/mongoose-indexes.contract.spec.ts:9–20` | Explain-plan/performance gate. |
+| F-3043 | P0 | No ownership/tenant/privacy index contract is tested. | `src/contracts/mongoose-indexes.contract.spec.ts:9–20` | Tenant-isolation indexing gate. |
+| F-3044 | P0 | No TTL, partial-unique or active-state index governance is tested. | `src/contracts/mongoose-indexes.contract.spec.ts:9–20` | Lifecycle uniqueness/retention gate. |
+| F-3045 | P0 | No overlap/interval index or atomic conflict strategy is tested for booking/slot-lock domains. | `src/contracts/mongoose-indexes.contract.spec.ts:9–20` | Booking conflict index gate. |
+| F-3046 | P1 | The LabResult assertion proves only one exact key shape, not correct uniqueness, partial filter or query semantics. | `src/contracts/mongoose-indexes.contract.spec.ts:10–13` | Full LabResult index contract. |
+| F-3047 | P1 | Mental-health assertions do not verify required compound index options or all read/write access paths. | `src/contracts/mongoose-indexes.contract.spec.ts:15–20` | Mental-health index access-plan gate. |
+| F-3048 | P1 | No index drift detection or startup fail-closed behavior is represented. | `src/contracts/mongoose-indexes.contract.spec.ts:4–20` | Migration/drift gate. |
+| F-3049 | P1 | This contract was not executed against a live MongoDB instance during this audit read. | `src/contracts/mongoose-indexes.contract.spec.ts:1–21` | Baseline-pinned index runtime evidence. |
