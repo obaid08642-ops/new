@@ -2246,3 +2246,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1393 | P1 | No audit/provenance marker records who accessed or changed a session, for what purpose, or under which consent. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Immutable access/change audit with purpose and actor. |
 | F-1394 | P1 | Generic inherited operations expose no schema-level validation of session status, duration, timestamps, source or completion semantics in this member. | `src/modules/mental-health/repositories/meditationsession.repository.ts:8–13` | Typed validation and lifecycle invariant tests. |
 | F-1395 | P2 | Non-functional import comment and formatting drift obscure ownership of this high-sensitivity repository. | `src/modules/mental-health/repositories/meditationsession.repository.ts:4–6` | Remove stale comment and document privacy boundary. |
+
+## BreathingSession repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1396 | P0 | BreathingSession repository has no owner/tenant/participant scope or consent/purpose boundary; inherited generic reads/writes depend on callers to protect mental-health sessions. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Mandatory user/participant-scoped methods and consent-aware access tests. |
+| F-1397 | P0 | No minimum-necessary projection or sensitive-field redaction is enforced for breathing-session records. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Deny-by-default projection and redaction tests. |
+| F-1398 | P0 | No participant/session authorization or access-expiry policy is enforced at the repository boundary. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Server-controlled participant authorization and expiry tests. |
+| F-1399 | P1 | No deterministic session/event key, idempotency or duplicate policy is defined for repeated breathing-session submissions. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Replay-safe event key and idempotency tests. |
+| F-1400 | P1 | No optimistic versioning or conflict handling prevents stale writes from overwriting breathing-session progress. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1401 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for breathing-session records. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1402 | P1 | No audit/provenance marker records who accessed or changed a breathing session, for what purpose, or under which consent. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Immutable access/change audit with purpose and actor. |
+| F-1403 | P1 | Generic inherited operations expose no schema-level validation of duration, breathing metrics, timestamps, source or completion semantics in this member. | `src/modules/mental-health/repositories/breathingsession.repository.ts:8–13` | Typed validation and lifecycle invariant tests. |
+| F-1404 | P2 | Non-functional import comment and formatting drift obscure ownership of this high-sensitivity repository. | `src/modules/mental-health/repositories/breathingsession.repository.ts:4–6` | Remove stale comment and document privacy boundary. |
