@@ -3545,3 +3545,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2332 | P1 | No invitation acceptance/staff provisioning, duplicate membership, role capability or revocation workflow is tested. | `src/modules/hospital/services/hospital.service.spec.ts:4–51` | Full hospital membership lifecycle. |
 | F-2333 | P1 | Model failure/null/error paths are not covered for user, doctor, staff or appointment operations. | `src/modules/hospital/services/hospital.service.spec.ts:5–16,19–50` | Failure taxonomy and negative persistence tests. |
 | F-2334 | P1 | The spec was not executed during this audit and cannot serve as current baseline or live deployment proof. | `src/modules/hospital/services/hospital.service.spec.ts:1–51` | Pinned executed evidence and post-deploy sandbox proof. |
+
+## Realtime gateway authorization test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2335 | P0 | Realtime authorization spec does not exercise Socket.IO handshake/session extraction, JWT validity, expiry, revocation or unauthenticated connection rejection. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:19–33` | Handshake/auth integration and negative tests. |
+| F-2336 | P0 | No test proves origin/CORS enforcement, trusted-origin allowlist or behavior after an Origin/token change. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:19–33` | Live origin and credential-boundary tests. |
+| F-2337 | P0 | Room tests cover one patient identity only and omit doctor, provider aliases, family booker, admin scope and foreign facility cases. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:41–58` | Full participant/actor matrix. |
+| F-2338 | P1 | `makeSocket` models only `data.user`, join and leave; protocol metadata, disconnect, rooms, ACK/error and socket identity invariants are absent. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:3–7` | Protocol-faithful integration harness. |
+| F-2339 | P0 | Queue admission/leave tests inspect an in-memory private map and do not prove cross-process consistency, duplicate prevention, locking or durable queue state. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:50–70` | Distributed queue/lock and race evidence. |
+| F-2340 | P1 | Terminal-state coverage is one `COMPLETED` case and does not cover every forbidden appointment state/window or stale/missing record. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:60–64` | Complete appointment-state admission matrix. |
+| F-2341 | P0 | No event-level authorization tests cover typing, messages, calls, read state or relay after room admission. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:35–71` | Per-event participant authorization. |
+| F-2342 | P1 | No replay, rate-limit, payload validation or resource-existence side-channel tests are present. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:35–71` | Bounded event contract and privacy-safe errors. |
+| F-2343 | P1 | Disconnect cleanup and multi-device/session behavior are not tested, leaving stale queue/room membership risk. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:3–7,50–70` | Disconnect/reconnect lifecycle acceptance. |
+| F-2344 | P1 | The spec was not executed during this audit and cannot establish current live realtime readiness. | `src/modules/realtime/realtime.gateway.authorization.spec.ts:1–72` | Baseline-pinned executed plus live network evidence. |
