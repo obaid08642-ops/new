@@ -4394,3 +4394,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2926 | P1 | Indexes cover individual type/reference/status lookups but no active/participant/time/cleanup query plan is visible. | `src/schemas/chat-session.schema.ts:8–23` | Operational index/retention plan. |
 | F-2927 | P1 | Timestamp option alone does not establish timezone, close deadline, inactivity timeout or retention enforcement. | `src/schemas/chat-session.schema.ts:6–23` | Time/retention policy. |
 | F-2928 | P1 | The schema was not executed or integrated with live chat/gateway/call flows during this audit. | `src/schemas/chat-session.schema.ts:1–25` | Baseline-pinned chat runtime evidence. |
+
+## Pharmacy chat schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2929 | P0 | Sender role is a free-form string despite the comment; sender identity is not constrained to patient/pharmacy membership. | `src/schemas/pharmacy-chat.schema.ts:8–9` | Typed sender/role membership contract. |
+| F-2930 | P0 | Order, patient and pharmacy IDs have no visible cross-document ownership, fulfillment or tenant integrity constraint. | `src/schemas/pharmacy-chat.schema.ts:19–21` | Order-thread ownership gate. |
+| F-2931 | P0 | No compound uniqueness ensures one canonical thread per order and participant pair. | `src/schemas/pharmacy-chat.schema.ts:16–25` | Thread deduplication constraint. |
+| F-2932 | P0 | Embedded messages have no version/atomic append or concurrency protection. | `src/schemas/pharmacy-chat.schema.ts:22–25` | Race-safe message append contract. |
+| F-2933 | P0 | Message text lacks length, content, moderation, PII/PHI, localization or encryption policy. | `src/schemas/pharmacy-chat.schema.ts:10` | Safe message-content contract. |
+| F-2934 | P0 | Image URL is opaque and lacks private-object ownership, content scan, expiry, deletion and retention controls. | `src/schemas/pharmacy-chat.schema.ts:11` | Secure chat attachment contract. |
+| F-2935 | P0 | No delivery, read/ack, failure, retry, idempotency or replay metadata is represented. | `src/schemas/pharmacy-chat.schema.ts:7–12` | Exactly-once/delivery lifecycle. |
+| F-2936 | P0 | ACTIVE/READ_ONLY enum has no close actor/reason/time, escalation, appeal or terminal-state guard. | `src/schemas/pharmacy-chat.schema.ts:23–24` | Audited thread lifecycle. |
+| F-2937 | P0 | No sender authorization, order status, return/refund context or pharmacy access revocation is represented. | `src/schemas/pharmacy-chat.schema.ts:18–25` | Context-aware access policy. |
+| F-2938 | P1 | `Date.now` defaults do not establish authoritative ordering, clock policy, inactivity timeout or retention enforcement. | `src/schemas/pharmacy-chat.schema.ts:12,25` | Time/retention policy. |
+| F-2939 | P1 | No safe role-specific projection prevents internal participant/order data or private media URL leakage. | `src/schemas/pharmacy-chat.schema.ts:18–25` | Chat projection/privacy gate. |
+| F-2940 | P1 | The schema was not executed or integrated with live pharmacy chat/gateway flows during this audit. | `src/schemas/pharmacy-chat.schema.ts:1–29` | Baseline-pinned chat runtime evidence. |
