@@ -4411,3 +4411,19 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2938 | P1 | `Date.now` defaults do not establish authoritative ordering, clock policy, inactivity timeout or retention enforcement. | `src/schemas/pharmacy-chat.schema.ts:12,25` | Time/retention policy. |
 | F-2939 | P1 | No safe role-specific projection prevents internal participant/order data or private media URL leakage. | `src/schemas/pharmacy-chat.schema.ts:18–25` | Chat projection/privacy gate. |
 | F-2940 | P1 | The schema was not executed or integrated with live pharmacy chat/gateway flows during this audit. | `src/schemas/pharmacy-chat.schema.ts:1–29` | Baseline-pinned chat runtime evidence. |
+
+## Chat gateway follow-up spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2941 | P0 | Membership and token-scope tests use mocked service/maps; they do not prove production authentication or identity binding. | `src/modules/chat/chat.gateway.followup.spec.ts:5–17,32–44` | Live auth/identity integration gate. |
+| F-2942 | P0 | No unauthenticated, missing-user, expired-token or revoked-token join case is tested. | `src/modules/chat/chat.gateway.followup.spec.ts:8–13,35–38` | Unauthenticated/expiry/revocation denial tests. |
+| F-2943 | P0 | No cross-tenant or participant-role isolation case is tested. | `src/modules/chat/chat.gateway.followup.spec.ts:5–44` | Tenant and role isolation matrix. |
+| F-2944 | P0 | Only `join` is exercised; event-level authorization for send/read/ack/typing/attachments is not tested. | `src/modules/chat/chat.gateway.followup.spec.ts:5–44` | Per-event authorization tests. |
+| F-2945 | P0 | No replay, reconnect, duplicate join or room-revocation behavior is tested. | `src/modules/chat/chat.gateway.followup.spec.ts:5–44` | Reconnect/replay/leave revocation gate. |
+| F-2946 | P1 | No malformed/unknown/overlong thread identifier validation is tested. | `src/modules/chat/chat.gateway.followup.spec.ts:14,28,39` | Identifier validation gate. |
+| F-2947 | P1 | No rate limit, connection abuse, room cardinality or backpressure behavior is tested. | `src/modules/chat/chat.gateway.followup.spec.ts:5–44` | Realtime abuse controls. |
+| F-2948 | P0 | No actual Socket.IO transport, adapter, namespace or deployment topology is exercised. | `src/modules/chat/chat.gateway.followup.spec.ts:7–11,21–25,34–35` | Production-like realtime transport test. |
+| F-2949 | P1 | Error mapping is asserted only for one mocked ForbiddenException; other service/database errors and safe disclosure are untested. | `src/modules/chat/chat.gateway.followup.spec.ts:6,14` | Error taxonomy and non-disclosure matrix. |
+| F-2950 | P1 | Successful join assertion checks room string but not post-join access policy, stale-user cleanup or leave behavior. | `src/modules/chat/chat.gateway.followup.spec.ts:19–30` | Room lifecycle and cleanup gate. |
+| F-2951 | P1 | This spec cannot certify production chat security because it is unit-only and mock-bound. | `src/modules/chat/chat.gateway.followup.spec.ts:1–45` | End-to-end security evidence pinned to baseline. |
