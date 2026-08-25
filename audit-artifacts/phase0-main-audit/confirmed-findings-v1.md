@@ -4232,3 +4232,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2804 | P1 | No event/audit/notification/outbox behavior is asserted for state changes. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Audited event transition contract. |
 | F-2805 | P1 | No migration/backward-compatibility or persisted-state decoding evidence is present. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Persisted-state compatibility matrix. |
 | F-2806 | P1 | The spec was not executed during this audit and cannot establish workflow-engine readiness. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:1–13` | Baseline-pinned executed evidence. |
+
+## Approval workflow service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2807 | P1 | Approval spec uses a TestingModule but all persistence/domain dependencies are `any` mocks, not real schemas/database behavior. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:1–66` | Schema-faithful integration test. |
+| F-2808 | P0 | Admin actor is supplied as a string; no authenticated role, tenant, facility, reviewer permission or request ownership matrix is tested. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:90–191` | Admin authorization matrix. |
+| F-2809 | P0 | Arbitrary `change_data` is spread into created/patched entities; no field allowlist, DTO validation or immutable-field protection is asserted. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:108–129,162–185` | Typed allowlisted approval payload. |
+| F-2810 | P0 | Version 1 creation is tested, but duplicate request, version collision, stale decision and concurrent approval behavior is absent. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:68–87,90–191` | Versioned idempotent approval contract. |
+| F-2811 | P0 | Entity persistence, request save and publication refresh are asserted as separate mock calls without transaction/rollback or publication-failure proof. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:108–135,137–160,162–190` | Atomic/outbox approval settlement. |
+| F-2812 | P0 | Publication refresh idempotency is asserted only for selected medicine paths; replay response/effect equivalence and all entity types are not covered. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:132–134,157–159,188–190` | Full replay/consumer matrix. |
+| F-2813 | P0 | Rejection only stores a free-form note; reviewer identity, reason schema, timestamps, appeal and audit integrity are absent. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:91–106` | Audited rejection lifecycle. |
+| F-2814 | P0 | Provider, facility, lab and radiology model stubs are registered but their approval paths are not exercised. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:29–44,51–61` | Complete entity approval matrix. |
+| F-2815 | P0 | Projection fields are asserted for selected medicine/home-care cases but source data, PII/PHI and role-safe public projection are not validated. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:123–129,152–156,179–185` | Projection/privacy contract. |
+| F-2816 | P1 | No cache invalidation, sitemap/indexing, IndexNow, slug collision or withdrawn-publication behavior is tested. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:132–159,188–190` | Publication lifecycle gate. |
+| F-2817 | P1 | No notification, event, audit log, operational alert or recovery behavior is asserted. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:90–191` | Audited operational workflow. |
+| F-2818 | P0 | No payment, insurance, licensing or clinical-review gate is proven before a catalog entity becomes eligible. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:123–128,152–156,179–184` | Eligibility/compliance gate. |
+| F-2819 | P1 | No malformed/oversized/malicious localized content, identifier or attachment input is tested before publication. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:69–86,108–190` | Input safety matrix. |
+| F-2820 | P1 | The spec was not executed during this audit and cannot establish approval-workflow production readiness. | `src/modules/approval-workflow/approval-workflow.service.spec.ts:1–193` | Baseline-pinned executed evidence. |
