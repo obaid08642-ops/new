@@ -5055,3 +5055,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3407 | P1 | Failure handling logs/exits but does not guarantee Mongo disconnect or cleanup on partial failure. | `src/scripts/seed_test.ts:280–287` | Finally-based resource cleanup. |
 | F-3408 | P1 | No credential, rate-limit or account-isolation policy is represented for generated provider fixture identities. | `src/scripts/seed_test.ts:247–258` | Test identity governance. |
 | F-3409 | P1 | The script was not executed during this audit read, and no live fixture isolation/cleanup evidence is claimed. | `src/scripts/seed_test.ts:1–287` | Baseline-pinned seed safety evidence. |
+
+## Provider availability contract findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3410 | P0 | Availability contract is mock-only and does not execute the HTTP endpoint or real authentication guard. | `src/contracts/provider-availability.contract.spec.ts:5–13,34–37` | HTTP/auth availability gate. |
+| F-3411 | P0 | Patient role is rejected, but provider identity, profile ownership, facility and tenant boundaries are not tested. | `src/contracts/provider-availability.contract.spec.ts:11–37` | Provider ownership/tenant matrix. |
+| F-3412 | P0 | Missing-role and malformed caller contexts are not tested; the second toggle omits role entirely. | `src/contracts/provider-availability.contract.spec.ts:24–30` | Fail-closed caller-context validation. |
+| F-3413 | P0 | provider_type is accepted as input but no type capability, active-license or provider-profile validation is tested. | `src/contracts/provider-availability.contract.spec.ts:13,26` | Provider capability/licensing gate. |
+| F-3414 | P0 | Upsert behavior does not prove a unique provider availability record or migration/index correctness. | `src/contracts/provider-availability.contract.spec.ts:16–21,27–31` | Unique availability index evidence. |
+| F-3415 | P0 | Concurrent toggles, compare-and-set/versioning, replay and idempotency behavior are not tested. | `src/contracts/provider-availability.contract.spec.ts:11–31` | Availability mutation race/replay gate. |
+| F-3416 | P0 | No actor/time/reason/history audit is asserted for availability changes. | `src/contracts/provider-availability.contract.spec.ts:15–20,26–30` | Audited availability state. |
+| F-3417 | P0 | Availability is reduced to a boolean and does not validate schedule/time windows, timezone, holidays, capacity, workload or consultation mode. | `src/contracts/provider-availability.contract.spec.ts:11–31` | Operational availability policy. |
+| F-3418 | P0 | No suspension, license expiry, emergency/clinical safety or abuse/rate-limit policy is tested. | `src/contracts/provider-availability.contract.spec.ts:11–37` | Provider safety/abuse gate. |
+| F-3419 | P0 | No read-side propagation, cache invalidation, dispatch consistency or stale availability handling is tested. | `src/contracts/provider-availability.contract.spec.ts:11–31` | Availability propagation contract. |
+| F-3420 | P1 | Database errors, duplicate keys, timeout and safe error-code mapping are not tested. | `src/contracts/provider-availability.contract.spec.ts:5–31` | Availability failure contract. |
+| F-3421 | P1 | No notification/audit event or downstream consumer acknowledgement is asserted. | `src/contracts/provider-availability.contract.spec.ts:11–31` | Availability event contract. |
+| F-3422 | P1 | No PII/device/session binding or location disclosure policy is represented by the contract. | `src/contracts/provider-availability.contract.spec.ts:11–37` | Provider privacy/device governance. |
+| F-3423 | P1 | This contract was not executed against live Mongo, HTTP, dispatch or availability consumers during this audit read. | `src/contracts/provider-availability.contract.spec.ts:1–38` | Baseline-pinned availability runtime evidence. |
