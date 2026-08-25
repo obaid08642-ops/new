@@ -5111,3 +5111,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-341? | P1 | No notification delivery, cache invalidation, event publication or downstream preference consistency is asserted. | `src/modules/users/users.contract.spec.ts:26–41` | Preference side-effect contract. |
 | F-341? | P1 | Only selected methods are covered; list/read settings, bulk actions, all session lifecycle and error schemas are unverified. | `src/modules/users/users.contract.spec.ts:16–63` | Complete users route matrix. |
 | F-341? | P1 | This spec was not executed against live HTTP, Mongo, Redis, auth middleware or notification providers during this audit read. | `src/modules/users/users.contract.spec.ts:1–64` | Baseline-pinned users runtime evidence. |
+
+## Community service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3451 | P0 | Community coverage is mock-only and does not execute HTTP authentication, roles, tenant boundaries or real database ownership predicates. | `src/modules/community/community.service.spec.ts:11–40,42–118` | Live community integration gate. |
+| F-3452 | P0 | Content moderation is represented by one sensitive keyword example only; classifier coverage and false-negative behavior are unproven. | `src/modules/community/community.service.spec.ts:42–59` | Complete moderation/safety matrix. |
+| F-3453 | P0 | No medical misinformation, self-harm escalation acknowledgement, crisis routing, spam, link/media sanitization or moderator appeal workflow is tested. | `src/modules/community/community.service.spec.ts:42–59` | Clinical/community safety contract. |
+| F-3454 | P0 | No author/tenant visibility or create-post DTO length, encoding, attachment and PII/PHI validation is tested. | `src/modules/community/community.service.spec.ts:43–59` | Post input/access contract. |
+| F-3455 | P0 | Vote mutations do not prove atomic array updates, duplicate/concurrent handling, opposite-vote transition or idempotency. | `src/modules/community/community.service.spec.ts:61–79` | Vote CAS/replay gate. |
+| F-3456 | P0 | Vote access does not test deleted/private/pending posts, role/tenant restrictions or abuse/rate limiting. | `src/modules/community/community.service.spec.ts:61–79` | Vote visibility/abuse matrix. |
+| F-3457 | P0 | Post deletion tests only author error/result and do not prove soft-delete, child comment/media handling, audit or retention. | `src/modules/community/community.service.spec.ts:81–99` | Post deletion lifecycle. |
+| F-3458 | P0 | Delete replay, concurrent delete, failure mapping and downstream cache/event invalidation are untested. | `src/modules/community/community.service.spec.ts:81–99` | Delete idempotency/side-effect contract. |
+| F-3459 | P0 | Live-session join tests omit capacity, time window/timezone, session ownership, consent, age/safety and provider authorization. | `src/modules/community/community.service.spec.ts:101–118` | Session join authorization/capacity gate. |
+| F-3460 | P0 | Join duplicate race, leave/revocation, waitlist, notification and live transport/token security are untested. | `src/modules/community/community.service.spec.ts:101–118` | Live-session lifecycle contract. |
+| F-3461 | P0 | Comment repository is injected but no comment create/read/moderation/ownership behavior is exercised. | `src/modules/community/community.service.spec.ts:19–22,42–118` | Complete comment contract. |
+| F-3462 | P0 | No PII/PHI field projection, retention/deletion, access audit or export privacy behavior is tested. | `src/modules/community/community.service.spec.ts:42–118` | Community data governance. |
+| F-3463 | P1 | No pagination, ordering, count consistency, cache invalidation or event publication is tested for feed/session changes. | `src/modules/community/community.service.spec.ts:11–40,42–118` | Community query/consistency gate. |
+| F-3464 | P1 | No model error/timeout, malformed ID, safe error schema or rate-limit response behavior is tested. | `src/modules/community/community.service.spec.ts:42–118` | Community failure/abuse contract. |
+| F-3465 | P1 | This spec was not executed against live HTTP, Mongo, moderation, session transport or community records during this audit read. | `src/modules/community/community.service.spec.ts:1–119` | Baseline-pinned community runtime evidence. |

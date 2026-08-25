@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — CommunityService spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/community/community.service.spec.ts:1–119`
+
+The spec creates a Nest testing module with mocked PostRepository, PostCommentRepository and LiveSessionRepository (`5–40`). It verifies safe createPost returns ok/published and a suicide-keyword post returns pending_review (`42–59`). It verifies votePost upvotes a published post with empty voter arrays and toggles an existing upvote to removed (`61–79`). It verifies the author can delete a post and a non-author receives the expected ownership error (`81–99`). It verifies a user joins an upcoming session and a repeat join returns already_joined (`101–118`).
+
+This is mocked service coverage only. It does not execute HTTP authentication/roles/tenant boundaries or prove database ownership predicates. Moderation is a single keyword example and does not establish classifier completeness, medical misinformation, self-harm safety escalation, spam/link/media sanitization, abuse/rate limits, appeals or moderator audit (`42–59`). Vote behavior does not test atomic array updates, duplicate/concurrent votes, downvote transitions, deleted/private posts or idempotency (`61–79`). Delete coverage does not test soft-delete state, audit, retention, child comments/media or cross-tenant cases (`81–99`). Session join does not test capacity, time windows/timezone, authorization, consent, duplicate race, leave/revocation, live transport or notifications (`101–118`). Comment model methods are not exercised at all despite being injected (`19–22`). No PII/PHI projection, retention, cache/event consistency or live persistence evidence exists. No code was changed and no build/test/application operation was performed during this read.
