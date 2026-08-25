@@ -3081,3 +3081,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1998 | P1 | Proxy has no structured request ID, upstream latency/error telemetry, audit context or trace propagation policy. | `infra/fastapi/nestjs_proxy.py:18–37` | Privacy-safe proxy observability. |
 | F-1999 | P0 | Header/body forwarding can circumvent the intended NestJS contract-first controls when upstream accepts legacy or unreviewed paths. | `infra/fastapi/nestjs_proxy.py:18–31,40–47` | Contract parity tests including owner/stranger/unauth/idempotency. |
 | F-2000 | P1 | Fixed localhost routing is not deployment-portable and can silently target the wrong process/database topology. | `infra/fastapi/nestjs_proxy.py:3,11` | Explicit deployment topology and startup dependency validation. |
+
+## FastAPI AI routes findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2001 | P0 | AI router has a hardcoded fallback JWT secret independent from the required server secret, enabling token confusion/forgery when env configuration is absent. | `infra/fastapi/ai_routes.py:25–41` | Fail-closed shared auth configuration with no fallback secret. |
+| F-2002 | P0 | OCR, medicine-image and barcode endpoints accept unauthenticated requests; decoded user is attribution-only and authorization is not enforced. | `infra/fastapi/ai_routes.py:71–115,161–184` | Explicit authenticated/guest policy with consent and abuse controls. |
+| F-2003 | P1 | AI status endpoint discloses provider identity and LLM-key presence without visible authorization or information-disclosure policy. | `infra/fastapi/ai_routes.py:61–68` | Safe health status or protected operational endpoint. |
+| F-2004 | P0 | OCR/image routes accept arbitrary base64 strings without route-level size, MIME, decode, malware, EXIF/PII or retention controls. | `infra/fastapi/ai_routes.py:45–47,49–51,71–88` | Central secure media validation and privacy lifecycle. |
+| F-2005 | P0 | OCR response can expose raw clinical model output and attaches a nullable/unverified user ID without tenant/consent/audit context. | `infra/fastapi/ai_routes.py:71–79` | Verified actor/tenant context and redacted clinical output. |
+| F-2006 | P0 | Medicine image matching is best-effort against a fixed localhost autocomplete service, silently swallowing upstream errors and accepting unverified model fields. | `infra/fastapi/ai_routes.py:91–115` | Authoritative catalog resolution and typed observable errors. |
+| F-2007 | P0 | Triage always returns `ok: true` and defaults unknown symptoms to internal medicine, with limited substring rules and no complete red-flag/emergency protocol. | `infra/fastapi/ai_routes.py:118–154` | Fail-safe clinical triage with emergency routing and reviewed rules. |
+| F-2008 | P1 | Triage accepts age/gender/lang fields but ignores them, creating misleading contract semantics and locale incompleteness. | `infra/fastapi/ai_routes.py:53–57,118–154` | Validated, used or removed fields with locale contract. |
+| F-2009 | P1 | Triage has no visible rate limiting, abuse protection, input length bound, rule version, audit or uncertainty evidence. | `infra/fastapi/ai_routes.py:118–154` | Bounded versioned rule-engine contract and audit. |
+| F-2010 | P0 | Barcode lookup does not validate GTIN/EAN/UPC/DataMatrix format or length before AI submission. | `infra/fastapi/ai_routes.py:161–180` | Strict barcode parser and authoritative lookup. |
+| F-2011 | P0 | Barcode route accepts an unused authorization parameter and permits anonymous model-derived product/prescription interpretation. | `infra/fastapi/ai_routes.py:165–184` | Enforced auth/consent and pharmacist/catalog verification. |
+| F-2012 | P0 | Barcode route returns `str(e)` in HTTP 500 responses, exposing internal provider/transport details. | `infra/fastapi/ai_routes.py:179–184` | Redacted typed errors. |
+| F-2013 | P0 | AI routes duplicate other FastAPI AI implementations and can diverge in auth, fallback and safety semantics. | `infra/fastapi/ai_routes.py:30,71–184` | Single authoritative AI route contract. |
+| F-2014 | P1 | Fixed localhost catalog dependency and silent exception swallowing lack deployment topology, timeout observability and readiness/health semantics. | `infra/fastapi/ai_routes.py:92–112` | Environment-bound dependency, health and structured telemetry. |
