@@ -5981,3 +5981,19 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4073 | P0 | Lab/radiology/home-care assertions lack complete cross-tenant provider ownership and patient privacy checks for every read/write route. | `e2e/matrix2.js:246–369,387–442` | Vertical owner/stranger/unauth matrix. |
 | F-4074 | P0 | Critical operational flows do not assert webhook/event/notification delivery, retry, queue durability or side-effect consistency. | `e2e/matrix2.js:231–510,513–546` | Side-effect/queue evidence gate. |
 | F-4075 | P1 | The README claims a 65/0/0 reference result but this read did not execute or independently reproduce it. | `e2e/README.md:22–46` | Reproducible pinned execution artifact. |
+
+## E2E boot findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4076 | P0 | Boot explicitly overrides production security/config with development mode, wildcard origins and disabled rate limiting. | `e2e/boot.js:27–33` | Production-parity security configuration gate. |
+| F-4077 | P0 | OTP provider is set to `mock`, so auth E2E cannot prove real delivery, expiry, single use or replay behavior. | `e2e/boot.js:31–35` | Approved OTP integration evidence. |
+| F-4078 | P0 | Fixed JWT/payment/LiveKit test credentials are injected by the harness and must be isolated from production. | `e2e/boot.js:31–36` | Secret isolation/non-production credential gate. |
+| F-4079 | P0 | Readiness treats any HTTP response from robots.txt as application readiness and does not assert dependency/schema/security health. | `e2e/boot.js:42–50` | Authenticated health/readiness gate. |
+| F-4080 | P0 | Redis readiness checks only TCP accept, not Redis protocol, queue functionality, auth or namespace isolation. | `e2e/boot.js:20–26` | Redis functional readiness gate. |
+| F-4081 | P0 | Fixed ports and shared `/tmp` paths can collide between runs and mix logs/data. | `e2e/boot.js:5,16,39,43,51` | Isolated ephemeral-run resource gate. |
+| F-4082 | P0 | Spawned app/Redis/Mongo processes have no signal/failure cleanup or guaranteed shutdown. | `e2e/boot.js:4–18,37–54` | E2E process lifecycle/cleanup gate. |
+| F-4083 | P0 | MongoMemoryServer is ephemeral and direct boot configuration does not prove production Mongo topology, indexes, migrations or transaction behavior. | `e2e/boot.js:5–6,27–30` | Production-like persistence gate. |
+| F-4084 | P0 | E2E logs can contain OTPs and backend output in `/tmp/e2e/backend.log` without declared redaction/access/retention controls. | `e2e/boot.js:38–41` | Test log privacy/retention gate. |
+| F-4085 | P1 | Boot does not verify that the app binds only intended interfaces or that CORS/CSRF/session headers match production policy. | `e2e/boot.js:27–37,42–50` | Network/session security gate. |
+| F-4086 | P1 | No boot failure artifact captures dependency versions, effective environment policy or process exit diagnostics in a structured reproducible format. | `e2e/boot.js:37–52` | Reproducible boot evidence gate. |
