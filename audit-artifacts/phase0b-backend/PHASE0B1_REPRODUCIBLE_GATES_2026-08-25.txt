@@ -1,0 +1,992 @@
+MISSING_EVIDENCE_COUNT=0
+DIFF_CHECK_BEGIN
+audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md:990: trailing whitespace.
+[32m+[m[32maudit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-approval.tsx:240:                  (router.push as any)({[m[41m [m
+audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md:992: trailing whitespace.
+[32m+[m[32maudit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-approval.tsx:259:                (router.push as any)({[m[41m [m
+audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md:994: trailing whitespace.
+[32m+[m[32maudit-work/source/nabd_plus_patient_app/app/diagnostics/insurance-upload.tsx:363:                (router.push as any)({[m[41m [m
+audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md:1156: trailing whitespace.
+[32m+[m[32maudit-work/source/nabd_plus_patient_app/app/(tabs)/nursing.tsx:91:    router.push({[m[41m [m
+audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md:1253: trailing whitespace.
+[32m+[m[32maudit-work/source/nabd_plus_patient_app/app/(auth)/login.tsx:307:          onPress={() => router.push({ pathname: '/(auth)/otp', params: { phone: '+966' + phone.replace(/^0+/, ''), mode: 'login' } })}[m[41m [m
+audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md:2883: new blank line at EOF.
+audit-artifacts/phase0-main-audit/admin-action-api-inventory.txt:124: trailing whitespace.
+[32m+[m[32maudit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:53:      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`, {[m[41m [m
+audit-artifacts/phase0-main-audit/route-consumer-reconciliation-scan.txt:81: trailing whitespace.
+[32m+[m[32maudit-work/source/NabdProvider-provider/src/screens/facility/FacilityDashboard.tsx:2170:   await client.post('/provider/settings/delta', {[m[41m [m
+audit-artifacts/phase0-main-audit/route-consumer-reconciliation-scan.txt:147: trailing whitespace.
+[32m+[m[32maudit-work/source/NabdProvider-provider/src/screens/nursing/NursingDashboard.tsx:1308:   await client.post('/provider/settings/delta', {[m[41m [m
+audit-artifacts/phase0-main-audit/route-consumer-reconciliation-scan.txt:194: trailing whitespace.
+[32m+[m[32maudit-work/source/NabdProvider-provider/src/screens/pharmacy/PharmacyDashboard.tsx:1721:      await client.post('/provider/settings/delta', {[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:346: trailing whitespace.
+[32m+[m[32mnabd_plus_patient_app/app/(auth)/register.tsx:226:          placeholder={'أحمد السالم'}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:347: trailing whitespace.
+[32m+[m[32mnabd_plus_patient_app/app/(auth)/register.tsx:235:          placeholder={'0500000000'}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:348: trailing whitespace.
+[32m+[m[32mnabd_plus_patient_app/app/(auth)/register.tsx:244:          placeholder="example@mail.com"[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:349: trailing whitespace.
+[32m+[m[32mnabd_plus_patient_app/app/(auth)/register.tsx:253:          placeholder="••••••••"[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:350: trailing whitespace.
+[32m+[m[32mnabd_plus_patient_app/app/(auth)/register.tsx:263:          placeholder="••••••••"[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:543: trailing whitespace.
+[32m+[m[32mNabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:206:        placeholder={AR ? "ملاحظات الإجراء وما تم تنفيذه..." : "Procedure notes..."}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:544: trailing whitespace.
+[32m+[m[32mNabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:209:        placeholderTextColor={theme.textSub}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:545: trailing whitespace.
+[32m+[m[32mNabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:212:        placeholder={AR ? "التوصيات وخطة المتابعة..." : "Recommendations and follow-up..."}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:546: trailing whitespace.
+[32m+[m[32mNabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:215:        placeholderTextColor={theme.textSub}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:547: trailing whitespace.
+[32m+[m[32mNabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:257:          placeholder={AR ? "سبب الإلغاء الطارئ..." : "Reason for emergency abort..."}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-context-review.txt:548: trailing whitespace.
+[32m+[m[32mNabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:260:          placeholderTextColor={theme.textSub}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:293: trailing whitespace.
+[32m+[m[32maudit-read/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:206:        placeholder={AR ? "ملاحظات الإجراء وما تم تنفيذه..." : "Procedure notes..."}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:294: trailing whitespace.
+[32m+[m[32maudit-read/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:209:        placeholderTextColor={theme.textSub}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:295: trailing whitespace.
+[32m+[m[32maudit-read/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:212:        placeholder={AR ? "التوصيات وخطة المتابعة..." : "Recommendations and follow-up..."}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:296: trailing whitespace.
+[32m+[m[32maudit-read/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:215:        placeholderTextColor={theme.textSub}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:297: trailing whitespace.
+[32m+[m[32maudit-read/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:257:          placeholder={AR ? "سبب الإلغاء الطارئ..." : "Reason for emergency abort..."}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:298: trailing whitespace.
+[32m+[m[32maudit-read/source/NabdProvider-provider/src/screens/nursing/NursingFieldOps.tsx:260:          placeholderTextColor={theme.textSub}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:1228: trailing whitespace.
+[32m+[m[32maudit-read/source/nabd_plus_patient_app/app/(auth)/register.tsx:226:          placeholder={'أحمد السالم'}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:1229: trailing whitespace.
+[32m+[m[32maudit-read/source/nabd_plus_patient_app/app/(auth)/register.tsx:235:          placeholder={'0500000000'}[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:1230: trailing whitespace.
+[32m+[m[32maudit-read/source/nabd_plus_patient_app/app/(auth)/register.tsx:244:          placeholder="example@mail.com"[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:1231: trailing whitespace.
+[32m+[m[32maudit-read/source/nabd_plus_patient_app/app/(auth)/register.tsx:253:          placeholder="••••••••"[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:1232: trailing whitespace.
+[32m+[m[32maudit-read/source/nabd_plus_patient_app/app/(auth)/register.tsx:263:          placeholder="••••••••"[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:2153: trailing whitespace.
+[32m+[m[32maudit-read/source/nabdah-backend/src/modules/labs/controllers/labs-engine.controller.ts:94:      success: true,[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:2173: trailing whitespace.
+[32m+[m[32maudit-read/source/nabdah-backend/src/modules/providers/controllers/hospital-enterprise.controller.ts:43:      success: true,[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:2436: trailing whitespace.
+[32m+[m[32maudit-read/source/nabdah-backend/src/modules/care/doctor-referrals.controller.ts:87:      success: true,[m[41m [m
+audit-artifacts/phase0-main-audit/truthfulness-security-candidate-scan.txt:2480: trailing whitespace.
+[32m+[m[32maudit-read/source/nabdah-backend/src/modules/radiology/controllers/radiology.controller.ts:137:      success: true,[m[41m [m
+audit-artifacts/phase0-main-audit/web_admin_dashboard-surface-index.txt:123: trailing whitespace.
+[32m+[m[32maudit-work/source/web_admin_dashboard/src/pages/admin/config-portal.tsx:53:      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`, {[m[41m [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-audit-log-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/schemas/audit-log.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-audit-log-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-create-quotation-dto.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/dto/admin-create-quotation.dto.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-create-quotation-dto.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-finance-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/controllers/finance.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-finance-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-governance-controller-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/controllers/admin-governance.controller.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-governance-controller-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-governance-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/controllers/admin-governance.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-governance-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-procurement-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/controllers/admin-procurement.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-procurement-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-provider-delta-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/schemas/provider-delta.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-admin-provider-delta-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-analytics-event-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/analytics-event.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-analytics-event-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-appointments-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/care/appointments.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-appointments-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-appointments-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/care/appointments.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-appointments-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-assignment-strategy-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/assignment-strategy.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-assignment-strategy-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-log-interceptor-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/audit-log.interceptor.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-log-interceptor-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-log-interceptor.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/audit-log.interceptor.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-log-interceptor.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-log-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/audit-log.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-log-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-plugin.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/database/audit.plugin.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-audit-plugin.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/auth.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-guard-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/auth.guard.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-guard-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-guard.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/auth.guard.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-guard.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/auth.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/auth.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/auth.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-auth-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-base-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/database/base.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-base-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-commission-ledger-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/schemas/commission-ledger.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-commission-ledger-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-common-enums.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/enums.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-common-enums.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-correlation-middleware.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/correlation.middleware.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-correlation-middleware.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-create-order-dto.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/dto/create-order.dto.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-create-order-dto.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-create-procurement-request-dto.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/dto/create-procurement-request.dto.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-create-procurement-request-dto.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-delivery-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/repositories/delivery.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-delivery-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-device-limit-guard.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/guards/device-limit.guard.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-device-limit-guard.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-device-trust-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/device-trust.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-device-trust-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-doctor-profile-extended-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/care/schemas/doctor-profile-extended.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-doctor-profile-extended-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-doctor-session-type-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/doctorsessiontype.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-doctor-session-type-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-drug-rejection-log-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/drugrejectionlog.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-drug-rejection-log-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-drug-shortage-flag-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/drugshortageflag.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-drug-shortage-flag-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-finance-engine-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/finance-engine/finance-engine.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-finance-engine-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-fraud-alert-duplicate-schemas.md:3: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-geo-engine-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/geo-engine.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-geo-engine-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-health-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/health/health.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-health-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-homecare-catalog-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/homecareservicecatalogitem.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-homecare-catalog-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-homecare-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive members:** `src/modules/home-care/home-care.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-homecare-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-hospital-enterprise-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/controllers/hospital-enterprise.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-hospital-enterprise-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-hospital-sub-entity-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/schemas/hospital-sub-entity.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-hospital-sub-entity-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-idempotency-interceptor.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/idempotency.interceptor.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-idempotency-interceptor.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-idempotency-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/idempotency.interceptor.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-idempotency-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-image-processing-job-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/imageprocessingjob.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-image-processing-job-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-booking-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/schemas/lab-booking.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-booking-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-catalog-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/labtestcatalogitem.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-catalog-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-catalog-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/schemas/lab-catalog.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-catalog-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-pdf-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/lab-pdf.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-pdf-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-results-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/lab-results.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-results-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-results-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/lab-results.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-results-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-results-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/lab-results.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-lab-results-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labbooking-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/repositories/labbooking.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labbooking-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labresult-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/repositories/labresult.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labresult-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/labs.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-engine-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/controllers/labs-engine.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-engine-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/labs.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-seed.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/labs.seed.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-seed.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/labs.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/labs.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labs-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labsample-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/repositories/labsample.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labsample-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labservice-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/labs/repositories/labservice.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-labservice-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-leave-requests-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/leave-requests.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-leave-requests-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medical-profile-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/medical-profile.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medical-profile-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medicines-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/medicines/medicines.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medicines-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medicines-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/medicines/medicines.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medicines-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medicines-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/medicines/medicines.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-medicines-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-mongo-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/database/mongo.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-mongo-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-moyasar-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/moyasar/moyasar.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-moyasar-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-moyasar-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/moyasar/moyasar.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-moyasar-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-nabd-extensions-service-controller.md:3: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-nabd-extensions-wallet-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/nabd-extensions/repositories/wallet.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-nabd-extensions-wallet-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-nabd-extensions-wallet-transaction-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/nabd-extensions/repositories/wallettransaction.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-nabd-extensions-wallet-transaction-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-order-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/repositories/order.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-order-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-dispatch-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/dispatch.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-dispatch-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-idempotency-contract-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.idempotency.contract.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-idempotency-contract-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-medicine-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/repositories/medicine.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-medicine-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-ownership-contract-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.ownership.contract.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-ownership-contract-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-pharmacy-inventory-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/repositories/pharmacyinventory.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-pharmacy-inventory-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-providerprofile-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/repositories/providerprofile.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-providerprofile-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-refill-delivery-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.service.refill-delivery.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-refill-delivery-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/orders.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-orders-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-passkey-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/passkey.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-passkey-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-passkey-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/passkey.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-passkey-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-patient-pharmacy-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/patient-pharmacy.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-patient-pharmacy-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-patient-profile-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/patient-profile.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-patient-profile-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-patient-web-auth-contract-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/auth/patient-web-auth.contract.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-patient-web-auth-contract-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-payments-idor-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/payments/payments-idor.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-payments-idor-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-payments-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/payments/payments.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-payments-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-paymob-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/payments/paymob.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-paymob-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-paymob-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/payments/paymob.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-paymob-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-paymob-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/payments/paymob.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-paymob-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-permissions.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/permissions.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-permissions.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-allocation-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacyallocation.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-allocation-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-allocation-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-allocation.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-allocation-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-bid-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/orders/repositories/pharmacybid.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-bid-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-broadcast-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacybroadcast.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-broadcast-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-broadcast-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-broadcast-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-broadcast-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-broadcast.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-broadcast-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-chat-message-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacychatmessage.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-chat-message-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-chat-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-chat.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-chat-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-chat-thread-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacychatthread.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-chat-thread-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-controllers-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/pharmacy.controllers.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-controllers-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-controllers.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/pharmacy.controllers.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-controllers.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-inventory-ext-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-inventory-ext.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-inventory-ext-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-inventory-item-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacyinventoryitem.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-inventory-item-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-inventory-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/pharmacyinventoryitem.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-inventory-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-low-stock-alert-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacylowstockalert.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-low-stock-alert-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-medicine-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/medicine.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-medicine-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/pharmacy.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-notification-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-notification.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-notification-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy_ops/pharmacy_ops.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-medicine-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy_ops/repositories/medicine.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-medicine-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy_ops/pharmacy_ops.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-order-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy_ops/repositories/order.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-order-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-pharmacyinventory-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy_ops/repositories/pharmacyinventory.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-pharmacyinventory-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy_ops/pharmacy_ops.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-ops-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-order-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/pharmacyorder.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-order-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-order-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-order.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-order-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-orders-provider-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-orders-provider.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-orders-provider-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-provider-account-profile-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/provideraccountprofile.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-provider-account-profile-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-provider-account-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/provideraccount.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-provider-account-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-provider-availability-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/provideravailability.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-provider-availability-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-quotation-feedback-dto.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/dto/pharmacy-quotation-feedback.dto.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-quotation-feedback-dto.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-quotation-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/quotation.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-quotation-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/schemas/pharmacy.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-score-snapshot-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/providerscoresnapshot.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-score-snapshot-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-seed-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-seed.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-seed-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-shortage-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-shortage.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-shortage-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-shortage-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/pharmacy-shortage.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-shortage-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-systemconfig-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/systemconfig.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-pharmacy-systemconfig-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/controllers/procurement.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-request-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/repositories/procurementrequest.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-request-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-request-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/schemas/procurement-request.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-request-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-schemas.md:3: trailing whitespace.
+[32m+[m[32m**Archive members:** `src/modules/pharmacy/schemas/procurement-request.schema.ts`, `src/modules/pharmacy/schemas/quotation.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-schemas.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/tests/procurement.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/procurement.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-status-enum.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/enums/procurement-status.enum.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-procurement-status-enum.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-audit-log-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/profile-image-audit-log.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-audit-log-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-audit-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/profileimageauditlog.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-audit-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-metadata-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/profileimagemetadata.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-metadata-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-metadata-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/profile-image-metadata.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-profile-image-metadata-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-account-profile-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/provideraccountprofile.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-account-profile-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-account-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/provideraccount.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-account-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-admin-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-admin.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-admin-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-assignment-attempt-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerassignmentattempt.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-assignment-attempt-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-assignment-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-request-engine.service.assignment.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-assignment-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-auditlog-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerauditlog.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-auditlog-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-auth-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-auth.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-auth-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-availability-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/provideravailability.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-availability-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-availability-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/provider-availability.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-availability-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-bank-account-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerbankaccount.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-bank-account-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-branch-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/provider-branch.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-branch-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-capabilities-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/schemas/capabilities.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-capabilities-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-controllers.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/provider.controllers.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-controllers.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-dashboard-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-dashboard.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-dashboard-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-delivery-zone-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerdeliveryzone.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-delivery-zone-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-delta-schema-legacy.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/schemas/delta.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-delta-schema-legacy.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-delta-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/schemas/provider-delta.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-delta-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-doctor-contract-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/provider-requests.doctor-contract.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-doctor-contract-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-document-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerdocument.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-document-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-enums.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/provider.enums.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-enums.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-image-processor-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-image-processor.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-image-processor-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-mailer-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-mailer.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-mailer-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-matching-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-matching.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-matching-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/provider.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-notification-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providernotification.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-notification-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-notifications-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-notifications.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-notifications-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-operator-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/provideroperator.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-operator-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-operators-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-operators.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-operators-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-otp-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerotpcode.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-otp-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-otp-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-otp.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-otp-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-profile-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/provider-profile.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-profile-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-profile-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-profile.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-profile-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-request-engine-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-request-engine.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-request-engine-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-request-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerrequest.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-request-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-requests-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/schemas/requests.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-requests-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-schedule-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-schedule.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-schedule-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-schedule-slot-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerscheduleslot.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-schedule-slot-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-schemas-index.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/schemas/index.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-schemas-index.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-score-snapshot-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providerscoresnapshot.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-score-snapshot-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-scoring-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-scoring.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-scoring-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-seed-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/provider-seed.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-seed-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-session-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/providersession.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-provider-session-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providerprofile-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/repositories/providerprofile.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providerprofile-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/providers.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/providers.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-service-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/providers.service.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-service-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/providers.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-providers-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-booking-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/schemas/radiology-booking.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-booking-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-catalog-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/repositories/radiologyservicecatalogitem.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-catalog-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/controllers/radiology.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-labresult-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/repositories/labresult.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-labresult-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/radiology.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-notification-listener.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/listeners/radiology-notification.listener.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-notification-listener.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-provider-controller-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/controllers/radiology-provider.controller.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-provider-controller-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-provider-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/controllers/radiology-provider.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-provider-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-reminder-cron.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/cron/radiology-reminder.cron.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-reminder-cron.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-report-storage-spec.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/radiology.service.report-storage.spec.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-report-storage-spec.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-seed.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/radiology.seed.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-seed.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/radiology.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiology-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiologybooking-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/repositories/radiologybooking.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiologybooking-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiologyservice-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/radiology/repositories/radiologyservice.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-radiologyservice-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-refund-request-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/refund-request.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-refund-request-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-scheduling-engine-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/scheduling-engine.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-scheduling-engine-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-service-capability-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/services/service-capability.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-service-capability-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-simulated-features-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/simulated-features.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-simulated-features-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-simulated-features-dto.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/provider/simulated-features.dto.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-simulated-features-dto.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-smart-split-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/pharmacy/services/smart-split.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-smart-split-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-system-config-extended-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/schemas/system-config-extended.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-system-config-extended-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-system-config-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/system-config.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-system-config-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-system-event-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/events/system-event.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-system-event-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-systemevent-duplicate-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/systemevent.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-systemevent-duplicate-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-transaction-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/transaction.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-transaction-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-unified-bookings-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/unified-bookings/unified-bookings.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-unified-bookings-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-user-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/providers/repositories/user.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-user-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-velocity-guard.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/common/guards/velocity.guard.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-velocity-guard.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-controller.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/wallet/wallet.controller.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-controller.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-module.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/wallet/wallet.module.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-module.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/wallet/repositories/wallet.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/schemas/wallet.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-service.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/wallet/wallet.service.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-service.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-transaction-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/wallet/repositories/wallettransaction.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-transaction-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-user-repository.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/wallet/repositories/user.repository.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-wallet-user-repository.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-withdrawal-request-schema.md:3: trailing whitespace.
+[32m+[m[32m**Archive member:** `src/modules/admin-web-core/schemas/withdrawal-request.schema.ts`[m[41m  [m
+audit-artifacts/phase0b-backend/semantic-evidence-withdrawal-request-schema.md:4: trailing whitespace.
+[32m+[m[32m**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`[m[41m  [m
+DIFF_CHECK_EXIT=2
+DIFF_CHECK_END
+STATUS_BEGIN
+ [31mM[m audit-artifacts/phase0b-backend/scripts/phase0b1_integrity_check.sh
+[31m??[m audit-artifacts/phase0b-backend/PHASE0B1_REPRODUCIBLE_GATES_2026-08-25.txt
+STATUS_END
+SUMMARY_MISSING_EVIDENCE=0
+SUMMARY_DIFF_CHECK_EXIT=2
+SUMMARY_STATUS_CLEAN=NO
