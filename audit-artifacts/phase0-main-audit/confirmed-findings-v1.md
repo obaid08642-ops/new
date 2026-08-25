@@ -4331,3 +4331,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2878 | P0 | Duplicate refund prevention is a mock read-before-create check and remains race-prone without unique key/transaction/idempotency proof. | `src/modules/insurance-engine/tests/insurance-flow.spec.ts:278–284` | Atomic refund deduplication. |
 | F-2879 | P1 | Fraud control is always a false mock; abuse thresholds, actor history, escalation and audit are not tested. | `src/modules/insurance-engine/tests/insurance-flow.spec.ts:242–246` | Fraud/risk acceptance matrix. |
 | F-2880 | P1 | The spec was not executed during this audit and cannot establish live insurance/payment/refund readiness. | `src/modules/insurance-engine/tests/insurance-flow.spec.ts:1–291` | Baseline-pinned executed evidence. |
+
+## Insurance service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2881 | P1 | Insurance service spec relies on `any` model/gateway mocks and does not issue HTTP requests. | `src/modules/insurance/insurance.service.spec.ts:7–61` | Schema-faithful runtime integration. |
+| F-2882 | P0 | Coverage tests use patient/provider IDs in fixtures but do not prove authenticated user binding, tenant/facility scope or stranger denial. | `src/modules/insurance/insurance.service.spec.ts:63–209` | Owner/stranger/unauth matrix. |
+| F-2883 | P0 | Provider/network/company identity uses free-form fixture fields without FK, verified-source or current-contract validation. | `src/modules/insurance/insurance.service.spec.ts:74–207` | Catalog/source integrity gate. |
+| F-2884 | P0 | Coverage-rule selection is tested for one consultation/cardiology case only; facility path, unsupported services, effective periods and all service types are absent. | `src/modules/insurance/insurance.service.spec.ts:153–208` | Exhaustive coverage taxonomy matrix. |
+| F-2885 | P0 | Copay checks do not establish currency, rounding, tax, annual limits, overlapping rules or arithmetic invariants. | `src/modules/insurance/insurance.service.spec.ts:111–151,181–207` | Coverage financial formula contract. |
+| F-2886 | P0 | OCR tests reject two invalid inputs but do not prove size/MIME/content/consent/retention, malware, prompt-injection or output redaction controls. | `src/modules/insurance/insurance.service.spec.ts:211–224` | Secure OCR data contract. |
+| F-2887 | P0 | Upload persists a client-supplied policy as unverified but does not prove policy identity, ownership, source, expiry, duplicate/race or verification lifecycle. | `src/modules/insurance/insurance.service.spec.ts:226–247` | Audited policy onboarding contract. |
+| F-2888 | P0 | Upload uses upsert on `user_id` in a mock without atomic uniqueness, optimistic concurrency, idempotency or attachment/media handling proof. | `src/modules/insurance/insurance.service.spec.ts:232–246` | Atomic policy upsert/replay matrix. |
+| F-2889 | P0 | NPHIES eligibility explicitly reports `nphies_live: false`; positive eligibility is only stored-policy matching, not external verification. | `src/modules/insurance/insurance.service.spec.ts:250–280` | Live NPHIES authenticity/fallback gate. |
+| F-2890 | P0 | NPHIES national ID and policy fields are tested without masking, rate limit, audit, consent or privacy/retention behavior. | `src/modules/insurance/insurance.service.spec.ts:261–280` | Sensitive insurance-data gate. |
+| F-2891 | P0 | Patient savePolicy test accepts `verified: true` client data without proving who/what verified it or enforcing source provenance. | `src/modules/insurance/insurance.service.spec.ts:287–313` | Server-controlled verification state. |
+| F-2892 | P0 | No claim creation/approval/reimbursement, payment, refund, preauthorization or provider settlement behavior is covered. | `src/modules/insurance/insurance.service.spec.ts:7–316` | Complete claims/settlement matrix. |
+| F-2893 | P1 | No expiry/retirement/active-policy conflict or policy version/history behavior is tested. | `src/modules/insurance/insurance.service.spec.ts:250–313` | Policy lifecycle contract. |
+| F-2894 | P1 | No cache/public projection, event/outbox, notification, search or SEO behavior is tested for insurance catalog data. | `src/modules/insurance/insurance.service.spec.ts:63–209` | Insurance publication/lifecycle gate. |
+| F-2895 | P1 | No failure/retry/observability behavior is tested for model, AI gateway, database or external eligibility failures. | `src/modules/insurance/insurance.service.spec.ts:16–61,211–280` | Dependency failure contract. |
+| F-2896 | P1 | The spec was not executed during this audit and cannot establish live InsuranceService production readiness. | `src/modules/insurance/insurance.service.spec.ts:1–316` | Baseline-pinned executed evidence. |
