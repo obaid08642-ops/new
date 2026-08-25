@@ -3985,3 +3985,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2632 | P1 | Mock objects are incomplete and cast to `any`, weakening compile-time and schema fidelity. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:5–11,28–33` | Typed schema-faithful fixtures. |
 | F-2633 | P1 | No live backend, sandbox account, device or end-to-end patient home-care journey is present. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:1–34` | Sandbox/live E2E evidence. |
 | F-2634 | P1 | The spec was not executed during this audit and cannot establish home-care compatibility readiness. | `src/modules/home-care-compat/home-care-compat.controller.spec.ts:1–34` | Baseline-pinned executed evidence. |
+
+## Family chat compatibility spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2635 | P1 | Family chat spec uses direct controller calls and `any` mocked collections; it does not prove Nest authentication/session enforcement. | `src/modules/compat/compat-family-chat.spec.ts:5–16` | Runtime auth/session gate. |
+| F-2636 | P0 | Membership lookup is tested, but no unauthenticated/stranger/removed-member race or cross-tenant/family scope matrix exists. | `src/modules/compat/compat-family-chat.spec.ts:19–33` | Complete membership ownership matrix. |
+| F-2637 | P1 | Canonical family ID binding is asserted only against mock query calls and not a real database/index or concurrent membership change. | `src/modules/compat/compat-family-chat.spec.ts:25–38` | Live DB and race evidence. |
+| F-2638 | P0 | Message text is inserted without DTO/type/length/HTML/link/control-character validation being tested. | `src/modules/compat/compat-family-chat.spec.ts:35–38` | Safe message content contract. |
+| F-2639 | P0 | No attachment/media upload, private URL, malware scan, content type or PII/PHI projection test exists. | `src/modules/compat/compat-family-chat.spec.ts:4–38` | Safe media/chat projection. |
+| F-2640 | P0 | No rate limit, spam/abuse moderation, block/report or emergency-content escalation behavior is tested. | `src/modules/compat/compat-family-chat.spec.ts:35–38` | Abuse and moderation policy. |
+| F-2641 | P0 | No idempotency/replay, duplicate message, ordering or exactly-once delivery behavior is tested. | `src/modules/compat/compat-family-chat.spec.ts:35–38` | Message delivery contract. |
+| F-2642 | P1 | No edit/delete/audit/retention/encryption or deletion-request lifecycle is covered. | `src/modules/compat/compat-family-chat.spec.ts:4–40` | Audited chat lifecycle. |
+| F-2643 | P1 | No notification/realtime reconnect/offline sync/pagination boundary or unread-count behavior is tested. | `src/modules/compat/compat-family-chat.spec.ts:25–38` | Realtime/offline chat matrix. |
+| F-2644 | P1 | No multiple-active-family ambiguity or membership-change invalidation behavior is tested. | `src/modules/compat/compat-family-chat.spec.ts:19–33` | Deterministic membership lifecycle. |
+| F-2645 | P1 | No live backend, sandbox account, device or end-to-end family-chat journey is present. | `src/modules/compat/compat-family-chat.spec.ts:1–40` | Sandbox/live chat evidence. |
+| F-2646 | P1 | The spec was not executed during this audit and cannot establish family-chat compatibility readiness. | `src/modules/compat/compat-family-chat.spec.ts:1–40` | Baseline-pinned executed evidence. |
