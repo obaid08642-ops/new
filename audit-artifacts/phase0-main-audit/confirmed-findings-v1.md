@@ -6046,3 +6046,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4118 | P0 | No health/readiness, metrics, tracing, structured logs or alert thresholds are represented. | `infra/livekit.yaml:1–32` | Media operational observability gate. |
 | F-4119 | P0 | No backup/restore, HA, failover, capacity or disaster-recovery configuration is represented. | `infra/livekit.yaml:1–32` | Media resilience gate. |
 | F-4120 | P1 | No runtime LiveKit/TURN/webhook TLS, network or join-token validation was established during this baseline source read. | `infra/livekit.yaml:1–32` | Baseline-pinned media runtime evidence. |
+
+## Coturn configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4121 | P0 | static-auth-secret is a literal placeholder with no secret-manager source, rotation or startup fail-closed evidence. | `infra/turnserver.conf:5–8` | TURN secret management gate. |
+| F-4122 | P0 | TURN binds to `0.0.0.0` without ACL/firewall/interface restriction represented. | `infra/turnserver.conf:10–13` | TURN network exposure gate. |
+| F-4123 | P0 | external-ip is commented and example-only, so NAT/public relay advertisement is not configured or evidenced. | `infra/turnserver.conf:12–13` | TURN external-address gate. |
+| F-4124 | P0 | TLS listening port is configured but certificate/key directives are commented, so TURN/TLS cannot be validated from this config. | `infra/turnserver.conf:2–3,15–17` | TURN TLS certificate gate. |
+| F-4125 | P0 | Broad relay range 49152–65535 has no allocation quotas, abuse/rate-limit, firewall, capacity or tenant isolation controls. | `infra/turnserver.conf:26–28` | Relay resource-control gate. |
+| F-4126 | P0 | REST/long-term credential configuration does not show credential TTL, clock skew, audience, room/tenant binding or revocation semantics. | `infra/turnserver.conf:5–8,19–24` | TURN credential governance gate. |
+| F-4127 | P0 | Realm is an example domain and is not tied to verified deployment DNS or certificate identity. | `infra/turnserver.conf:8,15–17` | TURN domain identity gate. |
+| F-4128 | P0 | No origin/peer restrictions beyond no-multicast-peers are represented, leaving SSRF/abuse/unauthorized allocation policy unproven. | `infra/turnserver.conf:19–24` | TURN peer/abuse policy gate. |
+| F-4129 | P0 | Logging uses syslog without redaction, retention, access, structured event or sensitive credential handling policy. | `infra/turnserver.conf:23–24` | TURN logging privacy gate. |
+| F-4130 | P0 | No health/metrics/tracing/alerting or allocation-failure observability is represented. | `infra/turnserver.conf:1–29` | TURN observability gate. |
+| F-4131 | P0 | No HA/failover, capacity, backup, upgrade or disaster-recovery policy is represented. | `infra/turnserver.conf:1–29` | TURN resilience gate. |
+| F-4132 | P1 | No runtime TURN/TLS/NAT/authentication/network validation was established during this baseline source read. | `infra/turnserver.conf:1–29` | Baseline-pinned TURN runtime evidence. |
