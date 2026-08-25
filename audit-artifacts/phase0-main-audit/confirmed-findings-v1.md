@@ -4619,3 +4619,19 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3086 | P1 | No catalog price/availability/prescription legitimacy or provider-authored-document checks are represented. | `src/modules/ai/ai.service.excel.spec.ts:5–15` | Prescription provenance contract. |
 | F-3087 | P1 | No asynchronous parse timeout, memory bound or cancellation behavior is tested. | `src/modules/ai/ai.service.excel.spec.ts:5–21` | Parser operational safety gate. |
 | F-3088 | P1 | This spec was not executed against real upload, storage, catalog or prescription workflows during this audit read. | `src/modules/ai/ai.service.excel.spec.ts:1–22` | Baseline-pinned import runtime evidence. |
+
+## Media controller spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3089 | P0 | Authorization coverage is reflection-only and does not execute the HTTP guard or route. | `src/modules/media/media.controller.spec.ts:10–21` | HTTP auth integration gate. |
+| F-3090 | P0 | No unauthenticated or invalid-token behavior is tested. | `src/modules/media/media.controller.spec.ts:10–21` | Owner/stranger/unauth matrix. |
+| F-3091 | P0 | No media-key format, traversal, encoding, prefix/namespace or null-byte validation is tested. | `src/modules/media/media.controller.spec.ts:10–21` | Safe object-key contract. |
+| F-3092 | P0 | Admin/SuperAdmin role metadata does not prove object ownership, tenant scope or least-privilege access. | `src/modules/media/media.controller.spec.ts:10–21` | Object ACL/tenant gate. |
+| F-3093 | P0 | No signed URL audience, expiry, revocation or private-bucket access test is present. | `src/modules/media/media.controller.spec.ts:10–21` | Signed media access gate. |
+| F-3094 | P0 | No delete idempotency, replay, concurrent deletion or conditional-delete behavior is tested. | `src/modules/media/media.controller.spec.ts:10–21` | Exactly-once deletion gate. |
+| F-3095 | P0 | No deletion audit actor/reason/correlation or legal-hold/retention behavior is tested. | `src/modules/media/media.controller.spec.ts:10–21` | Media deletion governance. |
+| F-3096 | P0 | Upload MIME, size, content scan, malware, image metadata and decompression safety are not covered. | `src/modules/media/media.controller.spec.ts:10–21` | Upload threat-model gate. |
+| F-3097 | P1 | No PII/PHI redaction, cache-control or referrer-leak behavior is tested. | `src/modules/media/media.controller.spec.ts:10–21` | Media privacy/header gate. |
+| F-3098 | P1 | Only delete authorization metadata is tested; other media endpoints and lifecycle operations are unverified. | `src/modules/media/media.controller.spec.ts:7–21` | Complete media surface inventory. |
+| F-3099 | P1 | This spec was not executed against real auth, controller, R2 or storage behavior during this audit read. | `src/modules/media/media.controller.spec.ts:1–22` | Baseline-pinned media runtime evidence. |
