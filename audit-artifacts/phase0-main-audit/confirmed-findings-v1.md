@@ -5484,3 +5484,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3699 | P0 | No rate limit, identifier enumeration prevention, location abuse or emergency-request abuse control is tested. | `src/modules/home-care/home-care.contract.spec.ts:17–43` | Home-care abuse-control gate. |
 | F-3700 | P1 | The bounded DTO has no explicit provenance/version/last-updated or server-clock contract for timeline truthfulness. | `src/modules/home-care/home-care.contract.spec.ts:24–30` | Timeline provenance contract. |
 | F-3701 | P1 | This spec was not executed against live HTTP, Mongo, provider dispatch, notifications, payment or home-care workflows during this audit read. | `src/modules/home-care/home-care.contract.spec.ts:1–44` | Baseline-pinned home-care runtime evidence. |
+
+## Home-care service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3702 | P0 | HomeCareSvc coverage is DI/mock-only and calls check-in directly, so HTTP auth, live persistence and actor verification are unproven. | `src/modules/home-care/home-care.service.spec.ts:8–59,65–84` | Live home-care service integration gate. |
+| F-3703 | P0 | Nurse identity, role, assignment, credential/license validity and patient/facility/tenant ownership are not tested. | `src/modules/home-care/home-care.service.spec.ts:65–83` | Check-in authorization matrix. |
+| F-3704 | P0 | Coordinates are passed but latitude/longitude range, geofence, distance-to-address, spoofing, timestamp and coordinate privacy are untested. | `src/modules/home-care/home-care.service.spec.ts:65–83` | Check-in geo-integrity gate. |
+| F-3705 | P0 | Only confirmed booking is covered; check-in windows and all booking states, stale booking, cancellation, expiry and emergency handling are absent. | `src/modules/home-care/home-care.service.spec.ts:65–83` | Home-care check-in state machine. |
+| F-3706 | P0 | Duplicate/concurrent check-in, duplicate visit report, idempotency, CAS and cross-collection atomicity are not tested. | `src/modules/home-care/home-care.service.spec.ts:65–84` | Check-in atomicity/replay gate. |
+| F-3707 | P0 | WorkflowEngine mock simply runs a mutate callback and does not prove transaction, rollback, compensation or failure recovery. | `src/modules/home-care/home-care.service.spec.ts:31–35,65–84` | Workflow transaction gate. |
+| F-3708 | P0 | Nursing visit report completeness, clinical notes, consent, signatures/photos, patient safety and PHI projection are untested. | `src/modules/home-care/home-care.service.spec.ts:75–83` | Visit-report privacy/safety gate. |
+| F-3709 | P0 | Care-plan, medical-supply and home-care service repositories are injected but have no behavior coverage. | `src/modules/home-care/home-care.service.spec.ts:21–25,45–58` | Complete home-care service capability matrix. |
+| F-3710 | P0 | No provider dispatch, notification, event, cache invalidation or patient acknowledgement consistency is asserted. | `src/modules/home-care/home-care.service.spec.ts:27–35,65–84` | Home-care side-effect contract. |
+| F-3711 | P0 | No price, insurance, payment, cancellation fee or visit settlement truthfulness is tested. | `src/modules/home-care/home-care.service.spec.ts:65–84` | Home-care financial gate. |
+| F-3712 | P0 | No PII/PHI retention/deletion/DSAR, access audit or location data governance is tested. | `src/modules/home-care/home-care.service.spec.ts:65–84` | Home-care data governance. |
+| F-3713 | P0 | No rate limit, location abuse, identifier enumeration or repeated check-in abuse controls are tested. | `src/modules/home-care/home-care.service.spec.ts:65–84` | Check-in abuse-control gate. |
+| F-3714 | P1 | Model/workflow/provider failures and stable 401/403/404/409 error schemas are not covered. | `src/modules/home-care/home-care.service.spec.ts:65–84` | Check-in failure contract. |
+| F-3715 | P1 | Event time/clock source and notification timing are not deterministic or asserted. | `src/modules/home-care/home-care.service.spec.ts:75–83` | Check-in time/provenance contract. |
+| F-3716 | P1 | This spec was not executed against live HTTP, Mongo, geo validation, dispatch, notifications or home-care workflows during this audit read. | `src/modules/home-care/home-care.service.spec.ts:1–86` | Baseline-pinned home-care runtime evidence. |
