@@ -5631,3 +5631,25 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3811 | P0 | No rate limit, enumeration prevention, brute-force control or abuse coverage exists for staff lookup/reset/invitation-style operations. | `src/modules/hospital-staff/hospital-staff.module.ts:33–123` | Staff abuse-control gate. |
 | F-3812 | P1 | No stable 401/403/404/409 error schema or provider-account failure mapping is demonstrated. | `src/modules/hospital-staff/hospital-staff.module.ts:26–31,70–109` | Staff failure contract. |
 | F-3813 | P1 | This module was not executed against live HTTP, Mongo indexes/transactions, account ownership, credential providers or downstream staff access during this audit read. | `src/modules/hospital-staff/hospital-staff.module.ts:1–137` | Baseline-pinned staff runtime evidence. |
+
+## Radiology schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3814 | P0 | Radiology catalog publication/indexing/review/provenance flags are independent and lack a coupled approval/lifecycle invariant. | `src/schemas/radiology.schema.ts:31–44` | Radiology catalog governance gate. |
+| F-3815 | P0 | Modality, body part, prices, duration, turnaround, availability and delivery capability fields lack strict runtime/semantic validation. | `src/schemas/radiology.schema.ts:12–60` | Radiology catalog validation gate. |
+| F-3816 | P0 | Referral, home-visit and safety flags can conflict without cross-field modality/capability/policy validation. | `src/schemas/radiology.schema.ts:23–32,48–60` | Radiology safety-capability invariant. |
+| F-3817 | P0 | Booking items are `any` and do not bind service identity/name/modality/body part/price to an authoritative catalog snapshot. | `src/schemas/radiology.schema.ts:118–119` | Booking catalog snapshot contract. |
+| F-3818 | P0 | `total`, fees, total_price and insurance copay have no nonnegative decimal/currency/authority/reconciliation invariant. | `src/schemas/radiology.schema.ts:119–124,198–199` | Radiology financial truthfulness gate. |
+| F-3819 | P0 | No schema-level atomic recalculation or payment/insurance state invariant protects against client/server total divergence. | `src/schemas/radiology.schema.ts:119–141` | Server-authoritative checkout/insurance gate. |
+| F-3820 | P0 | Location/address and scheduled_at lack coordinate/range, timezone, service radius and appointment-window constraints. | `src/schemas/radiology.schema.ts:126–130` | Radiology scheduling/geo gate. |
+| F-3821 | P0 | Referral base64, documents, report links, DICOM/PACS URLs, images, insurance identifiers and safety answers are untyped sensitive data without access/retention controls. | `src/schemas/radiology.schema.ts:131–142,172–189` | Radiology clinical data governance. |
+| F-3822 | P0 | State history/reports/approval fields are mutable arrays/fields without immutable actor/reason/source, ordering, CAS or append-only guarantees. | `src/schemas/radiology.schema.ts:132–134,167–169` | Radiology audit/state-history contract. |
+| F-3823 | P0 | `report_status` and booking state are separate fields with no invariant preventing report/booking lifecycle divergence. | `src/schemas/radiology.schema.ts:132,167–169` | Report publication state contract. |
+| F-3824 | P0 | Machine, technician, provider and referring-doctor references lack referential integrity, capability, credential and facility-scope constraints. | `src/schemas/radiology.schema.ts:135,150,153,202` | Radiology assignment integrity gate. |
+| F-3825 | P0 | The transition map is declarative only; authorization, CAS/concurrency, idempotency, cancellation/refund compensation and transition enforcement are not guaranteed by the schema. | `src/schemas/radiology.schema.ts:97–109` | Radiology state-machine enforcement gate. |
+| F-3826 | P0 | Safety questionnaire has no required-field/modality/age/pregnancy/allergy/creatinine freshness or clinician-review invariants. | `src/schemas/radiology.schema.ts:181–189` | Radiology safety questionnaire gate. |
+| F-3827 | P0 | `doctor_notified` is a boolean without notification delivery idempotency, acknowledgement or retry state. | `src/schemas/radiology.schema.ts:201–203` | Referral notification contract. |
+| F-3828 | P0 | Patient names/phones, address, instructions, notes, reports, referrals, DICOM and insurance fields have no schema-level projection/encryption/consent policy. | `src/schemas/radiology.schema.ts:115–157,172–189` | Radiology PII/PHI projection gate. |
+| F-3829 | P0 | No TTL, soft-delete, deletion/410, legal hold or DSAR lifecycle is declared for clinical media and booking records. | `src/schemas/radiology.schema.ts:111–207` | Radiology retention/deletion gate. |
+| F-3830 | P1 | Schema indexes cover patient-createdAt and state-scheduled_at but no evidence proves tenant/facility/query governance or live index creation. | `src/schemas/radiology.schema.ts:205–207` | Radiology index/runtime evidence gate. |
