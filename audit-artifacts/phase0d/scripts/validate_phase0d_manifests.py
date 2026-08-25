@@ -34,7 +34,9 @@ def main():
                 if not parse_range(r['line_ranges_read'],maxline): bad_ranges.append(r['member_path'])
                 if r['member_path'] not in (ROOT/r['evidence_file']).read_text(encoding='utf-8',errors='replace') if r['evidence_file'] else True: failures.append(f'{surface}:evidence missing member literal:{r["member_path"]}')
             if r['fully_read']=='N/A' and not r['notes']: failures.append(f'{surface}:N/A without reason:{r["member_path"]}')
-        bad_kind=[r['member_path'] for r in rows if r['kind'] in ('OWNED_SOURCE_OR_CONFIG','OWNED_TEST') and r['fully_read']!='YES']
+        bad_kind=[r['member_path'] for r in rows if r['kind'] in ('OWNED_SOURCE_OR_CONFIG','OWNED_TEST') and r['fully_read'] not in ('YES','N/A')]
+        bad_nas=[r['member_path'] for r in rows if r['fully_read']=='N/A' and not r['notes'].startswith('N/A:') and r['kind'] not in ('EXCLUSION_BINARY','EXCLUSION_GENERATED_VENDOR','EXCLUSION_OTHER')]
+        if bad_nas: failures.append(f'{surface}:N/A without accepted reason {bad_nas[:3]}')
         result[surface]={'archive':archive,'archive_sha256':__import__('hashlib').sha256((BASE/archive).read_bytes()).hexdigest(),'total_members':len(rows),'YES':counts['YES'],'N/A':counts['N/A'],'NO':counts['NO'],'missing_members':len(missing_members),'duplicate_members':len(duplicate_members),'missing_evidence':len(missing_evidence),'bad_line_ranges':len(bad_ranges),'owned_unread':len(bad_kind)}
         if missing_members: failures.append(f'{surface}:missing members {missing_members[:3]}')
         if duplicate_members: failures.append(f'{surface}:duplicate members {duplicate_members[:3]}')
