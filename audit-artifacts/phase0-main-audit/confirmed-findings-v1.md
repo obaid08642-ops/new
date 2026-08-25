@@ -3814,3 +3814,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2516 | P1 | No privacy/authorization contract establishes whether codes are safe for URLs, logs, notifications or public support lookup. | `src/common/tracking.ts:1–28` | Exposure and lookup threat model. |
 | F-2517 | P1 | No retry/idempotency relationship is defined between tracking code generation and order/booking creation. | `src/common/tracking.ts:8–15` | Creation/idempotency contract. |
 | F-2518 | P1 | The generator was not executed or concurrency-tested during this audit and cannot establish identifier readiness. | `src/common/tracking.ts:1–28` | Baseline-pinned collision and runtime evidence. |
+
+## Saudi phone validator findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2519 | P1 | Validator does not explicitly enforce runtime string type before applying the regex. | `src/common/validators/saudi-phone.validator.ts:5–9` | Typed input/transform policy. |
+| F-2520 | P1 | Whitespace, separators, parentheses and common international formatting are not normalized or explicitly classified. | `src/common/validators/saudi-phone.validator.ts:5–9` | Canonical phone normalization contract. |
+| F-2521 | P1 | Arabic-Indic/Eastern Arabic digits and Unicode confusables are not handled or rejected by policy. | `src/common/validators/saudi-phone.validator.ts:7` | Unicode digit/input matrix. |
+| F-2522 | P1 | Regex shape does not prove actual Saudi number allocation, carrier status, country context or duplicate-account identity. | `src/common/validators/saudi-phone.validator.ts:7–9` | Provider/identity validation policy. |
+| F-2523 | P0 | Phone values are sensitive PII, but the validator exposes a format example without defining redaction/logging/error policy. | `src/common/validators/saudi-phone.validator.ts:11–13` | PII-safe validation/error handling. |
+| F-2524 | P0 | Validator contains no OTP request/verification rate-limit, lockout, enumeration or abuse boundary. | `src/common/validators/saudi-phone.validator.ts:1–26` | Auth abuse-control integration. |
+| F-2525 | P1 | Prefix alternatives can accept multiple representations without a canonical stored form, risking duplicate identity representations. | `src/common/validators/saudi-phone.validator.ts:7–9` | Canonical E.164/storage policy. |
+| F-2526 | P1 | No explicit policy exists for null/undefined/empty values versus optional DTO fields beyond falsey rejection. | `src/common/validators/saudi-phone.validator.ts:5–6` | Required/optional field contract. |
+| F-2527 | P1 | No tests cover valid/invalid prefixes, second-digit set, length boundaries, control characters or oversized input. | `src/common/validators/saudi-phone.validator.ts:5–9` | Comprehensive validator test matrix. |
+| F-2528 | P1 | The validator was not executed or integrated into account/OTP flows during this audit and cannot establish identity readiness. | `src/common/validators/saudi-phone.validator.ts:1–26` | Baseline-pinned runtime/auth evidence. |
