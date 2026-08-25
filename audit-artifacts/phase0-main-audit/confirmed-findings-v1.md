@@ -4085,3 +4085,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2702 | P1 | No call consent, recording/analytics disclosure or participant deletion semantics are visible. | `src/schemas/callmetric.schema.ts:8–15` | Consent and deletion contract. |
 | F-2703 | P1 | No schema/projection tests cover metric ranges, raw leakage, session ownership or stale/duplicate samples. | `src/schemas/callmetric.schema.ts:1–18` | Comprehensive telemetry test matrix. |
 | F-2704 | P1 | The schema was not executed or integrated with LiveKit/call analytics during this audit and cannot establish readiness. | `src/schemas/callmetric.schema.ts:1–18` | Baseline-pinned call telemetry evidence. |
+
+## Image processing job schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2705 | P0 | Raw base64 image data is stored in the job document with no visible decoded-size, pixel/dimension, compression, encryption or private-object policy. | `src/schemas/image-processing-job.schema.ts:8` | Bounded secure media-input contract. |
+| F-2706 | P0 | MIME is an unconstrained string and no magic-byte, allowlist, content-type, malware or decompression-bomb validation is visible. | `src/schemas/image-processing-job.schema.ts:9` | Content validation gate. |
+| F-2707 | P1 | Original filename has no normalization, control-character, path-traversal, length or PII policy. | `src/schemas/image-processing-job.schema.ts:10` | Safe filename contract. |
+| F-2708 | P0 | Owner ID/type do not visibly establish doctor/nurse account, facility, patient or source-document ownership. | `src/schemas/image-processing-job.schema.ts:6–7` | Authorized document ownership. |
+| F-2709 | P0 | Status enum lacks worker lease, heartbeat, transition actor, optimistic concurrency, retry/backoff, dead-letter and stuck-job recovery semantics. | `src/schemas/image-processing-job.schema.ts:11–15` | Race-safe job lifecycle. |
+| F-2710 | P1 | Attempts has no maximum/range or reason/source policy and can be updated without an idempotent job identity. | `src/schemas/image-processing-job.schema.ts:13` | Bounded retry contract. |
+| F-2711 | P0 | Error is an unconstrained string with no redaction/PII/secret or user-safe serialization policy. | `src/schemas/image-processing-job.schema.ts:14` | Safe processing-error policy. |
+| F-2712 | P1 | `processedAt` has no processing-duration, worker, clock or output-validity semantics. | `src/schemas/image-processing-job.schema.ts:15` | Verified output lifecycle. |
+| F-2713 | P0 | No idempotency key, correlation/source document reference or output artifact reference is visible. | `src/schemas/image-processing-job.schema.ts:6–15` | Traceable exactly-once processing. |
+| F-2714 | P0 | No retention/deletion/DSAR or privacy policy is visible for raw clinical images and processing errors. | `src/schemas/image-processing-job.schema.ts:4–15` | Clinical media governance. |
+| F-2715 | P1 | Indexes cover owner/status only and do not visibly support leases, stale jobs, queue priority or cleanup selection. | `src/schemas/image-processing-job.schema.ts:6–12` | Operational job index plan. |
+| F-2716 | P1 | The schema was not executed or integrated with image/OCR workers during this audit and cannot establish processing readiness. | `src/schemas/image-processing-job.schema.ts:1–18` | Baseline-pinned media-worker evidence. |
