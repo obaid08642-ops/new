@@ -5893,3 +5893,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4008 | P1 | No live product review, coverage, inventory aggregate, SEO/indexing or catalog runtime evidence was established during this baseline source read. | `src/schemas/medicine.schema.ts:1–108` | Baseline-pinned medicine runtime evidence. |
 | F-4009 | P0 | `verified` is explicitly operational even when false, while public eligibility is separate; absence of a fail-closed operational gate can expose unverified medicine to transactions. | `src/schemas/medicine.schema.ts:19–25` | Unverified medicine operational safety gate. |
 | F-4010 | P1 | Denormalized usage_count/popularity-like catalog aggregates have no bounded increment, source or reconciliation policy. | `src/schemas/medicine.schema.ts:38,89–94` | Catalog aggregate reconciliation gate. |
+
+## Promotion campaign schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4011 | P0 | provider_id is a plain string with no provider account/facility/tenant/active-status or authorization invariant. | `src/schemas/promotion-campaign.schema.ts:12–13` | Promotion ownership/tenant gate. |
+| F-4012 | P0 | Original/discounted prices lack currency, non-negative/range, discount ordering, tax/fee, effective-price and immutable server-source validation. | `src/schemas/promotion-campaign.schema.ts:21–25` | Promotion financial truth gate. |
+| F-4013 | P0 | Schema permits discounted_price >= original_price and has no percentage/rounding/consumer-price consistency rule. | `src/schemas/promotion-campaign.schema.ts:21–25` | Discount correctness gate. |
+| F-4014 | P0 | Campaign dates lack timezone, ordering, duration, publication-window, recurrence and clock/source provenance. | `src/schemas/promotion-campaign.schema.ts:27–31` | Campaign timing gate. |
+| F-4015 | P0 | Campaign status has no actor/reason, approval, activation prerequisites, expiry/completion automation, concurrency or CAS semantics. | `src/schemas/promotion-campaign.schema.ts:36–37` | Campaign lifecycle/governance gate. |
+| F-4016 | P0 | target_parameters is arbitrary `any` with no audience/eligibility allowlist, privacy classification, tenant scope, deterministic evaluation, version or abuse control. | `src/schemas/promotion-campaign.schema.ts:39–40` | Targeting safety/privacy gate. |
+| F-4017 | P0 | image_url is a raw string without secure storage/access/content/size/malware, signed URL, alt-text or retention controls. | `src/schemas/promotion-campaign.schema.ts:33–34` | Campaign media security gate. |
+| F-4018 | P0 | Campaign titles are free text with no moderation, claim substantiation, locale completeness or SEO-visible-content consistency. | `src/schemas/promotion-campaign.schema.ts:15–19` | Promotion content/SEO gate. |
+| F-4019 | P0 | No redemption/code, usage cap, per-user/provider limit, inventory/order linkage, attribution or promotion application idempotency is represented. | `src/schemas/promotion-campaign.schema.ts:8–40` | Promotion redemption/replay gate. |
+| F-4020 | P0 | No refund/rollback, price reservation or transaction semantics exist for promotion application. | `src/schemas/promotion-campaign.schema.ts:21–40` | Promotion atomicity/refund gate. |
+| F-4021 | P0 | No audit actor, notification delivery, campaign analytics, cache/search/index consistency or side-effect acknowledgement state exists. | `src/schemas/promotion-campaign.schema.ts:8–40` | Promotion side-effect/audit gate. |
+| F-4022 | P0 | No soft-delete, deletion/DSAR/legal-hold or immutable correction lifecycle is represented. | `src/schemas/promotion-campaign.schema.ts:7–40` | Campaign retention/lifecycle gate. |
+| F-4023 | P0 | target_parameters may encode sensitive audience information without consent, minimization, access audit or retention controls. | `src/schemas/promotion-campaign.schema.ts:39–40` | Targeting PII governance. |
+| F-4024 | P1 | No live campaign creation/review/target evaluation/price application/media or index runtime evidence was established during this baseline source read. | `src/schemas/promotion-campaign.schema.ts:1–44` | Baseline-pinned promotion runtime evidence. |
