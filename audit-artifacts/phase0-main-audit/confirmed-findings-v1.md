@@ -1801,3 +1801,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1088 | P1 | No JSON-LD/visible-content parity validation is represented for Product/Offer facts, enabling structured data to disagree with UI. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Validate structured data against the same public projection. |
 | F-1089 | P1 | No soft-delete, redirect or 404/410 index lifecycle is represented for discontinued medicines. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Explicit discontinued lifecycle and stale-index acceptance tests. |
 | F-1090 | P1 | No versioning/audit/conflict policy exists for medicine catalog edits that can race with SEO generation or indexing. | `src/modules/seo/repositories/medicine.repository.ts:8–13` | Versioned catalog/SEO projection with auditable publication and conflict handling. |
+
+## LabService SEO repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1091 | P1 | LabServiceRepository uses `MongoRepository<any>` and `Model<any>`, removing compile-time guarantees for indexed lab-service documents. | `src/modules/seo/repositories/labservice.repository.ts:8–11` | Use typed LabServiceDocument/model and reject unsafe any. |
+| F-1092 | P0 | No approved/public/facility-readiness filter is enforced, so draft, unverified or withdrawn lab services can reach index-facing callers. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Purpose-scoped public query requiring approval/readiness. |
+| F-1093 | P0 | No server-authoritative price, availability, coverage or booking-eligibility parity is enforced; SEO facts can diverge from checkout/booking truth. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Canonical service projection with freshness and booking eligibility checks. |
+| F-1094 | P1 | No facility/provider/territory scope or safe projection is enforced, leaving internal operational fields to caller discipline. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Role-scoped public projection and facility/provider boundaries. |
+| F-1095 | P1 | No locale projection or translation completeness gate exists, permitting mixed-language or incomplete lab-service pages. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Locale-aware publication readiness and parity fixtures. |
+| F-1096 | P1 | No slug/canonical uniqueness or JSON-LD/visible-facts parity contract is represented, risking duplicate or misleading indexed service pages. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Unique normalized URL and structured-data parity validation. |
+| F-1097 | P1 | No soft-delete, redirect or 404/410 lifecycle is represented for discontinued or unavailable lab services. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Explicit withdrawal/index lifecycle with stale-index tests. |
+| F-1098 | P1 | No optimistic versioning, audited approval or conflict policy exists for service edits racing with SEO generation/indexing. | `src/modules/seo/repositories/labservice.repository.ts:8–13` | Versioned/audited publication projection with conflict handling. |
+| F-1099 | P2 | Non-functional import comment and formatting drift obscure the intended repository contract and ownership. | `src/modules/seo/repositories/labservice.repository.ts:4–6` | Remove stale comments and document repository provenance. |
