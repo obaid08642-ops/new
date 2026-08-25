@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — BookingOpsService spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/booking-ops/booking-ops.service.spec.ts:1–48`
+
+The spec constructs BookingOpsService with mocked order, lab, radiology, home-care, appointment, provider and attachment collaborators (`8–18`). It verifies a patient reading a foreign lab invoice receives NotFoundException and the lab query is constrained by both booking id and patient_id (`20–25`). It verifies a patient cannot mark payment (`27–31`). It verifies a radiology provider cannot mark payment for an unassigned radiology booking, with no update attempted (`33–39`). It verifies a patient owner may list lab attachments and the projection excludes base64, `_id` and `__v` (`41–47`).
+
+The tests call the service directly and all domain stores are mocks; HTTP auth/guards, verified actor identity, tenant boundaries and live resource ownership are unproven (`8–18,20–47`). Only lab invoice/attachment and radiology payment assignment are covered; orders, home-care and appointments are injected but unused, and provider credential/license/branch scope is not tested (`10–17,20–47`). Payment status input, allowed transitions, amount/currency/ledger reconciliation, payment-provider verification, idempotency/replay, refunds and transaction/CAS behavior are absent (`27–39`). Attachment coverage checks only projection and one owner path; it does not test upload authorization, purpose/type/size, signed URLs, object-store ACL/delete, malware/EXIF, retention or cross-tenant identifiers (`41–47`). Invoice access lacks broader status/error, address/PHI minimization and audit coverage. No notification/event/cache consistency, rate limiting, malformed-ID handling, stable error schema or live Mongo/storage/payment evidence exists. No code was changed and no build/test/application operation was performed during this read.

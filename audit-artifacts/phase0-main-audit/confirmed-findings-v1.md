@@ -5425,3 +5425,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3655 | P0 | No notification, cache, event, daily-goal progress or downstream clinical consistency is asserted. | `src/modules/nutrition/nutrition.service.spec.ts:13–43` | Nutrition side-effect contract. |
 | F-3656 | P1 | Model failures, malformed IDs, stable error schemas, rate limits and abuse controls are largely untested. | `src/modules/nutrition/nutrition.service.spec.ts:13–43` | Nutrition failure/abuse contract. |
 | F-3657 | P1 | This spec was not executed against live HTTP, Mongo, analytics, provider review or nutrition workflows during this audit read. | `src/modules/nutrition/nutrition.service.spec.ts:1–44` | Baseline-pinned nutrition runtime evidence. |
+
+## Booking operations service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3658 | P0 | BookingOps access/payment tests call a service directly with mocked stores, so HTTP authentication and live persistence are unproven. | `src/modules/booking-ops/booking-ops.service.spec.ts:8–18,20–47` | Live booking-ops integration gate. |
+| F-3659 | P0 | Lab invoice query asserts patient_id and radiology assignment is indirectly checked, but full patient/provider/tenant/facility ownership and verified actor scope are untested. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–39` | Booking ownership/tenant matrix. |
+| F-3660 | P0 | Orders, home-care and appointments are injected but have no active behavior coverage; only lab/radiology paths are exercised. | `src/modules/booking-ops/booking-ops.service.spec.ts:10–17,20–47` | Complete booking-kind contract. |
+| F-3661 | P0 | Payment marking covers role rejection and one unassigned radiology case, not allowed status transitions, terminal states, amount/currency or payment-provider verification. | `src/modules/booking-ops/booking-ops.service.spec.ts:27–39` | Payment state/authorization contract. |
+| F-3662 | P0 | No payment idempotency/replay, duplicate marking, concurrent transitions, CAS, transaction, refund or ledger reconciliation is tested. | `src/modules/booking-ops/booking-ops.service.spec.ts:27–39` | Payment atomicity/replay gate. |
+| F-3663 | P0 | Invoice access does not test authoritative totals, tax, insurance contribution, delivery fee, currency, invoice lifecycle or safe error mapping. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–25` | Invoice truthfulness contract. |
+| F-3664 | P0 | Attachment coverage proves one owner read projection excludes base64 but does not test stranger/unauth, upload authorization, purpose/type/size or signed URL access. | `src/modules/booking-ops/booking-ops.service.spec.ts:41–47` | Attachment owner/signed-URL matrix. |
+| F-3665 | P0 | Object-store ACL, path traversal, malware/EXIF scanning, deletion, expiry, retention and cross-tenant attachment isolation are untested. | `src/modules/booking-ops/booking-ops.service.spec.ts:41–47` | Attachment storage-security gate. |
+| F-3666 | P0 | Invoice/attachment PII/PHI minimization, consent, access audit, retention and deletion/DSAR behavior are not tested. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking data governance. |
+| F-3667 | P0 | Malformed booking kind/ID, missing resources, model errors and stable 401/403/404/error-schema behavior are incompletely covered. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking failure contract. |
+| F-3668 | P0 | No notifications, event publication, cache invalidation or downstream order/invoice/payment consistency is asserted. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking side-effect contract. |
+| F-3669 | P1 | Provider credentials/license/branch capability and appointment/home-care authorization are not tested. | `src/modules/booking-ops/booking-ops.service.spec.ts:10–47` | Provider capability gate. |
+| F-3670 | P1 | No rate limit, enumeration prevention or abuse control is tested for invoice, payment or attachment operations. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking abuse-control gate. |
+| F-3671 | P1 | No transaction/rollback protects multi-resource payment, invoice or attachment operations. | `src/modules/booking-ops/booking-ops.service.spec.ts:20–47` | Booking transaction gate. |
+| F-3672 | P1 | This spec was not executed against live HTTP, Mongo, storage, payment provider or booking workflows during this audit read. | `src/modules/booking-ops/booking-ops.service.spec.ts:1–48` | Baseline-pinned booking-ops runtime evidence. |
