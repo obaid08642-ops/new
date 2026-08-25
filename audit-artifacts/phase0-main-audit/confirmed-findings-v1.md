@@ -1760,3 +1760,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1062 | P1 | No field-level projection or redaction is enforced, so internal clinical warnings, provenance and administrative fields depend on every caller to exclude them. | `src/modules/medicines/repositories/medicine.repository.ts:8–13` | Role/use-case projections and deny-broad-read policy. |
 | F-1063 | P1 | Medicine model binding relies on a named token with no runtime assertion of canonical schema registration, leaving model-token drift to module wiring. | `src/modules/medicines/repositories/medicine.repository.ts:2–13` | Canonical model-token registry and startup contract check. |
 | F-1064 | P2 | Generic repository inheritance and copied import/comment formatting obscure the intended medicine repository contract and provenance. | `src/modules/medicines/repositories/medicine.repository.ts:1–13` | Explicit repository contract and linted provenance. |
+
+## ArticleRepository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1065 | P1 | ArticleRepository uses `MongoRepository<any>` and `Model<any>`, removing compile-time guarantees for the Article schema at the persistence boundary. | `src/modules/seo/repositories/article.repository.ts:7–10` | Use a typed ArticleDocument/model and reject unsafe any at repository boundaries. |
+| F-1066 | P0 | The repository enforces no publication/visibility/readiness filter; callers can potentially expose draft, incomplete or non-public articles. | `src/modules/seo/repositories/article.repository.ts:7–12` | Purpose-scoped public query requiring approved/publishable state. |
+| F-1067 | P1 | No canonical/slug uniqueness or normalization contract is enforced, risking duplicate URLs and canonical drift. | `src/modules/seo/repositories/article.repository.ts:7–12` | Unique normalized slug/canonical policy with conflict tests. |
+| F-1068 | P1 | No locale completeness or language projection policy is enforced, so public SEO pages may return missing, mixed or incorrect-language content. | `src/modules/seo/repositories/article.repository.ts:7–12` | Locale-aware projection and content readiness gate. |
+| F-1069 | P1 | No SEO metadata validation or parity contract exists for title, description, structured data, visible facts and canonical URL. | `src/modules/seo/repositories/article.repository.ts:7–12` | Validate JSON-LD/visible-content parity before publication. |
+| F-1070 | P1 | No index lifecycle, soft-delete, redirect or 404/410 policy is represented in the repository, leaving stale/deleted article URLs unmanaged. | `src/modules/seo/repositories/article.repository.ts:7–12` | Explicit index lifecycle with 404/410/redirect acceptance tests. |
+| F-1071 | P1 | No author/tenant/role scope, safe projection or audit behavior is enforced, so administrative/internal fields depend on all callers to redact correctly. | `src/modules/seo/repositories/article.repository.ts:7–12` | Role-scoped projections and audited article lifecycle commands. |
+| F-1072 | P1 | Generic repository inheritance provides no optimistic version/conflict policy for article edits or publication races. | `src/modules/seo/repositories/article.repository.ts:7–12` | Versioned publish/edit commands with conflict and idempotency tests. |
