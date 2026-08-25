@@ -1,0 +1,22 @@
+{
+  "patient-mobile": {
+    "screen_or_route_candidates": 246,
+    "with_action_signal": 245,
+    "with_state_signal": 183
+  },
+  "patient-web": {
+    "screen_or_route_candidates": 83,
+    "with_action_signal": 53,
+    "with_state_signal": 52
+  },
+  "provider": {
+    "screen_or_route_candidates": 45,
+    "with_action_signal": 41,
+    "with_state_signal": 36
+  },
+  "admin": {
+    "screen_or_route_candidates": 42,
+    "with_action_signal": 31,
+    "with_state_signal": 29
+  }
+}
