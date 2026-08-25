@@ -4517,3 +4517,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3014 | P1 | Timestamps alone do not establish the actor, reason, deployment, rollback or effective time of a change. | `src/schemas/feature-flag.schema.ts:7,18–19` | Change provenance record. |
 | F-3015 | P1 | No privacy/tenant boundary is represented for targeted flag evaluation. | `src/schemas/feature-flag.schema.ts:12–19` | Targeting privacy/tenant contract. |
 | F-3016 | P1 | The root schema was not executed or reconciled against all feature-flag consumers during this audit read. | `src/schemas/feature-flag.schema.ts:1–22` | Baseline-pinned consumer integration evidence. |
+
+## System event repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3017 | P0 | SystemEventRepository is a thin generic wrapper and adds no repository-specific authorization or tenant scoping. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Explicit event access boundary. |
+| F-3018 | P0 | No immutability or append-only write policy is enforced by this repository. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Append-only audit-event contract. |
+| F-3019 | P0 | No event deduplication, idempotency or exactly-once semantics are added here. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Event replay/dedup gate. |
+| F-3020 | P0 | No actor, tenant, correlation, request or provenance validation is added before persistence. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Provenance validation gate. |
+| F-3021 | P0 | No PII/PHI redaction, field allowlist or payload-size policy is added at repository boundary. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Safe event payload contract. |
+| F-3022 | P1 | No retention, TTL, archival or deletion prohibition is added here. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Audit retention policy. |
+| F-3023 | P1 | No concurrency/version or conditional-write policy is added for event writes. | `src/modules/events/repositories/systemevent.repository.ts:8–12` | Race-safe event persistence. |
+| F-3024 | P1 | The generic MongoRepository behavior is an unverified dependency from this member’s perspective. | `src/modules/events/repositories/systemevent.repository.ts:4,9–12` | Base repository semantic audit. |
+| F-3025 | P1 | This adapter was not executed or integrated with event producers/consumers during this audit read. | `src/modules/events/repositories/systemevent.repository.ts:1–13` | Baseline-pinned event runtime evidence. |
