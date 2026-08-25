@@ -5694,3 +5694,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3859 | P0 | No CAS/version, append-only audit, idempotency, transaction/rollback or concurrency protection is represented for membership, invites, events or permissions. | `src/schemas/family.schemas.ts:17–69` | Family atomicity/replay gate. |
 | F-3860 | P0 | No notification, acknowledgement, rate limit, enumeration/abuse control or cache/event consistency is represented. | `src/schemas/family.schemas.ts:17–69` | Family side-effect/abuse gate. |
 | F-3861 | P1 | No TTL/deletion/legal-hold lifecycle or live index migration/runtime evidence is present beyond selected ID indexes. | `src/schemas/family.schemas.ts:17–69` | Family retention/index runtime gate. |
+
+## Custom-service schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3862 | P0 | Custom-service status is an enum but no transition allowlist, actor role, approval separation, CAS or append-only audit invariant is declared. | `src/schemas/custom-service.schema.ts:6–13,29–33,49–50` | Custom-service workflow state gate. |
+| F-3863 | P0 | `status_history` is `[any]`, permitting malformed/missing actor, role, time, reason or from/to provenance. | `src/schemas/custom-service.schema.ts:49–50` | Status-history schema/audit gate. |
+| F-3864 | P0 | `priority` is free-form with no allowlist, SLA, escalation or urgency validation. | `src/schemas/custom-service.schema.ts:60–63` | Custom-request priority/SLA contract. |
+| F-3865 | P0 | Attachments and prescription images are raw any/base64 fields without MIME, size, malware, EXIF, content or signed-storage controls. | `src/schemas/custom-service.schema.ts:45–50` | Secure clinical upload gate. |
+| F-3866 | P0 | Doctor notes/name, patient contact, admin notes and provider name can expose clinical/PII data without projection, consent, encryption, retention or DSAR policy. | `src/schemas/custom-service.schema.ts:39–48,53–60` | Custom-service PII/PHI governance. |
+| F-3867 | P0 | Patient/provider/order/booking IDs have no referential integrity, tenant/facility scope, role/capability or ownership invariants. | `src/schemas/custom-service.schema.ts:39,53–58` | Custom-service identity/tenant gate. |
+| F-3868 | P0 | `PROVIDED`, `ADDED_TO_CATALOG` and `REJECTED` states have no required linked booking/order/catalog, rejection reason or source-provenance invariant. | `src/schemas/custom-service.schema.ts:49,53–61` | Custom-service completion/catalog gate. |
+| F-3869 | P0 | Provider identity/name are independently stored with no assignment validity, credential, facility or denormalized-name consistency policy. | `src/schemas/custom-service.schema.ts:52–54` | Provider assignment integrity gate. |
+| F-3870 | P0 | No duplicate-request, idempotency, transaction/rollback or atomic catalog-creation/provider-link behavior is represented. | `src/schemas/custom-service.schema.ts:35–64` | Custom-service atomicity/replay gate. |
+| F-3871 | P0 | No price, currency, insurance, payment, quote, refund or settlement source of truth is represented for a custom service. | `src/schemas/custom-service.schema.ts:22–63` | Custom-service financial gate. |
+| F-3872 | P0 | No notification, delivery acknowledgement, retry, dispatch or patient/admin/provider side-effect state is represented. | `src/schemas/custom-service.schema.ts:22–63` | Custom-service side-effect contract. |
+| F-3873 | P0 | No SLA deadline, expiry, cancellation, retry, escalation or resolved_at/status consistency invariant exists. | `src/schemas/custom-service.schema.ts:49–63` | Custom-service lifecycle/SLA gate. |
+| F-3874 | P0 | No rate limit, enumeration prevention or abuse control is represented for patient submissions, attachments or review actions. | `src/schemas/custom-service.schema.ts:35–63` | Custom-service abuse-control gate. |
+| F-3875 | P1 | Schema has automatic timestamps but no source clock, immutable event time, retention/deletion/legal-hold or soft-delete lifecycle. | `src/schemas/custom-service.schema.ts:35–64` | Custom-service retention/time contract. |
+| F-3876 | P1 | No live index migration, upload, admin-review, provider-assignment, catalog or booking-linkage runtime evidence was established during this audit read. | `src/schemas/custom-service.schema.ts:1–67` | Baseline-pinned custom-service runtime evidence. |

@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — CustomServiceRequest schema
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/schemas/custom-service.schema.ts:1–67`
+
+The schema defines CustomServiceStatus (PENDING, REVIEWED, APPROVED, ADDED_TO_CATALOG, PROVIDED, REJECTED) and CustomServiceKind (LAB, RADIOLOGY, HOME_CARE, PHARMACY) (`6–20`). The documented workflow is patient submission, admin/provider review, approval/catalog addition and provider delivery linked to a booking (`22–34`). CustomServiceRequest has unique UUID/tracking_id, patient identity/contact, kind, bilingual name, free-text doctor notes/name, any-typed attachments with base64/mime comment, prescription image, status, any-typed status_history, assigned provider identity, linked booking/order IDs, admin notes, resolved_at and free-form priority (`35–63`). Indexes cover patient-createdAt and status/kind/createdAt (`64–66`).
+
+Basic enum/default/index constraints exist, but workflow transitions are only represented by the status enum and comments; no transition allowlist, actor authorization, approval separation, CAS/version or append-only audit is declared (`6–13,29–33,49–50`). `status_history` is `[any]` despite documenting from/to/by_user/role/time/note, allowing malformed or incomplete history (`49–50`). `priority` is free-form and has no finite allowlist, SLA or escalation policy (`62`).
+
+Patient name/phone, doctor notes/name, prescription image, attachments, admin notes, status history and assigned-provider name are sensitive or potentially clinical data. Attachments/prescription are raw base64/any strings with no MIME/size/type/malware/EXIF validation, object-storage separation, signed-link or field-level privacy/retention controls (`39–50,53–60`). No consent, audit projection or DSAR/legal-hold lifecycle is represented.
+
+Patient/provider/order/booking IDs are plain strings without referential integrity, tenant/facility scope, capability or source ownership invariants (`39,53–58`). Provider and booking/order links can be assigned independently and there is no cross-field invariant that `PROVIDED` requires exactly one valid linked booking/order or that `ADDED_TO_CATALOG` references an authoritative catalog entity (`49,53–58`). Admin notes and assigned provider name are denormalized without provenance/consistency guarantees (`54,60`).
+
+There is no numeric price, currency, insurance, payment or settlement source of truth for custom services, nor idempotency/replay, transaction/rollback, duplicate-request policy, notification delivery or catalog-creation atomicity (`22–63`). No expiry/SLA/timeout, cancellation/rejection reason, retry state or downstream event acknowledgement exists. Soft deletion/retention is absent; timestamps are automatic only and no resolved_at/status consistency is declared. No rate limiting, enumeration control, live provider assignment, admin approval, catalog linkage, upload, clinical safety or audit runtime evidence is represented. No code was changed and no build/test/application operation was performed during this read.
