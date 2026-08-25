@@ -5714,3 +5714,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3874 | P0 | No rate limit, enumeration prevention or abuse control is represented for patient submissions, attachments or review actions. | `src/schemas/custom-service.schema.ts:35–63` | Custom-service abuse-control gate. |
 | F-3875 | P1 | Schema has automatic timestamps but no source clock, immutable event time, retention/deletion/legal-hold or soft-delete lifecycle. | `src/schemas/custom-service.schema.ts:35–64` | Custom-service retention/time contract. |
 | F-3876 | P1 | No live index migration, upload, admin-review, provider-assignment, catalog or booking-linkage runtime evidence was established during this audit read. | `src/schemas/custom-service.schema.ts:1–67` | Baseline-pinned custom-service runtime evidence. |
+
+## Maternity schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3877 | P0 | Checkup week/name and `done` have no catalog, range, source or clinical recommendation version; `done` alone is not a review/verification state. | `src/schemas/maternity.schema.ts:6–18` | Prenatal checkup clinical contract. |
+| F-3878 | P0 | Kick and contraction count/interval/duration values have no non-negative/physiologic range, unit, chronology or duplicate-event validation. | `src/schemas/maternity.schema.ts:20–50` | Maternity log data-quality gate. |
+| F-3879 | P0 | Infant growth month and weight/height/head circumference have no range, unit, age-consistency or measurement provenance validation. | `src/schemas/maternity.schema.ts:52–72` | Infant growth clinical-quality gate. |
+| F-3880 | P0 | Pregnancy dates, current week and cycle metadata have no chronology or cross-field consistency invariant. | `src/schemas/maternity.schema.ts:79–98` | Pregnancy dating consistency gate. |
+| F-3881 | P0 | No clinical safety state, abnormal kick/contraction threshold, emergency guidance acknowledgement, clinician escalation or alert lifecycle is represented. | `src/schemas/maternity.schema.ts:20–50,100–110` | Maternity emergency-safety gate. |
+| F-3882 | P0 | Pregnancy and infant data are sensitive health/child data with no consent/delegation, projection, encryption, retention, deletion or DSAR controls in the schema. | `src/schemas/maternity.schema.ts:74–110` | Maternity PII/PHI governance. |
+| F-3883 | P0 | `patient_id` is a unique string but no active-patient, tenant/facility, caregiver/guardian or actor provenance invariant is declared. | `src/schemas/maternity.schema.ts:74–77` | Maternity identity/tenant gate. |
+| F-3884 | P0 | Embedded logs have no idempotency/duplicate prevention, immutable correction provenance, CAS/version or concurrent update protection. | `src/schemas/maternity.schema.ts:20–34,36–50,52–72,100–110` | Maternity log atomicity/replay gate. |
+| F-3885 | P0 | Unbounded embedded checkup and log arrays can create document growth and operational/performance risk. | `src/schemas/maternity.schema.ts:100–110` | Bounded history/archival gate. |
+| F-3886 | P0 | Log dates use application `Date.now` defaults without timezone/source-clock/ordering guarantees. | `src/schemas/maternity.schema.ts:31–32,47–48,69–70` | Maternity time provenance gate. |
+| F-3887 | P0 | No soft-delete, correction, import/source, audit actor, notification delivery/ack/retry or retention/legal-hold lifecycle exists for maternity records. | `src/schemas/maternity.schema.ts:74–110` | Maternity lifecycle/audit gate. |
+| F-3888 | P1 | No live index/runtime, clinical alert, log-write, permission or retention evidence was established during this baseline source read. | `src/schemas/maternity.schema.ts:1–114` | Baseline-pinned maternity runtime evidence. |
