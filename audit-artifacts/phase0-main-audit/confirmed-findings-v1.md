@@ -2133,3 +2133,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1315 | P1 | Root wiring includes Webhooks, Realtime, RealtimeSse, Push, Chat and LiveKit surfaces together without visible origin/channel/tenant isolation at composition level. | `src/app.module.ts:139–140,183,224,227,229` | Explicit channel ownership, origin and tenant isolation matrix. |
 | F-1316 | P1 | SeedModule is loaded in the same root runtime as production modules, with no visible build/runtime condition preventing accidental bootstrap exposure. | `src/app.module.ts:173–185` | Conditional non-production registration or capability hard stop. |
 | F-1317 | P2 | Root file has imports interleaved with executable helper placement and a very large compressed module array, reducing auditability and increasing wiring drift risk. | `src/app.module.ts:2–133,135–256` | Structured module registry, formatting/lint and route-collision checks. |
+
+## Root HealthController findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1318 | P1 | Public root health response discloses application identity and fixed version string, creating unnecessary fingerprinting and stale-version risk. | `src/health.controller.ts:14–22` | Minimal public response or protected diagnostic metadata with build provenance. |
+| F-1319 | P1 | Liveness always returns `up` without event-loop/process health checks, so a wedged process can remain eligible for traffic. | `src/health.controller.ts:25–29` | Liveness contract with event-loop/process failure behavior. |
+| F-1320 | P0 | Readiness returns HTTP success with body status `degraded` when Mongo or Redis is down, allowing load balancers/orchestrators to treat an unready instance as ready. | `src/health.controller.ts:31–57` | Return non-2xx on readiness failure and test dependency outages. |
+| F-1321 | P1 | Redis readiness ping has no timeout/deadline, so a hung Redis client can hang health checks and deployment decisions. | `src/health.controller.ts:41–44` | Bounded probe timeout and deterministic failure response. |
+| F-1322 | P1 | Public readiness exposes Mongo/Redis dependency topology and up/down state to unauthenticated callers. | `src/health.controller.ts:31–56` | Minimal public readiness or protected detailed diagnostics. |
+| F-1323 | P1 | Readiness checks only Mongo connection state and Redis ping; queue workers, critical integrations, startup grace, cache and payment dependencies are not represented. | `src/health.controller.ts:33–56` | Dependency-specific readiness matrix with criticality policy. |
+| F-1324 | P1 | Empty catches suppress diagnostic context for Mongo/Redis failures, weakening alerting and incident evidence. | `src/health.controller.ts:37–44` | Structured redacted error metrics/logging without response leakage. |
+| F-1325 | P2 | Health response has no build commit/schema/config version, making stale deployment detection and rollback verification harder. | `src/health.controller.ts:46–57` | Immutable build/version metadata in protected diagnostics. |
