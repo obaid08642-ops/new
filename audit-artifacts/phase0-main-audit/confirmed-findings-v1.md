@@ -3577,3 +3577,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2354 | P1 | Event assertions prove mocked `emit` calls only, not durable delivery, replay behavior or consumer authorization. | `src/modules/prescriptions/prescriptions.authorization.spec.ts:250–298` | Durable event/outbox and consumer tests. |
 | F-2355 | P1 | Use of permissive `any` records and mocked persistence weakens compile-time schema/DTO contract coverage. | `src/modules/prescriptions/prescriptions.authorization.spec.ts:17–52,187–214` | Typed fixtures and runtime schema validation. |
 | F-2356 | P1 | The suite was not executed during this audit and cannot establish current live deployment readiness. | `src/modules/prescriptions/prescriptions.authorization.spec.ts:1–300` | Baseline-pinned executed plus post-deploy sandbox evidence. |
+
+## WebhooksService test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2357 | P0 | Webhook spec uses an in-memory mocked Redis store and cannot prove atomic replay protection, TTL or multi-instance race behavior. | `src/modules/webhooks/webhooks.service.spec.ts:11–24,56–65` | Real Redis atomicity/TTL/race evidence. |
+| F-2358 | P0 | Valid webhook tests assert success and mocked emit only; they do not prove payment state, ledger, refund or reconciliation changes. | `src/modules/webhooks/webhooks.service.spec.ts:46–54,74–82` | Gateway-to-ledger sandbox E2E. |
+| F-2359 | P0 | No HTTP/controller test proves raw-body preservation, header extraction, content limits or signature failure status. | `src/modules/webhooks/webhooks.service.spec.ts:31–94` | HTTP-faithful webhook contract tests. |
+| F-2360 | P0 | Provider signature canonicalization, encoding/case, timestamp/nonce freshness and key rotation are not covered. | `src/modules/webhooks/webhooks.service.spec.ts:46–81` | Provider-specific signature matrix. |
+| F-2361 | P1 | No payload schema/unknown-event/malformed-JSON/duplicate-ID-with-different-payload validation is tested. | `src/modules/webhooks/webhooks.service.spec.ts:31–94` | Bounded typed payload and conflict tests. |
+| F-2362 | P0 | No outbox/event durability or publish-failure handling is tested; mocked `emit` can conceal lost payment events. | `src/modules/webhooks/webhooks.service.spec.ts:46–54,74–82` | Durable outbox/retry/alert evidence. |
+| F-2363 | P1 | Redis unavailable/expire failure behavior is untested and may affect fail-open versus fail-closed replay handling. | `src/modules/webhooks/webhooks.service.spec.ts:16–23` | Storage-failure contract. |
+| F-2364 | P1 | Environment mutation covers production rejection but does not test config schema, non-production policy or secret rotation/precedence. | `src/modules/webhooks/webhooks.service.spec.ts:11–29,31–94` | Environment/config acceptance matrix. |
+| F-2365 | P1 | SMS timing-safe claim is not measured and no length/encoding/replay/transport binding is tested. | `src/modules/webhooks/webhooks.service.spec.ts:84–94` | Constant-time bounded token contract. |
+| F-2366 | P0 | No live provider webhook, gateway signature, duplicate delivery or settlement acceptance exists in this spec. | `src/modules/webhooks/webhooks.service.spec.ts:1–95` | Authorized live sandbox provider proof. |
+| F-2367 | P1 | No signature secret audit/rotation/revocation or per-provider credential isolation is encoded. | `src/modules/webhooks/webhooks.service.spec.ts:31–94` | Managed credential lifecycle. |
+| F-2368 | P1 | The spec was not executed during this audit and cannot establish current webhook readiness. | `src/modules/webhooks/webhooks.service.spec.ts:1–95` | Baseline-pinned executed and live evidence. |
