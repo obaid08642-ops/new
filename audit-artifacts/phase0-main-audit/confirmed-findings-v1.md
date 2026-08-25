@@ -2766,3 +2766,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1758 | P1 | No bounded query, pagination or index contract is visible for patient history and operational order searches. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Bounded queries, indexes and pagination tests. |
 | F-1759 | P1 | No inventory/catalog/product source-of-truth or availability reservation boundary is represented for order items. | `src/modules/drivers/repositories/order.repository.ts:8–13` | Canonical catalog/inventory reservation and reconciliation. |
 | F-1760 | P2 | Non-functional import comment and repository simplicity obscure ownership of this financially and privacy-sensitive order boundary. | `src/modules/drivers/repositories/order.repository.ts:4–6` | Remove stale comment and document order boundary. |
+
+## Seed loyalty script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1761 | P0 | Loyalty seed script has a localhost Mongo fallback and no production/database identity gate, so accidental execution can mutate the wrong database. | `scripts/seed-loyalty.ts:8–10,113–121` | Fail-closed environment gate and explicit target confirmation. |
+| F-1762 | P0 | Script is executable via direct ts-node and has no operator authorization, dry-run, audit actor or provenance requirement. | `scripts/seed-loyalty.ts:2–6,113–138` | Authorized, auditable, dry-run-capable seed command. |
+| F-1763 | P0 | Challenges and rewards are hardcoded catalog truth with no external approval/source/version/effective-date governance. | `scripts/seed-loyalty.ts:18–111` | Reviewed versioned catalog source and approval gate. |
+| F-1764 | P0 | Cashback/coupon values are hardcoded without currency/tax/ledger/settlement or redemption reconciliation. | `scripts/seed-loyalty.ts:66–110` | Server-authoritative reward valuation and ledger reconciliation. |
+| F-1765 | P0 | Every reward is unconditionally assigned `stock: 999`, which is a placeholder-like finite inventory rather than a verified inventory source. | `scripts/seed-loyalty.ts:124–129` | Real inventory/quota source and reservation/release semantics. |
+| F-1766 | P1 | Reruns overwrite active/date fields and reset reward stock without version or operator review, potentially reviving or changing already-published catalog truth. | `scripts/seed-loyalty.ts:117–129` | Idempotent reconciliation preserving approved state and version conflicts. |
+| F-1767 | P1 | Upsert identity depends only on short application IDs and no visible unique-index/reconciliation assertion is performed. | `scripts/seed-loyalty.ts:117–129` | Unique index verification and deterministic import reconciliation. |
+| F-1768 | P1 | Challenge period is calculated as execution time plus 90 days, with no business season, timezone, approval or historical immutability. | `scripts/seed-loyalty.ts:12–13,120` | Effective-dated campaign lifecycle with timezone and approval. |
+| F-1769 | P1 | Challenge and reward definitions lack redemption limits, per-user eligibility, expiration, revocation, abuse controls or idempotent redemption linkage. | `scripts/seed-loyalty.ts:18–111` | Eligibility/redemption policy, replay protection and revocation. |
+| F-1770 | P1 | Loyalty reward catalog is not atomically coupled to points ledger, coupon issuance or wallet cashback settlement. | `scripts/seed-loyalty.ts:117–129` | Transactional/outbox reward issuance and ledger reconciliation. |
+| F-1771 | P1 | Descriptions and challenge triggers are hardcoded strings with no locale/version/clinical/commercial review metadata. | `scripts/seed-loyalty.ts:20–62,68–109` | Reviewed localized catalog and content provenance. |
+| F-1772 | P1 | No validation enforces positive counts/points/values, supported award reasons, reward-type/value compatibility or safe stock bounds. | `scripts/seed-loyalty.ts:15–17,18–111,124–129` | Typed schema validation and invariant tests. |
+| F-1773 | P1 | Active-document counts are only logged and do not reconcile expected IDs, duplicates, dates, stock or catalog completeness. | `scripts/seed-loyalty.ts:132–134` | Deterministic post-seed reconciliation with fail-closed result. |
+| F-1774 | P1 | Mongo disconnect is only on success; error handling logs and exits without guaranteed cleanup or structured operational result. | `scripts/seed-loyalty.ts:113–138` | Finally-based cleanup and structured failure/audit reporting. |
+| F-1775 | P2 | `@ts-nocheck` disables compile-time safety for a script mutating loyalty and financial-adjacent collections. | `scripts/seed-loyalty.ts:1` | Strict typing and CI/static checks for seed scripts. |
