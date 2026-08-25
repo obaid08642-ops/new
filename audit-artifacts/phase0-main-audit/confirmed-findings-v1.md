@@ -4445,3 +4445,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2962 | P1 | No rate limiting, abuse prevention, moderation or audit-log behavior is tested for chat mutation. | `src/modules/chat/chat.contract.spec.ts:39–68,99–101` | Abuse/audit control matrix. |
 | F-2963 | P1 | No live MongoDB/index/transaction or Socket.IO transport evidence is produced by this spec. | `src/modules/chat/chat.contract.spec.ts:9–29` | Baseline-pinned integration evidence. |
 | F-2964 | P1 | This spec cannot by itself certify the production chat contract because all critical dependencies are mocks. | `src/modules/chat/chat.contract.spec.ts:1–102` | Production-like acceptance suite. |
+
+## Call session schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2965 | P0 | Appointment, patient and provider identifiers have no visible cross-document ownership or tenant integrity constraint. | `src/schemas/callsession.schema.ts:8–10` | Appointment participant ownership gate. |
+| F-2966 | P0 | No compound uniqueness prevents duplicate active call sessions for one appointment/provider pair. | `src/schemas/callsession.schema.ts:5–13` | Active-call deduplication constraint. |
+| F-2967 | P0 | `room_name` is unconstrained and has no namespace, private-room, expiry or provider-generated invariant. | `src/schemas/callsession.schema.ts:11` | Room isolation/expiry contract. |
+| F-2968 | P0 | No call-token audience, participant binding, expiry, nonce, revocation or consent linkage is represented. | `src/schemas/callsession.schema.ts:11–13` | Secure call-token contract. |
+| F-2969 | P0 | `call_type` is a free-form string despite the documented video/audio/chat values. | `src/schemas/callsession.schema.ts:12` | Enum/schema validation. |
+| F-2970 | P0 | `status` is a free-form string despite the documented lifecycle; no transition guard or terminal-state protection exists. | `src/schemas/callsession.schema.ts:13` | Race-safe call state machine. |
+| F-2971 | P0 | No transition actor/time/reason/history or audit linkage is represented. | `src/schemas/callsession.schema.ts:13–17` | Audited lifecycle transitions. |
+| F-2972 | P0 | Start/end/duration fields have no nonnegative/max constraint, server-derived duration, ordering invariant or clock policy. | `src/schemas/callsession.schema.ts:14–17` | Duration/time truthfulness contract. |
+| F-2973 | P0 | No idempotent start/end/retry behavior is represented. | `src/schemas/callsession.schema.ts:13–17` | Call lifecycle replay gate. |
+| F-2974 | P0 | No recording/media retention, deletion, encryption, clinical linkage or DSAR policy is represented. | `src/schemas/callsession.schema.ts:5–17` | Medical-call governance contract. |
+| F-2975 | P1 | Individual indexes do not evidence an active-call/participant/time cleanup query plan. | `src/schemas/callsession.schema.ts:7–13` | Operational indexing/retention plan. |
+| F-2976 | P1 | End reason is unconstrained and lacks a controlled taxonomy or safe disclosure policy. | `src/schemas/callsession.schema.ts:17` | End-reason enum/audit contract. |
+| F-2977 | P1 | The schema was not executed or integrated with live LiveKit/call-token flows during this audit. | `src/schemas/callsession.schema.ts:1–20` | Baseline-pinned call runtime evidence. |
