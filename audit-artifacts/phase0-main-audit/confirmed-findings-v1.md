@@ -5405,3 +5405,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3640 | P0 | No notification event/cache consistency or downstream patient workflow acknowledgement is asserted. | `src/modules/admin-notification-center/admin-notification-center.contract.spec.ts:13–36` | Notification side-effect contract. |
 | F-3641 | P1 | Stable error schemas for invalid audience, deep-link, queue and database failures are not asserted. | `src/modules/admin-notification-center/admin-notification-center.contract.spec.ts:13–36` | Notification failure contract. |
 | F-3642 | P1 | This spec was not executed against live HTTP, Mongo, push provider, device tokens or production recipient preferences during this audit read. | `src/modules/admin-notification-center/admin-notification-center.contract.spec.ts:1–37` | Baseline-pinned notification runtime evidence. |
+
+## Nutrition service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3643 | P0 | Nutrition coverage uses mocked models and direct patient IDs, so HTTP authentication, ownership and live persistence are unproven. | `src/modules/nutrition/nutrition.service.spec.ts:4–10,13–43` | Live nutrition integration gate. |
+| F-3644 | P0 | Profile goal/height/weight/target validation is narrow and does not cover units, bounds, type, age/sex/activity provenance or target policy. | `src/modules/nutrition/nutrition.service.spec.ts:19–28` | Nutrition-profile input/provenance gate. |
+| F-3645 | P0 | BMI calculation is checked at one value but clinical interpretation, rounding, extreme/zero measurements and uncertainty disclosure are untested. | `src/modules/nutrition/nutrition.service.spec.ts:19–28` | BMI truthfulness/safety contract. |
+| F-3646 | P0 | Patient/family/provider delegation, active/deleted state, consent and tenant isolation are untested for nutrition profiles. | `src/modules/nutrition/nutrition.service.spec.ts:13–28` | Nutrition ownership/consent matrix. |
+| F-3647 | P0 | Meal validation covers empty name and negative calories only; finite/integer/range/unit, meal-type allowlist and timestamp rules are untested. | `src/modules/nutrition/nutrition.service.spec.ts:30–36` | Meal input-validation gate. |
+| F-3648 | P0 | Meal source/provenance, allergens, clinical diet safety, sanitization, duplicate/replay and concurrent writes are not tested. | `src/modules/nutrition/nutrition.service.spec.ts:30–36` | Meal clinical/content-safety gate. |
+| F-3649 | P0 | Water coverage checks 250 ml and zero only; upper bounds, units, finite values, daily aggregation, duplicate/concurrency and dehydration alerts are untested. | `src/modules/nutrition/nutrition.service.spec.ts:38–43` | Water tracking clinical-validation gate. |
+| F-3650 | P0 | Water/meal source device trust, event timestamps, patient-local day and correction/deletion lifecycle are untested. | `src/modules/nutrition/nutrition.service.spec.ts:30–43` | Nutrition event authenticity/lifecycle. |
+| F-3651 | P0 | Exercise model is injected but has no behavior or contract coverage. | `src/modules/nutrition/nutrition.service.spec.ts:9–10` | Complete nutrition capability matrix. |
+| F-3652 | P0 | No clinical escalation, dietitian/provider review, contraindication, allergy or care-plan integration is tested. | `src/modules/nutrition/nutrition.service.spec.ts:19–43` | Nutrition clinical-safety gate. |
+| F-3653 | P0 | No transaction/CAS/idempotency protects profile updates, meal logs, water logs or concurrent corrections. | `src/modules/nutrition/nutrition.service.spec.ts:13–43` | Nutrition atomicity/replay gate. |
+| F-3654 | P0 | No PHI/PII projection, consent withdrawal, retention/deletion/DSAR or sensitive nutrition access audit is tested. | `src/modules/nutrition/nutrition.service.spec.ts:13–43` | Nutrition data governance. |
+| F-3655 | P0 | No notification, cache, event, daily-goal progress or downstream clinical consistency is asserted. | `src/modules/nutrition/nutrition.service.spec.ts:13–43` | Nutrition side-effect contract. |
+| F-3656 | P1 | Model failures, malformed IDs, stable error schemas, rate limits and abuse controls are largely untested. | `src/modules/nutrition/nutrition.service.spec.ts:13–43` | Nutrition failure/abuse contract. |
+| F-3657 | P1 | This spec was not executed against live HTTP, Mongo, analytics, provider review or nutrition workflows during this audit read. | `src/modules/nutrition/nutrition.service.spec.ts:1–44` | Baseline-pinned nutrition runtime evidence. |

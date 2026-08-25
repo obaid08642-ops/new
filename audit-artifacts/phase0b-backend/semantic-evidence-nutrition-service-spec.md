@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — NutritionService spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/nutrition/nutrition.service.spec.ts:1–44`
+
+The spec constructs NutritionService with mocked profile, meal, water and exercise models (`4–10`). It verifies an unconfigured patient profile returns `profile_ready:false` without inventing calorie or water targets (`13–17`). It verifies explicit healthy-lifestyle goals and supplied height/weight produce BMI 23.5 and a ready profile, and a low calorie target is rejected (`19–28`). It verifies a manual meal stores patient_id, name, calories and meal_type, while an empty name and negative calories are rejected (`30–36`). It verifies a 250 ml water entry is stored for the patient and a zero-value entry is rejected (`38–43`).
+
+All models are mocks and methods are called directly; HTTP auth, patient active/deleted state, family/dependent access, provider/tenant scope and live persistence are unproven (`5–10,13–43`). Profile tests do not cover goal allowlist, height/weight units and bounds, age/sex/activity inputs, BMI rounding/clinical interpretation, target provenance, updates, deletion or consent (`19–28`). Meal validation covers only empty name and negative calories; it does not test integer/finite/range/unit values, meal-type allowlist, nutrition source/provenance, allergens, clinical diet safety, text sanitization, duplicate/replay or timestamps (`30–36`). Water coverage lacks upper/range/unit/finite validation, daily aggregation, dehydration alerts, source/device trust and duplicate/concurrent writes (`38–43`). Exercise model is injected but untested (`9–10`). No meal/water/profile event, notification, cache, audit, PHI/PII projection, retention/DSAR, rate limit, idempotency, transaction or downstream clinical consistency is covered. No code was changed and no build/test/application operation was performed during this read.
