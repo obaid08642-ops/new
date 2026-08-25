@@ -2348,3 +2348,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1460 | P1 | No repository-level invariant guarantees activity totals and nutrition/health aggregates remain consistent after updates/deletes. | `src/modules/nutrition/repositories/exerciselog.repository.ts:8–13` | Atomic aggregate/reconciliation contract and tests. |
 | F-1461 | P1 | No source trust, wearable-device authorization or tamper/replay policy is represented at the repository boundary. | `src/modules/nutrition/repositories/exerciselog.repository.ts:8–13` | Authorized source registry and replay/tamper tests. |
 | F-1462 | P2 | Non-functional import comment and formatting drift obscure ownership of this patient activity repository. | `src/modules/nutrition/repositories/exerciselog.repository.ts:4–6` | Remove stale comment and document data boundary. |
+
+## CallSession repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1463 | P0 | CallSession repository has no booking/patient/provider/participant/tenant scope; inherited generic reads/writes depend on callers to protect telehealth sessions. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Mandatory booking/participant-scoped methods and owner/stranger tests. |
+| F-1464 | P0 | No room/token expiry, purpose binding or session revocation policy is enforced at the repository boundary. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Server-controlled short-lived session/token lifecycle and expiry tests. |
+| F-1465 | P0 | No minimum-necessary projection or redaction policy is enforced for call metadata, participant identifiers or clinical context. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Deny-by-default projection and metadata redaction tests. |
+| F-1466 | P1 | No deterministic booking/session uniqueness, duplicate or idempotency policy is defined for repeated call creation/join events. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Stable booking/session key and replay tests. |
+| F-1467 | P1 | No optimistic versioning or conflict handling prevents concurrent end/rejoin/revoke updates from losing session state. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1468 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for call-session metadata. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1469 | P1 | No recording/telemetry privacy, consent or media-retention boundary is represented at the repository level. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Recording consent, media policy and retention tests. |
+| F-1470 | P1 | No audit/provenance records who created, joined, ended, revoked or accessed a call session and under which appointment purpose. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Immutable session access/change audit. |
+| F-1471 | P1 | Generic inherited operations expose no schema-level validation of room names, participant IDs, timestamps, status or token claims in this member. | `src/modules/livekit/repositories/callsession.repository.ts:8–13` | Typed validation and token/session invariant tests. |
+| F-1472 | P2 | Non-functional import comment and formatting drift obscure ownership of this security-sensitive realtime repository. | `src/modules/livekit/repositories/callsession.repository.ts:4–6` | Remove stale comment and document session privacy boundary. |
