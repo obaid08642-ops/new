@@ -2786,3 +2786,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1773 | P1 | Active-document counts are only logged and do not reconcile expected IDs, duplicates, dates, stock or catalog completeness. | `scripts/seed-loyalty.ts:132–134` | Deterministic post-seed reconciliation with fail-closed result. |
 | F-1774 | P1 | Mongo disconnect is only on success; error handling logs and exits without guaranteed cleanup or structured operational result. | `scripts/seed-loyalty.ts:113–138` | Finally-based cleanup and structured failure/audit reporting. |
 | F-1775 | P2 | `@ts-nocheck` disables compile-time safety for a script mutating loyalty and financial-adjacent collections. | `scripts/seed-loyalty.ts:1` | Strict typing and CI/static checks for seed scripts. |
+
+## Deployment script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1776 | P0 | `ENV` accepts prod/staging labels but is never used to select compose file, project, host, secrets, image or policy; the label does not establish deployment target. | `scripts/deploy.sh:7–10,12–28` | Explicit fail-closed environment mapping and target assertion. |
+| F-1777 | P0 | Deployment pulls/builds mutable artifacts without commit/digest/signature/SBOM/vulnerability assertion. | `scripts/deploy.sh:12–18` | Immutable signed artifact and supply-chain gates. |
+| F-1778 | P0 | No preflight verifies required secrets, registry, Docker resources, network, volumes or database compatibility before changing services. | `scripts/deploy.sh:7–28` | Read-only preflight with fail-closed checks. |
+| F-1779 | P0 | The script comment advertises migrations/seeds but no migration or seed execution/locking/reconciliation is implemented. | `scripts/deploy.sh:20–22` | Versioned migration/seed plan, lock and reconciliation evidence. |
+| F-1780 | P0 | Starting MongoDB/Redis and the application is not wrapped in a backup/data-compatibility/transaction boundary. | `scripts/deploy.sh:20–28` | Backup checkpoint, compatibility gate and recovery evidence. |
+| F-1781 | P1 | Fixed ten-second sleep is used instead of bounded readiness polling with component-specific health criteria. | `scripts/deploy.sh:24–25` | Bounded readiness checks for MongoDB, Redis and backend. |
+| F-1782 | P0 | No HTTP readiness, contract smoke, security, migration or data-integrity verification occurs before declaring release success. | `scripts/deploy.sh:27–36` | Post-deploy verification gates with fail-closed result. |
+| F-1783 | P0 | No rollback trap, previous-version pin, canary, traffic cutover or automatic recovery exists on partial startup/failure. | `scripts/deploy.sh:7–36` | Tested rollback/canary/recovery procedure. |
+| F-1784 | P0 | `Deployment complete!` is printed after `docker compose up -d` without confirming service health, readiness or correct version. | `scripts/deploy.sh:27–33` | Success only after verified release criteria. |
+| F-1785 | P1 | `docker compose ps` and backend logs are observation only; the script does not parse health, exit codes or error patterns into a gate. | `scripts/deploy.sh:32–36` | Machine-verifiable health/error gate and artifact capture. |
+| F-1786 | P1 | No explicit operator authorization, change ticket, audit actor or immutable deployment record is captured. | `scripts/deploy.sh:7–36` | Authorized release record with commit, actor, target and timestamp. |
+| F-1787 | P1 | No resource cleanup/rollback exists for failed pulls, builds, partial starts or orphaned services. | `scripts/deploy.sh:12–36` | Trap-based cleanup and failure recovery tests. |
+| F-1788 | P1 | No database/Redis version, schema, index or backward/forward compatibility check is performed. | `scripts/deploy.sh:20–28` | Compatibility and index/migration gates. |
+| F-1789 | P1 | No backup restoration test or documented recovery point/object is tied to the deployment operation. | `scripts/deploy.sh:20–28` | Verified backup/restore drill and deployment linkage. |
+| F-1790 | P2 | Operational output includes decorative emoji and generic status text rather than structured, machine-readable deployment evidence. | `scripts/deploy.sh:10,13,17,21,24,30,36` | Structured release report and evidence artifacts. |
