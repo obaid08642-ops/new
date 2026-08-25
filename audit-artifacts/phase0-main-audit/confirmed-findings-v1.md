@@ -1964,3 +1964,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1196 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to patient-profile persistence. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
 | F-1197 | P1 | Generic inherited operations provide no soft-delete/retention/anonymization boundary for patient health data. | `src/modules/seed/repositories/patientprofile.repository.ts:8–13` | Retention, deletion/anonymization and recovery policy. |
 | F-1198 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and health-data separation. | `src/modules/seed/repositories/patientprofile.repository.ts:4–6` | Remove stale comments and document repository provenance. |
+
+## LabService seed repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1199 | P0 | Lab service seed repository has no production-environment hard stop or seed-only capability boundary; bootstrap writes could target live service catalog. | `src/modules/seed/repositories/labservice.repository.ts:8–13` | Hard fail in production and isolate seed capability. |
+| F-1200 | P1 | Repository uses `LabService` model class as the generic type rather than an explicit document type, weakening persistence/lean/write contract guarantees. | `src/modules/seed/repositories/labservice.repository.ts:8–11` | Use typed LabServiceDocument/model and strict repository contract. |
+| F-1201 | P0 | No deterministic reconciliation key, uniqueness/idempotency or duplicate policy is defined for rerunning lab-service seed data. | `src/modules/seed/repositories/labservice.repository.ts:8–13` | Idempotent versioned reconciliation with uniqueness tests. |
+| F-1202 | P0 | No separation between seeded service facts and approval, availability, booking eligibility or operational price truth is enforced. | `src/modules/seed/repositories/labservice.repository.ts:8–13` | Explicit catalog-vs-operational source-of-truth boundaries. |
+| F-1203 | P1 | No facility/tenant/actor scope or authorization policy is present, so inherited reads/writes depend on seed callers and configuration. | `src/modules/seed/repositories/labservice.repository.ts:8–13` | Authorized seed principal and mandatory facility/tenant scope. |
+| F-1204 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting live lab-service changes. | `src/modules/seed/repositories/labservice.repository.ts:8–13` | Version/source checks and conflict rejection. |
+| F-1205 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to lab-service persistence. | `src/modules/seed/repositories/labservice.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
+| F-1206 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and operational separation. | `src/modules/seed/repositories/labservice.repository.ts:4–6` | Remove stale comments and document repository provenance. |
