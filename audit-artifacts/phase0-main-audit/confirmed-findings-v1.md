@@ -4718,3 +4718,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3160 | P1 | Avatar is an opaque URL without private asset ownership, content scan, expiry or safe projection control. | `src/schemas/user.schema.ts:17` | Secure avatar media contract. |
 | F-3161 | P1 | No data classification or client DTO projection is enforced by the schema; sensitive fields may depend entirely on callers. | `src/schemas/user.schema.ts:8–44` | Explicit safe user projection. |
 | F-3162 | P1 | The schema was not executed or reconciled against all auth/profile/staff/doctor consumers during this audit read. | `src/schemas/user.schema.ts:1–47` | Baseline-pinned user integration evidence. |
+
+## Article bookmark contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3163 | P0 | Controller and database are instantiated with `any`/mocks, so HTTP guards and persistence semantics are not exercised. | `src/modules/articles/articles.contract.spec.ts:5–10` | HTTP/database-integrated bookmark test. |
+| F-3164 | P0 | No unauthenticated, invalid-user or cross-tenant bookmark access case is tested. | `src/modules/articles/articles.contract.spec.ts:13–35` | Owner/stranger/unauth/tenant matrix. |
+| F-3165 | P0 | Bookmark add/remove article ID validation, slug/identifier normalization and malformed input behavior are not tested. | `src/modules/articles/articles.contract.spec.ts:13–35` | Identifier validation contract. |
+| F-3166 | P0 | Idempotency is checked only via reflection; replay, mismatched-key reuse, concurrent requests and side-effect uniqueness are not tested. | `src/modules/articles/articles.contract.spec.ts:37–40` | End-to-end idempotency gate. |
+| F-3167 | P0 | No database unique index/duplicate-race assertion proves one bookmark per user/article. | `src/modules/articles/articles.contract.spec.ts:17–21` | Bookmark uniqueness constraint. |
+| F-3168 | P0 | Remove does not verify article public/deleted visibility before deletion in this spec. | `src/modules/articles/articles.contract.spec.ts:24–28` | Symmetric publication visibility gate. |
+| F-3169 | P0 | Database failure, timeout, retry and safe error mapping are not tested. | `src/modules/articles/articles.contract.spec.ts:6,13–35` | Failure/error contract. |
+| F-3170 | P1 | No bookmark list/count, unread/cache invalidation or event/audit behavior is tested. | `src/modules/articles/articles.contract.spec.ts:12–40` | Bookmark read/cache/audit contract. |
+| F-3171 | P1 | Public article check is represented by a mocked `publishedById` call, not verified against status/deletion/published_at truth. | `src/modules/articles/articles.contract.spec.ts:8,30–35` | Live publication truth gate. |
+| F-3172 | P1 | No CSRF/session-cookie, rate-limit or abuse behavior is tested for bookmark mutations. | `src/modules/articles/articles.contract.spec.ts:13–40` | Mutation abuse/security gate. |
+| F-3173 | P1 | No article SEO canonical, JSON-LD, sitemap or index lifecycle behavior is tested. | `src/modules/articles/articles.contract.spec.ts:12–40` | Article SEO lifecycle gate. |
+| F-3174 | P1 | This spec was not executed against live article visibility, bookmark persistence or HTTP behavior during this audit read. | `src/modules/articles/articles.contract.spec.ts:1–41` | Baseline-pinned bookmark runtime evidence. |
