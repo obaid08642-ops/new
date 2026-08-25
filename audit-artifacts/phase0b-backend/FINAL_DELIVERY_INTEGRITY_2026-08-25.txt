@@ -1,15 +1,24 @@
-Root Audit Phase 0B final delivery verification
-Baseline: main @ 22526bed (audit-only baseline)
-Branch: agent/audit-main-contract-inventory
-Local HEAD: de929891a8645986a4672fd186eb33f9d3efed81
-Remote HEAD: de929891a8645986a4672fd186eb33f9d3efed81
-Remote equality: YES
+Root Audit Phase 0B.1 / Phase 0C final delivery integrity record
+Checked baseline: main @ 22526bedb77a3d8148219036367e4714f401aecc
+Checked branch: agent/audit-main-contract-inventory
+Checked local HEAD before this integrity artifact commit: 772b281f5288a2b1ec16b0a412c2e12c742d4b2f
+Checked remote HEAD before this integrity artifact commit: 772b281f5288a2b1ec16b0a412c2e12c742d4b2f
+Local/remote equality at check: YES
 Manifest total rows: 1188
 Manifest fully_read=YES: 753
 Manifest fully_read=N/A: 435
 Manifest fully_read=NO: 0
-Findings count: 4243
-Evidence file exists: YES
-Product code changes in this audit: NO
-Build/test execution in this continuation: NO (semantic read only)
-Working tree before integrity commit: DIRTY
+Manifest-to-evidence missing paths: 0
+Raw confirmed observations: 4243
+Normalized mapping rows: 4243
+Normalized root defects: 80
+Product source changes in this work: NO
+Build/test/remediation/migration/deployment executed: NO
+Working tree status before this integrity artifact commit: CLEAN
+
+COMMAND: git diff --check origin/main..HEAD
+DIFF_CHECK_EXIT: 2
+DIFF_CHECK_OUTPUT_FILE: PHASE0B1_DIFF_CHECK_EXCEPTIONS_2026-08-25.tsv is the explicit file/line exception list for audit-artifact excerpt whitespace; no general exception is used.
+DIFF_CHECK_RAW_OUTPUT: /tmp/nabd-final-diff-check.out was generated at verification time; the reproducible gate artifact remains PHASE0B1_REPRODUCIBLE_GATES_2026-08-25.txt.
+
+The integrity artifact is committed and pushed immediately after this record is generated. The post-commit local/remote equality and clean status are verified in the delivery command output and remain the authoritative final branch check.
