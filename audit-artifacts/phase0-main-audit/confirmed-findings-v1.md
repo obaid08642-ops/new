@@ -1937,3 +1937,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1179 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting catalog changes. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Version/source checks and conflict rejection. |
 | F-1180 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to medicine persistence. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
 | F-1181 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and operational separation. | `src/modules/seed/repositories/medicine.repository.ts:4–6` | Remove stale comments and document repository provenance. |
+
+## User seed repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1182 | P0 | User seed repository has no production-environment hard stop or seed-only capability boundary; bootstrap writes could target live identity data. | `src/modules/seed/repositories/user.repository.ts:8–13` | Hard fail in production and isolate identity seed capability. |
+| F-1183 | P0 | No safe projection or credential exclusion is enforced at the identity repository boundary; inherited reads may expose password hashes, refresh/token material or sensitive PII to seed/runtime callers. | `src/modules/seed/repositories/user.repository.ts:8–13` | Deny-by-default projection and explicit credential-field tests. |
+| F-1184 | P0 | No role/tenant/actor authorization policy is represented, so generic inherited writes could alter privileged identity fields if miswired. | `src/modules/seed/repositories/user.repository.ts:8–13` | Restricted seed principal, immutable privileged fields and stranger tests. |
+| F-1185 | P1 | No deterministic reconciliation key, uniqueness/idempotency or duplicate policy is defined for rerunning user seed data. | `src/modules/seed/repositories/user.repository.ts:8–13` | Idempotent versioned reconciliation with uniqueness tests. |
+| F-1186 | P1 | No activation/verification/role/credential lifecycle is enforced; seeded user state could be mistaken for verified production identity state. | `src/modules/seed/repositories/user.repository.ts:8–13` | Explicit seed status and server-controlled identity lifecycle. |
+| F-1187 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting live user changes. | `src/modules/seed/repositories/user.repository.ts:8–13` | Version/source checks and conflict rejection. |
+| F-1188 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to identity persistence. | `src/modules/seed/repositories/user.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
+| F-1189 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and identity-data separation. | `src/modules/seed/repositories/user.repository.ts:4–6` | Remove stale comments and document repository provenance. |
