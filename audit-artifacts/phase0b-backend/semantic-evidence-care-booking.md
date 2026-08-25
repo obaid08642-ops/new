@@ -26,3 +26,22 @@ Care module registers discovery, appointments and referrals controllers/services
 ## Findings candidates
 
 The read supports: hard-coded queue truthfulness defects; appointment overlap/idempotency and payment/refund saga risks; DTO/contract drift; waitlist false success; availability load/timezone validation gaps; unauthenticated doctor integration; referral/result callback authorization and attachment risks; and broad clinical/insurance PII exposure.
+
+## Additional clinical schema members read
+
+The following schema members were read in full:
+- `src/modules/care/schemas/encounter-record.schema.ts:2–42`
+- `src/modules/care/schemas/encounter-referrals.schema.ts:2–33`
+- `src/modules/care/schemas/doctor-profile-extended.schema.ts:2–38`
+
+`EncounterRecord` uniquely links one appointment and stores required free-text diagnosis, an untyped prescribed-medications array, and an insurance claim snapshot containing status, pre-authorization reference, coverage percentage, copay and carrier (`encounter-record.schema.ts:4–40`). The schema has no visible bounds, field-level encryption, immutable update policy or numeric/range constraints for medication and insurance values.
+
+`EncounterReferral` links appointment/patient/doctor and stores arbitrary lab/radiology code arrays, free-form home-care notes, a boolean returned-results flag, raw result file URLs and a two-value routing status (`encounter-referrals.schema.ts:4–31`). There are no visible URL allowlist/size limits, result versioning, callback idempotency or immutable completion constraints.
+
+`DoctorProfileExtended` uniquely keys a doctor and stores institutional links, three prices, maximum home radius, accepted insurance networks, gallery URLs and a free-form weekly schedule object (`doctor-profile-extended.schema.ts:6–36`). Prices/radius and schedule have no visible non-negative/range/schema validation, and image URLs/networks have no visible canonicalization or ownership validation.
+
+### Additional schema findings candidates
+
+The read supports: weakly typed immutable clinical/insurance records, raw result URL exposure/storage, missing attachment lifecycle controls, and unvalidated pricing/radius/schedule configuration.
+
+No product code was changed and no tests/builds were executed during this semantic read.
