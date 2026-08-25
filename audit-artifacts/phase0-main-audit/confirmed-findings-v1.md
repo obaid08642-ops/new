@@ -3675,3 +3675,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2422 | P0 | No test proves every WebSocket gateway consumes this configuration or that HTTP and WebSocket CORS policies are identical. | `src/config/websocket-cors.ts:3–15` | Bootstrap/gateway parity tests. |
 | F-2423 | P1 | No proxy/load-balancer/header behavior or preflight/handshake integration coverage is present. | `src/config/websocket-cors.ts:1–15` | Deployment-faithful CORS handshake tests. |
 | F-2424 | P1 | This configuration was not executed or integration-tested during the audit; readiness cannot be inferred from static options. | `src/config/websocket-cors.ts:1–15` | Baseline-pinned executed and live gateway evidence. |
+
+## Configured Socket.IO adapter findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2425 | P0 | Adapter explicitly maps `allowedOrigins:true` to arbitrary-origin credentialed Socket.IO CORS. | `src/config/configured-io.adapter.ts:7,12–15` | Eliminate arbitrary-origin credentials outside isolated local tests. |
+| F-2426 | P0 | Constructor trusts its origin argument and performs no HTTPS/host/port/normalization/duplicate validation. | `src/config/configured-io.adapter.ts:7,12–14` | Typed canonical origin policy. |
+| F-2427 | P0 | Credentials are enabled for every explicit origin without a demonstrated session/CSRF trust contract. | `src/config/configured-io.adapter.ts:12–14` | Credentialed realtime threat model and tests. |
+| F-2428 | P0 | Adapter configures CORS only; handshake authentication, token expiry/revocation, connection limits and payload limits are absent. | `src/config/configured-io.adapter.ts:11–16` | Connection hardening contract. |
+| F-2429 | P0 | CORS `methods` metadata does not authorize Socket.IO event names or per-event operations. | `src/config/configured-io.adapter.ts:14` | Event-level authorization matrix. |
+| F-2430 | P1 | No test proves adapter installation at bootstrap or parity between HTTP and WebSocket CORS configurations. | `src/config/configured-io.adapter.ts:5–16` | Bootstrap/config parity integration tests. |
+| F-2431 | P1 | No proxy/load-balancer/transport or connection-error integration evidence exists for this adapter. | `src/config/configured-io.adapter.ts:11–16` | Deployment-faithful Socket.IO tests. |
+| F-2432 | P1 | Adapter was not executed or integration-tested during this audit; static options do not establish realtime readiness. | `src/config/configured-io.adapter.ts:1–17` | Pinned executed and live gateway evidence. |
