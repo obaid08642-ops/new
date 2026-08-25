@@ -4812,3 +4812,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3229 | P1 | No rate limit, device attestation or abuse control is represented for location/shift mutations. | `src/schemas/driver-shift.schema.ts:12–18` | Driver-operation abuse gate. |
 | F-3230 | P1 | No audit/deletion/anonymization policy is represented for driver location and earnings history. | `src/schemas/driver-shift.schema.ts:9–18` | Shift-data lifecycle governance. |
 | F-3231 | P1 | The schema was not executed or integrated with live dispatch, location, delivery ledger or payout flows during this audit read. | `src/schemas/driver-shift.schema.ts:1–21` | Baseline-pinned driver runtime evidence. |
+
+## Leave request schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3232 | P0 | No invariant requires start_date before end_date, timezone normalization or maximum leave duration. | `src/schemas/leave-request.schema.ts:13–14` | Strict leave-period contract. |
+| F-3233 | P0 | No overlap/duplicate/idempotency or leave-balance constraint prevents conflicting requests. | `src/schemas/leave-request.schema.ts:8–16` | Schedule/leave conflict gate. |
+| F-3234 | P0 | Facility and provider IDs lack visible employment, branch, organization or tenant ownership integrity. | `src/schemas/leave-request.schema.ts:8–11` | Workforce ownership/tenant gate. |
+| F-3235 | P0 | Denormalized provider_name/provider_type have no snapshot provenance or consistency policy. | `src/schemas/leave-request.schema.ts:10–11` | Identity snapshot contract. |
+| F-3236 | P0 | Status enum lacks transition actor/reason/history, approver separation, optimistic version and terminal protection. | `src/schemas/leave-request.schema.ts:16–19` | Audited approval state machine. |
+| F-3237 | P0 | decided_by/decided_at/decision_note are optional and not constrained to approved/rejected states. | `src/schemas/leave-request.schema.ts:16–19` | Decision-field consistency. |
+| F-3238 | P0 | No decision idempotency, concurrent approval or stale-update behavior is represented. | `src/schemas/leave-request.schema.ts:16–19` | Approval CAS/replay gate. |
+| F-3239 | P0 | Reason and decision note lack length, PII/medical privacy, encoding, moderation and retention controls. | `src/schemas/leave-request.schema.ts:15,19` | Safe leave-reason contract. |
+| F-3240 | P0 | No requester identity, submission actor, role or audit correlation is represented. | `src/schemas/leave-request.schema.ts:8–19` | Request provenance contract. |
+| F-3241 | P1 | No coverage/substitution, schedule conflict, emergency priority or notification side-effect contract is represented. | `src/schemas/leave-request.schema.ts:12–19` | Workforce operational contract. |
+| F-3242 | P1 | No deletion/anonymization/retention policy is represented for leave reasons and approval history. | `src/schemas/leave-request.schema.ts:5–19` | HR/workforce data governance. |
+| F-3243 | P1 | Indexes cover IDs/status only and do not visibly support date-overlap or active-provider query plans. | `src/schemas/leave-request.schema.ts:7–16` | Leave query/index plan. |
+| F-3244 | P1 | The schema was not executed or reconciled with live workforce approval, scheduling or notification flows during this audit read. | `src/schemas/leave-request.schema.ts:1–22` | Baseline-pinned leave runtime evidence. |
