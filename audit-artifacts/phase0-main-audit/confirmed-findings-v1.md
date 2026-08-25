@@ -5366,3 +5366,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3611 | P1 | Minimum threshold and finance configuration are supplied as a fixture but no assertion proves policy enforcement or configuration provenance. | `src/modules/payouts/provider-payouts.controller.spec.ts:16,25–49` | Finance policy provenance gate. |
 | F-3612 | P1 | Rate limits, replay abuse, suspicious payout detection and manual finance correction controls are not tested. | `src/modules/payouts/provider-payouts.controller.spec.ts:34–50` | Payout abuse-control gate. |
 | F-3613 | P1 | This spec was not executed against live Mongo, finance configuration, bank verification, payout provider or accounting workflows during this audit read. | `src/modules/payouts/provider-payouts.controller.spec.ts:1–52` | Baseline-pinned payout runtime evidence. |
+
+## Maternity service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3614 | P0 | Maternity coverage uses an in-memory/mock model and direct patient IDs, so HTTP authentication, live ownership and persistence are unproven. | `src/modules/maternity/maternity.service.spec.ts:4–13,15–43` | Live maternity integration gate. |
+| F-3615 | P0 | Pregnancy LMP/due-date/current-week coverage does not validate future dates, timezone/DST, gestational bounds, date accuracy or uncertainty disclosure. | `src/modules/maternity/maternity.service.spec.ts:21–29` | Pregnancy date/estimate truthfulness gate. |
+| F-3616 | P0 | Pregnancy status lifecycle—multiple pregnancy, miscarriage, termination, postpartum and clinician confirmation—is untested. | `src/modules/maternity/maternity.service.spec.ts:21–29` | Pregnancy state/lifecycle matrix. |
+| F-3617 | P0 | Cycle tracking validates only presence of date and one length; numeric bounds/type, irregular cycles, transitions and estimates are untested. | `src/modules/maternity/maternity.service.spec.ts:31–36` | Cycle clinical-validation gate. |
+| F-3618 | P0 | Kick/contraction tests only reject wrong mode/selected values; valid payloads, units, chronology, duration/frequency/intensity and escalation thresholds are untested. | `src/modules/maternity/maternity.service.spec.ts:38–43` | Maternity event safety gate. |
+| F-3619 | P0 | No clinical red-flag, emergency escalation, clinician handoff, consent or safety-copy contract is tested. | `src/modules/maternity/maternity.service.spec.ts:15–43` | Maternity clinical-safety gate. |
+| F-3620 | P0 | Document fields for checkups, infant growth, kicks and contractions exist in the fixture but checkup/infant-growth workflows are entirely uncovered. | `src/modules/maternity/maternity.service.spec.ts:5,15–43` | Complete maternity capability matrix. |
+| F-3621 | P0 | Patient ownership, active/deleted state, family/dependent access, clinician/provider role and tenant isolation are untested. | `src/modules/maternity/maternity.service.spec.ts:15–43` | Maternity authorization matrix. |
+| F-3622 | P0 | No duplicate/replay/idempotency, concurrent log writes, transaction/CAS or audit actor/time behavior is tested. | `src/modules/maternity/maternity.service.spec.ts:15–43` | Maternity atomicity/replay gate. |
+| F-3623 | P0 | No PHI/PII projection, consent withdrawal, retention/deletion/DSAR or sensitive clinical access audit is tested. | `src/modules/maternity/maternity.service.spec.ts:15–43` | Reproductive-health data governance. |
+| F-3624 | P0 | No reminder, notification, appointment, provider follow-up, cache or downstream clinical-event consistency is asserted. | `src/modules/maternity/maternity.service.spec.ts:15–43` | Maternity side-effect contract. |
+| F-3625 | P0 | State/mode transitions lack failure rollback and partial-update behavior coverage. | `src/modules/maternity/maternity.service.spec.ts:21–43` | Maternity transition/rollback gate. |
+| F-3626 | P1 | Malformed identifiers, model failures, stable error schema, rate limits and abuse controls are largely untested. | `src/modules/maternity/maternity.service.spec.ts:15–43` | Maternity failure/abuse contract. |
+| F-3627 | P1 | Local date fixtures are fixed strings/Date.now-derived and do not prove deterministic clock, locale or timezone behavior. | `src/modules/maternity/maternity.service.spec.ts:21–35` | Deterministic date/time test contract. |
+| F-3628 | P1 | This spec was not executed against live HTTP, Mongo, clinician workflows, notifications or maternity clinical escalation during this audit read. | `src/modules/maternity/maternity.service.spec.ts:1–44` | Baseline-pinned maternity runtime evidence. |
