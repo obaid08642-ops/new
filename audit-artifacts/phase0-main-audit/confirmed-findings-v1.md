@@ -5565,3 +5565,28 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3760 | P1 | Package/bundle identifiers are partly environment-derived/defaulted and no configuration consistency or rotation evidence is present. | `src/modules/device-trust/device-trust.module.ts:73–85,109–116` | Mobile identity configuration gate. |
 | F-3761 | P1 | No challenge/verify/status notifications, cache consistency or downstream risk/audit consumer behavior is asserted. | `src/modules/device-trust/device-trust.module.ts:61–68,149–156` | Device-trust side-effect contract. |
 | F-3762 | P1 | This module was not executed against live Redis, Google Play Integrity, Apple App Attest, security_events or protected endpoints during this audit read. | `src/modules/device-trust/device-trust.module.ts:1–166` | Baseline-pinned attestation runtime evidence. |
+
+## SEO/search module findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3763 | P0 | Public SEO metadata accepts unvalidated type/id and can construct canonical/indexable URLs without a runtime entity/publication allowlist. | `src/modules/seo-search/seo-search.module.ts:23–51,304–307` | SEO entity/publication gate. |
+| F-3764 | P0 | Category metadata is synthesized from the requested id rather than loaded from an authoritative published category. | `src/modules/seo-search/seo-search.module.ts:47–50,89–95` | Category existence/provenance gate. |
+| F-3765 | P0 | Metadata returns `index,follow` without consistently checking deleted, draft, unreviewed, consent or availability state. | `src/modules/seo-search/seo-search.module.ts:23–44,81–105` | Indexability state contract. |
+| F-3766 | P0 | Product Offer may encode missing availability as InStock and uses unverified price data without currency/decimal/stock provenance. | `src/modules/seo-search/seo-search.module.ts:68–77` | Product Offer truthfulness gate. |
+| F-3767 | P0 | Article/provider JSON-LD has incomplete author, publication, verification, location and lifecycle provenance. | `src/modules/seo-search/seo-search.module.ts:81–105` | Entity JSON-LD provenance contract. |
+| F-3768 | P0 | Sitemap contains a fixed fallback lastmod date and does not establish source update-time truthfulness. | `src/modules/seo-search/seo-search.module.ts:109–119` | Sitemap timestamp provenance. |
+| F-3769 | P0 | Sitemap is capped at 2,000 medicines with no sitemap index/pagination and omits article/provider/category surfaces. | `src/modules/seo-search/seo-search.module.ts:109–119` | Complete sitemap lifecycle gate. |
+| F-3770 | P0 | Image sitemap is capped at 1,500, has public CDN fallback and lacks URL/error validation. | `src/modules/seo-search/seo-search.module.ts:348–363` | Image sitemap/security gate. |
+| F-3771 | P0 | XML escaping is incomplete for loc/image URL and slug-derived values, risking malformed feeds or injection. | `src/modules/seo-search/seo-search.module.ts:109–119,352–362` | Strict XML escaping contract. |
+| F-3772 | P0 | `llms.txt` exposes hard-coded inventory/service/API claims that can drift from actual catalog, publication and legal state. | `src/modules/seo-search/seo-search.module.ts:326–345` | Source-reconciled AI discovery metadata. |
+| F-3773 | P0 | Robots allows all `/s/` URLs and sitemap publication without proving page-level privacy, license, deletion or publication gating. | `src/modules/seo-search/seo-search.module.ts:257–262` | Robots/indexability governance. |
+| F-3774 | P0 | Global search interpolates user input into Mongo regex without escaping or regex-cost/time bounds. | `src/modules/seo-search/seo-search.module.ts:121–134` | Search query safety/rate-limit gate. |
+| F-3775 | P0 | Public search/recommendation limits are parsed with `parseInt` without finite/range clamps, enabling malformed or oversized resource requests. | `src/modules/seo-search/seo-search.module.ts:365–380` | Query limit validation contract. |
+| F-3776 | P0 | Search projections expose price, rating, city, manufacturer and media without an explicit publication/verification/privacy policy. | `src/modules/seo-search/seo-search.module.ts:125–133` | Public search disclosure contract. |
+| F-3777 | P0 | Search has no cursor pagination, deterministic tie-break, timeout, cache policy, stale-result handling or cross-domain entity consistency. | `src/modules/seo-search/seo-search.module.ts:121–168` | Search operational contract. |
+| F-3778 | P0 | Recommendation scores/reasons and `ai_rank_ready` are exposed without model provenance, evaluation, opt-out, stale price/availability or safety governance. | `src/modules/seo-search/seo-search.module.ts:177–225` | Recommendation governance gate. |
+| F-3779 | P0 | Doctor recommendations expose consultation_price/rating/city without verifying provider publication, license, consent or tenant scope. | `src/modules/seo-search/seo-search.module.ts:228–241` | Provider recommendation disclosure gate. |
+| F-3780 | P0 | Static Organization/MedicalBusiness/FAQ JSON-LD claims can diverge from actual licenses, services, languages, catalog counts and policy. | `src/modules/seo-search/seo-search.module.ts:264–302` | Static structured-data truthfulness gate. |
+| F-3781 | P0 | No IndexNow delivery/retry, 404/410 deletion lifecycle, hreflang completeness, canonical consistency, audit or crawler validation is demonstrated. | `src/modules/seo-search/seo-search.module.ts:23–44,249–381` | End-to-end SEO publication gate. |
+| F-3782 | P1 | All SEO/search routes lack explicit rate-limit, abuse, observability-redaction and downstream cache invalidation evidence. | `src/modules/seo-search/seo-search.module.ts:244–381` | SEO/search operations gate. |
