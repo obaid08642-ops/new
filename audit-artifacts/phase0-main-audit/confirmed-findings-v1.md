@@ -5870,3 +5870,26 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3990 | P0 | No soft-delete, immutable correction/amendment, cancellation/reschedule provenance or legal retention lifecycle is represented. | `src/schemas/appointment.schema.ts:52–126` | Appointment lifecycle gate. |
 | F-3991 | P0 | No idempotency, duplicate booking/replay, concurrent transition, payment/booking rollback or cross-document atomicity is represented. | `src/schemas/appointment.schema.ts:52–137` | Appointment replay/atomicity gate. |
 | F-3992 | P1 | No live scheduling, payment, insurance, delegated-family or consultation-output runtime evidence was established during this baseline source read. | `src/schemas/appointment.schema.ts:1–138` | Baseline-pinned appointment runtime evidence. |
+
+## Medicine schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3993 | P0 | Verification, medical review, public/indexing eligibility, active/deleted and source/approval fields lack a consistency and authority invariant. | `src/schemas/medicine.schema.ts:19–37,95–96` | Medicine publication/governance gate. |
+| F-3994 | P0 | Medical review state lacks actor/reason/evidence/expiry/suspension detail and CAS/immutable audit semantics. | `src/schemas/medicine.schema.ts:26–40` | Medicine review-state audit gate. |
+| F-3995 | P0 | Price defaults to zero and old_price lacks currency, non-negative/range, tax/discount, effective period, source or server-quote truth. | `src/schemas/medicine.schema.ts:15,72–74` | Medicine price truth gate. |
+| F-3996 | P0 | Insurance coverage IDs are unvalidated and lack plan/coverage/prior-authorization/freshness semantics. | `src/schemas/medicine.schema.ts:87–88` | Medicine insurance gate. |
+| F-3997 | P0 | Aggregate stock/count/status are denormalized without pharmacy source, reconciliation time, reservation/expiry, negative-stock guard or atomic inventory linkage. | `src/schemas/medicine.schema.ts:89–94` | Inventory aggregate truth gate. |
+| F-3998 | P0 | version exists without optimistic-concurrency or catalog/inventory mutation semantics. | `src/schemas/medicine.schema.ts:95–99` | Catalog version/CAS gate. |
+| F-3999 | P0 | Form/strength/interactions/alternatives/categories and medical warnings/contraindications/indications are mostly free-form and lack structured clinical identifiers/evidence/version. | `src/schemas/medicine.schema.ts:41–70` | Medicine clinical-data gate. |
+| F-4000 | P0 | Pregnancy/breastfeeding/controlled/cold-chain data has no contraindication screening, prescription/dispensing, transport or clinician-review invariant. | `src/schemas/medicine.schema.ts:50–66` | Medicine patient-safety gate. |
+| F-4001 | P0 | Translation maps are arbitrary objects without supported-language/field completeness, fallback or review metadata. | `src/schemas/medicine.schema.ts:30–31` | Catalog localization/quality gate. |
+| F-4002 | P0 | Barcode has no format/check-digit/global product authority validation. | `src/schemas/medicine.schema.ts:38–39` | Medicine barcode integrity gate. |
+| F-4003 | P0 | Images/image slots and SEO descriptions are raw strings without secure media/access/content/retention or visible-content consistency controls. | `src/schemas/medicine.schema.ts:16,56,79–86` | Catalog media/SEO integrity gate. |
+| F-4004 | P0 | Alternative/related/insurance references are plain IDs/names with no referential integrity, cycle prevention, tenant/source ownership or deletion behavior. | `src/schemas/medicine.schema.ts:67–70,88` | Catalog reference integrity gate. |
+| F-4005 | P0 | Slug generation depends on mutable names and does not declare redirect/history, collision, locale or immutable public URL semantics. | `src/schemas/medicine.schema.ts:8–10,101–107` | Medicine URL identity gate. |
+| F-4006 | P0 | Medicine catalog/stock/publication updates have no idempotency, transaction/rollback, audit/notification or search-index consistency contract. | `src/schemas/medicine.schema.ts:6–107` | Medicine atomicity/side-effect gate. |
+| F-4007 | P0 | Medicine clinical/creator/approval/insurance/stock data lacks projection, consent where applicable, access audit, encryption, retention, deletion and legal-hold governance. | `src/schemas/medicine.schema.ts:29–95` | Medicine sensitive-data governance. |
+| F-4008 | P1 | No live product review, coverage, inventory aggregate, SEO/indexing or catalog runtime evidence was established during this baseline source read. | `src/schemas/medicine.schema.ts:1–108` | Baseline-pinned medicine runtime evidence. |
+| F-4009 | P0 | `verified` is explicitly operational even when false, while public eligibility is separate; absence of a fail-closed operational gate can expose unverified medicine to transactions. | `src/schemas/medicine.schema.ts:19–25` | Unverified medicine operational safety gate. |
+| F-4010 | P1 | Denormalized usage_count/popularity-like catalog aggregates have no bounded increment, source or reconciliation policy. | `src/schemas/medicine.schema.ts:38,89–94` | Catalog aggregate reconciliation gate. |
