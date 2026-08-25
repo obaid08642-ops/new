@@ -4289,3 +4289,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2846 | P1 | Active and company catalog 403 documentation does not prove role/feature-policy enforcement or public/private boundary behavior. | `src/contracts/insurance-openapi.contract.spec.ts:69–86` | Policy enforcement test. |
 | F-2847 | P1 | Module registration check does not prove route reachability or absence of duplicate/conflicting controller paths. | `src/contracts/insurance-openapi.contract.spec.ts:88–91` | Route registration/runtime smoke gate. |
 | F-2848 | P1 | The spec was not executed during this audit and cannot establish insurance production readiness. | `src/contracts/insurance-openapi.contract.spec.ts:1–92` | Baseline-pinned executed evidence. |
+
+## Insurance schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2849 | P0 | Company/network/coverage IDs are plain strings without visible database FK or cross-document integrity constraints. | `src/schemas/insurance.schema.ts:8,11,49–50,69–72` | FK/eligibility integrity contract. |
+| F-2850 | P1 | Network/company/contract identifiers and bilingual names lack normalization, length, uniqueness-per-parent and locale validation beyond company code uniqueness. | `src/schemas/insurance.schema.ts:8–16,23–26,49–53` | Normalized catalog identity contract. |
+| F-2851 | P1 | Logo/regulatory source metadata has no visible approved-origin, URL, hash format, evidence freshness or immutability enforcement. | `src/schemas/insurance.schema.ts:27–39,55–61` | Verified source/provenance gate. |
+| F-2852 | P0 | Catalog status and active/retired fields do not visibly enforce publication eligibility, retirement/supersession consistency or provider-facing availability. | `src/schemas/insurance.schema.ts:34–41,59–61` | Catalog lifecycle contract. |
+| F-2853 | P0 | Copay percentages/flat amounts have no range, currency, scale, effective period or formula invariant. | `src/schemas/insurance.schema.ts:14–16,73–76` | Server-authoritative coverage money contract. |
+| F-2854 | P0 | Coverage rules use free-form `service_type`/`service_key`, so service catalog identity and unsupported service rejection are not schema-enforced. | `src/schemas/insurance.schema.ts:70–76` | Typed service coverage taxonomy. |
+| F-2855 | P0 | No compound uniqueness/version/effective-date constraint prevents overlapping or duplicate network coverage rules. | `src/schemas/insurance.schema.ts:66–79` | Deterministic coverage rule selection. |
+| F-2856 | P0 | Claims lack order/service/provider/coverage-rule/reference linkage, currency, timezone, reimbursement transaction or immutable decision evidence. | `src/schemas/insurance.schema.ts:83–90` | Audited claim settlement contract. |
+| F-2857 | P0 | Claim `amount` and `covered` are unconstrained and no invariant prevents covered amount exceeding amount or inconsistent status. | `src/schemas/insurance.schema.ts:87–89` | Claim amount/status invariants. |
+| F-2858 | P0 | Claim date is a free-form string and has no period, timezone, received/decided/reimbursed timestamps or ordering semantics. | `src/schemas/insurance.schema.ts:89–90` | Typed claim timeline. |
+| F-2859 | P0 | `InsuranceDetails` stores policy/member/reference and financial decision fields without visible owner/tenant, verification source or safe projection policy. | `src/schemas/insurance.schema.ts:95–110` | Patient insurance-data privacy contract. |
+| F-2860 | P0 | Coverage percentage, patient share, insurer share and copay fields lack cross-field arithmetic consistency checks. | `src/schemas/insurance.schema.ts:104–109` | Coverage/share formula validation. |
+| F-2861 | P0 | Approval status enum lacks compare-and-set, actor authorization, transition audit, appeal, denial reason policy and idempotency. | `src/schemas/insurance.schema.ts:100–110` | Race-safe insurance decision lifecycle. |
+| F-2862 | P1 | Policy/claim/document retention, deletion, DSAR and sensitive-field redaction are not represented. | `src/schemas/insurance.schema.ts:23–41,83–110` | Insurance data governance. |
+| F-2863 | P1 | No operational indexes for company/network/service/active/effective/claim status/time queries are visible beyond selected single-field indexes. | `src/schemas/insurance.schema.ts:24,35,50,59,70,85,100` | Insurance query/index plan. |
+| F-2864 | P1 | The schemas were not executed or integrated with live insurance enrollment/coverage/claim flows during this audit. | `src/schemas/insurance.schema.ts:1–113` | Baseline-pinned insurance runtime evidence. |
