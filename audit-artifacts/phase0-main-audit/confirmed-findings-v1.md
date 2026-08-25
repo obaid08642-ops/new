@@ -5246,3 +5246,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3521 | P1 | No rate limit, abuse, crawl budget or outbound IndexNow quota control is tested. | `src/modules/seo/seo.service.spec.ts:66–95` | SEO abuse/operations gate. |
 | F-3522 | P1 | No AI discovery/agent metadata, IndexNow audit trail or search-engine response monitoring is covered. | `src/modules/seo/seo.service.spec.ts:66–95` | Search/AI discovery operations. |
 | F-3523 | P1 | This spec was not executed against live pages, Mongo, sitemap consumers, IndexNow or search-engine-facing routes during this audit read. | `src/modules/seo/seo.service.spec.ts:1–96` | Baseline-pinned SEO runtime evidence. |
+
+## Patient UX service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3524 | P0 | PatientUxService coverage uses mocked models/events and does not execute HTTP authentication or live resource ownership. | `src/modules/patient-ux/patient-ux.service.spec.ts:17–57,59–139` | Live patient-UX integration gate. |
+| F-3525 | P0 | Only doctor and pharmacy booking kinds are tested; lab, radiology and home-care rating ownership/status semantics are unproven. | `src/modules/patient-ux/patient-ux.service.spec.ts:66–138` | Complete booking-kind matrix. |
+| F-3526 | P0 | Rating bounds are represented by zero only; non-integer, NaN, infinity, decimals, out-of-range and malformed IDs are untested. | `src/modules/patient-ux/patient-ux.service.spec.ts:60–64` | Rating input validation gate. |
+| F-3527 | P0 | One-review-per-booking, duplicate submission, replay/idempotency and concurrent review creation are not tested. | `src/modules/patient-ux/patient-ux.service.spec.ts:96–128` | Review uniqueness/replay contract. |
+| F-3528 | P0 | Review target/provider ownership and tenant/facility boundaries are not tested beyond a patient booking ID fixture. | `src/modules/patient-ux/patient-ux.service.spec.ts:76–128` | Review authorization matrix. |
+| F-3529 | P0 | Auto-approval by numeric threshold is tested without moderation completeness, text/media sanitization, clinical misinformation or appeal workflow. | `src/modules/patient-ux/patient-ux.service.spec.ts:96–128` | Review moderation/safety lifecycle. |
+| F-3530 | P0 | Appointment eligibility checks only scheduled versus completed and pharmacy PREPARING; cancelled, no-show, refunded, returned and partial states are untested. | `src/modules/patient-ux/patient-ux.service.spec.ts:86–138` | Service-state eligibility matrix. |
+| F-3531 | P0 | Review persistence lacks aggregate rating update, provider notification, audit actor/time, cache invalidation and downstream event consistency coverage. | `src/modules/patient-ux/patient-ux.service.spec.ts:96–128` | Review side-effect contract. |
+| F-3532 | P0 | Injected PatientUxRefund model is never exercised, leaving refund ownership, amount calculation, approval, state machine, idempotency and atomicity unverified. | `src/modules/patient-ux/patient-ux.service.spec.ts:11,21–25,41–56` | Refund financial/lifecycle contract. |
+| F-3533 | P0 | No refund/order/appointment monetary reconciliation or server-authoritative fee/tax/currency behavior is tested. | `src/modules/patient-ux/patient-ux.service.spec.ts:21–29,130–138` | Refund financial truthfulness gate. |
+| F-3534 | P0 | No PII/PHI projection, consent, retention, deletion or review access-audit behavior is tested. | `src/modules/patient-ux/patient-ux.service.spec.ts:59–139` | Patient UX privacy governance. |
+| F-3535 | P0 | No rate limit, abuse/fraud review, review bombing or account-state restriction is tested. | `src/modules/patient-ux/patient-ux.service.spec.ts:59–139` | Review abuse-control gate. |
+| F-3536 | P1 | No stable error schema, database failure/timeout, duplicate-key or safe retry behavior is asserted. | `src/modules/patient-ux/patient-ux.service.spec.ts:60–138` | Patient UX failure contract. |
+| F-3537 | P1 | No pagination, public projection, provider disclosure or search/indexing consistency is tested for resulting reviews. | `src/modules/patient-ux/patient-ux.service.spec.ts:96–128` | Review publication/query contract. |
+| F-3538 | P1 | This spec was not executed against live HTTP, Mongo, event bus, refund records or booking workflows during this audit read. | `src/modules/patient-ux/patient-ux.service.spec.ts:1–141` | Baseline-pinned patient-UX runtime evidence. |

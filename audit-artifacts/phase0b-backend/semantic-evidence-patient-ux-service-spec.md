@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — PatientUxService spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/patient-ux/patient-ux.service.spec.ts:1–141`
+
+The spec builds PatientUxService with mocked Review, PatientUxRefund, Order, LabBooking, RadiologyBooking, HomeCareBooking and Appointment collaborators plus mocked event emitter/event bus (`8–57`). The active tests cover only `rate` (`59–139`). They verify rating 0 is rejected, missing doctor booking produces NotFoundException, a booking owned by another user produces BadRequestException, and a non-completed appointment produces ForbiddenException (`60–94`). They verify completed doctor appointments auto-approve ratings >=3 and mark ratings below 3 as pending_review (`96–128`). They verify pharmacy ratings require order state DELIVERED (`130–138`).
+
+The spec does not execute HTTP authentication/guards or live database ownership predicates; all models and event collaborators are mocks (`17–57`). Only doctor and pharmacy kinds are tested; lab, radiology and home-care booking ownership/status paths are not exercised (`66–138`). The active tests do not prove reviewer/provider ownership, one-review-per-booking, duplicate/replay/idempotency, rating bounds beyond zero, text/media sanitization, moderation/appeal, event publication, aggregate rating updates, cache invalidation or audit history (`60–128`). Pharmacy coverage tests only one PREPARING rejection, not delivered/returned/cancelled/refunded/partial fulfillment states (`130–138`). Injected refund model is never exercised, and no refund request ownership, financial calculation, approval, idempotency or transaction behavior is covered (`21–25`). No PII/PHI projection, retention, consent, tenant boundary, rate limiting or live persistence evidence exists. No code was changed and no build/test/application operation was performed during this read.
