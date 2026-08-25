@@ -6029,3 +6029,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4106 | P0 | AI assertions depend on exact hard-coded outputs and do not validate failure/fallback/unsafe-output paths. | `scripts/test-extensions.ts:287–296` | AI robustness/safety gate. |
 | F-4107 | P0 | Cleanup only closes application context and does not restore/delete seeded records or verify process/database isolation. | `scripts/test-extensions.ts:303–305` | Test cleanup/isolation gate. |
 | F-4108 | P1 | Top-level catch logs errors without explicitly setting a non-zero exit code, weakening CI failure semantics. | `scripts/test-extensions.ts:309` | Deterministic CI exit gate. |
+
+## LiveKit infrastructure findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4109 | P0 | LiveKit API key/secret and webhook API key are literal placeholders with no secret-manager indirection, rotation or fail-closed startup contract. | `infra/livekit.yaml:6–8,21–25` | LiveKit secret management gate. |
+| F-4110 | P0 | Empty bind address leaves listener exposure unspecified and requires explicit network/interface restriction. | `infra/livekit.yaml:2–4` | Listener/firewall exposure gate. |
+| F-4111 | P0 | TURN uses example domain, empty TLS certificate/key paths and placeholder external IP, so secure relay and NAT traversal are not operationally evidenced. | `infra/livekit.yaml:10–19` | TURN certificate/IP readiness gate. |
+| F-4112 | P0 | LiveKit webhook target uses plain HTTP, exposing event traffic to transport interception. | `infra/livekit.yaml:21–25` | TLS webhook transport gate. |
+| F-4113 | P0 | Webhook config shows no signed-payload verification, timestamp/replay protection, allowlisting, timeout/retry or dead-letter policy. | `infra/livekit.yaml:21–25` | Webhook authenticity/reliability gate. |
+| F-4114 | P0 | Webhook API key is not tied by schema/config to tenant, room, event scope or backend authorization policy. | `infra/livekit.yaml:21–25` | Webhook authorization/tenant gate. |
+| F-4115 | P0 | RTC UDP range 50000–60000 and external-IP mode have no firewall, capacity, abuse/rate-limit or observability controls represented. | `infra/livekit.yaml:27–31` | Media network/abuse readiness gate. |
+| F-4116 | P0 | No TLS certificate lifecycle, renewal, trust-store or domain validation configuration is represented. | `infra/livekit.yaml:10–19` | Media TLS lifecycle gate. |
+| F-4117 | P0 | No room access policy, token TTL/revocation, participant authorization or recording/data-retention policy is represented in this server config. | `infra/livekit.yaml:1–32` | Call privacy/access governance gate. |
+| F-4118 | P0 | No health/readiness, metrics, tracing, structured logs or alert thresholds are represented. | `infra/livekit.yaml:1–32` | Media operational observability gate. |
+| F-4119 | P0 | No backup/restore, HA, failover, capacity or disaster-recovery configuration is represented. | `infra/livekit.yaml:1–32` | Media resilience gate. |
+| F-4120 | P1 | No runtime LiveKit/TURN/webhook TLS, network or join-token validation was established during this baseline source read. | `infra/livekit.yaml:1–32` | Baseline-pinned media runtime evidence. |
