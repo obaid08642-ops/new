@@ -5731,3 +5731,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3886 | P0 | Log dates use application `Date.now` defaults without timezone/source-clock/ordering guarantees. | `src/schemas/maternity.schema.ts:31–32,47–48,69–70` | Maternity time provenance gate. |
 | F-3887 | P0 | No soft-delete, correction, import/source, audit actor, notification delivery/ack/retry or retention/legal-hold lifecycle exists for maternity records. | `src/schemas/maternity.schema.ts:74–110` | Maternity lifecycle/audit gate. |
 | F-3888 | P1 | No live index/runtime, clinical alert, log-write, permission or retention evidence was established during this baseline source read. | `src/schemas/maternity.schema.ts:1–114` | Baseline-pinned maternity runtime evidence. |
+
+## Extra schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3889 | P0 | Medication plans/doses lack patient–prescription/medicine/plan ownership and referential consistency. | `src/schemas/extra.schemas.ts:7–21,26–36` | Medication identity/ownership gate. |
+| F-3890 | P0 | Medication dose/frequency/times/duration/date fields have no range, timezone, recurrence or temporal consistency validation. | `src/schemas/extra.schemas.ts:13–21,31–35` | Medication schedule data-quality gate. |
+| F-3891 | P0 | Medication state has no safe transition, missed-dose, interaction/allergy, prescriber authorization or adherence correction lifecycle. | `src/schemas/extra.schemas.ts:26–36` | Medication clinical-safety gate. |
+| F-3892 | P0 | Medication scheduling/log writes have no idempotency, duplicate prevention, CAS/version or atomicity declaration. | `src/schemas/extra.schemas.ts:7–39` | Medication replay/atomicity gate. |
+| F-3893 | P0 | Appointment date/time are unconstrained strings with no timezone, availability, slot uniqueness or booking truth invariant. | `src/schemas/extra.schemas.ts:42–60` | Appointment scheduling truth gate. |
+| F-3894 | P0 | Appointment status/mode have no transition authorization or channel/visit-mode invariant. | `src/schemas/extra.schemas.ts:50–60` | Appointment state/channel gate. |
+| F-3895 | P0 | Appointment price is an unqualified number with no currency, immutable quote/source, insurance, payment, refund or settlement linkage. | `src/schemas/extra.schemas.ts:56–56` | Appointment financial truth gate. |
+| F-3896 | P0 | Appointment patient/doctor IDs and denormalized names/phones have no ownership, tenant/facility, provider availability or PII projection constraints. | `src/schemas/extra.schemas.ts:45–60` | Appointment identity/PII gate. |
+| F-3897 | P0 | HealthRecord `record_type` is free-form and arbitrary `data` permits schema drift and unvalidated clinical values. | `src/schemas/extra.schemas.ts:67–74` | Health record typed-schema gate. |
+| F-3898 | P0 | HealthRecord attachments are raw strings with no secure object storage, MIME/content/size/malware, signed access or retention control. | `src/schemas/extra.schemas.ts:71–75` | Health attachment security gate. |
+| F-3899 | P0 | Health records lack source provenance, clinician authorization, interpretation/result state, consent/delegation, tenant, correction audit and legal-hold lifecycle. | `src/schemas/extra.schemas.ts:67–75` | Health-record governance gate. |
+| F-3900 | P0 | AIInteraction kind is free-form and input/output are unconstrained (`output:any`), so AI audit data is not structurally verifiable. | `src/schemas/extra.schemas.ts:81–89` | AI interaction typed-audit gate. |
+| F-3901 | P0 | AIInteraction allows optional user_id and stores potentially clinical prompts/outputs without minimization, consent, redaction, retention or access audit. | `src/schemas/extra.schemas.ts:81–89` | AI PII/PHI governance gate. |
+| F-3902 | P0 | AI log has no model/provider/policy version, prompt-injection provenance, safety/refusal outcome, human escalation or source-record linkage. | `src/schemas/extra.schemas.ts:84–89` | AI safety/provenance gate. |
+| F-3903 | P0 | No soft-delete, deletion/DSAR lifecycle, referential/tenant constraints or immutable correction policy is represented across extra models. | `src/schemas/extra.schemas.ts:7–92` | Extra-schema lifecycle/tenant gate. |
+| F-3904 | P1 | No live runtime/index, medication, appointment, health-record or AI logging evidence was established during this baseline source read. | `src/schemas/extra.schemas.ts:1–93` | Baseline-pinned extra-schema runtime evidence. |
