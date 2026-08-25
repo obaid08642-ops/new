@@ -6082,3 +6082,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4144 | P0 | No graceful shutdown, rolling upgrade, health-gated restart or failover policy is represented. | `infra/docker-compose.infra.yml:7,16,26,34` | Deployment lifecycle gate. |
 | F-4145 | P0 | LiveKit/Coturn config mounts are mutable host paths without ownership/permissions/integrity or secret-file controls represented. | `infra/docker-compose.infra.yml:28–29,36–38` | Config mount integrity gate. |
 | F-4146 | P1 | No runtime compose validation of service isolation, ports, authentication, TLS, health, persistence or recovery was established during this baseline source read. | `infra/docker-compose.infra.yml:1–43` | Baseline-pinned infra runtime evidence. |
+
+## FastAPI pytest fixture findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4147 | P0 | Missing FASTAPI_TEST_BASE_URL or sandbox credentials causes skips, allowing a green suite with no external integration coverage. | `infra/fastapi/tests/conftest.py:9–13,23–28` | Fail-closed test prerequisite gate. |
+| F-4148 | P0 | Patient/guest fixtures use `BASE_URL` directly instead of validated `base_url`, creating inconsistent missing/invalid endpoint handling. | `infra/fastapi/tests/conftest.py:6,54–74` | Single validated endpoint gate. |
+| F-4149 | P0 | Admin credentials are not constrained to approved sandbox identities and assertion errors may include remote response text. | `infra/fastapi/tests/conftest.py:23–34` | Sandbox identity/redaction gate. |
+| F-4150 | P0 | Patient fixture uses hard-coded test password/role and generated external identity without explicit environment ownership/allowlist. | `infra/fastapi/tests/conftest.py:42–51` | Test identity safety gate. |
+| F-4151 | P0 | Auth coverage is bearer-header-only and does not test httpOnly cookies, refresh/revocation, token leakage, CSRF or session security. | `infra/fastapi/tests/conftest.py:16–20,37–79` | Session security gate. |
+| F-4152 | P0 | Session-scoped fixtures create external patient/guest accounts without teardown, cancellation, deletion or duplicate-run cleanup. | `infra/fastapi/tests/conftest.py:42–74` | External test cleanup/isolation gate. |
+| F-4153 | P0 | No owner/stranger/unauth, tenant, RBAC, BOLA, payment, idempotency/replay or rate-limit fixture/assertion is represented. | `infra/fastapi/tests/conftest.py:1–80` | Security/business matrix gate. |
+| F-4154 | P0 | Fixed test values and generated phone/email identities may leak into remote logs or persist beyond the test lifecycle. | `infra/fastapi/tests/conftest.py:42–74` | Test PII/log retention gate. |
+| F-4155 | P0 | API version/path is not centrally validated; fixtures hard-code `/api/auth/*` routes without contract discovery or method/security verification. | `infra/fastapi/tests/conftest.py:29–31,56,69–72` | Contract-pinned endpoint gate. |
+| F-4156 | P1 | Requests session has no timeout, TLS verification policy, retry/backoff or response redaction policy. | `infra/fastapi/tests/conftest.py:16–20` | External client reliability/security gate. |
+| F-4157 | P1 | Token fixtures return raw bearer tokens to tests with no scope/expiry/type assertions. | `infra/fastapi/tests/conftest.py:23–39,54–79` | Token claims/session gate. |
+| F-4158 | P1 | No runtime fixture evidence was established because this source read deliberately did not execute external tests. | `infra/fastapi/tests/conftest.py:1–80` | Baseline-pinned external test evidence. |
