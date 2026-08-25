@@ -4905,3 +4905,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3297 | P1 | No monitoring freshness, clock-skew, ingestion lag or missing-event policy is represented. | `src/schemas/sla-log.schema.ts:7–25` | SLA observability contract. |
 | F-3298 | P1 | No access authorization or role-scoped reporting projection is represented by the schema. | `src/schemas/sla-log.schema.ts:7–25` | SLA disclosure contract. |
 | F-3299 | P1 | The schema was not executed or integrated with live order delivery timing, breach detection or alerting during this audit read. | `src/schemas/sla-log.schema.ts:1–28` | Baseline-pinned SLA runtime evidence. |
+
+## Treatment program schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3300 | P0 | Treatment program has no clinician/provider owner, enrollment actor, consent, diagnosis evidence or care-plan version. | `src/schemas/treatment-program.schema.ts:12–25` | Clinical provenance/consent contract. |
+| F-3301 | P0 | Patient ID lacks visible organization/tenant and family/dependent ownership boundary. | `src/schemas/treatment-program.schema.ts:12–13` | Patient/tenant access gate. |
+| F-3302 | P0 | completedSteps is an unconstrained string array without program-specific allowlist or step-version mapping. | `src/schemas/treatment-program.schema.ts:21–22` | Typed treatment-step contract. |
+| F-3303 | P0 | completedSteps permits duplicates/out-of-order/skipped progression with no actor/time/evidence or atomic CAS semantics. | `src/schemas/treatment-program.schema.ts:21–22` | Audited progression state machine. |
+| F-3304 | P0 | Status active/completed has no completion criteria, transition provenance, terminal protection or optimistic version. | `src/schemas/treatment-program.schema.ts:18–19` | Program lifecycle contract. |
+| F-3305 | P0 | Unique patient/programType index prevents duplicate type but does not model archived/restarted programs or active-only uniqueness. | `src/schemas/treatment-program.schema.ts:15–16,29` | Program identity/lifecycle index plan. |
+| F-3306 | P0 | nextSchedule lacks timezone, recurrence, window/bounds, missed/paused semantics and schedule-change provenance. | `src/schemas/treatment-program.schema.ts:24–25` | Schedule/reminder contract. |
+| F-3307 | P0 | No adherence, measurement, escalation, missed-step, clinician-review or emergency-alert linkage is represented. | `src/schemas/treatment-program.schema.ts:18–25` | Clinical monitoring/escalation contract. |
+| F-3308 | P0 | No notification idempotency, acknowledgment, delivery status or retry behavior is represented. | `src/schemas/treatment-program.schema.ts:21–25` | Reminder delivery contract. |
+| F-3309 | P0 | No PII/PHI minimization, access projection, retention, deletion/anonymization or legal-hold policy is represented. | `src/schemas/treatment-program.schema.ts:7–25` | Clinical data governance. |
+| F-3310 | P0 | No rate limit, replay, concurrent progress or stale schedule update protection is represented. | `src/schemas/treatment-program.schema.ts:18–25` | Program mutation abuse/race gate. |
+| F-3311 | P1 | No source/care-plan version or migration policy supports changing step definitions over time. | `src/schemas/treatment-program.schema.ts:15–22` | Versioned program catalog. |
+| F-3312 | P1 | Indexes support patient/type/status/schedule basics but no clinician/tenant/next-due query plan is visible. | `src/schemas/treatment-program.schema.ts:12,15,18,24,29` | Program query/index plan. |
+| F-3313 | P1 | The schema was not executed or integrated with live clinical programs, reminders, measurements or clinician review during this audit read. | `src/schemas/treatment-program.schema.ts:1–29` | Baseline-pinned treatment runtime evidence. |
