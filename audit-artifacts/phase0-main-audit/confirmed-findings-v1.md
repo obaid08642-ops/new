@@ -2646,3 +2646,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1673 | P1 | No repository-specific query bounds, pagination or index contract is visible for appointment history and operational searches. | `src/modules/care/repositories/appointment.repository.ts:8–13` | Bounded queries, indexes and pagination tests. |
 | F-1674 | P1 | No provider credential, facility readiness or clinical eligibility boundary is enforced at the repository level. | `src/modules/care/repositories/appointment.repository.ts:8–13` | Provider/facility/clinical eligibility checks. |
 | F-1675 | P2 | Non-functional import comment and repository simplicity obscure ownership of this clinically and financially sensitive scheduling boundary. | `src/modules/care/repositories/appointment.repository.ts:4–6` | Remove stale comment and document appointment boundary. |
+
+## Care User repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1676 | P0 | User repository has no safe projection excluding passwords, tokens, credentials or other authentication secrets; inherited generic reads depend on callers. | `src/modules/care/repositories/user.repository.ts:8–13` | Secret-excluding repository methods and negative projection tests. |
+| F-1677 | P0 | No patient/provider/tenant/role/permission scope is enforced at the repository boundary, risking cross-account or cross-tenant user disclosure. | `src/modules/care/repositories/user.repository.ts:8–13` | Mandatory identity/tenant-scoped methods and stranger tests. |
+| F-1678 | P0 | No account-status, identity-verification, suspension, deletion or credential-rotation lifecycle is represented. | `src/modules/care/repositories/user.repository.ts:8–13` | Guarded account and credential state machine. |
+| F-1679 | P1 | No minimum-necessary projection or consent boundary is enforced for profile/contact/clinical-adjacent fields in care flows. | `src/modules/care/repositories/user.repository.ts:8–13` | Role/purpose projections and consent tests. |
+| F-1680 | P1 | No optimistic versioning or conflict policy prevents concurrent profile, role or status updates from losing security-relevant changes. | `src/modules/care/repositories/user.repository.ts:8–13` | Compare-and-set/version and race tests. |
+| F-1681 | P1 | No idempotency/replay policy is defined for care-linked user mutations such as verification, status or profile updates. | `src/modules/care/repositories/user.repository.ts:8–13` | Deterministic command key and replay tests. |
+| F-1682 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for user data in this repository. | `src/modules/care/repositories/user.repository.ts:8–13` | Data lifecycle and erasure/hold tests. |
+| F-1683 | P1 | No audit/provenance records who accessed or changed user identity, credentials, roles or care-linked profile information. | `src/modules/care/repositories/user.repository.ts:8–13` | Immutable account access/change audit. |
+| F-1684 | P1 | No repository-level validation or uniqueness contract is visible for email/phone/provider identity and account linkage. | `src/modules/care/repositories/user.repository.ts:8–13` | Canonical identity uniqueness and normalization tests. |
+| F-1685 | P0 | No authentication-sensitive transaction boundary is defined for password/token/status changes, allowing partial caller-level updates to create inconsistent account security state. | `src/modules/care/repositories/user.repository.ts:8–13` | Transactional credential/status commands and recovery tests. |
+| F-1686 | P1 | No provider/patient role transition or least-privilege invariant is represented at the repository boundary. | `src/modules/care/repositories/user.repository.ts:8–13` | Explicit role transition authorization matrix. |
+| F-1687 | P2 | Non-functional import comment and repository simplicity obscure ownership of this authentication-sensitive identity boundary. | `src/modules/care/repositories/user.repository.ts:4–6` | Remove stale comment and document secret/identity boundary. |
