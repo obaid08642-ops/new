@@ -5149,3 +5149,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3448 | P1 | The contract does not cover non-chat purposes, avatar ownership, prescription/report attachments or public/private boundary behavior. | `src/modules/media/media.contract.spec.ts:62–66` | Complete media-purpose matrix. |
 | F-3449 | P1 | No rate limit, CSRF/session, upload enumeration or signed-URL abuse control is tested. | `src/modules/media/media.contract.spec.ts:26–66` | Media abuse-control gate. |
 | F-3450 | P1 | This contract was not executed against live HTTP, Mongo, object storage or chat records during this audit read. | `src/modules/media/media.contract.spec.ts:1–67` | Baseline-pinned media runtime evidence. |
+
+## Cart contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-345? | P0 | Cart contract uses mocked cart, catalog, order and user collaborators; live HTTP/auth/ownership and persistence are unproven. | `src/modules/cart/cart.contract.spec.ts:5–19,47–73` | Live cart integration gate. |
+| F-345? | P0 | Quantity has no positive/integer/max, duplicate-line, unit, stock or inventory-reservation coverage. | `src/modules/cart/cart.contract.spec.ts:21–30,47–63` | Cart quantity/stock contract. |
+| F-345? | P0 | Catalog active/expiry, prescription requirement, controlled-drug safety and catalog identity validation are not tested. | `src/modules/cart/cart.contract.spec.ts:21–30` | Pharmacy catalog safety gate. |
+| F-345? | P0 | Manual medicine requests lack name/dosage content, prescription upload, clinical review, approval and rejection lifecycle coverage. | `src/modules/cart/cart.contract.spec.ts:32–40` | Manual medication review contract. |
+| F-345? | P0 | Address selection asserts fields but not address ownership, active/verified state, geofence or delivery-feasibility validation. | `src/modules/cart/cart.contract.spec.ts:47–63` | Delivery address authorization/validation. |
+| F-345? | P0 | Checkout does not prove server recomputation of subtotal, tax, discount, delivery fee, currency or total across all cart lines. | `src/modules/cart/cart.contract.spec.ts:47–65` | Authoritative checkout total contract. |
+| F-345? | P0 | No price-change, stock-race, cart-version or stale-line handling is tested. | `src/modules/cart/cart.contract.spec.ts:47–65` | Checkout concurrency gate. |
+| F-345? | P0 | Payment coverage includes cash and one rejected local-card string only; card intent, insurance, wallet, refunds and payment authorization are absent. | `src/modules/cart/cart.contract.spec.ts:47–73` | Payment-method lifecycle matrix. |
+| F-345? | P0 | No checkout idempotency/replay, duplicate-order prevention, order failure rollback or cart-clear atomicity is tested. | `src/modules/cart/cart.contract.spec.ts:47–66` | Exactly-once checkout/compensation gate. |
+| F-345? | P0 | Client/request ownership, tenant isolation, stranger access and patient active/deleted state are not tested. | `src/modules/cart/cart.contract.spec.ts:21–73` | Cart owner/tenant matrix. |
+| F-345? | P0 | No prescription/PHI minimization, address privacy, audit, retention or safe order projection is tested. | `src/modules/cart/cart.contract.spec.ts:32–66` | Pharmacy privacy governance. |
+| F-345? | P1 | No notification, inventory event, cache invalidation or downstream order consistency is asserted. | `src/modules/cart/cart.contract.spec.ts:47–66` | Checkout side-effect contract. |
+| F-345? | P1 | Unsupported/malformed payment and model failures lack stable error schema, rate limit and abuse coverage. | `src/modules/cart/cart.contract.spec.ts:68–73` | Cart failure/abuse contract. |
+| F-345? | P1 | This contract was not executed against live Mongo, inventory, payment, user addresses or order flows during this audit read. | `src/modules/cart/cart.contract.spec.ts:1–74` | Baseline-pinned cart runtime evidence. |
