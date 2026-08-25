@@ -4601,3 +4601,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3073 | P1 | Report interpretation rejection checks exception class only, not stable status/code/body or alternate route bypasses. | `src/modules/ai/ai.service.spec.ts:56–59` | Governed-review error contract. |
 | F-3074 | P1 | The generation gateway non-invocation assertion does not verify no downstream async/background invocation occurs. | `src/modules/ai/ai.service.spec.ts:24,45` | Async side-effect isolation. |
 | F-3075 | P1 | This spec was not executed against live AI policy, storage, notification or governed-review integrations during this audit read. | `src/modules/ai/ai.service.spec.ts:1–60` | Baseline-pinned AI runtime evidence. |
+
+## AI Excel parser spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3076 | P0 | The Excel spec is parser-only with mocked service dependencies and does not prove the real upload/controller/storage boundary. | `src/modules/ai/ai.service.excel.spec.ts:10,18–20` | Upload-integrated security gate. |
+| F-3077 | P0 | Parsed medicine is returned with `medicine_id: null`, so no authoritative catalog identity is established by this path. | `src/modules/ai/ai.service.excel.spec.ts:12–15` | Catalog resolution/ambiguity contract. |
+| F-3078 | P0 | No quantity type, positivity, maximum, decimal, duplicate or row-count validation is tested. | `src/modules/ai/ai.service.excel.spec.ts:8–14` | Prescription quantity validation. |
+| F-3079 | P0 | No worksheet/header allowlist, required-column, column-order or multilingual normalization matrix is tested. | `src/modules/ai/ai.service.excel.spec.ts:7–14` | Strict worksheet contract. |
+| F-3080 | P0 | Formula, macro, external-link, hidden-sheet and malicious-cell handling is not tested. | `src/modules/ai/ai.service.excel.spec.ts:5–14` | Spreadsheet threat-model gate. |
+| F-3081 | P0 | Workbook/file size, decompression, cell length, row/column count, MIME and extension limits are not tested. | `src/modules/ai/ai.service.excel.spec.ts:5–21` | File resource-safety gate. |
+| F-3082 | P0 | No upload authorization, patient ownership, tenant separation or storage access policy is tested. | `src/modules/ai/ai.service.excel.spec.ts:10,18` | Upload ownership matrix. |
+| F-3083 | P0 | No PII/PHI minimization, redaction, retention, deletion or audit provenance test exists for imported notes. | `src/modules/ai/ai.service.excel.spec.ts:8–14` | Prescription-data governance gate. |
+| F-3084 | P0 | Invalid-buffer handling asserts an empty result but not stable error code, safe reason, observability or abuse response. | `src/modules/ai/ai.service.excel.spec.ts:17–21` | Safe import error contract. |
+| F-3085 | P1 | No idempotency/replay or partial-import rollback behavior is tested. | `src/modules/ai/ai.service.excel.spec.ts:4–21` | Import exactly-once/rollback gate. |
+| F-3086 | P1 | No catalog price/availability/prescription legitimacy or provider-authored-document checks are represented. | `src/modules/ai/ai.service.excel.spec.ts:5–15` | Prescription provenance contract. |
+| F-3087 | P1 | No asynchronous parse timeout, memory bound or cancellation behavior is tested. | `src/modules/ai/ai.service.excel.spec.ts:5–21` | Parser operational safety gate. |
+| F-3088 | P1 | This spec was not executed against real upload, storage, catalog or prescription workflows during this audit read. | `src/modules/ai/ai.service.excel.spec.ts:1–22` | Baseline-pinned import runtime evidence. |
