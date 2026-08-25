@@ -1662,3 +1662,12 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1004 | P1 | User model binding relies on a named token while the wrapper adds no runtime assertion that the injected schema is the canonical User model, leaving token/schema drift to module wiring. | `src/modules/auth/repositories/user.repository.ts:2–13` | Canonical model-token registry and startup/schema contract check. |
 | F-1005 | P1 | Generic inherited CRUD/query behavior can expose broad user PII if callers pass weak filters; the repository offers no central guard against unrestricted reads. | `src/modules/auth/repositories/user.repository.ts:8–13` | Deny broad reads by default and require purpose-scoped query methods. |
 | F-1006 | P2 | The auth repository contains non-functional import/comment formatting drift, reducing provenance clarity and increasing risk of confusing it with the similarly named provider repository. | `src/modules/auth/repositories/user.repository.ts:1–6` | Unique repository ownership/path documentation and linted imports. |
+
+## PatientProfileRepository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1007 | P0 | PatientProfileRepository is only a generic MongoRepository wrapper and enforces no patient/member ownership, tenant scope, least-privilege projection, clinical consent or PII redaction. | `src/modules/auth/repositories/patientprofile.repository.ts:1–13` | Purpose-scoped profile repository methods with safe projections and authorization tests. |
+| F-1008 | P1 | Generic inherited CRUD/query behavior can expose the complete patient profile if callers pass weak filters; no repository-level deny-broad-read policy is present. | `src/modules/auth/repositories/patientprofile.repository.ts:8–13` | Deny broad profile reads and require explicit field sets. |
+| F-1009 | P1 | Patient profile model binding relies on a named token with no runtime assertion that the injected schema is canonical, leaving model-token drift to module wiring. | `src/modules/auth/repositories/patientprofile.repository.ts:2–13` | Canonical model-token registry and startup/schema contract check. |
+| F-1010 | P2 | Import/comment formatting drift makes the auth profile repository look like a copied generic wrapper and weakens provenance clarity between similar repository paths. | `src/modules/auth/repositories/patientprofile.repository.ts:4–6` | Repository ownership documentation and linted imports. |
