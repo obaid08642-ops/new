@@ -5266,3 +5266,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3536 | P1 | No stable error schema, database failure/timeout, duplicate-key or safe retry behavior is asserted. | `src/modules/patient-ux/patient-ux.service.spec.ts:60–138` | Patient UX failure contract. |
 | F-3537 | P1 | No pagination, public projection, provider disclosure or search/indexing consistency is tested for resulting reviews. | `src/modules/patient-ux/patient-ux.service.spec.ts:96–128` | Review publication/query contract. |
 | F-3538 | P1 | This spec was not executed against live HTTP, Mongo, event bus, refund records or booking workflows during this audit read. | `src/modules/patient-ux/patient-ux.service.spec.ts:1–141` | Baseline-pinned patient-UX runtime evidence. |
+
+## Recruitment service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3539 | P0 | Recruitment coverage uses mocked models and direct service calls, so HTTP authentication and live persistence are unproven. | `src/modules/recruitment/recruitment.service.spec.ts:12–39,41–155` | Live recruitment integration gate. |
+| F-3540 | P0 | Candidate profile CV URL/file ownership, MIME/size, privacy, license format/expiry and professional verification are untested. | `src/modules/recruitment/recruitment.service.spec.ts:41–70` | Candidate document/security gate. |
+| F-3541 | P0 | Candidate identity/status, tenant/facility scope and consent for professional information are not tested. | `src/modules/recruitment/recruitment.service.spec.ts:41–70` | Candidate ownership/privacy matrix. |
+| F-3542 | P0 | Job visibility, publication/closure/expiry, employer ownership and facility authorization are not comprehensively tested. | `src/modules/recruitment/recruitment.service.spec.ts:81–123,126–155` | Job lifecycle/owner contract. |
+| F-3543 | P0 | Duplicate application check is non-atomic; unique index, concurrent submissions and idempotency/replay are untested. | `src/modules/recruitment/recruitment.service.spec.ts:92–123` | Exactly-once application gate. |
+| F-3544 | P0 | Application input validation, cover-letter sanitization, attachment safety, candidate withdrawal and notification behavior are untested. | `src/modules/recruitment/recruitment.service.spec.ts:106–123` | Application input/lifecycle contract. |
+| F-3545 | P0 | Application status update covers only submitted to interviewing and does not prove an allowlisted state machine or terminal-state rules. | `src/modules/recruitment/recruitment.service.spec.ts:126–155` | Status transition matrix. |
+| F-3546 | P0 | Status update lacks CAS/concurrency, actor/time/reason audit, rollback and downstream notification/event consistency. | `src/modules/recruitment/recruitment.service.spec.ts:126–155` | Audited status atomicity gate. |
+| F-3547 | P0 | Employer authorization uses one facility_id fixture and does not test provider/employer role scope, tenant isolation or cross-facility access. | `src/modules/recruitment/recruitment.service.spec.ts:126–155` | Employer authorization matrix. |
+| F-3548 | P0 | No PII/credential projection, retention, deletion/DSAR or access audit is tested for CVs, licenses and applications. | `src/modules/recruitment/recruitment.service.spec.ts:41–155` | Recruitment privacy governance. |
+| F-3549 | P0 | No malformed identifier, missing resource, duplicate key, model failure or stable error-schema behavior is covered beyond selected exceptions. | `src/modules/recruitment/recruitment.service.spec.ts:73–155` | Recruitment failure contract. |
+| F-3550 | P1 | No pagination, search, ranking, fairness/anti-discrimination or moderation/abuse controls are tested. | `src/modules/recruitment/recruitment.service.spec.ts:41–155` | Recruitment discovery/abuse gate. |
+| F-3551 | P1 | No transaction/rollback protects profile/application/status multi-step changes. | `src/modules/recruitment/recruitment.service.spec.ts:41–155` | Recruitment transaction gate. |
+| F-3552 | P1 | No cache invalidation, audit event, applicant/employer notification or downstream recruitment consistency is asserted. | `src/modules/recruitment/recruitment.service.spec.ts:106–155` | Recruitment side-effect contract. |
+| F-3553 | P1 | This spec was not executed against live HTTP, Mongo, storage, notification or recruitment workflows during this audit read. | `src/modules/recruitment/recruitment.service.spec.ts:1–156` | Baseline-pinned recruitment runtime evidence. |

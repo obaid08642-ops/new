@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — RecruitmentService spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/recruitment/recruitment.service.spec.ts:1–156`
+
+The spec builds RecruitmentService with mocked CandidateProfile, JobPosting and JobApplication models (`6–39`). It verifies a missing candidate profile is created with a CV URL and SCFHS fields, and an existing profile is updated and saved (`41–71`). It verifies application is rejected when the candidate profile is absent, when the job lookup returns no published job, and when an application already exists (`73–104`). It verifies a published job can receive a new application with a cover letter, and that a facility requester can move an application from submitted to interviewing; a different requester/role is forbidden (`106–155`).
+
+All repositories are mocks and methods are invoked directly, so HTTP authentication, candidate/employer identity, tenant/facility ownership and role/permission guards are unproven (`12–39,126–155`). Profile tests do not validate CV URL/file ownership, MIME/size/privacy, license format/expiry, professional verification, consent or PII projection (`41–70`). Application tests do not cover job visibility, closing/expiry, candidate status, duplicate race/unique index, cover-letter sanitization, attachments, withdrawal or idempotency (`73–123`). Status update tests cover one transition only and do not establish an allowlisted state machine, actor audit, employer authorization across facility types, CAS/concurrency, notifications or downstream workflow (`126–155`). No transaction/rollback, error mapping, pagination, retention/DSAR, rate limit, real database or recruitment external-service evidence exists. No code was changed and no build/test/application operation was performed during this read.
