@@ -4848,3 +4848,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3255 | P1 | No CSRF/session-cookie, rate-limit or notification enumeration protection is tested. | `src/modules/notifications/notifications.service.spec.ts:4–28` | Notification abuse-control gate. |
 | F-3256 | P1 | Only one mark-read path is tested; bulk read, delete, archive and channel preference behavior are unverified. | `src/modules/notifications/notifications.service.spec.ts:5–27` | Complete notification lifecycle inventory. |
 | F-3257 | P1 | This spec was not executed against live notifications, delivery providers, tenant data or HTTP routes during this audit read. | `src/modules/notifications/notifications.service.spec.ts:1–28` | Baseline-pinned notification runtime evidence. |
+
+## Approval request schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3258 | P0 | `entity_type` has only a TypeScript union; the Mongoose decorator has no runtime enum. | `src/schemas/approval-request.schema.ts:15` | Runtime entity-type allowlist. |
+| F-3259 | P0 | Creation-vs-modification `entity_id` nullability/integrity is comment-only. | `src/schemas/approval-request.schema.ts:16` | Entity request invariant. |
+| F-3260 | P0 | submitted_by/reviewed_by comments do not enforce provider/admin roles or target ownership. | `src/schemas/approval-request.schema.ts:19–21` | Submit/reviewer separation and ownership. |
+| F-3261 | P0 | No organization/facility/tenant boundary is represented for approval subjects or actors. | `src/schemas/approval-request.schema.ts:15–20` | Approval tenant isolation. |
+| F-3262 | P0 | ApprovalStatus has no actor/time/reason history, terminal protection, segregation-of-duties or CAS/version semantics. | `src/schemas/approval-request.schema.ts:17–24` | Audited race-safe approval state machine. |
+| F-3263 | P0 | `version` is a number with no visible optimistic-concurrency increment/compare contract. | `src/schemas/approval-request.schema.ts:24` | Version/CAS gate. |
+| F-3264 | P0 | `change_data` is `Record<string, any>` without entity-specific allowlist, field validation, size limit or sanitization. | `src/schemas/approval-request.schema.ts:23` | Typed change-set contract. |
+| F-3265 | P0 | No before/after snapshot, source document version or immutable change provenance is represented. | `src/schemas/approval-request.schema.ts:23–24` | Approval diff/provenance contract. |
+| F-3266 | P0 | `change_data` has no secret/PII/PHI redaction or access projection policy. | `src/schemas/approval-request.schema.ts:23` | Sensitive-change governance. |
+| F-3267 | P0 | `rejected_reason` is optional and has no length, privacy, encoding or required-on-rejected invariant. | `src/schemas/approval-request.schema.ts:17–22` | Rejection decision contract. |
+| F-3268 | P0 | No active-request uniqueness, deduplication, idempotency or replay behavior is represented. | `src/schemas/approval-request.schema.ts:14–24,28` | Exactly-once approval submission. |
+| F-3269 | P0 | No approval SLA, expiry, escalation, notification or rollback/publication consistency is represented. | `src/schemas/approval-request.schema.ts:17–24` | Approval operations contract. |
+| F-3270 | P1 | Compound index supports entity/status lookup but does not visibly enforce one active request or tenant-scoped query plans. | `src/schemas/approval-request.schema.ts:28` | Approval index/uniqueness plan. |
+| F-3271 | P1 | No deletion/anonymization/retention/legal-hold policy is represented for approval changes and reasons. | `src/schemas/approval-request.schema.ts:12–24` | Approval-data lifecycle governance. |
+| F-3272 | P1 | The schema was not executed or integrated with live approval controllers, target writes or publication flows during this audit read. | `src/schemas/approval-request.schema.ts:1–28` | Baseline-pinned approval runtime evidence. |

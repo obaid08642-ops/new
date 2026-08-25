@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — ApprovalRequest schema
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/schemas/approval-request.schema.ts:1–28`
+
+The schema defines an enum `ApprovalStatus` with draft, pending_review, approved and rejected (`5–10`). Timestamped approval requests have unique ID, an entity_type field documented as medicine/provider/facility/service, optional entity_id documented as null for creation, indexed status defaulting pending_review, required indexed submitted_by, optional reviewed_by/reviewed_at/rejected_reason, required object-typed change_data, and version defaulting one (`12–24`). A compound entity_type/entity_id/status index is present (`27–28`).
+
+`entity_type` is TypeScript-union-annotated but the Mongoose decorator has only required/index and no runtime enum, so unsupported values may persist (`15`). The creation-vs-modification entity_id invariant is comment-only (`16`). Submitted/reviewed IDs have no visible role, tenant, organization or target ownership checks; comments do not enforce provider/admin separation (`19–21`). Status has no transition history, actor/reason requirement, approval segregation, terminal protection or optimistic/CAS semantics; `version` is a number without visible increment/compare contract (`17–24`). `change_data` is `Record<string, any>` with no entity-specific allowlist, field-level validation, immutable before/after snapshot, secret/PII redaction, size limit or sanitization (`23`). Rejected reason has no requiredness or safety constraints (`22`). No request deduplication/active-request uniqueness, idempotency, notification, audit correlation, expiry/SLA, rollback or publication consistency is represented. No code was changed and no build/test/application operation was performed during this read.
