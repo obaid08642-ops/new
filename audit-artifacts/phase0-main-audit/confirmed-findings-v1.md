@@ -2679,3 +2679,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1696 | P1 | No audit/provenance records who created, verified, approved, published, changed or exposed facility data. | `src/modules/care/repositories/facility.repository.ts:8–13` | Immutable facility access/change/publication audit. |
 | F-1697 | P1 | No repository-specific query bounds, pagination or index contract is visible for facility and service searches. | `src/modules/care/repositories/facility.repository.ts:8–13` | Bounded search, geospatial indexes and pagination tests. |
 | F-1698 | P2 | Non-functional import comment and repository simplicity obscure ownership of this public and operationally sensitive facility boundary. | `src/modules/care/repositories/facility.repository.ts:4–6` | Remove stale comment and document facility boundary. |
+
+## CarePlan repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1699 | P0 | CarePlan repository has no patient/clinician/nurse/booking/tenant scope; inherited generic operations depend on callers to protect clinical plans. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Mandatory relationship-scoped methods and role/stranger tests. |
+| F-1700 | P0 | No clinical-goal, intervention, diagnosis, medication or visit-task validation/linkage boundary is represented. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Typed clinical plan contract and visit/task linkage tests. |
+| F-1701 | P0 | No consent, clinician approval, patient acknowledgement or purpose limitation is enforced at the repository boundary. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Explicit consent/approval workflow and audit. |
+| F-1702 | P1 | No draft/approved/active/paused/completed/closed lifecycle, effective date or supersession policy is defined. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Guarded versioned plan state machine. |
+| F-1703 | P1 | No optimistic versioning or conflict handling prevents concurrent clinician/nurse edits from losing care instructions. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Compare-and-set/amendment and conflict tests. |
+| F-1704 | P1 | No idempotency or deterministic plan/task key is defined for repeated creation, assignment, update or offline sync. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Stable command keys and replay tests. |
+| F-1705 | P0 | No minimum-necessary projection or redaction is enforced for diagnoses, medications, goals, instructions and patient identifiers. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Role/purpose projections and clinical PII redaction tests. |
+| F-1706 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for care plans and their clinical history. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1707 | P1 | No audit/provenance records who authored, approved, assigned, changed, completed or accessed a care plan and under which clinical purpose. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Immutable clinical plan access/change audit. |
+| F-1708 | P1 | No patient consent withdrawal, caregiver sharing or emergency-access boundary is represented. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Consent withdrawal, sharing and break-glass tests. |
+| F-1709 | P1 | No repository-specific query bounds, chronology, pagination or active-plan uniqueness contract is visible. | `src/modules/home-care/repositories/careplan.repository.ts:8–13` | Bounded queries, indexes and active-plan invariant. |
+| F-1710 | P2 | Non-functional import comment and repository simplicity obscure ownership of this high-sensitivity clinical planning boundary. | `src/modules/home-care/repositories/careplan.repository.ts:4–6` | Remove stale comment and document clinical boundary. |
