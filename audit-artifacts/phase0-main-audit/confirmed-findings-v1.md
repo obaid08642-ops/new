@@ -3161,3 +3161,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2058 | P1 | Exceptions outside handled bulk writes can bypass structured cleanup; client close is only on the normal path. | `infra/fastapi/import_etl_products.py:87–95,170–198` | Guaranteed cleanup and structured failure state. |
 | F-2059 | P0 | ETL completion output reports success based on count/insert totals without proving source authenticity, completeness or public safety. | `infra/fastapi/import_etl_products.py:188–198` | Fail-closed release declaration. |
 | F-2060 | P1 | ETL represents a second pharmacy catalog ingestion path that can drift from the canonical NestJS catalog/reconciliation workflow. | `infra/fastapi/import_etl_products.py:1–202` | One authoritative catalog ingestion path or strict isolation. |
+
+## Backend package contract findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2061 | P1 | The lint script uses `--fix`, so a routine quality gate can mutate source rather than remain a deterministic read-only check. | `package.json:6–13` | Separate non-mutating lint gate from explicit formatter command. |
+| F-2062 | P1 | No package scripts expose security audit, SBOM, license scan, OpenAPI verification, typecheck, sandbox, migration/seed governance or production smoke gates. | `package.json:6–14` | Explicit CI/release gates for every required control. |
+| F-2063 | P0 | Many runtime dependency versions use caret ranges, permitting unreviewed resolver drift. | `package.json:15–67` | Fully locked and reviewed runtime dependency graph. |
+| F-2064 | P0 | No package-manager/version/engine/lockfile integrity/SBOM/provenance policy is declared in the package contract. | `package.json:1–108` | Reproducible toolchain and supply-chain evidence. |
+| F-2065 | P0 | Both Nest Bull/BullMQ integrations and both `bull`/`bullmq` packages are installed, creating duplicate queue abstractions and worker drift risk. | `package.json:20–21,40–41` | One authoritative queue stack or explicit isolated ownership. |
+| F-2066 | P1 | Multiple storage, email, AI, PDF and image integrations are installed without visible optional-feature ownership or dependency boundary. | `package.json:16–19,44,54,57–63` | Feature-to-dependency manifest and minimized production graph. |
+| F-2067 | P1 | Runtime/dev/test tooling boundaries are not represented by package scripts or package metadata, risking oversized production images and accidental test dependencies. | `package.json:69–89` | Separate production/dev dependency contracts. |
+| F-2068 | P1 | Jest uses Jest 30 with ts-jest 29 and broad caret ranges without documented compatibility or locked resolution. | `package.json:83–89,91–107` | Verified locked test toolchain. |
+| F-2069 | P1 | Jest configuration has no explicit timeout, coverage threshold, leak detection, environment isolation, worker policy or sandbox/real-service tagging. | `package.json:91–107` | Deterministic bounded test policy. |
+| F-2070 | P1 | `test:boot` references a root-level config while the Jest configuration sets `rootDir: src`; effective boot scope is not self-evident from the package contract. | `package.json:13,97–106` | Explicit verified boot-test configuration. |
+| F-2071 | P1 | No script proves OpenAPI schemas/security annotations match the live route surface or contract pack. | `package.json:6–14` | Generated/spec parity gate. |
+| F-2072 | P1 | No script proves migrations/indexes/seeds are safe, idempotent, environment-bound or rollback-capable. | `package.json:6–14` | Database lifecycle gates. |
+| F-2073 | P1 | No repository/license/engines/package-manager/exports/files metadata is declared for a reproducible operational package boundary. | `package.json:1–108` | Complete package operational metadata. |
+| F-2074 | P1 | No centralized dependency policy prevents duplicate JWT, HTTP, queue or storage implementations from drifting. | `package.json:16–67` | Approved integration matrix and CI drift guard. |
+| F-2075 | P1 | Package scripts do not encode the audit's required fail-closed production readiness, deployment rollback or security verification workflow. | `package.json:6–14` | Evidence-backed release pipeline contract. |
