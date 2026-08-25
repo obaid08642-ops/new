@@ -6118,3 +6118,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4170 | P0 | Tests create external patient/doctor/ticket/order/chat data without teardown or explicit isolation cleanup. | `infra/fastapi/tests/test_nabd_backend.py:28–415` | Integration test cleanup gate. |
 | F-4171 | P1 | Assertions generally expose raw response text on failure and do not provide structured redacted evidence artifacts. | `infra/fastapi/tests/test_nabd_backend.py:158–160,217–218,249–250,322–327` | Redacted machine-readable evidence gate. |
 | F-4172 | P1 | No runtime execution was performed during this baseline source read, so the module’s pass/fail state is unverified here. | `infra/fastapi/tests/test_nabd_backend.py:1–415` | Pinned reproducible execution artifact. |
+
+## E2E package manifest findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4198 | P0 | E2E dependencies use caret ranges without a lockfile or integrity metadata, allowing non-reproducible and potentially vulnerable installs. | `e2e/package.json:1` | Locked/digested dependency gate. |
+| F-4199 | P0 | Package has no scripts or canonical test command, so execution and CI ownership are implicit and non-reproducible. | `e2e/package.json:1` | Canonical E2E command gate. |
+| F-4200 | P0 | No test runner/configuration, coverage threshold or machine-readable report format is declared. | `e2e/package.json:1` | Test evidence/coverage gate. |
+| F-4201 | P0 | No Node/package-manager engine pin is declared for the E2E harness. | `e2e/package.json:1` | Runtime reproducibility gate. |
+| F-4202 | P0 | No lint/typecheck/security audit or dependency vulnerability gate is declared. | `e2e/package.json:1` | E2E supply-chain quality gate. |
+| F-4203 | P0 | Dependency manifest does not declare isolation/sandbox guardrails for MongoMemoryServer, direct MongoDB access or external test credentials. | `e2e/package.json:1` | Test-environment safety gate. |
+| F-4204 | P1 | `mongodb-memory-server` enables ephemeral DB tests but the manifest does not pin binary version/download policy or cache integrity. | `e2e/package.json:1` | Ephemeral database reproducibility gate. |
+| F-4205 | P1 | Package does not define cleanup/signal/timeout helpers or test lifecycle tooling. | `e2e/package.json:1` | Harness lifecycle gate. |
+| F-4206 | P1 | Package is private but has no declared publication/audit ownership, retention or artifact collection policy. | `e2e/package.json:1` | Test artifact governance gate. |
