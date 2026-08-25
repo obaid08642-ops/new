@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — OCR worker
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `ocr_worker.py:1–64`
+
+This standalone Python worker reads one JSON request from stdin and writes one JSON response to stdout (`2–7,15–19`). It accepts `image_base64`, strips a data-URL prefix with a regex (`19–22`), and does not validate base64 alphabet, decoded size, dimensions, MIME type, image format, decompression-bomb risk, or request framing. It imports unused modules (`base64`, `io`) and has no input timeout, process/resource bound, concurrency policy, cancellation or maximum output limit.
+
+The worker calls `load_dotenv('/app/backend/.env')` and reads `EMERGENT_LLM_KEY` from the environment (`10–13`). This hardcoded filesystem path bypasses an explicit secret-manager contract, and the key is a universal credential with no provider/model allowlist, rotation, tenant/user attribution, rate limit, budget, audit or fail-closed integration policy. No patient consent, purpose limitation, PHI retention/deletion, geographic routing or access-control boundary is represented before transmitting prescription images and extracted clinical data to the model.
+
+The model is fixed to OpenAI `gpt-4o` through `emergentintegrations` and receives a medical OCR prompt (`30–45`). The prompt instructs the model to extract doctor, clinic, date and diagnosis in addition to medications (`31–42`), increasing PHI scope. There is no provenance, confidence calibration, clinical review gate, medication catalogue verification, prescription authenticity check, duplicate detection, handwriting ambiguity policy, unsafe-dose handling, or explicit refusal/escalation state. The input image/content is not guarded against prompt injection or adversarial document content.
+
+Responses are parsed as arbitrary JSON; markdown fences are stripped and a greedy `{[\\s\\S]*}` regex attempts recovery (`46–56`). No schema validation, type/range validation, required-field enforcement, item-level confidence normalization, language validation, unit normalization, or contradiction detection occurs. If parsing fails, raw model text becomes `raw_text`; if the model returns any parseable object, `obj['ok']=True` is forced (`51–58`) without validating extraction quality. This can represent malformed or clinically unsafe output as success. A fallback may return `overall_confidence:0`, but successful status semantics remain ungoverned.
+
+Errors expose the exception string and up to 500 characters of traceback to stdout (`59–60`), potentially leaking paths, provider details, input-derived content or operational secrets to the Nest caller/logs. There is no structured error taxonomy, correlation ID, redaction, retry/backoff, circuit breaker, timeout, idempotency, audit event or deletion of input/output. The session ID uses only process ID (`43`), risking collisions and lacking request/patient/consent traceability. No worker was executed, no external model was called, no product code was changed and no tests were run during this semantic read.

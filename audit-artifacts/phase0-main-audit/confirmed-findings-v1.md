@@ -3393,3 +3393,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2230 | P1 | Lockfile contains integrity for resolved packages but that positive fact does not validate license, CVE, malicious-package or runtime compatibility status. | `package-lock-full-traversal.txt` summary | Distinct integrity/security/compatibility gates. |
 | F-2231 | P1 | No proof exists in this member that Docker's `npm ci` uses the intended lockfile in every image path or that lockfile presence is mandatory. | `package-lock.json:1–18299; Dockerfile:3–4,11–12; Dockerfile.production:6–7,21–22` | Docker lockfile assertion and image install verification. |
 | F-2232 | P1 | The resolver graph contains no legacy top-level dependencies object, but no migration/lockfile reproducibility report ties it to the baseline commit and release artifact. | `package-lock.json` root metadata | Commit-pinned dependency/release manifest. |
+
+## OCR worker findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2233 | P0 | Worker accepts base64 image input without decoded size, dimensions, MIME, format or decompression-bomb validation. | `ocr_worker.py:17–23` | Bounded validated image ingestion. |
+| F-2234 | P0 | Worker reads a hardcoded `.env` path and a universal LLM key without secret-manager, rotation, tenant attribution or audit controls. | `ocr_worker.py:10–13` | Managed scoped credential contract. |
+| F-2235 | P0 | Prescription/PHI images are transmitted to an external model without visible patient consent, purpose, retention, residency or deletion boundary. | `ocr_worker.py:30–45` | Approved clinical data processing contract. |
+| F-2236 | P1 | Model/provider is hardcoded to `openai/gpt-4o` without an allowlist, budget/rate limit, timeout, fallback or model governance policy. | `ocr_worker.py:43–45` | Governed model routing and bounded invocation. |
+| F-2237 | P1 | Prompt requests doctor, clinic, date and diagnosis in addition to medicines, expanding PHI without minimum-necessary policy. | `ocr_worker.py:31–42` | Minimum-necessary extraction schema. |
+| F-2238 | P0 | No prompt-injection/adversarial-document/content safety boundary exists for uploaded prescription images. | `ocr_worker.py:31–45` | Threat-modelled document/model isolation. |
+| F-2239 | P0 | Prompt-only JSON shape is not enforced at runtime; arbitrary parsed objects are accepted. | `ocr_worker.py:30–45,51–58` | Typed schema validation and rejection. |
+| F-2240 | P0 | No range/type/unit/language/contradiction validation or medication-catalogue/clinical review gate exists. | `ocr_worker.py:51–58` | Pharmacist/clinician review and normalized contract. |
+| F-2241 | P0 | Any parseable model object is forced to `ok=true`, allowing malformed/unsafe extraction to appear as success. | `ocr_worker.py:51–58` | Success only after validated reviewed output. |
+| F-2242 | P1 | Greedy JSON recovery and raw model text fallback are unbounded and may capture unintended content. | `ocr_worker.py:51–56` | Bounded structured parsing and safe failure. |
+| F-2243 | P0 | Error response exposes exception text and traceback fragments to the caller/log stream, risking path/provider/PII leakage. | `ocr_worker.py:59–60` | Redacted structured error taxonomy. |
+| F-2244 | P1 | No input/read/model timeout, cancellation, retry/backoff, circuit breaker, concurrency or output-size policy exists. | `ocr_worker.py:15–60` | Bounded resilient worker lifecycle. |
+| F-2245 | P1 | Process-ID-only session IDs lack request/patient/consent correlation and can collide across worker lifetimes. | `ocr_worker.py:43` | Non-sensitive correlation identity and audit. |
+| F-2246 | P0 | No idempotency, duplicate submission protection, audit event or deletion lifecycle exists for image/OCR processing. | `ocr_worker.py:15–60` | Audited idempotent PHI processing lifecycle. |
+| F-2247 | P1 | Missing-key and parse failure semantics are not connected to a clinical unavailable/review state; downstream caller could misclassify output. | `ocr_worker.py:23–28,51–60` | Explicit unavailable/review/failed contract. |
+| F-2248 | P1 | Worker imports dotenv/integration dependencies and assumes `/app/backend/.env`/package layout without a deployment/runtime compatibility contract. | `ocr_worker.py:8–13,30` | Reproducible worker packaging and startup checks. |
