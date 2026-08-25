@@ -4998,3 +4998,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3365 | P1 | No idempotency/replay, rate-limit or ad-serving abuse controls are represented. | `src/schemas/ad-placement.schema.ts:12–31` | Ad mutation/serving abuse gate. |
 | F-3366 | P1 | Indexes support provider/status only and no active campaign, budget, schedule or targeting query plan is visible. | `src/schemas/ad-placement.schema.ts:12–25` | Ad operational index plan. |
 | F-3367 | P1 | The schema was not executed or integrated with live ad serving, consent, billing, moderation or analytics during this audit read. | `src/schemas/ad-placement.schema.ts:1–34` | Baseline-pinned advertising runtime evidence. |
+
+## Application boot E2E spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3368 | P0 | Chat boot test overrides core models/repository/event services, so it is a DI smoke test rather than a real application boot. | `test/app.boot.e2e-spec.ts:18–29` | Production-like bootstrap gate. |
+| F-3369 | P0 | JwtAuthGuard is overridden with an always-true guard, removing the authentication boundary. | `test/app.boot.e2e-spec.ts:28` | Real auth guard bootstrap/integration. |
+| F-3370 | P0 | No fail-closed environment/configuration validation is exercised. | `test/app.boot.e2e-spec.ts:18–34` | Config validation and missing-secret gate. |
+| F-3371 | P0 | No real MongoDB model connection, indexes or repository methods are exercised. | `test/app.boot.e2e-spec.ts:22–26` | Real database/index boot evidence. |
+| F-3372 | P0 | No Redis, Socket.IO/websocket, LiveKit, Sentry or external service initialization is exercised. | `test/app.boot.e2e-spec.ts:18–34` | Dependency readiness matrix. |
+| F-3373 | P0 | No route registration, HTTP security headers, CORS, rate-limit or error-filter behavior is asserted. | `test/app.boot.e2e-spec.ts:31–34` | HTTP surface/security bootstrap gate. |
+| F-3374 | P0 | No health/readiness/liveness or dependency-failure behavior is tested. | `test/app.boot.e2e-spec.ts:31–34` | Operational readiness gate. |
+| F-3375 | P0 | No event publication, catalog refresh or system-event persistence is exercised because collaborators are overridden. | `test/app.boot.e2e-spec.ts:24–27` | Event integration boot gate. |
+| F-3376 | P0 | No shutdown/drain, websocket disconnect or in-flight request handling is tested. | `test/app.boot.e2e-spec.ts:14–16,31–34` | Graceful shutdown gate. |
+| F-3377 | P1 | The test asserts only that an HTTP server object exists, not that expected routes respond safely. | `test/app.boot.e2e-spec.ts:31–34` | Route smoke and security response matrix. |
+| F-3378 | P1 | No production error mapping, correlation, PII redaction or observability behavior is tested. | `test/app.boot.e2e-spec.ts:18–34` | Safe runtime error/observability gate. |
+| F-3379 | P1 | No environment parity, migration/index startup or version compatibility behavior is represented. | `test/app.boot.e2e-spec.ts:18–34` | Deployment parity gate. |
+| F-3380 | P1 | This spec was not executed against the baseline application with real dependencies during this audit read. | `test/app.boot.e2e-spec.ts:1–35` | Baseline-pinned runtime boot evidence. |
