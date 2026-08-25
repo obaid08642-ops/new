@@ -1,0 +1,25 @@
+{
+  "normalized_confirmed_roots": 80,
+  "root_by_workstream": {
+    "catalog/quote": 9,
+    "consultation": 9,
+    "diagnostics/homecare": 9,
+    "insurance/payment": 9,
+    "patient web/mobile parity": 9,
+    "pharmacy offers+settlement": 8,
+    "platform/identity/audit": 9,
+    "provider/admin operations": 9,
+    "release operations": 9
+  },
+  "root_by_queue": {
+    "SECURITY_RELEASE_BLOCKER": 39,
+    "PRODUCT_DECISION_REQUIRED": 36,
+    "RUNTIME_OR_EXTERNAL_VERIFICATION_REQUIRED": 3,
+    "FUNCTIONAL_ROOT_DEFECT": 2
+  },
+  "static_defect_reconfirm_required": 62,
+  "static_runtime_or_insufficient_excluded": 326,
+  "catalog_only_excluded": 77,
+  "mechanical_historical_excluded": 40,
+  "planning_rows": 259
+}
