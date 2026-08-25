@@ -3435,3 +3435,12 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2262 | P1 | The file describes intended security controls but cannot verify controllers, guards, storage or external provider behavior; static prose must not substitute for negative tests. | `NABDAH_PROJECT_REFERENCE.md:32–71,180–205` | Source-level and live negative authorization evidence. |
 | F-2263 | P1 | Four application components are described as one platform while their archives/branches may have separate source authorities and build contracts. | `NABDAH_PROJECT_REFERENCE.md:23–30,239–251` | Component authority/hash/build matrix. |
 | F-2264 | P1 | The generated inventories are incomplete as semantic audit evidence because they list paths/routes but not full per-member consumer, state, ownership, data and test semantics. | `NABDAH_PROJECT_REFERENCE.md:235–269,285–1800` | Master manifest reconciliation and 100% member semantic read. |
+
+## Care provider-profile repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2265 | P1 | Care ProviderProfile repository delegates entirely to a generic Mongo repository and contains no explicit ownership, branch, active/published or public-projection policy. | `src/modules/care/repositories/providerprofile.repository.ts:8–12` | Caller/base contract must prove scoped access for every context. |
+| F-2266 | P1 | The same generic repository can be reused across public discovery and private provider contexts without member-level field minimization or purpose separation. | `src/modules/care/repositories/providerprofile.repository.ts:9–12` | Purpose-specific repositories/projections or audited callers. |
+| F-2267 | P1 | No pagination, concurrency/session, transaction, sort or error-translation behavior is defined at this care persistence boundary. | `src/modules/care/repositories/providerprofile.repository.ts:9–12` | Explicit persistence contract where required by lifecycle. |
+| F-2268 | P1 | The repository has no direct contract tests proving model injection, generic delegation, or safe behavior under missing/foreign provider identities. | `src/modules/care/repositories/providerprofile.repository.ts:1–13` | Repository/caller negative and integration coverage. |
