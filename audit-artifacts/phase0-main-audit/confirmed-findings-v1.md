@@ -4693,3 +4693,28 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3140 | P1 | No delivery location retention/deletion, customer privacy, redaction or access projection policy is represented. | `src/schemas/delivery.schema.ts:14–23` | Location/proof privacy governance. |
 | F-3141 | P1 | Indexes cover order/state only; no visible driver/time/geospatial/active delivery query plan exists. | `src/schemas/delivery.schema.ts:9,12–16` | Operational delivery indexes. |
 | F-3142 | P1 | The schema was not executed or integrated with live dispatch, tracking, fee reconciliation or proof verification during this audit read. | `src/schemas/delivery.schema.ts:1–26` | Baseline-pinned delivery runtime evidence. |
+
+## User schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3143 | P0 | `password_hash` has no visible select:false, algorithm/version, rotation, compromise or reset metadata at schema boundary. | `src/schemas/user.schema.ts:12` | Credential secret/projection contract. |
+| F-3144 | P0 | Full name, phone, email, avatar, city, district and professional fields have no visible normalization, format, length or field-level privacy controls. | `src/schemas/user.schema.ts:9–11,17–19,40–44` | PII validation/access contract. |
+| F-3145 | P0 | Location is typed but has no coordinate range, precision, accuracy, timestamp, source or retention policy. | `src/schemas/user.schema.ts:20` | Location privacy/truthfulness contract. |
+| F-3146 | P0 | Device token array is unbounded and lacks platform, owner, expiry, revocation, deduplication and per-device metadata. | `src/schemas/user.schema.ts:27` | Push-token lifecycle contract. |
+| F-3147 | P0 | Consent tuple lacks jurisdiction, actor/source, policy hash, withdrawal/revocation and ordering safeguards; immutability is only a comment. | `src/schemas/user.schema.ts:22–24` | Verifiable consent governance. |
+| F-3148 | P0 | Guest/contact/password/active/deleted state cross-field invariants are not represented. | `src/schemas/user.schema.ts:10–16` | Identity/state consistency gate. |
+| F-3149 | P0 | Role-specific staff/provider/doctor parent, branch, permissions, license and verification invariants are not represented. | `src/schemas/user.schema.ts:13,30–44` | Role/organization authorization contract. |
+| F-3150 | P0 | `permissions` is a free-form string array with no allowlist, role boundary, approval, expiry or provenance. | `src/schemas/user.schema.ts:35` | Least-privilege permission contract. |
+| F-3151 | P0 | `schedule` is `any`, with no typed availability, timezone, overlap or authorization constraints. | `src/schemas/user.schema.ts:36` | Provider schedule contract. |
+| F-3152 | P0 | Suspended/verified/active/deleted flags have no audited transition actor/time/reason or precedence policy. | `src/schemas/user.schema.ts:14,16,37–38` | User state machine/audit contract. |
+| F-3153 | P0 | `health_id` uniqueness is present but no issuance, non-reuse, migration, disclosure or tenant-scope policy is represented. | `src/schemas/user.schema.ts:25–26` | Patient identifier lifecycle. |
+| F-3154 | P0 | No tenant/organization boundary is represented for parent provider, branch, staff permissions or doctor access. | `src/schemas/user.schema.ts:30–35` | Organization isolation gate. |
+| F-3155 | P0 | `years_experience` and `consultation_fee` are unconstrained, allowing invalid professional or financial values. | `src/schemas/user.schema.ts:42–44` | Professional/fee validation. |
+| F-3156 | P0 | Consultation fee has no currency, tax, effective-date, calculation source or payment reconciliation linkage. | `src/schemas/user.schema.ts:44` | Server-authoritative price contract. |
+| F-3157 | P0 | No account deletion/anonymization/DSAR/retention policy is represented for identity, consent, device and clinical/profile data. | `src/schemas/user.schema.ts:6–28` | User data lifecycle governance. |
+| F-3158 | P0 | No uniqueness normalization/case-folding/phone canonicalization policy is visible beyond database sparse uniqueness. | `src/schemas/user.schema.ts:10–11` | Contact identity canonicalization. |
+| F-3159 | P1 | No login/session/revocation/risk/device audit fields beyond last_login_at are represented. | `src/schemas/user.schema.ts:27–28` | Authentication provenance contract. |
+| F-3160 | P1 | Avatar is an opaque URL without private asset ownership, content scan, expiry or safe projection control. | `src/schemas/user.schema.ts:17` | Secure avatar media contract. |
+| F-3161 | P1 | No data classification or client DTO projection is enforced by the schema; sensitive fields may depend entirely on callers. | `src/schemas/user.schema.ts:8–44` | Explicit safe user projection. |
+| F-3162 | P1 | The schema was not executed or reconciled against all auth/profile/staff/doctor consumers during this audit read. | `src/schemas/user.schema.ts:1–47` | Baseline-pinned user integration evidence. |
