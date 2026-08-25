@@ -6099,3 +6099,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4156 | P1 | Requests session has no timeout, TLS verification policy, retry/backoff or response redaction policy. | `infra/fastapi/tests/conftest.py:16–20` | External client reliability/security gate. |
 | F-4157 | P1 | Token fixtures return raw bearer tokens to tests with no scope/expiry/type assertions. | `infra/fastapi/tests/conftest.py:23–39,54–79` | Token claims/session gate. |
 | F-4158 | P1 | No runtime fixture evidence was established because this source read deliberately did not execute external tests. | `infra/fastapi/tests/conftest.py:1–80` | Baseline-pinned external test evidence. |
+
+## FastAPI backend test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4159 | P0 | Reference/doctor/product tests assume exact/minimum seed counts and names without module-level seeding or contract pinning. | `infra/fastapi/tests/test_nabd_backend.py:72–142,165–204` | Deterministic fixture/contract gate. |
+| F-4160 | P0 | Appointment tests use fixed dates in the past relative to the audit date, so booking behavior may be invalid or time-dependent. | `infra/fastapi/tests/test_nabd_backend.py:206–239` | Dynamic timezone-aware scheduling fixture. |
+| F-4161 | P0 | Visual-search test invokes external AI with generated image data and timeout but does not prove provider identity, cost control, privacy, deterministic result or graceful failure. | `infra/fastapi/tests/test_nabd_backend.py:190–204` | Approved AI integration/safety gate. |
+| F-4162 | P0 | Registration, onboarding, appointments, orders, vitals, passport updates, reviews, tickets and chat mutations do not test idempotency/replay/duplicates. | `infra/fastapi/tests/test_nabd_backend.py:28–327,377–415` | Mutation replay matrix. |
+| F-4163 | P0 | Owner/stranger/unauth coverage is narrow and absent for most patient/provider/admin object routes. | `infra/fastapi/tests/test_nabd_backend.py:206–315,330–415` | Per-route authorization matrix. |
+| F-4164 | P0 | Order test checks client-visible total arithmetic but does not verify server pricing, currency/tax, payment authorization, capture, refund or reconciliation. | `infra/fastapi/tests/test_nabd_backend.py:241–258` | Financial truth/settlement gate. |
+| F-4165 | P0 | Health passport/vitals tests do not assert PHI projection, cross-patient denial, consent, audit, retention or token/cookie security. | `infra/fastapi/tests/test_nabd_backend.py:260–293` | Clinical privacy/security gate. |
+| F-4166 | P0 | Review tests do not prove booking ownership, duplicate review prevention, moderation audit, abuse resistance or aggregate correctness. | `infra/fastapi/tests/test_nabd_backend.py:295–315` | Review integrity/moderation gate. |
+| F-4167 | P0 | Admin/provider tests do not assert reasoned transitions, credential evidence, tenant scope, audit entries, rollback or concurrent approval/rejection behavior. | `infra/fastapi/tests/test_nabd_backend.py:330–374` | Governance workflow gate. |
+| F-4168 | P0 | Chat tests do not verify room membership/participant authorization, message privacy, content limits, media security, replay or cross-patient isolation. | `infra/fastapi/tests/test_nabd_backend.py:377–415` | Chat confidentiality gate. |
+| F-4169 | P0 | The auto-close test explicitly skips the behavior under its name and only verifies a newly-created room remains active. | `infra/fastapi/tests/test_nabd_backend.py:397–415` | Auto-close time/state gate. |
+| F-4170 | P0 | Tests create external patient/doctor/ticket/order/chat data without teardown or explicit isolation cleanup. | `infra/fastapi/tests/test_nabd_backend.py:28–415` | Integration test cleanup gate. |
+| F-4171 | P1 | Assertions generally expose raw response text on failure and do not provide structured redacted evidence artifacts. | `infra/fastapi/tests/test_nabd_backend.py:158–160,217–218,249–250,322–327` | Redacted machine-readable evidence gate. |
+| F-4172 | P1 | No runtime execution was performed during this baseline source read, so the module’s pass/fail state is unverified here. | `infra/fastapi/tests/test_nabd_backend.py:1–415` | Pinned reproducible execution artifact. |
