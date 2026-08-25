@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — Admin notification center contract spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/admin-notification-center/admin-notification-center.contract.spec.ts:1–37`
+
+The spec constructs AdminNotificationCenterService with mocked campaigns/users collections and a queueNotification dependency, then constructs the controller with a mocked broadcast service (`4–11,31–36`). It verifies bulk campaigns require explicit audience confirmation before insertion (`13–17`), unsafe external deep links are rejected before persistence (`19–23`), campaign creation records the supplied administrator identifier rather than a fixed actor (`25–29`), and controller broadcast forwards the authenticated admin ID to the service (`31–36`).
+
+This provides narrow governance coverage but directly calls service/controller methods and mocks all persistence/delivery. It does not prove HTTP authentication, admin role/tenant scope, actor verification, approval separation or campaign ownership (`5–11,25–36`). Audience segment allowlists, filter semantics, recipient count/preview confirmation, patient consent/opt-out, family/clinical sensitivity and cross-tenant isolation are untested (`13–29`). Title/body locale, length, HTML/template injection, medical claims, secret/PII redaction and deep-link parsing beyond one external URL are untested (`19–23`). No idempotency, duplicate campaign, schedule/timezone, cancellation, retry/backoff, queue failure, partial delivery, provider response or delivery reconciliation is covered (`9,13–36`). No read/list/audit access, rate limit, retention/deletion, notification preference or live push provider evidence exists. No code was changed and no build/test/application operation was performed during this read.
