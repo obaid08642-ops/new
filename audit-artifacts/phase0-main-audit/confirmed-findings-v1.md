@@ -3299,3 +3299,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2161 | P1 | No environment variable ownership, rotation cadence, expiry alerting, incident revocation or audit trail is represented. | `ENVIRONMENT.md:1–171` | Managed ownership and secret operations evidence. |
 | F-2162 | P1 | No canonical provider fallback contract prevents conflicting payment, AI, storage, mail and SMS configurations from silently changing behavior. | `ENVIRONMENT.md:29–90,143–170` | Explicit provider precedence and fail-closed conflict checks. |
 | F-2163 | P1 | Documentation does not provide generated `.env.example` parity or prove every `process.env` access across all surfaces is covered. | `ENVIRONMENT.md:1–171` | Automated docs/source parity gate. |
+
+## TypeScript build configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2164 | P1 | Build config inherits all weak base strictness and does not introduce a production-specific type-safety baseline. | `tsconfig.build.json:2–3; tsconfig.json:14–19` | Audited production compiler strictness. |
+| F-2165 | P1 | Build config excludes scripts and scratch without a supplemental typecheck, permitting operational code drift. | `tsconfig.build.json:3` | Script/operational code assurance path. |
+| F-2166 | P1 | Build config excludes every spec file, so test adapters/fixtures are not covered by compiler assurance. | `tsconfig.build.json:3` | Separate test typecheck or governed exclusion. |
+| F-2167 | P1 | No build-specific `noEmitOnError` policy is declared, leaving error-to-artifact behavior unexpressed. | `tsconfig.build.json:1–4` | Build fails closed on compiler errors. |
+| F-2168 | P1 | Build-specific source-map and declaration artifact policy is absent and inherited outputs may be shipped. | `tsconfig.build.json:1–4; tsconfig.json:4,10` | Controlled production artifact policy. |
+| F-2169 | P1 | Build-specific incremental/clean-output policy is absent while base incremental and Nest delete-output behavior apply. | `tsconfig.build.json:1–4; tsconfig.json:13; nest-cli.json:6` | Deterministic clean-build evidence. |
+| F-2170 | P0 | Build config does not itself establish runtime support for `@/*` path aliases after compilation. | `tsconfig.build.json:1–4; tsconfig.json:22–24` | Verified compiled alias resolution. |
+| F-2171 | P1 | Asset inclusion is not declared in the TypeScript build config, relying on separate Nest CLI behavior without parity verification. | `tsconfig.build.json:1–4; nest-cli.json:8` | Unified build/asset manifest. |
+| F-2172 | P0 | No parity gate proves Docker, package scripts, Nest CLI and CI all use this same build configuration. | `tsconfig.build.json:1–4` | Single verified build entrypoint. |
+| F-2173 | P1 | No generated build manifest records config hash, compiler version, source commit or excluded surface. | `tsconfig.build.json:1–4` | Traceable build provenance. |
