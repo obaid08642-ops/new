@@ -5808,3 +5808,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3943 | P0 | Free-form notes/findings/impression/recommendations have no content, clinical sign-off or privacy classification controls. | `src/schemas/lab-result.schema.ts:33–44` | Result narrative governance. |
 | F-3944 | P0 | No notification delivery, retry, patient-view acknowledgement or critical-result communication evidence is represented. | `src/schemas/lab-result.schema.ts:38–44` | Result side-effect contract. |
 | F-3945 | P1 | No live result retrieval, critical alert, attachment, report publication or index runtime evidence was established during this baseline source read. | `src/schemas/lab-result.schema.ts:1–49` | Baseline-pinned lab-result runtime evidence. |
+
+## Job board schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3946 | P0 | Candidate experience duration is a free-form string with no dates, unit, chronology or employer verification. | `src/schemas/job-board.schema.ts:5–12` | Candidate experience data-quality gate. |
+| F-3947 | P0 | CV URL has no file type, signed access, ownership, expiry, malware/content, retention or deletion controls. | `src/schemas/job-board.schema.ts:17–20` | Secure CV upload/storage gate. |
+| F-3948 | P0 | SCFHS license status is free-form and expiry has no authority, format, future/renewal or eligibility invariant. | `src/schemas/job-board.schema.ts:21–23` | Professional credential gate. |
+| F-3949 | P0 | Candidate user_id/profile identity lacks active-user, canonical candidate, tenant and consent/access invariants. | `src/schemas/job-board.schema.ts:17–20` | Candidate identity/tenant gate. |
+| F-3950 | P0 | Job posting role/location/requirements have no controlled taxonomy, license requirement, normalization, moderation or source validation. | `src/schemas/job-board.schema.ts:33–38` | Job posting data-quality gate. |
+| F-3951 | P0 | salary_range is free-form and lacks numeric/currency/range/source, freshness or compensation truth controls. | `src/schemas/job-board.schema.ts:39–39` | Salary truthfulness gate. |
+| F-3952 | P0 | facility_id has no owner authorization, facility existence, tenant boundary or publication permission invariant. | `src/schemas/job-board.schema.ts:40–43` | Facility posting ownership gate. |
+| F-3953 | P0 | Job draft/published/closed status has no actor/reason, publication approval, expiry/closure time, version or CAS invariant. | `src/schemas/job-board.schema.ts:41–43` | Job lifecycle/publication gate. |
+| F-3954 | P0 | candidate_id may mean CandidateProfile.id or User.id, with no canonical identity, job-open check, candidate ownership or duplicate-application uniqueness. | `src/schemas/job-board.schema.ts:51–55` | Application ownership/duplicate gate. |
+| F-3955 | P0 | Application status lacks transition authorization, interview/outcome/offer data, rejection reason, withdrawal/consent or immutable audit. | `src/schemas/job-board.schema.ts:54–58` | Application workflow state gate. |
+| F-3956 | P0 | CV, license, cover letter, candidate identity and facility/job content lack projection, access audit, encryption, retention, deletion/DSAR and legal-hold controls. | `src/schemas/job-board.schema.ts:17–25,33–58` | Recruitment PII governance. |
+| F-3957 | P0 | No application idempotency, notification delivery/retry, transaction/rollback, concurrent status/CAS or search-index consistency state is represented. | `src/schemas/job-board.schema.ts:15–58` | Recruitment atomicity/side-effect gate. |
+| F-3958 | P1 | No live license verification, CV upload, posting publication, application workflow or index runtime evidence was established during this baseline source read. | `src/schemas/job-board.schema.ts:1–61` | Baseline-pinned job-board runtime evidence. |
