@@ -2905,3 +2905,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1862 | P1 | No per-collection isolation, checkpoint or resume marker exists; failure after earlier collections leaves an undocumented partial migration. | `scripts/backfill-catalog-governance.ts:127–142` | Checkpointed/resumable migration and partial-failure recovery. |
 | F-1863 | P1 | No immutable audit records who applied/rolled back governance, which database/commit was targeted, or the exact matched/modified records. | `scripts/backfill-catalog-governance.ts:135–149` | Structured migration audit artifact. |
 | F-1864 | P2 | Script uses fixed string provenance literals and a generic policy abstraction that can drift from collection-specific governance semantics. | `scripts/backfill-catalog-governance.ts:24–46,83–95,107–114` | Versioned typed policy registry and contract tests. |
+
+## Deprecated insurance seed script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1865 | P1 | A deprecated insurance seed entry point remains present under `scripts/` and can be discovered or invoked by generic seed/deploy tooling. | `scripts/seed-insurance-companies.ts:1–14` | Remove/quarantine deprecated entry point or enforce CI/package reference prohibition. |
+| F-1866 | P1 | The deprecation file fails with a generic top-level throw rather than a structured CLI deprecation result, making automation handling ambiguous. | `scripts/seed-insurance-companies.ts:12–14` | Typed nonzero deprecation exit with machine-readable code/help. |
+| F-1867 | P1 | No machine-readable deprecation marker, migration ID, owner, removal date or lifecycle metadata is present. | `scripts/seed-insurance-companies.ts:1–11` | Versioned deprecation/removal metadata and owner. |
+| F-1868 | P1 | Comments assert that the replacement is the only supported reconciliation path but the file does not verify package/deployment references or enforce exclusivity. | `scripts/seed-insurance-companies.ts:4–10` | Repository-wide reference guard and single-entry-point contract. |
+| F-1869 | P2 | The deprecated file provides no direct link to the replacement's contract, dry-run artifact, approval requirement or operator documentation beyond a free-form message. | `scripts/seed-insurance-companies.ts:4–13` | Actionable migration guidance and evidence link. |
+| F-1870 | P2 | A generic operator invoking the file receives no indication whether any partial work occurred, although this file currently performs no mutation. | `scripts/seed-insurance-companies.ts:12–14` | Structured no-op/deprecated status with explicit mutation guarantee. |
+| F-1871 | P2 | The deprecated path is not visibly covered by a zero-legacy-script or CI scan that prevents reintroduction of the old catalog seeder. | `scripts/seed-insurance-companies.ts:1–14` | CI guard for deprecated seed paths and duplicate catalog entry points. |
+| F-1872 | P2 | The script's safety depends on runtime failure rather than repository/tooling-level prevention, leaving operator UX and automation safety fragile. | `scripts/seed-insurance-companies.ts:12–14` | Tooling-level prevention and documented replacement workflow. |
