@@ -3100,3 +3100,24 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2012 | P0 | Barcode route returns `str(e)` in HTTP 500 responses, exposing internal provider/transport details. | `infra/fastapi/ai_routes.py:179–184` | Redacted typed errors. |
 | F-2013 | P0 | AI routes duplicate other FastAPI AI implementations and can diverge in auth, fallback and safety semantics. | `infra/fastapi/ai_routes.py:30,71–184` | Single authoritative AI route contract. |
 | F-2014 | P1 | Fixed localhost catalog dependency and silent exception swallowing lack deployment topology, timeout observability and readiness/health semantics. | `infra/fastapi/ai_routes.py:92–112` | Environment-bound dependency, health and structured telemetry. |
+
+## FastAPI setup script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2015 | P0 | Setup script performs privileged network/package changes without root/OS/architecture/repository preflight, artifact pinning, checksums, SBOM or rollback. | `infra/fastapi/setup_server.sh:1–11` | Reproducible verified provisioning with rollback. |
+| F-2016 | P0 | Script header claims Ubuntu 24.04 while MongoDB repository entry targets Ubuntu jammy, creating release compatibility drift. | `infra/fastapi/setup_server.sh:3–4,17–21` | Supported OS/repository alignment and preflight. |
+| F-2017 | P0 | MongoDB GPG key and NodeSource setup are fetched from the network without independently pinned digest/provenance. | `infra/fastapi/setup_server.sh:18,30` | Verified pinned artifacts and supply-chain evidence. |
+| F-2018 | P0 | MongoDB is started/enabled without authentication, bind-address restriction, TLS, encryption at rest, least-privilege users, replica/backup/audit or readiness configuration. | `infra/fastapi/setup_server.sh:21–24` | Hardened authenticated MongoDB deployment. |
+| F-2019 | P0 | Firewall opens MongoDB port 27017 despite only a comment suggesting local-only access; no source restriction/default-deny/IPv6 verification is applied. | `infra/fastapi/setup_server.sh:55–64` | Private Mongo ingress and verified restrictive firewall. |
+| F-2020 | P0 | FastAPI and NestJS ports 8000/8002 are opened externally instead of being constrained behind a reverse proxy/private network. | `infra/fastapi/setup_server.sh:57–63` | Private app ports and TLS reverse proxy. |
+| F-2021 | P1 | SSH is allowed without SSH hardening, source restriction, key-only policy, fail2ban/rate controls or effective-rule verification. | `infra/fastapi/setup_server.sh:58` | Hardened audited SSH ingress. |
+| F-2022 | P1 | HTTP/HTTPS ports are opened without TLS/certificate setup, redirect/HSTS policy or reverse-proxy configuration. | `infra/fastapi/setup_server.sh:59–60` | Verified TLS and edge security. |
+| F-2023 | P1 | Node.js, PM2, Python and system packages are installed without pinned versions, lockfile/SBOM or vulnerability verification. | `infra/fastapi/setup_server.sh:28–51` | Pinned runtime/toolchain and security scan. |
+| F-2024 | P1 | Global PM2 installation has no version, service user, ecosystem configuration, startup persistence, log policy or graceful lifecycle. | `infra/fastapi/setup_server.sh:38–42` | Managed least-privilege process deployment. |
+| F-2025 | P0 | Script does not install/configure the FastAPI/NestJS application, dependencies, environment files, secrets, migrations, queues, reverse proxy or rollback. | `infra/fastapi/setup_server.sh:1–78` | Complete deployment contract or explicit scope boundary. |
+| F-2026 | P0 | No secrets provisioning, rotation, permission, vault integration or validation is performed. | `infra/fastapi/setup_server.sh:1–78` | Managed secret lifecycle and fail-closed preflight. |
+| F-2027 | P1 | No disk/resource limits, backup setup, monitoring, alerting, log redaction or audit collection is configured. | `infra/fastapi/setup_server.sh:1–78` | Operability/DR/security telemetry acceptance. |
+| F-2028 | P1 | `set -e` does not provide compensation/rollback for prior successful package, service or firewall changes after a later failure. | `infra/fastapi/setup_server.sh:6–78` | Transactional/idempotent provisioning and rollback. |
+| F-2029 | P1 | MongoDB and package service status output is not a readiness check and does not verify application/dependency health. | `infra/fastapi/setup_server.sh:66–76` | End-to-end readiness probe. |
+| F-2030 | P0 | Script declares “server ready for deployment” without evidence of security hardening, TLS, secrets, app health, backup, rollback or effective firewall posture. | `infra/fastapi/setup_server.sh:66–78` | Evidence-backed readiness declaration or remove claim. |
