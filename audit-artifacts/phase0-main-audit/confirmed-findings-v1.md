@@ -3064,3 +3064,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1986 | P1 | No independent catalog reconciliation prevents hallucinated names, ingredients, manufacturer, dose, form or category from reaching downstream flows. | `infra/fastapi/ai_service.py:193–226,269–299` | Canonical catalog resolution and unknown quarantine. |
 | F-1987 | P1 | No audit event captures actor, patient purpose, image hash, provider/model, latency, confidence, output disposition or deletion status. | `infra/fastapi/ai_service.py:60–86,149–302` | Privacy-preserving AI audit trail. |
 | F-1988 | P2 | AI service loads dotenv and creates a singleton at import time, making environment/configuration coupling implicit and complicating isolation/readiness. | `infra/fastapi/ai_service.py:29–37,305–307` | Explicit startup configuration and dependency health contract. |
+
+## FastAPI NestJS proxy findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1989 | P0 | Proxy routes expose a broad `/api/v2` catch-all as a parallel contract surface, bypassing route-specific allowlist and policy review. | `infra/fastapi/nestjs_proxy.py:40–47` | Explicit versioned route allowlist or isolated/decommissioned compatibility boundary. |
+| F-1990 | P0 | Upstream is fixed to plaintext `http://localhost:8002`, with no environment identity, TLS/mTLS or upstream certificate policy. | `infra/fastapi/nestjs_proxy.py:11–15` | Secure environment-bound upstream connection. |
+| F-1991 | P0 | Proxy forwards Authorization, Cookie and all non-dropped headers without explicit trust-boundary, tenant, actor or sensitive-header policy. | `infra/fastapi/nestjs_proxy.py:20–22` | Allowlisted headers and explicit auth/tenant propagation contract. |
+| F-1992 | P0 | Proxy forwards all body/query content without request size, content-type, path normalization, query complexity or rate controls. | `infra/fastapi/nestjs_proxy.py:18–31,40–47` | Bounded validated pass-through contract. |
+| F-1993 | P0 | Broad methods include mutations with no proxy-level idempotency, ownership or contract enforcement. | `infra/fastapi/nestjs_proxy.py:40–42` | Mutation-specific contract enforcement or no mutation forwarding. |
+| F-1994 | P1 | Upstream errors are returned with `str(e)`, potentially exposing internal host/port/transport details. | `infra/fastapi/nestjs_proxy.py:32–33` | Redacted typed upstream errors. |
+| F-1995 | P1 | Upstream response headers are copied broadly, allowing unsafe/duplicate cookie, cache, security and transport semantics. | `infra/fastapi/nestjs_proxy.py:34–37` | Explicit response-header allowlist and cookie/security policy. |
+| F-1996 | P1 | Response body/status/content type are passed through without size, redaction, error normalization or contract verification. | `infra/fastapi/nestjs_proxy.py:34–37` | Versioned response contract and bounded redaction. |
+| F-1997 | P1 | Module-global HTTP client has no explicit shutdown close hook, health state or circuit breaker/backpressure. | `infra/fastapi/nestjs_proxy.py:14–15` | Managed client lifecycle and resilience controls. |
+| F-1998 | P1 | Proxy has no structured request ID, upstream latency/error telemetry, audit context or trace propagation policy. | `infra/fastapi/nestjs_proxy.py:18–37` | Privacy-safe proxy observability. |
+| F-1999 | P0 | Header/body forwarding can circumvent the intended NestJS contract-first controls when upstream accepts legacy or unreviewed paths. | `infra/fastapi/nestjs_proxy.py:18–31,40–47` | Contract parity tests including owner/stranger/unauth/idempotency. |
+| F-2000 | P1 | Fixed localhost routing is not deployment-portable and can silently target the wrong process/database topology. | `infra/fastapi/nestjs_proxy.py:3,11` | Explicit deployment topology and startup dependency validation. |
