@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — HomeCareTrackingController spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/home-care/controllers/home-care-tracking.controller.spec.ts:1–43`
+
+The spec defines a mocked account lookup helper and constructs HomeCareTrackingController with mocked supply/booking/account dependencies (`1–6,9–14,21–27,34–37`). It verifies attendance for a booking assigned to another nurse is rejected with ForbiddenException and no save is available (`9–19`). It verifies geofence validation uses booking address coordinates rather than client-supplied patient coordinates, rejects a distant nurse position and does not save (`21–32`). It verifies a supplies request is rejected when the booking is missing and does not create a supply record (`34–42`).
+
+The tests are direct-controller/mock-bound; HTTP authentication, verified nurse identity, nurse account/credential state, facility/tenant ownership and live persistence are unproven (`9–42`). Geofence coverage uses only one valid booking coordinate and one distant pair; coordinate range/precision, GPS spoofing, distance algorithm/threshold, altitude/accuracy, timestamp/clock skew, patient privacy and booking state/arrival window are untested (`21–32`). Assignment rejection does not cover missing booking, provider branch/capability, race or unauthorized role variants (`9–19`). Supplies coverage only checks missing booking; item allowlist, quantity/unit/price, patient/order ownership, stock, priority, duplicate/replay, approval, fulfilment and financial truthfulness are absent (`34–42`). No idempotency, CAS/transaction, event/notification/cache, audit, consent/PHI, location retention/DSAR, rate limit or live storage/geo/provider evidence exists. No code was changed and no build/test/application operation was performed during this read.
