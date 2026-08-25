@@ -5286,3 +5286,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3551 | P1 | No transaction/rollback protects profile/application/status multi-step changes. | `src/modules/recruitment/recruitment.service.spec.ts:41–155` | Recruitment transaction gate. |
 | F-3552 | P1 | No cache invalidation, audit event, applicant/employer notification or downstream recruitment consistency is asserted. | `src/modules/recruitment/recruitment.service.spec.ts:106–155` | Recruitment side-effect contract. |
 | F-3553 | P1 | This spec was not executed against live HTTP, Mongo, storage, notification or recruitment workflows during this audit read. | `src/modules/recruitment/recruitment.service.spec.ts:1–156` | Baseline-pinned recruitment runtime evidence. |
+
+## Health service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3554 | P0 | Health coverage is mock-bound and does not execute HTTP authentication, patient ownership or live persistence. | `src/modules/health/health.service.spec.ts:4–27,137–152` | Live health integration gate. |
+| F-3555 | P0 | Reminder medicine identity, catalog/prescription safety and dosage/unit/range validation are not tested. | `src/modules/health/health.service.spec.ts:29–70` | Medication reminder clinical-input gate. |
+| F-3556 | P0 | Reminder recurrence, start/end lifecycle, DST/timezone edge cases, consent and notification delivery are only partially represented. | `src/modules/health/health.service.spec.ts:29–104` | Recurrence/timezone/consent contract. |
+| F-3557 | P0 | Reminder ownership, patient active/deleted state, family/dependent delegation and tenant isolation are untested. | `src/modules/health/health.service.spec.ts:29–104` | Reminder ownership matrix. |
+| F-3558 | P0 | Dose-log conflict handling is mocked and does not prove atomic one-per-local-day uniqueness under concurrent writes or replay. | `src/modules/health/health.service.spec.ts:72–84` | Dose-log uniqueness/CAS gate. |
+| F-3559 | P0 | Local notification occurredAt/source is accepted without device attestation, clock-skew policy or replay provenance coverage. | `src/modules/health/health.service.spec.ts:86–98` | Notification-event authenticity gate. |
+| F-3560 | P0 | Refill lock assertions do not prove lock expiry/recovery, concurrent acquisition, stale-lock cleanup or transactionality. | `src/modules/health/health.service.spec.ts:106–126` | Refill lock/transaction gate. |
+| F-3561 | P0 | Refill order failure, reminder rollback, duplicate replay, cancellation and downstream fulfillment consistency are untested. | `src/modules/health/health.service.spec.ts:106–134` | Refill compensation/idempotency contract. |
+| F-3562 | P0 | Refill stock, price, delivery address, payment/insurance authorization and server-authoritative totals are not tested. | `src/modules/health/health.service.spec.ts:106–134` | Refill financial/inventory truthfulness gate. |
+| F-3563 | P0 | Vital values lack clinical range, unit, decimal/NaN, timestamp, source/device trust and abnormal-value escalation coverage. | `src/modules/health/health.service.spec.ts:155–170` | Vital clinical-validation gate. |
+| F-3564 | P0 | Legacy vital alias normalization is tested, but storage/query migration completeness, duplicate behavior and all vital types are unproven. | `src/modules/health/health.service.spec.ts:155–170` | Canonical vital migration contract. |
+| F-3565 | P0 | Vital PHI projection, consent, family access, retention/deletion and access audit are not tested. | `src/modules/health/health.service.spec.ts:155–170` | Vital privacy governance. |
+| F-3566 | P0 | No reminder/vital audit actor/time, notification/event, cache invalidation or downstream clinical consistency is asserted. | `src/modules/health/health.service.spec.ts:29–170` | Health side-effect/audit contract. |
+| F-3567 | P1 | Model/Redis/order failures, malformed IDs, stable error schemas, rate limits and abuse controls are largely untested. | `src/modules/health/health.service.spec.ts:29–170` | Health failure/abuse contract. |
+| F-3568 | P1 | This spec was not executed against live HTTP, Mongo, Redis, order/inventory or notification workflows during this audit read. | `src/modules/health/health.service.spec.ts:1–171` | Baseline-pinned health runtime evidence. |
