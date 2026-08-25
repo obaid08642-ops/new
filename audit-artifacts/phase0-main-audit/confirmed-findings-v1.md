@@ -4735,3 +4735,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3172 | P1 | No CSRF/session-cookie, rate-limit or abuse behavior is tested for bookmark mutations. | `src/modules/articles/articles.contract.spec.ts:13–40` | Mutation abuse/security gate. |
 | F-3173 | P1 | No article SEO canonical, JSON-LD, sitemap or index lifecycle behavior is tested. | `src/modules/articles/articles.contract.spec.ts:12–40` | Article SEO lifecycle gate. |
 | F-3174 | P1 | This spec was not executed against live article visibility, bookmark persistence or HTTP behavior during this audit read. | `src/modules/articles/articles.contract.spec.ts:1–41` | Baseline-pinned bookmark runtime evidence. |
+
+## Unified bookings service access spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3175 | P0 | Service is instantiated through `Object.create` with a mocked model, bypassing constructor/module wiring. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:8–14` | Module-integrated service test. |
+| F-3176 | P0 | The test does not prove the database query is ownership-scoped; it controls returned value independently of requested user. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:9–13,16–24` | Query-level owner/stranger gate. |
+| F-3177 | P0 | Only radiology is mapped and tested; other unified booking kinds are unverified. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:11–12,16–24` | All-kind contract matrix. |
+| F-3178 | P0 | No HTTP/controller authentication or unauthenticated behavior is tested. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–24` | HTTP owner/stranger/unauth matrix. |
+| F-3179 | P0 | No tenant/organization/provider ownership or enumeration resistance is tested. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–24` | Tenant/isolation gate. |
+| F-3180 | P0 | No malformed/unknown kind or booking ID validation is tested. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–24` | Identifier/kind validation. |
+| F-3181 | P0 | No booking creation, slot locking, payment intent, cancellation, rescheduling or call-token lifecycle is covered. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:8–24` | Full booking journey contract. |
+| F-3182 | P0 | No idempotency/replay, concurrent update, transactionality or compensation behavior is tested. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–24` | Exactly-once booking gate. |
+| F-3183 | P0 | No status/payment/ownership response projection or sensitive-field non-disclosure assertion is present. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–19` | Safe booking detail projection. |
+| F-3184 | P1 | Only null-result NotFound behavior is checked; model errors, timeout and safe error taxonomy are untested. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:21–24` | Error/failure contract. |
+| F-3185 | P1 | No notification, audit, cache invalidation or reconciliation behavior is tested. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:8–24` | Booking side-effect contract. |
+| F-3186 | P1 | No rate limit or abuse control is tested on booking detail access. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:16–24` | Access abuse gate. |
+| F-3187 | P1 | No live MongoDB/index or deployed unified-booking route evidence is produced. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:4–13` | Baseline-pinned runtime evidence. |
+| F-3188 | P1 | This spec cannot certify unified booking production readiness because it covers one mocked read path only. | `src/modules/unified-bookings/unified-bookings.service.spec.ts:1–25` | Production-like unified booking suite. |
