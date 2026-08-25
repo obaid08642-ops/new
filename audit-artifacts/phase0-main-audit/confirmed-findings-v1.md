@@ -3647,3 +3647,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2404 | P1 | No duplicate upload/idempotency or concurrent read/delete behavior is tested. | `src/modules/storage/storage.module.spec.ts:1–31` | Exactly-once and race-safe storage mutations. |
 | F-2405 | P1 | Fixtures use permissive `any` and do not enforce runtime metadata/schema constraints. | `src/modules/storage/storage.module.spec.ts:5–11` | Typed fixtures and runtime validation. |
 | F-2406 | P1 | The spec was not executed during this audit and cannot establish current storage readiness. | `src/modules/storage/storage.module.spec.ts:1–31` | Baseline-pinned executed and live object-store evidence. |
+
+## Environment validation findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2407 | P0 | Every non-production `NODE_ENV` bypasses all validation and returns the untyped environment unchanged. | `src/config/env.validation.ts:1–3,12` | Explicit safe environment modes and validation policy. |
+| F-2408 | P0 | Only four production variables are required; payment, webhook, OTP, SMS/email, storage, LiveKit, LLM and encryption credentials are not validated here. | `src/config/env.validation.ts:5–7` | Complete integration-specific fail-closed validation. |
+| F-2409 | P1 | `MONGO_URL` and `REDIS_URL` are checked as non-empty strings only; URI scheme, TLS, host, credential and network policy are not validated. | `src/config/env.validation.ts:5–7` | Typed secure URI validation. |
+| F-2410 | P0 | JWT validation checks length but not entropy, algorithm/key policy, rotation, key ID, revocation or cookie/session configuration. | `src/config/env.validation.ts:8` | Managed JWT/session contract. |
+| F-2411 | P0 | ALLOWED_ORIGINS only rejects a literal `*`; trusted hosts, HTTPS, schemes, ports, normalization, duplicates and confusables are unverified. | `src/config/env.validation.ts:9–10` | Canonical origin allowlist validation. |
+| F-2412 | P1 | Unknown or misspelled environment variables are silently accepted because the validator returns the original untyped record. | `src/config/env.validation.ts:1,12` | Strict schema with unknown-key policy. |
+| F-2413 | P1 | No validation/redaction audit ensures secrets are not logged or exposed in configuration diagnostics. | `src/config/env.validation.ts:1–13` | Secret-safe startup diagnostics. |
+| F-2414 | P1 | No environment validation covers feature flags, rate limits, retention, consent, backup or security toggles. | `src/config/env.validation.ts:1–13` | Cross-cutting configuration schema. |
+| F-2415 | P0 | Production validation does not establish dependency reachability/readiness or distinguish safe credentials from syntactically valid strings. | `src/config/env.validation.ts:5–12` | Startup dependency/readiness acceptance. |
+| F-2416 | P1 | The validator has no direct test evidence in this audit for production, development, malformed origin, short secret or missing integration cases. | `src/config/env.validation.ts:1–13` | Pinned validator test matrix. |
