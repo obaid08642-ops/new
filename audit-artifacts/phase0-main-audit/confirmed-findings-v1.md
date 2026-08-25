@@ -3782,3 +3782,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2494 | P1 | Unknown non-HTTP exceptions are treated as 500 for capture, while HTTP status classification can miss wrapped/domain errors. | `src/common/sentry.filter.ts:21–29` | Exception taxonomy and telemetry matrix. |
 | F-2495 | P1 | No test proves Nest response handling remains privacy-safe after Sentry capture or when Sentry throws. | `src/common/sentry.filter.ts:26–31` | Capture-failure isolation test. |
 | F-2496 | P1 | The filter was not executed or privacy-tested during this audit and cannot establish observability readiness. | `src/common/sentry.filter.ts:1–33` | Baseline-pinned redaction and runtime evidence. |
+
+## Redis HTTP cache interceptor findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2497 | P0 | Cache bypass checks only the Authorization header; cookie-authenticated/private responses can be cached as public if this interceptor applies. | `src/common/redis-cache.interceptor.ts:18–20` | Auth-aware route/cache policy. |
+| F-2498 | P0 | Cache key is only `originalUrl`, with no explicit host, method, API representation, locale, content negotiation, tenant or policy variance. | `src/common/redis-cache.interceptor.ts:23–24` | Canonical isolated cache-key contract. |
+| F-2499 | P0 | Every truthy handler response is cached without status, content type, PII, schema or public-route checks. | `src/common/redis-cache.interceptor.ts:30–35` | Allowlisted response caching. |
+| F-2500 | P1 | Corrupt/non-JSON Redis data causes `JSON.parse` failure; Redis read/write errors are not isolated here. | `src/common/redis-cache.interceptor.ts:24–28,31–35` | Fail-open cache error handling and telemetry. |
+| F-2501 | P1 | No stampede lock, single-flight, size bound, compression or serialization-version policy exists. | `src/common/redis-cache.interceptor.ts:23–35` | Bounded concurrent cache behavior. |
+| F-2502 | P0 | No mutation/publication/deletion/authorization/price/inventory invalidation is enforced; 300-second TTL is the only visible freshness boundary. | `src/common/redis-cache.interceptor.ts:30–35` | Domain-aware invalidation/freshness contract. |
+| F-2503 | P1 | Query ordering, locale, device, representation and equivalent URL normalization are not canonicalized before keying. | `src/common/redis-cache.interceptor.ts:23–24` | Deterministic request variance. |
+| F-2504 | P1 | `tap(async ...)` does not await cache writes, so write failures may become unhandled or invisible and response completion is decoupled from persistence. | `src/common/redis-cache.interceptor.ts:30–36` | Async cache failure policy. |
+| F-2505 | P0 | Cache poisoning and cross-route accidental application are not prevented by route metadata, namespace policy or response allowlist. | `src/common/redis-cache.interceptor.ts:10–35` | Explicit public-cache opt-in. |
+| F-2506 | P1 | No cache-hit/miss, invalidation, stale, corruption or privacy audit metrics are visible in this member. | `src/common/redis-cache.interceptor.ts:23–35` | Cache observability contract. |
+| F-2507 | P1 | No test covers empty/null/error responses, serialization edge cases, binary/stream responses or large payloads. | `src/common/redis-cache.interceptor.ts:26–35` | Response-type matrix. |
+| F-2508 | P1 | The interceptor was not executed or integration-tested during this audit and cannot establish cache safety/readiness. | `src/common/redis-cache.interceptor.ts:1–39` | Baseline-pinned cache integration evidence. |
