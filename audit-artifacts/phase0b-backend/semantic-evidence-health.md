@@ -25,3 +25,9 @@
 The read supports: (1) missing idempotency on refill/snooze/cancel, sleep add and emergency contact mutations; (2) health/sleep/reminder schema gaps and read-then-write races; (3) refill multi-write saga and lock lifecycle; (4) hard-coded auto-reminder defaults and clinical score/trend thresholds requiring governance; (5) raw report/prescription projections and clinical PII minimization; (6) non-atomic emergency primary contact updates; (7) not-implemented wearable routes; (8) weak controller query/body validation and inconsistent alias route contracts.
 
 No product code was changed and no tests/builds were executed during this semantic read.
+
+## Additional dependency members
+
+`src/modules/notifications/notification-delivery.processor.ts:2–26` was read in full: the BullMQ processor accepts only `deliver` jobs and delegates directly to `NotificationsService.deliverById`; it adds no deduplication, lease, ownership or independent retry policy.
+
+`src/modules/health/repositories/medicationreminder.repository.ts:2–13`, `sleepreading.repository.ts:2–13`, and `vitalreading.repository.ts:2–13` were read in full. Each is a constructor-only `MongoRepository` wrapper around the canonical health schema; none adds validation, ownership, atomic update, idempotency or transaction behavior.
