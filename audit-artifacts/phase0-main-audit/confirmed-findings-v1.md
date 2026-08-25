@@ -3861,3 +3861,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2548 | P1 | No SEO test covers canonical tags, redirects, localized slugs, sitemap consistency or duplicate content. | `src/common/slug.util.ts:1–47` | SEO/route integration gate. |
 | F-2549 | P1 | No tests cover Unicode normalization, collision rates, boundary lengths, empty IDs or malformed suffixes. | `src/common/slug.util.ts:21–46` | Comprehensive slug test matrix. |
 | F-2550 | P1 | The utilities were not executed or integrated with live public routes during this audit and cannot establish URL readiness. | `src/common/slug.util.ts:1–47` | Baseline-pinned route and SEO evidence. |
+
+## Central event catalog findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2551 | P1 | `events.ts` defines names only; no payload schema, event ID, timestamp, producer, actor or tenant metadata is enforced. | `src/common/events.ts:1–48` | Typed versioned event envelope. |
+| F-2552 | P0 | No runtime registry rejects unknown/raw event names despite a compile-time-only `EventName` union. | `src/common/events.ts:1–2,46–48` | Runtime event validation. |
+| F-2553 | P0 | No idempotency, correlation/causation, ordering, retry, delivery or sensitivity semantics are defined here. | `src/common/events.ts:1–48` | Event delivery/security contract. |
+| F-2554 | P1 | Visible catalog omits payment/settlement/refund, insurance, consultation/call, home-care/nursing, lab/radiology and consent/audit/security lifecycle names. | `src/common/events.ts:3–45` | Complete domain event inventory. |
+| F-2555 | P0 | Omitted domains can fall back to raw/untyped strings, creating consumer drift and audit gaps. | `src/common/events.ts:1–48` | Single authoritative event registry. |
+| F-2556 | P1 | Event names do not encode schema/version compatibility or deprecation policy. | `src/common/events.ts:2–48` | Version/deprecation governance. |
+| F-2557 | P1 | Event naming does not define whether events are commands, facts, notifications or audit records. | `src/common/events.ts:1–48` | Explicit event intent taxonomy. |
+| F-2558 | P1 | No PII/PHI minimization or field sensitivity classification accompanies lifecycle events. | `src/common/events.ts:1–48` | Privacy-reviewed event payload policy. |
+| F-2559 | P1 | No completeness test compares domain controllers/services/consumers against this catalog. | `src/common/events.ts:1–48` | Source-to-registry completeness gate. |
+| F-2560 | P1 | No consumer compatibility, replay, dead-letter or exactly-once acceptance is represented by this member. | `src/common/events.ts:1–48` | Consumer/replay delivery tests. |
+| F-2561 | P1 | No explicit security/audit events are visible for login abuse, authorization denial, data access, consent or privacy actions. | `src/common/events.ts:3–45` | Security/audit event contract. |
+| F-2562 | P1 | The event catalog was not executed or reconciled against live producers/consumers during this audit. | `src/common/events.ts:1–48` | Baseline-pinned registry/live parity evidence. |

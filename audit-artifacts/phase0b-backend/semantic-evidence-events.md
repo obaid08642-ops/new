@@ -16,3 +16,13 @@
 ## Findings candidates
 
 The read supports: raw event payload/PII exposure, incomplete outbox semantics, actor trust, projection/cache/event saga inconsistency, canonical collision and source eligibility drift, and global event-surface privilege coupling.
+
+## Additional member — centralized event names
+
+**Member read in full:** `src/common/events.ts:1–48`
+
+The module centralizes string event names in an `EVENTS` constant and exports an `EventName` literal union (`1–48`). It covers user registration/role/login/guest conversion, order creation through delivery/cancellation/escalation/partial fulfillment, prescription lifecycle, medicine review, medication reminders/taken/missed, emergency lifecycle, delivery lifecycle and notification creation (`3–45`).
+
+Centralized constants and the literal union reduce typos in compile-time consumers. This member defines names only; it does not define payload schemas, event IDs, timestamps, producer/actor/tenant fields, schema versions, correlation/causation IDs, idempotency keys, sensitivity classification, authorization, ordering, retry or delivery semantics (`1–48`). The opening comment says to avoid raw strings but no runtime registry/unknown-event rejection is present (`1–2`).
+
+The event catalog omits visible payment/settlement/refund, insurance authorization, appointment/consultation/call, home-care/nursing, lab/radiology, consent/privacy, audit/security and catalog publication events, although those domains exist elsewhere in the backend (`1–45`). Similar lifecycle families can therefore drift or be represented through untyped raw strings. No completeness test or consumer compatibility matrix is present. No code was changed and no build/test/application operation was performed during this read.
