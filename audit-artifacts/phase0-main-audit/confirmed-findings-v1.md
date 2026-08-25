@@ -5131,3 +5131,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3463 | P1 | No pagination, ordering, count consistency, cache invalidation or event publication is tested for feed/session changes. | `src/modules/community/community.service.spec.ts:11–40,42–118` | Community query/consistency gate. |
 | F-3464 | P1 | No model error/timeout, malformed ID, safe error schema or rate-limit response behavior is tested. | `src/modules/community/community.service.spec.ts:42–118` | Community failure/abuse contract. |
 | F-3465 | P1 | This spec was not executed against live HTTP, Mongo, moderation, session transport or community records during this audit read. | `src/modules/community/community.service.spec.ts:1–119` | Baseline-pinned community runtime evidence. |
+
+## Private media contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3438 | P0 | Media contract is prototype/mock-bound and does not execute HTTP authentication/guards or real storage/model behavior. | `src/modules/media/media.contract.spec.ts:9–23,26–66` | Live media integration gate. |
+| F-3439 | P0 | Chat participant check is not tested for tenant/facility membership, removed participant, role policy or cross-organization thread. | `src/modules/media/media.contract.spec.ts:27–35,49–60` | Participant/tenant authorization matrix. |
+| F-3440 | P0 | Upload fixture does not test MIME sniffing, extension mismatch, size/count limits, filename/path traversal, decompression bombs or malware. | `src/modules/media/media.contract.spec.ts:29,39` | File-threat validation gate. |
+| F-3441 | P0 | No EXIF/metadata/PHI stripping, content classification, image safety or sensitive attachment handling is tested. | `src/modules/media/media.contract.spec.ts:29,39` | Attachment privacy/safety contract. |
+| F-3442 | P0 | Signed URL coverage does not prove expiry enforcement, one-time/replay behavior, cache-control, key binding or download audit. | `src/modules/media/media.contract.spec.ts:49–60` | Signed URL security/audit gate. |
+| F-3443 | P0 | Storage object ACL, upload URL policy, delete authorization/idempotency and storage error behavior are untested. | `src/modules/media/media.contract.spec.ts:11–16,49–60` | Object-storage lifecycle contract. |
+| F-3444 | P0 | Asset DB creation and object upload lack transaction/compensation/idempotency or orphan cleanup coverage. | `src/modules/media/media.contract.spec.ts:11–20,37–47` | Upload atomicity/replay gate. |
+| F-3445 | P0 | Asset key generation is asserted for one fixture only; collision, user-controlled components and namespace/tenant isolation are unproven. | `src/modules/media/media.contract.spec.ts:44–46` | Deterministic safe object-key contract. |
+| F-3446 | P0 | No asset PII/PHI classification, projection, retention/deletion, legal hold or access export policy is tested. | `src/modules/media/media.contract.spec.ts:37–60` | Media data governance. |
+| F-3447 | P0 | No malformed ID, missing file, empty buffer, oversized file, duplicate asset or safe error-schema behavior is tested. | `src/modules/media/media.contract.spec.ts:26–66` | Media input/error matrix. |
+| F-3448 | P1 | The contract does not cover non-chat purposes, avatar ownership, prescription/report attachments or public/private boundary behavior. | `src/modules/media/media.contract.spec.ts:62–66` | Complete media-purpose matrix. |
+| F-3449 | P1 | No rate limit, CSRF/session, upload enumeration or signed-URL abuse control is tested. | `src/modules/media/media.contract.spec.ts:26–66` | Media abuse-control gate. |
+| F-3450 | P1 | This contract was not executed against live HTTP, Mongo, object storage or chat records during this audit read. | `src/modules/media/media.contract.spec.ts:1–67` | Baseline-pinned media runtime evidence. |

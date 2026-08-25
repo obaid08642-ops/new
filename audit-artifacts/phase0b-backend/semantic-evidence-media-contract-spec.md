@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — private media contract spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/media/media.contract.spec.ts:1–67`
+
+The spec builds a MediaController prototype with mocked media service, asset model and ChatThread model (`9–23`). It verifies a non-participant chat upload returns NotFoundException before `uploadBuffer` is invoked and asserts the thread participant query (`26–35`). It verifies an authorized participant upload returns an asset ID rather than a public URL and persists owner_id/purpose/thread_id/key (`37–47`). It verifies a participant receives a 900-second signed download URL while a stranger receives NotFoundException and storage signing is not invoked (`49–60`). It verifies unknown purposes and an avatar bound to a thread are rejected with BadRequestException (`62–66`).
+
+This is a useful private-asset controller contract but all storage/model behavior is mocked and the controller is instantiated from its prototype. It does not prove HTTP authentication/guards, user/tenant/facility membership, doctor/patient role policy, participant removal/revocation or cross-purpose data isolation (`9–23,27–66`). The fixture has a valid PDF but does not test MIME sniffing, extension/content mismatch, size/count/filename/path traversal, decompression bombs, malware, EXIF/PHI stripping, upload URL authorization or buffer limits (`29,39`). Signed URL tests do not cover expiry enforcement, one-time use, cache-control, download audit, key binding, storage ACL, replay, deletion authorization/idempotency or storage errors (`49–60`). Asset creation has no transaction/cleanup if storage or DB fails, no duplicate/idempotency behavior, no PII/retention policy and no live R2/object-storage evidence. No code was changed and no build/test/application operation was performed during this read.
