@@ -5016,3 +5016,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3378 | P1 | No production error mapping, correlation, PII redaction or observability behavior is tested. | `test/app.boot.e2e-spec.ts:18–34` | Safe runtime error/observability gate. |
 | F-3379 | P1 | No environment parity, migration/index startup or version compatibility behavior is represented. | `test/app.boot.e2e-spec.ts:18–34` | Deployment parity gate. |
 | F-3380 | P1 | This spec was not executed against the baseline application with real dependencies during this audit read. | `test/app.boot.e2e-spec.ts:1–35` | Baseline-pinned runtime boot evidence. |
+
+## Test provider seed script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3381 | P0 | Seed safety depends on NODE_ENV/ALLOW_TEST_SEED environment values and does not verify the target database identity is disposable/test-only. | `src/scripts/seed_test_providers.ts:8–15,98–100` | Database identity and isolation preflight. |
+| F-3382 | P0 | Six provider accounts share the fixed password `Test@1234`; the script rewrites existing user password hashes when enabled. | `src/scripts/seed_test_providers.ts:106,123–130` | Per-test credentials and no existing-account overwrite. |
+| F-3383 | P0 | Fixed phone numbers and names are synthetic fixtures that could collide with pre-existing accounts. | `src/scripts/seed_test_providers.ts:17–96,109–130` | Reserved namespace/collision policy. |
+| F-3384 | P0 | The script writes synthetic license verification, approval timestamp, rating/review count, location, prices and fees that could be mistaken for authoritative provider data. | `src/scripts/seed_test_providers.ts:17–96,136–151` | Explicit fixture provenance and production-data exclusion. |
+| F-3385 | P0 | Existing profiles are overwritten with active, license_verified and approved values without preserving prior state. | `src/scripts/seed_test_providers.ts:153–164` | Non-destructive test fixture isolation. |
+| F-3386 | P0 | No Mongo transaction or rollback protects against partial completion across six users/profiles. | `src/scripts/seed_test_providers.ts:98–165` | Atomic seed or compensating rollback. |
+| F-3387 | P0 | No per-record audit, run ID, idempotency key or conflict report is produced. | `src/scripts/seed_test_providers.ts:98–165` | Auditable repeat-safe seed run. |
+| F-3388 | P0 | No dry-run, database-name allowlist, host restriction or collection preflight prevents seeding the wrong environment. | `src/scripts/seed_test_providers.ts:10–15,98–100` | Destructive-operation guard. |
+| F-3389 | P0 | No cleanup/delete/revert path exists for the synthetic accounts and profiles. | `src/scripts/seed_test_providers.ts:98–174` | Fixture lifecycle cleanup. |
+| F-3390 | P0 | Shared fixed credential handling lacks rotation, account scoping, MFA/test authentication isolation or secret-management provenance. | `src/scripts/seed_test_providers.ts:106–130` | Test credential governance. |
+| F-3391 | P1 | Fixed Riyadh/Al-Malqa and location coordinates are synthetic but no fixture marker or output isolation is persisted. | `src/scripts/seed_test_providers.ts:120–121,144–150` | Synthetic-data labeling. |
+| F-3392 | P1 | Error handling exits after logging but does not guarantee disconnect/cleanup on failure. | `src/scripts/seed_test_providers.ts:165–174` | Finally-based resource cleanup. |
+| F-3393 | P1 | No schema validation or cross-field check verifies fixture prices, provider details and enum compatibility before writes. | `src/scripts/seed_test_providers.ts:17–96,136–164` | Pre-write fixture validation. |
+| F-3394 | P1 | The script was not executed during this audit read, and no live database contamination/cleanup evidence is claimed. | `src/scripts/seed_test_providers.ts:1–174` | Baseline-pinned seed safety evidence. |
