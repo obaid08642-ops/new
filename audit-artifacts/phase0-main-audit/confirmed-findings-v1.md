@@ -3240,3 +3240,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2117 | P1 | No migration/seed ordering or idempotency policy is represented. | `docker-compose.yml:3–18` | Explicit database lifecycle orchestration. |
 | F-2118 | P1 | No image labels, commit provenance, SBOM, vulnerability/license scan or admission/signing gate is represented. | `docker-compose.yml:3–18` | Traceable and policy-enforced release stack. |
 | F-2119 | P1 | Compose does not prove that the backend service's runtime image includes all assets/native dependencies or excludes legacy surfaces. | `docker-compose.yml:4–5` | Image-content manifest and production-boundary verification. |
+
+## TypeScript configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2120 | P1 | `strictNullChecks` is disabled, allowing null/undefined contract defects to pass compilation. | `tsconfig.json:15` | Staged strict-null migration with zero unreviewed errors. |
+| F-2121 | P1 | `noImplicitAny` is disabled, permitting untyped values at security and data boundaries. | `tsconfig.json:16` | Explicit types at boundaries and enabled checking. |
+| F-2122 | P1 | `strictBindCallApply` is disabled, reducing call-signature safety. | `tsconfig.json:17` | Enabled strict call checking. |
+| F-2123 | P1 | Case-sensitive filename consistency checking is disabled, creating cross-platform build drift risk. | `tsconfig.json:18` | Enforced casing consistency. |
+| F-2124 | P1 | Switch fallthrough checking is disabled, allowing control-flow defects in state machines and security decisions. | `tsconfig.json:19` | Enforced fallthrough policy or explicit annotations. |
+| F-2125 | P1 | The umbrella `strict` mode and additional modern correctness checks are not enabled. | `tsconfig.json:14–19` | Audited strictness baseline with exception register. |
+| F-2126 | P1 | `skipLibCheck` suppresses declaration-file compatibility errors and weakens dependency type assurance. | `tsconfig.json:14` | Justified policy plus dependency compatibility gate. |
+| F-2127 | P1 | Source maps are emitted without a documented production exclusion, access-control or artifact-retention policy. | `tsconfig.json:10` | Source-map handling that prevents source disclosure. |
+| F-2128 | P1 | Declaration files are emitted without a documented production packaging or exposure policy. | `tsconfig.json:4` | Audited declaration artifact boundary. |
+| F-2129 | P1 | Decorator metadata and experimental decorators are enabled without a documented metadata exposure and runtime compatibility policy. | `tsconfig.json:6–7` | Reviewed decorator/runtime policy. |
+| F-2130 | P1 | Incremental compilation is enabled without clean-build/reproducibility controls for generated state. | `tsconfig.json:13` | Deterministic clean-build evidence. |
+| F-2131 | P0 | `@/*` path aliases are declared without a visible runtime/compiled-output resolution contract. | `tsconfig.json:22–24` | Verified source-to-dist alias resolution. |
+| F-2132 | P1 | Operational scripts and scratch content are excluded from the TypeScript contract, allowing untyped production-affecting drift. | `tsconfig.json:26` | Explicit script typecheck or governed exclusion. |
+| F-2133 | P1 | Only `src/**/*` is included, so generated/configuration/worker surfaces outside src are not covered by compiler assurance. | `tsconfig.json:27` | Audited inclusion boundary and supplemental checks. |
