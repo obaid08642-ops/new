@@ -2663,3 +2663,19 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1685 | P0 | No authentication-sensitive transaction boundary is defined for password/token/status changes, allowing partial caller-level updates to create inconsistent account security state. | `src/modules/care/repositories/user.repository.ts:8–13` | Transactional credential/status commands and recovery tests. |
 | F-1686 | P1 | No provider/patient role transition or least-privilege invariant is represented at the repository boundary. | `src/modules/care/repositories/user.repository.ts:8–13` | Explicit role transition authorization matrix. |
 | F-1687 | P2 | Non-functional import comment and repository simplicity obscure ownership of this authentication-sensitive identity boundary. | `src/modules/care/repositories/user.repository.ts:4–6` | Remove stale comment and document secret/identity boundary. |
+
+## Care Facility repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1688 | P0 | Facility repository has no license/registration/readiness/approval gate; inherited generic operations can expose or schedule against unverified facilities. | `src/modules/care/repositories/facility.repository.ts:8–13` | Verified facility identity and readiness lifecycle. |
+| F-1689 | P0 | No facility/tenant/provider/public visibility scope is enforced at the repository boundary, risking cross-tenant or unreviewed public disclosure. | `src/modules/care/repositories/facility.repository.ts:8–13` | Relationship-scoped methods and public/private projections. |
+| F-1690 | P1 | No geospatial bounds, address normalization, service radius or serviceability invariant is represented. | `src/modules/care/repositories/facility.repository.ts:8–13` | Typed geographic contract and serviceability tests. |
+| F-1691 | P1 | No provider/service/specialty linkage or credential-readiness validation is enforced for facility offerings. | `src/modules/care/repositories/facility.repository.ts:8–13` | Canonical facility-provider-service registry. |
+| F-1692 | P1 | No draft/approved/published/suspended/closed lifecycle or effective-date semantics are defined. | `src/modules/care/repositories/facility.repository.ts:8–13` | Guarded facility publication/readiness state machine. |
+| F-1693 | P1 | No minimum-necessary projection or redaction is enforced for facility contacts, operational metadata, locations or internal records. | `src/modules/care/repositories/facility.repository.ts:8–13` | Role-scoped projections and sensitive-field tests. |
+| F-1694 | P1 | No optimistic versioning or idempotency policy prevents concurrent facility edits, status changes or imports from overwriting each other. | `src/modules/care/repositories/facility.repository.ts:8–13` | Versioned commands, deterministic identity and replay tests. |
+| F-1695 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for facility records, contacts and locations. | `src/modules/care/repositories/facility.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1696 | P1 | No audit/provenance records who created, verified, approved, published, changed or exposed facility data. | `src/modules/care/repositories/facility.repository.ts:8–13` | Immutable facility access/change/publication audit. |
+| F-1697 | P1 | No repository-specific query bounds, pagination or index contract is visible for facility and service searches. | `src/modules/care/repositories/facility.repository.ts:8–13` | Bounded search, geospatial indexes and pagination tests. |
+| F-1698 | P2 | Non-functional import comment and repository simplicity obscure ownership of this public and operationally sensitive facility boundary. | `src/modules/care/repositories/facility.repository.ts:4–6` | Remove stale comment and document facility boundary. |
