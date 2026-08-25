@@ -3662,3 +3662,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2414 | P1 | No environment validation covers feature flags, rate limits, retention, consent, backup or security toggles. | `src/config/env.validation.ts:1–13` | Cross-cutting configuration schema. |
 | F-2415 | P0 | Production validation does not establish dependency reachability/readiness or distinguish safe credentials from syntactically valid strings. | `src/config/env.validation.ts:5–12` | Startup dependency/readiness acceptance. |
 | F-2416 | P1 | The validator has no direct test evidence in this audit for production, development, malformed origin, short secret or missing integration cases. | `src/config/env.validation.ts:1–13` | Pinned validator test matrix. |
+
+## WebSocket CORS configuration findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2417 | P0 | Development/test fallback returns `origin:true` with `credentials:true`, allowing arbitrary credentialed origins if misdeployed or remotely reachable. | `src/config/websocket-cors.ts:4–15` | Safe-by-default origin policy and deployment guard. |
+| F-2418 | P0 | Allowed origins are accepted without HTTPS/host/port validation or trusted deployment-host policy. | `src/config/websocket-cors.ts:5–10` | Canonical secure-origin validator. |
+| F-2419 | P1 | Parsing does not reject duplicates, trailing-dot/default-port/case confusables or equivalent-origin ambiguity. | `src/config/websocket-cors.ts:5` | Origin normalization and duplicate rejection. |
+| F-2420 | P0 | Credentials are enabled for every explicit origin without proof of cookie/session CSRF strategy or per-origin trust. | `src/config/websocket-cors.ts:10,14` | Credentialed WebSocket CSRF/session contract. |
+| F-2421 | P1 | `NODE_ENV` classification treats any non-development/test value as non-local but does not validate an explicit allowed environment enum. | `src/config/websocket-cors.ts:4,6` | Typed environment mode validation. |
+| F-2422 | P0 | No test proves every WebSocket gateway consumes this configuration or that HTTP and WebSocket CORS policies are identical. | `src/config/websocket-cors.ts:3–15` | Bootstrap/gateway parity tests. |
+| F-2423 | P1 | No proxy/load-balancer/header behavior or preflight/handshake integration coverage is present. | `src/config/websocket-cors.ts:1–15` | Deployment-faithful CORS handshake tests. |
+| F-2424 | P1 | This configuration was not executed or integration-tested during the audit; readiness cannot be inferred from static options. | `src/config/websocket-cors.ts:1–15` | Baseline-pinned executed and live gateway evidence. |
