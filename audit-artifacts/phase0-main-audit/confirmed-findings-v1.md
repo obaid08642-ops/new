@@ -4051,3 +4051,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2678 | P1 | No schema-level projection/serialization test prevents token exposure to patient/provider/admin clients. | `src/schemas/push-token.schema.ts:6–13` | Role-safe token projections. |
 | F-2679 | P1 | No indexes for active/provider/stale-token operational cleanup or delivery selection are visible beyond user/token fields. | `src/schemas/push-token.schema.ts:6–13` | Operational index plan. |
 | F-2680 | P1 | The schema was not executed or integrated with notification providers during this audit and cannot establish push readiness. | `src/schemas/push-token.schema.ts:1–15` | Baseline-pinned notification runtime evidence. |
+
+## B2B request schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2681 | P0 | `input_method` and `status` are TypeScript unions but decorators do not visibly enforce runtime enum values. | `src/schemas/b2b-request.schema.ts:10–11` | Runtime enum/schema validation. |
+| F-2682 | P0 | Pharmacy identity is a required string but has no account/tenant/actor relation or authorization boundary. | `src/schemas/b2b-request.schema.ts:8` | Pharmacy/account ownership contract. |
+| F-2683 | P0 | `total_items` is mutable and not visibly derived or cross-checked against the items array. | `src/schemas/b2b-request.schema.ts:9,13` | Server-derived item-count invariant. |
+| F-2684 | P0 | Generic item array lacks nested schema validation for name, quantity, unit, bounds and duplicate/normalization rules. | `src/schemas/b2b-request.schema.ts:13` | Typed item DTO/schema. |
+| F-2685 | P1 | Pharmacy/name/unit/notes fields have no length, content, Unicode, PII or injection policy. | `src/schemas/b2b-request.schema.ts:8,12–13` | Safe bounded text contract. |
+| F-2686 | P0 | Voice/OCR/manual provenance is only a label; raw input, confidence, reviewer, correction and retention evidence are absent. | `src/schemas/b2b-request.schema.ts:10,12–14` | Provenance and review contract. |
+| F-2687 | P0 | Status has no transition graph, approver/rejector identity, rejection reason, expiry or audit integrity. | `src/schemas/b2b-request.schema.ts:11–14` | Audited B2B lifecycle. |
+| F-2688 | P0 | No idempotency/deduplication key or concurrency policy is visible for submission/review. | `src/schemas/b2b-request.schema.ts:7–14` | Exactly-once request workflow. |
+| F-2689 | P0 | No pricing, inventory, prescription verification, payment or insurance linkage is represented for requested items. | `src/schemas/b2b-request.schema.ts:8–14` | Server-authoritative commercial/intake contract. |
+| F-2690 | P0 | No PII/PHI minimization, attachment/private-document, access projection or deletion policy is visible. | `src/schemas/b2b-request.schema.ts:10–13` | Privacy-safe B2B intake governance. |
+| F-2691 | P1 | Indexes are limited to pharmacy/status and do not visibly cover tenant/actor queues, submitted time or operational deduplication. | `src/schemas/b2b-request.schema.ts:7–11,14` | Operational compound index plan. |
+| F-2692 | P1 | The schema was not executed or integrated with B2B/OCR/voice workflows during this audit and cannot establish readiness. | `src/schemas/b2b-request.schema.ts:1–18` | Baseline-pinned B2B runtime evidence. |
