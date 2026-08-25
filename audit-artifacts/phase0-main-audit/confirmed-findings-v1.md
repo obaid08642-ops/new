@@ -5790,3 +5790,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3930 | P0 | No correction, soft-delete, deletion/DSAR or legal-hold lifecycle is represented for nutrition profile/log records. | `src/schemas/nutrition.schema.ts:5–79` | Nutrition lifecycle/retention gate. |
 | F-3931 | P0 | No notification/adherence/reminder delivery, acknowledgement or retry state is represented for nutrition tracking. | `src/schemas/nutrition.schema.ts:31–79` | Nutrition side-effect contract. |
 | F-3932 | P1 | No live index/runtime, profile/log write, allergy or recommendation evidence was established during this baseline source read. | `src/schemas/nutrition.schema.ts:1–79` | Baseline-pinned nutrition runtime evidence. |
+
+## Lab result schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3933 | P0 | Result `type` and `source` lack a cross-field invariant, allowing incompatible lab/radiology representations. | `src/schemas/lab-result.schema.ts:23–25,33–36` | Result type/source contract. |
+| F-3934 | P0 | Structured `entries` is `[any]` despite a comment shape; analyte/value/unit/reference/flag are not typed or clinically validated. | `src/schemas/lab-result.schema.ts:27–28` | Typed laboratory-result gate. |
+| F-3935 | P0 | Attachments are raw any/base64 values without MIME, size, content/malware, storage ACL/signed access or retention controls. | `src/schemas/lab-result.schema.ts:30–31` | Result attachment security gate. |
+| F-3936 | P0 | Booking/patient/service/reporting IDs lack referential integrity, patient–booking match, provider authorization or tenant/facility scope. | `src/schemas/lab-result.schema.ts:17–22,38–40` | Result ownership/provenance gate. |
+| F-3937 | P0 | Denormalized patient/service/reporter names have no authoritative-source or drift-control invariant. | `src/schemas/lab-result.schema.ts:19–22,40` | Result label consistency gate. |
+| F-3938 | P0 | `critical` has no abnormal-value linkage, clinician review, notification, acknowledgement, escalation or emergency guidance state. | `src/schemas/lab-result.schema.ts:27–44` | Critical-result safety gate. |
+| F-3939 | P0 | Report/view fields have no sign-off/amendment/actor/device invariant; viewed flag and viewed timestamp can be inconsistent. | `src/schemas/lab-result.schema.ts:38–43` | Result publication/view audit gate. |
+| F-3940 | P0 | No specimen/collection/receipt/release timestamps, reference-range context, method or laboratory report provenance is represented. | `src/schemas/lab-result.schema.ts:27–44` | Result clinical provenance gate. |
+| F-3941 | P0 | Health results and attachments lack consent/delegation, projection, encryption, access audit, retention, deletion/DSAR and legal-hold controls. | `src/schemas/lab-result.schema.ts:17–44` | Result PII/PHI governance. |
+| F-3942 | P0 | No duplicate result/idempotency, immutable report correction, CAS/version or atomic attachment/publication protection is represented. | `src/schemas/lab-result.schema.ts:13–47` | Result atomicity/replay gate. |
+| F-3943 | P0 | Free-form notes/findings/impression/recommendations have no content, clinical sign-off or privacy classification controls. | `src/schemas/lab-result.schema.ts:33–44` | Result narrative governance. |
+| F-3944 | P0 | No notification delivery, retry, patient-view acknowledgement or critical-result communication evidence is represented. | `src/schemas/lab-result.schema.ts:38–44` | Result side-effect contract. |
+| F-3945 | P1 | No live result retrieval, critical alert, attachment, report publication or index runtime evidence was established during this baseline source read. | `src/schemas/lab-result.schema.ts:1–49` | Baseline-pinned lab-result runtime evidence. |
