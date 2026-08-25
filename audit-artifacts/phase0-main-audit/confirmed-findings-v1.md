@@ -5226,3 +5226,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3506 | P1 | Error mapping for missing medicine, duplicate update, DB/Redis/publication failures and safe response schema is untested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Publication failure contract. |
 | F-3507 | P1 | No bulk-edit, rate-limit, audit-read or abuse-control behavior is tested. | `src/modules/medicines/medicines.service.publication.spec.ts:18–52` | Admin catalog abuse/audit gate. |
 | F-3508 | P1 | This spec was not executed against live HTTP, Mongo, Redis, publication worker or public medicine surfaces during this audit read. | `src/modules/medicines/medicines.service.publication.spec.ts:1–53` | Baseline-pinned publication runtime evidence. |
+
+## SEO service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3509 | P0 | SEO coverage is mock repository verification and does not execute public HTTP pages or route-level visibility controls. | `src/modules/seo/seo.service.spec.ts:8–38,40–95` | Public SEO integration gate. |
+| F-3510 | P0 | Canonical URL, locale/alternate consistency, host policy, robots/noindex and visible-text parity are untested. | `src/modules/seo/seo.service.spec.ts:40–95` | Canonical/robots/locale matrix. |
+| F-3511 | P0 | JSON-LD type, Product/Offer price truthfulness, BreadcrumbList/ItemList consistency and schema-to-interface parity are untested. | `src/modules/seo/seo.service.spec.ts:40–95` | Structured-data truthfulness gate. |
+| F-3512 | P0 | Sitemap coverage uses one medicine row and empty mocks for all other domains, so breadth, caps, pagination and duplicate prevention are unproven. | `src/modules/seo/seo.service.spec.ts:66–85` | Complete sitemap domain/scale contract. |
+| F-3513 | P0 | Deleted/unpublished/withdrawn resource transitions, 404/410, redirects, freshness and stale URL removal are untested. | `src/modules/seo/seo.service.spec.ts:66–85` | Index lifecycle contract. |
+| F-3514 | P0 | Slug validation, collision/history, tenant/location ownership and public resource provenance are not tested. | `src/modules/seo/seo.service.spec.ts:40–64` | Public identifier/provenance gate. |
+| F-3515 | P0 | IndexNow delivery, key/config validation, retry, timeout, error mapping, dedup and create/update/delete event lifecycle are untested. | `src/modules/seo/seo.service.spec.ts:87–95` | IndexNow delivery contract. |
+| F-3516 | P0 | IndexNow eligibility is queried but no assertion proves the outbound notification URL/body contains only eligible canonical URLs. | `src/modules/seo/seo.service.spec.ts:87–95` | Eligible-URL delivery proof. |
+| F-3517 | P0 | Medical review/public eligibility filters are tested only for medicines; provider, lab, home-care, facility and article safety gates are unverified. | `src/modules/seo/seo.service.spec.ts:40–85` | Cross-domain publication policy. |
+| F-3518 | P0 | Price, availability, updated-at, location and medical claims displayed on indexed pages are not reconciled with authoritative source data. | `src/modules/seo/seo.service.spec.ts:40–85` | Public truthfulness/reconciliation gate. |
+| F-3519 | P0 | Cache invalidation, CDN freshness, language alternates, redirects and public read error behavior are untested. | `src/modules/seo/seo.service.spec.ts:40–95` | Public cache/locale contract. |
+| F-3520 | P0 | No PII/PHI disclosure, consent, moderation or source licensing policy is tested for public discovery content. | `src/modules/seo/seo.service.spec.ts:40–85` | Public content privacy/provenance gate. |
+| F-3521 | P1 | No rate limit, abuse, crawl budget or outbound IndexNow quota control is tested. | `src/modules/seo/seo.service.spec.ts:66–95` | SEO abuse/operations gate. |
+| F-3522 | P1 | No AI discovery/agent metadata, IndexNow audit trail or search-engine response monitoring is covered. | `src/modules/seo/seo.service.spec.ts:66–95` | Search/AI discovery operations. |
+| F-3523 | P1 | This spec was not executed against live pages, Mongo, sitemap consumers, IndexNow or search-engine-facing routes during this audit read. | `src/modules/seo/seo.service.spec.ts:1–96` | Baseline-pinned SEO runtime evidence. |

@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — SeoService public discovery spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/seo/seo.service.spec.ts:1–96`
+
+The spec builds SeoService with mocked repositories for medicines, providers, labs, home care, facilities and articles (`8–38`). It verifies medicine resolve queries only records with public_eligibility=true, medical_review_status=approved and active not false (`40–54`). It verifies an unreviewed medicine cannot produce a public share link and returns `{ok:false, reason:'not_found'}` (`56–64`). It verifies sitemap generation queries medicines with public eligibility, approved review status and indexing eligibility and contains a medicine path (`66–85`). It verifies IndexNow notification requires public and indexing eligibility, returning `{ok:false}` when no qualifying record is found (`87–95`).
+
+These tests establish useful publication gates but are repository mocks and inspect only selected query arguments. They do not execute HTTP pages or prove canonical URL construction, host/locale consistency, robots/noindex behavior, JSON-LD truthfulness, visible-text parity, breadcrumb/item-list/product schema or sitemap XML validity (`40–95`). The sitemap test uses a single pre-shaped medicine row and empty mocked datasets for all other domains; it does not test caps, deduplication, freshness, deleted/unpublished transitions, 404/410 lifecycle, malformed slugs, location pages or all public resource types (`66–85`). IndexNow delivery, key/config validation, retry/signature/error handling, event lifecycle for create/update/delete and rate limits are untested (`87–95`). Public visibility ownership/tenant boundaries and medical content provenance are absent, as are cache invalidation, language alternates, redirects and AI-discovery metadata. No code was changed and no build/test/application operation was performed during this read.
