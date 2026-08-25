@@ -5093,3 +5093,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3435 | P1 | No CSRF/session-cookie, enumeration or abuse protection is tested. | `src/contracts/ownership-controllers.spec.ts:10–35` | Patient mutation abuse gate. |
 | F-3436 | P1 | No notification, audit event, cache invalidation or downstream consistency is asserted after nutrition/family mutations. | `src/contracts/ownership-controllers.spec.ts:19–35` | Patient mutation side-effect contract. |
 | F-3437 | P1 | This contract was not executed against live HTTP, database, auth or patient/family records during this audit read. | `src/contracts/ownership-controllers.spec.ts:1–36` | Baseline-pinned ownership runtime evidence. |
+
+## Users notification/session contract findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-341? | P0 | This contract uses a prototype UsersService with mocked patient repository and Redis, so HTTP/auth and real persistence are unproven. | `src/modules/users/users.contract.spec.ts:6–14` | Live users integration gate. |
+| F-341? | P0 | Settings are scoped by user_id in the asserted write, but tenant/facility and user active/deleted/suspended ownership are not tested. | `src/modules/users/users.contract.spec.ts:29–40` | User/tenant state matrix. |
+| F-341? | P0 | Notification preference consent/legal basis, channel verification, marketing opt-out semantics and audit history are not tested. | `src/modules/users/users.contract.spec.ts:17–48` | Preference consent/privacy contract. |
+| F-341? | P0 | Legacy settings migration tests discard unknown keys but do not prove all unsafe nested paths, prototype pollution, size/depth or malformed payload handling. | `src/modules/users/users.contract.spec.ts:17–48` | Complete settings input-hardening gate. |
+| F-341? | P0 | Upsert persistence has no concurrent merge, stale-write, idempotency replay or failure-rollback coverage. | `src/modules/users/users.contract.spec.ts:26–41` | Settings CAS/replay contract. |
+| F-341? | P0 | Foreign refresh-session rejection is mocked; JTI-to-session/user/device binding, expiry, revocation race and rotation are unproven. | `src/modules/users/users.contract.spec.ts:50–58` | Refresh-session security matrix. |
+| F-341? | P0 | Redis errors/timeouts and safe error mapping are not tested for session revocation. | `src/modules/users/users.contract.spec.ts:50–58` | Redis failure contract. |
+| F-341? | P0 | Idempotency metadata is asserted by reflection only; replay protection and idempotency-key storage/response semantics are not exercised. | `src/modules/users/users.contract.spec.ts:60–63` | HTTP idempotency integration gate. |
+| F-341? | P0 | No HTTP cookie flags, CSRF, rate-limit, enumeration or session-token disclosure behavior is tested. | `src/modules/users/users.contract.spec.ts:50–63` | Session transport security gate. |
+| F-341? | P0 | No PII/device/session retention, deletion, anonymization or access-audit policy is tested. | `src/modules/users/users.contract.spec.ts:4–63` | User privacy governance. |
+| F-341? | P1 | No notification delivery, cache invalidation, event publication or downstream preference consistency is asserted. | `src/modules/users/users.contract.spec.ts:26–41` | Preference side-effect contract. |
+| F-341? | P1 | Only selected methods are covered; list/read settings, bulk actions, all session lifecycle and error schemas are unverified. | `src/modules/users/users.contract.spec.ts:16–63` | Complete users route matrix. |
+| F-341? | P1 | This spec was not executed against live HTTP, Mongo, Redis, auth middleware or notification providers during this audit read. | `src/modules/users/users.contract.spec.ts:1–64` | Baseline-pinned users runtime evidence. |
