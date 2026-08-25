@@ -2218,3 +2218,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1375 | P1 | `assertPhase6ContractInactive` accepts every registry key although only three are inactive contract cases; this can blur error taxonomy and misuse the helper. | `src/contracts/phase6-contracts.ts:62–83` | Narrow inactive-contract type and explicit error mapping. |
 | F-1376 | P1 | No persistence/schema/audit/retention model is defined for consent, QR events or emergency location, preventing evidence-backed lifecycle and deletion guarantees. | `src/contracts/phase6-contracts.ts:21–60` | Versioned schemas, audit, retention and deletion contract. |
 | F-1377 | P2 | File name and comments call these “contract drafts” but no owner/version/effective-date/deprecation metadata or linked OpenAPI source is present. | `src/contracts/phase6-contracts.ts:3–8` | Contract ownership, version, status and source-of-truth metadata. |
+
+## MoodEntry repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1378 | P0 | MoodEntry repository has no owner/tenant scope or consent/purpose boundary; inherited generic reads/writes depend on callers to protect mental-health records. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Mandatory user-scoped methods and consent-aware access tests. |
+| F-1379 | P0 | No minimum-necessary projection or sensitive-field redaction is enforced for mental-health data. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Deny-by-default projection and redaction tests. |
+| F-1380 | P0 | No clinician/admin access policy or case relationship check is represented at the repository boundary. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Explicit role/purpose/relationship policy and stranger tests. |
+| F-1381 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for mood entries. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1382 | P1 | No optimistic versioning or conflict handling prevents stale writes to a mood record. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1383 | P1 | No idempotency or duplicate policy is defined for repeated mood-entry submissions. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Deterministic event key and replay tests. |
+| F-1384 | P1 | No audit/provenance marker records who accessed or changed a mental-health entry, for what purpose, or under which consent. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Immutable access/change audit with purpose and actor. |
+| F-1385 | P1 | Generic inherited repository operations expose no schema-level validation of mood scale, date, source or clinical context in this member. | `src/modules/mental-health/repositories/moodentry.repository.ts:8–13` | Typed validation and boundary rejection tests. |
+| F-1386 | P2 | Non-functional import comment and formatting drift obscure ownership of this high-sensitivity repository. | `src/modules/mental-health/repositories/moodentry.repository.ts:4–6` | Remove stale comment and document privacy boundary. |
