@@ -5590,3 +5590,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3780 | P0 | Static Organization/MedicalBusiness/FAQ JSON-LD claims can diverge from actual licenses, services, languages, catalog counts and policy. | `src/modules/seo-search/seo-search.module.ts:264–302` | Static structured-data truthfulness gate. |
 | F-3781 | P0 | No IndexNow delivery/retry, 404/410 deletion lifecycle, hreflang completeness, canonical consistency, audit or crawler validation is demonstrated. | `src/modules/seo-search/seo-search.module.ts:23–44,249–381` | End-to-end SEO publication gate. |
 | F-3782 | P1 | All SEO/search routes lack explicit rate-limit, abuse, observability-redaction and downstream cache invalidation evidence. | `src/modules/seo-search/seo-search.module.ts:244–381` | SEO/search operations gate. |
+
+## Booking-flow service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3783 | P0 | BookingFlowService coverage uses Object.create and a mocked model, so constructor wiring, HTTP auth and live Mongo behavior are unproven. | `src/modules/booking-flow/booking-flow.service.spec.ts:6–12,14–28` | Live booking-flow integration gate. |
+| F-3784 | P0 | Provider read ownership is tested for one radiology fixture only; patient/family/facility/tenant and verified provider capability boundaries are absent. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking ownership matrix. |
+| F-3785 | P0 | Query permits four alternative ownership fields without proving that role, provider type and model semantics are mutually exclusive and safe. | `src/modules/booking-flow/booking-flow.service.spec.ts:18–21` | Ownership-field policy gate. |
+| F-3786 | P0 | Only radiology is configured; other booking kinds, alias validation and kind/model isolation are untested. | `src/modules/booking-flow/booking-flow.service.spec.ts:7–10,14–28` | Booking-kind coverage matrix. |
+| F-3787 | P0 | Missing/malformed IDs, missing context, deleted/stale account and stable 401/403/404 error mapping are untested; imported NotFoundException is unused. | `src/modules/booking-flow/booking-flow.service.spec.ts:1,14–28` | Booking-flow failure contract. |
+| F-3788 | P0 | No create/hold/slot-lock, payment intent, cancellation, reschedule, call-token, completion or settlement workflow is covered. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Complete booking capability matrix. |
+| F-3789 | P0 | No idempotency/replay, CAS, concurrent read/write, transaction or cross-collection atomicity behavior is tested. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking-flow atomicity gate. |
+| F-3790 | P0 | No booking state-transition, stale-result, schedule/availability or provider capability policy is asserted. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking state/provenance gate. |
+| F-3791 | P0 | No price, payment, insurance, fee, refund or server-authoritative financial truthfulness policy is tested. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking financial gate. |
+| F-3792 | P0 | No PII/PHI projection, media/call-link privacy, consent, retention/DSAR or access audit behavior is tested. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking data governance. |
+| F-3793 | P0 | No notification, event, cache invalidation, patient acknowledgement or provider dispatch side effects are asserted. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking side-effect contract. |
+| F-3794 | P0 | No rate limit, identifier enumeration, provider discovery or repeated booking-query abuse control is tested. | `src/modules/booking-flow/booking-flow.service.spec.ts:14–28` | Booking abuse-control gate. |
+| F-3795 | P1 | Projection excludes `_id` and `__v` but has no explicit safe-field DTO or disclosure policy for returned booking entities. | `src/modules/booking-flow/booking-flow.service.spec.ts:18–21` | Provider booking projection contract. |
+| F-3796 | P1 | This spec was not executed against live HTTP, Mongo, all booking kinds, payment, locks, dispatch or notifications during this audit read. | `src/modules/booking-flow/booking-flow.service.spec.ts:1–29` | Baseline-pinned booking-flow runtime evidence. |
