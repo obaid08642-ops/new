@@ -4481,3 +4481,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2988 | P1 | TTL deletion is eventual and no post-expiry authorization, cleanup or audit policy is visible. | `src/schemas/slot-lock.schema.ts:16` | Expiry lifecycle policy. |
 | F-2989 | P1 | The schema does not represent hold-owner token, acquisition request identity or release authorization. | `src/schemas/slot-lock.schema.ts:10–17` | Lock-holder access contract. |
 | F-2990 | P1 | The schema was not executed or integrated with live booking/slot-lock flows during this audit. | `src/schemas/slot-lock.schema.ts:1–20` | Baseline-pinned lock runtime evidence. |
+
+## Slot-lock service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2991 | P0 | Reserve tests use a mocked model and do not prove the production collision query or persistence semantics. | `src/modules/slot-locks/slot-locks.service.spec.ts:10–26,34–62` | Live/database-integrated reserve test. |
+| F-2992 | P0 | Successful and collision requests omit slot_end and expires_at, so interval/expiry validation is not exercised. | `src/modules/slot-locks/slot-locks.service.spec.ts:43–47,57–61` | Complete request and bounded-expiry matrix. |
+| F-2993 | P0 | No test asserts overlap semantics for adjacent, nested or partially overlapping intervals. | `src/modules/slot-locks/slot-locks.service.spec.ts:34–62` | Interval conflict matrix. |
+| F-2994 | P0 | No concurrent acquisition/race, unique-index or atomic/CAS behavior is tested. | `src/modules/slot-locks/slot-locks.service.spec.ts:34–62` | Parallel acquisition gate. |
+| F-2995 | P0 | No expiry cleanup, expired-lock exclusion, TTL behavior or expiry race is tested. | `src/modules/slot-locks/slot-locks.service.spec.ts:34–62` | TTL/expiry lifecycle gate. |
+| F-2996 | P0 | No confirm/release/expired transition, owner authorization or terminal-state test is present. | `src/modules/slot-locks/slot-locks.service.spec.ts:28–63` | Full lock state machine. |
+| F-2997 | P0 | No idempotency/replay or same-owner retry behavior is tested. | `src/modules/slot-locks/slot-locks.service.spec.ts:34–62` | Exactly-once reserve/release gate. |
+| F-2998 | P0 | No provider/patient/booking ownership or tenant isolation matrix is tested. | `src/modules/slot-locks/slot-locks.service.spec.ts:53–62` | Owner/stranger/unauth/tenant matrix. |
+| F-2999 | P0 | Missing-field coverage is narrow and does not validate booking kind, slot ordering, timezone, duration, IDs or malformed dates. | `src/modules/slot-locks/slot-locks.service.spec.ts:28–32` | Input-validation matrix. |
+| F-3000 | P1 | Collision behavior asserts only an error string and not safe disclosure, error code stability or retry guidance. | `src/modules/slot-locks/slot-locks.service.spec.ts:53–62` | Error contract/non-disclosure gate. |
+| F-3001 | P1 | No test checks that cleanup `deleteMany` is bounded to expired/releasable records and cannot delete another user's active hold. | `src/modules/slot-locks/slot-locks.service.spec.ts:34–62` | Safe cleanup query assertion. |
+| F-3002 | P1 | No live MongoDB indexes, TTL monitor, transaction or persistence evidence is produced. | `src/modules/slot-locks/slot-locks.service.spec.ts:10–26` | Baseline-pinned database evidence. |
+| F-3003 | P1 | No rate limit, abuse or denial-of-service behavior is tested for reservation attempts. | `src/modules/slot-locks/slot-locks.service.spec.ts:28–63` | Reservation abuse-control gate. |
+| F-3004 | P1 | This spec cannot certify production slot-lock correctness because it covers only three mocked reserve cases. | `src/modules/slot-locks/slot-locks.service.spec.ts:1–64` | Production-like lock acceptance suite. |
