@@ -5771,3 +5771,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3916 | P0 | No notification, admin-review delivery, document-expiry alert, location heartbeat or dispatch acknowledgement/retry state exists. | `src/schemas/ambulance-vehicle.schema.ts:23–34` | Fleet side-effect contract. |
 | F-3917 | P1 | Soft-delete, archival and correction provenance are absent despite a mutable availability/status model. | `src/schemas/ambulance-vehicle.schema.ts:11–34` | Fleet lifecycle/retention gate. |
 | F-3918 | P1 | No live compliance, location, review, dispatch or index runtime evidence was established during this baseline source read. | `src/schemas/ambulance-vehicle.schema.ts:1–38` | Baseline-pinned fleet runtime evidence. |
+
+## Nutrition schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3919 | P0 | Nutrition height/weight/target/BMI/body-fat/calorie/water fields have no positive/range/unit/precision validation or cross-field consistency. | `src/schemas/nutrition.schema.ts:7–19` | Nutrition metric-quality gate. |
+| F-3920 | P0 | Calorie and water targets have no source/formula/provenance or consistency with patient context and activity. | `src/schemas/nutrition.schema.ts:9–22` | Target provenance/clinical gate. |
+| F-3921 | P0 | Dietary restrictions/allergies are free-form with no controlled identifiers, severity/reaction/source/verification or recommendation-safety relation. | `src/schemas/nutrition.schema.ts:24–25` | Allergy/restriction safety gate. |
+| F-3922 | P0 | Patient nutrition/biometric/allergy data has no consent/delegation, tenant, active-patient, projection, encryption, access audit or retention policy. | `src/schemas/nutrition.schema.ts:7–25` | Nutrition PII/PHI governance. |
+| F-3923 | P0 | Meal calories/macros and water amount have no non-negative/range/unit/precision, serving/source or nutritional consistency validation. | `src/schemas/nutrition.schema.ts:34–40,59–61` | Meal/water data-quality gate. |
+| F-3924 | P0 | Zero defaults for nutritional fields do not distinguish unknown from an explicit zero, creating false data risk. | `src/schemas/nutrition.schema.ts:12–19,36–40` | Unknown-vs-zero truthfulness gate. |
+| F-3925 | P0 | Meal image_url is a raw string with no secure upload/storage ACL, content validation, signed access or retention metadata. | `src/schemas/nutrition.schema.ts:49–50` | Nutrition media security gate. |
+| F-3926 | P0 | Exercise duration/calories/type are unconstrained and lack units, intensity/source and consistency validation. | `src/schemas/nutrition.schema.ts:67–75` | Exercise data-quality gate. |
+| F-3927 | P0 | Log timestamps use application time without timezone, source, ordering or correction provenance. | `src/schemas/nutrition.schema.ts:50,61,75` | Nutrition time/provenance gate. |
+| F-3928 | P0 | Profile/log writes have no idempotency, duplicate prevention, immutable history, CAS/version, aggregation bounds or concurrency protection. | `src/schemas/nutrition.schema.ts:5–79` | Nutrition atomicity/replay gate. |
+| F-3929 | P0 | No clinician/dietitian review, contraindication, abnormal metric alert, recommendation safety or emergency escalation state exists. | `src/schemas/nutrition.schema.ts:5–79` | Nutrition clinical-safety gate. |
+| F-3930 | P0 | No correction, soft-delete, deletion/DSAR or legal-hold lifecycle is represented for nutrition profile/log records. | `src/schemas/nutrition.schema.ts:5–79` | Nutrition lifecycle/retention gate. |
+| F-3931 | P0 | No notification/adherence/reminder delivery, acknowledgement or retry state is represented for nutrition tracking. | `src/schemas/nutrition.schema.ts:31–79` | Nutrition side-effect contract. |
+| F-3932 | P1 | No live index/runtime, profile/log write, allergy or recommendation evidence was established during this baseline source read. | `src/schemas/nutrition.schema.ts:1–79` | Baseline-pinned nutrition runtime evidence. |
