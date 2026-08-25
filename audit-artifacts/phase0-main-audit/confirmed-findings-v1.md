@@ -4217,3 +4217,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2794 | P1 | The mock repository only throws/succeeds and cannot prove database uniqueness, transactions or process recovery. | `src/modules/events/event-bus.service.spec.ts:5–7,13–15` | Real DB failure/recovery evidence. |
 | F-2795 | P1 | No live broker/deployed artifact or operational telemetry proof is present. | `src/modules/events/event-bus.service.spec.ts:1–19` | Live event delivery evidence. |
 | F-2796 | P1 | The spec was not executed during this audit and cannot establish event-bus readiness. | `src/modules/events/event-bus.service.spec.ts:1–19` | Baseline-pinned executed evidence. |
+
+## Workflow engine module spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2797 | P1 | Workflow test covers a pure mapping function only and does not exercise controller/service/database transition behavior. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:1–4` | Runtime workflow integration test. |
+| F-2798 | P0 | Only two declared mappings are tested; completeness across domains and all source states is not established. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:9–11` | Exhaustive domain/state matrix. |
+| F-2799 | P0 | Unknown-state rejection is tested for one pharmacy input only; malformed, aliased, case/locale and unknown domain inputs are absent. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:5–7` | Normalization and negative matrix. |
+| F-2800 | P0 | No downstream consumer parity proves services, events, notifications and clients interpret universal states identically. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:9–11` | Cross-consumer contract tests. |
+| F-2801 | P0 | No authorization, actor ownership, tenant/facility scope or transition-permission behavior is tested. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Authorized state-transition matrix. |
+| F-2802 | P0 | No optimistic concurrency, idempotency, duplicate replay or terminal-state protection is covered. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Race-safe transition contract. |
+| F-2803 | P0 | No cancellation/refund/payment/insurance consistency or commercial side-effect policy is tested. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Commercial transition contract. |
+| F-2804 | P1 | No event/audit/notification/outbox behavior is asserted for state changes. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Audited event transition contract. |
+| F-2805 | P1 | No migration/backward-compatibility or persisted-state decoding evidence is present. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:4–12` | Persisted-state compatibility matrix. |
+| F-2806 | P1 | The spec was not executed during this audit and cannot establish workflow-engine readiness. | `src/modules/workflow-engine/workflow-engine.module.spec.ts:1–13` | Baseline-pinned executed evidence. |
