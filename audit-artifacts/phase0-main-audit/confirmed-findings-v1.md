@@ -3733,3 +3733,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2460 | P1 | No deleted/withdrawn/recalled/unreviewed/price-expired or cache-stale lifecycle cases are tested. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:15–30` | Publication/inventory lifecycle matrix. |
 | F-2461 | P1 | No canonical/JSON-LD/sitemap/indexing or stale-cache invalidation evidence exists for the public medicine surface. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:14–39` | SEO/cache integration acceptance. |
 | F-2462 | P1 | The spec was not executed during this audit and cannot establish current catalog readiness. | `src/modules/medicines/medicines.public-catalog.contract.spec.ts:1–39` | Baseline-pinned executed and live evidence. |
+
+## Catalog governance backfill test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2463 | P0 | Backfill contract uses mocked `updateMany` and cannot prove real database write concern, batching, indexes, transaction or production data safety. | `src/contracts/catalog-governance-backfill.contract.spec.ts:28–51` | Real DB migration evidence. |
+| F-2464 | P1 | Only medicine/provider/facility policy examples are asserted; all policy types and governance fields are not covered. | `src/contracts/catalog-governance-backfill.contract.spec.ts:4–26` | Complete policy matrix. |
+| F-2465 | P0 | Explicit governance combinations, malformed/ambiguous legacy values and duplicate records are not tested. | `src/contracts/catalog-governance-backfill.contract.spec.ts:8–26` | Conflict-safe filter matrix. |
+| F-2466 | P0 | Provider license expiry/revocation and medicine recall/withdrawal are not represented in inheritance predicates. | `src/contracts/catalog-governance-backfill.contract.spec.ts:8–22` | Current eligibility and revocation gates. |
+| F-2467 | P1 | Backfill has no tested dry-run/report, bounded batch, progress checkpoint or operator confirmation contract. | `src/contracts/catalog-governance-backfill.contract.spec.ts:28–42` | Safe migration operation controls. |
+| F-2468 | P0 | Partial update failure, retry/replay, concurrent execution and rollback failure are not tested. | `src/contracts/catalog-governance-backfill.contract.spec.ts:28–51` | Idempotent failure-safe migration. |
+| F-2469 | P1 | Provenance rollback is asserted with partial object matching but no actor, scope, backup, snapshot or audit trail proof. | `src/contracts/catalog-governance-backfill.contract.spec.ts:44–50` | Audited reversible migration. |
+| F-2470 | P1 | `expect.objectContaining` does not detect unintended fields written by the migration. | `src/contracts/catalog-governance-backfill.contract.spec.ts:35–40,47–50` | Exact update-set assertions. |
+| F-2471 | P0 | No post-migration public API, cache invalidation, sitemap/indexing or search consistency acceptance is present. | `src/contracts/catalog-governance-backfill.contract.spec.ts:1–52` | Post-migration publication/cache gates. |
+| F-2472 | P1 | The contract spec was not executed during this audit and cannot establish migration readiness. | `src/contracts/catalog-governance-backfill.contract.spec.ts:1–52` | Baseline-pinned executed migration evidence. |
