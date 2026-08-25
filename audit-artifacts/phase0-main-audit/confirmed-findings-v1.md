@@ -5326,3 +5326,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3581 | P1 | Event bus/notification/cache side effects and downstream clinical consistency are not asserted. | `src/modules/mental-health/mental-health.service.spec.ts:40–95` | Wellbeing side-effect contract. |
 | F-3582 | P1 | Model failures, malformed identifiers, stable error schemas and safe retry behavior are largely untested beyond selected BadRequestException cases. | `src/modules/mental-health/mental-health.service.spec.ts:52–103` | Mental-health failure contract. |
 | F-3583 | P1 | This spec was not executed against live HTTP, Mongo, notification, crisis-resource or clinical escalation workflows during this audit read. | `src/modules/mental-health/mental-health.service.spec.ts:1–96` | Baseline-pinned mental-health runtime evidence. |
+
+## Billing ZATCA spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3584 | P0 | The parser used by the test does not validate base64, truncated TLV records, duplicate/out-of-order tags, length overflow or trailing bytes. | `src/modules/billing/tests/billing-zatca.spec.ts:6–17` | Strict TLV decoder contract. |
+| F-3585 | P0 | TLV tests do not validate required seller/VAT values, VAT format/authority, empty fields or field-specific length bounds. | `src/modules/billing/tests/billing-zatca.spec.ts:19–55` | ZATCA field validation gate. |
+| F-3586 | P0 | Timestamp coverage uses one ISO string and does not prove timezone, future/past policy, precision or invalid-date rejection. | `src/modules/billing/tests/billing-zatca.spec.ts:20–33` | Invoice timestamp contract. |
+| F-3587 | P0 | Total/VAT formatting is tested only for positive examples; negative, non-finite, precision, currency and extreme-value behavior is unverified. | `src/modules/billing/tests/billing-zatca.spec.ts:27–53` | Monetary serialization gate. |
+| F-3588 | P0 | VAT extraction relies on a local formula rather than authoritative invoice line/tax data and does not test discounts, shipping, exempt/zero-rated cases or refunds. | `src/modules/billing/tests/billing-zatca.spec.ts:57–69` | Server-authoritative tax reconciliation. |
+| F-3589 | P0 | Rounding policy is represented by four examples only and does not prove decimal arithmetic, per-line versus invoice rounding or reconciliation invariants. | `src/modules/billing/tests/billing-zatca.spec.ts:57–69` | Tax/rounding truthfulness gate. |
+| F-3590 | P0 | No invoice UUID, invoice type, currency, tax category, seller address, cryptographic signing or ZATCA Phase 2 clearance/reporting behavior is tested. | `src/modules/billing/tests/billing-zatca.spec.ts:19–55` | Complete ZATCA compliance gate. |
+| F-3591 | P0 | No invoice/order/payment ownership, tenant, authorization, duplicate invoice, idempotency or transaction behavior is covered. | `src/modules/billing/tests/billing-zatca.spec.ts:19–69` | Billing authorization/atomicity matrix. |
+| F-3592 | P0 | QR exposure, access control, PII minimization, redaction, retention and invoice audit trail are untested. | `src/modules/billing/tests/billing-zatca.spec.ts:19–55` | Invoice privacy/governance gate. |
+| F-3593 | P0 | No credit note, refund, cancellation, correction or invoice version/lifecycle semantics are covered. | `src/modules/billing/tests/billing-zatca.spec.ts:57–69` | Invoice lifecycle contract. |
+| F-3594 | P0 | No reconciliation against authoritative order totals, ledger, payment provider, insurance contribution or settlement data is asserted. | `src/modules/billing/tests/billing-zatca.spec.ts:57–69` | Billing ledger reconciliation gate. |
+| F-3595 | P1 | No malformed-input error schema, resource limit, rate limit or abuse handling is tested for QR/tax generation. | `src/modules/billing/tests/billing-zatca.spec.ts:6–69` | Billing failure/abuse contract. |
+| F-3596 | P1 | No QR scanner interoperability, UTF-8 edge, non-Arabic locale or consumer/mobile rendering behavior is tested. | `src/modules/billing/tests/billing-zatca.spec.ts:19–55` | QR interoperability matrix. |
+| F-3597 | P1 | No audit event, notification, cache invalidation or downstream accounting consistency is asserted. | `src/modules/billing/tests/billing-zatca.spec.ts:19–69` | Billing side-effect contract. |
+| F-3598 | P1 | This spec was not executed against live invoices, tax configuration, payment/order data, ZATCA validators or QR consumers during this audit read. | `src/modules/billing/tests/billing-zatca.spec.ts:1–69` | Baseline-pinned billing runtime evidence. |
