@@ -2290,3 +2290,17 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1422 | P1 | No audit/provenance marker records who accessed or changed a maternity profile, under what purpose/consent or which clinician/family relationship. | `src/modules/maternity/repositories/maternityprofile.repository.ts:8–13` | Immutable access/change audit with actor, purpose and relationship. |
 | F-1423 | P1 | Generic inherited operations expose no schema-level validation of dates, pregnancy status, clinical metrics or source in this member. | `src/modules/maternity/repositories/maternityprofile.repository.ts:8–13` | Typed validation and clinical invariant tests. |
 | F-1424 | P2 | Non-functional import comment and formatting drift obscure ownership of this high-sensitivity reproductive-health repository. | `src/modules/maternity/repositories/maternityprofile.repository.ts:4–6` | Remove stale comment and document privacy boundary. |
+
+## WaterLog repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1425 | P0 | WaterLog repository has no patient owner/tenant/caregiver scope; inherited generic reads/writes depend on callers to protect hydration records. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Mandatory patient-scoped methods and caregiver authorization tests. |
+| F-1426 | P1 | No validation of volume, unit, timestamp, source or physiologic bounds is enforced at the repository boundary. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Typed validation and nutrition-safety invariant tests. |
+| F-1427 | P1 | No deterministic day/event key, duplicate policy or idempotency is defined for repeated hydration entries. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Replay-safe key and duplicate/day aggregation tests. |
+| F-1428 | P1 | No minimum-necessary projection or redaction policy is enforced for patient nutrition/hydration data. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Deny-by-default projection and redaction tests. |
+| F-1429 | P1 | No optimistic versioning or conflict handling prevents concurrent corrections from losing hydration data. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Compare-and-set/version checks and conflict tests. |
+| F-1430 | P1 | No retention, deletion, anonymization or legal-hold lifecycle is defined for water logs. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Retention/deletion/anonymization contract and tests. |
+| F-1431 | P1 | No audit/provenance records who accessed or changed hydration records, under what purpose or caregiver relationship. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Immutable access/change audit with actor and purpose. |
+| F-1432 | P1 | No repository-level invariant guarantees daily totals/goal calculations remain consistent with individual entries after updates or deletes. | `src/modules/nutrition/repositories/waterlog.repository.ts:8–13` | Atomic aggregate/reconciliation contract and tests. |
+| F-1433 | P2 | Non-functional import comment and formatting drift obscure ownership of this patient nutrition repository. | `src/modules/nutrition/repositories/waterlog.repository.ts:4–6` | Remove stale comment and document data boundary. |
