@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — Home-care contract spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/home-care/home-care.contract.spec.ts:1–44`
+
+The spec defines a home-care booking fixture with patient ownership, IN_TRANSIT state, Arabic service name, scheduled time, nurse name, private notes/address/clinical notes and state history (`6–15`). It verifies the controller queries by both booking id and authenticated patient id and returns a bounded DTO containing id/status/service type/scheduled time, nurse display name with null avatar and serialized timeline (`17–35`). It explicitly verifies private notes, address and clinical notes are absent from the result (`32–34`). It verifies a foreign patient receives NotFoundException and the query is owner-scoped (`37–43`).
+
+The controller and repository are exercised directly with a mocked `findOne`; HTTP authentication, verified session identity, tenant/facility scope and live persistence are unproven (`17–43`). Coverage is one IN_TRANSIT fixture only; it does not test all home-care states, provider/nurse identity and assignment, branch capability, status-transition integrity, stale timeline, cancellation/reschedule, check-in/completion or emergency handling (`7–15,24–30`). The DTO redaction test does not cover addresses/clinical data in nested shapes, timing/location leakage, signed call/location links, authorization for provider/family/dependent roles, or malformed IDs (`17–35`). No list endpoint, mutation, idempotency, transaction/CAS, notification/event/cache, price/insurance/payment/refund, service/visit evidence, audit actor/reason, retention/DSAR, rate limit or live Mongo/provider evidence is covered. No code was changed and no build/test/application operation was performed during this read.

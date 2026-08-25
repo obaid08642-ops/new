@@ -5465,3 +5465,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3685 | P0 | Invite, group, calendar and permission operations have no rate-limit, enumeration or abuse-control coverage. | `src/modules/family/family.service.spec.ts:43–205` | Family abuse-control gate. |
 | F-3686 | P1 | Malformed IDs, repository failures, stable 401/403/404/error schema and safe retry mapping are incompletely covered. | `src/modules/family/family.service.spec.ts:43–205` | Family failure contract. |
 | F-3687 | P1 | This spec was not executed against live HTTP, Mongo, notifications or delegated-health-data workflows during this audit read. | `src/modules/family/family.service.spec.ts:1–207` | Baseline-pinned family runtime evidence. |
+
+## Home-care contract spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3688 | P0 | Home-care detail coverage uses a mocked repository and direct controller call, so HTTP auth, session integrity and live persistence are unproven. | `src/modules/home-care/home-care.contract.spec.ts:6–43` | Live home-care detail integration gate. |
+| F-3689 | P0 | Patient ID query scoping is asserted for one case, but tenant/facility/provider/nurse/family/dependent ownership and verified actor scope are untested. | `src/modules/home-care/home-care.contract.spec.ts:17–43` | Home-care ownership matrix. |
+| F-3690 | P0 | Only IN_TRANSIT is covered; confirmed, pending, assigned, en-route, completed, cancelled, failed and emergency transitions/timeline invariants are absent. | `src/modules/home-care/home-care.contract.spec.ts:7–15,24–30` | Home-care state-machine gate. |
+| F-3691 | P0 | Nurse/provider identity and assignment capability, credential/license validity and branch/service eligibility are not tested. | `src/modules/home-care/home-care.contract.spec.ts:24–30` | Care-provider capability gate. |
+| F-3692 | P0 | DTO redaction covers three top-level fields but not nested address/clinical/location/timing/call-link leakage or signed-link access. | `src/modules/home-care/home-care.contract.spec.ts:17–35` | Home-care least-disclosure contract. |
+| F-3693 | P0 | Malformed IDs, missing-resource behavior across route variants and stable 401/403/404 error schema are incompletely covered. | `src/modules/home-care/home-care.contract.spec.ts:37–43` | Home-care failure contract. |
+| F-3694 | P0 | List, create, cancel, reschedule, check-in, completion, emergency and visit workflows are not covered by this contract. | `src/modules/home-care/home-care.contract.spec.ts:17–43` | Complete home-care capability matrix. |
+| F-3695 | P0 | No price, insurance eligibility, authorization, payment, refund, cancellation fee or server-authoritative financial representation is tested. | `src/modules/home-care/home-care.contract.spec.ts:17–35` | Home-care financial truthfulness gate. |
+| F-3696 | P0 | No idempotency/replay, transaction/CAS, stale timeline or concurrent state transition behavior is tested. | `src/modules/home-care/home-care.contract.spec.ts:17–43` | Home-care atomicity/replay gate. |
+| F-3697 | P0 | No notification, event, cache invalidation, patient acknowledgement or provider dispatch consistency is asserted. | `src/modules/home-care/home-care.contract.spec.ts:17–43` | Home-care side-effect contract. |
+| F-3698 | P0 | Home-care address, clinical notes and provider identity privacy/consent, retention/deletion, DSAR and access audit are not tested. | `src/modules/home-care/home-care.contract.spec.ts:7–15,24–35` | Home-care data governance. |
+| F-3699 | P0 | No rate limit, identifier enumeration prevention, location abuse or emergency-request abuse control is tested. | `src/modules/home-care/home-care.contract.spec.ts:17–43` | Home-care abuse-control gate. |
+| F-3700 | P1 | The bounded DTO has no explicit provenance/version/last-updated or server-clock contract for timeline truthfulness. | `src/modules/home-care/home-care.contract.spec.ts:24–30` | Timeline provenance contract. |
+| F-3701 | P1 | This spec was not executed against live HTTP, Mongo, provider dispatch, notifications, payment or home-care workflows during this audit read. | `src/modules/home-care/home-care.contract.spec.ts:1–44` | Baseline-pinned home-care runtime evidence. |
