@@ -5949,3 +5949,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-4051 | P0 | No notification delivery/retry, crisis escalation outcome, audit actor, soft-delete, deletion/DSAR or legal-hold lifecycle exists. | `src/schemas/mental-health.schema.ts:40–97` | Mental-health lifecycle/side-effect gate. |
 | F-4052 | P1 | Logged dates use application time without timezone/source-clock provenance or correction ordering. | `src/schemas/mental-health.schema.ts:50,64,78` | Mental-health time provenance gate. |
 | F-4053 | P1 | No live mood, session, crisis-contact, safety or index runtime evidence was established during this baseline source read. | `src/schemas/mental-health.schema.ts:1–98` | Baseline-pinned mental-health runtime evidence. |
+
+## Patient CRM tag schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-4054 | P0 | Provider/patient IDs and compound uniqueness do not establish provider relationship, active identity, patient consent or facility/tenant scope. | `src/schemas/patient-crm-tag.schema.ts:10–14,36` | CRM ownership/consent gate. |
+| F-4055 | P0 | VIP/favorite/blocked flags have no actor, reason, changed time, expiry, review or transition semantics. | `src/schemas/patient-crm-tag.schema.ts:16–26` | CRM flag audit/lifecycle gate. |
+| F-4056 | P0 | blocked can be set without blocked_reason, appeal, review, notification or downstream contact-suppression invariant. | `src/schemas/patient-crm-tag.schema.ts:22–26` | Block/appeal safety gate. |
+| F-4057 | P0 | custom_tags are unbounded free-form strings with no taxonomy, size/content validation or sensitive-label controls. | `src/schemas/patient-crm-tag.schema.ts:28–29` | CRM tag data-quality/privacy gate. |
+| F-4058 | P0 | private_notes are unbounded arrays with no provider-private/care-team/patient-visible separation or PII/PHI projection/encryption/access controls. | `src/schemas/patient-crm-tag.schema.ts:31–32` | CRM notes confidentiality gate. |
+| F-4059 | P0 | CRM mutations lack immutable audit/version/CAS, idempotency, duplicate/concurrent update and correction semantics. | `src/schemas/patient-crm-tag.schema.ts:5–36` | CRM mutation integrity gate. |
+| F-4060 | P0 | No moderation, abuse/rate-limit, stigmatizing-label, retention/deletion/DSAR or legal-hold lifecycle is represented. | `src/schemas/patient-crm-tag.schema.ts:16–32` | CRM governance/retention gate. |
+| F-4061 | P0 | No notification, blocked-contact enforcement, risk escalation, cache/search consistency or side-effect acknowledgement state exists. | `src/schemas/patient-crm-tag.schema.ts:16–32` | CRM side-effect contract. |
+| F-4062 | P1 | Timestamps are automatic only and do not provide per-field change provenance, actor or authoritative event time. | `src/schemas/patient-crm-tag.schema.ts:5–6,16–32` | CRM time/provenance gate. |
+| F-4063 | P1 | No live CRM authorization, privacy, block enforcement, audit or index runtime evidence was established during this baseline source read. | `src/schemas/patient-crm-tag.schema.ts:1–36` | Baseline-pinned CRM runtime evidence. |
