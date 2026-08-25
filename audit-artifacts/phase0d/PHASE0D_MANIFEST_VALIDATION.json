@@ -1,0 +1,57 @@
+{
+  "surfaces": {
+    "patient-mobile": {
+      "archive": "nabd_plus_patient_app.zip",
+      "archive_sha256": "70d01d4857e5326e17f3f3c14f35b20b4bbdbf775919d12bc7e280c24a84964b",
+      "total_members": 665,
+      "YES": 606,
+      "N/A": 59,
+      "NO": 0,
+      "missing_members": 0,
+      "duplicate_members": 0,
+      "missing_evidence": 0,
+      "bad_line_ranges": 0,
+      "owned_unread": 0
+    },
+    "patient-web": {
+      "archive": "nabd-patient-web.zip",
+      "archive_sha256": "807237bb57c09964e13698c650b4258547ab280df48f2913d0179a16e6977ad5",
+      "total_members": 1126,
+      "YES": 1022,
+      "N/A": 104,
+      "NO": 0,
+      "missing_members": 0,
+      "duplicate_members": 0,
+      "missing_evidence": 0,
+      "bad_line_ranges": 0,
+      "owned_unread": 0
+    },
+    "provider": {
+      "archive": "NabdProvider-provider.zip",
+      "archive_sha256": "4655c5c018e403c3ab3eb8c13645d876cc7f69b73f5ba6dd9050186917c92d4c",
+      "total_members": 83,
+      "YES": 78,
+      "N/A": 5,
+      "NO": 0,
+      "missing_members": 0,
+      "duplicate_members": 0,
+      "missing_evidence": 0,
+      "bad_line_ranges": 0,
+      "owned_unread": 0
+    },
+    "admin": {
+      "archive": "web_admin_dashboard.zip",
+      "archive_sha256": "b32648f90eadcf7520644f77398bd99e9c2660ddde2e27bab160b5faaac65b82",
+      "total_members": 66,
+      "YES": 59,
+      "N/A": 7,
+      "NO": 0,
+      "missing_members": 0,
+      "duplicate_members": 0,
+      "missing_evidence": 0,
+      "bad_line_ranges": 0,
+      "owned_unread": 0
+    }
+  },
+  "failures": []
+}

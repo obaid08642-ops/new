@@ -1,0 +1,52 @@
+{
+  "patient-mobile": {
+    "archive": "nabd_plus_patient_app.zip",
+    "archive_sha256": "70d01d4857e5326e17f3f3c14f35b20b4bbdbf775919d12bc7e280c24a84964b",
+    "members_total": 665,
+    "counts": {
+      "OWNED_SOURCE_OR_CONFIG": 566,
+      "EXCLUSION_OTHER": 3,
+      "OWNED_TEST": 40,
+      "EXCLUSION_BINARY": 56
+    },
+    "manifest": "audit-artifacts/phase0d/phase0d-patient-mobile/NABD_Phase0D_patient_mobile_Semantic_Read_Manifest.tsv",
+    "traceability": "audit-artifacts/phase0d/phase0d-patient-mobile/Screen_Action_Journey_Traceability.tsv"
+  },
+  "patient-web": {
+    "archive": "nabd-patient-web.zip",
+    "archive_sha256": "807237bb57c09964e13698c650b4258547ab280df48f2913d0179a16e6977ad5",
+    "members_total": 1126,
+    "counts": {
+      "OWNED_SOURCE_OR_CONFIG": 873,
+      "EXCLUSION_OTHER": 75,
+      "OWNED_TEST": 149,
+      "EXCLUSION_BINARY": 29
+    },
+    "manifest": "audit-artifacts/phase0d/phase0d-patient-web/NABD_Phase0D_patient_web_Semantic_Read_Manifest.tsv",
+    "traceability": "audit-artifacts/phase0d/phase0d-patient-web/Screen_Action_Journey_Traceability.tsv"
+  },
+  "provider": {
+    "archive": "NabdProvider-provider.zip",
+    "archive_sha256": "4655c5c018e403c3ab3eb8c13645d876cc7f69b73f5ba6dd9050186917c92d4c",
+    "members_total": 83,
+    "counts": {
+      "OWNED_SOURCE_OR_CONFIG": 77,
+      "OWNED_TEST": 1,
+      "EXCLUSION_BINARY": 5
+    },
+    "manifest": "audit-artifacts/phase0d/phase0d-provider/NABD_Phase0D_provider_Semantic_Read_Manifest.tsv",
+    "traceability": "audit-artifacts/phase0d/phase0d-provider/Screen_Action_Journey_Traceability.tsv"
+  },
+  "admin": {
+    "archive": "web_admin_dashboard.zip",
+    "archive_sha256": "b32648f90eadcf7520644f77398bd99e9c2660ddde2e27bab160b5faaac65b82",
+    "members_total": 66,
+    "counts": {
+      "OWNED_SOURCE_OR_CONFIG": 59,
+      "EXCLUSION_OTHER": 1,
+      "EXCLUSION_BINARY": 6
+    },
+    "manifest": "audit-artifacts/phase0d/phase0d-admin/NABD_Phase0D_admin_Semantic_Read_Manifest.tsv",
+    "traceability": "audit-artifacts/phase0d/phase0d-admin/Screen_Action_Journey_Traceability.tsv"
+  }
+}

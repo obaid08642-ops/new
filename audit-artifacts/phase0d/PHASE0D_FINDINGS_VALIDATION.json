@@ -1,0 +1,43 @@
+{
+  "total_findings": 388,
+  "surfaces": {
+    "patient-mobile": {
+      "rows": 253,
+      "bad_rows": 0,
+      "relations": {
+        "INSUFFICIENT_EVIDENCE": 42,
+        "RUNTIME_VERIFICATION_REQUIRED": 171,
+        "UNIQUE_DEFECT": 40
+      }
+    },
+    "patient-web": {
+      "rows": 72,
+      "bad_rows": 0,
+      "relations": {
+        "INSUFFICIENT_EVIDENCE": 22,
+        "RUNTIME_VERIFICATION_REQUIRED": 42,
+        "UNIQUE_DEFECT": 8
+      }
+    },
+    "provider": {
+      "rows": 32,
+      "bad_rows": 0,
+      "relations": {
+        "INSUFFICIENT_EVIDENCE": 7,
+        "RUNTIME_VERIFICATION_REQUIRED": 13,
+        "UNIQUE_DEFECT": 12
+      }
+    },
+    "admin": {
+      "rows": 31,
+      "bad_rows": 0,
+      "relations": {
+        "INSUFFICIENT_EVIDENCE": 2,
+        "RUNTIME_VERIFICATION_REQUIRED": 27,
+        "UNIQUE_DEFECT": 2
+      }
+    }
+  },
+  "failure_count": 0,
+  "failures": []
+}
