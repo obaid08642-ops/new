@@ -3799,3 +3799,18 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2506 | P1 | No cache-hit/miss, invalidation, stale, corruption or privacy audit metrics are visible in this member. | `src/common/redis-cache.interceptor.ts:23–35` | Cache observability contract. |
 | F-2507 | P1 | No test covers empty/null/error responses, serialization edge cases, binary/stream responses or large payloads. | `src/common/redis-cache.interceptor.ts:26–35` | Response-type matrix. |
 | F-2508 | P1 | The interceptor was not executed or integration-tested during this audit and cannot establish cache safety/readiness. | `src/common/redis-cache.interceptor.ts:1–39` | Baseline-pinned cache integration evidence. |
+
+## Tracking ID generator findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2509 | P1 | Caller-supplied prefix is uppercased but not allowlisted or bounded, permitting arbitrary format/namespace injection. | `src/common/tracking.ts:8–15` | Enum-backed prefix validation. |
+| F-2510 | P0 | Five suffix characters generated with `Math.random()` are not cryptographically secure and must not be treated as authorization secrets. | `src/common/tracking.ts:12–14` | Non-secret identifier policy or CSPRNG where required. |
+| F-2511 | P0 | No database uniqueness, reservation, retry or collision handling is visible for the finite code space. | `src/common/tracking.ts:8–15` | Unique-index/concurrency acceptance. |
+| F-2512 | P1 | Tracking identifiers have no tenant/domain namespace isolation and may be enumerable or cross-surface correlated. | `src/common/tracking.ts:8–15,17–28` | Scoped non-enumerable lookup policy. |
+| F-2513 | P1 | Year/month uses local server time and two-digit year, creating timezone/DST/clock and future year ambiguity. | `src/common/tracking.ts:9–11` | UTC/time-source policy and boundary tests. |
+| F-2514 | P1 | Prefix map is exported but not enforced by `trackingId`, so map drift and unsupported domains are possible. | `src/common/tracking.ts:8,17–28` | Single authoritative typed prefix registry. |
+| F-2515 | P1 | No validation covers empty, whitespace, Unicode, delimiter, oversized or control-character prefixes. | `src/common/tracking.ts:8,14` | Canonical input validation. |
+| F-2516 | P1 | No privacy/authorization contract establishes whether codes are safe for URLs, logs, notifications or public support lookup. | `src/common/tracking.ts:1–28` | Exposure and lookup threat model. |
+| F-2517 | P1 | No retry/idempotency relationship is defined between tracking code generation and order/booking creation. | `src/common/tracking.ts:8–15` | Creation/idempotency contract. |
+| F-2518 | P1 | The generator was not executed or concurrency-tested during this audit and cannot establish identifier readiness. | `src/common/tracking.ts:1–28` | Baseline-pinned collision and runtime evidence. |
