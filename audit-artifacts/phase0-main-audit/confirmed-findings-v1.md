@@ -3904,3 +3904,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2576 | P1 | No expiry/auto-close, notification/event, audit or deletion policy is represented by the repository. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:8–13` | Audited emergency lifecycle. |
 | F-2577 | P1 | The import comment does not enforce import correctness or runtime schema/model parity. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:5–6` | CI/type/runtime parity gate. |
 | F-2578 | P1 | The repository was not executed or integration-tested during this audit and cannot establish emergency persistence readiness. | `src/modules/emergency/repositories/emergencyrequest.repository.ts:1–13` | Baseline-pinned emergency persistence evidence. |
+
+## Emergency vehicle integrity test findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2579 | P0 | Vehicle integrity spec uses mocked model/query/connection/emitter and cannot prove live fleet authorization or emergency persistence. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:5–13,15–35` | Real DB/live dispatch evidence. |
+| F-2580 | P0 | No auth guard/session/provider license or tenant/facility membership is tested for the provider claim. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:15–35` | Full authenticated actor matrix. |
+| F-2581 | P0 | Successful fixture omits status/availability while the lookup contract requires those fields, weakening fixture fidelity. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:28–34` | Schema-faithful success fixture. |
+| F-2582 | P0 | Claim update does not assert affected count, version/state filter or atomic availability reservation. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:31–34` | Atomic race-safe vehicle claim. |
+| F-2583 | P0 | Double claim, stale availability, concurrent claims and vehicle deactivation/revocation are not tested. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:15–35` | Concurrency/lifecycle matrix. |
+| F-2584 | P0 | No emergency ownership, responder authority, exact-location or privacy/minimization test exists. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:15–35` | Emergency access/location contract. |
+| F-2585 | P1 | No idempotency/replay, notification, audit or event durability coverage exists for claims. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:28–34` | Audited idempotent claim contract. |
+| F-2586 | P1 | Vehicle ID/plate input validation and plate privacy/redaction are not tested. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:21–34` | Typed safe vehicle identifier policy. |
+| F-2587 | P1 | No cancellation/resolve/no-show/timeout or responder handoff lifecycle coverage exists. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:15–35` | Complete emergency state machine. |
+| F-2588 | P1 | Dependency failure behavior for vehicle query, emergency update or event emission is not tested. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:5–12,28–34` | Failure-safe dispatch workflow. |
+| F-2589 | P1 | No live vehicle/provider/dispatch or device/location acceptance is present. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:1–36` | Sandbox/live emergency acceptance. |
+| F-2590 | P1 | The spec was not executed during this audit and cannot establish emergency vehicle readiness. | `src/modules/emergency/emergency.service.vehicle-integrity.spec.ts:1–36` | Baseline-pinned executed evidence. |
