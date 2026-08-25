@@ -3940,3 +3940,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2602 | P1 | No schema-level payment/insurance/consent linkage is visible for emergency service scenarios. | `src/schemas/emergency.schema.ts:6–33` | Explicit emergency service contract where applicable. |
 | F-2603 | P1 | No field-level serialization/projection test proves internal IDs and admin notes never reach patient/responder clients. | `src/schemas/emergency.schema.ts:20–31` | Projection/privacy test matrix. |
 | F-2604 | P1 | The schema was not executed or integration-tested during this audit and cannot establish emergency data readiness. | `src/schemas/emergency.schema.ts:1–36` | Baseline-pinned schema/live dispatch evidence. |
+
+## Custom service request repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2605 | P0 | Custom-service repository is a thin generic wrapper with no patient/provider authorization or query boundary. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Explicit custom-service access policy. |
+| F-2606 | P0 | No repository-level tenant, patient, provider or facility ownership scope is enforced or evidenced. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Actor/tenant ownership matrix. |
+| F-2607 | P1 | No custom-request status transition, expiry, cancellation, fulfillment or assignment policy is represented. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Complete custom-service lifecycle. |
+| F-2608 | P0 | No sensitive-field projection, consent, medical-data minimization or audit policy is visible. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Privacy-reviewed request projections. |
+| F-2609 | P0 | No price/quote/payment/insurance truth or server-authoritative amount boundary is represented. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Typed commercial request contract. |
+| F-2610 | P0 | No idempotent create/update/cancel, duplicate suppression, transaction or optimistic concurrency boundary is visible. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:8–13` | Race-safe mutation contract. |
+| F-2611 | P1 | Import comment does not enforce import correctness or schema/model parity. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:5–6` | CI/type/runtime parity gate. |
+| F-2612 | P1 | Repository was not executed or integration-tested during this audit and cannot establish custom-service persistence readiness. | `src/modules/custom-services/repositories/customservicerequest.repository.ts:1–13` | Baseline-pinned custom-service evidence. |
