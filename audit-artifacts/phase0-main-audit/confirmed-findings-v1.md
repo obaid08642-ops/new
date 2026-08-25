@@ -5504,3 +5504,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3714 | P1 | Model/workflow/provider failures and stable 401/403/404/409 error schemas are not covered. | `src/modules/home-care/home-care.service.spec.ts:65–84` | Check-in failure contract. |
 | F-3715 | P1 | Event time/clock source and notification timing are not deterministic or asserted. | `src/modules/home-care/home-care.service.spec.ts:75–83` | Check-in time/provenance contract. |
 | F-3716 | P1 | This spec was not executed against live HTTP, Mongo, geo validation, dispatch, notifications or home-care workflows during this audit read. | `src/modules/home-care/home-care.service.spec.ts:1–86` | Baseline-pinned home-care runtime evidence. |
+
+## Home-care controller spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3717 | P0 | NursingController tests use mocked dependencies and direct calls, so HTTP guards, verified identities and live persistence are unproven. | `src/modules/home-care/home-care.controller.spec.ts:5–18,20–74` | Live nursing controller integration gate. |
+| F-3718 | P0 | Patient/provider ownership checks are narrow; tenant/facility, nurse license/assignment, patient/family delegation and full unauth/stranger matrix are untested. | `src/modules/home-care/home-care.controller.spec.ts:20–52` | Nursing ownership/credential matrix. |
+| F-3719 | P0 | Provider acceptance covers one NEW_REQUEST accept path; reject, already-assigned, expired/cancelled, race and capability/schedule conflict paths are absent. | `src/modules/home-care/home-care.controller.spec.ts:34–45` | Nursing acceptance state machine. |
+| F-3720 | P0 | Provider transit/start-care lifecycle lacks GPS/geofence/arrival proof, time-window, stale-state and completion/emergency validation. | `src/modules/home-care/home-care.controller.spec.ts:47–74` | Nursing location/state safety gate. |
+| F-3721 | P0 | Provider wallet uses one completed booking/amount and does not prove ledger source, currency, fees, tax, insurance, pending/locked/settled states or reconciliation. | `src/modules/home-care/home-care.controller.spec.ts:54–67` | Provider wallet financial truthfulness. |
+| F-3722 | P0 | Legacy-amount avoidance is asserted but authoritative price attribution and payout/settlement lifecycle are not. | `src/modules/home-care/home-care.controller.spec.ts:61–67` | Wallet source-of-truth contract. |
+| F-3723 | P0 | Workflow engine is mocked as direct mutate execution; CAS, rollback, transaction and multi-write atomicity are unproven. | `src/modules/home-care/home-care.controller.spec.ts:14–17,34–45` | Nursing workflow atomicity gate. |
+| F-3724 | P0 | No duplicate/replay/idempotency or concurrent acceptance/transit/start-care behavior is tested. | `src/modules/home-care/home-care.controller.spec.ts:34–74` | Nursing mutation replay gate. |
+| F-3725 | P0 | Visit clinical notes, reports, signatures/media, consent, PHI projection and patient/provider safety controls are untested. | `src/modules/home-care/home-care.controller.spec.ts:34–74` | Nursing clinical/privacy gate. |
+| F-3726 | P0 | No notification, dispatch event, cache invalidation or patient acknowledgement consistency is asserted. | `src/modules/home-care/home-care.controller.spec.ts:14–17,34–74` | Nursing side-effect contract. |
+| F-3727 | P0 | No rate limit, provider enumeration, location abuse or repeated state-mutation controls are tested. | `src/modules/home-care/home-care.controller.spec.ts:20–74` | Nursing abuse-control gate. |
+| F-3728 | P0 | Wallet/bank/clinical PII retention, masking, access audit, deletion and DSAR behavior are not tested. | `src/modules/home-care/home-care.controller.spec.ts:54–67` | Nursing financial/clinical data governance. |
+| F-3729 | P1 | Missing booking, malformed identifiers, model failures and stable 401/403/404/409 error schemas are incompletely covered. | `src/modules/home-care/home-care.controller.spec.ts:20–74` | Nursing controller failure contract. |
+| F-3730 | P1 | Event/timer clock source and state-history provenance are not deterministic or reconciled with server time. | `src/modules/home-care/home-care.controller.spec.ts:34–45,69–74` | Nursing timeline provenance contract. |
+| F-3731 | P1 | This spec was not executed against live HTTP, Mongo, geo/arrival validation, dispatch, wallet or nursing workflows during this audit read. | `src/modules/home-care/home-care.controller.spec.ts:1–75` | Baseline-pinned nursing runtime evidence. |
