@@ -4034,3 +4034,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2666 | P1 | No projection test proves admin notes, attached docs or resolver data are not exposed to patients/providers. | `src/schemas/returns.schema.ts:11–19` | Role-based serialization tests. |
 | F-2667 | P1 | No schema/integration tests cover refund truth, status races, order ownership, evidence documents or inventory settlement. | `src/schemas/returns.schema.ts:1–22` | Comprehensive return acceptance matrix. |
 | F-2668 | P1 | The schema was not executed or integrated during this audit and cannot establish return readiness. | `src/schemas/returns.schema.ts:1–22` | Baseline-pinned return runtime evidence. |
+
+## PushToken schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2669 | P0 | Push provider token is stored as a raw globally unique string without visible hashing/encryption, format/length validation or redaction policy. | `src/schemas/push-token.schema.ts:8–9` | Secret-safe token storage contract. |
+| F-2670 | P1 | Provider and platform are not cross-validated, allowing inconsistent delivery metadata. | `src/schemas/push-token.schema.ts:9–11` | Provider/platform compatibility validation. |
+| F-2671 | P0 | Optional device ID has no uniqueness, ownership, replacement or user/device binding policy. | `src/schemas/push-token.schema.ts:7,10–11` | Device registration identity contract. |
+| F-2672 | P0 | Global token uniqueness and user index do not define tenant scope or safe cross-user lookup behavior. | `src/schemas/push-token.schema.ts:7–8` | Scoped token access/index policy. |
+| F-2673 | P0 | `active` is a boolean without revocation actor/reason, logout semantics, deletion or provider feedback handling. | `src/schemas/push-token.schema.ts:12` | Audited revocation lifecycle. |
+| F-2674 | P1 | `last_seen_at` has no TTL/staleness threshold, clock policy or cleanup process. | `src/schemas/push-token.schema.ts:13` | Bounded stale-token retention. |
+| F-2675 | P0 | No idempotent upsert/concurrency policy exists for duplicate device/token registration or token rotation. | `src/schemas/push-token.schema.ts:6–13` | Race-safe registration contract. |
+| F-2676 | P1 | No consent, privacy, notification preference or data-deletion policy is visible for device tokens. | `src/schemas/push-token.schema.ts:4–13` | Privacy/consent governance. |
+| F-2677 | P1 | No provider-specific token lifecycle, invalid-token feedback, retry, bounce or delivery audit fields are represented. | `src/schemas/push-token.schema.ts:8–13` | Delivery feedback/observability contract. |
+| F-2678 | P1 | No schema-level projection/serialization test prevents token exposure to patient/provider/admin clients. | `src/schemas/push-token.schema.ts:6–13` | Role-safe token projections. |
+| F-2679 | P1 | No indexes for active/provider/stale-token operational cleanup or delivery selection are visible beyond user/token fields. | `src/schemas/push-token.schema.ts:6–13` | Operational index plan. |
+| F-2680 | P1 | The schema was not executed or integrated with notification providers during this audit and cannot establish push readiness. | `src/schemas/push-token.schema.ts:1–15` | Baseline-pinned notification runtime evidence. |
