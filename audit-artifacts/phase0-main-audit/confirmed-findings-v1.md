@@ -4463,3 +4463,21 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2975 | P1 | Individual indexes do not evidence an active-call/participant/time cleanup query plan. | `src/schemas/callsession.schema.ts:7–13` | Operational indexing/retention plan. |
 | F-2976 | P1 | End reason is unconstrained and lacks a controlled taxonomy or safe disclosure policy. | `src/schemas/callsession.schema.ts:17` | End-reason enum/audit contract. |
 | F-2977 | P1 | The schema was not executed or integrated with live LiveKit/call-token flows during this audit. | `src/schemas/callsession.schema.ts:1–20` | Baseline-pinned call runtime evidence. |
+
+## Slot-lock schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2978 | P0 | Status is only a TypeScript union; no persisted Mongoose enum prevents invalid values at runtime. | `src/schemas/slot-lock.schema.ts:15` | Runtime status enum. |
+| F-2979 | P0 | `booking_kind` is free-form and not constrained to supported booking types. | `src/schemas/slot-lock.schema.ts:12` | Booking-kind contract. |
+| F-2980 | P0 | No invariant validates slot_start < slot_end, maximum duration, timezone normalization or provider-slot granularity. | `src/schemas/slot-lock.schema.ts:13–14` | Server-authoritative interval validation. |
+| F-2981 | P0 | `expires_at` has no relation to acquisition time or the required hold window; expiry truthfulness is not enforced. | `src/schemas/slot-lock.schema.ts:16` | Bounded expiry contract. |
+| F-2982 | P0 | Provider, patient and optional booking IDs have no visible cross-document ownership or tenant integrity constraint. | `src/schemas/slot-lock.schema.ts:10–17` | Ownership/tenant gate. |
+| F-2983 | P0 | Provider/start/status index is non-unique and does not prevent overlapping or duplicate active interval locks. | `src/schemas/slot-lock.schema.ts:20` | Atomic overlap/partial uniqueness constraint. |
+| F-2984 | P0 | No lock acquisition CAS/transaction/version invariant is represented for concurrent booking attempts. | `src/schemas/slot-lock.schema.ts:9–20` | Race-safe acquisition contract. |
+| F-2985 | P0 | No status transition actor/time/reason/history or terminal-state protection is represented. | `src/schemas/slot-lock.schema.ts:15–17` | Audited lock state machine. |
+| F-2986 | P0 | No idempotency key or replay semantics are represented for acquire/confirm/release. | `src/schemas/slot-lock.schema.ts:9–17` | Exactly-once mutation contract. |
+| F-2987 | P0 | Optional booking_id can leave confirmed/associated lock state without a booking reference. | `src/schemas/slot-lock.schema.ts:17` | State/reference consistency gate. |
+| F-2988 | P1 | TTL deletion is eventual and no post-expiry authorization, cleanup or audit policy is visible. | `src/schemas/slot-lock.schema.ts:16` | Expiry lifecycle policy. |
+| F-2989 | P1 | The schema does not represent hold-owner token, acquisition request identity or release authorization. | `src/schemas/slot-lock.schema.ts:10–17` | Lock-holder access contract. |
+| F-2990 | P1 | The schema was not executed or integrated with live booking/slot-lock flows during this audit. | `src/schemas/slot-lock.schema.ts:1–20` | Baseline-pinned lock runtime evidence. |
