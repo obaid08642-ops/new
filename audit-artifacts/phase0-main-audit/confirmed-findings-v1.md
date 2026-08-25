@@ -1723,3 +1723,14 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1040 | P1 | Generic `@Schema()` has no timestamps, source/provenance or freshness fields, making stale configuration indistinguishable from current configuration. | `src/modules/feature-flags/feature-flag.schema.ts:4–14` | Timestamped source-backed configuration with freshness checks. |
 | F-1041 | P1 | `key` has uniqueness but no visible normalization, namespace, format or reserved-prefix policy, allowing ambiguous or colliding semantic flags across modules. | `src/modules/feature-flags/feature-flag.schema.ts:6–7` | Namespaced normalized key registry and collision tests. |
 | F-1042 | P0 | A single boolean defaulting false does not itself establish fail-closed behavior; safe semantics depend entirely on every caller and are not encoded in the schema contract. | `src/modules/feature-flags/feature-flag.schema.ts:9–10` | Central evaluator with deny-by-default and caller conformance tests. |
+
+## FeatureFlagRepository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1043 | P0 | FeatureFlagRepository is a generic MongoRepository wrapper and provides no central fail-closed evaluator or contract-dependency check before a feature is enabled. | `src/modules/feature-flags/repositories/featureflag.repository.ts:8–13` | Governed evaluator requiring published contract/health prerequisites. |
+| F-1044 | P0 | No atomic compare-and-set, optimistic version or concurrency method is present, so concurrent flag writes can overwrite one another without detection. | `src/modules/feature-flags/repositories/featureflag.repository.ts:8–13` | Versioned atomic flag commands with conflict handling. |
+| F-1045 | P1 | Repository adds no environment, tenant, cohort or audience scope beyond the schema's absent fields, making safe staged rollout impossible at this layer. | `src/modules/feature-flags/repositories/featureflag.repository.ts:8–13` | Scoped repository/evaluator API and negative scope tests. |
+| F-1046 | P1 | No actor, reason, approval, rollback or immutable audit behavior is enforced for flag changes. | `src/modules/feature-flags/repositories/featureflag.repository.ts:8–13` | Audited dual-control flag lifecycle. |
+| F-1047 | P1 | No expiry/cache-invalidation semantics are defined, allowing stale flags to remain active across processes or indefinitely. | `src/modules/feature-flags/repositories/featureflag.repository.ts:8–13` | Time-bounded flags and coherent cache invalidation. |
+| F-1048 | P2 | Generic repository inheritance and copied import/comment formatting create provenance ambiguity and leave flag-specific safety behavior dependent on undocumented callers. | `src/modules/feature-flags/repositories/featureflag.repository.ts:1–13` | Explicit repository contract and linted provenance. |
