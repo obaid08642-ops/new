@@ -2826,3 +2826,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1803 | P1 | No explicit indexing/noindex, sitemap, IndexNow, canonical or 404/410 lifecycle is coupled to publication state. | `scripts/seed-articles.ts:47–55` | Publication-indexing lifecycle and URL-status tests. |
 | F-1804 | P1 | Mongo disconnect occurs only on success; catch logs and exits without guaranteed cleanup or structured operational result. | `scripts/seed-articles.ts:47–61` | Finally-based cleanup and structured failure/audit reporting. |
 | F-1805 | P2 | `@ts-nocheck` disables compile-time safety for a script publishing medical/SEO content into production-adjacent storage. | `scripts/seed-articles.ts:1` | Strict typing and CI/static checks for content seed scripts. |
+
+## Seed medicines JavaScript findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1806 | P0 | Medicine seed script uses a hardcoded localhost URI/database with no environment or production identity gate. | `scripts/seed-medicines.js:3–12` | Fail-closed target gate and explicit operator confirmation. |
+| F-1807 | P0 | Script unconditionally deletes the entire `medicines_master` collection before inserting four records, making the operation destructive and non-idempotent. | `scripts/seed-medicines.js:14–16,89` | Non-destructive versioned reconciliation and rollback. |
+| F-1808 | P0 | The catalog is explicitly named `mockMedicines`, so mock data can be loaded into a production-adjacent medicine source. | `scripts/seed-medicines.js:18–18,89–90` | Remove mock source and require approved canonical catalog. |
+| F-1809 | P0 | Image URLs contain the `pub-XXXX.r2.dev` placeholder and comments identify them as mock R2 URLs; zero-placeholder production gate is absent. | `scripts/seed-medicines.js:26,43,60,77` | Owned verified assets and placeholder scan gate. |
+| F-1810 | P0 | Medicine names, ingredients, manufacturers, descriptions and prices are hardcoded without regulatory/source/market/currency/tax/effective-date provenance. | `scripts/seed-medicines.js:18–87` | Approved jurisdiction-aware medicine source and price truth. |
+| F-1811 | P0 | `verified: true` is asserted in seed data without visible verification authority, registration evidence or expiry/revocation lifecycle. | `scripts/seed-medicines.js:28–31,45–48,62–65,79–82` | Regulatory verification source and lifecycle. |
+| F-1812 | P0 | `requires_prescription` flags are hardcoded without prescription validation, controlled-drug policy, contraindication or dispensing enforcement. | `scripts/seed-medicines.js:28,45,62,79` | Prescription/dispensing policy and enforcement tests. |
+| F-1813 | P1 | No stock, availability, pharmacy/seller, batch, lot, expiry, recall or reservation fields/source are represented. | `scripts/seed-medicines.js:18–87` | Inventory/seller/lot/expiry/recall source of truth. |
+| F-1814 | P1 | Hardcoded `usage_count` values are presented without event provenance or aggregation integrity. | `scripts/seed-medicines.js:32,49,66,83` | Event-derived metrics with provenance. |
+| F-1815 | P1 | Fixed string IDs and `insertMany` have no unique-index assertion, deterministic reconciliation, version conflict or audit actor. | `scripts/seed-medicines.js:20,37,54,71,89` | Canonical IDs, unique indexes, reconciliation and audit. |
+| F-1816 | P0 | Collection-wide deletion and insertion are not coupled to a transaction/backup/rollback boundary. | `scripts/seed-medicines.js:14–16,89–96` | Transactional/backup-aware import with recovery. |
+| F-1817 | P1 | No localization completeness, source review or locale-specific clinical copy contract is represented. | `scripts/seed-medicines.js:20–87` | Reviewed multilingual medicine content or explicit unavailable state. |
+| F-1818 | P1 | No medication safety metadata such as dosage, contraindications, interactions, warnings or age/pregnancy restrictions is represented. | `scripts/seed-medicines.js:18–87` | Safety metadata source and pharmacist review. |
+| F-1819 | P1 | Errors are logged but do not set an explicit nonzero process result, while success logging claims four medicines without post-write validation. | `scripts/seed-medicines.js:89–95,99–100` | Fail-closed exit and post-seed reconciliation. |
+| F-1820 | P2 | The script relies on untyped JavaScript and inline catalog objects for a regulated/financial-adjacent source. | `scripts/seed-medicines.js:1,18–87` | Strict schema/types and CI/static checks. |
