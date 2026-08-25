@@ -2146,3 +2146,20 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1323 | P1 | Readiness checks only Mongo connection state and Redis ping; queue workers, critical integrations, startup grace, cache and payment dependencies are not represented. | `src/health.controller.ts:33–56` | Dependency-specific readiness matrix with criticality policy. |
 | F-1324 | P1 | Empty catches suppress diagnostic context for Mongo/Redis failures, weakening alerting and incident evidence. | `src/health.controller.ts:37–44` | Structured redacted error metrics/logging without response leakage. |
 | F-1325 | P2 | Health response has no build commit/schema/config version, making stale deployment detection and rollback verification harder. | `src/health.controller.ts:46–57` | Immutable build/version metadata in protected diagnostics. |
+
+## Insurance-company seed script findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1326 | P0 | Script connects directly to Mongo and has no production/environment hard stop or database identity assertion; a manual invocation can write the wrong database. | `src/scripts/seed-insurance-companies.ts:21–25` | Environment allowlist, database identity assertion and production rejection. |
+| F-1327 | P0 | `DB_NAME` silently defaults to `nabd`, creating wrong-database write risk when deployment configuration is missing. | `src/scripts/seed-insurance-companies.ts:21–25` | Required DB_NAME in controlled environments; no implicit fallback. |
+| F-1328 | P0 | Claimed idempotency is non-atomic check-then-insert; concurrent runs can duplicate companies unless an externally created unique index exists and is verified. | `src/scripts/seed-insurance-companies.ts:27–32` | Atomic upsert/unique index and concurrent replay tests. |
+| F-1329 | P1 | Script neither creates nor verifies a unique index on company code, so its duplicate protection is not self-proving. | `src/scripts/seed-insurance-companies.ts:25–32` | Startup index assertion and duplicate rejection. |
+| F-1330 | P1 | Ten insurer names/codes are hardcoded without regulator/source provenance, license status, freshness, locale version or approval metadata. | `src/scripts/seed-insurance-companies.ts:8–19` | Canonical verified source, version and approval gate. |
+| F-1331 | P1 | Inserts always set `is_active:true` with no verification or effective-date policy, allowing stale/unsupported insurers to appear active. | `src/scripts/seed-insurance-companies.ts:31` | Server-controlled lifecycle and source-effective status. |
+| F-1332 | P1 | Random UUID IDs are generated on each insertion and no deterministic source key/version/reconciliation metadata is persisted. | `src/scripts/seed-insurance-companies.ts:5–6,28–32` | Stable source key and versioned idempotent reconciliation. |
+| F-1333 | P1 | Raw collection access bypasses application schema/DTO/validation/policy layers. | `src/scripts/seed-insurance-companies.ts:24–31` | Shared typed schema/validator or explicitly governed migration path. |
+| F-1334 | P1 | No dry-run, batch/lock, operator authorization, audit run ID or rollback mechanism is present. | `src/scripts/seed-insurance-companies.ts:21–35` | Audited bounded command with approval, dry-run and rollback. |
+| F-1335 | P1 | Existing records are skipped but stale/renamed/removed companies are never reconciled or deactivated. | `src/scripts/seed-insurance-companies.ts:27–32` | Full desired-state reconciliation with deactivation policy. |
+| F-1336 | P1 | Failure path logs only to console, exits without a visible `finally` disconnect, and provides no structured/redacted incident evidence. | `src/scripts/seed-insurance-companies.ts:21–24,36–38` | Guaranteed cleanup and structured redacted operational logging. |
+| F-1337 | P2 | Documentation says `npx ts-node` and labels the script idempotent but does not document permissions, source version or operational safety prerequisites. | `src/scripts/seed-insurance-companies.ts:1–4` | Accurate runbook with preflight and safety constraints. |
