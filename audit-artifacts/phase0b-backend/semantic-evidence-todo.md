@@ -1,0 +1,15 @@
+# Phase 0B semantic evidence — todo / closure program
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full, twice by ranges:** `todo.md:1–1105`
+
+The file is a long Arabic/English reconciliation and closure program. Its opening sections claim source remediation phases completed while explicitly leaving sensitive contracts, storage, dependencies, staging E2E, UAT and security/privacy review open (`1–36`). Later entries repeatedly preserve the governance rule that production is not tested or modified, that no sensitive contract is activated from build success alone, and that every unresolved item must be classified rather than inferred complete (`27–29,711–713`). This is a materially important control: the document does **not** support a blanket production-ready claim.
+
+The plan enumerates unresolved cross-surface work across Patient, Provider, Admin, Backend/database, realtime, payments, insurance, storage, authorization, eventing, localization, accessibility, SEO, native builds and agentic commerce (`621–709,744–825`). It requires screen/button/state/controller/database matrices, service-journey coverage, BOLA/ownership tests, truthful data scans, operational lifecycle proof, localization/device acceptance, and final release gates. It also requires a dedicated competitive UX/workflow benchmark with source-safe evidence (`715–719`).
+
+The detailed remediation history records many source-level fixes and focused gates, but repeatedly retains live/deployment/device/human/legal/payment/owner blockers. Examples include unavailable or fail-closed Provider operations, missing eligible sandbox fixtures, pending Admin source scope, real-device/native signing requirements, six-language human review, Moyasar/payment acceptance, emergency/QR/consent/location approvals, and deployment/rollback authorization (`537–560,592–611,907–960,1020–1035`). The document explicitly records Phase 19 as `NO-GO` until those gates close (`1032–1035`).
+
+The file also records later source and live findings: prescription ownership, hospital role normalization, cash auto-confirm partial persistence, embedded lab report access, and dependency/catalog hardening (`978–1017,1053–1061`). These entries distinguish local source regressions from live sandbox proof and retain deployment/retest requirements. The final insurance sections record consumer unification and verified catalog/logo work, but explicitly leave official-logo completion, CDN linkage, per-company category provenance and reviewer/DevOps actions open (`1063–1104`).
+
+Key audit interpretation: checked boxes are historical assertions requiring their cited evidence; unchecked/blocked entries are not complete. The file contains repeated historical snapshots and some duplicated references/phase numbering, so it is a governance backlog and evidence index, not an executable source-of-truth contract. No todo item was executed, no product code was changed and no tests/builds/deployments were run during this semantic read.
