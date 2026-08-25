@@ -1924,3 +1924,16 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-1171 | P1 | No soft-delete/reconciliation lifecycle is represented, so rerunning seed data may leave stale inventory or fail to reconcile removed records. | `src/modules/seed/repositories/pharmacyinventory.repository.ts:8–13` | Idempotent seed reconciliation and explicit deactivation policy. |
 | F-1172 | P1 | Generic inherited operations provide no field projection or secret/internal metadata redaction if this repository is reused by service callers. | `src/modules/seed/repositories/pharmacyinventory.repository.ts:8–13` | Separate internal seed model/projection from public inventory DTOs. |
 | F-1173 | P2 | Non-functional import comment and formatting drift obscure repository ownership and seed/runtime separation. | `src/modules/seed/repositories/pharmacyinventory.repository.ts:4–6` | Remove stale comments and document repository provenance. |
+
+## Medicine seed repository findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-1174 | P0 | Typed medicine seed repository has no production-environment hard stop or seed-only capability boundary; bootstrap writes could target live catalog data. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Hard fail in production and isolate seed capability/module. |
+| F-1175 | P0 | No deterministic reconciliation key, unique policy or duplicate protection is defined for rerunning medicine seed data. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Idempotent versioned reconciliation with uniqueness tests. |
+| F-1176 | P0 | No separation between seeded catalog facts and operational publication, price, stock or availability truth is enforced. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Explicit catalog-vs-operational boundaries and source-of-truth contract. |
+| F-1177 | P1 | No locale/translation provenance or publication readiness gate is represented at the seed repository boundary. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Seed validation against localization/readiness contract. |
+| F-1178 | P1 | No tenant/actor scope or authorization policy is present, so inherited writes depend on seed callers and configuration. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Authorized seed principal and mandatory environment/tenant scope. |
+| F-1179 | P1 | No optimistic versioning or conflict handling prevents stale seed data from overwriting catalog changes. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Version/source checks and conflict rejection. |
+| F-1180 | P1 | No seed run ID, source snapshot, audit trail or rollback marker is attached to medicine persistence. | `src/modules/seed/repositories/medicine.repository.ts:8–13` | Immutable provenance and reversible audited seed runs. |
+| F-1181 | P2 | Non-functional import comment and formatting drift obscure seed repository ownership and operational separation. | `src/modules/seed/repositories/medicine.repository.ts:4–6` | Remove stale comments and document repository provenance. |
