@@ -3274,3 +3274,28 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-2141 | P0 | No post-build runtime smoke contract verifies imports, aliases, assets and startup against the output produced by Nest CLI. | `nest-cli.json:4–8` | Verified post-build smoke test. |
 | F-2142 | P1 | No source-map production policy or public-exposure control is represented in the CLI configuration. | `nest-cli.json:5–8; tsconfig.json:10` | Controlled source-map packaging/access policy. |
 | F-2143 | P1 | The configured `src`/asset build boundary does not demonstrate that worker, script, FastAPI or other operational surfaces are intentionally excluded from production. | `nest-cli.json:4–8` | Explicit production boundary and supplemental build checks. |
+
+## Environment contract findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-2144 | P0 | ENVIRONMENT.md claims filling variables is the only remaining production step without machine-verifiable completeness or runtime evidence. | `ENVIRONMENT.md:1–5` | Generated schema/source parity and verified readiness evidence. |
+| F-2145 | P0 | No machine-readable type/format/requiredness schema, validation command or fail-closed startup contract is defined. | `ENVIRONMENT.md:1–171` | Enforced environment schema with negative tests. |
+| F-2146 | P0 | JWT, Redis, database and URL aliases/defaults have no documented conflict-resolution, TLS, entropy or production prohibition policy. | `ENVIRONMENT.md:13–27` | Canonical secure configuration and validation. |
+| F-2147 | P0 | `ALLOWED_ORIGINS` is a free-form list without normalization, exact-origin validation, wildcard prohibition or environment-bound policy. | `ENVIRONMENT.md:21–23` | Strict origin allowlist with tests. |
+| F-2148 | P1 | Memory Mongo is documented as test-only but no automated production guard is represented. | `ENVIRONMENT.md:25` | Production startup must reject test database mode. |
+| F-2149 | P1 | Multiple email/SMS/push providers and duplicate Firebase/FCM variables lack authoritative selection, fallback truth, delivery audit and credential-rotation policy. | `ENVIRONMENT.md:29–49,124–155` | Explicit provider routing and delivery/retry audit. |
+| F-2150 | P0 | Private credential/key material is represented as environment content without secret-manager, multiline encoding, rotation or expiry policy. | `ENVIRONMENT.md:46–49,129–150` | Managed secret lifecycle with rotation evidence. |
+| F-2151 | P0 | Payment gateway credentials lack environment/mode separation, webhook signature/replay policy, idempotency ownership, reconciliation and PCI boundary. | `ENVIRONMENT.md:50–58` | Payment operational/security contract. |
+| F-2152 | P0 | Feature flags are labeled enabled by default, including regulated/paid/AI/home-care capabilities, without authorization, rollout, audit or kill-switch policy. | `ENVIRONMENT.md:81–90` | Safe default-off and audited rollout policy. |
+| F-2153 | P1 | LiveKit/TURN configuration lacks room authorization, token TTL, endpoint integrity, secret rotation and abuse controls. | `ENVIRONMENT.md:60–65,166–170` | Verified call security contract. |
+| F-2154 | P1 | AI provider/model switching lacks model allowlist, data handling, grounding, retention, safety, timeout and fallback truthfulness policy. | `ENVIRONMENT.md:67–72,157–164` | Controlled AI provider contract. |
+| F-2155 | P0 | S3/R2 alternatives lack canonical provider selection, bucket ACL, encryption, signed URL TTL, upload validation and deletion/retention policy. | `ENVIRONMENT.md:74–79` | Secure object-storage contract. |
+| F-2156 | P1 | ZATCA variables are listed without certificate/secret lifecycle, invoice sequencing, fiscal validation or failure handling. | `ENVIRONMENT.md:92–97` | Audited e-invoicing configuration contract. |
+| F-2157 | P1 | IndexNow is listed without URL lifecycle, authorization and sitemap/404/410 consistency policy. | `ENVIRONMENT.md:96–97` | Controlled indexing lifecycle. |
+| F-2158 | P1 | Expo public variables combine endpoint aliases and third-party identifiers without a canonical URL, release-channel, leakage and integrity policy. | `ENVIRONMENT.md:101–120` | Public-variable classification and endpoint parity gates. |
+| F-2159 | P1 | Mobile push/maps/social configuration lacks platform-specific validation, consent, certificate/redirect allowlists and failure observability. | `ENVIRONMENT.md:107–118` | Platform integration security and consent gates. |
+| F-2160 | P1 | Admin environment prefixes are mentioned but no per-admin schema, origin/role boundary or drift validation is defined. | `ENVIRONMENT.md:120` | Admin environment contract and parity checks. |
+| F-2161 | P1 | No environment variable ownership, rotation cadence, expiry alerting, incident revocation or audit trail is represented. | `ENVIRONMENT.md:1–171` | Managed ownership and secret operations evidence. |
+| F-2162 | P1 | No canonical provider fallback contract prevents conflicting payment, AI, storage, mail and SMS configurations from silently changing behavior. | `ENVIRONMENT.md:29–90,143–170` | Explicit provider precedence and fail-closed conflict checks. |
+| F-2163 | P1 | Documentation does not provide generated `.env.example` parity or prove every `process.env` access across all surfaces is covered. | `ENVIRONMENT.md:1–171` | Automated docs/source parity gate. |
