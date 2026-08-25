@@ -4653,3 +4653,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3110 | P1 | No safe read authorization or administrative reporting projection is represented by the schema. | `src/schemas/drug-rejection-log.schema.ts:5–22` | Audit-log disclosure contract. |
 | F-3111 | P1 | No validation constrains ID formats, type transition source or timestamp ranges. | `src/schemas/drug-rejection-log.schema.ts:7–16` | Strict event input contract. |
 | F-3112 | P1 | The schema was not executed or integrated with live pharmacy decision/fulfillment reconciliation during this audit read. | `src/schemas/drug-rejection-log.schema.ts:1–22` | Baseline-pinned decision-log runtime evidence. |
+
+## Article schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3113 | P0 | Article status is a free-form string despite the DRAFT/PUBLISHED comment; invalid publication states can persist. | `src/schemas/article.schema.ts:23` | Runtime publication enum. |
+| F-3114 | P0 | No invariant requires published_at for PUBLISHED or forbids it for DRAFT/deleted content. | `src/schemas/article.schema.ts:23–28` | Publication-time consistency. |
+| F-3115 | P0 | No authorization/approval actor, reviewer, medical editor or immutable publication history is represented. | `src/schemas/article.schema.ts:21–24` | Medical content approval provenance. |
+| F-3116 | P0 | No lifecycle contract for unpublish, delete, redirect, 404/410 or sitemap/index removal is represented. | `src/schemas/article.schema.ts:23–28` | SEO content lifecycle. |
+| F-3117 | P0 | Unique slug is not scoped by locale/site/tenant and no slug history or canonical redirect provenance exists. | `src/schemas/article.schema.ts:11` | Stable canonical URL contract. |
+| F-3118 | P0 | Title/body/excerpt/tags/category fields have no length, HTML sanitization, link/image safety or moderation constraints. | `src/schemas/article.schema.ts:12–19` | Safe content validation. |
+| F-3119 | P0 | No medical citation, evidence version, fact-check, author identity or clinical review provenance is represented. | `src/schemas/article.schema.ts:21–22` | Health-content truthfulness contract. |
+| F-3120 | P0 | Cover image is an opaque URL without ownership, private asset, alt-text, content scan or expiry controls. | `src/schemas/article.schema.ts:20` | Secure article media contract. |
+| F-3121 | P0 | Views is a mutable numeric counter with no atomicity, deduplication, bot filtering or audit provenance. | `src/schemas/article.schema.ts:27` | Truthful analytics counter. |
+| F-3122 | P0 | Soft delete is not tied to publication/indexing guards or retention/deletion policy. | `src/schemas/article.schema.ts:28` | Deleted-content privacy/SEO contract. |
+| F-3123 | P0 | SEO descriptions are not constrained to visible content and no canonical/JSON-LD/schema/sitemap consistency is represented. | `src/schemas/article.schema.ts:25–26` | SEO truthfulness gate. |
+| F-3124 | P1 | Tags/category are free-form and lack controlled taxonomy, locale mapping or moderation. | `src/schemas/article.schema.ts:18–19` | Content taxonomy contract. |
+| F-3125 | P1 | Timestamp/index fields do not establish stable ordering, locale publication policy or cache invalidation. | `src/schemas/article.schema.ts:8,23–24,31` | Publication query/cache plan. |
+| F-3126 | P1 | No tenant, author, reviewer or role-scoped read/write boundary is represented by the schema. | `src/schemas/article.schema.ts:8–28` | Content access-control contract. |
+| F-3127 | P1 | The schema was not executed or reconciled against article APIs, SEO metadata, sitemap and indexing behavior during this audit read. | `src/schemas/article.schema.ts:1–31` | Baseline-pinned article runtime evidence. |

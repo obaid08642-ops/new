@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — Article schema
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/schemas/article.schema.ts:1–31`
+
+The schema defines timestamped multilingual health articles. It has generated ID, unique slug, required Arabic title and optional English title, Arabic/English excerpts and bodies, indexed free-form category, tags, cover image, author name/title, free-form status defaulting `DRAFT`, indexed optional published_at, Arabic/English SEO descriptions, numeric views defaulting zero, and boolean soft-delete defaulting false (`8–28`). Arabic/English title text indexes and a `{ status: 1, published_at: -1 }` compound index are explicit read controls (`12–13,31`). The comment states published articles are auto-indexable via SEO metadata/sitemap (`4–7`).
+
+Status is a string despite the DRAFT/PUBLISHED comment; no persisted enum or transition authorization is represented (`23`). No invariant ensures published_at exists only for published content, prevents future/invalid publication time, blocks indexing deleted/draft articles, or handles unpublish/410 lifecycle (`23–28`). Slug uniqueness is not scoped by locale/site/tenant and no slug history/redirect/canonical provenance is represented (`11`). Body/title/excerpt/tags/category/author fields have no length, HTML sanitization, link/image safety, moderation, factual review, medical citation, author identity or approval workflow (`12–26`). Cover image has no private asset/alt/ownership/expiry policy; views are client/event trust-sensitive with no atomic counter or bot filtering (`20,27`). SEO descriptions are not validated against visible content, canonical, structured-data or sitemap/index-now semantics. No code was changed and no build/test/application operation was performed during this read.
