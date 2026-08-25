@@ -5850,3 +5850,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3975 | P0 | Patient/contact, address/GPS, insurance, referral and clinical documents have no projection, consent/delegation, encryption, access audit, deletion/DSAR or legal-hold governance. | `src/schemas/lab.schema.ts:87–132` | Lab PII/PHI governance. |
 | F-3976 | P0 | No soft-delete, immutable correction, source provenance, maintenance/index migration or live catalog/booking/insurance/sample evidence is represented. | `src/schemas/lab.schema.ts:7–149` | Lab lifecycle/runtime evidence gate. |
 | F-3977 | P1 | LabService version exists but no optimistic-concurrency or catalog mutation semantics are declared. | `src/schemas/lab.schema.ts:40,52–55` | Catalog version/CAS gate. |
+
+## Appointment schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3978 | P0 | Appointment transition map lacks actor authorization, preconditions, time windows, refund/no-show/completion rules, CAS/version and atomic transaction semantics. | `src/schemas/appointment.schema.ts:29–38,70–73` | Appointment workflow-state gate. |
+| F-3979 | P0 | StateLogEntry uses free-form state and application Date.now with no immutable transition reason, correlation ID or source-clock provenance. | `src/schemas/appointment.schema.ts:42–50` | Appointment state-audit gate. |
+| F-3980 | P0 | Slot fields lack timezone, temporal ordering, duration consistency, provider availability/capacity and interval-overlap protection; exact-start uniqueness alone is insufficient evidence. | `src/schemas/appointment.schema.ts:65–68,130–137` | Appointment slot truth gate. |
+| F-3981 | P0 | Patient/doctor/family-booker IDs lack referential integrity, patient ownership, doctor-profile/user match, delegated consent and tenant/facility scope. | `src/schemas/appointment.schema.ts:57–60,87–96` | Appointment identity/delegation gate. |
+| F-3982 | P0 | Home visit location has no coordinate/address validation, freshness, geocoding or privacy/access policy. | `src/schemas/appointment.schema.ts:92–96` | Home-visit location gate. |
+| F-3983 | P0 | Price/fees/total_price lack currency, tax/discount, immutable quote, server-total, payment authorization/refund/settlement and consistency invariant. | `src/schemas/appointment.schema.ts:75–85` | Appointment financial truth gate. |
+| F-3984 | P0 | payment_status is only a TypeScript union without runtime enum constraint and has no payment intent/idempotency/transaction linkage. | `src/schemas/appointment.schema.ts:81–82` | Appointment payment-state gate. |
+| F-3985 | P0 | Insurance method/status/details lack approval/preauth, member validation, copay/total consistency, coverage snapshot and denial/refund lifecycle. | `src/schemas/appointment.schema.ts:81–85` | Appointment insurance gate. |
+| F-3986 | P0 | SOAP summary and clinical outputs lack provider signature/publication visibility, prescription/follow-up ranges, source linkage, amendment/version and safety review. | `src/schemas/appointment.schema.ts:98–126` | Consultation output clinical-safety gate. |
+| F-3987 | P0 | prescriptions/lab/radiology/sickLeaves outputs are mutable untyped references/objects without patient/appointment ownership or authoritative downstream linkage. | `src/schemas/appointment.schema.ts:117–126` | Appointment output-integrity gate. |
+| F-3988 | P0 | Appointment patient notes/symptoms, insurance details, location, SOAP, prescriptions and sick leave lack projection, consent/delegation, encryption, access audit, retention, deletion/DSAR and legal-hold controls. | `src/schemas/appointment.schema.ts:57–126` | Appointment PII/PHI governance. |
+| F-3989 | P0 | No notification/delivery/read acknowledgement, reminder/retry, call session/token or consultation handoff state is represented. | `src/schemas/appointment.schema.ts:52–126` | Appointment side-effect/session gate. |
+| F-3990 | P0 | No soft-delete, immutable correction/amendment, cancellation/reschedule provenance or legal retention lifecycle is represented. | `src/schemas/appointment.schema.ts:52–126` | Appointment lifecycle gate. |
+| F-3991 | P0 | No idempotency, duplicate booking/replay, concurrent transition, payment/booking rollback or cross-document atomicity is represented. | `src/schemas/appointment.schema.ts:52–137` | Appointment replay/atomicity gate. |
+| F-3992 | P1 | No live scheduling, payment, insurance, delegated-family or consultation-output runtime evidence was established during this baseline source read. | `src/schemas/appointment.schema.ts:1–138` | Baseline-pinned appointment runtime evidence. |

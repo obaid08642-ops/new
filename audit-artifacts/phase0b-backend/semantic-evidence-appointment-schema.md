@@ -1,0 +1,17 @@
+# Phase 0B semantic evidence — Appointment schema
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/schemas/appointment.schema.ts:1–138`
+
+The file declares an explicit richer appointment state set PENDING, CONFIRMED, RESCHEDULED, CHECKED_IN, IN_PROGRESS, COMPLETED, CANCELLED and NO_SHOW, plus a transition map (`6–38`). ServiceType is clinic/video/home (`40`). StateLogEntry is nested and records state, application time, optional actor user/role and note (`42–50`). Appointment stores patient_id, provider-profile doctor_id, doctor_user_id, service type, slot_start/end, duration, status/history, price/fees/total_price, payment status/method, insurance details, patient notes, optional family booker, symptoms, home visit location, nested doctor SOAP summary, prescription/lab/radiology/sick-leave outputs, consultation linkage, cancellation/reschedule metadata and confirmed/completed timestamps (`52–129`). Indexes include partial unique doctor/slot for active statuses and patient/doctor read indexes (`130–137`).
+
+Although a state map exists, the schema does not declare actor authorization, transition preconditions, time-window/slot-lock semantics, reschedule lineage requirements, cancellation/refund/no-show rules, completion evidence, or CAS/version/atomic update guarantees (`29–38,70–73,122–126`). StateLogEntry has state string rather than the enum and no immutable transition reason, request/correlation ID or server-source clock (`42–50,73`).
+
+Slot fields have no timezone, temporal ordering, duration consistency, provider availability, facility capacity or overlapping-slot invariant beyond a partial unique index on exact doctor_id/slot_start (`66–68,130–134`). This does not itself prove absence of interval overlap protection. Patient/doctor IDs and family booker are plain fields; no patient ownership, doctor-profile–doctor-user match, delegated consent, facility/tenant scope or active provider invariant is declared (`57–60,88–96`). Home visit location has no coordinate/address validation or privacy/freshness policy (`92–96`).
+
+Financial fields have no currency, tax/discount, immutable quote, server-calculated total, payment authorization/refund/settlement source or insurance/cash/card consistency (`75–85`). `price`, fees and `total_price` can diverge. Payment status is a free-form TypeScript union without a runtime enum constraint (`81`), and there is no payment intent/transaction/idempotency linkage.
+
+SOAP summary and outputs contain clinical/medication information, but prescription entries are free-form strings, follow-up window has no range, and outputs are mutable arrays/IDs without provider sign-off, source linkage, clinical safety/review, amendment/version or result state (`98–126`). `summary` is described as the only patient summary source, but no publication/signature/visibility invariant is represented (`98–115`).
+
+Patient contact/notes/symptoms, insurance identifiers/details, location, clinical summary, prescriptions, reports and sick leave can contain sensitive health/PII data without projection, consent/delegation, encryption, access audit, retention/deletion/DSAR or legal-hold controls (`57–126`). No notification/delivery/read acknowledgement, call-token/session linkage, reminder/retry, audit, soft-delete or live scheduling/payment runtime evidence is established by this source read. No code was changed and no build/test/application operation was performed during this read.
