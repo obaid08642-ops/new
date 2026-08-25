@@ -4979,3 +4979,22 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-3351 | P1 | No right-to-left layout/accessibility or screen-reader language metadata behavior is represented. | `src/modules/medicines/med-i18n.spec.ts:18–34` | Localization accessibility gate. |
 | F-3352 | P1 | No malformed/missing translation error code, telemetry or remediation queue behavior is tested. | `src/modules/medicines/med-i18n.spec.ts:27–33` | Translation failure operations contract. |
 | F-3353 | P1 | This spec was not executed against live catalog data, locale loaders, search, UI or SEO surfaces during this audit read. | `src/modules/medicines/med-i18n.spec.ts:1–34` | Baseline-pinned i18n runtime evidence. |
+
+## Ad placement schema findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3354 | P0 | providerId does not establish advertiser account, tenant, campaign or creative ownership. | `src/schemas/ad-placement.schema.ts:12–13` | Advertiser ownership/tenant contract. |
+| F-3355 | P0 | bidAmount and dailyBudget are unconstrained numeric fields without nonnegative bounds, currency, precision or payment linkage. | `src/schemas/ad-placement.schema.ts:15–19` | Monetary ad-budget validation. |
+| F-3356 | P0 | No atomic spend, budget exhaustion, reservation, refund or concurrent bid/budget update semantics are represented. | `src/schemas/ad-placement.schema.ts:15–19,24–31` | Exactly-once ad billing gate. |
+| F-3357 | P0 | No campaign start/end schedule, timezone, frequency cap, pacing or expiry policy is represented. | `src/schemas/ad-placement.schema.ts:24–25` | Campaign lifecycle contract. |
+| F-3358 | P0 | targetedKeywords are free-form and lack normalization, locale/taxonomy, sensitive-attribute, prohibited-health-claim and privacy controls. | `src/schemas/ad-placement.schema.ts:21–22` | Safe targeting contract. |
+| F-3359 | P0 | No creative, destination URL, category, medical claim review, content moderation or malware/link safety is represented. | `src/schemas/ad-placement.schema.ts:12–25` | Ad creative/content safety. |
+| F-3360 | P0 | No user consent, opt-out, ad disclosure/label, age/health-sensitive audience or policy enforcement is represented. | `src/schemas/ad-placement.schema.ts:12–25` | Advertising transparency/consent gate. |
+| F-3361 | P0 | Status active/paused has no actor/time/reason/history, approval, expiry or terminal-state protection. | `src/schemas/ad-placement.schema.ts:24–25` | Audited campaign state machine. |
+| F-3362 | P0 | impressionsCount and clicksCount are mutable counters without event IDs, deduplication, bot/fraud filtering or attribution. | `src/schemas/ad-placement.schema.ts:27–31` | Truthful ad analytics. |
+| F-3363 | P0 | No impression/click-to-billing or provider settlement reconciliation is represented. | `src/schemas/ad-placement.schema.ts:15–19,27–31` | Ad billing reconciliation. |
+| F-3364 | P0 | No tenant/read projection, PII/behavioral-data minimization, retention/deletion or legal-hold policy is represented. | `src/schemas/ad-placement.schema.ts:7–31` | Advertising data governance. |
+| F-3365 | P1 | No idempotency/replay, rate-limit or ad-serving abuse controls are represented. | `src/schemas/ad-placement.schema.ts:12–31` | Ad mutation/serving abuse gate. |
+| F-3366 | P1 | Indexes support provider/status only and no active campaign, budget, schedule or targeting query plan is visible. | `src/schemas/ad-placement.schema.ts:12–25` | Ad operational index plan. |
+| F-3367 | P1 | The schema was not executed or integrated with live ad serving, consent, billing, moderation or analytics during this audit read. | `src/schemas/ad-placement.schema.ts:1–34` | Baseline-pinned advertising runtime evidence. |
