@@ -5168,3 +5168,23 @@ A finding is not closed by a passing build or by a UI placeholder. Closure requi
 | F-345? | P1 | No notification, inventory event, cache invalidation or downstream order consistency is asserted. | `src/modules/cart/cart.contract.spec.ts:47–66` | Checkout side-effect contract. |
 | F-345? | P1 | Unsupported/malformed payment and model failures lack stable error schema, rate limit and abuse coverage. | `src/modules/cart/cart.contract.spec.ts:68–73` | Cart failure/abuse contract. |
 | F-345? | P1 | This contract was not executed against live Mongo, inventory, payment, user addresses or order flows during this audit read. | `src/modules/cart/cart.contract.spec.ts:1–74` | Baseline-pinned cart runtime evidence. |
+
+## Facility operations service spec findings added during Phase 0B
+
+| ID | Severity | Finding | Direct evidence | Required acceptance condition |
+|---|---|---|---|---|
+| F-3466 | P0 | FacilityOps tests use one shared untyped model mock across six collections, hiding model-specific query, index and persistence behavior. | `src/modules/facility-ops/facility-ops.service.spec.ts:11–39` | Real model/collection integration gate. |
+| F-3467 | P0 | Raw Mongo connection is provided only to resolve DI; cross-collection lookups and consistency are not exercised. | `src/modules/facility-ops/facility-ops.service.spec.ts:35–39` | Cross-collection runtime evidence. |
+| F-3468 | P0 | No facility, organization, tenant or patient/provider/staff role ownership matrix is tested. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–82` | Facility authorization/tenant gate. |
+| F-3469 | P0 | Bed admission coverage only rejects one occupied fixture; available-bed selection, bed/ward ownership, patient identity and capacity consistency are unproven. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–56` | Admission resource contract. |
+| F-3470 | P0 | Discharge coverage only rejects an already discharged fixture; admission ownership, valid transitions, transfer/cleanup and audit are untested. | `src/modules/facility-ops/facility-ops.service.spec.ts:58–61` | Admission lifecycle/CAS gate. |
+| F-3471 | P0 | Concurrent admission/discharge, duplicate prevention, transactionality and index enforcement are not tested. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–62` | Bed/admission atomicity gate. |
+| F-3472 | P0 | Substitute request coverage omits staff identity, eligibility, facility ownership, shift overlap, approval, cancellation and idempotency. | `src/modules/facility-ops/facility-ops.service.spec.ts:64–70` | Staffing substitution contract. |
+| F-3473 | P0 | No surgery patient consent, surgeon credential/licence, operating-room ownership or clinical pre-op safety validation is tested. | `src/modules/facility-ops/facility-ops.service.spec.ts:72–82` | Surgical safety/consent gate. |
+| F-3474 | P0 | Surgery schedule validation does not cover duration/range, timezone, room/resource overlap, concurrent booking or cancellation/reschedule. | `src/modules/facility-ops/facility-ops.service.spec.ts:72–82` | Surgical scheduling/CAS gate. |
+| F-3475 | P0 | No surgery billing, payment, insurance authorization, deposit/refund or financial truthfulness behavior is tested. | `src/modules/facility-ops/facility-ops.service.spec.ts:72–82` | Surgery financial contract. |
+| F-3476 | P0 | No clinical PII/PHI projection, access audit, retention or medical-record linkage behavior is tested. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–82` | Facility data governance. |
+| F-3477 | P0 | Model errors, missing resources, malformed identifiers, duplicate keys and safe error mapping are largely untested. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–82` | Facility failure contract. |
+| F-3478 | P1 | No notifications, downstream census/availability updates, cache invalidation or event publication are asserted. | `src/modules/facility-ops/facility-ops.service.spec.ts:52–82` | Facility side-effect contract. |
+| F-3479 | P1 | The imported NotFoundException is unused, indicating no explicit missing-resource contract in this spec. | `src/modules/facility-ops/facility-ops.service.spec.ts:4,52–82` | Missing-resource/404 matrix. |
+| F-3480 | P1 | This spec was not executed against live Mongo, facility records, staffing, surgery resources or clinical workflows during this audit read. | `src/modules/facility-ops/facility-ops.service.spec.ts:1–83` | Baseline-pinned facility runtime evidence. |

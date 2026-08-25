@@ -1,0 +1,9 @@
+# Phase 0B semantic evidence — FacilityOps services spec
+
+**Baseline:** `main @ 22526bedb77a3d8148219036367e4714f401aecc`
+
+**Member read in full:** `src/modules/facility-ops/facility-ops.service.spec.ts:1–83`
+
+The spec defines one shared untyped mock model for Ward, Bed, Admission, Shift, Attendance and SurgeryBooking and a minimal raw Mongo connection (`11–39`). It verifies the three services are defined (`46–50`). BedsService tests that admission rejects an occupied bed and discharge rejects an already discharged admission (`52–62`). ShiftsService tests a substitute request for a shift whose facility_id matches the supplied facility (`64–70`). SurgeriesService tests booking when one conflict lookup returns null and create returns a synthetic record (`72–82`).
+
+The fixture comment explicitly notes that raw connection support was added only to resolve DI and is not exercised for cross-collection behavior (`35–37`). Coverage is therefore narrow and mock-bound. It does not prove facility/tenant authorization, patient/provider/staff roles, ward/bed ownership, admission identity or PHI minimization (`52–82`). Beds tests omit available-bed success, discharge ownership, clinical transfer, status transition audit, concurrent admission/CAS, release cleanup, capacity consistency and duplicate prevention (`52–62`). Substitute coverage omits staff identity/eligibility, shift overlap, approval, escalation, cancellation, concurrency and idempotency (`64–70`). Surgery coverage omits patient consent, surgeon credentials, operating-room ownership, schedule/timezone/duration validation, overlap race, cancellation/reschedule, resource allocation, pre-op safety, billing and audit (`72–82`). The shared mock can hide model-specific indexes, query predicates, transaction boundaries, errors and persistence; no live Mongo or cross-collection evidence exists. No code was changed and no build/test/application operation was performed during this read.
