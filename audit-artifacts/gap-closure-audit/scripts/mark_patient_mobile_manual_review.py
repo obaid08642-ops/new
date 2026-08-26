@@ -194,6 +194,19 @@ reviewed = {
     'app/ai/symptom-checker.tsx',
     'app/ai/symptom-timeline.tsx',
     'app/ai/triage.tsx',
+    'app/nutrition/ai-meal-planner.tsx',
+    'app/nutrition/ai-plan-builder.tsx',
+    'app/nutrition/body-composition.tsx',
+    'app/nutrition/body-target.tsx',
+    'app/nutrition/calorie-analyzer.tsx',
+    'app/nutrition/daily-tracker.tsx',
+    'app/nutrition/exercise-plan.tsx',
+    'app/nutrition/food-scanner.tsx',
+    'app/nutrition/hub.tsx',
+    'app/nutrition/index.tsx',
+    'app/nutrition/log-meal.tsx',
+    'app/nutrition/nutrition-plan.tsx',
+    'app/nutrition/water-tracker.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
