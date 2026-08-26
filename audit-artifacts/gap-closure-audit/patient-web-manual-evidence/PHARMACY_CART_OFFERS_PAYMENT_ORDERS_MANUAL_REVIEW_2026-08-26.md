@@ -1,0 +1,48 @@
+# Patient Web: Pharmacy, cart, offers, payment and orders — manual CTA→contract review
+
+## Scope boundary
+
+This source-only review covers medicine discovery/detail, cart, prescription-cart preview, checkout preview, pharmacy-order list/detail/tracking, and repository scans for cart/order/payment mutations. It does not exercise a real cart, pharmacy, payer, PSP, provider, order, offer, or delivery. The review does not establish any Backend controller/service/DTO/ledger/ownership behavior because those source chains were not reconciled in this wave.
+
+> Required pharmacy journey: `cart → submit with geo/Rx when applicable → nearby-pharmacy broadcast → per-pharmacy offers (availability, substitutions, price, ETA) → patient selects one offer → offer lock`. Card/cash are resolved after selection; COD requires an explicit deferred-collection policy. Insurance requires `full/partial/reject/co-pay` decision then patient co-pay payment or an explicit alternate/cancel choice. A catalog, checkout label, or tracking screen cannot stand in for those transitions.
+
+| Web surface | Exact source evidence | CTA/state observed |
+|---|---|---|
+| Authenticated medicine search | `app/[locale]/medicines/page.tsx:20–53` | GET catalog search and detail links only; no add-to-cart CTA. |
+| Public medicine detail | `app/[locale]/medicines/[medicineId]/page.tsx:16–64` | Catalog facts and back link only; `noindex` due to no reliable public publish DTO; no price, stock, offer, Rx submit or cart CTA. |
+| Cart | `app/[locale]/cart/page.tsx:19–33` | GET `/cart`, display groups/totals, medicine back-link when empty; no quantity/remove/submit/checkout CTA. |
+| Checkout preview | `app/[locale]/cart/checkout/page.tsx:19–33` | GET `/cart/checkout`, display totals and back link only; no payment/insurance/submit CTA. |
+| Prescription-cart preview | `app/[locale]/cart/prescription/page.tsx:18–30` | GET `/cart/prescription`, medicine-name display and back link only. |
+| Orders/list/detail/tracking | `orders/page.tsx:30–40`; `orders/[orderId]/page.tsx:19–42`; `orders/[orderId]/tracking/page.tsx:19–44` | Read-only list/filter/detail/tracking; only links between post-order surfaces. |
+| Missing local implementation | Repository scan of `app`, `components-next`, `lib` found no cart/order/pharmacy-offer/payment mutation call; local API handlers contain appointment payment only, not cart/order/payment handlers. | Absence evidence is bounded to the reviewed Web snapshot, not proof that upstream APIs do not exist. |
+
+## CTA→contract findings
+
+| ID | Surface / actor / CTA | Request, authority and result evidence | Classification | Finding and closure evidence required |
+|---|---|---|---|---|
+| PW-PHARM-001 | Authenticated patient; medicine search and medicine-detail links | Search form submits `GET /{locale}/medicines?q=...` at `medicines/page.tsx:36–42`; rows link to `/{locale}/medicines/{id}` at lines 43–51. Detail reads public catalog data at lines 45–63. | `STATIC_MATCHED_PARTIAL` | Discovery is source-backed, but neither surface contains price, stock, pharmacy availability, Rx verification, cart mutation, or a product-to-offer handoff. Public detail explicitly remains `noindex` because it lacks a reliable entity publication contract. Reconcile catalog authority/freshness and add an authoritative typed cart-intent contract before treating catalog detail as purchasable. |
+| PW-PHARM-002 | Authenticated patient; cart state review | `cart/page.tsx:19–32` reads `/cart` and renders `price`, `paymentMethod`, subtotal/homeVisitFee/total returned in the summary. There is no mutation handler/CTA in the page. | `STATIC_MATCHED_PARTIAL` | Cart display does not prove the line price, method or totals are authoritative, quote-bound, tax/fee-complete, fresh, or linked to a selected pharmacy offer. There is no source evidence for update quantity/remove/clear/submit/location/Rx consent. Require an owner-bound cart contract, authoritative quote/version, mutation idempotency, validation, and negative states. |
+| PW-PHARM-003 | Authenticated patient; checkout surface | `cart/checkout/page.tsx:19–32` reads `/cart/checkout`, displays totals, and links only back to cart. | `MISSING_CAPABILITY` | The path is a **preview**, not checkout: source contains no offer-list/select, insurance decision, card/cash/COD selection, payment intent, idempotency key, order submission, receipt, or failure/retry state. Do not label it checkout-complete. Implement the required offer-to-order state machine only after Backend/Data/Pharmacy Ops contracts are approved. |
+| PW-PHARM-004 | Authenticated patient; prescription-cart preview | `cart/prescription/page.tsx:18–29` reads a loose payload and shows medication names; it never submits an Rx, validates prescriber/expiry, or proceeds to offer/payment. | `MISSING_CAPABILITY` | Rx preview cannot establish prescription ownership, validity, clinical review, substitutions consent, controlled-drug policy, or pharmacy fulfillment. It has no transition to broadcast/offers/payment. Define Rx provenance/validation and pharmacist-review states before a Web fulfillment CTA. |
+| PW-PHARM-005 | Authenticated patient; prescription detail | `prescriptions/[prescriptionId]/page.tsx:11–25` validates a UUID then renders `contractPending` and a back link; it does not fetch the prescription. | `CONFIRMED_DEFECT` | Detail route is an explicit blocked/placeholder surface, not a working prescription detail. It lacks read contract, owner/stranger behavior, clinical state, refill/order handoff, and error/empty branch. Keep it blocked transparently until the actual contract exists; never manufacture data or success. |
+| PW-PHARM-006 | Authenticated patient; pharmacy order history/detail/tracking | List reads `/patient/pharmacy/orders` at `orders/page.tsx:30–40`; detail reads `/patient/pharmacy/orders/{orderId}` at `orders/[orderId]/page.tsx:19–40`; tracking reads `/orders/{orderId}/tracking` at `tracking/page.tsx:19–42`. Each redirects on 401 and maps 403/404 to `notFound`. | `STATIC_MATCHED_PARTIAL` | The source gives post-order read paths but not an authoritative provider/offer/payment/insurance lifecycle. The tracking page may display pharmacy, mode, ETA and total but has no accept-offer, pay co-pay, cancel, contact, dispute, delivery confirmation or notification CTA. Backend ownership and state-machine semantics remain `INSUFFICIENT_EVIDENCE`. |
+| PW-PHARM-007 | Patient; nearby broadcast and offer selection | No reviewed Web page, component, local BFF handler, or mutation call represents geographic broadcast, offer rows, offer expiry, substitutions consent, selected-offer lock, or related events. | `MISSING_CAPABILITY` | This is the central pharmacy journey gap. Build only against a contract that carries cart/order ID, eligible geographic audience, offer line items/availability/substitutions/price/ETA, expiration, patient selection idempotency, race handling, provider actions, notifications, and audit. |
+| PW-PHARM-008 | Patient; payment, COD and insurance co-pay | Repository mutation scan finds appointment payment intent only (`app/api/appointments/[appointmentId]/payment-intent/route.ts`) and no cart/order/pharmacy-payment handler or client CTA. | `MISSING_CAPABILITY` | There is no evidence of pharmacy payment intent, PSP result/webhook/ledger, cash/COD policy, payer decision, co-pay state, receipt, refund or alternate payment choice. The appointment payment helper cannot be reused by assertion because it is booking-ID scoped. Contract and financial authority must be reconciled separately. |
+| PW-PHARM-009 | Patient; order status grouping | `orders/page.tsx:14–22` buckets several raw statuses client-side into pending/completed/cancelled. | `CONFIRMED_DEFECT` | Client bucketing collapses statuses such as `approved`, `result_ready`, `resolved`, `refunded` into generic customer tabs. This source behavior can mask the actual pharmacy/financial/payer state and is not an authoritative order state machine. Display server-defined user-facing state/reason/actions with a versioned transition model. |
+
+## Mapping disposition for the Mobile pharmacy/order candidates covered by this wave
+
+| Mobile rows | Manual Web mapping | Disposition |
+|---|---|---|
+| PM-018 pharmacy tab; PM-201 product search | `/{locale}/medicines` discovery/search. | `STATIC_MATCHED_PARTIAL`; discovery only. |
+| PM-200 product detail | `/{locale}/medicines/{medicineId}` public catalog detail. | `STATIC_MATCHED_PARTIAL`; no transactional CTA. |
+| PM-187 pharmacy cart | `/{locale}/cart`. | `STATIC_MATCHED_PARTIAL`; read-only cart. |
+| PM-189 pharmacy checkout | `/{locale}/cart/checkout`. | `MISSING_CAPABILITY`; preview only. |
+| PM-203 Rx order | `/{locale}/cart/prescription`; prescription detail is explicitly pending. | `MISSING_CAPABILITY`. |
+| PM-180 orders index; PM-196 order history | `/{locale}/orders`. | `STATIC_MATCHED_PARTIAL`; read-only history. |
+| PM-197 order tracking | `/{locale}/orders/{orderId}/tracking`. | `STATIC_MATCHED_PARTIAL`; read-only summary. |
+| PM-186 broadcast status; PM-195 order confirmation; PM-198 payment; PM-205 waiting-for-pharmacy | No corresponding offer/payment/waiting/confirmation surface located in the reviewed source. | `MISSING_CAPABILITY`. |
+
+## No runtime or Backend claim
+
+No live API call, browser/device test, build, payment, sandbox booking/order, or PHI access was performed. Source paths with `401/403/404` branches establish only Web handling; they do not establish upstream ownership enforcement. No conclusion here states that an upstream endpoint exists, works, is financially reconciled, or is compliant.
