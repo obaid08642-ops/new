@@ -90,6 +90,8 @@ reviewed = {
     'app/(onboarding)/index.tsx',
     'app/(onboarding)/language.tsx',
     'app/(onboarding)/permissions.tsx',
+    'app/delivery/address-select.tsx',
+    'app/shared/location-picker.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
