@@ -207,6 +207,11 @@ reviewed = {
     'app/nutrition/log-meal.tsx',
     'app/nutrition/nutrition-plan.tsx',
     'app/nutrition/water-tracker.tsx',
+    'app/loyalty/challenges.tsx',
+    'app/loyalty/hub.tsx',
+    'app/loyalty/leaderboard.tsx',
+    'app/loyalty/referrals.tsx',
+    'app/loyalty/rewards.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
