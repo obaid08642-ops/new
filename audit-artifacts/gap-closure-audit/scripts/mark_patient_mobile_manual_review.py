@@ -157,6 +157,17 @@ reviewed = {
     'app/settings/privacy.tsx',
     'app/settings/data.tsx',
     'app/settings/notifications-settings.tsx',
+    'app/settings/index.tsx',
+    'app/settings/language.tsx',
+    'app/settings/notifications.tsx',
+    'app/settings/about.tsx',
+    'app/settings/help.tsx',
+    'app/settings/support-chat.tsx',
+    'app/settings/feedback.tsx',
+    'app/settings/terms.tsx',
+    'app/notifications/index.tsx',
+    'app/support/chat.tsx',
+    'app/support/ticket.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
