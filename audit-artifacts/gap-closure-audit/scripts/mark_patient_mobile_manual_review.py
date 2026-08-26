@@ -212,6 +212,11 @@ reviewed = {
     'app/loyalty/leaderboard.tsx',
     'app/loyalty/referrals.tsx',
     'app/loyalty/rewards.tsx',
+    'app/reports/ai-analysis.tsx',
+    'app/reports/hub.tsx',
+    'app/reports/passport.tsx',
+    'app/reports/timeline.tsx',
+    'app/reports/view-report.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
