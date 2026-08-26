@@ -31,6 +31,8 @@
 | مصدر Provider | لا يوجد داخل الأرشيف؛ لا يمكن تأكيد P1–P9 أو الـE2E الخاصة به. |
 | main المستقل | مرجع GitHub `main@22526bedb77a3d8148219036367e4714f401aecc` جُرد بصورة منفصلة؛ الاختلاف التاريخي يمنع `git diff` موثوقاً مباشراً مع workstation. |
 
+مقارنة شجرة Git بالمسار وبصمة الـblob، لا بالـancestry، أكدت أن الشكلين ليسا نسختين متوازيتين من شجرة مصدر واحدة: يوجد **1,970 مساراً خاصاً بـworkstation** و**360 مساراً خاصاً بـmain** ومسار واحد فقط مشترك باسم مختلف المحتوى (`.gitignore`)، ولا توجد blobs متطابقة. يحفظ main أساساً أرشيفات مراجع مثل `nabdah-backend.zip` و`nabd-patient-web.zip` و`NabdProvider-provider.zip`، بينما workstation يفك هذه المجالات إلى `backend` و`patient-web` و`patient-mobile` ويربط Provider برابط رمزي مفقود. لذلك لا يصح التعامل مع workstation كـpatch فوق main؛ يلزم إعادة اختيار كل حزمة يدوياً إلى فرع جديد من main. التفاصيل القابلة للتدقيق محفوظة في `nabd_main_vs_workstation_tree_comparison.csv` و`nabd_main_vs_workstation_tree_comparison_ar.md`.
+
 ### 2.1 جرد كامل للمصدر ودفتر commits
 
 قُرئت bytes وmetadata لكل ملف مصدر/تكوين/توثيق متاح بعد استبعاد dependencies وbuild artifacts، من دون تشغيل أي ملف. النتيجة **1,842 ملفاً** مفهرساً و**77 commit** بعد البذرة. الملفات التالية هي سجل الأدلة القابل للتدقيق:
