@@ -1,0 +1,20 @@
+{
+  "baseline_commit": "22526bedb77a3d8148219036367e4714f401aecc",
+  "static_review_root": "/home/ubuntu/nabd-main-static-review",
+  "source_file_count": 2002,
+  "components": {
+    "backend": {
+      "test_file_count": 87
+    },
+    "patient": {
+      "test_file_count": 32
+    },
+    "provider": {
+      "test_file_count": 1
+    },
+    "admin": {
+      "test_file_count": 0
+    }
+  },
+  "scope": "static inventory only; no project code executed"
+}
