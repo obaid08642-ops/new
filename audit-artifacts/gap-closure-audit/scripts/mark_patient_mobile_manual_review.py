@@ -217,6 +217,9 @@ reviewed = {
     'app/reports/passport.tsx',
     'app/reports/timeline.tsx',
     'app/reports/view-report.tsx',
+    'app/returns/detail.tsx',
+    'app/returns/hub.tsx',
+    'app/returns/new-request.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
