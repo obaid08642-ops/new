@@ -74,6 +74,10 @@ reviewed = {
     'app/diagnostics/technician-tracking.tsx',
     'app/diagnostics/test-detail.tsx',
     'app/diagnostics/upload-rx.tsx',
+    'app/nursing/live-tracking.tsx',
+    'app/nursing/nurse-profile.tsx',
+    'app/nursing/service-details.tsx',
+    'app/nursing/service-info.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
