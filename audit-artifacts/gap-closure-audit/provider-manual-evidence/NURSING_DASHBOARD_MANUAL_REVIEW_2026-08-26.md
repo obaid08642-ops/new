@@ -1,0 +1,30 @@
+# Provider NursingDashboard: manual semantic review
+
+## Scope
+
+تمت قراءة `src/screens/nursing/NursingDashboard.tsx` كاملًا، lines 1–1722، baseline `main @ 22526bedb77a3d8148219036367e4714f401aecc`. هو مسار رعاية منزلية عالي الحساسية؛ وجود POST/GET لا يثبت أهلية الممرض، consent، assignment، clinical state, patient ownership, insurance/payment ledger أو immutable clinical audit.
+
+## Confirmed defects and missing closures
+
+| ID | Evidence | Finding | Required closure |
+|---|---|---|---|
+| P-NUR-001 | 71–99, 128–160 | fetch uses generic provider-job queues but incoming sheet shows a hardcoded distance `3.2 KM`; accept/reject has no visible qualification/geo/capacity/insurance/payment/state lock proof | server assigns only eligible licensed nurse/team based on service, gender/skill, location, capacity and patient consent; no invented distance; transaction-safe accept/reject/notification |
+| P-NUR-002 | 176–214, 419–500 | navigator routes order detail to `NursingFieldOps`, while `NursingOrderDetail` contains different Home-care accept/reject and a hardcoded `Cash only — no insurance` path | remove/merge divergent flows; authoritative nursing contract must support Cash/Card before confirmation and Insurance decision/co-pay/payment before confirmation as the approved product rule requires |
+| P-NUR-003 | 226–232, 270–286 | online setting toggles local auth first and silently ignores API failure; quick actions pass first active/first job or undefined to clinical screens | confirm availability only after server result; disable contextless clinical CTAs and use a booking-bound state machine |
+| P-NUR-004 | 356–414 | orders tab uses a third endpoint (`/nursing/jobs/active`) with inconsistent status/data shapes and no error handler | one scoped queue contract/normalized status and truthful error/unavailable state |
+| P-NUR-005 | 507–550 | checklist changes are local only; an empty failed load produces `pct=100` and enables Complete Visit | booking-specific server checklist, required-item/risk policy, timestamped performer audit and no completion when data unavailable |
+| P-NUR-006 | 556–680 | GPS start only posts coordinates and then marks transit locally; 5-second tracking fails silently; end visit posts `{complete:true}` without required report/checklist/signature/clinical validation | consented foreground/background location policy, server geofence/time/assignment validation, reliable event capture and enforced visit-completion prerequisites |
+| P-NUR-007 | 687–756, 762–838 | care plans and progress notes use patient IDs derived from booking fallbacks; free-text tasks/vitals lack clinical range/critical escalation/author attribution/relationship proof | authorized patient-care relationship, role/assignment checks, clinical data model, validation, critical-alert workflow and immutable audit/retention policy |
+| P-NUR-008 | 843–939 | VisitReport combines strings, accepts base64 signature from client, and closes booking without demonstrable check-in, patient identity/consent, signature integrity or clinician counter-signature | booking-bound visit report with validated vitals/tasks, signed/attributed consent, timestamps, versioning, exception handling and server-enforced state transition |
+| P-NUR-009 | 945–1013 | supplies request has fixed `nurse_id:'nurse-1'` and appends a locally fabricated pending supply item after request | authenticated nurse identity, approved inventory SKU/quantity/stock/fulfillment workflow and no optimistic fabricated source-of-truth row |
+| P-NUR-010 | 1016–1106 | wallet declares Home Nursing cash-only/no-insurance, contradicting the owner-approved insurance journey for home care | fix product contract/UI: cash/card pre-confirmation; insurance request → provider decision/co-pay → patient pays share → confirmation; ledger/payout must reconcile real payment state |
+| P-NUR-011 | 1110–1199, 1204–1380 | profile/settings/services/pricing start from static defaults and use generic provider delta; health insurance UI is exposed while wallet says insurance unavailable | load authoritative scope/config; specialty/credential/approved service/price/effective-date governance and a single approved insurance policy |
+| P-NUR-012 | 1385–1480 | coverage displays static Riyadh neighborhoods and decorative map; GPS verification submits only radius and then claims verified | real device location with consent, persisted base location/geofence verification, service area policy and no static locality claims |
+| P-NUR-013 | 1491–1580 | profile image uploader stores local `avatarUrl` but PATCH does not include it; profile updates lack provider scope/approval distinction evidence | persisted image reference, content scan/moderation, scoped profile update and verified public/private fields |
+| P-NUR-014 | 1585–1664 | booking chat has real-looking thread/message calls but no visible membership/PHI classification/retention/attachment/moderation/e2e notification contract | booking participant authorization, short retention/access lifecycle, encrypted/audited PHI rules, notification and delivery/error state |
+| P-NUR-015 | 1669–1722 | schedule uses fixed shifts and capacity/emergency switches without dates, timezone, skill, travel, existing visits or server conflict lock | resource/calendar scheduling with capacity/travel constraint and emergency triage/approval policy |
+| P-NUR-016 | 36–44, 187–205, 1160–1176 | dashboard imports Blueprint/Shared marketing/SOS/CRM demos alongside clinical routes | disposition each imported placeholder; keep mock/demo surfaces inaccessible until contract-backed implementation exists |
+
+## Cross-journey conclusion
+
+Nursing has partial transport, notes and chat shells, but no safely closed clinical visit journey. The state can be advanced from local UI, GPS/coverage claims are incomplete or static, the checklist can finish when no data loaded, and the cash-only claim conflicts with the approved insurance contract. It is a production blocker until a shared Home-care state/insurance/payment/clinical-record model is implemented and verified.

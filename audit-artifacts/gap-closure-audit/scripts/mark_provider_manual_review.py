@@ -34,6 +34,8 @@ reviewed = {
     'src/screens/lab/LabDashboard.tsx',
     'src/screens/lab/LabRegistration.tsx',
     'src/screens/nursing/NursingFieldOps.tsx',
+    'src/screens/nursing/NursingDashboard.tsx',
+    'src/screens/nursing/NursingRegistration.tsx',
     'src/screens/pharmacy/PharmacyDashboard.tsx',
     'src/screens/pharmacy/PharmacyRegistration.tsx',
     'src/screens/shared/BlueprintScreens.tsx',
@@ -42,6 +44,7 @@ reviewed = {
     'src/screens/shared/PharmacyChatResponder.tsx',
     'src/screens/shared/ProviderHome.tsx',
     'src/screens/shared/RealScreens.tsx',
+    'src/screens/shared/RealScreensExtended.tsx',
     'src/screens/shared/VideoCallRoom.tsx',
 }
 
