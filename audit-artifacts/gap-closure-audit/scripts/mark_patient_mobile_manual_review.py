@@ -118,6 +118,19 @@ reviewed = {
     'app/health/vitals-log.tsx',
     'app/health/vitals.tsx',
     'app/health/wearables.tsx',
+    'app/insurance/add-policy.tsx',
+    'app/insurance/approval-pending.tsx',
+    'app/insurance/benefits-summary.tsx',
+    'app/insurance/claim-tracking.tsx',
+    'app/insurance/copay.tsx',
+    'app/insurance/coverage-check.tsx',
+    'app/insurance/hub.tsx',
+    'app/insurance/index.tsx',
+    'app/insurance/network-providers.tsx',
+    'app/insurance/payment-split.tsx',
+    'app/insurance/policy-detail.tsx',
+    'app/insurance/refund-status.tsx',
+    'app/insurance/submit-claim.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
