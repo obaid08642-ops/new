@@ -78,6 +78,18 @@ reviewed = {
     'app/nursing/nurse-profile.tsx',
     'app/nursing/service-details.tsx',
     'app/nursing/service-info.tsx',
+    'app/(auth)/forgot-password.tsx',
+    'app/(auth)/login.tsx',
+    'app/(auth)/otp.tsx',
+    'app/(auth)/privacy.tsx',
+    'app/(auth)/provider-info.tsx',
+    'app/(auth)/register.tsx',
+    'app/(auth)/reset-password.tsx',
+    'app/(auth)/terms.tsx',
+    'app/(auth)/welcome.tsx',
+    'app/(onboarding)/index.tsx',
+    'app/(onboarding)/language.tsx',
+    'app/(onboarding)/permissions.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
