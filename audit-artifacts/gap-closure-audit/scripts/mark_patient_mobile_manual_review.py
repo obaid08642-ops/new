@@ -31,6 +31,12 @@ reviewed = {
     'app/consultations/offer/[id].tsx',
     'app/consultations/video/[id].tsx',
     'app/consultations/share-report.tsx',
+    'app/pharmacy/cart.tsx',
+    'app/pharmacy/checkout.tsx',
+    'app/pharmacy/waiting-for-pharmacy.tsx',
+    'app/pharmacy/order-confirm.tsx',
+    'app/pharmacy/payment.tsx',
+    'app/pharmacy/broadcast-status.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
