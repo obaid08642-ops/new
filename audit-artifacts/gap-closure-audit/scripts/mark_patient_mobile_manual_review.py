@@ -60,6 +60,20 @@ reviewed = {
     'app/diagnostics/insurance-upload.tsx',
     'app/diagnostics/insurance-approval.tsx',
     'app/diagnostics/order/[id].tsx',
+    'app/diagnostics/book-sample.tsx',
+    'app/diagnostics/booking-success.tsx',
+    'app/diagnostics/lab-comparison.tsx',
+    'app/diagnostics/lab/[id].tsx',
+    'app/diagnostics/my-results.tsx',
+    'app/diagnostics/orders.tsx',
+    'app/diagnostics/package-detail.tsx',
+    'app/diagnostics/packages.tsx',
+    'app/diagnostics/results-history.tsx',
+    'app/diagnostics/sample-tracking.tsx',
+    'app/diagnostics/search.tsx',
+    'app/diagnostics/technician-tracking.tsx',
+    'app/diagnostics/test-detail.tsx',
+    'app/diagnostics/upload-rx.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
