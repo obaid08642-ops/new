@@ -227,6 +227,8 @@ reviewed = {
     'app/map/index.tsx',
     'app/drug-scanner/index.tsx',
     'app/programs/active.tsx',
+    'app/community/hub.tsx',
+    'app/community/post-detail.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
