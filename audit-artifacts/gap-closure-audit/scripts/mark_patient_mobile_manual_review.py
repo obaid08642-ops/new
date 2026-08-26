@@ -42,6 +42,17 @@ reviewed = {
     'app/pharmacy/reorder.tsx',
     'app/pharmacy/order-history.tsx',
     'app/pharmacy/chat-with-pharmacist.tsx',
+    'app/pharmacy/barcode-scanner.tsx',
+    'app/pharmacy/custom-item.tsx',
+    'app/pharmacy/drug-not-found.tsx',
+    'app/pharmacy/filters.tsx',
+    'app/pharmacy/manual-order.tsx',
+    'app/pharmacy/medicine-compare.tsx',
+    'app/pharmacy/pharmacist-chat.tsx',
+    'app/pharmacy/product-detail.tsx',
+    'app/pharmacy/product-search.tsx',
+    'app/pharmacy/scan-prescription.tsx',
+    'app/pharmacy/wishlist.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
