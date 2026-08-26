@@ -1,0 +1,569 @@
+# Gap-Closure Evidence Inventory
+
+## Branch history
+```
+[33m6317f8d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32magent/audit-main-contract-inventory[m[33m, [m[1;31morigin/agent/audit-main-contract-inventory[m[33m)[m audit: add four-surface parity program
+[33m288fda14[m audit: add production readiness planning pack
+[33m78963911[m audit: replace mechanical journey reconciliation
+[33m09197f21[m audit: reconcile phase 0d journey contracts
+[33mfab3e9ef[m audit: finalize phase 0d delivery evidence
+[33m11d905a3[m audit: complete phase 0d surface semantic inventory
+[33m5a6c8558[m audit: record phase 0c final delivery integrity
+[33m772b281f[m audit: normalize findings into root defect backlog
+[33mbc7683ab[m audit: add reproducible phase 0b1 hygiene evidence
+[33mab51a130[m audit: fix evidence paths and document hygiene
+[33m29bdde60[m audit: record final semantic read integrity
+[33mde929891[m audit: reconcile nonsemantic inventory
+[33mecd78813[m audit: document public discovery handoff coverage
+[33mae48e7cc[m audit: document comprehensive e2e matrix coverage
+[33m07e7f13c[m audit: document e2e package manifest coverage
+[33m778c2ad3[m audit: document fastapi backend tests coverage
+[33m3b1773c2[m audit: document fastapi fixture coverage
+[33m0bff85d2[m audit: document infrastructure compose coverage
+[33ma47ea2b2[m audit: document coturn configuration coverage
+[33m8fe7de02[m audit: document livekit infrastructure coverage
+[33mdeeefbac[m audit: document extensions integration test coverage
+[33m31fa2d96[m audit: document local test flow coverage
+[33m823f6a11[m audit: document e2e boot coverage
+[33m33c2820d[m audit: reconcile e2e provenance counts
+[33m15b3a8d5[m audit: document deep e2e matrix coverage
+[33m63dd62e7[m audit: reconcile Amiri font asset
+[33m874ec038[m audit: reconcile regular font asset
+[33mf4118a43[m audit: reconcile binary font asset
+[33m0fffbf9d[m audit: document patient crm tag schema coverage
+[33m30c1d77b[m audit: document mental health schema coverage
+```
+
+## Existing audit and planning artifacts
+- `audit-artifacts/ADMIN_DISPUTES_SOURCE_SCOPE_BLOCKER_20260818.md`
+- `audit-artifacts/AUDIT_REPORT_BUILD_GATE_20260818.md`
+- `audit-artifacts/AUTHORITATIVE_SOURCE_REGISTER_20260818.md`
+- `audit-artifacts/COMMUNICATIONS_IMPLEMENTATION_VERIFICATION_20260817.md`
+- `audit-artifacts/COMPREHENSIVE_SERVICE_SCENARIO_MATRIX_20260818.md`
+- `audit-artifacts/CONSENT_CONTRACT_REVIEW_DRAFT_20260817.md`
+- `audit-artifacts/DEPLOYMENT_AND_POST_DEPLOY_GATE_20260818.md`
+- `audit-artifacts/DEVICE_AUTOMATED_BUILD_RESULTS_20260817.md`
+- `audit-artifacts/DEVICE_FARM_BLOCKER_20260817.md`
+- `audit-artifacts/DEVICE_NabdProvider-expo-config.json`
+- `audit-artifacts/DEVICE_READINESS_REPORT_20260817.md`
+- `audit-artifacts/DEVICE_SCREEN_ROUTE_INVENTORY_20260817.md`
+- `audit-artifacts/DEVICE_VALIDATION_INVENTORY_20260817.md`
+- `audit-artifacts/DEVICE_nabd_plus-expo-config.json`
+- `audit-artifacts/EMERGENCY_LOCATION_POLICY_REVIEW_DRAFT_20260817.md`
+- `audit-artifacts/ERROR_CODE_REGISTRY_REVIEW_DRAFT_20260817.md`
+- `audit-artifacts/EXECUTION_COMPLETION_MATRIX_20260816.md`
+- `audit-artifacts/FULL_CLOSURE_BASELINE_20260818.md`
+- `audit-artifacts/FULL_E2E_BACKEND_ROUTE_CONTRACTS_20260817.md`
+- `audit-artifacts/FULL_PLAN_RECONCILIATION_WORKING_NOTES_20260817.md`
+- `audit-artifacts/FULL_PRODUCTION_E2E_TRACEABILITY_20260817.md`
+- `audit-artifacts/FULL_SYSTEMATIC_QA_EXECUTION_REGISTER_20260818.md`
+- `audit-artifacts/FULL_SYSTEMATIC_QA_FINAL_REPORT_20260818.md`
+- `audit-artifacts/INSURANCE_NETWORK_PROVENANCE_AUDIT_20260820.md`
+- `audit-artifacts/INSURANCE_OFFICIAL_SOURCE_FINDINGS_20260820.md`
+- `audit-artifacts/LABS_ENGINE_LEGACY_AUTH_DRIFT_20260818.md`
+- `audit-artifacts/LAB_CONTRACT_RECONCILIATION_BLOCKER_20260818.md`
+- `audit-artifacts/LAB_INBOX_ELIGIBILITY_SUMMARY_20260818.json`
+- `audit-artifacts/NABDAH_ACTUAL_API_CALLS_20260818.tsv`
+- `audit-artifacts/NABDAH_ACTUAL_API_RECONCILIATION_20260818.md`
+- `audit-artifacts/NABDAH_ACTUAL_API_ROUTE_MATCH_20260818.tsv`
+- `audit-artifacts/NABDAH_AGENT_TRANSITION_OPEN_WORK_AND_REMAINING_PHASES_20260819.md`
+- `audit-artifacts/NABDAH_BACKEND_COMPILED_ROUTES_20260818.tsv`
+- `audit-artifacts/NABDAH_BACKEND_DEPENDENCY_MIGRATION_20260819.md`
+- `audit-artifacts/NABDAH_BRANCH_COMPONENT_MAP_20260818.md`
+- `audit-artifacts/NABDAH_BRANCH_HISTORY_AND_APP_SCOPE_VERIFICATION_20260818.md`
+- `audit-artifacts/NABDAH_BUILD_ENVIRONMENT_GATE_20260818.md`
+- `audit-artifacts/NABDAH_CATALOG_GOVERNANCE_PUBLICATION_HARDENING_20260820.md`
+- `audit-artifacts/NABDAH_DEPENDENCY_REMEDIATION_FINAL_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_DIRECT_BACKEND_BUILD_ENV_BLOCKER_20260818.md`
+- `audit-artifacts/NABDAH_DIRECT_SOURCE_BRANCH_EVIDENCE_20260818.md`
+- `audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_MATCH_20260818.tsv`
+- `audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_RECONCILIATION_20260818.md`
+- `audit-artifacts/NABDAH_ENDPOINT_CONTROLLER_RECONCILIATION_20260818.tsv`
+- `audit-artifacts/NABDAH_EXPANDED_FULL_SYSTEMATIC_QA_MATRIX_20260818.md`
+- `audit-artifacts/NABDAH_EXPO_MIGRATION_METHOD_20260819.md`
+- `audit-artifacts/NABDAH_FINAL_PHASED_EXECUTION_PLAN_20260818.md`
+- `audit-artifacts/NABDAH_FINAL_REMEDIATION_AND_RELEASE_READINESS_20260815.md`
+- `audit-artifacts/NABDAH_FULL_PLAN_STATUS_20260817.md`
+- `audit-artifacts/NABDAH_GATEKEEPER_REMEDIATION_REPORT_20260817.md`
+- `audit-artifacts/NABDAH_HARDENING_BASELINE_AND_SAFE_CHANGE_POLICY_20260820.md`
+- `audit-artifacts/NABDAH_LIVE_RECONCILIATION_REGISTER_20260815.md`
+- `audit-artifacts/NABDAH_LOCALE_AND_MONGOOSE_INDEX_HARDENING_20260820.md`
+- `audit-artifacts/NABDAH_MAIN_VS_RECONCILIATION_COMPLETENESS_REPORT_20260818.md`
+- `audit-artifacts/NABDAH_MASTER_FULL_SYSTEMATIC_QA_AND_REMEDIATION_PLAN_20260818.md`
+- `audit-artifacts/NABDAH_MOBILE_DEPENDENCY_REMEDIATION_STATUS_20260820.md`
+- `audit-artifacts/NABDAH_OPENAPI_INSURANCE_CONTRACT_HARDENING_20260820.md`
+- `audit-artifacts/NABDAH_OWNER_REVIEWER_NEXT_ACTIONS_20260820.md`
+- `audit-artifacts/NABDAH_PASTED_CONTENT_17_REQUIREMENTS_ANALYSIS_20260818.md`
+- `audit-artifacts/NABDAH_PATIENT_EXPO_SDK57_MIGRATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE10_ADMIN_DEPENDENCY_AUDIT_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE10_DEPENDENCY_RISK_TRIAGE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE10_FINAL_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE10_RELEASE_GATE_RECHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE11_FINAL_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE11_PRESCRIPTIONS_AUTHORIZATION_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE11_SANDBOX_ACCEPTANCE_BOUNDARY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE11_SANDBOX_READONLY_AUTHORIZATION_WAVE1_20260819.md`
+- `audit-artifacts/NABDAH_PHASE11_SANDBOX_READONLY_AUTHORIZATION_WAVE2_20260819.md`
+- `audit-artifacts/NABDAH_PHASE12_FINAL_PRODUCTION_READINESS_REPORT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE13_CONTRACT_CLASSIFICATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE13_CONTRACT_INVENTORY_V4_20260819.json`
+- `audit-artifacts/NABDAH_PHASE13_CONTRACT_INVENTORY_V4_SUMMARY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE13_EXIT_CRITERIA_REVIEW_20260819.md`
+- `audit-artifacts/NABDAH_PHASE13_UI_ACTION_INVENTORY_V2_20260819.json`
+- `audit-artifacts/NABDAH_PHASE13_UI_ACTION_INVENTORY_V2_SUMMARY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE14_EXIT_CRITERIA_REVIEW_20260819.md`
+- `audit-artifacts/NABDAH_PHASE14_PROVIDER_CONTRACT_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE15_EXIT_CRITERIA_REVIEW_20260819.md`
+- `audit-artifacts/NABDAH_PHASE15_MIGRATION_INDEX_PREFLIGHT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE15_REVIEWER_DEPLOYMENT_CANDIDATE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE16_CONSULTATION_CASH_AUTOCONFIRM_P0_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE16_HOSPITAL_PROVIDER_ROLE_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE16_LAB_EMBEDDED_REPORT_CONTRACT_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE16_NURSING_AUTHORIZATION_P0_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE16_PRESCRIPTION_CONTRACT_AND_BOLA_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE16_PRESCRIPTION_DOCTOR_IDENTITY_P0_REMEDIATION_20260820.md`
+- `audit-artifacts/NABDAH_PHASE16_PROVIDER_SELF_PROFILE_IDENTITY_REMEDIATION_20260820.md`
+- `audit-artifacts/NABDAH_PHASE16_SANDBOX_EXECUTION_REGISTER_20260819.md`
+- `audit-artifacts/NABDAH_PHASE17_NATIVE_BUILD_AND_DEVICE_BLOCKERS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE18_LOCALE_ACCESSIBILITY_TECHNICAL_ACCEPTANCE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE19_FINAL_READINESS_VERDICT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE19_RERUN_STATUS_AND_EXECUTABLE_BLOCKERS_20260820.md`
+- `audit-artifacts/NABDAH_PHASE1_MAIN_SOURCE_BASELINE_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_ADDRESS_CREATE_REMEDIATION_TESTS_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_CHRONIC_REFILL_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_CLOSURE_MATRIX_20260818.tsv`
+- `audit-artifacts/NABDAH_PHASE2_CONSULTATION_INSURANCE_FINANCIAL_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_DIAGNOSTICS_BOOKING_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_DIAGNOSTICS_LAB_RADIOLOGY_WORKFLOW_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_FAMILY_CALENDAR_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_FAMILY_CHAT_MEMBERSHIP_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_FAMILY_PERMISSIONS_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_HOME_CARE_NURSING_WORKFLOW_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_INSURANCE_APPROVAL_PAYMENT_HANDOFF_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_INSURANCE_PAYMENT_SPLIT_MISSING_ROUTE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_LOYALTY_REWARD_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_MAIN_PATIENT_INVENTORY_AND_VERSION_DECISIONS_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_MANUAL_FINDINGS_BATCH_01_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_MATERNITY_CLINICAL_STATE_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_MEDICAL_DATA_RISK_REVIEW_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_MEDICAL_REPORT_VIEWER_AND_AI_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_MEDICATION_REMINDER_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_MONTHLY_REPORT_DATA_LOCALIZATION_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_MOOD_JOURNAL_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_NO_EXACT_ROUTE_REVIEW_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_NUTRITION_AI_PLAN_CONTRACT_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_FEATURE_DECISION_SUMMARY_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_FULL_TREE_SOURCE_COMPARISON_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_MAIN_RISK_MARKERS_20260818.tsv`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_MAIN_RISK_REVIEW_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_METHOD_MISMATCH_REMEDIATION_QUEUE_20260818.tsv`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_OPEN_CONTRACT_CLASSIFICATION_20260818.tsv`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_OPEN_CONTRACT_CLASSIFICATION_FINAL_20260818.tsv`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_PLACEHOLDER_TRIAGE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_PATIENT_UIUX_LOCALIZATION_BASELINE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_PLAN_DOUBLE_CHECK_20260818.md`
+- `audit-artifacts/NABDAH_PHASE2_PRESCRIPTION_TRANSLATOR_CONTRACT_SAFETY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_PROFILE_NOTIFICATION_SETTINGS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_SENSITIVE_CANDIDATE_IDENTICAL_REVIEW_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_SENSITIVE_PATIENT_DECISION_MATRIX_20260818.tsv`
+- `audit-artifacts/NABDAH_PHASE2_SKIN_ANALYSIS_SAFETY_PRIVACY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_SUPPORT_CHAT_TICKET_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_TRIAGE_DRUG_INTERACTION_SAFETY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_VITALS_CONTRACT_CLINICAL_SAFETY_GAP_20260819.md`
+- `audit-artifacts/NABDAH_PHASE2_WALLET_TRANSFER_CARD_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_DOCTOR_PROVIDER_CONFIGURATION_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_DOCTOR_REGISTRATION_KYC_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_AMBULANCE_EMERGENCY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_DOCTOR_CLINICAL_WORKFLOW_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_DOCTOR_RECEPTION_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_FACILITY_OPERATIONS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_LAB_OPERATIONS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_NETWORK_ONBOARDING_BASELINE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_NURSING_OPERATIONS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_PAYOUT_WALLET_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_PHARMACY_BROADCAST_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_RADIOLOGY_OPERATIONS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_SHARED_COMMUNICATION_SUPPORT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE3_PROVIDER_SHARED_SECURITY_ANALYTICS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_AI_GATEWAY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_AUDIT_LOG_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_AUTHORIZATION_SHELL_BASELINE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_COMMAND_CENTER_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_CONFIG_MAINTENANCE_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_DISPUTE_RESOLUTION_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_FINANCIAL_LEDGER_WAREHOUSE_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_INSURANCE_REFUND_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_MEDICINE_CATALOG_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_NOTIFICATION_CAMPAIGN_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_NURSING_OPERATIONS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_PAYOUT_FINANCE_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_PROVIDER_MODERATION_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_RBAC_MATRIX_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_SERVICE_CATALOG_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_SOS_EMERGENCY_GOVERNANCE_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_SUPPORT_TICKETS_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_ADMIN_USER_MANAGEMENT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE4_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_AUTHORIZATION_GUARD_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_CONSISTENCY_RECONCILIATION_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_EVENT_BUS_OUTBOX_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_INSURANCE_QUOTE_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_LEGACY_CANONICAL_DATA_SOURCE_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_PAYMENT_ENGINE_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_REALTIME_WEBSOCKET_SECURITY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_STORAGE_MEDIA_PRIVACY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_TRANSACTION_SCHEMA_DATA_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE5_WORKFLOW_ENGINE_CONTRACT_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE6_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE6_PUBLIC_CARE_DISCOVERY_PRIVACY_GAPS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE6_SECURITY_OWNERSHIP_PRIVACY_MATRIX_20260819.md`
+- `audit-artifacts/NABDAH_PHASE7_COMPETITOR_UX_BENCHMARK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE7_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AA_PROVIDER_PAYOUT_RESERVATION_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AB_PROVIDER_NURSING_QUEUE_CONTRACT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AC_FACILITY_STAFF_ASSIGNMENT_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AD_ADMIN_REFUND_DECISION_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AE_AMBULANCE_EMERGENCY_RECORD_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AF_DOCTOR_CLINICAL_RECORD_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AG_ADMIN_GOVERNANCE_MAINTENANCE_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AH_ADMIN_CAMPAIGN_DELIVERY_GOVERNANCE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AI_ADMIN_SOS_PRIVACY_DISPATCH_CONTAINMENT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AJ_PATIENT_LOCALE_TECHNICAL_KEY_CONTAINMENT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AK_ADMIN_AI_PHI_GOVERNANCE_CONTAINMENT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AL_PROVIDER_SHARED_UI_ACCESSIBILITY_RTL_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AM_PATIENT_SHARED_UI_ACCESSIBILITY_RTL_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AN_ADMIN_NURSING_PRIVACY_ASSIGNMENT_CONTAINMENT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AO_ADMIN_DISPUTE_FINANCIAL_CONTAINMENT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_AP_ADMIN_SERVICE_CATALOG_PUBLICATION_CONTAINMENT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_A_PUBLIC_CARE_DISCOVERY_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_B_REALTIME_ROOM_AUTHORIZATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_C_PAYMENT_AUTHORIZATION_WEBHOOKS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_D_PRIVILEGED_JWT_IMPERSONATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_E_PATIENT_LOCALE_NAVIGATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_F_FAMILY_OWNERSHIP_CONTRACTS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_G_CLINICAL_VITALS_CONTRACT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_H_MATERNITY_CLINICAL_STATE_REVALIDATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_I_NUTRITION_PLAN_TRUTHFULNESS_REVALIDATION_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_J_MEDICATION_REMINDER_FIDELITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_K_PAYMENT_INTENT_IDEMPOTENCY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_L_INSURANCE_COPAY_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_M_PROTECTED_MEDIA_STORAGE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_N_WORKFLOW_EVENT_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_O_DIAGNOSTICS_TRUTHFULNESS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_P_PROVIDER_DIAGNOSTIC_REPORT_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_Q_MOOD_JOURNAL_TRUTHFULNESS_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_R_CHRONIC_REFILL_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_S_FAMILY_CALENDAR_CONTRACT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_T_INSURANCE_COPAY_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_U_MONTHLY_HEALTH_REPORT_TEMPORAL_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_V_PROVIDER_NETWORK_CONFIGURATION_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_W_PROVIDER_KYC_STATE_GATE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_X_PROVIDER_PHARMACY_BROADCAST_CONTRACT_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_Y_LABORATORY_WORKFLOW_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_BATCH_Z_ADMIN_SESSION_GOVERNANCE_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_FINAL_CLOSURE_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE8_POST_AE_REMEDIATION_INVENTORY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE9_BACKEND_DEPENDENCY_LOCK_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE9_BUILD_GATE_BASELINE_20260819.md`
+- `audit-artifacts/NABDAH_PHASE9_FINAL_DOUBLE_CHECK_20260819.md`
+- `audit-artifacts/NABDAH_PHASE9_PROVIDER_DEPENDENCY_LOCK_INTEGRITY_20260819.md`
+- `audit-artifacts/NABDAH_PHASE9_RELEASE_CANDIDATE_AND_ROLLBACK_PLAN_20260819.md`
+- `audit-artifacts/NABDAH_PLAN_COMPLETENESS_GAP_REVIEW_20260818.md`
+- `audit-artifacts/NABDAH_PREPHASE13_DOCTOR_PRESCRIPTION_REMEDIATION_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_AGREEMENT_FAIL_CLOSED_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_CHAT_TRUTHFULNESS_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_DOCTOR_TRUTHFULNESS_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_EXPO_SDK57_MIGRATION_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_FULL_LOCALE_STATIC_TEXT_MIGRATION_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_LAB_TRUTHFULNESS_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_LOCALIZATION_INVENTORY_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_SHARED_OPERATION_TRUTHFULNESS_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_SIX_LOCALE_FOUNDATION_20260819.md`
+- `audit-artifacts/NABDAH_PROVIDER_TEMPLATE_LOCALE_MIGRATION_20260819.md`
+- `audit-artifacts/NABDAH_READINESS_RESUMPTION_BLOCKER_RECONCILIATION_20260819.md`
+- `audit-artifacts/NABDAH_RECONCILIATION_ACTUAL_API_CALLS_20260818.tsv`
+- `audit-artifacts/NABDAH_RECONCILIATION_API_ROUTE_MATCH_20260818.tsv`
+- `audit-artifacts/NABDAH_RECONCILIATION_BACKEND_ROUTES_20260818.tsv`
+- `audit-artifacts/NABDAH_RECONCILIATION_CURRENT_SOURCE_QA_20260818.md`
+- `audit-artifacts/NABDAH_RECONCILIATION_SOURCE_UI_MARKERS_20260818.tsv`
+- `audit-artifacts/NABDAH_REVIEW_HANDOVER_CURRENT_STATE_20260819.md`
+- `audit-artifacts/NABDAH_ROUTE_MATCH_RECONCILIATION_20260818.md`
+- `audit-artifacts/NABDAH_SCREEN_BUTTON_CONTRACT_INVENTORY_20260818.tsv`
+- `audit-artifacts/NABDAH_SCREEN_BUTTON_CONTRACT_UNIQUE_20260818.tsv`
+- `audit-artifacts/NABDAH_SMART_CATALOG_BACKFILL_REVIEWER_RUNBOOK_20260820.md`
+- `audit-artifacts/NABDAH_SOURCE_AUTHORITY_CORRECTION_20260818.md`
+- `audit-artifacts/NABDAH_SOURCE_AUTHORITY_VERIFICATION_20260818.md`
+- `audit-artifacts/NABDAH_SOURCE_MERGE_TRIAL_20260818.md`
+- `audit-artifacts/NABDAH_UNMATCHED_API_REVIEW_20260818.tsv`
+- `audit-artifacts/PATIENT1_SELECTED_ORDER_20260818.json`
+- `audit-artifacts/PATIENT2_BOLA_CANCEL_BEFORE_AFTER_20260818.json`
+- `audit-artifacts/PATIENT2_BOLA_READ_20260818.json`
+- `audit-artifacts/PATIENT2_BOLA_REPORT_RECHECK_20260818.json`
+- `audit-artifacts/PATIENT_404_CONTRACT_CLASSIFICATION_20260818.md`
+- `audit-artifacts/PATIENT_EXACT_READ_PROBE_20260818.md`
+- `audit-artifacts/PATIENT_EXACT_READ_RETRY_20260818.json`
+- `audit-artifacts/PATIENT_EXACT_READ_ROUTE_CONTRACTS_20260818.md`
+- `audit-artifacts/PATIENT_READONLY_LIVE_MATRIX_20260818.json`
+- `audit-artifacts/PATIENT_ROUTE_CONTRACT_RECONCILIATION_20260818.md`
+- `audit-artifacts/PATIENT_SINGLE_LOGIN_RETRY_20260818.json`
+- `audit-artifacts/PATIENT_WEB_BUILD_GUIDE.md`
+- `audit-artifacts/PATIENT_WEB_CONTRACT_PACK_V1.md`
+- `audit-artifacts/PHASE5_REVALIDATION_SUMMARY_20260818.md`
+- `audit-artifacts/PHASE6_STAGING_E2E_MATRIX_20260817.md`
+- `audit-artifacts/PLACEHOLDER_SUSPICIOUS_FINDINGS_20260818.md`
+- `audit-artifacts/POST_REMEDIATION_E2E_EXECUTION_PLAN.md`
+- `audit-artifacts/PRODUCTION_HEALTH_GATE_20260818.json`
+- `audit-artifacts/PROVIDER_ANDROID_EXPORT_METADATA_20260818.json`
+- `audit-artifacts/PROVIDER_API_CONSUMER_FINDINGS_20260818.md`
+- `audit-artifacts/PROVIDER_AUTH_CONTRACT_DRIFT_20260818.md`
+- `audit-artifacts/PROVIDER_DOCTOR_EXACT_READ_20260818.json`
+- `audit-artifacts/PROVIDER_DOCTOR_SINGLE_LOGIN_20260818.json`
+- `audit-artifacts/PROVIDER_ENTRYPOINT_CANDIDATE_COMPARISON_20260818.md`
+- `audit-artifacts/PROVIDER_EXPO_BUILD_BLOCKER_20260818.md`
+- `audit-artifacts/PROVIDER_FAKE_ACTION_FINDINGS_20260818.md`
+- `audit-artifacts/PROVIDER_HOSPITAL_EXACT_READ_20260818.json`
+- `audit-artifacts/PROVIDER_HOSPITAL_SINGLE_LOGIN_20260818.json`
+- `audit-artifacts/PROVIDER_LAB_EXACT_READ_20260818.json`
+- `audit-artifacts/PROVIDER_LAB_SINGLE_LOGIN_20260818.json`
+- `audit-artifacts/PROVIDER_MY_PROFILE_SOURCE_DRIFT_20260818.md`
+- `audit-artifacts/PROVIDER_NATIVE_PREBUILD_20260818.md`
+- `audit-artifacts/PROVIDER_NURSING_EXACT_READ_20260818.json`
+- `audit-artifacts/PROVIDER_NURSING_SINGLE_LOGIN_20260818.json`
+- `audit-artifacts/PROVIDER_OPERATIONAL_ROUTE_CATALOG_20260818.md`
+- `audit-artifacts/PROVIDER_PHARMACY_CORRECT_BROADCAST_READ_20260818.json`
+- `audit-artifacts/PROVIDER_PHARMACY_EXACT_READ_20260818.json`
+- `audit-artifacts/PROVIDER_PHARMACY_HISTORY_LIVE_RECHECK_20260818.json`
+- `audit-artifacts/PROVIDER_PHARMACY_SINGLE_LOGIN_20260818.json`
+- `audit-artifacts/PROVIDER_RADIOLOGY_EXACT_READ_20260818.json`
+- `audit-artifacts/PROVIDER_RADIOLOGY_SINGLE_LOGIN_20260818.json`
+- `audit-artifacts/PROVIDER_READONLY_FINDINGS_20260818.md`
+- `audit-artifacts/PROVIDER_READONLY_LIVE_MATRIX_20260818.json`
+- `audit-artifacts/PROVIDER_REGISTRATION_VALIDATION_AUDIT_20260818.md`
+- `audit-artifacts/PROVIDER_SCREEN_CONTROLLER_INVENTORY_20260818.md`
+- `audit-artifacts/PROVIDER_SPECIALTY_CONTRACT_MAP_20260818.md`
+- `audit-artifacts/QR_VERIFIER_CONTRACT_REVIEW_DRAFT_20260817.md`
+- `audit-artifacts/REAL_DEVICE_CHECKLIST.md`
+- `audit-artifacts/UNIFIED_INSURANCE_CATALOG_CONSUMER_AUDIT_20260820.md`
+- `audit-artifacts/gap-closure-audit/GAP_CLOSURE_EVIDENCE_INVENTORY_2026-08-25.md`
+- `audit-artifacts/nabd-patient-api-openapi.json`
+- `audit-artifacts/phase0-main-audit/NABD_AUDIT_ARTIFACT_WHITESPACE_EXCEPTIONS_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Audit_Findings_Main_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Contract_Route_Raw_Index_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Contract_and_Route_Inventory_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_DECISION_REQUIRED_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Main_End_to_End_Traceability_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Main_Source_Exclusions_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Main_Source_Manifest_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Main_Traceability_Checkpoint_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_PHASE0_FINAL_CLOSURE_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/NABD_Screen_and_User_Journey_Manifest_2026-08-24.md`
+- `audit-artifacts/phase0-main-audit/README.md`
+- `audit-artifacts/phase0-main-audit/REVIEWER_DELIVERY_INDEX.md`
+- `audit-artifacts/phase0-main-audit/backend-route-inventory-raw.tsv`
+- `audit-artifacts/phase0-main-audit/backend-route-reconciliation-auth-otp.md`
+- `audit-artifacts/phase0-main-audit/backend-route-reconciliation-support-community-programs.md`
+- `audit-artifacts/phase0-main-audit/backend-route-reconciliation-unified-bookings.md`
+- `audit-artifacts/phase0-main-audit/backend-route-reconciliation-wallet-pharmacy.md`
+- `audit-artifacts/phase0-main-audit/confirmed-findings-checkpoint.md`
+- `audit-artifacts/phase0-main-audit/confirmed-findings-v1.md`
+- `audit-artifacts/phase0-main-audit/mobile-screen-inventory-checkpoint.md`
+- `audit-artifacts/phase0-main-audit/phase0-coverage-matrix.md`
+- `audit-artifacts/phase0-main-audit/phase13-evidence-reconciliation.md`
+- `audit-artifacts/phase0-main-audit/route-analysis-status.md`
+- `audit-artifacts/phase0-main-audit/semantic-coverage-status.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-admin-config-portal.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-admin-master-dashboard.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-admin-security-passkey.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-backend-homecare-compat.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-backend-unified-bookings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-backend-user-settings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-doctor-provider.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-labs-packages-parity.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-addresses.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-auth.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-community-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-community-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-consultation-booking.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-data-management.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-database-provider.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-diagnostics-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-chat.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-invite.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-join.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-member-health.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-permission-request.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-permissions.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-family-scan.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-health-home.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-health-passport.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-help-center.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-add-policy.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-benefits-summary.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-coverage-check.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-index.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-network-providers.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-payment-split.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-policy-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-refund-status.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance-submit-claim.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-insurance.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-language-settings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-map.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-medical-profile-edit.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-medical-timeline.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-medication-reminder-add.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-medications.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-navigation.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-notification-settings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-notifications-inbox.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-nursing-live-tracking.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-nursing-nurse-profile.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-nursing-service-details.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-nursing-service-info.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-nursing.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-offers-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-offers-index.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-order-tracking.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-orders-center.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacist-chat.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-barcode-scanner.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-barcode.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-cart.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-chat.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-checkout.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-compare.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-drug-not-found.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-filters.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-manual-order.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-order-confirm.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-order-history.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-order-tracking.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-payment.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-product-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-product-search.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-reorder.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-rx-order.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-scan-prescription.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-waiting.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy-wishlist.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-pharmacy.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-prescriptions.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-privacy-settings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-profile-edit-redirect.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-profile.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-programs-active.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-report-ai-analysis.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-report-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-reports-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-returns-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-returns-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-returns-new-request.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-reviews.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-room-video.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-search.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-security-settings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-services-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-about.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-data.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-feedback.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-help.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-index.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-language.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-notifications.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-privacy.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-security.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-support-chat.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-settings-terms.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-support-chat-real.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-support-ticket.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-vitals-log.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-vitals-summary.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-wallet-cards.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-wallet-hub.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-wallet-topup.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-wallet-transactions.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-mobile-wallet-transfer.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-nursing-provider.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-appointment-lifecycle.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-booking.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-auth-cart.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-consultations.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-diagnostics.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-health-prescriptions.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-homecare.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-medicines.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-notifications-chat.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-order-detail.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-pharmacy-orders.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-profile-family-insurance.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-patient-web-settings.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-provider-lab-dashboard.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-provider-nursing-dashboard.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-provider-pharmacy-dashboard.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-provider-radiology-dashboard.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-web-bff.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-web-cart.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-web-checkout-preview.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-web-mobile-consultation-parity.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence-web-mobile-pharmacy-parity.md`
+- `audit-artifacts/phase0-main-audit/semantic-evidence.md`
+- `audit-artifacts/phase0-main-audit/todo-complete-read-summary.md`
+- `audit-artifacts/phase0-main-audit/todo-line-inventory.tsv`
+- `audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Exclusions_2026-08-24.tsv`
+- `audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Member_Inventory_2026-08-24.tsv`
+- `audit-artifacts/phase0a-main-audit/NABD_Main_Archive_Provenance_2026-08-24.md`
+- `audit-artifacts/phase0a-main-audit/NABD_Main_Source_Manifest_2026-08-24.md`
+- `audit-artifacts/phase0a-main-audit/NABD_PHASE0A_DELIVERY_POINTER_2026-08-24.md`
+- `audit-artifacts/phase0a-main-audit/NABD_PHASE0A_SCREEN_ACTION_STATUS_2026-08-24.md`
+- `audit-artifacts/phase0a-main-audit/NABD_PHASE0A_SCREEN_ROUTE_INVENTORY_2026-08-24.tsv`
+- `audit-artifacts/phase0a-main-audit/PHASE0A_COMMANDS_AND_RESULTS_2026-08-24.md`
+- `audit-artifacts/phase0b-backend/AUDIT_WORK_GITIGNORE_RATIONALE_2026-08-25.md`
+- `audit-artifacts/phase0b-backend/NABD_Normalized_Remediation_Backlog_2026-08-25.md`
+- `audit-artifacts/phase0b-backend/NABD_Normalized_Remediation_Backlog_2026-08-25.tsv`
+- `audit-artifacts/phase0b-backend/NABD_Phase0B_Backend_Provenance_2026-08-24.md`
+- `audit-artifacts/phase0b-backend/NABD_Phase0B_Backend_Semantic_Read_Manifest_2026-08-24.tsv`
+- `audit-artifacts/phase0b-backend/PHASE0B1_DIFF_CHECK_EXCEPTIONS_2026-08-25.tsv`
+- `audit-artifacts/phase0b-backend/PHASE0B1_EVIDENCE_HYGIENE_REPORT_2026-08-25.md`
+- `audit-artifacts/phase0b-backend/PHASE0C_NORMALIZATION_REPORT_2026-08-25.md`
+- `audit-artifacts/phase0b-backend/semantic-evidence-ad-placement-schema.md`
+- `audit-artifacts/phase0b-backend/semantic-evidence-admin-audit-log-schema.md`
+- `audit-artifacts/phase0b-backend/semantic-evidence-admin-authority.md`
+- `audit-artifacts/phase0b-backend/semantic-evidence-admin-command-center.md`
+- `audit-artifacts/phase0b-backend/semantic-evidence-admin-config.md`
+
+## Current source-derived inventory limits
+{
+  "patient-mobile": {
+    "screen_or_route_candidates": 246,
+    "with_action_signal": 245,
+    "with_state_signal": 183
+  },
+  "patient-web": {
+    "screen_or_route_candidates": 83,
+    "with_action_signal": 53,
+    "with_state_signal": 52
+  },
+  "provider": {
+    "screen_or_route_candidates": 45,
+    "with_action_signal": 41,
+    "with_state_signal": 36
+  },
+  "admin": {
+    "screen_or_route_candidates": 42,
+    "with_action_signal": 31,
+    "with_state_signal": 29
+  }
+}
+
+{
+  "patient-mobile": 166,
+  "patient-web": 66,
+  "provider": 363,
+  "admin": 33,
+  "total": 628
+}
