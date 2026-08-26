@@ -231,6 +231,9 @@ reviewed = {
     'app/community/post-detail.tsx',
     'app/offers/[id].tsx',
     'app/offers/index.tsx',
+    'app/articles/[slug].tsx',
+    'app/articles/bookmarks.tsx',
+    'app/articles/index.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
