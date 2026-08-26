@@ -17,6 +17,7 @@ reviewed = {
     'src/screens/facility/FacilityLeaveRequestsScreen.tsx',
     'src/screens/facility/FacilityProfileConfigScreen.tsx',
     'src/screens/facility/FacilityAuditLogScreen.tsx',
+    'src/screens/facility/FacilityDashboard.tsx',
     'src/screens/facility/FacilityPatientTrackerScreen.tsx',
     'src/screens/facility/FacilityUnifiedCalendarScreen.tsx',
     'src/screens/doctor/DoctorOpsScreens.tsx',
