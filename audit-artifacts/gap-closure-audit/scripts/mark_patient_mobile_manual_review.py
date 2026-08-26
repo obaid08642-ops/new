@@ -239,6 +239,12 @@ reviewed = {
     'app/index.tsx',
     'app/search/index.tsx',
     'app/voice/index.tsx',
+    'app/(tabs)/consultations/index.tsx',
+    'app/(tabs)/health.tsx',
+    'app/(tabs)/index.tsx',
+    'app/(tabs)/nursing.tsx',
+    'app/(tabs)/pharmacy.tsx',
+    'app/(tabs)/services.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
