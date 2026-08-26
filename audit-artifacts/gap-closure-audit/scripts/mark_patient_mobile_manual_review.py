@@ -187,6 +187,13 @@ reviewed = {
     'app/mental-health/mood-journal.tsx',
     'app/mental-health/self-assessment.tsx',
     'app/mental-health/therapist-match.tsx',
+    'app/ai/chat-doctor.tsx',
+    'app/ai/monthly-report.tsx',
+    'app/ai/prescription-translator.tsx',
+    'app/ai/skin-analysis.tsx',
+    'app/ai/symptom-checker.tsx',
+    'app/ai/symptom-timeline.tsx',
+    'app/ai/triage.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
