@@ -153,6 +153,8 @@ reviewed = {
     'app/family/permissions.tsx',
     'app/family/scan.tsx',
     'app/family/shared-calendar.tsx',
+    'app/settings/security.tsx',
+    'app/settings/privacy.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
