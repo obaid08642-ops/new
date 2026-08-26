@@ -6,7 +6,9 @@
 |---|---|---|---|
 | PM-088 family chat; PM-107 health family chat | No family-chat Web route/CTA found; family list has no link/action. | `MISSING_CAPABILITY` | No compose/thread/provider routing/consent/PHI guard/escalation workflow is evidenced. |
 | PM-094 family member health; PM-109 health family member detail | Family cards at `family/page.tsx:35–42` are not links and display no health detail. | `MISSING_CAPABILITY` | No delegated health-view scope, patient/member authorization, audit/revocation, or member-detail screen is evidenced. |
-| PM-100 health add-family-member | No invitation/add-member form or mutation is present; `family/page.tsx:15–44` is list-only. | `MISSING_CAPABILITY` | No invite/accept/reject/role/consent/age guardian workflow is evidenced. |
-| PM-106 health family calendar; PM-108 health family hub | `/{locale}/family` shows membership summary only. | `MISSING_CAPABILITY` | No calendar, care coordination, appointment delegation or family action path is evidenced. |
+| PM-089 family emergency contacts; PM-095 permission request; PM-096 permissions; PM-097 family scan | No dedicated Web family subroute/CTA exists; the only family page is the list at `family/page.tsx:15–44`. | `MISSING_CAPABILITY` | No family emergency-action, consent/request/grant/revoke, QR/scan or audit workflow is evidenced. |
+| PM-090/PM-091 family hub/index | `/{locale}/family`; `family/page.tsx:15–44`. | `STATIC_MATCHED_PARTIAL` | A protected member/group summary exists; no member management, delegation or action controls are present. |
+| PM-092 family invite; PM-093 family join; PM-100 health add-family-member | No invitation/add-member form or mutation is present; `family/page.tsx:15–44` is list-only. | `MISSING_CAPABILITY` | No invite/accept/reject/role/consent/age guardian workflow is evidenced. |
+| PM-087 family calendar; PM-098 family shared calendar; PM-106 health family calendar; PM-108 health family hub | `/{locale}/family` shows membership summary only. | `MISSING_CAPABILITY` | No calendar, care coordination, appointment delegation or family action path is evidenced. |
 
 No Backend/ownership/runtime conclusion follows from page redirects or protected GETs alone.

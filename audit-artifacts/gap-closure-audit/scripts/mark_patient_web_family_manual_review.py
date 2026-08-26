@@ -11,14 +11,25 @@ U={
 'PM-106':'No family calendar or care-coordination action surface found.',
 'PM-107':'No family-chat route or CTA found; family list is summary-only.',
 'PM-108':'Family surface is membership summary only, not a family hub workflow.',
-'PM-109':'Family cards are non-linked summaries; no member-detail/delegated-health surface found.'}
+'PM-109':'Family cards are non-linked summaries; no member-detail/delegated-health surface found.',
+'PM-087':'No family calendar or care-coordination action surface found.',
+'PM-089':'No family emergency contacts action surface found.',
+'PM-090':'Family surface is membership summary only, not a family hub workflow.',
+'PM-091':'Family surface is membership summary only, not a member-management workflow.',
+'PM-092':'No invite-member form or mutation exists in reviewed family source.',
+'PM-093':'No family join/acceptance route or mutation exists in reviewed family source.',
+'PM-095':'No family permission-request route or mutation exists in reviewed family source.',
+'PM-096':'No family permission grant/revoke management route exists in reviewed family source.',
+'PM-097':'No family QR/scan route or CTA exists in reviewed family source.',
+'PM-098':'No family shared-calendar action surface found.'}
 lines=T.read_text().splitlines();h=lines[0].split('\t');c={x:i for i,x in enumerate(h)};out=[lines[0]];seen=set()
 for raw in lines[1:]:
  f=raw.split('\t');id=f[c['screen_id']]
  if id in U:
   values={'web_source_path':'NONE__FAMILY_SOURCE_TREE_AND_CTA_SCAN','web_route_candidate':'NONE','web_sha256':'NONE','web_line_count':'0','web_action_signal_lines':'NONE','mapping_status':'MANUAL_MAPPING_COMPLETE__MISSING_CAPABILITY','mapping_note':U[id]+' Evidence: '+E,'visual_parity_status':'NOT_REVIEWED__SOURCE_ONLY','cta_parity_status':'MISSING_CAPABILITY','scenario_parity_status':'MISSING_CAPABILITY','contract_parity_status':'INSUFFICIENT_EVIDENCE__NO_WEB_SURFACE','approved_exception_reason':'NONE'}
-  if id in {'PM-108'}:
+  if id in {'PM-090','PM-091','PM-108'}:
    values['web_source_path']='app/[locale]/family/page.tsx';values['web_route_candidate']='/{locale}/family';values['web_action_signal_lines']='15-44';values['contract_parity_status']='INSUFFICIENT_EVIDENCE'
+   values['mapping_status']='MANUAL_MAPPING_COMPLETE__STATIC_MATCHED_PARTIAL';values['cta_parity_status']='STATIC_MATCHED_PARTIAL';values['scenario_parity_status']='MISSING_CAPABILITY'
   for k,v in values.items():f[c[k]]=v
   seen.add(id)
  out.append('\t'.join(f))
