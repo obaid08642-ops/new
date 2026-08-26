@@ -245,6 +245,10 @@ reviewed = {
     'app/(tabs)/nursing.tsx',
     'app/(tabs)/pharmacy.tsx',
     'app/(tabs)/services.tsx',
+    'app/room/[id].tsx',
+    'app/reviews/index.tsx',
+    'app/s/[type]/[slug].tsx',
+    'app/services/index.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
