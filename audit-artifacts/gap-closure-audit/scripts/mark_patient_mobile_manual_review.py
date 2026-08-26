@@ -20,6 +20,17 @@ reviewed = {
     'app/consultations/incoming-call.tsx',
     'app/consultations/summary.tsx',
     'app/consultations/prescription-from-doctor.tsx',
+    'app/consultations/follow-up.tsx',
+    'app/consultations/chat-with-doctor.tsx',
+    'app/consultations/waiting-room.tsx',
+    'app/consultations/clinic-location.tsx',
+    'app/consultations/clinic/[id].tsx',
+    'app/consultations/specialty-select.tsx',
+    'app/consultations/doctor-search.tsx',
+    'app/consultations/doctor-profile.tsx',
+    'app/consultations/offer/[id].tsx',
+    'app/consultations/video/[id].tsx',
+    'app/consultations/share-report.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
