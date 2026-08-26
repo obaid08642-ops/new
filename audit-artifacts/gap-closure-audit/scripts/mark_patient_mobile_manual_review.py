@@ -224,6 +224,7 @@ reviewed = {
     'app/profile/edit.tsx',
     'app/profile/index.tsx',
     'app/profile/insurance.tsx',
+    'app/map/index.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
