@@ -90,7 +90,82 @@
 | 76 | `109fd89` | 2026-08-26T14:26:34+03:00 | docs: PROVIDER_PRODUCTION_PLAN P1-P9 execution record — all gates green, structural fixes, run instructions |
 | 77 | `51a84c7` | 2026-08-26T16:45:12+03:00 | feat(go-gate#2): mail smoke tool — one command proves key+domain+CSV attachment over the production Resend→SES path |
 
-## 3. commits جديدة نُشرت في فرع تقارير المراجعة (10)
+## 3. commits المذكورة في السرد النصي المرفق (55)
+
+| # | المعرف المذكور | النتيجة | commit الفعلي | عنوان commit الفعلي |
+|---:|---|---|---|---|
+| 1 | `0092458` | RESOLVED | `0092458` | feat(F-web): loyalty hub — rewards/challenges/leaderboard/referral (parity #22) |
+| 2 | `0535f68` | RESOLVED | `0535f68` | feat(D-web): consultation insurance branch + copay settlement page (parity #11) |
+| 3 | `109fd89` | RESOLVED | `109fd89` | docs: PROVIDER_PRODUCTION_PLAN P1-P9 execution record — all gates green, structural fixes, run instructions |
+| 4 | `143c98d` | RESOLVED | `143c98d` | feat(P3): 9 governed provider endpoints (insurance-decision, coverage-decision x3, CRM, referrals/mine, technicians roster, claims actions, reports/inbound, availability round-trip) + shifts PATCH/DELETE — e2e gate 13/13 on live server |
+| 5 | `151dbef` | RESOLVED | `151dbef` | feat(C3): patient-web pharmacy governing-rules flow |
+| 6 | `17e22bc` | RESOLVED | `17e22bc` | feat(F-web): drug scanner — barcode lookup + interactions (parity #21) |
+| 7 | `1d802f4` | RESOLVED | `1d802f4` | feat(F-web): treatment programs — enroll + complete session (parity #29) |
+| 8 | `20c6f2b` | RESOLVED | `20c6f2b` | feat(A7): command center v2 SSE controller + scheduled reports runner (cron, real aggregation compute, CSV attachment email via Resend/SES, run history) |
+| 9 | `22526be` | MISSING_OR_NON_COMMIT | — | لا يوجد كائن commit داخل workstation |
+| 10 | `2610216` | RESOLVED | `2610216` | feat(C): pharmacy governing-rules engine (PH-PHARMACY) |
+| 11 | `265a133` | RESOLVED | `265a133` | feat(segments): dynamic audiences (plan E) — pure DSL→Mongo compiler with privacy fence, preview/count/members endpoints, audit; 6/6 unit tests |
+| 12 | `2c6ccca` | MISSING_OR_NON_COMMIT | — | لا يوجد كائن commit داخل workstation |
+| 13 | `32064fc` | RESOLVED | `32064fc` | feat(F-web): providers map list + filters (parity #24) |
+| 14 | `3b5218f` | RESOLVED | `3b5218f` | docs: quality+security gate results — tsc/tests green both apps, audit fixes, explicit remaining decisions |
+| 15 | `3dde1e7` | RESOLVED | `3dde1e7` | feat(F-web): AI tools hub — triage, prescription translation, skin self-check (parity #20) |
+| 16 | `3e9f8e9` | RESOLVED | `3e9f8e9` | feat(A1): security foundation — role hierarchy (super_admin⊇admin), dynamic RBAC, real disputes engine, shared audit service, reason enforcement |
+| 17 | `3f319d0` | RESOLVED | `3f319d0` | fix(P1): server-side temp credentials + ownership field fix in hospital-staff (parent_account_id read bug) |
+| 18 | `3f3c288` | RESOLVED | `3f3c288` | docs: WEB PARITY batch-1 record (parity #11 + #12) and agent-collision warning |
+| 19 | `4194495` | RESOLVED | `4194495` | chore: seed workstation from main@22526be (cleaned source only) |
+| 20 | `42a52cc` | RESOLVED | `42a52cc` | feat(E-web): labs/radiology/nursing web booking per PH-SERVICE |
+| 21 | `4f4cbec` | RESOLVED | `4f4cbec` | fix(E-mobile): nursing funnel follows the real PH-SERVICE paths |
+| 22 | `51a84c7` | RESOLVED | `51a84c7` | feat(go-gate#2): mail smoke tool — one command proves key+domain+CSV attachment over the production Resend→SES path |
+| 23 | `5412d5c` | RESOLVED | `5412d5c` | fix(J/X2): production compose actually boots now |
+| 24 | `55659a8` | RESOLVED | `55659a8` | feat(G): wallet payment for selected pharmacy offer (atomic guarded debit) |
+| 25 | `55bc074` | RESOLVED | `55bc074` | fix(I/X12): root html lang+dir follow the active locale (was hardcoded ar/rtl) |
+| 26 | `5ab5bee` | RESOLVED | `5ab5bee` | fix(web-security): bookings BFF idempotency + compare route CSRF gate |
+| 27 | `612c84a` | RESOLVED | `612c84a` | fix(B): close 20 critical security holes across backend/mobile/web |
+| 28 | `6237429` | RESOLVED | `6237429` | feat(F): family bookings verified, GDPR export live, data-rights buttons wired |
+| 29 | `6aa7f3f` | RESOLVED | `6aa7f3f` | docs: provider production plan + admin enterprise plan (standalone sessions) |
+| 30 | `7030535` | RESOLVED | `7030535` | test(enterprise): REAL integration gate 18/18 — boots AdminEnterpriseModule on in-memory Mongo, probes A1→A7 over HTTP |
+| 31 | `74826b3` | RESOLVED | `74826b3` | feat(E): labs/radiology booking funnel + unified coverage mirrors (PH-SERVICE) |
+| 32 | `7ba7501` | RESOLVED | `7ba7501` | feat(P5-P7): vertical lifecycle gate 9/9 — lab sample chain→REPORTED+TAT, radiology coverage/report-phases with enum-valid mirror + secure storage, nursing geofence visit chain, ambulance dispatch→ledger; fixes radiology partial-approval mirror enum |
+| 33 | `8a34ad0` | RESOLVED | `8a34ad0` | feat(F-web): drug compare + advanced search (parity #33) |
+| 34 | `91cf09a` | RESOLVED | `91cf09a` | test(web): align suites with fail-closed CSRF and I-wave1 indexing policy |
+| 35 | `9502dd5` | RESOLVED | `9502dd5` | feat(H+20): REST chat fanout to WS room + monthly health report endpoint |
+| 36 | `9ecbe8c` | RESOLVED | `9ecbe8c` | feat(H-web): web-push enable + notification deep-links (parity #14) |
+| 37 | `9f278b1` | RESOLVED | `9f278b1` | feat(E-web): nursing booking page + BFF payload fix for /home-care/bookings |
+| 38 | `a56321c` | RESOLVED | `a56321c` | docs: completion batch recorded — parity #13/#28/#20/G fully closed; remaining = owner decision + gate J |
+| 39 | `a57a1f0` | RESOLVED | `a57a1f0` | feat(F-web): emergency SOS trigger/cancel + active check (parity #30) |
+| 40 | `aaef7da` | RESOLVED | `aaef7da` | feat(F-web): settings edit — profile patch, language sync, notif prefs (parity #28) |
+| 41 | `b0bd5ef` | RESOLVED | `b0bd5ef` | feat(D): consultations insurance branch per PH-SERVICE governing rules |
+| 42 | `bcbfcbf` | RESOLVED | `bcbfcbf` | feat(A): decisions locked + shared-contracts state machines + CI skeleton |
+| 43 | `c0b000a` | RESOLVED | `c0b000a` | feat(F-web): community — post/vote/comment (parity #31) |
+| 44 | `c0cfbcb` | RESOLVED | `c0cfbcb` | feat(F-web): returns hub — refund request + my refunds (parity #26) |
+| 45 | `c1c14cb` | RESOLVED | `c1c14cb` | feat(G-web): server loyalty redeem-quote on pharmacy pay (G completion) |
+| 46 | `c863f24` | RESOLVED | `c863f24` | feat(F-web): wearables manual entry (parity #32) |
+| 47 | `c92a03b` | RESOLVED | `c92a03b` | docs: admin session review verdict — approved, 4 GO-gate items remain |
+| 48 | `c977233` | RESOLVED | `c977233` | feat(go-gate#3): wire seo_controls into robots()/sitemap() — blocked entity types vanish from sitemap and get explicit Disallow lines |
+| 49 | `d53092e` | RESOLVED | `d53092e` | feat(H-web): chat realtime via socket.io + attachments end-to-end (parity #13 complete) |
+| 50 | `d537e9a` | RESOLVED | `d537e9a` | feat(P2): provider contracts for 7 verticals + 9 governed endpoint DTOs + transition guard (7 unit gates green) |
+| 51 | `db2eb00` | RESOLVED | `db2eb00` | fix(E): booking mirrors actually persist + member_id across labs/radiology/nursing |
+| 52 | `e492929` | RESOLVED | `e492929` | feat(I): SEO unlock wave-1 — public catalog surfaces |
+| 53 | `f10ea7f` | RESOLVED | `f10ea7f` | fix(J-review): hospital-staff ownership write path (strict-mode strip re-broke access) + review verdict with 5 mandatory follow-ups |
+| 54 | `f24e344` | RESOLVED | `f24e344` | feat(H+J): root error boundary mounted, deep-link scheme unified (nabdplus), governing-rules e2e matrix (10 probes) |
+| 55 | `f785924` | RESOLVED | `f785924` | feat(F-web): offers index/detail + patient offers list endpoint (parity #23) |
+
+## 4. تغييرات worktree غير الملتزمة (ليست commits ولا تدخل فرع العزل)
+
+| # | حالة Git | المسار |
+|---:|---|---|
+| 1 | ` M` | `packages/shared-contracts/package.json` |
+| 2 | ` M` | `packages/shared-contracts/src/index.ts` |
+| 3 | `??` | `.DS_Store` |
+| 4 | `??` | `backend/.DS_Store` |
+| 5 | `??` | `packages/shared-contracts/package-lock.json` |
+| 6 | `??` | `packages/shared-contracts/src/patient-contracts.ts` |
+| 7 | `??` | `patient-mobile/.DS_Store` |
+| 8 | `??` | `patient-mobile/app/.DS_Store` |
+| 9 | `??` | `patient-mobile/assets/.DS_Store` |
+| 10 | `??` | `patient-mobile/src/.DS_Store` |
+
+## 5. commits جديدة نُشرت في فرع تقارير المراجعة (11)
 
 هذه وثائق/جداول مراجعة فقط، وليست كود workstation.
 
@@ -106,8 +181,9 @@
 | 8 | `bc9f961` | 2026-08-26T21:58:34+00:00 | docs(review): classify dangling stash provenance |
 | 9 | `516cf12` | 2026-08-26T21:59:33+00:00 | docs(review): mark uncommitted patient contracts as unintegrated |
 | 10 | `e2d24a9` | 2026-08-26T22:01:32+00:00 | docs(review): add main and workstation tree comparison |
+| 11 | `d86625f` | 2026-08-26T22:07:54+00:00 | docs(review): add complete workstation and upload commit catalog |
 
-## 4. commits جديدة نُشرت في فرع عزل المصدر (1)
+## 6. commits جديدة نُشرت في فرع عزل المصدر (1)
 
 هذا فرع عزل لمصدر `HEAD` المتتبع بعد استبعادات معلنة؛ لا يندمج تلقائياً في main.
 
