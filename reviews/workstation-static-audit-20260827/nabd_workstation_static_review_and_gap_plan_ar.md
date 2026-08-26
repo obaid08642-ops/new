@@ -80,6 +80,8 @@
 | P0 السلامة والخصوصية | بعض guards وCSRF وRBAC موثقة؛ ما زالت بوابات consent/QR/emergency/runtime والتدقيق الحي مطلوبة. | **جزئي** |
 | no-go قبل إطلاق عام | وثائق workstation نفسها تبقي staging، e2e، migration، mail proof وقرار redeem. | **متفق مع NO-GO** |
 
+أُنشئ جرد مستقل من **242 صفاً** في `docs/nabd_workstation_screen_evidence_inventory.csv`. وجد الجرد تطابقاً نصياً لمسار أو اسم route في 235 صفاً، لكن كل الصفوف وُسمت `NOT_VERIFIABLE_STATIC`: ظهور token في ملف client أو config لا يثبت CTA أو عقد الخادم أو authorization أو بيانات حقيقة أو loading/error/offline أو اختبار أو دليل تشغيل. لذلك لا يجوز تحويل هذه النسبة إلى نسبة “مكتمل”.
+
 ## 5. تناقضات ووثائق تحتاج تسوية
 
 1. الوثائق تقول “كل المراحل A–J مكتملة”، لكن `REVIEW_VERDICT.md` يذكر بوابات إلزامية واختبارات staging وsoak وrollback قبل GO.
