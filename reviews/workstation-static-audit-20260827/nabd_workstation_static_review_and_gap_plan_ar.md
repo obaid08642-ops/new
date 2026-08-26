@@ -169,3 +169,13 @@
 | 6 | `integration/nabd-admin-<domain>` | Admin UI/operations/finance مقسمة بحسب النطاق | مصدر UI، الفصل المالي، واختبارات الصلاحيات. |
 
 أي حزمة لا تستوفي شرطها تبقى في مساحة مراجعة محلية ساكنة؛ لا ترفع كفرع كود ولا تدمج في `main`.
+
+## 8. حالة الرفع إلى GitHub
+
+| الفرع | HEAD المتحقق | المحتوى | الحالة |
+|---|---|---|---|
+| `main` | `22526bedb77a3d8148219036367e4714f401aecc` | خط الأساس للمشروع | لم يُعدّل في هذه المراجعة. |
+| `review/workstation-static-audit-20260827` | `f3e5bdf5956914ad00bee114efa6d2a89db3ce38` عند وقت التحقق | تقارير وجداول أدلة المراجعة فقط | لا يحتوي مصدر workstation أو أرشيفه. |
+| `catalog-v14-translation-data` | `45be87eac01c93a5da71061b392855f5ec24152a` | `SOURCE_AR_EN.jsonl` و`TRANSLATED_4_LANGUAGES.jsonl` كما طُلِب | موجودان كمؤشري Git LFS، ولم يُعدّل محتواهما. |
+
+لم تُرفع بعد النسخة الموحدة غير المدمرة `cleaned_catalog_v14_six_locales_slug_normalized.jsonl.gz`؛ فهي تتطلب اختيار فرع بيانات مستقل من المالك قبل رفعها عبر Git LFS. لا علاقة لفرع الكتالوج بفرع مراجعة workstation ولا يجوز خلط بيانات الكتالوج بتقارير الكود.
