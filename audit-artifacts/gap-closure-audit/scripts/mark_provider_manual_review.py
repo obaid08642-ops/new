@@ -6,6 +6,7 @@ reviewed = {
     'src/screens/ambulance/AmbulanceDashboard.tsx',
     'src/screens/facility/DischargeSummaryScreen.tsx',
     'src/screens/shared/FleetScreen.tsx',
+    'src/screens/shared/RegistrationSuccess.tsx',
     'src/screens/facility/FacilityAnnouncementsScreen.tsx',
     'src/screens/facility/FacilityInvitationScreen.tsx',
     'src/screens/facility/FacilityResourcesScreen.tsx',
