@@ -133,6 +133,9 @@ reviewed = {
     'app/insurance/submit-claim.tsx',
     'app/payments/processing.tsx',
     'app/wallet/cards.tsx',
+    'app/wallet/topup.tsx',
+    'app/wallet/transfer.tsx',
+    'app/wallet/hub.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
