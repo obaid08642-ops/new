@@ -14,6 +14,7 @@ reviewed = {
     'src/screens/facility/FacilityPatientTrackerScreen.tsx',
     'src/screens/facility/FacilityUnifiedCalendarScreen.tsx',
     'src/screens/doctor/DoctorOpsScreens.tsx',
+    'src/screens/doctor/FacilityInvitationsScreen.tsx',
     'src/screens/doctor/components/DoctorHeader.tsx',
     'src/screens/doctor/components/DoctorStatsRow.tsx',
     'src/screens/doctor/components/DoctorUrgentRequests.tsx',
