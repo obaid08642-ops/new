@@ -168,6 +168,10 @@ reviewed = {
     'app/notifications/index.tsx',
     'app/support/chat.tsx',
     'app/support/ticket.tsx',
+    'app/emergency/index.tsx',
+    'app/emergency/sos-active.tsx',
+    'app/emergency/sos.tsx',
+    'app/emergency/tracking.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
