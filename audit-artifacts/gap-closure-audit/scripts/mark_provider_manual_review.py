@@ -31,6 +31,7 @@ reviewed = {
     'src/screens/auth/PendingDashboard.tsx',
     'src/screens/lab/LabQcActions.tsx',
     'src/screens/lab/LabDashboard.tsx',
+    'src/screens/lab/LabRegistration.tsx',
     'src/screens/nursing/NursingFieldOps.tsx',
     'src/screens/pharmacy/PharmacyDashboard.tsx',
     'src/screens/shared/BlueprintScreens.tsx',
