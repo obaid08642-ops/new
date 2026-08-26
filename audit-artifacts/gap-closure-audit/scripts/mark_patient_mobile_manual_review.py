@@ -179,6 +179,14 @@ reviewed = {
     'app/maternity/maternity-setup.tsx',
     'app/maternity/ovulation-tracker.tsx',
     'app/maternity/pregnancy-tracker.tsx',
+    'app/mental-health/breathing.tsx',
+    'app/mental-health/crisis-support.tsx',
+    'app/mental-health/hub.tsx',
+    'app/mental-health/index.tsx',
+    'app/mental-health/meditation.tsx',
+    'app/mental-health/mood-journal.tsx',
+    'app/mental-health/self-assessment.tsx',
+    'app/mental-health/therapist-match.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
