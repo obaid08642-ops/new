@@ -1,0 +1,82 @@
+# X2 fix: previous prod compose was broken twice — MONGO_URI (code reads
+# MONGO_URL) and port 3000 mapped while the app listens on PORT (default 8002).
+# Also adds healthchecks, resource limits, mongo auth, and secret-file friendly env.
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: nabdah_backend_prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=8002
+      - MONGO_URL=mongodb://mongo:27017/nabdah
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - MOYASAR_SECRET_KEY=${MOYASAR_SECRET_KEY:-}
+      - MOYASAR_API_KEY=${MOYASAR_API_KEY:-}
+    ports:
+      - "8002:8002"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8002/api/v1/health/liveness"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: '1.0'
+    networks:
+      - nabdah_network
+
+  mongo:
+    image: mongo:6.0
+    container_name: nabdah_mongo_prod
+    restart: always
+    # Auth enabled; root credentials MUST be provided via .env (never committed)
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-nabd}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:?set_MONGO_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - nabdah_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: nabdah_redis_prod
+    restart: always
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?set_REDIS_PASSWORD}"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - nabdah_network
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  nabdah_network:
+    driver: bridge

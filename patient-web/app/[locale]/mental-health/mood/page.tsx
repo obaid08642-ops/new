@@ -1,0 +1,13 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { CalendarDays, ChevronLeft, HeartPulse, ShieldCheck } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { parseMoodHistory } from "@/lib/api/mood";
+import { getPatientMoodHistory } from "@/lib/api/mood-server";
+import { requirePatientAccess } from "@/lib/auth/session";
+import { isLocale } from "@/lib/i18n";
+import { RetryButton } from "@/components-next/retry-button";
+import { HealthLogForm } from "@/components-next/health-log-form";
+import styles from "../mental-health.module.css";
+type Props={params:Promise<{locale:string}>};
+export default async function MoodHistoryPage({params}:Props){const {locale}=await params;if(!isLocale(locale))notFound();setRequestLocale(locale);const t=await getTranslations("MentalHealth");const token=await requirePatientAccess(locale);const response=await getPatientMoodHistory(token);if(response.status===401)redirect(`/${locale}/login`);if(response.status===403||response.status===404)notFound();if(!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("moodHistoryUnavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const entries=parseMoodHistory(await response.json().catch(()=>null));return <main className="main"><Link className={styles.back} href={`/${locale}/mental-health`}><ChevronLeft size={17} aria-hidden="true"/>{t("moodBack")}</Link><section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true"/>{t("moodEyebrow")}</p><h1>{t("moodHistoryTitle")}</h1><p>{t("moodHistoryNotice")}</p></section><HealthLogForm endpoint="/api/mental-health/mood" kind="mood" />{entries.length?<section className={styles.grid} aria-label={t("moodHistoryTitle")}>{entries.map((entry)=><article className={styles.card} key={entry.id}><HeartPulse size={21} aria-hidden="true"/><strong>{entry.mood||t("moodUnavailable")}</strong>{entry.energy!==undefined?<span>{t("energy")}: {entry.energy}</span>:null}{entry.stress!==undefined?<span>{t("stress")}: {entry.stress}</span>:null}{entry.sleepHours!==undefined?<span>{t("sleepHours")}: {entry.sleepHours}</span>:null}{entry.loggedAt?<span><CalendarDays size={13} aria-hidden="true"/> {new Intl.DateTimeFormat(locale,{dateStyle:"medium"}).format(new Date(entry.loggedAt))}</span>:null}</article>)}</section>:<section className={styles.state}><HeartPulse size={25} aria-hidden="true"/><p>{t("moodHistoryEmpty")}</p></section>}</main>}

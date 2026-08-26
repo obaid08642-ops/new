@@ -1,0 +1,58 @@
+name: CI
+on:
+  push:
+    branches: [release/patient-production]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: backend/package-lock.json }
+      - run: npm ci
+        working-directory: backend
+      - run: npx tsc -p tsconfig.json --noEmit
+        working-directory: backend
+      - name: Boot test
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          MONGO_URL: mongodb://localhost:27017/nabd_ci
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: ci_secret_value_at_least_32_characters_long!
+          ALLOWED_ORIGINS: http://localhost:3000
+        run: npm run build && node dist/main.js & sleep 15 && curl -sf http://localhost:8002/api/v1/health/liveness || (sleep 10 && curl -sf http://localhost:8002/api/v1/health/liveness)
+      - services: {}
+  shared-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npx tsc --noEmit --strict packages/shared-contracts/src/index.ts
+
+  patient-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: corepack enable && pnpm i --frozen-lockfile || pnpm i
+        working-directory: patient-web
+      - run: pnpm build
+        working-directory: patient-web
+        env:
+          NABD_API_BASE_URL: https://api.nabd.plus/api/v1
+
+  patient-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --legacy-peer-deps
+        working-directory: patient-mobile
+      - run: npx expo-doctor || true
+        working-directory: patient-mobile

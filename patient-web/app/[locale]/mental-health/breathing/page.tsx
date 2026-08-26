@@ -1,0 +1,13 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { Activity, CalendarDays, ChevronLeft, Clock3, ShieldCheck } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { parseBreathingHistory } from "@/lib/api/breathing";
+import { getPatientBreathingHistory } from "@/lib/api/breathing-server";
+import { requirePatientAccess } from "@/lib/auth/session";
+import { isLocale } from "@/lib/i18n";
+import { RetryButton } from "@/components-next/retry-button";
+import { SessionLogForm } from "@/components-next/session-log-form";
+import styles from "../mental-health.module.css";
+type Props={params:Promise<{locale:string}>};
+export default async function BreathingHistoryPage({params}:Props){const {locale}=await params;if(!isLocale(locale))notFound();setRequestLocale(locale);const t=await getTranslations("MentalHealth");const token=await requirePatientAccess(locale);const response=await getPatientBreathingHistory(token);if(response.status===401)redirect(`/${locale}/login`);if(response.status===403||response.status===404)notFound();if(!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("breathingUnavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton/></section></main>;const sessions=parseBreathingHistory(await response.json().catch(()=>null));return <main className="main"><Link className={styles.back} href={`/${locale}/mental-health`}><ChevronLeft size={17} aria-hidden="true"/>{t("breathingBack")}</Link><section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true"/>{t("breathingEyebrow")}</p><h1>{t("breathingTitle")}</h1><p>{t("breathingNotice")}</p></section>{sessions.length?<section className={styles.grid} aria-label={t("breathingTitle")}>{sessions.map((session)=><article className={styles.card} key={session.id}><Activity size={21} aria-hidden="true"/><strong>{session.technique||t("techniqueUnavailable")}</strong>{session.rounds!==undefined?<span>{t("rounds")}: {session.rounds}</span>:null}{session.durationSeconds!==undefined?<span><Clock3 size={13} aria-hidden="true"/> {t("durationSeconds")}: {session.durationSeconds}</span>:null}{session.loggedAt?<span><CalendarDays size={13} aria-hidden="true"/> {new Intl.DateTimeFormat(locale,{dateStyle:"medium"}).format(new Date(session.loggedAt))}</span>:null}</article>)}</section>:<section className={styles.state}><Activity size={25} aria-hidden="true"/><p>{t("breathingEmpty")}</p></section>}<SessionLogForm kind="breathing"/></main>}
