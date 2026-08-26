@@ -15,6 +15,11 @@ reviewed = {
     'app/consultations/call-history.tsx',
     'app/consultations/clinic-confirm.tsx',
     'app/consultations/home-visit-tracking.tsx',
+    'app/consultations/appointments.tsx',
+    'app/consultations/doctor/[id].tsx',
+    'app/consultations/incoming-call.tsx',
+    'app/consultations/summary.tsx',
+    'app/consultations/prescription-from-doctor.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
