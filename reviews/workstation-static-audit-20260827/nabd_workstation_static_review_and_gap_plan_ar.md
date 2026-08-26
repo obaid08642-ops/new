@@ -76,6 +76,8 @@
 
 هذه ملفات حساسة لعقود المنتجات والرعاية. لا يجوز إضافتها تلقائياً إلى أي commit أو دمجها قبل: DTO ownership review، توافق server schemas، اختبار transitions، وتحديد package manager واحد.
 
+كما أن البحث الساكن في `backend` و`patient-web` و`patient-mobile` و`packages` لم يجد أي استعمال فعلي لهذه الـDTOs الجديدة خارج الملف نفسه وexport في `index.ts`. لذلك هي **تعريفات معزولة غير ملتزمة** لا تكاملاً قائماً؛ كما أنها تقبل من العميل حقولاً حساسة مثل `patientId` وأسعار/مبالغ. يلزم فصل request DTOs الخاضعة للتحقق الخادمي عن response/view DTOs، مع اشتقاق patient identity والسعر وقرار التغطية في الخادم حصراً.
+
 ### 3.4 CI لا يكفي كدليل بوابة إنتاج
 
 ملف `.github/workflows/ci.yml` يبني backend وpatient-web، لكنه لا يشغّل test suite المعلن كاملاً؛ boot test يعلن Redis/Mongo محليين من دون service مهيأ، وpatient-mobile يستخدم `npm install` ثم يتجاهل فشل `expo-doctor` ولا يشغّل typecheck أو tests. كما أن `pnpm i --frozen-lockfile || pnpm i` يسمح بتجاوز القفل عند الفشل.
