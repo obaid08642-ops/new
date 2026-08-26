@@ -53,6 +53,13 @@ reviewed = {
     'app/pharmacy/product-search.tsx',
     'app/pharmacy/scan-prescription.tsx',
     'app/pharmacy/wishlist.tsx',
+    'app/(tabs)/diagnostics.tsx',
+    'app/diagnostics/cart.tsx',
+    'app/diagnostics/checkout.tsx',
+    'app/diagnostics/booking-confirm.tsx',
+    'app/diagnostics/insurance-upload.tsx',
+    'app/diagnostics/insurance-approval.tsx',
+    'app/diagnostics/order/[id].tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
