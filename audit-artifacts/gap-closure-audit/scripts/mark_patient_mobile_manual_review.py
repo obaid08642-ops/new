@@ -131,6 +131,8 @@ reviewed = {
     'app/insurance/policy-detail.tsx',
     'app/insurance/refund-status.tsx',
     'app/insurance/submit-claim.tsx',
+    'app/payments/processing.tsx',
+    'app/wallet/cards.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
