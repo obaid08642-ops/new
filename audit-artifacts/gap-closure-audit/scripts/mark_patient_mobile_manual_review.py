@@ -141,6 +141,18 @@ reviewed = {
     'app/wallet/hub.tsx',
     'app/wallet/transactions.tsx',
     'app/orders/index.tsx',
+    'app/family/calendar.tsx',
+    'app/family/chat.tsx',
+    'app/family/emergency-contacts.tsx',
+    'app/family/hub.tsx',
+    'app/family/index.tsx',
+    'app/family/invite.tsx',
+    'app/family/join.tsx',
+    'app/family/member-health.tsx',
+    'app/family/permission-request.tsx',
+    'app/family/permissions.tsx',
+    'app/family/scan.tsx',
+    'app/family/shared-calendar.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
