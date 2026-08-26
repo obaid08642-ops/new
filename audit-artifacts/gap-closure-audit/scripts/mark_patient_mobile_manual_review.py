@@ -172,6 +172,13 @@ reviewed = {
     'app/emergency/sos-active.tsx',
     'app/emergency/sos.tsx',
     'app/emergency/tracking.tsx',
+    'app/maternity/baby-development.tsx',
+    'app/maternity/baby-growth.tsx',
+    'app/maternity/fetus-data.ts',
+    'app/maternity/hub.tsx',
+    'app/maternity/maternity-setup.tsx',
+    'app/maternity/ovulation-tracker.tsx',
+    'app/maternity/pregnancy-tracker.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
