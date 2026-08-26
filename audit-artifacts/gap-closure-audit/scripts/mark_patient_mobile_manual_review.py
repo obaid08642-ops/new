@@ -237,6 +237,7 @@ reviewed = {
     'app/wearables/hub.tsx',
     'app/ai-assistant.tsx',
     'app/index.tsx',
+    'app/search/index.tsx',
 }
 
 lines = path.read_text(encoding='utf-8').splitlines()
