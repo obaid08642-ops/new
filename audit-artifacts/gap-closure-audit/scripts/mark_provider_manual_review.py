@@ -4,6 +4,7 @@ root = Path('/tmp/nabd-main-audit/audit-artifacts/gap-closure-audit')
 path = root / 'PROVIDER_SCREEN_ACTION_SCENARIO_INVENTORY_2026-08-26.tsv'
 reviewed = {
     'src/screens/ambulance/AmbulanceDashboard.tsx',
+    'src/screens/ambulance/AmbulanceRegistration.tsx',
     'src/screens/facility/DischargeSummaryScreen.tsx',
     'src/screens/shared/FleetScreen.tsx',
     'src/screens/shared/RegistrationSuccess.tsx',
