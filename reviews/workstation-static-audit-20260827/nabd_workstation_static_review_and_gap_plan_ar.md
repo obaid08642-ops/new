@@ -25,10 +25,23 @@
 | حجم الأرشيف | 518,529,938 بايت؛ 116,450 إدخال؛ 6,087 إدخالات بعد استبعاد التبعيات وbuild artifacts. |
 | مسار Git | `release/patient-production` عند `51a84c7`. |
 | البذرة المعلنة | `4194495` يقول إنه بُني من `main@22526be`، وهو ancestor للرأس؛ توجد 77 commit بعده و250 ملفاً متغيراً (+15,879 / -283). |
-| الالتزامات المعلنة | تحقق 54 من 55 معرفاً جرى فحصها؛ المعرف `2c6ccca` غير موجود، بينما سجل Git يحوي 78 commit إجمالاً لا 63 فقط. |
+| الالتزامات المعلنة | السرد يذكر 55 معرفاً مميزاً: حُلّ 53 إلى commits فعلية داخل workstation، بينما `22526be` هو main الخارجي غير الموجود ككائن في الأرشيف و`2c6ccca` غير موجود. سجل Git يحوي 78 commit إجمالاً، و77 بعد البذرة، لا 63 فقط. |
 | التغيير حسب المكوّن | backend: 85 ملفاً، patient-web: 136، patient-mobile: 15، packages: 5، CI: ملف واحد، root/docs: 8. |
 | مصدر Provider | لا يوجد داخل الأرشيف؛ لا يمكن تأكيد P1–P9 أو الـE2E الخاصة به. |
 | main المستقل | مرجع GitHub `main@22526bedb77a3d8148219036367e4714f401aecc` جُرد بصورة منفصلة؛ الاختلاف التاريخي يمنع `git diff` موثوقاً مباشراً مع workstation. |
+
+### 2.1 جرد كامل للمصدر ودفتر commits
+
+قُرئت bytes وmetadata لكل ملف مصدر/تكوين/توثيق متاح بعد استبعاد dependencies وbuild artifacts، من دون تشغيل أي ملف. النتيجة **1,842 ملفاً** مفهرساً و**77 commit** بعد البذرة. الملفات التالية هي سجل الأدلة القابل للتدقيق:
+
+| الملف | الغرض | حد الإثبات |
+|---|---|---|
+| `nabd_workstation_source_file_inventory.csv` | hash وحجم ومسار كل واحد من 1,842 ملفاً | يثبت وجود البايتات فقط. |
+| `nabd_workstation_commit_inventory.csv` | كل commit وتاريخه ومساراته المتغيرة وعلاقته بالسرد | يثبت تغيّر Git فقط. |
+| `nabd_workstation_narrative_commit_resolution.csv` | حسم 55 معرفاً مذكوراً في النصوص | لا يجعل ادعاء العنوان صحيحاً وظيفياً. |
+| `nabd_workstation_per_commit_static_evidence_ar.md` | 77 صفاً تفصيلياً: عنوان الادعاء، الملفات، وnumstat | لا يثبت integration أو authz أو runtime أو production. |
+
+تُظهر آثار المصدر وجود عمل متتبع في عقود مشتركة، backend، صفحات/BFF الويب، تدفقات mobile، اختبارات، وCI/configuration. أمّا Provider فلا يظهر في الجرد لأنه غير موجود فعلياً. لا يجوز اعتبار ظهور صفحة أو route أو test artefact إغلاقاً لمتطلب Nabd؛ لذلك تبقى الأحكام الوظيفية وقرارات الدمج محكومة بالبوابات في هذا التقرير.
 
 ## 3. عوائق حرجة قابلة لإعادة التحقق
 
@@ -82,6 +95,19 @@
 
 أُنشئ جرد مستقل من **242 صفاً** في `docs/nabd_workstation_screen_evidence_inventory.csv`. وجد الجرد تطابقاً نصياً لمسار أو اسم route في 235 صفاً، لكن كل الصفوف وُسمت `NOT_VERIFIABLE_STATIC`: ظهور token في ملف client أو config لا يثبت CTA أو عقد الخادم أو authorization أو بيانات حقيقة أو loading/error/offline أو اختبار أو دليل تشغيل. لذلك لا يجوز تحويل هذه النسبة إلى نسبة “مكتمل”.
 
+### 4.1 خريطة الأدلة بحسب بوابات Nabd
+
+| بوابة Nabd | آثار مصدر مرصودة في commits | ما لا يثبته ذلك | الحكم |
+|---|---|---|---|
+| P0 foundation: contracts/IAM/audit/finance | commits مثل `bcbfcbf` للعقود وCI، و`3e9f8e9` لـRBAC/audit/disputes، و`20c6f2b` لخدمات command-center. | صحة الملكية، فصل الصلاحيات، ledger/PSP/payer، تكامل الأدوار، وتشغيل الاختبارات. | **جزئي؛ محجوب عن GO** |
+| P0 pharmacy/booking/insurance | آثار backend/mobile/web في `2610216` و`151dbef` و`b0bd5ef` و`0535f68` و`db2eb00`. | التسعير الخادمي، idempotency، payer/PSP، reconciliation، والـE2E. | **جزئي؛ لا قبول وظيفي** |
+| P0 privacy/security | تغييرات guards/CSRF/BFF وأدوات privacy مذكورة في `612c84a` و`5ab5bee` و`91cf09a`. | threat model، اختبارات negative/replay/BOLA، consent/data-rights runtime، وتدقيق مستقل. | **جزئي؛ لا قبول أمني** |
+| P0-SAFETY: AI/emergency/medication scanning | صفحات/مسارات مرتبطة بأدوات AI وSOS والمسح الدوائي في `3dde1e7` و`17e22bc` و`a57a1f0`. | safety pack، clinical owner، human escalation، drill، ودقة ادعاءات طبية. | **محجوب حتى دليل سلامة مستقل** |
+| P1 patient experience | أدلة ساكنة لصفحات/BFF family، vitals، maternity، nutrition، community، wearables، loyalty، chat، settings في دفعات parity متعددة. | جودة التجربة، حالات الفشل/offline، data source، الموافقة، وaccessibility. | **مصدر جزئي متتبع فقط** |
+| Provider P1–P9 | وثائق وعناوين commits وملفات backend مشتركة تدّعي endpoints/gates. | لا يمكن قراءة تطبيق Provider أو شاشاته أو اختباراته بسبب الرابط الرمزي المكسور. | **غير قابل للتحقق** |
+| Admin audit-first | توجد آثار backend enterprise/RBAC/segments/command center؛ لا يوجد مصدر Admin UI مستقل كامل. | شاشات الإدارة، MFA، tenant isolation، approvals، privacy/finance operations. | **جزئي/غير قابل للتحقق** |
+| operations & production | `.github/workflows/ci.yml` وcompose وأداة mail smoke موجودة كملفات. | نجاح CI، صحة compose، staging، مراقبة، rollback وsoak. | **محجوب؛ compose متناقض** |
+
 ## 5. تناقضات ووثائق تحتاج تسوية
 
 1. الوثائق تقول “كل المراحل A–J مكتملة”، لكن `REVIEW_VERDICT.md` يذكر بوابات إلزامية واختبارات staging وsoak وrollback قبل GO.
@@ -126,3 +152,20 @@
 ## 7. توصية الدمج
 
 **لا cherry-pick آلياً**: تاريخ workstation لا يحتوي كائن commit لمرجع main الحالي، لذلك لا يوجد ancestry مشترك مثبت. بعد P0/P1، تنقل تغييرات صغيرة ومراجعة يدوياً إلى branch جديد مبني من `main`، وفق ترتيب: إصلاحات بنية ونشر → عقود واختبارات → backend policies → patient BFF/screens → Provider/Admin بعد وصول المصدر → staging evidence. كل حزمة تحتاج review مستقل وCI صالح.
+
+### قرار الفروع
+
+لا يُرفع **كامل** مصدر workstation إلى فرع جديد في هذه المرحلة. فرفع النسخة الخام كما هي سيحوّل رابط Provider المفقود والتعديلات غير الملتزمة والتناقضات التشغيلية إلى تاريخ remote يبدو قابلاً للدمج وهو ليس كذلك. الفرع البعيد الوحيد الحالي للمادة الناتجة من المراجعة هو `review/workstation-static-audit-20260827`، ويحتوي وثائق وأدلة مراجعة فقط ولا يحتوي كود workstation.
+
+بعد إغلاق P0 وP1، يُنشأ كل فرع كـ**فرع جديد من `main`**، لا من workstation، ويحتوي حزمة واحدة قابلة للمراجعة. الترتيب المقترح هو:
+
+| ترتيب | اسم فرع مقترح | محتوى مسموح | شرط فتحه |
+|---:|---|---|---|
+| 1 | `integration/nabd-compose-ci-hardening` | تصحيح compose/CI وhealth checks فقط | إثبات env/auth محلي موثق وCI fail-closed. |
+| 2 | `integration/nabd-shared-contracts-review` | عقود مشتركة محددة واختباراتها فقط | قرار package manager، مراجعة DTO ownership وtransition tests. |
+| 3 | `integration/nabd-backend-security-policy` | guards/RBAC/CSRF/audit policy مع negative tests | threat review وBOLA/replay/idempotency tests. |
+| 4 | `integration/nabd-patient-web-<domain>` | مجال مريض واحد في كل مرة: pharmacy أو booking أو chat… | evidence matrix مكتمل لكل CTA في المجال. |
+| 5 | `integration/nabd-provider-<domain>` | لا يبدأ قبل وصول مصدر Provider الكامل | حزمة Provider قابلة للتدقيق واختبارات tenant/role. |
+| 6 | `integration/nabd-admin-<domain>` | Admin UI/operations/finance مقسمة بحسب النطاق | مصدر UI، الفصل المالي، واختبارات الصلاحيات. |
+
+أي حزمة لا تستوفي شرطها تبقى في مساحة مراجعة محلية ساكنة؛ لا ترفع كفرع كود ولا تدمج في `main`.
