@@ -24,12 +24,14 @@ describe('InsuranceFlowService', () => {
   let requests: any;
   let transactions: any;
   let orders: any;
+  let appointments: any;
 
   beforeEach(() => {
     requests = { findOne: jest.fn(), create: jest.fn(async (data) => makeDoc(data)) };
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
-    service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, {} as any, {} as any, {} as any, {} as any);
+    appointments = { updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
+    service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, {} as any, {} as any, {} as any, appointments);
     jest.clearAllMocks();
   });
 
@@ -56,23 +58,27 @@ describe('InsuranceFlowService', () => {
   });
 
   describe('decide', () => {
-    it('approve_full → APPROVED_FULL with zero copay', async () => {
+    it('approve_full → APPROVED_FULL with zero copay and confirms an owned pending consultation without a payment', async () => {
       const req = pendingReq();
+      req.booking_kind = 'consultation'; req.booking_id = 'appt-1'; req.insurance_request_id = 'req-1';
       requests.findOne.mockResolvedValue(req);
       const res = await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_full' });
       expect(res.state).toBe('APPROVED_FULL');
       expect(res.copay_amount).toBe(0);
       expect(req.save).toHaveBeenCalled();
+      expect(appointments.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'appt-1', patient_id: 'pat-1', insurance_request_id: 'req-1', status: 'PENDING' }), expect.objectContaining({ $set: expect.objectContaining({ status: 'CONFIRMED', insurance_review_state: 'SETTLED' }) }));
       expect(events.emit).toHaveBeenCalledWith('insurance.decided', expect.objectContaining({ request_id: 'req-1', state: 'APPROVED_FULL' }));
     });
 
     it('approve_partial computes copay = price × percent', async () => {
       const req = pendingReq();
+      req.booking_kind = 'consultation'; req.booking_id = 'appt-1'; req.insurance_request_id = 'req-1';
       requests.findOne.mockResolvedValue(req);
       const res = await service.decide({ id: 'prov-1', role: 'doctor' }, 'req-1', { decision: 'approve_partial', copay_percent: 20 });
       expect(res.state).toBe('COPAY_PENDING');
       expect(res.copay_percent).toBe(20);
       expect(res.copay_amount).toBe(50); // 250 × 20%
+      expect(appointments.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'appt-1', status: 'PENDING' }), { $set: { insurance_review_state: 'DECIDED' } });
     });
 
     it.each([0, -5, 100, 150, NaN])('approve_partial rejects invalid copay_percent %p', async (pct) => {
@@ -130,13 +136,11 @@ describe('InsuranceFlowService', () => {
   });
 
   describe('payCopay (BR-2.5→2.6)', () => {
-    it('APPROVED_FULL → COPAY_PAID without payment', async () => {
+    it('APPROVED_FULL rejects a synthetic copay payment', async () => {
       const req = pendingReq();
       req.state = 'APPROVED_FULL';
       requests.findOne.mockResolvedValue(req);
-      const res = await service.payCopay({ id: 'pat-1' }, 'req-1', {});
-      expect(res.state).toBe('COPAY_PAID');
-      expect(events.emit).toHaveBeenCalledWith('insurance.copay.paid', expect.objectContaining({ request_id: 'req-1' }));
+      await expect(service.payCopay({ id: 'pat-1' }, 'req-1', {})).rejects.toThrow('no_copay_due');
     });
 
     it('COPAY_PENDING requires a payment id that is verified against the owned insurance request', async () => {
@@ -148,13 +152,14 @@ describe('InsuranceFlowService', () => {
 
     it('COPAY_PENDING + matching paid transaction → COPAY_PAID with timestamp', async () => {
       const req = pendingReq();
-      req.state = 'COPAY_PENDING'; req.copay_amount = 50;
+      req.state = 'COPAY_PENDING'; req.copay_amount = 50; req.booking_kind = 'consultation'; req.booking_id = 'appt-1'; req.insurance_request_id = 'req-1';
       requests.findOne.mockResolvedValue(req);
       transactions.findOne.mockReturnValue({ lean: async () => ({ id: 'tx-123', patient_id: 'pat-1', booking_kind: 'insurance', booking_id: 'req-1', amount: 50, status: 'paid' }) });
       const res = await service.payCopay({ id: 'pat-1' }, 'req-1', { payment_id: 'tx-123' });
       expect(res.state).toBe('COPAY_PAID');
       expect(res.payment_id).toBe('tx-123');
       expect(res.copay_paid_at).toBeDefined();
+      expect(appointments.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'appt-1', patient_id: 'pat-1', insurance_request_id: 'req-1', status: 'PENDING' }), expect.objectContaining({ $set: expect.objectContaining({ status: 'CONFIRMED', insurance_review_state: 'SETTLED' }) }));
     });
 
     it('rejects a client-supplied payment id that is not a matching paid copay transaction', async () => {
