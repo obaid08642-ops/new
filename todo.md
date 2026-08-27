@@ -14,7 +14,7 @@
 - [ ] Implement missing Patient Mobile pharmacy and shared patient-flow screens to the same approved functional contract.
 - [ ] Verify Web/Mobile action parity, accessibility, authorization, idempotency, and responsive/native presentation against the accepted matrix.
 - [ ] Split completed work into reviewable branches and pull requests, obtain CI evidence, and prepare an auditor-ready change ledger without self-merging or deploying.
-- [ ] Remove the discovered in-process `setInterval` polling from Patient Mobile broadcast status and replace it with an explicit, user-driven refresh compatible with the governed expiry policy.
+- [x] Remove the discovered in-process `setInterval` polling from Patient Mobile broadcast status and replace it with an explicit, user-driven refresh compatible with the governed expiry policy.
 - [x] Implement the governed pharmacy broadcast, offer comparison, patient selection, negotiation, final-quote, cash/COD, and insurance decision presentation in Patient Web; the current cart checkout is not a substitute for this flow. Gateway client-secret rendering remains explicitly unavailable until the gateway configuration supports a documented browser flow.
 - [x] Extend the Patient Web proxy through an explicit pharmacy-only mutation allowlist with safe JSON body forwarding and required `Idempotency-Key` propagation before adding patient actions.
 - [x] Add a privacy-bounded Patient Web pharmacy order/offer adapter and a server-rendered broadcast-status route before enabling the patient selection action.
@@ -41,6 +41,7 @@
 - [x] Add Patient Mobile final-quote acceptance from the selected server snapshot and register COD only when explicitly eligible; do not create payment before quote acceptance.
 - [x] Add Patient Mobile per-item insurance decision presentation and explicit co-pay or self-pay acceptance from server capabilities; render fully covered insurance without a payment action.
 - [x] Replace Patient Mobile pharmacy checkout legacy order creation, client prices, pre-selection payment choice, coupon, and local loyalty quote with idempotent governed draft creation then broadcast submission; retain points only as a server-side discount after a selected quote.
+- [x] Replace Patient Mobile pharmacy waiting-screen polling, simulated radar state, and legacy cancellation endpoint with a governed order snapshot, explicit refresh, idempotent cancellation, and routing to governed offers.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
