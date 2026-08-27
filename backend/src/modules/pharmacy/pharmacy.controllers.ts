@@ -10,6 +10,7 @@ import { PharmacyBroadcastService } from './services/pharmacy-broadcast.service'
 import { PharmacyChatService } from './services/pharmacy-chat.service';
 import { PharmacyShortageService } from './services/pharmacy-shortage.service';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
+import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { isProviderRole } from '../../common/enums';
 
 // =========================================================================
@@ -19,13 +20,15 @@ import { isProviderRole } from '../../common/enums';
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
-  constructor(private orders: PharmacyOrderService) {}
+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService) {}
   @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
   @Patch('orders/:id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
   @Post('orders/:id/submit') submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
+  @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listPatientOffers(u, id); }
+  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: { coverage_mode?: 'cash' | 'insurance' }) { return this.offers.selectOffer(u, id, offerId, b?.coverage_mode === 'insurance' ? 'insurance' : 'cash'); }
 }
 
 // =========================================================================
@@ -141,11 +144,12 @@ export class AdminPharmacyController {
 @Controller('provider/pharmacy/broadcasts')
 @UseGuards(JwtAuthGuard)
 export class ProviderBroadcastController {
-  constructor(private bc: PharmacyBroadcastService) {}
+  constructor(private bc: PharmacyBroadcastService, private offers: PharmacyOfferService) {}
   @Get() list(@CurrentUser() u: any) { return this.bc.listForPharmacy(u); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.bc.detail(u, id); }
   @Post(':orderId/i-have-all') haveAll(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.claimHaveAll(u, oid, b); }
   @Post(':orderId/i-have-partial') havePartial(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondPartial(u, oid, b); }
+  @Post(':orderId/offers') submitOffer(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.offers.submitOffer(u, oid, b); }
   @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
 }
 

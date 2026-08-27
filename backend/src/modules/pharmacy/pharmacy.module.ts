@@ -4,7 +4,7 @@ import { AiModule } from '../ai/ai.module';
 import {
   PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
   PharmacySubstituteMapSchema, PharmacyLowStockAlertSchema,
-  PharmacyBroadcastSchema, PharmacyChatThreadSchema, PharmacyChatMessageSchema,
+  PharmacyBroadcastSchema, PharmacyOfferSchema, PharmacyChatThreadSchema, PharmacyChatMessageSchema,
   DrugShortageFlagSchema,
 } from './schemas/pharmacy.schema';
 import { SystemConfig, SystemConfigSchema } from '../../schemas/system-config.schema';
@@ -35,6 +35,7 @@ import {
   ProviderShortageController, AdminShortageController, PatientShortageController,
 } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
+import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
 import { ProviderModule } from '../provider/provider.module';
@@ -70,6 +71,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
       { name: 'PharmacySubstituteMap', schema: PharmacySubstituteMapSchema },
       { name: 'PharmacyLowStockAlert', schema: PharmacyLowStockAlertSchema },
       { name: 'PharmacyBroadcast', schema: PharmacyBroadcastSchema },
+      { name: 'PharmacyOffer', schema: PharmacyOfferSchema },
       { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
       { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
       { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
@@ -97,6 +99,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     PharmacyChatService,
     PharmacyShortageService,
     PharmacyOrdersProviderService,
+    PharmacyOfferService,
     ProcurementService,
     GeoEngineService,
     { provide: "DrugRejectionLogRepository", useClass: DrugRejectionLogRepository },
