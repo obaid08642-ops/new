@@ -37,6 +37,7 @@
 - [x] Replace Patient Mobile broadcast-status legacy bids polling with a manual-refresh governed offer list and idempotent cash or insurance offer selection.
 - [x] Replace Patient Mobile pharmacy order-tracking polling and legacy tracking endpoint with the governed pharmacy order state and manual refresh; post-selection actions remain tracked as separate screens below.
 - [x] Replace Patient Mobile pharmacy payment legacy order and intent routes, generic digital-wallet copy, and processing hand-off with final-quote and insurance state gates plus server payment capabilities and only validated checkout redirects.
+- [x] Add Patient Mobile pharmacy negotiation thread and substitute-decision screens using the governed pharmacy-chat endpoints and idempotency keys, with no direct price or order-item mutation and no polling.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
