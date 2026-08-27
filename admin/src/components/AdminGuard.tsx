@@ -34,8 +34,9 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/admin/gdpr', label: 'خصوصية البيانات', permission: 'gdpr.manage' },
       { href: '/admin/content-growth', label: 'المحتوى والنمو', permission: 'cms.edit' },
       { href: '/admin/home-curation', label: 'ترتيب الصفحة الرئيسية', permission: 'cms.edit' },
-      { href: '/admin/medicines-catalog', label: 'حوكمة الكتالوج' },
+      { href: '/admin/catalog-governance', label: 'حوكمة الكتالوج' },
       { href: '/admin/users-management', label: 'إدارة المستخدمين' },
+      { href: '/admin/impersonation', label: 'جلسات الدعم المقيّدة', permission: 'user.impersonate' },
     ],
   },
   {

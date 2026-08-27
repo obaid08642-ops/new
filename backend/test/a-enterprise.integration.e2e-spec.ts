@@ -99,6 +99,7 @@ beforeAll(async () => {
 
   tokens.admin1 = await jwt.signAsync({ ...admin1 }, { secret: SECRET });
   tokens.admin2 = await jwt.signAsync({ ...admin2 }, { secret: SECRET });
+  tokens.super_admin = await jwt.signAsync({ id: 'adm_super', role: 'super_admin', full_name: 'المالك الأعلى' }, { secret: SECRET });
   tokens.patient = await jwt.signAsync({ ...patient }, { secret: SECRET });
 
   // ── Seed REAL rows ──
@@ -518,5 +519,20 @@ describe('Enterprise implementation extensions', () => {
     const clientConfig = await request(app.getHttpServer()).get('/api/v1/config').expect(200);
     expect(clientConfig.body.features['new.checkout']).toBe(true);
     expect(clientConfig.body.feature_rollouts['new.checkout']).toBe(25);
+  });
+
+  it('creates a bounded impersonation session for a patient and revokes it with audit', async () => {
+    const started = await (await as('super_admin')).post('/api/v1/admin/impersonation/start').send({
+      user_id: patient.id, minutes: 15, reason: 'تذكرة دعم معتمدة للمريض',
+    }).expect(201);
+    expect(started.body.session_id).toMatch(/^imp_/);
+    expect(started.body.target.id).toBe(patient.id);
+    expect(started.body.token).toEqual(expect.any(String));
+    const active = await (await as('super_admin')).get('/api/v1/admin/impersonation').expect(200);
+    expect(active.body.data.some((row: any) => row.id === started.body.session_id && row.status === 'active')).toBe(true);
+    await (await as('super_admin')).post(`/api/v1/admin/impersonation/${started.body.session_id}/revoke`)
+      .send({ reason: 'انتهاء جلسة الدعم المطلوبة' }).expect(201);
+    const revoked = await (await as('super_admin')).get('/api/v1/admin/impersonation').expect(200);
+    expect(revoked.body.data.find((row: any) => row.id === started.body.session_id)?.status).toBe('revoked');
   });
 });

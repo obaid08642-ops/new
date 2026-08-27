@@ -257,6 +257,13 @@ export class MedicinesController {
     return this.svc.adminSetDeleted(id, !body?.restore, by);
   }
 
+  /** Admin: immutable price history for governance and finance review. */
+  @Get('admin/catalog/:id/price-history')
+  @Roles(UserRole.ADMIN)
+  priceHistory(@Param('id') id: string, @Query('page') page?: string, @Query('limit') limit?: string): Promise<{ data: any[]; total: number; page: number; pages: number }> {
+    return this.svc.getPriceHistory(id, parseInt(page || '1'), parseInt(limit || '50'));
+  }
+
   /** Admin: sales & shortage analytics for the catalog screen. */
   @Get('admin/reports')
   @Roles(UserRole.ADMIN)

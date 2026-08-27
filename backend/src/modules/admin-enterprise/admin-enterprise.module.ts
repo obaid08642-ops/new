@@ -21,6 +21,7 @@ import { AdminOpsController } from './admin-ops.controller';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './command-center-v2.controller';
 import { AdminGovernanceControlsController } from './admin-governance-controls.controller';
+import { AdminImpersonationController } from './admin-impersonation.controller';
 
 /**
  * Enterprise Control Center (ADMIN_ENTERPRISE_PLAN batches A1→A7).
@@ -35,6 +36,7 @@ import { AdminGovernanceControlsController } from './admin-governance-controls.c
   controllers: [
     // ── A1 ──
     AdminSecurityController,
+    AdminImpersonationController,
     AdminDisputesController,
     // ── A2 ──
     AdminOrdersConsoleController,

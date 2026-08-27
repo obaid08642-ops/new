@@ -28,6 +28,7 @@ export class MedicinesService {
 
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
   private get notifications() { return this.conn.collection('notifications'); }
+  private get priceHistory() { return this.conn.collection('medicine_price_history'); }
 
   private async refreshPublicProjection(medicine: any, actorId: string, reason: string) {
     const reviewedAt = medicine?.last_reviewed || medicine?.approved_at || medicine?.updatedAt || new Date();
@@ -1413,6 +1414,7 @@ export class MedicinesService {
       updatedAt: new Date(),
     };
     await this.model.create(doc as any);
+    await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: id, before_price: null, after_price: doc.price, reason: String(body?.reason || 'إنشاء صنف جديد'), changed_by: adminId, createdAt: new Date() });
     this.audit('medicine.admin_create', id, adminId, 'admin', { after: clean });
     await this.invalidateCache();
     return { ok: true, id };
@@ -1432,6 +1434,16 @@ export class MedicinesService {
   }
 
   /** Admin reports: top-selling medicines + most-reported-unavailable. */
+  async getPriceHistory(medicineId: string, page = 1, limit = 50): Promise<{ data: any[]; total: number; page: number; pages: number }> {
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(100, Math.max(1, limit));
+    const [data, total] = await Promise.all([
+      this.priceHistory.find({ medicine_id: medicineId }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).skip((safePage - 1) * safeLimit).limit(safeLimit).toArray(),
+      this.priceHistory.countDocuments({ medicine_id: medicineId }),
+    ]);
+    return { data, total, page: safePage, pages: Math.ceil(total / safeLimit) };
+  }
+
   async adminCatalogReports() {
     const db = this.model.db;
     // Top selling: aggregate delivered/completed pharmacy order items
@@ -1465,6 +1477,10 @@ export class MedicinesService {
     const med: any = await this.getById(medicineId);
     if (!med) throw new NotFoundException('الصنف غير موجود');    const clean = this.pickEditable(patch);
     const extra: any = {};
+    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
+      const priceReason = String(patch?.reason || '').trim();
+      if (priceReason.length < 5) throw new BadRequestException('price_change_reason_required');
+    }
     if (patch?.availability_status !== undefined) {
       const allowed = ['none', 'availability_may_be_limited', 'admin_flagged_shortage', 'discontinued'];
       if (!allowed.includes(patch.availability_status)) throw new BadRequestException('invalid availability_status');
@@ -1490,6 +1506,9 @@ export class MedicinesService {
       provenance: 'admin_direct_edit_pending_review',
     } : {};
     await this.model.updateOne({ id: medicineId }, { $set: { ...clean, ...extra, ...governanceReset, updatedAt: new Date() } });
+    if (clean.price !== undefined && Number(clean.price) !== Number(med.price || 0)) {
+      await this.priceHistory.insertOne({ id: `mph_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`, medicine_id: medicineId, before_price: Number(med.price || 0), after_price: Number(clean.price), reason: String(patch.reason).trim(), changed_by: adminId, createdAt: new Date() });
+    }
     // Physically delete any image the edit removed (main image, gallery
     // entries, image_1..5 slots) from R2 — no orphaned files on the CDN.
     const after = { ...clean, ...extra };
