@@ -16,6 +16,8 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { FraudService } from '../finance-engine/finance-engine.module';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { assertGovernedPharmacyTransition } from '../../common/governed-workflow';
+import { PharmacyOrderState as GovernedPharmacyOrderState } from '@nabd/shared-contracts';
 import * as crypto from 'crypto';
 import { Request } from 'express';
 
@@ -171,7 +173,7 @@ export class PaymentsService {
   }
 
   private pharmacyPaymentSnapshot(booking: any): { amount: number; currency: string; quoteHash: string; quoteRevision: number; method: 'card' | 'apple_pay' | 'google_pay' } {
-    if (!['FINAL_QUOTE_ACCEPTED', 'CO_PAY_PENDING'].includes(booking.governed_state)) {
+    if (!['FINAL_QUOTE_ACCEPTED', 'PAYMENT_PENDING', 'CO_PAY_PENDING'].includes(booking.governed_state)) {
       throw new BadRequestException('pharmacy_quote_not_accepted');
     }
     const snapshot = booking.accepted_quote_snapshot;
@@ -240,6 +242,16 @@ export class PaymentsService {
       method = quote.method;
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
+    const movesToPaymentPending = kind === 'pharmacy' && booking.governed_state === GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED;
+    if (movesToPaymentPending) {
+      const normalizedMethod = normalizeOnlineMethod(booking.payment_method).toUpperCase().replace('_', '_') as 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY';
+      assertGovernedPharmacyTransition(
+        GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED,
+        GovernedPharmacyOrderState.PAYMENT_PENDING,
+        'PATIENT',
+        { paymentMethod: normalizedMethod, paymentMethodEnabled: true },
+      );
+    }
     const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return existing;
 
@@ -256,6 +268,16 @@ export class PaymentsService {
       }
       throw error;
     }
+    if (movesToPaymentPending) {
+      const moved = await M.updateOne(
+        { id, governed_state: GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED },
+        { $set: { governed_state: GovernedPharmacyOrderState.PAYMENT_PENDING, transaction_id: txn.id } },
+      );
+      if (moved?.modifiedCount !== undefined && moved.modifiedCount !== 1) {
+        await this.txns.updateOne({ id: txn.id }, { $set: { status: 'cancelled', failure_reason: 'pharmacy_payment_state_lock_lost' } });
+        throw new BadRequestException('pharmacy_payment_state_lock_lost');
+      }
+    }
     let intent: { intent_id: string; client_secret?: string; checkout_url?: string };
     try {
       intent = await this.adapter.createIntent({ amount, currency, description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind, quote_hash: quoteHash, quote_revision: quoteRevision } });
@@ -264,6 +286,9 @@ export class PaymentsService {
       const reason = error instanceof Error ? error.message : String(error);
       this.logger.error(`Payment gateway intent failed adapter=${this.adapter.name} booking=${id} reason=${reason}`);
       await this.txns.updateOne({ id: txn.id }, { $set: { status: 'failed', failure_reason: 'payment_gateway_unavailable' } });
+      if (movesToPaymentPending) {
+        await M.updateOne({ id, governed_state: GovernedPharmacyOrderState.PAYMENT_PENDING, transaction_id: txn.id }, { $set: { governed_state: GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED }, $unset: { transaction_id: 1 } });
+      }
       throw new BadGatewayException({ code: 'payment_gateway_unavailable', message: 'الدفع غير متاح حالياً' });
     }
     const persisted: any = await this.txns.findOneAndUpdate(
@@ -287,7 +312,24 @@ export class PaymentsService {
       this.assertGatewayResultMatchesTransaction(t, result);
       await this.assertPharmacyQuoteStillMatchesTransaction(t);
       t.paid_at = new Date();
-      await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+      if (t.booking_kind === 'pharmacy') {
+        const booking: any = await this.pharmacyOrders.findOne({ id: t.booking_id }).lean();
+        const from = booking?.governed_state as GovernedPharmacyOrderState;
+        if (from === GovernedPharmacyOrderState.PAYMENT_PENDING) {
+          assertGovernedPharmacyTransition(from, GovernedPharmacyOrderState.CONFIRMED, 'PAYMENT_WEBHOOK', { paymentVerified: true });
+        } else if (from === GovernedPharmacyOrderState.CO_PAY_PENDING) {
+          assertGovernedPharmacyTransition(from, GovernedPharmacyOrderState.CONFIRMED, 'PAYMENT_WEBHOOK', { paymentVerified: true });
+        } else {
+          throw new BadRequestException('pharmacy_payment_confirmation_not_allowed');
+        }
+        const confirmed = await this.pharmacyOrders.updateOne(
+          { id: t.booking_id, governed_state: from },
+          { $set: { governed_state: GovernedPharmacyOrderState.CONFIRMED, payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } },
+        );
+        if (confirmed?.modifiedCount !== undefined && confirmed.modifiedCount !== 1) throw new BadRequestException('pharmacy_payment_confirmation_lock_lost');
+      } else {
+        await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+      }
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
       this.events.emit('payment.completed', {
