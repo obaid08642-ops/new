@@ -319,6 +319,46 @@ export class PharmacyOfferService {
     return updated.toObject ? updated.toObject() : updated;
   }
 
+  async registerCod(user: any, orderId: string) {
+    const order = await this.ownedOrder(user, orderId);
+    const snapshot = order.accepted_quote_snapshot;
+    const amount = Number(snapshot?.totals?.total);
+    const currency = String(snapshot?.totals?.currency ?? '').toUpperCase();
+    if (order.coverage_mode !== 'cash' || order.governed_state !== GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED) {
+      throw new BadRequestException('cod_not_available_for_order');
+    }
+    if (snapshot?.cod_allowed !== true || !order.accepted_quote_hash || !Number.isInteger(order.accepted_quote_revision) || !Number.isFinite(amount) || amount <= 0 || currency !== 'SAR') {
+      throw new BadRequestException('cod_not_eligible');
+    }
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED,
+      GovernedPharmacyOrderState.COD_REGISTERED,
+      'PATIENT',
+      { codAllowed: true, codRegistered: true, quoteHash: order.accepted_quote_hash, quoteRevision: order.accepted_quote_revision },
+    );
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.COD_REGISTERED,
+      GovernedPharmacyOrderState.CONFIRMED,
+      'SYSTEM',
+      { codRegistered: true },
+    );
+    const updated: any = await this.orders.findOneAndUpdate(
+      { id: order.id, patient_account_id: user.id, governed_state: GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED, coverage_mode: 'cash' },
+      {
+        $set: {
+          governed_state: GovernedPharmacyOrderState.CONFIRMED,
+          payment_method: 'cod',
+          payment_status: 'cod_pending_collection',
+          cod_commitment: { registered_at: new Date(), amount, currency, quote_hash: order.accepted_quote_hash, quote_revision: order.accepted_quote_revision },
+        },
+        $push: { timeline: { ts: new Date(), event: 'patient_registered_cod', by: user.id, meta: { amount, currency, quote_hash: order.accepted_quote_hash, quote_revision: order.accepted_quote_revision } } },
+      },
+      { new: true },
+    );
+    if (!updated) throw new BadRequestException('cod_registration_locked');
+    return updated.toObject ? updated.toObject() : updated;
+  }
+
   private async ownedOrder(user: any, orderId: string) {
     const order = await this.orders.findOne({ id: orderId });
     if (!order) throw new NotFoundException('order_not_found');

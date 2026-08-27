@@ -46,6 +46,10 @@ export class PatientPharmacyController {
   @UseInterceptors(IdempotencyInterceptor)
   @RequireIdempotency()
   acceptInsuranceSelfPay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AcceptPharmacyCoPayDto) { return this.offers.acceptInsuranceSelfPay(u, id, b.payment_method); }
+  @Post('orders/:id/cod/register')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  registerCod(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.registerCod(u, id); }
 }
 
 // =========================================================================
