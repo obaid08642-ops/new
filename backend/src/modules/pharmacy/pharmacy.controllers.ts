@@ -13,7 +13,7 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { isProviderRole } from '../../common/enums';
 import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
-import { SelectPharmacyOfferDto, SubmitPharmacyOfferDto } from './dto/pharmacy-offer.dto';
+import { AcceptPharmacyFinalQuoteDto, SelectPharmacyOfferDto, SubmitPharmacyOfferDto } from './dto/pharmacy-offer.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -34,6 +34,10 @@ export class PatientPharmacyController {
   @UseInterceptors(IdempotencyInterceptor)
   @RequireIdempotency()
   selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectPharmacyOfferDto) { return this.offers.selectOffer(u, id, offerId, b.coverage_mode); }
+  @Post('orders/:id/final-quote/accept')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  acceptFinalQuote(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AcceptPharmacyFinalQuoteDto) { return this.offers.acceptFinalQuote(u, id, b.quote_hash, b.quote_revision); }
 }
 
 // =========================================================================

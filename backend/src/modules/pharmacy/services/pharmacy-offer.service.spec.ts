@@ -142,4 +142,44 @@ describe('PharmacyOfferService', () => {
     await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).resolves.toEqual({ id: 'offer-1', status: 'selected' });
     expect(inventory.updateOne).not.toHaveBeenCalled();
   });
+
+  it('accepts only the exact final quote snapshot before a cash payment can be created', async () => {
+    const { service, orders } = createService();
+    const snapshot = { items: [{ order_item_id: 'line-1' }], totals: { total: 39.9 }, insurance_ready: false };
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', governed_state: 'OFFER_SELECTED', negotiation_required: false,
+      coverage_mode: 'cash', selected_offer_snapshot: snapshot, selected_offer_hash: 'quote-hash', selected_offer_revision: 2,
+    });
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED', toObject: () => ({ id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' }) });
+
+    await expect(service.acceptFinalQuote({ id: 'patient-1' }, 'order-1', 'quote-hash', 2))
+      .resolves.toEqual({ id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' });
+    expect(orders.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ governed_state: 'OFFER_SELECTED' }),
+      expect.objectContaining({ $set: expect.objectContaining({ accepted_quote_hash: 'quote-hash', accepted_quote_revision: 2 }) }),
+      { new: true },
+    );
+  });
+
+  it('rejects a quote acceptance when the patient submits an old or tampered revision', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', governed_state: 'FINAL_QUOTE_READY',
+      pending_final_quote_snapshot: { totals: { total: 39.9 } }, pending_final_quote_hash: 'current-hash', pending_final_quote_revision: 3,
+    });
+
+    await expect(service.acceptFinalQuote({ id: 'patient-1' }, 'order-1', 'old-hash', 2)).rejects.toThrow('final_quote_mismatch');
+    expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it('does not start pharmacy insurance processing without a verified policy on the order', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', governed_state: 'OFFER_SELECTED', negotiation_required: false,
+      coverage_mode: 'insurance', selected_offer_snapshot: { insurance_ready: true, totals: { total: 39.9 } }, selected_offer_hash: 'quote-hash', selected_offer_revision: 2,
+    });
+
+    await expect(service.acceptFinalQuote({ id: 'patient-1' }, 'order-1', 'quote-hash', 2)).rejects.toThrow('governed_transition_rejected');
+    expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
+  });
 });
