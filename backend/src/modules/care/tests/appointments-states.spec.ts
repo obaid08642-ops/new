@@ -18,16 +18,18 @@ describe('AppointmentsService state machine', () => {
   let providerModel: any;
   let events: any;
   let engine: any;
+  let insurance: any;
 
   beforeEach(() => {
     apptModel = { findOne: jest.fn(), create: jest.fn(), deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }) };
-    providerModel = { findOne: jest.fn().mockResolvedValue({ id: 'doc-1', user_id: 'doc-user-1', account_id: 'doc-account-1', type: 'doctor' }) };
+    providerModel = { findOne: jest.fn().mockResolvedValue({ id: 'doc-1', user_id: 'doc-user-1', account_id: 'doc-account-1', type: 'doctor', consultation_modes: ['clinic', 'video', 'home'], price_clinic: 200, price_online: 200, price_home: 200 }) };
     events = { emit: jest.fn() };
-    engine = { apply: jest.fn(async (opts: any) => opts.mutate()) };
+    engine = { apply: jest.fn(async (opts: any) => opts.mutate()), announceCreated: jest.fn() };
+    insurance = { createRequest: jest.fn(), cancel: jest.fn() };
     // Constructor: (apptModel, providerModel, connection, events, engine) —
     // connection was added for family on-behalf booking checks; these tests
     // exercise the state machine only, so a stub connection suffices.
-    service = new AppointmentsService(apptModel, providerModel, { db: { collection: jest.fn() } } as any, events, engine);
+    service = new AppointmentsService(apptModel, providerModel, { db: { collection: jest.fn() } } as any, events, engine, insurance);
     jest.clearAllMocks();
   });
 
@@ -83,6 +85,31 @@ describe('AppointmentsService state machine', () => {
     expect(res.status).toBe(APPT_STATES.CONFIRMED);
     expect(res.confirmed_at).toBeDefined();
     expect(events.emit).toHaveBeenCalledWith('appointment.confirmed', { id: 'appt-1', actor: 'system' });
+  });
+
+  it('creates an insurance review request and keeps the appointment pending instead of auto-confirming', async () => {
+    const appt = makeDoc({ id: 'appt-insurance', patient_id: 'pat-1', doctor_id: 'doc-1', doctor_user_id: 'doc-user-1', service_type: 'clinic', slot_start: new Date(Date.now() + 48 * 3600000), slot_end: new Date(Date.now() + 49 * 3600000), price: 200, total_price: 215, status: APPT_STATES.PENDING });
+    apptModel.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(appt);
+    apptModel.create.mockResolvedValue(appt);
+    insurance.createRequest.mockResolvedValue({ id: 'insurance-1' });
+    const start = new Date(Date.now() + 48 * 3600000); start.setUTCMinutes(Math.ceil(start.getUTCMinutes() / 15) * 15, 0, 0);
+    const result = await service.create({ id: 'pat-1', role: 'patient' }, { doctor_id: 'doc-1', service_type: 'clinic', slot_start: start.toISOString(), payment_method: 'insurance', insurance_provider: 'insurer', insurance_member_id: 'member' });
+    expect(insurance.createRequest).toHaveBeenCalledWith(expect.objectContaining({ id: 'pat-1' }), { booking_id: 'appt-insurance', booking_kind: 'consultation' });
+    expect(appt.insurance_request_id).toBe('insurance-1');
+    expect(appt.insurance_review_state).toBe('PENDING_PROVIDER_REVIEW');
+    expect(result.status).toBe(APPT_STATES.PENDING);
+    expect(events.emit).not.toHaveBeenCalledWith('appointment.confirmed', expect.anything());
+  });
+
+  it('compensates a failed insurance-request creation by removing the unconfirmed appointment', async () => {
+    const appt = makeDoc({ id: 'appt-insurance-fail', patient_id: 'pat-1', doctor_id: 'doc-1', doctor_user_id: 'doc-user-1', service_type: 'clinic', slot_start: new Date(Date.now() + 48 * 3600000), slot_end: new Date(Date.now() + 49 * 3600000), price: 200, total_price: 215, status: APPT_STATES.PENDING });
+    apptModel.findOne.mockResolvedValueOnce(null);
+    apptModel.create.mockResolvedValue(appt);
+    insurance.createRequest.mockRejectedValue(new Error('policy unavailable'));
+    const start = new Date(Date.now() + 48 * 3600000); start.setUTCMinutes(Math.ceil(start.getUTCMinutes() / 15) * 15, 0, 0);
+    await expect(service.create({ id: 'pat-1', role: 'patient' }, { doctor_id: 'doc-1', service_type: 'clinic', slot_start: start.toISOString(), payment_method: 'insurance' })).rejects.toThrow('policy unavailable');
+    expect(apptModel.deleteOne).toHaveBeenCalledWith({ id: 'appt-insurance-fail' });
+    expect(events.emit).not.toHaveBeenCalledWith('appointment.confirmed', expect.anything());
   });
 
   it('allows the provider account identity to transition its doctor profile appointment', async () => {
