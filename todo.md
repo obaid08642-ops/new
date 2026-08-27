@@ -52,6 +52,8 @@
 - [x] Replace Patient Mobile custom-item and drug-not-found legacy support-request entrypoints with explicit routes to the governed manual pharmacy intake, preserving no local attachment or payment behavior.
 - [x] Remove Patient Mobile pharmacy-cart display and persistence of client price, subtotal, and pre-selection payment type; retain a local item list that only creates a governed pharmacy draft at checkout.
 - [x] Strip any undeclared financial fields passed by legacy product screens from Patient Mobile pharmacy-cart runtime state before the governed draft boundary.
+- [ ] Replace consultation appointment creation's client-chosen payment/insurance auto-confirmation with a reviewed provider/insurance decision flow, capability-gated online payment, idempotent mutations, and explicit cash eligibility.
+- [x] Remove the legacy customer-wallet refund destination from consultation cancellation; refunds must remain attributable to the verified payment source or require an operational refund decision.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
