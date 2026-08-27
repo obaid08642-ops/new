@@ -1,6 +1,6 @@
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/App.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/App.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/App.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/App.tsx	2026-08-27 11:45:59.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/App.tsx /tmp/tmp.iz8NmsO6px/current-provider/App.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/App.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/App.tsx	2026-08-27 11:45:59.000000000 +0000
 @@ -27,6 +27,8 @@
  import { RadiologyDashboardNavigator } from './src/screens/radiology/RadiologyDashboard';
  import { NursingRegistration }       from './src/screens/nursing/NursingRegistration';
@@ -26,9 +26,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
                  return <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.goBack()} />;
                }}
              </Stack.Screen>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/provider-app.contracts.test.js /tmp/tmp.QLEm7Ucuxm/current-provider/provider-app.contracts.test.js
---- /tmp/tmp.QLEm7Ucuxm/base-provider/provider-app.contracts.test.js	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/provider-app.contracts.test.js	2026-08-27 15:50:13.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/provider-app.contracts.test.js /tmp/tmp.iz8NmsO6px/current-provider/provider-app.contracts.test.js
+--- /tmp/tmp.iz8NmsO6px/base-provider/provider-app.contracts.test.js	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/provider-app.contracts.test.js	2026-08-27 15:50:13.000000000 +0000
 @@ -3,18 +3,27 @@
  
  describe('Provider App release contracts', () => {
@@ -158,9 +158,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    it('isolates native maps behind a web-safe component', () => {
      expect(registrations).not.toContain("from 'react-native-maps'");
      expect(registrations).toContain('PlatformMap');
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/api/catalogs.ts /tmp/tmp.QLEm7Ucuxm/current-provider/src/api/catalogs.ts
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/api/catalogs.ts	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/api/catalogs.ts	2026-08-27 11:46:58.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/api/catalogs.ts /tmp/tmp.iz8NmsO6px/current-provider/src/api/catalogs.ts
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/api/catalogs.ts	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/api/catalogs.ts	2026-08-27 11:46:58.000000000 +0000
 @@ -42,12 +42,9 @@
        return list;
      }
@@ -205,9 +205,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  }
  
  /** React hook: unified services catalog for a provider type. */
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/api/provider.ts /tmp/tmp.QLEm7Ucuxm/current-provider/src/api/provider.ts
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/api/provider.ts	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/api/provider.ts	2026-08-27 15:47:29.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/api/provider.ts /tmp/tmp.iz8NmsO6px/current-provider/src/api/provider.ts
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/api/provider.ts	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/api/provider.ts	2026-08-27 15:47:29.000000000 +0000
 @@ -59,9 +59,7 @@
        const res = await client.post('/storage/upload', {
          data_base64: base64,
@@ -230,9 +230,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
      return res.data?.id || res.data?.url || res.data;
    },
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/ambulance/AmbulanceDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-27 15:44:21.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/ambulance/AmbulanceDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-27 15:44:21.000000000 +0000
 @@ -253,15 +253,15 @@
    const { lang } = useLang();
    const { show } = useToast();
@@ -302,9 +302,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
        </View>
      );
    }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/auth/AuthScreens.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/auth/AuthScreens.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/auth/AuthScreens.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/auth/AuthScreens.tsx	2026-08-27 11:46:27.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/auth/AuthScreens.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/auth/AuthScreens.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/auth/AuthScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/auth/AuthScreens.tsx	2026-08-27 11:46:27.000000000 +0000
 @@ -100,17 +100,10 @@
            if (!r.ok) {
              const msg = r.err || 'فشل تسجيل الدخول بالبصمة';
@@ -323,9 +323,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
          }
        }
      });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/doctor/DoctorDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/doctor/DoctorDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-27 15:43:33.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/doctor/DoctorDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/doctor/DoctorDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-27 15:43:33.000000000 +0000
 @@ -25,6 +25,8 @@
  import { SP, R, FS, FW, SPECIALTIES, API_BASE } from '../../constants';
  import { buildHeaders } from '../../security/Security';
@@ -1125,9 +1125,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
            ) : (
              reports.map(report => (
                <NCard key={report.id} style={{ marginBottom: 16 }}>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/facility/FacilityDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/facility/FacilityDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-27 12:25:37.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/facility/FacilityDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/facility/FacilityDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-27 12:25:37.000000000 +0000
 @@ -19,7 +19,7 @@
   * ║ FacilitySettingsScreen — all facility settings ║
   * ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -1176,9 +1176,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
   <NCard key={shift.id} style={{ marginBottom: SP.md }}
   accent={shift.status === 'substitute' ? theme.warn : theme.primary}>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/lab/LabDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/lab/LabDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/lab/LabDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/lab/LabDashboard.tsx	2026-08-27 15:42:56.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/lab/LabDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/lab/LabDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/lab/LabDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/lab/LabDashboard.tsx	2026-08-27 15:42:56.000000000 +0000
 @@ -172,7 +172,6 @@
  
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <LabOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -1527,9 +1527,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
   <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
   <NAvatar name={item.patient} size={42} />
   <View style={{flex:1}}>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/nursing/NursingDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/nursing/NursingDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-27 15:34:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-27 15:34:23.000000000 +0000
 @@ -419,26 +419,12 @@
  function NursingOrderDetail({ order, onBack, onNav, onRefresh }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void; onRefresh:()=>void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
@@ -1594,9 +1594,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
   </View>}
   {order?.status==='active' && <View style={{gap:SP.md}}>
   <NBtn label={AR?'تسجيل الوصول GPS':'GPS Check-in'} onPress={()=>onNav('checkin',order)} />
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/nursing/NursingFieldOps.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/nursing/NursingFieldOps.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-27 15:39:20.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingFieldOps.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingFieldOps.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-27 15:39:20.000000000 +0000
 @@ -6,303 +6,28 @@
  import { FS, FW, R, SP } from '../../constants';
  import { I } from '../../components/icons';
@@ -1916,9 +1916,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      </View>
    );
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/pharmacy/PharmacyDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-27 15:25:55.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/pharmacy/PharmacyDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-27 17:00:14.000000000 +0000
 @@ -23,7 +23,9 @@
   * ╚══════════════════════════════════════════════════════════════════════════════╝
   */
@@ -1929,6 +1929,15 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  import * as ImagePicker from 'expo-image-picker';
  import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
+@@ -153,7 +155,7 @@
+      <Stack.Screen name="reputation">{({ navigation }: any) => <ReputationHub onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="crm">{({ navigation }: any) => <CrmHub onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="revenue_insights">{({ navigation }: any) => <RevenueInsights onBack={() => navigation.goBack()} />}</Stack.Screen>
+-     <Stack.Screen name="pharmacy_broadcast">{({ navigation }: any) => <PharmacyBroadcastResponse onBack={() => navigation.goBack()} />}</Stack.Screen>
++     <Stack.Screen name="pharmacy_broadcast">{({ navigation, route }: any) => <PharmacyBroadcastResponse broadcast={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="expiry_monitor">{({ navigation }: any) => <InventoryExpiryMonitor onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
 @@ -193,6 +195,7 @@
    const { user, toggleOnline } = useAuth();
    const isOnline = !!user?.isOnline;
@@ -1937,7 +1946,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    const [sound, setSound] = useState<Audio.Sound | null>(null);
  
    // Play alarm sound
-@@ -213,32 +216,60 @@
+@@ -213,32 +216,61 @@
      return sound ? () => { sound.unloadAsync(); } : undefined;
    }, [sound]);
  
@@ -1971,12 +1980,13 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    const normalizeBroadcasts = (data: any) => {
 +      const raw = Array.isArray(data) ? data : (data?.items || []);
 +      return raw.map((broadcast: any) => ({
-+        id: broadcast.order_id || broadcast.order?.id || broadcast.id,
-+        ...broadcast,
-+        items: broadcast.items || broadcast.order?.items || [],
-+        total: broadcast.total ?? broadcast.order?.total,
-+        patient_name: broadcast.patient_name || broadcast.patient?.full_name,
-+      })).filter((broadcast: any) => !!broadcast.id);
++        id: broadcast.id,
++        order_id: broadcast.order_id,
++        current_round: broadcast.current_round,
++        current_radius_km: broadcast.current_radius_km,
++        payment_summary: broadcast.payment_summary,
++        items: Array.isArray(broadcast.items) ? broadcast.items : [],
++      })).filter((broadcast: any) => !!broadcast.id && !!broadcast.order_id);
 +    };
 +    const fetchBroadcasts = async () => {
 +      try {
@@ -2020,7 +2030,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  
    const [showRejectModal, setShowRejectModal] = useState(false);
    const [rejectOrderId, setRejectOrderId] = useState<string|null>(null);
-@@ -251,23 +282,9 @@
+@@ -251,23 +283,9 @@
      { id: 'PHARMACY_CLOSING', label: AR ? 'الصيدلية ستغلق قريباً' : 'Pharmacy closing soon' }
    ];
  
@@ -2041,18 +2051,38 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -      show(AR ? 'الطلب أُخذ من صيدلية أخرى' : 'Order taken by another pharmacy', 'error');
 -      setBroadcasts(prev => prev.filter(b => b.id !== orderId));
 -    }
-+  const openOfferComposer = () => {
-+    // A pharmacy may submit a quote, but the order remains unassigned until the patient explicitly selects it.
-+    onNavigate('pharmacy_broadcast');
++  const openOfferComposer = (broadcast: any) => {
++    // A pharmacy may submit only a server-derived quote; assignment remains blocked pending explicit patient selection.
++    onNavigate('pharmacy_broadcast', broadcast);
    };
  
    const confirmReject = async (reasonId: string) => {
-@@ -320,7 +337,7 @@
+@@ -305,22 +323,21 @@
+                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                   <View>
+                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+-                      <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text }}>{b.patient_name || 'مريض'}</Text>
+-                      {b.is_otc && <NBadge label=" OTC" variant="warning" />}
++                      <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.text }}>{AR ? `بث #${String(b.id).slice(-6)}` : `Broadcast #${String(b.id).slice(-6)}`}</Text>
+                     </View>
+-                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{b.distance} كم • منذ دقيقة</Text>
++                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{AR ? `الجولة ${b.current_round || '—'} · النطاق ${b.current_radius_km || '—'} كم` : `Round ${b.current_round || '—'} · radius ${b.current_radius_km || '—'} km`}</Text>
+                   </View>
+-                  <Text style={{ fontWeight: 'bold', fontSize: 18, color: theme.primary }}>{b.total} ر.س</Text>
++                  <Text style={{ fontWeight: 'bold', fontSize: 13, color: theme.primary }}>{b.payment_summary?.method || (AR ? 'طريقة الدفع غير متاحة' : 'Payment method unavailable')}</Text>
+                 </View>
+                 <NDivider style={{ marginBottom: 12 }} />
+                 <View style={{ marginBottom: 16 }}>
+                   {b.items?.map((it: any, i: number) => (
+-                    <Text key={i} style={{ color: theme.text }}>• {it.qty}x {it.name_ar || it.name}</Text>
++                    <Text key={i} style={{ color: theme.text }}>• {it.qty_requested || 0}x {it.name_ar || it.name_en || it.matched_sku}</Text>
+                   ))}
                  </View>
                  <View style={{ flexDirection: 'row', gap: 12 }}>
-                   <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.id); setShowRejectModal(true); }} />
+-                  <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.id); setShowRejectModal(true); }} />
 -                  <NBtn label={AR ? 'قبول الطلب' : 'Accept Order'} variant="secondary" style={{ flex: 2 }} onPress={() => acceptOrder(b.id, b.is_otc)} />
-+                  <NBtn label={AR ? 'قبول الطلب' : 'Accept Order'} variant="secondary" style={{ flex: 2 }} onPress={openOfferComposer} />
++                  <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.order_id); setShowRejectModal(true); }} />
++                  <NBtn label={AR ? 'إنشاء عرض' : 'Create offer'} variant="secondary" style={{ flex: 2 }} onPress={() => openOfferComposer(b)} />
                  </View>
                </NCard>
              ))
@@ -2389,9 +2419,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
              </NCard>
            );
          })}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/radiology/RadiologyDashboard.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/radiology/RadiologyDashboard.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-27 15:44:42.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/radiology/RadiologyDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/radiology/RadiologyDashboard.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-27 15:44:42.000000000 +0000
 @@ -3,6 +3,8 @@
  import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
  import { useTheme, useLang, useToast } from '../../context';
@@ -2542,9 +2572,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
          </Text>
        </NCard>
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/shared/BlueprintScreens.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/shared/BlueprintScreens.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-27 12:54:57.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/BlueprintScreens.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/BlueprintScreens.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-27 17:01:27.000000000 +0000
 @@ -27,10 +27,11 @@
  } from 'react-native';
  import { useTheme, useLang, useToast } from '../../context';
@@ -2882,9 +2912,133 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  
   </View>
   </NScroll>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/shared/LiveKitRoomProvider.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/shared/LiveKitRoomProvider.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-27 11:42:56.000000000 +0000
+@@ -1297,11 +1292,121 @@
+   );
+ }
+ 
+-export function PharmacyBroadcastResponse({ onBack }: { onBack: () => void }) {
++export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () => void; broadcast?: any }) {
+   const { theme } = useTheme();
++  const { lang } = useLang();
++  const { show } = useToast();
++  const AR = lang === 'ar';
++  const [catalog, setCatalog] = useState<Record<string, any[]>>({});
++  const [choices, setChoices] = useState<Record<string, any>>({});
++  const [quote, setQuote] = useState<any>(null);
++  const [loadingCatalog, setLoadingCatalog] = useState(false);
++  const [busy, setBusy] = useState(false);
++  const orderId = broadcast?.order_id;
++  const items = Array.isArray(broadcast?.items) ? broadcast.items : [];
++
++  const loadCatalog = useCallback(async () => {
++    if (!orderId || !items.length) return;
++    setLoadingCatalog(true);
++    try {
++      const rows = await Promise.all(items.map(async (item: any) => {
++        const q = item.matched_sku || item.generic_name || item.name_ar || item.name_en || '';
++        const response = await client.get('/provider/inventory/search', { params: { q } });
++        return [item.order_item_id, Array.isArray(response.data) ? response.data : []] as const;
++      }));
++      setCatalog(Object.fromEntries(rows));
++    } catch {
++      show(AR ? 'تعذر تحميل كتالوج الصيدلية. لم يتم إنشاء أي عرض.' : 'Catalog loading failed. No offer was created.', 'error');
++    } finally {
++      setLoadingCatalog(false);
++    }
++  }, [orderId, items.length, AR, show]);
++
++  useEffect(() => { loadCatalog(); }, [loadCatalog]);
++
++  const offerItems = () => items.map((item: any) => {
++    const choice = choices[item.order_item_id] || { availability: 'unavailable' };
++    return {
++      order_item_id: item.order_item_id,
++      availability: choice.availability,
++      qty_offered: choice.qty_offered,
++      inventory_item_id: choice.availability === 'available' ? choice.inventory_item_id : undefined,
++      substitute_inventory_item_id: choice.availability === 'substitute' ? choice.inventory_item_id : undefined,
++    };
++  });
++
++  const preview = async () => {
++    if (!orderId) return;
++    setBusy(true);
++    try {
++      const response = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/preview`, { items: offerItems() });
++      setQuote(response.data);
++      show(AR ? 'تم احتساب المعاينة من الخادم' : 'Server quote preview calculated', 'success');
++    } catch (error: any) {
++      setQuote(null);
++      show(error?.response?.data?.message || (AR ? 'تعذر احتساب المعاينة' : 'Quote preview failed'), 'error');
++    } finally { setBusy(false); }
++  };
++
++  const saveDraft = async () => {
++    if (!orderId || !quote) {
++      show(AR ? 'احسب المعاينة الخادمية أولاً' : 'Calculate a server quote preview first', 'error');
++      return;
++    }
++    setBusy(true);
++    try {
++      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems() });
++      setQuote({ ...quote, draft: draft.data });
++      show(AR ? 'حُفظت مسودة العرض؛ السعر والمخزون حددهما الخادم' : 'Offer draft saved; price and stock came from the server.', 'success');
++    } catch (error: any) {
++      show(error?.response?.data?.message || (AR ? 'تعذر حفظ المسودة' : 'Saving draft failed'), 'error');
++    } finally { setBusy(false); }
++  };
++
++  const submit = async () => {
++    if (!orderId || !quote?.draft?.id) {
++      show(AR ? 'احفظ المسودة أولاً' : 'Save a draft first', 'error');
++      return;
++    }
++    setBusy(true);
++    try {
++      await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/${quote.draft.id}/submit`);
++      show(AR ? 'تم إرسال العرض للمريض للاختيار الصريح' : 'Offer submitted for explicit patient selection', 'success');
++      onBack();
++    } catch (error: any) {
++      show(error?.response?.data?.message || (AR ? 'تعذر إرسال العرض' : 'Submitting offer failed'), 'error');
++    } finally { setBusy(false); }
++  };
++
++  if (!orderId) return <View style={{ flex: 1, backgroundColor: theme.bg }}><NHeader title={AR ? 'عرض الصيدلية' : 'Pharmacy offer'} onBack={onBack} /><NEmpty icon="document" title={AR ? 'لا يوجد بث مخوّل' : 'No authorized broadcast'} sub={AR ? 'ارجع إلى الرادار واختر بثاً مُخَوَّلاً.' : 'Return to the radar and choose an authorized broadcast.'} /></View>;
++
+   return (
+     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+-      <NHeader title="Pharmacy Broadcast Response" onBack={onBack} />
++      <NHeader title={AR ? 'مؤلف عرض صيدلية' : 'Pharmacy offer composer'} onBack={onBack} />
++      <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl, gap: SP.md }}>
++        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? `بث #${orderId.slice(-6)}` : `Broadcast #${orderId.slice(-6)}`}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? 'اختر فقط عناصر من كتالوج الصيدلية. لا تُدخل الأسعار أو رسوم التوصيل أو وقت الوصول يدوياً.' : 'Bind only pharmacy catalog items. Prices, delivery fees, and ETA are never entered here.'}</Text></NCard>
++        {loadingCatalog && <ActivityIndicator color={theme.primary} />}
++        {items.map((item: any) => {
++          const selected = choices[item.order_item_id] || { availability: 'unavailable' };
++          const options = catalog[item.order_item_id] || [];
++          return <NCard key={item.order_item_id} style={{ gap: SP.sm }}>
++            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{item.qty_requested}× {item.name_ar || item.name_en || item.matched_sku}</Text>
++            <View style={{ flexDirection: 'row', gap: SP.xs, flexWrap: 'wrap' }}>
++              {(['available', 'substitute', 'unavailable'] as const).map((availability) => <NBtn key={availability} label={availability === 'available' ? (AR ? 'متوفر' : 'Available') : availability === 'substitute' ? (AR ? 'بديل' : 'Substitute') : (AR ? 'غير متوفر' : 'Unavailable')} variant={selected.availability === availability ? 'primary' : 'outline'} onPress={() => { setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], availability } })); setQuote(null); }} />)}
++            </View>
++            {selected.availability !== 'unavailable' && <>
++              <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'اختر عنصر الكتالوج الذي سيتحقق منه الخادم:' : 'Choose a catalog item for server validation:'}</Text>
++              {options.map((stock: any) => <TouchableOpacity key={stock.id} onPress={() => { setChoices(prev => ({ ...prev, [item.order_item_id]: { availability: selected.availability, inventory_item_id: stock.id, qty_offered: Math.min(Number(item.qty_requested || 1), Number(stock.stock || 0)) } })); setQuote(null); }} style={{ padding: SP.sm, borderWidth: 1, borderRadius: R.md, borderColor: selected.inventory_item_id === stock.id ? theme.primary : theme.border }}><Text style={{ color: theme.text }}>{stock.name_ar || stock.name_en || stock.sku} · {AR ? 'المتاح' : 'Stock'}: {stock.stock}</Text></TouchableOpacity>)}
++              {selected.inventory_item_id && <NInput label={AR ? 'الكمية المقدمة' : 'Quantity offered'} value={String(selected.qty_offered || '')} kbType="number-pad" onChange={(value: string) => { const max = Number((options.find((stock: any) => stock.id === selected.inventory_item_id) || {}).stock || 0); const qty = Math.max(1, Math.min(Number(item.qty_requested || 1), max, Number(value || 0))); setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], qty_offered: qty } })); setQuote(null); }} />}
++            </>}
++          </NCard>;
++        })}
++        <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'التسليم' : 'Fulfillment'}</Text><Text style={{ color: theme.textSub }}>{AR ? 'لا توجد سياسة تسليم خادمية مفعّلة حالياً؛ لذلك لا يُقبل خيار أو رسوم أو ETA من الواجهة.' : 'No server delivery policy is active; the interface cannot set an option, fee, or ETA.'}</Text></NCard>
++        {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'معاينة خادمية' : 'Server quote preview'}</Text><Text style={{ color: theme.text }}>{AR ? `الإجمالي: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}` : `Total: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}`}</Text><Text style={{ color: theme.textSub }}>{AR ? `صالحة للمسودة لمدة ${quote.quote_ttl_seconds ?? 600} ثانية` : `Draft quote TTL: ${quote.quote_ttl_seconds ?? 600} seconds`}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (AR ? 'سياسة التسليم غير متاحة للقراءة فقط.' : 'Delivery policy unavailable (read-only).') : ''}</Text></NCard>}
++        <NBtn label={busy ? (AR ? 'جارٍ المعالجة…' : 'Working…') : (AR ? 'معاينة خادمية' : 'Server quote preview')} disabled={busy} onPress={preview} />
++        <NBtn label={AR ? 'حفظ المسودة' : 'Save draft'} variant="secondary" disabled={busy || !quote} onPress={saveDraft} />
++        <NBtn label={AR ? 'إرسال العرض للاختيار' : 'Submit for patient selection'} disabled={busy || !quote?.draft?.id} onPress={submit} />
++      </ScrollView>
+     </View>
+   );
+ }
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/LiveKitRoomProvider.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/LiveKitRoomProvider.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-27 11:42:56.000000000 +0000
 @@ -1,79 +1,42 @@
 -// @ts-nocheck
 -import React, { useState, useEffect } from 'react';
@@ -2997,9 +3151,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -  btn: { padding: 15, borderRadius: 30, paddingHorizontal: 30 },
 -  btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 -});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/shared/SharedScreens.tsx /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/shared/SharedScreens.tsx
---- /tmp/tmp.QLEm7Ucuxm/base-provider/src/screens/shared/SharedScreens.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.QLEm7Ucuxm/current-provider/src/screens/shared/SharedScreens.tsx	2026-08-27 15:49:55.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/SharedScreens.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/SharedScreens.tsx
+--- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/SharedScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/SharedScreens.tsx	2026-08-27 15:49:55.000000000 +0000
 @@ -1,5 +1,6 @@
  import { API_BASE } from '../../constants';
  import { buildHeaders } from '../../security/Security';

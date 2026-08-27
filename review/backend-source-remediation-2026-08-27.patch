@@ -1,6 +1,6 @@
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/e2e/README.md /tmp/tmp.chDUN7fvjP/current/e2e/README.md
---- /tmp/tmp.chDUN7fvjP/base/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/e2e/README.md /tmp/tmp.iz8NmsO6px/current-backend/e2e/README.md
+--- /tmp/tmp.iz8NmsO6px/base-backend/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
 @@ -1,46 +1,45 @@
 -# Nabdah Plus — Live E2E Scenario Matrix (بيئة الاختبار الحية الداخلية)
 +# اختبارات التكامل الحية لواجهة المزوّد
@@ -82,9 +82,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +## حدود الأدلة الحالية
 +
 +الملفات القديمة مثل `boot.js` و`matrix*.js` تبقى مرجعاً تاريخياً ولا تدخل في بوابة الإصدار المحمولة للمزوّد؛ لأنها تفترض منافذ ومسارات وقت تشغيل محلية. كما لا تغطي هذه السيناريوهات وحدها اتصال LiveKit الحقيقي، تخزين الكائنات S3/R2، الإشعارات الفورية على جهاز، تسليم OTP، أو اختبارات Expo على جهاز فعلي.
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/e2e/pharmacy-scenarios.js /tmp/tmp.chDUN7fvjP/current/e2e/pharmacy-scenarios.js
---- /tmp/tmp.chDUN7fvjP/base/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/e2e/pharmacy-scenarios.js /tmp/tmp.iz8NmsO6px/current-backend/e2e/pharmacy-scenarios.js
+--- /tmp/tmp.iz8NmsO6px/base-backend/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,241 @@
 +/* P4 GATE — Pharmacy full scenario matrix (cash / COD / insurance) on a live server.
 + * Prereq: server on :4099 (boot.js or manual), then:
@@ -327,9 +327,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/e2e/provider-production.js /tmp/tmp.chDUN7fvjP/current/e2e/provider-production.js
---- /tmp/tmp.chDUN7fvjP/base/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/e2e/provider-production.js /tmp/tmp.iz8NmsO6px/current-backend/e2e/provider-production.js
+--- /tmp/tmp.iz8NmsO6px/base-backend/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,320 @@
 +/* P3 GATE — e2e for the 9 governed provider endpoints (+shifts CRUD completion).
 + * Prerequisites: an explicitly provisioned disposable E2E stack, then:
@@ -651,9 +651,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/e2e/provider-verticals.js /tmp/tmp.chDUN7fvjP/current/e2e/provider-verticals.js
---- /tmp/tmp.chDUN7fvjP/base/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/e2e/provider-verticals.js /tmp/tmp.iz8NmsO6px/current-backend/e2e/provider-verticals.js
+--- /tmp/tmp.iz8NmsO6px/base-backend/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,268 @@
 +/* P5+P6+P7 GATE — doctor/lab/radiology/nursing/ambulance lifecycles on a live server.
 + * Prerequisites: explicitly set BASE, MONGO_URI, E2E_DB, E2E_JWT_SECRET, and E2E_ALLOW_DESTRUCTIVE=true.
@@ -923,9 +923,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/e2e/run-all-gates.js /tmp/tmp.chDUN7fvjP/current/e2e/run-all-gates.js
---- /tmp/tmp.chDUN7fvjP/base/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/e2e/run-all-gates.js /tmp/tmp.iz8NmsO6px/current-backend/e2e/run-all-gates.js
+--- /tmp/tmp.iz8NmsO6px/base-backend/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
 @@ -0,0 +1,53 @@
 +#!/usr/bin/env node
 +/*
@@ -980,10 +980,10 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +
 +console.log(`\nProvider E2E gate: ${failed === 0 ? 'PASS' : `NO-GO (${failed} failing gate${failed === 1 ? '' : 's'})`}`);
 +process.exit(failed === 0 ? 0 : 1);
-Binary files /tmp/tmp.chDUN7fvjP/base/nabd_plus_patient_app.zip and /tmp/tmp.chDUN7fvjP/current/nabd_plus_patient_app.zip differ
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/package.json /tmp/tmp.chDUN7fvjP/current/package.json
---- /tmp/tmp.chDUN7fvjP/base/package.json	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/package.json	2026-08-27 11:53:33.000000000 +0000
+Binary files /tmp/tmp.iz8NmsO6px/base-backend/nabd_plus_patient_app.zip and /tmp/tmp.iz8NmsO6px/current-backend/nabd_plus_patient_app.zip differ
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/package.json /tmp/tmp.iz8NmsO6px/current-backend/package.json
+--- /tmp/tmp.iz8NmsO6px/base-backend/package.json	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/package.json	2026-08-27 11:53:33.000000000 +0000
 @@ -10,7 +10,8 @@
      "start:prod": "node dist/main",
      "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -994,9 +994,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    },
    "dependencies": {
      "@aws-sdk/client-s3": "^3.1075.0",
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/scripts/migrate-hospital-staff-parent-account.ts /tmp/tmp.chDUN7fvjP/current/scripts/migrate-hospital-staff-parent-account.ts
---- /tmp/tmp.chDUN7fvjP/base/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/scripts/migrate-hospital-staff-parent-account.ts /tmp/tmp.iz8NmsO6px/current-backend/scripts/migrate-hospital-staff-parent-account.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
 @@ -0,0 +1,48 @@
 +import { MongoClient } from 'mongodb';
 +
@@ -1046,9 +1046,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  console.error(error instanceof Error ? error.message : error);
 +  process.exit(1);
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/app.module.ts /tmp/tmp.chDUN7fvjP/current/src/app.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/app.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/app.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
 @@ -104,6 +104,7 @@
  import { LoyaltyModule } from './modules/loyalty/loyalty.module';
  import { ReferralModule } from './modules/referral/referral.module';
@@ -1065,9 +1065,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      MaternityModule,
      NabdExtensionsModule,
      NutritionModule,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/contracts/provider-production-routes.contract.spec.ts /tmp/tmp.chDUN7fvjP/current/src/contracts/provider-production-routes.contract.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/contracts/provider-production-routes.contract.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/contracts/provider-production-routes.contract.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
 @@ -0,0 +1,47 @@
 +import 'reflect-metadata';
 +import { PATH_METADATA } from '@nestjs/common/constants';
@@ -1116,9 +1116,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(routePath(FacilityShiftsController, 'deleteShift')).toBe(':id');
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/facility-ops/facility-ops.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/facility-ops/facility-ops.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/facility-ops/facility-ops.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/facility-ops/facility-ops.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Module, Injectable, Controller, Get, Post, Put, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
 +import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
@@ -1177,9 +1177,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post('attendance/check-in')
    checkIn(@CurrentUser() u: any, @Body() b: { lat?: number; lng?: number }) {
      return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/home-care/home-care.controller.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/home-care/home-care.controller.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/home-care/home-care.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/home-care/home-care.controller.spec.ts	2026-08-27 15:54:15.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/home-care/home-care.controller.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/home-care/home-care.controller.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/home-care/home-care.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/home-care/home-care.controller.spec.ts	2026-08-27 15:54:15.000000000 +0000
 @@ -31,17 +31,16 @@
      expect(model.find).not.toHaveBeenCalled();
    });
@@ -1203,9 +1203,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    });
  
    it('rejects a provider mutation on another provider visit', async () => {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/home-care/home-care.controller.ts /tmp/tmp.chDUN7fvjP/current/src/modules/home-care/home-care.controller.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/home-care/home-care.controller.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/home-care/home-care.controller.ts	2026-08-27 15:34:09.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/home-care/home-care.controller.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/home-care/home-care.controller.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/home-care/home-care.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/home-care/home-care.controller.ts	2026-08-27 15:34:09.000000000 +0000
 @@ -172,31 +172,15 @@
      return 2 * R * Math.asin(Math.sqrt(a));
    }
@@ -1246,9 +1246,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    @Post('visits/:id/transit')
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/hospital-staff/hospital-staff.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/hospital-staff/hospital-staff.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/hospital-staff/hospital-staff.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/hospital-staff/hospital-staff.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
 @@ -32,7 +32,7 @@
  
    async list(user: any) {
@@ -1303,9 +1303,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const hash = await bcrypt.hash(newPassword, 10);
      await this.users.updateOne({ id: staffId }, { $set: { password_hash: hash } });
      return { ok: true };
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/pharmacy.controllers.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/pharmacy.controllers.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-27 16:51:29.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/pharmacy.controllers.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/pharmacy.controllers.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-27 16:58:43.000000000 +0000
 @@ -10,6 +10,8 @@
  import { PharmacyChatService } from './services/pharmacy-chat.service';
  import { PharmacyShortageService } from './services/pharmacy-shortage.service';
@@ -1367,7 +1367,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  
    @Post('orders/:id/preparing')
    async orderPreparing(@CurrentUser() u: any, @Param('id') id: string) {
-@@ -141,11 +143,14 @@
+@@ -141,11 +143,15 @@
  @Controller('provider/pharmacy/broadcasts')
  @UseGuards(JwtAuthGuard)
  export class ProviderBroadcastController {
@@ -1377,6 +1377,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.bc.detail(u, id); }
 -  @Post(':orderId/i-have-all') haveAll(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.claimHaveAll(u, oid, b); }
 -  @Post(':orderId/i-have-partial') havePartial(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondPartial(u, oid, b); }
++  @Post(':orderId/offers/preview') previewOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Body() b: any) { return this.offers.previewQuote(u, orderId, b); }
 +  @Post(':orderId/offers/draft') draftOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Body() b: any) { return this.offers.upsertDraft(u, orderId, b); }
 +  @Post(':orderId/offers/:offerId/submit') submitOffer(@CurrentUser() u: any, @Param('orderId') orderId: string, @Param('offerId') offerId: string) { return this.offers.submitDraft(u, orderId, offerId); }
 +  // Kept only as explicit fail-closed compatibility routes. They may never reserve stock or allocate before patient selection.
@@ -1385,7 +1386,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
  }
  
-@@ -159,6 +164,17 @@
+@@ -159,6 +165,17 @@
    @Post('expire-stale') expireStale() { return this.bc.expireStaleBroadcasts(); }
  }
  
@@ -1403,9 +1404,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  @Controller('pharmacy/chat')
  @UseGuards(JwtAuthGuard)
  export class PharmacyChatController {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/pharmacy.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/pharmacy.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 16:51:37.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/pharmacy.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/pharmacy.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 16:51:37.000000000 +0000
 @@ -4,7 +4,7 @@
  import {
    PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
@@ -1474,9 +1475,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      ProviderShortageController,
      AdminShortageController,
      PatientShortageController,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/schemas/pharmacy.schema.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/schemas/pharmacy.schema.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-27 16:48:29.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-27 16:58:37.000000000 +0000
 @@ -23,6 +23,11 @@
    ALLOCATING = 'allocating',
    PARTIALLY_ALLOCATED = 'partially_allocated',
@@ -1533,7 +1534,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Prop({ required: true, default: PharmacyAllocationState.PENDING_REVIEW, enum: Object.values(PharmacyAllocationState), index: true }) status: PharmacyAllocationState;
  
    // Item-level decisions taken by the pharmacist.
-@@ -343,6 +362,38 @@
+@@ -343,6 +362,45 @@
  export const PharmacyBroadcastSchema = SchemaFactory.createForClass(PharmacyBroadcast);
  PharmacyBroadcastSchema.index({ lock_state: 1, current_round: 1 });
  
@@ -1556,6 +1557,13 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  @Prop({ type: Object, required: true }) totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
 +  @Prop({ required: true }) quote_expires_at: Date;
 +  @Prop() estimated_preparation_minutes?: number;
++  /** Server-calculated delivery-policy result; providers cannot set price, ETA, or option. */
++  @Prop({ type: Object }) fulfillment?: {
++    policy_status: 'configured' | 'unavailable_read_only';
++    delivery_option?: 'delivery' | 'pickup' | null;
++    eta_minutes?: number | null;
++    delivery_fee_source?: string;
++  };
 +  @Prop({ default: 'provider_capabilities_pharmacy' }) pricing_source: string;
 +  @Prop() created_by?: string;
 +  @Prop() updated_by?: string;
@@ -1572,7 +1580,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  // ============ CHAT (substitute negotiation, restricted content) ============
  @Schema({ timestamps: true, collection: 'pharmacy_chat_threads' })
  export class PharmacyChatThread extends Document {
-@@ -401,6 +452,7 @@
+@@ -401,6 +459,7 @@
    { name: 'PharmacySubstituteMap', schema: PharmacySubstituteMapSchema },
    { name: 'PharmacyLowStockAlert', schema: PharmacyLowStockAlertSchema },
    { name: 'PharmacyBroadcast', schema: PharmacyBroadcastSchema },
@@ -1580,9 +1588,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
    { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
    { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-27 16:50:18.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-27 16:50:18.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 +import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject } from '@nestjs/common';
@@ -1765,10 +1773,54 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    throw new ServiceUnavailableException('legacy_allocation_insurance_disabled_use_admin_selected_offer_decision');
    }
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-27 15:24:39.000000000 +0000
-@@ -115,142 +115,17 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-27 16:57:36.000000000 +0000
+@@ -59,6 +59,43 @@
+     private redisService: RedisService,
+   ) {}
+ 
++  /** Require a real approved pharmacy account regardless of the JWT role alias. */
++  private async assertActiveNotifiedPharmacy(user: any, broadcast?: any) {
++    if (!user?.id) throw new ForbiddenException('pharmacy_identity_required');
++    const account: any = await this.profiles.db.collection('provider_accounts').findOne({
++      id: user.id, provider_type: 'pharmacy', status: { $in: ['approved', 'active'] },
++    });
++    if (!account) throw new ForbiddenException('approved_pharmacy_account_required');
++    if (broadcast && (!Array.isArray(broadcast.notified_pharmacies) || !broadcast.notified_pharmacies.includes(user.id))) {
++      throw new ForbiddenException('pharmacy_not_notified_for_broadcast');
++    }
++    return account;
++  }
++
++  /** Minimal provider-purpose DTO: excludes patient phone, address, attachments and raw order. */
++  private providerBroadcastDto(broadcast: any, order: any) {
++    const method = String(order?.payment_method || order?.payment?.method || (order?.insurance_details ? 'insurance' : 'cash')).toLowerCase();
++    return {
++      id: broadcast.id,
++      order_id: broadcast.order_id,
++      current_round: broadcast.current_round,
++      current_radius_km: broadcast.current_radius_km,
++      lock_state: broadcast.lock_state,
++      offer_deadline_hint: broadcast.updatedAt || broadcast.createdAt || null,
++      payment_summary: { method, insurance_required: method === 'insurance' },
++      items: (order?.items || []).map((item: any) => ({
++        order_item_id: item.id,
++        name_ar: item.name_ar || item.raw_name || null,
++        name_en: item.name_en || null,
++        generic_name: item.generic_name || null,
++        dosage: item.dosage || null,
++        form: item.form || null,
++        qty_requested: Number(item.qty || 0),
++        matched_sku: item.matched_sku || null,
++      })),
++    };
++  }
++
+   /** Fetch broadcast stages config dynamically from SystemConfig */
+   async getBroadcastStages(): Promise<Array<{ stage: number; radius_km: number; timeout_seconds: number }>> {
+     const config = await this.configs.findOne({ key: 'pharmacy_broadcast_stages' }).lean();
+@@ -115,151 +152,26 @@
      await bc.save();
    }
  
@@ -1920,7 +1972,18 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    /** Pharmacy declines the broadcast explicitly (REJECT). Logs rejections to Shortage Engine. */
-@@ -311,147 +186,40 @@
+   async respondReject(user: any, order_id: string, body?: { reason?: string }): Promise<any> {
+-    if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
++    await this.assertActiveNotifiedPharmacy(user);
+     const bc = await this.broadcasts.findOne({ order_id });
+     if (!bc) throw new NotFoundException('broadcast_not_found');
++    await this.assertActiveNotifiedPharmacy(user, bc);
+     if (bc.lock_state === 'locked') throw new BadRequestException('already_locked');
+-    if (!bc.notified_pharmacies.includes(user.id)) throw new ForbiddenException('not_in_broadcast');
+ 
+     bc.responses = bc.responses.filter(r => r.pharmacy_account_id !== user.id);
+     bc.responses.push({ pharmacy_account_id: user.id, response: 'declined', items: [], responded_at: new Date() });
+@@ -311,147 +223,40 @@
      return bc.toObject();
    }
  
@@ -2091,9 +2154,65 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    // ============== INTERNAL: geo filter ==============
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	2026-08-27 16:51:17.000000000 +0000
+@@ -485,48 +290,21 @@
+   }
+ 
+   async listForPharmacy(user: any): Promise<any> {
+-    if (!isProviderRole(user?.role)) throw new ForbiddenException();
++    await this.assertActiveNotifiedPharmacy(user);
+     const bcs = await this.broadcasts.find({ notified_pharmacies: user.id, lock_state: { $in: ['open'] } }).sort({ createdAt: -1 }).lean();
+     const orders = await this.orders.find({ id: { $in: bcs.map(b => b.order_id) } }).lean();
+     const ordersMap = new Map(orders.map(o => [o.id, o]));
+-    
+-    // Resolve patient details
+-    const patientIds = Array.from(new Set(orders.map(o => o.patient_account_id).filter(Boolean)));
+-    const UserModel = this.broadcasts.db.model('User');
+-    const patients = await UserModel.find({ id: { $in: patientIds } }, { id: 1, full_name: 1, phone: 1 }).lean();
+-    const patientMap = new Map(patients.map((p: any) => [p.id, p]));
+-
+-    return bcs.map(b => {
+-      const order = ordersMap.get(b.order_id);
+-      const patient = order ? patientMap.get((order as any).patient_account_id) : null;
+-      return {
+-        broadcast: b,
+-        order,
+-        patient_name: (patient as any)?.full_name || 'مريض نبض',
+-        patient_phone: (patient as any)?.phone || '',
+-      };
+-    });
++    return bcs.map((broadcast) => this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id)));
+   }
+ 
+   async detail(user: any, broadcast_id: string): Promise<any> {
++    await this.assertActiveNotifiedPharmacy(user);
+     const bc = await this.broadcasts.findOne({ id: broadcast_id }).lean();
+-    if (!bc) throw new NotFoundException();
+-    if (user?.role === 'provider' && !bc.notified_pharmacies.includes(user.id)) throw new ForbiddenException();
+-    if (user?.role === 'patient' && bc.patient_account_id !== user.id) throw new ForbiddenException();
++    if (!bc) throw new NotFoundException('broadcast_not_found');
++    await this.assertActiveNotifiedPharmacy(user, bc);
+     const order = await this.orders.findOne({ id: bc.order_id }).lean();
+-    
+-    let patient_name = 'مريض نبض';
+-    let patient_phone = '';
+-    if (order) {
+-      const UserModel = this.broadcasts.db.model('User');
+-      const patient = (await UserModel.findOne({ id: order.patient_account_id }, { full_name: 1, phone: 1 }).lean()) as any;
+-      if (patient) {
+-        patient_name = patient.full_name;
+-        patient_phone = patient.phone;
+-      }
+-    }
+-
+-    return { broadcast: bc, order, patient_name, patient_phone };
++    if (!order) throw new NotFoundException('order_not_found');
++    return this.providerBroadcastDto(bc, order);
+   }
+ 
+   /** Sweep closures */
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	2026-08-27 16:51:17.000000000 +0000
 @@ -0,0 +1,116 @@
 +import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 +import { InjectModel } from '@nestjs/mongoose';
@@ -2211,9 +2330,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    return { ok: true, decision, next_status: nextStatus };
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-notification.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-notification.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
 @@ -5,12 +5,14 @@
  import { NotificationPriority, NotificationType } from '../../../common/enums';
  import { PharmacyAllocation, PharmacyOrder } from '../schemas/pharmacy.schema';
@@ -2256,10 +2375,10 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    private async lookupOrderId(orderId: string): Promise<{ patient_account_id: string; id: string } | null> {
      const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
      return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-offer.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-offer.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-offer.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-offer.service.ts	2026-08-27 16:48:35.000000000 +0000
-@@ -0,0 +1,269 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts	2026-08-27 16:58:26.000000000 +0000
+@@ -0,0 +1,296 @@
 +import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 +import { Connection, Model } from 'mongoose';
@@ -2276,6 +2395,13 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  qty_offered?: number;
 +  inventory_item_id?: string;
 +  substitute_inventory_item_id?: string;
++};
++
++type ProviderOfferInput = {
++  items: ProviderOfferItemInput[];
++  /** Reserved for a server policy; client values are never accepted as authority. */
++  delivery_option?: 'delivery' | 'pickup';
++  eta_minutes?: number;
 +};
 +
 +@Injectable()
@@ -2375,16 +2501,34 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +      items.push(await this.inventoryForOffer(userId, orderItem, byOrderItem.get(orderItem.id)!));
 +    }
 +    const subtotal = items.reduce((sum, item) => sum + (item.action === 'unavailable' ? 0 : item.unit_price * item.qty_offered), 0);
-+    // Delivery fees are policy-owned. Until a delivery-zone policy is attached, the server exposes zero rather than accepting a client value.
++    // Delivery fees/options/ETA are policy-owned. No configured server policy exists yet, so they are explicit read-only/unavailable values.
 +    const deliveryFee = 0;
++    const estimatedPreparationMinutes = Math.max(15, Math.min(60, 10 + items.filter((item) => item.action !== 'unavailable').length * 5));
 +    return {
 +      items,
 +      totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
-+      estimated_preparation_minutes: Math.max(15, Math.min(60, 10 + items.filter((item) => item.action !== 'unavailable').length * 5)),
++      estimated_preparation_minutes: estimatedPreparationMinutes,
++      fulfillment: {
++        policy_status: 'unavailable_read_only',
++        delivery_option: null,
++        eta_minutes: null,
++        delivery_fee_source: 'no_active_server_delivery_policy',
++      },
 +    };
 +  }
 +
-+  async upsertDraft(user: any, orderId: string, body: { items: ProviderOfferItemInput[] }) {
++  async previewQuote(user: any, orderId: string, body: ProviderOfferInput) {
++    const { order } = await this.loadBroadcastForPharmacy(user, orderId);
++    const quote = await this.serverQuote(user.id, order, body?.items || []);
++    return {
++      ...quote,
++      quote_ttl_seconds: Math.floor(OFFER_TTL_MS / 1000),
++      quote_generated_at: new Date(),
++      delivery_client_fields_ignored: Boolean(body?.delivery_option || body?.eta_minutes),
++    };
++  }
++
++  async upsertDraft(user: any, orderId: string, body: ProviderOfferInput) {
 +    const { broadcast, order } = await this.loadBroadcastForPharmacy(user, orderId);
 +    const quote = await this.serverQuote(user.id, order, body?.items || []);
 +    const now = new Date();
@@ -2400,6 +2544,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +      items: quote.items,
 +      totals: quote.totals,
 +      estimated_preparation_minutes: quote.estimated_preparation_minutes,
++      fulfillment: quote.fulfillment,
 +      quote_expires_at: new Date(now.getTime() + OFFER_TTL_MS),
 +      pricing_source: 'provider_capabilities_pharmacy',
 +      created_by: user.id,
@@ -2516,7 +2661,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    return {
 +      id: offer.id, order_id: offer.order_id, status: offer.status, version: offer.version,
 +      items: offer.items, totals: offer.totals, quote_expires_at: offer.quote_expires_at,
-+      estimated_preparation_minutes: offer.estimated_preparation_minutes, pricing_source: offer.pricing_source,
++      estimated_preparation_minutes: offer.estimated_preparation_minutes, fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' }, pricing_source: offer.pricing_source,
 +    };
 +  }
 +
@@ -2526,12 +2671,13 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +      items: offer.items.map((item: any) => ({ order_item_id: item.order_item_id, action: item.action, qty_requested: item.qty_requested, qty_offered: item.qty_offered, unit_price: item.unit_price, currency: item.currency, substitute: item.action === 'substitute' ? { sku: item.sku, name_ar: item.name_ar, name_en: item.name_en } : undefined })),
 +      totals: offer.totals, quote_expires_at: offer.quote_expires_at,
 +      estimated_preparation_minutes: offer.estimated_preparation_minutes,
++      fulfillment: offer.fulfillment || { policy_status: 'unavailable_read_only' },
 +    };
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-27 15:23:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-27 15:23:03.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 +import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
@@ -2575,9 +2721,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const a = await this.allocs.outForDelivery(user, alloc.id, {
        courier_name: payload?.driver || payload?.courier_name,
        courier_phone: payload?.phone || payload?.courier_phone,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	2026-08-27 16:52:48.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	2026-08-27 16:52:48.000000000 +0000
 @@ -0,0 +1,36 @@
 +import { BadRequestException } from '@nestjs/common';
 +import { PharmacyAllocationService } from '../services/pharmacy-allocation.service';
@@ -2615,10 +2761,83 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(allocation.save).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-27 15:21:54.000000000 +0000
-@@ -220,14 +220,11 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-27 16:56:59.000000000 +0000
+@@ -37,14 +37,15 @@
+     findOneAndUpdate: jest.fn(),
+   };
+ 
++  const mockProviderAccountCollection = {
++    findOne: jest.fn(),
++    find: jest.fn().mockReturnThis(),
++    project: jest.fn().mockReturnThis(),
++    toArray: jest.fn().mockResolvedValue([]),
++  };
+   const mockProfileModel = {
+     find: jest.fn(),
+-    db: {
+-      collection: jest.fn().mockReturnThis(),
+-      find: jest.fn().mockReturnThis(),
+-      project: jest.fn().mockReturnThis(),
+-      toArray: jest.fn().mockResolvedValue([]),
+-    },
++    db: { collection: jest.fn().mockReturnValue(mockProviderAccountCollection) },
+   };
+ 
+   const mockAvailsModel = {
+@@ -114,6 +115,7 @@
+ 
+     service = module.get<PharmacyBroadcastService>(PharmacyBroadcastService);
+     jest.clearAllMocks();
++    mockProviderAccountCollection.findOne.mockResolvedValue({ id: 'pharm-123', provider_type: 'pharmacy', status: 'approved' });
+   });
+ 
+   it('should be defined', () => {
+@@ -146,7 +148,7 @@
+   });
+ 
+   describe('respondReject', () => {
+-    it('should throw ForbiddenException if user is not provider', async () => {
++    it('should reject identities without an approved pharmacy account', async () => {
+       await expect(service.respondReject({ role: 'patient' }, 'order-123')).rejects.toThrow(ForbiddenException);
+     });
+ 
+@@ -204,6 +206,33 @@
+     });
+   });
+ 
++  describe('provider-purpose broadcast DTO', () => {
++    const broadcast = { id: 'bc-1', order_id: 'order-1', notified_pharmacies: ['pharm-123'], lock_state: 'open', current_round: 1, current_radius_km: 3, createdAt: new Date('2026-01-01') };
++    const order = { id: 'order-1', patient_account_id: 'patient-1', patient_phone: '+966500000000', delivery_address: { line1: 'secret street' }, attachments: [{ key: 'secret' }], items: [{ id: 'i-1', raw_name: 'دواء', qty: 2 }] };
++
++    it('returns no raw order, patient identity, address, phone, or attachments to a notified approved pharmacy', async () => {
++      mockBroadcastModel.find.mockReturnValueOnce({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([broadcast]) }) });
++      mockOrderModel.find.mockReturnValueOnce({ lean: jest.fn().mockResolvedValue([order]) });
++      const result = await service.listForPharmacy({ id: 'pharm-123', role: 'provider' });
++      const serialized = JSON.stringify(result);
++      expect(result[0]).not.toHaveProperty('order');
++      expect(serialized).not.toContain('patient-1');
++      expect(serialized).not.toContain('secret street');
++      expect(serialized).not.toContain('+966500000000');
++      expect(serialized).not.toContain('attachments');
++      expect(result[0].items[0]).toEqual(expect.objectContaining({ order_item_id: 'i-1', qty_requested: 2 }));
++    });
++
++    it('rejects doctor/other-provider identities, pending pharmacies, and guessed broadcast IDs', async () => {
++      mockProviderAccountCollection.findOne.mockResolvedValueOnce(null);
++      await expect(service.listForPharmacy({ id: 'doctor-1', role: 'doctor' })).rejects.toThrow(ForbiddenException);
++      mockProviderAccountCollection.findOne.mockResolvedValueOnce(null);
++      await expect(service.listForPharmacy({ id: 'pending-pharmacy', role: 'provider' })).rejects.toThrow(ForbiddenException);
++      mockBroadcastModel.findOne.mockReturnValueOnce({ lean: jest.fn().mockResolvedValue(broadcast) });
++      await expect(service.detail({ id: 'other-pharmacy', role: 'provider' }, 'bc-1')).rejects.toThrow(ForbiddenException);
++    });
++  });
++
+   describe('runBestPartialMatch', () => {
+     it('should fallback to smart split if no partial responses exist', async () => {
+       const mockBroadcast = {
+@@ -220,14 +249,11 @@
          toObject: function() { return this; },
        };
        mockOrderModel.findOne.mockResolvedValueOnce(mockOrder);
@@ -2636,7 +2855,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
  
      it('should allocate to the best partial pharmacy based on items count, distance, and alternatives', async () => {
-@@ -286,13 +283,14 @@
+@@ -286,13 +312,14 @@
  
        const result = await service.runBestPartialMatch(mockBroadcast as any, mockOrder as any);
  
@@ -2657,9 +2876,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
    });
  });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	2026-08-27 16:52:14.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	2026-08-27 16:52:14.000000000 +0000
 @@ -0,0 +1,54 @@
 +import { BadRequestException } from '@nestjs/common';
 +import { PharmacyInsuranceDecisionService } from '../services/pharmacy-insurance-decision.service';
@@ -2715,9 +2934,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    })).rejects.toBeInstanceOf(BadRequestException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
 @@ -0,0 +1,33 @@
 +import { PharmacyNotificationService } from '../services/pharmacy-notification.service';
 +
@@ -2752,10 +2971,10 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    });
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	2026-08-27 15:20:25.000000000 +0000
-@@ -0,0 +1,54 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	2026-08-27 17:00:51.000000000 +0000
+@@ -0,0 +1,66 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { PharmacyOfferService } from '../services/pharmacy-offer.service';
 +
@@ -2796,6 +3015,18 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(result.status).toBe('draft');
 +  });
 +
++  it('returns a server-derived preview with explicit read-only delivery policy and ignores client ETA', async () => {
++    const svc = service();
++    const result = await svc.previewQuote(
++      { id: 'pharmacy-1', role: 'provider' }, 'order-1',
++      { items: [{ order_item_id: 'item-1', availability: 'available', inventory_item_id: 'inventory-1', qty_offered: 1 }], delivery_option: 'delivery', eta_minutes: 1 },
++    );
++    expect(result.totals).toEqual({ subtotal: 17.5, delivery_fee: 0, total: 17.5, currency: 'SAR' });
++    expect(result.quote_ttl_seconds).toBe(600);
++    expect(result.fulfillment).toEqual(expect.objectContaining({ policy_status: 'unavailable_read_only', delivery_option: null, eta_minutes: null }));
++    expect(result.delivery_client_fields_ignored).toBe(true);
++  });
++
 +  it('rejects a pharmacy that was not notified for the broadcast', async () => {
 +    const svc = service({ broadcasts: { findOne: jest.fn(() => lean({ ...broadcast, notified_pharmacies: ['other-pharmacy'] })) } });
 +    await expect(svc.upsertDraft({ id: 'pharmacy-1', role: 'provider' }, 'order-1', { items: [] }))
@@ -2810,9 +3041,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(connection.startSession).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider/provider.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider/provider.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/provider.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/provider.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
 @@ -42,7 +42,6 @@
  import { User, UserSchema } from '../../schemas/user.schema';
  import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
@@ -2829,9 +3060,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      LeaveRequestsController,
      ProviderAuthController,
      ProviderProfileController,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider/services/provider-profile.service.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider/services/provider-profile.service.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider/services/provider-profile.service.ts	2026-08-27 15:52:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/services/provider-profile.service.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/services/provider-profile.service.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/services/provider-profile.service.ts	2026-08-27 15:52:23.000000000 +0000
 @@ -38,7 +38,7 @@
    }
  
@@ -2854,9 +3085,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
      const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
      if (existing) {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider/simulated-features.controller.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider/simulated-features.controller.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/simulated-features.controller.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/simulated-features.controller.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
 @@ -1,197 +0,0 @@
 -import { JwtAuthGuard } from '../../common/auth.guard';
 -import { UseGuards } from '@nestjs/common';
@@ -3055,9 +3286,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -    return { ok: true, bookingId, status: 'published' };
 -  }
 -}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider/simulated-features.dto.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider/simulated-features.dto.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/simulated-features.dto.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/simulated-features.dto.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
 @@ -1,141 +0,0 @@
 -import { IsString, IsNumber, IsOptional, IsDateString, IsBoolean, IsArray, IsObject, IsNotEmpty } from 'class-validator';
 -
@@ -3200,9 +3431,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -  @IsOptional()
 -  file_id?: string;
 -}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-onboarding/provider-onboarding.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-onboarding/provider-onboarding.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-27 15:47:46.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-onboarding/provider-onboarding.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-onboarding/provider-onboarding.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-27 15:47:46.000000000 +0000
 @@ -46,15 +46,19 @@
    async start(body: { phone: string; password?: string; full_name?: string; email?: string; type: ProviderType }) {
      if (!body.type || !Object.values(ProviderType).includes(body.type)) throw new BadRequestException('invalid_type');
@@ -3252,9 +3483,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      this.bus.emit({ type: 'provider.submitted_for_review', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: profile.type } }).catch(() => null);
      return profile.toObject();
    }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	2026-08-27 15:51:17.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	2026-08-27 15:51:17.000000000 +0000
 @@ -0,0 +1,32 @@
 +import { BadRequestException } from '@nestjs/common';
 +import { ProviderOnboardingService } from './provider-onboarding.module';
@@ -3288,9 +3519,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(providerModel.create).toHaveBeenCalledWith(expect.objectContaining({ type: ProviderType.LAB, status: 'pending', onboarding_step: 1 }));
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts	2026-08-27 15:42:08.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts	2026-08-27 15:42:08.000000000 +0000
 @@ -0,0 +1,37 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { ProviderOpsService } from './provider-ops.module';
@@ -3329,9 +3560,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(emergency.updateOne).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-ops/provider-ops.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-ops/provider-ops.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-ops/provider-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-ops/provider-ops.module.ts	2026-08-27 15:40:57.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-ops/provider-ops.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-ops/provider-ops.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-ops/provider-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-ops/provider-ops.module.ts	2026-08-27 15:40:57.000000000 +0000
 @@ -290,9 +290,25 @@
    }
  
@@ -3424,9 +3655,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceHandover(u, id, b); }
    @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceComplete(u, id, b); }
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.availability.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.availability.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.availability.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.availability.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
 @@ -0,0 +1,36 @@
 +import { NotFoundException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -3464,9 +3695,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    await expect(service.getAvailability(user)).rejects.toBeInstanceOf(NotFoundException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.coverage.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.coverage.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.coverage.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.coverage.spec.ts	2026-08-27 15:36:08.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.coverage.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.coverage.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.coverage.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.coverage.spec.ts	2026-08-27 15:36:08.000000000 +0000
 @@ -0,0 +1,42 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -3510,9 +3741,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(update.$set.insurance_decision.copay_amount).toBe(50);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.module.ts	2026-08-27 15:30:27.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.module.ts	2026-08-27 15:30:27.000000000 +0000
 @@ -0,0 +1,699 @@
 +/**
 + * PROVIDER PRODUCTION MODULE (P3) — الـ9 endpoints الحاكمة لمصفوفة سيناريوهات المزوّدين
@@ -4213,9 +4444,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  providers: [ProviderProductionService],
 +})
 +export class ProviderProductionModule {}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
 @@ -0,0 +1,135 @@
 +import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -4352,9 +4583,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    })).rejects.toBeInstanceOf(BadRequestException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/modules/storage/storage.module.ts /tmp/tmp.chDUN7fvjP/current/src/modules/storage/storage.module.ts
---- /tmp/tmp.chDUN7fvjP/base/src/modules/storage/storage.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/modules/storage/storage.module.ts	2026-08-27 15:47:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/modules/storage/storage.module.ts /tmp/tmp.iz8NmsO6px/current-backend/src/modules/storage/storage.module.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/modules/storage/storage.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/modules/storage/storage.module.ts	2026-08-27 15:47:23.000000000 +0000
 @@ -7,7 +7,7 @@
  import * as crypto from 'crypto';
  import { OnEvent } from '@nestjs/event-emitter';
@@ -4409,9 +4640,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  }
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.chDUN7fvjP/base/src/schemas/user.schema.ts /tmp/tmp.chDUN7fvjP/current/src/schemas/user.schema.ts
---- /tmp/tmp.chDUN7fvjP/base/src/schemas/user.schema.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.chDUN7fvjP/current/src/schemas/user.schema.ts	2026-08-27 15:48:06.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-backend/src/schemas/user.schema.ts /tmp/tmp.iz8NmsO6px/current-backend/src/schemas/user.schema.ts
+--- /tmp/tmp.iz8NmsO6px/base-backend/src/schemas/user.schema.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.iz8NmsO6px/current-backend/src/schemas/user.schema.ts	2026-08-27 15:48:06.000000000 +0000
 @@ -12,6 +12,8 @@
    @Prop() password_hash?: string;
    @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.PATIENT }) role: UserRole;
