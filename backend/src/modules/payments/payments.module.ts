@@ -207,13 +207,37 @@ export class PaymentsService {
     const booking: any = await this.pharmacyOrders.findOne({ id: orderId }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
     this.assertBookingOwnerOrAdmin(user, booking);
-    const quote = this.pharmacyPaymentSnapshot(booking);
+    let quote: { amount: number; currency: string; quoteHash: string; quoteRevision: number; purpose: 'online_payment' | 'insurance_copay' | 'insurance_self_pay' };
+    if (booking.governed_state === GovernedPharmacyOrderState.INSURANCE_DECISION_READY) {
+      const snapshot = booking.accepted_quote_snapshot;
+      const total = Number(snapshot?.totals?.total);
+      const currency = String(snapshot?.totals?.currency ?? '').toUpperCase();
+      const quoteHash = String(booking.accepted_quote_hash ?? '');
+      const quoteRevision = Number(booking.accepted_quote_revision);
+      const summary = booking.insurance_decision_summary;
+      const coveredAmount = Number(summary?.covered_amount);
+      const coPayAmount = Number(summary?.co_pay_amount);
+      if (!snapshot || !quoteHash || !Number.isInteger(quoteRevision) || quoteRevision < 1 || currency !== 'SAR' || !Number.isFinite(total) || total <= 0 || !Number.isFinite(coveredAmount) || coveredAmount < 0 || !Number.isFinite(coPayAmount) || coPayAmount < 0) {
+        throw new BadRequestException('invalid_insurance_payment_capability_context');
+      }
+      if (coPayAmount > 0 && ['APPROVED_FULL', 'APPROVED_PARTIAL'].includes(summary?.decision)) {
+        quote = { amount: coPayAmount, currency, quoteHash, quoteRevision, purpose: 'insurance_copay' };
+      } else if (['APPROVED_PARTIAL', 'REJECTED'].includes(summary?.decision) && coveredAmount < total) {
+        quote = { amount: Math.round((total - coveredAmount) * 100) / 100, currency, quoteHash, quoteRevision, purpose: 'insurance_self_pay' };
+      } else {
+        throw new BadRequestException('no_payable_insurance_amount');
+      }
+    } else {
+      const snapshot = this.pharmacyPaymentSnapshot(booking);
+      quote = { ...snapshot, purpose: 'online_payment' };
+    }
     return {
       booking_id: booking.id,
       amount: quote.amount,
       currency: quote.currency,
       quote_hash: quote.quoteHash,
       quote_revision: quote.quoteRevision,
+      purpose: quote.purpose,
       methods: this.configuredOnlineMethods(userAgent).map((method) => ({ id: method.replace('_', '-'), kind: 'online' })),
     };
   }

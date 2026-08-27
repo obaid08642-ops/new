@@ -84,6 +84,18 @@ describe('PaymentsService pharmacy quote guard', () => {
     else process.env.PAYMENT_ONLINE_METHODS = previous;
   });
 
+  it('returns the server-computed co-pay amount while insurance is awaiting patient acceptance', async () => {
+    const { service } = createPaymentsService({
+      ...acceptedBooking,
+      governed_state: 'INSURANCE_DECISION_READY',
+      insurance_decision_summary: { decision: 'APPROVED_PARTIAL', co_pay_amount: 12.25, covered_amount: 72.25 },
+    });
+
+    await expect(service.pharmacyPaymentCapabilities({ id: 'patient-1' }, 'order-1')).resolves.toMatchObject({
+      amount: 12.25, currency: 'SAR', purpose: 'insurance_copay', methods: [{ id: 'card', kind: 'online' }],
+    });
+  });
+
   it('rejects a requested pharmacy method that is not enabled for the gateway and device', async () => {
     const previous = process.env.PAYMENT_ONLINE_METHODS;
     process.env.PAYMENT_ONLINE_METHODS = 'card';
