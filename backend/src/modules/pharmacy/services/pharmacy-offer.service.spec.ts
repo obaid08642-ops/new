@@ -245,4 +245,30 @@ describe('PharmacyOfferService', () => {
       { new: true },
     );
   });
+
+  it('registers COD only for an eligible accepted cash quote and confirms the governed order', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', coverage_mode: 'cash', governed_state: 'FINAL_QUOTE_ACCEPTED',
+      accepted_quote_snapshot: { cod_allowed: true, totals: { total: 32.5, currency: 'SAR' } }, accepted_quote_hash: 'quote-hash', accepted_quote_revision: 4,
+    });
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1', governed_state: 'CONFIRMED', toObject: () => ({ id: 'order-1', governed_state: 'CONFIRMED' }) });
+
+    await expect(service.registerCod({ id: 'patient-1' }, 'order-1')).resolves.toEqual({ id: 'order-1', governed_state: 'CONFIRMED' });
+    expect(orders.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ governed_state: 'FINAL_QUOTE_ACCEPTED', coverage_mode: 'cash' }),
+      expect.objectContaining({ $set: expect.objectContaining({ payment_method: 'cod', payment_status: 'cod_pending_collection' }) }),
+      { new: true },
+    );
+  });
+
+  it('rejects COD when the accepted quote has no server-recorded COD eligibility', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', coverage_mode: 'cash', governed_state: 'FINAL_QUOTE_ACCEPTED',
+      accepted_quote_snapshot: { cod_allowed: false, totals: { total: 32.5, currency: 'SAR' } }, accepted_quote_hash: 'quote-hash', accepted_quote_revision: 4,
+    });
+    await expect(service.registerCod({ id: 'patient-1' }, 'order-1')).rejects.toThrow('cod_not_eligible');
+    expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
+  });
 });
