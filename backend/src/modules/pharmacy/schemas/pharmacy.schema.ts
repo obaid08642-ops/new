@@ -157,6 +157,12 @@ export class PharmacyOrder extends Document {
   @Prop() insurance_status?: string;
   @Prop({ default: 0 }) copay?: number;
   @Prop({ type: Object }) insurance_evaluation?: any;
+  /** Immutable offer selected by the patient; never derive payment from a mutable provider basket. */
+  @Prop({ index: true }) selected_offer_id?: string;
+  @Prop({ index: true }) selected_pharmacy_account_id?: string;
+  @Prop({ enum: ['cash', 'insurance'] }) coverage_mode?: 'cash' | 'insurance';
+  @Prop({ type: Object }) accepted_quote_snapshot?: any;
+  @Prop({ default: 0 }) accepted_quote_revision?: number;
 
   @Prop({ type: [String], default: [], index: true }) allocations: string[];
   @Prop({ default: 0 }) splits_count: number;
@@ -343,6 +349,33 @@ export class PharmacyBroadcast extends Document {
 export const PharmacyBroadcastSchema = SchemaFactory.createForClass(PharmacyBroadcast);
 PharmacyBroadcastSchema.index({ lock_state: 1, current_round: 1 });
 
+// ============ PATIENT-SELECTABLE PHARMACY OFFER ============
+@Schema({ timestamps: true, collection: 'pharmacy_offers' })
+export class PharmacyOffer extends Document {
+  @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
+  @Prop({ required: true, index: true }) order_id: string;
+  @Prop({ required: true, index: true }) patient_account_id: string;
+  @Prop({ required: true, index: true }) pharmacy_account_id: string;
+  @Prop({ required: true, default: 'open', enum: ['open', 'selected', 'superseded', 'withdrawn', 'expired'], index: true }) status: string;
+  @Prop({ required: true, default: 1 }) revision: number;
+  @Prop({ type: [Object], default: [] }) items: Array<{
+    order_item_id: string; inventory_id?: string; sku?: string; name?: string;
+    requested_qty: number; offered_qty: number; available: boolean;
+    unit_price: number; alternative?: Record<string, any>;
+  }>;
+  @Prop({ required: true, type: Object }) totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
+  @Prop({ required: true }) snapshot_hash: string;
+  @Prop({ enum: ['pharmacy_delivery', 'pickup'], default: 'pharmacy_delivery' }) fulfillment: 'pharmacy_delivery' | 'pickup';
+  @Prop({ default: false }) cod_allowed: boolean;
+  @Prop({ default: false }) insurance_ready: boolean;
+  @Prop() preparation_minutes?: number;
+  @Prop({ required: true, index: true }) expires_at: Date;
+  @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
+}
+export const PharmacyOfferSchema = SchemaFactory.createForClass(PharmacyOffer);
+PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, status: 1 });
+PharmacyOfferSchema.index({ patient_account_id: 1, status: 1, expires_at: 1 });
+
 // ============ CHAT (substitute negotiation, restricted content) ============
 @Schema({ timestamps: true, collection: 'pharmacy_chat_threads' })
 export class PharmacyChatThread extends Document {
@@ -401,6 +434,7 @@ export const PHARMACY_SCHEMAS = [
   { name: 'PharmacySubstituteMap', schema: PharmacySubstituteMapSchema },
   { name: 'PharmacyLowStockAlert', schema: PharmacyLowStockAlertSchema },
   { name: 'PharmacyBroadcast', schema: PharmacyBroadcastSchema },
+  { name: 'PharmacyOffer', schema: PharmacyOfferSchema },
   { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
   { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
   { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
