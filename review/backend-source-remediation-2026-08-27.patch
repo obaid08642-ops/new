@@ -1,6 +1,6 @@
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/e2e/README.md /tmp/tmp.DxH33RurGP/current/e2e/README.md
---- /tmp/tmp.DxH33RurGP/base/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/README.md /tmp/tmp.7PnNXm18lu/current/e2e/README.md
+--- /tmp/tmp.7PnNXm18lu/base/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
 @@ -1,46 +1,45 @@
 -# Nabdah Plus — Live E2E Scenario Matrix (بيئة الاختبار الحية الداخلية)
 +# اختبارات التكامل الحية لواجهة المزوّد
@@ -82,9 +82,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +## حدود الأدلة الحالية
 +
 +الملفات القديمة مثل `boot.js` و`matrix*.js` تبقى مرجعاً تاريخياً ولا تدخل في بوابة الإصدار المحمولة للمزوّد؛ لأنها تفترض منافذ ومسارات وقت تشغيل محلية. كما لا تغطي هذه السيناريوهات وحدها اتصال LiveKit الحقيقي، تخزين الكائنات S3/R2، الإشعارات الفورية على جهاز، تسليم OTP، أو اختبارات Expo على جهاز فعلي.
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/e2e/pharmacy-scenarios.js /tmp/tmp.DxH33RurGP/current/e2e/pharmacy-scenarios.js
---- /tmp/tmp.DxH33RurGP/base/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/pharmacy-scenarios.js /tmp/tmp.7PnNXm18lu/current/e2e/pharmacy-scenarios.js
+--- /tmp/tmp.7PnNXm18lu/base/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,241 @@
 +/* P4 GATE — Pharmacy full scenario matrix (cash / COD / insurance) on a live server.
 + * Prereq: server on :4099 (boot.js or manual), then:
@@ -327,9 +327,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/e2e/provider-production.js /tmp/tmp.DxH33RurGP/current/e2e/provider-production.js
---- /tmp/tmp.DxH33RurGP/base/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/provider-production.js /tmp/tmp.7PnNXm18lu/current/e2e/provider-production.js
+--- /tmp/tmp.7PnNXm18lu/base/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,320 @@
 +/* P3 GATE — e2e for the 9 governed provider endpoints (+shifts CRUD completion).
 + * Prerequisites: an explicitly provisioned disposable E2E stack, then:
@@ -651,9 +651,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/e2e/provider-verticals.js /tmp/tmp.DxH33RurGP/current/e2e/provider-verticals.js
---- /tmp/tmp.DxH33RurGP/base/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/provider-verticals.js /tmp/tmp.7PnNXm18lu/current/e2e/provider-verticals.js
+--- /tmp/tmp.7PnNXm18lu/base/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,268 @@
 +/* P5+P6+P7 GATE — doctor/lab/radiology/nursing/ambulance lifecycles on a live server.
 + * Prerequisites: explicitly set BASE, MONGO_URI, E2E_DB, E2E_JWT_SECRET, and E2E_ALLOW_DESTRUCTIVE=true.
@@ -923,9 +923,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/e2e/run-all-gates.js /tmp/tmp.DxH33RurGP/current/e2e/run-all-gates.js
---- /tmp/tmp.DxH33RurGP/base/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/run-all-gates.js /tmp/tmp.7PnNXm18lu/current/e2e/run-all-gates.js
+--- /tmp/tmp.7PnNXm18lu/base/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
 @@ -0,0 +1,53 @@
 +#!/usr/bin/env node
 +/*
@@ -980,10 +980,10 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +
 +console.log(`\nProvider E2E gate: ${failed === 0 ? 'PASS' : `NO-GO (${failed} failing gate${failed === 1 ? '' : 's'})`}`);
 +process.exit(failed === 0 ? 0 : 1);
-Binary files /tmp/tmp.DxH33RurGP/base/nabd_plus_patient_app.zip and /tmp/tmp.DxH33RurGP/current/nabd_plus_patient_app.zip differ
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/package.json /tmp/tmp.DxH33RurGP/current/package.json
---- /tmp/tmp.DxH33RurGP/base/package.json	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/package.json	2026-08-27 11:53:33.000000000 +0000
+Binary files /tmp/tmp.7PnNXm18lu/base/nabd_plus_patient_app.zip and /tmp/tmp.7PnNXm18lu/current/nabd_plus_patient_app.zip differ
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/package.json /tmp/tmp.7PnNXm18lu/current/package.json
+--- /tmp/tmp.7PnNXm18lu/base/package.json	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/package.json	2026-08-27 11:53:33.000000000 +0000
 @@ -10,7 +10,8 @@
      "start:prod": "node dist/main",
      "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -994,9 +994,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    },
    "dependencies": {
      "@aws-sdk/client-s3": "^3.1075.0",
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/scripts/migrate-hospital-staff-parent-account.ts /tmp/tmp.DxH33RurGP/current/scripts/migrate-hospital-staff-parent-account.ts
---- /tmp/tmp.DxH33RurGP/base/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/scripts/migrate-hospital-staff-parent-account.ts /tmp/tmp.7PnNXm18lu/current/scripts/migrate-hospital-staff-parent-account.ts
+--- /tmp/tmp.7PnNXm18lu/base/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
 @@ -0,0 +1,48 @@
 +import { MongoClient } from 'mongodb';
 +
@@ -1046,9 +1046,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  console.error(error instanceof Error ? error.message : error);
 +  process.exit(1);
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/scripts/migrations/20260827-pharmacy-expiry-indexes.js /tmp/tmp.DxH33RurGP/current/scripts/migrations/20260827-pharmacy-expiry-indexes.js
---- /tmp/tmp.DxH33RurGP/base/scripts/migrations/20260827-pharmacy-expiry-indexes.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/scripts/migrations/20260827-pharmacy-expiry-indexes.js	2026-08-27 18:25:25.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/scripts/migrations/20260827-pharmacy-expiry-indexes.js /tmp/tmp.7PnNXm18lu/current/scripts/migrations/20260827-pharmacy-expiry-indexes.js
+--- /tmp/tmp.7PnNXm18lu/base/scripts/migrations/20260827-pharmacy-expiry-indexes.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/scripts/migrations/20260827-pharmacy-expiry-indexes.js	2026-08-27 18:25:25.000000000 +0000
 @@ -0,0 +1,53 @@
 +/*
 + * Manual, opt-in schema migration for pharmacy expiry commands.
@@ -1103,9 +1103,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  console.error(error?.stack || error);
 +  process.exitCode = 1;
 +}).finally(() => mongoose.disconnect());
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/app.module.ts /tmp/tmp.DxH33RurGP/current/src/app.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/app.module.ts /tmp/tmp.7PnNXm18lu/current/src/app.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
 @@ -104,6 +104,7 @@
  import { LoyaltyModule } from './modules/loyalty/loyalty.module';
  import { ReferralModule } from './modules/referral/referral.module';
@@ -1122,9 +1122,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      MaternityModule,
      NabdExtensionsModule,
      NutritionModule,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/contracts/provider-production-routes.contract.spec.ts /tmp/tmp.DxH33RurGP/current/src/contracts/provider-production-routes.contract.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/contracts/provider-production-routes.contract.spec.ts /tmp/tmp.7PnNXm18lu/current/src/contracts/provider-production-routes.contract.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
 @@ -0,0 +1,47 @@
 +import 'reflect-metadata';
 +import { PATH_METADATA } from '@nestjs/common/constants';
@@ -1173,9 +1173,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(routePath(FacilityShiftsController, 'deleteShift')).toBe(':id');
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/facility-ops/facility-ops.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/facility-ops/facility-ops.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/facility-ops/facility-ops.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/facility-ops/facility-ops.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Module, Injectable, Controller, Get, Post, Put, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
 +import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
@@ -1234,9 +1234,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post('attendance/check-in')
    checkIn(@CurrentUser() u: any, @Body() b: { lat?: number; lng?: number }) {
      return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/home-care/home-care.controller.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/home-care/home-care.controller.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/home-care/home-care.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/home-care/home-care.controller.spec.ts	2026-08-27 15:54:15.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.spec.ts	2026-08-27 15:54:15.000000000 +0000
 @@ -31,17 +31,16 @@
      expect(model.find).not.toHaveBeenCalled();
    });
@@ -1260,9 +1260,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    });
  
    it('rejects a provider mutation on another provider visit', async () => {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/home-care/home-care.controller.ts /tmp/tmp.DxH33RurGP/current/src/modules/home-care/home-care.controller.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/home-care/home-care.controller.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/home-care/home-care.controller.ts	2026-08-27 15:34:09.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.ts /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.ts	2026-08-27 15:34:09.000000000 +0000
 @@ -172,31 +172,15 @@
      return 2 * R * Math.asin(Math.sqrt(a));
    }
@@ -1303,9 +1303,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    @Post('visits/:id/transit')
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/hospital-staff/hospital-staff.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/hospital-staff/hospital-staff.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/hospital-staff/hospital-staff.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/hospital-staff/hospital-staff.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
 @@ -32,7 +32,7 @@
  
    async list(user: any) {
@@ -1360,9 +1360,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const hash = await bcrypt.hash(newPassword, 10);
      await this.users.updateOne({ id: staffId }, { $set: { password_hash: hash } });
      return { ok: true };
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/pharmacy.controllers.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/pharmacy.controllers.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-27 18:30:54.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.controllers.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.controllers.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-27 18:30:54.000000000 +0000
 @@ -10,6 +10,9 @@
  import { PharmacyChatService } from './services/pharmacy-chat.service';
  import { PharmacyShortageService } from './services/pharmacy-shortage.service';
@@ -1479,9 +1479,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  }
  
  @Controller('pharmacy/chat')
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/pharmacy.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/pharmacy.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 17:04:56.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 17:04:56.000000000 +0000
 @@ -4,7 +4,7 @@
  import {
    PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
@@ -1552,9 +1552,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      ProviderShortageController,
      AdminShortageController,
      PatientShortageController,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/schemas/pharmacy.schema.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/schemas/pharmacy.schema.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-27 17:03:49.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/schemas/pharmacy.schema.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/schemas/pharmacy.schema.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-27 17:03:49.000000000 +0000
 @@ -23,6 +23,11 @@
    ALLOCATING = 'allocating',
    PARTIALLY_ALLOCATED = 'partially_allocated',
@@ -1678,9 +1678,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
    { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
    { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-27 18:37:47.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-27 18:39:41.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 +import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject } from '@nestjs/common';
@@ -1769,10 +1769,21 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const anyUnavailable = a.items.some(i => i.action === AllocationItemAction.UNAVAILABLE);
      const anyAvailable = a.items.some(i => i.action !== AllocationItemAction.UNAVAILABLE);
      if (!anyAvailable) {
-@@ -173,41 +236,10 @@
-     }
-     return a;
-   }
+@@ -162,52 +225,14 @@
+ 
+   async preparing(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.PREPARING); }
+   async ready(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.READY_FOR_PICKUP); }
+-  async outForDelivery(user: any, id: string, body?: { courier_name?: string; courier_phone?: string; eta?: Date }) {
+-    const a = await this.advance(user, id, PharmacyAllocationState.OUT_FOR_DELIVERY);
+-    if (body) {
+-      const doc = await this.allocs.findOne({ id });
+-      if (doc) {
+-        doc.delivery = { ...doc.delivery, method: 'pharmacy_delivery', ...body };
+-        await doc.save();
+-      }
+-    }
+-    return a;
+-  }
 -  async delivered(user: any, id: string) {
 -    const a = await this.advance(user, id, PharmacyAllocationState.DELIVERED);
 -    const doc = await this.allocs.findOne({ id });
@@ -1808,6 +1819,10 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -      } catch { /* ledger credit must never block delivery confirmation */ }
 -    }
 -    return a;
++  async outForDelivery(_user: any, _id: string, _body?: { courier_name?: string; courier_phone?: string; eta?: Date }): Promise<never> {
++    // Courier identity, precise delivery instructions and ETA require a dedicated policy/purpose contract.
++    throw new ServiceUnavailableException('delivery_operation_policy_required');
++  }
 +  async delivered(_user: any, _id: string): Promise<never> {
 +    // A governed COD collection-proof and settlement/reconciliation command is not yet available.
 +    // Fail before any transition rather than recording a delivered state or earning from UI intent.
@@ -1815,7 +1830,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    private async advance(user: any, id: string, to: PharmacyAllocationState) {
-@@ -215,6 +247,7 @@
+@@ -215,6 +240,7 @@
      const a = await this.allocs.findOne({ id });
      if (!a) throw new NotFoundException();
      if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
@@ -1823,7 +1838,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const fromStatus = a.status;
      this.transition(a, to, user.id);
      await a.save();
-@@ -285,33 +318,8 @@
+@@ -285,33 +311,8 @@
      return { expired, scanned: stale.length };
    }
  
@@ -1860,9 +1875,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    throw new ServiceUnavailableException('legacy_allocation_insurance_disabled_use_admin_selected_offer_decision');
    }
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-27 18:26:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-27 18:44:51.000000000 +0000
 @@ -4,7 +4,7 @@
   * If no FULL_ACCEPT exists, runs the Best Partial Match ranking algorithm.
   * Exposes reject/decline broadcast logging rejections to the Shortage Engine.
@@ -1872,7 +1887,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  import { Model } from 'mongoose';
  import { v4 as uuidv4 } from 'uuid';
  import {
-@@ -59,18 +59,53 @@
+@@ -59,18 +59,50 @@
      private redisService: RedisService,
    ) {}
  
@@ -1899,15 +1914,12 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +      current_round: broadcast.current_round,
 +      current_radius_km: broadcast.current_radius_km,
 +      lock_state: broadcast.lock_state,
-+      offer_deadline_hint: broadcast.updatedAt || broadcast.createdAt || null,
++      offer_deadline_hint: broadcast.round_expires_at || null,
 +      payment_summary: { method, insurance_required: method === 'insurance' },
 +      items: (order?.items || []).map((item: any) => ({
 +        order_item_id: item.id,
 +        name_ar: item.name_ar || item.raw_name || null,
 +        name_en: item.name_en || null,
-+        generic_name: item.generic_name || null,
-+        dosage: item.dosage || null,
-+        form: item.form || null,
 +        qty_requested: Number(item.qty || 0),
 +        matched_sku: item.matched_sku || null,
 +      })),
@@ -1936,7 +1948,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    /** Patient submit → starts the broadcast (round 1). */
-@@ -80,6 +115,8 @@
+@@ -80,6 +112,8 @@
      
      const stages = await this.getBroadcastStages();
      const round1 = stages[0];
@@ -1945,7 +1957,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      
      const bc = await this.broadcasts.create({
        id: uuidv4(),
-@@ -90,7 +127,8 @@
+@@ -90,7 +124,8 @@
        max_radius_km: stages[stages.length - 1].radius_km,
        round_radii_km: stages.map(s => s.radius_km),
        lock_state: 'open',
@@ -1955,7 +1967,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
      
      await this.broadcastRound(bc, order);
-@@ -98,168 +136,81 @@
+@@ -98,168 +133,81 @@
      order.timeline.push({ ts: new Date(), event: 'broadcasting_round_1', meta: { radius: round1.radius_km } });
      await order.save();
      
@@ -2184,7 +2196,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  
      bc.responses = bc.responses.filter(r => r.pharmacy_account_id !== user.id);
      bc.responses.push({ pharmacy_account_id: user.id, response: 'declined', items: [], responded_at: new Date() });
-@@ -299,163 +250,60 @@
+@@ -299,163 +247,60 @@
      }
      
      const nextStage = stages[nextIdx];
@@ -2378,7 +2390,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: 'approved' }).project({ id: 1 }).toArray();
      if (!accs.length || !center?.lat) return [];
      const ids = accs.map((a: any) => a.id);
-@@ -485,80 +333,25 @@
+@@ -485,80 +330,25 @@
    }
  
    async listForPharmacy(user: any): Promise<any> {
@@ -2469,9 +2481,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    throw new ServiceUnavailableException('legacy_expiry_sweep_disabled_use_expire_due_command');
    }
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	2026-08-27 18:23:57.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	2026-08-27 18:23:57.000000000 +0000
 @@ -0,0 +1,197 @@
 +import { Injectable, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -2670,9 +2682,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    return result;
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	2026-08-27 18:33:38.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	2026-08-27 18:33:38.000000000 +0000
 @@ -0,0 +1,148 @@
 +import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -2822,9 +2834,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    });
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-notification.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-notification.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-notification.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-notification.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
 @@ -5,12 +5,14 @@
  import { NotificationPriority, NotificationType } from '../../../common/enums';
  import { PharmacyAllocation, PharmacyOrder } from '../schemas/pharmacy.schema';
@@ -2867,9 +2879,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    private async lookupOrderId(orderId: string): Promise<{ patient_account_id: string; id: string } | null> {
      const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
      return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-offer.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-offer.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-offer.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-offer.service.ts	2026-08-27 16:58:26.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-offer.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-offer.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-offer.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-offer.service.ts	2026-08-27 16:58:26.000000000 +0000
 @@ -0,0 +1,296 @@
 +import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -3167,16 +3179,16 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    };
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-27 15:23:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-27 18:40:19.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 +import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
  import { RedisService } from '../../redis/redis.service';
  import { EventBusService } from '../../events/event-bus.service';
  import { PharmacyAllocationService } from './pharmacy-allocation.service';
-@@ -117,20 +117,33 @@
+@@ -117,24 +117,33 @@
      return { success: true, status: 'insurance_evaluated', insurance_copay: copay };
    }
  
@@ -3207,15 +3219,21 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      return { success: true, status: a.status, order_id: orderId, allocation_id: alloc.id };
    }
  
-   async orderDispatch(user: any, orderId: string, payload: any) {
+-  async orderDispatch(user: any, orderId: string, payload: any) {
 -    const alloc = await this.allocs.findByOrderForProvider(user, orderId);
+-    const a = await this.allocs.outForDelivery(user, alloc.id, {
+-      courier_name: payload?.driver || payload?.courier_name,
+-      courier_phone: payload?.phone || payload?.courier_phone,
+-    } as any);
+-    return { success: true, status: a.status, order_id: orderId, allocation_id: alloc.id, delivery_mode: payload?.delivery_mode };
++  async orderDispatch(user: any, orderId: string, payload: any): Promise<never> {
 +    const alloc = await this.selectedAllocationForProvider(user, orderId);
-     const a = await this.allocs.outForDelivery(user, alloc.id, {
-       courier_name: payload?.driver || payload?.courier_name,
-       courier_phone: payload?.phone || payload?.courier_phone,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	2026-08-27 18:37:12.000000000 +0000
++    return this.allocs.outForDelivery(user, alloc.id, payload);
+   }
+ }
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	2026-08-27 18:37:12.000000000 +0000
 @@ -0,0 +1,46 @@
 +import { BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 +import { PharmacyAllocationService } from '../services/pharmacy-allocation.service';
@@ -3263,9 +3281,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    await expect(service.delivered({ id: 'pharmacy-1', role: 'pharmacy' }, 'alloc-1')).rejects.toBeInstanceOf(ServiceUnavailableException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-27 18:27:12.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-27 18:27:12.000000000 +0000
 @@ -11,7 +11,7 @@
  import { EventBusService } from '../../events/event-bus.service';
  import { PharmacyShortageService } from '../services/pharmacy-shortage.service';
@@ -3421,9 +3439,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
    });
  });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	2026-08-27 18:28:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	2026-08-27 18:28:00.000000000 +0000
 @@ -0,0 +1,88 @@
 +import { ServiceUnavailableException } from '@nestjs/common';
 +import { PharmacyExpiryCommandService } from '../services/pharmacy-expiry-command.service';
@@ -3513,9 +3531,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(result.next_cursor).toEqual({ offer_id: 'offer-1', broadcast_id: undefined });
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	2026-08-27 18:33:47.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	2026-08-27 18:33:47.000000000 +0000
 @@ -0,0 +1,79 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { PharmacyInsuranceDecisionService } from '../services/pharmacy-insurance-decision.service';
@@ -3596,9 +3614,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(outbox.updateOne).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'pharmacy.insurance.rejected_cancelled' }), expect.anything(), expect.anything());
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
 @@ -0,0 +1,33 @@
 +import { PharmacyNotificationService } from '../services/pharmacy-notification.service';
 +
@@ -3633,9 +3651,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    });
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	2026-08-27 17:00:51.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	2026-08-27 17:00:51.000000000 +0000
 @@ -0,0 +1,66 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { PharmacyOfferService } from '../services/pharmacy-offer.service';
@@ -3703,9 +3721,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(connection.startSession).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider/provider.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider/provider.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/provider.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/provider.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
 @@ -42,7 +42,6 @@
  import { User, UserSchema } from '../../schemas/user.schema';
  import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
@@ -3722,9 +3740,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      LeaveRequestsController,
      ProviderAuthController,
      ProviderProfileController,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider/services/provider-profile.service.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider/services/provider-profile.service.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider/services/provider-profile.service.ts	2026-08-27 15:52:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/services/provider-profile.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/services/provider-profile.service.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/services/provider-profile.service.ts	2026-08-27 15:52:23.000000000 +0000
 @@ -38,7 +38,7 @@
    }
  
@@ -3747,9 +3765,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
      const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
      if (existing) {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider/simulated-features.controller.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider/simulated-features.controller.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.controller.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.controller.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
 @@ -1,197 +0,0 @@
 -import { JwtAuthGuard } from '../../common/auth.guard';
 -import { UseGuards } from '@nestjs/common';
@@ -3948,9 +3966,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -    return { ok: true, bookingId, status: 'published' };
 -  }
 -}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider/simulated-features.dto.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider/simulated-features.dto.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.dto.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.dto.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
 @@ -1,141 +0,0 @@
 -import { IsString, IsNumber, IsOptional, IsDateString, IsBoolean, IsArray, IsObject, IsNotEmpty } from 'class-validator';
 -
@@ -4093,9 +4111,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -  @IsOptional()
 -  file_id?: string;
 -}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-onboarding/provider-onboarding.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-onboarding/provider-onboarding.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-27 15:47:46.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-27 15:47:46.000000000 +0000
 @@ -46,15 +46,19 @@
    async start(body: { phone: string; password?: string; full_name?: string; email?: string; type: ProviderType }) {
      if (!body.type || !Object.values(ProviderType).includes(body.type)) throw new BadRequestException('invalid_type');
@@ -4145,9 +4163,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      this.bus.emit({ type: 'provider.submitted_for_review', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: profile.type } }).catch(() => null);
      return profile.toObject();
    }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	2026-08-27 15:51:17.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	2026-08-27 15:51:17.000000000 +0000
 @@ -0,0 +1,32 @@
 +import { BadRequestException } from '@nestjs/common';
 +import { ProviderOnboardingService } from './provider-onboarding.module';
@@ -4181,9 +4199,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(providerModel.create).toHaveBeenCalledWith(expect.objectContaining({ type: ProviderType.LAB, status: 'pending', onboarding_step: 1 }));
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts	2026-08-27 15:42:08.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts	2026-08-27 15:42:08.000000000 +0000
 @@ -0,0 +1,37 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { ProviderOpsService } from './provider-ops.module';
@@ -4222,9 +4240,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(emergency.updateOne).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-ops/provider-ops.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-ops/provider-ops.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-ops/provider-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-ops/provider-ops.module.ts	2026-08-27 15:40:57.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.module.ts	2026-08-27 15:40:57.000000000 +0000
 @@ -290,9 +290,25 @@
    }
  
@@ -4317,9 +4335,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceHandover(u, id, b); }
    @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceComplete(u, id, b); }
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.availability.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.availability.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.availability.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.availability.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
 @@ -0,0 +1,36 @@
 +import { NotFoundException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -4357,9 +4375,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    await expect(service.getAvailability(user)).rejects.toBeInstanceOf(NotFoundException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.coverage.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.coverage.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.coverage.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.coverage.spec.ts	2026-08-27 15:36:08.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.coverage.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.coverage.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.coverage.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.coverage.spec.ts	2026-08-27 15:36:08.000000000 +0000
 @@ -0,0 +1,42 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -4403,9 +4421,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(update.$set.insurance_decision.copay_amount).toBe(50);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.module.ts	2026-08-27 15:30:27.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.module.ts	2026-08-27 15:30:27.000000000 +0000
 @@ -0,0 +1,699 @@
 +/**
 + * PROVIDER PRODUCTION MODULE (P3) — الـ9 endpoints الحاكمة لمصفوفة سيناريوهات المزوّدين
@@ -5106,9 +5124,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  providers: [ProviderProductionService],
 +})
 +export class ProviderProductionModule {}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
 @@ -0,0 +1,135 @@
 +import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -5245,9 +5263,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    })).rejects.toBeInstanceOf(BadRequestException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/modules/storage/storage.module.ts /tmp/tmp.DxH33RurGP/current/src/modules/storage/storage.module.ts
---- /tmp/tmp.DxH33RurGP/base/src/modules/storage/storage.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/modules/storage/storage.module.ts	2026-08-27 15:47:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/storage/storage.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/storage/storage.module.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/modules/storage/storage.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/modules/storage/storage.module.ts	2026-08-27 15:47:23.000000000 +0000
 @@ -7,7 +7,7 @@
  import * as crypto from 'crypto';
  import { OnEvent } from '@nestjs/event-emitter';
@@ -5302,9 +5320,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  }
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.DxH33RurGP/base/src/schemas/user.schema.ts /tmp/tmp.DxH33RurGP/current/src/schemas/user.schema.ts
---- /tmp/tmp.DxH33RurGP/base/src/schemas/user.schema.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.DxH33RurGP/current/src/schemas/user.schema.ts	2026-08-27 15:48:06.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/schemas/user.schema.ts /tmp/tmp.7PnNXm18lu/current/src/schemas/user.schema.ts
+--- /tmp/tmp.7PnNXm18lu/base/src/schemas/user.schema.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.7PnNXm18lu/current/src/schemas/user.schema.ts	2026-08-27 15:48:06.000000000 +0000
 @@ -12,6 +12,8 @@
    @Prop() password_hash?: string;
    @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.PATIENT }) role: UserRole;
