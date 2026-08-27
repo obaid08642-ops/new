@@ -24,6 +24,7 @@
 - [x] Add Patient Web final-quote acceptance for selected or revised offers using the server hash and revision, then present COD only when the accepted snapshot explicitly permits it.
 - [x] Add a server-governed pharmacy payment-capabilities contract before exposing any card, Apple Pay, or Google Pay action in either patient client.
 - [x] Extend the Patient Web proxy with the pharmacy payment-capabilities read and pharmacy payment-intent mutation only, preserving idempotency and rejecting every unrelated payment route.
+- [x] Add Patient Web online-payment method selection from server capabilities and redirect only to a validated HTTPS checkout URL; keep client-secret gateway flows explicitly unavailable pending gateway UI configuration.
 - [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
