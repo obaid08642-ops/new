@@ -28,6 +28,7 @@ const patientReadRoutes = [
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
   new RegExp("^/insurance/claims$"),
+  new RegExp(`^/payments/pharmacy/${orderId}/capabilities$`, "i"),
   new RegExp("^/mental-health/dashboard$"),
   new RegExp("^/mental-health/crisis-contacts$"),
   new RegExp("^/mental-health/breathing$"),
@@ -53,6 +54,7 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/co-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/self-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cod/register$`, "i") },
+  { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {

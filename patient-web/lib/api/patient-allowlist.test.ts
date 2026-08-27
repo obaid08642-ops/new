@@ -22,6 +22,7 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/users/me/profile")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/notification-settings")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
+    expect(isAllowedPatientApiPath("/payments/pharmacy/91047ef2-ad36-422a-a184-629693e7c729/capabilities")).toBe(true);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 
@@ -36,6 +37,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/insurance/co-pay/accept", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/payment", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/payments/intent/pharmacy/91047ef2-ad36-422a-a184-629693e7c729", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/payments/refund/91047ef2-ad36-422a-a184-629693e7c729", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);

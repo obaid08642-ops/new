@@ -46,7 +46,7 @@ describe('PaymentsService pharmacy quote guard', () => {
     }));
     expect(pharmacyOrders.updateOne).toHaveBeenCalledWith(
       { id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' },
-      { $set: { governed_state: 'PAYMENT_PENDING', transaction_id: 'txn-1' } },
+      { $set: { governed_state: 'PAYMENT_PENDING', transaction_id: 'txn-1', payment_method: 'card' } },
     );
   });
 
@@ -58,11 +58,71 @@ describe('PaymentsService pharmacy quote guard', () => {
   });
 
   it('charges only the server-recorded insurance co-pay in the co-pay state', async () => {
-    const { service, txns } = createPaymentsService({
+    const previous = process.env.PAYMENT_ONLINE_METHODS;
+    process.env.PAYMENT_ONLINE_METHODS = 'card,apple-pay';
+    const { service, txns, adapter } = createPaymentsService({
       ...acceptedBooking, governed_state: 'CO_PAY_PENDING', insurance_decision_summary: { co_pay_amount: 12.25 }, payment_method: 'apple-pay',
     });
-    await service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1');
+    (adapter as any).name = 'stripe';
+    await service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1', undefined, 'Mozilla/5.0 (iPhone)');
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ amount: 12.25, method: 'apple_pay' }));
+    if (previous === undefined) delete process.env.PAYMENT_ONLINE_METHODS;
+    else process.env.PAYMENT_ONLINE_METHODS = previous;
+  });
+
+  it('returns only the payment methods configured for the gateway and current device', async () => {
+    const previous = process.env.PAYMENT_ONLINE_METHODS;
+    process.env.PAYMENT_ONLINE_METHODS = 'card,apple-pay,google-pay';
+    const { service } = createPaymentsService(acceptedBooking);
+    (service as any).adapter = { name: 'stripe' };
+
+    await expect(service.pharmacyPaymentCapabilities({ id: 'patient-1' }, 'order-1', 'Mozilla/5.0 (iPhone)')).resolves.toMatchObject({
+      amount: 84.5, currency: 'SAR', methods: [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }],
+    });
+
+    if (previous === undefined) delete process.env.PAYMENT_ONLINE_METHODS;
+    else process.env.PAYMENT_ONLINE_METHODS = previous;
+  });
+
+  it('rejects a requested pharmacy method that is not enabled for the gateway and device', async () => {
+    const previous = process.env.PAYMENT_ONLINE_METHODS;
+    process.env.PAYMENT_ONLINE_METHODS = 'card';
+    const { service, txns } = createPaymentsService(acceptedBooking);
+
+    await expect(service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1', 'apple-pay', 'Mozilla/5.0 (iPhone)')).rejects.toThrow('payment_method_not_enabled_for_gateway_or_device');
+    expect(txns.create).not.toHaveBeenCalled();
+
+    if (previous === undefined) delete process.env.PAYMENT_ONLINE_METHODS;
+    else process.env.PAYMENT_ONLINE_METHODS = previous;
+  });
+
+  it('does not advertise Apple Pay to a non-Stripe gateway even when an environment list contains it', async () => {
+    const previous = process.env.PAYMENT_ONLINE_METHODS;
+    process.env.PAYMENT_ONLINE_METHODS = 'card,apple-pay';
+    const { service } = createPaymentsService(acceptedBooking);
+
+    await expect(service.pharmacyPaymentCapabilities({ id: 'patient-1' }, 'order-1', 'Mozilla/5.0 (iPhone)')).resolves.toMatchObject({
+      methods: [{ id: 'card', kind: 'online' }],
+    });
+
+    if (previous === undefined) delete process.env.PAYMENT_ONLINE_METHODS;
+    else process.env.PAYMENT_ONLINE_METHODS = previous;
+  });
+
+  it('persists the enabled method selected for the pharmacy payment intent', async () => {
+    const previous = process.env.PAYMENT_ONLINE_METHODS;
+    process.env.PAYMENT_ONLINE_METHODS = 'card,apple-pay';
+    const { service, pharmacyOrders, adapter } = createPaymentsService(acceptedBooking);
+    (adapter as any).name = 'stripe';
+
+    await service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1', 'apple-pay', 'Mozilla/5.0 (iPhone)');
+
+    expect(pharmacyOrders.updateOne).toHaveBeenCalledWith(
+      { id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' },
+      { $set: { governed_state: 'PAYMENT_PENDING', transaction_id: 'txn-1', payment_method: 'apple_pay' } },
+    );
+    if (previous === undefined) delete process.env.PAYMENT_ONLINE_METHODS;
+    else process.env.PAYMENT_ONLINE_METHODS = previous;
   });
 
   it('rejects a paid gateway result whose amount or currency does not match the transaction', () => {

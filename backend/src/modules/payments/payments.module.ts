@@ -190,6 +190,34 @@ export class PaymentsService {
     return { amount, currency, quoteHash, quoteRevision, method: normalizeOnlineMethod(booking.payment_method) };
   }
 
+  private configuredOnlineMethods(userAgent?: string): Array<'card' | 'apple_pay' | 'google_pay'> {
+    const requested = String(process.env.PAYMENT_ONLINE_METHODS ?? 'card')
+      .split(',').map((value) => value.trim().toLowerCase().replace(/-/g, '_')).filter(Boolean);
+    const configured = new Set(requested);
+    const browser = String(userAgent ?? '').toLowerCase();
+    const methods: Array<'card' | 'apple_pay' | 'google_pay'> = [];
+    if (configured.has('card')) methods.push('card');
+    const supportsDigitalWallets = this.adapter.name === 'stripe';
+    if (supportsDigitalWallets && configured.has('apple_pay') && /iphone|ipad|macintosh/.test(browser)) methods.push('apple_pay');
+    if (supportsDigitalWallets && configured.has('google_pay') && /android|chrome/.test(browser)) methods.push('google_pay');
+    return methods;
+  }
+
+  async pharmacyPaymentCapabilities(user: any, orderId: string, userAgent?: string) {
+    const booking: any = await this.pharmacyOrders.findOne({ id: orderId }).lean();
+    if (!booking) throw new NotFoundException('booking_not_found');
+    this.assertBookingOwnerOrAdmin(user, booking);
+    const quote = this.pharmacyPaymentSnapshot(booking);
+    return {
+      booking_id: booking.id,
+      amount: quote.amount,
+      currency: quote.currency,
+      quote_hash: quote.quoteHash,
+      quote_revision: quote.quoteRevision,
+      methods: this.configuredOnlineMethods(userAgent).map((method) => ({ id: method.replace('_', '-'), kind: 'online' })),
+    };
+  }
+
   private assertGatewayResultMatchesTransaction(transaction: any, result: any): void {
     const gatewayAmount = normalizeGatewayAmount(transaction.gateway, result.raw);
     const gatewayCurrency = String(result.raw?.currency ?? '').toUpperCase();
@@ -216,7 +244,7 @@ export class PaymentsService {
     }
   }
 
-  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
+  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string, requestedMethod?: unknown, userAgent?: string) {
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
     const kind = normalizeKind(type);
@@ -239,12 +267,13 @@ export class PaymentsService {
       currency = quote.currency;
       quoteHash = quote.quoteHash;
       quoteRevision = quote.quoteRevision;
-      method = quote.method;
+      method = requestedMethod === undefined ? quote.method : normalizeOnlineMethod(requestedMethod);
+      if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
     const movesToPaymentPending = kind === 'pharmacy' && booking.governed_state === GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED;
     if (movesToPaymentPending) {
-      const normalizedMethod = normalizeOnlineMethod(booking.payment_method).toUpperCase().replace('_', '_') as 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY';
+      const normalizedMethod = normalizeOnlineMethod(method).toUpperCase().replace('_', '_') as 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY';
       assertGovernedPharmacyTransition(
         GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED,
         GovernedPharmacyOrderState.PAYMENT_PENDING,
@@ -271,7 +300,7 @@ export class PaymentsService {
     if (movesToPaymentPending) {
       const moved = await M.updateOne(
         { id, governed_state: GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED },
-        { $set: { governed_state: GovernedPharmacyOrderState.PAYMENT_PENDING, transaction_id: txn.id } },
+        { $set: { governed_state: GovernedPharmacyOrderState.PAYMENT_PENDING, transaction_id: txn.id, payment_method: method } },
       );
       if (moved?.modifiedCount !== undefined && moved.modifiedCount !== 1) {
         await this.txns.updateOne({ id: txn.id }, { $set: { status: 'cancelled', failure_reason: 'pharmacy_payment_state_lock_lost' } });
@@ -487,7 +516,9 @@ export class PaymentsController {
   constructor(private svc: PaymentsService) {}
   @Post('intent/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
-  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }
+  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string, @Body() body: { method?: unknown }, @Headers('user-agent') userAgent?: string) { return this.svc.createPaymentIntent(u, t, id, key, body?.method, userAgent); }
+  @Get('pharmacy/:id/capabilities')
+  pharmacyCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.pharmacyPaymentCapabilities(u, id, userAgent); }
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
   @Post('retry/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
