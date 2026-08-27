@@ -277,6 +277,48 @@ export class PharmacyOfferService {
     return updated.toObject ? updated.toObject() : updated;
   }
 
+  async acceptInsuranceSelfPay(user: any, orderId: string, paymentMethod: 'card' | 'apple-pay' | 'google-pay') {
+    const order = await this.ownedOrder(user, orderId);
+    const summary = order.insurance_decision_summary;
+    if (order.governed_state !== GovernedPharmacyOrderState.INSURANCE_DECISION_READY || !['APPROVED_PARTIAL', 'REJECTED'].includes(summary?.decision)) {
+      throw new BadRequestException('insurance_self_pay_not_available');
+    }
+    const originalSnapshot = order.accepted_quote_snapshot;
+    const originalTotal = Number(originalSnapshot?.totals?.total);
+    const coveredAmount = Number(summary.covered_amount);
+    if (!originalSnapshot || !Number.isFinite(originalTotal) || !Number.isFinite(coveredAmount) || coveredAmount < 0 || coveredAmount >= originalTotal) {
+      throw new BadRequestException('invalid_insurance_self_pay_amount');
+    }
+    const selfPayAmount = Math.round((originalTotal - coveredAmount) * 100) / 100;
+    const quoteRevision = Number(order.accepted_quote_revision) + 1;
+    const selfPaySnapshot = {
+      ...originalSnapshot,
+      totals: { subtotal: selfPayAmount, delivery_fee: 0, total: selfPayAmount, currency: originalSnapshot.totals.currency },
+      insurance_self_pay: { source_quote_hash: order.accepted_quote_hash, source_quote_revision: order.accepted_quote_revision, covered_amount: coveredAmount, patient_liability: selfPayAmount },
+      revision: quoteRevision,
+    };
+    const quoteHash = createHash('sha256').update(JSON.stringify(selfPaySnapshot)).digest('hex');
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
+      GovernedPharmacyOrderState.SELF_PAY_SELECTION,
+      'PATIENT',
+      { decision: summary.decision, selfPayAccepted: true, quoteHash, quoteRevision },
+    );
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.SELF_PAY_SELECTION,
+      GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED,
+      'PATIENT',
+      { quoteHash, quoteRevision },
+    );
+    const updated: any = await this.orders.findOneAndUpdate(
+      { id: order.id, patient_account_id: user.id, governed_state: GovernedPharmacyOrderState.INSURANCE_DECISION_READY },
+      { $set: { governed_state: GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED, accepted_quote_snapshot: selfPaySnapshot, accepted_quote_hash: quoteHash, accepted_quote_revision: quoteRevision, payment_method: paymentMethod }, $push: { timeline: { ts: new Date(), event: 'patient_accepted_insurance_self_pay', by: user.id, meta: { source_quote_hash: order.accepted_quote_hash, source_quote_revision: order.accepted_quote_revision, covered_amount: coveredAmount, patient_liability: selfPayAmount, payment_method: paymentMethod } } } },
+      { new: true },
+    );
+    if (!updated) throw new BadRequestException('insurance_self_pay_acceptance_locked');
+    return updated.toObject ? updated.toObject() : updated;
+  }
+
   private async ownedOrder(user: any, orderId: string) {
     const order = await this.orders.findOne({ id: orderId });
     if (!order) throw new NotFoundException('order_not_found');
