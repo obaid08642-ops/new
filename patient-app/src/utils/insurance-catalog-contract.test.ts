@@ -11,8 +11,8 @@ describe('Patient unified insurance catalog contract', () => {
   const profileInsurance = read('app/profile/insurance.tsx');
   const addPolicy = read('app/insurance/add-policy.tsx');
 
-  it('uses the Backend catalog and company-specific networks in all company-selection flows', () => {
-    for (const source of [consultations, bookingConfirmation, insuranceUpload, profileInsurance, addPolicy]) {
+  it('uses the Backend catalog and company-specific networks in every company-selection flow', () => {
+    for (const source of [consultations, insuranceUpload, profileInsurance, addPolicy]) {
       expect(source).toMatch(/["']\/insurance\/companies["']/);
     }
     expect(consultations).toContain('`/insurance/companies/${insCompany}/networks`');
@@ -31,9 +31,11 @@ describe('Patient unified insurance catalog contract', () => {
     expect(consultations).not.toContain("'ميدغلف (Medgulf)'");
   });
 
-  it('fails closed when the catalog cannot be loaded instead of substituting stale data', () => {
+  it('fails closed when a company-selection catalog cannot be loaded instead of substituting stale data', () => {
     expect(consultations).toContain('setInsuranceCatalogUnavailable(true)');
     expect(insuranceUpload).toContain('setInsuranceCatalogUnavailable(true)');
-    expect(bookingConfirmation).toContain('insuranceCatalogUnavailable');
+    expect(bookingConfirmation).toContain("apiFetch<any>('/users/me/profile')");
+    expect(bookingConfirmation).toContain('insuranceReady');
+    expect(bookingConfirmation).not.toMatch(/coverage-check|copay_percent|\/insurance\/requests/);
   });
 });
