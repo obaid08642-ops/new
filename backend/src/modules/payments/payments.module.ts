@@ -273,7 +273,7 @@ export class PaymentsService {
     if (amount <= 0) throw new BadRequestException('invalid_amount');
     const movesToPaymentPending = kind === 'pharmacy' && booking.governed_state === GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED;
     if (movesToPaymentPending) {
-      const normalizedMethod = normalizeOnlineMethod(booking.payment_method).toUpperCase().replace('_', '_') as 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY';
+      const normalizedMethod = normalizeOnlineMethod(method).toUpperCase().replace('_', '_') as 'CARD' | 'APPLE_PAY' | 'GOOGLE_PAY';
       assertGovernedPharmacyTransition(
         GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED,
         GovernedPharmacyOrderState.PAYMENT_PENDING,

@@ -109,6 +109,22 @@ describe('PaymentsService pharmacy quote guard', () => {
     else process.env.PAYMENT_ONLINE_METHODS = previous;
   });
 
+  it('persists the enabled method selected for the pharmacy payment intent', async () => {
+    const previous = process.env.PAYMENT_ONLINE_METHODS;
+    process.env.PAYMENT_ONLINE_METHODS = 'card,apple-pay';
+    const { service, pharmacyOrders, adapter } = createPaymentsService(acceptedBooking);
+    (adapter as any).name = 'stripe';
+
+    await service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1', 'apple-pay', 'Mozilla/5.0 (iPhone)');
+
+    expect(pharmacyOrders.updateOne).toHaveBeenCalledWith(
+      { id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' },
+      { $set: { governed_state: 'PAYMENT_PENDING', transaction_id: 'txn-1', payment_method: 'apple_pay' } },
+    );
+    if (previous === undefined) delete process.env.PAYMENT_ONLINE_METHODS;
+    else process.env.PAYMENT_ONLINE_METHODS = previous;
+  });
+
   it('rejects a paid gateway result whose amount or currency does not match the transaction', () => {
     const { service } = createPaymentsService(acceptedBooking);
     expect(() => (service as any).assertGatewayResultMatchesTransaction(
