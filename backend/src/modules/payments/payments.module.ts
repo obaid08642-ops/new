@@ -259,6 +259,23 @@ export class PaymentsService {
     };
   }
 
+  async insuranceSelfPayPaymentCapabilities(user: any, requestId: string, userAgent?: string) {
+    const request: any = await this.insReqs.findOne({ id: requestId }).lean();
+    if (!request) throw new NotFoundException('insurance_request_not_found');
+    this.assertBookingOwnerOrAdmin(user, request);
+    const amount = Number(request.self_pay_amount);
+    if (request.state !== 'SELF_PAY_PENDING' || !Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('insurance_self_pay_not_payable');
+    }
+    return {
+      booking_id: request.id,
+      amount,
+      currency: 'SAR',
+      purpose: 'insurance_self_pay',
+      methods: this.configuredOnlineMethods(userAgent).map((method) => ({ id: method.replace('_', '-'), kind: 'online' })),
+    };
+  }
+
   async consultationPaymentCapabilities(user: any, appointmentId: string, userAgent?: string) {
     const appointment: any = await this.appts.findOne({ id: appointmentId }).lean();
     if (!appointment) throw new NotFoundException('appointment_not_found');
@@ -313,7 +330,7 @@ export class PaymentsService {
     // S4/S7 double-payment prevention: never create a new charge for an already-paid booking.
     // (fraud.detectDuplicatePayments only alerts AFTER the fact — this stops it upfront.)
     if (booking.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
-    // insurance copay intents charge the patient's copay share, not the full price
+    // Insurance intents charge only a server-recorded co-pay or accepted self-pay amount.
     let amount = kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
     let currency = 'SAR';
     let quoteHash: string | undefined;
@@ -329,9 +346,10 @@ export class PaymentsService {
       if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
     }
     if (kind === 'insurance') {
-      if (booking.state !== 'COPAY_PENDING' || !Number.isFinite(Number(booking.copay_amount)) || Number(booking.copay_amount) <= 0) {
-        throw new BadRequestException('insurance_copay_not_payable');
-      }
+      const isCopay = booking.state === 'COPAY_PENDING' && Number.isFinite(Number(booking.copay_amount)) && Number(booking.copay_amount) > 0;
+      const isSelfPay = booking.state === 'SELF_PAY_PENDING' && Number.isFinite(Number(booking.self_pay_amount)) && Number(booking.self_pay_amount) > 0;
+      if (!isCopay && !isSelfPay) throw new BadRequestException('insurance_payment_not_payable');
+      amount = isSelfPay ? Number(booking.self_pay_amount) : Number(booking.copay_amount);
       method = requestedMethod === undefined ? 'card' : normalizeOnlineMethod(requestedMethod);
       if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
     }
@@ -594,6 +612,8 @@ export class PaymentsController {
   pharmacyCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.pharmacyPaymentCapabilities(u, id, userAgent); }
   @Get('insurance/:id/capabilities')
   insuranceCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceCopayPaymentCapabilities(u, id, userAgent); }
+  @Get('insurance/:id/self-pay-capabilities')
+  insuranceSelfPayCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceSelfPayPaymentCapabilities(u, id, userAgent); }
   @Get('consultation/:id/capabilities')
   consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.consultationPaymentCapabilities(u, id, userAgent); }
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }

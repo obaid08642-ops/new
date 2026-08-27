@@ -172,7 +172,7 @@ describe('PaymentsService pharmacy quote guard', () => {
 
   it('refuses an insurance payment intent before a positive copay is pending', async () => {
     const { service, txns } = createPaymentsService(acceptedBooking, { id: 'insurance-1', patient_id: 'patient-1', state: 'APPROVED_FULL', copay_amount: 0 });
-    await expect(service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1')).rejects.toThrow('insurance_copay_not_payable');
+    await expect(service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1')).rejects.toThrow('insurance_payment_not_payable');
     expect(txns.create).not.toHaveBeenCalled();
   });
 
@@ -181,6 +181,19 @@ describe('PaymentsService pharmacy quote guard', () => {
     const { service, txns } = createPaymentsService(acceptedBooking, request);
     await service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1', 'card');
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'insurance', booking_id: 'insurance-1', amount: 27.5, method: 'card' }));
+  });
+
+  it('returns the server-recorded self-pay amount only after the patient accepted self-pay', async () => {
+    const request = { id: 'insurance-1', patient_id: 'patient-1', state: 'SELF_PAY_PENDING', self_pay_amount: 250 };
+    const { service } = createPaymentsService(acceptedBooking, request);
+    await expect(service.insuranceSelfPayPaymentCapabilities({ id: 'patient-1' }, 'insurance-1')).resolves.toEqual({ booking_id: 'insurance-1', amount: 250, currency: 'SAR', purpose: 'insurance_self_pay', methods: [{ id: 'card', kind: 'online' }] });
+  });
+
+  it('uses only the accepted server self-pay amount for an insurance payment intent', async () => {
+    const request = { id: 'insurance-1', patient_id: 'patient-1', state: 'SELF_PAY_PENDING', self_pay_amount: 250, copay_amount: 0 };
+    const { service, txns } = createPaymentsService(acceptedBooking, request);
+    await service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1', 'card');
+    expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'insurance', booking_id: 'insurance-1', amount: 250, method: 'card' }));
   });
 
   it('returns server-declared online methods and total for a pending card consultation', async () => {

@@ -59,6 +59,8 @@ export class InsuranceServiceRequest {
   @Prop() copay_paid_at?: Date;
   @Prop() self_pay_amount?: number;
   @Prop() self_pay_accepted_at?: Date;
+  @Prop() self_pay_payment_id?: string;
+  @Prop() self_pay_paid_at?: Date;
   @Prop({ type: [Object], default: [] }) history: { state: string; at: Date; by: string; note?: string }[];
   @Prop({ type: [String], default: [] }) documents: string[];
   @Prop({ default: 0 }) resubmission_count: number;
@@ -490,6 +492,28 @@ export class InsuranceFlowService {
     await req.save();
     await this.settleConsultationInsurance(req, 'system', 'verified-insurance-copay-webhook');
     this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
+  }
+
+  /** A self-pay choice after rejection is settled only by a matching verified payment event. */
+  @OnEvent('payment.completed')
+  async settleVerifiedSelfPay(event: any) {
+    if (event?.booking_kind !== 'insurance' || !event?.transaction_id) return;
+    const req = await this.requests.findOne({ id: event.booking_id, patient_id: event.patient_id, state: 'SELF_PAY_PENDING' });
+    if (!req) return;
+    const payment: any = await this.transactions.findOne({
+      id: event.transaction_id,
+      patient_id: req.patient_id,
+      booking_kind: 'insurance',
+      booking_id: req.id,
+      status: 'paid',
+    }).lean();
+    if (!payment || Number(payment.amount) !== Number(req.self_pay_amount)) return;
+    req.self_pay_payment_id = payment.id;
+    req.self_pay_paid_at = new Date();
+    this.push(req, 'SELF_PAY_PAID', 'system', `verified self-pay ${payment.id}`);
+    await req.save();
+    await this.settleConsultationInsurance(req, 'system', 'verified-insurance-self-pay-webhook');
+    this.events.emit('insurance.self_pay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
   }
 
   async cancel(user: any, id: string) {

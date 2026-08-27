@@ -58,6 +58,7 @@
 - [x] Add server-declared online payment capabilities for insurance co-pay requests and reject intent creation unless the request is in co-pay pending state with a positive server-derived amount.
 - [x] Add server-declared online payment capabilities for card-funded consultation appointments and reject consultation intents that are not a pending, card-eligible server booking.
 - [x] Add an idempotent patient self-pay acceptance for rejected non-pharmacy insurance requests, preserving the server-derived outstanding amount before exposing payment capabilities; partial coverage remains a co-pay flow.
+- [x] Add server-declared online payment capabilities and intent guards for accepted insurance self-pay requests, charging only the server-recorded self-pay amount and no rejected request by default.
 - [ ] Replace Patient Mobile consultation booking's local tax/coverage/copay calculation, raw fetch, duplicate insurance request, and generic processing route with server appointment state, insurance review routing, and capability-gated HTTPS checkout only.
 - [x] Remove the legacy customer-wallet refund destination from consultation cancellation; refunds must remain attributable to the verified payment source or require an operational refund decision.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
