@@ -4,7 +4,7 @@ import { PaymentsService } from './payments.module';
 
 const lean = (value: unknown) => ({ lean: jest.fn().mockResolvedValue(value) });
 
-function createPaymentsService(booking: any) {
+function createPaymentsService(booking: any, insuranceRequest: any = null) {
   process.env.MOYASAR_API_KEY = 'test-payment-key';
   const txns: any = {
     findOne: jest.fn().mockReturnValue(lean(null)),
@@ -13,13 +13,14 @@ function createPaymentsService(booking: any) {
     updateOne: jest.fn(),
   };
   const pharmacyOrders: any = { findOne: jest.fn().mockReturnValue(lean(booking)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
+  const insReqs: any = { findOne: jest.fn().mockReturnValue(lean(insuranceRequest)) };
   const service = new PaymentsService(
-    txns, {} as any, pharmacyOrders, {} as any, {} as any, {} as any, {} as any, {} as any,
+    txns, {} as any, pharmacyOrders, {} as any, {} as any, {} as any, {} as any, insReqs,
     {} as any, { emit: jest.fn() } as any, { emitToUser: jest.fn() } as any, { detectDuplicatePayments: jest.fn(), checkPaymentVelocity: jest.fn() } as any,
   );
   const adapter = { name: 'moyasar' as const, createIntent: jest.fn().mockResolvedValue({ intent_id: 'gateway-intent' }), verify: jest.fn(), refund: jest.fn() };
   (service as any).adapter = adapter;
-  return { service, txns, pharmacyOrders, adapter };
+  return { service, txns, pharmacyOrders, insReqs, adapter };
 }
 
 describe('PaymentsService pharmacy quote guard', () => {
@@ -160,5 +161,24 @@ describe('PaymentsService pharmacy quote guard', () => {
     await expect(service.handleWebhook('moyasar', { id: 'evt-1' }, signature, rawBody)).resolves.toEqual({ ok: true, idempotent_replay: true });
     if (previous === undefined) delete process.env.MOYASAR_WEBHOOK_SECRET;
     else process.env.MOYASAR_WEBHOOK_SECRET = previous;
+  });
+
+  it('returns only configured online methods and the server-recorded amount for a pending insurance copay', async () => {
+    const request = { id: 'insurance-1', patient_id: 'patient-1', state: 'COPAY_PENDING', copay_amount: 27.5 };
+    const { service } = createPaymentsService(acceptedBooking, request);
+    await expect(service.insuranceCopayPaymentCapabilities({ id: 'patient-1' }, 'insurance-1')).resolves.toEqual({ booking_id: 'insurance-1', amount: 27.5, currency: 'SAR', purpose: 'insurance_copay', methods: [{ id: 'card', kind: 'online' }] });
+  });
+
+  it('refuses an insurance payment intent before a positive copay is pending', async () => {
+    const { service, txns } = createPaymentsService(acceptedBooking, { id: 'insurance-1', patient_id: 'patient-1', state: 'APPROVED_FULL', copay_amount: 0 });
+    await expect(service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1')).rejects.toThrow('insurance_copay_not_payable');
+    expect(txns.create).not.toHaveBeenCalled();
+  });
+
+  it('uses the server-recorded pending copay and a configured selected method for the insurance payment intent', async () => {
+    const request = { id: 'insurance-1', patient_id: 'patient-1', state: 'COPAY_PENDING', copay_amount: 27.5 };
+    const { service, txns } = createPaymentsService(acceptedBooking, request);
+    await service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1', 'card');
+    expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'insurance', booking_id: 'insurance-1', amount: 27.5, method: 'card' }));
   });
 });
