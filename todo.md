@@ -15,7 +15,7 @@
 - [ ] Verify Web/Mobile action parity, accessibility, authorization, idempotency, and responsive/native presentation against the accepted matrix.
 - [ ] Split completed work into reviewable branches and pull requests, obtain CI evidence, and prepare an auditor-ready change ledger without self-merging or deploying.
 - [ ] Remove the discovered in-process `setInterval` polling from Patient Mobile broadcast status and replace it with an explicit, user-driven refresh compatible with the governed expiry policy.
-- [ ] Implement the governed pharmacy broadcast, offer comparison, patient selection, negotiation, final-quote, cash/COD, and insurance decision presentation in Patient Web; the current cart checkout is not a substitute for this flow.
+- [x] Implement the governed pharmacy broadcast, offer comparison, patient selection, negotiation, final-quote, cash/COD, and insurance decision presentation in Patient Web; the current cart checkout is not a substitute for this flow. Gateway client-secret rendering remains explicitly unavailable until the gateway configuration supports a documented browser flow.
 - [x] Extend the Patient Web proxy through an explicit pharmacy-only mutation allowlist with safe JSON body forwarding and required `Idempotency-Key` propagation before adding patient actions.
 - [x] Add a privacy-bounded Patient Web pharmacy order/offer adapter and a server-rendered broadcast-status route before enabling the patient selection action.
 - [x] Add Patient Web offer selection through the governed endpoint with an idempotency key, explicit cash/insurance choice, pending state, and safe error recovery.
@@ -33,6 +33,7 @@
 - [x] Add Patient Web negotiation screens for pharmacy threads and message history, with idempotent send/accept/reject/remove actions that only record a decision pending a revised final quote.
 - [x] Replace the Patient Web pharmacy cart checkout preview with an idempotent governed pharmacy draft-and-submit action that routes the patient to broadcast offers; retain non-pharmacy cart flows separately.
 - [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
+- [x] Remove timeout and delayed-retry timers from the Patient Mobile API client; retain one explicit request attempt and report its failure without replaying a mutation or embedding lifecycle timing in the client.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.

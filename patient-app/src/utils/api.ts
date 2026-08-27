@@ -61,33 +61,11 @@ export async function apiFetch<T = any>(endpoint: string, options: RequestInit =
     headers.set('Content-Type', 'application/json');
   }
 
-  // S4: bounded waits — a hanging request must never freeze a screen indefinitely.
-  const REQUEST_TIMEOUT_MS = 20000;
-  const doFetch = async (): Promise<Response> => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
-    try {
-      return await fetch(url, { ...options, headers, signal: ctrl.signal });
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-
   let response: Response;
   try {
-    response = await doFetch();
+    response = await fetch(url, { ...options, headers });
   } catch (e: any) {
-    const isGet = !options.method || options.method.toUpperCase() === 'GET';
-    // S4: exactly ONE automatic retry, and only for idempotent GETs —
-    // never replay mutations (booking/payment) blindly: the server may have
-    // received the first attempt; replaying risks duplicate booking/payment.
-    if (isGet && e?.name !== 'AbortError') {
-      await new Promise(r => setTimeout(r, 1200));
-      try { response = await doFetch(); }
-      catch (e2: any) { throw new Error(e2?.name === 'AbortError' ? 'TIMEOUT_ERROR' : 'OFFLINE_ERROR'); }
-    } else {
-      throw new Error(e?.name === 'AbortError' ? 'TIMEOUT_ERROR' : 'OFFLINE_ERROR');
-    }
+    throw new Error(e?.name === 'AbortError' ? 'REQUEST_ABORTED' : 'OFFLINE_ERROR');
   }
 
   if (!response.ok) {
