@@ -17,6 +17,9 @@ async function main() {
   await client.connect();
   try {
     const db = client.db(process.env.DB_NAME || 'nabd_nestjs');
+    const intents = db.collection('pharmacy_payment_intents');
+    await intents.createIndex({ order_id: 1, idempotency_key: 1 }, { unique: true, name: 'payment_intent_order_idempotency_unique' });
+    await intents.createIndex({ intent_id: 1 }, { unique: true, name: 'payment_intent_id_unique' });
     const collection = db.collection('pharmacy_payment_evidence');
     const duplicateGroups = await collection.aggregate([
       { $group: { _id: { gateway: '$gateway', gateway_payment_id: '$gateway_payment_id', webhook_event_id: '$webhook_event_id' }, count: { $sum: 1 } } },

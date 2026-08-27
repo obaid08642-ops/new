@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -12,6 +12,37 @@ import * as crypto from 'crypto';
 @Injectable()
 export class PharmacyPaymentEvidenceService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  async createPaymentIntent(user: any, orderId: string, idempotencyKey: string) {
+    if (!user?.id) throw new ForbiddenException('patient_identity_required');
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
+    const order: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: user.id });
+    if (!order) throw new NotFoundException('pharmacy_order_not_found');
+    if (!order.selected_offer_id || !Number.isInteger(Number(order.selected_offer_version)) || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('payment_order_not_collectable');
+    const paymentMethod = String(order.payment_method || '').toLowerCase();
+    if (!['card', 'credit_card', 'moyasar'].includes(paymentMethod)) throw new BadRequestException('card_payment_intent_required');
+    const total = Math.round(Number(order.pricing_snapshot.totals?.total || 0) * 100) / 100;
+    const currency = String(order.pricing_snapshot.totals?.currency || 'SAR').toUpperCase();
+    const intents = this.conn.collection('pharmacy_payment_intents');
+    const existing: any = await intents.findOne({ order_id: orderId, idempotency_key: idempotencyKey });
+    if (existing) return { intent_id: existing.intent_id, status: existing.status, amount: existing.amount, currency: existing.currency, adapter: 'sandbox_disabled' };
+    const intent = {
+      intent_id: `pi_${crypto.randomUUID()}`, order_id: orderId, selected_offer_id: order.selected_offer_id,
+      selected_offer_version: Number(order.selected_offer_version), quote_snapshot_hash: order.pricing_snapshot.hash,
+      amount: total, currency, payer_account_id: user.id, idempotency_key: idempotencyKey,
+      status: 'requires_payment', adapter: 'sandbox_disabled', createdAt: new Date(), updatedAt: new Date(),
+    };
+    try {
+      await intents.insertOne(intent as any);
+    } catch (err: any) {
+      if (err?.code !== 11000) throw err;
+      const replay: any = await intents.findOne({ order_id: orderId, idempotency_key: idempotencyKey });
+      if (!replay) throw new ConflictException('payment_intent_conflict');
+      return { intent_id: replay.intent_id, status: replay.status, amount: replay.amount, currency: replay.currency, adapter: 'sandbox_disabled' };
+    }
+    return { intent_id: intent.intent_id, status: intent.status, amount: intent.amount, currency: intent.currency, adapter: 'sandbox_disabled' };
+  }
 
   @OnEvent('moyasar.payment.paid', { async: true })
   async onMoyasarPaid(payload: any) {
