@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 const ALLOWED_ACTIONS = new Set(['send-otp', 'reset-password']);
 
 function backendBase() {
-  const value = process.env.ADMIN_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+  const value = process.env.ADMIN_BACKEND_URL;
   if (!value) throw new Error('ADMIN_BACKEND_URL is required');
   return value.replace(/\/$/, '');
 }

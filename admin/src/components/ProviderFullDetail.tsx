@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-
 const DAY_AR: Record<string, string> = {
   SUN: 'الأحد', MON: 'الاثنين', TUE: 'الثلاثاء', WED: 'الأربعاء',
   THU: 'الخميس', FRI: 'الجمعة', SAT: 'السبت',
@@ -17,12 +15,12 @@ export async function resolveStorageUrl(idOrUrl?: string | null): Promise<string
   try {
     // Prefer a signed delivery URL — private Cloudinary assets (provider photos,
     // clinic galleries, KYC docs) 401 on their raw external_url.
-    const sres = await fetchWithAdminGuard(`${API_BASE}/api/v1/storage/${idOrUrl}/signed-url`);
+    const sres = await fetchWithAdminGuard(`/api/admin/storage/${idOrUrl}/signed-url`);
     if (sres.ok) {
       const sd = await sres.json();
       if (sd.url) { urlCache.set(idOrUrl, sd.url); return sd.url; }
     }
-    const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/storage/${idOrUrl}`);
+    const res = await fetchWithAdminGuard(`/api/admin/storage/${idOrUrl}`);
     if (!res.ok) { urlCache.set(idOrUrl, null); return null; }
     const d = await res.json();
     const u = d.external_url || (d.data_base64 ? `data:${d.mime || 'application/octet-stream'};base64,${d.data_base64}` : null);
@@ -156,7 +154,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
     if (!cid) return;
     setContractBusy(true);
     try {
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/provider-onboarding/admin/contracts/${cid}`);
+      const res = await fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${cid}`);
       if (!res.ok) throw new Error('no_contract');
       const data = await res.json();
       const bytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
@@ -552,7 +550,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
             <span className="font-mono break-all">SHA: {contractMeta.sha256}</span>
             <label className="flex items-center gap-2 font-bold whitespace-nowrap">
               <input type="checkbox" checked={!!contractMeta.visible_to_provider} onChange={async (e) => {
-                const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/provider-onboarding/admin/contracts/${cid}/visibility`, { method: 'POST', body: JSON.stringify({ visible: e.target.checked }) });
+                const res = await fetchWithAdminGuard(`/api/admin/provider-onboarding/admin/contracts/${cid}/visibility`, { method: 'POST', body: JSON.stringify({ visible: e.target.checked }) });
                 if (res.ok) setContractMeta({ ...contractMeta, visible_to_provider: e.target.checked });
               }} />
               إتاحة العقد للمزود

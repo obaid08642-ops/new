@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { Connection } from 'mongoose';
@@ -30,12 +31,13 @@ export class AdminImpersonationController {
     if (!target) throw new BadRequestException('impersonation_target_not_found');
     if (['admin', 'super_admin', 'support_agent'].includes(String(target.role))) throw new BadRequestException('staff_impersonation_forbidden');
     if (target.active === false || target.suspended === true) throw new BadRequestException('suspended_target_forbidden');
-    const sessionId = `imp_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+    const sessionId = `imp_${randomUUID()}`;
     const expiresAt = new Date(Date.now() + minutes * 60_000);
     await this.conn.collection('impersonation_sessions').insertOne({ id: sessionId, target_user_id: target.id, target_role: target.role, impersonator_id: me.id, reason, status: 'active', expiresAt, ip: req.auditInfo?.ip || null, user_agent: req.auditInfo?.userAgent || null, createdAt: new Date(), updatedAt: new Date() });
     const token = await this.jwt.signAsync({ id: target.id, sub: target.id, role: target.role, scope: 'impersonation', impersonation_session_id: sessionId, impersonator: { id: me.id, full_name: me.full_name || me.email || me.id }, permissions: [] }, { expiresIn: `${minutes}m` });
     await this.audit.write({ action: 'impersonation_start', actor: me, target_type: 'user', target_id: target.id, reason, after: { session_id: sessionId, expires_at: expiresAt, target_role: target.role } });
-    return { session_id: sessionId, target: { id: target.id, role: target.role, full_name: target.full_name || null }, token, expires_at: expiresAt.toISOString(), warning: 'هذه جلسة دعم قصيرة العمر ومقيدة بالمستخدم الهدف.' };
+    const safe = { session_id: sessionId, target: { id: target.id, role: target.role, full_name: target.full_name || null }, expires_at: expiresAt.toISOString(), warning: 'هذه جلسة دعم قصيرة العمر ومقيدة بالمستخدم الهدف.' };
+    return req.headers['x-admin-bff'] === 'support-session' ? { ...safe, token } : safe;
   }
 
   @Post(':id/revoke')

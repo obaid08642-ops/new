@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, ConflictException, ForbiddenException, Get, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ConflictException, ForbiddenException, Get, GoneException, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
@@ -109,27 +109,11 @@ export class AdminCrmController {
    * Impersonation hand-off — issues a scoped token ONLY through this audited
    * endpoint; header-based impersonation remains blocked by JwtAuthGuard.
    */
-  @Post('patients/:id/impersonate')
+  /** Legacy endpoint intentionally disabled: it created no durable TTL/revocation session. */
+  @Post('patients/:id/legacy-impersonate-disabled')
   @RequirePermissions(Permission.USER_IMPERSONATE)
-  async impersonate(@Param('id') targetId: string, @CurrentUser() me: any) {
-    if (targetId === me.id) throw new ForbiddenException('cannot_impersonate_self');
-    const target: any = await this.conn.collection('users').findOne(
-      { id: targetId },
-      { projection: { id: 1, role: 1, full_name: 1, email: 1, phone: 1, permissions: 1 } },
-    );
-    if (!target) throw new NotFoundException('user_not_found');
-    if (['admin', 'super_admin'].includes(String(target.role))) throw new ForbiddenException('admin_targets_forbidden');
-
-    await this.audit.write({
-      action: 'impersonation_started', actor: me, target_type: 'user', target_id: targetId,
-      reason: 'دعم فني — CRM 360', meta: { target_role: target.role },
-    });
-    return {
-      ok: true,
-      impersonated_user: { id: target.id, role: target.role, full_name: target.full_name },
-      note: 'الجلسة مُسجَّلة بالتدقيق — يجب عرض شريط تحذير في التطبيق',
-      audit_id: `imp_${me.id}_${targetId}`,
-    };
+  impersonateLegacyDisabled(): never {
+    throw new GoneException('legacy_crm_impersonation_disabled_use_admin_impersonation_session');
   }
 }
 

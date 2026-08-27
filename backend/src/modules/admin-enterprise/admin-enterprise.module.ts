@@ -22,12 +22,14 @@ import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './command-center-v2.controller';
 import { AdminGovernanceControlsController } from './admin-governance-controls.controller';
 import { AdminImpersonationController } from './admin-impersonation.controller';
+import { ImpersonationSecurityModule } from '../../common/impersonation-security.module';
 
 /**
  * Enterprise Control Center (ADMIN_ENTERPRISE_PLAN batches A1→A7).
  */
 @Module({
   imports: [
+    ImpersonationSecurityModule,
     WalletModule,
     MailModule,
     SeoModule,

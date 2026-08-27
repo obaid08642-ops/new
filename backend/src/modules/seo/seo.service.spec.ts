@@ -31,6 +31,7 @@ describe('SeoService public discovery governance', () => {
         { provide: 'FacilityRepository', useValue: facilityModel },
         { provide: 'ProviderProfileRepository', useValue: providerModel },
         { provide: 'ArticleRepository', useValue: articleModel },
+        { provide: 'DatabaseConnection', useValue: { collection: jest.fn().mockReturnValue({ find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([]) }) }) } },
       ],
     }).compile();
 

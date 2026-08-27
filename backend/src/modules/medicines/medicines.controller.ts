@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards, Delete, Put, GoneException } from '@nestjs/common';
 import { MedicinesService } from './medicines.service';
 import { CurrentUser, JwtAuthGuard, Public, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
+import { Permission, RequirePermissions } from '../../common/permissions';
 
 @Controller('medicines')
 @UseGuards(JwtAuthGuard)
@@ -222,6 +223,7 @@ export class MedicinesController {
   /** Admin: direct edit of any catalog item (search → edit → save) */
   @Patch('admin/catalog/:id')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_UPDATE, Permission.CATALOG_PRICE_WRITE)
   adminUpdateCatalog(@Param('id') id: string, @Body() body: any, @CurrentUser('id') by: string) {
     return this.svc.adminUpdateCatalog(id, body || {}, by);
   }
@@ -229,6 +231,7 @@ export class MedicinesController {
   /** Admin: catalog browser (search + paginate + category filter). */
   @Get('admin/catalog')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_READ)
   adminCatalog(
     @Query('q') q?: string,
     @Query('category') category?: string,
@@ -246,6 +249,7 @@ export class MedicinesController {
   /** Admin: create a new catalog item. */
   @Post('admin/catalog')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_CREATE)
   adminCreate(@Body() body: any, @CurrentUser('id') by: string) {
     return this.svc.adminCreateCatalog(body || {}, by);
   }
@@ -253,6 +257,7 @@ export class MedicinesController {
   /** Admin: soft-delete / restore a catalog item. */
   @Post('admin/catalog/:id/delete')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_DELETE_RESTORE)
   adminDelete(@Param('id') id: string, @Body() body: { restore?: boolean }, @CurrentUser('id') by: string) {
     return this.svc.adminSetDeleted(id, !body?.restore, by);
   }
@@ -260,6 +265,7 @@ export class MedicinesController {
   /** Admin: immutable price history for governance and finance review. */
   @Get('admin/catalog/:id/price-history')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_READ)
   priceHistory(@Param('id') id: string, @Query('page') page?: string, @Query('limit') limit?: string): Promise<{ data: any[]; total: number; page: number; pages: number }> {
     return this.svc.getPriceHistory(id, parseInt(page || '1'), parseInt(limit || '50'));
   }
@@ -305,49 +311,52 @@ export class MedicinesController {
 
   @Get('admin/pending-review')
   @Roles(UserRole.ADMIN)
-  pending() {
-    return this.svc.pendingReview();
+  pendingLegacyDisabled(): never {
+    throw new GoneException('legacy_medicine_review_disabled_use_change_requests_contract');
   }
 
-  @Post('admin/catalog')
+  /** Legacy contracts are intentionally fail-closed; use the canonical handlers above. */
+  @Post('admin/catalog-legacy-disabled')
   @Roles(UserRole.ADMIN)
-  createCatalog(@Body() body: any, @CurrentUser('id') by: string) {
-    return this.svc.createCatalog(body, by);
+  createCatalogLegacyDisabled(): never {
+    throw new GoneException('legacy_catalog_create_disabled_use_canonical_contract');
   }
 
-  @Delete('admin/catalog/:id')
+  @Delete('admin/catalog/:id/legacy-delete-disabled')
   @Roles(UserRole.ADMIN)
-  deleteCatalog(@Param('id') id: string) {
-    return this.svc.deleteCatalog(id);
+  deleteCatalogLegacyDisabled(): never {
+    throw new GoneException('legacy_catalog_delete_disabled_use_soft_delete_restore_contract');
   }
 
   @Post(':id/approve')
   @Roles(UserRole.ADMIN)
-  approve(@Param('id') id: string, @CurrentUser('id') by: string) {
-    return this.svc.approve(id, by);
+  approveLegacyDisabled(): never {
+    throw new GoneException('legacy_medicine_approve_disabled_use_change_requests_contract');
   }
 
   @Post(':id/reject')
   @Roles(UserRole.ADMIN)
-  reject(@Param('id') id: string, @CurrentUser('id') by: string, @Body() body: { reason?: string }) {
-    return this.svc.reject(id, by, body.reason || '');
+  rejectLegacyDisabled(): never {
+    throw new GoneException('legacy_medicine_reject_disabled_use_change_requests_contract');
   }
 
   @Patch(':id')
   @Roles(UserRole.ADMIN)
-  update(@Param('id') id: string, @Body() body: any) {
-    return this.svc.update(id, body);
+  updateLegacyDisabled(): never {
+    throw new GoneException('legacy_medicine_update_disabled_use_admin_catalog_contract');
   }
 
   // ============ BULK IMPORT (CSV / JSON) ============
   @Post('admin/import-json')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_IMPORT)
   importJson(@Body() body: { rows: any[]; auto_approve?: boolean }, @CurrentUser('id') by: string) {
     return this.svc.bulkImport(body.rows || [], by, 'admin', !!body.auto_approve);
   }
 
   @Post('admin/import-csv')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_IMPORT)
   importCsv(@Body() body: { csv: string; auto_approve?: boolean }, @CurrentUser('id') by: string) {
     const rows = this.svc.parseCsv(body.csv || '');
     return this.svc.bulkImport(rows, by, 'admin', !!body.auto_approve);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import ProviderFullDetail from '@/components/ProviderFullDetail';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
 
 interface Provider {
   id: string;
@@ -29,7 +28,7 @@ export default function ProviderModeration() {
   const [activeTab, setActiveTab] = useState<'onboarding' | 'deltas'>('onboarding');
   const [pendingProviders, setPendingProviders] = useState<Provider[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  
+
   const [pendingDeltas, setPendingDeltas] = useState<DeltaMutation[]>([]);
   const [selectedDelta, setSelectedDelta] = useState<DeltaMutation | null>(null);
   const [providerDetail, setProviderDetail] = useState<any | null>(null);
@@ -41,7 +40,7 @@ export default function ProviderModeration() {
     if (!selectedProvider) { setProviderDetail(null); return; }
     setDetailLoading(true);
     setProviderDetail(null);
-    fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${selectedProvider.id}`)
+    fetchWithAdminGuard(`/api/admin/providers/${selectedProvider.id}`)
       .then(async (res) => { if (res.ok) setProviderDetail(await res.json()); })
       .catch(() => setProviderDetail(null))
       .finally(() => setDetailLoading(false));
@@ -56,7 +55,7 @@ export default function ProviderModeration() {
       try {
         setIsLoading(true);
             // REAL pending provider accounts (provider_accounts, status=pending)
-        const providersRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers?status=pending&limit=100`);
+        const providersRes = await fetchWithAdminGuard(`/api/admin/providers?status=pending&limit=100`);
         if (providersRes.ok) {
           const providersData = await providersRes.json();
           const items = providersData.items || [];
@@ -72,7 +71,7 @@ export default function ProviderModeration() {
 
         // REAL pending delta mutations (provider_deltas collection — the same
         // pipeline the provider app submits to via POST /provider/settings/delta)
-        const deltasRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas`, { method: 'POST' });
+        const deltasRes = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas`, { method: 'GET' });
         if (deltasRes.ok) {
           const deltasData = await deltasRes.json();
           const rows = Array.isArray(deltasData) ? deltasData : (deltasData.data || []);
@@ -97,7 +96,7 @@ export default function ProviderModeration() {
 
   const handleApprove = async (id: string) => {
     try {
-        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({}) });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({}) });
       if (res.ok) {
         alert('تم اعتماد المزود — أصبح حسابه فعالاً ويظهر الآن في دليل المرضى.');
         setPendingProviders(prev => prev.filter(p => p.id !== id));
@@ -115,7 +114,7 @@ export default function ProviderModeration() {
   const handleSuspend = async () => {
     if (!suspendReason) return alert('يرجى إدخال سبب الإيقاف');
     try {
-        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/providers/${selectedProvider?.id}/suspend`, {
+        const res = await fetchWithAdminGuard(`/api/admin/providers/${selectedProvider?.id}/suspend`, {
         method: 'POST',
         body: JSON.stringify({ reason: suspendReason })
       });
@@ -137,7 +136,7 @@ export default function ProviderModeration() {
 
   const handleCommitDelta = async (id: string) => {
     try {
-        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas/${id}/approve`, { method: 'POST' });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/approve`, { method: 'POST' });
       if (res.ok) {
         alert('تم اعتماد التعديلات وتطبيقها على ملف المزود — ستظهر الآن لتطبيق المرضى.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));
@@ -154,7 +153,7 @@ export default function ProviderModeration() {
 
   const handleRejectDelta = async (id: string) => {
     try {
-        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/providers/provider-deltas/${id}/reject`, { method: 'POST' });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/reject`, { method: 'POST' });
       if (res.ok) {
         alert('تم رفض التعديلات — لن تُطبق على ملف المزود.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));
@@ -221,7 +220,7 @@ export default function ProviderModeration() {
                 </h2>
                 <span className="bg-slate-700 px-3 py-1 rounded text-sm">{selectedProvider.name}</span>
               </div>
-              
+
               <div className="flex-1 p-8 overflow-y-auto">
                 {detailLoading && <p className="text-center text-gray-400 mt-10">جاري تحميل ملف المزود…</p>}
                 {!detailLoading && !providerDetail && (
@@ -299,7 +298,7 @@ export default function ProviderModeration() {
           <div className="bg-white p-6 rounded-xl w-96 shadow-2xl">
             <h3 className="text-xl font-bold text-red-600 mb-4">تأكيد إيقاف المزود</h3>
             <p className="text-sm text-gray-600 mb-4">هذا الإجراء سيقوم بقطع جلسات الـ Socket وإخفاء المزود فوراً من البحث.</p>
-            <textarea 
+            <textarea
               className="w-full border border-gray-300 rounded p-3 mb-4 h-24"
               placeholder="الرجاء إدخال سبب الإيقاف أو أكواد الرفض (Reason Codes)..."
               value={suspendReason}

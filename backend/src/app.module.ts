@@ -28,6 +28,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
+import { ImpersonationSessionService } from './common/impersonation-session.service';
 import { UsersModule } from './modules/users/users.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
@@ -258,6 +259,7 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
   ],
   controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
+    ImpersonationSessionService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },

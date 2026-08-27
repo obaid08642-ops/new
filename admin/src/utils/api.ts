@@ -11,7 +11,8 @@ function toBffUrl(url: string) {
   if (url.startsWith('/')) {
     if (url.startsWith('/api/v1/admin/')) return `/api/admin/${url.slice('/api/v1/admin/'.length)}`;
     if (url.startsWith('/admin/')) return `/api/admin/${url.slice('/admin/'.length)}`;
-    return url;
+    if (url.startsWith('/api/')) return url;
+    return `/api/admin${url}`;
   }
 
   try {

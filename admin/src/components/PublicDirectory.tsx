@@ -118,9 +118,8 @@ export function PublicDirectory({ config, items }: { config: DirectoryConfig; it
 }
 
 export async function fetchDirectory(endpoint: string): Promise<any[]> {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
   try {
-    const r = await fetch(`${API_BASE}/api/v1${endpoint}`, { headers: { Accept: 'application/json' } });
+    const r = await fetch(endpoint, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!r.ok) return [];
     const data = await r.json();
     return Array.isArray(data) ? data : data?.data || data?.items || [];

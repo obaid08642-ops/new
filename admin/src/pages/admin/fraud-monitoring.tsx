@@ -30,16 +30,15 @@ export default function FraudMonitoring() {
     const fetchGovernanceData = async () => {
       try {
         setIsLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-        // Fetch Fraud Alerts
-        const alertsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/fraud-alerts`);
+                // Fetch Fraud Alerts
+        const alertsRes = await fetchWithAdminGuard(`/api/admin/governance/fraud-alerts`);
         if (alertsRes.ok) {
           const alertsData = await alertsRes.json();
           setAlerts(alertsData.data || []);
         }
 
         // Fetch ABAC Audit Logs
-        const logsRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/audit-logs`);
+        const logsRes = await fetchWithAdminGuard(`/api/admin/governance/audit-logs`);
         if (logsRes.ok) {
           const logsData = await logsRes.json();
           setLogs(logsData.data || []);

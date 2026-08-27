@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Connection } from 'mongoose';
 import { UserRole } from './enums';
 import { Permission } from './permissions';
+import { ImpersonationSessionService } from './impersonation-session.service';
 
 describe('JwtAuthGuard', () => {
   let guard: JwtAuthGuard;
@@ -12,6 +13,7 @@ describe('JwtAuthGuard', () => {
   let reflector: jest.Mocked<Reflector>;
   let connection: jest.Mocked<Connection>;
   let mockModel: any;
+  let impersonationSessions: jest.Mocked<ImpersonationSessionService>;
 
   beforeEach(() => {
     jwtService = {
@@ -33,7 +35,8 @@ describe('JwtAuthGuard', () => {
       collection: jest.fn().mockReturnValue({ findOne: jest.fn() }),
     } as any;
 
-    guard = new JwtAuthGuard(jwtService, reflector, connection);
+    impersonationSessions = { validate: jest.fn() } as any;
+    guard = new JwtAuthGuard(jwtService, reflector, connection, impersonationSessions);
   });
 
   const createMockContext = (headers: Record<string, string>, params: any = {}, body: any = {}, query: any = {}, path = '/api/v1/private'): any => {

@@ -11,6 +11,7 @@ import { UserInsuranceController } from '../modules/users/user.insurance.control
 import { UsersInsuranceController } from '../modules/users/users.insurance.controller';
 import { UsersModule } from '../modules/users/users.module';
 import { UsersService } from '../modules/users/users.service';
+import { ImpersonationSessionService } from '../common/impersonation-session.service';
 
 describe('Insurance OpenAPI contracts', () => {
   let app: INestApplication;
@@ -25,6 +26,7 @@ describe('Insurance OpenAPI contracts', () => {
         { provide: InsuranceService, useValue: { listCompanies: jest.fn().mockResolvedValue([]) } },
         { provide: JwtService, useValue: { verifyAsync: jest.fn() } },
         { provide: Reflector, useValue: { getAllAndOverride: jest.fn() } },
+        { provide: ImpersonationSessionService, useValue: { validate: jest.fn() } },
         { provide: getConnectionToken(), useValue: { collection: jest.fn(), model: jest.fn() } },
       ],
     }).compile();

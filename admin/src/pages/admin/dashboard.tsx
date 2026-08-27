@@ -28,13 +28,12 @@ export default function MasterDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-        // Fetch System Health (Liveness/Readiness)
+                // Fetch System Health (Liveness/Readiness)
         const [livenessRes, readinessRes] = await Promise.all([
-          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/liveness`),
-          fetchWithAdminGuard(`${API_BASE}/api/v1/system-health/readiness`)
+          fetchWithAdminGuard(`/api/admin/system-health/liveness`),
+          fetchWithAdminGuard(`/api/admin/system-health/readiness`)
         ]);
-        
+
         if (livenessRes.ok && readinessRes.ok) {
           const livenessJson = await livenessRes.json();
           const readinessJson = await readinessRes.json();
@@ -56,7 +55,7 @@ export default function MasterDashboard() {
         }
 
         // Fetch Heatmap Telemetry
-        const heatRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/nabd-extensions/admin/analytics/heatmaps`);
+        const heatRes = await fetchWithAdminGuard(`/api/admin/nabd-extensions/admin/analytics/heatmaps`);
         if (heatRes.ok) {
           const heatJson = await heatRes.json();
           // Backend shape: [{ city, category, count, coordinates:[lng,lat] }] (raw array).
@@ -84,7 +83,7 @@ export default function MasterDashboard() {
         }
 
         // Live orders feed + global summary (command-center snapshot)
-        const ccRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/command-center`);
+        const ccRes = await fetchWithAdminGuard(`/api/admin/command-center`);
         if (ccRes.ok) {
           const cc = await ccRes.json();
           setLiveOrders(Array.isArray(cc?.live_bookings) ? cc.live_bookings : []);

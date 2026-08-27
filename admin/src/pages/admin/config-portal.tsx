@@ -3,12 +3,12 @@ import { fetchWithAdminGuard } from '@/utils/api';
 
 export default function ConfigPortal() {
   const [activeTab, setActiveTab] = useState<'sla' | 'maintenance'>('sla');
-  
+
   // SLA State
   const [consultationDuration, setConsultationDuration] = useState(15);
   const [callRingingDuration, setCallRingingDuration] = useState(45);
   const [jwtExpiry, setJwtExpiry] = useState(24);
-  
+
   // Maintenance State
   const [killSwitchChecked1, setKillSwitchChecked1] = useState(false);
   const [killSwitchChecked2, setKillSwitchChecked2] = useState(false);
@@ -18,8 +18,7 @@ export default function ConfigPortal() {
   useEffect(() => {
     const fetchSLA = async () => {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-        const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`);
+                const res = await fetchWithAdminGuard(`/api/admin/config/sla`);
         if (res.ok) {
           const data = await res.json();
           if (data.consultationDuration) setConsultationDuration(data.consultationDuration);
@@ -49,10 +48,9 @@ export default function ConfigPortal() {
         return;
       }
 
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/config/sla`, { 
-        method: 'PUT', 
-        body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry }) 
+            await fetchWithAdminGuard(`/api/admin/config/sla`, {
+        method: 'PUT',
+        body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry })
       });
       alert('SLA variables globally overridden successfully.');
     } catch (error) {
@@ -71,8 +69,7 @@ export default function ConfigPortal() {
 
     setIsSubmitting(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/governance/trigger-emergency-maintenance`, {
+            const res = await fetchWithAdminGuard(`/api/admin/governance/trigger-emergency-maintenance`, {
         method: 'PUT',
         body: JSON.stringify({
           adminId: 'admin-master-001',
@@ -109,13 +106,13 @@ export default function ConfigPortal() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
-        <button 
+        <button
           className={`py-3 px-6 font-medium text-lg ${activeTab === 'sla' ? 'border-b-2 border-teal-500 text-teal-600' : 'text-gray-500'}`}
           onClick={() => setActiveTab('sla')}
         >
           تعديلات الـ SLA
         </button>
-        <button 
+        <button
           className={`py-3 px-6 font-medium text-lg flex items-center gap-2 ${activeTab === 'maintenance' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-500'}`}
           onClick={() => setActiveTab('maintenance')}
         >
@@ -171,7 +168,7 @@ export default function ConfigPortal() {
                  THE HIGH-PRIORITY SYSTEM MAINTENANCE KILL-SWITCH
               </h2>
               <p className="text-red-600 font-medium mb-4">
-                تفعيل هذا المفتاح سيضخ `FORCE_SYSTEM_MAINTENANCE: true` في الـ Redis Core Cache Cluster فوراً. 
+                تفعيل هذا المفتاح سيضخ `FORCE_SYSTEM_MAINTENANCE: true` في الـ Redis Core Cache Cluster فوراً.
                 سيقوم باعتراض الـ API Gateway ويفصل جميع المستخدمين (503 Service Unavailable) ويعرض شاشة التحديث الجذري الطارئ.
               </p>
 
@@ -189,8 +186,8 @@ export default function ConfigPortal() {
                       تأكيد مستوى الأمان المزدوج: الإقفال وبدء وضع الصيانة.
                     </label>
                   </div>
-                  
-                  <button 
+
+                  <button
                     disabled={!killSwitchChecked1 || !killSwitchChecked2 || isSubmitting}
                     onClick={() => handleTriggerEmergencyKillSwitch(true)}
                     className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg shadow-lg disabled:opacity-50 transition uppercase tracking-widest text-lg"
@@ -201,7 +198,7 @@ export default function ConfigPortal() {
               ) : (
                 <div className="bg-white p-6 rounded border border-green-200 text-center">
                   <h3 className="text-xl font-bold text-gray-800 mb-4">النظام حالياً في وضع الإيقاف الطارئ.</h3>
-                  <button 
+                  <button
                     disabled={isSubmitting}
                     onClick={() => handleTriggerEmergencyKillSwitch(false)}
                     className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg disabled:opacity-50 transition text-lg"

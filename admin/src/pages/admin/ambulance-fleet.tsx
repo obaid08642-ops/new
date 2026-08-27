@@ -26,8 +26,7 @@ const STATUS_LABELS: Record<string, { ar: string; cls: string }> = {
 };
 
 export default function AmbulanceFleetReview() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-  const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+    const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,7 +37,7 @@ export default function AmbulanceFleetReview() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet?status=${tab}`);
+      const res = await fetchWithAdminGuard(`/api/admin/ambulance/fleet?status=${tab}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
       setVehicles(Array.isArray(data) ? data : []);
@@ -55,7 +54,7 @@ export default function AmbulanceFleetReview() {
   const approve = async (v: Vehicle) => {
     setBusyId(v.id);
     try {
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet/${v.id}/approve`, { method: 'POST' });
+      const res = await fetchWithAdminGuard(`/api/admin/ambulance/fleet/${v.id}/approve`, { method: 'POST' });
       if (!res.ok) throw new Error();
       setVehicles(list => list.filter(x => x.id !== v.id));
       alert(`تم اعتماد المركبة ${v.plate_number} — أصبحت مؤهلة لاستلام مهام الطوارئ`);
@@ -70,7 +69,7 @@ export default function AmbulanceFleetReview() {
     if (!rejectReason.trim()) { alert('أدخل سبب الرفض'); return; }
     setBusyId(v.id);
     try {
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/ambulance/fleet/${v.id}/reject`, {
+      const res = await fetchWithAdminGuard(`/api/admin/ambulance/fleet/${v.id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: rejectReason.trim() }),

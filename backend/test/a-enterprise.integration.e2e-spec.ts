@@ -22,6 +22,7 @@ import { WalletSchema } from '../src/schemas/wallet.schema';
 import { RedisService } from '../src/modules/redis/redis.service';
 import { RedisModule } from '../src/modules/redis/redis.module';
 import { ClientConfigModule } from '../src/modules/config/config.module';
+import { ImpersonationSecurityModule } from '../src/common/impersonation-security.module';
 
 const fakeRedis = {
   getClient: () => ({
@@ -69,6 +70,7 @@ beforeAll(async () => {
   const moduleRef = await Test.createTestingModule({
     imports: [
       MongooseModule.forRoot(uri),
+      ImpersonationSecurityModule,
       JwtModule.register({ secret: SECRET, global: true }),
       EventEmitterModule.forRoot(),
       ScheduleModule.forRoot(),
@@ -527,7 +529,7 @@ describe('Enterprise implementation extensions', () => {
     }).expect(201);
     expect(started.body.session_id).toMatch(/^imp_/);
     expect(started.body.target.id).toBe(patient.id);
-    expect(started.body.token).toEqual(expect.any(String));
+    expect(started.body.token).toBeUndefined();
     const active = await (await as('super_admin')).get('/api/v1/admin/impersonation').expect(200);
     expect(active.body.data.some((row: any) => row.id === started.body.session_id && row.status === 'active')).toBe(true);
     await (await as('super_admin')).post(`/api/v1/admin/impersonation/${started.body.session_id}/revoke`)

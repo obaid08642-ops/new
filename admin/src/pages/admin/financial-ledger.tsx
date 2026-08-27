@@ -33,7 +33,7 @@ interface FinanceSummary {
 
 export default function FinancialLedger() {
   const [activeTab, setActiveTab] = useState<'ledger' | 'warehouse'>('ledger');
-  
+
   const [commissions, setCommissions] = useState<CommissionRow[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRow[]>([]);
   const [warehouseOrders, setWarehouseOrders] = useState<WarehouseOrder[]>([]);
@@ -48,10 +48,9 @@ export default function FinancialLedger() {
       try {
         setIsLoading(true);
         setFinanceUnavailable(false);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
 
         // Live finance summary — never render placeholder KPIs in production.
-        const summaryRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance-engine/reports/summary?period=monthly`);
+        const summaryRes = await fetchWithAdminGuard(`/api/admin/finance-engine/reports/summary?period=monthly`);
         if (summaryRes.ok) {
           setSummary(await summaryRes.json());
         } else {
@@ -59,14 +58,14 @@ export default function FinancialLedger() {
         }
 
         // Fetch Commissions
-        const commRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/commissions`);
+        const commRes = await fetchWithAdminGuard(`/api/admin/finance/commissions`);
         if (commRes.ok) {
           const data = await commRes.json();
           setCommissions(data.data || []);
         }
 
         // Fetch Withdrawals
-        const withRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/pending`);
+        const withRes = await fetchWithAdminGuard(`/api/admin/finance/withdrawals/pending`);
         if (withRes.ok) {
           const data = await withRes.json();
           const rows = data.data || [];
@@ -77,7 +76,7 @@ export default function FinancialLedger() {
         }
 
         // Fetch Warehouse Orders
-        const whRes = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/procurement/pending`);
+        const whRes = await fetchWithAdminGuard(`/api/admin/extended-operations/procurement/pending`);
         if (whRes.ok) {
           const data = await whRes.json();
           setWarehouseOrders(data.data || []);
@@ -109,8 +108,7 @@ export default function FinancialLedger() {
 
   const handleExecutePayout = async (id: string) => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
+            await fetchWithAdminGuard(`/api/admin/finance/withdrawals/${id}/execute`, { method: 'POST' });
       alert('تم إرسال أمر الدفع إلى شبكة Moyasar وتحويل الحالة إلى completed وإرسال الإشعار.');
       setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: 'completed' } : w));
     } catch (e) {
@@ -132,8 +130,7 @@ export default function FinancialLedger() {
     if (total_warehouse_quotation_price <= 0) return alert('يجب تسعير العناصر أولاً');
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const res = await fetchWithAdminGuard(`${API_BASE}/api/v1/admin/extended-operations/issue-quote/${order.id}`, {
+            const res = await fetchWithAdminGuard(`/api/admin/extended-operations/issue-quote/${order.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ pricingItems: order.items, totalPrice: total_warehouse_quotation_price })
       });
@@ -271,11 +268,11 @@ export default function FinancialLedger() {
             <h2 className="text-xl font-bold">B2B Warehouse Order Sheet & Quotation Panel</h2>
             <p className="text-teal-200 mt-1">طلبات نواقص الصيدليات القادمة عبر AI Voice / OCR</p>
           </div>
-          
+
           <div className="p-6">
             {warehouseOrders.map(order => {
               const totalQuotation = order.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-              
+
               return (
                 <div key={order.id} className="border border-gray-300 rounded-xl overflow-hidden mb-8">
                   <div className="bg-gray-100 p-4 border-b border-gray-300 flex justify-between items-center">
@@ -291,7 +288,7 @@ export default function FinancialLedger() {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="p-0">
                     <table className="w-full text-left" dir="ltr">
                       <thead className="bg-gray-50 border-b text-sm text-gray-500 uppercase">
@@ -308,11 +305,11 @@ export default function FinancialLedger() {
                             <td className="p-4 font-medium text-gray-800">{item.name}</td>
                             <td className="p-4">{item.quantity}</td>
                             <td className="p-4 bg-amber-50">
-                              <input 
-                                type="number" 
+                              <input
+                                type="number"
                                 min={0}
                                 disabled={order.status !== 'PENDING_ADMIN_REVIEW'}
-                                value={item.unitPrice || ''} 
+                                value={item.unitPrice || ''}
                                 onChange={(e) => handleUpdateWarehousePrice(order.id, idx, Number(e.target.value))}
                                 className="w-full border border-gray-300 rounded px-3 py-2 disabled:bg-gray-100"
                                 placeholder="0.00"

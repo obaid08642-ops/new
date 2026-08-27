@@ -8,7 +8,7 @@ const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const FORWARDED_HEADERS = ['accept', 'content-type', 'if-match', 'if-none-match'];
 
 function upstreamBase() {
-  const value = process.env.ADMIN_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+  const value = process.env.ADMIN_BACKEND_URL;
   if (!value) throw new Error('ADMIN_BACKEND_URL is required');
   return value.replace(/\/$/, '');
 }
@@ -32,6 +32,7 @@ function incomingBody(req: NextApiRequest) {
 
 function apiPath(req: NextApiRequest) {
   const segments = Array.isArray(req.query.path) ? req.query.path : [];
+  const decoded = segments.map((segment) => decodeURIComponent(String(segment)));
   const query = new URLSearchParams();
   for (const [key, raw] of Object.entries(req.query)) {
     if (key === 'path') continue;
@@ -40,13 +41,25 @@ function apiPath(req: NextApiRequest) {
     }
   }
   const suffix = query.toString();
-  return `/api/v1/admin/${segments.map(encodeURIComponent).join('/')}${suffix ? `?${suffix}` : ''}`;
+  const encoded = segments.map((segment) => encodeURIComponent(String(segment))).join('/');
+  // Explicitly allow only the existing read-only health/extension contracts;
+  // every other path remains under /api/v1/admin and server-side RBAC.
+  let upstreamPath = `/api/v1/admin/${encoded}`;
+  // These legacy module prefixes are still real backend controllers, but their
+  // browser transport is now forced through this BFF route.
+  const modulePrefixes = new Set(['medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'users', 'orders', 'providers', 'pharmacy', 'labs', 'radiology', 'nursing']);
+  if (modulePrefixes.has(decoded[0])) upstreamPath = `/api/v1/${encoded}`;
+  if (decoded[0] === 'system-health') upstreamPath = `/api/v1/system-health/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'nabd-extensions' && decoded[1] === 'admin') upstreamPath = `/api/v1/nabd-extensions/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
+  if (decoded[0] === 'providers' && decoded[1] === 'provider-deltas') upstreamPath = `/api/v1/providers/provider-deltas${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
+  return `${upstreamPath}${suffix ? `?${suffix}` : ''}`;
 }
 
 function copyResponseHeaders(response: Response, res: NextApiResponse) {
   const contentType = response.headers.get('content-type');
   const contentDisposition = response.headers.get('content-disposition');
   const cacheControl = response.headers.get('cache-control');
+  res.setHeader('cache-control', cacheControl || 'no-store');
   if (contentType) res.setHeader('content-type', contentType);
   if (contentDisposition) res.setHeader('content-disposition', contentDisposition);
   if (cacheControl) res.setHeader('cache-control', cacheControl);

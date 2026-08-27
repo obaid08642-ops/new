@@ -6,6 +6,7 @@ import { Request } from 'express';
 import { UserRole } from './enums';
 import { Permission, ROLE_PERMISSIONS, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } from './permissions';
 import { roleSatisfies, mergePermissions } from './rbac';
+import { ImpersonationSessionService } from './impersonation-session.service';
 
 // ── Dynamic RBAC (A1) ─────────────────────────────────────────
 // Custom roles live in `admin_custom_roles`; users reference them through
@@ -78,7 +79,8 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private jwt: JwtService,
     private reflector: Reflector,
-    @InjectConnection() private connection: Connection
+    @InjectConnection() private connection: Connection,
+    private impersonationSessions: ImpersonationSessionService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -96,11 +98,8 @@ export class JwtAuthGuard implements CanActivate {
     const auth = req.headers.authorization || '';
     let token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
     
-    // Fallback to HttpOnly cookie for Web Dashboard
-    if (!token && req.cookies && req.cookies.nabd_admin_token) {
-      token = req.cookies.nabd_admin_token;
-    }
-    
+    // Browser authentication is terminated by the admin BFF. The backend accepts
+    // only the Authorization header forwarded by that trusted boundary.
     if (!token) {
       if (isPublic) return true;
       throw new UnauthorizedException('Missing token');
@@ -116,8 +115,14 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid token');
     }
 
-    // Attach original user payload to request
+    // Attach original user payload to request. Support tokens are validated against
+    // the durable session on every request, so revoke/expiry takes effect immediately.
     req.user = payload;
+    if (payload?.scope === 'impersonation') {
+      const context = await this.impersonationSessions.validate(payload);
+      req.impersonator = context.impersonator;
+      req.auditInfo = { ...req.auditInfo, impersonator_id: context.impersonator.id, impersonation_session_id: context.session.id, target_user_id: payload.id || payload.sub };
+    }
 
     // A provider JWT is not itself proof of operational approval. Pending KYC
     // accounts may access only their own onboarding/contract steps; every other

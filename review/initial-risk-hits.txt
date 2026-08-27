@@ -1,0 +1,78 @@
+=== API BASE / DIRECT NETWORK ===
+admin/src/pages/admin/ambulance-fleet.tsx:29:  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/config-portal.tsx:21:        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/config-portal.tsx:52:      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/config-portal.tsx:74:      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/dashboard.tsx:31:        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/financial-ledger.tsx:51:        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/financial-ledger.tsx:112:      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/financial-ledger.tsx:135:      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/fraud-monitoring.tsx:33:        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/pages/admin/provider-moderation.tsx:5:const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+admin/src/utils/api.ts:41:  const response = await fetch(toBffUrl(url), {
+=== SILENT NULL CATCH ===
+admin/src/pages/admin/ai-control.tsx:23:      apiFetch('/ai/admin/gateway').catch(() => null),
+admin/src/pages/admin/ai-control.tsx:33:    await apiFetch(`/ai/admin/gateway/provider/${key}`, { method: 'POST', body: JSON.stringify({ enabled: !enabled }) }).catch(() => null);
+admin/src/pages/admin/ai-control.tsx:39:    await apiFetch('/ai/admin/gateway/mode', { method: 'POST', body: JSON.stringify({ mode, pinned }) }).catch(() => null);
+admin/src/pages/admin/analytics.tsx:19:    apiFetch('/admin/analytics/overview').then(setOverview).catch(() => null);
+admin/src/pages/admin/commissions.tsx:30:        apiFetch('/admin/finance/ledger/summary').catch(() => null),
+admin/src/pages/admin/insurance-queue.tsx:36:        apiFetch('/admin/insurance/stats').catch(() => null),
+admin/src/pages/admin/legal-policies.tsx:14:      apiFetch('/admin/finance/commissions').catch(() => null),
+admin/src/pages/admin/legal-policies.tsx:22:    const full = await apiFetch(`/legal/policy/${key}`).catch(() => null);
+admin/src/pages/admin/legal-policies.tsx:40:    await apiFetch('/admin/finance/commissions', { method: 'PUT', body: JSON.stringify({ service_types: next }) }).catch(() => null);
+admin/src/pages/admin/legal-policies.tsx:45:    await apiFetch('/admin/finance/commissions', { method: 'PUT', body: JSON.stringify({ payout_schedule: { ...commissions.payout_schedule, minimum_payout_sar: value } }) }).catch(() => null);
+admin/src/pages/admin/notification-center.tsx:36:        apiFetch('/admin/notification-center/stats/overview').catch(() => null),
+admin/src/pages/admin/notification-center.tsx:37:        apiFetch('/admin/notification-center/segments').catch(() => null),
+admin/src/pages/admin/notification-center.tsx:92:    await apiFetch('/admin/notification-center/retarget/run', { method: 'POST' }).catch(() => null);
+admin/src/pages/admin/provider-moderation.tsx:106:        const err = await res.json().catch(() => null);
+admin/src/pages/admin/provider-moderation.tsx:129:        const err = await res.json().catch(() => null);
+admin/src/pages/admin/provider-moderation.tsx:146:        const err = await res.json().catch(() => null);
+admin/src/pages/admin/provider-moderation.tsx:163:        const err = await res.json().catch(() => null);
+admin/src/pages/admin/users-management.tsx:58:      const ov = await apiFetch(`/admin/users/${id}/overview?days=${days}`).catch(() => null);
+admin/src/pages/admin/users-management.tsx:64:        const pf = await apiFetch(`/admin/providers/by-user/${id}`).catch(() => null);
+admin/src/pages/admin/users-management.tsx:75:    const ov = await apiFetch(`/admin/users/${viewUser.id || viewUser._id}/overview?days=${days}`).catch(() => null);
+=== PAGE FILES ===
+admin/src/pages/admin/ai-control.tsx
+admin/src/pages/admin/ambulance-fleet.tsx
+admin/src/pages/admin/analytics-suite.tsx
+admin/src/pages/admin/analytics.tsx
+admin/src/pages/admin/audit-logs.tsx
+admin/src/pages/admin/catalog-governance.tsx
+admin/src/pages/admin/catalog-manager.tsx
+admin/src/pages/admin/command-center.tsx
+admin/src/pages/admin/commissions.tsx
+admin/src/pages/admin/config-portal.tsx
+admin/src/pages/admin/content-growth.tsx
+admin/src/pages/admin/crm.tsx
+admin/src/pages/admin/dashboard.tsx
+admin/src/pages/admin/disputes.tsx
+admin/src/pages/admin/finance-suite.tsx
+admin/src/pages/admin/financial-ledger.tsx
+admin/src/pages/admin/fraud-monitoring.tsx
+admin/src/pages/admin/gdpr.tsx
+admin/src/pages/admin/health-dashboard.tsx
+admin/src/pages/admin/home-curation.tsx
+admin/src/pages/admin/image-suggestions.tsx
+admin/src/pages/admin/impersonation.tsx
+admin/src/pages/admin/insurance-companies.tsx
+admin/src/pages/admin/insurance-queue.tsx
+admin/src/pages/admin/legal-policies.tsx
+admin/src/pages/admin/medicines-catalog.tsx
+admin/src/pages/admin/notification-center.tsx
+admin/src/pages/admin/nursing-portal.tsx
+admin/src/pages/admin/order-detail.tsx
+admin/src/pages/admin/orders/[kind]/[id].tsx
+admin/src/pages/admin/orders/index.tsx
+admin/src/pages/admin/payouts.tsx
+admin/src/pages/admin/pharmacy-procurement.tsx
+admin/src/pages/admin/provider-audits.tsx
+admin/src/pages/admin/provider-moderation.tsx
+admin/src/pages/admin/rbac.tsx
+admin/src/pages/admin/scheduled-reports.tsx
+admin/src/pages/admin/security.tsx
+admin/src/pages/admin/segments.tsx
+admin/src/pages/admin/shortage-reports.tsx
+admin/src/pages/admin/sos-monitor.tsx
+admin/src/pages/admin/support-tickets.tsx
+admin/src/pages/admin/system-ops.tsx
+admin/src/pages/admin/users-management.tsx

@@ -12,7 +12,7 @@ import EmptyIcon from '../../../components/EmptyIcon';
  * Types: medicine | doctor | lab-service | home-care-service | facility
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+const API_BASE = process.env.ADMIN_BACKEND_URL || '';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://nabd.plus';
 
 const TYPE_AR: Record<string, { dir: string; label: string }> = {
