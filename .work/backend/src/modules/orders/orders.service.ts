@@ -61,6 +61,11 @@ export class OrdersService {
    *  - If best pharmacy has <100% items, splits remaining into sub-order to next-best pharmacy
    */
   async create(patient: any, data: any) {
+    // This route has no server-owned non-pharmacy discriminator and its implementation
+    // performs legacy dispatch, auto-selection, PII persistence, and client-shaped pricing.
+    // Reject before any lookup, write, dispatch, or fallback; canonical PharmacyOrder is required.
+    throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
+    /*
     const requestedKind = String(data.service_kind || data.order_type || data.type || '').toLowerCase();
     if (requestedKind === 'pharmacy' || requestedKind === 'medicine' || data.pharmacy_id) {
       throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
@@ -203,8 +208,8 @@ export class OrdersService {
       }
     } catch (e) {
       // Compensate: release coupon + re-credit points, then surface the error
-      try { await this.coupons.release(order.id); } catch { /* noop */ }
-      try { await this.loyaltyRedeem.refundRedemption(patient.id, order.id); } catch { /* noop */ }
+      try { await this.coupons.release(order.id); } catch {}
+      try { await this.loyaltyRedeem.refundRedemption(patient.id, order.id); } catch {}
       throw e;
     }
 
@@ -267,6 +272,7 @@ export class OrdersService {
     }
 
     return this.getById(order.id);
+    */
   }
 
   // ============ STATE MACHINE TRANSITIONS ============
@@ -432,6 +438,7 @@ export class OrdersService {
   async cancel(orderId: string, by: any, reason: string) {
     const order = await this.orderModel.findOne({ id: orderId });
     if (!order) throw new NotFoundException();
+    await this.assertNotCanonicalPharmacyOrder(order);
     this.assertOrderAccess(order, by);
 
     const policy = await this.cancelPolicy.forOrder(order.state as string, by.role, order.delivery_fee || 0);
@@ -638,6 +645,7 @@ export class OrdersService {
   async patientApproveBasket(patient: any, id: string) {
     const o = await this.orderModel.findOne({ id, patient_id: patient.id });
     if (!o) throw new NotFoundException('order_not_found');
+    await this.assertNotCanonicalPharmacyOrder(o);
     if ((o as any).basket_review_status !== 'submitted_for_patient_approval') throw new ForbiddenException('not_submitted');
     (o as any).basket_review_status = 'patient_approved';
     (o as any).basket_decided_at = new Date();
@@ -649,6 +657,7 @@ export class OrdersService {
   async patientRejectBasket(patient: any, id: string, reason?: string) {
     const o = await this.orderModel.findOne({ id, patient_id: patient.id });
     if (!o) throw new NotFoundException('order_not_found');
+    await this.assertNotCanonicalPharmacyOrder(o);
     if ((o as any).basket_review_status !== 'submitted_for_patient_approval') throw new ForbiddenException('not_submitted');
     (o as any).basket_review_status = 'patient_rejected';
     (o as any).basket_decided_at = new Date();
@@ -734,13 +743,12 @@ export class OrdersService {
     */
   }
 
-  async listBids(user: any, prescriptionRequestId: string) {
-    return this.bidModel.find({ prescription_request_id: prescriptionRequestId }).sort({ total_price: 1 }).lean();
+  async listBids(_user: any, _prescriptionRequestId: string): Promise<never> {
+    throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
   }
 
-  async listPharmacyBids(user: any) {
-    if (!['admin', 'pharmacy'].includes(user.role)) throw new ForbiddenException();
-    return this.bidModel.find({ pharmacy_id: user.id }).sort({ createdAt: -1 }).lean();
+  async listPharmacyBids(_user: any): Promise<never> {
+    throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
   }
 
   async getTracking(id: string, user: any) {
@@ -816,6 +824,7 @@ export class OrdersService {
   async optInCash(id: string, itemId: string, payload: { optInCash?: boolean }, user: any) {
     const order = await this.orderModel.findOne({ id, patient_id: user.id });
     if (!order) throw new NotFoundException('Order not found');
+    await this.assertNotCanonicalPharmacyOrder(order);
 
     const item = order.items.find((i: any) => i.medicine_id === itemId);
     if (!item) throw new NotFoundException('Item not found');

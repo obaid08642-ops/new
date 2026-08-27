@@ -58,6 +58,18 @@ describe('OrdersService', () => {
     expect(service).toBeDefined();
   });
 
+  it.each([
+    { items: [{ medicine_id: 'med-1', qty: 1 }], delivery_address: { lat: 24.7, lng: 46.7 } },
+    { cartItems: [{ medicine_id: 'med-1', qty: 1 }], delivery_address: { lat: 24.7, lng: 46.7 } },
+    { items: [{ medicine_id: 'med-1', qty: 1 }], delivery_address: { lat: 24.7, lng: 46.7 }, type: 'PHARMACY' },
+    { items: [{ medicine_id: 'med-1', qty: 1 }], delivery_address: { lat: 24.7, lng: 46.7 }, pharmacy_id: 'pharmacy-1' },
+  ])('rejects legacy create payload %# before any persistence or dispatch', async (payload) => {
+    await expect(service.create({ id: 'patient-1', role: 'patient' }, payload as any))
+      .rejects.toMatchObject({ response: { message: 'canonical_pharmacy_flow_required' } });
+    expect(mockModel.create).not.toHaveBeenCalled();
+    expect((mockDispatchService as any).dispatch).toBeUndefined();
+  });
+
   describe('order ownership / BOLA', () => {
     const order = { id: 'order-1', patient_id: 'patient-1', pharmacy_id: 'pharmacy-1', state: 'CREATED', delivery_fee: 0, payment_status: 'pending' };
 
@@ -71,9 +83,10 @@ describe('OrdersService', () => {
       await expect(service.getById('order-1', { id: 'patient-1', role: 'patient' })).resolves.toEqual(order);
     });
 
-    it('rejects a foreign patient before cancellation policy or financial side effects', async () => {
+    it('fails closed before cancellation policy or financial side effects for a legacy pharmacy order', async () => {
       mockModel.findOne.mockResolvedValueOnce(order);
-      await expect(service.cancel('order-1', { id: 'patient-2', role: 'patient' }, 'foreign-test')).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
+      await expect(service.cancel('order-1', { id: 'patient-2', role: 'patient' }, 'foreign-test'))
+        .rejects.toMatchObject({ status: 503, response: { message: 'canonical_pharmacy_flow_required' } });
     });
 
     it('rejects a foreign patient from downloading the PDF report', async () => {
