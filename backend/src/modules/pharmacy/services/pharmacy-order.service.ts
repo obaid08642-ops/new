@@ -46,6 +46,7 @@ export class PharmacyOrderService {
       id: uuidv4(),
       patient_account_id: user.id,
       status: PharmacyOrderState.DRAFT,
+      governed_state: GovernedPharmacyOrderState.CART_DRAFT,
       items,
       delivery_address: body.delivery_address,
       patient_notes: body.patient_notes,
@@ -135,6 +136,7 @@ export class PharmacyOrderService {
       actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, reason: 'patient_submitted',
       mutate: async () => {
         order.status = PharmacyOrderState.READY_FOR_SPLIT;
+        order.governed_state = GovernedPharmacyOrderState.ORDER_BROADCASTING;
         order.timeline.push({ ts: new Date(), event: 'submitted_by_patient' });
         await order.save();
         // Phase 2A-rework: NEW workflow — start broadcast (3km→5km→7km) first.
@@ -178,4 +180,3 @@ export class PharmacyOrderService {
     });
   }
 }
-

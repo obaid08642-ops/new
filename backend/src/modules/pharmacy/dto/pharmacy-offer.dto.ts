@@ -71,3 +71,13 @@ export class SelectPharmacyOfferDto {
   @IsIn(['cash', 'insurance'])
   coverage_mode!: 'cash' | 'insurance';
 }
+
+export class AcceptPharmacyFinalQuoteDto {
+  @IsString()
+  quote_hash!: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  quote_revision!: number;
+}

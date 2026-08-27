@@ -10,6 +10,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from '../../../schemas/insurance.schema';
+import { PharmacyOrderState as GovernedPharmacyOrderState } from '@nabd/shared-contracts';
 
 // ============ ORDER STATES ============
 export enum PharmacyOrderState {
@@ -106,6 +107,8 @@ export class PharmacyOrder extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) patient_account_id: string;
   @Prop({ required: true, default: PharmacyOrderState.DRAFT, enum: Object.values(PharmacyOrderState), index: true }) status: PharmacyOrderState;
+  /** Canonical business state. Legacy `status` remains during the staged migration only. */
+  @Prop({ required: true, default: GovernedPharmacyOrderState.CART_DRAFT, enum: Object.values(GovernedPharmacyOrderState), index: true }) governed_state: GovernedPharmacyOrderState;
   @Prop() intake_id?: string;
 
   // Items embedded as full objects (denormalized for atomic reads).
@@ -161,8 +164,19 @@ export class PharmacyOrder extends Document {
   @Prop({ index: true }) selected_offer_id?: string;
   @Prop({ index: true }) selected_pharmacy_account_id?: string;
   @Prop({ enum: ['cash', 'insurance'] }) coverage_mode?: 'cash' | 'insurance';
+  @Prop({ default: false }) negotiation_required: boolean;
+  @Prop({ type: Object }) selected_offer_snapshot?: any;
+  @Prop({ default: 0 }) selected_offer_revision?: number;
+  @Prop() selected_offer_hash?: string;
+  @Prop({ type: Object }) pending_final_quote_snapshot?: any;
+  @Prop({ default: 0 }) pending_final_quote_revision?: number;
+  @Prop() pending_final_quote_hash?: string;
+  /** Set only after the patient accepts the final quote; payments must use this immutable snapshot. */
   @Prop({ type: Object }) accepted_quote_snapshot?: any;
   @Prop({ default: 0 }) accepted_quote_revision?: number;
+  @Prop() accepted_quote_hash?: string;
+  @Prop({ type: [Object], default: [] }) insurance_item_decisions?: any[];
+  @Prop({ type: Object }) insurance_decision_summary?: any;
 
   @Prop({ type: [String], default: [], index: true }) allocations: string[];
   @Prop({ default: 0 }) splits_count: number;
