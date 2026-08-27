@@ -8,9 +8,10 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 export interface CartItem { id: string; name: string; qty: number; rx: boolean; image?: string; icon?: string; iconColor?: string; iconBg?: string; activeIngredient?: string; }
 interface CartContextType { items: CartItem[]; addItem: (item: Omit<CartItem, 'qty'> & { qty?: number }) => Promise<void>; removeItem: (id: string) => Promise<void>; updateQty: (id: string, delta: number) => Promise<void>; clearCart: () => Promise<void>; itemCount: number; hasRxItems: boolean; }
 const CartContext = createContext<CartContextType | null>(null);
+export function sanitizePharmacyCartItem(item: Omit<CartItem, 'qty'> & { qty?: number }): CartItem { const { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, qty } = item; return { id, name, rx, image, icon, iconColor, iconBg, activeIngredient, qty: qty || 1 }; }
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const addItem = useCallback(async (item: Omit<CartItem, 'qty'> & { qty?: number }) => { setItems((previous) => { const existing = previous.find((line) => line.id === item.id); return existing ? previous.map((line) => line.id === item.id ? { ...line, qty: line.qty + (item.qty || 1) } : line) : [...previous, { ...item, qty: item.qty || 1 }]; }); }, []);
+  const addItem = useCallback(async (item: Omit<CartItem, 'qty'> & { qty?: number }) => { const cleanItem = sanitizePharmacyCartItem(item); setItems((previous) => { const existing = previous.find((line) => line.id === cleanItem.id); return existing ? previous.map((line) => line.id === cleanItem.id ? { ...line, qty: line.qty + cleanItem.qty } : line) : [...previous, cleanItem]; }); }, []);
   const removeItem = useCallback(async (id: string) => { setItems((previous) => previous.filter((line) => line.id !== id)); }, []);
   const updateQty = useCallback(async (id: string, delta: number) => { setItems((previous) => previous.map((line) => line.id === id ? { ...line, qty: line.qty + delta } : line).filter((line) => line.qty > 0)); }, []);
   const clearCart = useCallback(async () => { setItems([]); }, []);
