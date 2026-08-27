@@ -185,6 +185,24 @@ describe('InsuranceFlowService', () => {
     });
   });
 
+  describe('acceptSelfPay', () => {
+    it('allows the owner to accept a server-derived self-pay amount only after rejection', async () => {
+      const req = pendingReq();
+      req.state = 'REJECTED';
+      requests.findOne.mockResolvedValue(req);
+      const result = await service.acceptSelfPay({ id: 'pat-1' }, 'req-1');
+      expect(result.state).toBe('SELF_PAY_PENDING');
+      expect(result.self_pay_amount).toBe(250);
+      expect(events.emit).toHaveBeenCalledWith('insurance.self_pay.accepted', expect.objectContaining({ request_id: 'req-1', amount: 250 }));
+    });
+
+    it('does not allow self-pay before a provider rejection', async () => {
+      const req = pendingReq();
+      requests.findOne.mockResolvedValue(req);
+      await expect(service.acceptSelfPay({ id: 'pat-1' }, 'req-1')).rejects.toThrow('self_pay_not_available');
+    });
+  });
+
   describe('cancel', () => {
     it('cannot cancel after copay payment', async () => {
       const req = pendingReq();
