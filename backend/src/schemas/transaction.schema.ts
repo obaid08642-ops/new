@@ -24,6 +24,8 @@ export class Transaction {
   @Prop() client_secret?: string;
   @Prop() checkout_url?: string;
   @Prop({ type: Object }) webhook_payload?: Record<string, any>;
+  @Prop() webhook_event_id?: string;
+  @Prop() webhook_payload_hash?: string;
   @Prop() failure_reason?: string;
   @Prop() refund_reason?: string;
   @Prop() refunded_amount?: number;
