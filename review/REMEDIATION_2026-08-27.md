@@ -28,20 +28,22 @@
 | خصوصية البث | دور JWT وحده لا يكفي؛ يلزم حساب pharmacy معتمد وعضوية notified. DTO لا يعيد order خاماً أو اسم/هاتف/عنوان/مرفقات المريض. | لا E2E ضد حسابات/بيانات حقيقة أو audit للـPHI في كل المستهلكين. |
 | مؤلف العرض | `available/unavailable/substitute`، binding بالكتالوج، qty جزئية، preview خادم، TTL. لا إدخال price/stock/fee/ETA. | لا توجد سياسة delivery-zone/fee/ETA خادمية مفعلة؛ النتيجة `unavailable_read_only`. |
 | انتهاء العروض والبث | deadlines محفوظة، batches محدودة، claim fencing، transactions، cursor وoutbox intent، ولا auto-allocation. | يلزم تطبيق فهارس الترحيل في بيئة معتمدة قبل تفعيل أي مستدعٍ؛ legacy broadcasts بلا deadline لا تنتهي تلقائياً. |
-| outbox/ledger | فشل ledger عند التسليم لم يعد صامتاً، وقرار التأمين/انتهاء العروض يكتبان intent idempotent. | لا يوجد بعد worker/retry/DLQ/reconciliation أو دليل atomic settlement لتسليم مادي. |
+| outbox/ledger | فشل critical event emissions لم يعد صامتاً، وقرار التأمين/انتهاء العروض يكتبان intent idempotent. Payment intent خادمي مقيد بالطلب/العرض/quote hash وidempotency، والـwebhook writer يتحقق من signature/replay/amount/currency. | لا يوجد بعد worker/retry/DLQ/reconciliation أو دليل atomic settlement لتسليم مادي، وPSP adapter الحي معلّم `sandbox_disabled`. |
+| الأسطح غير الحاكمة | `ProviderHome` fail-closed، و`App.tsx` يوجّه كل provider غير Pharmacy إلى unavailable، وlegacy orders/bid mutations تطلب canonical flow. | Doctor/Lab/Radiology/Facility/Nursing/Ambulance تحتاج مراجعة مستقلة قبل أي تفعيل؛ هذا ليس اعتماداً لها. |
 
 ## الأدلة المحلية الحديثة
 
 | البوابة | الأمر | النتيجة |
 |---|---|---|
 | بناء الخادم | `npm run build` داخل `.work/backend` | ناجح بعد الدفعات. |
-| مجموعة الخادم الكاملة | `npm test -- --runInBand` داخل `.work/backend` | **97 مجموعة، 512 اختباراً ناجحاً**. يوجد تحذير Mongoose معروف لمسار `errors`، ورسالة webhook fail-closed متوقعة لغياب السر المحلي. |
+| مجموعة الخادم الكاملة | `npm test -- --runInBand` داخل `.work/backend` | **102 مجموعة، 529 اختباراً ناجحاً**. يوجد تحذير Mongoose معروف لمسار `errors`، ورسالة webhook fail-closed متوقعة لغياب السر المحلي. |
 | اختبار بوابات PR-1 | `pharmacy-insurance-decision` و`pharmacy-allocation.payment-gate` | 6/6 ناجح في التشغيلات المستهدفة؛ ويتضمن رفض update صفري لقرار التأمين. |
 | اختبار خصوصية/عروض PR-2 | `pharmacy-broadcast.service` و`pharmacy-offer.service` | 16/16 في التشغيلين المستهدفين؛ يتضمن PII/access وserver quote. |
 | اختبار انتهاء PR-3 | `pharmacy-expiry-command.service` | 4/4 ناجح؛ claim/outbox/cursor/no-allocation. |
-| فحص تطبيق المزوّد | `npx tsc --noEmit` داخل `.work/provider` | ناجح. |
+| فحص تطبيق المزوّد | `npx tsc --noEmit` داخل `.work/provider` | ناجح. | 
+| عقود Provider | `npm test -- --runInBand` داخل `.work/provider` | **1 مجموعة، 12 اختباراً ناجحاً**؛ يشمل صراحة عدم تشغيل data/fallback وبوابات الحوكمة. |
 | بوابة runtime | `node scripts/check-provider-runtime.js` | `RUNTIME_DATA_GATE=PASS`. |
-| سلامة الحزم | `unzip -t` لكلا ZIP | ناجح. |
+| سلامة الحزم | `unzip -t` لكلا ZIP | ناجح؛ أُعيد إنشاء الحزم من `.work` الحالي، وحجمها التقريبي 5.4 MB backend و618 KB Provider. |
 
 ## ما لم يختبر — لا يُفسر كجاهزية إنتاج
 

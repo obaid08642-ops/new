@@ -1,6 +1,6 @@
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/App.tsx /tmp/tmp.iz8NmsO6px/current-provider/App.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/App.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/App.tsx	2026-08-27 11:45:59.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/App.tsx /tmp/tmp.UslnDxS8Wd/current-provider/App.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/App.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/App.tsx	2026-08-27 20:00:49.409674594 +0000
 @@ -27,6 +27,8 @@
  import { RadiologyDashboardNavigator } from './src/screens/radiology/RadiologyDashboard';
  import { NursingRegistration }       from './src/screens/nursing/NursingRegistration';
@@ -10,15 +10,24 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  import { MedicalJobsScreen, MedicalDrugIndexScreen } from './src/screens/shared/SharedScreens';
  
  import { NavigationContainer } from '@react-navigation/native';
-@@ -57,6 +59,7 @@
-               if (t === 'lab') return <LabDashboardNavigator onLogout={doLogout} />;
-               if (t === 'radiology') return <RadiologyDashboardNavigator onLogout={doLogout} />;
-               if (t === 'nursing' || t === 'nurse' || t === 'home_care')  return <NursingDashboardNavigator  onLogout={doLogout} />;
-+              if (t === 'ambulance' || t === 'emergency') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
-               return <PendingDashboard providerType={t} onExplore={() => {}} onLogout={doLogout} />;
+@@ -51,13 +53,10 @@
+             {(props) => {
+               const t = (user?.providerType ?? pType).toLowerCase();
+               const doLogout = async () => { await logout(); };
+-              if (t === 'doctor')   return <DoctorDashboardNavigator   onLogout={doLogout} />;
+-              if (t === 'facility' || t === 'hospital') return <FacilityDashboardNavigator onLogout={doLogout} />;
+               if (t === 'pharmacy' || t === 'pharmacist') return <PharmacyDashboardNavigator onLogout={doLogout} />;
+-              if (t === 'lab') return <LabDashboardNavigator onLogout={doLogout} />;
+-              if (t === 'radiology') return <RadiologyDashboardNavigator onLogout={doLogout} />;
+-              if (t === 'nursing' || t === 'nurse' || t === 'home_care')  return <NursingDashboardNavigator  onLogout={doLogout} />;
+-              return <PendingDashboard providerType={t} onExplore={() => {}} onLogout={doLogout} />;
++              // Governance gate: non-pharmacy provider surfaces have no reviewed production contract.
++              // They remain visible only as an explicit unavailable state; no legacy dashboard can issue mutations.
++              return <ProviderHome />;
              }}
            </Stack.Screen>
-@@ -79,6 +82,7 @@
+         ) : (
+@@ -79,6 +78,7 @@
                  if (pType === 'lab') return <LabRegistration providerType={pType} onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                  if (pType === 'radiology') return <RadiologyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
                  if (pType === 'nursing')  return <NursingRegistration  onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
@@ -26,9 +35,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
                  return <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.goBack()} />;
                }}
              </Stack.Screen>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/provider-app.contracts.test.js /tmp/tmp.iz8NmsO6px/current-provider/provider-app.contracts.test.js
---- /tmp/tmp.iz8NmsO6px/base-provider/provider-app.contracts.test.js	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/provider-app.contracts.test.js	2026-08-27 15:50:13.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/provider-app.contracts.test.js /tmp/tmp.UslnDxS8Wd/current-provider/provider-app.contracts.test.js
+--- /tmp/tmp.UslnDxS8Wd/main-provider/provider-app.contracts.test.js	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/provider-app.contracts.test.js	2026-08-27 15:50:13.672965541 +0000
 @@ -3,18 +3,27 @@
  
  describe('Provider App release contracts', () => {
@@ -158,9 +167,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    it('isolates native maps behind a web-safe component', () => {
      expect(registrations).not.toContain("from 'react-native-maps'");
      expect(registrations).toContain('PlatformMap');
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/api/catalogs.ts /tmp/tmp.iz8NmsO6px/current-provider/src/api/catalogs.ts
---- /tmp/tmp.iz8NmsO6px/base-provider/src/api/catalogs.ts	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/api/catalogs.ts	2026-08-27 11:46:58.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/api/catalogs.ts /tmp/tmp.UslnDxS8Wd/current-provider/src/api/catalogs.ts
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/api/catalogs.ts	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/api/catalogs.ts	2026-08-27 11:46:58.000000000 +0000
 @@ -42,12 +42,9 @@
        return list;
      }
@@ -205,9 +214,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  }
  
  /** React hook: unified services catalog for a provider type. */
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/api/provider.ts /tmp/tmp.iz8NmsO6px/current-provider/src/api/provider.ts
---- /tmp/tmp.iz8NmsO6px/base-provider/src/api/provider.ts	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/api/provider.ts	2026-08-27 15:47:29.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/api/provider.ts /tmp/tmp.UslnDxS8Wd/current-provider/src/api/provider.ts
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/api/provider.ts	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/api/provider.ts	2026-08-27 15:47:29.224768335 +0000
 @@ -59,9 +59,7 @@
        const res = await client.post('/storage/upload', {
          data_base64: base64,
@@ -230,9 +239,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
      return res.data?.id || res.data?.url || res.data;
    },
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/ambulance/AmbulanceDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-27 15:44:21.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/ambulance/AmbulanceDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/ambulance/AmbulanceDashboard.tsx	2026-08-27 15:44:21.528523133 +0000
 @@ -253,15 +253,15 @@
    const { lang } = useLang();
    const { show } = useToast();
@@ -302,9 +311,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
        </View>
      );
    }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/auth/AuthScreens.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/auth/AuthScreens.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/auth/AuthScreens.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/auth/AuthScreens.tsx	2026-08-27 11:46:27.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/auth/AuthScreens.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/auth/AuthScreens.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/auth/AuthScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/auth/AuthScreens.tsx	2026-08-27 11:46:27.000000000 +0000
 @@ -100,17 +100,10 @@
            if (!r.ok) {
              const msg = r.err || 'فشل تسجيل الدخول بالبصمة';
@@ -323,9 +332,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
          }
        }
      });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/doctor/DoctorDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/doctor/DoctorDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-27 15:43:33.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/doctor/DoctorDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/doctor/DoctorDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-27 15:43:33.820460822 +0000
 @@ -25,6 +25,8 @@
  import { SP, R, FS, FW, SPECIALTIES, API_BASE } from '../../constants';
  import { buildHeaders } from '../../security/Security';
@@ -1125,9 +1134,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
            ) : (
              reports.map(report => (
                <NCard key={report.id} style={{ marginBottom: 16 }}>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/facility/FacilityDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/facility/FacilityDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-27 12:25:37.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/facility/FacilityDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/facility/FacilityDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/facility/FacilityDashboard.tsx	2026-08-27 12:25:37.000000000 +0000
 @@ -19,7 +19,7 @@
   * ║ FacilitySettingsScreen — all facility settings ║
   * ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -1176,9 +1185,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
   <NCard key={shift.id} style={{ marginBottom: SP.md }}
   accent={shift.status === 'substitute' ? theme.warn : theme.primary}>
   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/lab/LabDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/lab/LabDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/lab/LabDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/lab/LabDashboard.tsx	2026-08-27 15:42:56.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/lab/LabDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/lab/LabDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/lab/LabDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/lab/LabDashboard.tsx	2026-08-27 15:42:56.880419255 +0000
 @@ -172,7 +172,6 @@
  
       <Stack.Screen name="order_detail">{({ navigation, route }: any) => <LabOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -1527,9 +1536,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
   <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
   <NAvatar name={item.patient} size={42} />
   <View style={{flex:1}}>
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-27 15:34:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/nursing/NursingDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/nursing/NursingDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/nursing/NursingDashboard.tsx	2026-08-27 15:34:23.915505233 +0000
 @@ -419,26 +419,12 @@
  function NursingOrderDetail({ order, onBack, onNav, onRefresh }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void; onRefresh:()=>void }) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
@@ -1594,9 +1603,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
   </View>}
   {order?.status==='active' && <View style={{gap:SP.md}}>
   <NBtn label={AR?'تسجيل الوصول GPS':'GPS Check-in'} onPress={()=>onNav('checkin',order)} />
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingFieldOps.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingFieldOps.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-27 15:39:20.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/nursing/NursingFieldOps.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/nursing/NursingFieldOps.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/nursing/NursingFieldOps.tsx	2026-08-27 15:39:20.888100602 +0000
 @@ -6,303 +6,28 @@
  import { FS, FW, R, SP } from '../../constants';
  import { I } from '../../components/icons';
@@ -1916,9 +1925,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      </View>
    );
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/pharmacy/PharmacyDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-27 17:00:14.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/pharmacy/PharmacyDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-27 17:00:14.245017341 +0000
 @@ -23,7 +23,9 @@
   * ╚══════════════════════════════════════════════════════════════════════════════╝
   */
@@ -2419,9 +2428,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
              </NCard>
            );
          })}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/radiology/RadiologyDashboard.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/radiology/RadiologyDashboard.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-27 15:44:42.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/radiology/RadiologyDashboard.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/radiology/RadiologyDashboard.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-27 15:44:42.440552207 +0000
 @@ -3,6 +3,8 @@
  import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
  import { useTheme, useLang, useToast } from '../../context';
@@ -2572,9 +2581,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
          </Text>
        </NCard>
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/BlueprintScreens.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/BlueprintScreens.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-27 17:01:27.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/BlueprintScreens.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/BlueprintScreens.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/BlueprintScreens.tsx	2026-08-27 17:01:27.913212329 +0000
 @@ -27,10 +27,11 @@
  } from 'react-native';
  import { useTheme, useLang, useToast } from '../../context';
@@ -3036,9 +3045,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      </View>
    );
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/LiveKitRoomProvider.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/LiveKitRoomProvider.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-27 11:42:56.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/LiveKitRoomProvider.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/LiveKitRoomProvider.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-27 11:42:56.000000000 +0000
 @@ -1,79 +1,42 @@
 -// @ts-nocheck
 -import React, { useState, useEffect } from 'react';
@@ -3151,9 +3160,119 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -  btn: { padding: 15, borderRadius: 30, paddingHorizontal: 30 },
 -  btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 -});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/SharedScreens.tsx /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/SharedScreens.tsx
---- /tmp/tmp.iz8NmsO6px/base-provider/src/screens/shared/SharedScreens.tsx	2026-08-19 01:00:06.000000000 +0000
-+++ /tmp/tmp.iz8NmsO6px/current-provider/src/screens/shared/SharedScreens.tsx	2026-08-27 15:49:55.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/ProviderHome.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/ProviderHome.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/ProviderHome.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/ProviderHome.tsx	2026-08-27 18:43:22.909040280 +0000
+@@ -1,88 +1,27 @@
+-// @ts-nocheck
+-import React, { useState, useEffect } from 'react';
+-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+-import { useAuth, useTheme } from '../../context';
+-import { apiFetch } from '../../utils/api';
+-
+-export const ProviderHome = ({ navigation }: any) => {
+-  const { user } = useAuth();
++import React from 'react';
++import { View, Text, StyleSheet } from 'react-native';
++import { useTheme } from '../../context';
++
++/**
++ * Shared provider home deliberately contains no clinical/chat/call command.
++ * Per-sector dashboards may be enabled only after their server-authoritative
++ * ownership, payment, capacity, audit, and integration contracts are reviewed.
++ */
++export const ProviderHome = () => {
+   const { theme } = useTheme();
+-  const [items, setItems] = useState<any[]>([]);
+-  const [loading, setLoading] = useState(false);
+-
+-  useEffect(() => {
+-    const fetchData = async () => {
+-      setLoading(true);
+-      try {
+-        if (user?.providerType === 'pharmacist') {
+-          const res = await apiFetch('/pharmacy/orders/pending');
+-          setItems(res.orders || []);
+-        } else {
+-          const res = await apiFetch('/calls/provider/waiting-room');
+-          setItems(res || []);
+-        }
+-      } catch (err) {
+-        // Silent fail — no console spam
+-        setItems([]);
+-      }
+-      setLoading(false);
+-    };
+-    fetchData();
+-  }, [user]);
+-
+-  const handleAction = (item: any) => {
+-    if (item.type === 'call') {
+-      navigation.navigate('LiveKitRoomProvider', { roomId: item.roomId });
+-    } else if (item.type === 'chat') {
+-      navigation.navigate('PharmacyChatResponder', { threadId: item.threadId, patientName: item.name });
+-    }
+-  };
+-
+   return (
+-    <View style={[styles.container, { backgroundColor: theme.bg }]}>
+-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
+-        <Text style={styles.headerTitle}>مرحباً دكتور {user?.name || ''}</Text>
+-        <Text style={styles.headerSubtitle}>لديك {items.length} طلبات قيد الانتظار</Text>
++    <View style={[styles.container, { backgroundColor: theme.bg }]}> 
++      <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}> 
++        <Text style={[styles.title, { color: theme.text }]}>واجهة المزوّد غير متاحة حالياً</Text>
++        <Text style={[styles.body, { color: theme.textSub }]}>لا توجد رحلة مشتركة معتمدة للمكالمات أو المحادثات أو الطلبات من هذه الصفحة. استخدم فقط لوحة القطاع التي يثبت خادمها الملكية والسعة والدفع والتدقيق.</Text>
+       </View>
+-
+-      {loading ? (
+-        <ActivityIndicator size="large" style={{ marginTop: 50 }} color={theme.primary} />
+-      ) : (
+-        <FlatList
+-          data={items}
+-          keyExtractor={item => item.id}
+-          contentContainerStyle={{ padding: 15 }}
+-          renderItem={({ item }) => (
+-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
+-              <View style={styles.cardHeader}>
+-                <Text style={[styles.cardName, { color: theme.text }]}>{item.name}</Text>
+-                <Text style={{ color: theme.textMuted }}>{item.time}</Text>
+-              </View>
+-              <Text style={{ color: theme.text, marginBottom: 15 }}>
+-                {item.type === 'call' ? '📞 طلب استشارة فيديو' : '💬 طلب استشارة صيدلانية'}
+-              </Text>
+-              <TouchableOpacity
+-                style={[styles.btn, { backgroundColor: item.type === 'call' ? theme.green : theme.primary }]}
+-                onPress={() => handleAction(item)}
+-              >
+-                <Text style={styles.btnText}>{item.type === 'call' ? 'بدء المكالمة' : 'الرد على المحادثة'}</Text>
+-              </TouchableOpacity>
+-            </View>
+-          )}
+-        />
+-      )}
+     </View>
+   );
+ };
+ 
+ const styles = StyleSheet.create({
+-  container: { flex: 1 },
+-  header: { padding: 30, paddingTop: 60, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
+-  headerTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+-  headerSubtitle: { color: '#fff', fontSize: 14, opacity: 0.8, marginTop: 5 },
+-  card: { padding: 20, borderRadius: 12, marginBottom: 15, elevation: 2 },
+-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+-  cardName: { fontSize: 18, fontWeight: 'bold' },
+-  btn: { padding: 12, borderRadius: 8, alignItems: 'center' },
+-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 }
++  container: { flex: 1, justifyContent: 'center', padding: 20 },
++  card: { padding: 20, borderRadius: 12, borderWidth: 1 },
++  title: { fontSize: 20, fontWeight: 'bold', textAlign: 'right', marginBottom: 10 },
++  body: { fontSize: 15, lineHeight: 24, textAlign: 'right' },
+ });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' '--exclude=.expo' /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/SharedScreens.tsx /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/SharedScreens.tsx
+--- /tmp/tmp.UslnDxS8Wd/main-provider/src/screens/shared/SharedScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-provider/src/screens/shared/SharedScreens.tsx	2026-08-27 15:49:55.700940009 +0000
 @@ -1,5 +1,6 @@
  import { API_BASE } from '../../constants';
  import { buildHeaders } from '../../security/Security';

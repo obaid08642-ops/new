@@ -1,6 +1,6 @@
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/README.md /tmp/tmp.7PnNXm18lu/current/e2e/README.md
---- /tmp/tmp.7PnNXm18lu/base/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/e2e/README.md /tmp/tmp.UslnDxS8Wd/current-backend/e2e/README.md
+--- /tmp/tmp.UslnDxS8Wd/main-backend/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
 @@ -1,46 +1,45 @@
 -# Nabdah Plus — Live E2E Scenario Matrix (بيئة الاختبار الحية الداخلية)
 +# اختبارات التكامل الحية لواجهة المزوّد
@@ -82,9 +82,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +## حدود الأدلة الحالية
 +
 +الملفات القديمة مثل `boot.js` و`matrix*.js` تبقى مرجعاً تاريخياً ولا تدخل في بوابة الإصدار المحمولة للمزوّد؛ لأنها تفترض منافذ ومسارات وقت تشغيل محلية. كما لا تغطي هذه السيناريوهات وحدها اتصال LiveKit الحقيقي، تخزين الكائنات S3/R2، الإشعارات الفورية على جهاز، تسليم OTP، أو اختبارات Expo على جهاز فعلي.
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/pharmacy-scenarios.js /tmp/tmp.7PnNXm18lu/current/e2e/pharmacy-scenarios.js
---- /tmp/tmp.7PnNXm18lu/base/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/e2e/pharmacy-scenarios.js /tmp/tmp.UslnDxS8Wd/current-backend/e2e/pharmacy-scenarios.js
+--- /tmp/tmp.UslnDxS8Wd/main-backend/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,241 @@
 +/* P4 GATE — Pharmacy full scenario matrix (cash / COD / insurance) on a live server.
 + * Prereq: server on :4099 (boot.js or manual), then:
@@ -327,9 +327,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/provider-production.js /tmp/tmp.7PnNXm18lu/current/e2e/provider-production.js
---- /tmp/tmp.7PnNXm18lu/base/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/e2e/provider-production.js /tmp/tmp.UslnDxS8Wd/current-backend/e2e/provider-production.js
+--- /tmp/tmp.UslnDxS8Wd/main-backend/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,320 @@
 +/* P3 GATE — e2e for the 9 governed provider endpoints (+shifts CRUD completion).
 + * Prerequisites: an explicitly provisioned disposable E2E stack, then:
@@ -651,9 +651,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/provider-verticals.js /tmp/tmp.7PnNXm18lu/current/e2e/provider-verticals.js
---- /tmp/tmp.7PnNXm18lu/base/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/e2e/provider-verticals.js /tmp/tmp.UslnDxS8Wd/current-backend/e2e/provider-verticals.js
+--- /tmp/tmp.UslnDxS8Wd/main-backend/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
 @@ -0,0 +1,268 @@
 +/* P5+P6+P7 GATE — doctor/lab/radiology/nursing/ambulance lifecycles on a live server.
 + * Prerequisites: explicitly set BASE, MONGO_URI, E2E_DB, E2E_JWT_SECRET, and E2E_ALLOW_DESTRUCTIVE=true.
@@ -923,9 +923,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +}
 +
 +main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/e2e/run-all-gates.js /tmp/tmp.7PnNXm18lu/current/e2e/run-all-gates.js
---- /tmp/tmp.7PnNXm18lu/base/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/e2e/run-all-gates.js /tmp/tmp.UslnDxS8Wd/current-backend/e2e/run-all-gates.js
+--- /tmp/tmp.UslnDxS8Wd/main-backend/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
 @@ -0,0 +1,53 @@
 +#!/usr/bin/env node
 +/*
@@ -980,10 +980,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +
 +console.log(`\nProvider E2E gate: ${failed === 0 ? 'PASS' : `NO-GO (${failed} failing gate${failed === 1 ? '' : 's'})`}`);
 +process.exit(failed === 0 ? 0 : 1);
-Binary files /tmp/tmp.7PnNXm18lu/base/nabd_plus_patient_app.zip and /tmp/tmp.7PnNXm18lu/current/nabd_plus_patient_app.zip differ
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/package.json /tmp/tmp.7PnNXm18lu/current/package.json
---- /tmp/tmp.7PnNXm18lu/base/package.json	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/package.json	2026-08-27 11:53:33.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/package.json /tmp/tmp.UslnDxS8Wd/current-backend/package.json
+--- /tmp/tmp.UslnDxS8Wd/main-backend/package.json	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/package.json	2026-08-27 11:53:33.000000000 +0000
 @@ -10,7 +10,8 @@
      "start:prod": "node dist/main",
      "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -994,9 +993,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    },
    "dependencies": {
      "@aws-sdk/client-s3": "^3.1075.0",
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/scripts/migrate-hospital-staff-parent-account.ts /tmp/tmp.7PnNXm18lu/current/scripts/migrate-hospital-staff-parent-account.ts
---- /tmp/tmp.7PnNXm18lu/base/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/scripts/migrate-hospital-staff-parent-account.ts /tmp/tmp.UslnDxS8Wd/current-backend/scripts/migrate-hospital-staff-parent-account.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
 @@ -0,0 +1,48 @@
 +import { MongoClient } from 'mongodb';
 +
@@ -1046,9 +1045,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  console.error(error instanceof Error ? error.message : error);
 +  process.exit(1);
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/scripts/migrations/20260827-pharmacy-expiry-indexes.js /tmp/tmp.7PnNXm18lu/current/scripts/migrations/20260827-pharmacy-expiry-indexes.js
---- /tmp/tmp.7PnNXm18lu/base/scripts/migrations/20260827-pharmacy-expiry-indexes.js	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/scripts/migrations/20260827-pharmacy-expiry-indexes.js	2026-08-27 18:25:25.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/scripts/migrations/20260827-pharmacy-expiry-indexes.js /tmp/tmp.UslnDxS8Wd/current-backend/scripts/migrations/20260827-pharmacy-expiry-indexes.js
+--- /tmp/tmp.UslnDxS8Wd/main-backend/scripts/migrations/20260827-pharmacy-expiry-indexes.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/scripts/migrations/20260827-pharmacy-expiry-indexes.js	2026-08-27 18:25:25.142721427 +0000
 @@ -0,0 +1,53 @@
 +/*
 + * Manual, opt-in schema migration for pharmacy expiry commands.
@@ -1103,9 +1102,50 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  console.error(error?.stack || error);
 +  process.exitCode = 1;
 +}).finally(() => mongoose.disconnect());
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/app.module.ts /tmp/tmp.7PnNXm18lu/current/src/app.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/scripts/migrations/20260827-pharmacy-payment-evidence-indexes.js /tmp/tmp.UslnDxS8Wd/current-backend/scripts/migrations/20260827-pharmacy-payment-evidence-indexes.js
+--- /tmp/tmp.UslnDxS8Wd/main-backend/scripts/migrations/20260827-pharmacy-payment-evidence-indexes.js	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/scripts/migrations/20260827-pharmacy-payment-evidence-indexes.js	2026-08-27 19:59:07.229515347 +0000
+@@ -0,0 +1,37 @@
++#!/usr/bin/env node
++'use strict';
++
++/**
++ * MANUAL, EXPLICIT migration. Never auto-run from application bootstrap.
++ * Run only after duplicate audit and an approved isolated maintenance window.
++ */
++const { MongoClient } = require('mongodb');
++
++async function main() {
++  if (process.env.ALLOW_EXPLICIT_PHARMACY_MIGRATION !== 'true') {
++    throw new Error('Refusing migration: set ALLOW_EXPLICIT_PHARMACY_MIGRATION=true explicitly');
++  }
++  const uri = process.env.MONGO_URL;
++  if (!uri) throw new Error('MONGO_URL required');
++  const client = new MongoClient(uri);
++  await client.connect();
++  try {
++    const db = client.db(process.env.DB_NAME || 'nabd_nestjs');
++    const intents = db.collection('pharmacy_payment_intents');
++    await intents.createIndex({ order_id: 1, idempotency_key: 1 }, { unique: true, name: 'payment_intent_order_idempotency_unique' });
++    await intents.createIndex({ intent_id: 1 }, { unique: true, name: 'payment_intent_id_unique' });
++    const collection = db.collection('pharmacy_payment_evidence');
++    const duplicateGroups = await collection.aggregate([
++      { $group: { _id: { gateway: '$gateway', gateway_payment_id: '$gateway_payment_id', webhook_event_id: '$webhook_event_id' }, count: { $sum: 1 } } },
++      { $match: { count: { $gt: 1 } } },
++      { $limit: 1 },
++    ]).toArray();
++    if (duplicateGroups.length) throw new Error('Duplicate payment evidence business keys exist; reconcile before indexing');
++    await collection.createIndex({ gateway: 1, gateway_payment_id: 1, webhook_event_id: 1 }, { unique: true, name: 'payment_evidence_gateway_event_unique' });
++    await collection.createIndex({ order_id: 1, selected_offer_id: 1, selected_offer_version: 1, quote_snapshot_hash: 1, status: 1 }, { name: 'payment_evidence_quote_lookup' });
++  } finally {
++    await client.close();
++  }
++}
++
++if (require.main === module) main().catch(err => { console.error(err.message); process.exit(1); });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/app.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/app.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
 @@ -104,6 +104,7 @@
  import { LoyaltyModule } from './modules/loyalty/loyalty.module';
  import { ReferralModule } from './modules/referral/referral.module';
@@ -1122,9 +1162,49 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      MaternityModule,
      NabdExtensionsModule,
      NutritionModule,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/contracts/provider-production-routes.contract.spec.ts /tmp/tmp.7PnNXm18lu/current/src/contracts/provider-production-routes.contract.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/contracts/pharmacy-route-inventory.contract.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/contracts/pharmacy-route-inventory.contract.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/contracts/pharmacy-route-inventory.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/contracts/pharmacy-route-inventory.contract.spec.ts	2026-08-27 19:41:50.991247850 +0000
+@@ -0,0 +1,36 @@
++import fs from 'node:fs';
++import path from 'node:path';
++
++describe('pharmacy route inventory', () => {
++  it('has no duplicate HTTP method plus controller prefix plus route path', () => {
++    const root = path.resolve(__dirname, '..');
++    const files: string[] = [];
++    const visit = (dir: string) => {
++      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
++        const full = path.join(dir, entry.name);
++        if (entry.isDirectory()) visit(full);
++        else if (entry.isFile() && /\.controller\.ts$/.test(entry.name)) files.push(full);
++      }
++    };
++    visit(root);
++    const targetPrefixes = new Set(['orders', 'pharmacy', 'provider/pharmacy', 'patient/pharmacy', 'admin/pharmacy']);
++    const seen = new Map<string, string>();
++    const duplicates: string[] = [];
++    for (const file of files) {
++      const source = fs.readFileSync(file, 'utf8');
++      const controllers = [...source.matchAll(/@Controller\(\s*['\"]([^'\"]+)['\"]\s*\)/g)].map(m => m[1]);
++      const prefixes = controllers.length ? controllers : [''];
++      for (const prefix of prefixes) {
++        for (const match of source.matchAll(/@(Post|Patch|Put|Delete|Get)\(\s*['\"]([^'\"]*)['\"]\s*\)/g)) {
++          const normalizedPrefix = prefix.replace(/^\/+|\/+$/g, '');
++          if (![...targetPrefixes].some(target => normalizedPrefix === target || normalizedPrefix.startsWith(`${target}/`))) continue;
++          const key = `${match[1].toUpperCase()} ${normalizedPrefix}/${match[2]}`.replace(/\/+/, '/');
++          const prior = seen.get(key);
++          if (prior && prior !== file) duplicates.push(`${key}: ${prior} and ${file}`);
++          else seen.set(key, file);
++        }
++      }
++    }
++    expect(duplicates).toEqual([]);
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/contracts/provider-production-routes.contract.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/contracts/provider-production-routes.contract.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
 @@ -0,0 +1,47 @@
 +import 'reflect-metadata';
 +import { PATH_METADATA } from '@nestjs/common/constants';
@@ -1173,9 +1253,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(routePath(FacilityShiftsController, 'deleteShift')).toBe(':id');
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/facility-ops/facility-ops.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/facility-ops/facility-ops.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/facility-ops/facility-ops.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/facility-ops/facility-ops.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
 @@ -1,4 +1,4 @@
 -import { Module, Injectable, Controller, Get, Post, Put, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
 +import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
@@ -1234,9 +1314,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post('attendance/check-in')
    checkIn(@CurrentUser() u: any, @Body() b: { lat?: number; lng?: number }) {
      return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.spec.ts	2026-08-27 15:54:15.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/home-care/home-care.controller.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/home-care/home-care.controller.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/home-care/home-care.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/home-care/home-care.controller.spec.ts	2026-08-27 15:54:15.741624113 +0000
 @@ -31,17 +31,16 @@
      expect(model.find).not.toHaveBeenCalled();
    });
@@ -1260,9 +1340,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    });
  
    it('rejects a provider mutation on another provider visit', async () => {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.ts /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/home-care/home-care.controller.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/home-care/home-care.controller.ts	2026-08-27 15:34:09.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/home-care/home-care.controller.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/home-care/home-care.controller.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/home-care/home-care.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/home-care/home-care.controller.ts	2026-08-27 15:34:09.039462176 +0000
 @@ -172,31 +172,15 @@
      return 2 * R * Math.asin(Math.sqrt(a));
    }
@@ -1303,9 +1383,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    @Post('visits/:id/transit')
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/hospital-staff/hospital-staff.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/hospital-staff/hospital-staff.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/hospital-staff/hospital-staff.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/hospital-staff/hospital-staff.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
 @@ -32,7 +32,7 @@
  
    async list(user: any) {
@@ -1360,31 +1440,342 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const hash = await bcrypt.hash(newPassword, 10);
      await this.users.updateOne({ id: staffId }, { $set: { password_hash: hash } });
      return { ok: true };
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.controllers.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.controllers.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-27 18:30:54.000000000 +0000
-@@ -10,6 +10,9 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders-pharmacy-containment.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders-pharmacy-containment.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders-pharmacy-containment.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders-pharmacy-containment.spec.ts	2026-08-27 19:42:45.399333772 +0000
+@@ -0,0 +1,28 @@
++import { ServiceUnavailableException } from '@nestjs/common';
++import { OrdersService } from './orders.service';
++import { OrderState, DeliveryState } from '../../common/enums';
++
++describe('OrdersService pharmacy legacy containment', () => {
++  const pharmacyOrder: any = {
++    id: 'legacy-pharmacy-1', patient_id: 'patient-1', pharmacy_id: 'pharmacy-1', state: OrderState.CREATED,
++    basket_review_status: 'none', items: [{ medicine_id: 'med-1', qty: 1 }], save: jest.fn(),
++  };
++  function setup(order = pharmacyOrder) {
++    const orderModel: any = { findOne: jest.fn().mockResolvedValue(order), create: jest.fn(), updateOne: jest.fn() };
++    const delModel: any = { findOne: jest.fn(), findOneAndUpdate: jest.fn(), create: jest.fn() };
++    const service = new OrdersService(orderModel, {} as any, delModel, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any);
++    return { service, orderModel, delModel };
++  }
++  it('rejects transition, insurance, assignment, and delivery update for a saved pharmacy order', async () => {
++    const { service } = setup();
++    await expect(service.transition(pharmacyOrder.id, OrderState.ACCEPTED, { id: 'pharmacy-1', role: 'pharmacy' })).rejects.toBeInstanceOf(ServiceUnavailableException);
++    await expect(service.updateInsuranceApproval(pharmacyOrder.id, { status: 'APPROVED' }, { id: 'pharmacy-1', role: 'pharmacy' })).rejects.toBeInstanceOf(ServiceUnavailableException);
++    await expect(service.assignDelivery(pharmacyOrder.id, 'driver-1', { id: 'pharmacy-1', role: 'pharmacy' })).rejects.toBeInstanceOf(ServiceUnavailableException);
++    await expect(service.updateDelivery(pharmacyOrder.id, DeliveryState.IN_TRANSIT)).rejects.toBeInstanceOf(ServiceUnavailableException);
++  });
++  it('rejects a client-created pharmacy order before medicine lookup or dispatch', async () => {
++    const { service, orderModel } = setup();
++    await expect(service.create({ id: 'patient-1', role: 'patient' }, { type: 'pharmacy', items: [{ medicine_id: 'med-1', qty: 1 }] })).rejects.toBeInstanceOf(ServiceUnavailableException);
++    expect(orderModel.create).not.toHaveBeenCalled();
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders.service.refill-delivery.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders.service.refill-delivery.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders.service.refill-delivery.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders.service.refill-delivery.spec.ts	2026-08-27 20:04:38.474007591 +0000
+@@ -2,7 +2,7 @@
+ import { OrderState } from '../../common/enums';
+ 
+ describe('OrdersService chronic refill completion', () => {
+-  it('clears a chronic refill pending link only when the order is delivered', async () => {
++  it('fails closed for legacy pharmacy transition instead of clearing refill state', async () => {
+     const updateReminder = jest.fn().mockResolvedValue({ matchedCount: 1 });
+     const order: any = {
+       id: 'refill-order-1', patient_id: 'patient-1', pharmacy_id: 'pharmacy-1', state: OrderState.CREATED, state_history: [],
+@@ -25,16 +25,8 @@
+       {} as any,
+     );
+ 
+-    await service.transition('refill-order-1', OrderState.DELIVERED, { id: 'admin-1', role: 'admin' });
+-
+-    expect(updateReminder).toHaveBeenCalledWith(
+-      { patient_id: 'patient-1', refill_pending_order_id: 'refill-order-1' },
+-      expect.objectContaining({
+-        $set: expect.objectContaining({ order_id: 'refill-order-1', refill_fulfilled_at: expect.any(Date) }),
+-        $unset: { refill_pending_order_id: 1 },
+-      }),
+-    );
+-    expect(JSON.stringify(updateReminder.mock.calls)).not.toContain('pills_remaining');
+-    expect(JSON.stringify(updateReminder.mock.calls)).not.toContain('refill_date');
++    await expect(service.transition('refill-order-1', OrderState.DELIVERED, { id: 'admin-1', role: 'admin' }))
++      .rejects.toMatchObject({ response: { message: 'canonical_pharmacy_flow_required' } });
++    expect(updateReminder).not.toHaveBeenCalled();
+   });
+ });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders.service.spec.ts	2026-08-27 20:04:03.281958648 +0000
+@@ -90,40 +90,25 @@
+   });
+ 
+   describe('placeBid', () => {
+-    it('should throw if user is not pharmacy or admin', async () => {
+-      await expect(
+-        service.placeBid({ id: 'u1', role: 'patient' }, {
+-          prescription_request_id: 'req1',
+-          items: [],
+-          total_price: 150,
+-        })
+-      ).rejects.toThrow(ForbiddenException);
++    it('fails closed for every caller because the route is legacy', async () => {
++      await expect(service.placeBid({ id: 'u1', role: 'patient' }, {
++        prescription_request_id: 'req1', items: [], total_price: 150,
++      })).rejects.toMatchObject({ response: { message: 'canonical_pharmacy_flow_required' } });
+     });
+ 
+-    it('should place a bid successfully', async () => {
+-      mockModel.create.mockResolvedValueOnce({
+-        id: 'bid1',
+-        prescription_request_id: 'req1',
+-        pharmacy_id: 'pharm1',
+-      });
+-
+-      const res = await service.placeBid({ id: 'pharm1', role: 'pharmacy' }, {
++    it('fails closed and requires the canonical pharmacy flow', async () => {
++      await expect(service.placeBid({ id: 'pharm1', role: 'pharmacy' }, {
+         prescription_request_id: 'req1',
+         items: [{ name: 'Panadol', price: 10, available: true }],
+         total_price: 10,
+-      });
+-
+-      expect(res).toBeDefined();
+-      expect(res.id).toBe('bid1');
++      })).rejects.toMatchObject({ response: { message: 'canonical_pharmacy_flow_required' } });
+     });
+   });
+ 
+   describe('acceptBid', () => {
+-    it('should throw if bid not found', async () => {
+-      mockModel.findOne.mockResolvedValueOnce(null);
+-      await expect(
+-        service.acceptBid({ id: 'u1', role: 'patient' }, 'bid-not-found')
+-      ).rejects.toThrow(NotFoundException);
++    it('fails closed because bid acceptance is a legacy route', async () => {
++      await expect(service.acceptBid({ id: 'u1', role: 'patient' }, 'bid-not-found'))
++        .rejects.toMatchObject({ response: { message: 'canonical_pharmacy_flow_required' } });
+     });
+   });
+ });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/orders/orders.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/orders/orders.service.ts	2026-08-27 19:41:03.471169080 +0000
+@@ -1,7 +1,7 @@
+ import axios from 'axios';
+ // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
+ const PDFDocument = require('pdfkit');
+-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
++import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException } from '@nestjs/common';
+ import { Model } from 'mongoose';
+ import { InjectConnection } from '@nestjs/mongoose';
+ import { Connection } from 'mongoose';
+@@ -38,6 +38,20 @@
+     private readonly cancelPolicy: CancellationPolicy,
+   ) {}
+ 
++  /** Legacy /orders mutations must never operate on a pharmacy order. */
++  private async assertNotCanonicalPharmacyOrder(order: any): Promise<void> {
++    const isPharmacy = Boolean(
++      order?.service_kind === 'pharmacy' ||
++      order?.order_type === 'pharmacy' ||
++      order?.type === 'pharmacy' ||
++      order?.pharmacy_id ||
++      (order?.basket_review_status && order.basket_review_status !== 'none') ||
++      order?.insurance_details ||
++      (Array.isArray(order?.items) && order.items.some((item: any) => item?.is_manual_entry || item?.is_substitute)),
++    );
++    if (isPharmacy) throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
++  }
++
+   // ============ CREATE ============
+   /**
+    * NEW FLOW (Geo Dispatch):
+@@ -47,6 +61,10 @@
+    *  - If best pharmacy has <100% items, splits remaining into sub-order to next-best pharmacy
+    */
+   async create(patient: any, data: any) {
++    const requestedKind = String(data.service_kind || data.order_type || data.type || '').toLowerCase();
++    if (requestedKind === 'pharmacy' || requestedKind === 'medicine' || data.pharmacy_id) {
++      throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
++    }
+     const inputItems = data.items || data.cartItems;
+     if (!inputItems || inputItems.length === 0) throw new BadRequestException('Empty cart');
+     if (!data.delivery_address?.lat || !data.delivery_address?.lng) {
+@@ -255,6 +273,7 @@
+   async transition(orderId: string, to: OrderState, by: any, reason?: string) {
+     const order = await this.orderModel.findOne({ id: orderId });
+     if (!order) throw new NotFoundException();
++    await this.assertNotCanonicalPharmacyOrder(order);
+     const allowed = ORDER_TRANSITIONS[order.state] || [];
+     if (by.role !== UserRole.ADMIN && by.role !== 'system' && !allowed.includes(to)) {
+       throw new BadRequestException(`Invalid transition ${order.state} → ${to}`);
+@@ -554,6 +573,7 @@
+   async assignDelivery(orderId: string, driver_id: string, by: any) {
+     const o = await this.orderModel.findOne({ id: orderId });
+     if (!o) throw new NotFoundException();
++    await this.assertNotCanonicalPharmacyOrder(o);
+     let del = await this.delModel.findOne({ order_id: orderId });
+     if (!del) del = await this.delModel.create({ order_id: orderId, pharmacy_id: o.pharmacy_id });
+     del.driver_id = driver_id; del.state = DeliveryState.ASSIGNED;
+@@ -564,6 +584,9 @@
+   }
+ 
+   async updateDelivery(orderId: string, state: DeliveryState, location?: any) {
++    const order = await this.orderModel.findOne({ id: orderId });
++    if (!order) throw new NotFoundException();
++    await this.assertNotCanonicalPharmacyOrder(order);
+     const del = await this.delModel.findOneAndUpdate(
+       { order_id: orderId },
+       { $set: { state, ...(location ? { current_location: location } : {}) } },
+@@ -577,6 +600,7 @@
+   async reorder(orderId: string, patient: any) {
+     const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
+     if (!o) throw new NotFoundException();
++    await this.assertNotCanonicalPharmacyOrder(o);
+     return this.create(patient, {
+       items: o.items.map((it: any) => ({ medicine_id: it.medicine_id, qty: it.qty })),
+       delivery_address: o.delivery_address,
+@@ -593,6 +617,7 @@
+   async reorderPartial(orderId: string, patient: any, body: { items: any[]; delivery_address?: any; notes?: string }) {
+     const o = await this.orderModel.findOne({ id: orderId, patient_id: patient.id });
+     if (!o) throw new NotFoundException();
++    await this.assertNotCanonicalPharmacyOrder(o);
+     if (!Array.isArray(body.items) || body.items.length === 0) throw new BadRequestException('items_required');
+     return this.create(patient, {
+       items: body.items.map((it: any) => ({
+@@ -636,7 +661,9 @@
+   }
+ 
+   // ============ PHARMACY GEO-BIDDING ============
+-  async placeBid(user: any, body: { prescription_request_id: string; items: any[]; total_price: number; expires_in_mins?: number }) {
++  async placeBid(_user: any, _body: { prescription_request_id: string; items: any[]; total_price: number; expires_in_mins?: number }): Promise<never> {
++    throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
++    /*
+     if (!['admin', 'pharmacy'].includes(user.role)) throw new ForbiddenException();
+ 
+     const expiresAt = new Date();
+@@ -654,9 +681,12 @@
+ 
+     this.events.emit('pharmacy.bid_placed', { bid_id: bid.id, pharmacy_id: user.id, request_id: body.prescription_request_id });
+     return bid;
++    */
+   }
+ 
+-  async acceptBid(user: any, bidId: string) {
++  async acceptBid(_user: any, _bidId: string): Promise<never> {
++    throw new ServiceUnavailableException('canonical_pharmacy_flow_required');
++    /*
+     const bid = await this.bidModel.findOne({ id: bidId });
+     if (!bid) throw new NotFoundException('bid_not_found');
+     if (bid.status !== 'pending') throw new BadRequestException('bid_is_not_pending');
+@@ -701,10 +731,11 @@
+ 
+     this.events.emit('pharmacy.bid_accepted', { bid_id: bidId, order_id: bid.prescription_request_id });
+     return { ok: true };
++    */
+   }
+ 
+-  async listBids(user: any, requestId: string) {
+-    return this.bidModel.find({ prescription_request_id: requestId }).sort({ total_price: 1 }).lean();
++  async listBids(user: any, prescriptionRequestId: string) {
++    return this.bidModel.find({ prescription_request_id: prescriptionRequestId }).sort({ total_price: 1 }).lean();
+   }
+ 
+   async listPharmacyBids(user: any) {
+@@ -750,8 +781,8 @@
+   // ============ INSURANCE APPROVAL (PROVIDER) ============
+   async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[] }, user: any) {
+     const order = await this.orderModel.findOne({ id });
+-    if (!order) throw new NotFoundException('Order not found');
+-
++        if (!order) throw new NotFoundException('Order not found');
++    await this.assertNotCanonicalPharmacyOrder(order);
+     const { status, totalCopay, items } = payload;
+     
+     if (status) {
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/payouts/provider-payouts.controller.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/payouts/provider-payouts.controller.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/payouts/provider-payouts.controller.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/payouts/provider-payouts.controller.spec.ts	2026-08-27 19:53:57.160903053 +0000
+@@ -22,6 +22,12 @@
+     controller = new ProviderPayoutsController(conn, { providerBalance: jest.fn() } as any);
+   });
+ 
++  it('rejects pharmacy payout and balance until settlement proof exists', async () => {
++    await expect(controller.request({ id: 'pharmacy-a', role: 'pharmacy' }, { amount: 100, idempotency_key: 'pharmacy_payout_key_001' })).rejects.toThrow('pharmacy_settlement_proof_required');
++    expect(session.withTransaction).not.toHaveBeenCalled();
++    expect(() => controller.balance({ id: 'pharmacy-a', role: 'pharmacy' })).toThrow('pharmacy_settlement_proof_required');
++  });
++
+   it('fails closed without an approved bank account before starting a reservation', async () => {
+     withdrawals.findOne.mockResolvedValue(null);
+     bankAccounts.findOne.mockResolvedValue(null);
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/payouts/provider-payouts.controller.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/payouts/provider-payouts.controller.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/payouts/provider-payouts.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/payouts/provider-payouts.controller.ts	2026-08-27 19:53:24.824831209 +0000
+@@ -1,5 +1,5 @@
+ /** Provider-initiated withdrawal requests with an atomic ledger reservation. */
+-import { Controller, Post, Get, Body, UseGuards, BadRequestException } from '@nestjs/common';
++import { Controller, Post, Get, Body, UseGuards, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+ import { InjectConnection } from '@nestjs/mongoose';
+ import { Connection, ClientSession } from 'mongoose';
+ import { v4 as uuid } from 'uuid';
+@@ -17,6 +17,12 @@
+   private get withdrawals() { return this.conn.collection('providerwithdrawals'); }
+   private get ledgerEntries() { return this.conn.collection('platformledgerentries'); }
+ 
++  private assertPharmacySettlementReady(user: any): void {
++    if (String(user?.role || '').toLowerCase() === 'pharmacy') {
++      throw new ServiceUnavailableException('pharmacy_settlement_proof_required');
++    }
++  }
++
+   private validateIban(iban: string | null | undefined): string {
+     if (!iban) throw new BadRequestException('verified_bank_account_required');
+     const clean = String(iban).replace(/\s+/g, '').toUpperCase();
+@@ -44,6 +50,7 @@
+ 
+   @Post('request')
+   async request(@CurrentUser() user: any, @Body() body: { amount?: number; idempotency_key?: string }) {
++    this.assertPharmacySettlementReady(user);
+     const amount = Math.round(Number(body?.amount) * 100) / 100;
+     const idempotencyKey = String(body?.idempotency_key || '').trim();
+     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('valid_amount_required');
+@@ -115,6 +122,7 @@
+ 
+   @Get('balance')
+   balance(@CurrentUser() user: any) {
++    this.assertPharmacySettlementReady(user);
+     return this.ledger.providerBalance(user.id);
+   }
+ }
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/pharmacy.controllers.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/pharmacy.controllers.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/pharmacy.controllers.ts	2026-08-27 19:58:56.637496351 +0000
+@@ -10,6 +10,10 @@
  import { PharmacyChatService } from './services/pharmacy-chat.service';
  import { PharmacyShortageService } from './services/pharmacy-shortage.service';
  import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 +import { PharmacyOfferService } from './services/pharmacy-offer.service';
 +import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 +import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
++import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
  import { isProviderRole } from '../../common/enums';
  
  // =========================================================================
-@@ -19,13 +22,18 @@
+@@ -19,13 +23,19 @@
  @UseGuards(JwtAuthGuard)
  @Roles(UserRole.PATIENT)
  export class PatientPharmacyController {
 -  constructor(private orders: PharmacyOrderService) {}
-+  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService) {}
++  constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService, private insurance: PharmacyInsuranceDecisionService, private payments: PharmacyPaymentEvidenceService) {}
    @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
    @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
    @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
    @Patch('orders/:id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
    @Post('orders/:id/submit') submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
    @Post('orders/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
++  @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
 +  @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
 +  @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
 +  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: any) {
@@ -1393,7 +1784,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  }
  
  // =========================================================================
-@@ -38,6 +46,7 @@
+@@ -38,6 +48,7 @@
      private allocs: PharmacyAllocationService,
      private inv: PharmacyInventoryExtService,
      private providerOrders: PharmacyOrdersProviderService,
@@ -1401,7 +1792,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    ) {}
  
    @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
-@@ -56,26 +65,23 @@
+@@ -56,41 +67,32 @@
    @Post('allocations/:id/ready') ready(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.ready(u, id); }
    @Post('allocations/:id/out-for-delivery') out(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.outForDelivery(u, id, b); }
    @Post('allocations/:id/delivered') delivered(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.delivered(u, id); }
@@ -1434,8 +1825,26 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  evaluateInsurance() { throw new ServiceUnavailableException('legacy_insurance_evaluation_disabled_use_governed_insurance_decision'); }
  
    @Post('orders/:id/preparing')
-   async orderPreparing(@CurrentUser() u: any, @Param('id') id: string) {
-@@ -141,11 +147,15 @@
+-  async orderPreparing(@CurrentUser() u: any, @Param('id') id: string) {
+-    return this.providerOrders.orderPreparing(u, id);
+-  }
++  orderPreparing() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
+ 
+   @Post('orders/:id/ready')
+-  async orderReady(@CurrentUser() u: any, @Param('id') id: string) {
+-    return this.providerOrders.orderReady(u, id);
+-  }
++  orderReady() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
+ 
+   @Post('orders/:id/dispatch')
+-  async orderDispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+-    return this.providerOrders.orderDispatch(u, id, b);
+-  }
++  orderDispatch() { throw new ServiceUnavailableException('legacy_order_dispatch_disabled_delivery_proof_required'); }
+ }
+ 
+ // =========================================================================
+@@ -141,11 +143,15 @@
  @Controller('provider/pharmacy/broadcasts')
  @UseGuards(JwtAuthGuard)
  export class ProviderBroadcastController {
@@ -1454,13 +1863,14 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
  }
  
-@@ -153,10 +163,22 @@
+@@ -153,10 +159,22 @@
  @UseGuards(JwtAuthGuard)
  @Roles(UserRole.ADMIN)
  export class AdminBroadcastController {
 -  constructor(private bc: PharmacyBroadcastService) {}
+-  @Post(':orderId/advance') advance(@Param('orderId') id: string) { return this.bc.advanceRound(id); }
 +  constructor(private bc: PharmacyBroadcastService, private readonly expiry: PharmacyExpiryCommandService) {}
-   @Post(':orderId/advance') advance(@Param('orderId') id: string) { return this.bc.advanceRound(id); }
++  @Post(':orderId/advance') advance() { throw new ServiceUnavailableException('manual_broadcast_advance_disabled_use_expiry_command'); }
    @Post(':orderId/fallback-split') fallback(@Param('orderId') id: string) { return this.bc.fallbackSplit(id); }
 -  @Post('expire-stale') expireStale() { return this.bc.expireStaleBroadcasts(); }
 +  /** Explicit privileged command; no timer, cron, queue worker, or caller-supplied clock. */
@@ -1479,9 +1889,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  }
  
  @Controller('pharmacy/chat')
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 17:04:56.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/pharmacy.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/pharmacy.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 19:45:04.511546514 +0000
 @@ -4,7 +4,7 @@
  import {
    PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
@@ -1491,7 +1901,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    DrugShortageFlagSchema,
  } from './schemas/pharmacy.schema';
  import { SystemConfig, SystemConfigSchema } from '../../schemas/system-config.schema';
-@@ -30,15 +30,19 @@
+@@ -30,15 +30,20 @@
  import {
    PatientPharmacyController, ProviderPharmacyController,
    ProviderInventoryExtController, AdminPharmacyController,
@@ -1505,6 +1915,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +import { PharmacyOfferService } from './services/pharmacy-offer.service';
 +import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 +import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
++import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
  import { NotificationsModule } from '../notifications/notifications.module';
  import { GeoEngineService } from '../provider/services/geo-engine.service';
  import { ProviderModule } from '../provider/provider.module';
@@ -1513,7 +1924,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  import { DrugRejectionLogRepository } from "./services/repositories/drugrejectionlog.repository";
  import { DrugShortageFlagRepository } from "./services/repositories/drugshortageflag.repository";
  import { MedicineRepository } from "./services/repositories/medicine.repository";
-@@ -62,6 +66,7 @@
+@@ -62,6 +67,7 @@
      NotificationsModule,
      ProviderModule,
      WorkflowEngineModule,
@@ -1521,7 +1932,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      AiModule,
      MongooseModule.forFeature([
        { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
-@@ -70,6 +75,7 @@
+@@ -70,6 +76,7 @@
        { name: 'PharmacySubstituteMap', schema: PharmacySubstituteMapSchema },
        { name: 'PharmacyLowStockAlert', schema: PharmacyLowStockAlertSchema },
        { name: 'PharmacyBroadcast', schema: PharmacyBroadcastSchema },
@@ -1529,17 +1940,18 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
        { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
        { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
        { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
-@@ -97,6 +103,9 @@
+@@ -97,6 +104,10 @@
      PharmacyChatService,
      PharmacyShortageService,
      PharmacyOrdersProviderService,
 +    PharmacyOfferService,
 +    PharmacyInsuranceDecisionService,
 +    PharmacyExpiryCommandService,
++    PharmacyPaymentEvidenceService,
      ProcurementService,
      GeoEngineService,
      { provide: "DrugRejectionLogRepository", useClass: DrugRejectionLogRepository },
-@@ -122,10 +131,8 @@
+@@ -122,10 +133,8 @@
      ProviderPharmacyController,
      ProviderInventoryExtController,
      AdminPharmacyController,
@@ -1552,9 +1964,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      ProviderShortageController,
      AdminShortageController,
      PatientShortageController,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/schemas/pharmacy.schema.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/schemas/pharmacy.schema.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-27 17:03:49.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/schemas/pharmacy.schema.ts	2026-08-27 17:03:49.229533999 +0000
 @@ -23,6 +23,11 @@
    ALLOCATING = 'allocating',
    PARTIALLY_ALLOCATED = 'partially_allocated',
@@ -1678,9 +2090,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
    { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
    { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-27 18:39:41.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-allocation.service.ts	2026-08-27 19:56:47.657260848 +0000
 @@ -1,4 +1,4 @@
 -import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 +import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ServiceUnavailableException, Inject } from '@nestjs/common';
@@ -1830,7 +2242,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    private async advance(user: any, id: string, to: PharmacyAllocationState) {
-@@ -215,6 +240,7 @@
+@@ -215,12 +240,13 @@
      const a = await this.allocs.findOne({ id });
      if (!a) throw new NotFoundException();
      if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
@@ -1838,6 +2250,31 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      const fromStatus = a.status;
      this.transition(a, to, user.id);
      await a.save();
+     await this.refreshOrderAfterAllocationChange(a.order_id);
+     await this.notif.notifyPatientAllocationProgress(a);
+-    this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: `transition_to_${to}`, before: { status: fromStatus }, after: { status: to }, meta: { order_id: a.order_id } }).catch(() => null);
++    await this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: `transition_to_${to}`, before: { status: fromStatus }, after: { status: to }, meta: { order_id: a.order_id } });
+     return a.toObject();
+   }
+ 
+@@ -236,7 +262,7 @@
+     await a.save();
+     await this.refreshOrderAfterAllocationChange(a.order_id);
+     await this.notif.notifyPatientAllocationCancelled(a, reason);
+-    this.bus.emit({ type: 'allocation.cancelled', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: reason || 'pharmacy_cancelled', meta: { order_id: a.order_id } }).catch(() => null);
++    await this.bus.emit({ type: 'allocation.cancelled', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: reason || 'pharmacy_cancelled', meta: { order_id: a.order_id } });
+     return a.toObject();
+   }
+ 
+@@ -262,7 +288,7 @@
+         order.status = nextStatus!;
+         order.timeline.push({ ts: new Date(), event });
+         if (nextStatus === PharmacyOrderState.DELIVERED) {
+-          this.bus.emit({ type: 'pharmacy.all_allocations_delivered', entity_type: 'order', entity_id: order.id, patient_account_id: order.patient_account_id, reason_code: 'all_allocations_delivered', actor_role: 'system', meta: { allocations: allocs.length } }).catch(() => null);
++          await this.bus.emit({ type: 'pharmacy.all_allocations_delivered', entity_type: 'order', entity_id: order.id, patient_account_id: order.patient_account_id, reason_code: 'all_allocations_delivered', actor_role: 'system', meta: { allocations: allocs.length } });
+         }
+         await order.save();
+         return order.toObject();
 @@ -285,33 +311,8 @@
      return { expired, scanned: stale.length };
    }
@@ -1875,9 +2312,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    throw new ServiceUnavailableException('legacy_allocation_insurance_disabled_use_admin_selected_offer_decision');
    }
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-27 18:44:51.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-broadcast.service.ts	2026-08-27 19:51:15.540457319 +0000
 @@ -4,7 +4,7 @@
   * If no FULL_ACCEPT exists, runs the Best Partial Match ranking algorithm.
   * Exposes reject/decline broadcast logging rejections to the Shortage Engine.
@@ -1887,7 +2324,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  import { Model } from 'mongoose';
  import { v4 as uuidv4 } from 'uuid';
  import {
-@@ -59,18 +59,50 @@
+@@ -59,27 +59,72 @@
      private redisService: RedisService,
    ) {}
  
@@ -1948,7 +2385,21 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  
    /** Patient submit → starts the broadcast (round 1). */
-@@ -80,6 +112,8 @@
+   async start(order: PharmacyOrder): Promise<PharmacyBroadcast> {
+     const existing = await this.broadcasts.findOne({ order_id: order.id });
+-    if (existing && existing.lock_state !== 'closed') return existing;
++    if (existing && existing.lock_state !== 'closed') {
++      // Recover a partially persisted initial round idempotently; never leave an open broadcast without intents.
++      if (!Array.isArray(existing.notified_pharmacies) || existing.notified_pharmacies.length === 0 || order.status !== PharmacyOrderState.BROADCASTING) {
++        await this.broadcastRound(existing, order);
++        if (order.status !== PharmacyOrderState.BROADCASTING) {
++          order.status = PharmacyOrderState.BROADCASTING;
++          order.timeline.push({ ts: new Date(), event: 'broadcasting_round_1_recovered', meta: { radius: existing.current_radius_km } });
++          await order.save();
++        }
++      }
++      return existing;
++    }
      
      const stages = await this.getBroadcastStages();
      const round1 = stages[0];
@@ -1957,7 +2408,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      
      const bc = await this.broadcasts.create({
        id: uuidv4(),
-@@ -90,7 +124,8 @@
+@@ -90,7 +135,8 @@
        max_radius_km: stages[stages.length - 1].radius_km,
        round_radii_km: stages.map(s => s.radius_km),
        lock_state: 'open',
@@ -1967,7 +2418,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
      
      await this.broadcastRound(bc, order);
-@@ -98,168 +133,81 @@
+@@ -98,168 +144,81 @@
      order.timeline.push({ ts: new Date(), event: 'broadcasting_round_1', meta: { radius: round1.radius_km } });
      await order.save();
      
@@ -2196,7 +2647,22 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  
      bc.responses = bc.responses.filter(r => r.pharmacy_account_id !== user.id);
      bc.responses.push({ pharmacy_account_id: user.id, response: 'declined', items: [], responded_at: new Date() });
-@@ -299,163 +247,60 @@
+@@ -281,10 +240,13 @@
+   }
+ 
+   /** Advance broadcast to next round. If final round ends with no full accept, runs Best Partial Match. */
+-  async advanceRound(order_id: string): Promise<any> {
++  async advanceRound(order_id: string, now = new Date()): Promise<any> {
+     const bc = await this.broadcasts.findOne({ order_id });
+     if (!bc) throw new NotFoundException('broadcast_not_found');
+     if (bc.lock_state !== 'open') throw new BadRequestException(`cannot_advance_${bc.lock_state}`);
++    if (!bc.round_expires_at || new Date(bc.round_expires_at).getTime() > now.getTime()) {
++      throw new BadRequestException('broadcast_round_not_due');
++    }
+     
+     const stages = await this.getBroadcastStages();
+     const nextIdx = bc.current_round; // 1-based round index
+@@ -299,266 +261,105 @@
      }
      
      const nextStage = stages[nextIdx];
@@ -2385,12 +2851,48 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
  
    // ============== INTERNAL: geo filter ==============
 -  private async findPharmaciesWithin(center: any, radius_km: number) {
+-    const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: 'approved' }).project({ id: 1 }).toArray();
+-    if (!accs.length || !center?.lat) return [];
 +  /** Eligible, approved and available recipient set computed server-side for a given round. */
 +  async findEligiblePharmaciesWithin(center: any, radius_km: number) {
-     const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: 'approved' }).project({ id: 1 }).toArray();
-     if (!accs.length || !center?.lat) return [];
++    const accs = await (this.profiles as any).db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: { $in: ['approved', 'active'] } }).project({ id: 1 }).toArray();
++    if (!accs.length || !Number.isFinite(Number(center?.lat)) || !Number.isFinite(Number(center?.lng)) || !Number.isFinite(Number(radius_km)) || Number(radius_km) <= 0) return [];
      const ids = accs.map((a: any) => a.id);
-@@ -485,80 +330,25 @@
+     const profs = await this.profiles.find({ account_id: { $in: ids }, provider_type: 'pharmacy' }).lean();
+     const avs = await this.avails.find({ provider_account_id: { $in: ids }, status: { $in: [ProviderAvailabilityStatus.ACCEPTING_ORDERS, ProviderAvailabilityStatus.ONLINE] } }).lean();
+     const okIds = new Set(avs.map(a => a.provider_account_id));
+     const out: any[] = [];
+     for (const p of profs) {
+-      if (!okIds.has(p.account_id)) continue;
+-      if (!p.geo?.lat) continue;
+-      
+-      // Delivery mode rule:
+-      // If external delivery required, restrict radius according to platform delivery rule (e.g. max 7km)
++            if (!okIds.has(p.account_id)) continue;
++      if (!Number.isFinite(Number(p.geo?.lat)) || !Number.isFinite(Number(p.geo?.lng))) continue;
+       const pharm = p as any;
+-      let activeRadius = pharm.max_delivery_radius_km || pharm.delivery_radius_km || radius_km;
+-      if (pharm.delivery_mode === 'external_delivery_required') {
+-        activeRadius = Math.min(activeRadius, 7); // restricted to platform rule (7km max)
+-      } else if (pharm.delivery_mode === 'self_delivery') {
+-        // self delivery can go up to 20km+
+-        activeRadius = Math.max(activeRadius, 20);
+-      }
+-      
+-      const d = this.geo.distanceKm({ lat: p.geo.lat, lng: p.geo.lng }, center);
+-      if (d <= activeRadius) out.push({ ...p, _distance: d });
++      const providerRadius = Number(pharm.max_delivery_radius_km ?? pharm.delivery_radius_km);
++      const policyDoc: any = await this.configs.findOne({ key: 'pharmacy_platform_radius_km' }).lean();
++      const platformRadius = Number(policyDoc?.value);
++      const effectiveRadius = Math.min(
++        Number(radius_km),
++        Number.isFinite(providerRadius) && providerRadius > 0 ? providerRadius : Number(radius_km),
++        Number.isFinite(platformRadius) && platformRadius > 0 ? platformRadius : Number(radius_km),
++      );
++      const d = this.geo.distanceKm({ lat: Number(p.geo.lat), lng: Number(p.geo.lng) }, center);
++      if (Number.isFinite(d) && d <= effectiveRadius) out.push({ ...p, _distance: d });
+     }
+     return out;
    }
  
    async listForPharmacy(user: any): Promise<any> {
@@ -2481,9 +2983,39 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    throw new ServiceUnavailableException('legacy_expiry_sweep_disabled_use_expire_due_command');
    }
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	2026-08-27 18:23:57.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-chat.service.ts	2026-08-27 19:57:33.509350110 +0000
+@@ -95,7 +95,7 @@
+     t.last_message_at = new Date();
+     await t.save();
+     if (body.substitute_offer) {
+-      this.bus.emit({ type: 'substitute.proposed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: isPatient ? 'patient' : 'provider', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: m.id, offer: body.substitute_offer } }).catch(() => null);
++      await this.bus.emit({ type: 'substitute.proposed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: isPatient ? 'patient' : 'provider', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: m.id, offer: body.substitute_offer } });
+     }
+     return m.toObject();
+   }
+@@ -128,7 +128,7 @@
+     t.resolution = 'accepted';
+     await t.save();
+     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: `البديل مقبول من المريض.` });
+-    this.bus.emit({ type: 'substitute.accepted', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: msg.id } }).catch(() => null);
++    await this.bus.emit({ type: 'substitute.accepted', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: msg.id } });
+     return { ok: true };
+   }
+ 
+@@ -151,7 +151,7 @@
+       }
+     }
+     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
+-    this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } }).catch(() => null);
++    await this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } });
+     return { ok: true };
+   }
+ 
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-expiry-command.service.ts	2026-08-27 18:23:57.102308047 +0000
 @@ -0,0 +1,197 @@
 +import { Injectable, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -2682,9 +3214,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    return result;
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	2026-08-27 18:33:38.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-insurance-decision.service.ts	2026-08-27 18:33:38.791786757 +0000
 @@ -0,0 +1,148 @@
 +import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -2834,9 +3366,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    });
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-notification.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-notification.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
 @@ -5,12 +5,14 @@
  import { NotificationPriority, NotificationType } from '../../../common/enums';
  import { PharmacyAllocation, PharmacyOrder } from '../schemas/pharmacy.schema';
@@ -2879,9 +3411,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    private async lookupOrderId(orderId: string): Promise<{ patient_account_id: string; id: string } | null> {
      const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
      return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-offer.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-offer.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-offer.service.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-offer.service.ts	2026-08-27 16:58:26.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-offer.service.ts	2026-08-27 19:57:07.581302505 +0000
 @@ -0,0 +1,296 @@
 +import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 +import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -3073,7 +3605,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +      type: 'pharmacy.offer.submitted', entity_type: 'pharmacy_offer', entity_id: offer.id,
 +      actor_account_id: user.id, actor_role: 'pharmacy', patient_account_id: offer.patient_account_id,
 +      reason_code: 'provider_offer_submitted', meta: { order_id: orderId, offer_id: offer.id, version: offer.version },
-+    }).catch(() => null);
++    });
 +    return this.providerDto(offer.toObject());
 +  }
 +
@@ -3154,7 +3686,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +      await this.bus.emit({
 +        type: 'pharmacy.offer.selected', entity_type: 'pharmacy_offer', entity_id: offerId,
 +        actor_account_id: user.id, actor_role: 'patient', reason_code: 'patient_explicit_selection', meta: { order_id: orderId },
-+      }).catch(() => null);
++      });
 +      return { offer: this.patientDto(selected.offer), allocation_id: selected.allocation.id, next_status: selected.next_status };
 +    } finally {
 +      await session.endSession();
@@ -3179,9 +3711,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    };
 +  }
 +}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-27 18:40:19.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-orders-provider.service.ts	2026-08-27 18:40:19.724379451 +0000
 @@ -1,4 +1,4 @@
 -import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 +import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
@@ -3231,9 +3763,113 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    return this.allocs.outForDelivery(user, alloc.id, payload);
    }
  }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	2026-08-27 18:37:12.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-payment-evidence.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-payment-evidence.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/services/pharmacy-payment-evidence.service.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/services/pharmacy-payment-evidence.service.ts	2026-08-27 19:58:48.681482034 +0000
+@@ -0,0 +1,100 @@
++import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
++import { InjectConnection } from '@nestjs/mongoose';
++import { Connection } from 'mongoose';
++import { OnEvent } from '@nestjs/event-emitter';
++import * as crypto from 'crypto';
++
++/**
++ * Canonical writer for payment evidence used by pharmacy fulfillment gates.
++ * It is fed only by a verified gateway event listener; no controller accepts
++ * evidence fields from a patient or provider.
++ */
++@Injectable()
++export class PharmacyPaymentEvidenceService {
++  constructor(@InjectConnection() private readonly conn: Connection) {}
++
++  async createPaymentIntent(user: any, orderId: string, idempotencyKey: string) {
++    if (!user?.id) throw new ForbiddenException('patient_identity_required');
++    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
++    const order: any = await this.conn.collection('pharmacy_orders').findOne({ id: orderId, patient_account_id: user.id });
++    if (!order) throw new NotFoundException('pharmacy_order_not_found');
++    if (!order.selected_offer_id || !Number.isInteger(Number(order.selected_offer_version)) || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
++    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('payment_order_not_collectable');
++    const paymentMethod = String(order.payment_method || '').toLowerCase();
++    if (!['card', 'credit_card', 'moyasar'].includes(paymentMethod)) throw new BadRequestException('card_payment_intent_required');
++    const total = Math.round(Number(order.pricing_snapshot.totals?.total || 0) * 100) / 100;
++    const currency = String(order.pricing_snapshot.totals?.currency || 'SAR').toUpperCase();
++    const intents = this.conn.collection('pharmacy_payment_intents');
++    const existing: any = await intents.findOne({ order_id: orderId, idempotency_key: idempotencyKey });
++    if (existing) return { intent_id: existing.intent_id, status: existing.status, amount: existing.amount, currency: existing.currency, adapter: 'sandbox_disabled' };
++    const intent = {
++      intent_id: `pi_${crypto.randomUUID()}`, order_id: orderId, selected_offer_id: order.selected_offer_id,
++      selected_offer_version: Number(order.selected_offer_version), quote_snapshot_hash: order.pricing_snapshot.hash,
++      amount: total, currency, payer_account_id: user.id, idempotency_key: idempotencyKey,
++      status: 'requires_payment', adapter: 'sandbox_disabled', createdAt: new Date(), updatedAt: new Date(),
++    };
++    try {
++      await intents.insertOne(intent as any);
++    } catch (err: any) {
++      if (err?.code !== 11000) throw err;
++      const replay: any = await intents.findOne({ order_id: orderId, idempotency_key: idempotencyKey });
++      if (!replay) throw new ConflictException('payment_intent_conflict');
++      return { intent_id: replay.intent_id, status: replay.status, amount: replay.amount, currency: replay.currency, adapter: 'sandbox_disabled' };
++    }
++    return { intent_id: intent.intent_id, status: intent.status, amount: intent.amount, currency: intent.currency, adapter: 'sandbox_disabled' };
++  }
++
++  @OnEvent('moyasar.payment.paid', { async: true })
++  async onMoyasarPaid(payload: any) {
++    return this.recordVerifiedGatewayPayment('moyasar', payload);
++  }
++
++  async recordVerifiedGatewayPayment(gateway: string, payload: any) {
++    const eventId = String(payload?.webhook_event_id || payload?.event_id || payload?.id || '').trim();
++    const paymentId = String(payload?.gateway_payment_id || payload?.payment_id || payload?.id || '').trim();
++    const metadata = payload?.metadata || payload?.meta || {};
++    const orderId = String(metadata.order_id || payload?.order_id || payload?.booking_id || '').trim();
++    const offerId = String(metadata.selected_offer_id || payload?.selected_offer_id || '').trim();
++    const offerVersion = Number(metadata.selected_offer_version ?? payload?.selected_offer_version);
++    const snapshotHash = String(metadata.quote_snapshot_hash || payload?.quote_snapshot_hash || '').trim();
++    const payerId = String(metadata.payer_account_id || payload?.payer_account_id || '').trim();
++    const currency = String(payload?.currency || metadata.currency || 'SAR').toUpperCase();
++    const amountHalalas = Number(payload?.amount_halalas ?? payload?.amount_minor ?? NaN);
++    if (!eventId || !paymentId || !orderId || !offerId || !Number.isInteger(offerVersion) || !snapshotHash || !payerId || !Number.isFinite(amountHalalas) || amountHalalas < 0) {
++      throw new BadRequestException('payment_evidence_metadata_incomplete');
++    }
++    const amount = Math.round((amountHalalas / 100) * 100) / 100;
++    const orders = this.conn.collection('pharmacy_orders');
++    const order: any = await orders.findOne({ id: orderId });
++    if (!order) throw new NotFoundException('pharmacy_order_not_found');
++    if (String(order.patient_account_id) !== payerId) throw new BadRequestException('payment_payer_mismatch');
++    if (String(order.selected_offer_id) !== offerId || Number(order.selected_offer_version) !== offerVersion) throw new BadRequestException('payment_selected_offer_mismatch');
++    if (String(order.pricing_snapshot?.offer_id) !== offerId || Number(order.pricing_snapshot?.offer_version) !== offerVersion) throw new BadRequestException('payment_quote_binding_mismatch');
++    if (String(order.pricing_snapshot?.hash || '') !== snapshotHash) throw new BadRequestException('payment_quote_hash_mismatch');
++    if (String(order.pricing_snapshot?.totals?.currency || 'SAR').toUpperCase() !== currency) throw new BadRequestException('payment_currency_mismatch');
++    const expected = Math.round(Number(order.pricing_snapshot?.totals?.total || 0) * 100) / 100;
++    if (amount !== expected) throw new BadRequestException('payment_amount_mismatch');
++    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('payment_order_not_collectable');
++
++    const evidence = {
++      order_id: orderId, selected_offer_id: offerId, selected_offer_version: offerVersion,
++      quote_snapshot_hash: snapshotHash, amount, currency, payer_account_id: payerId,
++      gateway, gateway_payment_id: paymentId, webhook_event_id: eventId,
++      status: 'confirmed', confirmed_at: new Date(), updatedAt: new Date(),
++      evidence_fingerprint: crypto.createHash('sha256').update(`${gateway}:${paymentId}:${eventId}:${orderId}:${offerId}:${offerVersion}:${snapshotHash}:${amount}:${currency}:${payerId}`).digest('hex'),
++    };
++    const collection = this.conn.collection('pharmacy_payment_evidence');
++    try {
++      await collection.updateOne(
++        { gateway, gateway_payment_id: paymentId, webhook_event_id: eventId },
++        { $setOnInsert: { ...evidence, createdAt: new Date() } },
++        { upsert: true },
++      );
++    } catch (err: any) {
++      if (err?.code !== 11000) throw err;
++      const existing: any = await collection.findOne({ gateway, gateway_payment_id: paymentId, webhook_event_id: eventId });
++      if (!existing || existing.evidence_fingerprint !== evidence.evidence_fingerprint) throw new BadRequestException('payment_evidence_replay_conflict');
++    }
++    return { recorded: true, idempotent: true, order_id: orderId, gateway_payment_id: paymentId };
++  }
++}
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-allocation.payment-gate.spec.ts	2026-08-27 18:37:12.008092625 +0000
 @@ -0,0 +1,46 @@
 +import { BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 +import { PharmacyAllocationService } from '../services/pharmacy-allocation.service';
@@ -3281,9 +3917,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    await expect(service.delivered({ id: 'pharmacy-1', role: 'pharmacy' }, 'alloc-1')).rejects.toBeInstanceOf(ServiceUnavailableException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-27 18:27:12.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-broadcast.service.spec.ts	2026-08-27 19:51:54.104574574 +0000
 @@ -11,7 +11,7 @@
  import { EventBusService } from '../../events/event-bus.service';
  import { PharmacyShortageService } from '../services/pharmacy-shortage.service';
@@ -3418,7 +4054,7 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
  
      it('should allocate to the best partial pharmacy based on items count, distance, and alternatives', async () => {
-@@ -286,13 +330,14 @@
+@@ -286,13 +330,33 @@
  
        const result = await service.runBestPartialMatch(mockBroadcast as any, mockOrder as any);
  
@@ -3439,9 +4075,28 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      });
    });
  });
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	2026-08-27 18:28:00.000000000 +0000
++
++
++describe('PharmacyBroadcastService lifecycle gates', () => {
++  it('rejects advance before the persisted round deadline', async () => {
++    const broadcasts: any = { findOne: jest.fn().mockResolvedValue({ lock_state: 'open', round_expires_at: new Date('2030-01-01T00:00:00Z') }) };
++    const svc: any = Object.create(PharmacyBroadcastService.prototype);
++    svc.broadcasts = broadcasts;
++    await expect(svc.advanceRound('order-1', new Date('2029-01-01T00:00:00Z'))).rejects.toThrow('broadcast_round_not_due');
++  });
++
++  it('accepts latitude and longitude equal to zero when both are finite', async () => {
++    const svc: any = Object.create(PharmacyBroadcastService.prototype);
++    svc.profiles = { db: { collection: jest.fn().mockReturnValue({ find: jest.fn().mockReturnThis(), project: jest.fn().mockReturnThis(), toArray: jest.fn().mockResolvedValue([{ id: 'pharm-1' }]) }) }, find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([{ account_id: 'pharm-1', geo: { lat: 0, lng: 0 }, max_delivery_radius_km: 20 }]) }) };
++    svc.avails = { find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([{ provider_account_id: 'pharm-1', status: 'ONLINE' }]) }) };
++    svc.configs = { findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue({ value: 20 }) }) };
++    svc.geo = { distanceKm: jest.fn().mockReturnValue(3) };
++    await expect(svc.findEligiblePharmaciesWithin({ lat: 0, lng: 0 }, 5)).resolves.toHaveLength(1);
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-expiry-command.service.spec.ts	2026-08-27 18:28:00.907151234 +0000
 @@ -0,0 +1,88 @@
 +import { ServiceUnavailableException } from '@nestjs/common';
 +import { PharmacyExpiryCommandService } from '../services/pharmacy-expiry-command.service';
@@ -3531,9 +4186,42 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(result.next_cursor).toEqual({ offer_id: 'offer-1', broadcast_id: undefined });
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	2026-08-27 18:33:47.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-governance.controllers.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-governance.controllers.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-governance.controllers.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-governance.controllers.spec.ts	2026-08-27 19:55:05.009063253 +0000
+@@ -0,0 +1,29 @@
++import { ServiceUnavailableException } from '@nestjs/common';
++import { ProviderPharmacyController, AdminBroadcastController } from '../pharmacy.controllers';
++
++describe('pharmacy governance controllers', () => {
++  const rejects = async (fn: () => any) => {
++    await expect(Promise.resolve().then(fn)).rejects.toBeInstanceOf(ServiceUnavailableException);
++  };
++
++  it('rejects every legacy provider order mutation', async () => {
++    const providerOrders = { orderPreparing: jest.fn(), orderReady: jest.fn(), orderDispatch: jest.fn() };
++    const controller = new ProviderPharmacyController({} as any, {} as any, providerOrders as any, {} as any);
++    await rejects(() => controller.acceptOrder());
++    await rejects(() => controller.submitBasket());
++    await rejects(() => controller.evaluateInsurance());
++    await rejects(() => controller.orderPreparing());
++    await rejects(() => controller.orderReady());
++    await rejects(() => controller.orderDispatch());
++    expect(providerOrders.orderPreparing).not.toHaveBeenCalled();
++    expect(providerOrders.orderReady).not.toHaveBeenCalled();
++    expect(providerOrders.orderDispatch).not.toHaveBeenCalled();
++  });
++
++  it('rejects admin manual broadcast advance and leaves expiry command as the explicit route', async () => {
++    const expiry = { expireDuePharmacyOffers: jest.fn() };
++    const controller = new AdminBroadcastController({} as any, expiry as any);
++    await rejects(() => controller.advance());
++    expect(expiry.expireDuePharmacyOffers).not.toHaveBeenCalled();
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-insurance-decision.service.spec.ts	2026-08-27 18:33:47.515794364 +0000
 @@ -0,0 +1,79 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { PharmacyInsuranceDecisionService } from '../services/pharmacy-insurance-decision.service';
@@ -3614,9 +4302,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(outbox.updateOne).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'pharmacy.insurance.rejected_cancelled' }), expect.anything(), expect.anything());
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
 @@ -0,0 +1,33 @@
 +import { PharmacyNotificationService } from '../services/pharmacy-notification.service';
 +
@@ -3651,9 +4339,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    });
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	2026-08-27 17:00:51.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts	2026-08-27 17:00:51.245113508 +0000
 @@ -0,0 +1,66 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { PharmacyOfferService } from '../services/pharmacy-offer.service';
@@ -3721,9 +4409,174 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(connection.startSession).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/provider.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/provider.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-payment-evidence.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-payment-evidence.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy/tests/pharmacy-payment-evidence.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy/tests/pharmacy-payment-evidence.service.spec.ts	2026-08-27 19:46:38.991674992 +0000
+@@ -0,0 +1,52 @@
++import { BadRequestException } from '@nestjs/common';
++import { PharmacyPaymentEvidenceService } from '../services/pharmacy-payment-evidence.service';
++
++describe('PharmacyPaymentEvidenceService', () => {
++  function setup(orderPatch: any = {}) {
++    const order = {
++      id: 'order-1', patient_account_id: 'patient-1', selected_offer_id: 'offer-1', selected_offer_version: 2,
++      status: 'offers_selected', pricing_snapshot: { offer_id: 'offer-1', offer_version: 2, hash: 'hash-1', totals: { total: 75, currency: 'SAR' } },
++      ...orderPatch,
++    };
++    const evidence: any[] = [];
++    const paymentCollection: any = {
++      updateOne: jest.fn(async (filter: any, update: any) => {
++        const found = evidence.find(row => row.gateway === filter.gateway && row.gateway_payment_id === filter.gateway_payment_id && row.webhook_event_id === filter.webhook_event_id);
++        if (!found) evidence.push(update.$setOnInsert);
++        return { acknowledged: true, upsertedCount: found ? 0 : 1 };
++      }),
++      findOne: jest.fn(async (filter: any) => evidence.find(row => row.gateway === filter.gateway && row.gateway_payment_id === filter.gateway_payment_id && row.webhook_event_id === filter.webhook_event_id) || null),
++    };
++    const conn: any = { collection: jest.fn((name: string) => name === 'pharmacy_orders' ? { findOne: jest.fn(async (filter: any) => filter.id === order.id ? order : null) } : paymentCollection) };
++    return { service: new PharmacyPaymentEvidenceService(conn), paymentCollection, evidence };
++  }
++  const payload = (patch: any = {}) => ({
++    id: 'event-1', gateway_payment_id: 'pay-1', amount_halalas: 7500, currency: 'SAR',
++    metadata: { order_id: 'order-1', selected_offer_id: 'offer-1', selected_offer_version: 2, quote_snapshot_hash: 'hash-1', payer_account_id: 'patient-1' },
++    ...patch,
++  });
++
++  it('writes exact canonical evidence and treats the same gateway event as idempotent', async () => {
++    const { service, paymentCollection, evidence } = setup();
++    await expect(service.recordVerifiedGatewayPayment('moyasar', payload())).resolves.toMatchObject({ recorded: true, order_id: 'order-1' });
++    await expect(service.recordVerifiedGatewayPayment('moyasar', payload())).resolves.toMatchObject({ recorded: true });
++    expect(paymentCollection.updateOne).toHaveBeenCalledTimes(2);
++    expect(evidence).toHaveLength(1);
++  });
++
++  it.each([
++    [{ metadata: { order_id: 'other-order', selected_offer_id: 'offer-1', selected_offer_version: 2, quote_snapshot_hash: 'hash-1', payer_account_id: 'patient-1' } }, 'pharmacy_order_not_found'],
++    [{ metadata: { order_id: 'order-1', selected_offer_id: 'other-offer', selected_offer_version: 2, quote_snapshot_hash: 'hash-1', payer_account_id: 'patient-1' } }, 'payment_selected_offer_mismatch'],
++    [{ metadata: { order_id: 'order-1', selected_offer_id: 'offer-1', selected_offer_version: 2, quote_snapshot_hash: 'wrong', payer_account_id: 'patient-1' } }, 'payment_quote_hash_mismatch'],
++    [{ amount_halalas: 7600 }, 'payment_amount_mismatch'],
++    [{ currency: 'USD' }, 'payment_currency_mismatch'],
++  ])('rejects forged payment fields (%s)', async (patch, code) => {
++    const { service } = setup();
++    await expect(service.recordVerifiedGatewayPayment('moyasar', payload(patch))).rejects.toThrow(code);
++  });
++
++  it('rejects incomplete metadata instead of accepting provider/client assertions', async () => {
++    const { service } = setup();
++    await expect(service.recordVerifiedGatewayPayment('moyasar', { id: 'event-1', amount_halalas: 7500 })).rejects.toBeInstanceOf(BadRequestException);
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy_ops/pharmacy-legacy-mutation.controller.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy_ops/pharmacy-legacy-mutation.controller.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy_ops/pharmacy-legacy-mutation.controller.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy_ops/pharmacy-legacy-mutation.controller.spec.ts	2026-08-27 19:37:20.630757674 +0000
+@@ -0,0 +1,31 @@
++import { ServiceUnavailableException } from '@nestjs/common';
++import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
++
++describe('legacy pharmacy mutation containment', () => {
++  const expectCanonicalReject = async (call: () => any) => {
++    await expect(Promise.resolve().then(call)).rejects.toBeInstanceOf(ServiceUnavailableException);
++  };
++
++  it('rejects PharmacyOps mutations without touching legacy services', async () => {
++    const controller = new PharmacyOpsController({} as any, {} as any);
++    await expectCanonicalReject(() => controller.accept());
++    await expectCanonicalReject(() => controller.reject());
++    await expectCanonicalReject(() => controller.preparingAction());
++    await expectCanonicalReject(() => controller.readyAction());
++    await expectCanonicalReject(() => controller.partial());
++    await expectCanonicalReject(() => controller.itemUnavailable());
++    await expectCanonicalReject(() => controller.itemRestore());
++    await expectCanonicalReject(() => controller.itemQty());
++    await expectCanonicalReject(() => controller.itemSub());
++    await expectCanonicalReject(() => controller.submitBasket());
++    await expectCanonicalReject(() => controller.setInsurance(undefined as any, undefined as any, undefined as any));
++  });
++
++  it('rejects every provider alias mutation', async () => {
++    const controller = new ProviderPharmacyAliasController({} as any, {} as any);
++    await expectCanonicalReject(() => controller.accept());
++    await expectCanonicalReject(() => controller.submitBasket());
++    await expectCanonicalReject(() => controller.insurance(undefined as any, undefined as any, undefined as any));
++    await expectCanonicalReject(() => controller.dispatch());
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/pharmacy_ops/pharmacy_ops.controller.ts	2026-08-27 19:41:13.035183589 +0000
+@@ -1,5 +1,8 @@
+ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+ import { PharmacyOpsService } from './pharmacy_ops.service';
++import { ServiceUnavailableException } from '@nestjs/common';
++
++const canonicalPharmacyFlowRequired = (): never => { throw new ServiceUnavailableException('canonical_pharmacy_flow_required'); };
+ import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+ import { UserRole } from '../../common/enums';
+ import { OrdersService } from '../orders/orders.service';
+@@ -48,30 +51,30 @@
+   @Get('orders/refills') refills(@CurrentUser() u: any) { return this.svc.refillOrders(u); }
+ 
+   // Order actions — delegate to OrdersService transitions
+-  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+-  @Post('orders/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { reason?: string }) { return this.ordersSvc.reject(id, u, b?.reason || ''); }
+-  @Post('orders/:id/preparing') preparingAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markPreparing(id, u); }
+-  @Post('orders/:id/ready') readyAction(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.markReady(id, u); }
+-  @Post('orders/:id/partial') partial(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { unavailable_medicine_ids: string[] }) { return this.ordersSvc.markPartial(id, u, b.unavailable_medicine_ids || []); }
++  @Post('orders/:id/accept') accept() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/reject') reject() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/preparing') preparingAction() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/ready') readyAction() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/partial') partial() { return canonicalPharmacyFlowRequired(); }
+ 
+   // Inventory
+   @Get('inventory') inventory(@CurrentUser() u: any) { return this.svc.getInventory(u); }
+-  @Post('inventory/stock') stock(@CurrentUser() u: any, @Body() b: { medicine_id: string; stock_qty: number; is_available?: boolean }) { return this.svc.updateStock(u, b.medicine_id, b.stock_qty, b.is_available !== false); }
+-  @Post('inventory/add') addMed(@CurrentUser() u: any, @Body() b: any) { return this.svc.addMedicineToInventory(u, b); }
++  @Post('inventory/stock') stock() { return canonicalPharmacyFlowRequired(); }
++  @Post('inventory/add') addMed() { return canonicalPharmacyFlowRequired(); }
+ 
+   // Per-item operations on a pharmacy order
+   @Get('orders/:id') orderDetail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.orderDetail(u, id); }
+-  @Post('orders/:id/items/:idx/unavailable') itemUnavailable(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.markItemUnavailable(u, id, parseInt(idx, 10)); }
+-  @Post('orders/:id/items/:idx/restore') itemRestore(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string) { return this.svc.restoreItem(u, id, parseInt(idx, 10)); }
+-  @Post('orders/:id/items/:idx/qty') itemQty(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { qty: number }) { return this.svc.updateItemQty(u, id, parseInt(idx, 10), b.qty); }
+-  @Post('orders/:id/items/:idx/substitute') itemSub(@CurrentUser() u: any, @Param('id') id: string, @Param('idx') idx: string, @Body() b: { name_ar: string; name_en?: string; medicine_id?: string; qty?: number; price?: number; note?: string }) { return this.svc.substituteItem(u, id, parseInt(idx, 10), b); }
++  @Post('orders/:id/items/:idx/unavailable') itemUnavailable() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/items/:idx/restore') itemRestore() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/items/:idx/qty') itemQty() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/items/:idx/substitute') itemSub() { return canonicalPharmacyFlowRequired(); }
+ 
+   // Basket review workflow
+-  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { note?: string }) { return this.svc.submitBasket(u, id, b?.note); }
++  @Post('orders/:id/submit-basket') submitBasket() { return canonicalPharmacyFlowRequired(); }
+ 
+   // Insurance pre-auth (pharmacy provider)
+   @Post('orders/:id/insurance') setInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: { status: 'approved' | 'rejected' | 'pending'; reason?: string }) {
+-    return this.svc.setInsuranceStatus(u, id, b.status, b.reason);
++    return canonicalPharmacyFlowRequired();
+   }
+ }
+ 
+@@ -85,13 +88,10 @@
+ export class ProviderPharmacyAliasController {
+   constructor(private svc: PharmacyOpsService, private ordersSvc: OrdersService) {}
+ 
+-  @Post('orders/:id/accept') accept(@CurrentUser() u: any, @Param('id') id: string) { return this.ordersSvc.accept(id, u); }
+-  @Post('orders/:id/submit-basket') submitBasket(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.submitBasket(u, id, b?.note); }
++  @Post('orders/:id/accept') accept() { return canonicalPharmacyFlowRequired(); }
++  @Post('orders/:id/submit-basket') submitBasket() { return canonicalPharmacyFlowRequired(); }
+   @Post('orders/:id/insurance') insurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+-    return this.svc.setInsuranceStatus(u, id, (b?.status || 'pending').toLowerCase(), b?.reason);
+-  }
+-  @Post('orders/:id/dispatch') dispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+-    if (b?.driver_id) return this.ordersSvc.assignDelivery(id, b.driver_id, u);
+-    return this.ordersSvc.markReady(id, u);
++    return canonicalPharmacyFlowRequired();
+   }
++  @Post('orders/:id/dispatch') dispatch() { return canonicalPharmacyFlowRequired(); }
+ }
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/provider.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/provider.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
 @@ -42,7 +42,6 @@
  import { User, UserSchema } from '../../schemas/user.schema';
  import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
@@ -3740,9 +4593,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      LeaveRequestsController,
      ProviderAuthController,
      ProviderProfileController,
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/services/provider-profile.service.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/services/provider-profile.service.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/services/provider-profile.service.ts	2026-08-27 15:52:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/services/provider-profile.service.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/services/provider-profile.service.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/services/provider-profile.service.ts	2026-08-27 15:52:23.549387583 +0000
 @@ -38,7 +38,7 @@
    }
  
@@ -3765,9 +4618,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
      const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
      if (existing) {
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.controller.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.controller.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/simulated-features.controller.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/simulated-features.controller.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
 @@ -1,197 +0,0 @@
 -import { JwtAuthGuard } from '../../common/auth.guard';
 -import { UseGuards } from '@nestjs/common';
@@ -3966,9 +4819,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -    return { ok: true, bookingId, status: 'published' };
 -  }
 -}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.dto.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.dto.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/simulated-features.dto.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/simulated-features.dto.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
 @@ -1,141 +0,0 @@
 -import { IsString, IsNumber, IsOptional, IsDateString, IsBoolean, IsArray, IsObject, IsNotEmpty } from 'class-validator';
 -
@@ -4111,9 +4964,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 -  @IsOptional()
 -  file_id?: string;
 -}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-27 15:47:46.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-onboarding/provider-onboarding.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-onboarding/provider-onboarding.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-onboarding/provider-onboarding.module.ts	2026-08-27 15:47:46.648790356 +0000
 @@ -46,15 +46,19 @@
    async start(body: { phone: string; password?: string; full_name?: string; email?: string; type: ProviderType }) {
      if (!body.type || !Object.values(ProviderType).includes(body.type)) throw new BadRequestException('invalid_type');
@@ -4163,9 +5016,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
      this.bus.emit({ type: 'provider.submitted_for_review', entity_type: 'provider', entity_id: profile.id, actor_account_id: user.id, actor_role: 'provider', meta: { type: profile.type } }).catch(() => null);
      return profile.toObject();
    }
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	2026-08-27 15:51:17.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-onboarding/provider-onboarding.service.spec.ts	2026-08-27 15:51:17.889211928 +0000
 @@ -0,0 +1,32 @@
 +import { BadRequestException } from '@nestjs/common';
 +import { ProviderOnboardingService } from './provider-onboarding.module';
@@ -4199,9 +5052,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(providerModel.create).toHaveBeenCalledWith(expect.objectContaining({ type: ProviderType.LAB, status: 'pending', onboarding_step: 1 }));
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.ambulance.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.ambulance.spec.ts	2026-08-27 15:42:08.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-ops/provider-ops.ambulance.spec.ts	2026-08-27 15:42:08.884351969 +0000
 @@ -0,0 +1,37 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { ProviderOpsService } from './provider-ops.module';
@@ -4240,9 +5093,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(emergency.updateOne).not.toHaveBeenCalled();
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-ops/provider-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-ops/provider-ops.module.ts	2026-08-27 15:40:57.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-ops/provider-ops.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-ops/provider-ops.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-ops/provider-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-ops/provider-ops.module.ts	2026-08-27 15:40:57.540246151 +0000
 @@ -290,9 +290,25 @@
    }
  
@@ -4335,9 +5188,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    @Post('ambulance/:id/handover') handover(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceHandover(u, id, b); }
    @Post('ambulance/:id/complete') complete(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.ambulanceComplete(u, id, b); }
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.availability.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.availability.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.availability.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.availability.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
 @@ -0,0 +1,36 @@
 +import { NotFoundException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -4375,9 +5228,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    await expect(service.getAvailability(user)).rejects.toBeInstanceOf(NotFoundException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.coverage.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.coverage.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.coverage.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.coverage.spec.ts	2026-08-27 15:36:08.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.coverage.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.coverage.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.coverage.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.coverage.spec.ts	2026-08-27 15:36:08.247739920 +0000
 @@ -0,0 +1,42 @@
 +import { BadRequestException, ForbiddenException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -4421,9 +5274,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    expect(update.$set.insurance_decision.copay_amount).toBe(50);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.module.ts	2026-08-27 15:30:27.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.module.ts	2026-08-27 15:30:27.019043204 +0000
 @@ -0,0 +1,699 @@
 +/**
 + * PROVIDER PRODUCTION MODULE (P3) — الـ9 endpoints الحاكمة لمصفوفة سيناريوهات المزوّدين
@@ -5124,9 +5977,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +  providers: [ProviderProductionService],
 +})
 +export class ProviderProductionModule {}
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
 @@ -0,0 +1,135 @@
 +import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 +import { ProviderProductionService } from './provider-production.module';
@@ -5263,9 +6116,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
 +    })).rejects.toBeInstanceOf(BadRequestException);
 +  });
 +});
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/modules/storage/storage.module.ts /tmp/tmp.7PnNXm18lu/current/src/modules/storage/storage.module.ts
---- /tmp/tmp.7PnNXm18lu/base/src/modules/storage/storage.module.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/modules/storage/storage.module.ts	2026-08-27 15:47:23.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/storage/storage.module.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/storage/storage.module.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/modules/storage/storage.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/modules/storage/storage.module.ts	2026-08-27 15:47:23.592761910 +0000
 @@ -7,7 +7,7 @@
  import * as crypto from 'crypto';
  import { OnEvent } from '@nestjs/event-emitter';
@@ -5320,9 +6173,9 @@ diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tm
    }
  }
  
-diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' /tmp/tmp.7PnNXm18lu/base/src/schemas/user.schema.ts /tmp/tmp.7PnNXm18lu/current/src/schemas/user.schema.ts
---- /tmp/tmp.7PnNXm18lu/base/src/schemas/user.schema.ts	2026-08-23 15:58:56.000000000 +0000
-+++ /tmp/tmp.7PnNXm18lu/current/src/schemas/user.schema.ts	2026-08-27 15:48:06.000000000 +0000
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' '--exclude=*.zip' /tmp/tmp.UslnDxS8Wd/main-backend/src/schemas/user.schema.ts /tmp/tmp.UslnDxS8Wd/current-backend/src/schemas/user.schema.ts
+--- /tmp/tmp.UslnDxS8Wd/main-backend/src/schemas/user.schema.ts	2026-08-23 15:58:56.000000000 +0000
++++ /tmp/tmp.UslnDxS8Wd/current-backend/src/schemas/user.schema.ts	2026-08-27 15:48:06.492811438 +0000
 @@ -12,6 +12,8 @@
    @Prop() password_hash?: string;
    @Prop({ type: String, enum: Object.values(UserRole), default: UserRole.PATIENT }) role: UserRole;
