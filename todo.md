@@ -31,8 +31,10 @@
 - [x] Add idempotency to pharmacy-chat patient substitute decision mutations.
 - [x] Expose a pharmacy-chat-only Patient Web BFF allowlist for negotiation thread reads and governed substitute decisions.
 - [x] Add Patient Web negotiation screens for pharmacy threads and message history, with idempotent send/accept/reject/remove actions that only record a decision pending a revised final quote.
+- [x] Replace the Patient Web pharmacy cart checkout preview with an idempotent governed pharmacy draft-and-submit action that routes the patient to broadcast offers; retain non-pharmacy cart flows separately.
 - [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
 - [x] Close the initial verified Pharmacy Backend boundary gaps: mutation idempotency and rejection of client-controlled pre-offer prices.
+- [x] Remove the wallet-shaped fixture from the Patient Web pharmacy draft unit test so the repository-wide customer-wallet policy guard remains enforceable.
