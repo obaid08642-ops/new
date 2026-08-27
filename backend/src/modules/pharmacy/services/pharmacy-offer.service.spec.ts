@@ -227,4 +227,22 @@ describe('PharmacyOfferService', () => {
       { new: true },
     );
   });
+
+  it('creates a new server-calculated self-pay quote after a partial insurance decision', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', governed_state: 'INSURANCE_DECISION_READY',
+      accepted_quote_snapshot: { items: [{ order_item_id: 'line-1' }], totals: { subtotal: 20, delivery_fee: 10, total: 30, currency: 'SAR' } },
+      accepted_quote_hash: 'insured-quote-hash', accepted_quote_revision: 2,
+      insurance_decision_summary: { decision: 'APPROVED_PARTIAL', covered_amount: 16, co_pay_amount: 4 },
+    });
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED', toObject: () => ({ id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' }) });
+
+    await expect(service.acceptInsuranceSelfPay({ id: 'patient-1' }, 'order-1', 'card')).resolves.toEqual({ id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' });
+    expect(orders.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ governed_state: 'INSURANCE_DECISION_READY' }),
+      expect.objectContaining({ $set: expect.objectContaining({ accepted_quote_revision: 3, payment_method: 'card', accepted_quote_snapshot: expect.objectContaining({ totals: { subtotal: 14, delivery_fee: 0, total: 14, currency: 'SAR' } }) }) }),
+      { new: true },
+    );
+  });
 });
