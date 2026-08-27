@@ -11,7 +11,7 @@
     "clean": "expo start -c",
     "clean:cache": "expo start -c",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --forceExit",
     "export:web": "expo export",
     "lint": "expo lint"
   },
