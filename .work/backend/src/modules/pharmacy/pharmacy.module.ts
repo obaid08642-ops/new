@@ -141,6 +141,6 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     ProcurementController,
     AdminProcurementController,
   ],
-  exports: [PharmacyOrderService, PharmacyAllocationService, PharmacyOrdersProviderService],
+  exports: [PharmacyOrderService, PharmacyAllocationService, PharmacyOrdersProviderService, PharmacyPaymentEvidenceService],
 })
 export class PharmacyModule {}
