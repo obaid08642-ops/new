@@ -242,6 +242,23 @@ export class PaymentsService {
     };
   }
 
+  async insuranceCopayPaymentCapabilities(user: any, requestId: string, userAgent?: string) {
+    const request: any = await this.insReqs.findOne({ id: requestId }).lean();
+    if (!request) throw new NotFoundException('insurance_request_not_found');
+    this.assertBookingOwnerOrAdmin(user, request);
+    const amount = Number(request.copay_amount);
+    if (request.state !== 'COPAY_PENDING' || !Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('insurance_copay_not_payable');
+    }
+    return {
+      booking_id: request.id,
+      amount,
+      currency: 'SAR',
+      purpose: 'insurance_copay',
+      methods: this.configuredOnlineMethods(userAgent).map((method) => ({ id: method.replace('_', '-'), kind: 'online' })),
+    };
+  }
+
   private assertGatewayResultMatchesTransaction(transaction: any, result: any): void {
     const gatewayAmount = normalizeGatewayAmount(transaction.gateway, result.raw);
     const gatewayCurrency = String(result.raw?.currency ?? '').toUpperCase();
@@ -292,6 +309,13 @@ export class PaymentsService {
       quoteHash = quote.quoteHash;
       quoteRevision = quote.quoteRevision;
       method = requestedMethod === undefined ? quote.method : normalizeOnlineMethod(requestedMethod);
+      if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
+    }
+    if (kind === 'insurance') {
+      if (booking.state !== 'COPAY_PENDING' || !Number.isFinite(Number(booking.copay_amount)) || Number(booking.copay_amount) <= 0) {
+        throw new BadRequestException('insurance_copay_not_payable');
+      }
+      method = requestedMethod === undefined ? 'card' : normalizeOnlineMethod(requestedMethod);
       if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
@@ -543,6 +567,8 @@ export class PaymentsController {
   intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string, @Body() body: { method?: unknown }, @Headers('user-agent') userAgent?: string) { return this.svc.createPaymentIntent(u, t, id, key, body?.method, userAgent); }
   @Get('pharmacy/:id/capabilities')
   pharmacyCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.pharmacyPaymentCapabilities(u, id, userAgent); }
+  @Get('insurance/:id/capabilities')
+  insuranceCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceCopayPaymentCapabilities(u, id, userAgent); }
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
   @Post('retry/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
