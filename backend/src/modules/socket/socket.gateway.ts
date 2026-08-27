@@ -1,8 +1,9 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({ cors: getWebSocketCorsOptions() })
 export class AppSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private logger = new Logger(AppSocketGateway.name);

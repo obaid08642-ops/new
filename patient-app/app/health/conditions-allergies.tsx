@@ -1,344 +1,61 @@
-// @ts-nocheck
-// conditions-allergies.tsx — Add diseases/allergies from dropdown suggestions
-import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
-import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  Button,
-  IconButton,
-  Input,
-  SectionHeader,
-} from "../../src/components/ui";
-import { useGuestGuard } from "../../src/hooks/useGuestGuard";
+import React from 'react';
+import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useApp } from '../../src/context/AppContext';
+import { AppText, Card, Button, IconButton, Input } from '../../src/components/ui';
+import { apiFetch } from '../../src/utils/api';
 
-const CONDITIONS_DB = [
-  "السكري النوع الأول",
-  "السكري النوع الثاني",
-  "ضغط الدم المرتفع",
-  "ارتفاع الكوليسترول",
-  "الربو",
-  "حساسية الصدر",
-  "قصور الغدة الدرقية",
-  "فرط نشاط الغدة الدرقية",
-  "أمراض القلب",
-  "القصور الكلوي",
-  "التهاب المفاصل الروماتويدي",
-  "هشاشة العظام",
-  "الصرع",
-  "الاكتئاب",
-  "القلق المزمن",
-  "فقر الدم",
-  "النقرس",
-  "الأكزيما",
-];
-
-const ALLERGIES_DB = [
-  "بنسلين",
-  "أسبرين",
-  "سلفا",
-  "إيبوبروفين",
-  "لاتكس",
-  "فول سوداني",
-  "بيض",
-  "حليب",
-  "قمح",
-  "جلوتين",
-  "سمك",
-  "مكسرات",
-  "صويا",
-  "غبار",
-  "حبوب اللقاح",
-  "وبر الحيوانات",
-  "العفن",
-];
+type ProfileItem = { id: string; name?: string; label?: string; description?: string; [key: string]: any };
+type Profile = { chronic_diseases?: ProfileItem[]; allergies?: ProfileItem[] };
+const itemText = (item: ProfileItem) => item.name || item.label || item.description || 'عنصر غير مسمى';
 
 export default function ConditionsAllergiesScreen() {
   const insets = useSafeAreaInsets();
-  const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) {
-    requireAuth();
-    return null;
-  }
   const { colors, isDark } = useApp();
-  const [condQ, setCondQ] = useState("");
-  const [allergyQ, setAllergyQ] = useState("");
-  const [myConditions, setMyConditions] = useState<string[]>([
-    "السكري النوع الثاني",
-    "ضغط الدم المرتفع",
-  ]);
-  const [myAllergies, setMyAllergies] = useState<string[]>(["بنسلين"]);
-  const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = React.useState<Profile>({});
+  const [condition, setCondition] = React.useState('');
+  const [allergy, setAllergy] = React.useState('');
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [action, setAction] = React.useState<string | null>(null);
 
-  const filteredCond = condQ
-    ? CONDITIONS_DB.filter(
-        (c) => c.includes(condQ) && !myConditions.includes(c),
-      )
-    : [];
-  const filteredAllergy = allergyQ
-    ? ALLERGIES_DB.filter(
-        (a) => a.includes(allergyQ) && !myAllergies.includes(a),
-      )
-    : [];
+  const load = React.useCallback(async () => {
+    setLoading(true); setError(null);
+    try { const response: any = await apiFetch('/medical-profile'); const doc = response?.data || response || {}; setProfile({ chronic_diseases: Array.isArray(doc.chronic_diseases) ? doc.chronic_diseases : [], allergies: Array.isArray(doc.allergies) ? doc.allergies : [] }); }
+    catch { setError('تعذر تحميل الملف الطبي.'); }
+    finally { setLoading(false); }
+  }, []);
+  React.useEffect(() => { load(); }, [load]);
 
-  const addCondition = (c: string) => {
-    setMyConditions((p) => [...p, c]);
-    setCondQ("");
+  const add = async (list: 'chronic-diseases' | 'allergies', value: string) => {
+    const name = value.trim(); if (!name) { setError('اكتب الاسم قبل الإضافة.'); return; }
+    setAction(`add-${list}`); setError(null);
+    try { await apiFetch(`/medical-profile/${list}`, { method: 'POST', body: JSON.stringify({ name }) }); list === 'allergies' ? setAllergy('') : setCondition(''); await load(); }
+    catch { setError('تعذر حفظ العنصر في الملف الطبي.'); }
+    finally { setAction(null); }
   };
-  const removeCondition = (c: string) =>
-    setMyConditions((p) => p.filter((x) => x !== c));
-  const addAllergy = (a: string) => {
-    setMyAllergies((p) => [...p, a]);
-    setAllergyQ("");
-  };
-  const removeAllergy = (a: string) =>
-    setMyAllergies((p) => p.filter((x) => x !== a));
-
-  const handleSave = () => {
-    setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      router.back();
-    }, 600);
+  const remove = async (list: 'chronic-diseases' | 'allergies', id: string) => {
+    setAction(`delete-${id}`); setError(null);
+    try { await apiFetch(`/medical-profile/${list}/${id}`, { method: 'DELETE' }); await load(); }
+    catch { setError('تعذر حذف العنصر من الملف الطبي.'); }
+    finally { setAction(null); }
   };
 
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View
-        style={{
-          paddingTop: insets.top + 16,
-          paddingBottom: 8,
-          paddingHorizontal: 16,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row-reverse",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <View style={{ width: 44 }} />
-          <AppText variant="h3" color={colors.textPrimary}>
-            الأمراض والحساسية
-          </AppText>
-          <IconButton
-            icon="back"
-            bg={colors.surfaceSecondary}
-            color={colors.textPrimary}
-            onPress={() => router.back()}
-          />
-        </View>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}
-      >
-        {/* Conditions */}
-        <Card>
-          <SectionHeader title="الأمراض المزمنة" />
-          <Input
-            value={condQ}
-            onChangeText={setCondQ}
-            placeholder="ابحث عن مرض..."
-            icon="search"
-          />
-
-          {/* Suggestions dropdown */}
-          {filteredCond.length > 0 && (
-            <View
-              style={[
-                st.dropdown,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-              ]}
-            >
-              {filteredCond.slice(0, 5).map((c) => (
-                <TouchableOpacity
-                  key={c}
-                  onPress={() => addCondition(c)}
-                  style={[
-                    st.dropItem,
-                    { borderBottomColor: colors.borderLight },
-                  ]}
-                >
-                  <Icon name="add" size={16} color={colors.primary} />
-                  <AppText variant="bodySM" style={{ flex: 1 }}>
-                    {c}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          {/* Current conditions */}
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              flexWrap: "wrap",
-              gap: 8,
-              marginTop: 10,
-            }}
-          >
-            {myConditions.map((c) => (
-              <TouchableOpacity
-                key={c}
-                onPress={() => removeCondition(c)}
-                style={[st.tag, { backgroundColor: colors.errorSurface }]}
-              >
-                <Icon name="close" size={14} color={colors.error} />
-                <AppText variant="labelSM" color={colors.error}>
-                  {c}
-                </AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Card>
-
-        {/* Allergies */}
-        <Card>
-          <SectionHeader title="الحساسية" />
-          <Input
-            value={allergyQ}
-            onChangeText={setAllergyQ}
-            placeholder="ابحث عن حساسية..."
-            icon="search"
-          />
-
-          {filteredAllergy.length > 0 && (
-            <View
-              style={[
-                st.dropdown,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-              ]}
-            >
-              {filteredAllergy.slice(0, 5).map((a) => (
-                <TouchableOpacity
-                  key={a}
-                  onPress={() => addAllergy(a)}
-                  style={[
-                    st.dropItem,
-                    { borderBottomColor: colors.borderLight },
-                  ]}
-                >
-                  <Icon name="add" size={16} color={colors.warning} />
-                  <AppText variant="bodySM" style={{ flex: 1 }}>
-                    {a}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              flexWrap: "wrap",
-              gap: 8,
-              marginTop: 10,
-            }}
-          >
-            {myAllergies.map((a) => (
-              <TouchableOpacity
-                key={a}
-                onPress={() => removeAllergy(a)}
-                style={[st.tag, { backgroundColor: colors.warningSurface }]}
-              >
-                <Icon name="close" size={14} color={colors.warning} />
-                <AppText variant="labelSM" color={colors.warning}>
-                  {a}
-                </AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Card>
-
-        {/* Info */}
-        <Card style={{ backgroundColor: colors.infoSurface }}>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              gap: 10,
-              alignItems: "flex-start",
-            }}
-          >
-            <Icon name="shield" size={20} color={colors.info} />
-            <AppText
-              variant="bodySM"
-              color={colors.textSecondary}
-              style={{ flex: 1 }}
-            >
-              هذه المعلومات تساعد أطباءك وصيدليتك في تقديم رعاية أفضل وتجنب
-              التداخلات الدوائية الخطيرة
-            </AppText>
-          </View>
-        </Card>
-      </ScrollView>
-
-      <View
-        style={[
-          st.bottom,
-          {
-            paddingBottom: insets.bottom + 8,
-            backgroundColor: colors.surface,
-            borderTopColor: colors.borderLight,
-          },
-        ]}
-      >
-        <Button
-          label="حفظ"
-          variant="gradient"
-          size="lg"
-          icon="check_circle"
-          loading={saving}
-          onPress={handleSave}
-        />
-      </View>
-    </View>
-  );
+  return <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><AppText variant="h3">الأمراض والحساسية</AppText><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>
+    {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>جارٍ تحميل الملف الطبي…</AppText></View> : <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}>
+      <Card style={[styles.notice, { backgroundColor: colors.warningSurface }]}><AppText variant="caption" color={colors.textSecondary} align="right">تُحفظ العناصر التي تدخلها في ملفك الطبي. لا تعتبر هذه الشاشة تشخيصاً ولا بديلاً عن الرعاية المهنية.</AppText></Card>
+      {error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText><Button label="إعادة المحاولة" variant="outline" size="sm" full={false} onPress={load} /></Card>}
+      <ItemSection title="الأمراض المزمنة" value={condition} onChange={setCondition} placeholder="أدخل اسماً كما ورد في سجلك" items={profile.chronic_diseases || []} addLabel="إضافة مرض" adding={action === 'add-chronic-diseases'} onAdd={() => add('chronic-diseases', condition)} onRemove={(id) => remove('chronic-diseases', id)} action={action} colors={colors} />
+      <ItemSection title="الحساسية" value={allergy} onChange={setAllergy} placeholder="أدخل الحساسية المعروفة" items={profile.allergies || []} addLabel="إضافة حساسية" adding={action === 'add-allergies'} onAdd={() => add('allergies', allergy)} onRemove={(id) => remove('allergies', id)} action={action} colors={colors} />
+    </ScrollView>}
+  </View>;
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  dropdown: {
-    borderWidth: 1,
-    borderRadius: 14,
-    marginTop: 8,
-    overflow: "hidden",
-  },
-  dropItem: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: 8,
-    padding: 12,
-    borderBottomWidth: 1,
-  },
-  tag: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});
+function ItemSection({ title, value, onChange, placeholder, items, addLabel, adding, onAdd, onRemove, action, colors }: { title: string; value: string; onChange: (value: string) => void; placeholder: string; items: ProfileItem[]; addLabel: string; adding: boolean; onAdd: () => void; onRemove: (id: string) => void; action: string | null; colors: any }) {
+  return <Card style={styles.section}><AppText variant="h6" align="right">{title}</AppText><Input value={value} onChangeText={onChange} placeholder={placeholder} /><Button label={addLabel} variant="outline" size="sm" full={false} loading={adding} onPress={onAdd} />{items.length === 0 ? <AppText variant="caption" color={colors.textTertiary} align="right">لا توجد عناصر مسجلة.</AppText> : items.map((item) => <View key={item.id} style={[styles.item, { borderTopColor: colors.borderLight }]}><AppText variant="bodySM" style={{ flex: 1, textAlign: 'right' }}>{itemText(item)}</AppText><Button label="حذف" variant="ghost" size="sm" full={false} loading={action === `delete-${item.id}`} onPress={() => onRemove(item.id)} /></View>)}</Card>;
+}
+
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 8 }, content: { padding: 16, gap: 14 }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }, notice: { alignItems: 'flex-end' }, error: { backgroundColor: '#FEE2E2', alignItems: 'flex-end', gap: 8 }, section: { gap: 10, alignItems: 'flex-end' }, item: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, width: '100%', paddingTop: 10, borderTopWidth: 1 } });

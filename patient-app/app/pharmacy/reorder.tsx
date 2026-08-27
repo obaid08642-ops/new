@@ -5,19 +5,18 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, Input, SegmentedControl, SectionHeader } from '../../src/components/ui';
+import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 
 interface OrderItem { id: string; name: string; dose: string; qty: number; price: number; selected: boolean }
 
 import { apiFetch } from '../../src/utils/api';
+import { pickLocalized } from '../../src/utils/localize';
 
 export default function ReorderScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const [items, setItems] = useState<OrderItem[]>([]);
-  const [delivery, setDelivery] = useState('delivery');
-  const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
@@ -28,7 +27,7 @@ export default function ReorderScreen() {
         if (order && order.items) {
           const mapped = order.items.map((i: any) => ({
             id: i.medicine_id || i.id,
-            name: i.name_ar || i.name || 'Unknown',
+            name: pickLocalized(i.name_ar, i.name) || 'Unknown',
             dose: i.strength || '',
             qty: i.qty || 1,
             price: i.price || 0,
@@ -51,16 +50,21 @@ export default function ReorderScreen() {
   const allSelected = items.every(i => i.selected);
 
   const handleOrder = async () => {
+    if (!selected.length) return;
     setLoading(true);
     try {
+      let created: any;
       if (allSelected) {
-        await apiFetch(`/orders/${orderId}/reorder`, 'POST');
+        created = await apiFetch(`/orders/${orderId}/reorder`, { method: 'POST' });
       } else {
-        await apiFetch(`/orders/${orderId}/reorder-partial`, 'POST', {
-          items: selected.map(i => ({ medicine_id: i.id, qty: i.qty }))
+        created = await apiFetch(`/orders/${orderId}/reorder-partial`, {
+          method: 'POST',
+          body: JSON.stringify({ items: selected.map(i => ({ medicine_id: i.id, qty: i.qty })) })
         });
       }
-      router.push('/payments/processing');
+      const nextOrderId = created?.id || created?.order_id;
+      if (!nextOrderId) throw new Error('لم يُعد الخادم معرّف الطلب الجديد');
+      router.replace({ pathname: '/pharmacy/waiting-for-pharmacy', params: { orderId: nextOrderId } });
     } catch (err) {
       console.error(err);
     } finally {
@@ -122,26 +126,8 @@ export default function ReorderScreen() {
         {/* Add new items */}
         <Button label="إضافة أصناف جديدة" variant="outline" icon="add" onPress={() => router.push('/(tabs)/pharmacy')} />
 
-        {/* Delivery method */}
         <Card>
-          <SectionHeader title="طريقة الاستلام" />
-          <SegmentedControl value={delivery} onChange={setDelivery} options={[
-            { key: 'delivery', label: 'توصيل', icon: 'navigate' },
-            { key: 'pickup', label: 'استلام من الصيدلية', icon: 'location' },
-          ]} />
-          {delivery === 'delivery' && (
-            <Input value={address} onChangeText={setAddress} placeholder="عنوان التوصيل" icon="location" style={{ marginTop: 10 }}/>
-          )}
-        </Card>
-
-        {/* Payment */}
-        <Card>
-          <SectionHeader title="طريقة الدفع" />
-          <SegmentedControl value="card" onChange={() => {}} options={[
-            { key: 'card', label: 'بطاقة', icon: 'card' },
-            { key: 'wallet', label: 'المحفظة', icon: 'wallet' },
-            { key: 'cod', label: 'عند الاستلام', icon: 'wallet' },
-          ]} />
+          <AppText variant="bodySM" color={colors.textSecondary}>ستُعاد معالجة الطلب بعنوان وطريقة استلام وطريقة دفع الطلب السابقين. يمكنك تعديلها في الطلب الجديد بعد أن يحدّد الخادم الصيدلية المتاحة.</AppText>
         </Card>
       </ScrollView>
 
@@ -155,7 +141,7 @@ export default function ReorderScreen() {
               <AppText variant="bodySM" color={colors.textTertiary}>ر.س</AppText>
             </View>
           </View>
-          <Button label="تأكيد إعادة الطلب" variant="gradient" size="lg" icon="shopping_cart" loading={loading} onPress={handleOrder} />
+          <Button label="إرسال إعادة الطلب" variant="gradient" size="lg" icon="shopping_cart" loading={loading} onPress={handleOrder} />
         </View>
       )}
     </View>

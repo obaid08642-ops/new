@@ -3,13 +3,22 @@ import { Platform } from 'react-native';
 
 /**
  * Deep Linking Configuration for Expo Router
- * Supports universal links and custom url schemes (nabdahplus://)
+ * Supports canonical universal links and custom URL schemes (nabdplus://),
+ * while retaining the former nabdahplus:// scheme for existing installs.
  */
 
 export const prefix = Linking.createURL('/');
 
 export const deepLinkingConfig = {
-  prefixes: [prefix, 'nabdahplus://', 'https://nabdahplus.com', 'https://*.nabdahplus.com'],
+  prefixes: [
+    prefix,
+    'nabdplus://',
+    'nabdahplus://', // legacy compatibility only
+    'https://nabd.plus',
+    'https://www.nabd.plus',
+    'https://nabdahplus.com', // legacy compatibility only
+    'https://www.nabdahplus.com',
+  ],
   config: {
     screens: {
       // Home tab
@@ -30,6 +39,10 @@ export const deepLinkingConfig = {
           'forgot-password': 'reset-password',
         },
       },
+      // Public discovery and share pages: the backend emits /s/:type/:slug.
+      // The detail screen resolves the governed entity server-side and routes
+      // unauthenticated users through the appropriate safe public preview.
+      's/[type]/[slug]': 's/:type/:slug',
       // Feature screens
       'pharmacy/[id]': 'product/:id',
       'consultations/doctor/[id]': 'doctor/:id',

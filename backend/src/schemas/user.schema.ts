@@ -19,7 +19,12 @@ export class User {
   @Prop() district?: string;
   @Prop({ type: { lat: Number, lng: Number }, _id: false }) location?: { lat: number; lng: number };
   @Prop({ default: 'ar' }) preferred_lang: string;
-  @Prop({ default: [] }) device_tokens: string[]; // OneSignal player IDs
+  /** Immutable registration-consent evidence; policy id and version are contract fields. */
+  @Prop({ type: [{ policy_id: String, version: String, accepted_at: Date }], _id: false, default: [] })
+  legal_consents?: { policy_id: string; version: string; accepted_at: Date }[];
+  /** Opaque patient-facing identifier; never expose Mongo or account ids to clients. */
+  @Prop({ unique: true, sparse: true, index: true }) health_id?: string;
+  @Prop({ default: [] }) device_tokens: string[]; // Native push tokens (FCM/APNs/Expo)
   @Prop() last_login_at?: Date;
   // --- staff / sub-user fields (hospital/clinic) ---
   @Prop({ type: String, ref: 'ProviderProfile', default: null, index: true })

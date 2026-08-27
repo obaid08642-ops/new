@@ -68,13 +68,19 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
   },
   lab: {
     CREATED: ServiceState.REQUESTED,
+    NEW_REQUEST: ServiceState.REQUESTED,
     PENDING_PAYMENT: ServiceState.REQUESTED,
+    PENDING_INSURANCE: ServiceState.REQUESTED,
+    WAITING_COPAY: ServiceState.REQUESTED,
     CONFIRMED: ServiceState.CONFIRMED,
     SCHEDULED: ServiceState.CONFIRMED,
+    IN_TRANSIT: ServiceState.IN_PROGRESS,
     SAMPLE_COLLECTED: ServiceState.IN_PROGRESS,
     PROCESSING: ServiceState.IN_PROGRESS,
     IN_LAB: ServiceState.IN_PROGRESS,
     RESULT_READY: ServiceState.IN_PROGRESS,
+    RESULT_UPLOADED: ServiceState.IN_PROGRESS,
+    SAMPLE_REJECTED: ServiceState.IN_PROGRESS,
     REPORTED: ServiceState.COMPLETED,
     REPORT_READY: ServiceState.COMPLETED,
     CANCELLED: ServiceState.CANCELLED,
@@ -82,16 +88,26 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
   radiology: {
     PENDING: ServiceState.REQUESTED,
     CREATED: ServiceState.REQUESTED,
+    NEW_REQUEST: ServiceState.REQUESTED,
     PENDING_PAYMENT: ServiceState.REQUESTED,
+    PENDING_INSURANCE: ServiceState.REQUESTED,
+    WAITING_COPAY: ServiceState.REQUESTED,
     CONFIRMED: ServiceState.CONFIRMED,
     SCHEDULED: ServiceState.CONFIRMED,
+    ARRIVED_CHECKIN: ServiceState.IN_PROGRESS,
     IN_PROGRESS: ServiceState.IN_PROGRESS,
+    IN_SCANNING: ServiceState.IN_PROGRESS,
     IMAGING_DONE: ServiceState.IN_PROGRESS,
+    REPORT_DRAFT: ServiceState.IN_PROGRESS,
+    UNDER_REVIEW: ServiceState.IN_PROGRESS,
+    REPORT_READY: ServiceState.COMPLETED,
     REPORT_PUBLISHED: ServiceState.COMPLETED,
     COMPLETED: ServiceState.COMPLETED,
+    SCAN_ABORTED: ServiceState.CANCELLED,
     CANCELLED: ServiceState.CANCELLED,
   },
   nursing: {
+    NEW_REQUEST: ServiceState.REQUESTED,
     CREATED: ServiceState.REQUESTED,
     REQUESTED: ServiceState.REQUESTED,
     BROADCASTING: ServiceState.MATCHING,
@@ -101,9 +117,14 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
     NURSE_CONFIRMED: ServiceState.CONFIRMED,
     CONFIRMED: ServiceState.CONFIRMED,
     EN_ROUTE: ServiceState.IN_PROGRESS,
+    IN_TRANSIT: ServiceState.IN_PROGRESS,
+    ARRIVED: ServiceState.IN_PROGRESS,
+    CARE_IN_PROGRESS: ServiceState.IN_PROGRESS,
     ON_THE_WAY: ServiceState.IN_PROGRESS,
     IN_PROGRESS: ServiceState.IN_PROGRESS,
     COMPLETED: ServiceState.COMPLETED,
+    NO_SHOW: ServiceState.CANCELLED,
+    ESCALATED_EMERGENCY: ServiceState.CANCELLED,
     CANCELLED: ServiceState.CANCELLED,
   },
   consultation: {
@@ -123,7 +144,10 @@ export const STATE_MAP: Record<ServiceDomain, Record<string, ServiceState>> = {
 };
 
 export function toUniversal(kind: ServiceDomain, domainState: string): ServiceState {
-  return STATE_MAP[kind]?.[String(domainState).toUpperCase()] || ServiceState.REQUESTED;
+  const normalized = String(domainState || '').trim().toUpperCase();
+  const mapped = STATE_MAP[kind]?.[normalized];
+  if (!mapped) throw new BadRequestException({ error: 'unknown_domain_state', kind, domain_state: domainState });
+  return mapped;
 }
 
 /**

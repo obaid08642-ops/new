@@ -1,15 +1,16 @@
 // @ts-nocheck
-// app/health/wearables.tsx
+// app/health/wearables.tsx — real /wearables API (compat): devices register + metric samples
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { AppText, Card, IconButton } from '../../src/components/ui';
 
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const SUPPORTED_DEVICES = [
   { name: 'Apple Watch', icon: 'watch', color: '#23B5CE' },
@@ -20,138 +21,166 @@ const SUPPORTED_DEVICES = [
   { name: 'Huawei Watch', icon: 'watch', color: '#CF0A2C' },
 ];
 
-// Connected data fetched from API
+const METRIC_AR: Record<string, string> = {
+  steps: 'الخطوات', calories: 'السعرات', sleep: 'النوم', heart_rate: 'نبض القلب',
+  weight: 'الوزن', blood_pressure: 'ضغط الدم', oxygen: 'الأكسجين',
+};
+const METRIC_ICON: Record<string, string> = {
+  steps: 'walk', calories: 'flash', sleep: 'sleep', heart_rate: 'heartPulse',
+  weight: 'weight', blood_pressure: 'monitor_heart', oxygen: 'pulse',
+};
 
 export default function WearablesScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  
+
   const [devices, setDevices] = useState<any[]>([]);
-  const [connectedData, setConnectedData] = useState<any>({});
+  const [samples, setSamples] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [registering, setRegistering] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    async function load() {
-      try {
-        const [devRes, dataRes] = await Promise.all([
-          apiFetch('/health/wearables/devices').catch(() => null),
-          apiFetch('/health/wearables/data').catch(() => null),
-        ]);
-        setDevices(Array.isArray(devRes) ? devRes : devRes?.data || []);
-        setConnectedData(dataRes || {});
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+  async function load() {
+    try {
+      const [devRes, dataRes] = await Promise.all([
+        apiFetch('/wearables/devices').catch(() => null),
+        apiFetch('/wearables/data').catch(() => null),
+      ]);
+      setDevices(Array.isArray(devRes) ? devRes : devRes?.data || []);
+      setSamples(Array.isArray(dataRes) ? dataRes : dataRes?.data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }
 
-  const activeDevice = devices.find(d => d.connected) || devices[0] || {};
+  React.useEffect(() => { load(); }, []);
+
+  const registerDevice = async (name: string) => {
+    setRegistering(name);
+    try {
+      await apiFetch('/wearables/devices', {
+        method: 'POST',
+        body: JSON.stringify({ kind: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'), name }),
+      });
+      await load();
+      showLocalizedAlert('تم الربط', `تم تسجيل ${name} كجهاز مرتبط بحسابك`);
+    } catch (err: any) {
+      showLocalizedAlert('تعذّر الربط', err?.message || 'فشل تسجيل الجهاز');
+    } finally {
+      setRegistering(null);
+    }
+  };
+
+  const activeDevice = devices[0] || null;
+
+  // Latest sample per metric — real data only
+  const latestByMetric: Record<string, any> = {};
+  for (const s of samples) {
+    if (!s?.metric) continue;
+    if (!latestByMetric[s.metric] || new Date(s.recorded_at) > new Date(latestByMetric[s.metric].recorded_at)) {
+      latestByMetric[s.metric] = s;
+    }
+  }
+  const metricEntries = Object.entries(latestByMetric);
+
+  const fmtDate = (d: any) => {
+    if (!d) return '';
+    try { return new Date(d).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'long' }); } catch { return ''; }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
         <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' }}>
-          <IconButton icon="bed" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/sleep-tracker')} />
+          <IconButton icon="sleep" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/sleep-tracker')} />
           <AppText variant="h3" color={colors.textPrimary}>الأجهزة الذكية</AppText>
           <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
         </View>
-        <Card style={{ marginTop: 16, flexDirection: 'row-reverse', alignItems: 'center', backgroundColor: colors.surface }}>
-          <View style={[styles.connectedDot, { marginLeft: 8 }]} />
-          <AppText variant="bodySM" style={{ flex: 1 }}>{activeDevice.name} • متصل</AppText>
-          <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
-            <Icon name="flash" size={16} color={colors.primary} />
-            <AppText variant="bodySM">{activeDevice.battery}%</AppText>
-          </View>
-        </Card>
+        {activeDevice && (
+          <Card style={{ marginTop: 16, flexDirection: 'row-reverse', alignItems: 'center', backgroundColor: colors.surface }}>
+            <View style={[styles.connectedDot, { marginLeft: 8 }]} />
+            <AppText variant="bodySM" style={{ flex: 1 }}>{activeDevice.name || activeDevice.kind} • مرتبط</AppText>
+          </Card>
+        )}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Today's Summary */}
-        <View style={[styles.todayCard, { backgroundColor: isDark ? colors.surface : colors.white, marginHorizontal: 16, marginTop: 16 } ]}>
-          <View style={styles.todayHeader}>
-            <AppText variant="bodySM">آخر مزامنة: {activeDevice.lastSync}</AppText>
-            <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="analytics" size={16} color={colors.primary} /><AppText variant="h6">ملخص اليوم</AppText></View>
-          </View>
-          <View style={styles.statsGrid}>
-            {Object.entries(connectedData).map(([key, data]: [string, any]) => {
-              const pct = 'today' in data && 'goal' in data ? (data.today / data.goal) * 100 : 0;
-              return (
-                <View key={key} style={[styles.statCard, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
-                  <Icon name={key === 'steps' ? 'directions_walk' : key === 'calories' ? 'local_fire_department' : key === 'sleep' ? 'hotel' : 'favorite'} size={24} color={colors.primary} />
-                  {'today' in data && (
-                    <>
-                      <AppText variant="bodySM">{data.today}</AppText>
-                      <AppText variant="bodySM">{data.label}</AppText>
-                      {'goal' in data && (
-                        <>
-                          <View style={[styles.statBar, { backgroundColor: colors.border } ]}>
-                            <View style={[styles.statBarFill, { width: `${Math.min(pct, 100)}%`, backgroundColor: pct >= 100 ? '#5BA84F' : colors.primary }]} />
-                          </View>
-                          <AppText variant="bodySM">{Math.round(pct)}% من الهدف</AppText>
-                        </>
-                      )}
-                    </>
-                  )}
-                  {'current' in data && (
-                    <>
-                      <AppText variant="bodySM">{data.current}</AppText>
-                      <AppText variant="bodySM">{data.label}</AppText>
-                      <AppText variant="bodySM">{data.min} — {data.max}</AppText>
-                    </>
-                  )}
+        {loading && <ActivityIndicator color={colors.primary} style={{ marginTop: 24 }} />}
+
+        {/* Latest metrics — only when real samples exist */}
+        {!loading && metricEntries.length > 0 && (
+          <View style={[styles.todayCard, { backgroundColor: isDark ? colors.surface : colors.white, marginHorizontal: 16, marginTop: 16 } ]}>
+            <View style={styles.todayHeader}>
+              <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="analytics" size={16} color={colors.primary} /><AppText variant="h6">آخر القراءات</AppText></View>
+            </View>
+            <View style={styles.statsGrid}>
+              {metricEntries.map(([metric, s]: [string, any]) => (
+                <View key={metric} style={[styles.statCard, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
+                  <Icon name={METRIC_ICON[metric] || 'pulse'} size={24} color={colors.primary} />
+                  <AppText variant="bodySM">{s.value}{s.unit ? ` ${s.unit}` : ''}</AppText>
+                  <AppText variant="bodySM">{METRIC_AR[metric] || metric}</AppText>
+                  <AppText variant="caption" color={colors.textTertiary}>{fmtDate(s.recorded_at)}</AppText>
                 </View>
-              );
-            })}
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* My Devices */}
         <View style={styles.section}>
-          <AppText variant="bodySM">أجهزتي</AppText>
+          <AppText variant="bodySM" style={{ marginHorizontal: 16 }}>أجهزتي</AppText>
+          {!loading && devices.length === 0 && (
+            <View style={{ alignItems: 'center', padding: 20, gap: 6 }}>
+              <Icon name="watch" size={36} color={colors.textTertiary} />
+              <AppText variant="bodySM" color={colors.textSecondary}>لا توجد أجهزة مرتبطة — اختر جهازاً من القائمة أدناه لربطه</AppText>
+            </View>
+          )}
           {devices.map(device => (
             <View key={device.id} style={[styles.deviceCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-              <View style={styles.deviceActions}>
-                {device.connected ? (
-                  <TouchableOpacity style={[styles.disconnectBtn, { borderColor: colors.error } ]}>
-                    <AppText variant="bodySM">فصل</AppText>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={[styles.connectBtn, { backgroundColor: colors.primary } ]}>
-                    <AppText variant="bodySM">ربط</AppText>
-                  </TouchableOpacity>
+              <View style={styles.deviceInfo}>
+                <AppText variant="bodySM">{device.name || device.kind}</AppText>
+                <View style={[styles.deviceStatus, { backgroundColor: '#DCFCE7' } ]}>
+                  <View style={[styles.statusDot, { backgroundColor: '#5BA84F' }]} />
+                  <AppText variant="bodySM">مرتبط</AppText>
+                </View>
+                {!!device.connected_at && (
+                  <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}>
+                    <Icon name="refresh" size={16} color={colors.primary} />
+                    <AppText variant="bodySM">منذ {fmtDate(device.connected_at)}</AppText>
+                  </View>
                 )}
               </View>
-              <View style={styles.deviceInfo}>
-                <AppText variant="bodySM">{device.name}</AppText>
-                <View style={[styles.deviceStatus, { backgroundColor: device.connected ? '#DCFCE7' : '#FEE2E2' } ]}>
-                  <View style={[styles.statusDot, { backgroundColor: device.connected ? '#5BA84F' : '#F0695C' }]} />
-                  <AppText variant="bodySM">
-                    {device.connected ? 'متصل' : 'غير متصل'}
-                  </AppText>
-                </View>
-                {device.connected && <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="refresh" size={16} color={colors.primary} /><AppText variant="bodySM">{device.lastSync}</AppText></View>}
-              </View>
-              <View style={[styles.deviceEmoji, { backgroundColor: device.color + '18' } ]}>
-                <Icon name={device.icon} size={28} color={device.color} />
+              <View style={[styles.deviceEmoji, { backgroundColor: colors.primary + '18' } ]}>
+                <Icon name="watch" size={28} color={colors.primary} />
               </View>
             </View>
           ))}
         </View>
 
-        {/* Supported Devices */}
+        {/* Supported Devices — tap to register */}
         <View style={[styles.supportedCard, { backgroundColor: isDark ? colors.surface : colors.white, marginHorizontal: 16 } ]}>
-          <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6,marginBottom:10}}><Icon name="devices_other" size={18} color="#23B5CE" /><AppText variant="h6">الأجهزة المدعومة</AppText></View>
+          <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6,marginBottom:10}}><Icon name="watch" size={18} color="#23B5CE" /><AppText variant="h6">ربط جهاز جديد</AppText></View>
           <View style={styles.supportedGrid}>
-            {SUPPORTED_DEVICES.map((d, i) => (
-              <View key={i} style={[styles.supportedItem, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
-                <Icon name={d.icon} size={24} color={d.color} />
-                <AppText variant="bodySM">{d.name}</AppText>
-              </View>
-            ))}
+            {SUPPORTED_DEVICES.map((d, i) => {
+              const already = devices.some((x) => x.name === d.name);
+              return (
+                <TouchableOpacity
+                  key={i}
+                  disabled={already || registering !== null}
+                  onPress={() => registerDevice(d.name)}
+                  style={[styles.supportedItem, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary, opacity: already ? 0.45 : 1 }]}
+                >
+                  {registering === d.name ? (
+                    <ActivityIndicator size="small" color={d.color} />
+                  ) : (
+                    <Icon name={d.icon} size={24} color={d.color} />
+                  )}
+                  <AppText variant="bodySM">{already ? `${d.name} ✓` : d.name}</AppText>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </ScrollView>

@@ -1,23 +1,16 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Dimensions,
-  Modal,
-  TouchableWithoutFeedback,
-  I18nManager
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, Modal, TouchableWithoutFeedback, I18nManager, Alert } from 'react-native';
 import { useApp } from '../../src/context/AppContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { apiFetch } from '../../src/utils/api';
+import { resolveEffectiveAddress, formatAddressLine } from '../../src/utils/selectedAddress';
+import { useFocusEffect } from 'expo-router';
 import Svg, { Path, Circle, Rect, Line, Polyline } from 'react-native-svg';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -50,7 +43,21 @@ export default function NursingMegaProfile() {
 
   // Transport State
   const [transportMode, setTransportMode] = useState<'patient'|'nurse'>('nurse');
-  const [gpsLocation, setGpsLocation] = useState('حي الملقا، الرياض');
+  const [gpsLocation, setGpsLocation] = useState<string | null>(null);
+  const [addressObj, setAddressObj] = useState<any>(null);
+
+  // Real selected/saved address — refreshed whenever the screen regains focus
+  useFocusEffect(
+    React.useCallback(() => {
+      let active = true;
+      resolveEffectiveAddress().then((a) => {
+        if (!active) return;
+        setAddressObj(a);
+        setGpsLocation(a ? formatAddressLine(a) : null);
+      });
+      return () => { active = false; };
+    }, [])
+  );
 
   // Generator: 30 Days array
   const generateDays = () => {
@@ -82,7 +89,8 @@ export default function NursingMegaProfile() {
         setNurse(nurseData);
 
         if (flow === 'insurance') {
-          const insData = await apiFetch('/home-care/insurance/verify', { method: 'POST', body: JSON.stringify({ user_id: 'user-1' }) });
+          // Real coverage check (endpoint /home-care/insurance/verify does not exist)
+          const insData = await apiFetch(`/insurance/coverage-check?provider_id=${nurseId}&service_type=home_nursing`).catch(() => null);
           setInsuranceData(insData);
         }
       } catch (err) {
@@ -94,39 +102,48 @@ export default function NursingMegaProfile() {
 
   if (!nurse) return <View style={{ flex: 1, justifyContent: 'center' }}><ActivityIndicator size="large" color="#23B5CE" /></View>;
 
-  // Financial Calculations
+  // Financial Calculations — real price only; backend recomputes total from the service record
   const basePrice = nurse.price;
-  const totalServiceFee = basePrice * daysCount; // Multiply by days
-  const transportFee = transportMode === 'nurse' ? 50 : 0;
-  // Apply a 10% discount if days > 7, 20% if days > 14
-  let discount = 0;
-  if (daysCount > 14) discount = totalServiceFee * 0.2;
-  else if (daysCount > 7) discount = totalServiceFee * 0.1;
-  
-  const finalTotal = (totalServiceFee - discount) + transportFee;
+  const totalServiceFee = basePrice * daysCount; // estimate shown to the patient
 
   const handleSubmit = async () => {
+    if (!addressObj) {
+      showLocalizedAlert('العنوان مطلوب', 'يرجى تحديد عنوان تقديم الخدمة أولاً');
+      return;
+    }
     setProcessing(true);
     try {
+      // selectedDate = YYYY-MM-DD, selectedTime like "08:00 ص" — convert to a real ISO timestamp
+      const timeMatch = (selectedTime || '').match(/(\d{1,2}):(\d{2})\s*(ص|م)?/);
+      let hours = timeMatch ? parseInt(timeMatch[1], 10) : 9;
+      const minutes = timeMatch ? parseInt(timeMatch[2], 10) : 0;
+      if (timeMatch?.[3] === 'م' && hours < 12) hours += 12;
+      if (timeMatch?.[3] === 'ص' && hours === 12) hours = 0;
+      const scheduled = new Date(`${selectedDate}T00:00:00`);
+      scheduled.setHours(hours, minutes, 0, 0);
+
       const payload = {
         provider_id: nurseId,
-        service_type: serviceId,
-        start_date: selectedDate,
-        time_slot: selectedTime,
-        days_count: daysCount,
-        transport_mode: transportMode,
-        payment_flow: flow,
-        total_price: finalTotal
+        service_id: serviceId || undefined,
+        service_name_ar: nurse?.service_name_ar || undefined,
+        scheduled_at: scheduled.toISOString(),
+        address: formatAddressLine(addressObj),
+        payment_method: flow === 'insurance' ? 'insurance' : 'card',
       };
       const res = await apiFetch('/home-care/bookings', { method: 'POST', body: JSON.stringify(payload) });
-      
+      const bookingId = res?.id || res?.booking_id;
+
       if (flow === 'insurance') {
         setInsuranceSent(true);
+      } else if (bookingId) {
+        router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId } });
       } else {
-        router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId: res?.booking_id || 'BKG-9921' } });
+        showLocalizedAlert('تم إرسال الطلب', 'تم استلام طلبك وسيتواصل معك مقدم الخدمة قريباً', [
+          { text: 'حسناً', onPress: () => router.back() },
+        ]);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showLocalizedAlert('تعذّر الحجز', err?.message || 'تعذّر إرسال طلب الحجز — حاول مرة أخرى');
     } finally {
       setProcessing(false);
     }
@@ -136,10 +153,10 @@ export default function NursingMegaProfile() {
     return (
       <View style={styles.successView}>
         <View style={styles.successIconBox}><Svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#23B5CE" strokeWidth="2.5"><Path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><Path d="M22 4L12 14.01l-3-3"/></Svg></View>
-        <Text style={styles.successTitle}>الطلب قيد المراجعة</Text>
-        <Text style={styles.successDesc}>تم استدعاء بيانات تأمينك وإرسال الطلب لشركة التأمين للحصول على الموافقة الطبية. سنعلمك فور صدور الموافقة.</Text>
+        <LocalizedText style={styles.successTitle}>الطلب قيد المراجعة</LocalizedText>
+        <LocalizedText style={styles.successDesc}>تم استدعاء بيانات تأمينك وإرسال الطلب لشركة التأمين للحصول على الموافقة الطبية. سنعلمك فور صدور الموافقة.</LocalizedText>
         <TouchableOpacity style={styles.successBtn} onPress={() => router.push('/(tabs)')}>
-          <Text style={styles.successBtnText}>العودة للرئيسية</Text>
+          <LocalizedText style={styles.successBtnText}>العودة للرئيسية</LocalizedText>
         </TouchableOpacity>
       </View>
     );
@@ -157,7 +174,7 @@ export default function NursingMegaProfile() {
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="2.5"><Path d="M9 18l6-6-6-6" /></Svg>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>حجز الخدمة</Text>
+        <LocalizedText style={styles.headerTitle}>حجز الخدمة</LocalizedText>
       </BlurView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -169,71 +186,73 @@ export default function NursingMegaProfile() {
                <Svg width="56" height="56" viewBox="0 0 24 24" fill="#FDECEB" stroke="#F0695C" strokeWidth="1"><Circle cx="12" cy="7" r="4"/><Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></Svg>
              </View>
              <View style={styles.profileInfo}>
-               <Text style={styles.nurseName}>{nurse.name}</Text>
-               <Text style={styles.facilityText}>{nurse.facility}</Text>
+               <LocalizedText style={styles.nurseName}>{nurse.name}</LocalizedText>
+               <LocalizedText style={styles.facilityText}>{nurse.facility}</LocalizedText>
                <View style={styles.ratingRow}>
                  <Icons.Star />
-                 <Text style={styles.ratingText}>{nurse.rating} ({nurse.reviews_count} تقييم)</Text>
+                 <LocalizedText style={styles.ratingText}>{nurse.rating} ({nurse.reviews_count} تقييم)</LocalizedText>
                </View>
              </View>
           </View>
           <View style={styles.degreeRow}>
             <Icons.Degree />
-            <Text style={styles.degreeText}>{nurse.degree}</Text>
+            <LocalizedText style={styles.degreeText}>{nurse.degree}</LocalizedText>
           </View>
           <View style={styles.reviewBox}>
-            <Text style={styles.reviewUser}>{nurse.reviews[0].user}:</Text>
-            <Text style={styles.reviewText}>"{nurse.reviews[0].text}"</Text>
+            <LocalizedText style={styles.reviewUser}>{nurse.reviews[0].user}:</LocalizedText>
+            <LocalizedText style={styles.reviewText}>"{nurse.reviews[0].text}"</LocalizedText>
           </View>
         </View>
 
         {/* SECTION B: ADVANCED SCHEDULING (Fixed Layout) */}
-        <Text style={styles.sectionTitle}>1. تحديد موعد الزيارة والتكرار</Text>
+        <LocalizedText style={styles.sectionTitle}>1. تحديد موعد الزيارة والتكرار</LocalizedText>
         <View style={styles.sectionCard}>
           
-          <Text style={styles.label}>اليوم والتاريخ (30 يوماً)</Text>
+          <LocalizedText style={styles.label}>اليوم والتاريخ (30 يوماً)</LocalizedText>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={scrollStyle} style={styles.hScroll}>
             {datesArray.map(d => (
               <TouchableOpacity key={d.full} style={[styles.dateBox, selectedDate === d.full && styles.activeBox]} onPress={() => setSelectedDate(d.full)}>
-                <Text style={[styles.dateDay, selectedDate === d.full && styles.activeText]} >{d.dayName}</Text>
-                <Text style={[styles.dateNum, selectedDate === d.full && styles.activeText]} >{d.dateNum}</Text>
+                <LocalizedText style={[styles.dateDay, selectedDate === d.full && styles.activeText]} >{d.dayName}</LocalizedText>
+                <LocalizedText style={[styles.dateNum, selectedDate === d.full && styles.activeText]} >{d.dateNum}</LocalizedText>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          <Text style={styles.label}>الوقت (يومياً)</Text>
+          <LocalizedText style={styles.label}>الوقت (يومياً)</LocalizedText>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={scrollStyle} style={styles.hScroll}>
             {timesArray.map(t => (
               <TouchableOpacity key={t} style={[styles.timeBox, selectedTime === t && styles.activeBox]} onPress={() => setSelectedTime(t)}>
-                <Text style={[styles.timeText, selectedTime === t && styles.activeText]} >{t}</Text>
+                <LocalizedText style={[styles.timeText, selectedTime === t && styles.activeText]} >{t}</LocalizedText>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          <Text style={styles.label}>مدة وتكرار الزيارة</Text>
+          <LocalizedText style={styles.label}>مدة وتكرار الزيارة</LocalizedText>
           <TouchableOpacity activeOpacity={0.8} style={styles.freqDropdown} onPress={() => setFrequencyModal(true)}>
             <View style={{flexDirection: 'row-reverse', alignItems: 'center'}}>
               <Icons.ChevronDown />
-              <Text style={styles.freqDropdownText}>
+              <LocalizedText style={styles.freqDropdownText}>
                 {daysCount === 1 ? 'زيارة واحدة فقط' : `كل يوم لمدة (${daysCount} أيام)`}
-              </Text>
+              </LocalizedText>
             </View>
-            <Text style={styles.freqDropdownSub}>قابل للتعديل من 1 إلى 20 يوم</Text>
+            <LocalizedText style={styles.freqDropdownSub}>قابل للتعديل من 1 إلى 20 يوم</LocalizedText>
           </TouchableOpacity>
         </View>
 
         {/* SECTION C & D: LOCATION & TRANSPORT */}
-        <Text style={styles.sectionTitle}>2. الموقع والمواصلات</Text>
+        <LocalizedText style={styles.sectionTitle}>2. الموقع والمواصلات</LocalizedText>
         <View style={styles.sectionCard}>
           <View style={styles.gpsBox}>
             <View style={{flexDirection: 'row-reverse', alignItems: 'center'}}>
               <Icons.MapPin />
               <View style={{ marginRight: 12 }}>
-                <Text style={styles.gpsLabel}>موقع تقديم الخدمة</Text>
-                <Text style={styles.gpsValue}>{gpsLocation}</Text>
+                <LocalizedText style={styles.gpsLabel}>موقع تقديم الخدمة</LocalizedText>
+                <LocalizedText style={styles.gpsValue}>{gpsLocation || 'لم تحدد عنواناً بعد'}</LocalizedText>
               </View>
             </View>
-            <TouchableOpacity><Text style={styles.gpsChange}>تغيير</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/delivery/address-select')}>
+              <LocalizedText style={styles.gpsChange}>{gpsLocation ? 'تغيير' : 'اختيار'}</LocalizedText>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.divider} />
@@ -241,40 +260,39 @@ export default function NursingMegaProfile() {
           <TouchableOpacity style={[styles.transportBtn, transportMode === 'nurse' && styles.transportActive]} onPress={() => setTransportMode('nurse')}>
             <View style={styles.transportRadio}>{transportMode === 'nurse' && <View style={styles.radioDot} />}</View>
             <View style={{ flex: 1, marginRight: 12 }}>
-              <Text style={styles.transportTitle}>الممرض سيوفر المواصلات (+50 ر.س)</Text>
-              <Text style={styles.transportDesc}>الممرض سيصل إلى موقعك (حي الملقا)</Text>
+              <LocalizedText style={styles.transportTitle}>الممرض سيوفر المواصلات</LocalizedText>
+              <LocalizedText style={styles.transportDesc}>الممرض سيصل إلى موقعك{gpsLocation ? ` (${gpsLocation})` : ''}</LocalizedText>
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.transportBtn, transportMode === 'patient' && styles.transportActive]} onPress={() => setTransportMode('patient')}>
             <View style={styles.transportRadio}>{transportMode === 'patient' && <View style={styles.radioDot} />}</View>
             <View style={{ flex: 1, marginRight: 12 }}>
-              <Text style={styles.transportTitle}>أنا سأوفر المواصلات (0 ر.س)</Text>
-              <Text style={styles.transportDesc}>سأرسل سيارة لإحضار الممرض من (مستشفى دله)</Text>
+              <LocalizedText style={styles.transportTitle}>أنا سأوفر المواصلات (0 ر.س)</LocalizedText>
+              <LocalizedText style={styles.transportDesc}>سأرسل سيارة لإحضار الممرض من منشأته</LocalizedText>
             </View>
           </TouchableOpacity>
         </View>
 
         {/* SECTION E: PAYMENT LOGIC */}
-        <Text style={styles.sectionTitle}>3. ملخص الدفع ({flow === 'cash' ? 'نقدي' : 'تأمين'})</Text>
+        <LocalizedText style={styles.sectionTitle}>3. ملخص الدفع ({flow === 'cash' ? 'نقدي' : 'تأمين'})</LocalizedText>
         <View style={styles.sectionCard}>
           {flow === 'insurance' ? (
             <View style={styles.insuranceBox}>
               <View style={styles.insuranceHeader}>
                 <Icons.Shield />
-                <Text style={styles.insuranceTitle}>تم جلب التأمين تلقائياً</Text>
+                <LocalizedText style={styles.insuranceTitle}>تم جلب التأمين تلقائياً</LocalizedText>
               </View>
-              <Text style={styles.insuranceText}>الشركة: {insuranceData?.provider}</Text>
-              <Text style={styles.insuranceText}>البوليصة: {insuranceData?.policy}</Text>
-              <Text style={styles.insuranceWarning}>* سيتم إرسال الطلب لشركة التأمين للحصول على الموافقة الطبية أولاً.</Text>
+              <LocalizedText style={styles.insuranceText}>الشركة: {insuranceData?.provider}</LocalizedText>
+              <LocalizedText style={styles.insuranceText}>البوليصة: {insuranceData?.policy}</LocalizedText>
+              <LocalizedText style={styles.insuranceWarning}>* سيتم إرسال الطلب لشركة التأمين للحصول على الموافقة الطبية أولاً.</LocalizedText>
             </View>
           ) : (
             <View style={styles.billBox}>
-              <View style={styles.billRow}><Text style={styles.billVal}>{basePrice} ر.س</Text><Text style={styles.billLabel}>سعر الزيارة الواحدة</Text></View>
-              <View style={styles.billRow}><Text style={styles.billVal}>{daysCount} أيام</Text><Text style={styles.billLabel}>عدد الأيام</Text></View>
-              {discount > 0 && <View style={styles.billRow}><Text style={[styles.billVal, {color: '#10B981'} ]}>- {discount} ر.س</Text><Text style={styles.billLabel}>خصم الباقة</Text></View>}
-              <View style={styles.billRow}><Text style={styles.billVal}>{transportFee} ر.س</Text><Text style={styles.billLabel}>رسوم الطريق</Text></View>
+              <View style={styles.billRow}><LocalizedText style={styles.billVal}>{basePrice} ر.س</LocalizedText><LocalizedText style={styles.billLabel}>سعر الزيارة الواحدة</LocalizedText></View>
+              <View style={styles.billRow}><LocalizedText style={styles.billVal}>{daysCount} أيام</LocalizedText><LocalizedText style={styles.billLabel}>عدد الأيام</LocalizedText></View>
               <View style={styles.divider} />
-              <View style={styles.billRow}><Text style={styles.billTotal}>{finalTotal} ر.س</Text><Text style={styles.billTotalLabel}>الإجمالي المستحق</Text></View>
+              <View style={styles.billRow}><LocalizedText style={styles.billTotal}>{totalServiceFee} ر.س</LocalizedText><LocalizedText style={styles.billTotalLabel}>الإجمالي التقديري</LocalizedText></View>
+              <LocalizedText style={styles.insuranceWarning}>* السعر النهائي يُحتسب ويؤكد من مقدم الخدمة قبل الدفع.</LocalizedText>
             </View>
           )}
         </View>
@@ -285,9 +303,9 @@ export default function NursingMegaProfile() {
       <BlurView intensity={90} tint="light" style={styles.glassFooter}>
         {/* Validation hint */}
         {!selectedTime && (
-          <Text style={{ textAlign: 'center', fontFamily: 'Cairo-SemiBold', fontSize: 13, color: '#F59E0B', marginBottom: 8 }}>
+          <LocalizedText style={{ textAlign: 'center', fontFamily: 'Cairo-SemiBold', fontSize: 13, color: '#F59E0B', marginBottom: 8 }}>
             ▲ اختر موعداً ووقت الزيارة أولاً
-          </Text>
+          </LocalizedText>
         )}
         <TouchableOpacity
           activeOpacity={selectedTime ? 0.8 : 1}
@@ -297,9 +315,9 @@ export default function NursingMegaProfile() {
         >
           <View style={styles.payBtnGradient}>
             {processing ? <ActivityIndicator color="#fff" /> : 
-              <Text style={styles.payBtnText}>
-                {flow === 'insurance' ? 'إرسال لطلب موافقة التأمين' : `دفع ${finalTotal} ر.س (Visa/Apple Pay)`}
-              </Text>
+              <LocalizedText style={styles.payBtnText}>
+                {flow === 'insurance' ? 'إرسال لطلب موافقة التأمين' : `تأكيد الحجز — ${totalServiceFee} ر.س تقديرياً`}
+              </LocalizedText>
             }
           </View>
         </TouchableOpacity>
@@ -311,8 +329,8 @@ export default function NursingMegaProfile() {
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
               <View style={styles.modalHandle} />
-              <Text style={styles.modalTitle}>تحديد مدة الرعاية</Text>
-              <Text style={styles.modalSubtitle}>اختر عدد الأيام المتتالية التي سيحضر فيها الممرض.</Text>
+              <LocalizedText style={styles.modalTitle}>تحديد مدة الرعاية</LocalizedText>
+              <LocalizedText style={styles.modalSubtitle}>اختر عدد الأيام المتتالية التي سيحضر فيها الممرض.</LocalizedText>
               
               <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
                 {customDaysArray.map(day => (
@@ -321,16 +339,16 @@ export default function NursingMegaProfile() {
                     style={[styles.customDayOption, daysCount === day && styles.customDayOptionActive]}
                     onPress={() => { setDaysCount(day); setFrequencyModal(false); }}
                   >
-                    <Text style={[styles.customDayText, daysCount === day && styles.customDayTextActive]} >
+                    <LocalizedText style={[styles.customDayText, daysCount === day && styles.customDayTextActive]} >
                       {day === 1 ? 'زيارة واحدة فقط' : `${day} أيام متتالية`}
-                    </Text>
+                    </LocalizedText>
                     {daysCount === day && <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#23B5CE" strokeWidth="3"><Path d="M20 6L9 17l-5-5"/></Svg>}
                   </TouchableOpacity>
                 ))}
               </ScrollView>
               
               <TouchableOpacity style={styles.applyBtn} onPress={() => setFrequencyModal(false)}>
-                <Text style={styles.applyBtnText}>إغلاق</Text>
+                <LocalizedText style={styles.applyBtnText}>إغلاق</LocalizedText>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

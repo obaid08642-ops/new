@@ -76,8 +76,8 @@ export class MaternityProfile {
   @Prop({ type: String, required: true, unique: true })
   patient_id: string;
 
-  @Prop({ default: false })
-  is_pregnant: boolean;
+  @Prop()
+  is_pregnant?: boolean;
 
   @Prop()
   due_date: Date;
@@ -88,14 +88,14 @@ export class MaternityProfile {
   @Prop()
   prev_period_date: Date;
 
-  @Prop({ default: 28 })
-  cycle_length: number;
+  @Prop()
+  cycle_length?: number;
 
-  @Prop({ default: true })
-  is_regular: boolean;
+  @Prop()
+  is_regular?: boolean;
 
-  @Prop({ default: 0 })
-  current_week: number;
+  @Prop()
+  current_week?: number;
 
   @Prop({ type: [CheckupSchema], default: [] })
   checkups: Checkup[];

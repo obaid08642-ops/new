@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Document, FilterQuery, Model, UpdateQuery, QueryOptions, ProjectionType, PipelineStage } from 'mongoose';
 import { BaseRepository } from './base.repository';
 
@@ -18,6 +17,10 @@ export abstract class MongoRepository<T extends Document> implements BaseReposit
     return this.model.findOne(filterQuery, projection, options);
   }
 
+  distinct(field: string, filterQuery: FilterQuery<T> = {}): any {
+    return this.model.distinct(field, filterQuery);
+  }
+
   find(filterQuery: FilterQuery<T>, projection?: ProjectionType<T>, options?: QueryOptions): any {
     return this.model.find(filterQuery, projection, options);
   }
@@ -31,7 +34,7 @@ export abstract class MongoRepository<T extends Document> implements BaseReposit
   }
 
   updateMany(filterQuery: FilterQuery<T>, updateQuery: UpdateQuery<T>, options?: QueryOptions): any {
-    return this.model.updateMany(filterQuery, updateQuery, options);
+    return this.model.updateMany(filterQuery, updateQuery, options as any);
   }
 
   findOneAndUpdate(filterQuery: FilterQuery<T>, updateQuery: UpdateQuery<T>, options?: QueryOptions): any {

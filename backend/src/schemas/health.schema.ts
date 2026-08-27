@@ -14,9 +14,11 @@ export class VitalReading extends Document {
   @Prop() context?: string; // before_meal | after_meal | morning | bedtime
   @Prop() notes?: string;
   @Prop({ default: 'manual' }) source: string; // manual | device | doctor
+  /** Soft-delete marker; reads must always exclude it from patient responses. */
+  @Prop({ default: null, index: true }) deleted_at?: Date | null;
 }
 export const VitalReadingSchema = SchemaFactory.createForClass(VitalReading);
-VitalReadingSchema.index({ patient_id: 1, type: 1, measured_at: -1 });
+VitalReadingSchema.index({ patient_id: 1, type: 1, measured_at: -1, deleted_at: 1 });
 
 @Schema({ timestamps: true })
 export class MedicationReminder extends Document {
@@ -31,6 +33,7 @@ export class MedicationReminder extends Document {
   @Prop({ default: 1 }) dosage_count: number;
   @Prop({ default: 'tablet' }) dosage_form: string; // tablet | ml | drop | spray | capsule
   @Prop({ default: [] }) times: string[]; // ['08:00','14:00','20:00'] 24h
+  @Prop({ default: 'UTC' }) time_zone: string; // IANA, e.g. Asia/Riyadh
   @Prop({ default: 'daily' }) frequency: string; // daily | weekly | as_needed
   @Prop({ default: () => new Date() }) start_date: Date;
   @Prop() end_date?: Date;
@@ -42,6 +45,12 @@ export class MedicationReminder extends Document {
   @Prop({ default: false }) chronic: boolean; // monthly-refill chronic medication
   @Prop({ default: 0 }) pills_remaining: number;
   @Prop() refill_date?: Date;
+  /** Order created for an in-progress refill. It is not evidence that medication was dispensed. */
+  @Prop({ index: true }) refill_pending_order_id?: string;
+  /** Short-lived server reservation used to prevent concurrent refill-order creation. */
+  @Prop() refill_creation_lock?: string;
+  /** A server-recorded completion timestamp, set only by an explicit fulfilment integration. */
+  @Prop() refill_fulfilled_at?: Date;
 }
 export const MedicationReminderSchema = SchemaFactory.createForClass(MedicationReminder);
 MedicationReminderSchema.index({ patient_id: 1, active: 1 });

@@ -1,26 +1,5 @@
 import { LangCode } from '../context/AppContext';
-import { generatedStaticTranslations } from './generatedStaticTranslations';
-
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const generatedTemplateEntries = Object.entries(generatedStaticTranslations)
-  .filter(([source]) => source.includes('${') && !/[<>]|\b(?:const|return|function)\b/.test(source))
-  .map(([source, translations]) => {
-    const fragments = source.split(/\$\{[^}]+\}/g);
-    const pattern = `^${fragments.map(escapeRegExp).join('(.*?)')}$`;
-    return { regex: new RegExp(pattern), translations };
-  });
-
-function translateGeneratedTemplate(text: string, lang: LangCode): string | null {
-  if (lang === 'ar') return null;
-  for (const entry of generatedTemplateEntries) {
-    const match = text.match(entry.regex);
-    const translated = entry.translations[lang];
-    if (!match || !translated) continue;
-    let captureIndex = 1;
-    return translated.replace(/\$\{[^}]+\}/g, () => match[captureIndex++] ?? '');
-  }
-  return null;
-}
+import phase5AutoTranslations from './autoTranslationsPhase5.json';
 
 type TranslationKeys = {
   home: string; consultations: string; pharmacy: string; diagnostics: string; health: string;
@@ -44,7 +23,7 @@ type TranslationKeys = {
   secondOpinion: string; referral: string; drugScanner: string; skinAnalysis: string; symptomChecker: string;
 };
 
-const translations: Record<LangCode, TranslationKeys> = {
+export const translations: Record<LangCode, TranslationKeys> = {
   ar: {
     home: 'الرئيسية', consultations: 'استشارات', pharmacy: 'صيدلية', diagnostics: 'تحاليل', health: 'صحتي',
     settings: 'الإعدادات', profile: 'حسابي', search: 'بحث', save: 'حفظ', cancel: 'إلغاء', back: 'رجوع',
@@ -179,6 +158,7 @@ const translations: Record<LangCode, TranslationKeys> = {
 // or UI label properties without modifying individual screens.
 // ---------------------------------------------------------------------------
 export const autoTranslations: Record<string, Record<LangCode, string>> = {
+  ...(phase5AutoTranslations.translations as Record<string, Record<LangCode, string>>),
   // General & Common UI
   "طبيعي": { ar: "طبيعي", en: "Normal", ur: "نارمل", hi: "सामान्य", bn: "স্বাভাবিক", fil: "Normal" },
   "متوسط": { ar: "متوسط", en: "Moderate", ur: "اعتدال", hi: "मध्यम", bn: "মাঝারি", fil: "Moderate" },
@@ -301,6 +281,39 @@ export const autoTranslations: Record<string, Record<LangCode, string>> = {
   "المتوسط والخليج (MEDGULF)": {"ar": "المتوسط والخليج (MEDGULF)", "en": "MedGulf", "ur": "مڈ گلف", "hi": "मेडगल्फ", "bn": "মেডগালফ", "fil": "MedGulf"},
 };
 
+
+// ── Merge the full locale dictionaries (locales/*.json) into the runtime map ──
+// The inline map above only covers core UI keys; feature screens use namespaced
+// keys (pd.*, nursing.*, …) that live in the JSON files. Without this merge,
+// t() fell back to printing the raw key (e.g. "pd.alternatives") on screen.
+import arLocale from './locales/ar.json';
+import enLocale from './locales/en.json';
+import urLocale from './locales/ur.json';
+import hiLocale from './locales/hi.json';
+import bnLocale from './locales/bn.json';
+import tlLocale from './locales/tl.json';
+const LOCALE_FILES: Record<string, Record<string, string>> = {
+  ar: arLocale, en: enLocale, ur: urLocale, hi: hiLocale, bn: bnLocale, fil: tlLocale,
+};
+for (const code of Object.keys(LOCALE_FILES)) {
+  const bucket: any = (translations as any)[code] || ((translations as any)[code] = {});
+  for (const [k, v] of Object.entries(LOCALE_FILES[code])) {
+    if (!(k in bucket)) bucket[k] = v; // inline core keys win; JSON fills the rest
+  }
+}
+
+// A missing secondary-locale feature key must never render its technical key
+// (for example `pd.alternatives`) to a patient. Prefer a known exact dynamic
+// translation; otherwise retain the reviewed Arabic source until a human
+// translation is supplied. This is intentionally a visible source fallback,
+// not a claim that an untranslated string has been localized.
+for (const [key, arabicSource] of Object.entries(LOCALE_FILES.ar)) {
+  for (const language of ['en', 'ur', 'hi', 'bn', 'fil'] as LangCode[]) {
+    const bucket: any = (translations as any)[language];
+    if (!(key in bucket)) bucket[key] = autoTranslations[arabicSource]?.[language] ?? arabicSource;
+  }
+}
+
 export function t(lang: LangCode, key: keyof TranslationKeys): string {
   return translations[lang]?.[key] ?? translations.ar[key] ?? key;
 }
@@ -322,17 +335,7 @@ export function autoTranslate(text: any, lang: LangCode): any {
       return autoTranslations[trimmed][lang] ?? text;
     }
     
-    // 2. Exact match in the generated static UI catalog. Arabic is the source.
-    const generated = generatedStaticTranslations[trimmed];
-    if (generated && lang !== 'ar') {
-      return generated[lang] ?? text;
-    }
-
-    // 3. Match generated source templates against runtime values while preserving the dynamic segments.
-    const templateTranslation = translateGeneratedTemplate(trimmed, lang);
-    if (templateTranslation) return templateTranslation;
-
-    // 4. Exact match in translations.ar values
+    // 2. Exact match in translations.ar values
     for (const key in translations.ar) {
       const k = key as keyof TranslationKeys;
       if (translations.ar[k] === trimmed) {
@@ -352,4 +355,3 @@ export function autoTranslate(text: any, lang: LangCode): any {
 
 export type { TranslationKeys };
 export default translations;
-export * from './LanguageManager';

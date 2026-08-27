@@ -1,11 +1,11 @@
-import { Module, Injectable, Controller, Post, Body, Get, Param, BadRequestException, UseGuards } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Body, Get, Param, BadRequestException, ConflictException, UseGuards } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SlotLock, SlotLockSchema } from '../../schemas/slot-lock.schema';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 
-/** 5-minute slot-lock TTL with optimistic anti-collision. */
-const LOCK_TTL_MS = 5 * 60 * 1000;
+/** Contract-pack 10-minute slot-lock TTL with optimistic anti-collision. */
+const LOCK_TTL_MS = 10 * 60 * 1000;
 
 @Injectable()
 export class SlotLocksService {
@@ -24,7 +24,7 @@ export class SlotLocksService {
       slot_start: { $lt: end },
       slot_end: { $gt: start },
     });
-    if (conflict && conflict.patient_id !== user.id) throw new BadRequestException('slot_taken');
+    if (conflict && conflict.patient_id !== user.id) throw new ConflictException('slot_taken');
     if (conflict && conflict.patient_id === user.id) return conflict.toObject ? conflict.toObject() : conflict;
     const expires_at = new Date(Date.now() + LOCK_TTL_MS);
     const lock = await this.locks.create({ provider_id: body.provider_id, patient_id: user.id, booking_kind: body.booking_kind, slot_start: start, slot_end: end, status: 'held', expires_at });

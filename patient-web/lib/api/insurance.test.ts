@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { parseInsuranceSummary } from "./insurance";
+describe("insurance parser", () => { it("keeps only the limited policy summary", () => { expect(parseInsuranceSummary({ has_policy: true, policy: { company_name: "Verified insurer", plan_class: "Gold", policy_number: "private-policy", member_id: "private-member", card_image_url: "private-file" }, claims: [{ id: "private-claim" }] })).toEqual({ hasPolicy: true, companyName: "Verified insurer", planClass: "Gold" }); }); it("handles no policy honestly", () => { expect(parseInsuranceSummary({ has_policy: false, policy: null })).toEqual({ hasPolicy: false }); }); });

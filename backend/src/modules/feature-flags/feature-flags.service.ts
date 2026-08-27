@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { FeatureFlag, FeatureFlagDocument } from './feature-flag.schema';
@@ -18,6 +17,6 @@ export class FeatureFlagsService {
   }
 
   async getAll(): Promise<FeatureFlag[]> {
-    return this.flagModel.find().exec();
+    return this.flagModel.find({}).exec();
   }
 }

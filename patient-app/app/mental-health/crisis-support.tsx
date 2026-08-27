@@ -1,185 +1,88 @@
-// @ts-nocheck
-// app/mental-health/crisis-support.tsx — Connected to GET /mental-health/crisis-contacts
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Linking, Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { mentalHealthT } from '../../src/i18n/mental-health';
 
-// Hotlines fetched dynamically
-
-const SELF_HELP = [
-  { title: 'تمارين التنفس', desc: 'أسرع تقنية لتهدئة الذعر الآن', icon: 'pulse', route: '/mental-health/breathing' },
-  { title: 'التأمل الآني', desc: 'جلسة 5 دقائق للهدوء الفوري', icon: 'meditation', route: '/mental-health/meditation' },
-  { title: 'كتابة المشاعر', desc: 'أخرج ما بداخلك قبل كل شيء', icon: 'document', route: '/mental-health/mood-journal' },
-];
-
-const SAFETY_STEPS = [
-  'إذا كنت في خطر مباشر، اتصل بـ 998 أو 997 فوراً',
-  'أخبر شخصاً تثق به بما تشعر به',
-  'ابتعد عن أي أدوات أو مواد قد تسبب أذى',
-  'اذهب لمكان آمن ومضاء',
-  'لا تكن وحدك — الدعم متاح الآن',
-];
+type Contact = { id?: string; contact_name: string; phone: string; relationship?: string; is_professional?: boolean };
 
 export default function CrisisSupportScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [userContacts, setUserContacts] = useState<any[]>([]);
-  const [hotlines, setHotlines] = useState<any[]>([]);
+  const { colors, lang } = useApp();
+  const t = (key: Parameters<typeof mentalHealthT>[1]) => mentalHealthT(lang, key);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [relationship, setRelationship] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
 
-  useEffect(() => {
-    apiFetch('/mental-health/crisis-contacts')
-      .then((res: any) => setUserContacts(Array.isArray(res) ? res : res.contacts ?? []))
-      .catch(() => {});
-      
-    apiFetch('/mental-health/hotlines')
-      .then((res: any) => setHotlines(Array.isArray(res) ? res : []))
-      .catch(() => {});
+  const loadContacts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result: any = await apiFetch('/mental-health/crisis-contacts');
+      setContacts(Array.isArray(result?.user_contacts) ? result.user_contacts : []);
+    } catch {
+      setContacts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const call = (number: string) => Linking.openURL(`tel:${number}`);
+  useEffect(() => { void loadContacts(); }, [loadContacts]);
+
+  const call = (number: string) => { void Linking.openURL(`tel:${number.replace(/[^0-9+]/g, '')}`); };
+  const saveContact = async () => {
+    if (!name.trim() || !phone.trim() || saving) { setFormError(true); return; }
+    setSaving(true); setFormError(false);
+    try {
+      await apiFetch('/mental-health/crisis-contacts', { method: 'POST', body: JSON.stringify({ contact_name: name.trim(), phone: phone.trim(), ...(relationship.trim() ? { relationship: relationship.trim() } : {}) }) });
+      setName(''); setPhone(''); setRelationship(''); setShowForm(false); await loadContacts();
+    } catch { setFormError(true); } finally { setSaving(false); }
+  };
+  const removeContact = async (id?: string) => {
+    if (!id) return;
+    setDeleteError(false);
+    try { await apiFetch(`/mental-health/crisis-contacts/${id}`, { method: 'DELETE' }); await loadContacts(); } catch { setDeleteError(true); }
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background } ]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 } ]}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
-          </TouchableOpacity>
-          <AppText variant="bodySM">دعم الأزمات</AppText>
-          <View style={{ width: 36 }}/>
-        </View>
-        <View style={[styles.urgentBanner, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">إذا كنت في خطر فوري — اتصل بـ 998 الآن</AppText>
-          <TouchableOpacity onPress={() => call('998')} style={styles.callEmergencyBtn}>
-            <Icon name="call" size={18} color="#F0695C" />
-            <AppText variant="bodySM">998</AppText>
-          </TouchableOpacity>
-        </View>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: '#991B1B', paddingTop: insets.top + 12 }]}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('cancel')} onPress={() => router.back()} style={styles.backButton}><Icon name="back" size={22} color="#FFFFFF" /></TouchableOpacity>
+        <AppText variant="h4" color="#FFFFFF">{t('urgentHelp')}</AppText>
       </View>
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
-        {/* Safety steps */}
-        <View style={[styles.safetyCard, { backgroundColor: '#FEF3C7' } ]}>
-          <AppText variant="bodySM">خطوات الأمان الآن ️</AppText>
-          {SAFETY_STEPS.map((step, i) => (
-            <View key={i} style={styles.safetyStep}>
-              <AppText variant="bodySM">{step}</AppText>
-              <View style={[styles.stepNum, { backgroundColor: '#D97706' } ]}>
-                <AppText variant="bodySM">{i + 1}</AppText>
-              </View>
-            </View>
-          ))}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={[styles.urgentCard, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
+          <Icon name="warning" size={28} color="#B91C1C" />
+          <AppText variant="h6" color="#991B1B">{t('urgentTitle')}</AppText>
+          <AppText variant="caption" color="#7F1D1D" style={styles.centerText}>{t('urgentBody')}</AppText>
+          <TouchableOpacity accessibilityRole="button" onPress={() => call('911')} style={[styles.emergencyButton, { backgroundColor: '#B91C1C' }]}><Icon name="call" size={18} color="#FFFFFF" /><AppText variant="h6" color="#FFFFFF">{t('emergencyCall')}</AppText></TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" onPress={() => call('937')} style={[styles.secondaryButton, { borderColor: '#B91C1C' }]}><Icon name="call" size={18} color="#B91C1C" /><AppText variant="caption" color="#991B1B">{t('saudi937')}</AppText></TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/consultations')} style={styles.consultationButton}><Icon name="doctor" size={18} color="#1D4ED8" /><AppText variant="caption" color="#1D4ED8">{t('consultation')}</AppText></TouchableOpacity>
         </View>
 
-        {/* Hotlines */}
-        <AppText variant="bodySM">خطوط المساعدة المتخصصة </AppText>
-        {hotlines.map((line, i) => (
-          <TouchableOpacity key={i} onPress={() => call(line.number)}
-            style={[styles.hotlineCard, { backgroundColor: isDark ? colors.surface : colors.white }]}
-            activeOpacity={0.85}>
-            <TouchableOpacity onPress={() => call(line.number)}
-              style={[styles.callBtn, { backgroundColor: line.color } ]}>
-              <Icon name="call" size={18} color="#fff" />
-            </TouchableOpacity>
-            <View style={styles.hotlineInfo}>
-              <AppText variant="bodySM">{line.name}</AppText>
-              <AppText variant="bodySM">{line.org}</AppText>
-              <View style={styles.hotlineMeta}>
-                <View style={[styles.availBadge, { backgroundColor: '#DCFCE7' } ]}>
-                  <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="check" size={16} color={colors.primary} /><AppText variant="bodySM">{line.available}</AppText></View>
-                </View>
-                <AppText variant="bodySM">{line.number}</AppText>
-              </View>
-            </View>
-            <AppText variant="bodySM">{line.emoji}</AppText>
-          </TouchableOpacity>
-        ))}
+        <View style={[styles.notice, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}><Icon name="info" size={18} color="#C2410C" /><AppText variant="caption" color="#9A3412" style={styles.noticeText}>{t('practiceNotice')}</AppText></View>
 
-        {/* Personal contacts from backend */}
-        {userContacts.length > 0 && (
-          <>
-            <AppText variant="bodySM">جهات الاتصال الشخصية الخاصة بك</AppText>
-            {userContacts.map((c: any, i: number) => (
-              <TouchableOpacity key={i} onPress={() => call(c.phone)}
-                style={[styles.hotlineCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-                <TouchableOpacity onPress={() => call(c.phone)} style={[styles.callBtn, { backgroundColor: '#7A6BEA' } ]}>
-                  <Icon name="call" size={18} color="#fff" />
-                </TouchableOpacity>
-                <View style={styles.hotlineInfo}>
-                  <AppText variant="bodySM">{c.contact_name}</AppText>
-                  <AppText variant="bodySM">{c.relationship || 'جهة اتصال'}</AppText>
-                  <AppText variant="bodySM">{c.phone}</AppText>
-                </View>
-
-              </TouchableOpacity>
-            ))}
-          </>
-        )}
-
-        {/* Self-help tools */}
-        <AppText variant="bodySM">أدوات المساعدة الذاتية الآن ️</AppText>
-        {SELF_HELP.map((tool, i) => (
-          <TouchableOpacity key={i} onPress={() => router.push(tool.route as any)}
-            style={[styles.toolCard, { backgroundColor: isDark ? colors.surface : colors.white }]}
-            activeOpacity={0.85}>
-            <Icon name="chevronRight" size={18} color={colors.textTertiary} />
-            <View style={styles.toolInfo}>
-              <AppText variant="bodySM">{tool.title}</AppText>
-              <AppText variant="bodySM">{tool.desc}</AppText>
-            </View>
-            <AppText variant="bodySM">{tool.icon}</AppText>
-          </TouchableOpacity>
-        ))}
-
-        {/* You are not alone */}
-        <View style={[styles.notAloneCard, { backgroundColor: '#EEF2FF' } ]}>
-          <AppText variant="bodySM">
-             أنت لست وحدك. ما تشعر به حقيقي وهناك من يريد مساعدتك. الطلب للمساعدة شجاعة وليس ضعفاً.
-          </AppText>
-        </View>
+        <View style={styles.sectionHeading}><View><AppText variant="h6" color={colors.textPrimary}>{t('contacts')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('contactsBody')}</AppText></View><TouchableOpacity accessibilityRole="button" onPress={() => { setFormError(false); setShowForm(true); }} style={[styles.addButton, { backgroundColor: '#312E81' }]}><Icon name="add" size={18} color="#FFFFFF" /><AppText variant="caption" color="#FFFFFF">{t('addContact')}</AppText></TouchableOpacity></View>
+        {deleteError && <AppText variant="caption" color="#B91C1C">{t('deleteError')}</AppText>}
+        {loading ? <View style={styles.loading}><ActivityIndicator color="#7A6BEA" /></View> : contacts.length === 0 ? <View style={[styles.empty, { backgroundColor: colors.surface }]}><AppText variant="caption" color={colors.textSecondary} style={styles.centerText}>{t('noContacts')}</AppText></View> : contacts.map((contact) => <View key={contact.id || contact.phone} style={[styles.contactCard, { backgroundColor: colors.surface }]}><TouchableOpacity accessibilityRole="button" onPress={() => call(contact.phone)} style={[styles.callButton, { backgroundColor: '#7A6BEA' }]}><Icon name="call" size={19} color="#FFFFFF" /></TouchableOpacity><View style={styles.contactText}><AppText variant="h6" color={colors.textPrimary}>{contact.contact_name}</AppText>{contact.relationship ? <AppText variant="caption" color={colors.textTertiary}>{contact.relationship}</AppText> : null}<AppText variant="caption" color={colors.textSecondary}>{contact.phone}</AppText></View><TouchableOpacity accessibilityRole="button" accessibilityLabel={t('delete')} onPress={() => void removeContact(contact.id)} style={styles.deleteButton}><Icon name="trash" size={18} color="#DC2626" /></TouchableOpacity></View>)}
       </ScrollView>
+
+      <Modal visible={showForm} transparent animationType="fade" onRequestClose={() => setShowForm(false)}>
+        <View style={styles.modalBackdrop}><View style={[styles.modal, { backgroundColor: colors.surface }]}><AppText variant="h5" color={colors.textPrimary}>{t('addContact')}</AppText><TextInput value={name} onChangeText={setName} placeholder={t('contactName')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /><TextInput value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder={t('contactPhone')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /><TextInput value={relationship} onChangeText={setRelationship} placeholder={t('contactRelationship')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />{formError && <AppText variant="caption" color="#B91C1C">{t('contactError')}</AppText>}<View style={styles.modalActions}><TouchableOpacity onPress={() => setShowForm(false)} style={[styles.modalCancel, { borderColor: colors.border }]}><AppText variant="caption" color={colors.textSecondary}>{t('cancel')}</AppText></TouchableOpacity><TouchableOpacity disabled={saving} onPress={() => void saveContact()} style={[styles.modalSave, { backgroundColor: '#312E81', opacity: saving ? 0.6 : 1 }]}>{saving ? <ActivityIndicator color="#FFFFFF" /> : <AppText variant="caption" color="#FFFFFF">{t('add')}</AppText>}</TouchableOpacity></View></View></View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 16 },
-  headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '800' } as any,
-  hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
-  urgentBanner: { borderRadius: 14, padding: 14, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  urgent: { color: '#DC2626', fontSize: 13, fontWeight: '800', flex: 1, textAlign: 'right' },
-  callEmergencyBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 5, backgroundColor: '#FEE2E2', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 },
-  callEmergency: { color: '#F0695C', fontSize: 16, fontFamily: 'Cairo-ExtraBold' } as any,
-  safetyCard: { borderRadius: 18, padding: 16, gap: 8 },
-  safetyTitle: { color: '#92400E', fontSize: 14, fontWeight: '800', textAlign: 'right', marginBottom: 4 },
-  safetyStep: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 10 },
-  safetyStepAlt: { flex: 1, color: '#78350F', fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 20 },
-  stepNum: { width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', marginTop: 1 },
-  stepNumAlt: { color: '#fff', fontSize: 11, fontWeight: '800' } as any,
-  sectionTitle: { fontSize: 15, fontWeight: '800', textAlign: 'right' } as any,
-  hotlineCard: { borderRadius: 18, padding: 14, flexDirection: 'row-reverse', alignItems: 'center', gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  hotlineEmoji: { fontSize: 28 } as any,
-  hotlineInfo: { flex: 1, alignItems: 'flex-end', gap: 4 },
-  hotlineName: { fontSize: 14, fontWeight: '800' } as any,
-  hotlineOrg: { fontSize: 11, fontWeight: '400' } as any,
-  hotlineMeta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
-  availBadge: { borderRadius: 7, paddingHorizontal: 7, paddingVertical: 2 },
-  avail: { color: '#16A34A', fontSize: 10, fontWeight: '700' } as any,
-  hotlineNum: { fontSize: 15, fontFamily: 'Cairo-ExtraBold' } as any,
-  callBtn: { width: 42, height: 42, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
-  toolCard: { borderRadius: 16, padding: 14, flexDirection: 'row-reverse', alignItems: 'center', gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
-  toolIcon: { fontSize: 26 } as any,
-  toolInfo: { flex: 1, alignItems: 'flex-end', gap: 3 },
-  toolTitle: { fontSize: 14, fontWeight: '800' } as any,
-  toolDesc: { fontSize: 12, fontWeight: '400' } as any,
-  notAloneCard: { borderRadius: 16, padding: 16 },
-  notAlone: { color: '#23B5CE', fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 22 } as any,
+  container: { flex: 1 }, header: { paddingHorizontal: 20, paddingBottom: 24, gap: 8, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }, backButton: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.16)', alignSelf: 'flex-end' }, content: { padding: 16, gap: 14, paddingBottom: 92 }, urgentCard: { padding: 18, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: 12 }, centerText: { textAlign: 'center', lineHeight: 20 }, emergencyButton: { width: '100%', minHeight: 52, borderRadius: 14, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8 }, secondaryButton: { width: '100%', minHeight: 46, borderWidth: 1, borderRadius: 14, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8 }, consultationButton: { width: '100%', minHeight: 42, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8 }, notice: { padding: 13, borderWidth: 1, borderRadius: 16, flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 8 }, noticeText: { flex: 1, textAlign: 'right', lineHeight: 19 }, sectionHeading: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', gap: 12 }, addButton: { flexDirection: 'row-reverse', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 10 }, loading: { padding: 24, alignItems: 'center' }, empty: { padding: 24, borderRadius: 16 }, contactCard: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16 }, callButton: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' }, contactText: { flex: 1, alignItems: 'flex-end', gap: 2 }, deleteButton: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }, modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.52)', justifyContent: 'center', padding: 20 }, modal: { borderRadius: 22, padding: 18, gap: 11 }, input: { minHeight: 46, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, textAlign: 'right' }, modalActions: { flexDirection: 'row-reverse', gap: 10, marginTop: 4 }, modalCancel: { flex: 1, minHeight: 44, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' }, modalSave: { flex: 1, minHeight: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
 });

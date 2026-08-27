@@ -18,6 +18,17 @@ export class ReturnsController {
     return this.returnsService.myReturns(user.id);
   }
 
+  @Get('provider/list')
+  async providerList(@CurrentUser() user: any) {
+    return this.returnsService.providerReturns(user.id);
+  }
+
+  /** E1 S5: pre-flight return eligibility for an order (window, categories). */
+  @Get('eligibility/:orderId')
+  async eligibility(@Param('orderId') orderId: string, @CurrentUser() user: any) {
+    return this.returnsService.eligibility(user.id, orderId);
+  }
+
   @Get(':id')
   async getDetails(@Param('id') id: string, @CurrentUser() user: any) {
     return this.returnsService.getById(id, user.id, user.role);

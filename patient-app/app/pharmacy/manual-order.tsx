@@ -1,22 +1,13 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Image
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { useCart } from '../../src/context/CartContext';
 import { darkColors, lightColors } from '../../src/theme/colors';
 import * as ImagePicker from 'expo-image-picker';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 export default function ManualOrderScreen() {
   const insets = useSafeAreaInsets();
@@ -32,7 +23,7 @@ export default function ManualOrderScreen() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'] as any,
       allowsEditing: true,
       quality: 0.8,
     });
@@ -63,26 +54,26 @@ export default function ManualOrderScreen() {
         {/* Header */}
         <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
           <TouchableOpacity onPress={() => router.back()} style={[styles.iconBtn, { backgroundColor: colors.s } ]}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 28 }}>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 28 }}>
               {isRTL ? 'arrow_forward' : 'arrow_back'}
-            </Text>
+            </LocalizedText>
           </TouchableOpacity>
-          <Text style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: colors.n }}>طلب دواء غير متوفر</Text>
+          <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: colors.n }}>طلب دواء غير متوفر</LocalizedText>
           <View style={{ width: 44 }}/>
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
           
           <View style={[styles.infoBanner, { backgroundColor: '#DEF5F9' } ]}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 32, marginBottom: 8 }}>inventory_2</Text>
-            <Text style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: '#141A2A', marginBottom: 4, textAlign: 'center' }}>هنوفره لك بأسرع وقت</Text>
-            <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: '#4C5566', textAlign: 'center', lineHeight: 22 }}>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 32, marginBottom: 8 }}>inventory_2</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: '#141A2A', marginBottom: 4, textAlign: 'center' }}>هنوفره لك بأسرع وقت</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: '#4C5566', textAlign: 'center', lineHeight: 22 }}>
               اكتب اسم الدواء أو ارفع صورته، وسيقوم الصيدلي بالبحث عنه وإضافته لطلبك لتسعيره.
-            </Text>
+            </LocalizedText>
           </View>
 
           {/* Form */}
-          <Text style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>اسم الدواء <Text style={{ color: '#F0695C' }}>*</Text></Text>
+          <LocalizedText style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>اسم الدواء <LocalizedText style={{ color: '#F0695C' }}>*</LocalizedText></LocalizedText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
             placeholder="مثال: كونجستال أقراص"
@@ -91,7 +82,7 @@ export default function ManualOrderScreen() {
             onChangeText={setMedName}
           />
 
-          <Text style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>ملاحظات أو تركيز الدواء (اختياري)</Text>
+          <LocalizedText style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>ملاحظات أو تركيز الدواء (اختياري)</LocalizedText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left', height: 100, paddingTop: 16 }]}
             placeholder="أضف أي تفاصيل أخرى تساعد الصيدلي..."
@@ -102,18 +93,18 @@ export default function ManualOrderScreen() {
           />
 
           {/* Photo Upload */}
-          <Text style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left', marginTop: 8 } ]}>صورة الدواء أو الروشتة (اختياري)</Text>
+          <LocalizedText style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left', marginTop: 8 } ]}>صورة الدواء أو الروشتة (اختياري)</LocalizedText>
           {photo ? (
             <View style={[styles.photoWrap, { borderColor: colors.bd } ]}>
               <Image source={{ uri: photo }} style={styles.photo} />
               <TouchableOpacity style={[styles.removeBtn, { backgroundColor: '#F0695C' }]} onPress={() => setPhoto(null)}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 20 }}>close</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 20 }}>close</LocalizedText>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity style={[styles.uploadBox, { backgroundColor: colors.s, borderColor: '#23B5CE' }]} onPress={pickImage}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 32, marginBottom: 8 }}>add_a_photo</Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#23B5CE' }}>اضغط لرفع صورة الدواء</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 32, marginBottom: 8 }}>add_a_photo</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#23B5CE' }}>اضغط لرفع صورة الدواء</LocalizedText>
             </TouchableOpacity>
           )}
 
@@ -125,7 +116,7 @@ export default function ManualOrderScreen() {
             onPress={handleAddToCart}
             disabled={medName.length <= 2}
           >
-            <Text style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: medName.length > 2 ? '#fff' : colors.t3 }}>أضف للسلة</Text>
+            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: medName.length > 2 ? '#fff' : colors.t3 }}>أضف للسلة</LocalizedText>
           </TouchableOpacity>
         </View>
 

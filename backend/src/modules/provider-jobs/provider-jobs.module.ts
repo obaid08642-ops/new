@@ -52,33 +52,6 @@ export class ProviderJobsService {
     return null;
   }
 
-  private async providerIdentity(user: any) {
-    const accountId = String(user.provider_account_id || user.id || '');
-    const profileId = typeof user.provider_profile_id === 'string' ? user.provider_profile_id : '';
-    const filters = [
-      ...(accountId ? [{ account_id: accountId }, { user_id: accountId }] : []),
-      ...(profileId ? [{ id: profileId }] : []),
-    ];
-    const profiles: any[] = filters.length
-      ? await this.providers.find({ $or: filters }, { id: 1, account_id: 1, user_id: 1, capabilities: 1, _id: 0 }).lean()
-      : [];
-    return {
-      accountIds: Array.from(new Set([accountId, ...profiles.flatMap((p: any) => [p.account_id, p.user_id]).filter(Boolean)])),
-      profileIds: Array.from(new Set([profileId, ...profiles.map((p: any) => p.id).filter(Boolean)])),
-      profiles,
-    };
-  }
-
-  private async consultationOwnershipFilter(user: any) {
-    const { accountIds, profileIds } = await this.providerIdentity(user);
-    return {
-      $or: [
-        ...(accountIds.length ? [{ doctor_user_id: { $in: accountIds } }, { account_id: { $in: accountIds } }] : []),
-        ...(profileIds.length ? [{ doctor_id: { $in: profileIds } }] : []),
-      ],
-    };
-  }
-
   /** Map an authenticated user.role + provider profile capabilities → allowed domains. */
   private async allowedKindsFor(user: any): Promise<Set<ServiceDomain>> {
     const all: ServiceDomain[] = ['pharmacy', 'lab', 'radiology', 'nursing', 'consultation'];
@@ -95,8 +68,8 @@ export class ProviderJobsService {
     const base = byRole[user.role] || [];
     // Provider profile may declare an explicit `capabilities` array that overrides defaults.
     try {
-      const { profiles } = await this.providerIdentity(user);
-      const caps: string[] | undefined = profiles[0]?.capabilities;
+      const profile: any = await this.providers.findOne({ user_id: user.id }, { capabilities: 1, _id: 0 }).lean();
+      const caps: string[] | undefined = profile?.capabilities;
       if (Array.isArray(caps) && caps.length) {
         const map: Record<string, ServiceDomain> = { lab: 'lab', labs: 'lab', radiology: 'radiology', pharmacy: 'pharmacy', consultation: 'consultation', doctor: 'consultation', nursing: 'nursing', home_care: 'nursing' };
         const fromCaps = caps.map(c => map[c]).filter(Boolean) as ServiceDomain[];
@@ -108,8 +81,7 @@ export class ProviderJobsService {
 
   /** Unified provider job inbox across ALL 5 service domains. */
   async queue(user: any, status: JobStatus = 'incoming', kindFilter?: string) {
-    const providerId = String(user.provider_account_id || user.id);
-    const consultationFilter = await this.consultationOwnershipFilter(user);
+    const providerId = user.id;
     const allowedKinds = await this.allowedKindsFor(user);
     const filters: Record<string, string[]> = {
       incoming: ['ASSIGNED'].flatMap(u => ['pharmacy', 'lab', 'radiology', 'nursing', 'consultation'].map(k => `${k}:${u}`)),
@@ -142,7 +114,7 @@ export class ProviderJobsService {
         ? this.home.find({ $or: [{ provider_id: providerId }, { account_id: providerId }], state: { $in: universalsToDomainStates('nursing') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
         : Promise.resolve([]),
       kindAllowed('consultation')
-        ? this.appts.find({ ...consultationFilter, status: { $in: universalsToDomainStates('consultation') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
+        ? this.appts.find({ $or: [{ doctor_user_id: providerId }, { account_id: providerId }], status: { $in: universalsToDomainStates('consultation') } }, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(50).lean()
         : Promise.resolve([]),
     ]);
 
@@ -178,31 +150,37 @@ export class ProviderJobsService {
     // Enrich with patient identity, contact, payment, and attachment counts (bounded).
     const patientIds = Array.from(new Set(combined.map(c => c.patient_id).filter(Boolean)));
     const ids = combined.map(c => c.id);
-    const [users, attachmentCounts]: any[] = await Promise.all([
+    const [users, attachmentCounts, profiles]: any[] = await Promise.all([
       patientIds.length ? this.users.find({ id: { $in: patientIds } }, { id: 1, full_name: 1, phone: 1, _id: 0 }).lean() : [],
       ids.length ? this.attachments.aggregate([
         { $match: { booking_id: { $in: ids } } },
         { $group: { _id: '$booking_id', n: { $sum: 1 } } },
       ]) : [],
+      patientIds.length ? this.users.db.collection('patientprofiles').find({ user_id: { $in: patientIds } }, { projection: { user_id: 1, age: 1, gender: 1, blood_type: 1, allergies: 1, chronic_diseases: 1 } }).toArray() : [],
     ]);
     const userMap = new Map<string, any>(users.map((u: any) => [u.id, u]));
     const attMap = new Map<string, number>(attachmentCounts.map((a: any) => [a._id, a.n]));
+    const profileMap = new Map<string, any>(profiles.map((p: any) => [p.user_id, p]));
     return combined.map((c: any) => ({
       ...c,
       patient_name: userMap.get(c.patient_id)?.full_name || null,
       patient_phone: userMap.get(c.patient_id)?.phone || null,
+      patient_age: profileMap.get(c.patient_id)?.age ?? null,
+      patient_gender: profileMap.get(c.patient_id)?.gender || null,
+      patient_blood_type: profileMap.get(c.patient_id)?.blood_type || null,
+      patient_allergies: profileMap.get(c.patient_id)?.allergies || [],
+      patient_chronic: profileMap.get(c.patient_id)?.chronic_diseases || [],
       attachments_count: attMap.get(c.id) || 0,
     }));
   }
 
-  private async findEntity(kind: ServiceDomain, id: string, user: any) {
-    const providerId = String(user.provider_account_id || user.id);
+  private async findEntity(kind: ServiceDomain, id: string, providerId: string) {
     let entity: any = null;
     if (kind === 'pharmacy') entity = await this.orders.findOne({ id, pharmacy_id: providerId });
     else if (kind === 'lab') entity = await this.labs.findOne({ id, account_id: providerId });
     else if (kind === 'radiology') entity = await this.rads.findOne({ id, account_id: providerId });
     else if (kind === 'nursing') entity = await this.home.findOne({ id, $or: [{ provider_id: providerId }, { account_id: providerId }] });
-    else if (kind === 'consultation') entity = await this.appts.findOne({ id, ...(await this.consultationOwnershipFilter(user)) });
+    else if (kind === 'consultation') entity = await this.appts.findOne({ id, $or: [{ doctor_user_id: providerId }, { account_id: providerId }] });
     if (!entity) throw new NotFoundException('job_not_found_or_not_yours');
     return entity;
   }
@@ -212,7 +190,7 @@ export class ProviderJobsService {
     if (!['provider', 'pharmacy', 'lab', 'radiology', 'doctor', 'admin'].includes(user.role)) throw new ForbiddenException('provider_only');
     const kind = this.kindAliases[type];
     if (!kind) throw new NotFoundException('invalid_type');
-    const entity = await this.findEntity(kind, id, user);
+    const entity = await this.findEntity(kind, id, user.id);
     const field = kind === 'consultation' ? 'status' : 'state';
     const from = entity[field];
     // Map universal target → domain literal that the entity understands.
@@ -253,12 +231,17 @@ export class ProviderJobsService {
     }
     const kind = this.kindAliases[type];
     if (!kind) throw new NotFoundException('invalid_type');
-    const entity = await this.findEntity(kind, id, user);
+    const entity = await this.findEntity(kind, id, user.id);
+    const status = insuranceDetails?.approvalStatus || 'PENDING';
     entity.insurance_details = {
       ...(entity.insurance_details || {}),
       ...insuranceDetails,
-      approvalDate: new Date(),
-      approvedBy: user.id,
+      approvalStatus: status,
+      // Only stamp approval metadata when the claim is actually approved —
+      // a PENDING submission must not look approved downstream.
+      ...(status === 'APPROVED' ? { approvalDate: new Date(), approvedBy: user.id } : {}),
+      submittedBy: user.id,
+      submittedAt: new Date(),
     };
     if (entity.markModified) {
       entity.markModified('insurance_details');

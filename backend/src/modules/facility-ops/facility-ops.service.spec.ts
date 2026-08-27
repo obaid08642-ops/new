@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
+import { getModelToken, getConnectionToken } from '@nestjs/mongoose';
 import { BedsService, ShiftsService, SurgeriesService } from './facility-ops.module';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
@@ -32,6 +32,9 @@ describe('FacilityOps Services', () => {
         { provide: getModelToken('Shift'), useValue: mockModel },
         { provide: getModelToken('Attendance'), useValue: mockModel },
         { provide: getModelToken('SurgeryBooking'), useValue: mockModel },
+        // Services inject the raw mongoose connection for cross-collection
+        // lookups — the spec never provided it (DI resolution failure).
+        { provide: getConnectionToken(), useValue: { db: { collection: jest.fn() } } },
       ],
     }).compile();
 

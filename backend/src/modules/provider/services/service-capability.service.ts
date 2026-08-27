@@ -10,9 +10,10 @@ import { RadiologyServiceCatalogItemRepository } from "./repositories/radiologys
 import { DoctorSessionTypeRepository } from "./repositories/doctorsessiontype.repository";
 import { HomeCareServiceCatalogItemRepository } from "./repositories/homecareservicecatalogitem.repository";
 import { ProviderDeliveryZoneRepository } from "./repositories/providerdeliveryzone.repository";
+import { isProviderRole } from '../../../common/enums';
 
 function assertProvider(user: any) {
-  if (!user || user.role !== 'provider') throw new ForbiddenException('provider scope required');
+  if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
 

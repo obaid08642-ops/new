@@ -2,17 +2,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
   Animated,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  ActivityIndicator,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "../../src/context/AppContext";
 import { resolveColor, darkColors, lightColors } from "../../src/theme/colors";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 export default function VirtualWaitingRoomScreen() {
   const { appointmentId } = useLocalSearchParams();
@@ -67,9 +69,9 @@ export default function VirtualWaitingRoomScreen() {
   if (!data)
     return (
       <View style={styles.container}>
-        <Text style={{ color: "#fff", fontSize: 18 }}>
+        <LocalizedText style={{ color: "#fff", fontSize: 18 }}>
           {isRTL ? "الموعد غير موجود" : "Appointment Not Found"}
-        </Text>
+        </LocalizedText>
       </View>
     );
 
@@ -79,7 +81,7 @@ export default function VirtualWaitingRoomScreen() {
       <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#222A3D' }]} />
 
       <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
-        <Text
+        <LocalizedText
           style={{
             fontFamily: "MaterialSymbolsRounded",
             color: "#fff",
@@ -87,7 +89,7 @@ export default function VirtualWaitingRoomScreen() {
           }}
         >
           close
-        </Text>
+        </LocalizedText>
       </TouchableOpacity>
 
       <View
@@ -127,7 +129,7 @@ export default function VirtualWaitingRoomScreen() {
               { backgroundColor: resolveColor("var(--ps)") },
             ]}
           >
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: resolveColor("var(--p)"),
@@ -135,12 +137,12 @@ export default function VirtualWaitingRoomScreen() {
               }}
             >
               person
-            </Text>
+            </LocalizedText>
           </View>
         </View>
       </View>
 
-      <Text
+      <LocalizedText
         style={{
           fontSize: 20,
           fontWeight: "900",
@@ -149,19 +151,19 @@ export default function VirtualWaitingRoomScreen() {
         }}
       >
         {data?.doctor_name}
-      </Text>
-      <Text
+      </LocalizedText>
+      <LocalizedText
         style={{
           fontSize: 12,
           color: "rgba(255,255,255,.6)",
           marginBottom: 28,
         }}
       >
-        استشارة {data?.specialty_ar || data?.specialty} عبر الفيديو
-      </Text>
+        استشارة {pickLocalized(data?.specialty_ar, data?.specialty)} عبر الفيديو
+      </LocalizedText>
 
       <View style={styles.waitBox}>
-        <Text
+        <LocalizedText
           style={{
             fontSize: 11,
             color: "rgba(255,255,255,.6)",
@@ -169,15 +171,15 @@ export default function VirtualWaitingRoomScreen() {
           }}
         >
           دورك بعد
-        </Text>
-        <Text style={{ fontSize: 40, fontWeight: "900", color: "#fff" }}>
+        </LocalizedText>
+        <LocalizedText style={{ fontSize: 40, fontWeight: "900", color: "#fff" }}>
           {data?.wait_time ? `٠${data.wait_time}:٠٠` : '٠٢:٣٠'}
-        </Text>
-        <Text
+        </LocalizedText>
+        <LocalizedText
           style={{ fontSize: 10, color: "rgba(255,255,255,.5)", marginTop: 6 }}
         >
           أنت التالي في القائمة
-        </Text>
+        </LocalizedText>
       </View>
 
       <TouchableOpacity
@@ -189,7 +191,7 @@ export default function VirtualWaitingRoomScreen() {
           })
         }
       >
-        <Text
+        <LocalizedText
           style={{
             fontFamily: "MaterialSymbolsRounded",
             fontSize: 20,
@@ -198,10 +200,10 @@ export default function VirtualWaitingRoomScreen() {
           }}
         >
           videocam
-        </Text>
-        <Text style={{ fontSize: 14, fontWeight: "800", color: "#fff" }}>
+        </LocalizedText>
+        <LocalizedText style={{ fontSize: 14, fontWeight: "800", color: "#fff" }}>
           دخول المكالمة
-        </Text>
+        </LocalizedText>
       </TouchableOpacity>
     </View>
   );

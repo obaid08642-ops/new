@@ -7,6 +7,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, Input, SegmentedControl, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import QRCode from 'react-native-qrcode-svg';
 
 export default function FamilyInviteScreen() {
   const insets = useSafeAreaInsets();
@@ -16,6 +17,7 @@ export default function FamilyInviteScreen() {
   const [relation, setRelation] = useState('');
   const [copied, setCopied] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
+  const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,15 +27,13 @@ export default function FamilyInviteScreen() {
   const loadInviteCode = async () => {
     try {
       setLoading(true);
+      setLoadError(false);
       const res = await apiFetch('/family/invite', { method: 'POST' });
       setInviteCode(res.invite_code);
     } catch (err: any) {
-      // If user is not the owner (e.g. they are just a member, or doesn't have a group yet), 
-      // let's try to create a group first or show error
-      if (err.message && err.message.includes('You must be the group owner')) {
-        // Assume they need to be owner
-      }
-      setInviteCode('NABDAH-ERROR');
+      console.error(err);
+      setInviteCode('');
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -61,6 +61,16 @@ export default function FamilyInviteScreen() {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
+      ) : loadError ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 }}>
+          <Icon name="warning" size={44} color={colors.textTertiary} />
+          <AppText variant="bodyMD" color={colors.textSecondary} align="center">
+            تعذر إنشاء كود الدعوة. يجب أن تكون مالك مجموعة عائلية — أنشئ مجموعة أولاً أو حاول مجدداً.
+          </AppText>
+          <TouchableOpacity onPress={loadInviteCode} style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, backgroundColor: colors.primary }}>
+            <AppText variant="labelMD" color="#fff">إعادة المحاولة</AppText>
+          </TouchableOpacity>
+        </View>
       ) : (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}>
           {/* Member info */}
@@ -87,7 +97,7 @@ export default function FamilyInviteScreen() {
                 <View style={[st.linkBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border } ]}>
                   <AppText variant="bodyXS" color={colors.textSecondary} numberOfLines={1} style={{ flex: 1 }}>https://nabdahplus.app/join/{inviteCode}</AppText>
                   <TouchableOpacity onPress={copyCode}>
-                    <Icon name={copied ? 'check-circle' : 'copy'} size={20} color={copied ? colors.success : colors.primary} />
+                    <Icon name={copied ? 'check-circle' : 'content-copy'} size={20} color={copied ? colors.success : colors.primary} />
                   </TouchableOpacity>
                 </View>
                 <Button label="مشاركة الرابط" variant="gradient" icon="share" onPress={shareLink} />
@@ -96,12 +106,10 @@ export default function FamilyInviteScreen() {
 
             {method === 'qr' && (
               <View style={{ marginTop: 16, alignItems: 'center', gap: 12 }}>
-                <View style={[st.qrBox, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
-                  <View style={st.qrGrid}>
-                    {Array.from({ length: 9 }).map((_, i) => (
-                      <View key={i} style={[st.qrCell, { backgroundColor: i % 2 === 0 ? colors.textPrimary : 'transparent' }]} />
-                    ))}
-                  </View>
+                <View style={[st.qrBox, { backgroundColor: '#fff', borderColor: colors.border } ]}>
+                  {!!inviteCode && (
+                    <QRCode value={`https://nabdahplus.app/join/${inviteCode}`} size={160} />
+                  )}
                   <AppText variant="caption" color={colors.textTertiary} style={{ marginTop: 8 }}>{inviteCode}</AppText>
                 </View>
                 <AppText variant="bodySM" color={colors.textTertiary} align="center">اطلب من الشخص مسح هذا الكود بكاميرا التطبيق</AppText>
@@ -114,7 +122,7 @@ export default function FamilyInviteScreen() {
                   <AppText variant="displayMD" color={colors.primary} style={{ letterSpacing: 4 }}>{inviteCode}</AppText>
                 </View>
                 <TouchableOpacity onPress={copyCode} style={{ flexDirection: 'row-reverse', gap: 6, alignItems: 'center' }}>
-                  <Icon name={copied ? 'check-circle' : 'copy'} size={16} color={copied ? colors.success : colors.primary} />
+                  <Icon name={copied ? 'check-circle' : 'content-copy'} size={16} color={copied ? colors.success : colors.primary} />
                   <AppText variant="labelMD" color={copied ? colors.success : colors.primary}>{copied ? 'تم النسخ!' : 'نسخ الكود'}</AppText>
                 </TouchableOpacity>
                 <AppText variant="bodySM" color={colors.textTertiary} align="center">أرسل هذا الكود للشخص ليدخله في تطبيقه</AppText>

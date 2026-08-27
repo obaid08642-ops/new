@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { buildSlug, parseSlugSuffix, slugify } from '../../common/slug.util';
@@ -8,9 +7,9 @@ import { HomeCareServiceRepository } from "./repositories/homecareservice.reposi
 import { FacilityRepository } from "./repositories/facility.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 
-export type EntityType = 'medicine' | 'doctor' | 'lab-service' | 'home-care-service' | 'facility';
+export type EntityType = 'medicine' | 'doctor' | 'lab-service' | 'home-care-service' | 'facility' | 'article';
 
-const PUBLIC_BASE = process.env.NABD_PUBLIC_URL || 'https://nabd.app';
+const PUBLIC_BASE = process.env.NABD_PUBLIC_URL || 'https://nabd.plus';
 
 @Injectable()
 export class SeoService {
@@ -20,16 +19,41 @@ export class SeoService {
     @Inject('HomeCareServiceRepository') private hcSvcM: HomeCareServiceRepository,
     @Inject('FacilityRepository') private facilityM: FacilityRepository,
     @Inject('ProviderProfileRepository') private providerM: ProviderProfileRepository,
+    @Inject('ArticleRepository') private articleM: any,
   ) {}
 
-  private modelFor(type: string): Model<any> | null {
+  private modelFor(type: string): any {
     switch (type) {
       case 'medicine': return this.medM;
       case 'lab-service': return this.labSvcM;
       case 'home-care-service': return this.hcSvcM;
       case 'doctor': return this.providerM;
       case 'facility': return this.facilityM;
+      case 'article': return this.articleM;
       default: return null;
+    }
+  }
+
+  /**
+   * Single fail-closed boundary for every public discovery read. Operational
+   * status alone never authorizes public visibility, crawling, AI summaries,
+   * share links, or IndexNow notifications. Articles retain their editorial
+   * publication state until an equivalent medical-review workflow is added.
+   */
+  private publicQuery(type: string, indexed = false): any {
+    if (type === 'article') return { status: 'PUBLISHED', is_deleted: { $ne: true } };
+    const governed = {
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      ...(indexed ? { indexing_eligibility: true } : {}),
+    };
+    switch (type) {
+      case 'medicine': return { ...governed, active: { $ne: false }, is_deleted: { $ne: true } };
+      case 'doctor': return { ...governed, type: 'doctor', status: 'active', is_deleted: { $ne: true } };
+      case 'facility': return { ...governed, is_active: true, is_deleted: { $ne: true } };
+      case 'lab-service':
+      case 'home-care-service': return { ...governed, active: true, is_deleted: { $ne: true } };
+      default: return { ...governed, is_deleted: { $ne: true } };
     }
   }
 
@@ -38,8 +62,8 @@ export class SeoService {
     const model = this.modelFor(type);
     if (!model) return null;
 
-    // First try: exact match on slug property
-    const exact = await model.findOne({ slug, is_deleted: { $ne: true } }, { _id: 0, __v: 0 }).lean();
+    // Exact lookup only inside the reviewed, publicly eligible entity set.
+    const exact = await model.findOne({ ...this.publicQuery(type), slug }, { _id: 0, __v: 0 }).lean();
     if (exact) return exact;
 
     const sfx = parseSlugSuffix(slug);
@@ -47,13 +71,13 @@ export class SeoService {
       // No id suffix — try fuzzy by name
       const re = new RegExp(slug.replace(/-/g, ' '), 'i');
       return model.findOne(
-        { $or: [{ name_en: re }, { name_ar: re }, { full_name: re }], is_deleted: { $ne: true } },
+        { ...this.publicQuery(type), $or: [{ name_en: re }, { name_ar: re }, { full_name: re }] },
         { _id: 0, __v: 0 },
       ).lean();
     }
     // Match the id-prefix (first 6 hex chars after stripping dashes)
     const reId = new RegExp(`^${sfx}`, 'i');
-    return model.findOne({ id: { $regex: reId }, is_deleted: { $ne: true } } as any, { _id: 0, __v: 0 }).lean();
+    return model.findOne({ ...this.publicQuery(type), id: { $regex: reId } } as any, { _id: 0, __v: 0 }).lean();
   }
 
   /** Build meta tags for an entity slug. */
@@ -62,12 +86,12 @@ export class SeoService {
     if (!entity) {
       return {
         found: false,
-        title: 'Nabd — نبض',
-        description: 'تطبيق نبض للرعاية الصحية الشاملة',
+        title: 'نبض بلس | Nabd Plus',
+        description: 'منصة نبض بلس للرعاية الصحية والخدمات الطبية',
       };
     }
 
-    const name = entity.name_ar || entity.name_en || entity.full_name || 'Nabd item';
+    const name = entity.name_ar || entity.name_en || entity.full_name || entity.title_ar || entity.title_en || 'Nabd item';
     const desc = this.composeDescription(type, entity);
     const image = entity.image || entity.avatar || entity.cover || undefined;
     const url = this.buildShareUrl(type, name, entity.id);
@@ -77,7 +101,7 @@ export class SeoService {
       type,
       id: entity.id,
       slug: buildSlug(name, entity.id),
-      title: `${name} • نبض`,
+      title: `${name} • نبض بلس`,
       description: desc,
       image,
       canonical: url,
@@ -88,7 +112,7 @@ export class SeoService {
         url,
         image,
         locale: 'ar_SA',
-        site_name: 'Nabd — نبض',
+        site_name: 'نبض بلس | Nabd Plus',
       },
       twitter: {
         card: image ? 'summary_large_image' : 'summary',
@@ -105,14 +129,14 @@ export class SeoService {
   async buildShareLink(type: string, id: string) {
     const model = this.modelFor(type);
     if (!model) return { ok: false, reason: 'unknown_type' };
-    const entity: any = await model.findOne({ id }, { _id: 0 }).lean();
+    const entity: any = await model.findOne({ ...this.publicQuery(type), id }, { _id: 0 }).lean();
     if (!entity) return { ok: false, reason: 'not_found' };
     const name = entity.name_ar || entity.name_en || entity.full_name || 'item';
     return {
       ok: true,
       url: this.buildShareUrl(type, name, id),
       slug: buildSlug(name, id),
-      deep_link: `nabd://${type}/${id}`,
+      deep_link: `nabdplus://s/${type}/${buildSlug(name, id)}`,
     };
   }
 
@@ -129,7 +153,7 @@ export class SeoService {
           typeof e.price === 'number' && `السعر: ${e.price} ر.س`,
           e.requires_prescription && 'يتطلب وصفة طبية',
         ].filter(Boolean);
-        return parts.join(' • ') || 'Available on Nabd — نبض';
+        return parts.join(' • ') || 'متاح عبر نبض بلس';
       }
       case 'doctor': {
         const parts = [
@@ -137,7 +161,10 @@ export class SeoService {
           e.experience_years && `خبرة ${e.experience_years}+ سنوات`,
           e.consultation_fee && `رسوم الاستشارة: ${e.consultation_fee} ر.س`,
         ].filter(Boolean);
-        return parts.join(' • ') || 'طبيب على نبض';
+        return parts.join(' • ') || 'طبيب على نبض بلس';
+      }
+      case 'article': {
+        return e.seo_description_ar || e.excerpt_ar || e.seo_description_en || e.excerpt_en || 'مقال صحي موثوق على منصة نبض بلس';
       }
       case 'lab-service': {
         const parts = [
@@ -145,7 +172,7 @@ export class SeoService {
           typeof e.price === 'number' && `${e.price} ر.س`,
           e.turnaround_hours && `النتيجة خلال ${e.turnaround_hours} ساعة`,
         ].filter(Boolean);
-        return parts.join(' • ') || 'خدمة تحاليل على نبض';
+        return parts.join(' • ') || 'خدمة تحاليل على نبض بلس';
       }
       case 'home-care-service': {
         const parts = [
@@ -153,16 +180,16 @@ export class SeoService {
           typeof e.price === 'number' && `${e.price} ر.س`,
           e.duration && `المدة: ${e.duration}`,
         ].filter(Boolean);
-        return parts.join(' • ') || 'رعاية منزلية على نبض';
+        return parts.join(' • ') || 'رعاية منزلية على نبض بلس';
       }
       default:
-        return 'Nabd — نبض health super app';
+        return 'نبض بلس | Nabd Plus health platform';
     }
   }
 
   /** Basic Schema.org structured data for SEO crawlers. */
   private structuredData(type: string, e: any, url: string) {
-    const name = e.name_ar || e.name_en || e.full_name;
+    const name = e.name_ar || e.name_en || e.full_name || e.title_ar || e.title_en;
     const base: any = { '@context': 'https://schema.org', name, url };
     switch (type) {
       case 'medicine':
@@ -173,6 +200,15 @@ export class SeoService {
         return { ...base, '@type': 'MedicalTest', usesDevice: e.equipment };
       case 'home-care-service':
         return { ...base, '@type': 'MedicalProcedure', category: e.category };
+      case 'article':
+        return {
+          ...base,
+          '@type': 'Article',
+          headline: e.title_ar || e.title_en,
+          image: e.cover_image,
+          datePublished: e.published_at,
+          author: e.author_name ? { '@type': 'Person', name: e.author_name, jobTitle: e.author_title } : undefined,
+        };
       default:
         return base;
     }
@@ -191,17 +227,17 @@ export class SeoService {
 
     const pushEntities = async (
       type: string,
-      model: Model<any>,
+      model: any,
       query: any,
       priority = 0.7,
       changefreq = 'weekly',
     ) => {
       const docs = await model
-        .find(query, { id: 1, name_ar: 1, name_en: 1, full_name: 1, updatedAt: 1 })
+        .find(query, { id: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
         .lean()
         .limit(5000); // safety cap per sitemap
       for (const d of docs as any[]) {
-        const name = d.name_ar || d.name_en || d.full_name || 'item';
+        const name = d.name_ar || d.name_en || d.full_name || d.title_ar || d.title_en || 'item';
         const slug = buildSlug(name, d.id);
         const lastmod = d.updatedAt ? new Date(d.updatedAt).toISOString() : now;
         urls.push(
@@ -210,12 +246,13 @@ export class SeoService {
       }
     };
 
-    // Public entities — adapt queries to your schemas
-    await pushEntities('medicine', this.medM, { active: { $ne: false }, is_deleted: { $ne: true } }, 0.8);
-    await pushEntities('doctor', this.providerM, { active: { $ne: false }, is_deleted: { $ne: true } }, 0.85, 'weekly');
-    await pushEntities('lab-service', this.labSvcM, { active: { $ne: false }, is_deleted: { $ne: true } }, 0.7);
-    await pushEntities('home-care-service', this.hcSvcM, { active: { $ne: false }, is_deleted: { $ne: true } }, 0.7);
-    await pushEntities('facility', this.facilityM, { is_deleted: { $ne: true } }, 0.6, 'monthly');
+    // Only explicitly index-eligible public entities may enter crawler outputs.
+    await pushEntities('medicine', this.medM, this.publicQuery('medicine', true), 0.8);
+    await pushEntities('doctor', this.providerM, this.publicQuery('doctor', true), 0.85, 'weekly');
+    await pushEntities('lab-service', this.labSvcM, this.publicQuery('lab-service', true), 0.7);
+    await pushEntities('home-care-service', this.hcSvcM, this.publicQuery('home-care-service', true), 0.7);
+    await pushEntities('facility', this.facilityM, this.publicQuery('facility', true), 0.6, 'monthly');
+    await pushEntities('article', this.articleM, this.publicQuery('article', true), 0.6, 'weekly');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`;
@@ -236,9 +273,127 @@ export class SeoService {
       'Disallow: /labs/bookings',
       'Disallow: /home-care/bookings',
       '',
-      `Sitemap: ${PUBLIC_BASE}/api/v2/seo/sitemap.xml`,
+      `Sitemap: ${PUBLIC_BASE}/api/v1/seo/sitemap.xml`,
+      '',
+      '# AI crawlers — see llms.txt for a structured site overview',
+      `# LLMS: ${PUBLIC_BASE}/api/v1/seo/llms.txt`,
       '',
     ].join('\n');
+  }
+
+  // ====================================================================
+  // LLMS.TXT — structured site overview for AI search engines & LLM agents
+  // (llmstxt.org convention). Generated from live data so answers about
+  // Nabdah Plus cite correct services, specialties and coverage.
+  // ====================================================================
+  async llmsTxt(): Promise<string> {
+    const lines: string[] = [];
+    lines.push('# Nabd (نَبْض)');
+    lines.push('');
+    lines.push(
+      '> Saudi healthcare super-app: book doctors (clinic, video, home visit), order medicines with delivery, book lab tests, radiology, nursing and home-care visits — with Saudi insurance integration (bupa, Tawuniya, MedGulf and more), Moyasar payments, and real-time telehealth.',
+    );
+    lines.push('');
+    lines.push('## Platform');
+    lines.push('');
+    lines.push(`- [Homepage](${PUBLIC_BASE}/): patient, provider and pharmacy apps plus an admin dashboard`);
+    lines.push(`- [Sitemap](${PUBLIC_BASE}/api/v1/seo/sitemap.xml): every public doctor, medicine, service, facility and article`);
+    lines.push('');
+
+    // ── Doctors (live top-rated sample) ──────────────────────────
+    try {
+      const doctors = await this.providerM
+        .find(this.publicQuery('doctor', true), { id: 1, name_ar: 1, name_en: 1, full_name: 1, specialty: 1, city: 1, rating_avg: 1 })
+        .sort({ rating_avg: -1 })
+        .limit(30)
+        .lean();
+      if (doctors.length) {
+        lines.push('## Doctors (أطباء)');
+        lines.push('');
+        for (const d of doctors as any[]) {
+          const name = d.name_ar || d.name_en || d.full_name || 'Doctor';
+          const slug = buildSlug(name, d.id);
+          const meta = [d.specialty, d.city].filter(Boolean).join(' · ');
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/doctor/${slug})${meta ? `: ${meta}` : ''}`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    // ── Medicines ────────────────────────────────────────────────
+    try {
+      const meds = await this.medM
+        .find(this.publicQuery('medicine', true), { id: 1, name_ar: 1, name_en: 1, category: 1 })
+        .limit(30)
+        .lean();
+      if (meds.length) {
+        lines.push('## Medicines (أدوية)');
+        lines.push('');
+        for (const m of meds as any[]) {
+          const name = m.name_ar || m.name_en || 'Medicine';
+          const slug = buildSlug(name, m.id);
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/medicine/${slug})${m.category ? `: ${m.category}` : ''}`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    // ── Services: labs, radiology, home care ─────────────────────
+    try {
+      const labSvcs = await this.labSvcM
+        .find(this.publicQuery('lab-service', true), { id: 1, name_ar: 1, name_en: 1 })
+        .limit(15)
+        .lean();
+      if (labSvcs.length) {
+        lines.push('## Lab tests (تحاليل مخبرية)');
+        lines.push('');
+        for (const s of labSvcs as any[]) {
+          const name = s.name_ar || s.name_en || 'Lab service';
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/lab-service/${buildSlug(name, s.id)})`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    try {
+      const hcSvcs = await this.hcSvcM
+        .find(this.publicQuery('home-care-service', true), { id: 1, name_ar: 1, name_en: 1 })
+        .limit(15)
+        .lean();
+      if (hcSvcs.length) {
+        lines.push('## Nursing & home care (تمريض ورعاية منزلية)');
+        lines.push('');
+        for (const s of hcSvcs as any[]) {
+          const name = s.name_ar || s.name_en || 'Home-care service';
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/home-care-service/${buildSlug(name, s.id)})`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    // ── Articles (health content hub) ────────────────────────────
+    try {
+      const articles = await this.articleM
+        .find(this.publicQuery('article', true), { id: 1, title_ar: 1, title_en: 1, category: 1 })
+        .limit(20)
+        .lean();
+      if (articles.length) {
+        lines.push('## Health articles (مقالات صحية)');
+        lines.push('');
+        for (const a of articles as any[]) {
+          const title = a.title_ar || a.title_en || 'Article';
+          lines.push(`- [${title}](${PUBLIC_BASE}/s/article/${buildSlug(title, a.id)})${a.category ? `: ${a.category}` : ''}`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    lines.push('## Contact & coverage');
+    lines.push('');
+    lines.push('- Coverage: Saudi Arabia (Riyadh, Jeddah, Dammam and expanding)');
+    lines.push('- Payments: mada, Visa, Mastercard, Apple Pay (via Moyasar), cash in clinic, Saudi insurance networks');
+    lines.push('');
+    return lines.join('\n');
   }
 
   // ====================================================================
@@ -249,7 +404,7 @@ export class SeoService {
     try {
       const model = this.modelFor(type);
       if (!model) return { ok: false };
-      const entity: any = await model.findOne({ id }, { _id: 0 }).lean();
+      const entity: any = await model.findOne({ ...this.publicQuery(type, true), id }, { _id: 0 }).lean();
       if (!entity) return { ok: false };
       const name = entity.name_ar || entity.name_en || entity.full_name || 'item';
       const url = this.buildShareUrl(type, name, id);

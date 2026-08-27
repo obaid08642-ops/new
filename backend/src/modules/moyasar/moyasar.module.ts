@@ -9,15 +9,19 @@ import {
   UseGuards,
   Logger,
   BadRequestException,
-  ServiceUnavailableException,
+  NotFoundException,
+  ForbiddenException,
   HttpCode,
   Headers,
+  Req,
   UseInterceptors,
 } from '@nestjs/common';
-import { InjectModel, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Model, Document } from 'mongoose';
-import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
+import { InjectModel, InjectConnection, MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Model, Document, Connection } from 'mongoose';
+import { JwtAuthGuard, CurrentUser, Public, Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
@@ -64,11 +68,47 @@ export class MoyasarService {
   constructor(
     @InjectModel(MoyasarPayment.name)
     private readonly paymentModel: Model<MoyasarPaymentDocument>,
+    @InjectConnection() private readonly conn: Connection,
+    private readonly events: EventEmitter2,
   ) {
-    this.apiKey = process.env.MOYASAR_API_KEY || '';
+    this.apiKey = process.env.MOYASAR_API_KEY || process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || '';
     if (!this.apiKey) {
-      this.logger.warn('MOYASAR_API_KEY not set — payment initiation and refunds are unavailable');
+      this.logger.warn('MOYASAR_API_KEY not set — payment calls will run in sandbox mode');
     }
+  }
+
+  /**
+   * E1-F2: the server — never the client — decides how much a booking costs.
+   * Resolves { amount, patient_id } from the actual booking document.
+   */
+  private async resolveBookingAmount(bookingKind: string, bookingId: string): Promise<{ amount: number; patient_id: string | null }> {
+    const kindMap: Record<string, { collection: string; amounts: string[] }> = {
+      pharmacy: { collection: 'orders', amounts: ['total', 'totals.total', 'amount'] },
+      order: { collection: 'orders', amounts: ['total', 'totals.total', 'amount'] },
+      orders: { collection: 'orders', amounts: ['total', 'totals.total', 'amount'] },
+      consultation: { collection: 'appointments', amounts: ['total_price', 'price', 'amount'] },
+      appointment: { collection: 'appointments', amounts: ['total_price', 'price', 'amount'] },
+      lab: { collection: 'labbookings', amounts: ['total', 'total_price', 'price', 'amount'] },
+      labs: { collection: 'labbookings', amounts: ['total', 'total_price', 'price', 'amount'] },
+      radiology: { collection: 'radiologybookings', amounts: ['total', 'total_price', 'price', 'amount'] },
+      nursing: { collection: 'homecarebookings', amounts: ['total', 'total_price', 'price', 'amount'] },
+      'home-care': { collection: 'homecarebookings', amounts: ['total', 'total_price', 'price', 'amount'] },
+      homecare: { collection: 'homecarebookings', amounts: ['total', 'total_price', 'price', 'amount'] },
+      insurance: { collection: 'insuranceservicerequests', amounts: ['copay_amount', 'price'] },
+      'insurance-copay': { collection: 'insuranceservicerequests', amounts: ['copay_amount', 'price'] },
+      copay: { collection: 'insuranceservicerequests', amounts: ['copay_amount', 'price'] },
+    };
+    const cfg = kindMap[bookingKind];
+    if (!cfg) throw new BadRequestException('invalid_booking_kind');
+    const doc: any = await this.conn.collection(cfg.collection).findOne({ id: bookingId } as any);
+    if (!doc) throw new NotFoundException('booking_not_found');
+    let amount = 0;
+    for (const path of cfg.amounts) {
+      const val = path.split('.').reduce((o: any, k: string) => (o != null ? o[k] : undefined), doc);
+      if (Number(val) > 0) { amount = Number(val); break; }
+    }
+    if (!(amount > 0)) throw new BadRequestException('booking_has_no_payable_amount');
+    return { amount: Math.round(amount * 100) / 100, patient_id: doc.patient_id || doc.user_id || null };
   }
 
   private authHeaders(): Record<string, string> {
@@ -88,8 +128,18 @@ export class MoyasarService {
     description?: string;
     callbackUrl?: string;
     metadata?: Record<string, any>;
+    /** Internal flows with user-chosen amounts (wallet top-up) set this explicitly. */
+    skipBookingValidation?: boolean;
   }): Promise<MoyasarPaymentDocument> {
-    if (!this.apiKey) throw new ServiceUnavailableException('payment_gateway_not_configured');
+    // E1-F2: amount comes from the booking document, not the request body.
+    if (!params.skipBookingValidation) {
+      const resolved = await this.resolveBookingAmount(params.bookingKind, params.bookingId);
+      if (resolved.patient_id && resolved.patient_id !== params.patientId) {
+        throw new ForbiddenException('not_your_booking');
+      }
+      params.amount = resolved.amount;
+    }
+    if (!(Number(params.amount) > 0)) throw new BadRequestException('invalid_amount');
     const amountHalalas = Math.round(params.amount * 100);
     const callbackUrl =
       params.callbackUrl ||
@@ -120,21 +170,35 @@ export class MoyasarService {
 
     let moyasarResponse: any;
 
-    try {
-      const resp = await fetch(`${this.baseUrl}/payments`, {
-        method: 'POST',
-        headers: this.authHeaders(),
-        body: JSON.stringify(requestBody),
-      });
-      moyasarResponse = await resp.json();
-      if (!resp.ok) {
-        throw new BadRequestException(
-          moyasarResponse?.message || 'moyasar_create_failed',
-        );
+    if (this.apiKey) {
+      try {
+        const resp = await fetch(`${this.baseUrl}/payments`, {
+          method: 'POST',
+          headers: this.authHeaders(),
+          body: JSON.stringify(requestBody),
+        });
+        moyasarResponse = await resp.json();
+        if (!resp.ok) {
+          throw new BadRequestException(
+            moyasarResponse?.message || 'moyasar_create_failed',
+          );
+        }
+      } catch (e: any) {
+        this.logger.error('Moyasar createPayment error', e?.message);
+        throw new BadRequestException(e?.message || 'payment_create_failed');
       }
-    } catch (e: any) {
-      this.logger.error('Moyasar createPayment error', e?.message);
-      throw new BadRequestException(e?.message || 'payment_create_failed');
+    } else {
+      // Sandbox / dev mode when no API key is configured
+      moyasarResponse = {
+        id: `sandbox_${Date.now()}`,
+        status: 'initiated',
+        source: {
+          transaction_url: `nabd://payment/sandbox?booking=${params.bookingId}&amount=${amountHalalas}`,
+        },
+      };
+      this.logger.warn(
+        'Running in sandbox payment mode — set MOYASAR_API_KEY for live payments',
+      );
     }
 
     const payment = await this.paymentModel.create({
@@ -159,8 +223,9 @@ export class MoyasarService {
     const payment = await this.paymentModel.findOne({ moyasar_id: moyasarId });
     if (!payment) return null;
 
-    if (!this.apiKey) throw new ServiceUnavailableException('payment_gateway_not_configured');
-    try {
+    const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
+    if (!isSandbox) {
+      try {
         const resp = await fetch(`${this.baseUrl}/payments/${moyasarId}`, {
           headers: this.authHeaders(),
         });
@@ -187,8 +252,9 @@ export class MoyasarService {
         }
 
         await payment.save();
-    } catch (e: any) {
-      this.logger.error('Moyasar syncStatus error', e?.message);
+      } catch (e: any) {
+        this.logger.error('Moyasar syncStatus error', e?.message);
+      }
     }
 
     return payment;
@@ -198,8 +264,19 @@ export class MoyasarService {
   async refundPayment(
     moyasarId: string,
     amount?: number,
-  ): Promise<{ ok: boolean; refund?: any }> {
-    if (!this.apiKey) throw new ServiceUnavailableException('payment_gateway_not_configured');
+  ): Promise<{ ok: boolean; refund?: any; sandbox?: boolean }> {
+    const isSandbox = !this.apiKey || moyasarId.startsWith('sandbox_');
+
+    if (isSandbox) {
+      const p = await this.paymentModel.findOne({ moyasar_id: moyasarId });
+      if (p) {
+        p.status = 'refunded';
+        p.refunded_at = new Date();
+        p.refunded_amount = amount ?? p.amount;
+        await p.save();
+      }
+      return { ok: true, sandbox: true };
+    }
 
     const payment = await this.paymentModel.findOne({ moyasar_id: moyasarId });
     if (!payment) throw new BadRequestException('payment_not_found');
@@ -220,6 +297,12 @@ export class MoyasarService {
         (payment.refunded_amount || 0) + (amount ?? payment.amount);
       await payment.save();
 
+      this.events.emit('payment.refund', {
+        actor_id: 'admin', transaction_id: payment.moyasar_id,
+        booking_id: payment.booking_id, booking_kind: payment.booking_kind,
+        patient_id: payment.patient_id, amount: amount ?? payment.amount,
+      });
+
       return { ok: true, refund: data };
     } catch (e: any) {
       this.logger.error('Refund error', e?.message);
@@ -227,13 +310,22 @@ export class MoyasarService {
     }
   }
 
-  /** Verify Moyasar webhook HMAC-SHA256 signature */
-  verifyWebhookSignature(payload: string, signature: string): boolean {
+  /** Verify Moyasar webhook HMAC-SHA256 signature — fail-closed in production (E5-F1) */
+  verifyWebhookSignature(payload: string, signature?: string): boolean {
     const secret = process.env.MOYASAR_WEBHOOK_SECRET || '';
-    if (!secret) return true; // skip verification when secret not configured
+    if (!secret) {
+      if (process.env.NODE_ENV === 'production') {
+        this.logger.error('MOYASAR_WEBHOOK_SECRET is not set — rejecting webhook (fail-closed)');
+        return false;
+      }
+      return true; // dev/test convenience only
+    }
+    if (!signature) return false;
     const hmac = crypto.createHmac('sha256', secret).update(payload).digest('hex');
     try {
-      return crypto.timingSafeEqual(Buffer.from(hmac, 'hex'), Buffer.from(signature, 'hex'));
+      const a = Buffer.from(hmac, 'hex');
+      const b = Buffer.from(signature, 'hex');
+      return a.length === b.length && crypto.timingSafeEqual(a, b);
     } catch {
       return false;
     }
@@ -308,11 +400,15 @@ export class MoyasarController {
     });
   }
 
-  /** Retrieve all payments linked to a booking */
+  /** Retrieve all payments linked to a booking (owner or admin only) */
   @Get('payments/booking/:bookingId')
   @UseGuards(JwtAuthGuard)
-  getByBooking(@Param('bookingId') bookingId: string) {
-    return this.svc.getPaymentsByBooking(bookingId);
+  async getByBooking(@CurrentUser() user: any, @Param('bookingId') bookingId: string) {
+    const payments = await this.svc.getPaymentsByBooking(bookingId);
+    if (user.role !== 'admin' && payments.some((p: any) => p.patient_id && p.patient_id !== user.id)) {
+      throw new ForbiddenException('not_your_booking');
+    }
+    return payments;
   }
 
   /** Retrieve the authenticated patient's payment history */
@@ -329,9 +425,14 @@ export class MoyasarController {
     return this.svc.syncPaymentStatus(id);
   }
 
-  /** Refund a payment (full or partial) */
+  /**
+   * Refund a payment (full or partial) — ADMIN ONLY.
+   * E1-F3: previously any authenticated user (incl. patients) could refund
+   * any payment by id. Patients must use POST /refunds/request (approval flow).
+   */
   @Post('payments/:moyasarId/refund')
   @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
   refund(
     @Param('moyasarId') id: string,
     @Body() body: { amount?: number },
@@ -339,15 +440,14 @@ export class MoyasarController {
     return this.svc.refundPayment(id, body.amount);
   }
 
-  /** Moyasar webhook receiver (public — no auth required) */
+  /** Moyasar webhook receiver (public — authenticated via HMAC signature, E5-F1 fail-closed) */
   @Public()
   @Post('webhook')
   @HttpCode(200)
-  webhook(@Body() body: any, @Headers('x-moyasar-signature') signature: string) {
-    if (signature) {
-      // In production, body should ideally be raw body buffer for HMAC, but this works for JSON payload serialization usually.
-      const isValid = this.svc.verifyWebhookSignature(JSON.stringify(body), signature);
-      if (!isValid) throw new BadRequestException('invalid_signature');
+  webhook(@Body() body: any, @Headers('x-moyasar-signature') signature: string, @Req() req: any) {
+    const rawBody = req?.rawBody || JSON.stringify(body);
+    if (!this.svc.verifyWebhookSignature(rawBody, signature)) {
+      throw new BadRequestException('invalid_signature');
     }
     return this.svc.handleWebhook(body);
   }

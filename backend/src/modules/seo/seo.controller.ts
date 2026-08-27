@@ -51,6 +51,19 @@ export class SeoController {
   }
 
   /**
+   * llms.txt — structured overview for AI search engines (llmstxt.org),
+   * generated from live catalogue data.
+   */
+  @Public()
+  @Get('llms.txt')
+  async llmsTxt(@Res() res: Response) {
+    const txt = await this.svc.llmsTxt();
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(txt);
+  }
+
+  /**
    * robots.txt — references the sitemap so crawlers can discover everything.
    */
   @Public()

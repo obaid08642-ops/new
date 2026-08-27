@@ -19,8 +19,8 @@ export default function IncomingCallScreen() {
   const { colors } = useApp();
   const params = useLocalSearchParams();
 
-  const callerId = (params.callerId as string) || "doctor_default";
-  const callerName = (params.callerName as string) || "د. محمد أحمد الكردي";
+  const callerId = (params.callerId as string) || undefined;
+  const callerName = (params.callerName as string) || "مكالمة واردة";
   const sessionId = params.sessionId as string;
   const callType = (params.callType as "voice" | "video") || "video";
 

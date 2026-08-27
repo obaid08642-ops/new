@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Linking
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  Alert,
+  Linking,
+} from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,6 +17,7 @@ import { Icon } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
 import * as Location from "expo-location";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const EMERGENCY_NUMBERS = {
   ambulance: "997",
@@ -32,7 +33,7 @@ export default function EmergencySOSScreen() {
   const [isSending, setIsSending] = useState(false);
 
   const handleSOS = useCallback(() => {
-    Alert.alert(
+    showLocalizedAlert(
       "تأكيد طلب الطوارئ",
       "سيتم إرسال موقعك الحالي وطلب إسعاف فوري. هل أنت متأكد؟",
       [

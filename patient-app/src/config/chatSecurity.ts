@@ -136,8 +136,8 @@ export function logChatEvent(entry: Omit<ChatAuditEntry, 'timestamp'>): void {
   };
   chatAuditBuffer.push(fullEntry);
 
-  // TODO: In production, send to backend
-  // await chatApi.logEvent(fullEntry);
+  // Intentionally local-only: server-side chat logging is the authoritative audit trail.
+  // This buffer powers in-app security event display only.
 
   // Keep buffer manageable
   if (chatAuditBuffer.length > 200) {

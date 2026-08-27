@@ -24,6 +24,7 @@ export default function BookingSuccessScreen() {
     visitType?: string;
     isInsurance?: string;
     isToday?: string;
+    appointmentId?: string;
   }>();
   const visitType = params.visitType || "video";
   const isInsurance = params.isInsurance === "true";
@@ -57,21 +58,11 @@ export default function BookingSuccessScreen() {
       router.push("/consultations/appointments");
       return;
     }
-    switch (visitType) {
-      case "clinic":
-        router.push("/consultations/clinic-location");
-        break;
-      case "home":
-        router.push("/consultations/home-visit-tracking");
-        break;
-      case "video":
-      default:
-        router.push({
-          pathname: "/consultations/virtual-waiting-room",
-          params: { appointmentId: "APT001" },
-        });
-        break;
-    }
+    // M4: المرور عبر شاشة انتظار قبول المزود بالمعرّف الحقيقي قبل أي مسار
+    router.push({
+      pathname: "/consultations/booking-pending",
+      params: { appointmentId: params.appointmentId || "", visitType },
+    });
   };
 
   const nextLabel = isInsurance

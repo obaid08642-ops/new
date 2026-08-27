@@ -1,5 +1,6 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SystemEvent } from './system-event.schema';
 import { SystemEventRepository } from "./repositories/systemevent.repository";
 
@@ -7,6 +8,8 @@ export interface EmitInput {
   type: string;
   entity_type: 'order' | 'allocation' | 'broadcast' | 'chat' | 'shortage' | string;
   entity_id: string;
+  /** Stable command key. A duplicate means the prior durable event already won. */
+  idempotency_key?: string;
   actor_account_id?: string;
   actor_role?: string;
   reason_code?: string;
@@ -18,21 +21,25 @@ export interface EmitInput {
 }
 
 /**
- * EventBusService — fire-and-forget persisted event log.
- * Phase 2 hardening: callers should NEVER await this (use .catch silently).
- * All emit failures are swallowed and logged so domain logic never breaks.
+ * EventBusService — durable event log before in-process fanout.
+ * A failure to persist an event must prevent local fanout; otherwise users can
+ * observe a notification/state effect with no durable audit/outbox evidence.
  */
 @Injectable()
 export class EventBusService {
   private logger = new Logger('EventBus');
-  constructor(@Inject('SystemEventRepository') private events: SystemEventRepository) {}
+  constructor(
+    @Inject('SystemEventRepository') private events: SystemEventRepository,
+    @Optional() private readonly emitter?: EventEmitter2,
+  ) {}
 
-  async emit(input: EmitInput): Promise<void> {
+  async emit(input: EmitInput): Promise<{ duplicate: boolean }> {
     try {
       await this.events.create({
         type: input.type,
         entity_type: input.entity_type,
         entity_id: input.entity_id,
+        idempotency_key: input.idempotency_key,
         actor_account_id: input.actor_account_id,
         actor_role: input.actor_role || 'system',
         reason_code: input.reason_code,
@@ -43,8 +50,23 @@ export class EventBusService {
         meta: input.meta,
       });
     } catch (e: any) {
+      // Mongo's unique sparse index makes retries safe even under concurrent
+      // delivery. Do not fan out twice after an already-durable command.
+      if (input.idempotency_key && e?.code === 11000) {
+        this.logger.log(`emit_duplicate type=${input.type} key=${input.idempotency_key}`);
+        return { duplicate: true };
+      }
       this.logger.warn(`emit_failed type=${input.type} err=${e?.message}`);
+      throw e;
     }
+    // Fan out to the in-process event system so @OnEvent handlers
+    // (notifications, analytics, gateways) actually fire for bus events.
+    try {
+      this.emitter?.emit(input.type, input);
+    } catch (e: any) {
+      this.logger.warn(`emitter_fanout_failed type=${input.type} err=${e?.message}`);
+    }
+    return { duplicate: false };
   }
 
   /** Admin: paginated event stream with filters. */

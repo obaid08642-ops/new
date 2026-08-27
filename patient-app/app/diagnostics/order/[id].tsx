@@ -1,15 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  I18nManager,
-  Dimensions
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { Linking, View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, I18nManager, Dimensions } from 'react-native';
 import { AppText } from '../../../src/components/ui';
 import { useApp } from '../../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
@@ -17,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { apiFetch } from '../../../src/utils/api';
 import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -30,11 +22,25 @@ export default function OrderDetails() {
   const [loading, setLoading] = useState(true);
   const [canceling, setCanceling] = useState(false);
 
+  const [kind, setKind] = useState<'lab' | 'radiology' | null>(null);
+  const [reload, setReload] = useState(0);
+
   useEffect(() => {
+    // E2 fix: was apiFetch('/orders/mine' + id) — a malformed URL that ALWAYS 404'd,
+    // so this screen never loaded (eternal spinner). Try radiology then lab.
     const fetchOrder = async () => {
       try {
-        const res = await apiFetch('/orders/mine' + id);
-                const data = res?.data || res;
+        let data: any = null;
+        try {
+          const res = await apiFetch(`/radiology/bookings/${id}`);
+          data = res?.data || res;
+          if (data && !data?.message) setKind('radiology');
+        } catch { /* try lab */ }
+        if (!data || data?.message) {
+          const res = await apiFetch(`/labs/bookings/${id}`);
+          data = res?.data || res;
+          setKind('lab');
+        }
         setOrder(data);
       } catch (e) {
         setOrder(null);
@@ -43,19 +49,20 @@ export default function OrderDetails() {
       }
     };
     fetchOrder();
-  }, [id]);
+  }, [id, reload]);
 
   const handleCancel = async () => {
-    Alert.alert('إلغاء الطلب', 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟', [
+    showLocalizedAlert('إلغاء الطلب', 'هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟', [
       { text: 'تراجع', style: 'cancel' },
       { text: 'نعم، إلغاء', style: 'destructive', onPress: async () => {
         setCanceling(true);
         try {
-          await apiFetch('/orders/mine' + id + '/cancel', { method: 'POST' }).catch(() => true);
-          setOrder({ ...order, status: 'cancelled' });
-          Alert.alert('تم', 'تم إلغاء الطلب بنجاح');
-        } catch {
-          Alert.alert('خطأ', 'حدث خطأ أثناء الإلغاء');
+          const base = kind === 'radiology' ? '/radiology' : '/labs';
+          const response = await apiFetch(`${base}/bookings/${id}/cancel`, { method: 'POST' });
+          setOrder(response?.data || response || order);
+          showLocalizedAlert('تم', 'تم إلغاء الطلب بنجاح');
+        } catch (e: any) {
+          showLocalizedAlert('تعذر الإلغاء', e?.message || 'حدث خطأ أثناء الإلغاء');
         } finally {
           setCanceling(false);
         }
@@ -64,16 +71,17 @@ export default function OrderDetails() {
   };
 
   const handleDownload = async () => {
-    Alert.alert('جاري التحميل', 'يتم الآن تحميل التقرير بصيغة PDF...');
-    try {
-      await apiFetch('/orders/mine' + id + '/report.pdf').catch(() => true);
-      setTimeout(() => Alert.alert('نجاح', 'تم تحميل التقرير بنجاح وحفظه في جهازك'), 1500);
-    } catch {
-      // ignore
+    // Never open a raw report/CDN URL supplied in a booking payload. A report is
+    // viewed only by its server-owned identifier through the protected report API.
+    const reportId = order?.report_id || order?.report?.id || (Array.isArray(order?.reports) && order.reports[0]?.id);
+    if (reportId) {
+      router.push({ pathname: '/reports/view-report', params: { id: reportId } });
+      return;
     }
+    showLocalizedAlert('التقرير غير متاح بعد', 'لم يُنشر تقرير آمن قابل للعرض لحسابك حتى الآن.');
   };
 
-  if (loading || !order) {
+  if (loading) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' } ]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -81,13 +89,28 @@ export default function OrderDetails() {
     );
   }
 
-  const isRadiology = order.type === 'radiology' || order.serviceCategory === 'radiology';
+  if (!order) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 24 } ]}>
+        <Icon name="file-search-outline" size={48} color={colors.textSecondary} />
+        <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 16 }}>تعذر تحميل الطلب</AppText>
+        <AppText style={{ color: colors.textSecondary, fontSize: 13 }}>تحقق من اتصالك ثم حاول مجدداً</AppText>
+        <TouchableOpacity onPress={() => { setLoading(true); setKind(null); setOrder(null); setReload(r => r + 1); }} style={{ backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 10 }}>
+          <AppText style={{ color: '#fff', fontWeight: 'bold' }}>إعادة المحاولة</AppText>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const isRadiology = kind === 'radiology' || order.type === 'radiology' || order.serviceCategory === 'radiology';
+  const orderState = order.state || order.status;
+  const locationType = order.location_type || (order.type === 'home_visit' ? 'home' : 'facility');
 
   const LAB_STAGES = [
-    { key: 'sent', label: 'تم الطلب' },
-    { key: 'in_review', label: 'قيد المراجعة' },
-    { key: 'analyzing', label: 'جاري التحليل' },
-    { key: 'ready', label: 'النتائج جاهزة' },
+    { key: 'NEW_REQUEST', label: 'تم الطلب' },
+    { key: 'CONFIRMED', label: 'مؤكد' },
+    { key: 'PROCESSING', label: 'جاري التحليل' },
+    { key: 'REPORTED', label: 'النتائج جاهزة' },
   ];
 
   const RAD_STAGES = [
@@ -100,8 +123,12 @@ export default function OrderDetails() {
 
   const STAGES = isRadiology ? RAD_STAGES : LAB_STAGES;
 
-  const currentStageIndex = STAGES.findIndex(s => s.key === order.status);
-  const isCancelled = order.status === 'cancelled' || order.status === 'SCAN_ABORTED';
+  const normalizedState = isRadiology ? orderState : ({
+    PENDING_INSURANCE: 'NEW_REQUEST', WAITING_COPAY: 'NEW_REQUEST', IN_TRANSIT: 'CONFIRMED',
+    IN_LAB: 'PROCESSING', SAMPLE_COLLECTED: 'PROCESSING', RESULT_UPLOADED: 'REPORTED',
+  } as Record<string, string>)[orderState] || orderState;
+  const currentStageIndex = STAGES.findIndex(s => s.key === normalizedState);
+  const isCancelled = orderState === 'CANCELLED' || orderState === 'cancelled' || orderState === 'SCAN_ABORTED';
   const progressPercent = isCancelled ? 0 : currentStageIndex >= 0 ? ((currentStageIndex + 1) / STAGES.length) * 100 : 0;
 
   return (
@@ -149,51 +176,28 @@ export default function OrderDetails() {
           )}
         </Animated.View>
 
-        {/* Map Placeholder */}
-        {!isCancelled && order.status !== 'ready' && (
+        {/* Visit / technician info — shown only with real backend data (no simulated map) */}
+        {!isCancelled && orderState !== 'REPORTED' && locationType === 'home' && order.technician && (
           <Animated.View entering={FadeInDown.delay(100).duration(400)} style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, padding: 0, overflow: 'hidden' } ]}>
-            <View style={styles.mapPlaceholder}>
-              <View style={styles.mapGrid} />
-              {order.type === 'home_visit' ? (
-                <>
-                  <View style={[styles.mapMarker, { top: '30%', left: '40%' } ]}>
-                    <Icon name="ambulance" size={24} color={colors.primary} />
-                  </View>
-                  <View style={[styles.mapMarker, { top: '70%', left: '60%' } ]}>
-                    <Icon name="home-map-marker" size={28} color="#E53935" />
-                  </View>
-                  {/* Dashed line to simulate route */}
-                  <View style={styles.routeLine} />
-                  <View style={[styles.etaBadge, { backgroundColor: colors.surface } ]}>
-                    <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 12 }}>يصل خلال {order.technician?.eta}</AppText>
-                  </View>
-                </>
-              ) : (
-                <View style={[styles.mapMarker, { top: '50%', left: '50%' } ]}>
-                  <Icon name="hospital-marker" size={32} color={colors.primary} />
-                  <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 12, marginTop: 4, backgroundColor: 'rgba(255,255,255,0.8)', paddingHorizontal: 4, borderRadius: 4 }}>موقع المختبر</AppText>
-                </View>
-              )}
-            </View>
-            {order.type === 'home_visit' && order.technician && (
-              <View style={[styles.techInfoRow, { borderTopColor: colors.border } ]}>
-                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: `${colors.primary}20`, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="account-tie" size={20} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1, paddingHorizontal: 12 }}>
-                  <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 14 }}>{order.technician.name}</AppText>
-                  <AppText style={{ color: colors.textSecondary, fontSize: 12 }}>الممرض المختص</AppText>
-                </View>
-                <TouchableOpacity style={[styles.callBtn, { backgroundColor: '#4CAF50' } ]}>
+            <View style={[styles.techInfoRow, { borderTopColor: colors.border }]}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: `${colors.primary}20`, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="account-tie" size={20} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 14 }}>{order.technician.name}</AppText>
+                <AppText style={{ color: colors.textSecondary, fontSize: 12 }}>الممرض المختص{order.technician.eta ? ` — يصل خلال ${order.technician.eta}` : ''}</AppText>
+              </View>
+              {!!order.technician.phone && (
+                <TouchableOpacity style={[styles.callBtn, { backgroundColor: '#4CAF50' } ]} onPress={() => Linking.openURL(`tel:${order.technician.phone}`)}>
                   <Icon name="phone" size={20} color="#fff" />
                 </TouchableOpacity>
-              </View>
-            )}
+              )}
+            </View>
           </Animated.View>
         )}
 
         {/* Results Section */}
-        {(order.status === 'ready' || order.status === 'REPORT_READY') && (
+        {(orderState === 'REPORTED' || orderState === 'RESULT_UPLOADED' || orderState === 'REPORT_READY') && (
           <Animated.View entering={SlideInUp.delay(200).duration(500)}>
             <View style={styles.resultsHeader}>
               <AppText variant="h3" style={{ color: colors.textPrimary, fontWeight: 'bold' }}>
@@ -205,10 +209,12 @@ export default function OrderDetails() {
               </TouchableOpacity>
             </View>
             
-            {isRadiology && (
+            {isRadiology && !!(order?.images_url || order?.dicom_url || order?.report?.images_url) && (
               <View style={[styles.resultCard, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
                 <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 15, marginBottom: 8, textAlign: 'left' }}>صور الأشعة (DICOM)</AppText>
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: `${colors.primary}15`, padding: 12, borderRadius: 8 }}>
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(order.images_url || order.dicom_url || order.report?.images_url).catch(() => showLocalizedAlert('تعذر الفتح', 'تعذر فتح عارض الصور.'))}
+                  style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: `${colors.primary}15`, padding: 12, borderRadius: 8 }}>
                   <Icon name="image-multiple-outline" size={20} color={colors.primary} />
                   <AppText style={{ color: colors.primary, fontWeight: 'bold', marginLeft: 8 }}>فتح عارض الصور المتقدم</AppText>
                 </TouchableOpacity>
@@ -241,20 +247,20 @@ export default function OrderDetails() {
           <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 15, marginBottom: 12 }}>معلومات الطلب</AppText>
           <View style={styles.infoRow}>
             <AppText style={{ color: colors.textSecondary, fontSize: 13 }}>تاريخ الطلب</AppText>
-            <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 13 }}>{order.date}</AppText>
+            <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 13 }}>{order.scheduled_at ? new Date(order.scheduled_at).toLocaleDateString() : (order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—')}</AppText>
           </View>
           <View style={styles.infoRow}>
             <AppText style={{ color: colors.textSecondary, fontSize: 13 }}>النوع</AppText>
-            <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 13 }}>{order.type === 'home_visit' ? 'زيارة منزلية' : 'زيارة للمختبر'}</AppText>
+            <AppText style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 13 }}>{locationType === 'home' ? 'زيارة منزلية' : 'زيارة للمختبر'}</AppText>
           </View>
           <View style={styles.infoRow}>
             <AppText style={{ color: colors.textSecondary, fontSize: 13 }}>المبلغ الإجمالي</AppText>
-            <AppText style={{ color: colors.primary, fontWeight: 'bold', fontSize: 14 }}>{order.total} ر.س</AppText>
+            <AppText style={{ color: colors.primary, fontWeight: 'bold', fontSize: 14 }}>{order.total ?? order.total_price ?? '—'} ر.س</AppText>
           </View>
         </Animated.View>
 
         {/* Cancel Button */}
-        {['sent', 'in_review', 'NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(order.status) && !isCancelled && (
+        {['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'sent', 'in_review'].includes(orderState) && !isCancelled && (
           <TouchableOpacity 
             style={styles.cancelBtn} 
             onPress={handleCancel}
@@ -279,7 +285,7 @@ export default function OrderDetails() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, paddingTop: 50 },
+  header: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, paddingTop: 60 },
   backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 16 },
   card: { borderWidth: 1, borderRadius: 16, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 10, elevation: 2 },
@@ -291,11 +297,6 @@ const styles = StyleSheet.create({
   stageItem: { alignItems: 'center', width: '25%' },
   stageDot: { width: 12, height: 12, borderRadius: 6, position: 'absolute', top: -20 },
   
-  mapPlaceholder: { height: 180, width: '100%', backgroundColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center' },
-  mapGrid: { ...StyleSheet.absoluteFillObject, opacity: 0.1, backgroundColor: undefined }, // Simplistic pattern could be added
-  mapMarker: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  routeLine: { position: 'absolute', top: '42%', left: '45%', width: '20%', height: '30%', borderLeftWidth: 2, borderBottomWidth: 2, borderColor: '#2196F3', borderStyle: 'dashed' },
-  etaBadge: { position: 'absolute', top: 16, right: 16, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
   techInfoRow: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', padding: 16, borderTopWidth: 1 },
   callBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
 

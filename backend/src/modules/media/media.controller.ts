@@ -1,15 +1,18 @@
-import { Controller, Post, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { MediaService } from './media.service';
+import { MediaAsset, MediaAssetDocument, MEDIA_PURPOSES, MediaPurpose } from './media.schema';
 
 @Controller('media')
 @UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(
     private readonly mediaService: MediaService,
+    @InjectModel(MediaAsset.name) private readonly assets: Model<MediaAssetDocument>,
     @InjectConnection() private readonly connection: Connection,
   ) {}
 
@@ -27,51 +30,81 @@ export class MediaController {
     }),
   )
   async uploadFile(
+    @CurrentUser() user: any,
     @UploadedFile() file: Express.Multer.File,
-    @Body('folder') folder = 'general',
+    @Body('purpose') purpose: MediaPurpose,
     @Body('thread_id') threadId?: string,
   ) {
-    if (!file) {
-      throw new BadRequestException('No file uploaded');
+    if (!file) throw new BadRequestException('file_required');
+    await this.assertUploadAllowed(user, purpose, threadId);
+    const uploaded = await this.mediaService.uploadBuffer(file.buffer, file.originalname, file.mimetype, `${purpose}/${user.id}`);
+    try {
+      const asset: any = await this.assets.create({
+        key: uploaded.key, owner_id: user.id, purpose, thread_id: threadId,
+        original_name: file.originalname, mime_type: file.mimetype, size_bytes: file.size,
+      });
+      return { id: asset.id, purpose: asset.purpose, thread_id: asset.thread_id || null };
+    } catch (error) {
+      await this.mediaService.deleteFile(uploaded.key).catch(() => null);
+      throw error;
     }
-    if (folder === 'chats') {
-      if (!threadId) {
-        throw new BadRequestException('thread_id is required for chat uploads');
-      }
-      await this.verifyChatUploadAllowed(threadId);
-    }
-    return this.mediaService.uploadBuffer(file.buffer, file.originalname, file.mimetype, folder);
   }
 
   @Post('presigned')
   async getPresignedUrl(
+    @CurrentUser() user: any,
     @Body('filename') filename: string,
     @Body('mimetype') mimetype: string,
-    @Body('folder') folder = 'general',
-    @Body('expiresIn') expiresIn?: number,
+    @Body('purpose') purpose: MediaPurpose,
     @Body('thread_id') threadId?: string,
   ) {
-    if (!filename || !mimetype) {
-      throw new BadRequestException('filename and mimetype are required');
-    }
+    if (!filename || !mimetype) throw new BadRequestException('filename_and_mimetype_required');
     const allowedExtensions = /\.(jpg|jpeg|png|gif|webp|pdf|mp3|m4a|wav|doc|docx|xls|xlsx)$/i;
-    if (!filename.match(allowedExtensions)) {
-      throw new BadRequestException('Only approved image, PDF, audio, and document extensions are allowed!');
-    }
-    if (folder === 'chats') {
-      if (!threadId) {
-        throw new BadRequestException('thread_id is required for chat uploads');
-      }
-      await this.verifyChatUploadAllowed(threadId);
-    }
-    return this.mediaService.generatePresignedUploadUrl(filename, mimetype, folder, expiresIn);
+    if (!filename.match(allowedExtensions)) throw new BadRequestException('unsupported_media_extension');
+    await this.assertUploadAllowed(user, purpose, threadId);
+    const upload = await this.mediaService.generatePresignedUploadUrl(filename, mimetype, `${purpose}/${user.id}`);
+    const asset: any = await this.assets.create({
+      key: upload.key, owner_id: user.id, purpose, thread_id: threadId,
+      original_name: filename, mime_type: mimetype,
+    });
+    return { id: asset.id, upload_url: upload.uploadUrl, expires_in: 900 };
   }
 
-  private async verifyChatUploadAllowed(threadId: string) {
+  @Get(':id/url')
+  async signedUrl(@CurrentUser() user: any, @Param('id') id: string) {
+    const asset: any = await this.assets.findOne({ id }).lean();
+    if (!asset) throw new NotFoundException('media_not_found');
+    if (!await this.canReadAsset(asset, user)) throw new NotFoundException('media_not_found');
+    return { url: await this.mediaService.generatePresignedDownloadUrl(asset.key, 15 * 60), expires_in: 900 };
+  }
+
+  private async assertUploadAllowed(user: any, purpose: MediaPurpose, threadId?: string) {
+    if (!MEDIA_PURPOSES.includes(purpose)) throw new BadRequestException('invalid_media_purpose');
+    if (purpose === 'chat') {
+      if (!threadId) throw new BadRequestException('thread_id_required_for_chat_media');
+      await this.verifyChatUploadAllowed(threadId, user.id);
+    } else if (threadId) {
+      throw new BadRequestException('thread_id_only_supported_for_chat_media');
+    }
+  }
+
+  private async canReadAsset(asset: any, user: any): Promise<boolean> {
+    if (asset.owner_id === user?.id) return true;
+    if (asset.purpose !== 'chat' || !asset.thread_id) return false;
     try {
       const ChatThreadModel = this.connection.model('ChatThread');
-      const thread = await ChatThreadModel.findOne({ id: threadId });
-      if (!thread) return;
+      const thread = await ChatThreadModel.findOne({ id: asset.thread_id, participant_ids: user.id });
+      return Boolean(thread);
+    } catch {
+      return false;
+    }
+  }
+
+  private async verifyChatUploadAllowed(threadId: string, userId: string) {
+    try {
+      const ChatThreadModel = this.connection.model('ChatThread');
+      const thread = await ChatThreadModel.findOne({ id: threadId, participant_ids: userId });
+      if (!thread) throw new NotFoundException('thread_not_found');
 
       if (thread.participant_ids && thread.participant_ids.length >= 2) {
         const userA = thread.participant_ids[0];
@@ -116,17 +149,25 @@ export class MediaController {
         }
       }
     } catch (err) {
-      if (err instanceof ForbiddenException || err instanceof BadRequestException) throw err;
-      // Allow in case of missing model definitions during test runs
+      if (err instanceof ForbiddenException || err instanceof BadRequestException || err instanceof NotFoundException) throw err;
+      // Fail closed instead of accepting a chat attachment when the relationship cannot be verified.
+      throw new BadRequestException('chat_media_authorization_unavailable');
     }
   }
 
-  @Delete(':key(*)')
-  async deleteFile(@Param('key') key: string) {
-    if (!key) {
+  /**
+   * P1 security hardening (2026-08-20): previously any authenticated user —
+   * including patients — could delete ANY object in the R2 bucket by key.
+   * Deletion is now restricted to platform admins only.
+   */
+  @Delete('*key')
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  async deleteFile(@Param('key') key: string | string[]) {
+    const keyStr = Array.isArray(key) ? key.join('/') : key;
+    if (!keyStr) {
       throw new BadRequestException('key is required');
     }
-    await this.mediaService.deleteFile(key);
+    await this.mediaService.deleteFile(keyStr);
     return { success: true };
   }
 }

@@ -4,9 +4,11 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  ScrollView
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  TextInput,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -18,6 +20,8 @@ import {
   Button,
   IconButton,
 } from "../../src/components/ui";
+import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function CustomItemScreen() {
   const insets = useSafeAreaInsets();
@@ -27,8 +31,68 @@ export default function CustomItemScreen() {
   const [dose, setDose] = useState("");
   const [qty, setQty] = useState("1");
   const [note, setNote] = useState("");
-  const [prescriptionUploaded, setPrescriptionUploaded] = useState(false);
+  const [prescriptionUrl, setPrescriptionUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // E2: real prescription upload (was a fake toggle that uploaded nothing)
+  const pickPrescription = async () => {
+    try {
+      const ImagePicker = await import('expo-image-picker');
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        showLocalizedAlert('الإذن مطلوب', 'نحتاج إذن الوصول للصور لرفع الوصفة.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'] as any, quality: 0.85 });
+      if (result.canceled || !result.assets?.[0]) return;
+      const asset = result.assets[0];
+      setUploading(true);
+      const form = new FormData();
+      form.append('file', { uri: asset.uri, name: asset.fileName || 'prescription.jpg', type: asset.mimeType || 'image/jpeg' } as any);
+      form.append('folder', 'support');
+      const res = await apiFetch('/media/upload', { method: 'POST', body: form });
+      if (res?.url) {
+        setPrescriptionUrl(res.url);
+      } else {
+        showLocalizedAlert('تعذر رفع الوصفة', 'حاول مرة أخرى.');
+      }
+    } catch (e: any) {
+      showLocalizedAlert('تعذر رفع الوصفة', e?.message || 'حاول مرة أخرى.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // E2: real submission — persisted as a support request the pharmacy team actually receives
+  const handleSubmit = async () => {
+    if (!name.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      const lines = [
+        `الدواء المطلوب: ${name.trim()}`,
+        dose.trim() ? `الجرعة/التركيز: ${dose.trim()}` : null,
+        qty.trim() ? `الكمية: ${qty.trim()}` : null,
+        note.trim() ? `ملاحظات: ${note.trim()}` : null,
+      ].filter(Boolean).join('\n');
+      await apiFetch('/support/requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          subject: `طلب دواء خاص: ${name.trim()}`,
+          message: lines,
+          category: 'PHARMACY_CUSTOM_ITEM',
+          priority: 'medium',
+          attachments: prescriptionUrl ? [prescriptionUrl] : [],
+        }),
+      });
+      setSubmitted(true);
+    } catch (e: any) {
+      showLocalizedAlert('تعذر إرسال الطلب', e?.message || 'تحقق من اتصالك وحاول مرة أخرى.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (submitted) {
     return (
@@ -46,7 +110,7 @@ export default function CustomItemScreen() {
           تم إرسال الطلب!
         </AppText>
         <AppText variant="bodySM" color={colors.textSecondary} align="center">
-          سنتواصل معك خلال ساعة لتأكيد التوفر والسعر
+          استلم فريق الصيدلية طلبك وسيراجعه — سيصلك الرد عبر مركز الدعم
         </AppText>
         <TouchableOpacity
           onPress={() => router.replace("/(tabs)/pharmacy")}
@@ -210,34 +274,39 @@ export default function CustomItemScreen() {
           />
         </View>
         <TouchableOpacity
-          onPress={() => setPrescriptionUploaded(true)}
+          onPress={pickPrescription}
+          disabled={uploading}
           style={[
             styles.prescBtn,
             {
-              backgroundColor: prescriptionUploaded
+              backgroundColor: prescriptionUrl
                 ? isDark
                   ? "rgba(91,168,79,0.15)"
                   : "#DCFCE7"
                 : colors.surface,
-              borderColor: prescriptionUploaded
+              borderColor: prescriptionUrl
                 ? colors.success
                 : colors.border,
             },
           ]}
         >
-          <AppText
-            variant="labelMD"
-            color={prescriptionUploaded ? colors.success : colors.textPrimary}
-          >
-            {prescriptionUploaded
-              ? "تم رفع الوصفة"
-              : "رفع الوصفة الطبية (اختياري)"}
-          </AppText>
+          {uploading ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <AppText
+              variant="labelMD"
+              color={prescriptionUrl ? colors.success : colors.textPrimary}
+            >
+              {prescriptionUrl
+                ? "تم رفع الوصفة ✓"
+                : "رفع الوصفة الطبية (اختياري)"}
+            </AppText>
+          )}
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setSubmitted(true)}
-          disabled={!name}
-          style={{ opacity: !name ? 0.5 : 1 }}
+          onPress={handleSubmit}
+          disabled={!name.trim() || submitting}
+          style={{ opacity: !name.trim() || submitting ? 0.5 : 1 }}
         >
           <View style={[styles.submitBtn, { backgroundColor: colors.primary }]}>
             <View
@@ -247,14 +316,20 @@ export default function CustomItemScreen() {
                 gap: 6,
               }}
             >
-              <Icon name="upload" size={16} color="#fff" />
-              <AppText
-                variant="labelMD"
-                color="#fff"
-                style={{ fontWeight: "800" }}
-              >
-                إرسال الطلب
-              </AppText>
+              {submitting ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Icon name="upload" size={16} color="#fff" />
+                  <AppText
+                    variant="labelMD"
+                    color="#fff"
+                    style={{ fontWeight: "800" }}
+                  >
+                    إرسال الطلب
+                  </AppText>
+                </>
+              )}
             </View>
           </View>
         </TouchableOpacity>
@@ -326,5 +401,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  submitBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
+  submitBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 });

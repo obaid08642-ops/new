@@ -20,8 +20,10 @@ describe('LoyaltyService', () => {
     };
     txModel = {
       find: jest.fn(),
+      findOne: jest.fn().mockResolvedValue(null), // idempotency dup-check (EPIC4)
       create: jest.fn(),
       updateOne: jest.fn(),
+      countDocuments: jest.fn().mockResolvedValue(0), // vitals daily cap (EPIC4)
     };
     challengeModel = { find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }) };
     progressModel = {

@@ -1,108 +1,32 @@
-// @ts-nocheck
-// app/health/reports.tsx
-import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, FlatList, StatusBar, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-
 import { apiFetch } from '../../src/utils/api';
+
+type Report = { id: string; date?: string | null; title?: string | null; doctor?: string | null; facility?: string | null; type?: string | null; critical?: boolean; has_attachments?: boolean };
 
 export default function ReportsScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) { requireAuth(); return null; }
-  
-  const [reports, setReports] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  React.useEffect(() => {
-    async function load() {
-      try {
-        const res = await apiFetch('/health/reports');
-        setReports(Array.isArray(res) ? res : res?.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+  const [reports, setReports] = React.useState<Report[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const load = React.useCallback(async () => {
+    setLoading(true); setError(null);
+    try { const response: any = await apiFetch('/health/reports'); const rows = Array.isArray(response) ? response : response?.data; setReports(Array.isArray(rows) ? rows : []); }
+    catch { setError('تعذر تحميل التقارير الصحية.'); }
+    finally { setLoading(false); }
   }, []);
+  React.useEffect(() => { load(); }, [load]);
 
-  return (
-    <View style={[styles.container, { backgroundColor: colors.background } ]}>
-      <StatusBar barStyle="light-content" />
-      <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
-        <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' }}>
-          <IconButton icon="share" bg={colors.surfaceSecondary} color={colors.textPrimary} />
-          <AppText variant="h3" color={colors.textPrimary}>تقاريري الصحية</AppText>
-          <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
-        </View>
-      </View>
-
-      <FlatList
-        data={reports}
-        keyExtractor={r => r.id}
-        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.reportCard, { backgroundColor: isDark ? colors.surface : colors.white }]} activeOpacity={0.85}>
-            <View style={styles.reportHeader}>
-              <View style={styles.reportActions}>
-                <TouchableOpacity style={[styles.pdfBtn, { backgroundColor: '#EEF2FF' } ]}>
-                  <Icon name="document" size={14} color="#6366F1" />
-                  <AppText variant="bodySM">PDF</AppText>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.reportInfo}>
-                <AppText variant="bodySM">{item.title}</AppText>
-                <AppText variant="bodySM">{item.date}</AppText>
-              </View>
-              <View style={[styles.reportEmoji, { backgroundColor: isDark ? colors.background : '#EEF2FF' } ]}>
-                <Icon name={item.icon} size={24} color={colors.primary} />
-              </View>
-            </View>
-            {item.score && (
-              <View style={[styles.scoreBadge, { backgroundColor: item.score >= 85 ? '#DCFCE7' : '#FEF3C7' }]}>
-                <AppText variant="bodySM">
-                  درجة الصحة: {item.score}/100
-                </AppText>
-              </View>
-            )}
-            <View style={[styles.highlights, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
-              {item.highlights.map((h, i) => (
-                <AppText variant="bodySM">• {h}</AppText>
-              ))}
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-  );
+  return <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><AppText variant="h3">تقاريري الصحية</AppText><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>
+    {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>جارٍ تحميل التقارير…</AppText></View> : <FlatList data={reports} keyExtractor={(item) => item.id} contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 32 }]} ListHeaderComponent={<>{error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText><Button label="إعادة المحاولة" variant="outline" size="sm" full={false} onPress={load} /></Card>}{!error && reports.length === 0 && <Card style={styles.empty}><AppText variant="h6">لا توجد تقارير متاحة</AppText><AppText variant="bodySM" color={colors.textTertiary} align="right">عند إصدار تقرير مرتبط بحسابك سيظهر هنا. لا تُعرض درجات أو ملخصات غير موجودة في بيانات التقرير.</AppText></Card>}</>} renderItem={({ item }) => <Card style={styles.report}><View style={styles.row}><View style={{ flex: 1, alignItems: 'flex-end', gap: 4 }}><AppText variant="h6">{item.title || 'تقرير صحي'}</AppText>{item.type && <AppText variant="caption" color={colors.textTertiary}>{item.type}</AppText>}{item.doctor && <AppText variant="caption" color={colors.textTertiary}>{item.doctor}</AppText>}{item.facility && <AppText variant="caption" color={colors.textTertiary}>{item.facility}</AppText>}<AppText variant="caption" color={colors.textTertiary}>{item.date || 'تاريخ الإصدار غير متاح'}</AppText></View>{item.critical && <Badge label="تنبيه من التقرير" color={colors.warning} />}</View>{item.has_attachments && <AppText variant="caption" color={colors.textTertiary} align="right">يتضمن التقرير مرفقات متاحة من مقدم الخدمة.</AppText>}</Card>} />}
+  </View>;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 20 },
-  headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-  reportCard: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, gap: 10 },
-  reportHeader: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 10 },
-  reportEmoji: { width: 50, height: 50, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
-  reportInfo: { flex: 1, alignItems: 'flex-end', gap: 3 },
-  reportTitle: { fontSize: 14, fontWeight: '800' },
-  reportDate: { fontSize: 11, fontWeight: '400' },
-  reportActions: {},
-  pdfBtn: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
-  pdfText: { color: '#6366F1', fontSize: 10, fontWeight: '800' },
-  scoreBadge: { borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-end' },
-  highlights: { borderRadius: 12, padding: 10, gap: 3 },
-  highlight: { fontSize: 12, fontWeight: '400', textAlign: 'right' },
-});
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 8 }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }, list: { padding: 16, gap: 14 }, error: { backgroundColor: '#FEE2E2', alignItems: 'flex-end', gap: 8, marginBottom: 14 }, empty: { alignItems: 'flex-end', gap: 10, padding: 20, marginBottom: 14 }, report: { gap: 8 }, row: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 10 } });

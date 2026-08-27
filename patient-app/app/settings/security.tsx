@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Switch
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  Switch,
+  TextInput,
+  Alert,
+} from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +22,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function SecuritySettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -59,7 +60,7 @@ export default function SecuritySettingsScreen() {
 
   const handleChangePass = async () => {
     if (newPass !== confirmPass) {
-      Alert.alert('خطأ', 'كلمة المرور الجديدة وتأكيدها غير متطابقين');
+      showLocalizedAlert('خطأ', 'كلمة المرور الجديدة وتأكيدها غير متطابقين');
       return;
     }
     setIsSaving(true);
@@ -68,13 +69,13 @@ export default function SecuritySettingsScreen() {
         method: 'POST',
         body: JSON.stringify({ current_password: currentPass, new_password: newPass }),
       });
-      Alert.alert('نجح', 'تم تغيير كلمة المرور بنجاح');
+      showLocalizedAlert('نجح', 'تم تغيير كلمة المرور بنجاح');
       setShowPassChange(false);
       setCurrentPass("");
       setNewPass("");
       setConfirmPass("");
     } catch (e: any) {
-      Alert.alert('خطأ', e?.message || 'فشل تغيير كلمة المرور، تأكد من كلمة المرور الحالية');
+      showLocalizedAlert('خطأ', e?.message || 'فشل تغيير كلمة المرور، تأكد من كلمة المرور الحالية');
     } finally {
       setIsSaving(false);
     }
@@ -82,13 +83,37 @@ export default function SecuritySettingsScreen() {
 
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [revoking, setRevoking] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  const loadSessions = () => {
     apiFetch<any[]>('/users/me/sessions')
       .then(res => setSessions(res || []))
       .catch(() => setSessions([]))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  React.useEffect(() => { loadSessions(); }, []);
+
+  const revokeSession = (s: any) => {
+    showLocalizedAlert('إنهاء الجلسة', `سيتم تسجيل الخروج من ${s.device || 'هذا الجهاز'} فوراً.`, [
+      { text: 'إلغاء', style: 'cancel' },
+      {
+        text: 'إنهاء',
+        style: 'destructive',
+        onPress: async () => {
+          setRevoking(s.id);
+          try {
+            await apiFetch(`/users/me/sessions/${s.id}`, { method: 'DELETE' });
+            setSessions(prev => prev.filter(x => x.id !== s.id));
+          } catch (err: any) {
+            showLocalizedAlert('تعذّر إنهاء الجلسة', err?.message || 'حدث خطأ — حاول مرة أخرى');
+          } finally {
+            setRevoking(null);
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -265,12 +290,14 @@ export default function SecuritySettingsScreen() {
               >
                 {!s.current && (
                   <TouchableOpacity
+                    onPress={() => revokeSession(s)}
+                    disabled={revoking === s.id}
                     style={[
                       styles.endSessionBtn,
-                      { backgroundColor: colors.errorSurface },
+                      { backgroundColor: colors.errorSurface, opacity: revoking === s.id ? 0.5 : 1 },
                     ]}
                   >
-                    <AppText variant="bodySM">إنهاء</AppText>
+                    <AppText variant="bodySM">{revoking === s.id ? 'جاري…' : 'إنهاء'}</AppText>
                   </TouchableOpacity>
                 )}
                 <View style={styles.sessionInfo}>

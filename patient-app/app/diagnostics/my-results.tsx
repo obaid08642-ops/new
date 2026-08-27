@@ -23,8 +23,13 @@ export default function MyResultsScreen() {
   const fetchResults = async () => {
     try {
       setLoading(true);
-      const data = await apiFetch<any[]>("/labs/bookings/mine");
-      setBookings(data || []);
+      // M4: دمج نتائج التحاليل وتقارير الأشعة
+      const [labs, radReports] = await Promise.all([
+        apiFetch<any[]>("/labs/bookings/mine").catch(() => []),
+        apiFetch<any[]>("/radiology/reports/mine").catch(() => []),
+      ]);
+      const radItems = (radReports || []).map((r: any) => ({ ...r, __isRadiology: true }));
+      setBookings([...(labs || []), ...radItems]);
     } catch (err) {
       console.log("Error loading results", err);
     } finally {
@@ -83,8 +88,8 @@ export default function MyResultsScreen() {
             const report = hasReport ? b.reports[0] : null;
             const title =
               b.items?.map((i: any) => i.name_ar).join(" + ") ||
-              "تحاليل مخبرية";
-            const labName = b.provider_name || "مختبر معتمد";
+              (b.__isRadiology ? "أشعة وتصوير" : "تحاليل مخبرية");
+            const labName = b.provider_name || (b.__isRadiology ? "مركز أشعة معتمد" : "مختبر معتمد");
             const dateStr = new Date(b.scheduled_at).toLocaleDateString(
               "ar-EG",
               { day: "numeric", month: "long", year: "numeric" },
@@ -109,26 +114,30 @@ export default function MyResultsScreen() {
             } else if (b.state === "IN_LAB" || b.state === "PROCESSING") {
               statusText = "في المختبر للتحليل";
               badgeColor = colors.warning;
+            } else if (b.state === "REPORT_READY") {
+              statusText = "التقرير جاهز";
+              badgeColor = colors.success;
+            } else if (b.state === "PENDING") {
+              statusText = "بانتظار القبول";
+              badgeColor = colors.primary;
+            } else if (b.state === "IN_PROGRESS" || b.state === "SCANNING") {
+              statusText = "جارٍ التصوير";
+              badgeColor = colors.info || "#0284C7";
             }
+
+            // M4: عناصر الأشعة — التقرير قد يكون PDF موقّعًا على مستوى الحجز
+            const isRad = !!b.__isRadiology;
+            const radHasReport = isRad && (!!b.signed_report_pdf_url || (b.reports && b.reports.length > 0));
+            const radReport = isRad
+              ? (b.reports?.[0] || { id: b.id, url: b.signed_report_pdf_url, name: 'تقرير الأشعة' })
+              : null;
+            const effHasReport = isRad ? radHasReport : hasReport;
+            const effReport = isRad ? radReport : report;
 
             return (
               <Card
                 key={b.id}
-                onPress={() =>
-                  hasReport
-                    ? router.push({
-                        pathname: "/reports/view-report",
-                        params: {
-                          reportId: report.id,
-                          url: report.url,
-                          name: report.name,
-                        },
-                      })
-                    : router.push({
-                        pathname: "/diagnostics/sample-tracking",
-                        params: { bookingId: b.id },
-                      })
-                }
+                onPress={() => router.push({ pathname: "/diagnostics/order/[id]", params: { id: b.id } })}
               >
                 <View
                   style={{
@@ -137,8 +146,8 @@ export default function MyResultsScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <View style={[st.icon, { backgroundColor: "#7A6BEA18" }]}>
-                    <Icon name="science" size={22} color="#7A6BEA" />
+                  <View style={[st.icon, { backgroundColor: isRad ? "#0284C718" : "#7A6BEA18" }]}>
+                    <Icon name={isRad ? "radiology-box-outline" : "science"} size={22} color={isRad ? "#0284C7" : "#7A6BEA"} />
                   </View>
                   <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
                     <AppText variant="h6">{title}</AppText>
@@ -153,7 +162,7 @@ export default function MyResultsScreen() {
                       }}
                     >
                       <Badge label={statusText} color={badgeColor} />
-                      {hasReport && (
+                      {effHasReport && (
                         <Badge label="تقرير PDF جاهز" color={colors.success} />
                       )}
                     </View>

@@ -16,7 +16,7 @@ export class FraudAlert {
   providerId: string;
 
   @Prop({ required: true, enum: ['duplicate_reviews_same_ip', 'rapid_bookings'], index: true })
-  flagType: 'duplicate_reviews_same_ip' | 'rapid_bookings';
+  flagType: 'duplicate_reviews_same_ip' | 'rapid_bookings' | 'payment_velocity_abuse';
 
   @Prop({ required: true })
   confidenceScore: number;

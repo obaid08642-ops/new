@@ -42,6 +42,7 @@ import { ProfileImageAuditLogSchema } from '../../schemas/profile-image-audit-lo
 import { User, UserSchema } from '../../schemas/user.schema';
 import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
 import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiology.schema';
+import { SimulatedFeaturesController } from './simulated-features.controller';
 import { LeaveRequestsController } from './leave-requests.controller';
 import {
   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
@@ -72,11 +73,13 @@ import { ProviderScheduleSlotRepository } from "./services/repositories/provider
 import { ProviderScoreSnapshotRepository } from "./services/repositories/providerscoresnapshot.repository";
 import { RadiologyServiceCatalogItemRepository } from "./services/repositories/radiologyservicecatalogitem.repository";
 import { ProviderSessionRepository } from "./services/repositories/providersession.repository";
+import { LeaveRequestSchema } from '../../schemas/leave-request.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'ProviderAccount', schema: ProviderAccountSchema },
+      { name: 'LeaveRequest', schema: LeaveRequestSchema },
       { name: 'ProviderSession', schema: ProviderSessionSchema },
       { name: 'ProfileImageMetadata', schema: ProfileImageMetadataSchema },
       { name: 'ImageProcessingJob', schema: ImageProcessingJobSchema },
@@ -108,16 +111,18 @@ import { ProviderSessionRepository } from "./services/repositories/providersessi
       { name: 'ProviderAssignmentAttempt', schema: ProviderAssignmentAttemptSchema },
       { name: 'ProviderScoreSnapshot', schema: ProviderScoreSnapshotSchema },
     ]),
-    JwtModule.registerAsync({
-      useFactory: () => {
-        const secret = process.env.JWT_SECRET?.trim();
-        if (!secret) throw new Error('JWT_SECRET must be configured for the provider module');
-        return { secret, signOptions: { expiresIn: '14d' } };
-      },
-    }),
+    JwtModule.registerAsync({ useFactory: () => {
+      const secret = process.env.JWT_SECRET;
+      if (!secret) throw new Error('FATAL: JWT_SECRET must be configured');
+      if (process.env.NODE_ENV === 'production' && secret.length < 32) {
+        throw new Error('FATAL: JWT_SECRET must be at least 32 characters in production');
+      }
+      return { secret, signOptions: { expiresIn: '14d' } };
+    } }),
     StorageModule,
   ],
   controllers: [
+    SimulatedFeaturesController,
     LeaveRequestsController,
     ProviderAuthController,
     ProviderProfileController,

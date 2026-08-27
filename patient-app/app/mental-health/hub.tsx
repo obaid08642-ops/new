@@ -1,147 +1,71 @@
-// @ts-nocheck
-// Mental health hub — all mental health features
-import React from "react";
-import { View, StyleSheet, ScrollView, StatusBar } from "react-native";
-import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useApp } from "../../src/context/AppContext";
-import { Icon, IconName } from "../../src/components/Icon";
-import { AppText, Card, IconButton } from "../../src/components/ui";
+import React from 'react';
+import { ScrollView, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useApp } from '../../src/context/AppContext';
+import { Icon, IconName } from '../../src/components/Icon';
+import { AppText } from '../../src/components/ui';
+import { mentalHealthT } from '../../src/i18n/mental-health';
 
-const FEATURES: {
-  icon: IconName;
-  label: string;
-  desc: string;
-  route: string;
-  color: string;
-}[] = [
-  {
-    icon: "robot",
-    label: "مطابقة المعالج بالـ AI",
-    desc: "نساعدك في إيجاد المعالج المثالي",
-    route: "/mental-health/therapist-match",
-    color: "#6366F1",
-  },
-  {
-    icon: "meditation",
-    label: "تمارين التنفس",
-    desc: "تقنيات تنفس للهدوء والاسترخاء",
-    route: "/mental-health/breathing",
-    color: "#10B981",
-  },
-  {
-    icon: "meditation",
-    label: "تأمل موجّه",
-    desc: "جلسات تأمل صوتية",
-    route: "/mental-health/meditation",
-    color: "#7A6BEA",
-  },
-  {
-    icon: "edit",
-    label: "سجل المزاج",
-    desc: "تتبع مشاعرك يومياً",
-    route: "/mental-health/mood-journal",
-    color: "#F0A526",
-  },
-  {
-    icon: "document",
-    label: "تقييم ذاتي",
-    desc: "اختبارات نفسية معتمدة",
-    route: "/mental-health/self-assessment",
-    color: "#23B5CE",
-  },
-  {
-    icon: "call",
-    label: "دعم الأزمات",
-    desc: "خطوط مساعدة فورية 24/7",
-    route: "/mental-health/crisis-support",
-    color: "#F0695C",
-  },
-  {
-    icon: "doctor",
-    label: "استشارة نفسية",
-    desc: "تحدث مع طبيب نفسي معتمد",
-    route: "/(tabs)/consultations",
-    color: "#23B5CE",
-  },
-];
+type RouteCard = { key: 'moodJournal' | 'urgentHelp' | 'consultation'; icon: IconName; color: string; route: string; descriptionKey: 'moodPrompt' | 'urgentBody' | 'subtitle' };
 
 export default function MentalHealthHubScreen() {
   const insets = useSafeAreaInsets();
-  const { colors } = useApp();
+  const { colors, lang } = useApp();
+  const t = (key: Parameters<typeof mentalHealthT>[1]) => mentalHealthT(lang, key);
+  const cards: RouteCard[] = [
+    { key: 'moodJournal', icon: 'edit', color: '#7A6BEA', route: '/mental-health/mood-journal', descriptionKey: 'moodPrompt' },
+    { key: 'consultation', icon: 'doctor', color: '#2563EB', route: '/(tabs)/consultations', descriptionKey: 'subtitle' },
+    { key: 'urgentHelp', icon: 'call', color: '#DC2626', route: '/mental-health/crisis-support', descriptionKey: 'urgentBody' },
+  ];
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
-      <View style={[st.hdr, { paddingTop: insets.top + 12 }]}>
-        <View style={st.hdrRow}>
-          <View style={{ width: 40 }} />
-          <View style={{ alignItems: "center" }}>
-            <AppText variant="h4" color="#fff">
-              الصحة النفسية
-            </AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.8)">
-              صحتك النفسية أولوية
-            </AppText>
-          </View>
-          <IconButton
-            icon="back"
-            bg="rgba(255,255,255,0.18)"
-            color="#fff"
-            onPress={() => router.back()}
-          />
-        </View>
+      <View style={[styles.header, { backgroundColor: '#312E81', paddingTop: insets.top + 14 }]}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('cancel')} onPress={() => router.back()} style={styles.backButton}>
+          <Icon name="back" size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+        <AppText variant="h4" color="#FFFFFF">{t('title')}</AppText>
+        <AppText variant="caption" color="rgba(255,255,255,0.82)">{t('subtitle')}</AppText>
       </View>
 
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}
-      >
-        {FEATURES.map((f, i) => (
-          <Card
-            key={i}
-            onPress={() => router.push(f.route as any)}
-            style={{
-              flexDirection: "row-reverse",
-              alignItems: "center",
-              gap: 14,
-            }}
-          >
-            <View style={[st.fIcon, { backgroundColor: f.color + "18" }]}>
-              <Icon name={f.icon} size={24} color={f.color} />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={[styles.notice, { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' }]}>
+          <Icon name="info" size={19} color="#4338CA" />
+          <AppText variant="caption" color={colors.textPrimary} style={styles.noticeText}>{t('wellbeingNotice')}</AppText>
+        </View>
+
+        {cards.map((card) => (
+          <TouchableOpacity key={card.key} accessibilityRole="button" onPress={() => router.push(card.route as any)} activeOpacity={0.82} style={[styles.card, { backgroundColor: colors.surface, borderColor: card.color + '33' }]}>
+            <View style={[styles.iconWrap, { backgroundColor: card.color + '1A' }]}>
+              <Icon name={card.icon} size={24} color={card.color} />
             </View>
-            <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
-              <AppText variant="h6">{f.label}</AppText>
-              <AppText variant="caption" color={colors.textTertiary}>
-                {f.desc}
-              </AppText>
+            <View style={styles.cardText}>
+              <AppText variant="h6" color={colors.textPrimary}>{t(card.key)}</AppText>
+              <AppText variant="caption" color={colors.textTertiary} numberOfLines={card.key === 'urgentHelp' ? 3 : 2}>{t(card.descriptionKey)}</AppText>
             </View>
             <Icon name="chevronLeft" size={18} color={colors.textTertiary} />
-          </Card>
+          </TouchableOpacity>
         ))}
+
+        <View style={[styles.footerNotice, { backgroundColor: colors.backgroundSecondary }]}>
+          <AppText variant="caption" color={colors.textSecondary} style={styles.noticeText}>{t('noDiagnosis')}</AppText>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: {
-    paddingHorizontal: 16,
-    paddingBottom: 18,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  hdrRow: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  fIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: { paddingHorizontal: 20, paddingBottom: 26, gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  backButton: { width: 38, height: 38, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-end' },
+  content: { padding: 16, gap: 12, paddingBottom: 92 },
+  notice: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 10, padding: 14, borderRadius: 16, borderWidth: 1 },
+  noticeText: { flex: 1, textAlign: 'right', lineHeight: 20 },
+  card: { flexDirection: 'row-reverse', alignItems: 'center', gap: 13, padding: 15, borderRadius: 18, borderWidth: 1 },
+  iconWrap: { width: 50, height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  cardText: { flex: 1, alignItems: 'flex-end', gap: 4 },
+  footerNotice: { padding: 14, borderRadius: 16, marginTop: 4 },
 });

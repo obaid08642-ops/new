@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,9 +13,40 @@ import {
   IconButton,
 } from "../../src/components/ui";
 
+import { apiFetch } from "../../src/utils/api";
+
+const STATE_MAP: any = {
+  REQUESTED: { label: "قيد المراجعة", color: "#F0A526" },
+  APPROVED: { label: "تمت الموافقة", color: "#23B5CE" },
+  EXECUTED: { label: "تم الاسترداد", color: "#5BA84F" },
+  REJECTED: { label: "مرفوض", color: "#F0695C" },
+  FAILED: { label: "فشل التنفيذ", color: "#F0695C" },
+};
+
 export default function InsuranceRefundScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
+  const [refunds, setRefunds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch('/refunds/my')
+      .then((res: any) => setRefunds(Array.isArray(res) ? res : []))
+      .catch(() => setRefunds([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const items = refunds.map((r: any) => {
+    const s = STATE_MAP[r.state] || { label: r.state || "—", color: "#94A3B8" };
+    return {
+      id: r.id,
+      service: r.reason || r.booking_id || "طلب استرداد",
+      amount: r.refund_amount ?? r.amount_paid ?? null,
+      status: s.label,
+      statusColor: s.color,
+      date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('ar') : '',
+    };
+  });
 
   return (
     <View style={[{ flex: 1, backgroundColor: colors.background }]}>
@@ -35,24 +66,13 @@ export default function InsuranceRefundScreen() {
         </View>
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-        {[
-          {
-            id: "INS-001",
-            service: "استشارة قلب",
-            amount: 270,
-            status: "تم الاسترداد",
-            statusColor: "#5BA84F",
-            date: "5 يونيو",
-          },
-          {
-            id: "INS-002",
-            service: "تحليل CBC",
-            amount: 64,
-            status: "قيد المراجعة",
-            statusColor: "#F0A526",
-            date: "1 يونيو",
-          },
-        ].map((item, i) => (
+        {!loading && items.length === 0 && (
+          <View style={{ alignItems: 'center', paddingVertical: 48, gap: 8 }}>
+            <Icon name="info" size={40} color={colors.textTertiary} />
+            <AppText variant="bodySM" color={colors.textSecondary}>لا توجد طلبات استرداد</AppText>
+          </View>
+        )}
+        {items.map((item, i) => (
           <View
             key={i}
             style={[
@@ -64,9 +84,11 @@ export default function InsuranceRefundScreen() {
               },
             ]}
           >
-            <AppText variant="h4" color={colors.primary}>
-              {item.amount} ر.س
-            </AppText>
+            {item.amount !== null && (
+              <AppText variant="h4" color={colors.primary}>
+                {item.amount} ر.س
+              </AppText>
+            )}
             <View style={styles.info}>
               <AppText variant="h6" color={colors.textPrimary}>
                 {item.service}

@@ -7,12 +7,11 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Share
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  Share,
+  Alert,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import QRCode from "react-native-qrcode-svg";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
 import {
@@ -23,6 +22,8 @@ import {
   Button,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import QRCode from "react-native-qrcode-svg";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 // PASSPORT_DATA removed
 
@@ -31,11 +32,11 @@ export default function HealthPassportScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [profile, setProfile] = React.useState<any>(null);
-  const [passport, setPassport] = React.useState<any>(null);
+  const [passportToken, setPassportToken] = React.useState<any>(null);
 
   React.useEffect(() => {
     apiFetch('/medical-profile').then(res => setProfile(res)).catch(() => {});
-    apiFetch('/patients/passport').then(res => setPassport(res)).catch(() => setPassport(null));
+    apiFetch('/medical-profile/passport-token').then(res => setPassportToken(res)).catch(() => setPassportToken(null));
   }, []);
 
   const handleSharePassport = async () => {
@@ -92,25 +93,32 @@ export default function HealthPassportScreen() {
             مسح الملف الطبي السريع
           </AppText>
           <AppText variant="caption" color={colors.textTertiary} align="center">
-            اسمح للطبيب أو المسعف بمسح هذا الرمز للوصول الفوري للملخص الطبي
+            رمز مؤقت لا يتضمن بياناتك الطبية مباشرة
           </AppText>
 
-          {/* Server-signed QR content */}
+          {/* QR contains only a short-lived opaque backend token, never medical data. */}
           <View style={st.qrContainer}>
-            <View style={[st.qrSquare, { borderColor: colors.primary }]}> 
-              {passport?.qrContent ? (
-                <QRCode value={passport.qrContent} size={178} color={colors.textPrimary} backgroundColor={colors.surface} />
+            <View style={[st.qrSquare, { borderColor: colors.primary }]}>
+              {passportToken?.token ? (
+                <QRCode
+                  value={JSON.stringify({
+                    t: passportToken.format,
+                    v: passportToken.version,
+                    token: passportToken.token,
+                  })}
+                  size={180}
+                  color={colors.textPrimary}
+                  backgroundColor="white"
+                />
               ) : (
-                <AppText variant="caption" color={colors.textTertiary} align="center">
-                  تعذر إصدار رمز التحقق حالياً. لن يتم عرض رمز بديل غير قابل للتحقق.
-                </AppText>
+                <AppText variant="caption" color={colors.textTertiary}>تعذر إصدار رمز آمن الآن. حاول لاحقاً.</AppText>
               )}
             </View>
           </View>
 
           <Badge
-            label={passport?.verificationToken ? "رمز تحقق موقّع من المنصة" : "رمز التحقق غير متاح"}
-            color={passport?.verificationToken ? colors.success : colors.warning}
+            label={passportToken?.expires_at ? `رمز مؤقت حتى ${new Date(passportToken.expires_at).toLocaleTimeString()}` : 'يتطلب اتصالاً آمناً'}
+            color={colors.success}
             style={{ alignSelf: "center", marginTop: 12 }}
           />
         </Card>
@@ -240,7 +248,7 @@ export default function HealthPassportScreen() {
               key={i}
               activeOpacity={0.8}
               onPress={() =>
-                Alert.alert(
+                showLocalizedAlert(
                   "اتصال الطوارئ",
                   `هل ترغب في الاتصال بـ ${contact.name}؟`,
                 )
@@ -282,8 +290,8 @@ const st = StyleSheet.create({
   qrCard: { padding: 20, alignItems: "center" },
   qrContainer: {
     marginTop: 16,
-    width: 160,
-    height: 160,
+    width: 204,
+    height: 204,
     padding: 10,
     backgroundColor: "transparent",
     borderRadius: 16,

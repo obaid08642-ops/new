@@ -3,11 +3,13 @@ import time
 import pytest
 import requests
 
-BASE_URL = "https://flutter-pharmacy.preview.emergentagent.com"
+BASE_URL = os.getenv("FASTAPI_TEST_BASE_URL")
 
 
 @pytest.fixture(scope="session")
 def base_url():
+    if not BASE_URL:
+        pytest.skip("FASTAPI_TEST_BASE_URL is required for external integration tests")
     return BASE_URL
 
 
@@ -19,10 +21,14 @@ def api_client():
 
 
 @pytest.fixture(scope="session")
-def admin_token(api_client):
+def admin_token(api_client, base_url):
+    identifier = os.getenv("NABDAH_TEST_ADMIN_IDENTIFIER")
+    password = os.getenv("NABDAH_TEST_ADMIN_PASSWORD")
+    if not identifier or not password:
+        pytest.skip("sandbox admin credentials are required for external integration tests")
     r = api_client.post(
-        f"{BASE_URL}/api/auth/login",
-        json={"phone": "+966500000000", "password": "Admin@123"},
+        f"{base_url}/api/auth/login",
+        json={"identifier": identifier, "password": password},
     )
     assert r.status_code == 200, f"Admin login failed: {r.status_code} {r.text}"
     return r.json()["token"]

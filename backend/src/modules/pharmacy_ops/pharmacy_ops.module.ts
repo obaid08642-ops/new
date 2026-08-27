@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PatientMedicineLookupController, PharmacyOpsController } from './pharmacy_ops.controller';
+import { PharmacyOpsController, ProviderPharmacyAliasController } from './pharmacy_ops.controller';
 import { PharmacyOpsService } from './pharmacy_ops.service';
 import { Order, OrderSchema } from '../../schemas/order.schema';
 import { Medicine, MedicineSchema } from '../../schemas/medicine.schema';
@@ -19,7 +19,7 @@ import { PharmacyInventoryRepository } from "./repositories/pharmacyinventory.re
     ]),
     OrdersModule,
   ],
-  controllers: [PharmacyOpsController, PatientMedicineLookupController],
+  controllers: [PharmacyOpsController, ProviderPharmacyAliasController],
   providers: [PharmacyOpsService, { provide: 'MedicineRepository', useClass: MedicineRepository }, { provide: 'OrderRepository', useClass: OrderRepository }, { provide: 'PharmacyInventoryRepository', useClass: PharmacyInventoryRepository }],
 })
 export class PharmacyOpsModule {}

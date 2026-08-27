@@ -5,18 +5,24 @@ export type RadiologyBookingDocument = RadiologyBooking & Document;
 
 @Schema({ timestamps: true })
 export class RadiologyBooking {
+  /** Public UUID used by apps/providers to reference the booking (mongo _id stays internal). */
+  @Prop({ type: String, unique: true, index: true })
+  id: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Appointment', default: null, index: true })
   parent_appointment_id: Types.ObjectId; // Referring medical appointment ID
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   patient_id: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
+  /** Bound when a center accepts the booking (null while pending acceptance). */
+  @Prop({ type: Types.ObjectId, ref: 'User', default: null, index: true })
   radiology_center_id: Types.ObjectId;
 
   @Prop({ required: true, enum: ['IN_CENTER', 'MOBILE_HOME_VISIT'], default: 'IN_CENTER' })
   delivery_mode: string;
 
+  @Prop() referring_doctor_id?: string;
   @Prop({ required: true })
   scan_type_code: string; // e.g., 'RAD-MRI-BRAIN'
 
@@ -31,7 +37,13 @@ export class RadiologyBooking {
 
   @Prop({
     type: String,
-    enum: ['PENDING_ACCEPTANCE', 'ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED', 'REPORT_UPLOADED', 'CANCELLED'],
+    // Center vocabulary + full ops vocabulary (RadiologyBookingState) — the two
+    // radiology booking systems share this collection, so both must be writable.
+    enum: [
+      'PENDING_ACCEPTANCE', 'ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED', 'REPORT_UPLOADED', 'CANCELLED',
+      'NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY', 'CONFIRMED', 'ARRIVED_CHECKIN',
+      'IN_SCANNING', 'REPORT_DRAFT', 'UNDER_REVIEW', 'REPORT_READY', 'SCAN_ABORTED',
+    ],
     default: 'PENDING_ACCEPTANCE',
     index: true
   })
@@ -45,5 +57,11 @@ export class RadiologyBooking {
 
   @Prop({ type: String, default: null })
   signed_report_pdf_url: string; // Standard PDF signed report
+
+  @Prop({ type: String, default: null })
+  report_storage_object_id: string;
+
+  @Prop({ type: [String], default: [] })
+  scan_storage_object_ids: string[];
 }
 export const RadiologyBookingSchema = SchemaFactory.createForClass(RadiologyBooking);

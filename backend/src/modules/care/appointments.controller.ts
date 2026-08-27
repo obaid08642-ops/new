@@ -68,19 +68,13 @@ export class AppointmentsController {
 
   @Post(':id/finish')
   @Roles(UserRole.DOCTOR, UserRole.HOME_CARE)
-  async finishAppointment(@Param('id') id: string, @Body() body: any, @CurrentUser('id') providerId: string) {
-    // 1. Save SOAP & Diagnosis
-    // 2. Kill Video/Audio stream (handled by closing LiveKit room on frontend/backend)
-    // 3. Shift Chat Thread to FOLLOW_UP
-    // 4. Calculate 15% Nabdah Commission on Cash/Online fees
-    // In a real implementation this calls AppointmentsService.finish(id, body, providerId)
-    // We will simulate the atomic sequence here for the V3.0 integration
-    
-    return {
-      success: true,
-      message: 'Consultation finished, E-Rx pushed, 15% commission applied.',
-      chat_status: 'FOLLOW_UP'
-    };
+  finishAppointment(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+    return this.svc.finish(id, body, user);
+  }
+
+  @Get(':id/summary')
+  summary(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getSummary(id, user);
   }
 
 }

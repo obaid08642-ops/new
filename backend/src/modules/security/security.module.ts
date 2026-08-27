@@ -81,6 +81,20 @@ export class AuditService {
   @OnEvent('auth.login_failed') async onLoginFailed(p: any) { await this.write({ action: 'login_failed', ip: p.ip, user_agent: p.user_agent, details: { phone: hashTail(p.phone) }, severity: 'warn' }); }
   @OnEvent('payment.refund') async onRefund(p: any) { await this.write({ action: 'payment_refund', user_id: p.actor_id, resource_kind: 'transaction', resource_id: p.transaction_id, details: { amount: p.amount }, severity: 'warn' }); }
   @OnEvent('admin.force_cancel') async onForceCancel(p: any) { await this.write({ action: 'admin_force_cancel', user_id: p.actor_id, role: 'admin', resource_kind: p.kind, resource_id: p.id, severity: 'critical' }); }
+
+  // ============ EPIC5/S5: financial + medical sensitive actions ============
+  /** Manual finance approvals (payouts, refund executions) — maker-checker decisions */
+  @OnEvent('finance.operation.executed') async onFinanceOpExecuted(p: any) { await this.write({ action: 'finance_operation_executed', user_id: p.by, role: 'admin', resource_kind: 'finance_operation', resource_id: p.id, details: { type: p.type, amount: p?.payload?.amount, provider_account_id: p?.payload?.provider_account_id }, severity: 'critical' }); }
+  @OnEvent('finance.operation.rejected') async onFinanceOpRejected(p: any) { await this.write({ action: 'finance_operation_rejected', user_id: p.by, role: 'admin', resource_kind: 'finance_operation', resource_id: p.id, details: { type: p.type, note: p.note }, severity: 'warn' }); }
+  /** Insurance decisions (approval / rejection / copay) */
+  @OnEvent('insurance.decided') async onInsuranceDecided(p: any) { await this.write({ action: 'insurance_decision', resource_kind: 'insurance_request', resource_id: p.request_id, details: { state: p.state, copay_amount: p.copay_amount, patient_id: p.patient_id }, severity: 'warn' }); }
+  /** Medical reports created (lab/radiology/doctor reports) */
+  @OnEvent('medical_report.created') async onMedicalReportCreated(p: any) { await this.write({ action: 'medical_report_created', resource_kind: 'medical_report', resource_id: p.id, details: { patient_id: p.patient_id, critical: !!p.critical, tracking_id: p.tracking_id }, severity: p.critical ? 'critical' : 'info' }); }
+  /** Lab / radiology report uploads */
+  @OnEvent('lab.report_uploaded') async onLabReportUploaded(p: any) { await this.write({ action: 'lab_report_uploaded', resource_kind: 'lab_booking', resource_id: p.booking_id, details: { report_id: p.report_id, patient_id: p.patient_id }, severity: 'warn' }); }
+  @OnEvent('radiology.report_published') async onRadiologyReportPublished(p: any) { await this.write({ action: 'radiology_report_published', resource_kind: 'radiology_booking', resource_id: p.bookingId || p.booking_id, details: { patient_id: p.patientId || p.patient_id }, severity: 'warn' }); }
+  /** Irreversible user deletion by admin */
+  @OnEvent('admin.user_deleted') async onUserDeleted(p: any) { await this.write({ action: 'user_deleted', user_id: p.admin_id, role: 'admin', resource_kind: 'user', resource_id: p.target_user_id, details: { target_role: p.role, phone_tail: p.phone_tail }, severity: 'critical' }); }
 }
 function hashTail(s?: string) { if (!s) return null; return createHash('sha256').update(s).digest('hex').slice(0, 12); }
 

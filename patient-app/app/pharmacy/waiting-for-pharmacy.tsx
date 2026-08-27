@@ -14,14 +14,16 @@ import {
   StyleSheet,
   Animated,
   Easing,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { lightColors, darkColors } from "../../src/theme/colors";
 import { apiFetch } from "../../src/utils/api";
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function WaitingForPharmacyScreen() {
   const insets = useSafeAreaInsets();
@@ -119,18 +121,19 @@ export default function WaitingForPharmacyScreen() {
   }, [orderId]);
 
   const handleCancel = () => {
-    Alert.alert("إلغاء الطلب", "هل أنت متأكد من رغبتك في إلغاء الطلب؟", [
+    showLocalizedAlert("إلغاء الطلب", "هل أنت متأكد من رغبتك في إلغاء الطلب؟", [
       { text: "لا، تراجع" },
       {
         text: "نعم، إلغاء",
         style: "destructive",
         onPress: async () => {
-          if (orderId) {
-            try {
-              await apiFetch(`/orders/${orderId}/cancel`, { method: "POST" });
-            } catch {}
+          // E2: was catch{} then navigate away anyway — user thought the order was cancelled when it wasn't.
+          try {
+            if (orderId) await apiFetch(`/orders/${orderId}/cancel`, { method: "POST" });
+            router.replace("/(tabs)/pharmacy");
+          } catch (e: any) {
+            showLocalizedAlert("تعذر إلغاء الطلب", e?.message || "تحقق من اتصالك وحاول مرة أخرى.");
           }
-          router.replace("/(tabs)/pharmacy");
         },
       },
     ]);
@@ -147,9 +150,9 @@ export default function WaitingForPharmacyScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.n }]}>
+        <LocalizedText style={[styles.headerTitle, { color: colors.n }]}>
           البحث عن صيدلية
-        </Text>
+        </LocalizedText>
       </View>
 
       {/* Radar */}
@@ -180,7 +183,7 @@ export default function WaitingForPharmacyScreen() {
         <Animated.View
           style={[styles.centerIcon, { transform: [{ scale: iconScale }] }]}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: "#23B5CE",
@@ -188,18 +191,18 @@ export default function WaitingForPharmacyScreen() {
             }}
           >
             local_pharmacy
-          </Text>
+          </LocalizedText>
         </Animated.View>
       </View>
 
       {/* Status Text */}
-      <Text style={[styles.statusTitle, { color: colors.n }]}>
+      <LocalizedText style={[styles.statusTitle, { color: colors.n }]}>
         نبحث لك عن أقرب صيدلية{dots}
-      </Text>
-      <Text style={[styles.statusSub, { color: colors.t2 }]}>
+      </LocalizedText>
+      <LocalizedText style={[styles.statusSub, { color: colors.t2 }]}>
         نقوم بمطابقة طلبك مع شبكة الصيدليات القريبة منك والتي تقبل تأمينك الطبي
         وتوفر الأصناف المطلوبة.
-      </Text>
+      </LocalizedText>
 
       {/* Info Cards */}
       <View
@@ -220,7 +223,7 @@ export default function WaitingForPharmacyScreen() {
               { backgroundColor: colors.s, borderColor: colors.bd },
             ]}
           >
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: "#23B5CE",
@@ -229,8 +232,8 @@ export default function WaitingForPharmacyScreen() {
               }}
             >
               {item.icon}
-            </Text>
-            <Text
+            </LocalizedText>
+            <LocalizedText
               style={{
                 fontFamily: "Cairo-Regular",
                 fontSize: 11,
@@ -239,7 +242,7 @@ export default function WaitingForPharmacyScreen() {
               }}
             >
               {item.label}
-            </Text>
+            </LocalizedText>
           </View>
         ))}
       </View>
@@ -254,7 +257,7 @@ export default function WaitingForPharmacyScreen() {
           onPress={handleCancel}
           activeOpacity={0.8}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: "#F0695C",
@@ -263,12 +266,12 @@ export default function WaitingForPharmacyScreen() {
             }}
           >
             cancel
-          </Text>
-          <Text
+          </LocalizedText>
+          <LocalizedText
             style={{ fontFamily: "Cairo-Bold", fontSize: 15, color: "#F0695C" }}
           >
             إلغاء الطلب
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

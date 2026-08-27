@@ -8,6 +8,8 @@ import {
   Query,
   UseGuards,
   Request,
+  Header,
+  Res,
 } from '@nestjs/common';
 import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
 import { ProcurementService } from '../services/procurement.service';
@@ -24,6 +26,21 @@ export class AdminProcurementController {
   @Get()
   async listAll(@Query('status') status?: ProcurementStatus) {
     return this.procurementService.adminListRequests(status);
+  }
+
+  /** GET /admin/procurement/summary - status counts for the dashboard chips */
+  @Get('summary')
+  async summary() {
+    return this.procurementService.adminSummary();
+  }
+
+  /** GET /admin/procurement/:id/export - download the request items as a CSV (opens in Excel) */
+  @Get(':id/export')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  async exportCsv(@Param('id') id: string, @Res() res: any) {
+    const csv = await this.procurementService.adminExportCsv(id);
+    res.setHeader('Content-Disposition', `attachment; filename="procurement-${id}.csv"`);
+    res.send(csv);
   }
 
   /** GET /admin/procurement/:id - Get single request details */

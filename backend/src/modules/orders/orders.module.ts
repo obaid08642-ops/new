@@ -9,6 +9,7 @@ import { Delivery, DeliverySchema } from '../../schemas/delivery.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { PharmacyInventory, PharmacyInventorySchema } from '../../schemas/inventory.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { FinanceEngineModule } from '../finance-engine/finance-engine.module';
 import { DeliveryRepository } from "./repositories/delivery.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { OrderRepository } from "./repositories/order.repository";
@@ -19,6 +20,7 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 @Module({
   imports: [
     WorkflowEngineModule,
+    FinanceEngineModule,
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Medicine.name, schema: MedicineSchema },

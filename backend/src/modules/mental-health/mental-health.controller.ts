@@ -1,16 +1,6 @@
 import { JwtAuthGuard } from '../../common/auth.guard';
-import { UseGuards } from '@nestjs/common';
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Body,
-  Param,
-  Query,
-  Req,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MentalHealthService } from './mental-health.service';
 
 @ApiTags('Mental Health – الصحة النفسية')
@@ -19,130 +9,87 @@ import { MentalHealthService } from './mental-health.service';
 export class MentalHealthController {
   constructor(private readonly mentalHealthService: MentalHealthService) {}
 
-  /* ───── Mood ───── */
+  private patientId(req: any): string {
+    const userId = req?.user?.id;
+    if (typeof userId !== 'string' || !userId.trim()) {
+      throw new UnauthorizedException('المصادقة مطلوبة / Authentication is required');
+    }
+    return userId;
+  }
 
-  /** POST /api/v1/mental-health/mood — Log a mood entry */
+  /** POST /api/v1/mental-health/mood — self-reported mood, not a diagnosis */
   @Post('mood')
-  @ApiOperation({ summary: 'Log mood entry / تسجيل الحالة المزاجية' })
+  @ApiOperation({ summary: 'Log a self-reported mood entry / تسجيل مزاج مُبلّغ عنه ذاتياً' })
   logMood(@Req() req: any, @Body() body: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.logMood(userId, body);
+    return this.mentalHealthService.logMood(this.patientId(req), body);
   }
 
-  /** GET /api/v1/mental-health/mood?days=30 — Mood history */
+  /** GET /api/v1/mental-health/mood?days=30 — patient-owned mood history */
   @Get('mood')
-  @ApiOperation({ summary: 'Get mood history / سجل الحالة المزاجية' })
+  @ApiOperation({ summary: 'Get self-reported mood history / سجل المزاج المُبلّغ عنه ذاتياً' })
   getMoodHistory(@Req() req: any, @Query('days') days?: string) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getMoodHistory(
-      userId,
-      days ? parseInt(days, 10) : 30,
-    );
+    return this.mentalHealthService.getMoodHistory(this.patientId(req), days === undefined ? 30 : Number(days));
   }
 
-  /** GET /api/v1/mental-health/mood/stats — Mood statistics */
   @Get('mood/stats')
-  @ApiOperation({ summary: 'Mood statistics / إحصائيات المزاج' })
+  @ApiOperation({ summary: 'Get descriptive mood statistics without clinical interpretation / إحصاءات وصفية للمزاج دون تفسير سريري' })
   getMoodStats(@Req() req: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getMoodStats(userId);
+    return this.mentalHealthService.getMoodStats(this.patientId(req));
   }
 
-  /* ───── Meditation ───── */
-
-  /** POST /api/v1/mental-health/meditation — Log meditation session */
   @Post('meditation')
-  @ApiOperation({ summary: 'Log meditation session / تسجيل جلسة تأمل' })
+  @ApiOperation({ summary: 'Log an optional mindfulness practice / تسجيل ممارسة يقظة ذهنية اختيارية' })
   logMeditation(@Req() req: any, @Body() body: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.logMeditation(userId, body);
+    return this.mentalHealthService.logMeditation(this.patientId(req), body);
   }
 
-  /** GET /api/v1/mental-health/meditation — Meditation history */
   @Get('meditation')
-  @ApiOperation({ summary: 'Meditation history / سجل جلسات التأمل' })
+  @ApiOperation({ summary: 'Get mindfulness practice history / سجل ممارسات اليقظة الذهنية' })
   getMeditationHistory(@Req() req: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getMeditationHistory(userId);
+    return this.mentalHealthService.getMeditationHistory(this.patientId(req));
   }
 
-  /** GET /api/v1/mental-health/meditation/stats — Meditation statistics */
   @Get('meditation/stats')
-  @ApiOperation({ summary: 'Meditation stats / إحصائيات التأمل' })
+  @ApiOperation({ summary: 'Get optional practice totals / إجماليات الممارسة الاختيارية' })
   getMeditationStats(@Req() req: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getMeditationStats(userId);
+    return this.mentalHealthService.getMeditationStats(this.patientId(req));
   }
 
-  /* ───── Breathing ───── */
-
-  /** POST /api/v1/mental-health/breathing — Log breathing session */
   @Post('breathing')
-  @ApiOperation({ summary: 'Log breathing session / تسجيل جلسة تنفس' })
+  @ApiOperation({ summary: 'Log a breathing practice / تسجيل ممارسة تنفّس' })
   logBreathing(@Req() req: any, @Body() body: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.logBreathing(userId, body);
+    return this.mentalHealthService.logBreathing(this.patientId(req), body);
   }
 
-  /** GET /api/v1/mental-health/breathing — Breathing history */
   @Get('breathing')
-  @ApiOperation({ summary: 'Breathing history / سجل جلسات التنفس' })
+  @ApiOperation({ summary: 'Get breathing practice history / سجل ممارسات التنفس' })
   getBreathingHistory(@Req() req: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getBreathingHistory(userId);
+    return this.mentalHealthService.getBreathingHistory(this.patientId(req));
   }
 
-  /* ───── Self-Assessment ───── */
+  /** No self-assessment endpoint: the service does not score or diagnose mental-health conditions. */
 
-  /** POST /api/v1/mental-health/assessment — Submit self-assessment */
-  @Post('assessment')
-  @ApiOperation({ summary: 'Submit assessment / إرسال تقييم ذاتي' })
-  submitAssessment(@Req() req: any, @Body() body: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.submitAssessment(userId, body);
-  }
-
-  /** GET /api/v1/mental-health/assessment?type=phq9 — Assessment history */
-  @Get('assessment')
-  @ApiOperation({ summary: 'Assessment history / سجل التقييمات' })
-  getAssessmentHistory(@Req() req: any, @Query('type') type?: string) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getAssessmentHistory(userId, type);
-  }
-
-  /* ───── Crisis Contacts ───── */
-
-  /** GET /api/v1/mental-health/crisis-contacts — Get crisis contacts */
   @Get('crisis-contacts')
-  @ApiOperation({ summary: 'Get crisis contacts / جهات اتصال الطوارئ' })
+  @ApiOperation({ summary: 'Get personal crisis contacts / جهات المساعدة الشخصية' })
   getCrisisContacts(@Req() req: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getCrisisContacts(userId);
+    return this.mentalHealthService.getCrisisContacts(this.patientId(req));
   }
 
-  /** POST /api/v1/mental-health/crisis-contacts — Add crisis contact */
   @Post('crisis-contacts')
-  @ApiOperation({ summary: 'Add crisis contact / إضافة جهة اتصال' })
+  @ApiOperation({ summary: 'Add a personal crisis contact / إضافة جهة مساعدة شخصية' })
   addCrisisContact(@Req() req: any, @Body() body: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.addCrisisContact(userId, body);
+    return this.mentalHealthService.addCrisisContact(this.patientId(req), body);
   }
 
-  /** DELETE /api/v1/mental-health/crisis-contacts/:id — Delete crisis contact */
   @Delete('crisis-contacts/:id')
-  @ApiOperation({ summary: 'Delete crisis contact / حذف جهة اتصال' })
+  @ApiOperation({ summary: 'Delete a personal crisis contact / حذف جهة مساعدة شخصية' })
   deleteCrisisContact(@Req() req: any, @Param('id') id: string) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.deleteCrisisContact(userId, id);
+    return this.mentalHealthService.deleteCrisisContact(this.patientId(req), id);
   }
 
-  /* ───── Dashboard ───── */
-
-  /** GET /api/v1/mental-health/dashboard — Combined mental health dashboard */
   @Get('dashboard')
-  @ApiOperation({ summary: 'Mental health dashboard / لوحة الصحة النفسية' })
+  @ApiOperation({ summary: 'Get the non-diagnostic wellbeing dashboard / لوحة دعم ذاتي غير تشخيصية' })
   getDashboard(@Req() req: any) {
-    const userId = req.user?.id ?? 'guest';
-    return this.mentalHealthService.getDashboard(userId);
+    return this.mentalHealthService.getDashboard(this.patientId(req));
   }
 }

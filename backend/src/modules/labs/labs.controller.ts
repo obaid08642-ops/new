@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, ServiceUnavailableException } from '@nestjs/common';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser } from '../../common/auth.guard';
 
@@ -103,6 +103,11 @@ export class LabsController {
     return this.svc.declareEmergency(id, user, body);
   }
 
+  @Post('bookings/:id/reassign')
+  reassign(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.reassign(id, user);
+  }
+
   @Get('admin/all')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   adminAll(@Query() q: any) {
@@ -138,19 +143,19 @@ export class LabsController {
   @Post('admin/catalog')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   createCatalog(@CurrentUser() u: any, @Body() b: any) {
-    return this.svc.createCatalog(u, b);
+    throw new ServiceUnavailableException('admin service catalog publication is unavailable pending versioned clinical, operations and finance approval workflow');
   }
 
   @Put('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   updateCatalog(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
-    return this.svc.updateCatalog(u, id, b);
+    throw new ServiceUnavailableException('admin service catalog publication is unavailable pending versioned clinical, operations and finance approval workflow');
   }
 
   @Delete('admin/catalog/:id')
   @UseGuards(require('../../common/auth.guard').JwtAuthGuard)
   deleteCatalog(@CurrentUser() u: any, @Param('id') id: string) {
-    return this.svc.deleteCatalog(u, id);
+    throw new ServiceUnavailableException('admin service catalog retirement is unavailable pending dependency-aware approval and rollback workflow');
   }
 
   // --- Admin Quality Control & Dispute Intervention ---

@@ -2,14 +2,8 @@
 // app/pharmacy/filters.tsx — فلاتر الصيدلية المتقدمة (مربوطة بالـ Backend)
 import React, { useState } from 'react';
 import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Platform
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform
 } from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
@@ -18,6 +12,7 @@ import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
 import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { useEffect } from 'react';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 const FALLBACK_CATEGORIES = [
   { id: 'all',     label: 'الكل',                icon: 'apps',        color: '#23B5CE' },
@@ -154,16 +149,16 @@ export default function PharmacyFiltersScreen() {
           </TouchableOpacity>
 
           <View style={{ alignItems: 'center' }}>
-            <Text style={{ fontSize: 17, fontFamily: 'Cairo-Bold', color: colors.n }}>تصفية النتائج</Text>
+            <LocalizedText style={{ fontSize: 17, fontFamily: 'Cairo-Bold', color: colors.n }}>تصفية النتائج</LocalizedText>
             {activeCount > 0 && (
               <View style={[st.countBadge, { backgroundColor: p } ]}>
-                <Text style={{ fontSize: 11, color: '#fff', fontWeight: '700' }}>{activeCount} فلتر نشط</Text>
+                <LocalizedText style={{ fontSize: 11, color: '#fff', fontWeight: '700' }}>{activeCount} فلتر نشط</LocalizedText>
               </View>
             )}
           </View>
 
           <TouchableOpacity onPress={handleReset}>
-            <Text style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: p }}>إعادة تعيين</Text>
+            <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: p }}>إعادة تعيين</LocalizedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -187,7 +182,7 @@ export default function PharmacyFiltersScreen() {
                     flexDirection: 'row-reverse', gap: 6,
                   } ]}>
                   <Icon name={opt.icon} size={15} color={active ? '#fff' : colors.t2} />
-                  <Text style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? '#fff' : colors.t2 }}>{opt.label}</Text>
+                  <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? '#fff' : colors.t2 }}>{opt.label}</LocalizedText>
                 </TouchableOpacity>
               );
             })}
@@ -210,7 +205,7 @@ export default function PharmacyFiltersScreen() {
                     flexDirection: 'row-reverse', gap: 6,
                   } ]}>
                   <Icon name={cat.icon} size={15} color={active ? cat.color : colors.t2} />
-                  <Text style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? cat.color : colors.t2 }}>{cat.label}</Text>
+                  <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? cat.color : colors.t2 }}>{cat.label}</LocalizedText>
                 </TouchableOpacity>
               );
             })}
@@ -230,12 +225,12 @@ export default function PharmacyFiltersScreen() {
               <Icon name="document" size={22} color={rxOnly ? '#EF4444' : colors.t2} />
             </View>
             <View style={{ alignItems: 'flex-end', gap: 2 }}>
-              <Text style={{ fontSize: 15, fontFamily: 'Cairo-Bold', color: rxOnly ? '#EF4444' : colors.n }}>
+              <LocalizedText style={{ fontSize: 15, fontFamily: 'Cairo-Bold', color: rxOnly ? '#EF4444' : colors.n }}>
                 يحتاج وصفة طبية فقط (Rx)
-              </Text>
-              <Text style={{ fontSize: 12, fontFamily: 'Cairo-Regular', color: colors.t2 }}>
+              </LocalizedText>
+              <LocalizedText style={{ fontSize: 12, fontFamily: 'Cairo-Regular', color: colors.t2 }}>
                 عرض الأدوية التي تتطلب روشتة
-              </Text>
+              </LocalizedText>
             </View>
           </View>
           <View style={[st.toggle, {
@@ -258,7 +253,7 @@ export default function PharmacyFiltersScreen() {
                 onChangeText={setMinPrice}
                 style={{ flex: 1, color: colors.n, textAlign: 'center', fontFamily: 'Cairo-SemiBold', fontSize: 15 }}/>
             </View>
-            <Text style={{ color: colors.t2, fontSize: 20, fontWeight: '300' }}>—</Text>
+            <LocalizedText style={{ color: colors.t2, fontSize: 20, fontWeight: '300' }}>—</LocalizedText>
             <View style={[st.priceInput, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
               <TextInput
                 placeholder="الحد الأقصى"
@@ -287,7 +282,7 @@ export default function PharmacyFiltersScreen() {
                     flexDirection: 'row-reverse', gap: 6,
                   } ]}>
                   <Icon name={f.icon} size={15} color={active ? p : colors.t2} />
-                  <Text style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? p : colors.t2 }}>{f.label}</Text>
+                  <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? p : colors.t2 }}>{f.label}</LocalizedText>
                 </TouchableOpacity>
               );
             })}
@@ -317,7 +312,7 @@ export default function PharmacyFiltersScreen() {
                     backgroundColor: active ? p + '18' : colors.s,
                     borderColor: active ? p : colors.bd,
                   } ]}>
-                  <Text style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? p : colors.t2 }}>{b}</Text>
+                  <LocalizedText style={{ fontSize: 13, fontFamily: 'Cairo-SemiBold', color: active ? p : colors.t2 }}>{b}</LocalizedText>
                 </TouchableOpacity>
               );
             })}
@@ -331,9 +326,9 @@ export default function PharmacyFiltersScreen() {
         <TouchableOpacity onPress={handleApply} activeOpacity={0.88} style={{ borderRadius: 20, overflow: 'hidden' }}>
           <View style={[st.applyBtn, { backgroundColor: '#23C5E0' }]}>
             <Icon name="tune" size={20} color="#fff" />
-            <Text style={{ fontSize: 16, fontFamily: 'Cairo-Bold', color: '#fff' }}>
+            <LocalizedText style={{ fontSize: 16, fontFamily: 'Cairo-Bold', color: '#fff' }}>
               تطبيق الفلاتر{activeCount > 0 ? ` (${activeCount})` : ''}
-            </Text>
+            </LocalizedText>
           </View>
         </TouchableOpacity>
       </View>
@@ -343,7 +338,7 @@ export default function PharmacyFiltersScreen() {
 
 // ── Helper component ─────────────────────────────────────────────
 function SectionTitle({ title }: { title: string }) {
-  return <Text style={st.sectionTitle}>{title}</Text>;
+  return <LocalizedText style={st.sectionTitle}>{title}</LocalizedText>;
 }
 
 // ── Styles ───────────────────────────────────────────────────────

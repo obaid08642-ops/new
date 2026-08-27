@@ -9,6 +9,8 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeInUp, SlideInDown } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { normalizeLabService } from '../../src/utils/labMappers';
+import { pickLocalized } from '../../src/utils/localize';
 
 const { width } = Dimensions.get('window');
 
@@ -16,7 +18,8 @@ export default function TestDetail() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const id = params.id as string;
-  const isRadiology = params.type === 'radiology';
+  // Cards pass isRadiology=true; search passes type=radiology — accept both
+  const isRadiology = params.type === 'radiology' || params.isRadiology === 'true' || params.isRadiology === true;
   
   const { colors } = useApp();
   const { addItem, items } = useDiagnosticsCart();
@@ -24,11 +27,17 @@ export default function TestDetail() {
   const [testData, setTestData] = useState<any>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
+  const prepList = (d: any): string[] => {
+    const ar = Array.isArray(d?.preparation_ar) ? d.preparation_ar.filter(Boolean) : [];
+    const en = Array.isArray(d?.preparation_en) ? d.preparation_en.filter(Boolean) : [];
+    const list = pickLocalized(ar, en) || [];
+    return list;
+  };
 
   useEffect(() => {
     const endpoint = isRadiology ? `/radiology/services/${id}` : `/labs/services/${id}`;
     apiFetch(endpoint)
-      .then(res => setTestData(res?.data || res))
+      .then(res => setTestData(normalizeLabService(res?.data || res)))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id, isRadiology]);
@@ -57,10 +66,17 @@ export default function TestDetail() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Hero: the real catalogue image, large — same one shown on the card */}
         <Animated.View entering={FadeInUp.duration(400).delay(100)} style={{ alignItems: 'center', marginTop: 12, marginBottom: 24 }}>
-          <View style={[styles.iconBox, { backgroundColor: `${colors.primary}15` }]} >
-            <Icon name={isRadiology ? 'radiology-box' : 'flask'} size={48} color={colors.primary} />
-          </View>
+          {testData.image ? (
+            <View style={[styles.heroImgWrap, { borderColor: colors.border }]}>
+              <Image source={{ uri: testData.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            </View>
+          ) : (
+            <View style={[styles.iconBox, { backgroundColor: `${colors.primary}15` }]} >
+              <Icon name={isRadiology ? 'radiology-box' : 'flask'} size={48} color={colors.primary} />
+            </View>
+          )}
           <AppText style={{ fontSize: 24, fontWeight: 'bold', color: colors.textPrimary, marginTop: 16, textAlign: 'center' }}>{testData.name}</AppText>
         </Animated.View>
 
@@ -72,16 +88,30 @@ export default function TestDetail() {
             </AppText>
           </View>
 
-          <View style={[styles.infoRow, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 16 } ]}>
-            <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center' }}>
+          {/* التحضيرات والاحتياطات — قائمة كاملة من قاعدة البيانات */}
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 16 } ]}>
+            <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', marginBottom: 10 }}>
               <View style={[styles.circleIcon, { backgroundColor: '#FF980015' } ]}>
                 <Icon name="alert-circle-outline" size={20} color="#FF9800" />
               </View>
-              <AppText style={{ fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 12, marginRight: I18nManager.isRTL ? 12 : 0 }}>التحضيرات المطلوبة</AppText>
+              <AppText style={{ fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 12, marginRight: I18nManager.isRTL ? 12 : 0 }}>التحضيرات والاحتياطات</AppText>
             </View>
-            <AppText style={{ color: colors.textSecondary, fontWeight: 'bold', flex: 1, textAlign: I18nManager.isRTL ? 'left' : 'right' }}>
-              {testData.requirements || 'لا توجد تحضيرات خاصة'}
-            </AppText>
+            {testData.fasting_required ? (
+              <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', backgroundColor: '#FF980012', borderRadius: 10, padding: 10, marginBottom: 10 }}>
+                <Icon name="food-off-outline" size={18} color="#E65100" />
+                <AppText style={{ color: '#E65100', fontWeight: 'bold', marginHorizontal: 8, flex: 1, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>
+                  يتطلب صيام {testData.fasting_hours || 8} ساعة قبل الفحص
+                </AppText>
+              </View>
+            ) : null}
+            {prepList(testData).length
+              ? prepList(testData).map((p: string, i: number) => (
+                  <View key={i} style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', marginBottom: 6 }}>
+                    <AppText style={{ color: colors.primary, marginHorizontal: 6 }}>•</AppText>
+                    <AppText style={{ color: colors.textSecondary, flex: 1, lineHeight: 22, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>{p}</AppText>
+                  </View>
+                ))
+              : <AppText style={{ color: colors.textSecondary, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>لا توجد تحضيرات خاصة</AppText>}
           </View>
 
           <View style={[styles.infoRow, { backgroundColor: colors.surface, borderColor: colors.border, marginTop: 12 } ]}>
@@ -102,16 +132,32 @@ export default function TestDetail() {
           <AppText style={{ fontSize: 24, fontWeight: '900', color: colors.primary }}>{testData.price} <AppText style={{ fontSize: 14, color: colors.primary }}>ر.س</AppText></AppText>
         </View>
 
-        <TouchableOpacity 
-          style={[styles.addBtn, { backgroundColor: inCart ? colors.background : colors.primary, borderColor: inCart ? colors.border : colors.primary }]}
-          onPress={() => addItem({ id, name: testData.name, price: parseInt(testData.price), kind: isRadiology ? 'radiology' : 'lab' })}
-          disabled={inCart}
-        >
-          <Icon name={inCart ? "check-circle" : "cart-plus"} size={22} color={inCart ? "#4CAF50" : "#fff"} />
-          <AppText style={{ color: inCart ? "#4CAF50" : "#fff", fontSize: 16, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
-            {inCart ? 'تم الإضافة للسلة' : 'أضف للسلة'}
-          </AppText>
-        </TouchableOpacity>
+        <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', gap: 10 }}>
+          <TouchableOpacity
+            style={[styles.addBtn, { flex: 1, backgroundColor: inCart ? colors.background : colors.surface, borderColor: inCart ? colors.border : colors.primary }]}
+            onPress={() => addItem({ id, name: testData.name, price: parseInt(testData.price), kind: isRadiology ? 'radiology' : 'lab' })}
+            disabled={inCart}
+          >
+            <Icon name={inCart ? "check-circle" : "cart-plus"} size={22} color={inCart ? "#4CAF50" : colors.primary} />
+            <AppText style={{ color: inCart ? "#4CAF50" : colors.primary, fontSize: 15, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
+              {inCart ? 'تم الإضافة للسلة' : 'أضف للسلة'}
+            </AppText>
+          </TouchableOpacity>
+
+          {/* حجز الآن — يضيف الخدمة وينتقل مباشرة للسلة لإتمام الحجز */}
+          <TouchableOpacity
+            style={[styles.addBtn, { flex: 1, backgroundColor: colors.primary, borderColor: colors.primary }]}
+            onPress={() => {
+              if (!inCart) addItem({ id, name: testData.name, price: parseInt(testData.price), kind: isRadiology ? 'radiology' : 'lab' });
+              router.push('/diagnostics/cart' as any);
+            }}
+          >
+            <Icon name="calendar-check" size={22} color="#fff" />
+            <AppText style={{ color: '#fff', fontSize: 15, fontWeight: 'bold', marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}>
+              احجز الآن
+            </AppText>
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </SafeAreaView>
   );
@@ -123,6 +169,7 @@ const styles = StyleSheet.create({
   headerBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   scrollContent: { padding: 20, paddingBottom: 150 },
   iconBox: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center' },
+  heroImgWrap: { width: width - 40, height: (width - 40) * 0.62, borderRadius: 24, overflow: 'hidden', borderWidth: 1, backgroundColor: '#fff' },
   card: { padding: 20, borderRadius: 16, borderWidth: 1 },
   infoRow: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderRadius: 16, borderWidth: 1 },
   circleIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },

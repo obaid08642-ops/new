@@ -69,7 +69,7 @@ export default function ResultsHistoryScreen() {
               <TouchableOpacity
                 style={[styles.resultCard, { backgroundColor: colors.surface }]}
                 activeOpacity={0.85}
-                onPress={() => hasReport && router.push({ pathname: '/reports/view-report', params: { reportId: report.id || item.id, url: report.url || report.url_base64, name: report.name } })}
+                onPress={() => hasReport && router.push({ pathname: '/reports/view-report', params: { id: report.id || item.id } })}
               >
                 <View style={styles.resultLeft}>
                   {hasReport ? (

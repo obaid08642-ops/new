@@ -39,11 +39,7 @@ const TYPE = {
 export default function AppointmentsScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) {
-    requireAuth();
-    return null;
-  }
+  // Guests CAN view their bookings — backed by their device-bound guest account.
 
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   const {

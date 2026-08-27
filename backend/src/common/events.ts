@@ -4,6 +4,7 @@ export const EVENTS = {
   USER_REGISTERED: 'user.registered',
   USER_ROLE_ASSIGNED: 'user.role_assigned',
   USER_LOGGED_IN: 'user.logged_in',
+  USER_GUEST_CONVERTED: 'user.guest_converted',
   // Order
   ORDER_CREATED: 'order.created',
   ORDER_VALIDATED: 'order.validated',

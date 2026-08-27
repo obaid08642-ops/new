@@ -1,11 +1,17 @@
 // @ts-nocheck
-import React, { useState } from "react";
+// EPIC4/S21: was a hardcoded REPORTS list + setTimeout "share" that did
+// nothing. Now loads the real /medical-reports/mine list and shares the
+// selected reports as a text bundle via the device share sheet (real action).
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   StatusBar,
   TouchableOpacity,
+  ActivityIndicator,
+  Share,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,37 +25,72 @@ import {
   IconButton,
   SectionHeader,
 } from "../../src/components/ui";
+import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
-const REPORTS = [
-  { id: "1", title: "تحاليل دم شاملة", date: "15 يونيو 2026", type: "lab" },
-  {
-    id: "2",
-    title: "أشعة سينية — صدر",
-    date: "10 يونيو 2026",
-    type: "radiology",
-  },
-  { id: "3", title: "وظائف الغدة الدرقية", date: "1 يونيو 2026", type: "lab" },
-  { id: "4", title: "تحليل بول كامل", date: "25 مايو 2026", type: "lab" },
-  { id: "5", title: "سكر تراكمي HbA1c", date: "20 مايو 2026", type: "lab" },
-];
+function fmtDate(d: any): string {
+  if (!d) return "";
+  try {
+    return new Date(d).toLocaleDateString(dateLocale(), { year: "numeric", month: "long", day: "numeric" });
+  } catch {
+    return "";
+  }
+}
 
 export default function ShareReportScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
+  const [reports, setReports] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await apiFetch("/medical-reports/mine?limit=100");
+        setReports(Array.isArray(res) ? res : res?.data || []);
+      } catch (e) {
+        console.error(e);
+        setReports([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   const toggle = (id: string) =>
     setSelected((p) =>
       p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
     );
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    const chosen = reports.filter((r) => selected.includes(r.id));
+    if (chosen.length === 0) return;
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const text = chosen
+        .map((r) =>
+          [
+            `■ ${pickLocalized(r.title_ar, r.title_en) || "تقرير طبي"}`,
+            r.facility_name || r.doctor_name || "",
+            fmtDate(r.issued_at || r.createdAt),
+            r.summary ? `الملخص: ${r.summary}` : "",
+            r.diagnosis ? `التشخيص: ${r.diagnosis}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        )
+        .join("\n\n");
+      await Share.share({ message: `تقاريري الطبية — عبر تطبيق نبض\n\n${text}` });
       router.back();
-    }, 800);
+    } catch {
+      showLocalizedAlert("خطأ", "تعذرت المشاركة — حاول لاحقاً");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -87,73 +128,83 @@ export default function ShareReportScreen() {
               color={colors.textSecondary}
               style={{ flex: 1 }}
             >
-              التقارير تُشارك بشكل آمن ومشفر مع طبيبك فقط
+              شارك تقاريرك مع طبيبك عبر أي تطبيق — أنت من يختار المستلم
             </AppText>
           </View>
         </Card>
 
         <SectionHeader title="اختر التقارير للمشاركة" />
-        {REPORTS.map((r) => {
-          const sel = selected.includes(r.id);
-          return (
-            <Card
-              key={r.id}
-              onPress={() => toggle(r.id)}
-              style={[
-                st.reportCard,
-                sel && { borderColor: colors.primary, borderWidth: 2 },
-              ]}
-            >
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  gap: 12,
-                  alignItems: "center",
-                }}
+        {loading ? (
+          <View style={{ alignItems: "center", paddingVertical: 32 }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : reports.length === 0 ? (
+          <Card style={{ alignItems: "center", gap: 10, paddingVertical: 28 }}>
+            <Icon name="document" size={36} color={colors.textTertiary} />
+            <AppText variant="body" color={colors.textSecondary}>
+              لا توجد تقارير لمشاركتها بعد
+            </AppText>
+            <Button
+              label="العودة للتقارير"
+              size="sm"
+              full={false}
+              onPress={() => router.push("/reports/hub")}
+            />
+          </Card>
+        ) : (
+          reports.map((r) => {
+            const sel = selected.includes(r.id);
+            const isLab = !!r.lab_booking_id;
+            return (
+              <Card
+                key={r.id}
+                onPress={() => toggle(r.id)}
+                style={[
+                  st.reportCard,
+                  sel && { borderColor: colors.primary, borderWidth: 2 },
+                ]}
               >
                 <View
-                  style={[
-                    st.check,
-                    {
-                      borderColor: sel ? colors.primary : colors.border,
-                      backgroundColor: sel ? colors.primary : "transparent",
-                    },
-                  ]}
+                  style={{
+                    flexDirection: "row-reverse",
+                    gap: 12,
+                    alignItems: "center",
+                  }}
                 >
-                  {sel && <Icon name="check" size={14} color="#fff" />}
+                  <View
+                    style={[
+                      st.check,
+                      {
+                        borderColor: sel ? colors.primary : colors.border,
+                        backgroundColor: sel ? colors.primary : "transparent",
+                      },
+                    ]}
+                  >
+                    {sel && <Icon name="check" size={14} color="#fff" />}
+                  </View>
+                  <View
+                    style={[
+                      st.rIcon,
+                      { backgroundColor: isLab ? "#7A6BEA18" : "#23B5CE18" },
+                    ]}
+                  >
+                    <Icon
+                      name={isLab ? "testTube" : r.radiology_booking_id ? "scan" : "document"}
+                      size={22}
+                      color={isLab ? "#7A6BEA" : "#23B5CE"}
+                    />
+                  </View>
+                  <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
+                    <AppText variant="h6">{pickLocalized(r.title_ar, r.title_en) || "تقرير طبي"}</AppText>
+                    <AppText variant="caption" color={colors.textTertiary}>
+                      {[r.facility_name || r.doctor_name, fmtDate(r.issued_at || r.createdAt)].filter(Boolean).join(" · ")}
+                    </AppText>
+                  </View>
                 </View>
-                <View
-                  style={[
-                    st.rIcon,
-                    {
-                      backgroundColor:
-                        r.type === "lab" ? "#7A6BEA18" : "#23B5CE18",
-                    },
-                  ]}
-                >
-                  <Icon
-                    name={r.type === "lab" ? "testTube" : "scan"}
-                    size={22}
-                    color={r.type === "lab" ? "#7A6BEA" : "#23B5CE"}
-                  />
-                </View>
-                <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
-                  <AppText variant="h6">{r.title}</AppText>
-                  <AppText variant="caption" color={colors.textTertiary}>
-                    {r.date}
-                  </AppText>
-                </View>
-              </View>
-            </Card>
-          );
-        })}
-
-        <Button
-          label="رفع تقرير جديد"
-          variant="ghost"
-          icon="upload"
-          onPress={() => router.push("/pharmacy/cart")}
-        />
+              </Card>
+            );
+          })
+        )}
       </ScrollView>
 
       {selected.length > 0 && (

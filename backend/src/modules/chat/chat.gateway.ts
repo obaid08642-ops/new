@@ -8,14 +8,16 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Logger, ForbiddenException } from '@nestjs/common';
+import { ChatService } from './chat.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { getWebSocketCorsOptions } from '../../config/websocket-cors';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const jwt = require('jsonwebtoken');
 
 @WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
+  cors: getWebSocketCorsOptions(),
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -25,13 +27,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // In a real app, use Redis adapter for multi-instance deployments
   private activeUsers = new Map<string, string>(); // socketId -> userId
+  private restrictedThreads = new Map<string, string>(); // socketId -> thread id for chat_rt tokens
 
-  // constructor(private readonly chatService: any) {} // Removed to avoid Object DI issue
+  constructor(private readonly chatService: ChatService) {}
 
   async handleConnection(socket: Socket) {
-    const userId = socket.handshake.auth.userId || socket.handshake.query.userId;
+    // M6/ER-11: identity must come from a verified JWT — previously any client
+    // could claim any userId via handshake auth (spoofing hole).
+    let userId: string | null = null;
+    const token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace(/^Bearer\s+/i, '');
+    if (token) {
+      try {
+        const secret = process.env.JWT_SECRET;
+        if (!secret) { this.logger.error('Socket rejected: JWT_SECRET not configured'); socket.disconnect(); return; }
+        const payload: any = jwt.verify(token, secret);
+        userId = payload?.sub || payload?.id || payload?.user_id || null;
+        if (payload?.purpose === 'chat_rt') {
+          if (payload?.aud !== 'chat-rt' || !payload?.thread_id || !userId) throw new Error('invalid_chat_rt_token');
+          this.restrictedThreads.set(socket.id, payload.thread_id);
+        }
+      } catch {
+        this.logger.warn('Socket rejected: invalid JWT');
+      }
+    }
     if (userId) {
-      this.activeUsers.set(socket.id, userId as string);
+      this.activeUsers.set(socket.id, userId);
       socket.join(userId);
       this.logger.log(`User ${userId} connected (Socket: ${socket.id})`);
     } else {
@@ -43,6 +63,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = this.activeUsers.get(socket.id);
     if (userId) {
       this.activeUsers.delete(socket.id);
+      this.restrictedThreads.delete(socket.id);
       this.logger.log(`User ${userId} disconnected`);
     }
   }
@@ -52,6 +73,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { threadId: string },
   ) {
+    const userId = this.activeUsers.get(socket.id);
+    if (!userId) return { error: 'socket_not_authenticated' };
+    const restrictedThreadId = this.restrictedThreads.get(socket.id);
+    if (restrictedThreadId && restrictedThreadId !== data.threadId) return { error: 'thread_token_scope_mismatch' };
+    try {
+      await this.chatService.getThread(data.threadId, userId);
+    } catch {
+      return { error: 'not_participant' };
+    }
     socket.join(`thread_${data.threadId}`);
     return { status: 'joined' };
   }
@@ -106,6 +136,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       callerId: this.activeUsers.get(socket.id)
     });
     return { status: 'calling' };
+  }
+
+  @SubscribeMessage('mark_seen')
+  async handleMarkSeen(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { threadId: string; messageIds?: string[] },
+  ) {
+    // M6/ER-9: realtime read receipts — notify the other party instantly
+    const userId = this.activeUsers.get(socket.id);
+    socket.to(`thread_${data.threadId}`).emit('message_seen', {
+      threadId: data.threadId,
+      seenBy: userId,
+      messageIds: data.messageIds || [],
+      at: new Date(),
+    });
+    return { status: 'seen' };
   }
 
   @OnEvent('medical_orders.emitted')

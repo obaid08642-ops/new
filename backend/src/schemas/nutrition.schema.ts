@@ -6,27 +6,20 @@ import { Document } from 'mongoose';
 export class NutritionProfile {
   @Prop({ required: true, index: true }) patient_id: string;
 
-  @Prop({
-    type: String,
-    enum: ['weight_loss', 'muscle_gain', 'healthy_lifestyle', 'maintain'],
-    default: 'healthy_lifestyle',
-  })
-  goal: string;
+  @Prop({ type: String, enum: ['weight_loss', 'muscle_gain', 'healthy_lifestyle', 'maintain'] })
+  goal?: string;
 
-  @Prop({ default: 0 }) height_cm: number;
-  @Prop({ default: 0 }) weight_kg: number;
-  @Prop({ default: 0 }) target_weight_kg: number;
-  @Prop({ default: 0 }) bmi: number;
-  @Prop({ default: 0 }) body_fat_percent: number;
-  @Prop({ default: 2000 }) daily_calorie_target: number;
-  @Prop({ default: 2000 }) daily_water_target_ml: number;
+  // Values remain unset until the patient explicitly records them; zero and 2,000 are not health data.
+  @Prop() height_cm?: number;
+  @Prop() weight_kg?: number;
+  @Prop() target_weight_kg?: number;
+  @Prop() bmi?: number;
+  @Prop() body_fat_percent?: number;
+  @Prop() daily_calorie_target?: number;
+  @Prop() daily_water_target_ml?: number;
 
-  @Prop({
-    type: String,
-    enum: ['sedentary', 'light', 'moderate', 'active', 'very_active'],
-    default: 'moderate',
-  })
-  activity_level: string;
+  @Prop({ type: String, enum: ['sedentary', 'light', 'moderate', 'active', 'very_active'] })
+  activity_level?: string;
 
   @Prop({ type: [String], default: [] }) dietary_restrictions: string[];
   @Prop({ type: [String], default: [] }) allergies: string[];

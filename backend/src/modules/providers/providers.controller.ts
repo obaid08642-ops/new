@@ -28,45 +28,31 @@ export class ProvidersController {
     return this.svc.listPublic(type, city, company, network, klass);
   }
 
+  /** Public map data — ACTIVE providers with real coordinates + distance from caller. */
+  @Public()
+  @Get('map')
+  map(@Query('type') type?: string, @Query('lat') lat?: string, @Query('lng') lng?: string, @Query('radius_km') radius?: string) {
+    return this.svc.mapProviders(type, lat ? parseFloat(lat) : undefined, lng ? parseFloat(lng) : undefined, radius ? parseFloat(radius) : undefined);
+  }
+
   @Public()
   @Get(':id')
   one(@Param('id') id: string) {
-    return this.svc.getById(id);
+    return this.svc.getPublicById(id);
   }
 
   /** My own provider profile */
   @Get('me/profile')
   @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB, UserRole.RADIOLOGY, UserRole.HOME_CARE)
-  mine(@CurrentUser('id') id: string) {
-    return this.svc.myProfile(id);
+  mine(@CurrentUser() user: any) {
+    return this.svc.myProfile(user);
   }
 
 
-  // ============ Delta Audit ============
-  @Post('me/delta')
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.LAB, UserRole.RADIOLOGY, UserRole.HOME_CARE)
-  requestDelta(@CurrentUser('id') id: string, @Body() body: { oldData: any, newData: any }) {
-    return this.svc.requestDeltaUpdate(id, body.oldData, body.newData);
-  }
-
-  @Get('admin/deltas/pending')
-  @Roles(UserRole.ADMIN)
-  pendingDeltas() {
-    return this.svc.listPendingDeltas();
-  }
-
-  @Post('admin/deltas/:id/approve')
-  @Roles(UserRole.ADMIN)
-  approveDelta(@Param('id') id: string, @CurrentUser('id') adminId: string) {
-    return this.svc.approveDelta(id, adminId);
-  }
-
-  @Post('admin/deltas/:id/reject')
-  @Roles(UserRole.ADMIN)
-  rejectDelta(@Param('id') id: string, @CurrentUser('id') adminId: string, @Body() body: { reason: string }) {
-    return this.svc.rejectDelta(id, adminId, body.reason);
-  }
-
+  // NOTE: provider profile edit-review ("delta") flows through ONE canonical path:
+  //   POST /provider/settings/delta  ->  admin GET/POST /providers/provider-deltas[*]
+  // The legacy /providers/me/delta + /providers/admin/deltas/* endpoints were removed:
+  // their approve path marked deltas APPROVED without ever applying the changes.
   // ============ Admin ============
 
   @Post('admin/create')
@@ -105,4 +91,10 @@ export class ProvidersController {
     return this.svc.suspend(id, admin, body?.reason || '');
   }
 
+  /** Admin: seed sample lab/radiology/home_care/hospital providers (idempotent — skips existing). */
+  @Post('admin/seed-demo')
+  @Roles(UserRole.ADMIN)
+  seedDemo() {
+    return this.svc.seedDemoProviders();
+  }
 }

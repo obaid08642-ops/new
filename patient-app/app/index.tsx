@@ -21,21 +21,14 @@ export default function Index() {
 
   const checkAppState = async () => {
     try {
-      let token: string | null = null;
-      try {
-        token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
-      } catch {
-        token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      }
+      // Preserve authenticated and guest sessions; the splash must never clear patient data.
+      const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN).catch(() => null);
+      const isGuest = await AsyncStorage.getItem(STORAGE_KEYS.GUEST_MODE ?? "@nabdah_guest");
 
-      const isGuest = await AsyncStorage.getItem(
-        STORAGE_KEYS.GUEST_MODE ?? "@nabdah_guest",
-      );
-
-      if (token || isGuest) {
-        router.replace("/(tabs)");
-      } else {
+      if (!token && !isGuest) {
         router.replace("/(auth)/welcome");
+      } else {
+        router.replace("/(tabs)");
       }
     } catch {
       router.replace("/(auth)/welcome");

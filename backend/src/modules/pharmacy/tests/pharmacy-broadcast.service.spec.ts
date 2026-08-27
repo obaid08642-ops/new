@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { PharmacyBroadcastService } from '../services/pharmacy-broadcast.service';
+import { RedisService } from '../../redis/redis.service';
 import { SystemConfig } from '../../../schemas/system-config.schema';
 import { DrugRejectionLog } from '../../../schemas/drug-rejection-log.schema';
 import { Medicine } from '../../../schemas/medicine.schema';
@@ -90,6 +91,7 @@ describe('PharmacyBroadcastService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        { provide: RedisService, useValue: { setJson: jest.fn().mockResolvedValue(undefined), getJson: jest.fn().mockResolvedValue(null), del: jest.fn().mockResolvedValue(undefined), ttl: jest.fn().mockResolvedValue(60), incr: jest.fn().mockResolvedValue(1), expire: jest.fn().mockResolvedValue(undefined), client: { set: jest.fn(), get: jest.fn(), del: jest.fn(), ttl: jest.fn(), incr: jest.fn(), expire: jest.fn() } } },
         { provide: 'PharmacyAllocationRepository', useValue: {} },
         PharmacyBroadcastService,
         { provide: 'PharmacyOrderRepository', useValue: mockOrderModel },

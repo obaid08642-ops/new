@@ -17,7 +17,7 @@ import { AppText, Card, Badge, Button, IconButton } from '../../src/components/u
 
 const { width, height } = Dimensions.get('window');
 
-/* TODO: migrate to theme color */
+
 const SLIDES = [
   {
     id: '1',
@@ -224,7 +224,7 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#23B5CE' }, /* TODO: migrate to theme color */
+  container: { flex: 1, backgroundColor: '#23B5CE' }, 
   slide: { width, height, justifyContent: 'center', alignItems: 'center' },
   circle1: {
     position: 'absolute', width: width * 1.2, height: width * 1.2,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   logo: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
   logoPlusBadge: {
-    backgroundColor: '#00C9A7', borderRadius: 10, /* TODO: migrate to theme color */
+    backgroundColor: '#00C9A7', borderRadius: 10, 
     width: 20, height: 20, justifyContent: 'center', alignItems: 'center',
   },
   logoPlus: { color: '#fff', fontSize: 14, fontWeight: '900' } as any,

@@ -14,6 +14,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { ForbiddenException } from '@nestjs/common';
 import { OrderSchema, OrderDocument } from '../../schemas/order.schema';
 import { LabBookingSchema, LabBooking } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema, RadiologyBooking } from '../../schemas/radiology.schema';
@@ -54,8 +55,23 @@ export class BookingOpsService {
     consultation: 'consultation', doctor: 'consultation', appointment: 'consultation',
   };
 
+  private isAdmin(user: any): boolean {
+    return user?.role === 'admin' || user?.role === 'super_admin';
+  }
+
+  private isProvider(user: any): boolean {
+    return ['provider', 'pharmacy', 'lab', 'laboratory', 'radiology', 'nurse', 'nursing', 'hospital', 'doctor'].includes(String(user?.role || '').toLowerCase())
+      || ['pharmacy', 'lab', 'laboratory', 'radiology', 'nursing', 'hospital', 'doctor'].includes(String(user?.provider_type || user?.providerType || '').toLowerCase());
+  }
+
+  private providerOwnership(user: any): any[] {
+    return [{ provider_account_id: user.id }, { provider_id: user.id }, { doctor_user_id: user.id }, { pharmacy_id: user.id }];
+  }
+
   private async fetchEntity(kind: ServiceDomain, id: string, user: any): Promise<any> {
-    const ownership = user?.role === 'admin' ? {} : { patient_id: user.id };
+    const ownership = this.isAdmin(user) ? {} : user?.role === 'patient'
+      ? { patient_id: user.id }
+      : this.isProvider(user) ? { $or: this.providerOwnership(user) } : { patient_id: user.id };
     if (kind === 'pharmacy') return this.orders.findOne({ id, ...ownership }, { _id: 0, __v: 0 }).lean();
     if (kind === 'lab') return this.labs.findOne({ id, ...ownership }, { _id: 0, __v: 0 }).lean();
     if (kind === 'radiology') return this.rads.findOne({ id, ...ownership }, { _id: 0, __v: 0 }).lean();
@@ -106,11 +122,11 @@ export class BookingOpsService {
 
   /** Admin/provider marks payment status. */
   async markPayment(user: any, type: string, id: string, body: { status?: string; transaction_id?: string; insurance_status?: 'pending' | 'verified' | 'approved' | 'rejected' }) {
-    if (!['admin', 'provider', 'pharmacy', 'lab', 'radiology', 'doctor'].includes(user.role)) {
-      throw new BadRequestException('not_authorized');
-    }
+    if (!this.isAdmin(user) && !this.isProvider(user)) throw new ForbiddenException('not_authorized');
     const kind = this.kindAliases[type];
     if (!kind) throw new BadRequestException('invalid_type');
+    const entity = await this.fetchEntity(kind, id, user);
+    if (!entity) throw new NotFoundException('booking_not_found');
     const Model: any = kind === 'pharmacy' ? this.orders
       : kind === 'lab' ? this.labs
       : kind === 'radiology' ? this.rads
@@ -126,7 +142,10 @@ export class BookingOpsService {
       // map 'verified' -> 'approved' for legacy schemas
       set.insurance_status = body.insurance_status === 'verified' ? 'approved' : body.insurance_status;
     }
-    await Model.updateOne({ id }, { $set: set });
+    if (!Object.keys(set).length) throw new BadRequestException('payment_update_required');
+    const updated: any = await Model.updateOne({ id, ...(this.isAdmin(user) ? {} : { $or: this.providerOwnership(user) }) }, { $set: set });
+    const matched = updated?.matchedCount ?? updated?.nMatched;
+    if (matched === 0) throw new NotFoundException('booking_not_found');
     return { ok: true, ...set };
   }
 
@@ -144,11 +163,16 @@ export class BookingOpsService {
   async listAttachments(user: any, type: string, id: string) {
     const kind = this.kindAliases[type];
     if (!kind) throw new BadRequestException('invalid_type');
+    const e = await this.fetchEntity(kind, id, user);
+    if (!e) throw new NotFoundException();
     return this.attachments.find({ booking_kind: kind, booking_id: id }, { base64: 0, _id: 0, __v: 0 }).sort({ createdAt: -1 }).lean();
   }
 
   async getAttachment(user: any, type: string, id: string, attachmentId: string) {
     const kind = this.kindAliases[type];
+    if (!kind) throw new BadRequestException('invalid_type');
+    const e = await this.fetchEntity(kind, id, user);
+    if (!e) throw new NotFoundException();
     return this.attachments.findOne({ _id: attachmentId, booking_kind: kind, booking_id: id }, { __v: 0 }).lean();
   }
 }

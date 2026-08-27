@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,6 +21,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function PrivacySettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -146,7 +148,37 @@ export default function PrivacySettingsScreen() {
             </View>
           ))}
         </View>
-        <TouchableOpacity style={[styles.deleteLink]}>
+        <TouchableOpacity
+          style={[styles.deleteLink]}
+          onPress={() => {
+            showLocalizedAlert(
+              'حذف البيانات الشخصية',
+              'سيتم إرسال طلب رسمي لفريق نبض لحذف جميع بياناتك الشخصية نهائياً وفق سياسة الخصوصية. هل تريد المتابعة؟',
+              [
+                { text: 'إلغاء', style: 'cancel' },
+                {
+                  text: 'إرسال الطلب',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await apiFetch('/support/requests', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          type: 'data_deletion',
+                          subject: 'طلب حذف البيانات الشخصية نهائياً',
+                          message: 'أطلب حذف جميع بياناتي الشخصية نهائياً من منصة نبض وفق سياسة الخصوصية.',
+                        }),
+                      });
+                      showLocalizedAlert('تم إرسال الطلب', 'تم استلام طلبك وسيتواصل معك فريقنا خلال 72 ساعة لاستكمال إجراءات الحذف.');
+                    } catch (err: any) {
+                      showLocalizedAlert('تعذّر إرسال الطلب', err?.message || 'حدث خطأ — حاول مرة أخرى');
+                    }
+                  },
+                },
+              ]
+            );
+          }}
+        >
           <AppText variant="bodySM">طلب حذف بياناتي الشخصية نهائياً</AppText>
         </TouchableOpacity>
       </ScrollView>

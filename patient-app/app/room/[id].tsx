@@ -2,21 +2,48 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
-import {
-  LiveKitRoom,
-  VideoTrack,
-  useRoomContext,
-  useTracks,
-  useLocalParticipant,
-} from '@livekit/react-native';
-import { Track } from 'livekit-client';
+// @livekit/react-native is a NATIVE module — absent in Expo Go. A static
+// import crashes module evaluation so the default export never registers
+// (Metro: "missing the required default export"). Load defensively.
+let LiveKitRoom: any = null;
+let VideoTrack: any = null;
+let useRoomContext: any = () => null;
+let useTracks: any = () => [];
+let useLocalParticipant: any = () => ({ localParticipant: null });
+let Track: any = { Source: { Camera: 'camera' } };
+let LIVEKIT_NATIVE_OK = false;
+try {
+  const lk = require('@livekit/react-native');
+  LiveKitRoom = lk.LiveKitRoom;
+  VideoTrack = lk.VideoTrack;
+  useRoomContext = lk.useRoomContext;
+  useTracks = lk.useTracks;
+  useLocalParticipant = lk.useLocalParticipant;
+  Track = require('livekit-client').Track;
+  LIVEKIT_NATIVE_OK = !!LiveKitRoom;
+} catch {
+  LIVEKIT_NATIVE_OK = false;
+}
 import { HttpClient } from '@/services/HttpClient';
-import { DSText, DSTokens } from '@/design-system';
+import { DSText } from '@/design-system';
+
+// Local token shim — the DS barrel doesn't export a DSTokens object; using it
+// crashed module evaluation (TypeError: colors of undefined) and the route
+// lost its default export in Metro.
+const DSTokens = {
+  colors: {
+    primary: { main: '#0EA5E9' },
+    error: { main: '#EF4444' },
+    base: { white: '#FFFFFF' },
+    text: { secondary: '#94A3B8' },
+    background: { default: '#0F172A' },
+  },
+};
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppSelector } from '@/store';
 
 // Set up server URL (can be from env)
-const liveKitUrl = process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://nabdah-plus-livekit.example.com';
+const liveKitUrl = process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://live.nabd.plus';
 
 const ActiveCallView = ({ onEndCall }: { onEndCall: () => void }) => {
   const room = useRoomContext();
@@ -122,6 +149,10 @@ export default function RoomScreen() {
   const user = useAppSelector(state => state.auth.user);
 
   useEffect(() => {
+    if (!LIVEKIT_NATIVE_OK) {
+      setError('مكالمات الفيديو تتطلب نسخة التطبيق الكاملة (Development Build) ولا تعمل داخل Expo Go.');
+      return;
+    }
     // Fetch LiveKit token from backend
     const fetchToken = async () => {
       try {

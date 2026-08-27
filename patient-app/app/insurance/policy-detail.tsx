@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,21 +12,31 @@ import {
   Button,
   IconButton,
 } from "../../src/components/ui";
+import { apiFetch } from "../../src/utils/api";
 
 export default function PolicyDetailScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
+  const [policy, setPolicy] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const DETAILS = [
-    { label: "شركة التأمين", val: "بوبا للتأمين" },
-    { label: "رقم البوليصة", val: "BUP-2024-001234" },
-    { label: "تاريخ البداية", val: "1 يناير 2024" },
-    { label: "تاريخ الانتهاء", val: "31 ديسمبر 2024" },
-    { label: "الحد الأقصى السنوي", val: "500,000 ريال" },
-    { label: "الحد المستخدم", val: "45,000 ريال" },
-    { label: "نسبة التحمل", val: "20%" },
-    { label: "الحد الأدنى للتحمل", val: "50 ريال" },
-  ];
+  useEffect(() => {
+    apiFetch('/users/me/profile')
+      .then((p: any) => setPolicy(p?.insurance || null))
+      .catch(() => setPolicy(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const DETAILS = policy ? [
+    { label: "شركة التأمين", val: policy.provider },
+    { label: "رقم البوليصة", val: policy.policy_number },
+    { label: "اسم العضو", val: policy.member_name },
+    { label: "الهوية الوطنية", val: policy.national_id },
+    { label: "الشبكة", val: policy.network },
+    { label: "الفئة", val: policy.class },
+    { label: "تاريخ الانتهاء", val: policy.expiry_date },
+    { label: "حالة التوثيق", val: policy.verified ? "موثّقة" : "قيد المراجعة" },
+  ].filter(d => d.val) : [];
 
   return (
     <View style={[{ flex: 1, backgroundColor: colors.background }]}>
@@ -44,14 +54,26 @@ export default function PolicyDetailScreen() {
           <AppText variant="bodySM">تفاصيل البوليصة</AppText>
           <View style={{ width: 36 }} />
         </View>
-        <View style={[styles.activeBadge]}>
-          <View style={styles.greenDot} />
-          <AppText variant="labelSM" color="#fff">
-            نشطة
-          </AppText>
-        </View>
+        {policy && (
+          <View style={[styles.activeBadge]}>
+            <View style={[styles.greenDot, !policy.verified && { backgroundColor: '#F0A526' }]} />
+            <AppText variant="labelSM" color="#fff">
+              {policy.verified ? "موثّقة" : "قيد المراجعة"}
+            </AppText>
+          </View>
+        )}
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 10 }}>
+        {!loading && !policy && (
+          <View style={{ alignItems: 'center', paddingVertical: 48, gap: 10 }}>
+            <Icon name="info" size={40} color={colors.textTertiary} />
+            <AppText variant="bodySM" color={colors.textSecondary}>لا توجد بوليصة مسجّلة على حسابك</AppText>
+            <TouchableOpacity onPress={() => router.push('/insurance/add-policy')}>
+              <AppText variant="bodySM" color={colors.primary}>إضافة بوليصة</AppText>
+            </TouchableOpacity>
+          </View>
+        )}
+        {policy && (
         <View
           style={[
             styles.card,
@@ -80,6 +102,7 @@ export default function PolicyDetailScreen() {
             </View>
           ))}
         </View>
+        )}
         <TouchableOpacity
           onPress={() => router.push("/insurance/coverage-check")}
           style={[styles.checkBtn, { backgroundColor: colors.primarySurface }]}

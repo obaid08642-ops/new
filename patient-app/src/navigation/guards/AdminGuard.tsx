@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, ActivityIndicator, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppSelector } from '../../store/hooks';
 

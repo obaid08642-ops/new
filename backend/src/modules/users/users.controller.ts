@@ -1,12 +1,30 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private users: UsersService) {}
+
+  /** Contract-pack patient display DTO: no PII or internal identifiers. */
+  @Get('me/display')
+  display(@CurrentUser('id') id: string) {
+    return this.users.getPatientDisplay(id);
+  }
+
+  /** Contract-pack allowlisted patient profile mutation. */
+  @Patch('me')
+  updateDisplay(@CurrentUser('id') id: string, @Body() body: any) {
+    return this.users.updatePatientWebProfile(id, body);
+  }
+
+  @Get('me/health-id')
+  healthId(@CurrentUser('id') id: string) {
+    return this.users.getHealthId(id);
+  }
 
   @Get('me/profile')
   myProfile(@CurrentUser('id') id: string) {
@@ -35,6 +53,7 @@ export class UsersController {
   }
 
   @Patch('me/notification-settings')
+  @RequireIdempotency()
   updateNotificationSettings(@CurrentUser('id') id: string, @Body() body: any) {
     return this.users.updateNotificationSettings(id, body);
   }
@@ -72,6 +91,11 @@ export class UsersController {
   @Get('me/sessions')
   getSessions(@CurrentUser('id') id: string) {
     return this.users.getSessions(id);
+  }
+  @Delete('me/sessions/:jti')
+  @RequireIdempotency()
+  revokeSession(@CurrentUser('id') id: string, @Param('jti') jti: string) {
+    return this.users.revokeSession(id, jti);
   }
   @Get()
   @Roles(UserRole.ADMIN)

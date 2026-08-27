@@ -6,24 +6,25 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TextInput,
   Animated,
   StatusBar,
   Platform,
   Keyboard,
   Linking,
-  FlatList
+  FlatList,
 } from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT } from '../../src/components/MapPrimitives';
 import * as Location from 'expo-location';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { pickLocalized } from '../../src/utils/localize';
 
 // ─────────────────────────────────────────────────────────────
 // DATA
@@ -112,16 +113,18 @@ const HologramMarker3D = ({
         <Icon name={provider.icon} size={isSelected ? 22 : 18} color="#fff" />
       </View>
 
-      {/* — open / closed dot — */}
-      <View
-        style={[
-          styles.availDot,
-          {
-            backgroundColor: provider.isOpen ? '#22C55E' : '#EF4444',
-            bottom: isSelected ? 22 : 18,
-            transform: [{ translateY: lift }, { scale }],
-          },
-        ]}/>
+      {/* — open / closed dot (hidden when availability unknown) — */}
+      {provider.isOpen != null && (
+        <View
+          style={[
+            styles.availDot,
+            {
+              backgroundColor: provider.isOpen ? '#22C55E' : '#EF4444',
+              bottom: isSelected ? 22 : 18,
+              transform: [{ translateY: lift }, { scale }],
+            },
+          ]}/>
+      )}
 
       {/* — name label when selected — */}
       {isSelected && (
@@ -172,25 +175,32 @@ export default function MapScreen() {
       const data = Array.isArray(res) ? res : (res?.data ?? res?.results ?? []);
       if (data.length > 0) {
         // Normalize backend fields to our UI fields
-        const normalized = data.map((p: any) => ({
-          id: String(p.id || p._id),
-          name: p.name || p.name_ar || p.full_name || p.clinic_name || 'مزود خدمة',
-          type: p.type || p.provider_type || 'doctor',
-          rating: p.rating || p.avg_rating || 4.5,
-          reviews: p.reviews_count || p.total_reviews || 0,
-          distance: p.distance_km || p.distance || 1.0,
-          eta: p.eta_minutes || Math.round((p.distance_km || 1) * 4),
-          isOpen: p.is_available ?? p.is_open ?? true,
-          price: p.consultation_fee || p.price || 0,
-          lat: p.lat || p.latitude || p.location?.lat || 24.7136,
-          lng: p.lng || p.longitude || p.location?.lng || 46.6753,
-          specialties: p.specialties || p.services || [],
-          insurance: p.accepted_insurance || p.insurance_providers || [],
-          icon: p.type === 'pharmacy' ? 'pill' : p.type === 'lab' ? 'flask' : p.type === 'nursing' ? 'account-nurse' : p.type === 'hospital' ? 'hospital-building' : 'doctor',
-          color: p.type === 'pharmacy' ? '#5BA84F' : p.type === 'lab' ? '#7A6BEA' : p.type === 'nursing' ? '#00C9A7' : p.type === 'hospital' ? '#F0695C' : '#23B5CE',
-          available: p.is_available ?? true,
-          image: p.profile_image || p.image || p.avatar || `https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80`,
-        }));
+        // E2: no fabricated stats/coords — rating/distance/eta/price stay null when unknown,
+        // and providers without real coordinates never appear as map markers at a fake Riyadh location
+        const normalized = data.map((p: any) => {
+          const dist = p.distance_km ?? p.distance ?? null;
+          const lat = p.lat ?? p.latitude ?? p.location?.lat ?? null;
+          const lng = p.lng ?? p.longitude ?? p.location?.lng ?? null;
+          return {
+            id: String(p.id || p._id),
+            name: pickLocalized(p.name_ar, p.name || p.full_name || p.clinic_name) || 'مزود خدمة',
+            type: p.type || p.provider_type || 'doctor',
+            rating: p.rating ?? p.avg_rating ?? null,
+            reviews: p.reviews_count ?? p.total_reviews ?? 0,
+            distance: dist,
+            eta: p.eta_minutes ?? (typeof dist === 'number' ? Math.round(dist * 4) : null),
+            isOpen: p.is_available ?? p.is_open ?? null,
+            price: p.consultation_fee ?? p.price ?? null,
+            lat,
+            lng,
+            specialties: p.specialties || p.services || [],
+            insurance: p.accepted_insurance || p.insurance_providers || [],
+            icon: p.type === 'pharmacy' ? 'pill' : p.type === 'lab' ? 'flask' : p.type === 'nursing' ? 'account-nurse' : p.type === 'hospital' ? 'hospital-building' : 'doctor',
+            color: p.type === 'pharmacy' ? '#5BA84F' : p.type === 'lab' ? '#7A6BEA' : p.type === 'nursing' ? '#00C9A7' : p.type === 'hospital' ? '#F0695C' : '#23B5CE',
+            available: p.is_available ?? null,
+            image: p.profile_image || p.image || p.avatar || null,
+          };
+        });
         setProviders(normalized);
       }
       // else keep FALLBACK_PROVIDERS
@@ -358,7 +368,7 @@ export default function MapScreen() {
             if (showSheet) closeSheet();
           }}
         >
-          {filteredProviders.map(prov => (
+          {filteredProviders.filter(prov => typeof prov.lat === 'number' && typeof prov.lng === 'number').map(prov => (
             <Marker
               key={prov.id}
               coordinate={{ latitude: prov.lat, longitude: prov.lng }} tracksViewChanges={false}
@@ -444,7 +454,7 @@ export default function MapScreen() {
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <AppText variant="labelSM" color={colors.textPrimary}>{item.name}</AppText>
                   <AppText variant="caption" color={colors.textTertiary}>
-                    {PROVIDER_TYPES.find(t => t.id === item.type)?.label} • {item.distance} كم
+                    {PROVIDER_TYPES.find(t => t.id === item.type)?.label}{item.distance != null ? ` • ${item.distance} كم` : ''}
                   </AppText>
                 </View>
                 <Icon name="chevronLeft" size={18} color={colors.textTertiary} />
@@ -498,24 +508,30 @@ export default function MapScreen() {
                   { backgroundColor: isDark ? colors.surface : '#fff', borderColor: colors.border },]} >
                 <View style={[styles.quickTop, { backgroundColor: prov.color + '18' } ]}>
                   <Icon name={prov.icon} size={20} color={prov.color} />
-                  <View style={[styles.openBadge, { backgroundColor: prov.isOpen ? '#DCFCE7' : '#FEE2E2' } ]}>
-                    <AppText variant="caption" color={prov.isOpen ? '#15803D' : '#B91C1C'}>
-                      {prov.isOpen ? 'مفتوح' : 'مغلق'}
-                    </AppText>
-                  </View>
+                  {prov.isOpen != null && (
+                    <View style={[styles.openBadge, { backgroundColor: prov.isOpen ? '#DCFCE7' : '#FEE2E2' } ]}>
+                      <AppText variant="caption" color={prov.isOpen ? '#15803D' : '#B91C1C'}>
+                        {prov.isOpen ? 'مفتوح' : 'مغلق'}
+                      </AppText>
+                    </View>
+                  )}
                 </View>
                 <AppText variant="labelSM" numberOfLines={1} style={{ textAlign: 'right' }}>
                   {prov.name}
                 </AppText>
                 <View style={styles.quickMeta}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                    <Icon name="star" size={13} color="#F59E0B" />
-                    <AppText variant="caption">{prov.rating}</AppText>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                    <Icon name="location" size={13} color={colors.primary} />
-                    <AppText variant="caption">{prov.distance} كم</AppText>
-                  </View>
+                  {prov.rating != null && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                      <Icon name="star" size={13} color="#F59E0B" />
+                      <AppText variant="caption">{prov.rating}</AppText>
+                    </View>
+                  )}
+                  {prov.distance != null && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                      <Icon name="location" size={13} color={colors.primary} />
+                      <AppText variant="caption">{prov.distance} كم</AppText>
+                    </View>
+                  )}
                 </View>
               </TouchableOpacity>
             ))}
@@ -553,8 +569,7 @@ export default function MapScreen() {
                 <AppText variant="h5" color={colors.textPrimary}>{selectedProvider.name}</AppText>
                 <AppText variant="bodySM" color={colors.textTertiary}>
                   {PROVIDER_TYPES.find(t => t.id === selectedProvider.type)?.label}
-                  {' • '}
-                  {selectedProvider.specialties.join('، ')}
+                  {selectedProvider.specialties.length > 0 ? ` • ${selectedProvider.specialties.join('، ')}` : ''}
                 </AppText>
               </View>
             </View>
@@ -562,10 +577,16 @@ export default function MapScreen() {
             {/* Stats */}
             <View style={styles.statsRow}>
               {[
-                { icon: 'location',    val: `${selectedProvider.distance} كم`, lbl: 'المسافة',  color: colors.primary },
-                { icon: 'clock',       val: `${selectedProvider.eta} د`,       lbl: 'الوصول',   color: colors.secondary },
-                { icon: 'star',        val: `${selectedProvider.rating}`,      lbl: `(${selectedProvider.reviews})`, color: '#F59E0B' },
-                ...(selectedProvider.price > 0
+                ...(selectedProvider.distance != null
+                  ? [{ icon: 'location', val: `${selectedProvider.distance} كم`, lbl: 'المسافة', color: colors.primary }]
+                  : []),
+                ...(selectedProvider.eta != null
+                  ? [{ icon: 'clock', val: `${selectedProvider.eta} د`, lbl: 'الوصول', color: colors.secondary }]
+                  : []),
+                ...(selectedProvider.rating != null
+                  ? [{ icon: 'star', val: `${selectedProvider.rating}`, lbl: `(${selectedProvider.reviews})`, color: '#F59E0B' }]
+                  : []),
+                ...(selectedProvider.price != null && selectedProvider.price > 0
                   ? [{ icon: 'wallet', val: `${selectedProvider.price} ر.س`,   lbl: 'السعر',    color: '#10B981' }]
                   : []),
               ].map((s, i, arr) => (

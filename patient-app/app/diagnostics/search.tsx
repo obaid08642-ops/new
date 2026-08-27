@@ -13,6 +13,7 @@ import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
 import { AppText, Card, Input, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
 
 export default function DiagSearchScreen() {
   const insets = useSafeAreaInsets();
@@ -30,9 +31,9 @@ export default function DiagSearchScreen() {
           setTests(
             res?.data.map((t: any) => ({
               id: t._id || t.id,
-              name: t.name_ar || t.name,
+              name: pickLocalized(t.name_ar, t.name),
               price: t.price || t.base_price || 0,
-              category: t.category_ar || t.category || "",
+              category: pickLocalized(t.category_ar, t.category) || "",
             })),
           );
         }

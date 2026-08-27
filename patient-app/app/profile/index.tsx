@@ -3,23 +3,22 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../src/store/slices/authSlice';
-import { useAppSelector } from '../../src/store/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
-import { AppText, Card, Button, IconButton, Avatar } from '../../src/components/ui';
+import { AppText, Card, Badge, Button, IconButton, Avatar } from '../../src/components/ui';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
+import { apiFetch } from '../../src/utils/api';
 
-const MENU: { icon: IconName; label: string; route: string; color: string }[] = [
+const MENU: { icon: IconName; label: string; route: string; color: string; badge?: string }[] = [
   { icon: 'favorite', label: 'صحتي', route: '/(tabs)/health', color: '#E11D48' },
   { icon: 'medication', label: 'أدويتي', route: '/health/medications', color: '#16A34A' },
   { icon: 'prescriptions', label: 'وصفاتي', route: '/health/prescriptions', color: '#7A6BEA' },
   { icon: 'document', label: 'تقاريري', route: '/health/reports', color: '#F0A526' },
   { icon: 'calendar', label: 'مواعيدي', route: '/consultations/appointments', color: '#0284C7' },
-  { icon: 'shopping_cart', label: 'طلباتي', route: '/pharmacy/order-history', color: '#D97706' },
-  { icon: 'wallet', label: 'محفظتي', route: '/wallet/hub', color: '#059669' },
+  { icon: 'shopping_cart', label: 'طلباتي', route: '/orders', color: '#D97706' },
   { icon: 'shield', label: 'التأمين الطبي', route: '/profile/insurance', color: '#4F46E5' },
   { icon: 'location', label: 'عناويني', route: '/profile/addresses', color: '#DB2777' },
   { icon: 'users', label: 'عائلتي', route: '/health/family-hub', color: '#0D9488' },
@@ -34,10 +33,24 @@ export default function ProfileScreen() {
     router.replace('/(auth)/welcome');
   };
   const insets = useSafeAreaInsets();
-  const { isGuest } = useGuestGuard();
-  const { colors } = useApp();
-  const user = useAppSelector((state: any) => state.auth.user);
-  const userName = user?.full_name || user?.name || 'الحساب غير مكتمل';
+  const { isGuest, requireAuth } = useGuestGuard();
+  const { colors, isDark } = useApp();
+  const user = useSelector((state: any) => state.auth.user);
+  // E2: real loyalty balance for the points badge (was hardcoded '1,250')
+  const [loyaltyPoints, setLoyaltyPoints] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    if (isGuest) return;
+    apiFetch('/loyalty/account')
+      .then((acc: any) => setLoyaltyPoints(Number(acc?.points ?? 0)))
+      .catch(() => setLoyaltyPoints(null));
+  }, [isGuest]);
+
+  const menu = React.useMemo(
+    () => MENU.map((m) => m.icon === 'trophy' && loyaltyPoints != null
+      ? { ...m, badge: loyaltyPoints.toLocaleString('en-US') }
+      : m),
+    [loyaltyPoints],
+  );
 
   return (
     <View style={[st.c, { backgroundColor: colors.background } ]}>
@@ -48,7 +61,7 @@ export default function ProfileScreen() {
           <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12, flex: 1, paddingRight: 12 }}>
             <Avatar size={36} icon="user" bg={colors.surfaceSecondary} iconColor={colors.textPrimary} />
             <View style={{ alignItems: 'flex-end', flex: 1 }}>
-              <AppText variant="h4" color={colors.textPrimary}>{isGuest ? 'مرحباً بك، زائر' : userName}</AppText>
+              <AppText variant="h4" color={colors.textPrimary}>{isGuest ? 'مرحباً بك، زائر' : (user?.name || user?.full_name || 'مريض نبض')}</AppText>
             </View>
           </View>
           <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
@@ -67,13 +80,16 @@ export default function ProfileScreen() {
         )}
 
         <View style={st.grid}>
-          {MENU.map((item, i) => (
+          {menu.map((item, i) => (
             <TouchableOpacity
               key={i}
               activeOpacity={0.85}
               onPress={() => {
-                if (isGuest && item.route !== '/settings') {
-                  router.push('/(auth)/welcome');
+                // Guests can open everything EXCEPT insurance & family routes.
+                const r = String(item.route || '');
+                const guestBlocked = r.includes('insurance') || r.includes('family');
+                if (isGuest && guestBlocked) {
+                  requireAuth(r.includes('insurance') ? 'insurance' : 'family');
                 } else {
                   router.push(item.route as any);
                 }
@@ -81,6 +97,11 @@ export default function ProfileScreen() {
               style={st.gridItem}
             >
               <Card padding={0} style={{ alignItems: 'center', paddingVertical: 16, gap: 8, overflow: 'visible' }}>
+                {item.badge && (
+                  <View style={{ position: 'absolute', top: -6, right: -6, zIndex: 10 }}>
+                    <Badge label={item.badge} color="#fff" bg={item.color} style={{ paddingHorizontal: 4, paddingVertical: 2 }}/>
+                  </View>
+                )}
                 <View style={[st.gridIcon, { backgroundColor: item.color + '18' } ]}>
                   <Icon name={item.icon} size={24} color={item.color} />
                 </View>

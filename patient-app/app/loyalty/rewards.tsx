@@ -1,14 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  ActivityIndicator,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,6 +8,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 // Rewards fetched from API
 export default function LoyaltyRewardsScreen() {
@@ -49,11 +42,11 @@ export default function LoyaltyRewardsScreen() {
 
   const handleClaimReward = async (reward: any) => {
     if (points < reward.points_required) {
-      Alert.alert('رصيد غير كافٍ', 'عذراً، لا تملك نقاطاً كافية لاستبدال هذه المكافأة.');
+      showLocalizedAlert('رصيد غير كافٍ', 'عذراً، لا تملك نقاطاً كافية لاستبدال هذه المكافأة.');
       return;
     }
 
-    Alert.alert(
+    showLocalizedAlert(
       'تأكيد الاستبدال',
       `هل تريد استبدال ${reward.points_required} نقطة مقابل ${reward.title}؟`,
       [
@@ -68,14 +61,14 @@ export default function LoyaltyRewardsScreen() {
               // Deduct points locally
               setPoints(prev => prev - reward.points_required);
 
-              Alert.alert(
+              showLocalizedAlert(
                 'تم الاستبدال بنجاح',
                 `كود الكوبون الخاص بك هو: ${res.coupon_code || 'NAB-FREE'}\nيمكنك استخدامه عند الدفع.`,
                 [{ text: 'حسناً' }]
               );
             } catch (err) {
               console.error(err);
-              Alert.alert('خطأ', 'حدث خطأ أثناء استبدال المكافأة. يرجى المحاولة لاحقاً.');
+              showLocalizedAlert('خطأ', 'حدث خطأ أثناء استبدال المكافأة. يرجى المحاولة لاحقاً.');
             } finally {
               setClaimingId(null);
             }

@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, ConflictException, Logger, Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
@@ -29,9 +29,27 @@ export class AppointmentsService {
   constructor(
     @Inject('AppointmentRepository') private apptModel: AppointmentRepository,
     @Inject('ProviderProfileRepository') private providerModel: ProviderProfileRepository,
+    @InjectConnection() private connection: Connection,
     private events: EventEmitter2,
     private engine: WorkflowEngineService,
   ) {}
+
+  /**
+   * Family on-behalf check: the booker must share a family group with the
+   * patient and either own the group or hold the 'booking' permission.
+   */
+  private async assertFamilyBookingRight(bookerId: string, patientId: string) {
+    const group: any = await this.connection.db.collection('family_groups').findOne({
+      is_deleted: { $ne: true },
+      'members.user_id': { $all: [bookerId, patientId] },
+    });
+    if (!group) throw new ForbiddenException('patient is not a member of your family group');
+    if (group.owner_id === bookerId) return;
+    const me = (group.members || []).find((m: any) => m.user_id === bookerId);
+    if (!me?.permissions?.includes('booking')) {
+      throw new ForbiddenException('you do not have the booking permission for this member');
+    }
+  }
 
   /** ===== Create ===== */
   async create(user: any, body: {
@@ -45,9 +63,18 @@ export class AppointmentsService {
     payment_method?: 'cash' | 'card' | 'insurance';
     insurance_provider?: string;
     insurance_member_id?: string;
+    for_member_id?: string; // family booking on behalf of a member
   }) {
     if (!body?.doctor_id || !body?.service_type || !body?.slot_start) {
       throw new BadRequestException('doctor_id, service_type, slot_start required');
+    }
+    // On-behalf family booking: patient becomes the member, booker is audited
+    let patientId: string = user.id;
+    let bookedBy: string | undefined;
+    if (body.for_member_id && body.for_member_id !== user.id) {
+      await this.assertFamilyBookingRight(user.id, body.for_member_id);
+      patientId = body.for_member_id;
+      bookedBy = user.id;
     }
     // Enforce Nabd payment policy: online → card only; home → card/insurance; clinic → all
     const pm = body.payment_method || (body.service_type === 'clinic' ? 'cash' : 'card');
@@ -116,7 +143,8 @@ export class AppointmentsService {
     // Insert — unique index will throw on double-booking
     try {
       const appt = await this.apptModel.create({
-        patient_id: user.id,
+        patient_id: patientId,
+        booked_by_user_id: bookedBy,
         doctor_id: doctor.id,
         doctor_user_id: doctor.user_id,
         service_type: body.service_type,
@@ -140,7 +168,7 @@ export class AppointmentsService {
         ],
       });
 
-      await this.engine.announceCreated({ kind: 'consultation', entity_id: appt.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { doctor_id: doctor.id, service_type: body.service_type, slot_start: slotStart, price, total_price } });
+      await this.engine.announceCreated({ kind: 'consultation', entity_id: appt.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: patientId, meta: { doctor_id: doctor.id, service_type: body.service_type, slot_start: slotStart, price, total_price } });
 
       // Card payments stay PENDING until payment.completed webhook confirms.
       // Cash & insurance auto-confirm immediately (instant booking UX).
@@ -150,7 +178,7 @@ export class AppointmentsService {
       }
 
       const refreshed = await this.apptModel.findOne({ id: appt.id }, { _id: 0, __v: 0 });
-      this.events.emit('appointment.created', { id: appt.id, patient_id: user.id, doctor_id: doctor.id, total_price });
+      this.events.emit('appointment.created', { id: appt.id, patient_id: patientId, doctor_id: doctor.id, total_price });
       return refreshed?.toObject();
     } catch (e: any) {
       if (e?.code === 11000) {
@@ -160,14 +188,32 @@ export class AppointmentsService {
     }
   }
 
+  private async isDoctorOwner(appt: any, user: any): Promise<boolean> {
+    const profile: any = await this.providerModel.findOne({ id: appt.doctor_id, type: ProviderType.DOCTOR });
+    if (!profile) return false;
+    const actorIds = [user?.id, user?.account_id, user?.provider_id, user?.provider_profile_id].filter(Boolean);
+    const doctorIds = [profile.id, profile.user_id, profile.account_id].filter(Boolean);
+    return actorIds.some((id) => doctorIds.includes(id));
+  }
+
+  private async assertAppointmentAccess(appt: any, user: any): Promise<void> {
+    if (user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN) return;
+    if (appt.patient_id === user?.id) return;
+    if (await this.isDoctorOwner(appt, user)) return;
+    throw new ForbiddenException();
+  }
+
   /** ===== Read ===== */
   async listMine(user: any, status?: ApptState) {
     const q: any = {};
     // Admins can view all appointments
     if (user.role === UserRole.ADMIN) {
         // no additional filter
-    } else if (user.role === UserRole.DOCTOR) {
-        const profile = await this.providerModel.findOne({ user_id: user.id, type: ProviderType.DOCTOR });
+    } else if (user.role === UserRole.DOCTOR || user.provider_type === ProviderType.DOCTOR || user.providerType === ProviderType.DOCTOR) {
+        const profile = await this.providerModel.findOne({
+          type: ProviderType.DOCTOR,
+          $or: [{ user_id: user.id }, { account_id: user.id }, { id: user.id }],
+        });
         if (!profile) return [];
         q.doctor_id = profile.id;
     } else {
@@ -180,12 +226,8 @@ export class AppointmentsService {
   async one(user: any, id: string) {
     const appt = await this.apptModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!appt) throw new NotFoundException();
-    // Authorization: patient owner OR doctor owner OR admin.
-    if (
-      user.role !== UserRole.ADMIN &&
-      appt.patient_id !== user.id &&
-      appt.doctor_user_id !== user.id
-    ) throw new ForbiddenException();
+    // Authorization: patient owner OR the doctor's provider identity OR admin.
+    await this.assertAppointmentAccess(appt, user);
 
     const obj: any = appt.toObject();
     
@@ -208,6 +250,8 @@ export class AppointmentsService {
   async transition(id: string, to: ApptState, actor: any, note?: string) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
+    const isInternalSystemTransition = actor?.id === 'system' && actor?.role === 'system';
+    if (!isInternalSystemTransition) await this.assertAppointmentAccess(appt, actor);
     const allowed = APPT_TRANSITIONS[appt.status] || [];
     if (!allowed.includes(to)) {
       throw new BadRequestException(`Invalid transition ${appt.status} → ${to}`);
@@ -232,11 +276,7 @@ export class AppointmentsService {
   async cancel(id: string, user: any, reason?: string, isNoShow: boolean = false) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
-    if (
-      user.role !== UserRole.ADMIN &&
-      appt.patient_id !== user.id &&
-      appt.doctor_user_id !== user.id
-    ) throw new ForbiddenException();
+    await this.assertAppointmentAccess(appt, user);
 
     // Cancellation & Refund Rules
     let refundPercentage = 0;
@@ -300,28 +340,72 @@ export class AppointmentsService {
     return this.transition(id, APPT_STATES.COMPLETED, user);
   }
 
+  /** Doctor finishes the consultation: persists the SOAP summary for real, then completes. */
+  async finish(id: string, body: any, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    await this.assertAppointmentAccess(appt, user);
+    if (body && (body.diagnosis || body.notes || body.recommendations || (Array.isArray(body.prescription) && body.prescription.length))) {
+      appt.summary = {
+        diagnosis: body.diagnosis, notes: body.notes, recommendations: body.recommendations,
+        prescription: Array.isArray(body.prescription) ? body.prescription : [],
+        follow_up_recommended: !!body.follow_up_recommended,
+        follow_up_window_days: body.follow_up_window_days != null ? Number(body.follow_up_window_days) : undefined,
+        written_at: new Date(),
+      } as any;
+      await appt.save();
+    }
+    const done = await this.transition(id, APPT_STATES.COMPLETED, user);
+    return { success: true, appointment: done };
+  }
+
+  /** Patient (or the doctor/admin) reads the consultation summary. 404 → screen shows honest not-ready. */
+  async getSummary(id: string, user: any) {
+    const appt = await this.apptModel.findOne({ id });
+    if (!appt) throw new NotFoundException();
+    if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) throw new ForbiddenException();
+    if (!appt.summary || !(appt.summary.diagnosis || appt.summary.notes || (appt.summary.prescription || []).length)) {
+      throw new NotFoundException('summary not available yet');
+    }
+    return { doctor_id: appt.doctor_id, ...appt.summary };
+  }
+
   async reschedule(id: string, user: any, body: { slot_start: string }) {
     const appt = await this.apptModel.findOne({ id });
     if (!appt) throw new NotFoundException();
     if (user.role !== UserRole.ADMIN && appt.patient_id !== user.id && appt.doctor_user_id !== user.id) {
       throw new ForbiddenException();
     }
+    if ([APPT_STATES.CANCELLED, APPT_STATES.COMPLETED, APPT_STATES.RESCHEDULED].includes(appt.status)) {
+      throw new BadRequestException('cannot_reschedule');
+    }
     const newStart = new Date(body.slot_start);
     if (isNaN(newStart.getTime()) || newStart.getTime() < Date.now() + 5 * 60_000) {
       throw new BadRequestException('slot_start must be in the future');
     }
-    // Mark current as RESCHEDULED, create a new appointment with same fields/new slot
-    appt.status = APPT_STATES.RESCHEDULED;
-    appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
-    await appt.save();
+    if (newStart.getMinutes() % 15 !== 0 || newStart.getSeconds() !== 0 || newStart.getMilliseconds() !== 0) {
+      throw new BadRequestException('slot_start must be exactly on a 15-minute boundary');
+    }
 
+    const newEnd = new Date(newStart.getTime() + appt.duration_minutes * 60_000);
+    const paddedEnd = new Date(newEnd.getTime() + 5 * 60_000);
+    const overlapping = await this.apptModel.findOne({
+      doctor_id: appt.doctor_id,
+      status: { $in: [APPT_STATES.PENDING, APPT_STATES.CONFIRMED, APPT_STATES.CHECKED_IN, APPT_STATES.IN_PROGRESS] },
+      $or: [{ slot_start: { $lt: paddedEnd }, slot_end: { $gt: newStart } }],
+    });
+    if (overlapping) throw new ConflictException('slot_already_booked_or_conflicts_with_buffer');
+
+    // Create first so a rejected/conflicting replacement preserves the original
+    // appointment. If persisting the original transition subsequently fails,
+    // remove the replacement as a compensating action before surfacing the error.
     const fresh = await this.apptModel.create({
       patient_id: appt.patient_id,
       doctor_id: appt.doctor_id,
       doctor_user_id: appt.doctor_user_id,
       service_type: appt.service_type,
       slot_start: newStart,
-      slot_end: new Date(newStart.getTime() + appt.duration_minutes * 60_000),
+      slot_end: newEnd,
       duration_minutes: appt.duration_minutes,
       status: APPT_STATES.CONFIRMED,
       price: appt.price,
@@ -332,6 +416,14 @@ export class AppointmentsService {
       rescheduled_from_id: appt.id,
       state_history: [{ state: APPT_STATES.CONFIRMED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled-from-' + appt.id }],
     });
+    try {
+      appt.status = APPT_STATES.RESCHEDULED;
+      appt.state_history.push({ state: APPT_STATES.RESCHEDULED, at: new Date(), by_user_id: user.id, by_role: user.role, note: 'rescheduled' });
+      await appt.save();
+    } catch (error) {
+      await this.apptModel.deleteOne({ id: fresh.id }).catch(() => null);
+      throw error;
+    }
     return fresh.toObject();
   }
 

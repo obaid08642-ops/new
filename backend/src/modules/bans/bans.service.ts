@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, BadRequestException, OnModuleInit, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Ban, BanDocument } from './bans.schema';
@@ -49,6 +48,6 @@ export class BansService implements OnModuleInit {
   }
 
   async getBans() {
-    return this.banModel.find().sort({ createdAt: -1 }).lean();
+    return this.banModel.find({}).sort({ createdAt: -1 }).lean();
   }
 }

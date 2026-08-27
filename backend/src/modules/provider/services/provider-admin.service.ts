@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Model } from 'mongoose';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus } from '../schemas';
 import { ProviderAccountStatus, PROVIDER_STATUS_TRANSITIONS } from '../provider.enums';
@@ -16,14 +17,36 @@ export class ProviderAdminService {
     @Inject('ProviderDocumentRepository') private docs: ProviderDocumentRepository,
     @Inject('ProviderBankAccountRepository') private banks: ProviderBankAccountRepository,
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
+    private events: EventEmitter2,
   ) {}
+
+
+  /** Physically delete a provider's stored images (Cloudinary/R2) so rejected or
+   *  replaced assets never linger. Accepts storage IDs or raw URLs. */
+  private async purgeImages(values: any[]) {
+    const flat: string[] = [];
+    for (const v of values) {
+      if (Array.isArray(v)) flat.push(...v.map(String));
+      else if (v) flat.push(String(v));
+    }
+    for (const s of flat) {
+      try {
+        let url = s.startsWith('http') ? s : null;
+        if (!url) {
+          const obj = await (this.accounts.model.db.collection('storage_objects') as any).findOne({ id: s });
+          url = obj?.external_url || null;
+        }
+        if (url) this.events.emit('storage.delete_by_url', { url });
+      } catch { /* best-effort cleanup */ }
+    }
+  }
 
   private assertAdmin(user: any) { if (user.role !== 'admin') throw new ForbiddenException('admin only'); }
 
   async list(user: any, q: { status?: string; provider_type?: string; page?: number; limit?: number; search?: string }): Promise<any> {
     this.assertAdmin(user);
     const filter: any = {};
-    if (q.status) filter.status = q.status;
+    if (q.status) filter.status = q.status === 'pending' ? ProviderAccountStatus.PENDING_ADMIN_APPROVAL : q.status;
     if (q.provider_type) filter.provider_type = q.provider_type;
     if (q.search) filter.email = new RegExp(q.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
     const page = Math.max(1, parseInt(String(q.page || 1)));
@@ -35,18 +58,23 @@ export class ProviderAdminService {
     const accountIds = items.map(i => i.id);
     const profiles = await this.profiles.find({ account_id: { $in: accountIds } }, { account_id: 1, display_name_ar: 1, display_name_en: 1, legal_name: 1 }).lean();
     const profileMap = new Map(profiles.map(p => [p.account_id, p]));
+    // Onboarding submissions carry their names on the common provider profile (same collection, has user_id)
+    const onboardingProfiles = await this.accounts.model.db.collection('provider_profiles')
+      .find({ account_id: { $in: accountIds }, user_id: { $exists: true } }, { projection: { account_id: 1, name_ar: 1, name_en: 1 } }).toArray();
+    const onboardingMap = new Map(onboardingProfiles.map((p: any) => [p.account_id, p]));
     const enrichedItems = items.map(i => {
       const p = profileMap.get(i.id);
+      const o: any = onboardingMap.get(i.id);
       return {
         ...i,
-        display_name_ar: (p as any)?.display_name_ar || (p as any)?.legal_name || 'مزود خدمة',
-        display_name_en: (p as any)?.display_name_en || (p as any)?.legal_name || 'Service Provider',
+        display_name_ar: (p as any)?.display_name_ar || (p as any)?.legal_name || o?.name_ar || 'مزود خدمة',
+        display_name_en: (p as any)?.display_name_en || (p as any)?.legal_name || o?.name_en || o?.name_ar || 'Service Provider',
       };
     });
     return { items: enrichedItems, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
-  async detail(user: any, id: string) {
+  async detail(user: any, id: string): Promise<any> {
     this.assertAdmin(user);
     const account = await this.accounts.findOne({ id }, { password_hash: 0 });
     if (!account) throw new NotFoundException();
@@ -55,7 +83,35 @@ export class ProviderAdminService {
       this.docs.find({ account_id: id }, { _id: 0, __v: 0 }),
       this.banks.findOne({ account_id: id }, { _id: 0, __v: 0 }),
     ]);
-    return { account, profile, documents: docs, bank };
+    // Onboarding bridge: the full submission file (contract, drawn signature, signer,
+    // licenses, photos, location, bank) lives on the common provider profile.
+    const onboarding = await this.accounts.model.db.collection('provider_profiles').findOne(
+      { account_id: id, user_id: { $exists: true } },
+      { projection: { _id: 0, __v: 0 } },
+    );
+    return { account, profile, documents: docs, bank, onboarding: onboarding || null };
+  }
+
+  /**
+   * Same full file as detail(), but keyed by the USER id (users collection).
+   * The users-management page lists users — when the admin opens a provider
+   * user, they must see the identical complete registration record.
+   */
+  async detailByUser(user: any, userId: string): Promise<any> {
+    this.assertAdmin(user);
+    const onboarding: any = await this.accounts.model.db.collection('provider_profiles').findOne(
+      { user_id: userId, is_deleted: { $ne: true } } as any,
+      { projection: { _id: 0, __v: 0 } },
+    );
+    if (!onboarding) throw new NotFoundException('لا يوجد ملف مزود مرتبط بهذا المستخدم');
+    const accountId = onboarding.account_id;
+    const account = accountId ? await this.accounts.findOne({ id: accountId }, { password_hash: 0 }) : null;
+    const [profile, docs, bank] = accountId ? await Promise.all([
+      this.profiles.findOne({ account_id: accountId }, { _id: 0, __v: 0 }),
+      this.docs.find({ account_id: accountId }, { _id: 0, __v: 0 }),
+      this.banks.findOne({ account_id: accountId }, { _id: 0, __v: 0 }),
+    ]) : [null, [], null];
+    return { account, profile, documents: docs, bank, onboarding };
   }
 
   private async transition(account: ProviderAccount, to: ProviderAccountStatus, user: any, note?: string) {
@@ -71,12 +127,15 @@ export class ProviderAdminService {
     await this.transition(a, ProviderAccountStatus.APPROVED, user, body?.note);
     a.approved_at = new Date(); a.approved_by = user.id;
     await a.save();
-    await this.profiles.updateOne({ account_id: id }, { $set: { user_id: id, type: a.provider_type, status: 'active' } });
     if (body?.commission !== undefined) {
       await this.profiles.updateOne({ account_id: id }, { $set: { commission_rate: Number(body.commission) } });
     }
     await this.docs.updateMany({ account_id: id, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: DocumentReviewStatus.APPROVED, reviewer_id: user.id, reviewed_at: new Date() } });
     await this.banks.updateMany({ account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id } });
+    await this.accounts.model.db.collection('provider_profiles').updateMany(
+      { account_id: id, user_id: { $exists: true } },
+      { $set: { status: 'active', approved_at: new Date(), approved_by: user.id, rejected_reason: null } },
+    );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note, commission: body?.commission } });
     return a.toObject();
   }
@@ -87,8 +146,20 @@ export class ProviderAdminService {
     await this.transition(a, ProviderAccountStatus.REJECTED, user, body?.reason);
     a.rejection_reason = body?.reason || 'rejected';
     await a.save();
-    await this.profiles.updateOne({ account_id: id }, { $set: { user_id: id, type: a.provider_type, status: 'rejected' } });
+    await this.accounts.model.db.collection('provider_profiles').updateMany(
+      { account_id: id, user_id: { $exists: true } },
+      { $set: { status: 'rejected', rejected_reason: a.rejection_reason } },
+    );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_rejected', after: { reason: a.rejection_reason } });
+    // Free storage: rejected provider's images are physically deleted (Cloudinary/R2)
+    const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
+    if (prof) {
+      const docs: any[] = await this.accounts.model.db.collection('providerdocuments').find({ account_id: id }).toArray();
+      await this.purgeImages([
+        prof.profile_photo, prof.logo, prof.clinic_images, prof.license_documents,
+        ...docs.map((d: any) => d.file_url || d.storage_id || d.url),
+      ]);
+    }
     return a.toObject();
   }
 
@@ -109,7 +180,6 @@ export class ProviderAdminService {
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     await this.transition(a, ProviderAccountStatus.SUSPENDED, user, body?.reason);
     await a.save();
-    await this.profiles.updateOne({ account_id: id }, { $set: { user_id: id, type: a.provider_type, status: 'suspended' } });
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_suspended', after: { reason: body?.reason } });
     return a.toObject();
   }

@@ -2,12 +2,9 @@
 // app/returns/new-request.tsx
 import React, { useState } from 'react';
 import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity
+  View, StyleSheet, ScrollView, TouchableOpacity,
+  TextInput,
 } from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +14,7 @@ import { AppText, Card, Badge, Button, IconButton } from '../../src/components/u
 
 import { Alert } from 'react-native';
 import { apiFetch } from '../../src/utils/api';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const SERVICE_TYPES = [
   { id: 'pharmacy', label: 'طلب صيدلية', icon: 'medication', color: '#5BA84F' },
@@ -80,7 +78,7 @@ export default function NewReturnRequestScreen() {
       setStep('success');
     } catch (e) {
       setIsSubmitting(false);
-      Alert.alert('خطأ', 'فشل تقديم طلب الإرجاع. الرجاء المحاولة مرة أخرى.');
+      showLocalizedAlert('خطأ', 'فشل تقديم طلب الإرجاع. الرجاء المحاولة مرة أخرى.');
     }
   };
 

@@ -1,334 +1,51 @@
-// @ts-nocheck
-// app/ai/skin-analysis.tsx
-// ️ تحليل الجلد بالذكاء الاصطناعي
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { ActivityIndicator, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-import * as ImagePicker from 'expo-image-picker';
+import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { guidedCareT } from '../../src/i18n/guided-care';
 
-type SkinState = 'camera' | 'analyzing' | 'results';
+type SkinResult = { care_level: 'clinical_assessment' | 'self_observation'; selected_areas: string[]; selected_observations: string[]; image_analysis: false; diagnosis: null; treatment: null; notice: string };
+const areaOptions = [{ value: 'face', key: 'areaFace' }, { value: 'hand', key: 'areaHand' }, { value: 'back', key: 'areaBack' }, { value: 'body', key: 'areaBody' }, { value: 'other', key: 'areaOther' }] as const;
+const observationOptions = [{ value: 'new_or_changing', key: 'obsNew' }, { value: 'growing_or_changed_colour_texture', key: 'obsGrowth' }, { value: 'painful_or_itchy', key: 'obsPain' }, { value: 'bleeding_or_crusting', key: 'obsBleeding' }, { value: 'not_healing_over_four_weeks', key: 'obsNotHealing' }, { value: 'none', key: 'obsNone' }] as const;
 
-const DEFAULT_SKIN_RESULTS = {
-  condition: 'جفاف الجلد المتوسط',
-  confidence: 82,
-  severity: 'خفيف-متوسط',
-  color: '#F0A526',
-  findings: [
-    { label: 'الترطيب', score: 35, max: 100, status: 'منخفض' },
-    { label: 'الإشراق', score: 65, max: 100, status: 'متوسط' },
-    { label: 'نعومة البشرة', score: 55, max: 100, status: 'متوسط' },
-    { label: 'التجانس', score: 72, max: 100, status: 'جيد' },
-  ],
-  recommendations: [
-    'استخدم مرطباً يحتوي على حمض الهيالورونيك مرتين يومياً',
-    'اشرب 8 أكواب ماء على الأقل يومياً',
-    'تجنّب الاستحمام بالماء الساخن',
-    'استخدم واقي شمس SPF 50+ يومياً',
-  ],
-  products: ['مرطب نيفيا', 'سيروم فيتامين C', 'كريم SPF 50'],
-  doctorNote: 'ينصح بزيارة طبيب جلدية إذا لم يتحسن الوضع خلال 2-3 أسابيع',
-};
-
-export default function SkinAnalysisScreen() {
+export default function SkinSelfCheckScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  
-  
-  const [state, setState] = useState<SkinState>('camera');
-  const [selectedArea, setSelectedArea] = useState('الوجه');
-  const [skinAnalysisResult, setSkinAnalysisResult] = useState<any>(null);
+  const { colors, lang } = useApp();
+  const t = (key: Parameters<typeof guidedCareT>[1]) => guidedCareT(lang, key);
+  const [areas, setAreas] = useState<string[]>([]);
+  const [observations, setObservations] = useState<string[]>([]);
+  const [note, setNote] = useState('');
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<SkinResult | null>(null);
 
-  const BODY_AREAS = ['الوجه', 'اليدان', 'الظهر', 'الجسم'];
-
-  const pickSkinImage = async (useCamera: boolean) => {
+  const toggleArea = (area: string) => setAreas((current) => current.includes(area) ? current.filter((item) => item !== area) : [...current, area]);
+  const toggleObservation = (observation: string) => setObservations((current) => {
+    if (observation === 'none') return current.includes('none') ? [] : ['none'];
+    const withoutNone = current.filter((item) => item !== 'none');
+    return withoutNone.includes(observation) ? withoutNone.filter((item) => item !== observation) : [...withoutNone, observation];
+  });
+  const submit = async () => {
+    if (!areas.length || !acknowledged) { setError(t('skinError')); return; }
+    setSubmitting(true); setError(null);
     try {
-      const permissionResult = useCamera 
-        ? await ImagePicker.requestCameraPermissionsAsync() 
-        : await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!permissionResult.granted) {
-        Alert.alert('الإذن مطلوب', 'يرجى تفعيل صلاحية الوصول للكاميرا/المعرض للاستمرار.');
-        return;
-      }
-
-      const result = useCamera
-        ? await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.7,
-            base64: true,
-          })
-        : await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.7,
-            base64: true,
-          });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
-        if (asset.base64) {
-          await analyzeSkin(asset.base64);
-        } else {
-          Alert.alert('خطأ', 'فشل قراءة ملف الصورة كـ Base64.');
-        }
-      }
-    } catch (e) {
-      console.log('Error picking skin image', e);
-      Alert.alert('خطأ', 'حدث خطأ أثناء التقاط الصورة.');
-    }
+      const data = await apiFetch('/ai/skin-analysis', { method: 'POST', body: JSON.stringify({ acknowledge_limitations: true, areas, observations: observations.length ? observations : ['none'], ...(note.trim() ? { note: note.trim() } : {}) }) });
+      setResult(data as SkinResult);
+    } catch { setError(t('skinError')); } finally { setSubmitting(false); }
   };
+  const reset = () => { setAreas([]); setObservations([]); setNote(''); setAcknowledged(false); setError(null); setResult(null); };
 
-  const analyzeSkin = async (base64Data: string) => {
-    setState('analyzing');
-    try {
-      const res = await apiFetch<any>('/ai/skin-analysis', {
-        method: 'POST',
-        body: JSON.stringify({
-          image_base64: base64Data,
-          area: selectedArea
-        })
-      });
-
-      if (res && res.condition) {
-        setSkinAnalysisResult({
-          condition: res.condition,
-          confidence: res.confidence || 85,
-          severity: res.severity || 'متوسط',
-          color: res.color || '#F0A526',
-          findings: res.findings || [
-            { label: 'الترطيب', score: 50, max: 100, status: 'متوسط' },
-            { label: 'الإشراق', score: 60, max: 100, status: 'متوسط' },
-            { label: 'نعومة البشرة', score: 55, max: 100, status: 'متوسط' },
-            { label: 'التجانس', score: 70, max: 100, status: 'جيد' }
-          ],
-          recommendations: res.recommendations || ['استخدم غسول لطيف للبشرة', 'تجنب الفرك الشديد'],
-          products: res.products || [],
-          doctorNote: res.doctorNote || 'استشر طبيب الجلدية للمتابعة الدقيقة.',
-        });
-        setState('results');
-      } else {
-        throw new Error('Analysis failed or returned empty results');
-      }
-    } catch (err: any) {
-      console.log('Skin analysis error:', err);
-      Alert.alert('خطأ في التحليل', 'فشل تحليل صورة الجلد. يرجى المحاولة لاحقاً والتأكد من وضوح الصورة.');
-      setState('camera');
-    }
-  };
-
-  const handleCapture = () => {
-    Alert.alert(
-      'تحليل البشرة ️',
-      'اختر مصدر صورة الجلد للتحليل:',
-      [
-        { text: 'التقاط صورة بالكاميرا', onPress: () => pickSkinImage(true) },
-        { text: 'اختيار من المعرض ️', onPress: () => pickSkinImage(false) },
-        { text: 'إلغاء', style: 'cancel' }
-      ],
-      { cancelable: true }
-    );
-  };
-
-  const SKIN_RESULTS = skinAnalysisResult || DEFAULT_SKIN_RESULTS;
-
-  if (state === 'analyzing') {
-    return (
-      <View style={styles.analyzingContainer}>
-        <View style={StyleSheet.absoluteFillObject} />
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: 16, borderRadius: 20, marginBottom: 12 }}>
-          <Icon name="face-woman" size={32} color="#fff" />
-        </View>
-        <AppText variant="h4" color="#fff">الذكاء الاصطناعي يحلل بشرتك...</AppText>
-        <AppText variant="bodySM" color="rgba(255,255,255,0.7)">فحص 50+ معيار جلدي</AppText>
-        <View style={{ marginTop: 24, gap: 12 }}>
-          {['تحليل لون البشرة', 'قياس مستوى الترطيب', 'فحص البنية الجلدية', 'مقارنة بقاعدة بيانات ضخمة'].map((s, i) => (
-            <View key={i} style={styles.analyzeStep}>
-              <Icon name="check" size={20} color="#23B5CE" />
-              <AppText variant="bodySM" color="rgba(255,255,255,0.9)">{s}</AppText>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
+  if (result) {
+    const clinical = result.care_level === 'clinical_assessment';
+    return <View style={[styles.container, { backgroundColor: colors.background }]}><View style={[styles.header, { backgroundColor: clinical ? '#9A3412' : '#0F766E', paddingTop: insets.top + 12 }]}><TouchableOpacity onPress={reset} style={styles.backButton}><Icon name="refresh" size={21} color="#FFFFFF" /></TouchableOpacity><AppText variant="h4" color="#FFFFFF">{t('skinTitle')}</AppText></View><ScrollView contentContainerStyle={styles.content}><View style={[styles.result, { backgroundColor: clinical ? '#FFF7ED' : '#F0FDFA', borderColor: clinical ? '#FED7AA' : '#99F6E4' }]}><Icon name={clinical ? 'warning' : 'info'} size={30} color={clinical ? '#C2410C' : '#0F766E'} /><AppText variant="h5" color={clinical ? '#9A3412' : '#115E59'}>{t(clinical ? 'clinicalTitle' : 'selfObservationTitle')}</AppText><AppText variant="bodySM" color={clinical ? '#9A3412' : '#115E59'} style={styles.centerText}>{t(clinical ? 'clinicalBody' : 'selfObservationBody')}</AppText><TouchableOpacity onPress={() => router.push('/(tabs)/consultations')} style={[styles.primaryAction, { backgroundColor: clinical ? '#C2410C' : '#0F766E' }]}><Icon name="doctor" size={18} color="#FFFFFF" /><AppText variant="h6" color="#FFFFFF">{t('bookConsultation')}</AppText></TouchableOpacity></View><View style={[styles.notice, { backgroundColor: colors.backgroundSecondary }]}><AppText variant="caption" color={colors.textSecondary} style={styles.centerText}>{t('skinNotice')}</AppText></View><TouchableOpacity onPress={reset} style={[styles.outlineAction, { borderColor: colors.border }]}><AppText variant="h6" color={colors.textPrimary}>{t('startAgain')}</AppText></TouchableOpacity></ScrollView></View>;
   }
 
-  if (state === 'results') {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background } ]}>
-        <View style={[styles.header, { paddingTop: insets.top + 8 } ]}>
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => setState('camera')} style={styles.hBtn}>
-              <Icon name="back" size={22} color="#fff" />
-            </TouchableOpacity>
-            <AppText variant="bodySM">نتائج تحليل البشرة </AppText>
-            <View style={{ width: 36 }}/>
-          </View>
-        </View>
-        <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
-          {/* Main result */}
-          <View style={[styles.resultHero, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-            <AppText variant="bodySM">{SKIN_RESULTS.condition}</AppText>
-            <View style={[styles.severityBadge, { backgroundColor: SKIN_RESULTS.color + '20' } ]}>
-              <AppText variant="bodySM">{SKIN_RESULTS.severity}</AppText>
-            </View>
-            <View style={styles.confidenceRow}>
-              <View style={[styles.confBar, { backgroundColor: colors.border } ]}>
-                <View style={[styles.confFill, { width: `${SKIN_RESULTS.confidence}%`, backgroundColor: SKIN_RESULTS.color }]} />
-              </View>
-              <AppText variant="bodySM">{SKIN_RESULTS.confidence}% دقة</AppText>
-            </View>
-          </View>
-
-          {/* Skin metrics */}
-          <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-            <AppText variant="bodySM">مؤشرات البشرة</AppText>
-            {SKIN_RESULTS.findings.map((f, i) => (
-              <View key={i} style={styles.metricRow}>
-                <View style={[styles.statusTag, { backgroundColor: f.score < 50 ? '#FEE2E2' : f.score < 70 ? '#FEF3C7' : '#DCFCE7' } ]}>
-                  <AppText variant="bodySM">{f.status}</AppText>
-                </View>
-                <View style={[styles.metricBar, { backgroundColor: colors.border } ]}>
-                  <View style={[styles.metricFill, {
-                    width: `${f.score}%`,
-                    backgroundColor: f.score < 50 ? '#F0695C' : f.score < 70 ? '#F0A526' : '#5BA84F',
-                  }]} />
-                </View>
-                <AppText variant="bodySM">{f.label}</AppText>
-              </View>
-            ))}
-          </View>
-
-          {/* Recommendations */}
-          <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-            <AppText variant="bodySM">توصيات العناية </AppText>
-            {SKIN_RESULTS.recommendations.map((r, i) => (
-              <View key={i} style={styles.recRow}>
-                <AppText variant="bodySM">{r}</AppText>
-                <Icon name="check" size={20} color={colors.primary} />
-              </View>
-            ))}
-          </View>
-
-          {/* Doctor note */}
-          <View style={[styles.doctorNote, { backgroundColor: '#EBF3FF' } ]}>
-            <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="doctor" size={16} color={colors.primary} /><AppText variant="bodySM">{SKIN_RESULTS.doctorNote}</AppText></View>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
-              style={[styles.bookDermBtn, { backgroundColor: '#23B5CE' } ]}>
-              <AppText variant="bodySM">احجز طبيب جلدية</AppText>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity onPress={() => setState('camera')}
-            style={[styles.retakeBtn, { borderColor: colors.border } ]}>
-            <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="camera" size={16} color={colors.primary} /><AppText variant="bodySM">تحليل صورة جديدة</AppText></View>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-    );
-  }
-
-  // Camera screen
-  return (
-    <View style={styles.cameraContainer}>
-      <View style={StyleSheet.absoluteFillObject} />
-      <View style={[styles.header, { paddingTop: insets.top + 8 } ]}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
-          </TouchableOpacity>
-          <AppText variant="bodySM">تحليل البشرة ️</AppText>
-          <View style={{ width: 36 }}/>
-        </View>
-      </View>
-
-      {/* Area selector */}
-      <View style={styles.areaSelector}>
-        {BODY_AREAS.map(area => (
-          <TouchableOpacity key={area} onPress={() => setSelectedArea(area)}
-            style={[styles.areaChip, selectedArea === area && { backgroundColor: '#23B5CE' } ]}>
-            <AppText variant="bodySM">{area}</AppText>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Viewfinder */}
-      <View style={styles.viewfinder}>
-        <View style={[styles.faceGuide, { borderColor: 'rgba(0,102,204,0.6)' } ]}>
-          <Icon name="sparkles" size={20} color={colors.primary} />
-          <AppText variant="bodySM">ضع {selectedArea} داخل الإطار</AppText>
-        </View>
-        <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="info" size={16} color={colors.primary} /><AppText variant="bodySM">تأكد من الإضاءة الجيدة للحصول على أدق النتائج</AppText></View>
-      </View>
-
-      {/* Capture */}
-      <View style={[styles.camBottom, { paddingBottom: insets.bottom + 20 } ]}>
-        <TouchableOpacity onPress={handleCapture} style={styles.captureBtn}>
-          <View style={styles.captureBtnInner} />
-        </TouchableOpacity>
-        <AppText variant="bodySM">اضغط للتقاط صورة وتحليلها</AppText>
-      </View>
-    </View>
-  );
+  return <View style={[styles.container, { backgroundColor: colors.background }]}><View style={[styles.header, { backgroundColor: '#0F766E', paddingTop: insets.top + 12 }]}><TouchableOpacity onPress={() => router.back()} style={styles.backButton}><Icon name="back" size={21} color="#FFFFFF" /></TouchableOpacity><AppText variant="h4" color="#FFFFFF">{t('skinTitle')}</AppText><AppText variant="caption" color="rgba(255,255,255,0.82)">{t('skinSubtitle')}</AppText></View><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"><View style={[styles.notice, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}><Icon name="info" size={18} color="#047857" /><AppText variant="caption" color={colors.textPrimary} style={styles.noticeText}>{t('skinNotice')}</AppText></View><View style={[styles.card, { backgroundColor: colors.surface }]}><AppText variant="h6" color={colors.textPrimary}>{t('chooseAreas')}</AppText><View style={styles.chips}>{areaOptions.map((option) => { const active = areas.includes(option.value); return <TouchableOpacity key={option.value} accessibilityRole="checkbox" accessibilityState={{ checked: active }} onPress={() => toggleArea(option.value)} style={[styles.chip, { borderColor: active ? '#0F766E' : colors.border, backgroundColor: active ? '#CCFBF1' : 'transparent' }]}><AppText variant="caption" color={active ? '#115E59' : colors.textPrimary}>{t(option.key)}</AppText></TouchableOpacity>; })}</View></View><View style={[styles.card, { backgroundColor: colors.surface }]}><AppText variant="h6" color={colors.textPrimary}>{t('observations')}</AppText>{observationOptions.map((option) => { const active = observations.includes(option.value); return <TouchableOpacity key={option.value} accessibilityRole="checkbox" accessibilityState={{ checked: active }} onPress={() => toggleObservation(option.value)} style={[styles.option, { borderColor: active ? '#0F766E' : colors.border, backgroundColor: active ? '#CCFBF1' : 'transparent' }]}><View style={[styles.checkbox, { borderColor: active ? '#0F766E' : colors.border, backgroundColor: active ? '#0F766E' : 'transparent' }]}>{active ? <Icon name="check" size={14} color="#FFFFFF" /> : null}</View><AppText variant="bodySM" color={colors.textPrimary} style={styles.optionText}>{t(option.key)}</AppText></TouchableOpacity>; })}<AppText variant="caption" color={colors.textSecondary}>{t('noteOptional')}</AppText><TextInput value={note} onChangeText={setNote} maxLength={500} multiline textAlignVertical="top" placeholder={t('notePlaceholder')} placeholderTextColor={colors.textTertiary} style={[styles.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} /></View><TouchableOpacity accessibilityRole="checkbox" accessibilityState={{ checked: acknowledged }} onPress={() => setAcknowledged((value) => !value)} style={[styles.ack, { borderColor: acknowledged ? '#0F766E' : colors.border, backgroundColor: acknowledged ? '#ECFDF5' : colors.surface }]}><View style={[styles.checkbox, { borderColor: acknowledged ? '#0F766E' : colors.border, backgroundColor: acknowledged ? '#0F766E' : 'transparent' }]}>{acknowledged ? <Icon name="check" size={14} color="#FFFFFF" /> : null}</View><AppText variant="caption" color={colors.textPrimary} style={styles.optionText}>{t('acknowledge')}</AppText></TouchableOpacity>{error ? <AppText variant="caption" color="#B91C1C" style={styles.error}>{error}</AppText> : null}<TouchableOpacity disabled={submitting} onPress={() => void submit()} style={[styles.primaryAction, { backgroundColor: '#0F766E', opacity: submitting ? 0.65 : 1 }]}>{submitting ? <ActivityIndicator color="#FFFFFF" /> : <AppText variant="h6" color="#FFFFFF">{t('reviewSkin')}</AppText>}</TouchableOpacity></ScrollView></View>;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  analyzingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 32 },
-  analyzingTitle: { color: '#fff', fontSize: 20, fontWeight: '800', textAlign: 'center' },
-  analyzingSub: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '400' },
-  analyzeStep: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
-  analyzeCheck: { fontSize: 14 },
-  analyzeStepText: { color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: '400' },
-  header: { paddingHorizontal: 20, paddingBottom: 10 },
-  headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  headerTitle: { color: '#fff', fontSize: 17, fontWeight: '800' },
-  hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
-  card: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  cardTitle: { fontSize: 14, fontWeight: '800', textAlign: 'right', marginBottom: 12 },
-  resultHero: { borderRadius: 20, padding: 20, alignItems: 'center', gap: 8 },
-  conditionName: { fontSize: 20, fontWeight: '800' },
-  severityBadge: { borderRadius: 10, paddingHorizontal: 12, paddingVertical: 5 },
-  severityText: { fontSize: 12, fontWeight: '700' },
-  confidenceRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, width: '100%' },
-  confBar: { flex: 1, height: 8, borderRadius: 4, overflow: 'hidden' },
-  confFill: { height: '100%', borderRadius: 4 },
-  confNum: { fontSize: 12, fontWeight: '800' },
-  metricRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, paddingVertical: 8 },
-  metricLabel: { fontSize: 13, fontWeight: '700', width: 80, textAlign: 'right' },
-  metricBar: { flex: 1, height: 8, borderRadius: 4, overflow: 'hidden' },
-  metricFill: { height: '100%', borderRadius: 4 },
-  statusTag: { borderRadius: 7, paddingHorizontal: 7, paddingVertical: 2 },
-  statusTagText: { fontSize: 9, fontWeight: '700' },
-  recRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', paddingVertical: 7 },
-  recText: { flex: 1, fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 20 },
-  doctorNote: { borderRadius: 16, padding: 14, gap: 10 },
-  doctorNoteText: { color: '#1D4ED8', fontSize: 13, fontWeight: '400', textAlign: 'right', lineHeight: 20 },
-  bookDermBtn: { borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
-  bookDermText: { color: '#fff', fontSize: 13, fontWeight: '800' },
-  retakeBtn: { borderRadius: 14, borderWidth: 1.5, height: 48, justifyContent: 'center', alignItems: 'center' },
-  retakeBtnText: { fontSize: 14, fontWeight: '700' },
-  cameraContainer: { flex: 1 },
-  areaSelector: { flexDirection: 'row-reverse', paddingHorizontal: 20, gap: 8, marginTop: 10 },
-  areaChip: { borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.1)' },
-  areaText: { fontSize: 12, fontWeight: '700' },
-  viewfinder: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
-  faceGuide: { width: 220, height: 280, borderRadius: 120, borderWidth: 2, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', gap: 8 },
-  faceEmoji: { fontSize: 60, opacity: 0.3 },
-  guideText: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '400' },
-  tipText: { color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: '400', paddingHorizontal: 32, textAlign: 'center' },
-  camBottom: { alignItems: 'center', gap: 12, paddingTop: 16 },
-  captureBtn: { width: 72, height: 72, borderRadius: 36, borderWidth: 3, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
-  captureBtnInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#23B5CE' },
-  camHint: { color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: '400' },
-});
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { paddingHorizontal: 20, paddingBottom: 24, gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }, backButton: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.16)', alignSelf: 'flex-end' }, content: { padding: 16, gap: 14, paddingBottom: 90 }, notice: { padding: 14, borderRadius: 16, borderWidth: 1, flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 8 }, noticeText: { flex: 1, textAlign: 'right', lineHeight: 20 }, card: { padding: 16, borderRadius: 18, gap: 12 }, chips: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 }, chip: { paddingHorizontal: 13, paddingVertical: 8, borderWidth: 1, borderRadius: 18 }, option: { minHeight: 50, padding: 11, borderWidth: 1, borderRadius: 13, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }, checkbox: { width: 22, height: 22, borderWidth: 1, borderRadius: 6, alignItems: 'center', justifyContent: 'center' }, optionText: { flex: 1, textAlign: 'right' }, input: { minHeight: 90, borderWidth: 1, borderRadius: 13, padding: 12, textAlign: 'right' }, ack: { padding: 13, borderRadius: 15, borderWidth: 1, flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 10 }, error: { textAlign: 'right' }, primaryAction: { minHeight: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row-reverse', gap: 8 }, result: { padding: 20, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: 12 }, centerText: { textAlign: 'center', lineHeight: 21 }, outlineAction: { minHeight: 50, borderRadius: 15, borderWidth: 1, alignItems: 'center', justifyContent: 'center' } });

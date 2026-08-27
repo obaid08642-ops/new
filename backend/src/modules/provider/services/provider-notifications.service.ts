@@ -2,9 +2,10 @@ import { Injectable, ForbiddenException, NotFoundException, Inject } from '@nest
 import { Model } from 'mongoose';
 import { ProviderNotification, ProviderNotificationType } from '../schemas/requests.schema';
 import { ProviderNotificationRepository } from "./repositories/providernotification.repository";
+import { isProviderRole } from '../../../common/enums';
 
 function assertProvider(user: any) {
-  if (!user || user.role !== 'provider') throw new ForbiddenException('provider scope required');
+  if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
 

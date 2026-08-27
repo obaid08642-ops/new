@@ -5,42 +5,24 @@ import { useSelector } from 'react-redux';
 
 // ---------------------------------------------------------------------------
 // Guest Mode Guard
-// Controls which features are available for guest users.
-// Guests CAN: browse, search, view doctors/medicines, view prices.
-// Guests CANNOT: access health records, medical history, sync data,
-//   save personal info, wallet, family, or personalized features.
+// Policy (product decision): guests can use EVERYTHING — browse, order any
+// service (pharmacy, consultations, labs, radiology, nursing), view their
+// history/reports/prescriptions — via a device-bound guest account.
+// The ONLY two areas that require a registered account:
+//   1. INSURANCE (policies, claims, paying by insurance)
+//   2. FAMILY (groups, members, family chat/messages)
 // ---------------------------------------------------------------------------
 
 // Features explicitly restricted for guests
 const GUEST_RESTRICTED_FEATURES = new Set([
-  'health',
-  'health-vitals',
-  'health-medications',
-  'health-reports',
-  'health-id',
-  'health-family',
-  'health-chronic',
-  'health-conditions',
-  'health-emergency-contacts',
-  'health-reminders',
-  'health-wearables',
-  'health-sleep',
-  'health-trends',
-  'wallet',
-  'wallet-cards',
-  'wallet-transactions',
   'family',
   'family-chat',
   'family-invite',
+  'health-family',
+  'insurance',
   'insurance-add',
   'insurance-claim',
-  'profile-edit',
-  'settings-security',
-  'settings-privacy',
-  'settings-data',
-  'medical-records',
-  'sync',
-  'personalization',
+  'insurance-hub',
 ]);
 
 interface GuestGuardReturn {
@@ -58,6 +40,12 @@ export function useGuestGuard(): GuestGuardReturn {
   const requireAuth = useCallback(
     (feature?: string): boolean => {
       if (!isGuest) return false;
+
+      // New policy: a blanket requireAuth() with no feature no longer blocks —
+      // guests may use every service. Only explicitly restricted features
+      // (insurance / family) interrupt with the login prompt.
+      if (feature && !GUEST_RESTRICTED_FEATURES.has(feature)) return false;
+      if (!feature) return false;
 
       Alert.alert(
         'مطلوب تسجيل الدخول',

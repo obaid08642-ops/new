@@ -2,17 +2,19 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  ActivityIndicator,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { resolveColor, darkColors, lightColors } from "../../src/theme/colors";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 export default function WaitingRoomScreen() {
   const { appointmentId } = useLocalSearchParams();
@@ -65,9 +67,9 @@ export default function WaitingRoomScreen() {
           },
         ]}
       >
-        <Text style={{ fontSize: 18, color: colors.t2 }}>
+        <LocalizedText style={{ fontSize: 18, color: colors.t2 }}>
           {isRTL ? "الموعد غير موجود" : "Appointment Not Found"}
-        </Text>
+        </LocalizedText>
       </View>
     );
 
@@ -85,7 +87,7 @@ export default function WaitingRoomScreen() {
           onPress={() => router.back()}
           style={{ width: 40, height: 40, justifyContent: "center" }}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: colors.n,
@@ -93,18 +95,18 @@ export default function WaitingRoomScreen() {
             }}
           >
             arrow_forward
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
-        <Text style={{ fontSize: 16, fontWeight: "800", color: colors.n }}>
+        <LocalizedText style={{ fontSize: 16, fontWeight: "800", color: colors.n }}>
           غرفة الانتظار
-        </Text>
+        </LocalizedText>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={{ padding: 16 }}>
         <View style={[styles.ticketCard, { backgroundColor: '#fff' }]}>
           <View style={[styles.ticketIcon, { backgroundColor: '#1E293B' }]}>
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: "#fff",
@@ -112,13 +114,13 @@ export default function WaitingRoomScreen() {
               }}
             >
               meeting_room
-            </Text>
+            </LocalizedText>
           </View>
 
-          <Text style={{ fontSize: 11, color: colors.t3, marginBottom: 4 }}>
+          <LocalizedText style={{ fontSize: 11, color: colors.t3, marginBottom: 4 }}>
             رقمك في الانتظار
-          </Text>
-          <Text
+          </LocalizedText>
+          <LocalizedText
             style={{
               fontSize: 48,
               fontWeight: "900",
@@ -127,10 +129,10 @@ export default function WaitingRoomScreen() {
             }}
           >
             {data?.queue_position}
-          </Text>
+          </LocalizedText>
 
           <View style={[styles.aheadPill, { backgroundColor: colors.s }]}>
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: resolveColor("var(--gr)"),
@@ -140,14 +142,14 @@ export default function WaitingRoomScreen() {
               }}
             >
               groups
-            </Text>
-            <Text style={{ fontSize: 12, color: colors.t2 }}>
+            </LocalizedText>
+            <LocalizedText style={{ fontSize: 12, color: colors.t2 }}>
               يسبقك{" "}
-              <Text style={{ color: colors.n, fontWeight: "bold" }}>
+              <LocalizedText style={{ color: colors.n, fontWeight: "bold" }}>
                 {data?.ahead_count}
-              </Text>{" "}
+              </LocalizedText>{" "}
               مرضى
-            </Text>
+            </LocalizedText>
           </View>
         </View>
 
@@ -165,7 +167,7 @@ export default function WaitingRoomScreen() {
               { backgroundColor: resolveColor("var(--ps)") },
             ]}
           >
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: resolveColor("var(--p)"),
@@ -173,17 +175,17 @@ export default function WaitingRoomScreen() {
               }}
             >
               stethoscope
-            </Text>
+            </LocalizedText>
           </View>
           <View
             style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}
           >
-            <Text style={{ fontSize: 13, fontWeight: "700", color: colors.n }}>
+            <LocalizedText style={{ fontSize: 13, fontWeight: "700", color: colors.n }}>
               {data?.doctor_name}
-            </Text>
-            <Text style={{ fontSize: 10, color: colors.t3 }}>
-              {data?.specialty_ar || "عيادة الباطنة"} • الدور الثاني
-            </Text>
+            </LocalizedText>
+            <LocalizedText style={{ fontSize: 10, color: colors.t3 }}>
+              {pickLocalized(data?.specialty_ar, data?.specialty)} • الدور الثاني
+            </LocalizedText>
           </View>
           <View
             style={[
@@ -191,7 +193,7 @@ export default function WaitingRoomScreen() {
               { backgroundColor: resolveColor("var(--ps)") },
             ]}
           >
-            <Text
+            <LocalizedText
               style={{
                 fontSize: 15,
                 fontWeight: "900",
@@ -199,10 +201,10 @@ export default function WaitingRoomScreen() {
               }}
             >
               ~{data?.wait_time}
-            </Text>
-            <Text style={{ fontSize: 8, color: resolveColor("var(--pt)") }}>
+            </LocalizedText>
+            <LocalizedText style={{ fontSize: 8, color: resolveColor("var(--pt)") }}>
               دقيقة
-            </Text>
+            </LocalizedText>
           </View>
         </View>
 
@@ -212,7 +214,7 @@ export default function WaitingRoomScreen() {
             { backgroundColor: resolveColor("var(--as)") },
           ]}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: resolveColor("var(--am)"),
@@ -222,8 +224,8 @@ export default function WaitingRoomScreen() {
             }}
           >
             notifications_active
-          </Text>
-          <Text
+          </LocalizedText>
+          <LocalizedText
             style={{
               flex: 1,
               fontSize: 11,
@@ -234,16 +236,16 @@ export default function WaitingRoomScreen() {
           >
             سننبّهك عند اقتراب دورك. يمكنك مغادرة الانتظار والعودة في الوقت
             المناسب.
-          </Text>
+          </LocalizedText>
         </View>
 
         <TouchableOpacity
           style={[styles.btn, { backgroundColor: colors.n }]}
           onPress={() => router.replace("/(tabs)/consultations")}
         >
-          <Text style={{ fontSize: 13, fontWeight: "800", color: "#fff" }}>
+          <LocalizedText style={{ fontSize: 13, fontWeight: "800", color: "#fff" }}>
             حسناً، سأنتظر
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

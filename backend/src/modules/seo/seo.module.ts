@@ -12,6 +12,8 @@ import { HomeCareServiceRepository } from "./repositories/homecareservice.reposi
 import { LabServiceRepository } from "./repositories/labservice.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { ArticleRepository } from "./repositories/article.repository";
+import { ArticleSchema } from "../../schemas/article.schema";
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -20,9 +22,11 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
     { name: 'HomeCareService', schema: HomeCareServiceSchema },
     { name: 'Facility', schema: FacilitySchema },
     { name: 'ProviderProfile', schema: ProviderProfileSchema },
+    { name: 'Article', schema: ArticleSchema },
   ])],
   controllers: [SeoController],
-  providers: [SeoService, { provide: 'FacilityRepository', useClass: FacilityRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'LabServiceRepository', useClass: LabServiceRepository }, { provide: 'MedicineRepository', useClass: MedicineRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }],
+  providers: [SeoService, { provide: 'FacilityRepository', useClass: FacilityRepository },
+    { provide: 'ArticleRepository', useClass: ArticleRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'LabServiceRepository', useClass: LabServiceRepository }, { provide: 'MedicineRepository', useClass: MedicineRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }],
   exports: [SeoService],
 })
 export class SeoModule {}

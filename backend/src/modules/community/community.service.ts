@@ -81,8 +81,23 @@ export class CommunityService {
       is_anonymous: isAnonymous,
       status: needsReview ? 'removed' : 'published',
     });
-    // Increment comment count
-    await this.postM.updateOne({ id: postId }, { $inc: { comment_count: 1 } });
+    // Increment comment count only for published comments — a moderated
+    // (removed) comment must not inflate the public counter.
+    if (!needsReview) {
+      await this.postM.updateOne({ id: postId }, { $inc: { comment_count: 1 } });
+    }
+    // S20: community-scenario notification hook — tell the post author
+    // about the new reply (never notify about your own comment).
+    try {
+      const postAuthorId = (post as any).author_id;
+      if (!needsReview && postAuthorId && postAuthorId !== authorId) {
+        this.eventEmitter?.emit('community.comment_added', {
+          post_id: postId,
+          post_author_id: postAuthorId,
+          commenter_id: authorId,
+        });
+      }
+    } catch { /* notification must never break commenting */ }
     return { ok: true, comment_id: comment.id };
   }
 

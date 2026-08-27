@@ -5,15 +5,16 @@ import {
   StyleSheet,
   StatusBar,
   KeyboardAvoidingView,
-  Platform
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  Platform,
+  Alert,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
 import { AppText, Button, Input, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ResetPasswordScreen() {
   const insets = useSafeAreaInsets();
@@ -40,7 +41,7 @@ export default function ResetPasswordScreen() {
       setLoading(false);
       setDone(true);
     } catch (err: any) {
-      Alert.alert("خطأ", err.message || "فشل حفظ كلمة المرور الجديدة");
+      showLocalizedAlert("خطأ", err.message || "فشل حفظ كلمة المرور الجديدة");
       setLoading(false);
     }
   };

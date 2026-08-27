@@ -1,280 +1,149 @@
-import { Module, Controller, Post, Get, Body, Query, UseGuards, Injectable, Req } from '@nestjs/common';
-import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
-import { Model, Connection } from 'mongoose';
-import { RedisService } from '../redis/redis.service';
-import { Request } from 'express';
-import { JwtAuthGuard, Roles, Public, CurrentUser } from '../../common/auth.guard';
+/**
+ * Internal Analytics — admin dashboard metrics computed from REAL collections:
+ *   search_queries, orders, appointments, pushengagements, chatmessages, users.
+ * No external analytics service — everything stays in-house.
+ */
+import { Module, Injectable, Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
-import { AnalyticsEvent, AnalyticsEventDocument, AnalyticsEventSchema } from '../../schemas/analytics-event.schema';
 
 @Injectable()
-export class AnalyticsService {
-  constructor(
-    @InjectModel('AnalyticsEvent') private eventModel: Model<AnalyticsEventDocument>,
-    @InjectConnection() private readonly connection: Connection,
-    private readonly redis: RedisService,
-  ) {}
+export class AdminAnalyticsService {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
 
-  async logEvent(
-    userId: string | undefined,
-    ip: string,
-    userAgent: string,
-    dto: {
-      event_type: string;
-      domain: string;
-      metadata?: any;
-      session_id?: string;
-    }
-  ): Promise<AnalyticsEvent> {
-    return this.eventModel.create({
-      user_id: userId,
-      ip_address: ip,
-      user_agent: userAgent,
-      event_type: dto.event_type,
-      domain: dto.domain,
-      metadata: dto.metadata || {},
-      session_id: dto.session_id,
-    });
+  private col(name: string) { return this.conn.collection(name); }
+
+  // ── Top searched terms (medicine search analytics) ─────────────
+  async topSearched(limit = 20) {
+    return this.col('search_queries').aggregate([
+      { $group: { _id: '$term_lc', searches: { $sum: 1 }, avg_results: { $avg: '$results_count' }, last: { $max: '$createdAt' } } },
+      { $sort: { searches: -1 } },
+      { $limit: limit },
+      { $project: { _id: 0, term: '$_id', searches: 1, avg_results: { $round: ['$avg_results', 1] }, last: 1 } },
+    ]).toArray();
   }
 
-  async popularSearches(domain: string, limit = 10) {
-    return this.eventModel.aggregate([
-      { $match: { event_type: 'search', domain } },
-      { $group: { _id: '$metadata.query', count: { $sum: 1 } } },
-      { $match: { _id: { $ne: null, $gt: '' } } },
+  // ── Top ordered medicines ──────────────────────────────────────
+  async topOrderedMedicines(limit = 20) {
+    return this.col('orders').aggregate([
+      { $unwind: { path: '$items', preserveNullAndEmptyArrays: false } },
+      { $group: { _id: { $ifNull: ['$items.name_ar', '$items.name'] }, orders: { $sum: 1 }, qty: { $sum: { $ifNull: ['$items.qty', 1] } }, revenue: { $sum: { $multiply: [{ $ifNull: ['$items.price', 0] }, { $ifNull: ['$items.qty', 1] }] } } } },
+      { $sort: { qty: -1 } },
+      { $limit: limit },
+      { $project: { _id: 0, medicine: '$_id', orders: 1, qty: 1, revenue: { $round: ['$revenue', 2] } } },
+    ]).toArray();
+  }
+
+  // ── Top doctors (by completed+total appointments) ──────────────
+  async topDoctors(limit = 20) {
+    return this.col('appointments').aggregate([
+      { $group: { _id: { $ifNull: ['$doctor_name', '$provider_id'] }, appointments: { $sum: 1 }, completed: { $sum: { $cond: [{ $in: ['$status', ['COMPLETED', 'complete', 'completed']] }, 1, 0] } } } },
+      { $sort: { appointments: -1 } },
+      { $limit: limit },
+      { $project: { _id: 0, doctor: '$_id', appointments: 1, completed: 1 } },
+    ]).toArray();
+  }
+
+  // ── Top pharmacies (by order volume) ───────────────────────────
+  async topPharmacies(limit = 20) {
+    return this.col('orders').aggregate([
+      { $group: { _id: { $ifNull: ['$pharmacy_id', '$pharmacy_name'] }, orders: { $sum: 1 }, revenue: { $sum: { $ifNull: ['$total', { $ifNull: ['$totals.total', 0] }] } } } },
+      { $sort: { orders: -1 } },
+      { $limit: limit },
+      { $project: { _id: 0, pharmacy: '$_id', orders: 1, revenue: { $round: ['$revenue', 2] } } },
+    ]).toArray();
+  }
+
+  // ── Top services used ──────────────────────────────────────────
+  async topServices(limit = 20) {
+    return this.col('appointments').aggregate([
+      { $group: { _id: { $ifNull: ['$type', '$service_type', 'consultation'] }, count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: limit },
-      { $project: { query: '$_id', count: 1, _id: 0 } }
-    ]);
+      { $project: { _id: 0, service: '$_id', count: 1 } },
+    ]).toArray();
   }
 
-  async getAdminStats(domain: string, periodDays = 30) {
-    const minDate = new Date();
-    minDate.setDate(minDate.getDate() - periodDays);
-
-    const match: any = { createdAt: { $gte: minDate } };
-    if (domain && domain !== 'all') match.domain = domain;
-
-    const stats = await this.eventModel.aggregate([
-      { $match: match },
-      {
-        $group: {
-          _id: {
-            day: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-            type: '$event_type',
-          },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { '_id.day': 1 } }
+  // ── Overview: conversion, cancellation, actives, retention ─────
+  async overview() {
+    const now = Date.now();
+    const day = 24 * 3600 * 1000;
+    const [users, orders, appointments, carts] = await Promise.all([
+      this.col('users').countDocuments({}),
+      this.col('orders').countDocuments({}),
+      this.col('appointments').countDocuments({}),
+      this.col('carts').countDocuments({}),
     ]);
 
-    // Format results into user-friendly timeseries chart structure
-    const timeseries: Record<string, Record<string, number>> = {};
-    stats.forEach(s => {
-      const day = s._id.day;
-      const type = s._id.type;
-      if (!timeseries[day]) timeseries[day] = {};
-      timeseries[day][type] = s.count;
-    });
+    // Conversion: completed orders / created carts
+    const completedOrders = await this.col('orders').countDocuments({ status: { $in: ['DELIVERED', 'COMPLETED', 'delivered', 'completed'] } });
+    const cancelledOrders = await this.col('orders').countDocuments({ status: { $in: ['CANCELLED', 'cancelled'] } });
+    const cancelledAppts = await this.col('appointments').countDocuments({ status: { $in: ['CANCELLED', 'cancelled', 'NO_SHOW'] } });
 
-    return {
-      period_days: periodDays,
-      domain,
-      timeseries,
-    };
-  }
-
-  async getSystemHealth() {
-    let dbStatus = 'disconnected';
-    let redisStatus = 'disconnected';
-
-    try {
-      if (this.connection.readyState === 1) {
-        dbStatus = 'connected';
-      }
-    } catch {}
-
-    try {
-      const client = this.redis.getClient();
-      if (client && client.status === 'ready') {
-        redisStatus = 'connected';
-      }
-    } catch {}
-
-    const memoryUsage = process.memoryUsage();
-    return {
-      status: dbStatus === 'connected' && redisStatus === 'connected' ? 'healthy' : 'degraded',
-      time: new Date().toISOString(),
-      database: { status: dbStatus },
-      redis: { status: redisStatus },
-      system: {
-        uptime: process.uptime(),
-        memory: {
-          rss: Math.round(memoryUsage.rss / 1024 / 1024) + ' MB',
-          heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB',
-          heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB',
-        },
-      },
-    };
-  }
-
-  async getDashboardStats() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let activeUsersCount = 0;
-    let messagesToday = 0;
-    let callsToday = 0;
-    let activeCallsCount = 0;
-    let failedCallsToday = 0;
-    let activeConsultationsCount = 0;
-    let failedNotificationsToday = 0;
-    let successfulNotificationsToday = 0;
-    let queueWaiting = 0;
-    let queueActive = 0;
-    let queueFailed = 0;
-    let totalStorageBytes = 0;
-
-    try {
-      const keys = await this.redis.keys('presence:*');
-      const userKeys = keys.filter(k => !k.includes('devices:'));
-      activeUsersCount = userKeys.length;
-    } catch {}
-
-    try {
-      const messageCol = this.connection.collection('messages');
-      messagesToday = await messageCol.countDocuments({ createdAt: { $gte: today } });
-    } catch {}
-
-    try {
-      const callCol = this.connection.collection('call_sessions');
-      callsToday = await callCol.countDocuments({ createdAt: { $gte: today } });
-      activeCallsCount = await callCol.countDocuments({ status: 'active' });
-      failedCallsToday = await callCol.countDocuments({
-        createdAt: { $gte: today },
-        status: { $in: ['missed', 'rejected'] },
-      });
-    } catch {}
-
-    try {
-      const appointmentCol = this.connection.collection('appointments');
-      activeConsultationsCount = await appointmentCol.countDocuments({ status: 'in_progress' });
-    } catch {}
-
-    try {
-      const notifLogCol = this.connection.collection('pushlogs');
-      failedNotificationsToday = await notifLogCol.countDocuments({
-        createdAt: { $gte: today },
-        status: 'failed',
-      });
-      successfulNotificationsToday = await notifLogCol.countDocuments({
-        createdAt: { $gte: today },
-        status: 'sent',
-      });
-    } catch {}
-
-    try {
-      const client = this.redis.getClient();
-      // BullMQ wait list and active list sizes, plus failed zset size
-      queueWaiting = await client.llen('bull:push_notifications:wait').catch(() => 0);
-      queueActive = await client.llen('bull:push_notifications:active').catch(() => 0);
-      queueFailed = await client.zcard('bull:push_notifications:failed').catch(() => 0);
-    } catch {}
-
-    try {
-      const storageCol = this.connection.collection('storage_objects');
-      const storageStats = await storageCol.aggregate([
-        { $group: { _id: null, totalSize: { $sum: '$size_bytes' } } }
+    // DAU/WAU/MAU — union of activity signals across collections
+    const activitySince = async (ms: number) => {
+      const res = await this.col('orders').aggregate([
+        { $match: { createdAt: { $gte: new Date(now - ms) } } },
+        { $group: { _id: '$patient_id' } },
+        { $unionWith: { coll: 'appointments', pipeline: [{ $match: { createdAt: { $gte: new Date(now - ms) } } }, { $group: { _id: '$patient_id' } }] } },
+        { $unionWith: { coll: 'pushengagements', pipeline: [{ $match: { createdAt: { $gte: new Date(now - ms) } } }, { $group: { _id: '$user_id' } }] } },
+        { $unionWith: { coll: 'chatmessages', pipeline: [{ $match: { createdAt: { $gte: new Date(now - ms) } } }, { $group: { _id: '$sender_id' } }] } },
+        { $group: { _id: null, users: { $addToSet: '$_id' } } },
       ]).toArray();
-      totalStorageBytes = storageStats[0]?.totalSize || 0;
-    } catch {}
+      return res[0]?.users?.filter(Boolean).length || 0;
+    };
+    const [dau, wau, mau] = await Promise.all([activitySince(day), activitySince(7 * day), activitySince(30 * day)]);
 
-    const totalNotifications = successfulNotificationsToday + failedNotificationsToday;
-    const notificationSuccessRate = totalNotifications > 0 
-      ? parseFloat(((successfulNotificationsToday / totalNotifications) * 100).toFixed(1)) 
-      : 100.0;
-
-    const health = await this.getSystemHealth();
+    // Retention (4-week): users active in ≥2 distinct weeks of last 4
+    const retentionAgg = await this.col('orders').aggregate([
+      { $match: { createdAt: { $gte: new Date(now - 28 * day) } } },
+      { $group: { _id: { u: '$patient_id', week: { $week: '$createdAt' } } } },
+      { $group: { _id: '$_id.u', weeks: { $sum: 1 } } },
+      { $match: { weeks: { $gte: 2 } } },
+      { $count: 'retained' },
+    ]).toArray();
+    const retained = retentionAgg[0]?.retained || 0;
 
     return {
-      active_online_users: activeUsersCount,
-      active_calls_count: activeCallsCount,
-      active_consultations_count: activeConsultationsCount,
-      messages_today: messagesToday,
-      calls_today: callsToday,
-      failed_calls_today: failedCallsToday,
-      push_metrics: {
-        failed_today: failedNotificationsToday,
-        successful_today: successfulNotificationsToday,
-        success_rate_percent: notificationSuccessRate,
-      },
-      queue_metrics: {
-        waiting: queueWaiting,
-        active: queueActive,
-        failed: queueFailed,
-      },
-      storage_metrics: {
-        total_used_bytes: totalStorageBytes,
-        total_used_mb: parseFloat((totalStorageBytes / 1024 / 1024).toFixed(2)),
-      },
-      system_health: health,
+      totals: { users, orders, appointments, carts },
+      conversion_rate: carts > 0 ? +(completedOrders / carts * 100).toFixed(1) : null,
+      order_cancellation_rate: orders > 0 ? +(cancelledOrders / orders * 100).toFixed(1) : null,
+      appointment_cancellation_rate: appointments > 0 ? +(cancelledAppts / appointments * 100).toFixed(1) : null,
+      active_users: { dau, wau, mau },
+      retention_4w: { retained_users: retained, note: 'users with activity in ≥2 of last 4 weeks' },
     };
   }
 }
 
-@Controller('analytics')
-export class AnalyticsController {
-  constructor(private svc: AnalyticsService) {}
+@Controller('admin/analytics')
+@UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
+export class AdminAnalyticsController {
+  constructor(private readonly svc: AdminAnalyticsService) {}
 
-  @Public()
-  @Post('log')
-  log(
-    @Req() req: Request,
-    @CurrentUser() u: any,
-    @Body() b: { event_type: string; domain: string; metadata?: any; session_id?: string }
-  ) {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const ua = req.headers['user-agent'] || 'unknown';
-    const userId = u ? u.id : undefined;
-    return this.svc.logEvent(userId, ip, ua, b);
-  }
+  @Get('overview')
+  overview() { return this.svc.overview(); }
 
-  @Public()
-  @Get('popular')
-  popular(@Query('domain') domain: string, @Query('limit') limit?: string) {
-    return this.svc.popularSearches(domain || 'global', limit ? parseInt(limit, 10) : 10);
-  }
+  @Get('top-searched')
+  topSearched(@Query('limit') limit?: string) { return this.svc.topSearched(parseInt(limit || '20')); }
 
-  @Public()
-  @Get('health')
-  healthCheck() {
-    return this.svc.getSystemHealth();
-  }
+  @Get('top-medicines')
+  topMedicines(@Query('limit') limit?: string) { return this.svc.topOrderedMedicines(parseInt(limit || '20')); }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
-  @Get('dashboard')
-  dashboardStats() {
-    return this.svc.getDashboardStats();
-  }
+  @Get('top-doctors')
+  topDoctors(@Query('limit') limit?: string) { return this.svc.topDoctors(parseInt(limit || '20')); }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
-  @Get('admin-stats')
-  adminStats(@Query('domain') domain?: string, @Query('period_days') days?: string) {
-    return this.svc.getAdminStats(domain || 'all', days ? parseInt(days, 10) : 30);
-  }
+  @Get('top-pharmacies')
+  topPharmacies(@Query('limit') limit?: string) { return this.svc.topPharmacies(parseInt(limit || '20')); }
+
+  @Get('top-services')
+  topServices(@Query('limit') limit?: string) { return this.svc.topServices(parseInt(limit || '20')); }
 }
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: 'AnalyticsEvent', schema: AnalyticsEventSchema },
-    ]),
-  ],
-  controllers: [AnalyticsController],
-  providers: [AnalyticsService],
-  exports: [AnalyticsService],
+  controllers: [AdminAnalyticsController],
+  providers: [AdminAnalyticsService],
 })
 export class AnalyticsModule {}

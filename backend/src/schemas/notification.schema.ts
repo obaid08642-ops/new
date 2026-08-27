@@ -18,7 +18,10 @@ export class Notification {
   @Prop({ type: Object }) action?: { route?: string; payload?: any };
   @Prop({ default: [] }) read_by: string[];
   @Prop({ default: false }) sent_push: boolean;
-  @Prop() onesignal_id?: string;
+  // M6 / ER-8: delivery tracking — per-channel status, scheduling, retries
+  @Prop({ type: Object, default: {} }) delivery: Record<string, { status: string; attempts: number; last_error?: string; sent_at?: Date }>;
+  @Prop() scheduled_at?: Date; // future → queued until due
+  @Prop({ default: 'PENDING', index: true }) status: string; // PENDING|SCHEDULED|SENT|PARTIAL|FAILED
 }
 export type NotificationDocument = Notification & Document;
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

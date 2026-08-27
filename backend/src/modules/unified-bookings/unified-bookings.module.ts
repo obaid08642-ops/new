@@ -1,8 +1,8 @@
-// @ts-nocheck
-import { Module, Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Body, Query, Param, UseGuards, Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { Order, OrderDocument, OrderSchema } from '../../schemas/order.schema';
 import { LabBooking, LabBookingSchema, LabBookingState } from '../../schemas/lab.schema';
 import { RadiologyBooking, RadiologyBookingSchema, RadiologyBookingState } from '../../schemas/radiology.schema';
@@ -16,9 +16,12 @@ import { LabsService } from '../labs/labs.service';
 import { RadiologyOpsService } from '../radiology/radiology.service';
 import { HomeCareSvc } from '../home-care/home-care.service';
 import { AppointmentsService } from '../care/appointments.service';
+import { SlotService } from '../care/slot.service';
 import { OrdersService } from '../orders/orders.service';
 import { CartService } from '../cart/cart.module';
 import { WorkflowEngineModule, WorkflowEngineService, toUniversal } from '../workflow-engine/workflow-engine.module';
+import { LiveKitModule } from '../livekit/livekit.module';
+import { LiveKitService } from '../livekit/livekit.service';
 
 /**
  * UNIFIED BOOKING ORCHESTRATOR
@@ -41,9 +44,11 @@ export class UnifiedBookingsService {
     private radSvc: RadiologyOpsService,
     private homeSvc: HomeCareSvc,
     private apptSvc: AppointmentsService,
+    private slots: SlotService,
     private ordersSvc: OrdersService,
     private cart: CartService,
     private engine: WorkflowEngineService,
+    private livekit: LiveKitService,
   ) {}
 
   private kindMap: Record<string, ServiceDomain> = {
@@ -97,12 +102,15 @@ export class UnifiedBookingsService {
 
   async getOne(user: any, kind: string, id: string) {
     const k = this.kindMap[kind];
-    if (k === 'pharmacy') return this.orders.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
-    if (k === 'lab') return this.labs.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
-    if (k === 'radiology') return this.rads.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
-    if (k === 'nursing') return this.home.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
-    if (k === 'consultation') return this.appts.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
-    throw new BadRequestException('invalid_kind');
+    let result: any;
+    if (k === 'pharmacy') result = await this.orders.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
+    else if (k === 'lab') result = await this.labs.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
+    else if (k === 'radiology') result = await this.rads.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
+    else if (k === 'nursing') result = await this.home.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
+    else if (k === 'consultation') result = await this.appts.findOne({ id, patient_id: user.id }, { _id: 0, __v: 0 }).lean();
+    else throw new BadRequestException('invalid_kind');
+    if (!result) throw new NotFoundException('booking_not_found');
+    return result;
   }
 
   /** Unified cancel — delegates to the proper domain service which already routes through engine. */
@@ -125,7 +133,7 @@ export class UnifiedBookingsService {
     if (k === 'lab') {
       const b = await this.labs.findOne({ id, patient_id: user.id });
       if (!b) throw new NotFoundException();
-      if (![LabBookingState.CREATED, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+      if (![LabBookingState.NEW_REQUEST, LabBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
       this.bus.emit({ type: 'service.confirmed', entity_type: 'lab_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'lab' } } as any).catch(() => null);
       return b.toObject();
@@ -133,7 +141,7 @@ export class UnifiedBookingsService {
     if (k === 'radiology') {
       const b = await this.rads.findOne({ id, patient_id: user.id });
       if (!b) throw new NotFoundException();
-      if (![RadiologyBookingState.PENDING, RadiologyBookingState.CONFIRMED, RadiologyBookingState.SCHEDULED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
+      if (![RadiologyBookingState.PENDING, RadiologyBookingState.CONFIRMED, RadiologyBookingState.CONFIRMED].includes(b.state)) throw new BadRequestException('cannot_reschedule');
       b.scheduled_at = nt; await b.save();
       this.bus.emit({ type: 'service.confirmed', entity_type: 'radiology_booking', entity_id: id, actor_account_id: user.id, actor_role: 'patient', meta: { rescheduled_to: nt, reason, kind: 'radiology' } } as any).catch(() => null);
       return b.toObject();
@@ -150,6 +158,71 @@ export class UnifiedBookingsService {
       return this.apptSvc.reschedule(id, user, { slot_start: new_scheduled_at });
     }
     throw new BadRequestException('reschedule_not_supported_for_kind');
+  }
+
+  /**
+   * Resolves a slot only from the server-generated availability window.
+   * The currently published discovery API uses the canonical ISO start time as
+   * its slot identifier; arbitrary timestamps are never forwarded to booking.
+   */
+  private async resolveConsultationSlot(doctorId: string, type: 'clinic' | 'video' | 'home', slotId: string): Promise<string> {
+    if (!doctorId || !slotId || !type) throw new BadRequestException('doctor_id_slot_id_and_type_required');
+    const requested = new Date(slotId);
+    if (Number.isNaN(requested.getTime())) throw new BadRequestException('invalid_slot_id');
+
+    const doctor: any = await this.providers.findOne({ id: doctorId });
+    if (!doctor) throw new NotFoundException('doctor_not_found');
+    const availability = await this.slots.slotsForDate(doctor, requested.toISOString().slice(0, 10), type);
+    const slot = (availability?.slots || []).find((candidate: any) => candidate.start === slotId);
+    if (!slot) throw new BadRequestException('slot_not_available');
+    if (!slot.available) throw new ConflictException('slot_taken');
+    return slot.start;
+  }
+
+  /**
+   * Contract bridge for patient-web consultation booking. This is intentionally
+   * cash-only: the payment-intent/10-minute hold workflow is not implemented
+   * here and unsupported payment methods fail closed rather than simulating a
+   * pending-payment success.
+   */
+  async createConsultationContract(user: any, body: {
+    doctor_id?: string;
+    slot_id?: string;
+    type?: 'clinic' | 'video' | 'home';
+    notes?: string;
+    payment_method_id?: string;
+  }) {
+    const paymentMethod = body?.payment_method_id || 'cash';
+    if (paymentMethod !== 'cash') throw new BadRequestException('payment_method_not_supported');
+    const slotStart = await this.resolveConsultationSlot(body?.doctor_id || '', body?.type as any, body?.slot_id || '');
+    const booking: any = await this.apptSvc.create(user, {
+      doctor_id: body!.doctor_id!,
+      service_type: body!.type!,
+      slot_start: slotStart,
+      patient_notes: body?.notes,
+      payment_method: 'cash',
+    });
+    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+  }
+
+  /** Owner-scoped root cancellation; foreign IDs resolve as 404 via getOne. */
+  async cancelConsultationContract(user: any, id: string, reason?: string) {
+    await this.getOne(user, 'consultation', id);
+    const booking: any = await this.apptSvc.cancel(id, user, reason);
+    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+  }
+
+  /** Owner-scoped root reschedule with the same server-side slot resolution. */
+  async rescheduleConsultationContract(user: any, id: string, newSlotId?: string) {
+    const current: any = await this.getOne(user, 'consultation', id);
+    const slotStart = await this.resolveConsultationSlot(current.doctor_id, current.service_type, newSlotId || '');
+    const booking: any = await this.apptSvc.reschedule(id, user, { slot_start: slotStart });
+    return { booking_id: booking.id, status: String(booking.status || '').toLowerCase() };
+  }
+
+  /** Owner/doctor-scoped video call token for the narrow appointment window. */
+  async consultationCallToken(user: any, id: string) {
+    return this.livekit.issueBookingCallToken(id, user);
   }
 
   /**
@@ -329,12 +402,31 @@ export class UnifiedBookingsController {
   constructor(private svc: UnifiedBookingsService) {}
 
   @Get('mine') mine(@CurrentUser() u: any, @Query() q: any) { return this.svc.myTimeline(u, { state: q.state, kind: q.kind }); }
+  @Post()
+  @RequireIdempotency()
+  create(@CurrentUser() u: any, @Body() b: any) { return this.svc.createConsultationContract(u, b); }
+  @Post(':id/cancel')
+  @RequireIdempotency()
+  cancelRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.cancelConsultationContract(u, id, b.reason); }
+  @Post(':id/reschedule')
+  @RequireIdempotency()
+  rescheduleRoot(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.rescheduleConsultationContract(u, id, b.new_slot_id); }
+  @Get(':id/call-token')
+  callToken(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.consultationCallToken(u, id); }
   @Get(':kind/:id') one(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string) { return this.svc.getOne(u, k, id); }
-  @Post(':kind/:id/cancel') cancel(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: any) { return this.svc.cancelBooking(u, k, id, b.reason || ''); }
-  @Patch(':kind/:id/reschedule') resched(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: any) { return this.svc.rescheduleBooking(u, k, id, b.scheduled_at, b.reason); }
+  @Post(':kind/:id/cancel')
+  @RequireIdempotency()
+  cancel(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: any) { return this.svc.cancelBooking(u, k, id, b.reason || ''); }
+  @Patch(':kind/:id/reschedule')
+  @RequireIdempotency()
+  resched(@CurrentUser() u: any, @Param('kind') k: string, @Param('id') id: string, @Body() b: any) { return this.svc.rescheduleBooking(u, k, id, b.scheduled_at, b.reason); }
   @Post('match') match(@CurrentUser() u: any, @Body() b: any) { return this.svc.smartMatch(u, b); }
-  @Post('nursing-broadcast') nursing(@CurrentUser() u: any, @Body() b: any) { return this.svc.nursingRadiusBroadcast(u, b); }
-  @Post('checkout-cart') checkout(@CurrentUser() u: any, @Body() b: any) { return this.svc.checkoutFromCart(u, b); }
+  @Post('nursing-broadcast')
+  @RequireIdempotency()
+  nursing(@CurrentUser() u: any, @Body() b: any) { return this.svc.nursingRadiusBroadcast(u, b); }
+  @Post('checkout-cart')
+  @RequireIdempotency()
+  checkout(@CurrentUser() u: any, @Body() b: any) { return this.svc.checkoutFromCart(u, b); }
 }
 
 import { LabsModule } from '../labs/labs.module';
@@ -362,6 +454,7 @@ import { OrdersModule } from '../orders/orders.module';
     OrdersModule,
     CartModule,
     WorkflowEngineModule,
+    LiveKitModule,
   ],
   controllers: [UnifiedBookingsController],
   providers: [UnifiedBookingsService],

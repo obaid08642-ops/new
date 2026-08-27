@@ -1,12 +1,15 @@
 // @ts-nocheck
-// app/notifications/index.tsx — Grouped notifications by System, Medical, Promotions
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+// app/notifications/index.tsx — Grouped notifications by System, Medical, Promotions (real backend feed)
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, ActivityIndicator, RefreshControl, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
-import { AppText, Card, Badge, Chip, IconButton } from '../../src/components/ui';
+import { AppText, Card, IconButton } from '../../src/components/ui';
+import { apiFetch } from '../../src/utils/api';
+import { translateBackendRoute } from '../../src/hooks/usePushNotifications';
+import { dateLocale } from '@/utils/dates';
 
 type CategoryGroup = 'system' | 'medical' | 'promotion';
 
@@ -22,16 +25,19 @@ interface Notif {
   color: string;
 }
 
-const NOTIFS: Notif[] = [
-  { id: '1', title: 'موعدك بعد ساعة', body: 'د. محمد أحمد — استشارة فيديو 2:00 م', time: 'منذ 30 دقيقة', group: 'medical', read: false, route: '/consultations/waiting-room', icon: 'doctor', color: '#23B5CE' },
-  { id: '2', title: 'وقت جرعة ميتفورمين', body: '1 حبة — 500mg — بعد الأكل', time: 'منذ ساعة', group: 'medical', read: false, route: '/health/reminders', icon: 'medication', color: '#16A34A' },
-  { id: '3', title: 'طلب صلاحيات عائلية جديد', body: 'أحمد محمد يطلب الوصول لبياناتك الصحية — اضغط للقبول أو الرفض', time: 'منذ 5 دقائق', group: 'system', read: false, route: '/family/permissions', icon: 'users', color: '#7A6BEA' },
-  { id: '4', title: 'تم تعديل صلاحياتك', body: 'سارة أحمد عدّلت صلاحيات الوصول لبياناتك العائلية', time: 'منذ ساعة', group: 'system', read: true, route: '/family/hub', icon: 'shield', color: '#64748B' },
-  { id: '5', title: 'خصم 25% على الاستشارات', body: 'استخدم كود: NABDAH25 — ينتهي غداً', time: 'أمس', group: 'promotion', read: true, icon: 'gift', color: '#F0A526' },
-  { id: '6', title: 'نتائج تحاليلك جاهزة', body: 'تحاليل دم شاملة — مختبرات البرج', time: 'منذ 3 ساعات', group: 'medical', read: false, route: '/reports/timeline', icon: 'science', color: '#7A6BEA' },
-  { id: '7', title: 'تنبيه: أوشك مخزون دوائك على النفاد', body: 'منظم السكر Metformin متبقي 5 أيام. اضغط لإعادة الصرف الفوري.', time: 'منذ ساعتين', group: 'medical', read: false, route: '/health/refills', icon: 'warning', color: '#F0695C' },
-  { id: '8', title: 'عرض استرجاع كاشباك جديد', body: 'احصل على 10% كاشباك فوري عند الحجز باستخدام المحفظة هذا الأسبوع.', time: 'أمس', group: 'promotion', read: true, route: '/loyalty/hub', icon: 'wallet', color: '#10B981' }
-];
+// Map backend notification.type → display group + icon + color
+const TYPE_META: Record<string, { group: CategoryGroup; icon: IconName; color: string }> = {
+  appointment:  { group: 'medical',   icon: 'doctor',     color: '#23B5CE' },
+  prescription: { group: 'medical',   icon: 'medication', color: '#16A34A' },
+  medication:   { group: 'medical',   icon: 'medication', color: '#16A34A' },
+  emergency:    { group: 'medical',   icon: 'warning',    color: '#F0695C' },
+  labs:         { group: 'medical',   icon: 'science',    color: '#7A6BEA' },
+  promo:        { group: 'promotion', icon: 'gift',       color: '#F0A526' },
+  order:        { group: 'system',    icon: 'document',     color: '#64748B' },
+  alert:        { group: 'system',    icon: 'warning',    color: '#F0695C' },
+  info:         { group: 'system',    icon: 'info',       color: '#64748B' },
+};
+const DEFAULT_META = TYPE_META.info;
 
 const GROUP_CONFIG: Record<CategoryGroup, { label: string; icon: IconName; color: string }> = {
   system: { label: 'نظامي', icon: 'settings', color: '#64748B' },
@@ -39,16 +45,81 @@ const GROUP_CONFIG: Record<CategoryGroup, { label: string; icon: IconName; color
   promotion: { label: 'عروض', icon: 'gift', color: '#F0A526' }
 };
 
+function relativeTime(iso?: string): string {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'الآن';
+  if (mins < 60) return `منذ ${mins} دقيقة`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `منذ ${hours} ساعة`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'أمس';
+  if (days < 30) return `منذ ${days} يوم`;
+  return new Date(iso).toLocaleDateString(dateLocale());
+}
+
+function mapNotification(n: any): Notif {
+  const meta = TYPE_META[n.type] || DEFAULT_META;
+  return {
+    id: n.id,
+    title: n.title || '',
+    body: n.body || '',
+    time: relativeTime(n.createdAt),
+    group: meta.group,
+    read: !!n.read,
+    route: n.action?.route,
+    icon: meta.icon,
+    color: meta.color,
+  };
+}
+
 export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [filter, setFilter] = useState<CategoryGroup | 'all'>('all');
-  const [notifs, setNotifs] = useState(NOTIFS);
+  const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    setError(false);
+    try {
+      const rows = await apiFetch<any[]>('/notifications');
+      setNotifs((Array.isArray(rows) ? rows : []).map(mapNotification));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const filtered = filter === 'all' ? notifs : notifs.filter(n => n.group === filter);
   const unreadCount = notifs.filter(n => !n.read).length;
 
-  const markAllRead = () => setNotifs(p => p.map(n => ({ ...n, read: true })));
+  const markAllRead = async () => {
+    setNotifs(p => p.map(n => ({ ...n, read: true })));
+    try { await apiFetch('/notifications/read-all', { method: 'POST' }); }
+    catch { load(true); } // revert by reloading on failure
+  };
+
+  const openNotif = async (n: Notif) => {
+    if (!n.read) {
+      setNotifs(p => p.map(x => x.id === n.id ? { ...x, read: true } : x));
+      apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }).catch(() => {});
+    }
+    // Backend routes use the server vocabulary (/tracking/lab/:id, /orders/:id …) —
+    // translate to real app paths; pushing raw would hit an unmatched-route blank screen.
+    if (n.route) {
+      const translated = translateBackendRoute(n.route);
+      if (translated) router.push({ pathname: translated.pathname as any, params: translated.params || {} });
+    }
+  };
 
   return (
     <View style={[st.c, { backgroundColor: colors.background } ]}>
@@ -83,11 +154,39 @@ export default function NotificationsScreen() {
       </View>
 
       {/* Notifications feed */}
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}>
-        {filtered.map(n => {
-          const cfg = GROUP_CONFIG[n.group];
-          return (
-            <TouchableOpacity key={n.id} activeOpacity={0.85} onPress={() => n.route && router.push(n.route as any)}>
+      {loading ? (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(n) => n.id}
+          contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100, flexGrow: 1 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(true); }} tintColor={colors.primary} />}
+          initialNumToRender={15}
+          maxToRenderPerBatch={15}
+          windowSize={7}
+          removeClippedSubviews
+          ListEmptyComponent={
+            error && notifs.length === 0 ? (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                <Icon name="warning" size={44} color={colors.textTertiary} />
+                <AppText variant="bodyMD" color={colors.textSecondary}>تعذر تحميل الإشعارات</AppText>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="إعادة المحاولة" onPress={() => load()} style={[st.filterChip, { backgroundColor: colors.primary, borderColor: colors.primary }]}>
+                  <AppText variant="bodySM" color="#fff">إعادة المحاولة</AppText>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <Icon name="bell" size={44} color={colors.textTertiary} />
+                <AppText variant="bodyMD" color={colors.textSecondary}>لا توجد إشعارات بعد</AppText>
+                <AppText variant="caption" color={colors.textTertiary}>ستظهر هنا تنبيهات مواعيدك وأدويتك وعروضك</AppText>
+              </View>
+            )
+          }
+          renderItem={({ item: n }) => (
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${n.title}. ${n.body}`} activeOpacity={0.85} onPress={() => openNotif(n)}>
               <Card style={[st.notifCard, !n.read && { backgroundColor: isDark ? 'rgba(35,181,206,0.1)' : '#DEF5F9' } ]}>
                 <View style={{ flexDirection: 'row-reverse', gap: 12, alignItems: 'flex-start' }}>
                   <View style={[st.nIcon, { backgroundColor: n.color + '25' } ]}>
@@ -99,14 +198,14 @@ export default function NotificationsScreen() {
                       {!n.read && <View style={[st.unreadDot, { backgroundColor: colors.primary }]} />}
                     </View>
                     <AppText variant="bodySM" color={colors.textSecondary}>{n.body}</AppText>
-                    <AppText variant="caption" color={colors.textTertiary}>{n.time}</AppText>
+                    {!!n.time && <AppText variant="caption" color={colors.textTertiary}>{n.time}</AppText>}
                   </View>
                 </View>
               </Card>
             </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+          )}
+        />
+      )}
     </View>
   );
 }

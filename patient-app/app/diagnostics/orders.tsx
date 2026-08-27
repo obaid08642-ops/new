@@ -14,6 +14,7 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
 import { apiFetch } from "../../src/utils/api";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { pickLocalized } from '../../src/utils/localize';
 
 export default function DiagnosticsOrders() {
   const { colors } = useApp();
@@ -25,16 +26,28 @@ export default function DiagnosticsOrders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await apiFetch("/labs/bookings/mine");
-        const mapped = (res?.data || res || []).map((b: any) => ({
+        // M4: دمج حجوزات التحاليل والأشعة في قائمة واحدة
+        const [labsRes, radRes] = await Promise.all([
+          apiFetch("/labs/bookings/mine").catch(() => null),
+          apiFetch("/radiology/bookings/mine").catch(() => null),
+        ]);
+        const labs = (labsRes?.data || labsRes || []).map((b: any) => ({
           id: b.id,
-          title: b.items?.[0]?.name_ar || b.items?.[0]?.name_en || 'حجز تحاليل مخبرية',
-          status: b.state.toLowerCase(),
+          title: pickLocalized(b.items?.[0]?.name_ar, b.items?.[0]?.name_en) || 'حجز تحاليل مخبرية',
+          status: (b.state || '').toLowerCase(),
           date: b.scheduled_at ? new Date(b.scheduled_at).toISOString().split('T')[0] : '',
           type: b.location_type || 'clinic',
           total: b.total,
         }));
-        setOrders(mapped);
+        const rads = (radRes?.data || radRes || []).map((b: any) => ({
+          id: b.id,
+          title: pickLocalized(b.items?.[0]?.name_ar, b.items?.[0]?.name_en) || 'حجز أشعة وتصوير',
+          status: (b.state || b.status || '').toLowerCase(),
+          date: b.scheduled_at ? new Date(b.scheduled_at).toISOString().split('T')[0] : '',
+          type: 'radiology',
+          total: b.total,
+        }));
+        setOrders([...labs, ...rads].sort((a, b) => (a.date < b.date ? 1 : -1)));
       } catch (e) {
         console.log(e);
         setOrders([]);
@@ -298,7 +311,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    paddingTop: 50,
+    paddingTop: 60,
   },
   backBtn: {
     width: 40,

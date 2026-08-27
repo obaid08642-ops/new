@@ -5,8 +5,9 @@ import { PharmacyInventoryItem } from '../../provider/schemas/capabilities.schem
 import { PharmacyLowStockAlert } from '../schemas/pharmacy.schema';
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { PharmacyLowStockAlertRepository } from "./repositories/pharmacylowstockalert.repository";
+import { isProviderRole } from '../../../common/enums';
 
-function assertProvider(u: any) { if (!u || u.role !== 'provider') throw new ForbiddenException('provider_scope_required'); }
+function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 
 @Injectable()
 export class PharmacyInventoryExtService {

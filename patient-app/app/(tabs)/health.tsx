@@ -74,6 +74,12 @@ const QUICK: { icon: IconName; label: string; color: string; route: string }[] =
       route: "/health/smart-reminders",
     },
     {
+      icon: "document",
+      label: "مقالات صحية",
+      color: "#5BA84F",
+      route: "/articles",
+    },
+    {
       icon: "trophy",
       label: "تحدياتي",
       color: "#10B981",
@@ -87,20 +93,20 @@ export default function HealthScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [vitals, setVitals] = useState<any[]>([]);
-  const [healthScore, setHealthScore] = useState(82);
+  const [scoreData, setScoreData] = useState<any>(null);
   const [upcomingAppt, setUpcomingAppt] = useState<any>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [vitalsRes, profRes, apptRes] = await Promise.all([
+        const [vitalsRes, scoreRes, apptRes] = await Promise.all([
           apiFetch("/health/vitals/summary").catch(() => null),
-          apiFetch("/users/me/profile").catch(() => null),
+          apiFetch("/health/score").catch(() => null),
           apiFetch('/home/upcoming-appointment').catch(() => null)
         ]);
-        
+
         if (vitalsRes) setVitals(Array.isArray(vitalsRes) ? vitalsRes : vitalsRes?.data || []);
-        if (profRes?.health_score) setHealthScore(profRes.health_score);
+        if (scoreRes) setScoreData(scoreRes);
         if (apptRes) setUpcomingAppt(Array.isArray(apptRes) ? apptRes[0] : apptRes?.data?.[0] || apptRes);
 
         // Load water intake from nutrition
@@ -196,6 +202,52 @@ export default function HealthScreen() {
             ))}
           </View>
         </Animated.View>
+
+        {/* Health Score — real computed value from /health/score */}
+        {scoreData && (
+          <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+            <Card
+              onPress={() => router.push("/health/vitals")}
+              style={{ gap: 10, borderWidth: 1, borderColor: colors.borderLight }}
+            >
+              {scoreData.score != null ? (
+                <>
+                  <View style={{ flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between" }}>
+                    <View style={{ alignItems: "flex-end" }}>
+                      <AppText variant="labelSM" color={colors.textTertiary}>درجة الصحة</AppText>
+                      <AppText variant="h2" color={scoreData.score >= 80 ? "#16A34A" : scoreData.score >= 60 ? "#23B5CE" : scoreData.score >= 40 ? "#F0A526" : "#EF4444"}>
+                        {scoreData.score}
+                        <AppText variant="caption" color={colors.textTertiary}> / 100</AppText>
+                      </AppText>
+                    </View>
+                    <Badge
+                      label={{ excellent: "ممتازة", good: "جيدة", fair: "مقبولة", needs_attention: "تحتاج انتباه" }[scoreData.status] || "—"}
+                      color={scoreData.score >= 80 ? "#16A34A" : scoreData.score >= 60 ? "#23B5CE" : scoreData.score >= 40 ? "#F0A526" : "#EF4444"}
+                    />
+                  </View>
+                  {/* Component breakdown — only components with real data */}
+                  <View style={{ flexDirection: "row-reverse", flexWrap: "wrap", gap: 6 }}>
+                    {(scoreData.components || []).map((c: any) => (
+                      <Badge key={c.key} label={`${c.label} ${c.score}`} color={colors.textSecondary} bg={colors.surfaceSecondary} />
+                    ))}
+                  </View>
+                  {!!scoreData.recommendations?.[0] && (
+                    <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: "right" }}>
+                      💡 {scoreData.recommendations[0]}
+                    </AppText>
+                  )}
+                </>
+              ) : (
+                <View style={{ alignItems: "flex-end", gap: 6 }}>
+                  <AppText variant="h6">درجة الصحة</AppText>
+                  <AppText variant="bodySM" color={colors.textTertiary} style={{ textAlign: "right" }}>
+                    {scoreData.message || "لا توجد بيانات كافية — سجّل مؤشراتك الحيوية لتفعيل درجتك"}
+                  </AppText>
+                </View>
+              )}
+            </Card>
+          </Animated.View>
+        )}
 
         {/* Vitals */}
         <View>

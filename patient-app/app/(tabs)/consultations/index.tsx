@@ -1,25 +1,29 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Modal
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal } from 'react-native';
 
 import { useApp } from '../../../src/context/AppContext';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { lightColors, darkColors, resolveColor } from '../../../src/theme/colors';
-const specsStatic: any[] = []; const promos: any[] = [];
+// Specialty icon palette (display-only — names/counts come from /care/specialties)
+const SPEC_ICONS: Record<string, [string, string, string]> = {
+  'باطنة': ['stethoscope', 'var(--p)', 'var(--ps)'],
+  'أطفال': ['child_care', 'var(--pr)', 'var(--prs)'],
+  'قلب': ['favorite', 'var(--cr)', 'var(--cs)'],
+  'جلدية': ['dermatology', 'var(--am)', 'var(--as)'],
+  'عيون': ['visibility', 'var(--bl)', 'var(--bs)'],
+  'أسنان': ['dentistry', 'var(--tl)', 'var(--ts)'],
+  'عظام': ['orthopedics', 'var(--gr)', 'var(--grs)'],
+  'نساء وولادة': ['pregnant_woman', 'var(--pk)', 'var(--pks)'],
+  'نفسي': ['psychology', 'var(--tl)', 'var(--ts)'],
+};
+const DEFAULT_SPEC_ICON: [string, string, string] = ['medical_services', 'var(--p)', 'var(--ps)'];
 import Icon from '../../../src/components/Icon';
 import { apiFetch } from '../../../src/utils/api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { pickLocalized } from '../../../src/utils/localize';
+import { LocalizedText } from '../../../src/components/LocalizedText';
 
 export default function Consultations() {
   const { isDark, lang } = useApp() as any;
@@ -38,6 +42,8 @@ export default function Consultations() {
   const [activeSpec, setActiveSpec] = useState('الكل');
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [specialties, setSpecialties] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
   const [filterTitle, setFilterTitle] = useState('الكل');
@@ -46,42 +52,34 @@ export default function Consultations() {
   const [filterAvail, setFilterAvail] = useState('الكل');
   const [filterSort, setFilterSort] = useState('الأعلى تقييماً');
   const [showInsModal, setShowInsModal] = useState(false);
-  const [insCompany, setInsCompany] = useState('الكل');
-  const [insClass, setInsClass] = useState('الكل');
+  const [insCompany, setInsCompany] = useState('');
+  const [insClass, setInsClass] = useState('');
   const [stepIns, setStepIns] = useState(1);
-
-  const saudiInsurances = {
-    'الكل': ['الكل'],
-    'بوبا العربية (Bupa)': ['VIP', 'شبكة 1', 'شبكة 2', 'شبكة 3', 'شبكة 4', 'شبكة 5', 'شبكة 6', 'شبكة 7', 'شبكة 8'],
-    'التعاونية (Tawuniya)': ['الماسية', 'البلاتينية', 'الذهبية', 'الفضية', 'البرونزية', 'الأساسية', 'عائلتي'],
-    'تكافل الراجحي': ['الفئة 1', 'الفئة 2', 'الفئة 3', 'الفئة 4', 'الفئة 5', 'الفئة 6', 'الفئة 7'],
-    'ميدغلف (Medgulf)': ['الفئة A', 'الفئة B', 'الفئة C', 'الفئة D'],
-    'سايكو (SAICO)': ['VIP', 'A', 'B', 'C'],
-    'جي آي جي (GIG)': ['شبكة 1', 'شبكة 2', 'شبكة 3', 'شبكة 4', 'شبكة 5'],
-    'ملاذ للتأمين': ['شبكة مميزة', 'شبكة عامة'],
-    'الصقر للتأمين': ['VIP', 'A', 'B', 'C'],
-    'ولاء للتأمين': ['VIP', 'A', 'B', 'C'],
-    'الدرع العربي': ['الماسية', 'الذهبية', 'الفضية'],
-    'الاتحاد للتأمين': ['A', 'B', 'C'],
-    'بروج للتأمين': ['A', 'B', 'C'],
-    'التأمين العربية': ['A', 'B', 'C'],
-    'أمانة للتأمين': ['A', 'B', 'C'],
-    'عناية': ['A', 'B', 'C'],
-    'أليانز السعودي الفرنسي': ['الماسية', 'الذهبية', 'الفضية'],
-    'الخليجية العامة': ['A', 'B', 'C'],
-    'العالمية للتأمين': ['A', 'B', 'C'],
-    'الجزيرة تكافل': ['A', 'B', 'C'],
-    'تشب العربية (CHUBB)': ['A', 'B', 'C'],
-    'سلامة': ['A', 'B', 'C'],
-    'الوطنية للتأمين': ['A', 'B', 'C']
-  };
+  const [insuranceCompanies, setInsuranceCompanies] = useState<any[]>([]);
+  const [insuranceNetworks, setInsuranceNetworks] = useState<any[]>([]);
+  const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
 
 
   React.useEffect(() => {
     const fetchDoctors = async () => {
       try {
         const data = await apiFetch('/providers?type=doctor');
-        setDoctors(Array.isArray(data) ? data : []);
+        // Normalize real provider-profile fields into the card display shape
+        const normalized = (Array.isArray(data) ? data : []).map((d: any) => ({
+          ...d,
+          n: pickLocalized(d.name_ar, d.name_en) || '',
+          sp: [d.title, d.specialty].filter(Boolean).join(' — '),
+          specialty_ar: d.specialty,
+          badge: d.title || '',
+          loc: [d.district, d.city].filter(Boolean).join('، '),
+          addr: d.address || '',
+          services: (Array.isArray(d.consultation_modes) ? d.consultation_modes : []).map((m: string) => (m === 'video' ? 'online' : m)),
+          r: d.rating_avg ?? null,
+          rev: d.rating_count ?? 0,
+          av: null,
+          p: (typeof d.price_clinic === 'number' ? d.price_clinic : null) ?? d.price_online ?? d.price_home ?? null,
+        }));
+        setDoctors(normalized);
       } catch (err) {
         console.log('Error fetching doctors:', err);
         setDoctors([]);
@@ -90,7 +88,35 @@ export default function Consultations() {
       }
     };
     fetchDoctors();
+
+    // Real specialties (names + live doctor counts) and real active offers
+    apiFetch('/care/specialties')
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : res?.data;
+        setSpecialties(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setSpecialties([]));
+    apiFetch('/home/offers')
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : res?.data;
+        setOffers(Array.isArray(list) ? list : []);
+      })
+      .catch(() => setOffers([]));
+    apiFetch('/insurance/companies')
+      .then((res: any) => {
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setInsuranceCompanies(list);
+        setInsuranceCatalogUnavailable(list.length === 0);
+      })
+      .catch(() => { setInsuranceCompanies([]); setInsuranceCatalogUnavailable(true); });
   }, []);
+
+  React.useEffect(() => {
+    if (!insCompany) { setInsuranceNetworks([]); return; }
+    apiFetch(`/insurance/companies/${insCompany}/networks`)
+      .then((res: any) => setInsuranceNetworks(Array.isArray(res) ? res : res?.data || []))
+      .catch(() => setInsuranceNetworks([]));
+  }, [insCompany]);
 
   function resolveColor(c: any) {
     if (!c) return '#000';
@@ -121,11 +147,11 @@ export default function Consultations() {
     } else if (activePay === 'تأمين') {
       let isInsured = (d.insurance_supported && d.insurance_supported.length > 0) || (d.tags && d.tags.includes('تأمين'));
       if (!isInsured) matchesPay = false;
-      else if (insCompany !== 'الكل') {
-        const docInsStr = JSON.stringify(d.insurance_supported || []) + JSON.stringify(d.tags || []);
-        if (!docInsStr.includes(insCompany.split(' ')[0])) {
-           matchesPay = false;
-        }
+      else if (insCompany) {
+        const supportedCompanies = Array.isArray(d.accepted_insurance) ? d.accepted_insurance : (Array.isArray(d.insurance_supported) ? d.insurance_supported : []);
+        const acceptsCompany = supportedCompanies.some((value: any) => (value?.id || value?.code || value) === insCompany);
+        const acceptedNetworks = d.insurance_plans?.[insCompany];
+        matchesPay = acceptsCompany && (!insClass || (Array.isArray(acceptedNetworks) && acceptedNetworks.includes(insClass)));
       }
     }
 
@@ -135,10 +161,11 @@ export default function Consultations() {
       matchesSpec = (d.specialty_ar === activeSpec || (d.sp && d.sp.includes(activeSpec)));
     }
 
-    // Modal Filters
+    // Modal Filters — real fields only (no name-based gender guessing)
     let matchesGender = true;
-    if (filterGender === 'طبيب') matchesGender = d.gender === 'male' || (d.n && !d.n.includes('سارة') && !d.n.includes('ليلى') && !d.n.includes('منى'));
-    if (filterGender === 'طبيبة') matchesGender = d.gender === 'female' || (d.n && (d.n.includes('سارة') || d.n.includes('ليلى') || d.n.includes('منى')));
+    if (filterGender !== 'الكل' && d.gender) {
+      matchesGender = filterGender === 'طبيب' ? d.gender === 'male' : d.gender === 'female';
+    }
     
     let matchesTitle = filterTitle === 'الكل' || (d.sp || d.badge || d.biography || '').includes(filterTitle);
 
@@ -174,11 +201,11 @@ export default function Consultations() {
   ];
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={[styles.content, { paddingTop: 20 }]} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <View 
           style={[styles.searchBar, { backgroundColor: colors.s, borderColor: colors.bd, flex: 1, marginRight: 8 } ]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--t3)'), fontSize: 22 }}>search</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--t3)'), fontSize: 22 }}>search</LocalizedText>
           <TextInput 
             style={{ flex: 1, fontSize: 13, color: colors.n, marginLeft: 8, textAlign: isRTL ? 'right' : 'left' }}
             placeholder="ابحث عن دكتور أو تخصص..."
@@ -192,7 +219,7 @@ export default function Consultations() {
           activeOpacity={0.8}
           onPress={() => setShowFilter(true)}
         >
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 20 }}>tune</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 20 }}>tune</LocalizedText>
         </TouchableOpacity>
       </View>
 
@@ -202,8 +229,8 @@ export default function Consultations() {
           const isActive = activeVt === vt.id;
           return (
             <TouchableOpacity key={vt.id} activeOpacity={0.8} style={[styles.vtBtn, { backgroundColor: isActive ? resolveColor('var(--p)') : colors.s, borderColor: isActive ? resolveColor('var(--p)') : colors.bd }]} onPress={() => setActiveVt(vt.id)}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: isActive ? '#fff' : resolveColor('var(--t3)'), fontSize: 18 }}>{vt.ic}</Text>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: isActive ? '#fff' : colors.n, marginLeft: 6 }}>{vt.n}</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: isActive ? '#fff' : resolveColor('var(--t3)'), fontSize: 18 }}>{vt.ic}</LocalizedText>
+              <LocalizedText style={{ fontSize: 12, fontWeight: '700', color: isActive ? '#fff' : colors.n, marginLeft: 6 }}>{vt.n}</LocalizedText>
             </TouchableOpacity>
           );
         })}
@@ -212,39 +239,51 @@ export default function Consultations() {
       {/* Payment Segments */}
       <View style={[styles.segmentContainer, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
         <TouchableOpacity style={[styles.segmentBtn, activePay === 'الكل' && { backgroundColor: resolveColor('var(--n)') }]} onPress={() => setActivePay('الكل')}>
-          <Text style={[styles.segmentText, activePay === 'الكل' ? { color: '#fff' } : { color: colors.t2 }]} >الكل</Text>
+          <LocalizedText style={[styles.segmentText, activePay === 'الكل' ? { color: '#fff' } : { color: colors.t2 }]} >الكل</LocalizedText>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.segmentBtn, activePay === 'كاش' && { backgroundColor: resolveColor('var(--n)') }]} onPress={() => setActivePay('كاش')}>
-          <Text style={[styles.segmentText, activePay === 'كاش' ? { color: '#fff' } : { color: colors.t2 }]} >كاش</Text>
+          <LocalizedText style={[styles.segmentText, activePay === 'كاش' ? { color: '#fff' } : { color: colors.t2 }]} >كاش</LocalizedText>
         </TouchableOpacity>
                 <TouchableOpacity style={[styles.segmentBtn, activePay === 'تأمين' && { backgroundColor: resolveColor('var(--n)') }]} onPress={() => { setActivePay('تأمين'); setStepIns(1); setShowInsModal(true); }}>
-          <Text style={[styles.segmentText, activePay === 'تأمين' ? { color: '#fff' } : { color: colors.t2 }]} >تأمين</Text>
+          <LocalizedText style={[styles.segmentText, activePay === 'تأمين' ? { color: '#fff' } : { color: colors.t2 }]} >تأمين</LocalizedText>
         </TouchableOpacity>
       </View>
 
-      {/* Specialties */}
+      {/* Specialties — real list from /care/specialties with live doctor counts */}
+      {specialties.length > 0 && (
+      <>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>التخصصات</Text>
-        <TouchableOpacity><Text style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</Text></TouchableOpacity>
+        <LocalizedText style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>التخصصات</LocalizedText>
+        <TouchableOpacity onPress={() => router.push('/consultations/specialty-select')}><LocalizedText style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</LocalizedText></TouchableOpacity>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -20, paddingHorizontal: 20, marginBottom: 20 }}>
-        {specsStatic.map((sp, i) => {
-          const isActive = activeSpec === sp[0];
+        <TouchableOpacity activeOpacity={0.7} onPress={() => setActiveSpec('الكل')} style={[styles.specBtn, { backgroundColor: activeSpec === 'الكل' ? colors.n : colors.s, borderColor: activeSpec === 'الكل' ? colors.n : colors.bd }]}>
+          <View style={[styles.specIconBox, { backgroundColor: activeSpec === 'الكل' ? 'rgba(255,255,255,0.15)' : resolveColor('var(--ps)') }]}>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: activeSpec === 'الكل' ? '#fff' : resolveColor('var(--p)'), fontSize: 24 }}>apps</LocalizedText>
+          </View>
+          <LocalizedText style={{ fontSize: 11, fontWeight: '800', color: activeSpec === 'الكل' ? '#fff' : colors.n, marginTop: 8 }}>الكل</LocalizedText>
+        </TouchableOpacity>
+        {specialties.filter((s: any) => (s.count || 0) > 0).slice(0, 10).map((s: any, i: number) => {
+          const meta = SPEC_ICONS[s.name_ar] || SPEC_ICONS[s.specialty] || DEFAULT_SPEC_ICON;
+          const isActive = activeSpec === s.name_ar;
           return (
-          <TouchableOpacity key={i} activeOpacity={0.7} onPress={() => setActiveSpec(sp[0])} style={[styles.specBtn, { backgroundColor: isActive ? resolveColor(sp[3]) : colors.s, borderColor: isActive ? resolveColor(sp[2]) : colors.bd }]}>
-            <View style={[styles.specIconBox, { backgroundColor: isActive ? '#fff' : resolveColor(sp[3]) }]}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(sp[2]), fontSize: 24 }}>{sp[1]}</Text>
+          <TouchableOpacity key={s.slug || i} activeOpacity={0.7} onPress={() => setActiveSpec(isActive ? 'الكل' : s.name_ar)} style={[styles.specBtn, { backgroundColor: isActive ? resolveColor(meta[2]) : colors.s, borderColor: isActive ? resolveColor(meta[1]) : colors.bd }]}>
+            <View style={[styles.specIconBox, { backgroundColor: isActive ? '#fff' : resolveColor(meta[2]) }]}>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(meta[1]), fontSize: 24 }}>{meta[0]}</LocalizedText>
             </View>
-            <Text style={{ fontSize: 11, fontWeight: '800', color: isActive ? resolveColor(sp[2]) : colors.n, marginTop: 8 }}>{sp[0]}</Text>
+            <LocalizedText style={{ fontSize: 11, fontWeight: '800', color: isActive ? resolveColor(meta[1]) : colors.n, marginTop: 8 }}>{s.name_ar}</LocalizedText>
+            <LocalizedText style={{ fontSize: 9, color: colors.t3, marginTop: 2 }}>{s.count} طبيب</LocalizedText>
           </TouchableOpacity>
         )})}
         <View style={{ width: 40 }}/>
       </ScrollView>
+      </>
+      )}
 
       {/* Best Doctors (Docs 1) */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>أفضل الأطباء</Text>
-        <TouchableOpacity><Text style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</Text></TouchableOpacity>
+        <LocalizedText style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>أفضل الأطباء</LocalizedText>
+        <TouchableOpacity onPress={() => router.push('/consultations/doctor-search')}><LocalizedText style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</LocalizedText></TouchableOpacity>
       </View>
 
       <View style={{ marginBottom: 24 }}>
@@ -254,25 +293,29 @@ export default function Consultations() {
           <TouchableOpacity key={i} activeOpacity={0.9} style={[styles.docCard, { backgroundColor: colors.s, borderColor: colors.bd, overflow: 'hidden' }]} onPress={() => go('s5', doc.n, { doc })}>
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', padding: 16 }}>
               <View style={{ width: 90, height: 104, marginRight: isRTL ? 0 : 14, marginLeft: isRTL ? 14 : 0 }}>
-                <View 
-                  style={{ flex: 1, borderTopLeftRadius: 40, borderTopRightRadius: 50, borderBottomLeftRadius: 46, borderBottomRightRadius: 54, overflow: 'hidden', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <View
+                  style={{ flex: 1, borderTopLeftRadius: 40, borderTopRightRadius: 50, borderBottomLeftRadius: 46, borderBottomRightRadius: 54, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: resolveColor('var(--ps)') }}>
                   {doc.img ? (
-                    <Image source={{ uri: doc.img }} resizeMode="cover" style={{ width: '118%', height: '118%', marginBottom: -4 }} />
-                  ) : null}
+                    <Image source={{ uri: doc.img }} resizeMode="cover" style={{ width: '118%', height: '118%' }} />
+                  ) : (
+                    <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 40 }}>stethoscope</LocalizedText>
+                  )}
                 </View>
               </View>
               <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: colors.n, marginBottom: 3, textAlign: isRTL ? 'right' : 'left' }}>{doc.n}</Text>
-                <View style={[styles.badge, { backgroundColor: resolveColor('var(--ps)'), marginBottom: 5 } ]}><Text style={{ color: resolveColor('var(--pt)'), fontSize: 9, fontWeight: '700' }}>{doc.badge}</Text></View>
-                <Text style={{ fontSize: 11, color: colors.t2, marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}>{doc.sp}</Text>
-                
+                <LocalizedText style={{ fontSize: 15, fontWeight: '800', color: colors.n, marginBottom: 3, textAlign: isRTL ? 'right' : 'left' }}>{doc.n}</LocalizedText>
+                {doc.badge ? <View style={[styles.badge, { backgroundColor: resolveColor('var(--ps)'), marginBottom: 5 } ]}><LocalizedText style={{ color: resolveColor('var(--pt)'), fontSize: 9, fontWeight: '700' }}>{doc.badge}</LocalizedText></View> : null}
+                <LocalizedText style={{ fontSize: 11, color: colors.t2, marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}>{pickLocalized(doc.specialty_ar, doc.specialty_en || doc.specialty || doc.sp)}</LocalizedText>
+
+                {(doc.loc || doc.addr) ? (
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 14, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>location_on</Text>
-                  <Text style={{ fontSize: 10, color: colors.t2, lineHeight: 14, textAlign: isRTL ? 'right' : 'left' }}>
-                    {doc.loc}{'\n'}
-                    <Text style={{ fontSize: 9, color: colors.t3 }}>{doc.addr}</Text>
-                  </Text>
+                  <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 14, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>location_on</LocalizedText>
+                  <LocalizedText style={{ fontSize: 10, color: colors.t2, lineHeight: 14, textAlign: isRTL ? 'right' : 'left' }}>
+                    {doc.loc}
+                    {doc.addr ? <LocalizedText style={{ fontSize: 9, color: colors.t3 }}>{'\n'}{doc.addr}</LocalizedText> : null}
+                  </LocalizedText>
                 </View>
+                ) : null}
 
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 6 }}>
                   {doc.services && doc.services.map((sv, idx) => {
@@ -284,8 +327,8 @@ export default function Consultations() {
                     if (!m) return null;
                     return (
                       <View key={idx} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 8, backgroundColor: resolveColor(m[2]), marginRight: isRTL ? 0 : 5, marginLeft: isRTL ? 5 : 0, marginBottom: 4 }}>
-                        <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(m[1]), fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>{m[0]}</Text>
-                        <Text style={{ fontSize: 9, fontWeight: '700', color: resolveColor(m[1]) }}>{m[3]}</Text>
+                        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(m[1]), fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>{m[0]}</LocalizedText>
+                        <LocalizedText style={{ fontSize: 9, fontWeight: '700', color: resolveColor(m[1]) }}>{m[3]}</LocalizedText>
                       </View>
                     );
                   })}
@@ -294,7 +337,7 @@ export default function Consultations() {
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap' }}>
                   {doc.tags && doc.tags.map((t, idx) => (
                     <View key={idx} style={{ backgroundColor: colors.bg, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0, marginBottom: 4 }}>
-                      <Text style={{ fontSize: 10, color: colors.t2, fontWeight: '600' }}>{t}</Text>
+                      <LocalizedText style={{ fontSize: 10, color: colors.t2, fontWeight: '600' }}>{t}</LocalizedText>
                     </View>
                   ))}
                 </View>
@@ -302,23 +345,20 @@ export default function Consultations() {
               </View>
             </View>
             <View style={[styles.docFooter, { padding: 11, paddingHorizontal: 16, borderTopWidth: 0, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' } ]}>
+              {doc.r != null && doc.r > 0 ? (
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 15, marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>star</Text>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#fff' }}>{doc.r}</Text>
-                <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>({doc.rev})</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 15, marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>star</LocalizedText>
+                <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: '#fff' }}>{doc.r}</LocalizedText>
+                <LocalizedText style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>({doc.rev})</LocalizedText>
               </View>
+              ) : <View />}
 
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>schedule</Text>
-                <Text style={{ fontSize: 10, fontWeight: '600', color: '#fff' }}>{doc.av}</Text>
-              </View>
-
-              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 15, fontWeight: '900', color: '#fff', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
-                  {doc.p}<Text style={{ fontSize: 9, opacity: 0.6 }}> ر.س</Text>
-                </Text>
+                <LocalizedText style={{ fontSize: 15, fontWeight: '900', color: '#fff', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
+                  {doc.p != null ? doc.p : '—'}<LocalizedText style={{ fontSize: 9, opacity: 0.6 }}> ر.س</LocalizedText>
+                </LocalizedText>
                 <TouchableOpacity onPress={() => go('s5', doc.n, { doc })} style={{ paddingVertical: 7, paddingHorizontal: 16, borderRadius: 11, backgroundColor: colors.s }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: resolveColor('var(--pd)') }}>احجز</Text>
+                  <LocalizedText style={{ fontSize: 11, fontWeight: '700', color: resolveColor('var(--pd)') }}>احجز</LocalizedText>
                 </TouchableOpacity>
               </View>
             </View>
@@ -326,63 +366,75 @@ export default function Consultations() {
         )})}
       </View>
 
-      {/* Promos */}
+      {/* Promos — real active campaigns from /home/offers */}
+      {offers.length > 0 && (
+      <>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>عروض وباقات</Text>
-        <TouchableOpacity><Text style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</Text></TouchableOpacity>
+        <LocalizedText style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>عروض وباقات</LocalizedText>
+        <TouchableOpacity onPress={() => router.push('/offers')}><LocalizedText style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</LocalizedText></TouchableOpacity>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -20, paddingHorizontal: 20, marginBottom: 24 }}>
-        {promos.map((p, i) => (
-          <TouchableOpacity key={i} activeOpacity={0.9} onPress={() => router.push(`/consultations/offer/${i}`)} style={[styles.promoCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
+        {offers.map((p: any, i: number) => (
+          <TouchableOpacity key={p.id || i} activeOpacity={0.9} onPress={() => p.id && router.push(`/offers/${p.id}`)} style={[styles.promoCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
             <View style={{ flex: 1 }}>
-              <View style={[styles.promoBadge, { backgroundColor: resolveColor(p[4]) }]}><Text style={{ color: '#fff', fontSize: 9, fontWeight: '800' }}>{p[1]}</Text></View>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: colors.n, marginTop: 8, textAlign: 'left' }}>{p[0]}</Text>
+              <View style={[styles.promoBadge, { backgroundColor: resolveColor('var(--cr)') }]}><LocalizedText style={{ color: '#fff', fontSize: 9, fontWeight: '800' }}>خصم {p.disc}</LocalizedText></View>
+              <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: colors.n, marginTop: 8, textAlign: 'left' }}>{p.t}</LocalizedText>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: resolveColor(p[4]) }}>{p[2]}</Text>
-                <Text style={{ fontSize: 11, color: colors.t3, textDecorationLine: 'line-through', marginRight: 6 }}>{p[3]}</Text>
-                <Text style={{ fontSize: 9, color: colors.t3, marginRight: 2 }}>ر.س</Text>
+                <LocalizedText style={{ fontSize: 16, fontWeight: '900', color: resolveColor('var(--cr)') }}>{p.price}</LocalizedText>
+                <LocalizedText style={{ fontSize: 11, color: colors.t3, textDecorationLine: 'line-through', marginRight: 6 }}>{p.old}</LocalizedText>
+                <LocalizedText style={{ fontSize: 9, color: colors.t3, marginRight: 2 }}>ر.س</LocalizedText>
               </View>
             </View>
-            <View style={[styles.promoIconBox, { backgroundColor: resolveColor(p[4]) + '15', marginLeft: 12 }]}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(p[4]), fontSize: 28 }}>{p[6]}</Text>
+            <View style={[styles.promoIconBox, { backgroundColor: resolveColor('var(--cr)') + '15', marginLeft: 12 }]}>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--cr)'), fontSize: 28 }}>local_offer</LocalizedText>
             </View>
           </TouchableOpacity>
         ))}
         <View style={{ width: 40 }}/>
       </ScrollView>
+      </>
+      )}
 
       {/* More Doctors (Docs 2) */}
+      {filteredDocs.length > 2 && (
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>أطباء آخرون</Text>
-        <TouchableOpacity><Text style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</Text></TouchableOpacity>
+        <LocalizedText style={{ fontSize: 15, fontWeight: '800', color: colors.n }}>أطباء آخرون</LocalizedText>
+        <TouchableOpacity onPress={() => router.push('/consultations/doctor-search')}><LocalizedText style={{ fontSize: 12, fontWeight: '700', color: resolveColor('var(--pd)') }}>عرض الكل</LocalizedText></TouchableOpacity>
       </View>
+      )}
 
       <View style={{ marginBottom: 24 }}>
-        {filteredDocs.slice(2).map((doc, i) => {
+        {/* S10: render at most 8 inline cards — the full directory lives in doctor-search.
+            Mapping hundreds of doctors inside a ScrollView blocked the UI thread. */}
+        {filteredDocs.slice(2, 10).map((doc, i) => {
           const docGradientColors = doc.cg || ['var(--ps)', '#C8EEF4'];
           return (
           <TouchableOpacity key={i} activeOpacity={0.9} style={[styles.docCard, { backgroundColor: colors.s, borderColor: colors.bd, overflow: 'hidden' }]} onPress={() => go('s5', doc.n, { doc })}>
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', padding: 16 }}>
               <View style={{ width: 90, height: 104, marginRight: isRTL ? 0 : 14, marginLeft: isRTL ? 14 : 0 }}>
-                <View 
-                  style={{ flex: 1, borderTopLeftRadius: 40, borderTopRightRadius: 50, borderBottomLeftRadius: 46, borderBottomRightRadius: 54, overflow: 'hidden', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <View
+                  style={{ flex: 1, borderTopLeftRadius: 40, borderTopRightRadius: 50, borderBottomLeftRadius: 46, borderBottomRightRadius: 54, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: resolveColor('var(--ps)') }}>
                   {doc.img ? (
-                    <Image source={{ uri: doc.img }} resizeMode="cover" style={{ width: '118%', height: '118%', marginBottom: -4 }} />
-                  ) : null}
+                    <Image source={{ uri: doc.img }} resizeMode="cover" style={{ width: '118%', height: '118%' }} />
+                  ) : (
+                    <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 40 }}>stethoscope</LocalizedText>
+                  )}
                 </View>
               </View>
               <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                <Text style={{ fontSize: 15, fontWeight: '800', color: colors.n, marginBottom: 3, textAlign: isRTL ? 'right' : 'left' }}>{doc.n}</Text>
-                <View style={[styles.badge, { backgroundColor: resolveColor('var(--ps)'), marginBottom: 5 } ]}><Text style={{ color: resolveColor('var(--pt)'), fontSize: 9, fontWeight: '700' }}>{doc.badge}</Text></View>
-                <Text style={{ fontSize: 11, color: colors.t2, marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}>{doc.sp}</Text>
-                
+                <LocalizedText style={{ fontSize: 15, fontWeight: '800', color: colors.n, marginBottom: 3, textAlign: isRTL ? 'right' : 'left' }}>{doc.n}</LocalizedText>
+                {doc.badge ? <View style={[styles.badge, { backgroundColor: resolveColor('var(--ps)'), marginBottom: 5 } ]}><LocalizedText style={{ color: resolveColor('var(--pt)'), fontSize: 9, fontWeight: '700' }}>{doc.badge}</LocalizedText></View> : null}
+                <LocalizedText style={{ fontSize: 11, color: colors.t2, marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}>{pickLocalized(doc.specialty_ar, doc.specialty_en || doc.specialty || doc.sp)}</LocalizedText>
+
+                {(doc.loc || doc.addr) ? (
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 14, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>location_on</Text>
-                  <Text style={{ fontSize: 10, color: colors.t2, lineHeight: 14, textAlign: isRTL ? 'right' : 'left' }}>
-                    {doc.loc}{'\n'}
-                    <Text style={{ fontSize: 9, color: colors.t3 }}>{doc.addr}</Text>
-                  </Text>
+                  <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 14, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>location_on</LocalizedText>
+                  <LocalizedText style={{ fontSize: 10, color: colors.t2, lineHeight: 14, textAlign: isRTL ? 'right' : 'left' }}>
+                    {doc.loc}
+                    {doc.addr ? <LocalizedText style={{ fontSize: 9, color: colors.t3 }}>{'\n'}{doc.addr}</LocalizedText> : null}
+                  </LocalizedText>
                 </View>
+                ) : null}
 
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 6 }}>
                   {doc.services && doc.services.map((sv, idx) => {
@@ -394,8 +446,8 @@ export default function Consultations() {
                     if (!m) return null;
                     return (
                       <View key={idx} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 8, backgroundColor: resolveColor(m[2]), marginRight: isRTL ? 0 : 5, marginLeft: isRTL ? 5 : 0, marginBottom: 4 }}>
-                        <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(m[1]), fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>{m[0]}</Text>
-                        <Text style={{ fontSize: 9, fontWeight: '700', color: resolveColor(m[1]) }}>{m[3]}</Text>
+                        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor(m[1]), fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>{m[0]}</LocalizedText>
+                        <LocalizedText style={{ fontSize: 9, fontWeight: '700', color: resolveColor(m[1]) }}>{m[3]}</LocalizedText>
                       </View>
                     );
                   })}
@@ -404,7 +456,7 @@ export default function Consultations() {
                 <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap' }}>
                   {doc.tags && doc.tags.map((t, idx) => (
                     <View key={idx} style={{ backgroundColor: colors.bg, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0, marginBottom: 4 }}>
-                      <Text style={{ fontSize: 10, color: colors.t2, fontWeight: '600' }}>{t}</Text>
+                      <LocalizedText style={{ fontSize: 10, color: colors.t2, fontWeight: '600' }}>{t}</LocalizedText>
                     </View>
                   ))}
                 </View>
@@ -413,27 +465,34 @@ export default function Consultations() {
             </View>
             <View style={[styles.docFooter, { padding: 11, paddingHorizontal: 16, borderTopWidth: 0, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' } ]}>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 15, marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>star</Text>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#fff' }}>{doc.r}</Text>
-                <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>({doc.rev})</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 15, marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>star</LocalizedText>
+                <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: '#fff' }}>{doc.r}</LocalizedText>
+                <LocalizedText style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginRight: isRTL ? 0 : 4, marginLeft: isRTL ? 4 : 0 }}>({doc.rev})</LocalizedText>
               </View>
 
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>schedule</Text>
-                <Text style={{ fontSize: 10, fontWeight: '600', color: '#fff' }}>{doc.av}</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 13, marginRight: isRTL ? 0 : 3, marginLeft: isRTL ? 3 : 0 }}>schedule</LocalizedText>
+                <LocalizedText style={{ fontSize: 10, fontWeight: '600', color: '#fff' }}>{doc.av}</LocalizedText>
               </View>
 
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 15, fontWeight: '900', color: '#fff', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
-                  {doc.p}<Text style={{ fontSize: 9, opacity: 0.6 }}> ر.س</Text>
-                </Text>
+                <LocalizedText style={{ fontSize: 15, fontWeight: '900', color: '#fff', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
+                  {doc.p}<LocalizedText style={{ fontSize: 9, opacity: 0.6 }}> ر.س</LocalizedText>
+                </LocalizedText>
                 <TouchableOpacity onPress={() => go('s5', doc.n, { doc })} style={{ paddingVertical: 7, paddingHorizontal: 16, borderRadius: 11, backgroundColor: colors.s }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: resolveColor('var(--pd)') }}>احجز</Text>
+                  <LocalizedText style={{ fontSize: 11, fontWeight: '700', color: resolveColor('var(--pd)') }}>احجز</LocalizedText>
                 </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
         )})}
+        {filteredDocs.length > 10 && (
+          <TouchableOpacity onPress={() => router.push('/consultations/doctor-search')} style={{ alignItems: 'center', paddingVertical: 12, borderRadius: 12, backgroundColor: colors.s, borderWidth: 1, borderColor: colors.bd }}>
+            <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: resolveColor('var(--pd)') }}>
+              عرض كل الأطباء ({filteredDocs.length}) في صفحة البحث
+            </LocalizedText>
+          </TouchableOpacity>
+        )}
       </View>
 
       <Modal visible={showFilter} transparent animationType="fade">
@@ -441,62 +500,62 @@ export default function Consultations() {
           <View style={{ backgroundColor: colors.bg, padding: 24, borderTopLeftRadius: 24, borderTopRightRadius: 24, width: '100%', maxHeight: '90%', shadowColor: '#000', shadowOffset: { width: 0, height: -10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <TouchableOpacity onPress={() => { setFilterSort('الأعلى تقييماً'); setFilterTitle('الكل'); setFilterGender('الكل'); setFilterPrice('الكل'); setFilterAvail('الكل'); }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: resolveColor('var(--pd)') }}>إعادة ضبط</Text>
+                <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: resolveColor('var(--pd)') }}>إعادة ضبط</LocalizedText>
               </TouchableOpacity>
-              <Text style={{ fontSize: 18, fontWeight: '900', color: colors.n }}>تصفية متقدمة</Text>
+              <LocalizedText style={{ fontSize: 18, fontWeight: '900', color: colors.n }}>تصفية متقدمة</LocalizedText>
               <TouchableOpacity onPress={() => setShowFilter(false)}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 28, color: colors.t3 }}>close</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 28, color: colors.t3 }}>close</LocalizedText>
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>الترتيب حسب</Text>
+              <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>الترتيب حسب</LocalizedText>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 20 }}>
                 {['الأعلى تقييماً', 'الأقل سعراً', 'الأقرب'].map(t => (
                   <TouchableOpacity key={t} onPress={() => setFilterSort(t)} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: filterSort === t ? resolveColor('var(--p)') : colors.s, marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0, marginBottom: 8, borderWidth: 1, borderColor: filterSort === t ? resolveColor('var(--p)') : colors.bd }}>
-                    <Text style={{ color: filterSort === t ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{t}</Text>
+                    <LocalizedText style={{ color: filterSort === t ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{t}</LocalizedText>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>اللقب المهني</Text>
+              <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>اللقب المهني</LocalizedText>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 20 }}>
                 {['الكل', 'أخصائي', 'استشاري'].map(t => (
                   <TouchableOpacity key={t} onPress={() => setFilterTitle(t)} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: filterTitle === t ? resolveColor('var(--p)') : colors.s, marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0, marginBottom: 8, borderWidth: 1, borderColor: filterTitle === t ? resolveColor('var(--p)') : colors.bd }}>
-                    <Text style={{ color: filterTitle === t ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{t}</Text>
+                    <LocalizedText style={{ color: filterTitle === t ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{t}</LocalizedText>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>جنس الطبيب</Text>
+              <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>جنس الطبيب</LocalizedText>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 20 }}>
                 {['الكل', 'طبيب', 'طبيبة'].map(g => (
                   <TouchableOpacity key={g} onPress={() => setFilterGender(g)} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: filterGender === g ? resolveColor('var(--p)') : colors.s, marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0, marginBottom: 8, borderWidth: 1, borderColor: filterGender === g ? resolveColor('var(--p)') : colors.bd }}>
-                    <Text style={{ color: filterGender === g ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{g}</Text>
+                    <LocalizedText style={{ color: filterGender === g ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{g}</LocalizedText>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>السعر</Text>
+              <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>السعر</LocalizedText>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 20 }}>
                 {['الكل', 'أقل من 100', '100 - 200', 'أكثر من 200'].map(p => (
                   <TouchableOpacity key={p} onPress={() => setFilterPrice(p)} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: filterPrice === p ? resolveColor('var(--p)') : colors.s, marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0, marginBottom: 8, borderWidth: 1, borderColor: filterPrice === p ? resolveColor('var(--p)') : colors.bd }}>
-                    <Text style={{ color: filterPrice === p ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{p}</Text>
+                    <LocalizedText style={{ color: filterPrice === p ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{p}</LocalizedText>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>المواعيد المتاحة</Text>
+              <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n, marginBottom: 12, textAlign: 'left' }}>المواعيد المتاحة</LocalizedText>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 16 }}>
                 {['الكل', 'اليوم', 'غداً'].map(a => (
                   <TouchableOpacity key={a} onPress={() => setFilterAvail(a)} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: filterAvail === a ? resolveColor('var(--p)') : colors.s, marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0, marginBottom: 8, borderWidth: 1, borderColor: filterAvail === a ? resolveColor('var(--p)') : colors.bd }}>
-                    <Text style={{ color: filterAvail === a ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{a}</Text>
+                    <LocalizedText style={{ color: filterAvail === a ? '#fff' : colors.t2, fontWeight: '800', fontSize: 13 }}>{a}</LocalizedText>
                   </TouchableOpacity>
                 ))}
               </View>
 
               <TouchableOpacity style={{ backgroundColor: resolveColor('var(--p)'), padding: 16, borderRadius: 16, alignItems: 'center', marginTop: 16 }} onPress={() => setShowFilter(false)}>
-                <Text style={{ color: '#fff', fontWeight: '900', fontSize: 16 }}>تطبيق الفلاتر</Text>
+                <LocalizedText style={{ color: '#fff', fontWeight: '900', fontSize: 16 }}>تطبيق الفلاتر</LocalizedText>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -511,36 +570,48 @@ export default function Consultations() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               {stepIns === 2 ? (
                 <TouchableOpacity onPress={() => setStepIns(1)}>
-                  <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 28, color: colors.t3 }}>arrow_back</Text>
+                  <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 28, color: colors.t3 }}>arrow_back</LocalizedText>
                 </TouchableOpacity>
               ) : <View style={{ width: 28 }}/>}
-              <Text style={{ fontSize: 18, fontWeight: '900', color: colors.n }}>
+              <LocalizedText style={{ fontSize: 18, fontWeight: '900', color: colors.n }}>
                 {stepIns === 1 ? 'اختر شركة التأمين' : 'اختر فئة التأمين'}
-              </Text>
+              </LocalizedText>
               <TouchableOpacity onPress={() => setShowInsModal(false)}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 28, color: colors.t3 }}>close</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 28, color: colors.t3 }}>close</LocalizedText>
               </TouchableOpacity>
             </View>
             
             <ScrollView showsVerticalScrollIndicator={false}>
               {stepIns === 1 ? (
-                Object.keys(saudiInsurances).map(comp => (
-                  <TouchableOpacity 
-                    key={comp} 
-                    onPress={() => { setInsCompany(comp); if (comp === 'الكل') { setInsClass('الكل'); setShowInsModal(false); } else { setStepIns(2); setInsClass(saudiInsurances[comp][0]); } }} style={{ padding: 16, backgroundColor: insCompany === comp ? resolveColor('var(--p)') : colors.s, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: insCompany === comp ? resolveColor('var(--p)') : colors.bd }}
+                <>
+                  <TouchableOpacity
+                    onPress={() => { setInsCompany(''); setInsClass(''); setShowInsModal(false); }} style={{ padding: 16, backgroundColor: !insCompany ? resolveColor('var(--p)') : colors.s, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: !insCompany ? resolveColor('var(--p)') : colors.bd }}
                   >
-                    <Text style={{ fontSize: 15, fontWeight: '800', textAlign: 'center', color: insCompany === comp ? '#fff' : colors.n }}>{comp}</Text>
+                    <LocalizedText style={{ fontSize: 15, fontWeight: '800', textAlign: 'center', color: !insCompany ? '#fff' : colors.n }}>الكل</LocalizedText>
                   </TouchableOpacity>
-                ))
+                  {insuranceCompanies.map((company: any) => {
+                    const companyId = company.id || company._id || company.code;
+                    const selected = insCompany === companyId;
+                    return <TouchableOpacity
+                      key={companyId}
+                      onPress={() => { setInsCompany(companyId); setInsClass(''); setStepIns(2); }} style={{ padding: 16, backgroundColor: selected ? resolveColor('var(--p)') : colors.s, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: selected ? resolveColor('var(--p)') : colors.bd }}
+                    >
+                      <LocalizedText style={{ fontSize: 15, fontWeight: '800', textAlign: 'center', color: selected ? '#fff' : colors.n }}>{pickLocalized(company.name_ar, company.name_en || company.name) || company.code}</LocalizedText>
+                    </TouchableOpacity>;
+                  })}
+                  {insuranceCatalogUnavailable && <LocalizedText style={{ color: colors.t2, textAlign: 'center', padding: 16 }}>كتالوج التأمين غير متاح حالياً. يرجى المحاولة لاحقاً.</LocalizedText>}
+                </>
               ) : (
-                saudiInsurances[insCompany as keyof typeof saudiInsurances]?.map((cls: string) => (
-                  <TouchableOpacity 
-                    key={cls} 
-                    onPress={() => { setInsClass(cls); setShowInsModal(false); }} style={{ padding: 16, backgroundColor: insClass === cls ? resolveColor('var(--p)') : colors.s, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: insClass === cls ? resolveColor('var(--p)') : colors.bd }}
+                insuranceNetworks.map((network: any) => {
+                  const networkId = network.id || network._id || network.code;
+                  const selected = insClass === networkId;
+                  return <TouchableOpacity
+                    key={networkId}
+                    onPress={() => { setInsClass(networkId); setShowInsModal(false); }} style={{ padding: 16, backgroundColor: selected ? resolveColor('var(--p)') : colors.s, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: selected ? resolveColor('var(--p)') : colors.bd }}
                   >
-                    <Text style={{ fontSize: 15, fontWeight: '800', textAlign: 'center', color: insClass === cls ? '#fff' : colors.n }}>{cls}</Text>
-                  </TouchableOpacity>
-                ))
+                    <LocalizedText style={{ fontSize: 15, fontWeight: '800', textAlign: 'center', color: selected ? '#fff' : colors.n }}>{pickLocalized(network.name_ar, network.name_en || network.name) || network.code}</LocalizedText>
+                  </TouchableOpacity>;
+                })
               )}
             </ScrollView>
           </View>
@@ -553,26 +624,26 @@ export default function Consultations() {
         <View style={{ flex: 1, backgroundColor: 'rgba(14, 20, 34, 0.85)', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
           <View style={{ backgroundColor: colors.bg, padding: 24, borderRadius: 24, width: '100%', alignItems: 'center', shadowColor: resolveColor('var(--p)'), shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 }}>
             <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: resolveColor('var(--ps)'), justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 40 }}>auto_awesome</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 40 }}>auto_awesome</LocalizedText>
             </View>
-            <Text style={{ fontSize: 22, fontWeight: '900', color: colors.n, marginBottom: 12, textAlign: 'center' }}>
+            <LocalizedText style={{ fontSize: 22, fontWeight: '900', color: colors.n, marginBottom: 12, textAlign: 'center' }}>
               {lang === 'ar' ? 'أهلاً بك في قسم الاستشارات!' : 'Welcome to Consultations!'}
-            </Text>
-            <Text style={{ fontSize: 14, color: colors.t2, textAlign: 'center', lineHeight: 22, marginBottom: 24 }}>
+            </LocalizedText>
+            <LocalizedText style={{ fontSize: 14, color: colors.t2, textAlign: 'center', lineHeight: 22, marginBottom: 24 }}>
               {lang === 'ar' 
                 ? 'الآن يمكنك تصفية الأطباء بسهولة. اختر "في العيادة" أو "أونلاين" أو "استشارة منزلية" ليتم عرض الأطباء المتاحين لتلك الخدمة فوراً.' 
                 : 'Now you can easily filter doctors. Choose "Clinic", "Online" or "Home Visit" to see available doctors instantly.'}
-            </Text>
+            </LocalizedText>
             
             <View style={{ width: '100%' }}>
               {vtOptions.map((v, i) => (
                 <View key={i} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 12, backgroundColor: colors.s, padding: 12, borderRadius: 16 }}>
                   <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: resolveColor('var(--ps)'), justifyContent: 'center', alignItems: 'center', marginLeft: isRTL ? 12 : 0, marginRight: isRTL ? 0 : 12 }}>
-                    <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>{v.ic}</Text>
+                    <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>{v.ic}</LocalizedText>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '800', color: colors.n, textAlign: isRTL ? 'right' : 'left' }}>{v.n}</Text>
-                    <Text style={{ fontSize: 11, color: colors.t3, textAlign: isRTL ? 'right' : 'left', marginTop: 2 }}>{v.desc}</Text>
+                    <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.n, textAlign: isRTL ? 'right' : 'left' }}>{v.n}</LocalizedText>
+                    <LocalizedText style={{ fontSize: 11, color: colors.t3, textAlign: isRTL ? 'right' : 'left', marginTop: 2 }}>{v.desc}</LocalizedText>
                   </View>
                 </View>
               ))}
@@ -581,7 +652,7 @@ export default function Consultations() {
             <TouchableOpacity 
               style={{ backgroundColor: resolveColor('var(--p)'), width: '100%', paddingVertical: 16, borderRadius: 16, alignItems: 'center', marginTop: 12 }} onPress={() => setShowOnboarding(false)}
             >
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800' }}>{lang === 'ar' ? 'ابدأ الآن' : 'Start Now'}</Text>
+              <LocalizedText style={{ color: '#fff', fontSize: 16, fontWeight: '800' }}>{lang === 'ar' ? 'ابدأ الآن' : 'Start Now'}</LocalizedText>
             </TouchableOpacity>
           </View>
         </View>

@@ -39,8 +39,23 @@ export class BookingFlowService {
     consultation: 'consultation', doctor: 'consultation', appointment: 'consultation',
   };
 
+  private isAdmin(user: any): boolean {
+    return user?.role === 'admin' || user?.role === 'super_admin';
+  }
+
+  private isProvider(user: any): boolean {
+    return ['provider', 'pharmacy', 'lab', 'laboratory', 'radiology', 'nurse', 'nursing', 'hospital', 'doctor'].includes(String(user?.role || '').toLowerCase())
+      || ['pharmacy', 'lab', 'laboratory', 'radiology', 'nursing', 'hospital', 'doctor'].includes(String(user?.provider_type || user?.providerType || '').toLowerCase());
+  }
+
+  private providerOwnership(user: any): any[] {
+    return [{ provider_account_id: user.id }, { provider_id: user.id }, { doctor_user_id: user.id }, { pharmacy_id: user.id }];
+  }
+
   private async fetchEntity(kind: ServiceDomain, id: string, user: any) {
-    const ownership = user?.role === 'admin' ? {} : { patient_id: user.id };
+    const ownership = this.isAdmin(user) ? {} : user?.role === 'patient'
+      ? { patient_id: user.id }
+      : this.isProvider(user) ? { $or: this.providerOwnership(user) } : { patient_id: user.id };
     if (kind === 'pharmacy') return this.orders.findOne({ id, ...ownership }, { _id: 0, __v: 0 }).lean();
     if (kind === 'lab') return this.labs.findOne({ id, ...ownership }, { _id: 0, __v: 0 }).lean();
     if (kind === 'radiology') return this.rads.findOne({ id, ...ownership }, { _id: 0, __v: 0 }).lean();
@@ -186,7 +201,7 @@ export class BookingFlowService {
 
   /** Admin force-resolve (cancel with admin reason + audit). */
   async resolve(user: any, type: string, id: string, body: { resolution: 'force_complete' | 'force_cancel'; reason?: string }) {
-    if (user.role !== 'admin') throw new BadRequestException('admin_only');
+    if (!this.isAdmin(user)) throw new BadRequestException('admin_only');
     const kind = this.kindAliases[type];
     if (!kind) throw new BadRequestException('invalid_type');
     const entity = await this.fetchEntity(kind, id, user);

@@ -42,6 +42,12 @@ export class LoyaltyController {
     return this.loyaltyService.getActiveChallenges(req.user?.id ?? 'guest');
   }
 
+  /** POST /api/v1/loyalty/challenges/:id/join — Persisted opt-in to a challenge */
+  @Post('challenges/:id/join')
+  joinChallenge(@Req() req: any, @Param('id') id: string) {
+    return this.loyaltyService.joinChallenge(req.user?.id, id);
+  }
+
   /** GET /api/v1/loyalty/rewards — Available rewards catalog */
   @Get('rewards')
   listRewards() {

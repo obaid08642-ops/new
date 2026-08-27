@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
+import { getModelToken, getConnectionToken } from '@nestjs/mongoose';
 import { OrdersService } from './orders.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DispatchService } from './dispatch.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
+import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Order, PharmacyBid } from '../../schemas/order.schema';
 import { Medicine } from '../../schemas/medicine.schema';
@@ -41,6 +42,12 @@ describe('OrdersService', () => {
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: DispatchService, useValue: mockDispatchService },
         { provide: WorkflowEngineService, useValue: mockWorkflowEngine },
+        // EPIC1-era dependencies the spec never mocked (finance engine):
+        { provide: getConnectionToken(), useValue: { db: { collection: jest.fn() } } },
+        { provide: CouponService, useValue: { validate: jest.fn(), redeem: jest.fn() } },
+        { provide: LoyaltyRedeemService, useValue: { quote: jest.fn(), redeem: jest.fn(), refund: jest.fn() } },
+        { provide: RefundExecutor, useValue: { execute: jest.fn() } },
+        { provide: CancellationPolicy, useValue: { evaluate: jest.fn() } },
       ],
     }).compile();
 
@@ -49,6 +56,37 @@ describe('OrdersService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('order ownership / BOLA', () => {
+    const order = { id: 'order-1', patient_id: 'patient-1', pharmacy_id: 'pharmacy-1', state: 'CREATED', delivery_fee: 0, payment_status: 'pending' };
+
+    it('rejects a foreign patient from reading an order', async () => {
+      mockModel.findOne.mockResolvedValueOnce(order);
+      await expect(service.getById('order-1', { id: 'patient-2', role: 'patient' })).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
+    });
+
+    it('allows the owning patient to read an order', async () => {
+      mockModel.findOne.mockResolvedValueOnce(order);
+      await expect(service.getById('order-1', { id: 'patient-1', role: 'patient' })).resolves.toEqual(order);
+    });
+
+    it('rejects a foreign patient before cancellation policy or financial side effects', async () => {
+      mockModel.findOne.mockResolvedValueOnce(order);
+      await expect(service.cancel('order-1', { id: 'patient-2', role: 'patient' }, 'foreign-test')).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
+    });
+
+    it('rejects a foreign patient from downloading the PDF report', async () => {
+      mockModel.findOne.mockResolvedValueOnce(order);
+      await expect(service.generatePdf('order-1', { id: 'patient-2', role: 'patient' })).rejects.toMatchObject({ status: 404, response: { message: 'order_not_found' } });
+    });
+
+    it('generates a PDF Buffer for the owning patient', async () => {
+      mockModel.findOne.mockResolvedValueOnce({ ...order, results: [] });
+      const pdf = await service.generatePdf('order-1', { id: 'patient-1', role: 'patient' });
+      expect(Buffer.isBuffer(pdf)).toBe(true);
+      expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+    });
   });
 
   describe('placeBid', () => {

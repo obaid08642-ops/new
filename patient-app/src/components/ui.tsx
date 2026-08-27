@@ -2,17 +2,9 @@
 // مكتبة عناصر واجهة موحّدة — Premium reusable components (RTL-first)
 import React from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  ViewStyle,
-  TextStyle,
-  StyleProp,
-  Image
+  View, Text, TouchableOpacity, TextInput, StyleSheet,
+  ActivityIndicator, ViewStyle, TextStyle, StyleProp, Image,
 } from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors, useApp } from '../context/AppContext';
 import { autoTranslate } from '../i18n';
@@ -100,6 +92,7 @@ export function Button({
 }: ButtonProps) {
   const { colors, lang } = useApp();
   const translatedLabel = autoTranslate(label, lang);
+  const isRtlLang = lang === 'ar' || lang === 'ur';
   const heights: Record<BtnSize, number> = { sm: 40, md: 50, lg: 56 };
   const fontSizes: Record<BtnSize, number> = { sm: 13, md: 15, lg: 17 };
   const radius = 16;
@@ -122,7 +115,7 @@ export function Button({
   };
 
   const content = (
-    <View style={btn.row}>
+    <View style={[btn.row, { flexDirection: isRtlLang ? 'row-reverse' : 'row' }]}>
       {loading ? (
         <ActivityIndicator color={fg[variant]} size="small" />
       ) : (
@@ -153,7 +146,7 @@ export function Button({
       ? [colors.primary, colors.primaryDark || colors.primary] 
       : [colors.primary, colors.secondary]) as [string, string];
     return (
-      <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.85} style={[{ width: full ? '100%' : undefined }, style]}>
+      <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.88} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} style={[{ width: full ? '100%' : undefined }, style]} accessibilityRole="button" accessibilityLabel={typeof translatedLabel === 'string' ? translatedLabel : undefined} accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}>
         <LinearGradient colors={gradientColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={base}>
           {content}
         </LinearGradient>
@@ -162,7 +155,7 @@ export function Button({
   }
 
   return (
-    <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.85} style={[base, style]}>
+    <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.88} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} style={[base, style]} accessibilityRole="button" accessibilityLabel={typeof translatedLabel === 'string' ? translatedLabel : undefined} accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}>
       {content}
     </TouchableOpacity>
   );
@@ -196,7 +189,7 @@ export function Card({ children, style, onPress, padding = 16, elevated = true }
   };
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={[cardStyle, style]}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9} hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }} accessibilityRole="button" style={[cardStyle, style]}>
         {children}
       </TouchableOpacity>
     );
@@ -373,23 +366,25 @@ export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) 
             </LinearGradient>
             <View style={styles_dc.docInfo}>
               <AppText variant="h5" style={{ fontWeight: '800' }}>{doctor.name}</AppText>
-              <Badge label={doctor.deg} color={colors.primary} />
-              <AppText variant="bodyXS" color={colors.textSecondary}>{doctor.spec}</AppText>
-              <View style={styles_dc.ratingRow}>
-                <Icon name="star" size={12} color={colors.gold} />
-                <AppText variant="labelSM" color={colors.gold}>{doctor.rating}</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>({doctor.reviews})</AppText>
-              </View>
+              {!!doctor.deg && <Badge label={doctor.deg} color={colors.primary} />}
+              {!!doctor.spec && <AppText variant="bodyXS" color={colors.textSecondary}>{doctor.spec}</AppText>}
+              {doctor.rating != null && (
+                <View style={styles_dc.ratingRow}>
+                  <Icon name="star" size={12} color={colors.gold} />
+                  <AppText variant="labelSM" color={colors.gold}>{doctor.rating}</AppText>
+                  {doctor.reviews != null && <AppText variant="caption" color={colors.textTertiary}>({doctor.reviews})</AppText>}
+                </View>
+              )}
             </View>
           </View>
           
           <View style={[styles_dc.meta, { borderColor: colors.borderLight }]}>
             <View style={styles_dc.metaItem}>
-              <AppText variant="labelSM" color={colors.textPrimary}>{doctor.exp} سنة</AppText>
+              <AppText variant="labelSM" color={colors.textPrimary}>{doctor.exp != null ? `${doctor.exp} سنة` : '—'}</AppText>
               <AppText variant="caption" color={colors.textTertiary}>خبرة</AppText>
             </View>
             <View style={styles_dc.metaItem}>
-              <AppText variant="labelSM" color={colors.secondary}>{doctor.wait}</AppText>
+              <AppText variant="labelSM" color={colors.secondary}>{doctor.wait || '—'}</AppText>
               <AppText variant="caption" color={colors.textTertiary}>انتظار</AppText>
             </View>
             <View style={styles_dc.metaItem}>
@@ -397,25 +392,34 @@ export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) 
                 {doctor.online && <View style={[styles_dc.modeChip, { backgroundColor: colors.primarySurface }]}><Icon name="video" size={11} color={colors.primary} /></View>}
                 {doctor.clinic && <View style={[styles_dc.modeChip, { backgroundColor: colors.primarySurface }]}><Icon name="hospital" size={11} color={colors.primary} /></View>}
                 {doctor.home && <View style={[styles_dc.modeChip, { backgroundColor: colors.primarySurface }]}><Icon name="home" size={11} color={colors.primary} /></View>}
+                {!doctor.online && !doctor.clinic && !doctor.home && <AppText variant="caption" color={colors.textTertiary}>—</AppText>}
               </View>
               <AppText variant="caption" color={colors.textTertiary}>الزيارة</AppText>
             </View>
           </View>
           
-          <View style={styles_dc.footerRow}>
-            {doctor.ins && <Badge label="تأمين" color={colors.success} icon="shield" />}
-            <Icon name="location" size={12} color={colors.textTertiary} />
-            <AppText variant="caption" color={colors.textTertiary} numberOfLines={1} style={{ flex: 1 }}>{doctor.hospital}</AppText>
-          </View>
+          {(!!doctor.hospital || doctor.ins) && (
+            <View style={styles_dc.footerRow}>
+              {doctor.ins && <Badge label="تأمين" color={colors.success} icon="shield" />}
+              {!!doctor.hospital && (
+                <>
+                  <Icon name="location" size={12} color={colors.textTertiary} />
+                  <AppText variant="caption" color={colors.textTertiary} numberOfLines={1} style={{ flex: 1 }}>{doctor.hospital}</AppText>
+                </>
+              )}
+            </View>
+          )}
         </View>
         
         <View style={[styles_dc.bottomBar, { backgroundColor: colors.primary }]}>
           <View style={{ alignItems: 'flex-start', gap: 2 }}>
-            <AppText variant="labelSM" color="#fff" style={{ fontWeight: '800' }}>{doctor.rating} ({doctor.reviews})</AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.85)" style={{ fontWeight: '400' }}>{doctor.slot}</AppText>
+            {doctor.rating != null && (
+              <AppText variant="labelSM" color="#fff" style={{ fontWeight:'800' }}> {doctor.rating}{doctor.reviews != null ? ` (${doctor.reviews})` : ''}</AppText>
+            )}
+            {!!doctor.slot && <AppText variant="caption" color="rgba(255,255,255,0.85)" style={{ fontWeight:'400' }}> {doctor.slot}</AppText>}
           </View>
           <TouchableOpacity onPress={onBook} activeOpacity={0.8} style={[styles_dc.bookBtn, { backgroundColor: colors.surface }]}>
-            <AppText variant="labelSM" color={colors.primary} style={{ fontWeight: '800' }}>احجز {doctor.price} ر.س</AppText>
+            <AppText variant="labelSM" color={colors.primary} style={{ fontWeight: '800' }}>{doctor.price != null ? `احجز ${doctor.price} ر.س` : 'احجز الآن'}</AppText>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -619,12 +623,21 @@ export function SectionHeader({ title, actionLabel, onAction }: { title: string;
 }
 
 /* ----------------------------- Icon button ----------------------------- */
-export function IconButton({ icon, onPress, size = 40, bg, color }: { icon: IconName; onPress?: () => void; size?: number; bg?: string; color?: string }) {
+const ICON_A11Y_AR: Partial<Record<IconName, string>> = {
+  back: 'رجوع', close: 'إغلاق', search: 'بحث', bell: 'الإشعارات', settings: 'الإعدادات',
+  filter: 'تصفية', share: 'مشاركة', favorite: 'المفضلة', cart: 'السلة', chat: 'محادثة',
+  mic: 'إدخال صوتي', send: 'إرسال', add: 'إضافة', edit: 'تعديل', delete: 'حذف',
+  location: 'الموقع', calendar: 'التقويم', camera: 'الكاميرا', phone: 'اتصال', video: 'مكالمة فيديو',
+};
+
+export function IconButton({ icon, onPress, size = 40, bg, color, accessibilityLabel }: { icon: IconName; onPress?: () => void; size?: number; bg?: string; color?: string; accessibilityLabel?: string }) {
   const colors = useThemeColors();
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? ICON_A11Y_AR[icon] ?? icon}
       style={{ width: size, height: size, borderRadius: size * 0.32, backgroundColor: bg ?? colors.surfaceSecondary, alignItems: 'center', justifyContent: 'center' }}
     >
       <Icon name={icon} size={size * 0.5} color={color ?? colors.textPrimary} />

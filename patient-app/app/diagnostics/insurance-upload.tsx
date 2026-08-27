@@ -1,23 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-  TextInput,
-  Image,
-  ActivityIndicator,
-  Platform,
-  StatusBar,
-  KeyboardAvoidingView,
-  Modal,
-  I18nManager,
-  Dimensions
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '../../src/components/ui';
 import { useApp } from '../../src/context/AppContext';
@@ -26,8 +9,9 @@ import { useRouter, Stack } from 'expo-router';
 import Animated, { FadeInDown, SlideInUp, ZoomIn, FadeIn } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import * as ImagePicker from 'expo-image-picker';
-import { INSURANCE_COMPANIES_FULL, COVERAGE_CLASSES } from '../../src/constants/insurance';
 import { apiFetch } from '../../src/utils/api';
+import { pickLocalized } from '../../src/utils/localize';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -45,12 +29,17 @@ export default function InsuranceUpload() {
   const [uploadedImg, setUploadedImg] = useState<string | null>(null);
   
   // Auto-fill from Auth Profile
-  const [selCompany, setSelCompany] = useState<string>('1'); // Bupa
-  const [selClass, setSelClass] = useState<string>('b'); // Class B
+  const [selCompany, setSelCompany] = useState<string>('');
+  const [selClass, setSelClass] = useState<string>('');
   
   const [visitType, setVisitType] = useState<'clinic' | 'home'>('clinic');
   const [selLab, setSelLab] = useState<string | null>(null);
   const [nearbyLabs, setNearbyLabs] = useState<any[]>([]);
+  const [ocrItems, setOcrItems] = useState<string[] | null>(null);
+  const [ocrFailed, setOcrFailed] = useState(false);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [networks, setNetworks] = useState<any[]>([]);
+  const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
 
   React.useEffect(() => {
     const fetchLabs = async () => {
@@ -61,11 +50,36 @@ export default function InsuranceUpload() {
         console.log('Error fetching labs', e);
       }
     };
+    const fetchCompanies = async () => {
+      try {
+        const res = await apiFetch('/insurance/companies');
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setCompanies(list);
+        setInsuranceCatalogUnavailable(list.length === 0);
+      } catch (e) {
+        console.log('Error fetching insurance companies', e);
+        setCompanies([]);
+        setInsuranceCatalogUnavailable(true);
+      }
+    };
     fetchLabs();
+    fetchCompanies();
   }, []);
 
-  const activeCompany = INSURANCE_COMPANIES_FULL.find(c => c.id === selCompany);
-  const activeClass = COVERAGE_CLASSES.find(c => c.id === selClass);
+  React.useEffect(() => {
+    if (!selCompany) { setNetworks([]); return; }
+    (async () => {
+      try {
+        const res = await apiFetch(`/insurance/companies/${selCompany}/networks`);
+        setNetworks(Array.isArray(res) ? res : res?.data || []);
+      } catch {
+        setNetworks([]);
+      }
+    })();
+  }, [selCompany]);
+
+  const activeCompany = companies.find(c => c.id === selCompany || c.code === selCompany);
+  const activeClass = networks.find(c => c.id === selClass || c.code === selClass);
 
   const handlePick = async (source: 'camera' | 'gallery') => {
     setShowBottomSheet(false);
@@ -74,35 +88,58 @@ export default function InsuranceUpload() {
     if (source === 'camera') {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('عذراً', 'نحتاج إلى صلاحية الوصول للكاميرا.');
+        showLocalizedAlert('عذراً', 'نحتاج إلى صلاحية الوصول للكاميرا.');
         return;
       }
       result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'] as any,
         allowsEditing: true,
         quality: 0.8,
+        base64: true,
       });
     } else {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('عذراً', 'نحتاج إلى صلاحية الوصول لمعرض الصور.');
+        showLocalizedAlert('عذراً', 'نحتاج إلى صلاحية الوصول لمعرض الصور.');
         return;
       }
       result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'] as any,
         allowsEditing: true,
         quality: 0.8,
+        base64: true,
       });
     }
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setUploadedImg(result.assets[0].uri);
+      const asset = result.assets[0];
+      setUploadedImg(asset.uri);
       setStep(2);
-      
-      // Simulate backend AI Processing
-      setTimeout(() => {
+
+      // EPIC4/S21: REAL OCR via the AI gateway — the old code faked a 3s
+      // "AI processing" then displayed hardcoded tests (CBC, Vitamin D).
+      setOcrItems(null);
+      setOcrFailed(false);
+      try {
+        const res = await apiFetch('/ai/ocr-translate', {
+          method: 'POST',
+          body: JSON.stringify({ image_base64: asset.base64 || '', target_lang: 'ar' }),
+        });
+        const items = Array.isArray(res?.items) ? res.items : [];
+        const names = items
+          .map((it: any) => it?.raw_name_string)
+          .filter((s: any) => typeof s === 'string' && s.trim().length > 0);
+        if (names.length > 0) {
+          setOcrItems(names);
+        } else {
+          setOcrFailed(true);
+        }
+      } catch (e) {
+        console.error(e);
+        setOcrFailed(true);
+      } finally {
         setStep(3);
-      }, 3000);
+      }
     }
   };
 
@@ -172,7 +209,7 @@ export default function InsuranceUpload() {
             {/* AI Results */}
             <View style={styles.section}>
               <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <AppText variant="h3" color={colors.textPrimary}>الفحوصات المستخرجة</AppText>
+                <AppText variant="h3" color={colors.textPrimary}>نتيجة قراءة الوصفة</AppText>
                 <TouchableOpacity onPress={() => setStep(1)}>
                   <AppText style={{ color: colors.primary, fontSize: 14 }}>إعادة الرفع</AppText>
                 </TouchableOpacity>
@@ -188,8 +225,26 @@ export default function InsuranceUpload() {
                   </View>
                 </View>
                 <View style={{ height: 1, backgroundColor: colors.border, marginBottom: 12 }}/>
-                <View style={styles.extractedItem}><Icon name="check-circle" size={18} color="#4CAF50" /><AppText style={{ fontWeight: 'bold', marginLeft: 8 }}>صورة دم كاملة (CBC)</AppText></View>
-                <View style={styles.extractedItem}><Icon name="check-circle" size={18} color="#4CAF50" /><AppText style={{ fontWeight: 'bold', marginLeft: 8 }}>تحليل فيتامين د (Vitamin D)</AppText></View>
+                {Array.isArray(ocrItems) && ocrItems.length > 0 ? (
+                  <>
+                    <AppText style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 8, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>
+                      قرأنا من الصورة (تحقق قبل الإرسال):
+                    </AppText>
+                    {ocrItems.map((name, i) => (
+                      <View key={i} style={styles.extractedItem}>
+                        <Icon name="check-circle" size={18} color="#4CAF50" />
+                        <AppText style={{ fontWeight: 'bold', marginLeft: 8 }}>{name}</AppText>
+                      </View>
+                    ))}
+                  </>
+                ) : (
+                  <View style={styles.extractedItem}>
+                    <Icon name="information" size={18} color={colors.textSecondary} />
+                    <AppText style={{ color: colors.textSecondary, marginLeft: 8, flex: 1, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>
+                      تعذر استخراج الفحوصات تلقائياً من الصورة — سيقوم المختبر بقراءة الوصفة ومطابقتها مع تأمينك يدوياً.
+                    </AppText>
+                  </View>
+                )}
               </View>
             </View>
 
@@ -204,7 +259,7 @@ export default function InsuranceUpload() {
               >
                 <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center' }}>
                   <Icon name="shield-check" size={24} color={colors.primary} style={{ marginRight: I18nManager.isRTL ? 0 : 8, marginLeft: I18nManager.isRTL ? 8 : 0 }}/>
-                  <AppText style={{ fontSize: 15, fontWeight: 'bold', color: colors.textPrimary }}>{activeCompany?.name} - {activeClass?.nameAr}</AppText>
+                  <AppText style={{ fontSize: 15, fontWeight: 'bold', color: colors.textPrimary }}>{activeCompany ? `${pickLocalized(activeCompany?.name_ar, activeCompany?.name)}${activeClass ? ` - ${activeClass.name_ar || activeClass.name || activeClass.code}` : ''}` : 'اختر شركة التأمين والشبكة'}</AppText>
                 </View>
                 <AppText style={{ fontSize: 12, color: colors.primary }}>تغيير</AppText>
               </TouchableOpacity>
@@ -212,14 +267,23 @@ export default function InsuranceUpload() {
               {showInsPicker && (
                 <View style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 16, marginTop: 8, padding: 12 }}>
                   <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled={true}>
-                    {INSURANCE_COMPANIES_FULL.slice(0, 10).map(c => (
-                      <TouchableOpacity 
-                        key={c.id} 
-                        style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border }} onPress={() => { setSelCompany(c.id); setSelClass('b'); setShowInsPicker(false); }}
+                    {companies.map(c => (
+                      <TouchableOpacity
+                        key={c.id || c.code}
+                        style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border }} onPress={() => { setSelCompany(c.id || c.code); setSelClass(''); }}
                       >
-                        <AppText style={{ color: selCompany === c.id ? colors.primary : colors.textPrimary }}>{c.name}</AppText>
+                        <AppText style={{ color: selCompany === (c.id || c.code) ? colors.primary : colors.textPrimary }}>{pickLocalized(c.name_ar, c.name)}</AppText>
                       </TouchableOpacity>
                     ))}
+                    {selCompany !== '' && networks.map(network => (
+                      <TouchableOpacity
+                        key={network.id || network.code}
+                        style={{ paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: colors.border }} onPress={() => { setSelClass(network.id || network.code); setShowInsPicker(false); }}
+                      >
+                        <AppText style={{ color: selClass === (network.id || network.code) ? colors.primary : colors.textPrimary }}>— {network.name_ar || network.name || network.code}</AppText>
+                      </TouchableOpacity>
+                    ))}
+                    {insuranceCatalogUnavailable && <AppText style={{ color: colors.textSecondary, paddingVertical: 8 }}>كتالوج التأمين غير متاح حالياً. يرجى إعادة المحاولة لاحقاً.</AppText>}
                   </ScrollView>
                 </View>
               )}
@@ -302,7 +366,7 @@ export default function InsuranceUpload() {
                 });
               } catch (e) {
                 console.error(e);
-                Alert.alert('خطأ', 'حدث خطأ أثناء رفع الطلب');
+                showLocalizedAlert('خطأ', 'حدث خطأ أثناء رفع الطلب');
               }
             }}
           >

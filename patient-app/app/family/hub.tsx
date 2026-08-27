@@ -33,7 +33,7 @@ const QUICK: { icon: IconName; label: string; route: string; color: string }[] =
       color: "#16A34A",
     },
     {
-      icon: "qrScan",
+      icon: "qr-code-scanner",
       label: "الانضمام بكود",
       route: "/family/join",
       color: "#23B5CE",
@@ -51,12 +51,6 @@ const QUICK: { icon: IconName; label: string; route: string; color: string }[] =
       color: "#F0A526",
     },
     {
-      icon: "call",
-      label: "مكالمة صوتية",
-      route: "/family/voice-call",
-      color: "#10B981",
-    },
-    {
       icon: "emergency",
       label: "جهات الطوارئ",
       route: "/family/emergency-contacts",
@@ -70,7 +64,6 @@ export default function FamilyHubScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
 
-  const [group, setGroup] = useState<any>({ name: "عائلة أحمد" });
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,7 +159,7 @@ export default function FamilyHubScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/family/member-health",
-                    params: { memberId: m.user_id },
+                    params: { id: m.user_id, name: m.display_name || '', relation: m.relation || '' },
                   })
                 }
                 style={{
@@ -198,7 +191,7 @@ export default function FamilyHubScreen() {
                       onPress={() =>
                         router.push({
                           pathname: "/family/permissions",
-                          params: { memberId: m.user_id },
+                          params: { id: m.user_id, name: m.display_name || '', relation: m.relation || '' },
                         })
                       }
                     />

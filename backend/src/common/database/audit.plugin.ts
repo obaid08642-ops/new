@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Schema } from 'mongoose';
 
 export function AuditPlugin(schema: Schema, options?: any) {
@@ -13,7 +12,7 @@ export function AuditPlugin(schema: Schema, options?: any) {
   const types = ['find', 'findOne', 'findOneAndUpdate', 'count', 'countDocuments', 'updateMany'];
   
   types.forEach((type) => {
-    schema.pre(type as any, function(next) {
+    schema.pre(type as any, function(this: any, next: any) {
       // If the query doesn't explicitly ask for deleted docs, filter them out
       if (this.getQuery().is_deleted !== true) {
         this.where({ is_deleted: { $ne: true } });

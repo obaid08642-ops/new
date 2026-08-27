@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeInUp, SlideInDown } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../src/utils/api';
+import { normalizeLabService } from '../../src/utils/labMappers';
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ export default function PackageDetail() {
 
   useEffect(() => {
     apiFetch(`/labs/packages/${id}`)
-      .then(res => setPkg(res?.data || res))
+      .then(res => setPkg(normalizeLabService(res?.data || res)))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);
@@ -91,6 +92,19 @@ export default function PackageDetail() {
           </View>
         </Animated.View>
 
+        {(pkg.turnaround || pkg.homeVisit) && (
+        <Animated.View entering={FadeInUp.duration(400).delay(250)} style={{ marginTop: 24 }}>
+          {pkg.turnaround && (
+          <View style={[styles.infoRow, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
+            <AppText style={{ fontWeight: 'bold' }}>مدة ظهور النتيجة</AppText>
+            <AppText style={{ color: colors.textSecondary, fontWeight: 'bold' }}>{pkg.turnaround}</AppText>
+          </View>)}
+          <View style={[styles.infoRow, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
+            <AppText style={{ fontWeight: 'bold' }}>زيارة منزلية</AppText>
+            <AppText style={{ color: colors.textSecondary, fontWeight: 'bold' }}>{pkg.homeVisit ? 'متاحة' : 'غير متاحة'}</AppText>
+          </View>
+        </Animated.View>)}
+        {(pkg.testsList || []).length > 0 && (
         <Animated.View entering={FadeInUp.duration(400).delay(300)} style={{ marginTop: 24 }}>
           <AppText variant="h3" style={{ marginBottom: 16, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>التحاليل المشمولة</AppText>
           <View style={[styles.testsList, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
@@ -104,7 +118,7 @@ export default function PackageDetail() {
               );
             })}
           </View>
-        </Animated.View>
+        </Animated.View>)}
 
       </ScrollView>
 

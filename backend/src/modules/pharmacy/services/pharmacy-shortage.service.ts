@@ -13,6 +13,7 @@ import { DrugShortageFlagRepository } from "./repositories/drugshortageflag.repo
 import { DrugRejectionLogRepository } from "./repositories/drugrejectionlog.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
+import { isProviderRole } from '../../../common/enums';
 
 @Injectable()
 export class PharmacyShortageService {
@@ -28,7 +29,7 @@ export class PharmacyShortageService {
   }
 
   async reportByPharmacy(user: any, body: { sku?: string; generic_name?: string; name_ar?: string; dosage?: string; form?: string; reason?: string }): Promise<any> {
-    if (user?.role !== 'provider') throw new ForbiddenException();
+    if (!isProviderRole(user?.role)) throw new ForbiddenException();
     const flag = await this.flags.create({
       id: uuidv4(),
       sku: body.sku, generic_name: body.generic_name, name_ar: body.name_ar, dosage: body.dosage, form: body.form,

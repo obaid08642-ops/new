@@ -1,14 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-  FlatList
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { View, StyleSheet, StatusBar, TouchableOpacity, TextInput, FlatList, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
@@ -29,14 +21,16 @@ interface ChatMessage {
   };
 }
 
-const PHARMACIST = {
-  name: 'صيدلي أحمد العتيبي',
-  pharmacy: 'صيدلية الدواء',
+const PHARMACIST_DEFAULT = {
+  name: 'الصيدلية',
+  pharmacy: '—',
   status: 'متصل',
 };
 
 import { apiFetch } from '../../src/utils/api';
 import { useLocalSearchParams } from 'expo-router';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ChatWithPharmacistScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
@@ -48,12 +42,38 @@ export default function ChatWithPharmacistScreen() {
   const [sessionExpired, setSessionExpired] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
+  // M1-32: real chat contract — booking thread via /chat/threads/booking (was non-existent /chat/history)
+  const [threadId, setThreadId] = useState('');
+  const [pharmacist, setPharmacist] = useState(PHARMACIST_DEFAULT);
+
   useEffect(() => {
     (async () => {
+      if (!orderId) return;
+      // Real pharmacy identity from the order itself (no hardcoded name)
+      apiFetch(`/orders/${orderId}`)
+        .then((o: any) => {
+          const ord = o?.data || o;
+          if (ord?.pharmacy_name) setPharmacist({ name: ord.pharmacy_name, pharmacy: ord.pharmacy_name, status: 'متصل' });
+        })
+        .catch(() => {});
       try {
-        const data = await apiFetch(`/chat/history?orderId=${orderId || 'default'}`);
-        if (data && data.messages) {
-          setMessages(data.messages);
+        const threadRes: any = await apiFetch(`/chat/threads/booking`, {
+          method: 'POST',
+          body: JSON.stringify({ booking_id: orderId, booking_kind: 'pharmacy' }),
+        });
+        const thread = threadRes?.data || threadRes;
+        const tid = thread?.id || thread?.thread_id;
+        if (!tid) return;
+        setThreadId(tid);
+        const data: any = await apiFetch(`/chat/threads/${tid}/messages`);
+        const list = data?.data || data;
+        if (Array.isArray(list)) {
+          setMessages(list.map((m: any) => ({
+            id: m.id || m._id,
+            text: m.content || m.text,
+            sender: m.sender_role === 'pharmacist' ? 'pharmacist' : 'me',
+            time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '',
+          })));
         }
       } catch (err) {}
     })();
@@ -99,13 +119,69 @@ export default function ChatWithPharmacistScreen() {
     };
     setMessages(prev => [...prev, newMsg]);
     setMsg('');
+    // M1-32: persist the message to the real thread — mark failed honestly on error
+    if (threadId) {
+      apiFetch(`/chat/threads/${threadId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ content: newMsg.text }),
+      }).catch(() => {
+        setMessages(prev => prev.map(m => m.id === newMsg.id ? { ...m, failed: true } : m));
+        showLocalizedAlert('تعذّر الإرسال', 'فشل إرسال الرسالة — تحقق من الاتصال وحاول مرة أخرى');
+      });
+    }
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
   };
 
+  const [attaching, setAttaching] = useState(false);
+  const sendAttachment = async (source: 'camera' | 'library') => {
+    if (!threadId || attaching) return;
+    try {
+      const ImagePicker = await import('expo-image-picker');
+      let result: any;
+      if (source === 'camera') {
+        const perm = await ImagePicker.requestCameraPermissionsAsync();
+        if (!perm.granted) { showLocalizedAlert('الصلاحية مطلوبة', 'نحتاج إذن الكاميرا لالتقاط صورة'); return; }
+        result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+      } else {
+        const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!perm.granted) { showLocalizedAlert('الصلاحية مطلوبة', 'نحتاج إذن الوصول للصور'); return; }
+        result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      }
+      if (result.canceled || !result.assets?.[0]) return;
+      setAttaching(true);
+      const asset = result.assets[0];
+      const formData = new FormData();
+      formData.append('file', {
+        uri: asset.uri,
+        name: asset.fileName || 'photo.jpg',
+        type: asset.mimeType || 'image/jpeg',
+      } as any);
+      formData.append('folder', 'chats');
+      formData.append('thread_id', threadId);
+      const up = await apiFetch<any>('/media/upload', { method: 'POST', body: formData });
+      const url = up?.url || up?.data?.url;
+      if (url) {
+        const imgMsg: ChatMessage = { id: String(Date.now()), text: url, sender: 'patient', time: 'الآن', type: 'image' };
+        setMessages(prev => [...prev, imgMsg]);
+        await apiFetch(`/chat/threads/${threadId}/messages`, {
+          method: 'POST',
+          body: JSON.stringify({ content: url, type: 'image' }),
+        }).catch(() => {
+          setMessages(prev => prev.map(m => m.id === imgMsg.id ? { ...m, failed: true } : m));
+          showLocalizedAlert('تعذّر الإرسال', 'فشل إرسال الصورة');
+        });
+      }
+    } catch (err: any) {
+      showLocalizedAlert('تعذّر الإرفاق', err?.message || 'فشل رفع الصورة');
+    } finally {
+      setAttaching(false);
+    }
+  };
+
   const handleConfirmOrder = () => {
-    Alert.alert(
+    showLocalizedAlert(
       'تأكيد الطلب',
       'هل تريد تأكيد الطلب وإضافة الأدوية إلى سلة المشتريات؟',
       [
@@ -159,7 +235,7 @@ export default function ChatWithPharmacistScreen() {
       <View style={{ gap: 8, marginHorizontal: 12, marginBottom: 12 }}>
         <TouchableOpacity
           onPress={() => {
-            Alert.alert('قبول البدائل', 'تم إرسال طلب قبول الأدوية البديلة المقترحة بنجاح.');
+            showLocalizedAlert('قبول البدائل', 'تم إرسال طلب قبول الأدوية البديلة المقترحة بنجاح.');
           }}
           style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderWidth: 1, borderColor: colors.primary, borderRadius: 10 }}
         >
@@ -169,7 +245,7 @@ export default function ChatWithPharmacistScreen() {
 
         <TouchableOpacity
           onPress={() => {
-            Alert.alert('حذف الأدوية غير المتوفرة', 'تم تحديث سلة الشراء وحذف الأصناف غير المتوفرة.');
+            showLocalizedAlert('حذف الأدوية غير المتوفرة', 'تم تحديث سلة الشراء وحذف الأصناف غير المتوفرة.');
           }}
           style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderWidth: 1, borderColor: colors.error, borderRadius: 10 }}
         >
@@ -179,7 +255,7 @@ export default function ChatWithPharmacistScreen() {
 
         <TouchableOpacity
           onPress={() => {
-            Alert.alert('إلغاء الطلب', 'تم إلغاء الطلب الحالي.');
+            showLocalizedAlert('إلغاء الطلب', 'تم إلغاء الطلب الحالي.');
             router.back();
           }}
           style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, backgroundColor: colors.surfaceSecondary, borderRadius: 10 }}
@@ -253,11 +329,11 @@ export default function ChatWithPharmacistScreen() {
           <AppText variant="labelSM" color={timerColor}>{formatTime(remainingSeconds)}</AppText>
         </View>
         <View style={styles.headerCenter}>
-          <AppText variant="h5">{PHARMACIST.name}</AppText>
+          <AppText variant="h5">{pharmacist.name}</AppText>
           <View style={styles.pharmacyRow}>
             <View style={[styles.onlineDot, { backgroundColor: sessionExpired ? colors.textTertiary : colors.success }]} />
             <AppText variant="caption" color={sessionExpired ? colors.textTertiary : colors.success}>
-              {sessionExpired ? 'غير متصل' : PHARMACIST.pharmacy}
+              {sessionExpired ? "غير متصل" : pharmacist.pharmacy}
             </AppText>
           </View>
         </View>
@@ -317,11 +393,11 @@ export default function ChatWithPharmacistScreen() {
                   color: colors.textPrimary,
                 },
               ]} />
-            <TouchableOpacity>
-              <Icon name="camera" size={22} color={colors.textTertiary} />
+            <TouchableOpacity onPress={() => sendAttachment('camera')} disabled={attaching}>
+              <Icon name="camera" size={22} color={attaching ? colors.textDisabled : colors.textTertiary} />
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Icon name="attach" size={22} color={colors.textTertiary} />
+            <TouchableOpacity onPress={() => sendAttachment('library')} disabled={attaching}>
+              <Icon name="attach" size={22} color={attaching ? colors.textDisabled : colors.textTertiary} />
             </TouchableOpacity>
           </>
         )}

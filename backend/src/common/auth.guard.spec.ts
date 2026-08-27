@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from './auth.guard';
+import { JwtAuthGuard, getEffectiveRoles, normalizeEffectiveRole } from './auth.guard';
 import { UnauthorizedException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -30,17 +30,19 @@ describe('JwtAuthGuard', () => {
 
     connection = {
       model: jest.fn().mockReturnValue(mockModel),
+      collection: jest.fn().mockReturnValue({ findOne: jest.fn() }),
     } as any;
 
     guard = new JwtAuthGuard(jwtService, reflector, connection);
   });
 
-  const createMockContext = (headers: Record<string, string>, params: any = {}, body: any = {}, query: any = {}): any => {
+  const createMockContext = (headers: Record<string, string>, params: any = {}, body: any = {}, query: any = {}, path = '/api/v1/private'): any => {
     const req = {
       headers,
       params,
       query,
       body,
+      path,
       socket: { remoteAddress: '127.0.0.1' },
     };
     return {
@@ -103,33 +105,67 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
   });
 
-  it('should perform admin impersonation and substitution with logging', async () => {
+  it('fails closed for the legacy header-based impersonation path', async () => {
     reflector.getAllAndOverride.mockReturnValue(null);
     jwtService.verifyAsync.mockResolvedValue({ id: 'admin1', role: UserRole.ADMIN, email: 'admin@nabdah.com' });
-    
-    // Mock user model to return target user
-    mockModel.lean.mockResolvedValue({
-      id: 'patient1',
-      role: UserRole.PATIENT,
-      email: 'patient@nabdah.com',
-      phone: '966500000000',
-      full_name: 'Patient User',
-      permissions: [],
-    });
 
     const ctx = createMockContext({
       authorization: 'Bearer token',
       'x-impersonate-user-id': 'patient1',
     });
 
-    const result = await guard.canActivate(ctx);
-    expect(result).toBe(true);
-
+    await expect(guard.canActivate(ctx)).rejects.toThrow('impersonation_session_required');
     const req = ctx.switchToHttp().getRequest();
-    expect(req.impersonator.id).toBe('admin1');
-    expect(req.user.id).toBe('patient1');
-    expect(req.user.role).toBe(UserRole.PATIENT);
-    expect(connection.model).toHaveBeenCalledWith('AuditLog');
-    expect(mockModel.create).toHaveBeenCalled();
+    expect(req.user).toEqual({ id: 'admin1', role: UserRole.ADMIN, email: 'admin@nabdah.com' });
+    expect(connection.model).not.toHaveBeenCalled();
+  });
+
+  it('blocks pending provider operations but permits only owned onboarding paths', async () => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider', provider_type: 'pharmacy' });
+    const providerCollection: any = { findOne: jest.fn().mockResolvedValue({ status: 'pending_admin_approval' }) };
+    (connection.collection as jest.Mock).mockReturnValue(providerCollection);
+
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider/jobs/queue'))).rejects.toThrow('provider_approval_required');
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider-onboarding/progress'))).resolves.toBe(true);
+  });
+
+  it('allows an approved provider through the central KYC gate', async () => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status: 'approved' }) });
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider/jobs/queue'))).resolves.toBe(true);
+  });
+});
+
+
+describe('effective provider roles (FIX2)', () => {
+  it('normalizes laboratory to lab', () => {
+    expect(normalizeEffectiveRole('laboratory')).toBe(UserRole.LAB);
+  });
+
+  it('keeps the canonical lab role stable', () => {
+    expect(normalizeEffectiveRole('lab')).toBe(UserRole.LAB);
+  });
+
+  it('matches provider role plus laboratory provider_type', () => {
+    expect(getEffectiveRoles({ role: 'provider', provider_type: 'laboratory' })).toEqual(['provider', UserRole.LAB]);
+  });
+
+  it('normalizes radiology aliases', () => {
+    expect(getEffectiveRoles({ role: 'provider', provider_type: 'radiology' })).toEqual(['provider', UserRole.RADIOLOGY]);
+  });
+
+  it('normalizes nursing aliases', () => {
+    expect(getEffectiveRoles({ role: 'provider', provider_type: 'nursing' })).toEqual(['provider', UserRole.NURSING]);
+  });
+
+  it('normalizes hospital and pharmacy provider types', () => {
+    expect(getEffectiveRoles({ role: 'provider', provider_type: 'hospital' })).toContain(UserRole.HOSPITAL);
+    expect(getEffectiveRoles({ role: 'provider', provider_type: 'pharmacy' })).toContain(UserRole.PHARMACY);
+  });
+
+  it('deduplicates role and provider_type when both are canonical', () => {
+    expect(getEffectiveRoles({ role: 'lab', provider_type: 'laboratory' })).toEqual([UserRole.LAB]);
   });
 });

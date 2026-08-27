@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { UsersAddressesController } from './users.addresses.controller';
 import { UsersInsuranceController } from './users.insurance.controller';
+import { UserInsuranceController } from './user.insurance.controller';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
@@ -20,7 +21,7 @@ import { DataRetentionService } from './data-retention.service';
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
     ]),
   ],
-  controllers: [UsersController, UsersAddressesController, UsersInsuranceController],
+  controllers: [UsersController, UsersAddressesController, UsersInsuranceController, UserInsuranceController],
   providers: [
     UsersService,
     { provide: 'UserRepository', useClass: UserRepository },

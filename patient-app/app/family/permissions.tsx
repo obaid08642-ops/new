@@ -6,9 +6,9 @@ import {
   ScrollView,
   StatusBar,
   Switch,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -22,6 +22,7 @@ import {
   Avatar,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 interface Permission {
   key: string;
@@ -37,21 +38,21 @@ const INITIAL_PERMS: Permission[] = [
     label: "مشاهدة المؤشرات الحيوية",
     desc: "الضغط والسكر والوزن",
     icon: "pulse",
-    enabled: true,
+    enabled: false,
   },
   {
     key: "meds",
     label: "مشاهدة الأدوية",
     desc: "قائمة الأدوية والتذكيرات",
     icon: "medication",
-    enabled: true,
+    enabled: false,
   },
   {
     key: "reports",
     label: "مشاهدة التقارير",
     desc: "نتائج التحاليل والأشعة",
     icon: "fileDocument",
-    enabled: true,
+    enabled: false,
   },
   {
     key: "appointments",
@@ -64,7 +65,7 @@ const INITIAL_PERMS: Permission[] = [
     key: "booking",
     label: "الحجز نيابةً",
     desc: "حجز مواعيد واستشارات",
-    icon: "calendarCheck",
+    icon: "calendar-check",
     enabled: false,
   },
   {
@@ -93,7 +94,7 @@ const INITIAL_PERMS: Permission[] = [
     label: "إشعارات الطوارئ",
     desc: "استلام تنبيه عند طلب SOS",
     icon: "emergency",
-    enabled: true,
+    enabled: false,
   },
 ];
 
@@ -107,13 +108,25 @@ export default function FamilyPermissionsScreen() {
   const memberRelation = (params.relation as string) || "قريب";
 
   const [perms, setPerms] = useState<Permission[]>(INITIAL_PERMS);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notified, setNotified] = useState(false);
 
   useEffect(() => {
-    // If the member has existing permissions, we could load them here.
-    // For this flow, we will start with the default INITIAL_PERMS set.
+    // Load the member's CURRENT grants so the toggles reflect reality.
+    (async () => {
+      try {
+        const group = await apiFetch("/family/my-group");
+        const member = (group?.members || []).find((m: any) => m.user_id === memberId);
+        const granted: string[] = member?.permissions || [];
+        setPerms((p) => p.map((perm) => ({ ...perm, enabled: granted.includes(perm.key) })));
+      } catch (err) {
+        // No group / network — keep defaults, save will surface any error
+        console.error("Could not load current permissions:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [memberId]);
 
   const toggle = (key: string) => {
@@ -129,14 +142,22 @@ export default function FamilyPermissionsScreen() {
       setSaving(true);
       const activeKeys = perms.filter((p) => p.enabled).map((p) => p.key);
 
-      // Save permissions request in backend
-      await apiFetch("/family/permissions/request", {
-        method: "POST",
-        body: JSON.stringify({
-          target_member_id: memberId,
-          permissions: activeKeys,
-        }),
-      });
+      try {
+        // Owner path: replace the member's permission set directly (grant + revoke)
+        await apiFetch(`/family/member/${memberId}/permissions`, {
+          method: "PATCH",
+          body: JSON.stringify({ permissions: activeKeys }),
+        });
+      } catch (ownerErr: any) {
+        // Not the owner → fall back to the approval-request flow
+        await apiFetch("/family/permissions/request", {
+          method: "POST",
+          body: JSON.stringify({
+            target_member_id: memberId,
+            permissions: activeKeys,
+          }),
+        });
+      }
 
       setNotified(true);
       setTimeout(() => {
@@ -144,14 +165,14 @@ export default function FamilyPermissionsScreen() {
       }, 1500);
     } catch (err) {
       console.error(err);
-      Alert.alert('خطأ', 'تعذر إرسال طلب الصلاحيات');
+      showLocalizedAlert('خطأ', 'تعذر حفظ الصلاحيات');
     } finally {
       setSaving(false);
     }
   };
 
   const handleRemoveMember = async () => {
-    Alert.alert(
+    showLocalizedAlert(
       "تأكيد الإزالة",
       `هل أنت متأكد من رغبتك في إزالة ${memberName} من العائلة؟`,
       [

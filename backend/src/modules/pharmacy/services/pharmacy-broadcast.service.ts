@@ -33,6 +33,7 @@ import { ProviderAvailabilityRepository } from "./repositories/provideravailabil
 import { SystemConfigRepository } from "./repositories/systemconfig.repository";
 import { DrugRejectionLogRepository } from "./repositories/drugrejectionlog.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
+import { isProviderRole } from '../../../common/enums';
 
 const REVIEW_TIMEOUT_MINUTES = 12;
 
@@ -116,7 +117,7 @@ export class PharmacyBroadcastService {
 
   /** Pharmacy claims "FULL_ACCEPT" — atomic winner-take-all. */
   async claimHaveAll(user: any, order_id: string, body?: { eta_minutes?: number; delivery_fee?: number }): Promise<any> {
-    if (user?.role !== 'provider') throw new ForbiddenException('provider_scope_required');
+    if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
     const bc = await this.broadcasts.findOne({ order_id });
     if (!bc) throw new NotFoundException('broadcast_not_found');
     if (!bc.notified_pharmacies.includes(user.id)) throw new ForbiddenException('not_in_broadcast');
@@ -212,7 +213,7 @@ export class PharmacyBroadcastService {
 
   /** Pharmacy records PARTIAL_ACCEPT (partial availability + per-item alternatives). */
   async respondPartial(user: any, order_id: string, body: { items: Array<{ order_item_id: string; have: 'yes' | 'no' | 'alternative'; qty_available?: number; unit_price?: number; alternative?: any }>; eta_minutes?: number; delivery_fee?: number }): Promise<any> {
-    if (user?.role !== 'provider') throw new ForbiddenException('provider_scope_required');
+    if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
     const bc = await this.broadcasts.findOne({ order_id });
     if (!bc) throw new NotFoundException('broadcast_not_found');
     if (bc.lock_state === 'locked') throw new BadRequestException('already_locked');
@@ -254,7 +255,7 @@ export class PharmacyBroadcastService {
 
   /** Pharmacy declines the broadcast explicitly (REJECT). Logs rejections to Shortage Engine. */
   async respondReject(user: any, order_id: string, body?: { reason?: string }): Promise<any> {
-    if (user?.role !== 'provider') throw new ForbiddenException('provider_scope_required');
+    if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
     const bc = await this.broadcasts.findOne({ order_id });
     if (!bc) throw new NotFoundException('broadcast_not_found');
     if (bc.lock_state === 'locked') throw new BadRequestException('already_locked');
@@ -484,7 +485,7 @@ export class PharmacyBroadcastService {
   }
 
   async listForPharmacy(user: any): Promise<any> {
-    if (user?.role !== 'provider') throw new ForbiddenException();
+    if (!isProviderRole(user?.role)) throw new ForbiddenException();
     const bcs = await this.broadcasts.find({ notified_pharmacies: user.id, lock_state: { $in: ['open'] } }).sort({ createdAt: -1 }).lean();
     const orders = await this.orders.find({ id: { $in: bcs.map(b => b.order_id) } }).lean();
     const ordersMap = new Map(orders.map(o => [o.id, o]));

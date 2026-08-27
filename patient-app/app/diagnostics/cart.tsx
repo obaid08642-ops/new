@@ -38,7 +38,7 @@ export default function GlobalCart() {
   }, [items]);
 
   // Calculate base total from items
-  const baseTotal = items.reduce((sum, item) => sum + item.price, 0);
+  const baseTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   if (itemCount === 0) {
     return (
@@ -134,7 +134,7 @@ export default function GlobalCart() {
             <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }} />
           ) : (
             compatibleLabs.map((lab) => {
-              const labTotal = Math.round(baseTotal * (lab.priceMultiplier || 1));
+              const labTotal = baseTotal;
               const isSelected = selectedLab === lab.id;
 
               return (
@@ -153,18 +153,23 @@ export default function GlobalCart() {
                     <AppText style={{ fontWeight: 'bold', fontSize: 15, color: colors.textPrimary, textAlign: I18nManager.isRTL ? 'right' : 'left' }}>{lab.name}</AppText>
                     <View style={styles.labMeta}>
                       <Icon name="map-marker-outline" size={14} color={colors.textSecondary} />
-                      <AppText style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 2, marginRight: 12 }}>{lab.distance || 'غير محدد'}</AppText>
-                      <Icon name="star" size={14} color="#FFD700" />
-                      <AppText style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 4 }}>{lab.rating || '4.5'}</AppText>
+                      <AppText style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 2, marginRight: 12 }}>يؤكد المزود التوفر والسعر النهائي</AppText>
+                      {lab.rating != null && (
+                        <>
+                          <Icon name="star" size={14} color="#FFD700" />
+                          <AppText style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 4 }}>{lab.rating}</AppText>
+                        </>
+                      )}
                     </View>
                   </View>
-                  <View style={[styles.labLogo, { backgroundColor: `${lab.color || colors.secondary}10` }]} >
-                    <Icon name={lab.logo as any || 'hospital-building'} size={28} color={lab.color || colors.secondary} />
+                  <View style={[styles.labLogo, { backgroundColor: `${colors.secondary}10` }]} >
+                    <Icon name={'hospital-building'} size={28} color={colors.secondary} />
                   </View>
                 </TouchableOpacity>
               );
             })
           )}
+          {!loadingLabs && compatibleLabs.length === 0 && <AppText style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 12 }}>لا يوجد مزود متوافق ومفعّل لهذه الفحوصات حالياً.</AppText>}
         </Animated.View>
 
         <View style={{ height: 120 }}/>
@@ -176,16 +181,15 @@ export default function GlobalCart() {
           <View style={styles.totalRow}>
             <AppText style={{ fontSize: 14, color: colors.textSecondary }}>الإجمالي الشامل</AppText>
             <AppText style={{ fontSize: 24, fontWeight: '900', color: colors.textPrimary }}>
-              {Math.round(baseTotal * (compatibleLabs.find(l => l.id === selectedLab)?.priceMultiplier || 1))} <AppText style={{ fontSize: 12, color: colors.textSecondary }}>ر.س</AppText>
+              {baseTotal} <AppText style={{ fontSize: 12, color: colors.textSecondary }}>ر.س</AppText>
             </AppText>
           </View>
           <TouchableOpacity 
             style={[styles.confirmBtn, { backgroundColor: colors.primary }]} 
             onPress={() => {
               const lab = compatibleLabs.find(l => l.id === selectedLab);
-              const total = Math.round(baseTotal * (lab?.priceMultiplier || 1)).toString();
               const labName = lab?.name;
-              (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName, labId: selectedLab, total } });
+              (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName, labId: selectedLab } });
             }}
           >
             <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>متابعة لاختيار الموعد</AppText>

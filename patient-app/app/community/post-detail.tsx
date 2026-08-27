@@ -5,10 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  Share,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -21,6 +22,8 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function PostDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -30,6 +33,7 @@ export default function PostDetailScreen() {
   const postId = (params.id as string) || "";
   const [post, setPost] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
+  const commentsRef = React.useRef<ScrollView>(null);
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState("");
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
@@ -59,16 +63,21 @@ export default function PostDetailScreen() {
 
   const handleVote = async () => {
     if (!postId) return;
-    const nextVote = voted === "up" ? "down" : "up";
+    // Backend toggles: sending the same vote again undoes it. Always send 'up'.
     try {
-      await apiFetch(`/community/posts/${postId}/vote`, {
+      const res = await apiFetch(`/community/posts/${postId}/vote`, {
         method: "PUT",
-        body: JSON.stringify({ vote: nextVote }),
+        body: JSON.stringify({ vote: "up" }),
       });
-      setVoted(nextVote === "up" ? "up" : null);
-      setVoteCount((prev) => (nextVote === "up" ? prev + 1 : prev - 1));
+      if (res?.action === "upvote_removed") {
+        setVoted(null);
+        setVoteCount((prev) => Math.max(0, prev - 1));
+      } else {
+        setVoted("up");
+        setVoteCount((prev) => prev + 1);
+      }
     } catch (err: any) {
-      Alert.alert("تنبيه", err.message || "فشل عملية التصويت");
+      showLocalizedAlert("تنبيه", err.message || "فشل عملية التصويت");
     }
   };
 
@@ -82,7 +91,7 @@ export default function PostDetailScreen() {
       setComments((prev) => [...prev, res]);
       setComment("");
     } catch (err: any) {
-      Alert.alert("خطأ", err.message || "فشل إضافة التعليق");
+      showLocalizedAlert("خطأ", err.message || "فشل إضافة التعليق");
     }
   };
 
@@ -125,7 +134,7 @@ export default function PostDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView ref={commentsRef} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Post Content */}
         <View
           style={[
@@ -136,7 +145,7 @@ export default function PostDetailScreen() {
           <View style={styles.authorRow}>
             <AppText variant="bodySM">
               {post?.createdAt
-                ? new Date(post.createdAt).toLocaleDateString("ar-SA")
+                ? new Date(post.createdAt).toLocaleDateString(dateLocale())
                 : "الآن"}
             </AppText>
             <View style={styles.authorInfo}>
@@ -164,11 +173,21 @@ export default function PostDetailScreen() {
 
           {/* Post Actions */}
           <View style={[styles.postActions, { borderTopColor: colors.border }]}>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={async () => {
+                try {
+                  await Share.share({ message: `${displayTitle}\n\n${displayBody}\n\n— من مجتمع نبض الصحي` });
+                } catch {}
+              }}
+            >
               <Icon name="share" size={18} color={colors.textTertiary} />
               <AppText variant="bodySM">مشاركة</AppText>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => commentsRef.current?.scrollToEnd?.({ animated: true })}
+            >
               <Icon name="chat" size={18} color={colors.textTertiary} />
               <AppText variant="bodySM">{comments.length} تعليق</AppText>
             </TouchableOpacity>
@@ -211,7 +230,7 @@ export default function PostDetailScreen() {
                 </View>
                 <AppText variant="bodySM">
                   {cmt.createdAt
-                    ? new Date(cmt.createdAt).toLocaleDateString("ar-SA")
+                    ? new Date(cmt.createdAt).toLocaleDateString(dateLocale())
                     : "الآن"}
                 </AppText>
                 <AppText variant="bodySM">

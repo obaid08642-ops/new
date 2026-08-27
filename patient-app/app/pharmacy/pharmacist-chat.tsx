@@ -2,22 +2,23 @@
 import React, { useState } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
+  TextInput,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  Platform,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { useSocket } from "../../src/context/SocketContext";
-import { apiFetch } from "../../src/services/api";
+import { apiFetch } from "../../src/utils/api";
 import { useEffect } from "react";
 import { resolveColor, darkColors, lightColors } from "../../src/theme/colors";
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 export default function PharmacistChatScreen() {
   const insets = useSafeAreaInsets();
@@ -30,6 +31,7 @@ export default function PharmacistChatScreen() {
   const [messages, setMessages] = useState<any[]>([]);
 
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [offlineQueue, setOfflineQueue] = useState<any[]>([]);
 
@@ -40,6 +42,7 @@ export default function PharmacistChatScreen() {
         if (threadsRes && threadsRes.length > 0) {
           const threadId = threadsRes[0].id;
           setActiveThreadId(threadId);
+          setActiveOrderId(threadsRes[0].order_id || null);
           const msgsRes = await apiFetch<any>(`/pharmacy/chat/threads/${threadId}/messages`);
           if (msgsRes && msgsRes.messages) setMessages(msgsRes.messages);
         }
@@ -119,7 +122,7 @@ export default function PharmacistChatScreen() {
             onPress={() => router.replace("/pharmacy/cart")}
             style={{ width: 40, height: 40, justifyContent: "center" }}
           >
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: colors.n,
@@ -127,7 +130,7 @@ export default function PharmacistChatScreen() {
               }}
             >
               close
-            </Text>
+            </LocalizedText>
           </TouchableOpacity>
           <View
             style={[
@@ -138,7 +141,7 @@ export default function PharmacistChatScreen() {
               },
             ]}
           >
-            <Text
+            <LocalizedText
               style={{
                 fontFamily: "MaterialSymbolsRounded",
                 color: resolveColor("var(--p)"),
@@ -146,17 +149,17 @@ export default function PharmacistChatScreen() {
               }}
             >
               local_pharmacy
-            </Text>
+            </LocalizedText>
           </View>
           <View
             style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}
           >
-            <Text style={{ fontSize: 13, fontWeight: "800", color: colors.n }}>
+            <LocalizedText style={{ fontSize: 13, fontWeight: "800", color: colors.n }}>
               صيدلية الدواء - فرع الملقا
-            </Text>
-            <Text style={{ fontSize: 10, color: resolveColor("var(--gr)") }}>
+            </LocalizedText>
+            <LocalizedText style={{ fontSize: 10, color: resolveColor("var(--gr)") }}>
               متصل الآن
-            </Text>
+            </LocalizedText>
           </View>
         </View>
       </View>
@@ -178,7 +181,7 @@ export default function PharmacistChatScreen() {
                   { backgroundColor: resolveColor("var(--ps)") },
                 ]}
               >
-                <Text
+                <LocalizedText
                   style={{
                     fontFamily: "MaterialSymbolsRounded",
                     color: resolveColor("var(--p)"),
@@ -186,7 +189,7 @@ export default function PharmacistChatScreen() {
                   }}
                 >
                   person
-                </Text>
+                </LocalizedText>
               </View>
               <View
                 style={{
@@ -208,7 +211,7 @@ export default function PharmacistChatScreen() {
                 >
                   {m.type === "invoice" ? (
                     <View style={{ alignItems: "center" }}>
-                      <Text
+                      <LocalizedText
                         style={{
                           fontFamily: "MaterialSymbolsRounded",
                           color: resolveColor("var(--p)"),
@@ -217,8 +220,8 @@ export default function PharmacistChatScreen() {
                         }}
                       >
                         receipt_long
-                      </Text>
-                      <Text
+                      </LocalizedText>
+                      <LocalizedText
                         style={{
                           fontSize: 13,
                           fontWeight: "700",
@@ -228,15 +231,19 @@ export default function PharmacistChatScreen() {
                         }}
                       >
                         تم تحديث الفاتورة بنجاح
-                      </Text>
+                      </LocalizedText>
                       <TouchableOpacity
                         style={[
                           styles.payBtn,
                           { backgroundColor: resolveColor("var(--p)") },
                         ]}
-                        onPress={() => router.push("/pharmacy/payment")}
+                        onPress={() =>
+                          activeOrderId
+                            ? router.push({ pathname: "/pharmacy/payment", params: { orderId: activeOrderId } })
+                            : router.push("/pharmacy/order-history")
+                        }
                       >
-                        <Text
+                        <LocalizedText
                           style={{
                             color: "#fff",
                             fontSize: 12,
@@ -244,11 +251,11 @@ export default function PharmacistChatScreen() {
                           }}
                         >
                           مراجعة والدفع
-                        </Text>
+                        </LocalizedText>
                       </TouchableOpacity>
                     </View>
                   ) : (
-                    <Text
+                    <LocalizedText
                       style={{
                         fontSize: 13,
                         color: colors.n,
@@ -257,12 +264,12 @@ export default function PharmacistChatScreen() {
                       }}
                     >
                       {m.text}
-                    </Text>
+                    </LocalizedText>
                   )}
                 </View>
-                <Text style={{ fontSize: 9, color: colors.t3, marginTop: 4 }}>
+                <LocalizedText style={{ fontSize: 9, color: colors.t3, marginTop: 4 }}>
                   {m.time}
-                </Text>
+                </LocalizedText>
               </View>
             </View>
           ) : (
@@ -284,7 +291,7 @@ export default function PharmacistChatScreen() {
                     },
                   ]}
                 >
-                  <Text
+                  <LocalizedText
                     style={{
                       fontSize: 13,
                       color: "#fff",
@@ -293,9 +300,9 @@ export default function PharmacistChatScreen() {
                     }}
                   >
                     {m.text}
-                  </Text>
+                  </LocalizedText>
                 </View>
-                <Text
+                <LocalizedText
                   style={{
                     fontSize: 9,
                     color: colors.t3,
@@ -304,7 +311,7 @@ export default function PharmacistChatScreen() {
                   }}
                 >
                   {m.time}
-                </Text>
+                </LocalizedText>
               </View>
             </View>
           ),
@@ -313,9 +320,9 @@ export default function PharmacistChatScreen() {
         {isTyping && (
           <View style={{ flexDirection: isRTL ? "row-reverse" : "row", marginBottom: 12, alignItems: "center" }}>
              <View style={[styles.chatAvatar, { backgroundColor: resolveColor("var(--ps)") }]}>
-                <Text style={{ fontFamily: "MaterialSymbolsRounded", color: resolveColor("var(--p)"), fontSize: 18 }}>person</Text>
+                <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: resolveColor("var(--p)"), fontSize: 18 }}>person</LocalizedText>
              </View>
-             <Text style={{ fontSize: 11, color: colors.t3, marginHorizontal: 8, fontStyle: 'italic' }}>يكتب الآن...</Text>
+             <LocalizedText style={{ fontSize: 11, color: colors.t3, marginHorizontal: 8, fontStyle: 'italic' }}>يكتب الآن...</LocalizedText>
           </View>
         )}
       </ScrollView>
@@ -352,7 +359,7 @@ export default function PharmacistChatScreen() {
           ]}
           onPress={send}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: "#fff",
@@ -360,7 +367,7 @@ export default function PharmacistChatScreen() {
             }}
           >
             send
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

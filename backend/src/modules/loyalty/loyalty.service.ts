@@ -5,7 +5,7 @@ import {
   Optional, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { OnEvent } from '@nestjs/event-emitter';
+import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { LoyaltyAccountRepository } from "./repositories/loyaltyaccount.repository";
 import { LoyaltyTransactionRepository } from "./repositories/loyaltytransaction.repository";
 import { LoyaltyChallengeRepository } from "./repositories/loyaltychallenge.repository";
@@ -29,17 +29,23 @@ const POINTS_TABLE: Record<string, number> = {
   order_delivered:    30,
   review_submitted:   20,
   referral_converted: 100,
+  referral_welcome:   50,
   vitals_logged:      10,
 };
 
+/** Earned points expire after this many days (lazy sweep on account read). */
+const POINTS_TTL_DAYS = 365;
+
+// Display list is DERIVED from POINTS_TABLE — the app can never show numbers
+// that differ from what the engine actually awards.
 const EARN_WAYS = [
-  { action: 'استشارة طبية', pts: '+100', icon: 'stethoscope', color: '#23B5CE' },
-  { action: 'طلب صيدلية', pts: '+50', icon: 'medication', color: '#5BA84F' },
-  { action: 'تحليل مخبري', pts: '+75', icon: 'biotech', color: '#7A6BEA' },
-  { action: 'إكمال الملف الصحي', pts: '+200', icon: 'assignment', color: '#F0A526' },
-  { action: 'تحدي صحي', pts: '+150', icon: 'emoji_events', color: '#F0695C' },
-  { action: 'إضافة فرد عائلة', pts: '+100', icon: 'group_add', color: '#EC4899' },
-];
+  { action: 'استشارة طبية مكتملة', reason: 'booking_completed', icon: 'stethoscope', color: '#23B5CE' },
+  { action: 'طلب صيدلية مكتمل', reason: 'order_delivered', icon: 'medication', color: '#5BA84F' },
+  { action: 'تقييم خدمة', reason: 'review_submitted', icon: 'biotech', color: '#7A6BEA' },
+  { action: 'دعوة صديق (عند أول حجز له)', reason: 'referral_converted', icon: 'group_add', color: '#EC4899' },
+  { action: 'تسجيل مؤشرات حيوية', reason: 'vitals_logged', icon: 'assignment', color: '#F0A526' },
+  { action: 'تحدي صحي', reason: null, ptsLabel: 'حسب التحدي', icon: 'emoji_events', color: '#F0695C' },
+].map((w) => ({ ...w, pts: w.reason ? `+${POINTS_TABLE[w.reason]}` : (w as any).ptsLabel }));
 
 @Injectable()
 export class LoyaltyService {
@@ -50,6 +56,7 @@ export class LoyaltyService {
     @Inject('ChallengeProgressRepository') private progressM: ChallengeProgressRepository,
     @Inject('RewardRepository') private rewardM: RewardRepository,
     @Inject('RewardClaimRepository') private claimM: RewardClaimRepository,
+    @Optional() private events?: EventEmitter2,
   ) {}
 
   getTiers() {
@@ -70,12 +77,20 @@ export class LoyaltyService {
     const pts = overridePoints ?? POINTS_TABLE[reason] ?? 0;
     if (pts === 0) return { ok: true, points_awarded: 0 };
 
+    // Idempotency: the same (reason, ref) pair can never be awarded twice —
+    // guards against duplicate events and replay-based farming.
+    if (refType && refId) {
+      const dup = await this.txM.findOne({ user_id: userId, reason, ref_type: refType, ref_id: refId });
+      if (dup) return { ok: true, points_awarded: 0, duplicate: true };
+    }
+
     // Upsert account
     let account = await this.accountM.findOne({ user_id: userId });
     if (!account) {
       account = await this.accountM.create({ user_id: userId, points: 0, lifetime_points: 0, tier: 'bronze' });
     }
 
+    const previousTier = account.tier ?? 'bronze';
     const newPoints = (account.points ?? 0) + pts;
     const newLifetime = (account.lifetime_points ?? 0) + pts;
     const newTier = calculateTier(newLifetime);
@@ -92,12 +107,53 @@ export class LoyaltyService {
       reason,
       ref_type: refType,
       ref_id: refId,
+      expires_at: new Date(Date.now() + POINTS_TTL_DAYS * 24 * 3600 * 1000),
     });
 
     // Update challenge progress for this action
     await this.updateChallengeProgress(userId, reason);
 
+    // S20: points-scenario notification hook (notifications module listens)
+    try {
+      this.events?.emit('loyalty.points_awarded', {
+        user_id: userId, points: pts, reason,
+        tier_changed: newTier !== previousTier, new_tier: newTier,
+      });
+    } catch { /* notification must never break points awarding */ }
+
     return { ok: true, points_awarded: pts, new_balance: newPoints, tier: newTier };
+  }
+
+  /**
+   * Lazy points expiration: earn transactions past their TTL that were never
+   * swept get deducted (balance floored at 0) and recorded as points_expired.
+   * Runs on account read so every displayed balance is already honest.
+   */
+  private async sweepExpired(userId: string) {
+    const now = new Date();
+    const stale: any[] = await this.txM.find({
+      user_id: userId,
+      points_delta: { $gt: 0 },
+      expires_at: { $lte: now },
+      swept: { $ne: true },
+    }).lean();
+    if (!stale.length) return;
+    const account: any = await this.accountM.findOne({ user_id: userId });
+    const balance = account?.points ?? 0;
+    const deduct = Math.min(balance, stale.reduce((s, t) => s + (t.points_delta || 0), 0));
+    const ids = stale.map((t) => t.id ?? t._id);
+    await this.txM.updateMany({ id: { $in: ids } } as any, { swept: true } as any);
+    if (deduct > 0) {
+      await this.accountM.updateOne({ user_id: userId }, { $inc: { points: -deduct } } as any);
+      await this.txM.create({
+        id: uuidv4(),
+        user_id: userId,
+        points_delta: -deduct,
+        reason: 'points_expired',
+        ref_type: 'expiration',
+        ref_id: ids.join(','),
+      });
+    }
   }
 
   // ── Event Listeners ────────────────────────────────────────────────────────
@@ -124,7 +180,21 @@ export class LoyaltyService {
 
   @OnEvent('health.vitals_logged')
   async onVitalsLogged(payload: { user_id: string }) {
+    if (!payload?.user_id) return;
+    // Anti-farming: at most 5 vitals awards per user per day
+    const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
+    const todayCount = await this.txM.countDocuments({
+      user_id: payload.user_id, reason: 'vitals_logged', createdAt: { $gte: dayStart },
+    } as any);
+    if (todayCount >= 5) return;
     await this.awardPoints(payload.user_id, 'vitals_logged', 'health');
+  }
+
+  /** Welcome bonus for the REFERRED user once their invite converts. */
+  @OnEvent('referral.welcome_bonus')
+  async onReferralWelcome(payload: { user_id: string; referral_id: string }) {
+    if (!payload?.user_id) return;
+    await this.awardPoints(payload.user_id, 'referral_welcome', 'referral', payload.referral_id);
   }
 
   // ── Challenges ─────────────────────────────────────────────────────────────
@@ -165,7 +235,26 @@ export class LoyaltyService {
       ...ch,
       user_progress: progressMap[ch.id]?.progress_count ?? 0,
       completed: progressMap[ch.id]?.completed ?? false,
+      joined: !!progressMap[ch.id],
     }));
+  }
+
+  /**
+   * Explicit opt-in to a challenge. Creates the progress record so the app can
+   * distinguish "joined, 0 progress" from "not joined" honestly across reloads.
+   */
+  async joinChallenge(userId: string, challengeId: string) {
+    const now = new Date();
+    const ch: any = await this.challengeM.findOne({
+      id: challengeId, active: true, start_date: { $lte: now }, end_date: { $gte: now },
+    }).lean();
+    if (!ch) throw new NotFoundException('التحدي غير موجود أو انتهى');
+    const existing: any = await this.progressM.findOne({ user_id: userId, challenge_id: challengeId }).lean();
+    if (existing) {
+      return { ok: true, joined: true, user_progress: existing.progress_count ?? 0, completed: existing.completed ?? false };
+    }
+    await this.progressM.create({ user_id: userId, challenge_id: challengeId, progress_count: 0, completed: false });
+    return { ok: true, joined: true, user_progress: 0, completed: false };
   }
 
   // ── Account & Leaderboard ──────────────────────────────────────────────────
@@ -174,6 +263,9 @@ export class LoyaltyService {
     let account = await this.accountM.findOne({ user_id: userId }).lean();
     if (!account) {
       account = await this.accountM.create({ user_id: userId, points: 0, lifetime_points: 0, tier: 'bronze' });
+    } else {
+      await this.sweepExpired(userId);
+      account = await this.accountM.findOne({ user_id: userId }).lean();
     }
     return account;
   }

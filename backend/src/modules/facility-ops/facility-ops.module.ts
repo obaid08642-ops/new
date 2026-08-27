@@ -1,6 +1,6 @@
 import { Module, Injectable, Controller, Get, Post, Put, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
+import { Model, Connection } from 'mongoose';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { v4 as uuid } from 'uuid';
@@ -23,7 +23,31 @@ export class BedsService {
     @InjectModel(Ward.name) private wardModel: Model<WardDocument>,
     @InjectModel(Bed.name) private bedModel: Model<BedDocument>,
     @InjectModel(Admission.name) private admissionModel: Model<AdmissionDocument>,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
+
+  async listAdmissions(facilityId: string, status?: string) {
+    const filter: any = { facility_id: facilityId };
+    if (status) filter.status = status;
+    const rows = await this.admissionModel.find(filter).sort({ admitted_at: -1 }).limit(200).lean();
+    const patientIds = [...new Set(rows.map((r: any) => r.patient_id).filter(Boolean))];
+    const users = patientIds.length
+      ? await this.conn.db.collection('users')
+          .find({ id: { $in: patientIds } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1, phone: 1 } } as any)
+          .toArray()
+      : [];
+    const nameMap = new Map<string, string>(users.map((u: any) => [u.id, u.full_name || u.name || u.phone || '']));
+    return rows.map((r: any) => ({
+      id: r.id,
+      patient_id: r.patient_id,
+      patient_name: nameMap.get(r.patient_id) || '',
+      bed_id: r.bed_id,
+      admitted_at: r.admitted_at,
+      discharged_at: r.discharged_at || null,
+      status: r.status,
+      discharge_summary: r.discharge_summary || null,
+    }));
+  }
 
   async listWards(facilityId: string) {
     return this.wardModel.find({ facility_id: facilityId }).lean();
@@ -85,7 +109,7 @@ export class BedsService {
     return admission;
   }
 
-  async dischargePatient(facilityId: string, admissionId: string) {
+  async dischargePatient(facilityId: string, admissionId: string, summary?: { diagnosis?: string; medications?: string; instructions?: string }) {
     const admission = await this.admissionModel.findOne({ id: admissionId, facility_id: facilityId });
     if (!admission) throw new NotFoundException('admission_not_found');
     if (admission.status === 'discharged') throw new BadRequestException('already_discharged');
@@ -95,7 +119,22 @@ export class BedsService {
 
     await this.admissionModel.updateOne(
       { id: admissionId },
-      { $set: { status: 'discharged', discharged_at: new Date() } }
+      {
+        $set: {
+          status: 'discharged',
+          discharged_at: new Date(),
+          ...(summary && (summary.diagnosis || summary.medications || summary.instructions)
+            ? {
+                discharge_summary: {
+                  diagnosis: (summary.diagnosis || '').slice(0, 4000),
+                  medications: (summary.medications || '').slice(0, 4000),
+                  instructions: (summary.instructions || '').slice(0, 4000),
+                  created_at: new Date(),
+                },
+              }
+            : {}),
+        },
+      }
     );
 
     await this.bedModel.updateOne(
@@ -236,9 +275,14 @@ export class FacilityBedsController {
     return this.svc.admitPatient(u.parent_provider_account_id || u.id, b.patient_id, b.bed_id);
   }
 
+  @Get('admissions')
+  admissions(@CurrentUser() u: any) {
+    return this.svc.listAdmissions(u.parent_provider_account_id || u.id);
+  }
+
   @Put('discharge/:admissionId')
-  discharge(@CurrentUser() u: any, @Param('admissionId') id: string) {
-    return this.svc.dischargePatient(u.parent_provider_account_id || u.id, id);
+  discharge(@CurrentUser() u: any, @Param('admissionId') id: string, @Body() b?: { diagnosis?: string; medications?: string; instructions?: string }) {
+    return this.svc.dischargePatient(u.parent_provider_account_id || u.id, id, b);
   }
 }
 
@@ -295,6 +339,86 @@ export class FacilitySurgeriesController {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  ANNOUNCEMENTS + RESOURCES (facility-scoped, raw collections)
+// ══════════════════════════════════════════════════════════════════════════════
+
+@Controller('facility')
+@UseGuards(JwtAuthGuard)
+export class FacilityCommsController {
+  constructor(@InjectConnection() private readonly conn: Connection) {}
+
+  private fid(u: any) { return u.parent_provider_account_id || u.id; }
+
+  @Get('announcements')
+  listAnnouncements(@CurrentUser() u: any): Promise<any[]> {
+    return this.conn.db.collection('facility_announcements')
+      .find({ facility_id: this.fid(u) }, { projection: { _id: 0 } } as any)
+      .sort({ createdAt: -1 }).limit(100).toArray();
+  }
+
+  @Post('announcements')
+  async createAnnouncement(@CurrentUser() u: any, @Body() b: any) {
+    const text = String(b?.text || '').trim().slice(0, 2000);
+    if (!text) throw new BadRequestException('text is required');
+    const doc = {
+      id: uuid(),
+      facility_id: this.fid(u),
+      text,
+      sender: u.full_name || u.name || '',
+      sender_id: u.id,
+      createdAt: new Date(),
+    };
+    await this.conn.db.collection('facility_announcements').insertOne(doc as any);
+    const { _id, ...rest } = doc as any;
+    return rest;
+  }
+
+  @Get('resources')
+  listResources(@CurrentUser() u: any): Promise<any[]> {
+    return this.conn.db.collection('facility_resources')
+      .find({ facility_id: this.fid(u) }, { projection: { _id: 0 } } as any)
+      .sort({ createdAt: -1 }).limit(200).toArray();
+  }
+
+  @Post('resources')
+  async createResource(@CurrentUser() u: any, @Body() b: any) {
+    const nameAr = String(b?.name_ar || '').trim().slice(0, 200);
+    const nameEn = String(b?.name_en || '').trim().slice(0, 200);
+    if (!nameAr && !nameEn) throw new BadRequestException('name is required');
+    const type = String(b?.type || 'consultation').slice(0, 40);
+    const doc = {
+      id: uuid(),
+      facility_id: this.fid(u),
+      branch_id: b?.branch_id ? String(b.branch_id).slice(0, 80) : null,
+      name_ar: nameAr || nameEn,
+      name_en: nameEn || nameAr,
+      type,
+      status: 'active',
+      capacity: Math.max(1, Number(b?.capacity) || 1),
+      createdAt: new Date(),
+    };
+    await this.conn.db.collection('facility_resources').insertOne(doc as any);
+    const { _id, ...rest } = doc as any;
+    return rest;
+  }
+
+  @Put('resources/:id')
+  async updateResource(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
+    const set: any = {};
+    if (b?.name_ar !== undefined) set.name_ar = String(b.name_ar).slice(0, 200);
+    if (b?.name_en !== undefined) set.name_en = String(b.name_en).slice(0, 200);
+    if (b?.status !== undefined && ['active', 'maintenance', 'inactive'].includes(b.status)) set.status = b.status;
+    if (b?.capacity !== undefined) set.capacity = Math.max(1, Number(b.capacity) || 1);
+    if (!Object.keys(set).length) throw new BadRequestException('nothing to update');
+    const r = await this.conn.db.collection('facility_resources')
+      .findOneAndUpdate({ id, facility_id: this.fid(u) }, { $set: set }, { returnDocument: 'after' } as any);
+    if (!r) throw new NotFoundException('resource not found');
+    const { _id, ...rest } = r as any;
+    return rest;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  MODULE
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -309,7 +433,7 @@ export class FacilitySurgeriesController {
       { name: SurgeryBooking.name, schema: SurgeryBookingSchema },
     ]),
   ],
-  controllers: [FacilityBedsController, FacilityShiftsController, FacilitySurgeriesController],
+  controllers: [FacilityBedsController, FacilityShiftsController, FacilitySurgeriesController, FacilityCommsController],
   providers: [BedsService, ShiftsService, SurgeriesService],
   exports: [BedsService, ShiftsService, SurgeriesService],
 })

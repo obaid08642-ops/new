@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Param, Query, Req, Inject } from '@nestjs/common';
+import { LedgerService } from '../finance-engine/finance-engine.module';
 import { ProviderAuthService } from './services/provider-auth.service';
 import { ProviderProfileService } from './services/provider-profile.service';
 import { ProviderOperatorsService } from './services/provider-operators.service';
@@ -40,6 +41,8 @@ export class ProviderAuthController {
   verifyEmail(@Body() body: any, @Req() req: any) { return this.svc.verifyEmail({ email: body.email, code: body.code, meta: meta(req) }); }
   @Public() @Post('forgot-password')
   forgot(@Body() body: any, @Req() req: any) { return this.svc.forgotPassword({ email: body.email, meta: meta(req) }); }
+  @Public() @Post('verify-reset-code')
+  verifyResetCode(@Body() body: any, @Req() req: any) { return this.svc.verifyResetCode({ email: body.email, code: body.code, meta: meta(req) }); }
   @Public() @Post('reset-password')
   reset(@Body() body: any, @Req() req: any) { return this.svc.resetPassword({ email: body.email, code: body.code, new_password: body.new_password, meta: meta(req) }); }
   @Get('me')
@@ -109,6 +112,9 @@ export class ProviderAdminController {
     private readonly processor: ProviderImageProcessorService
   ) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any): Promise<any> { return this.svc.list(u, q); }
+  // Full provider file by USER id (users-management "عرض الملف" — the admin clicks
+  // any provider user and must see every registration detail, same as moderation).
+  @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.approve(u, id, body); }
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reject(u, id, body); }
@@ -141,13 +147,19 @@ export class ProviderAdminController {
 // ============================================================================
 
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { v4 as uuid } from 'uuid';
+import { trackingId, TRACK_PREFIX } from '../../common/tracking';
+import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
 @Controller('provider/requests')
 export class ProviderRequestsController {
   constructor(
     private readonly svc: ProviderRequestEngineService,
     @Inject('ProviderRequestRepository') private readonly reqRepo: any,
-    private readonly events: EventEmitter2
+    private readonly events: EventEmitter2,
+    @InjectConnection() private readonly conn: Connection
   ) {}
   @Get() list(@CurrentUser() u: any, @Query() q: any) { return this.svc.list(u, q); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
@@ -159,8 +171,8 @@ export class ProviderRequestsController {
   @Post(':id/assign-staff') assignStaff(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { staff_id: string; notes?: string }) { return this.svc.assignStaff(u, id, body); }
 
   @Get(':id/orders')
-  async getOrders(@Param('id') id: string) {
-    const request = await this.reqRepo.findOne({ id }).lean();
+  async getOrders(@CurrentUser() u: any, @Param('id') id: string) {
+    const request = await this.svc.detail(u, id);
     return {
       prescriptions: request?.payload?.prescriptions || [],
       labs: request?.payload?.labs || []
@@ -170,91 +182,219 @@ export class ProviderRequestsController {
   // --- V3.0 DOCTOR PLATFORM ENDPOINTS ---
   @Post(':id/end')
   async endConsultation(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
-    // 1. Kill LiveKit (Call LiveKit server API to disconnect room)
-    console.log(`[Atomic 1] LiveKit Room Disconnected for ${id}`);
-    
-    // 2. Save S.O.A.P and ICD-10
+    const request = await this.svc.detail(u, id);
+    if (!['in_progress', 'IN_PROGRESS'].includes(String(request.status))) {
+      throw new BadRequestException('consultation must be in progress before it can end');
+    }
+
+    // Persist clinical content only for the authenticated provider's in-progress request.
     const soapData = {
       subjective: body.soap_subjective,
       objective: body.soap_objective,
       assessment: body.soap_assessment,
       plan: body.soap_plan
     };
-    console.log(`[Atomic 2] S.O.A.P Saved`, soapData);
-
-    // 3. Generate E-Rx & Lab & Save to DB
-    const request = await this.reqRepo.findOne({ id });
-    if (request) {
-      request.status = 'completed';
-      request.payload = {
-        ...request.payload,
-        soap: soapData,
-        prescriptions: body.prescriptions || [],
-        labs: body.labs || []
-      };
-      await request.save();
-    }
-    console.log(`[Atomic 3] E-Rx & Labs Pushed to DB and Patient Socket`);
-
-    // 4. Shift Chat Thread to FOLLOW_UP
-    console.log(`[Atomic 4] Chat state shifted to FOLLOW_UP for ${id}`);
-
-    // 5. Calculate financials (15% commission)
-    console.log(`[Atomic 5] 15% Nabdah Commission applied to provider ${u?.id || 'unknown'}`);
+    const prescriptions = Array.isArray(body?.prescriptions) ? body.prescriptions : [];
+    const labs = Array.isArray(body?.labs) ? body.labs : [];
+    await this.reqRepo.updateOne(
+      { id, provider_account_id: u.id },
+      { $set: { payload: { ...(request.payload || {}), soap: soapData, prescriptions, labs } } },
+    );
+    const completed = await this.svc.complete(u, id, { note: 'clinical consultation ended' });
 
     // Emit event
     this.events.emit('medical_orders.emitted', {
       threadId: id,
-      prescriptions: body.prescriptions || [],
-      labs: body.labs || []
+      prescriptions,
+      labs
     });
     
     return { 
       ok: true, 
       message: 'consultation_ended_atomically',
-      prescriptions: body.prescriptions,
-      labs: body.labs,
-      state: 'FOLLOW_UP'
+      prescriptions,
+      labs,
+      state: completed.status
     };
   }
 
+  /**
+   * Provider records the insurance company's response after the consultation
+   * (approved in full / approved with patient copay / rejected) and the patient
+   * is asked to pay ONLY their copay share. This writes a REAL
+   * InsuranceServiceRequest so the patient flow (/insurance/requests/my →
+   * /patient/pay-copay) works end-to-end — no console.log stubs.
+   */
   @Post(':id/insurance-copay')
   async requestInsuranceCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
-    // 1. Validate payload
-    const { approvalStatus, patientCopay, companyCopay, approvalCode } = body;
-    
-    // 2. Emit via WebSocket to Patient App to pay co-pay
-    console.log(`[Gatekeeper] Emitting copay_required to Patient Room. Amount: ${patientCopay}`);
-    
-    return { ok: true, message: 'copay_requested_from_patient' };
+    const { approvalStatus, patientCopay, approvalCode, reason } = body || {};
+    // 1) Load the provider request and verify ownership
+    const preq: any = await this.svc.detail(u, id);
+    const patientId = preq.patient?.id || preq.patient_id || preq.patient_user_id || preq.user_id;
+    if (!patientId) throw new BadRequestException('لا يمكن تحديد المريض لهذا الطلب');
+
+    // 2) Compute the decision
+    const price = Math.max(0, Number(preq.amount_total ?? preq.payload?.amount_total ?? 0));
+    const patientShare = Math.min(price, Math.max(0, Number(patientCopay) || 0));
+    const companyShare = Math.max(0, price - patientShare);
+    const status = String(approvalStatus || '').toLowerCase();
+    const rejected = ['rejected', 'denied', 'مرفوض'].includes(status);
+    const state = rejected ? 'REJECTED' : patientShare > 0 ? 'COPAY_PENDING' : 'APPROVED_FULL';
+    if (rejected && !String(reason || '').trim()) throw new BadRequestException('سبب الرفض مطلوب');
+    if (!rejected && price <= 0) throw new BadRequestException('مبلغ الخدمة الموثق مطلوب');
+
+    // 3) Patient's saved insurance policy (required by the insurance flow)
+    const profile: any = await this.conn.collection('patientprofiles').findOne({ user_id: String(patientId) } as any);
+    if (!profile?.insurance?.company_id || !profile?.insurance?.policy_number) {
+      throw new BadRequestException('سياسة تأمين المريض الموثقة مطلوبة');
+    }
+    const policy = profile.insurance;
+
+    // 4) Upsert the insurance request linked to this provider request
+    const col = this.conn.collection('insuranceservicerequests');
+    const existing: any = await col.findOne({ booking_id: id, booking_kind: 'provider_request' } as any);
+    const patch: any = {
+      patient_id: String(patientId), patient_name: preq.patient?.name || preq.patient_name || null,
+      provider_id: String(u?.id), booking_id: id, booking_kind: 'provider_request',
+      service_type: preq.type || 'consultation', price, policy,
+      copay_amount: patientShare, copay_percent: price > 0 ? Math.round((patientShare / price) * 10000) / 100 : 0,
+      approval_code: approvalCode || null, state,
+      decided_by: String(u?.id), decided_at: new Date(),
+      ...(rejected ? { rejection_reason: String(reason).trim() } : {}),
+      updatedAt: new Date(),
+    };
+    let requestId: string;
+    if (existing) {
+      requestId = existing.id || String(existing._id);
+      await col.updateOne({ _id: existing._id }, {
+        $set: patch,
+        $push: { history: { state, at: new Date(), by: String(u?.id), note: approvalCode || null } } as any,
+      });
+    } else {
+      requestId = uuid();
+      await col.insertOne({
+        ...patch, id: requestId,
+        history: [
+          { state: 'PENDING_PROVIDER_REVIEW', at: preq.createdAt || new Date(), by: String(patientId) },
+          { state, at: new Date(), by: String(u?.id), note: approvalCode || null },
+        ],
+        createdAt: new Date(),
+      } as any);
+    }
+
+    // 5) Notify the patient through the standard insurance event pipeline
+    this.events.emit('insurance.decided', {
+      request_id: requestId, patient_id: String(patientId), state, copay_amount: patientShare,
+    });
+    return { ok: true, request_id: requestId, state, copay_amount: patientShare };
   }
 
   @Post(':id/sick-leave')
   async issueSickLeave(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
-    console.log(`[Clinical] Provider ${u?.id} issued sick leave for request ${id}`, body);
-    return { ok: true, message: 'sick_leave_issued', ...body };
+    if (!body?.patient_id) throw new BadRequestException('patient_id required');
+    if (!body?.diagnosis?.trim()) throw new BadRequestException('diagnosis required');
+    const days = Math.max(1, Math.min(30, parseInt(body?.duration_days) || 1));
+    const start = body?.start_date ? new Date(body.start_date) : new Date();
+    if (isNaN(start.getTime())) throw new BadRequestException('invalid start_date');
+    const end = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
+
+    const provider: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ user_id: String(u?.id) }, { _id: u?.id as any }] } as any);
+    const doc = {
+      id: uuid(),
+      tracking_id: trackingId(TRACK_PREFIX.medical_report),
+      patient_id: String(body.patient_id),
+      patient_name: body.patient_name || null,
+      report_type: 'medical_certificate',
+      certificate_kind: 'sick_leave',
+      title_ar: `إجازة مرضية لمدة ${days} ${days === 1 ? 'يوم' : 'أيام'}`,
+      title_en: `${days}-day sick leave certificate`,
+      summary: body.diagnosis.trim(),
+      diagnosis: body.diagnosis.trim(),
+      recommendations: body.recommendations || null,
+      sick_leave: { start_date: start, end_date: end, duration_days: days },
+      doctor_id: String(u?.id),
+      doctor_name: u?.full_name || provider?.display_name || null,
+      facility_id: provider?._id ? String(provider._id) : null,
+      facility_name: provider?.display_name || null,
+      appointment_id: id !== 'new' ? id : (body.appointment_id || null),
+      attachments: [],
+      issued_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    await this.conn.collection('medicalreports').insertOne(doc as any);
+
+    // Record on the appointment for the patient's timeline
+    if (id && id !== 'new') {
+      await this.conn.collection('appointments').updateOne(
+        { $or: [{ id }, { _id: id as any }] } as any,
+        { $push: { sickLeaves: { days, reason: doc.diagnosis, tracking_id: doc.tracking_id, at: new Date() } } } as any,
+      );
+    }
+
+    // Notify the patient (push + in-app) through the standard pipeline
+    this.events.emit('medical_report.created', { id: doc.id, patient_id: doc.patient_id, critical: false, tracking_id: doc.tracking_id });
+    this.events.emit('sick_leave.issued', { patient_id: doc.patient_id, doctor_id: doc.doctor_id, tracking_id: doc.tracking_id, days });
+
+    return { ok: true, message: 'sick_leave_issued', tracking_id: doc.tracking_id, verify_url: `/api/v1/medical-reports/track/${doc.tracking_id}`, days, start_date: start, end_date: end };
   }
 
   @Post(':id/medical-report')
   async issueMedicalReport(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) {
-    console.log(`[Clinical] Provider ${u?.id} issued medical report for request ${id}`, body);
-    return { ok: true, message: 'medical_report_issued', ...body };
+    if (!body?.findings?.trim() && !body?.summary?.trim()) throw new BadRequestException('findings required');
+    const request: any = await this.svc.detail(u, id);
+    const patientId = request.patient?.id || request.patient_id || request.patient_user_id || request.user_id;
+    if (!patientId) throw new BadRequestException('linked patient required');
+    if (body?.patient_id && String(body.patient_id) !== String(patientId)) {
+      throw new ForbiddenException('patient does not match the owned request');
+    }
+    const provider: any = await this.conn.collection('provider_accounts').findOne({ $or: [{ user_id: String(u?.id) }, { _id: u?.id as any }] } as any);
+    const doc = {
+      id: uuid(),
+      tracking_id: trackingId(TRACK_PREFIX.medical_report),
+      patient_id: String(patientId),
+      patient_name: request.patient?.name || request.patient_name || null,
+      report_type: ['discharge_summary', 'surgery_report', 'consultation_note', 'second_opinion', 'clinic_note', 'other'].includes(body?.type) ? body.type : 'clinic_note',
+      title_ar: body.title_ar || 'تقرير طبي',
+      title_en: body.title_en || 'Medical Report',
+      summary: body.findings?.trim() || body.summary?.trim(),
+      body: body.conclusion || null,
+      diagnosis: body.diagnosis || null,
+      recommendations: body.recommendations || null,
+      critical: !!body.critical,
+      doctor_id: String(u?.id),
+      doctor_name: u?.full_name || provider?.display_name || null,
+      facility_id: provider?._id ? String(provider._id) : null,
+      facility_name: provider?.display_name || null,
+      appointment_id: id,
+      attachments: Array.isArray(body.attachments) ? body.attachments : [],
+      issued_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    await this.conn.collection('medicalreports').insertOne(doc as any);
+    this.events.emit('medical_report.created', { id: doc.id, patient_id: doc.patient_id, critical: doc.critical, tracking_id: doc.tracking_id });
+    return { ok: true, message: 'medical_report_issued', tracking_id: doc.tracking_id, verify_url: `/api/v1/medical-reports/track/${doc.tracking_id}` };
   }
 }
 
 @Controller('provider/wallet')
 export class ProviderWalletController {
-  
+  constructor(
+    @InjectConnection() private readonly conn: Connection,
+    private readonly ledger: LedgerService,
+  ) {}
+
+  private get withdrawals() { return this.conn.collection('withdrawals'); }
+
+  /**
+   * Legacy alias of POST /provider/payouts/request — same real creation flow:
+   * canonical ledger balance (never clamped), finance_config minimum,
+   * negative-balance and pending-duplicate guards, Saudi IBAN validation.
+   */
   @Post('withdraw')
-  async requestWithdrawal(@CurrentUser() u: any, @Body() body: { amount: number }) {
-    console.log(`[Financials] Provider ${u?.id} requested withdrawal of ${body.amount}`);
-    // State shifts to PENDING_ADMIN_APPROVAL
-    return { 
-      ok: true, 
-      message: 'withdrawal_requested',
-      state: 'PENDING_ADMIN_APPROVAL',
-      amount: body.amount
-    };
+  async requestWithdrawal(@CurrentUser() u: any, @Body() body: { amount?: number; iban?: string }) {
+    throw new BadRequestException('withdrawal_alias_retired_use_provider_payouts_request');
   }
 }
 
@@ -285,8 +425,8 @@ export class ProviderDashboardController {
   }
   @Get('availability') getAvail(@CurrentUser() u: any) { return this.dash.getAvailability(u); }
   @Post('availability') setAvail(@CurrentUser() u: any, @Body() body: any) { return this.dash.setAvailability(u, body); }
-  @Post('seed') seed() { throw new ServiceUnavailableException('Provider seed data is disabled outside an isolated test environment.'); }
-  @Post('seed/reset') seedReset() { throw new ServiceUnavailableException('Provider seed data is disabled outside an isolated test environment.'); }
+  @Post('seed') seed(@CurrentUser() u: any) { return this.seedSvc.seed(u); }
+  @Post('seed/reset') seedReset(@CurrentUser() u: any) { return this.seedSvc.resetSeed(u); }
 }
 
 

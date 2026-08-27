@@ -1,7 +1,7 @@
 // @ts-nocheck
 // app/health/prescriptions.tsx
 import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, StatusBar, Share } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,9 +16,7 @@ import { apiFetch } from '../../src/utils/api';
 export default function PrescriptionsScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) { requireAuth(); return null; }
-  
+  // Guests CAN view prescriptions — device-bound guest account.
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +71,15 @@ export default function PrescriptionsScreen() {
                     <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="shopping_cart" size={16} color={colors.primary} /><AppText variant="bodySM">اطلب</AppText></View>
                   </TouchableOpacity>
                 )}
-                <TouchableOpacity style={[styles.shareBtn, { backgroundColor: colors.primarySurface } ]}>
+                <TouchableOpacity
+                  style={[styles.shareBtn, { backgroundColor: colors.primarySurface }]}
+                  onPress={() => {
+                    const meds = (item.medications || []).map((m: any) => `- ${m.name || m}${m.dose ? ` (${m.dose})` : ''}`).join('\n');
+                    Share.share({
+                      message: `وصفة طبية — ${item.doctorName || 'طبيب نبض'}\nالتاريخ: ${item.date || '—'}\n\nالأدوية:\n${meds || '—'}`,
+                    }).catch(() => {});
+                  }}
+                >
                   <Icon name="share" size={16} color={colors.primary} />
                 </TouchableOpacity>
               </View>

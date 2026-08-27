@@ -1,18 +1,12 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 export default function HomeVisitTrackingScreen() {
   const { appointmentId } = useLocalSearchParams();
@@ -38,10 +32,10 @@ export default function HomeVisitTrackingScreen() {
   if (!loading && !data) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg, padding: 20 }}>
-        <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 50, color: colors.t3 }}>error_outline</Text>
-        <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: colors.n, marginTop: 10, textAlign: 'center' }}>البيانات غير متوفرة أو فشل الاتصال</Text>
+        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 50, color: colors.t3 }}>error_outline</LocalizedText>
+        <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: colors.n, marginTop: 10, textAlign: 'center' }}>البيانات غير متوفرة أو فشل الاتصال</LocalizedText>
         <TouchableOpacity style={{ marginTop: 20, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#F0695C', borderRadius: 10 }} onPress={() => router.back()}>
-          <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>رجوع</Text>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>رجوع</LocalizedText>
         </TouchableOpacity>
       </View>
     );
@@ -54,33 +48,35 @@ export default function HomeVisitTrackingScreen() {
       
       <View style={[styles.header, { paddingTop: insets.top + 10, borderBottomColor: colors.bd } ]}>
         <TouchableOpacity onPress={() => router.back()} style={{ width: 40, height: 40, justifyContent: 'center' }}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</LocalizedText>
         </TouchableOpacity>
-        <Text style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>تتبع الزيارة المنزلية</Text>
+        <LocalizedText style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>تتبع الزيارة المنزلية</LocalizedText>
         <View style={{ width: 40 }}/>
       </View>
 
       <View style={{ padding: 16 }}>
         <View    style={styles.mapBox}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 70, color: resolveColor('var(--p)'), opacity: 0.3 }}>map</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 70, color: resolveColor('var(--p)'), opacity: 0.3 }}>map</LocalizedText>
           <View style={styles.pinDot} />
           <View style={{ position: 'absolute', bottom: '25%', right: '35%' }}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 30 }}>home</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 30 }}>home</LocalizedText>
           </View>
         </View>
 
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 12, marginTop: 14 }}>
           <View style={[styles.duoIcon, { backgroundColor: resolveColor('var(--ps)') } ]}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 26 }}>medical_services</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 26 }}>medical_services</LocalizedText>
           </View>
           <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.n }}>{data?.doctor_name}</Text>
-            <Text style={{ fontSize: 10, color: colors.t3 }}>طبيب زيارات منزلية</Text>
+            <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n }}>{data?.doctor_name}</LocalizedText>
+            <LocalizedText style={{ fontSize: 10, color: colors.t3 }}>طبيب زيارات منزلية</LocalizedText>
           </View>
-          <View style={[styles.timeBox, { backgroundColor: resolveColor('var(--ps)') } ]}>
-            <Text style={{ fontSize: 16, fontWeight: '900', color: resolveColor('var(--p)') }}>{data?.wait_time || '١٢'}</Text>
-            <Text style={{ fontSize: 8, color: resolveColor('var(--pt)') }}>دقيقة</Text>
-          </View>
+          {data?.wait_time != null && (
+            <View style={[styles.timeBox, { backgroundColor: resolveColor('var(--ps)') } ]}>
+              <LocalizedText style={{ fontSize: 16, fontWeight: '900', color: resolveColor('var(--p)') }}>{data.wait_time}</LocalizedText>
+              <LocalizedText style={{ fontSize: 8, color: resolveColor('var(--pt)') }}>دقيقة</LocalizedText>
+            </View>
+          )}
         </View>
 
         <View style={{ marginTop: 24 }}>
@@ -94,18 +90,26 @@ export default function HomeVisitTrackingScreen() {
                 <View style={[styles.trackLine, { backgroundColor: s.active ? resolveColor('var(--p)') : colors.bd, right: isRTL ? 15 : undefined, left: isRTL ? undefined : 15 }]} />
               )}
               <View style={[styles.stepIcon, { backgroundColor: s.active ? resolveColor('var(--p)') : colors.bd } ]}>
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 17 }}>{s.icon}</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 17 }}>{s.icon}</LocalizedText>
               </View>
               <View style={{ flex: 1, paddingTop: 5, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: s.active ? colors.n : colors.t3 }}>{s.label}</Text>
+                <LocalizedText style={{ fontSize: 12, fontWeight: '700', color: s.active ? colors.n : colors.t3 }}>{s.label}</LocalizedText>
               </View>
             </View>
           ))}
         </View>
 
-        <TouchableOpacity style={[styles.callBtn, { backgroundColor: colors.n, marginTop: 24 } ]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: '#fff', marginRight: 8 }}>call</Text>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>اتصل بالطبيب</Text>
+        <TouchableOpacity
+          style={[styles.callBtn, { backgroundColor: colors.n, marginTop: 24 }]}
+          onPress={() => {
+            const doctorId = data?.doctor_id;
+            if (doctorId) {
+              router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId } });
+            }
+          }}
+        >
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 19, color: '#fff', marginRight: 8 }}>chat</LocalizedText>
+          <LocalizedText style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>مراسلة الطبيب</LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

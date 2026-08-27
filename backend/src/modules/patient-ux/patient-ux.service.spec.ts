@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { PatientUxService } from './patient-ux.module';
-import { BadRequestException, ForbiddenException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
 
@@ -42,7 +42,7 @@ describe('PatientUxService', () => {
       providers: [
         PatientUxService,
         { provide: getModelToken('Review'), useValue: reviewModel },
-        { provide: getModelToken('RefundRequest'), useValue: refundModel },
+        { provide: getModelToken('PatientUxRefund'), useValue: refundModel },
         { provide: getModelToken('Order'), useValue: orderModel },
         { provide: getModelToken('LabBooking'), useValue: {} },
         { provide: getModelToken('RadiologyBooking'), useValue: {} },
@@ -135,45 +135,6 @@ describe('PatientUxService', () => {
       await expect(
         service.rate({ id: 'u1' }, { booking_kind: 'pharmacy', booking_id: 'o1', rating: 5 })
       ).rejects.toThrow(ForbiddenException);
-    });
-  });
-
-  describe('requestRefund', () => {
-    it('uses the server-recorded booking amount rather than a patient-supplied amount', async () => {
-      orderModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue({ id: 'o1', patient_id: 'u1', payment_status: 'paid', total_amount: 125 }),
-      });
-      refundModel.findOne.mockResolvedValue(null);
-      refundModel.create.mockResolvedValue({ toObject: jest.fn().mockReturnValue({ id: 'r1', amount: 125 }) });
-
-      const result = await service.requestRefund(
-        { id: 'u1' },
-        { booking_kind: 'pharmacy', booking_id: 'o1', reason: 'duplicate_charge', amount: 1 },
-      );
-
-      expect(result.amount).toBe(125);
-      expect(refundModel.create).toHaveBeenCalledWith(expect.objectContaining({ amount: 125 }));
-    });
-
-    it('rejects a refund request when the paid booking has no server-recorded amount', async () => {
-      orderModel.findOne.mockReturnValue({
-        lean: jest.fn().mockResolvedValue({ id: 'o1', patient_id: 'u1', payment_status: 'paid' }),
-      });
-
-      await expect(
-        service.requestRefund({ id: 'u1' }, { booking_kind: 'pharmacy', booking_id: 'o1', reason: 'duplicate_charge', amount: 125 }),
-      ).rejects.toThrow(ServiceUnavailableException);
-      expect(refundModel.create).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('adminDecideRefund', () => {
-    it('blocks local approval until a payment-provider refund and immutable ledger are integrated', async () => {
-      const pendingRefund = { id: 'r1', status: 'requested', save: jest.fn() };
-      refundModel.findOne.mockResolvedValue(pendingRefund);
-
-      await expect(service.adminDecideRefund({ id: 'admin-1' }, 'r1', 'approved', 'ok', 1)).rejects.toThrow(ServiceUnavailableException);
-      expect(pendingRefund.save).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,14 +1,15 @@
 // @ts-nocheck
-// app/family/calendar.tsx
+// app/family/calendar.tsx — Shared family calendar (real backend events)
 import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   StatusBar,
-  TouchableOpacity,
   ActivityIndicator,
-  Alert,
+  Modal,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,27 +24,31 @@ import {
   Button,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { buildFamilyCalendarPayload, parseFamilyCalendarEvents, type FamilyCalendarEventType } from '../../src/utils/family-calendar-contract';
 
-// Events fetched dynamically
+function fmtEventDate(e: any): string {
+  if (e.time) return e.time;
+  if (!e.event_date) return "";
+  const d = new Date(e.event_date);
+  return d.toLocaleDateString(dateLocale(), { weekday: "long", day: "numeric", month: "long" });
+}
 
-const DAYS = [
-  "السبت",
-  "الأحد",
-  "الإثنين",
-  "الثلاثاء",
-  "الأربعاء",
-  "الخميس",
-  "الجمعة",
-];
-
-export default function SharedCalendarScreen() {
+export default function FamilyCalendarScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  const [selectedDay, setSelectedDay] = useState(0);
-
   const [events, setEvents] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [memberUserId, setMemberUserId] = useState<string | null>(null);
+  const [eventType, setEventType] = useState<FamilyCalendarEventType | null>(null);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     loadCalendarEvents();
@@ -52,65 +57,41 @@ export default function SharedCalendarScreen() {
   const loadCalendarEvents = async () => {
     try {
       setLoading(true);
-      const res = await apiFetch("/family/calendar");
-      setEvents(res && res.length > 0 ? res : []);
+      setLoadError(false);
+      const [calendar, groupMembers] = await Promise.all([apiFetch("/family/calendar"), apiFetch("/family/members")]);
+      setEvents(parseFamilyCalendarEvents(calendar));
+      setMembers(Array.isArray(groupMembers) ? groupMembers : []);
     } catch (err) {
       console.error(err);
       setEvents([]);
+      setMembers([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddEvent = async () => {
-    Alert.prompt(
-      "حدث عائلي جديد",
-      "أدخل عنوان الحدث (مثال: موعد طبيب الأسنان لفهد):",
-      [
-        { text: "إلغاء", style: "cancel" },
-        {
-          text: "إضافة",
-          onPress: async (title) => {
-            if (!title || title.trim() === "") return;
-            try {
-              setAdding(true);
-              const newEvent = {
-                title: title.trim(),
-                member: "العائلة",
-                time: "غداً 11:00 ص",
-                type: "appointment",
-                color: "#7A6BEA",
-              };
-              await apiFetch("/family/calendar/event", {
-                method: "POST",
-                body: JSON.stringify(newEvent),
-              });
-              await loadCalendarEvents();
-            } catch (err) {
-              console.error(err);
-              setEvents((prev) => [
-                ...prev,
-                {
-                  id: String(Date.now()),
-                  title,
-                  member: "العائلة",
-                  time: "غداً 11:00 ص",
-                  type: "appointment",
-                  color: "#7A6BEA",
-                },
-              ]);
-            } finally {
-              setAdding(false);
-            }
-          },
-        },
-      ],
-      "plain-text",
-    );
+  const handleAddEvent = () => {
+    setTitle(''); setEventDate(''); setMemberUserId(null); setEventType(null); setFormError(''); setFormOpen(true);
+  };
+
+  const submitEvent = async () => {
+    try {
+      const payload = buildFamilyCalendarPayload({ title, eventDate, memberUserId, type: eventType });
+      setAdding(true); setFormError('');
+      await apiFetch("/family/calendar/event", { method: "POST", body: JSON.stringify(payload) });
+      setFormOpen(false);
+      await loadCalendarEvents();
+    } catch (err: any) {
+      const message = String(err?.message || '');
+      setFormError(message.includes('required') || message.includes('valid') ? 'أكمل العنوان والموعد والعضو ونوع الحدث بصيغة صحيحة.' : 'تعذر إضافة الحدث. حاول مرة أخرى.');
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleDeleteEvent = async (id: string) => {
-    Alert.alert(
+    showLocalizedAlert(
       "حذف الحدث",
       "هل أنت متأكد من حذف هذا الحدث من تقويم العائلة؟",
       [
@@ -127,8 +108,8 @@ export default function SharedCalendarScreen() {
               await loadCalendarEvents();
             } catch (err) {
               console.error(err);
-              setEvents((prev) => prev.filter((e) => e.id !== id));
               setLoading(false);
+              showLocalizedAlert("خطأ", "تعذر حذف الحدث. حاول مرة أخرى.");
             }
           },
         },
@@ -167,50 +148,12 @@ export default function SharedCalendarScreen() {
         ]}
       >
         <View style={{ width: 40 }} />
-        <AppText variant="h4">تقويم العائلة المشترك</AppText>
+        <AppText variant="h4">تقويم العائلة</AppText>
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
-      {/* Day selector */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          flexDirection: "row-reverse",
-          gap: 8,
-          padding: 16,
-        }}
-      >
-        {DAYS.map((d, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => setSelectedDay(i)}
-            style={[
-              st.dayChip,
-              {
-                backgroundColor:
-                  selectedDay === i ? colors.primary : colors.surfaceSecondary,
-              },
-            ]}
-          >
-            <AppText
-              variant="labelSM"
-              color={selectedDay === i ? "#fff" : colors.textPrimary}
-            >
-              {d}
-            </AppText>
-            <AppText
-              variant="h5"
-              color={selectedDay === i ? "#fff" : colors.textTertiary}
-            >
-              {18 + i}
-            </AppText>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 160 }}
+        contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 160, flexGrow: 1 }}
       >
         <View
           style={{
@@ -219,7 +162,7 @@ export default function SharedCalendarScreen() {
             alignItems: "center",
           }}
         >
-          <SectionHeader title={`أحداث ${DAYS[selectedDay]}`} />
+          <SectionHeader title="الأحداث القادمة" />
           <Button
             label="إضافة حدث "
             variant="ghost"
@@ -229,8 +172,29 @@ export default function SharedCalendarScreen() {
           />
         </View>
 
+        {loadError && (
+          <Card style={{ alignItems: "center", gap: 10 }}>
+            <Icon name="warning" size={32} color={colors.error} />
+            <AppText variant="bodyMD" color={colors.textSecondary}>تعذر تحميل تقويم العائلة</AppText>
+            <Button label="إعادة المحاولة" variant="outline" size="sm" full={false} onPress={loadCalendarEvents} />
+          </Card>
+        )}
+        {!loadError && events.length === 0 && (
+          <View style={{ alignItems: "center", gap: 10, paddingVertical: 48 }}>
+            <Icon name="calendar" size={44} color={colors.textTertiary} />
+            <AppText variant="bodyMD" color={colors.textSecondary}>
+              لا توجد أحداث عائلية بعد
+            </AppText>
+            <AppText variant="caption" color={colors.textTertiary}>
+              أضف مواعيد ومناسبات العائلة لتظهر هنا
+            </AppText>
+          </View>
+        )}
+
         {events.map((e) => {
           const color = e.color || "#23B5CE";
+          const when = fmtEventDate(e);
+          const canDelete = e.can_delete === true;
           return (
             <Card
               key={e.id}
@@ -249,7 +213,7 @@ export default function SharedCalendarScreen() {
                       ? "doctor"
                       : e.type === "medication"
                         ? "pill"
-                        : "testTube"
+                        : "test-tube"
                   }
                   size={22}
                   color={color}
@@ -257,30 +221,49 @@ export default function SharedCalendarScreen() {
               </View>
               <View style={{ flex: 1, alignItems: "flex-end", gap: 3 }}>
                 <AppText variant="h6">{e.title}</AppText>
-                <View
-                  style={{
-                    flexDirection: "row-reverse",
-                    gap: 6,
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon name="clock" size={12} color={colors.textTertiary} />
-                  <AppText variant="caption" color={colors.textTertiary}>
-                    {e.time}
-                  </AppText>
-                </View>
-                <Badge label={e.member} color={color} />
+                {!!when && (
+                  <View
+                    style={{
+                      flexDirection: "row-reverse",
+                      gap: 6,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Icon name="clock" size={12} color={colors.textTertiary} />
+                    <AppText variant="caption" color={colors.textTertiary}>
+                      {when}
+                    </AppText>
+                  </View>
+                )}
+                {!!e.member && <Badge label={e.member} color={color} />}
               </View>
-              <IconButton
+              {canDelete && <IconButton
                 icon="trash"
                 color={colors.textTertiary}
                 size={20}
                 onPress={() => handleDeleteEvent(e.id)}
-              />
+              />}
             </Card>
           );
         })}
       </ScrollView>
+
+      <Modal visible={formOpen} transparent animationType="fade" onRequestClose={() => setFormOpen(false)}>
+        <View style={st.modalBackdrop}>
+          <View style={[st.modalCard, { backgroundColor: colors.surface }]}>
+            <AppText variant="h5" style={{ textAlign: "right" }}>حدث عائلي جديد</AppText>
+            <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: "right" }}>يتطلب الحدث عنواناً وموعداً وعضواً ونوعاً واضحاً.</AppText>
+            <TextInput value={title} onChangeText={setTitle} placeholder="عنوان الحدث" placeholderTextColor={colors.textTertiary} style={[st.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.background }]} textAlign="right" maxLength={160} />
+            <TextInput value={eventDate} onChangeText={setEventDate} placeholder="الموعد بصيغة 2026-09-01T10:00:00Z" placeholderTextColor={colors.textTertiary} style={[st.input, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.background }]} textAlign="left" autoCapitalize="none" />
+            <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: "right" }}>العضو</AppText>
+            <View style={st.choiceWrap}>{members.map((member) => <TouchableOpacity key={member.user_id} accessibilityRole="button" onPress={() => setMemberUserId(member.user_id)} style={[st.choice, { borderColor: colors.border }, memberUserId === member.user_id && { backgroundColor: colors.primary, borderColor: colors.primary }]}><AppText variant="caption" color={memberUserId === member.user_id ? '#FFFFFF' : colors.textPrimary}>{member.display_name || member.user_id}</AppText></TouchableOpacity>)}</View>
+            <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: "right" }}>نوع الحدث</AppText>
+            <View style={st.choiceWrap}>{([{ key: 'appointment', label: 'موعد' }, { key: 'reminder', label: 'تذكير' }, { key: 'medication', label: 'دواء' }, { key: 'lab', label: 'تحليل' }] as const).map((option) => <TouchableOpacity key={option.key} accessibilityRole="button" onPress={() => setEventType(option.key)} style={[st.choice, { borderColor: colors.border }, eventType === option.key && { backgroundColor: colors.primary, borderColor: colors.primary }]}><AppText variant="caption" color={eventType === option.key ? '#FFFFFF' : colors.textPrimary}>{option.label}</AppText></TouchableOpacity>)}</View>
+            {!!formError && <AppText variant="caption" color={colors.error} style={{ textAlign: "right" }}>{formError}</AppText>}
+            <View style={st.modalActions}><Button label="إلغاء" variant="ghost" size="sm" full={false} onPress={() => setFormOpen(false)} /><Button label="إضافة الحدث" size="sm" full={false} loading={adding} onPress={() => void submitEvent()} /></View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -295,18 +278,17 @@ const st = StyleSheet.create({
     paddingBottom: 12,
     borderBottomWidth: 1,
   },
-  dayChip: {
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 14,
-    gap: 2,
-  },
   eventIcon: {
     width: 48,
     height: 48,
-    borderRadius: 15,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.5)', justifyContent: 'center', padding: 20 },
+  modalCard: { borderRadius: 22, padding: 18, gap: 11 },
+  input: { minHeight: 46, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12 },
+  choiceWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
+  choice: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 12, paddingVertical: 8 },
+  modalActions: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginTop: 4 },
 });

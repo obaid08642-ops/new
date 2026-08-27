@@ -1,16 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,6 +13,9 @@ import { apiFetch } from '../../src/utils/api';
 import { STORAGE_KEYS } from '../../src/constants';
 import { decodeJwt } from '../../src/utils/jwt';
 import { loginSuccess } from '../../src/store/slices/authSlice';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { consumeRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
 
 export default function OtpScreen() {
   const { isDark, lang } = useApp() as any;
@@ -30,10 +23,13 @@ export default function OtpScreen() {
   const isGuest = useSelector((state: any) => state.auth.isGuest);
   const params = useLocalSearchParams();
 
-  const phone = (params.phone as string) || '';
   const mode = (params.mode as string) || 'login';
+  const [registrationPayload] = useState(() => mode === 'register'
+    ? consumeRegistrationTransaction(params.transactionId as string | undefined)
+    : null);
+  const phone = registrationPayload?.phone || (params.phone as string) || '';
 
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const isRTL = lang === 'ar' || lang === 'ur' || true;
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digits for our backend
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -67,13 +63,13 @@ export default function OtpScreen() {
   const handleConfirm = async () => {
     const code = otp.join('');
     if (code.length < 6) {
-      Alert.alert('خطأ', 'الرجاء إدخال الرمز المكون من 6 أرقام كاملاً');
+      showLocalizedAlert('خطأ', 'الرجاء إدخال الرمز المكون من 6 أرقام كاملاً');
       return;
     }
     
     setLoading(true);
     try {
-      const emailParam = (params.email as string) || '';
+      const emailParam = registrationPayload?.email || (params.email as string) || '';
       
       const resOtp = await apiFetch('/auth/verify-otp', {
         method: 'POST',
@@ -83,60 +79,56 @@ export default function OtpScreen() {
         }),
       });
 
-      let token = resOtp.token || '';
-      let userData = resOtp.user || null;
+      // M1: backend returns { ok: true } from /auth/verify-otp (older mocks used `verified`)
+      const otpVerified = !!(resOtp?.verified || resOtp?.ok);
+      let token = typeof resOtp?.token === 'string' ? resOtp.token : (resOtp?.token?.accessToken || '');
+      let userData = resOtp?.user || null;
 
-      if (resOtp.verified) {
+      if (otpVerified) {
         if (mode === 'reset') {
           router.replace({ pathname: '/(auth)/reset-password', params: { email: emailParam } });
           setLoading(false);
           return;
         }
         if (mode === 'register') {
+          if (!registrationPayload) {
+            showLocalizedAlert('خطأ', 'انتهت معاملة التسجيل. الرجاء العودة وإعادة التسجيل.');
+            setLoading(false);
+            return;
+          }
           const regRes = await apiFetch('/auth/register', {
             method: 'POST',
             body: JSON.stringify({
-              full_name: params.full_name,
-              phone: phone,
-              email: emailParam,
-              password: params.password,
+              full_name: registrationPayload.fullName,
+              phone: registrationPayload.phone,
+              email: registrationPayload.email,
+              password: registrationPayload.password,
             }),
           });
-          token = regRes.token;
-          userData = regRes.user;
+          token = typeof regRes?.token === 'string' ? regRes.token : (regRes?.token?.accessToken || '');
+          userData = regRes?.user;
         } else if (isGuest && !token) {
-          try {
-            const fullName = params.full_name as string | undefined;
-            const password = params.password as string | undefined;
-            if (!fullName || !password) {
-              Alert.alert('خطأ', 'تعذر تحويل حساب الضيف لأن بيانات التسجيل غير مكتملة.');
-              setLoading(false);
-              return;
-            }
-            const convertRes = await apiFetch<any>('/auth/convert-guest', {
-              method: 'POST',
-              body: JSON.stringify({
-                full_name: fullName,
-                phone: phone,
-                password,
-                email: emailParam,
-              }),
-            });
-            token = convertRes.token;
-            userData = convertRes.user;
-            await AsyncStorage.setItem(STORAGE_KEYS.GUEST_MODE ?? '@nabdah_guest', 'false');
-          } catch (_) {}
+          showLocalizedAlert('خطأ', 'يلزم إتمام تسجيل آمن قبل تحويل الحساب الضيف.');
+          setLoading(false);
+          return;
         }
       }
 
       if (!token || !userData) {
-        Alert.alert('خطأ', 'رمز غير صحيح أو الحساب غير موجود');
+        showLocalizedAlert('خطأ', 'رمز غير صحيح أو الحساب غير موجود');
         setLoading(false);
         return;
       }
 
-      try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, token); }
-      catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token); }
+      try {
+        await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, token);
+        // Remove any legacy plaintext mirror but never fall back to it.
+        await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      } catch {
+        showLocalizedAlert('خطأ', 'تعذر تأمين الجلسة على هذا الجهاز.');
+        setLoading(false);
+        return;
+      }
       await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
       
       dispatch(loginSuccess({ user: userData as any, token }));
@@ -149,7 +141,7 @@ export default function OtpScreen() {
         router.replace('/(tabs)');
       }
     } catch (err: any) {
-      Alert.alert('خطأ', err.message || 'رمز التحقق غير صحيح');
+      showLocalizedAlert('خطأ', err.message || 'رمز التحقق غير صحيح');
     } finally {
       setLoading(false);
     }
@@ -161,13 +153,13 @@ export default function OtpScreen() {
         <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 20, paddingBottom: 120, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
           
           <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: resolveColor('var(--s)', isDark), borderColor: resolveColor('var(--bd)', isDark) } ]}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
               {isRTL ? 'arrow_forward' : 'arrow_back'}
-            </Text>
+            </LocalizedText>
           </TouchableOpacity>
 
-          <Text style={[styles.title, { textAlign: isRTL ? 'right' : 'left', color: resolveColor('var(--n)', isDark) } ]}>رمز التحقق</Text>
-          <Text style={[styles.subtitle, { textAlign: isRTL ? 'right' : 'left', color: resolveColor('var(--t2)', isDark) } ]}>أدخل الرمز المكون من 6 أرقام المرسل إلى {params.email || phone}</Text>
+          <LocalizedText style={[styles.title, { textAlign: isRTL ? 'right' : 'left', color: resolveColor('var(--n)', isDark) } ]}>رمز التحقق</LocalizedText>
+          <LocalizedText style={[styles.subtitle, { textAlign: isRTL ? 'right' : 'left', color: resolveColor('var(--t2)', isDark) } ]}>أدخل الرمز المكون من 6 أرقام المرسل إلى {params.email || phone}</LocalizedText>
 
           <View style={styles.otpContainer}>
             {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -195,16 +187,16 @@ export default function OtpScreen() {
           </View>
 
           <View style={styles.resendContainer}>
-            <Text style={[styles.resendText, { color: resolveColor('var(--t3)', isDark) } ]}>
+            <LocalizedText style={[styles.resendText, { color: resolveColor('var(--t3)', isDark) } ]}>
               {timer > 0 ? 'إعادة الإرسال خلال ' : 'لم يصلك الرمز؟ '}
-            </Text>
+            </LocalizedText>
             {timer > 0 ? (
-              <Text style={[styles.timerText, { color: resolveColor('var(--p)', isDark) } ]}>
+              <LocalizedText style={[styles.timerText, { color: resolveColor('var(--p)', isDark) } ]}>
                 00:{timer < 10 ? `0${timer}` : timer}
-              </Text>
+              </LocalizedText>
             ) : (
               <TouchableOpacity onPress={() => { setTimer(60); setOtp(['', '', '', '', '', '']); }}>
-                <Text style={[styles.timerText, { color: resolveColor('var(--p)', isDark) } ]}>إعادة إرسال الرمز</Text>
+                <LocalizedText style={[styles.timerText, { color: resolveColor('var(--p)', isDark) } ]}>إعادة إرسال الرمز</LocalizedText>
               </TouchableOpacity>
             )}
           </View>
@@ -215,7 +207,7 @@ export default function OtpScreen() {
             style={[styles.primaryBtn, { backgroundColor: resolveColor('var(--p)', isDark), shadowColor: resolveColor('var(--p)', isDark), opacity: loading ? 0.7 : 1 }]} 
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryBtnText}>{loading ? 'جاري التحقق...' : 'تأكيد الرمز'}</Text>
+            <LocalizedText style={styles.primaryBtnText}>{loading ? 'جاري التحقق...' : 'تأكيد الرمز'}</LocalizedText>
           </TouchableOpacity>
 
         </ScrollView>

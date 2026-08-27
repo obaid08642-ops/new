@@ -1,7 +1,7 @@
 // @ts-nocheck
 // app/settings/help.tsx
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity, Linking } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -33,13 +33,20 @@ export default function HelpCenterScreen() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [faqs, setFaqs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  const [supportPhone, setSupportPhone] = useState<string | null>(null);
 
   React.useEffect(() => {
     apiFetch<any[]>('/support/faqs')
-      .then(res => setFaqs(res || []))
+      .then(res => setFaqs(Array.isArray(res) ? res : []))
       .catch(() => setFaqs([]))
       .finally(() => setLoading(false));
+    apiFetch<any>('/config')
+      .then(cfg => setSupportPhone(cfg?.contact?.support_phone || null))
+      .catch(() => {});
   }, []);
+
+  const filteredFaqs = selectedCat ? faqs.filter(f => f.category === selectedCat) : faqs;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -82,7 +89,10 @@ export default function HelpCenterScreen() {
           ].map((opt, i) => (
             <TouchableOpacity
               key={i}
-              onPress={() => (opt.route ? router.push(opt.route as any) : null)}
+              onPress={() => {
+                if (opt.route) router.push(opt.route as any);
+                else if (supportPhone) Linking.openURL(`tel:${supportPhone}`).catch(() => {});
+              }}
               style={[
                 styles.contactCard,
                 { backgroundColor: isDark ? colors.surface : colors.white },
@@ -100,9 +110,11 @@ export default function HelpCenterScreen() {
           {FAQ_CATEGORIES.map((cat, i) => (
             <TouchableOpacity
               key={i}
+              onPress={() => { setSelectedCat(selectedCat === cat.label ? null : cat.label); setExpandedFaq(null); }}
               style={[
                 styles.catCard,
                 { backgroundColor: isDark ? colors.surface : colors.white },
+                selectedCat === cat.label && { borderWidth: 2, borderColor: cat.color },
               ]}
             >
               <View
@@ -119,9 +131,11 @@ export default function HelpCenterScreen() {
         <AppText variant="bodySM">الأسئلة الشائعة</AppText>
         {loading ? (
           <AppText variant="bodySM" style={{ textAlign: "center", marginTop: 20 }}>جاري تحميل الأسئلة الشائعة...</AppText>
+        ) : filteredFaqs.length === 0 ? (
+          <AppText variant="bodySM" style={{ textAlign: "center", marginTop: 20 }}>لا توجد أسئلة في هذا الموضوع بعد</AppText>
         ) : (
           <View style={styles.faqList}>
-            {faqs.map((faq, i) => (
+            {filteredFaqs.map((faq, i) => (
               <TouchableOpacity
                 key={i}
                 onPress={() => setExpandedFaq(expandedFaq === i ? null : i)}

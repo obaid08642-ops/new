@@ -1,47 +1,92 @@
-import { Controller, Post, Get, Query, Body, Param, BadRequestException, ForbiddenException, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Query,
+  Body,
+  Param,
+  BadRequestException,
+  ForbiddenException,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { RadiologyBookingState } from '../../../schemas/radiology.schema';
+import { Model, Types } from 'mongoose';
 import { RadiologyBooking } from '../schemas/radiology-booking.schema';
-import { CurrentUser, JwtAuthGuard } from '../../../common/auth.guard';
+import { CurrentUser, JwtAuthGuard, Roles } from '../../../common/auth.guard';
+import { UserRole } from '../../../common/enums';
+
+/** Bookings are referenced by their public UUID (`id`); mongo `_id` also accepted. */
+function bookingQuery(bookingId: string): any {
+  return Types.ObjectId.isValid(bookingId) ? { _id: bookingId } : { id: bookingId };
+}
+
 @Controller('radiology/provider')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.RADIOLOGY, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 export class RadiologyProviderController {
   constructor(
     @InjectModel('RadiologyCenterBooking') private radBookingModel: Model<RadiologyBooking>,
     @InjectModel('RadiologyService') private radServiceModel: Model<any>,
-    @InjectModel('RadiologyMachine') private radMachineModel: Model<any>
+    @InjectModel('RadiologyMachine') private radMachineModel: Model<any>,
+    @InjectModel('User') private userModel: Model<any>,
   ) {}
 
+  private async centerFor(user: any): Promise<any> {
+    return this.userModel.findOne({ id: user?.id }).lean();
+  }
+
+  private isAdmin(user: any): boolean {
+    return user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN;
+  }
+
+  private async assertBookingAccess(booking: any, user: any, allowPending = false): Promise<any> {
+    if (!booking) throw new BadRequestException('Booking not found');
+    if (this.isAdmin(user)) return null;
+    const center: any = await this.centerFor(user);
+    if (!center) throw new ForbiddenException('Radiology provider account not found');
+    const assigned = booking.radiology_center_id && String(booking.radiology_center_id) === String(center._id);
+    if (!assigned && !(allowPending && booking.status === 'PENDING_ACCEPTANCE')) {
+      throw new ForbiddenException('Booking is not assigned to this radiology center');
+    }
+    return center;
+  }
+
   @Get('queue')
-  async getProviderQueue(@CurrentUser() user: any, @Query('provider_id') providerId?: string) {
-    const pId = this.resolveProviderId(user, providerId);
-    // Return pending acceptance and active scans
-    const bookings = await this.radBookingModel.find({
-      radiology_center_id: pId,
+  async getProviderQueue(@Query('provider_id') _providerId: string, @CurrentUser() user: any) {
+    if (this.isAdmin(user)) {
+      return this.radBookingModel.find({
+        status: { $in: ['PENDING_ACCEPTANCE', 'ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] },
+      }).sort({ createdAt: -1 }).lean();
+    }
+    const center: any = await this.centerFor(user);
+    if (!center) throw new ForbiddenException('Radiology provider account not found');
+    return this.radBookingModel.find({
       $or: [
         { status: 'PENDING_ACCEPTANCE' },
-        { status: 'ACCEPTED' },
-        { status: 'CHECKED_IN' },
-        { status: 'SCANNING_COMPLETED' }
-      ]
+        { radiology_center_id: center._id, status: { $in: ['ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] } },
+      ],
     }).sort({ createdAt: -1 }).lean();
-    return bookings;
   }
 
   @Post(':id/respond')
   @HttpCode(HttpStatus.OK)
   async respondBooking(
-    @CurrentUser() user: any,
     @Param('id') bookingId: string,
-    @Body() body: { accept: boolean }
+    @Body() body: { accept: boolean },
+    @CurrentUser() user: any,
   ) {
-    const { accept } = body;
-    const booking = await this.radBookingModel.findOne(this.bookingScope(user, bookingId));
-    if (!booking) throw new BadRequestException('Booking not found');
+    const booking = await this.radBookingModel.findOne(bookingQuery(bookingId));
+    await this.assertBookingAccess(booking, user, true);
+    if (typeof body?.accept !== 'boolean') throw new BadRequestException('accept (boolean) is required');
 
-    if (accept) {
+    if (body.accept) {
+      if (this.isAdmin(user)) throw new ForbiddenException('Admin must not claim a provider booking');
+      const center: any = await this.centerFor(user);
+      if (!center) throw new ForbiddenException('Radiology provider account not found');
       booking.status = 'ACCEPTED';
+      (booking as any).radiology_center_id = center._id;
     } else {
       booking.status = 'CANCELLED';
       (booking as any).rejection_reason = 'Rejected by Radiology Center';
@@ -53,162 +98,125 @@ export class RadiologyProviderController {
   @Post('allocate-machine/:id')
   @HttpCode(HttpStatus.OK)
   async allocateMachine(
-    @CurrentUser() user: any,
     @Param('id') bookingId: string,
-    @Body() body: { machineId: string }
+    @Body() body: { machineId: string },
+    @CurrentUser() user: any,
   ) {
-    const { machineId } = body;
+    const { machineId } = body || ({} as any);
+    if (!machineId) throw new BadRequestException('machineId is required');
+    const booking = await this.radBookingModel.findOne(bookingQuery(bookingId));
+    await this.assertBookingAccess(booking, user);
 
-    // Check if machine is already busy for this period to block conflicts
-    // In a real app we'd check time slots, here we check active statuses
     const conflict = await this.radBookingModel.findOne({
-      radiology_center_id: this.resolveProviderId(user),
       allocated_machine_id: machineId,
-      status: { $in: ['ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] }
+      status: { $in: ['ACCEPTED', 'CHECKED_IN', 'SCANNING_COMPLETED'] },
     });
-
-    if (conflict && conflict.id !== bookingId) {
+    if (conflict && String(conflict.id) !== String(bookingId)) {
       throw new BadRequestException({
         code: 'MACHINE_CONFLICT_RESERVED',
-        message: 'هذا الجهاز محجوز حالياً لهذه الفترة الزمنية.'
+        message: 'هذا الجهاز محجوز حالياً لهذه الفترة الزمنية.',
       });
     }
 
-    const booking = await this.radBookingModel.findOneAndUpdate(
-      this.bookingScope(user, bookingId),
+    const updatedBooking = await this.radBookingModel.findOneAndUpdate(
+      bookingQuery(bookingId),
       { $set: { allocated_machine_id: machineId, status: 'CHECKED_IN' } },
-      { new: true }
+      { new: true },
     );
-
-    if (!booking) throw new BadRequestException('Booking not found');
-
-    return { success: true, data: booking, message: 'تم تخصيص وحجز جهاز الفحص بنجاح للطلب.' };
+    if (!updatedBooking) throw new BadRequestException('Booking not found');
+    return { success: true, data: updatedBooking, message: 'تم تخصيص وحجز جهاز الفحص بنجاح للطلب.' };
   }
 
   @Post('finalize-scan/:id')
   async finalizeScan(
-    @CurrentUser() user: any,
     @Param('id') bookingId: string,
-    @Body() body: { reportText: string; files: string[]; pdfUrl: string }
+    @Body() body: { reportText: string; files: string[]; pdfUrl: string },
+    @CurrentUser() user: any,
   ) {
-    const { reportText, files, pdfUrl } = body;
+    const existing = await this.radBookingModel.findOne(bookingQuery(bookingId));
+    await this.assertBookingAccess(existing, user);
+    const { reportText, files, pdfUrl } = body || ({} as any);
+    if (!reportText || !pdfUrl) throw new BadRequestException('reportText and pdfUrl are required');
+    throw new BadRequestException('legacy_raw_report_upload_disabled_use_secure_storage_flow');
 
     const booking = await this.radBookingModel.findOneAndUpdate(
-      this.bookingScope(user, bookingId),
+      bookingQuery(bookingId),
       {
         $set: {
           clinical_impression_report: reportText,
-          scanned_files_s3_urls: files || [],
+          scanned_files_s3_urls: Array.isArray(files) ? files : [],
           signed_report_pdf_url: pdfUrl,
-          status: 'REPORT_UPLOADED'
-        }
+          status: 'REPORT_UPLOADED',
+        },
       },
-      { new: true }
+      { new: true },
     );
-
     if (!booking) throw new BadRequestException('Radiology booking ID not found.');
-
-    return { 
-      success: true, 
-      parent_appointment_id: (booking as any).parent_appointment_id?.toString?.() ?? null,
-      message: 'تم حفظ تقرير الأشعة والصور الطبية بنجاح.'
+    return {
+      success: true,
+      referring_doctor_id: booking.referring_doctor_id || null,
+      message: 'تم حفظ تقرير الأشعة والصور الطبية بنجاح، وتفعيل إشعار العودة الآلي للطبيب المعالج.',
     };
   }
 
   @Get('wallet')
-  async getWallet(@CurrentUser() user: any, @Query('provider_id') providerId?: string) {
-    const pId = this.resolveProviderId(user, providerId);
-    
-    // Sum total completed/published for gross revenue and insurance
+  async getWallet(@Query('provider_id') _providerId: string, @CurrentUser() user: any) {
+    const center: any = await this.centerFor(user);
+    const centerId = this.isAdmin(user) ? undefined : center?._id;
+    if (!this.isAdmin(user) && !center) throw new ForbiddenException('Radiology provider account not found');
     const completedBookings = await this.radBookingModel.find({
-      radiology_center_id: pId,
-      status: { $in: ['SCANNING_COMPLETED', 'REPORT_UPLOADED'] }
+      ...(centerId ? { radiology_center_id: centerId } : {}),
+      status: { $in: ['SCANNING_COMPLETED', 'REPORT_UPLOADED'] },
     });
 
     let grossRevenue = 0;
     let insuranceClaims = 0;
-    
-    const transactions = [];
-
-    completedBookings.forEach(b => {
-      const bAny = b as any;
-      if (bAny.payment_method === 'insurance') {
-        insuranceClaims += bAny.total_price || bAny.total || 0;
-        transactions.push({ id: b.id, date: bAny.updatedAt, amount: bAny.total_price || bAny.total, type: 'INSURANCE_CLAIM_APPROVED', title: 'مطالبة تأمين معتمدة - ' + (b.scan_name_ar || 'فحص') });
+    const transactions: any[] = [];
+    completedBookings.forEach((b: any) => {
+      if (b.payment_method === 'insurance') {
+        insuranceClaims += b.total_price || b.total || 0;
+        transactions.push({ id: b.id, date: b.updatedAt, amount: b.total_price || b.total, type: 'INSURANCE_CLAIM_APPROVED', title: 'مطالبة تأمين معتمدة - ' + (b.scan_name_ar || 'فحص') });
       } else {
-        grossRevenue += bAny.total_price || bAny.total || 0;
-        transactions.push({ id: b.id, date: bAny.updatedAt, amount: bAny.total_price || bAny.total, type: 'CASH_SCAN', title: 'دفع نقدي - ' + (b.scan_name_ar || 'فحص') });
+        grossRevenue += b.total_price || b.total || 0;
+        transactions.push({ id: b.id, date: b.updatedAt, amount: b.total_price || b.total, type: 'CASH_SCAN', title: 'دفع نقدي - ' + (b.scan_name_ar || 'فحص') });
       }
     });
-
-    const deductedCommissions = (grossRevenue + insuranceClaims) * 0.10; // 10% platform fee
-
+    const deductedCommissions = (grossRevenue + insuranceClaims) * 0.10;
     return {
       grossRevenue,
       insuranceClaims,
       deductedCommissions,
-      transactions: transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      transactions: transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
     };
   }
 
   @Get('catalog')
-  async getCatalog(@CurrentUser() user: any) {
-    this.resolveProviderId(user);
-    const services = await this.radServiceModel.find({ active: true });
-    return services;
+  async getCatalog(@Query('provider_id') _providerId: string) {
+    return this.radServiceModel.find({ active: true, is_deleted: { $ne: true } });
   }
 
   @Post('catalog/:id')
-  async updateCatalogItem(@CurrentUser() user: any, @Param('id') serviceId: string, @Body() body: any) {
-    if (!this.isAdmin(user)) throw new ForbiddenException('Radiology catalog changes require administrative approval');
-    const updated = await this.radServiceModel.findOneAndUpdate(
-      { id: serviceId },
-      { $set: body },
-      { new: true }
-    );
-    return updated;
+  async updateCatalogItem(@Param('id') serviceId: string, @Body() body: any, @CurrentUser() user: any) {
+    if (!this.isAdmin(user)) throw new ForbiddenException('Only administrators may modify the global radiology catalog');
+    const allowed = ['active', 'cash_availability', 'home_visit_supported', 'estimated_duration_minutes', 'price'];
+    const patch = Object.fromEntries(Object.entries(body || {}).filter(([key]) => allowed.includes(key)));
+    if (!Object.keys(patch).length) throw new BadRequestException('No permitted catalog fields');
+    return this.radServiceModel.findOneAndUpdate({ id: serviceId }, { $set: patch }, { new: true });
   }
 
   @Get('inventory')
-  async getInventory(@CurrentUser() user: any, @Query('provider_id') providerId?: string) {
-    const pId = this.resolveProviderId(user, providerId);
-    const machines = await this.radMachineModel.find({ provider_id: pId, is_active: true });
-    return machines;
+  async getInventory(@Query('provider_id') _providerId: string, @CurrentUser() user: any) {
+    const pId = this.isAdmin(user) ? undefined : user.id;
+    if (!pId && !this.isAdmin(user)) throw new ForbiddenException('Radiology provider account not found');
+    return this.radMachineModel.find({ ...(pId ? { provider_id: pId } : {}), is_active: true });
   }
 
   @Post('inventory')
-  async addMachine(@CurrentUser() user: any, @Body() body: any) {
-    const pId = this.resolveProviderId(user);
-    const machine = new this.radMachineModel({
-      provider_id: pId,
-      name: body.name,
-      type: body.type,
-      is_active: true
-    });
+  async addMachine(@Body() body: any, @CurrentUser() user: any) {
+    if (this.isAdmin(user)) throw new ForbiddenException('Admin must not create provider inventory');
+    if (!body?.name || !body?.type) throw new BadRequestException('name and type are required');
+    const machine = new this.radMachineModel({ provider_id: user.id, name: body.name, type: body.type, is_active: true });
     await machine.save();
     return machine;
-  }
-
-  private bookingScope(user: any, bookingId: string) {
-    const scope: Record<string, unknown> = { id: bookingId };
-    if (!this.isAdmin(user)) scope.radiology_center_id = this.resolveProviderId(user);
-    return scope;
-  }
-
-  private resolveProviderId(user: any, requestedProviderId?: string): string {
-    if (this.isAdmin(user)) {
-      if (!requestedProviderId) throw new BadRequestException('provider_id is required for administrative radiology operations');
-      return requestedProviderId;
-    }
-    if (user?.role !== 'radiology' && user?.provider_type !== 'radiology') {
-      throw new ForbiddenException('Radiology provider access is required');
-    }
-    const providerId = user?.provider_account_id || user?.provider_profile_id || user?.id;
-    if (!providerId) throw new ForbiddenException('Radiology provider identity is missing from the token');
-    return String(providerId);
-  }
-
-  private isAdmin(user: any): boolean {
-    return user?.role === 'admin' || user?.role === 'super_admin';
   }
 }

@@ -11,7 +11,37 @@ import { Connection } from 'mongoose';
 export const PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(PUBLIC_KEY, true);
 export const ROLES_KEY = 'roles';
-export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
+export const Roles = (...roles: Array<UserRole | string>) => SetMetadata(ROLES_KEY, roles);
+
+const PENDING_PROVIDER_ONBOARDING_PATH = /^\/api\/v1\/provider-onboarding\/(my-profile|step2|step3|submit|progress|contract)$/;
+
+/** Normalize role/provider_type aliases before evaluating @Roles. */
+export function normalizeEffectiveRole(value: unknown): string {
+  const role = String(value || '').trim().toLowerCase();
+  const aliases: Record<string, string> = {
+    laboratory: UserRole.LAB,
+    lab: UserRole.LAB,
+    radiology_center: UserRole.RADIOLOGY,
+    radiology: UserRole.RADIOLOGY,
+    hospital: UserRole.HOSPITAL,
+    hospital_admin: UserRole.HOSPITAL_ADMIN,
+    pharmacy: UserRole.PHARMACY,
+    pharmacist: UserRole.PHARMACIST,
+    homecare: UserRole.HOME_CARE,
+    home_care: UserRole.HOME_CARE,
+    nursing: UserRole.NURSING,
+    nurse: UserRole.NURSE,
+  };
+  return aliases[role] || role;
+}
+
+export function getEffectiveRoles(user: any): string[] {
+  return Array.from(new Set([
+    normalizeEffectiveRole(user?.role),
+    normalizeEffectiveRole(user?.provider_type),
+    normalizeEffectiveRole(user?.providerType),
+  ].filter(Boolean)));
+}
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -26,7 +56,10 @@ export class JwtAuthGuard implements CanActivate {
     const req = ctx.switchToHttp().getRequest<Request & { user?: any; impersonator?: any; auditInfo?: any }>();
     
     // Extract IP and User Agent
-    const ip = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
+    // Express applies the configured trusted-proxy policy to req.ip. Reading a
+    // caller-supplied X-Forwarded-For value directly would let a client forge
+    // security audit attribution.
+    const ip = req.ip || req.socket.remoteAddress || '';
     const userAgent = req.headers['user-agent'] || '';
     req.auditInfo = { ip, userAgent };
 
@@ -45,7 +78,9 @@ export class JwtAuthGuard implements CanActivate {
 
     let payload: any;
     try {
-      payload = await this.jwt.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      const secret = process.env.JWT_SECRET;
+      if (!secret && process.env.NODE_ENV === 'production') throw new UnauthorizedException('JWT secret is not configured');
+      payload = secret ? await this.jwt.verifyAsync(token, { secret }) : await this.jwt.verifyAsync(token);
     } catch (e) {
       if (isPublic) return true;
       throw new UnauthorizedException('Invalid token');
@@ -54,71 +89,32 @@ export class JwtAuthGuard implements CanActivate {
     // Attach original user payload to request
     req.user = payload;
 
-    // Check for Impersonation header
+    // A provider JWT is not itself proof of operational approval. Pending KYC
+    // accounts may access only their own onboarding/contract steps; every other
+    // provider operation fails closed until the provider account is approved.
+    if (payload?.scope === 'provider') {
+      const account: any = await this.connection.collection('provider_accounts').findOne(
+        { id: payload.id }, { projection: { status: 1 } },
+      );
+      if (!account) throw new UnauthorizedException('provider_account_not_found');
+      const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
+      if (String(account.status || '').toLowerCase() !== 'approved' && !PENDING_PROVIDER_ONBOARDING_PATH.test(path)) {
+        throw new ForbiddenException('provider_approval_required');
+      }
+    }
+
+    // Header-based impersonation carries no case, purpose, approval, expiry,
+    // target scope or durable session proof. Do not substitute identities until
+    // a separately governed impersonation-session contract exists.
     const impersonateUserId = req.headers['x-impersonate-user-id'] as string;
     if (impersonateUserId) {
-      // 1. Verify that the original user is authorized to impersonate (is ADMIN or SUPER_ADMIN or has user.impersonate permission)
-      const userPermissions = [
-        ...(ROLE_PERMISSIONS[payload.role as UserRole] || []),
-        ...(payload.permissions || [])
-      ];
-      
-      const canImpersonate = payload.role === UserRole.SUPER_ADMIN || 
-                             payload.role === UserRole.ADMIN || 
-                             userPermissions.includes(Permission.USER_IMPERSONATE);
-      
-      if (!canImpersonate) {
-        throw new ForbiddenException('You do not have permission to impersonate users');
-      }
-
-      // 2. Fetch target user from DB
-      const targetUser = (await this.connection.model('User').findOne({ id: impersonateUserId }).lean()) as any;
-      if (!targetUser) {
-        throw new NotFoundException('Target user for impersonation not found');
-      }
-
-      // 3. Log impersonation event to AuditLog
-      try {
-        await this.connection.model('AuditLog').create({
-          action: 'admin_impersonation',
-          user_id: payload.id,
-          role: payload.role,
-          ip,
-          user_agent: userAgent,
-          resource_kind: 'User',
-          resource_id: targetUser.id,
-          severity: 'warn',
-          details: {
-            impersonator_id: payload.id,
-            impersonator_email: payload.email,
-            impersonated_id: targetUser.id,
-            impersonated_role: targetUser.role
-          }
-        });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to log impersonation', err);
-      }
-
-      // 4. Substitute req.user with target user's details and preserve original in req.impersonator
-      req.impersonator = payload;
-      req.user = {
-        id: targetUser.id,
-        email: targetUser.email,
-        phone: targetUser.phone,
-        role: targetUser.role,
-        full_name: targetUser.full_name,
-        permissions: targetUser.permissions || [],
-        parent_provider_account_id: targetUser.parent_provider_account_id
-      };
-      
-      // Update payload to reflect impersonated user for role/permission checking
-      payload = req.user;
+      throw new ForbiddenException('impersonation_session_required');
     }
 
     // Role check (fallback compatibility)
-    const roles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [ctx.getHandler(), ctx.getClass()]);
-    if (roles && roles.length && !roles.includes(payload.role)) {
+    const effectiveRoles = getEffectiveRoles(payload);
+    const roles = this.reflector.getAllAndOverride<Array<UserRole | string>>(ROLES_KEY, [ctx.getHandler(), ctx.getClass()]);
+    if (roles && roles.length && !roles.some(required => effectiveRoles.includes(normalizeEffectiveRole(required)))) {
       throw new ForbiddenException('Insufficient role');
     }
 
@@ -126,7 +122,7 @@ export class JwtAuthGuard implements CanActivate {
     const requiredPermissions = this.reflector.getAllAndOverride<Permission[]>(PERMISSIONS_KEY, [ctx.getHandler(), ctx.getClass()]);
     if (requiredPermissions && requiredPermissions.length) {
       const userPermissions = [
-        ...(ROLE_PERMISSIONS[payload.role as UserRole] || []),
+        ...effectiveRoles.flatMap(role => ROLE_PERMISSIONS[role as UserRole] || []),
         ...(payload.permissions || [])
       ];
       
@@ -181,3 +177,16 @@ export const CurrentUser = createParamDecorator((data: string, ctx: ExecutionCon
   const req = ctx.switchToHttp().getRequest();
   return data ? req.user?.[data] : req.user;
 });
+
+/** Blocks guest accounts from member-only areas (insurance, family, records). */
+@Injectable()
+export class NoGuestsGuard implements CanActivate {
+  canActivate(ctx: ExecutionContext): boolean {
+    const req = ctx.switchToHttp().getRequest();
+    // Block by flag OR by role — a missing is_guest flag must never grant access
+    if (req.user?.is_guest || req.user?.role === 'guest') {
+      throw new ForbiddenException('هذه الميزة تتطلب إنشاء حساب — Registration required');
+    }
+    return true;
+  }
+}

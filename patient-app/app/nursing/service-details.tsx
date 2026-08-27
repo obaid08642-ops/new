@@ -1,22 +1,13 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Dimensions,
-  Modal,
-  TouchableWithoutFeedback
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useApp } from '../../src/context/AppContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Defs, Stop, Line, LinearGradient as SvgGradient } from 'react-native-svg';
 import { apiFetch } from '../../src/utils/api';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 const { width } = Dimensions.get('window');
 
@@ -70,7 +61,7 @@ export default function NursingServiceDetails() {
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="2.5"><Path d="M9 18l6-6-6-6" /></Svg>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{title}</Text>
+        <LocalizedText style={styles.headerTitle}>{title}</LocalizedText>
       </BlurView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -80,19 +71,19 @@ export default function NursingServiceDetails() {
           <View style={styles.heroIconWrap}>
              <Svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Path d="M22 12h-4l-3 9L9 3l-3 9H2" /></Svg>
           </View>
-          <Text style={styles.heroDesc}>خدمة طبية موثوقة يقدمها طاقم تمريض مرخص وتحت إشراف مباشر من وزارة الصحة.</Text>
+          <LocalizedText style={styles.heroDesc}>خدمة طبية موثوقة يقدمها طاقم تمريض مرخص وتحت إشراف مباشر من وزارة الصحة.</LocalizedText>
           <View style={styles.heroMeta}>
-            <Text style={styles.heroMetaText}>استجابة فورية</Text>
+            <LocalizedText style={styles.heroMetaText}>استجابة فورية</LocalizedText>
             <View style={styles.dot} />
-            <Text style={styles.heroMetaText}>تغطية شاملة</Text>
+            <LocalizedText style={styles.heroMetaText}>تغطية شاملة</LocalizedText>
           </View>
         </View>
 
         <View style={styles.listHeaderRow}>
-          <Text style={styles.sectionTitle}>التمريض المتاح للخدمة</Text>
+          <LocalizedText style={styles.sectionTitle}>التمريض المتاح للخدمة</LocalizedText>
           {/* FUNCTIONAL SORT BUTTON */}
           <TouchableOpacity activeOpacity={0.7} style={styles.quickFilter} onPress={() => setSortVisible(true)}>
-            <Text style={styles.quickFilterText}>{sortLabel}</Text>
+            <LocalizedText style={styles.quickFilterText}>{sortLabel}</LocalizedText>
             <FilterIcon />
           </TouchableOpacity>
         </View>
@@ -115,25 +106,37 @@ export default function NursingServiceDetails() {
 
                 {/* Middle: Info */}
                 <View style={styles.infoCol}>
-                  <Text style={styles.nurseName}>{nurse.name_ar}</Text>
+                  <LocalizedText style={styles.nurseName}>{nurse.name_ar}</LocalizedText>
                   
                   {/* PROMINENT HOSPITAL NAME */}
                   <View style={styles.hospitalRow}>
                     <HospitalIcon />
-                    <Text style={styles.hospitalText}>{nurse.facility_name || 'مستشفى خاص'}</Text>
+                    <LocalizedText style={styles.hospitalText}>{nurse.facility_name || ''}</LocalizedText>
                   </View>
                   
-                  <View style={styles.ratingRow}>
-                    <StarIcon />
-                    <Text style={styles.ratingText}>{nurse.rating}</Text>
-                    <View style={styles.dotGray} />
-                    <Text style={styles.distanceText}>يبعد {nurse.distance_km} كم</Text>
-                  </View>
+                  {(nurse.rating != null || nurse.distance_km != null) && (
+                    <View style={styles.ratingRow}>
+                      {nurse.rating != null && (
+                        <>
+                          <StarIcon />
+                          <LocalizedText style={styles.ratingText}>{nurse.rating}</LocalizedText>
+                        </>
+                      )}
+                      {nurse.rating != null && nurse.distance_km != null && <View style={styles.dotGray} />}
+                      {nurse.distance_km != null && (
+                        <LocalizedText style={styles.distanceText}>يبعد {nurse.distance_km} كم</LocalizedText>
+                      )}
+                    </View>
+                  )}
                 </View>
               </View>
 
               <View style={styles.actionRow}>
-                <Text style={styles.priceText}>{nurse.price || 150} <Text style={styles.currency}>ر.س</Text></Text>
+                {nurse.price != null ? (
+                  <LocalizedText style={styles.priceText}>{nurse.price} <LocalizedText style={styles.currency}>ر.س</LocalizedText></LocalizedText>
+                ) : (
+                  <LocalizedText style={styles.priceText}><LocalizedText style={styles.currency}>يُحدد عند الحجز</LocalizedText></LocalizedText>
+                )}
                 
                 {/* SELECT BUTTON */}
                 <TouchableOpacity 
@@ -150,7 +153,7 @@ export default function NursingServiceDetails() {
                   }}
                 >
                   <View style={styles.selectBtnGradient}>
-                    <Text style={styles.selectBtnText}>اختيار</Text>
+                    <LocalizedText style={styles.selectBtnText}>اختيار</LocalizedText>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -168,25 +171,25 @@ export default function NursingServiceDetails() {
               
               <View style={styles.modalHeaderRow}>
                 <TouchableOpacity onPress={() => handleSortChange('any')}>
-                  <Text style={styles.resetText}>إعادة ضبط</Text>
+                  <LocalizedText style={styles.resetText}>إعادة ضبط</LocalizedText>
                 </TouchableOpacity>
-                <Text style={styles.modalTitle}>ترتيب الممرضين حسب</Text>
+                <LocalizedText style={styles.modalTitle}>ترتيب الممرضين حسب</LocalizedText>
               </View>
               
               <TouchableOpacity style={styles.sortOption} onPress={() => handleSortChange('nearest')}>
-                <Text style={[styles.sortOptionText, currentSort === 'nearest' && styles.sortOptionTextActive]} >الأقرب أولاً</Text>
+                <LocalizedText style={[styles.sortOptionText, currentSort === 'nearest' && styles.sortOptionTextActive]} >الأقرب أولاً</LocalizedText>
                 {currentSort === 'nearest' && <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#23B5CE" strokeWidth="3"><Path d="M20 6L9 17l-5-5"/></Svg>}
               </TouchableOpacity>
               
               <View style={styles.divider} />
 
               <TouchableOpacity style={styles.sortOption} onPress={() => handleSortChange('highest_rated')}>
-                <Text style={[styles.sortOptionText, currentSort === 'highest_rated' && styles.sortOptionTextActive]} >الأعلى تقييماً</Text>
+                <LocalizedText style={[styles.sortOptionText, currentSort === 'highest_rated' && styles.sortOptionTextActive]} >الأعلى تقييماً</LocalizedText>
                 {currentSort === 'highest_rated' && <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#23B5CE" strokeWidth="3"><Path d="M20 6L9 17l-5-5"/></Svg>}
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.closeBtn} onPress={() => setSortVisible(false)}>
-                <Text style={styles.closeBtnText}>إغلاق</Text>
+                <LocalizedText style={styles.closeBtnText}>إغلاق</LocalizedText>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -200,10 +203,10 @@ export default function NursingServiceDetails() {
             <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
               <Svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><Line x1="12" y1="9" x2="12" y2="13"/><Line x1="12" y1="17" x2="12.01" y2="17"/></Svg>
             </View>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: '#0F172A', textAlign: 'center', marginBottom: 12 }}>سياسة الحقن والمحاليل الوريدية</Text>
-            <Text style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B', textAlign: 'center', marginBottom: 24, lineHeight: 24 }}>
-              لضمان سلامتك، يشترط الممرض رؤية <Text style={{ color: '#EF4444', fontFamily: 'Cairo-Bold' }}>وصفة طبية معتمدة</Text> قبل إعطاء أي حقن أو محاليل وريدية. لن يتم تقديم الخدمة بدون وصفة، وقد يتم احتساب رسوم الإلغاء.
-            </Text>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: '#0F172A', textAlign: 'center', marginBottom: 12 }}>سياسة الحقن والمحاليل الوريدية</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B', textAlign: 'center', marginBottom: 24, lineHeight: 24 }}>
+              لضمان سلامتك، يشترط الممرض رؤية <LocalizedText style={{ color: '#EF4444', fontFamily: 'Cairo-Bold' }}>وصفة طبية معتمدة</LocalizedText> قبل إعطاء أي حقن أو محاليل وريدية. لن يتم تقديم الخدمة بدون وصفة، وقد يتم احتساب رسوم الإلغاء.
+            </LocalizedText>
             
             <View style={{ flexDirection: 'row-reverse', width: '100%', gap: 12 }}>
               <TouchableOpacity 
@@ -213,13 +216,13 @@ export default function NursingServiceDetails() {
                   router.push({ pathname: '/nursing/nurse-profile', params: { nurseId: selectedNurseForLock, flow, serviceId } });
                 }}
               >
-                <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 15 }}>أوافق وأمتلك وصفة</Text>
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 15 }}>أوافق وأمتلك وصفة</LocalizedText>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={{ flex: 1, backgroundColor: '#F1F5F9', paddingVertical: 14, borderRadius: 12, alignItems: 'center' }}
                 onPress={() => setLockVisible(false)}
               >
-                <Text style={{ fontFamily: 'Cairo-Bold', color: '#64748B', fontSize: 15 }}>تراجع</Text>
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#64748B', fontSize: 15 }}>تراجع</LocalizedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -236,7 +239,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontFamily: 'Cairo-Bold', fontSize: 18, color: '#1E293B' },
   content: { paddingTop: 120, paddingBottom: 100 },
   
-  heroBox: { marginHorizontal: 20, borderRadius: 24, padding: 28, alignItems: 'center', marginBottom: 28, shadowColor: '#0F172A', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 8 },
+  heroBox: { marginHorizontal: 20, borderRadius: 24, padding: 28, alignItems: 'center', marginBottom: 28, backgroundColor: '#0F172A', shadowColor: '#0F172A', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.15, shadowRadius: 24, elevation: 8 },
   heroIconWrap: { width: 64, height: 64, borderRadius: 20, backgroundColor: 'rgba(56,189,248,0.15)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   heroDesc: { fontFamily: 'Cairo-Bold', fontSize: 15, color: '#E2E8F0', textAlign: 'center', marginBottom: 20, lineHeight: 26 },
   heroMeta: { flexDirection: 'row-reverse', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 100 },

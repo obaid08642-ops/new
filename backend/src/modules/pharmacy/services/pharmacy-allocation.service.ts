@@ -10,8 +10,9 @@ import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.mod
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
+import { isProviderRole } from '../../../common/enums';
 
-function assertProvider(u: any) { if (!u || u.role !== 'provider') throw new ForbiddenException('provider_scope_required'); }
+function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 
 @Injectable()
 export class PharmacyAllocationService {
@@ -30,6 +31,14 @@ export class PharmacyAllocationService {
     const q: any = { pharmacy_account_id: user.id };
     if (status) q.status = status;
     return this.allocs.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(100).lean();
+  }
+
+  /** Locate the calling pharmacy's allocation for a given order (used by order-level Blueprint endpoints). */
+  async findByOrderForProvider(user: any, orderId: string) {
+    assertProvider(user);
+    const a = await this.allocs.findOne({ order_id: orderId, pharmacy_account_id: user.id });
+    if (!a) throw new NotFoundException('allocation_not_found_for_order');
+    return a;
   }
 
   async detail(user: any, id: string): Promise<any> {
@@ -168,6 +177,36 @@ export class PharmacyAllocationService {
     const a = await this.advance(user, id, PharmacyAllocationState.DELIVERED);
     const doc = await this.allocs.findOne({ id });
     if (doc) { doc.delivery = { ...doc.delivery, delivered_at: new Date() }; await doc.save(); }
+    // 💰 Credit pharmacy earnings: gross − commission − VAT(15% on commission).
+    // Idempotent per allocation. E1 S8: enters ESCROW (state 'pending') and
+    // matures to 'cleared' after the configured settlement delay.
+    if (doc) {
+      try {
+        const ledger = (this.allocs as any).db.collection('platformledgerentries');
+        const dup = await ledger.findOne({ ref_type: 'allocation', ref_id: id, type: 'provider_earning' });
+        if (!dup) {
+          const gross = Number(doc.totals?.total ?? 0);
+          if (gross > 0) {
+            const cfg: any = await (this.allocs as any).db.collection('finance_config').findOne({ key: 'commissions' });
+            const pct = cfg?.service_types?.pharmacy?.percent ?? 10;
+            const vatPct = cfg?.tax?.vat_percent ?? 15;
+            const delayDays = cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? 3;
+            const commission = Math.round(gross * pct) / 100;
+            const vat = Math.round(commission * vatPct) / 100;
+            await ledger.insertOne({
+              id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+              provider_account_id: doc.pharmacy_account_id,
+              type: 'provider_earning', state: 'pending',
+              available_at: new Date(Date.now() + delayDays * 24 * 3600 * 1000),
+              amount: Math.round((gross - commission - vat) * 100) / 100,
+              gross, commission_percent: pct, commission, vat,
+              ref_type: 'allocation', ref_id: id, order_id: doc.order_id,
+              createdAt: new Date(),
+            });
+          }
+        }
+      } catch { /* ledger credit must never block delivery confirmation */ }
+    }
     return a;
   }
 

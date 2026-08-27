@@ -1,143 +1,200 @@
 // @ts-nocheck
+// app/consultations/follow-up.tsx — متابعة الاستشارة: بيانات الموعد الحقيقية من /care/appointments/:id
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { Icon, IconName } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, Input, SectionHeader } from '../../src/components/ui';
+import { Icon } from '../../src/components/Icon';
+import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
+import { apiFetch } from '../../src/utils/api';
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
+
+const STATE_AR: Record<string, string> = {
+  PENDING: 'بانتظار التأكيد',
+  CONFIRMED: 'مؤكد',
+  CHECKED_IN: 'تم تسجيل الوصول',
+  IN_PROGRESS: 'جارية الآن',
+  COMPLETED: 'مكتملة',
+  CANCELLED: 'ملغاة',
+  RESCHEDULED: 'أُعيد جدولتها',
+  NO_SHOW: 'لم يحضر',
+};
 
 export default function FollowUpScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const params = useLocalSearchParams();
-  const consultationId = params.id || 'current';
-  
-  const [newUpdate, setNewUpdate] = useState('');
-  const [consultation, setConsultation] = useState<any>(null);
-  const [updates, setUpdates] = useState<any[]>([]);
+  const appointmentId = (params.id || params.appointmentId) as string;
+
+  const [appt, setAppt] = useState<any>(null);
+  const [doctorName, setDoctorName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  React.useEffect(() => {
-    fetchConsultationDetails();
-  }, [consultationId]);
-
-  const fetchConsultationDetails = async () => {
+  const load = React.useCallback(async () => {
+    if (!appointmentId) { setLoadError(true); setLoading(false); return; }
+    setLoading(true);
+    setLoadError(false);
     try {
-      // In production, you would use apiFetch(`/consultations/${consultationId}`)
-      // For now, we set empty state if API not ready
-      setConsultation(null);
-      setUpdates([]);
-    } catch (err) {
-      console.log('Error fetching consultation', err);
+      const data = await apiFetch(`/care/appointments/${encodeURIComponent(appointmentId)}`);
+      const a = data?.data || data;
+      if (!a || !a.id) {
+        setAppt(null);
+        setLoadError(true);
+      } else {
+        setAppt(a);
+        if (a.doctor_id) {
+          apiFetch(`/care/doctors/${encodeURIComponent(a.doctor_id)}`)
+            .then((d: any) => setDoctorName(pickLocalized(d?.name_ar, d?.name_en) || ''))
+            .catch(() => {});
+        }
+      }
+    } catch {
+      setAppt(null);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
-  };
+  }, [appointmentId]);
 
-  const sendUpdate = async () => {
-    if (!newUpdate.trim()) return;
-    try {
-      // apiFetch(`/consultations/${consultationId}/messages`, { method: 'POST', body: { text: newUpdate } })
-      setUpdates(p => [...p, { id: String(Date.now()), date: 'الآن', text: newUpdate, type: 'me' }]);
-      setNewUpdate('');
-    } catch (e) {
-      console.log('Error sending update', e);
-    }
-  };
+  React.useEffect(() => { load(); }, [load]);
+
+  const prescriptions: string[] = Array.isArray(appt?.prescriptions) ? appt.prescriptions : [];
+  const history: any[] = Array.isArray(appt?.state_history) ? [...appt.state_history].reverse() : [];
+  const isCompleted = appt?.status === 'COMPLETED';
 
   return (
-    <View style={[st.c, { backgroundColor: colors.background } ]}>
+    <View style={[st.c, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight } ]}>
-        <View style={{ width: 40 }}/>
+      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
+        <View style={{ width: 40 }} />
         <AppText variant="h4">متابعة الاستشارة</AppText>
         <IconButton icon="back" onPress={() => router.back()} />
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
-        {loading ? (
-           <AppText>جاري التحميل...</AppText>
-        ) : !consultation ? (
-           <AppText>لا توجد بيانات متاحة للاستشارة.</AppText>
-        ) : (
-          <>
-            {/* Consultation summary */}
-            <Card style={{ flexDirection: 'row-reverse', gap: 12, alignItems: 'center' }}>
-              <View style={[st.docAva, { backgroundColor: colors.primarySurface } ]}>
-                <Icon name="doctor" size={28} color={colors.primary} />
-              </View>
-              <View style={{ flex: 1, alignItems: 'flex-end', gap: 3 }}>
-                <AppText variant="h5">{consultation.doctor}</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>{consultation.spec} · {consultation.date}</AppText>
-                <Badge label="متابعة نشطة" color={colors.success} icon="check_circle" />
-              </View>
-            </Card>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : !appt ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 12 }}>
+          <Icon name="document" size={48} color={colors.textTertiary} />
+          <AppText variant="h5" align="center">تعذر تحميل بيانات الاستشارة</AppText>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            {loadError && <Button label="إعادة المحاولة" variant="primary" icon="refresh" onPress={load} />}
+            <Button label="عودة" variant="ghost" onPress={() => router.back()} />
+          </View>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
+          {/* Consultation summary — real appointment */}
+          <Card style={{ flexDirection: 'row-reverse', gap: 12, alignItems: 'center' }}>
+            <View style={[st.docAva, { backgroundColor: colors.primarySurface }]}>
+              <Icon name="doctor" size={28} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1, alignItems: 'flex-end', gap: 3 }}>
+              <AppText variant="h5">{doctorName || 'الطبيب المعالج'}</AppText>
+              <AppText variant="caption" color={colors.textTertiary}>
+                {appt.slot_start
+                  ? new Date(appt.slot_start).toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long' }) +
+                    ' — ' +
+                    new Date(appt.slot_start).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
+                  : ''}
+              </AppText>
+              <Badge label={STATE_AR[appt.status] || appt.status} color={isCompleted ? colors.success : colors.primary} icon={isCompleted ? 'check_circle' : 'clock'} />
+            </View>
+          </Card>
 
-            {/* Diagnosis */}
-            <Card>
-              <SectionHeader title="التشخيص" />
-              <AppText variant="bodySM" color={colors.textSecondary}>{consultation.diagnosis}</AppText>
-            </Card>
+          {/* Visit type */}
+          <Card>
+            <SectionHeader title="نوع الزيارة" />
+            <AppText variant="bodySM" color={colors.textSecondary}>
+              {appt.service_type === 'video' ? 'استشارة فيديو عن بعد' : appt.service_type === 'home' ? 'زيارة منزلية' : 'كشف في العيادة'}
+            </AppText>
+          </Card>
 
-            {/* Prescriptions */}
+          {/* Patient notes recorded at booking */}
+          {!!appt.patient_notes && (
             <Card>
-              <SectionHeader title="الأدوية الموصوفة" />
-              {consultation.prescriptions?.map((p: any, i: number) => (
+              <SectionHeader title="ملاحظاتك للطبيب" />
+              <AppText variant="bodySM" color={colors.textSecondary}>{appt.patient_notes}</AppText>
+            </Card>
+          )}
+
+          {/* Prescriptions issued in this consultation */}
+          <Card>
+            <SectionHeader title="الأدوية الموصوفة" />
+            {prescriptions.length === 0 ? (
+              <AppText variant="bodySM" color={colors.textTertiary}>
+                {isCompleted ? 'لم يصف الطبيب أدوية في هذه الاستشارة' : 'تظهر الأدوية هنا بعد اكتمال الاستشارة'}
+              </AppText>
+            ) : (
+              prescriptions.map((p: any, i: number) => (
                 <View key={i} style={{ flexDirection: 'row-reverse', gap: 6, paddingVertical: 4, alignItems: 'center' }}>
                   <Icon name="medication" size={14} color={colors.primary} />
-                  <AppText variant="bodySM" color={colors.textSecondary}>{p}</AppText>
+                  <AppText variant="bodySM" color={colors.textSecondary}>{typeof p === 'string' ? p : p?.name || ''}</AppText>
                 </View>
-              ))}
-              <Button label="عرض الوصفة الكاملة" variant="ghost" icon="prescriptions" size="sm" onPress={() => router.push('/consultations/prescription-from-doctor')} style={{ marginTop: 8 }} />
-            </Card>
+              ))
+            )}
+            {prescriptions.length > 0 && (
+              <Button
+                label="طلب صرف من الصيدلية"
+                variant="ghost"
+                icon="prescriptions"
+                size="sm"
+                onPress={() => router.push('/(tabs)/pharmacy')}
+                style={{ marginTop: 8 }}
+              />
+            )}
+          </Card>
 
-            {/* Follow-up date */}
-            <Card style={{ backgroundColor: colors.warningSurface, flexDirection: 'row-reverse', gap: 12, alignItems: 'center' }}>
-              <Icon name="calendar" size={24} color={colors.warning} />
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <AppText variant="h6" color={colors.warning}>موعد المتابعة القادم</AppText>
-                <AppText variant="bodySM" color={colors.textSecondary}>{consultation.followUpDate}</AppText>
+          {/* Real status timeline */}
+          <SectionHeader title="سجل الحالة" />
+          {history.length === 0 ? (
+            <AppText variant="bodySM" color={colors.textTertiary} style={{ textAlign: 'center', marginVertical: 10 }}>لا يوجد سجل بعد</AppText>
+          ) : (
+            history.map((h: any, i: number) => (
+              <View key={i} style={{ flexDirection: 'row-reverse', gap: 10 }}>
+                <View style={{ alignItems: 'center', gap: 2 }}>
+                  <View style={[st.dot, { backgroundColor: i === 0 ? colors.primary : colors.secondary }]} />
+                  {i < history.length - 1 && <View style={[st.line, { backgroundColor: colors.borderLight }]} />}
+                </View>
+                <Card style={{ flex: 1, marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <Badge label={STATE_AR[h.state] || h.state} color={i === 0 ? colors.primary : colors.secondary} />
+                    <AppText variant="caption" color={colors.textTertiary}>
+                      {h.at ? new Date(h.at).toLocaleString(dateLocale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                    </AppText>
+                  </View>
+                  {!!h.note && <AppText variant="bodySM" color={colors.textSecondary}>{h.note}</AppText>}
+                </Card>
               </View>
-              <Button label="تأكيد" variant="primary" size="sm" full={false} onPress={() => router.push({ pathname: '/consultations/book/[id]', params: { id: '1' } })} />
-            </Card>
-          </>
-        )}
+            ))
+          )}
 
-        {/* Updates timeline */}
-        <SectionHeader title="تحديثات الحالة" />
-        {updates.length === 0 && !loading && (
-          <AppText variant="bodySM" color={colors.textTertiary} style={{ textAlign: 'center', marginVertical: 10 }}>لا توجد رسائل سابقة</AppText>
-        )}
-        {updates.map((u, i) => (
-          <View key={u.id} style={{ flexDirection: 'row-reverse', gap: 10 }}>
-            <View style={{ alignItems: 'center', gap: 2 }}>
-              <View style={[st.dot, { backgroundColor: u.type === 'doctor' ? colors.primary : colors.secondary }]} />
-              {i < updates.length - 1 && <View style={[st.line, { backgroundColor: colors.borderLight }]} />}
-            </View>
-            <Card style={{ flex: 1, marginBottom: 4 }}>
-              <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 4 }}>
-                <Badge label={u.type === 'doctor' ? 'الطبيب' : 'أنت'} color={u.type === 'doctor' ? colors.primary : colors.secondary} />
-                <AppText variant="caption" color={colors.textTertiary}>{u.date}</AppText>
-              </View>
-              <AppText variant="bodySM" color={colors.textSecondary}>{u.text}</AppText>
-            </Card>
+          {/* Actions */}
+          <View style={{ gap: 10 }}>
+            {!!appt.doctor_id && (
+              <Button
+                label="محادثة الطبيب"
+                variant="outline"
+                icon="chat"
+                onPress={() => router.push({ pathname: '/consultations/chat-with-doctor', params: { doctorId: appt.doctor_id } } as any)}
+              />
+            )}
+            {!!appt.doctor_id && (
+              <Button
+                label="حجز موعد متابعة"
+                variant="gradient"
+                icon="calendarCheck"
+                onPress={() => router.push({ pathname: '/consultations/book/[id]', params: { id: appt.doctor_id } } as any)}
+              />
+            )}
           </View>
-        ))}
-
-        {/* Add update */}
-        <Card>
-          <AppText variant="h6" style={{ marginBottom: 8 }}>إضافة تحديث للطبيب</AppText>
-          <Input value={newUpdate} onChangeText={setNewUpdate} placeholder="كيف حالتك اليوم؟ أي تحسن أو أعراض جديدة؟" icon="edit" multiline />
-          <Button label="إرسال تحديث" variant="primary" icon="send" size="sm" onPress={sendUpdate} style={{ marginTop: 8 }}/>
-        </Card>
-
-        {/* Actions */}
-        <View style={{ gap: 10 }}>
-          <Button label="محادثة الطبيب" variant="outline" icon="chat" onPress={() => router.push('/consultations/chat-with-doctor')} />
-          <Button label="حجز موعد متابعة" variant="gradient" icon="calendarCheck" onPress={() => router.push({ pathname: '/consultations/book/[id]', params: { id: '1' } })} />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </View>
   );
 }

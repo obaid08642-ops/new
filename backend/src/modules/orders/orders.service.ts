@@ -1,7 +1,10 @@
 import axios from 'axios';
-import * as PDFDocument from 'pdfkit';
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException } from '@nestjs/common';
+// Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
+const PDFDocument = require('pdfkit');
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Order, OrderDocument, PharmacyBid } from '../../schemas/order.schema';
 import { Medicine, MedicineDocument } from '../../schemas/medicine.schema';
@@ -14,6 +17,9 @@ import { OrderRepository } from "./repositories/order.repository";
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { DeliveryRepository } from "./repositories/delivery.repository";
 import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
+import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
+
+const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
 @Injectable()
 export class OrdersService {
@@ -25,6 +31,11 @@ export class OrdersService {
     private events: EventEmitter2,
     private dispatchSvc: DispatchService,
     private engine: WorkflowEngineService,
+    @InjectConnection() private readonly conn: Connection,
+    private readonly coupons: CouponService,
+    private readonly loyaltyRedeem: LoyaltyRedeemService,
+    private readonly refundExec: RefundExecutor,
+    private readonly cancelPolicy: CancellationPolicy,
   ) {}
 
   // ============ CREATE ============
@@ -42,14 +53,17 @@ export class OrdersService {
       throw new BadRequestException('Delivery location (lat/lng) required for dispatch');
     }
     const origin = { lat: data.delivery_address.lat, lng: data.delivery_address.lng };
+    const deliveryMode = data.delivery_mode === 'PICKUP' ? 'PICKUP' : 'DELIVERY';
     data.items = inputItems;
 
-    // 1. Resolve items + handle manual entries
+    // 1. Resolve items + handle manual entries (batch-fetch to avoid N+1)
+    const knownIds = data.items.map((it: any) => it.medicine_id).filter(Boolean);
+    const meds: any[] = knownIds.length ? await this.medModel.find({ id: { $in: knownIds } }).lean() : [];
+    const medById = new Map<string, any>(meds.map((m: any) => [m.id, m]));
     const items: any[] = [];
     let subtotal = 0;
     for (const it of data.items) {
-      let med: any = null;
-      if (it.medicine_id) med = await this.medModel.findOne({ id: it.medicine_id });
+      let med: any = it.medicine_id ? medById.get(it.medicine_id) || null : null;
       const qty = Math.max(1, it.qty || 1);
       const price = med?.price ?? it.price ?? 0;
       if (!med && it.name_ar) {
@@ -64,7 +78,7 @@ export class OrdersService {
       items.push({ medicine_id: med.id, name_ar: med.name_ar, name_en: med.name_en, qty, price, image: med.image, is_manual_entry: !it.medicine_id });
       subtotal += price * qty;
     }
-    const delivery_fee = 15;
+    const delivery_fee = deliveryMode === 'PICKUP' ? 0 : 15;
 
     // 2. Run dispatch
     const result = await this.dispatchSvc.dispatch(origin, items.map((i) => ({ medicine_id: i.medicine_id, qty: i.qty })));
@@ -83,12 +97,13 @@ export class OrdersService {
         ? items.filter((it) => result.fulfilled_items.some((f) => f.medicine_id === it.medicine_id))
         : items).reduce((s, it) => s + it.price * it.qty, 0),
       delivery_fee,
+      delivery_mode: deliveryMode,
       total: 0, // set below
       delivery_address: data.delivery_address,
       notes: data.notes,
       payment_method: data.payment_method || 'cash',
       payment_status: 'pending',
-      insurance_status: data.insurance_status || (data.hasInsurance || data.payment_method === 'insurance' ? 'pending' : 'none'),
+      insurance_status: data.insurance_status || (data.hasInsurance || data.payment_method === 'insurance' ? 'PENDING' : 'NONE'),
       insurance_copay: data.total_copay || 0,
       basket_review_status: items.some(i => i.is_manual_entry) ? 'pending_pharmacy_review' : 'none',
       state: OrderState.CREATED,
@@ -102,8 +117,50 @@ export class OrdersService {
       },
       is_split: false,
     });
-    order.total = data.totalAmount ?? (order.subtotal + delivery_fee);
+    // ── E1: server-computed pricing — the client NEVER sets the total ──────
+    // (Previously `data.totalAmount` from the request body was trusted, letting
+    //  a patient underpay by sending any total. Now discounts are validated
+    //  server-side and the total is always computed here.)
+    const preTotal = round2(order.subtotal + delivery_fee);
+    let couponDiscount = 0;
+    let loyaltyDiscount = 0;
+    let loyaltyPointsUsed = 0;
+    const categories = items.map((i: any) => i.category).filter(Boolean);
+
+    if (data.coupon_code) {
+      const v = await this.coupons.validate(patient.id, String(data.coupon_code), { order_total: preTotal, categories });
+      if (!v.valid) throw new BadRequestException(`coupon_invalid: ${v.reason}`);
+      couponDiscount = v.discount;
+    }
+    if (Number(data.loyalty_points) > 0) {
+      const q = await this.loyaltyRedeem.quote(patient.id, preTotal - couponDiscount);
+      loyaltyPointsUsed = Math.min(Math.floor(Number(data.loyalty_points)), q.max_points_for_order);
+      loyaltyDiscount = round2(loyaltyPointsUsed * q.point_value_sar);
+    }
+
+    order.total = Math.max(0, round2(preTotal - couponDiscount - loyaltyDiscount));
+    (order as any).coupon_code = couponDiscount > 0 ? String(data.coupon_code).toUpperCase() : undefined;
+    (order as any).coupon_discount = couponDiscount;
+    (order as any).loyalty_points_used = loyaltyPointsUsed;
+    (order as any).loyalty_discount = loyaltyDiscount;
+    (order as any).price_before_discounts = preTotal;
     await order.save();
+
+    // Mutations AFTER the order exists — compensated on failure
+    try {
+      if (couponDiscount > 0) {
+        await this.coupons.apply(patient.id, String(data.coupon_code), order.id, { order_total: preTotal, categories });
+      }
+      if (loyaltyPointsUsed > 0) {
+        await this.loyaltyRedeem.redeem(patient.id, order.id, loyaltyPointsUsed, preTotal - couponDiscount);
+      }
+    } catch (e) {
+      // Compensate: release coupon + re-credit points, then surface the error
+      try { await this.coupons.release(order.id); } catch { /* noop */ }
+      try { await this.loyaltyRedeem.refundRedemption(patient.id, order.id); } catch { /* noop */ }
+      throw e;
+    }
+
     this.events.emit(EVENTS.ORDER_CREATED, { order_id: order.id, patient_id: patient.id });
     await this.engine.announceCreated({ kind: 'pharmacy', entity_id: order.id, actor_account_id: patient.id, actor_role: 'patient', patient_account_id: patient.id, meta: { pharmacy_id: result.selected_pharmacy_id, items: items.length, total: order.total } });
 
@@ -139,7 +196,8 @@ export class OrdersService {
         pharmacy_id: splitResult.selected_pharmacy_id || undefined,
         items: splitResult.ok ? missingFullItems.filter((it) => splitResult.fulfilled_items.some((f) => f.medicine_id === it.medicine_id)) : missingFullItems,
         subtotal: missingFullItems.reduce((s, it) => s + it.price * it.qty, 0),
-        delivery_fee: 0, // bundled
+        delivery_fee: 0, // bundled with the primary order
+        delivery_mode: deliveryMode,
         total: missingFullItems.reduce((s, it) => s + it.price * it.qty, 0),
         delivery_address: data.delivery_address, notes: data.notes,
         state: splitResult.ok ? OrderState.PHARMACY_RECEIVED : OrderState.ESCALATED_TO_ADMIN,
@@ -181,28 +239,37 @@ export class OrdersService {
         order.state_history.push({ from, to, by_user_id: by.id, by_role: by.role, reason, at: new Date() } as any);
         if (to === OrderState.REJECTED) {
           order.rejection_reason = reason; order.rejected_by = by.id;
-          this.events.emit(EVENTS.ORDER_REJECTED, { order_id: order.id });
+          this.events.emit(EVENTS.ORDER_REJECTED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
           order.escalated = true;
           order.state_history.push({ from: to, to: OrderState.ESCALATED_TO_ADMIN, by_user_id: 'system', by_role: 'system', reason: 'auto-escalate-on-reject', at: new Date() } as any);
           order.state = OrderState.ESCALATED_TO_ADMIN;
-          this.events.emit(EVENTS.ORDER_ESCALATED, { order_id: order.id });
+          this.events.emit(EVENTS.ORDER_ESCALATED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         }
         if (to === OrderState.READY_FOR_DISPATCH) {
           const existingDel = await this.delModel.findOne({ order_id: order.id });
           if (!existingDel) await this.delModel.create({ order_id: order.id, pharmacy_id: order.pharmacy_id, state: DeliveryState.UNASSIGNED });
-          this.events.emit(EVENTS.ORDER_READY, { order_id: order.id });
+          this.events.emit(EVENTS.ORDER_READY, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         }
-        if (to === OrderState.ASSIGNED_TO_DELIVERY) this.events.emit(EVENTS.ORDER_ASSIGNED, { order_id: order.id });
-        if (to === OrderState.OUT_FOR_DELIVERY) this.events.emit(EVENTS.ORDER_OUT_FOR_DELIVERY, { order_id: order.id });
-        if (to === OrderState.DELIVERED) this.events.emit(EVENTS.ORDER_DELIVERED, { order_id: order.id });
-        if (to === OrderState.CANCELLED) this.events.emit(EVENTS.ORDER_CANCELLED, { order_id: order.id });
+        if (to === OrderState.ASSIGNED_TO_DELIVERY) this.events.emit(EVENTS.ORDER_ASSIGNED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+        if (to === OrderState.OUT_FOR_DELIVERY) this.events.emit(EVENTS.ORDER_OUT_FOR_DELIVERY, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+        if (to === OrderState.DELIVERED) {
+          this.events.emit(EVENTS.ORDER_DELIVERED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+          // A chronic refill is fulfilled only after this verified delivery state.
+          // Do not infer a package quantity or a next-refill date without a
+          // dispensed-quantity contract from the pharmacy.
+          await this.conn.collection('medicationreminders').updateOne(
+            { patient_id: order.patient_id, refill_pending_order_id: order.id },
+            { $set: { order_id: order.id, refill_fulfilled_at: new Date() }, $unset: { refill_pending_order_id: 1 } },
+          );
+        }
+        if (to === OrderState.CANCELLED) this.events.emit(EVENTS.ORDER_CANCELLED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         if (to === OrderState.ACCEPTED) {
-          this.events.emit(EVENTS.ORDER_ACCEPTED, { order_id: order.id });
+          this.events.emit(EVENTS.ORDER_ACCEPTED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
           if (order.pharmacy_id) await this.dispatchSvc.deductStock(order.pharmacy_id, order.items.map((it: any) => ({ medicine_id: it.medicine_id, qty: it.qty })));
         }
-        if (to === OrderState.PREPARING) this.events.emit(EVENTS.ORDER_PREPARING, { order_id: order.id });
-        if (to === OrderState.PARTIALLY_FULFILLED) this.events.emit(EVENTS.ORDER_PARTIAL, { order_id: order.id });
-        if (to === OrderState.PHARMACY_RECEIVED) this.events.emit(EVENTS.ORDER_RECEIVED_BY_PHARMACY, { order_id: order.id });
+        if (to === OrderState.PREPARING) this.events.emit(EVENTS.ORDER_PREPARING, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+        if (to === OrderState.PARTIALLY_FULFILLED) this.events.emit(EVENTS.ORDER_PARTIAL, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
+        if (to === OrderState.PHARMACY_RECEIVED) this.events.emit(EVENTS.ORDER_RECEIVED_BY_PHARMACY, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         await order.save();
         return order.toObject();
       },
@@ -210,9 +277,20 @@ export class OrdersService {
   }
 
   // ============ QUERIES ============
-  async getById(id: string) {
+  private assertOrderAccess(order: any, user?: any) {
+    if (!user) return;
+    const role = String(user.role || '').toLowerCase();
+    if (role === UserRole.ADMIN || role === 'admin' || role === 'super_admin') return;
+    if (role === UserRole.PATIENT && order.patient_id === user.id) return;
+    if (['pharmacy', 'provider'].includes(role) && order.pharmacy_id === user.id) return;
+    // Patient-owned order identifiers must not reveal existence to unrelated users.
+    throw new NotFoundException('order_not_found');
+  }
+
+  async getById(id: string, user?: any) {
     const o = await this.orderModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!o) throw new NotFoundException();
+    this.assertOrderAccess(o, user);
     // Hydrate sub-orders
     if (o.is_split && o.sub_order_ids?.length) {
       const subs = await this.orderModel.find({ id: { $in: o.sub_order_ids } }, { _id: 0, __v: 0 });
@@ -272,53 +350,102 @@ export class OrdersService {
   async markPartial(orderId: string, by: any, unavailableMedicineIds: string[]) {
     const o = await this.orderModel.findOne({ id: orderId });
     if (!o) throw new NotFoundException();
+    const oldTotal = Number(o.total || 0);
     o.items = o.items.map((it: any) => ({ ...it, unavailable: unavailableMedicineIds.includes(it.medicine_id) } as any));
     o.subtotal = o.items.filter((it: any) => !it.unavailable).reduce((s: number, it: any) => s + it.price * it.qty, 0);
     o.total = o.subtotal + (o.delivery_fee || 0);
     await o.save();
-    return this.transition(orderId, OrderState.PARTIALLY_FULFILLED, by);
+    const result = await this.transition(orderId, OrderState.PARTIALLY_FULFILLED, by);
+
+    // E1 S18: paid order shrank → refund the difference (idempotent per total)
+    const diff = round2(oldTotal - Number(o.total || 0));
+    if (diff > 0 && o.payment_status === 'paid') {
+      try {
+        await this.refundExec.execute({
+          refund_id: `partial_${orderId}_${String(o.total).replace('.', '_')}`,
+          booking_kind: 'pharmacy', booking_id: orderId, patient_id: o.patient_id,
+          amount: diff, reason: 'partial fulfillment — unavailable items refunded', actor_id: by.id,
+        });
+      } catch (e: any) {
+        // Never block the operational transition; flag for admin follow-up
+        this.events.emit('refund.execution_failed', { order_id: orderId, amount: diff, error: e?.message });
+      }
+    }
+    return result;
   }
+  /**
+   * E1 S3/S6 — cancellation with a real financial workflow:
+   *  1. Stage-based policy decides fees + stock restoration (who bears the cost).
+   *  2. Paid orders are REALLY refunded via the gateway (previously the check
+   *     `state === 'PAID'` could never be true — paid cancels NEVER refunded).
+   *  3. Wallet-paid portions go back to the wallet; loyalty points are
+   *     re-credited; coupon usage is released. All idempotent.
+   */
   async cancel(orderId: string, by: any, reason: string) {
     const order = await this.orderModel.findOne({ id: orderId });
     if (!order) throw new NotFoundException();
-    
-    if (['DELIVERED', 'COMPLETED', 'ANALYZING', 'FULFILLED', OrderState.DELIVERED, OrderState.PARTIALLY_FULFILLED].includes(order.state as string)) {
-      throw new BadRequestException('Cannot cancel order at this stage');
+    this.assertOrderAccess(order, by);
+
+    const policy = await this.cancelPolicy.forOrder(order.state as string, by.role, order.delivery_fee || 0);
+    if (!policy.allowed) {
+      throw new BadRequestException(`Cannot cancel order at this stage (${policy.block_reason || 'not_allowed'})`);
     }
 
-    // REAL REFUND LOGIC (Moyasar Integration)
-    if ((order.state as string) === 'PAID' && (order as any).payment_id && (order as any).payment_id.startsWith('pi_')) {
-      const paymentSecret = process.env.MOYASAR_SECRET_KEY;
-      if (!paymentSecret) {
-        throw new ServiceUnavailableException('Payment refunds are unavailable because the payment gateway is not configured');
+    const paidPayment: any = await this.conn.collection('moyasar_payments').findOne({ booking_id: orderId, status: 'paid' } as any);
+    const wasPaid = order.payment_status === 'paid' || !!paidPayment;
+
+    if (wasPaid) {
+      // Refund to the original card transaction when present, otherwise create
+      // the finance-owned cash handover task. Customer wallet credit is forbidden.
+      const paidAmount = paidPayment
+        ? Number(paidPayment.amount || 0) - Number(paidPayment.refunded_amount || 0)
+        : Number(order.total || 0);
+      const refundAmount = round2(Math.max(0, paidAmount - policy.fee_sar));
+      if (refundAmount > 0) {
+        await this.refundExec.execute({
+          refund_id: `cancel_${orderId}`,
+          booking_kind: 'pharmacy',
+          booking_id: orderId,
+          patient_id: order.patient_id,
+          amount: refundAmount,
+          reason: reason || `cancellation by ${by.role}`,
+          actor_id: by.id,
+        });
       }
+      const upd: any = { refund_status: 'REFUNDED', payment_status: 'refunded', refunded_at: new Date() };
+      if (policy.fee_sar > 0) {
+        upd.cancellation_fee = policy.fee_sar;
+        upd.cancellation_fee_reason = policy.fee_reason;
+      }
+      await this.orderModel.updateOne({ id: orderId }, { $set: upd } as any);
+    }
+
+    // Loyalty points re-credit + coupon release (idempotent)
+    try { await this.loyaltyRedeem.refundRedemption(order.patient_id, orderId); } catch { /* never block cancel */ }
+    try { await this.coupons.release(orderId); } catch { /* never block cancel */ }
+
+    // Stock restoration when the pharmacy had already accepted (deducted stock)
+    if (policy.restore_stock && order.pharmacy_id) {
       try {
-        const amount_in_halalas = Math.round((order.total || 0) * 100);
-        await axios.post(
-          `https://api.moyasar.com/v1/payments/${(order as any).payment_id}/refund`,
-          { amount: amount_in_halalas, reason: reason || 'User requested cancellation' },
-          { auth: { username: paymentSecret, password: '' } }
-        );
-        // Mark as refunded
-        await this.orderModel.updateOne({ id: orderId }, { refund_status: 'REFUNDED' });
-      } catch (err) {
-        console.error('Moyasar Refund Failed:', err.response?.data || err.message);
-        throw new BadRequestException('Failed to process financial refund through payment gateway');
-      }
+        await this.dispatchSvc.restoreStock(order.pharmacy_id, order.items.map((it: any) => ({ medicine_id: it.medicine_id, qty: it.qty })));
+      } catch { /* stock restore must never block the cancellation itself */ }
     }
 
     return this.transition(orderId, OrderState.CANCELLED, by, reason);
   }
 
   // REAL PDF GENERATION LOGIC
-  async generatePdf(orderId: string): Promise<any> {
+  async generatePdf(orderId: string, user?: any): Promise<Buffer> {
     const order = await this.orderModel.findOne({ id: orderId });
     if (!order) throw new NotFoundException();
+    this.assertOrderAccess(order, user);
 
-    return new Promise((resolve) => {
-      const doc = new (PDFDocument as any)({ margin: 50, size: 'A4' });
+    return new Promise((resolve, reject) => {
+      try {
+        const doc = new PDFDocument({ margin: 50, size: 'A4' });
       const buffers: any[] = [];
       doc.on('data', buffers.push.bind(buffers));
+      doc.on('error', reject);
       doc.on('end', () => {
         resolve(Buffer.concat(buffers));
       });
@@ -364,7 +491,10 @@ export class OrdersService {
 
       // Footer
       doc.fontSize(10).fillColor('#999999').text('Generated securely by Nabdah Systems.', 50, 750, { align: 'center' });
-      doc.end();
+        doc.end();
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
@@ -399,6 +529,8 @@ export class OrdersService {
     return this.create(patient, {
       items: o.items.map((it: any) => ({ medicine_id: it.medicine_id, qty: it.qty })),
       delivery_address: o.delivery_address,
+      delivery_mode: o.delivery_mode,
+      payment_method: o.payment_method,
     });
   }
 
@@ -420,6 +552,8 @@ export class OrdersService {
         price: it.price,
       })),
       delivery_address: body.delivery_address || o.delivery_address,
+      delivery_mode: o.delivery_mode,
+      payment_method: o.payment_method,
       notes: body.notes,
     });
   }
@@ -527,9 +661,13 @@ export class OrdersService {
     return this.bidModel.find({ pharmacy_id: user.id }).sort({ createdAt: -1 }).lean();
   }
 
-  async getTracking(id: string) {
+  async getTracking(id: string, user: any) {
     const order = await this.orderModel.findOne({ id }).lean();
     if (!order) throw new NotFoundException();
+    const isOwner = order.patient_id === user?.id || order.pharmacy_id === user?.id;
+    if (!isOwner && !['admin', 'super_admin'].includes(user?.role)) {
+      throw new ForbiddenException();
+    }
 
     let delivery = null;
     if (order.delivery_id) {
@@ -544,10 +682,17 @@ export class OrdersService {
       }
     }
 
+    const pharmacy = order.pharmacy_id
+      ? await this.conn.collection('provider_profiles').findOne({ id: order.pharmacy_id }, { projection: { name_ar: 1, name_en: 1 } })
+      : null;
     return {
       order_id: order.id,
       state: order.state,
-      delivery
+      updated_at: order.updatedAt,
+      delivery_mode: order.delivery_mode || 'DELIVERY',
+      total: order.total,
+      pharmacy_name: pharmacy?.name_ar || pharmacy?.name_en || null,
+      delivery,
     };
   }
 

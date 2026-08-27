@@ -28,9 +28,11 @@ export class SystemHealthController {
 
   @Get('readiness')
   @HealthCheck()
-  checkReadiness() {
-    // For now, readiness and liveness are the same.
-    // In the future, readiness might check third-party APIs (e.g., Moyasar, Gemini)
-    return this.checkLiveness();
+  async checkReadiness() {
+    // Readiness currently mirrors liveness, with process uptime included for
+    // operations dashboards. Third-party checks (payments/AI/etc.) can be added
+    // here without changing the response contract.
+    const result = await this.checkLiveness();
+    return { ...result, uptime: Math.round(process.uptime()) };
   }
 }

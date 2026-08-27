@@ -24,9 +24,11 @@ export class WebhooksController {
   @Post('paytabs')
   async paytabs(
     @Body() body: any,
-    @Headers('signature') signature: string
+    @Headers('signature') signature: string,
+    @Req() req: Request
   ) {
-    return this.service.handlePayTabsWebhook(body, signature);
+    const rawBody = (req as any).rawBody || JSON.stringify(body);
+    return this.service.handlePayTabsWebhook(body, signature, rawBody);
   }
 
   @Post('sms')

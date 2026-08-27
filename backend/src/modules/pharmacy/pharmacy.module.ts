@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AiModule } from '../ai/ai.module';
 import {
   PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
   PharmacySubstituteMapSchema, PharmacyLowStockAlertSchema,
@@ -32,14 +33,12 @@ import {
   ProviderBroadcastController, AdminBroadcastController,
   PharmacyChatController, AdminPharmacyChatController,
   ProviderShortageController, AdminShortageController, PatientShortageController,
-  AIB2BProcurementController
 } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
 import { ProviderModule } from '../provider/provider.module';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
-import { OrdersModule } from '../orders/orders.module';
 import { DrugRejectionLogRepository } from "./services/repositories/drugrejectionlog.repository";
 import { DrugShortageFlagRepository } from "./services/repositories/drugshortageflag.repository";
 import { MedicineRepository } from "./services/repositories/medicine.repository";
@@ -63,7 +62,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     NotificationsModule,
     ProviderModule,
     WorkflowEngineModule,
-    OrdersModule,
+    AiModule,
     MongooseModule.forFeature([
       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'PharmacyAllocation', schema: PharmacyAllocationSchema },
@@ -132,7 +131,6 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     PatientShortageController,
     ProcurementController,
     AdminProcurementController,
-    AIB2BProcurementController
   ],
   exports: [PharmacyOrderService, PharmacyAllocationService, PharmacyOrdersProviderService],
 })

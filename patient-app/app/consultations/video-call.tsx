@@ -2,20 +2,30 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
   Alert
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "../../src/context/AppContext";
 import { resolveColor } from "../../src/theme/colors";
 import { apiFetch } from "../../src/utils/api";
 
-import { Room, RoomEvent } from "livekit-client";
-import { VideoView } from "@livekit/react-native";
+import { Room, RoomEvent, VideoPresets } from "livekit-client";
+import { LocalizedText } from '../../src/components/LocalizedText';
+
+// @livekit/react-native is a NATIVE module — absent in Expo Go. Loading it
+// statically crashes the whole screen with Invariant Violation there, so we
+// load it defensively and fall back to the audio-style UI when unavailable.
+let VideoView: any = null;
+try {
+  VideoView = require("@livekit/react-native").VideoView;
+} catch {
+  VideoView = null;
+}
 
 export default function VideoCallScreen() {
   const { appointmentId } = useLocalSearchParams();
@@ -41,24 +51,44 @@ export default function VideoCallScreen() {
         // Fetch appointment details and token
         let resData: any = null;
         let token = "";
-        let serverUrl = "wss://livekit.nabdahplus.com"; // Default fallback
+        let serverUrl = "wss://live.nabd.plus"; // Default fallback
 
+        // M1-30: real LiveKit contract — POST /calls/initiate then /calls/:sessionId/join
+        // (was calling non-existent /care/appointments/:id/video-token and falling back to a fake token)
         if (appointmentId) {
-          const res = await apiFetch(`/care/appointments/${appointmentId}/video-token`);
-          resData = res?.data || res;
-          token = resData?.token;
-          serverUrl = resData?.serverUrl || serverUrl;
-          setData(resData?.appointment || resData);
+          const initRes = await apiFetch(`/calls/initiate`, {
+            method: 'POST',
+            body: JSON.stringify({ appointmentId, call_type: 'video' }),
+          });
+          const session = initRes?.data || initRes;
+          const sessionId = session?.session_id || session?.id;
+          if (sessionId) {
+            const joinRes = await apiFetch(`/calls/${sessionId}/join`, { method: 'POST' });
+            resData = joinRes?.data || joinRes;
+            token = resData?.token || resData?.livekit_token;
+            serverUrl = resData?.server_url || resData?.serverUrl || serverUrl;
+            setData(session?.appointment || session);
+          }
         }
 
         if (!token) {
-          token = "session_token";
-          setData({ doctor_name: "الطبيب المباشر" });
+          throw new Error('تعذر بدء غرفة الفيديو — لم يصل رمز اتصال صالح من الخادم');
         }
 
+        // FaceTime-class quality: capture HD 720p, publish with simulcast layers so
+        // LiveKit adapts each subscriber to the best layer their network can carry
+        // (adaptiveStream + dynacast), with DTX audio for clean voice on weak links.
         const newRoom = new Room({
           adaptiveStream: true,
           dynacast: true,
+          videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
+          publishDefaults: {
+            simulcast: true,
+            videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+            videoEncoding: { maxBitrate: 1_700_000 },
+            audioBitrate: 32_000,
+            dtx: true,
+          },
         });
 
         // Event listeners
@@ -144,44 +174,44 @@ export default function VideoCallScreen() {
       
       {/* Remote Video Background */}
       <View style={styles.bg}>
-        {remoteTrack ? (
+        {remoteTrack && VideoView ? (
           <VideoView style={styles.fullVideo} videoTrack={remoteTrack} />
         ) : (
           <View style={styles.centerBox}>
             <View style={[styles.docAvatar, { backgroundColor: resolveColor("var(--ps)") }]}>
-              <Text style={{ fontFamily: "MaterialSymbolsRounded", color: resolveColor("var(--p)"), fontSize: 60 }}>person</Text>
+              <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: resolveColor("var(--p)"), fontSize: 60 }}>person</LocalizedText>
             </View>
-            <Text style={styles.docName}>{data?.doctor_name}</Text>
-            <Text style={styles.statusText}>{isConnected ? "في انتظار انضمام الطبيب..." : "غير متصل"}</Text>
+            <LocalizedText style={styles.docName}>{data?.doctor_name}</LocalizedText>
+            <LocalizedText style={styles.statusText}>{isConnected ? "في انتظار انضمام الطبيب..." : "غير متصل"}</LocalizedText>
           </View>
         )}
       </View>
 
       {/* Local Video Overlay */}
       <View style={styles.myCam}>
-        {camOn && localTrack ? (
+        {camOn && localTrack && VideoView ? (
           <VideoView style={styles.fullVideo} videoTrack={localTrack} mirror={true} />
         ) : (
-          <Text style={{ fontFamily: "MaterialSymbolsRounded", color: "rgba(255,255,255,.5)", fontSize: 36 }}>person</Text>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "rgba(255,255,255,.5)", fontSize: 36 }}>person</LocalizedText>
         )}
       </View>
 
       {/* Controls Overlay */}
       <View style={styles.bottomControls}>
         <TouchableOpacity style={styles.controlBtn} onPress={() => setMicOn(!micOn)}>
-          <Text style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 26 }}>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 26 }}>
             {micOn ? "mic" : "mic_off"}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
         
         <TouchableOpacity style={[styles.endBtn, { backgroundColor: resolveColor("var(--cr)") }]} onPress={handleEndCall}>
-          <Text style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 30 }}>call_end</Text>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 30 }}>call_end</LocalizedText>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.controlBtn} onPress={() => setCamOn(!camOn)}>
-          <Text style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 26 }}>
+          <LocalizedText style={{ fontFamily: "MaterialSymbolsRounded", color: "#fff", fontSize: 26 }}>
             {camOn ? "videocam" : "videocam_off"}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

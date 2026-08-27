@@ -1,13 +1,7 @@
 // @ts-nocheck
 // app/insurance/submit-claim.tsx — Connected to insurance module
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { View, StyleSheet, ScrollView, StatusBar, Alert } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -20,6 +14,7 @@ import {
   SectionHeader,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function Screen() {
   const insets = useSafeAreaInsets();
@@ -37,9 +32,9 @@ export default function Screen() {
           submitted_at: new Date().toISOString(),
         }),
       });
-      Alert.alert("تم تقديم المطالبة", "سيتم مراجعتها خلال 2-5 أيام عمل");
+      showLocalizedAlert("تم تقديم المطالبة", "سيتم مراجعتها خلال 2-5 أيام عمل");
     } catch {
-      Alert.alert("خطأ", "تعذر تقديم المطالبة");
+      showLocalizedAlert("خطأ", "تعذر تقديم المطالبة");
     } finally {
       setSubmitting(false);
     }

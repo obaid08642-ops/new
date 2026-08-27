@@ -44,6 +44,9 @@ export class SharedCalendarEvent extends Document {
   @Prop({ required: true }) event_date: Date;
   @Prop({ required: true }) created_by: string; // user_id
   @Prop({ required: true }) member_user_id: string; // whose event it is
+  @Prop() member_name?: string; // display label sent by the app
+  @Prop() time_label?: string; // display label sent by the app
+  @Prop() color?: string;
   @Prop({ default: false }) is_deleted: boolean;
 }
 export const SharedCalendarEventSchema = SchemaFactory.createForClass(SharedCalendarEvent);

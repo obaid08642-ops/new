@@ -1,17 +1,10 @@
 import React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  LayoutAnimation,
-  Platform,
-  UIManager
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { router, usePathname } from 'expo-router';
 import { useApp } from '../context/AppContext';
 import { lightColors, darkColors } from '../theme/colors';
+import { bottomNavLabel } from './bottomNavLocale';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -19,9 +12,8 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 export default function BottomNavBar() {
   const pathname = usePathname();
-  const { isDark, lang } = useApp();
+  const { isDark, lang, isRTL } = useApp();
   const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur' || true;
 
   const getActiveTab = () => {
     if (pathname === '/' || pathname === '/(tabs)' || pathname === '/(tabs)/index') return 0;
@@ -29,7 +21,6 @@ export default function BottomNavBar() {
     if (pathname.includes('/consultations')) return 2;
     if (pathname.includes('/diagnostics')) return 3;
     if (pathname.includes('/nursing')) return 4;
-    if (pathname.includes('/health')) return 5;
     return -1;
   };
   const activeTab = getActiveTab();
@@ -39,13 +30,14 @@ export default function BottomNavBar() {
     router.push(screen);
   };
 
+  // Direction follows the selected locale. In RTL, first items appear on the
+  // right; in LTR they appear on the left. The center action remains stable.
   const navItems = [
-    { icon: 'home', label: 'الرئيسية', screen: '/(tabs)' },
-    { icon: 'prescriptions', label: 'الصيدلية', screen: '/(tabs)/pharmacy' },
-    { icon: 'stethoscope', label: 'طبيب', screen: '/(tabs)/consultations', isFab: true },
-    { icon: 'science', label: 'تحاليل', screen: '/(tabs)/diagnostics' },
-    { icon: 'healing', label: 'تمريض', screen: '/(tabs)/nursing' }, // updated
-    { icon: 'ecg_heart', label: 'صحتي', screen: '/(tabs)/health' }
+    { icon: 'home', label: bottomNavLabel(lang, 'home'), screen: '/(tabs)' },
+    { icon: 'prescriptions', label: bottomNavLabel(lang, 'pharmacy'), screen: '/(tabs)/pharmacy' },
+    { icon: 'stethoscope', label: bottomNavLabel(lang, 'consultations'), screen: '/(tabs)/consultations', isFab: true },
+    { icon: 'science', label: bottomNavLabel(lang, 'diagnostics'), screen: '/(tabs)/diagnostics' },
+    { icon: 'healing', label: bottomNavLabel(lang, 'nursing'), screen: '/(tabs)/nursing' },
   ];
 
   return (
@@ -66,7 +58,15 @@ export default function BottomNavBar() {
           if (item.isFab) {
             return (
               <View key={idx} style={styles.navItem} pointerEvents="box-none">
-                <TouchableOpacity activeOpacity={0.8} style={styles.fab} onPress={() => handlePress(item.screen)}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.fab}
+                  onPress={() => handlePress(item.screen)}
+                  accessibilityRole="tab"
+                  accessibilityLabel={item.label}
+                  accessibilityState={{ selected: activeTab === idx }}
+                  testID={`bottom-nav-${item.icon}`}
+                >
                   <View style={[styles.fabInner, { backgroundColor: colors.p, borderColor: colors.bg }]}>
                     <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 26 }}>
                       {item.icon}
@@ -84,6 +84,10 @@ export default function BottomNavBar() {
               activeOpacity={0.6}
               style={styles.navItem} 
               onPress={() => handlePress(item.screen)}
+              accessibilityRole="tab"
+              accessibilityLabel={item.label}
+              accessibilityState={{ selected: isActive }}
+              testID={`bottom-nav-${item.icon}`}
             >
               <Text style={{ 
                 fontFamily: 'MaterialSymbolsRounded', 

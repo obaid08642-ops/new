@@ -1,122 +1,26 @@
-// @ts-nocheck
-// Body target — BMI + body fat + goal setting — Connected to GET/POST /nutrition/profile
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import React from 'react';
+import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, Input, SegmentedControl, SectionHeader } from '../../src/components/ui';
+import { AppText, Button, Card, IconButton, Input, SegmentedControl } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { nutritionT } from '../../src/i18n/nutrition';
+
+type Profile = { goal?: string; activity_level?: string; height_cm?: number; weight_kg?: number; target_weight_kg?: number; daily_calorie_target?: number; daily_water_target_ml?: number; dietary_restrictions?: string[]; allergies?: string[]; bmi?: number | null };
+const goals = ['weight_loss', 'maintain', 'muscle_gain', 'healthy_lifestyle']; const activities = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
 
 export default function BodyTargetScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [weight, setWeight] = useState('80');
-  const [height, setHeight] = useState('175');
-  const [gender, setGender] = useState('male');
-  const [targetWeight, setTargetWeight] = useState('72');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const insets = useSafeAreaInsets(); const { colors, isDark, lang } = useApp(); const t = (key: any, vars?: any) => nutritionT(lang, key, vars);
+  const [goal, setGoal] = React.useState('healthy_lifestyle'); const [activity, setActivity] = React.useState('moderate'); const [height, setHeight] = React.useState(''); const [weight, setWeight] = React.useState(''); const [targetWeight, setTargetWeight] = React.useState(''); const [calorieTarget, setCalorieTarget] = React.useState(''); const [waterTarget, setWaterTarget] = React.useState(''); const [restrictions, setRestrictions] = React.useState(''); const [allergies, setAllergies] = React.useState('');
+  const [bmi, setBmi] = React.useState<number | null>(null); const [loading, setLoading] = React.useState(true); const [saving, setSaving] = React.useState(false); const [error, setError] = React.useState<string | null>(null);
+  React.useEffect(() => { apiFetch('/nutrition/profile').then((response: any) => { const p: Profile = response?.data || response || {}; setGoal(p.goal || 'healthy_lifestyle'); setActivity(p.activity_level || 'moderate'); setHeight(p.height_cm == null ? '' : String(p.height_cm)); setWeight(p.weight_kg == null ? '' : String(p.weight_kg)); setTargetWeight(p.target_weight_kg == null ? '' : String(p.target_weight_kg)); setCalorieTarget(p.daily_calorie_target == null ? '' : String(p.daily_calorie_target)); setWaterTarget(p.daily_water_target_ml == null ? '' : String(p.daily_water_target_ml)); setRestrictions((p.dietary_restrictions || []).join(', ')); setAllergies((p.allergies || []).join(', ')); setBmi(p.bmi ?? null); }).catch(() => setError(t('error'))).finally(() => setLoading(false)); }, [lang]);
+  const list = (value: string) => value.split(',').map((item) => item.trim()).filter(Boolean);
+  const finite = (value: string) => value.trim() !== '' && Number.isFinite(Number(value));
+  const save = async () => { if (![height, weight, targetWeight, calorieTarget, waterTarget].every(finite)) { setError(t('formRequired')); return; } setSaving(true); setError(null); try { const response: any = await apiFetch('/nutrition/profile', { method: 'POST', body: JSON.stringify({ goal, activity_level: activity, height_cm: Number(height), weight_kg: Number(weight), target_weight_kg: Number(targetWeight), daily_calorie_target: Number(calorieTarget), daily_water_target_ml: Number(waterTarget), dietary_restrictions: list(restrictions), allergies: list(allergies) }) }); const saved: Profile = response?.data || response; setBmi(saved.bmi ?? null); router.replace('/nutrition/hub'); } catch { setError(t('saveError')); } finally { setSaving(false); } };
 
-  const bmi = weight && height ? (parseFloat(weight) / ((parseFloat(height) / 100) ** 2)).toFixed(1) : '0';
-  const bmiNum = parseFloat(bmi);
-  const bmiStatus = bmiNum < 18.5 ? 'نحيف' : bmiNum < 25 ? 'طبيعي' : bmiNum < 30 ? 'زيادة وزن' : 'سمنة';
-  const bmiColor = bmiNum < 18.5 ? '#F0A526' : bmiNum < 25 ? '#16A34A' : bmiNum < 30 ? '#F0A526' : '#F0695C';
-
-  useEffect(() => {
-    apiFetch('/nutrition/profile')
-      .then((p: any) => {
-        if (p.weight_kg) setWeight(String(p.weight_kg));
-        if (p.height_cm) setHeight(String(p.height_cm));
-        if (p.target_weight_kg) setTargetWeight(String(p.target_weight_kg));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await apiFetch('/nutrition/profile', {
-        method: 'POST',
-        body: JSON.stringify({
-          weight_kg: parseFloat(weight),
-          height_cm: parseFloat(height),
-          target_weight_kg: parseFloat(targetWeight),
-          bmi: parseFloat(bmi),
-        }),
-      });
-      Alert.alert('تم الحفظ', 'تم تحديث بياناتك الجسمانية بنجاح');
-    } catch {
-      Alert.alert('خطأ', 'تعذر حفظ البيانات');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background } ]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight } ]}>
-        <View style={{ width: 40 }}/>
-        <AppText variant="h4">هدف الجسم</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}>
-        <SegmentedControl value={gender} onChange={setGender} options={[{ key: 'male', label: 'ذكر' }, { key: 'female', label: 'أنثى' }]} />
-
-        <View style={{ flexDirection: 'row-reverse', gap: 10 }}>
-          <Input value={weight} onChangeText={setWeight} placeholder="الوزن (كغ)" keyboardType="numeric" icon="weight" style={{ flex: 1 }}/>
-          <Input value={height} onChangeText={setHeight} placeholder="الطول (سم)" keyboardType="numeric" icon="trending_up" style={{ flex: 1 }}/>
-        </View>
-
-        {/* BMI Result */}
-        <Card style={{ alignItems: 'center', gap: 10 }}>
-          <AppText variant="caption" color={colors.textTertiary}>مؤشر كتلة الجسم BMI</AppText>
-          <View style={[st.bmiCircle, { borderColor: bmiColor } ]}>
-            <AppText variant="displayMD" color={bmiColor}>{loading ? '...' : bmi}</AppText>
-          </View>
-          <Badge label={loading ? 'جاري التحميل' : bmiStatus} color={bmiColor} />
-          <View style={st.bmiBar}>
-            {[{ l: 'نحيف', c: '#F0A526' }, { l: 'طبيعي', c: '#16A34A' }, { l: 'زيادة', c: '#F0A526' }, { l: 'سمنة', c: '#F0695C' }].map((s, i) => (
-              <View key={i} style={{ backgroundColor: s.c, flex: 1, height: 8, borderRadius: 4 }}/>
-            ))}
-          </View>
-        </Card>
-
-        {/* Target */}
-        <Card>
-          <SectionHeader title="الوزن المستهدف" />
-          <Input value={targetWeight} onChangeText={setTargetWeight} placeholder="الوزن المستهدف (كغ)" keyboardType="numeric" icon="success" />
-          {weight && targetWeight && (
-            <View style={{ flexDirection: 'row-reverse', gap: 8, marginTop: 10, alignItems: 'center' }}>
-              <Icon name={parseFloat(targetWeight) < parseFloat(weight) ? 'trendingDown' : 'trendingUp'} size={18} color={colors.primary} />
-              <AppText variant="bodySM" color={colors.textSecondary}>
-                تحتاج {parseFloat(targetWeight) < parseFloat(weight) ? 'خسارة' : 'اكتساب'} {Math.abs(parseFloat(weight) - parseFloat(targetWeight)).toFixed(1)} كغ
-              </AppText>
-            </View>
-          )}
-        </Card>
-
-        <Button label={saving ? 'جاري الحفظ...' : 'حفظ بياناتي'} variant="gradient" size="lg" icon="success" onPress={handleSave} />
-        <Button label="إنشاء خطة غذائية" variant="outline" icon="robot" onPress={() => router.push('/nutrition/ai-plan-builder')} />
-        <Button label="عرض هيكل الجسم" variant="outline" icon="user" onPress={() => router.push('/nutrition/body-composition')} />
-      </ScrollView>
-    </View>
-  );
+  return <View style={[styles.container, { backgroundColor: colors.background }]}><StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} /><View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><View style={styles.titleWrap}><AppText variant="h3">{t('bodyGoals')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('setupHint')}</AppText></View><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>{loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>{t('loading')}</AppText></View> : <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>{error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText></Card>}<Animated.View entering={FadeInDown.duration(300)}><Card style={styles.section}><Heading count="1" title={t('goal')} colors={colors} /><SegmentedControl value={goal} onChange={setGoal} options={goals.map((value) => ({ key: value, label: t(value === 'healthy_lifestyle' ? 'healthy' : value) }))} /><SegmentedControl value={activity} onChange={setActivity} options={activities.map((value) => ({ key: value, label: t(value) }))} /></Card></Animated.View><Animated.View entering={FadeInDown.delay(70).duration(300)}><Card style={styles.section}><Heading count="2" title={t('bodyGoals')} colors={colors} /><Input value={height} onChangeText={setHeight} placeholder={t('height')} keyboardType="decimal-pad" /><Input value={weight} onChangeText={setWeight} placeholder={t('weight')} keyboardType="decimal-pad" /><Input value={targetWeight} onChangeText={setTargetWeight} placeholder={t('targetWeight')} keyboardType="decimal-pad" />{bmi != null && <AppText variant="caption" color={colors.textTertiary} align="right">{`BMI: ${bmi}`}</AppText>}</Card></Animated.View><Animated.View entering={FadeInDown.delay(140).duration(300)}><Card style={styles.section}><Heading count="3" title={t('summary')} colors={colors} /><Input value={calorieTarget} onChangeText={setCalorieTarget} placeholder={t('calorieTarget')} keyboardType="numeric" /><Input value={waterTarget} onChangeText={setWaterTarget} placeholder={t('waterTarget')} keyboardType="numeric" /></Card></Animated.View><Animated.View entering={FadeInDown.delay(210).duration(300)}><Card style={styles.section}><Heading count="4" title={t('setup')} colors={colors} /><Input value={restrictions} onChangeText={setRestrictions} placeholder={t('dietaryRestrictions')} /><Input value={allergies} onChangeText={setAllergies} placeholder={t('allergies')} /></Card></Animated.View><Animated.View entering={FadeInDown.delay(280).duration(300)}><Button label={saving ? t('saving') : t('save')} variant="gradient" icon="check_circle" loading={saving} onPress={save} /></Animated.View></ScrollView>}</View>;
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  bmiCircle: { width: 100, height: 100, borderRadius: 50, borderWidth: 4, alignItems: 'center', justifyContent: 'center' },
-  bmiBar: { flexDirection: 'row', gap: 3, width: '100%', marginTop: 8 },
-});
+function Heading({ count, title, colors }: { count: string; title: string; colors: any }) { return <View style={styles.heading}><View style={[styles.step, { backgroundColor: colors.primary }]}><AppText variant="labelSM" color="#fff">{count}</AppText></View><AppText variant="h6">{title}</AppText></View>; }
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10 }, titleWrap: { flex: 1, alignItems: 'center', gap: 2, paddingHorizontal: 8 }, content: { padding: 16, gap: 14 }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }, section: { gap: 12 }, heading: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }, step: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, error: { backgroundColor: '#FEE2E2', alignItems: 'flex-end' } });

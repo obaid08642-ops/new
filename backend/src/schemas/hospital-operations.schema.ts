@@ -36,6 +36,7 @@ export class Admission {
   @Prop({ default: () => new Date() }) admitted_at: Date;
   @Prop() discharged_at?: Date;
   @Prop({ type: String, enum: ['active', 'discharged'], default: 'active' }) status: 'active' | 'discharged';
+  @Prop({ type: Object }) discharge_summary?: { diagnosis?: string; medications?: string; instructions?: string; created_at?: Date };
 }
 export type AdmissionDocument = Admission & Document;
 export const AdmissionSchema = SchemaFactory.createForClass(Admission);

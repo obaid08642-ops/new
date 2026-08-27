@@ -28,6 +28,13 @@ export class ProviderProfile {
   license_status: string;
   @Prop({ default: [] }) license_documents: string[]; // s3/r2 document urls
   @Prop({ default: false }) license_verified: boolean;
+  // Public discovery requires a separate, reviewed publication decision.
+  @Prop({ default: false, index: true }) public_eligibility: boolean;
+  @Prop({ default: false, index: true }) indexing_eligibility: boolean;
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected', 'suspended'], default: 'pending', index: true })
+  medical_review_status: string;
+  @Prop() last_reviewed?: Date;
+  @Prop() provenance?: string;
   @Prop({
     type: [{
       status: String,
@@ -45,6 +52,11 @@ export class ProviderProfile {
   @Prop({ type: { lat: Number, lng: Number }, _id: false }) location?: { lat: number; lng: number };
   @Prop({ default: 0 }) rating: number;
   @Prop({ default: 0 }) reviews_count: number;
+  // Live aggregates maintained by the reviews service (provider-ops). Without these
+  // declarations Mongoose's strict mode silently stripped every $set — ratings
+  // written by patients never became visible on provider profiles.
+  @Prop({ default: 0 }) rating_avg: number;
+  @Prop({ default: 0 }) rating_count: number;
   @Prop() iban?: string;
   @Prop() bank_account_name?: string;
   // Doctor-specific
@@ -186,6 +198,25 @@ export class ProviderProfile {
   })
   working_hours: { day: string; open: string; close: string; open_evening?: string; close_evening?: string; closed?: boolean }[];
   @Prop({ default: 10 }) commission_rate?: number;
+  // ── Registration completeness (fields the wizard collects — declared so
+  // Mongoose strict mode stops stripping them) ──
+  @Prop() national_id?: string;            // National ID / Iqama number
+  @Prop() clinic_name?: string;            // clinic/practice name (doctor)
+  @Prop() display_name_ar?: string;        // name shown to patients
+  @Prop() display_name_en?: string;
+  @Prop() profile_photo?: string;          // personal photo (storage id / url)
+  @Prop() logo?: string;                   // facility/pharmacy logo
+  @Prop() clinic_duration?: number;        // consultation length (minutes)
+  @Prop() video_duration?: number;
+  @Prop() home_transport_fee?: boolean;    // home-visit transport surcharge
+  @Prop() home_transport_price?: number;
+  @Prop() vacation_date?: string;
+  @Prop({ type: [Object], default: [] }) schedule_video?: any[];
+  @Prop({ type: [Object], default: [] }) schedule_clinic?: Array<{ day: string; open?: string; close?: string; open_evening?: string; close_evening?: string; closed?: boolean }>;
+  @Prop({ type: [Object], default: [] }) schedule_home?: any[];
+  /** Raw wizard snapshots per step (step2/step3/submit/full_data) — the admin
+   * review must show EVERY typed field, mapped or not. */
+  @Prop({ type: Object, default: {} }) registration_steps?: Record<string, any[]>;
   // Meta
   @Prop() rejected_reason?: string;
   @Prop() approved_at?: Date;

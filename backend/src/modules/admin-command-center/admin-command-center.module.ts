@@ -4,7 +4,7 @@
  * ║   /admin/command-center — single aggregated dashboard endpoint ║
  * ╚════════════════════════════════════════════════════════════════╝
  */
-import { Module, Controller, Get, Query, UseGuards, Injectable } from '@nestjs/common';
+import { Module, Controller, Get, Query, Param, UseGuards, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles } from '../../common/auth.guard';
@@ -83,6 +83,45 @@ export class AdminCommandCenterService {
     ]);
   }
 
+  /** Full order detail for the command-center drill-down: doc + history + parties. */
+  async orderDetail(kind: string, id: string) {
+    const models: Record<string, { m: Model<any>; providerKey: string; stateField: string }> = {
+      pharmacy: { m: this.orders, providerKey: 'pharmacy_id', stateField: 'state' },
+      lab: { m: this.labs, providerKey: 'provider_account_id', stateField: 'state' },
+      radiology: { m: this.rads, providerKey: 'provider_account_id', stateField: 'state' },
+      nursing: { m: this.home, providerKey: 'provider_account_id', stateField: 'state' },
+      consultation: { m: this.appts, providerKey: 'doctor_user_id', stateField: 'status' },
+    };
+    const cfg = models[kind];
+    if (!cfg) throw new NotFoundException('unknown order kind');
+    const doc: any = await cfg.m.findOne({ $or: [{ id }, { tracking_id: id }] } as any).lean();
+    if (!doc) throw new NotFoundException('order not found');
+    const [patient, provider] = await Promise.all([
+      doc.patient_id ? this.users.findOne({ $or: [{ id: doc.patient_id }, { _id: doc.patient_id }] } as any, { id: 1, name: 1, full_name: 1, phone: 1, email: 1, _id: 0 }).lean() : null,
+      doc[cfg.providerKey] ? this.providers.findOne({ $or: [{ account_id: doc[cfg.providerKey] }, { user_id: doc[cfg.providerKey] }, { id: doc[cfg.providerKey] }] } as any, { account_id: 1, display_name_ar: 1, display_name_en: 1, type: 1, _id: 0 }).lean() : null,
+    ]);
+    const history = (doc.state_history || doc.status_history || []).map((h: any) => ({
+      from: h.from, to: h.to, note: h.note || h.reason || '', by: h.by_role || h.by_user_id || '', at: h.at,
+    }));
+    return {
+      kind,
+      id: doc.id,
+      tracking_id: doc.tracking_id || doc.id,
+      state: doc[cfg.stateField],
+      universal_state: toUniversal(kind as any, doc[cfg.stateField]),
+      patient: patient ? { id: (patient as any).id, name: (patient as any).full_name || (patient as any).name, phone: (patient as any).phone, email: (patient as any).email } : { id: doc.patient_id },
+      provider: provider ? { id: (provider as any).account_id, name: (provider as any).display_name_ar || (provider as any).display_name_en, type: (provider as any).type } : { id: doc[cfg.providerKey] || null },
+      total: doc.total || doc.price || 0,
+      payment_method: doc.payment_method || null,
+      address: doc.address || doc.delivery_address || null,
+      items: doc.items || doc.services || [],
+      history,
+      created_at: doc.createdAt,
+      updated_at: doc.updatedAt,
+      raw: doc,
+    };
+  }
+
   async snapshot() {
     const [summary, liveBookings, failed, stuck, providersByStatus, perf] = await Promise.all([
       this.gov.globalSummary(),
@@ -111,6 +150,7 @@ export class AdminCommandCenterService {
 export class AdminCommandCenterController {
   constructor(private svc: AdminCommandCenterService) {}
   @Get() snapshot() { return this.svc.snapshot(); }
+  @Get('order/:kind/:id') orderDetail(@Param('kind') kind: string, @Param('id') id: string) { return this.svc.orderDetail(kind, id); }
 }
 
 import { AdminGovernanceModule } from '../admin-governance/admin-governance.module';

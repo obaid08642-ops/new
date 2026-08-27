@@ -1,119 +1,134 @@
-import { JwtAuthGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, NoGuestsGuard } from '../../common/auth.guard';
 import {
-  Controller, Get, Post, Put, Delete,
-  Body, Param, Req, UseGuards,
+  Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
 import { FamilyService } from './family.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, NoGuestsGuard)
 @Controller('family')
 export class FamilyController {
   constructor(private readonly familyService: FamilyService) {}
 
-  // ── Group Management ───────────────────────────────────────────────────────
+  private authenticatedUserId(req: any): string {
+    const userId = req?.user?.id;
+    if (typeof userId !== 'string' || userId.trim().length === 0) {
+      throw new UnauthorizedException('authenticated_user_required');
+    }
+    return userId;
+  }
 
-  /** POST /api/v1/family/create — Create a new family group */
+  // ── Group Management ───────────────────────────────────────────────────────
   @Post('create')
   create(@Req() req: any, @Body() body: { name: string }) {
-    const userId = req.user?.id ?? 'guest';
-    return this.familyService.createGroup(userId, body.name);
+    return this.familyService.createGroup(this.authenticatedUserId(req), body.name);
   }
 
-  /** GET /api/v1/family/my-group — Get current user's family group */
   @Get('my-group')
   myGroup(@Req() req: any) {
-    return this.familyService.getMyGroup(req.user?.id ?? 'guest');
+    return this.familyService.getMyGroup(this.authenticatedUserId(req));
   }
 
-  /** POST /api/v1/family/invite — Generate an invite code (owner only) */
+  /** Contract invitation never exposes invite_code in the HTTP response. */
   @Post('invite')
-  generateInvite(@Req() req: any) {
-    return this.familyService.generateInvite(req.user?.id ?? 'guest');
+  invite(@Req() req: any, @Body() body: { channel: 'sms' | 'email'; target: string }) {
+    return this.familyService.sendInvite(this.authenticatedUserId(req), body?.channel, body?.target);
   }
 
-  /** POST /api/v1/family/join — Join a group via invite code */
   @Post('join')
-  join(@Req() req: any, @Body() body: { invite_code: string; display_name?: string }) {
-    return this.familyService.joinGroup(req.user?.id ?? 'guest', body.invite_code, body.display_name);
+  join(@Req() req: any, @Body() body: { invite_code: string; display_name?: string; relation?: string }) {
+    return this.familyService.joinGroup(this.authenticatedUserId(req), body.invite_code, body.display_name, body.relation);
   }
 
-  /** DELETE /api/v1/family/remove-member/:userId — Remove a member (owner only) */
+  @Post('leave')
+  leave(@Req() req: any) {
+    return this.familyService.leaveGroup(this.authenticatedUserId(req));
+  }
+
+  @Patch('member/:userId/relation')
+  setRelation(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: { relation: string }) {
+    return this.familyService.updateMemberRelation(this.authenticatedUserId(req), targetUserId, body.relation);
+  }
+
+  @Patch('members/:memberId/permissions')
+  setContractPermissions(@Req() req: any, @Param('memberId') targetUserId: string, @Body() body: { scopes: string[] }) {
+    return this.familyService.setMemberPermissions(this.authenticatedUserId(req), targetUserId, body?.scopes || []);
+  }
+
+  @Patch('member/:userId/permissions')
+  setPermissions(@Req() req: any, @Param('userId') targetUserId: string, @Body() body: { permissions: string[] }) {
+    return this.familyService.setMemberPermissions(this.authenticatedUserId(req), targetUserId, body.permissions);
+  }
+
+  @Get('member-records/:userId')
+  getMemberRecords(@Req() req: any, @Param('userId') targetUserId: string) {
+    return this.familyService.getMemberRecords(this.authenticatedUserId(req), targetUserId);
+  }
+
+  @Delete('members/:memberId')
+  removeContractMember(@Req() req: any, @Param('memberId') targetUserId: string) {
+    return this.familyService.removeMember(this.authenticatedUserId(req), targetUserId);
+  }
+
   @Delete('remove-member/:userId')
   removeMember(@Req() req: any, @Param('userId') targetUserId: string) {
-    return this.familyService.removeMember(req.user?.id ?? 'guest', targetUserId);
+    return this.familyService.removeMember(this.authenticatedUserId(req), targetUserId);
   }
 
-  /** GET /api/v1/family/members — List all group members */
+  @Get('my-group/members')
+  contractMembers(@Req() req: any) {
+    return this.familyService.listMembersContract(this.authenticatedUserId(req));
+  }
+
   @Get('members')
   listMembers(@Req() req: any) {
-    return this.familyService.listMembers(req.user?.id ?? 'guest');
+    return this.familyService.listMembers(this.authenticatedUserId(req));
   }
 
-  /** GET /api/v1/family/member-health/:userId — View member's health (permission-gated) */
   @Get('member-health/:userId')
   getMemberHealth(@Req() req: any, @Param('userId') targetUserId: string) {
-    return this.familyService.getMemberHealth(req.user?.id ?? 'guest', targetUserId);
+    return this.familyService.getMemberHealth(this.authenticatedUserId(req), targetUserId);
   }
 
-  /** GET /api/v1/family/emergency-contacts — Get family emergency contacts */
   @Get('emergency-contacts')
   emergencyContacts(@Req() req: any) {
-    return this.familyService.getEmergencyContacts(req.user?.id ?? 'guest');
+    return this.familyService.getEmergencyContacts(this.authenticatedUserId(req));
   }
 
   // ── Shared Calendar ────────────────────────────────────────────────────────
-
-  /** POST /api/v1/family/calendar/event — Add a shared calendar event */
   @Post('calendar/event')
   addEvent(@Req() req: any, @Body() body: any) {
-    return this.familyService.addCalendarEvent(req.user?.id ?? 'guest', body);
+    return this.familyService.addCalendarEvent(this.authenticatedUserId(req), body);
   }
 
-  /** GET /api/v1/family/calendar — Get shared calendar events */
   @Get('calendar')
   getCalendar(@Req() req: any) {
-    return this.familyService.getCalendarEvents(req.user?.id ?? 'guest');
+    return this.familyService.getCalendarEvents(this.authenticatedUserId(req));
   }
 
-  /** DELETE /api/v1/family/calendar/event/:eventId — Delete a calendar event */
   @Delete('calendar/event/:eventId')
   deleteEvent(@Req() req: any, @Param('eventId') eventId: string) {
-    return this.familyService.deleteCalendarEvent(req.user?.id ?? 'guest', eventId);
+    return this.familyService.deleteCalendarEvent(this.authenticatedUserId(req), eventId);
   }
 
   // ── Permissions ────────────────────────────────────────────────────────────
-
-  /** POST /api/v1/family/permissions/request — Request expanded permissions */
   @Post('permissions/request')
-  requestPermissions(
-    @Req() req: any,
-    @Body() body: { target_member_id: string; permissions: string[] },
-  ) {
-    return this.familyService.requestPermissions(
-      req.user?.id ?? 'guest',
-      body.target_member_id,
-      body.permissions,
-    );
+  requestPermissions(@Req() req: any, @Body() body: { target_member_id: string; permissions: string[] }) {
+    return this.familyService.requestPermissions(this.authenticatedUserId(req), body.target_member_id, body.permissions);
   }
 
-  /** GET /api/v1/family/permissions/pending — List pending permission requests (owner) */
   @Get('permissions/pending')
   pendingRequests(@Req() req: any) {
-    return this.familyService.getPendingPermissionRequests(req.user?.id ?? 'guest');
+    return this.familyService.getPendingPermissionRequests(this.authenticatedUserId(req));
   }
 
-  /** PUT /api/v1/family/permissions/respond/:requestId — Respond to permission request */
   @Put('permissions/respond/:requestId')
   respondPermission(
     @Req() req: any,
     @Param('requestId') requestId: string,
-    @Body() body: { decision: 'approved' | 'rejected'; note?: string },
+    @Body() body: { decision: 'approved' | 'rejected'; note?: string; permissions?: string[] },
   ) {
     return this.familyService.respondPermission(
-      req.user?.id ?? 'guest',
-      requestId,
-      body.decision,
-      body.note,
+      this.authenticatedUserId(req), requestId, body.decision, body.note, body.permissions,
     );
   }
 }

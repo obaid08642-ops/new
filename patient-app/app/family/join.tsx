@@ -13,14 +13,25 @@ import {
   Button,
   IconButton,
   Input,
+  SegmentedControl,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+
+const RELATION_OPTIONS = [
+  { key: "spouse", label: "زوج/ة" },
+  { key: "child", label: "ابن/ة" },
+  { key: "parent", label: "والد/ة" },
+  { key: "sibling", label: "أخ/أخت" },
+  { key: "caregiver", label: "مقدم رعاية" },
+  { key: "other", label: "أخرى" },
+];
 
 export default function FamilyJoinScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const params = useLocalSearchParams();
   const [code, setCode] = useState((params.code as string) || "");
+  const [relation, setRelation] = useState("");
   const [loading, setLoading] = useState(false);
   const [found, setFound] = useState<any>(null);
   const [joined, setJoined] = useState(false);
@@ -29,17 +40,19 @@ export default function FamilyJoinScreen() {
     if (!code.trim()) return;
     setLoading(true);
     try {
+      const relLabel = RELATION_OPTIONS.find((r) => r.key === relation)?.label;
       const res = await apiFetch("/family/join", {
         method: "POST",
         body: JSON.stringify({
           invite_code: code.trim(),
           display_name: "عضو عائلة",
+          ...(relLabel ? { relation: relLabel } : {}),
         }),
       });
       if (res.ok) {
         setFound({
           name: "المجموعة العائلية",
-          relation: "عضو",
+          relation: relLabel || "عضو",
           permissions: [],
         });
         setJoined(true);
@@ -131,14 +144,24 @@ export default function FamilyJoinScreen() {
             <Input
               value={code}
               onChangeText={setCode}
-              placeholder="مثال: NABDAH-F7X2K9"
+              placeholder="مثال: F7X2K9"
               icon="edit"
               autoCapitalize="characters"
             />
+            <View style={{ gap: 8 }}>
+              <AppText variant="labelMD" color={colors.textSecondary} align="right">
+                صلتك بصاحب الدعوة (اختياري)
+              </AppText>
+              <SegmentedControl
+                value={relation}
+                onChange={setRelation}
+                options={RELATION_OPTIONS}
+              />
+            </View>
             <Button
-              label="بحث"
+              label="انضمام للعائلة"
               variant="gradient"
-              icon="search"
+              icon="users"
               loading={loading}
               onPress={lookupCode}
             />
@@ -146,9 +169,7 @@ export default function FamilyJoinScreen() {
               label="مسح QR Code بالكاميرا"
               variant="outline"
               icon="qr"
-              onPress={() => {
-                /* Requires backend API integration */
-              }}
+              onPress={() => router.push("/family/scan")}
             />
           </>
         ) : (

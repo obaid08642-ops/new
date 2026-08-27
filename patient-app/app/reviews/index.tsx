@@ -5,9 +5,11 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,6 +22,8 @@ import {
   Button,
   IconButton,
 } from "../../src/components/ui";
+import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const ASPECTS = [
   "الدقة في المعلومات",
@@ -40,13 +44,41 @@ export default function ReviewsScreen() {
   const [review, setReview] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const bookingKind = String(params.booking_kind || 'appointment');
+  const bookingId = String(params.booking_id || params.appointmentId || '');
 
   const setAspect = (aspect: string, rating: number) =>
     setAspectRatings((p) => ({ ...p, [aspect]: rating }));
 
-  const handleSubmit = () => {
-    setSubmitted(true);
-    setTimeout(() => router.back(), 1500);
+  const handleSubmit = async () => {
+    if (overallRating === 0 || submitting) return;
+    if (!bookingId) {
+      showLocalizedAlert('تعذر إرسال التقييم', 'لم يتم تحديد الحجز المراد تقييمه.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      // E2: real review endpoint (was a fake 1.5s success — nothing was ever saved)
+      await apiFetch('/patient-ux/review', {
+        method: 'POST',
+        body: JSON.stringify({
+          booking_kind: bookingKind,
+          booking_id: bookingId,
+          rating: overallRating,
+          comment: review,
+          aspects: aspectRatings,
+          anonymous,
+        }),
+      });
+      setSubmitted(true);
+      setTimeout(() => router.back(), 1500);
+    } catch (e: any) {
+      showLocalizedAlert('تعذر إرسال التقييم', e?.message || 'حاول مرة أخرى لاحقاً.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -67,11 +99,11 @@ export default function ReviewsScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
             <Icon name="back" size={22} color="#fff" />
           </TouchableOpacity>
-          <AppText variant="bodySM">تقييم الخدمة</AppText>
+          <AppText variant="bodySM">تقييم الخدمة </AppText>
           <View style={{ width: 36 }} />
         </View>
         <AppText variant="bodySM">
-          {params.doctorName || "د. أحمد محمد السيد"}
+          {params.providerName || params.doctorName || "تقييم تجربتك"}
         </AppText>
       </View>
 
@@ -185,12 +217,14 @@ export default function ReviewsScreen() {
 
         <TouchableOpacity
           onPress={handleSubmit}
-          disabled={overallRating === 0}
+          disabled={overallRating === 0 || submitting}
           activeOpacity={0.85}
-          style={{ opacity: overallRating === 0 ? 0.5 : 1 }}
+          style={{ opacity: overallRating === 0 || submitting ? 0.5 : 1 }}
         >
-          <View style={styles.submitBtn}>
-            <AppText variant="bodySM">إرسال التقييم</AppText>
+          <View style={[styles.submitBtn, { backgroundColor: colors.primary }]}>
+            {submitting
+              ? <ActivityIndicator color="#fff" />
+              : <AppText variant="bodySM" color="#fff">إرسال التقييم</AppText>}
           </View>
         </TouchableOpacity>
       </ScrollView>

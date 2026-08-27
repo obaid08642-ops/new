@@ -12,7 +12,7 @@ export class AuthAuditLogger {
       deviceId,
       sessionId,
       method,
-      ipAddress: 'IP_PLACEHOLDER', // To be populated by backend or networking layer
+      ipAddress: null, // populated by the backend from the request, not the client
       timestamp: new Date().toISOString()
     });
   }
@@ -24,7 +24,7 @@ export class AuthAuditLogger {
       identifier,
       reason,
       method,
-      ipAddress: 'IP_PLACEHOLDER',
+      ipAddress: null,
       timestamp: new Date().toISOString()
     });
   }
@@ -35,7 +35,7 @@ export class AuthAuditLogger {
       deviceId,
       sessionId,
       reason,
-      ipAddress: 'IP_PLACEHOLDER',
+      ipAddress: null,
       timestamp: new Date().toISOString()
     });
   }

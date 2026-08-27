@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  RefreshControl
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  RefreshControl,
+  Text,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -17,6 +17,9 @@ import { useCart } from "../../src/context/CartContext";
 import { useGuestGuard } from "../../src/hooks/useGuestGuard";
 import { apiFetch } from "../../src/utils/api";
 import { lightColors, darkColors } from "../../src/theme/colors";
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 export default function OrderHistoryScreen() {
   const insets = useSafeAreaInsets();
@@ -24,11 +27,7 @@ export default function OrderHistoryScreen() {
   const colors = isDark ? darkColors : lightColors;
   const isRTL = lang === "ar" || lang === "ur";
 
-  const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) {
-    requireAuth();
-    return null;
-  }
+  // Guests CAN view their order history — backed by their device-bound guest account.
 
   const { addItem } = useCart();
 
@@ -57,17 +56,17 @@ export default function OrderHistoryScreen() {
           raw.map((o: any) => ({
             id: o.id || o._id,
             date: o.createdAt
-              ? new Date(o.createdAt).toLocaleDateString("ar-SA", {
+              ? new Date(o.createdAt).toLocaleDateString(dateLocale(), {
                   day: "numeric",
                   month: "short",
                   hour: "2-digit",
                   minute: "2-digit",
                 })
               : "",
-            items: (o.items || []).map((i: any) => ({
-              id: i.medicine_id || i.id || `temp-${Math.random()}`,
+            items: (o.items || []).map((i: any, index: number) => ({
+              id: i.medicine_id || i.id || `${o.id || o._id || 'order'}-item-${index}`,
               name:
-                i.name_ar || i.name_en || i.product_name || i.name || "دواء",
+                pickLocalized(i.name_ar, i.name_en) || i.product_name || i.name || "دواء",
               price: i.price || 0,
               qty: i.qty || 1,
             })),
@@ -123,9 +122,9 @@ export default function OrderHistoryScreen() {
         ]}
       >
         <View style={{ width: 40 }} />
-        <Text style={[styles.title, { color: colors.n }]}>سجل طلباتي</Text>
+        <LocalizedText style={[styles.title, { color: colors.n }]}>سجل طلباتي</LocalizedText>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: colors.n,
@@ -133,7 +132,7 @@ export default function OrderHistoryScreen() {
             }}
           >
             {isRTL ? "arrow_forward" : "arrow_back"}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       </View>
 
@@ -159,14 +158,14 @@ export default function OrderHistoryScreen() {
               },
             ]}
           >
-            <Text
+            <LocalizedText
               style={[
                 styles.filterText,
                 { color: activeFilter === f.id ? "#fff" : colors.t2 },
               ]}
             >
               {f.label}
-            </Text>
+            </LocalizedText>
           </TouchableOpacity>
         ))}
       </View>
@@ -213,9 +212,9 @@ export default function OrderHistoryScreen() {
                 ]}
               >
                 <View style={[styles.statusBadge, { backgroundColor: sc.bg }]}>
-                  <Text style={[styles.statusText, { color: sc.color }]}>
+                  <LocalizedText style={[styles.statusText, { color: sc.color }]}>
                     {sc.label}
-                  </Text>
+                  </LocalizedText>
                 </View>
                 <View
                   style={{
@@ -223,12 +222,12 @@ export default function OrderHistoryScreen() {
                     gap: 2,
                   }}
                 >
-                  <Text style={[styles.orderId, { color: colors.t3 }]}>
+                  <LocalizedText style={[styles.orderId, { color: colors.t3 }]}>
                     رقم الطلب: {item.id}
-                  </Text>
-                  <Text style={[styles.orderDate, { color: colors.t2 }]}>
+                  </LocalizedText>
+                  <LocalizedText style={[styles.orderDate, { color: colors.t2 }]}>
                     {item.date}
-                  </Text>
+                  </LocalizedText>
                 </View>
               </View>
 
@@ -239,15 +238,15 @@ export default function OrderHistoryScreen() {
                   alignItems: isRTL ? "flex-end" : "flex-start",
                 }}
               >
-                <Text style={[styles.pharmacyName, { color: colors.n }]}>
+                <LocalizedText style={[styles.pharmacyName, { color: colors.n }]}>
                   {" "}
                   {item.pharmacy}
-                </Text>
-                <Text style={[styles.itemsList, { color: colors.t2 }]}>
+                </LocalizedText>
+                <LocalizedText style={[styles.itemsList, { color: colors.t2 }]}>
                   {item.items
                     .map((i: any) => `${i.name} × ${i.qty}`)
                     .join(" • ")}
-                </Text>
+                </LocalizedText>
               </View>
 
               <View
@@ -264,9 +263,9 @@ export default function OrderHistoryScreen() {
                     onPress={() => handleReorder(item.items)}
                     style={[styles.reorderBtn, { backgroundColor: "#DEF5F9" }]}
                   >
-                    <Text style={[styles.reorderText, { color: "#23B5CE" }]}>
+                    <LocalizedText style={[styles.reorderText, { color: "#23B5CE" }]}>
                       إعادة الطلب
-                    </Text>
+                    </LocalizedText>
                   </TouchableOpacity>
                 ) : (
                   <View />
@@ -278,10 +277,10 @@ export default function OrderHistoryScreen() {
                     gap: 4,
                   }}
                 >
-                  <Text style={[styles.orderTotal, { color: "#23B5CE" }]}>
+                  <LocalizedText style={[styles.orderTotal, { color: "#23B5CE" }]}>
                     {item.total}
-                  </Text>
-                  <Text
+                  </LocalizedText>
+                  <LocalizedText
                     style={{
                       fontFamily: "Cairo-Bold",
                       fontSize: 13,
@@ -289,7 +288,7 @@ export default function OrderHistoryScreen() {
                     }}
                   >
                     ر.س
-                  </Text>
+                  </LocalizedText>
                 </View>
               </View>
             </TouchableOpacity>

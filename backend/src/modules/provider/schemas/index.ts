@@ -8,6 +8,7 @@ import { OperatorPermission, OperatorRole, ProviderAccountStatus, ProviderDocume
 export class ProviderAccount extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, unique: true, lowercase: true, trim: true }) email: string;
+  @Prop({ unique: true, sparse: true, index: true }) phone_e164?: string;
   @Prop({ required: true }) password_hash: string;
   @Prop({ required: true, enum: Object.values(ProviderType), index: true }) provider_type: ProviderType;
   @Prop({ default: ProviderAccountStatus.EMAIL_UNVERIFIED, enum: Object.values(ProviderAccountStatus), index: true }) status: ProviderAccountStatus;
@@ -44,18 +45,9 @@ export class ProviderProfile extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, unique: true, index: true }) account_id: string;
   @Prop({ required: true, enum: Object.values(ProviderType) }) provider_type: ProviderType;
-  /** Compatibility link consumed by care appointments and provider job ownership. */
-  @Prop({ index: true }) user_id?: string;
-  @Prop({ index: true }) type?: string;
-  @Prop({ default: 'pending', index: true }) status?: string;
-  @Prop({ default: [], type: [String] }) capabilities?: string[];
-  @Prop({ default: [], type: [String] }) consultation_modes?: string[];
-  @Prop() price_clinic?: number;
-  @Prop() price_online?: number;
-  @Prop() price_home?: number;
-  @Prop({ type: [Object], default: [] }) working_hours?: any[];
   @Prop() display_name_ar?: string;
   @Prop() display_name_en?: string;
+  @Prop() business_name?: string;
   @Prop() legal_name?: string;
   @Prop() description_ar?: string;
   @Prop() description_en?: string;

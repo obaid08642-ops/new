@@ -45,4 +45,4 @@ export class LabResult extends Document {
 }
 export const LabResultSchema = SchemaFactory.createForClass(LabResult);
 LabResultSchema.index({ patient_id: 1, createdAt: -1 });
-LabResultSchema.index({ booking_id: 1 });
+// `booking_id` is indexed by its @Prop declaration above; do not duplicate it here.

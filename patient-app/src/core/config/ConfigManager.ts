@@ -56,20 +56,20 @@ const ENV_CONFIGS: Record<AppEnvironment, EnvConfig> = {
     enableAnalytics:    false,
   },
   staging: {
-    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? '',
-    fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? '',
-    socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? '',
-    cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? '',
+    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://staging-api.nabdahplus.com/api/v1',
+    fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://staging-fastapi.nabdahplus.com/api',
+    socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? 'wss://staging-socket.nabdahplus.com',
+    cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? 'https://staging-cdn.nabdahplus.com',
     appEnv:             'staging',
     logLevel:           'info',
     enableCrashReporting: true,
     enableAnalytics:    false,
   },
   production: {
-    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? '',
-    fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? '',
-    socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? '',
-    cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? '',
+    apiBaseUrl:         process.env.EXPO_PUBLIC_API_BASE_URL    ?? 'https://api.nabd.plus/api/v1',
+    fastapiBaseUrl:     process.env.EXPO_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.nabd.plus/api/v1',
+    socketUrl:          process.env.EXPO_PUBLIC_SOCKET_URL      ?? 'https://api.nabd.plus',
+    cdnUrl:             process.env.EXPO_PUBLIC_CDN_URL         ?? 'https://cdn.nabd.plus',
     appEnv:             'production',
     logLevel:           'error',
     enableCrashReporting: true,
@@ -81,11 +81,7 @@ const ENV_CONFIGS: Record<AppEnvironment, EnvConfig> = {
 // Localhost fix for Android emulator
 // ─────────────────────────────────────────────────────────────────────────────
 function resolveUrl(url: string): string {
-  if (!url) throw new Error(`Missing required network configuration for ${ENVIRONMENT}`);
   if (!url.includes('localhost') && !url.includes('127.0.0.1')) return url;
-  if (ENVIRONMENT !== 'development') {
-    throw new Error('Localhost endpoints are forbidden outside development');
-  }
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
     const host = hostUri.split(':')[0];
@@ -122,7 +118,6 @@ export interface AppConfig extends EnvConfig {
 
   // Features
   googleMapsApiKey:   string;
-  oneSignalAppId:     string;
   googleClientId:     string;
   googleIosClientId:  string;
   googleAndroidClientId: string;
@@ -166,7 +161,6 @@ export const config: AppConfig = {
   apiBaseUrl:   resolveUrl(baseEnv.apiBaseUrl),
   fastapiBaseUrl: resolveUrl(baseEnv.fastapiBaseUrl),
   socketUrl:    resolveUrl(baseEnv.socketUrl),
-  cdnUrl:       resolveUrl(baseEnv.cdnUrl),
 
   // ── Identity ─────────────────────────────────────────────────────────────
   appName:            'نبض بلس',
@@ -189,7 +183,6 @@ export const config: AppConfig = {
 
   // ── External Keys (from .env — never hardcoded) ───────────────────────
   googleMapsApiKey:         process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY       ?? '',
-  oneSignalAppId:           process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID          ?? '',
   googleClientId:           process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID          ?? '',
   googleIosClientId:        process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID      ?? '',
   googleAndroidClientId:    process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID  ?? '',
