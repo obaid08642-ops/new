@@ -21,6 +21,21 @@ describe('legacy pharmacy mutation containment', () => {
     await expectCanonicalReject(() => controller.setInsurance(undefined as any, undefined as any, undefined as any));
   });
 
+  it('rejects every pharmacy_ops legacy read surface before repository access', async () => {
+    const controller = new PharmacyOpsController({} as any, {} as any);
+    await expectCanonicalReject(() => controller.byRxNumber());
+    await expectCanonicalReject(() => controller.eod());
+    await expectCanonicalReject(() => controller.incoming());
+    await expectCanonicalReject(() => controller.preparing());
+    await expectCanonicalReject(() => controller.ready());
+    await expectCanonicalReject(() => controller.completed());
+    await expectCanonicalReject(() => controller.basketReview());
+    await expectCanonicalReject(() => controller.awaitingApproval());
+    await expectCanonicalReject(() => controller.refills());
+    await expectCanonicalReject(() => controller.inventory());
+    await expectCanonicalReject(() => controller.orderDetail());
+  });
+
   it('rejects every provider alias mutation', async () => {
     const controller = new ProviderPharmacyAliasController({} as any, {} as any);
     await expectCanonicalReject(() => controller.accept());

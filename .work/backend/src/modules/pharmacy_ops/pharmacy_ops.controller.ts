@@ -14,41 +14,19 @@ export class PharmacyOpsController {
   constructor(private svc: PharmacyOpsService, private ordersSvc: OrdersService) {}
 
   // M2: look up a prescription/order by its RX number (dispense screen)
-  @Get('prescriptions/:rxNumber') async byRxNumber(@CurrentUser() u: any, @Param('rxNumber') rx: string) {
-    const order = await this.ordersSvc.getById(rx).catch(() => null);
-    if (order) return order;
-    // fallback: search by tracking/prescription number for this pharmacy
-    const results = await this.ordersSvc.listForPharmacy(u.id, undefined);
-    const match = (results || []).find((o: any) =>
-      o?.tracking_id === rx || o?.prescription_number === rx || o?.rx_number === rx);
-    if (!match) return { found: false, rx_number: rx };
-    return match;
-  }
+  @Get('prescriptions/:rxNumber') byRxNumber() { return canonicalPharmacyFlowRequired(); }
 
   // M2: end-of-day summary report for the pharmacy
-  @Post('reports/eod') async eod(@CurrentUser() u: any) {
-    const start = new Date(); start.setHours(0, 0, 0, 0);
-    const completed = await this.ordersSvc.listForPharmacy(u.id, undefined);
-    const today = (completed || []).filter((o: any) => new Date(o?.createdAt) >= start);
-    const paid = today.filter((o: any) => o?.payment_status === 'paid');
-    return {
-      date: start.toISOString().slice(0, 10),
-      orders_total: today.length,
-      orders_paid: paid.length,
-      revenue: paid.reduce((s: number, o: any) => s + (o?.total || 0), 0),
-      currency: 'SAR',
-      by_state: today.reduce((acc: any, o: any) => { acc[o.state || 'unknown'] = (acc[o.state || 'unknown'] || 0) + 1; return acc; }, {}),
-    };
-  }
+  @Post('reports/eod') eod() { return canonicalPharmacyFlowRequired(); }
 
   // Order queue tabs
-  @Get('orders/incoming') incoming(@CurrentUser() u: any) { return this.svc.incoming(u); }
-  @Get('orders/preparing') preparing(@CurrentUser() u: any) { return this.svc.preparing(u); }
-  @Get('orders/ready') ready(@CurrentUser() u: any) { return this.svc.ready(u); }
-  @Get('orders/completed') completed(@CurrentUser() u: any) { return this.svc.completed(u); }
-  @Get('orders/basket-review') basketReview(@CurrentUser() u: any) { return this.svc.basketReview(u); }
-  @Get('orders/awaiting-approval') awaitingApproval(@CurrentUser() u: any) { return this.svc.awaitingApproval(u); }
-  @Get('orders/refills') refills(@CurrentUser() u: any) { return this.svc.refillOrders(u); }
+  @Get('orders/incoming') incoming() { return canonicalPharmacyFlowRequired(); }
+  @Get('orders/preparing') preparing() { return canonicalPharmacyFlowRequired(); }
+  @Get('orders/ready') ready() { return canonicalPharmacyFlowRequired(); }
+  @Get('orders/completed') completed() { return canonicalPharmacyFlowRequired(); }
+  @Get('orders/basket-review') basketReview() { return canonicalPharmacyFlowRequired(); }
+  @Get('orders/awaiting-approval') awaitingApproval() { return canonicalPharmacyFlowRequired(); }
+  @Get('orders/refills') refills() { return canonicalPharmacyFlowRequired(); }
 
   // Order actions — delegate to OrdersService transitions
   @Post('orders/:id/accept') accept() { return canonicalPharmacyFlowRequired(); }
@@ -58,12 +36,12 @@ export class PharmacyOpsController {
   @Post('orders/:id/partial') partial() { return canonicalPharmacyFlowRequired(); }
 
   // Inventory
-  @Get('inventory') inventory(@CurrentUser() u: any) { return this.svc.getInventory(u); }
+  @Get('inventory') inventory() { return canonicalPharmacyFlowRequired(); }
   @Post('inventory/stock') stock() { return canonicalPharmacyFlowRequired(); }
   @Post('inventory/add') addMed() { return canonicalPharmacyFlowRequired(); }
 
   // Per-item operations on a pharmacy order
-  @Get('orders/:id') orderDetail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.orderDetail(u, id); }
+  @Get('orders/:id') orderDetail() { return canonicalPharmacyFlowRequired(); }
   @Post('orders/:id/items/:idx/unavailable') itemUnavailable() { return canonicalPharmacyFlowRequired(); }
   @Post('orders/:id/items/:idx/restore') itemRestore() { return canonicalPharmacyFlowRequired(); }
   @Post('orders/:id/items/:idx/qty') itemQty() { return canonicalPharmacyFlowRequired(); }
