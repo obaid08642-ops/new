@@ -9,3 +9,7 @@
 | الحالة | تستخدم adapter بين legacy والحالة الحاكمة حتى اكتمال backfill والتحقق. | كل قيمة قديمة تعين بوضوح أو تنقل إلى quarantine queue قابلة للمراجعة. |
 | البيانات الحساسة | لا تدرج بيانات مرضى أو بطاقات أو أسرار في fixtures أو logs أو PR. | اختبار redaction وسجل وصول ومراجعة للـsecrets. |
 | rollback | feature flag أو dual read عند الإمكان، ونسخة backup قبل الترحيل، وخطوات عكس موثقة. | drill ناجح على staging قبل release candidate. |
+
+## حزمة انتهاء عروض وبث الصيدلية الساكنة
+
+يشير artifact `backend/migrations/20260827_pharmacy_expiry_static.mjs` إلى **فهارس Mongo مسماة فقط** لدعم المسح والـdedupe والـlease. لا ينفذ تلقائياً ولا يتضمن backfill أو تعديل سجلات. قبل تنفيذ `up` يقتضي الأمر backup وتجربة `up/down` على نسخة معقمة وجرد الفهارس. ينفذ `down` حذف الفهارس المضافة بالاسم فقط؛ ولا يحذف سجلات audit أو outbox أو أي عرض أو طلب. التفاصيل التشغيلية وحدود النطاق موثقة في `PHARMACY_EXPIRY_STATIC_PREREQUISITES.md`.

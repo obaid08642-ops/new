@@ -42,6 +42,28 @@ function createService(overrides: Record<string, any> = {}) {
   };
 }
 
+describe('PharmacyOfferService listing', () => {
+  it('keeps patient reads side-effect free and preserves selected or final offers after open-offer expiry', async () => {
+    const { service, offers } = createService();
+    offers.find = jest.fn().mockReturnValue({
+      sort: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockResolvedValue([{ id: 'offer-selected', status: 'selected' }]),
+    });
+
+    await expect(service.listPatientOffers({ id: 'patient-1' }, 'order-1')).resolves.toEqual([{ id: 'offer-selected', status: 'selected' }]);
+
+    expect(offers.updateMany).not.toHaveBeenCalled();
+    expect(offers.find).toHaveBeenCalledWith(expect.objectContaining({
+      order_id: 'order-1',
+      patient_account_id: 'patient-1',
+      $or: [
+        { status: 'open', expires_at: { $gte: expect.any(Date) } },
+        { status: { $in: ['selected', 'final_quote_ready'] } },
+      ],
+    }));
+  });
+});
+
 describe('calculatePharmacyQuote', () => {
   it('prices available inventory lines server-side and preserves the delivery fee', () => {
     expect(calculatePharmacyQuote([

@@ -38,8 +38,14 @@ export class PharmacyOfferService {
   async listPatientOffers(user: any, orderId: string) {
     const order = await this.ownedOrder(user, orderId);
     const now = new Date();
-    await this.offers.updateMany({ order_id: order.id, status: 'open', expires_at: { $lt: now } }, { $set: { status: 'expired' } });
-    return this.offers.find({ order_id: order.id, patient_account_id: user.id, status: { $in: ['open', 'selected'] }, expires_at: { $gte: now } }).sort({ 'totals.total': 1, preparation_minutes: 1 }).lean();
+    return this.offers.find({
+      order_id: order.id,
+      patient_account_id: user.id,
+      $or: [
+        { status: 'open', expires_at: { $gte: now } },
+        { status: { $in: ['selected', 'final_quote_ready'] } },
+      ],
+    }).sort({ 'totals.total': 1, preparation_minutes: 1 }).lean();
   }
 
   async submitOffer(user: any, orderId: string, body: SubmitPharmacyOfferDto) {

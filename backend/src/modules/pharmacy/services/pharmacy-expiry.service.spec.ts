@@ -88,6 +88,31 @@ describe('PharmacyExpiryService', () => {
     expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
   });
 
+  it('closes an OFFERS_READY broadcast without cancelling its order or its independently selectable offers', async () => {
+    const { service, offers, broadcasts, orders } = createService();
+    offers.find.mockReturnValueOnce(chain([])).mockReturnValueOnce(chain([])).mockReturnValueOnce(chain([]));
+    broadcasts.find.mockReturnValueOnce(chain([])).mockReturnValueOnce(chain([{ id: 'broadcast-1', order_id: 'order-1', lock_state: 'open', expires_at: new Date(now.getTime() - 1), expiry_version: 1 }]));
+    orders.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ id: 'order-1', governed_state: 'OFFERS_READY' }) });
+    broadcasts.findOneAndUpdate.mockResolvedValue({ id: 'broadcast-1', order_id: 'order-1', expiry_version: 2 });
+
+    const result = await service.expireDuePharmacyOffers(now, {}, 10);
+
+    expect(result).toMatchObject({ broadcasts_closed: 1, broadcasts_auto_cancelled: 0 });
+    expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
+    expect(broadcasts.findOneAndUpdate).toHaveBeenCalledWith(expect.objectContaining({ lock_state: 'open' }), expect.objectContaining({ $set: expect.objectContaining({ lock_state: 'closed' }) }), { new: true });
+  });
+
+  it('resumes offer scanning strictly after the supplied cursor boundary', async () => {
+    const { service, offers, broadcasts } = createService();
+    offers.find.mockReturnValueOnce(chain([])).mockReturnValueOnce(chain([])).mockReturnValueOnce(chain([]));
+    broadcasts.find.mockReturnValueOnce(chain([])).mockReturnValueOnce(chain([]));
+
+    const result = await service.expireDuePharmacyOffers(now, { offer_after: 'offer-1' }, 10);
+
+    expect(result.next_cursor).toEqual({ offer_after: 'offer-1' });
+    expect(offers.find).toHaveBeenLastCalledWith({ status: 'open', expires_at: { $lte: now }, id: { $gt: 'offer-1' } });
+  });
+
   it('returns a bounded non-owner result when another invocation holds the lease', async () => {
     const { service, leases } = createService();
     leases.findOneAndUpdate.mockResolvedValue({ owner_token: 'other-run' });
