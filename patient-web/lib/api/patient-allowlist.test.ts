@@ -25,13 +25,17 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 
-  it("rejects administrative, provider, unlisted patient domains, and writes", () => {
+  it("allows only governed pharmacy writes and rejects administrative, provider, or unlisted writes", () => {
     expect(isAllowedPatientApiPath("/admin/users")).toBe(false);
     expect(isAllowedPatientApiPath("/provider/queue")).toBe(false);
     expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
-    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(false);
-    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/insurance/co-pay/accept", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/payment", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);

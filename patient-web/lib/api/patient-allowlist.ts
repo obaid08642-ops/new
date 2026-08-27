@@ -43,10 +43,23 @@ const patientReadRoutes = [
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
 ];
 
+const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
+  { method: "POST", route: new RegExp("^/patient/pharmacy/orders$") },
+  { method: "PATCH", route: new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/submit$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cancel$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/offers/${orderId}/select$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/final-quote/accept$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/co-pay/accept$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/self-pay/accept$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cod/register$`, "i") },
+];
+
 export function isAllowedPatientApiPath(path: string) {
   return patientReadRoutes.some((route) => route.test(path));
 }
 
 export function isAllowedPatientApiRequest(path: string, method: string) {
-  return method === "GET" && isAllowedPatientApiPath(path);
+  return (method === "GET" && isAllowedPatientApiPath(path))
+    || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
