@@ -40,6 +40,7 @@
 - [x] Add Patient Mobile pharmacy negotiation thread and substitute-decision screens using the governed pharmacy-chat endpoints and idempotency keys, with no direct price or order-item mutation and no polling.
 - [x] Add Patient Mobile final-quote acceptance from the selected server snapshot and register COD only when explicitly eligible; do not create payment before quote acceptance.
 - [x] Add Patient Mobile per-item insurance decision presentation and explicit co-pay or self-pay acceptance from server capabilities; render fully covered insurance without a payment action.
+- [x] Replace Patient Mobile pharmacy checkout legacy order creation, client prices, pre-selection payment choice, coupon, and local loyalty quote with idempotent governed draft creation then broadcast submission; retain points only as a server-side discount after a selected quote.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
