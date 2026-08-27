@@ -225,6 +225,29 @@ export class InsuranceFlowService {
     req.history = [...(req.history || []), { state, at: new Date(), by, note }];
   }
 
+  private async settleConsultationInsurance(req: any, actorId: string, note: string) {
+    if (req.booking_kind !== 'consultation') return;
+    const now = new Date();
+    const result = await this.appointments.updateOne(
+      { id: req.booking_id, patient_id: req.patient_id, insurance_request_id: req.id, status: 'PENDING' },
+      {
+        $set: { status: 'CONFIRMED', insurance_review_state: 'SETTLED', confirmed_at: now },
+        $push: { state_history: { state: 'CONFIRMED', at: now, by_user_id: actorId, by_role: 'insurance', note } },
+      },
+    );
+    if (result?.modifiedCount !== undefined && result.modifiedCount !== 1) {
+      this.events.emit('insurance.consultation.confirmation_pending_reconciliation', { request_id: req.id, booking_id: req.booking_id });
+    }
+  }
+
+  private async markConsultationDecision(req: any) {
+    if (req.booking_kind !== 'consultation') return;
+    await this.appointments.updateOne(
+      { id: req.booking_id, patient_id: req.patient_id, insurance_request_id: req.id, status: 'PENDING' },
+      { $set: { insurance_review_state: 'DECIDED' } },
+    );
+  }
+
   async companiesList() {
     return this.companies.find({ is_active: true }, { _id: 0, __v: 0 }).lean();
   }
@@ -388,6 +411,11 @@ export class InsuranceFlowService {
     }
     req.decided_by = user.id; req.decided_at = new Date();
     await req.save();
+    if (req.state === 'APPROVED_FULL') {
+      await this.settleConsultationInsurance(req, user.id, 'insurance-approved-full');
+    } else {
+      await this.markConsultationDecision(req);
+    }
     this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, state: req.state, copay_amount: req.copay_amount });
     return req.toObject();
   }
@@ -398,7 +426,7 @@ export class InsuranceFlowService {
     if (!req) throw new NotFoundException('request not found');
     if (req.patient_id !== user.id) throw new ForbiddenException();
     if (req.state === 'APPROVED_FULL') {
-      this.push(req, 'COPAY_PAID', user.id, 'no copay due');
+      throw new BadRequestException('no_copay_due');
     } else if (req.state === 'COPAY_PENDING') {
       const paymentId = String(body?.payment_id || '').trim();
       if (!paymentId) throw new BadRequestException('verified_payment_id_required');
@@ -417,6 +445,7 @@ export class InsuranceFlowService {
       throw new BadRequestException(`cannot pay copay in state ${req.state}`);
     }
     await req.save();
+    await this.settleConsultationInsurance(req, user.id, 'verified-insurance-copay');
     this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
     return req.toObject();
   }
@@ -439,6 +468,7 @@ export class InsuranceFlowService {
     req.copay_paid_at = new Date();
     this.push(req, 'COPAY_PAID', 'system', `verified payment ${payment.id}`);
     await req.save();
+    await this.settleConsultationInsurance(req, 'system', 'verified-insurance-copay-webhook');
     this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
   }
 
