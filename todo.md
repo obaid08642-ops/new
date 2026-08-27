@@ -45,6 +45,7 @@
 - [x] Replace Patient Mobile legacy chat-with-pharmacist entrypoint with an orderId-required route to the governed pharmacy negotiation screen; remove timer, socket, and generic-booking transport behavior.
 - [x] Replace Patient Mobile legacy pharmacy order-confirm basket approval/rejection endpoints with a governed order-state route to final quote, insurance decision, offers, or tracking only.
 - [x] Replace Patient Mobile pharmacy order-history legacy list endpoint with a governed pharmacy-order list and order-state-aware navigation.
+- [x] Replace Patient Mobile pharmacy reorder legacy endpoints with an idempotent new governed draft built from a patient-owned prior order, without carrying historical prices or payment state.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
