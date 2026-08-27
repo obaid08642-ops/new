@@ -275,10 +275,10 @@ describe('PharmacyOfferService', () => {
 
   it('moves a selected offer with alternatives into governed negotiation and opens only affected item threads', async () => {
     const { service, offers, orders, chats } = createService();
-    offers.findOne.mockResolvedValue({
+    offers.findOne.mockReturnValue(lean({
       id: 'offer-1', order_id: 'order-1', patient_account_id: 'patient-1', pharmacy_account_id: 'pharmacy-1', status: 'open', expires_at: new Date(Date.now() + 10_000),
       items: [{ order_item_id: 'line-1', inventory_id: 'inventory-1', sku: 'ALT-1', name: 'بديل', requested_qty: 2, offered_qty: 2, available: true, unit_price: 19.95, alternative: { sku: 'ALT-1' } }], totals: { total: 39.9 }, snapshot_hash: 'quote-hash', revision: 1,
-    });
+    }));
     orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1' });
 
     const result = await service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash');
