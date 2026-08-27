@@ -11,7 +11,7 @@ import {
 } from '@nabd/shared-contracts';
 
 function requireAllowed(result: { ok: true } | { ok: false; reason: string }): void {
-  if (!result.ok) throw new BadRequestException(`governed_transition_rejected:${result.reason}`);
+  if (result.ok === false) throw new BadRequestException(`governed_transition_rejected:${result.reason}`);
 }
 
 export function assertGovernedPharmacyTransition(
