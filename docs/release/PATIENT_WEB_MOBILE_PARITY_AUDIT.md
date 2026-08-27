@@ -25,7 +25,7 @@
 
 | المعرف | الفجوة | الأثر | الإجراء المرحلي |
 |---|---|---|---|
-| PAR-001 | شاشة `patient-app/app/pharmacy/broadcast-status.tsx` تستخدم `setInterval`. | يخالف قرار عدم استعمال مؤقتات داخل تطبيق المريض، ويستدعي endpoint bids قديم. | استبدالها بتحديث يدوي صريح وربطها بعقود عروض الصيدلية الحاكمة. |
+| PAR-001 | كانت شاشة `patient-app/app/pharmacy/broadcast-status.tsx` تستخدم `setInterval`. | كان يخالف قرار عدم استعمال مؤقتات داخل تطبيق المريض، ويستدعي endpoint bids قديم. | **منفذ في PR #31**: تحديث يدوي صريح وربط بعقود عروض الصيدلية الحاكمة؛ CI أخضر على الرأس `cf26d6e2`. |
 | PAR-002 | `patient-web` لا يقدم رحلة بث وعروض واختيار وتفاوض وعرض نهائي وتأمين صيدلية مكافئة للموبايل. | لا يمكن اعتبار الويب مطابقاً للموبايل أو مؤهلاً لرحلة الصيدلية المتفق عليها. | تنفيذها على حزم صغيرة، بواجهة لكل حالة حاكمة واختبارات قبول. |
 | PAR-003 | عدد مسارات الموبايل أكبر بكثير من الويب. | لا دليل على التكافؤ الوظيفي عبر بقية المجالات. | بناء مصفوفة route/action/API/state مكتملة قبل التنفيذ، ثم ترتيب التنفيذ وفق خطورة المال والحالة والخصوصية. |
 | PAR-004 | وجود مسار لا يثبت ارتباطه بواجهة API أو صلاحيات أو idempotency صحيحة. | خطر واجهات تجريبية أو عقود قديمة في سياقات المرضى والدفع. | تدقيق كل مسار ذي فعل حاكم ومطابقته بالعقد والخدمة والاختبار. |
@@ -50,16 +50,16 @@
 | تفاصيل الدواء | `pharmacy/product-detail` | `medicines/[medicineId]` | إضافة/تعديل عنصر السلة | يحتاج تحقق أن إضافة السلة لا تقبل سعراً أو كمية غير خادميين. |
 | وصفة أو طلب يدوي أو عنصر مخصص | `rx-order` و`scan-prescription` و`manual-order` و`custom-item` | `cart/prescription` و`prescriptions` | `POST patient/pharmacy/orders` ثم submit | فجوة Web/Mobile؛ يلزم عقد طلب صيدلية موحد وحالات خصوصية للمرفقات. |
 | مراجعة السلة | `pharmacy/cart` | `cart` | إنشاء/تعديل draft للمريض | يحتاج فصل واضح بين سلة عامة وطلب صيدلية broadcast-first. |
-| إرسال الطلب للبث | `pharmacy/checkout` و`order-confirm` | لا توجد صفحة مكافئة | `POST patient/pharmacy/orders/:id/submit` | فجوة Web مؤكدة. لا ينشأ payment intent هنا. |
-| انتظار عروض الصيدليات | `pharmacy/waiting-for-pharmacy` و`broadcast-status` | لا توجد صفحة مكافئة | `GET patient/pharmacy/orders/:id/offers` | فجوة Web وموبايل: مسار الموبايل يستخدم polling بـ`setInterval` وendpoints bids موروثة. |
+| إرسال الطلب للبث | `pharmacy/checkout` ينشئ draft ثم submit بمفتاحي idempotency، و`order-confirm` route حاكم فقط | صفحة Web `cart/checkout` تبث draft | `POST patient/pharmacy/orders` ثم `POST …/:id/submit` | Mobile منفذ في PR #36 (`89219593`، CI أخضر) وPR #39 (`6cf6e7ab`، CI أخضر). لا ينشأ payment intent هنا. |
+| انتظار عروض الصيدليات | `pharmacy/waiting-for-pharmacy` و`broadcast-status` بتحديث يدوي فقط | صفحة عروض Web موجودة | `GET patient/pharmacy/orders/:id` ثم `GET …/offers` | استبدلت endpoints bids وpolling في PR #31 وPR #37 (`f3f0ff0d`، CI أخضر). |
 | مقارنة عروض مستقلة | `pharmacy/medicine-compare` | لا توجد صفحة مكافئة | `GET …/offers` | فجوة Web مؤكدة؛ يلزم عرض items وبدائل وإجمالي ومهلة ببيانات خادمية فقط. |
 | اختيار صيدلية واحدة | `broadcast-status` | لا توجد صفحة مكافئة | `POST …/offers/:offerId/select` مع idempotency key | فجوة كاملة؛ لا قبول bid موروث. |
-| تفاوض البدائل والنواقص | `chat-with-pharmacist` و`pharmacist-chat` | `chat/[threadId]` عام | مسارات `pharmacy/chat/threads/*` وربط اختيار البديل | يحتاج تقييد ownership وربط order-item والتحقق قبل final quote. |
-| قبول السعر النهائي | `pharmacy/checkout` و`payment` | `cart/checkout` عام | `POST …/final-quote/accept` مع hash/revision | فجوة Web/Mobile؛ لا يسمح بالدفع قبل قبول snapshot الصحيح. |
-| نقد/بطاقة/Apple Pay/Google Pay | `pharmacy/payment` | لا توجد خطوة صيدلية مكافئة | payment intent من quote مقبول أو COD eligible | فجوة؛ لا wallet ولا نجاح دفع محلي. |
-| تأمين: قرار البنود ثم co-pay أو self-pay | شاشات تأمين عامة و`payment` | `insurance` عام | `…/insurance/co-pay/accept` أو `…/insurance/self-pay/accept` | فجوة عالية؛ يلزم no-payment عندما التغطية كاملة وقرار صريح لكل بند. |
-| COD مؤهل | `pharmacy/payment` | لا توجد خطوة صيدلية مكافئة | `POST …/cod/register` | فجوة؛ يظهر فقط عند eligibility خادمية ولا يسجل كمدفوع. |
-| التتبع والسجل وإعادة الطلب | `order-tracking` و`order-history` و`reorder` | `orders` و`orders/[orderId]` و`tracking` | `GET patient/pharmacy/orders*` وفعل reorder الآمن | يحتاج مواءمة DTO والحالات المحكومة بعد الاختيار والتأكيد. |
+| تفاوض البدائل والنواقص | `pharmacist-chat` حاكم؛ `chat-with-pharmacist` يطلب `orderId` ويوجه إليه | route تفاوض Web موجود | مسارات `pharmacy/chat/threads/*` وربط اختيار البديل | Mobile منفذ في PR #33 (`aaec49c7`، CI أخضر) وPR #38 (`6351a0dd`، CI أخضر). يبقى القرار بانتظار revised final quote. |
+| قبول السعر النهائي | `pharmacy/final-quote` يقرأ hash/revision من snapshot ويقبل idempotently | خطوة Web مكافئة | `POST …/final-quote/accept` مع hash/revision | Mobile منفذ في PR #34 (`1e8ccfe4`، CI أخضر). لا يسمح بالدفع قبل قبول snapshot الصحيح. |
+| نقد/بطاقة/Apple Pay/Google Pay | `pharmacy/payment` و`final-quote` | خطوة Web صيدلية مكافئة | payment intent من quote مقبول أو COD eligible | Mobile يعرض الطرق التي يعلنها الخادم فقط في PR #32؛ لا wallet ولا نجاح دفع محلي. |
+| تأمين: قرار البنود ثم co-pay أو self-pay | `pharmacy/insurance-decision` و`payment` | خطوة Web مكافئة | `…/insurance/co-pay/accept` أو `…/insurance/self-pay/accept` | Mobile منفذ في PR #35 (`c3de71b3`، CI أخضر). لا ينشأ دفع عند التغطية الكاملة. |
+| COD مؤهل | `pharmacy/final-quote` و`payment` | خطوة Web مكافئة | `POST …/cod/register` | Mobile لا يظهره إلا من `accepted_quote_snapshot.cod_allowed` في PR #34؛ لا يسجل كمدفوع. |
+| التتبع والسجل وإعادة الطلب | `order-tracking` و`order-history` و`reorder` | `orders` و`orders/[orderId]` و`tracking` | `GET patient/pharmacy/orders*` وdraft/broadcast جديد | التتبع منفذ في PR #32؛ السجل في PR #40 (`ff6a67fa`) وإعادة الطلب في PR #41 (`e018ed80`) وما زال CI الأخير لهما قيد التشغيل عند هذه اللقطة. |
 | wishlist والفلاتر وعدم العثور | `wishlist` و`filters` و`drug-not-found` | `wishlist` وكتالوجات عامة | query/favorites وshortage lookup | يحتاج توحيد intent من دون تحويل عدم العثور إلى عرض أو سعر مختلق. |
 
 ## معيار الإغلاق
@@ -78,3 +78,23 @@
 | W5 | اختبارات قبول متقاطعة، accessibility، خصوصية، سلامة التحويلات، أدلة CI، وحزمة المدقق. | مراجعة إصدار مستقلة. | لا توجد فجوات حرجة مفتوحة، وكل PR في سلسلة الإصدار اجتاز CI ومراجعة مستقلة قبل أي دمج. |
 
 لا يعني هذا الجدول نشر التطبيق أو إعطاء وعد بالجاهزية؛ فهو يحدد فقط ترتيب إغلاق الأدلة الفنية اللازمة للوصول إلى مراجعة إصدار منظمة.
+
+## سجل مرحلة Mobile Pharmacy — لقطة تدقيق
+
+تمتد حزمة الموبايل المتراصة من PR #31 إلى PR #41. تنفذ هذه الحزم رحلة `draft → broadcast → offers → select → negotiate/requote → final quote → cash/COD أو insurance decision → payment/tracking` ببيانات وقرارات خادمية، ولا تضيف مشغلاً زمنياً أو scheduler أو worker أو migration أو نشر. يظل نجاح الدفع حصراً webhook خادميًا؛ العميل يفتح redirect HTTPS المعلن فقط.
+
+| الحزمة | الرأس | الدليل المحلي | حالة CI وقت اللقطة |
+|---|---|---|---|
+| #31 governed offers وعميل API | `cf26d6e2` | typecheck و`api.security` | أخضر كامل |
+| #32 الحالة والدفع | `84eae8a4` | typecheck و`api.security` | أخضر كامل |
+| #33 تفاوض البدائل | `aaec49c7` | typecheck و`api.security` | أخضر كامل |
+| #34 قبول final quote وCOD | `1e8ccfe4` | typecheck و`api.security` | أخضر كامل |
+| #35 قرار التأمين | `c3de71b3` | typecheck و`api.security` | أخضر كامل |
+| #36 سلة إلى draft/broadcast | `89219593` | typecheck و`pharmacy-draft` و`api.security` | أخضر كامل |
+| #37 انتظار العروض اليدوي | `f3f0ff0d` | typecheck و`api.security` | أخضر كامل |
+| #38 توجيه chat legacy | `6351a0dd` | typecheck و`api.security` | أخضر كامل |
+| #39 توجيه order-confirm legacy | `6cf6e7ab` | typecheck و`api.security` | أخضر كامل |
+| #40 سجل الطلبات | `ff6a67fa` | typecheck و`api.security` | CI Mobile قيد التشغيل |
+| #41 إعادة الطلب | `e018ed80` | typecheck و`pharmacy-draft` و`api.security` | CI Backend وMobile قيد التشغيل |
+
+> لا تغلق هذه اللقطة W1 أو W2 أو تدقيق التكافؤ العام: الشاشات 39–41 تحتاج اكتمال CI، كما تبقى مسارات البحث والوصفة والإضافات المخصصة، المجالات العلاجية والتشخيصية والرعاية المنزلية، وتدقيق جميع مؤقتات العملاء والـworkers الخادمية خارج هذه الحزمة.
