@@ -80,6 +80,7 @@ export class PharmacyBroadcastService {
     
     const stages = await this.getBroadcastStages();
     const round1 = stages[0];
+    const expirySeconds = Math.min(3600, Math.max(60, stages.reduce((sum, stage) => sum + Math.max(0, Number(stage.timeout_seconds) || 0), 0)));
     
     const bc = await this.broadcasts.create({
       id: uuidv4(),
@@ -90,7 +91,10 @@ export class PharmacyBroadcastService {
       max_radius_km: stages[stages.length - 1].radius_km,
       round_radii_km: stages.map(s => s.radius_km),
       lock_state: 'open',
-      timeline: [{ ts: new Date(), event: 'broadcast_started', meta: { radius: round1.radius_km } }],
+      expires_at: new Date(Date.now() + expirySeconds * 1000),
+      expiry_version: 1,
+      expiry_artifacts_pending: false,
+      timeline: [{ ts: new Date(), event: 'broadcast_started', meta: { radius: round1.radius_km, expiry_seconds: expirySeconds, expiry_policy_version: 'broadcast-stages-v1' } }],
     });
     
     await this.broadcastRound(bc, order);

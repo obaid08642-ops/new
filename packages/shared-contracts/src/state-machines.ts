@@ -129,6 +129,7 @@ export const SERVICE_TRANSITIONS: Array<[ServiceBookingState, ServiceBookingStat
 // ============================================================
 export interface TransitionCtx {
   offerId?: string;
+  reason?: string;
   serviceKind?: ServiceKind;
   paymentMethod?: PharmacyPaymentMethod;
   paymentMethodEnabled?: boolean;

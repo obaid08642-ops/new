@@ -15,10 +15,15 @@ var PharmacyOrderState;
     PharmacyOrderState["ORDER_BROADCASTING"] = "ORDER_BROADCASTING";
     PharmacyOrderState["OFFERS_READY"] = "OFFERS_READY";
     PharmacyOrderState["OFFER_SELECTED"] = "OFFER_SELECTED";
+    PharmacyOrderState["NEGOTIATION_REQUIRED"] = "NEGOTIATION_REQUIRED";
+    PharmacyOrderState["FINAL_QUOTE_READY"] = "FINAL_QUOTE_READY";
+    PharmacyOrderState["FINAL_QUOTE_ACCEPTED"] = "FINAL_QUOTE_ACCEPTED";
     PharmacyOrderState["PAYMENT_PENDING"] = "PAYMENT_PENDING";
     PharmacyOrderState["COD_REGISTERED"] = "COD_REGISTERED";
     PharmacyOrderState["INSURANCE_PROCESSING"] = "INSURANCE_PROCESSING";
+    PharmacyOrderState["INSURANCE_DECISION_READY"] = "INSURANCE_DECISION_READY";
     PharmacyOrderState["CO_PAY_PENDING"] = "CO_PAY_PENDING";
+    PharmacyOrderState["SELF_PAY_SELECTION"] = "SELF_PAY_SELECTION";
     PharmacyOrderState["CONFIRMED"] = "CONFIRMED";
     PharmacyOrderState["PREPARING"] = "PREPARING";
     PharmacyOrderState["READY"] = "READY";
@@ -32,33 +37,41 @@ var PharmacyOrderState;
 })(PharmacyOrderState || (exports.PharmacyOrderState = PharmacyOrderState = {}));
 /** [from, to, actor, شرط إضافي] */
 exports.PHARMACY_TRANSITIONS = [
-    // المريض يرسل الطلب للبث — بلا أي دفع
     [PharmacyOrderState.CART_DRAFT, PharmacyOrderState.ORDER_BROADCASTING, 'PATIENT', () => true],
-    // وصول أول عرض
     [PharmacyOrderState.ORDER_BROADCASTING, PharmacyOrderState.OFFERS_READY, 'SYSTEM', () => true],
-    // انتهاء SLA بلا عروض
     [PharmacyOrderState.ORDER_BROADCASTING, PharmacyOrderState.AUTO_CANCELLED, 'SYSTEM', () => true],
-    // اختيار عرض واحد — يقفل snapshot السعر/الأصناف
+    // اختيار العرض لا يفتح الدفع؛ يلزم قبول snapshot نهائي أو تفاوض موثق أولاً.
     [PharmacyOrderState.OFFERS_READY, PharmacyOrderState.OFFER_SELECTED, 'PATIENT', (c) => !!c?.offerId],
-    // ---- فرع Cash ----
-    [PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', (c) => c?.paymentMethod === 'CARD'],
-    [PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.COD_REGISTERED, 'PATIENT', (c) => c?.paymentMethod === 'COD' && c?.codAllowed === true],
+    [PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.NEGOTIATION_REQUIRED, 'SYSTEM', (c) => c?.negotiationRequired === true],
+    [PharmacyOrderState.NEGOTIATION_REQUIRED, PharmacyOrderState.FINAL_QUOTE_READY, 'PHARMACY', (c) => !!c?.quoteHash && Number.isInteger(c?.quoteRevision) && Number(c?.quoteRevision) > 0],
+    [PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, 'PATIENT', (c) => c?.negotiationRequired === false && hasFinalQuote(c)],
+    [PharmacyOrderState.FINAL_QUOTE_READY, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, 'PATIENT', hasFinalQuote],
+    // Cash/COD branch: only configured gateway capabilities and policy-eligible COD are accepted.
+    [PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', (c) => isOnlinePaymentMethod(c?.paymentMethod) && c?.paymentMethodEnabled === true],
+    [PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.COD_REGISTERED, 'PATIENT', (c) => c?.paymentMethod === 'COD' && c?.codAllowed === true],
     [PharmacyOrderState.PAYMENT_PENDING, PharmacyOrderState.CONFIRMED, 'PAYMENT_WEBHOOK', (c) => c?.paymentVerified === true],
-    [PharmacyOrderState.COD_REGISTERED, PharmacyOrderState.CONFIRMED, 'SYSTEM', () => true], // التأكيد مع تسوية التحصيل لاحقًا عند التسليم
-    // ---- فرع التأمين ----
-    [PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.INSURANCE_PROCESSING, 'SYSTEM', (c) => c?.hasPolicy === true],
-    // قرار الصيدلية/التأمين
-    [PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.CO_PAY_PENDING, 'PHARMACY', (c) => c?.decision === 'APPROVED_FULL' || c?.decision === 'APPROVED_PARTIAL'],
+    [PharmacyOrderState.COD_REGISTERED, PharmacyOrderState.CONFIRMED, 'SYSTEM', () => true],
+    // Insurance branch: complete per-item decision, then explicit patient co-pay or self-pay action.
+    [PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.INSURANCE_PROCESSING, 'SYSTEM', (c) => c?.hasPolicy === true && c?.insuranceReady === true],
+    [PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.INSURANCE_DECISION_READY, 'PHARMACY', (c) => c?.insuranceItemsDecided === true && isInsuranceDecision(c?.decision)],
+    [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CONFIRMED, 'SYSTEM', (c) => c?.decision === 'APPROVED_FULL' && Number(c?.coPayAmount) === 0],
+    [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CO_PAY_PENDING, 'PATIENT', (c) => (c?.decision === 'APPROVED_FULL' || c?.decision === 'APPROVED_PARTIAL') && c?.coPayAccepted === true && Number.isFinite(c?.coPayAmount) && Number(c?.coPayAmount) >= 0],
     [PharmacyOrderState.CO_PAY_PENDING, PharmacyOrderState.CONFIRMED, 'PAYMENT_WEBHOOK', (c) => c?.paymentVerified === true || c?.codRegistered === true],
-    [PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', (c) => c?.decision === 'REJECTED' && c?.paymentMethod === 'CARD'], // رفض→cash بطاقة
-    [PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.CANCELLED, 'PATIENT', (c) => c?.decision === 'REJECTED'], // رفض→إلغاء
-    // ---- الإلغاء المجاني قبل الاختيار ----
+    [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.SELF_PAY_SELECTION, 'PATIENT', (c) => (c?.decision === 'REJECTED' || c?.decision === 'APPROVED_PARTIAL') && c?.selfPayAccepted === true && hasFinalQuote(c)],
+    [PharmacyOrderState.SELF_PAY_SELECTION, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, 'PATIENT', hasFinalQuote],
+    // الإلغاء مجاني حتى التأكيد؛ بعده يمر عبر RefundService مع إثبات تعويض خادمي.
     [PharmacyOrderState.CART_DRAFT, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
     [PharmacyOrderState.ORDER_BROADCASTING, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
     [PharmacyOrderState.OFFERS_READY, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
-    // بعد الدفع → استرداد عبر RefundService (من DB لا body)
+    [PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.NEGOTIATION_REQUIRED, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.FINAL_QUOTE_READY, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.CO_PAY_PENDING, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
+    [PharmacyOrderState.SELF_PAY_SELECTION, PharmacyOrderState.CANCELLED, 'PATIENT', () => true],
     [PharmacyOrderState.CONFIRMED, PharmacyOrderState.CANCELLED, 'PATIENT', (c) => c?.refundHandled === true],
-    // التنفيذ
     [PharmacyOrderState.CONFIRMED, PharmacyOrderState.PREPARING, 'PHARMACY', () => true],
     [PharmacyOrderState.PREPARING, PharmacyOrderState.READY, 'PHARMACY', (c) => c?.fulfillment === 'PICKUP'],
     [PharmacyOrderState.PREPARING, PharmacyOrderState.DISPATCHED, 'PHARMACY', (c) => c?.fulfillment === 'DELIVERY'],
@@ -106,3 +119,12 @@ exports.SERVICE_TRANSITIONS = [
     [ServiceBookingState.AWAITING_RESULTS, ServiceBookingState.RESULTS_READY, 'PROVIDER', ['LAB', 'RADIOLOGY'], (c) => !!c?.reportUrl],
     [ServiceBookingState.RESULTS_READY, ServiceBookingState.COMPLETED, 'SYSTEM', ['LAB', 'RADIOLOGY'], () => true],
 ];
+function isOnlinePaymentMethod(value) {
+    return value === 'CARD' || value === 'APPLE_PAY' || value === 'GOOGLE_PAY';
+}
+function isInsuranceDecision(value) {
+    return value === 'APPROVED_FULL' || value === 'APPROVED_PARTIAL' || value === 'REJECTED';
+}
+function hasFinalQuote(ctx) {
+    return Boolean(ctx?.quoteHash) && Number.isInteger(ctx?.quoteRevision) && Number(ctx?.quoteRevision) > 0;
+}

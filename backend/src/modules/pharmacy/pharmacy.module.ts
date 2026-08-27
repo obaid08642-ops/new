@@ -5,6 +5,7 @@ import {
   PharmacyOrderSchema, PharmacyAllocationSchema, PrescriptionIntakeSchema,
   PharmacySubstituteMapSchema, PharmacyLowStockAlertSchema,
   PharmacyBroadcastSchema, PharmacyOfferSchema, PharmacyChatThreadSchema, PharmacyChatMessageSchema,
+  PharmacyExpiryAuditSchema, PharmacyLifecycleOutboxSchema, PharmacyExpiryLeaseSchema,
   DrugShortageFlagSchema,
 } from './schemas/pharmacy.schema';
 import { SystemConfig, SystemConfigSchema } from '../../schemas/system-config.schema';
@@ -36,6 +37,7 @@ import {
 } from './pharmacy.controllers';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
+import { PharmacyExpiryService } from './services/pharmacy-expiry.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
 import { ProviderModule } from '../provider/provider.module';
@@ -73,6 +75,9 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
       { name: 'PharmacyLowStockAlert', schema: PharmacyLowStockAlertSchema },
       { name: 'PharmacyBroadcast', schema: PharmacyBroadcastSchema },
       { name: 'PharmacyOffer', schema: PharmacyOfferSchema },
+      { name: 'PharmacyExpiryAudit', schema: PharmacyExpiryAuditSchema },
+      { name: 'PharmacyLifecycleOutbox', schema: PharmacyLifecycleOutboxSchema },
+      { name: 'PharmacyExpiryLease', schema: PharmacyExpiryLeaseSchema },
       { name: 'PharmacyChatThread', schema: PharmacyChatThreadSchema },
       { name: 'PharmacyChatMessage', schema: PharmacyChatMessageSchema },
       { name: 'DrugShortageFlag', schema: DrugShortageFlagSchema },
@@ -101,6 +106,7 @@ import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
     PharmacyShortageService,
     PharmacyOrdersProviderService,
     PharmacyOfferService,
+    PharmacyExpiryService,
     IdempotencyInterceptor,
     ProcurementService,
     GeoEngineService,

@@ -342,6 +342,12 @@ export class PharmacyBroadcast extends Document {
   @Prop({ type: [Number], default: [3, 5, 7] }) round_radii_km: number[];
   // Atomic full-acceptance lock: first pharmacy to claim sets this.
   @Prop({ default: 'open', enum: ['open', 'locked', 'fallback_split', 'closed'], index: true }) lock_state: string;
+  /** Managed by the future runner only; no in-process timer advances or expires a broadcast. */
+  @Prop({ index: true }) expires_at?: Date;
+  @Prop() closed_at?: Date;
+  @Prop() expiry_reason?: string;
+  @Prop({ default: 1 }) expiry_version: number;
+  @Prop({ default: false, index: true }) expiry_artifacts_pending: boolean;
   @Prop() locked_to_pharmacy_account_id?: string;
   @Prop() locked_at?: Date;
   // Per-pharmacy responses keyed by pharmacy_account_id
@@ -366,6 +372,7 @@ export class PharmacyBroadcast extends Document {
 }
 export const PharmacyBroadcastSchema = SchemaFactory.createForClass(PharmacyBroadcast);
 PharmacyBroadcastSchema.index({ lock_state: 1, current_round: 1 });
+PharmacyBroadcastSchema.index({ lock_state: 1, expires_at: 1, id: 1 });
 
 // ============ PATIENT-SELECTABLE PHARMACY OFFER ============
 @Schema({ timestamps: true, collection: 'pharmacy_offers' })
@@ -374,7 +381,7 @@ export class PharmacyOffer extends Document {
   @Prop({ required: true, index: true }) order_id: string;
   @Prop({ required: true, index: true }) patient_account_id: string;
   @Prop({ required: true, index: true }) pharmacy_account_id: string;
-  @Prop({ required: true, default: 'open', enum: ['open', 'selected', 'superseded', 'withdrawn', 'expired'], index: true }) status: string;
+  @Prop({ required: true, default: 'open', enum: ['open', 'selection_pending', 'selected', 'final_quote_ready', 'superseded', 'withdrawn', 'expired'], index: true }) status: string;
   @Prop({ required: true, default: 1 }) revision: number;
   @Prop({ type: [Object], default: [] }) items: Array<{
     order_item_id: string; inventory_id?: string; sku?: string; name?: string;
@@ -388,11 +395,62 @@ export class PharmacyOffer extends Document {
   @Prop({ default: false }) insurance_ready: boolean;
   @Prop() preparation_minutes?: number;
   @Prop({ required: true, index: true }) expires_at: Date;
+  /** A short durable claim prevents the expiry command and patient selection from winning the same offer. */
+  @Prop() selection_lock_until?: Date;
+  @Prop({ default: 1 }) expiry_version: number;
+  @Prop() expired_at?: Date;
+  @Prop() expiry_reason?: string;
+  @Prop({ default: false, index: true }) expiry_artifacts_pending: boolean;
   @Prop({ type: [Object], default: [] }) timeline: Array<{ ts: Date; event: string; by?: string; meta?: any }>;
 }
 export const PharmacyOfferSchema = SchemaFactory.createForClass(PharmacyOffer);
 PharmacyOfferSchema.index({ order_id: 1, pharmacy_account_id: 1, status: 1 });
 PharmacyOfferSchema.index({ patient_account_id: 1, status: 1, expires_at: 1 });
+PharmacyOfferSchema.index({ status: 1, expires_at: 1, id: 1 });
+
+// ============ EXPIRY AUDIT / OUTBOX (passive, no direct notification) ============
+@Schema({ timestamps: true, collection: 'pharmacy_expiry_audits' })
+export class PharmacyExpiryAudit extends Document {
+  @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
+  @Prop({ required: true, index: true }) run_id: string;
+  @Prop({ required: true, enum: ['offer', 'broadcast'], index: true }) entity_type: 'offer' | 'broadcast';
+  @Prop({ required: true, index: true }) entity_id: string;
+  @Prop({ required: true, index: true }) order_id: string;
+  @Prop({ required: true }) event_version: number;
+  @Prop({ required: true }) reason: string;
+  @Prop({ required: true }) occurred_at: Date;
+  @Prop() state_before?: string;
+  @Prop() state_after?: string;
+  @Prop({ type: Object }) cursor?: Record<string, string | undefined>;
+}
+export const PharmacyExpiryAuditSchema = SchemaFactory.createForClass(PharmacyExpiryAudit);
+PharmacyExpiryAuditSchema.index({ entity_type: 1, entity_id: 1, event_version: 1 }, { unique: true });
+
+@Schema({ timestamps: true, collection: 'pharmacy_lifecycle_outbox' })
+export class PharmacyLifecycleOutbox extends Document {
+  @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
+  @Prop({ required: true, unique: true }) dedupe_key: string;
+  @Prop({ required: true, index: true }) event_type: string;
+  @Prop({ required: true, enum: ['offer', 'broadcast'], index: true }) aggregate_type: 'offer' | 'broadcast';
+  @Prop({ required: true, index: true }) aggregate_id: string;
+  @Prop({ required: true, index: true }) order_id: string;
+  @Prop({ required: true }) event_version: number;
+  @Prop({ required: true, type: Object }) payload: Record<string, unknown>;
+  @Prop({ required: true, default: 'pending', enum: ['pending', 'published', 'failed'], index: true }) status: 'pending' | 'published' | 'failed';
+  @Prop({ required: true }) available_at: Date;
+}
+export const PharmacyLifecycleOutboxSchema = SchemaFactory.createForClass(PharmacyLifecycleOutbox);
+PharmacyLifecycleOutboxSchema.index({ status: 1, available_at: 1 });
+
+@Schema({ timestamps: true, collection: 'pharmacy_expiry_leases' })
+export class PharmacyExpiryLease extends Document {
+  @Prop({ required: true, unique: true }) lease_key: string;
+  @Prop({ required: true }) owner_token: string;
+  @Prop({ required: true, index: true }) expires_at: Date;
+  @Prop({ default: 1 }) version: number;
+  @Prop() released_at?: Date;
+}
+export const PharmacyExpiryLeaseSchema = SchemaFactory.createForClass(PharmacyExpiryLease);
 
 // ============ CHAT (substitute negotiation, restricted content) ============
 @Schema({ timestamps: true, collection: 'pharmacy_chat_threads' })

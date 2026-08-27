@@ -106,6 +106,23 @@ describe('PharmacyOfferService', () => {
 
     await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow('offer_selection_locked');
     expect(inventory.updateOne).not.toHaveBeenCalled();
+    expect(offers.updateOne).toHaveBeenLastCalledWith(
+      { id: 'offer-1', status: 'selection_pending' },
+      { $set: { status: 'open', selection_lock_until: undefined } },
+    );
+  });
+
+  it('refuses selection when expiry has atomically claimed the open offer first', async () => {
+    const { service, offers, orders, inventory } = createService();
+    offers.findOne.mockReturnValue(lean({
+      id: 'offer-1', pharmacy_account_id: 'pharmacy-1', insurance_ready: true, revision: 1, snapshot_hash: 'hash',
+      items: [{ order_item_id: 'line-1', inventory_id: 'inventory-1', available: true, offered_qty: 1 }], totals: { total: 19.95 },
+    }));
+    offers.updateOne.mockResolvedValueOnce({ modifiedCount: 0 });
+
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow('offer_selection_claim_unavailable');
+    expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
+    expect(inventory.updateOne).not.toHaveBeenCalled();
   });
 
   it('releases prior reservations and clears the selection when inventory changes during selection', async () => {
