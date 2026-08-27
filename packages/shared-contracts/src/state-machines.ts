@@ -54,6 +54,7 @@ export const PHARMACY_TRANSITIONS: Array<[PharmacyOrderState, PharmacyOrderState
   // Insurance branch: complete per-item decision, then explicit patient co-pay or self-pay action.
   [PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.INSURANCE_PROCESSING, 'SYSTEM', (c) => c?.hasPolicy === true && c?.insuranceReady === true],
   [PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.INSURANCE_DECISION_READY, 'PHARMACY', (c) => c?.insuranceItemsDecided === true && isInsuranceDecision(c?.decision)],
+  [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CONFIRMED, 'SYSTEM', (c) => c?.decision === 'APPROVED_FULL' && Number(c?.coPayAmount) === 0],
   [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CO_PAY_PENDING, 'PATIENT', (c) => (c?.decision === 'APPROVED_FULL' || c?.decision === 'APPROVED_PARTIAL') && c?.coPayAccepted === true && Number.isFinite(c?.coPayAmount) && Number(c?.coPayAmount) >= 0],
   [PharmacyOrderState.CO_PAY_PENDING, PharmacyOrderState.CONFIRMED, 'PAYMENT_WEBHOOK', (c) => c?.paymentVerified === true || c?.codRegistered === true],
   [PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.SELF_PAY_SELECTION, 'PATIENT', (c) => (c?.decision === 'REJECTED' || c?.decision === 'APPROVED_PARTIAL') && c?.selfPayAccepted === true && hasFinalQuote(c)],

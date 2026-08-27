@@ -257,16 +257,26 @@ export class PharmacyOfferService {
       'PHARMACY',
       { insuranceItemsDecided: true, decision: summaryDecision },
     );
+    const isFullyCovered = summaryDecision === 'APPROVED_FULL' && coPayAmount === 0;
+    if (isFullyCovered) {
+      assertGovernedPharmacyTransition(
+        GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
+        GovernedPharmacyOrderState.CONFIRMED,
+        'SYSTEM',
+        { decision: summaryDecision, coPayAmount },
+      );
+    }
     const updated: any = await this.orders.findOneAndUpdate(
       { id: order.id, selected_pharmacy_account_id: user.id, governed_state: GovernedPharmacyOrderState.INSURANCE_PROCESSING },
       {
         $set: {
-          governed_state: GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
+          governed_state: isFullyCovered ? GovernedPharmacyOrderState.CONFIRMED : GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
           insurance_item_decisions: decisions,
           insurance_decision_summary: { decision: summaryDecision, co_pay_amount: coPayAmount, covered_amount: coveredAmount, decided_at: new Date(), decided_by: user.id },
           insurance_status: summaryDecision,
+          payment_status: isFullyCovered ? 'covered_by_insurance' : undefined,
         },
-        $push: { timeline: { ts: new Date(), event: 'pharmacy_insurance_items_decided', by: user.id, meta: { decision: summaryDecision, co_pay_amount: coPayAmount, covered_amount: coveredAmount } } },
+        $push: { timeline: { ts: new Date(), event: isFullyCovered ? 'insurance_fully_covered_confirmed' : 'pharmacy_insurance_items_decided', by: user.id, meta: { decision: summaryDecision, co_pay_amount: coPayAmount, covered_amount: coveredAmount } } },
       },
       { new: true },
     );

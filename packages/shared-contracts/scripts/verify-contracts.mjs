@@ -37,6 +37,14 @@ assert.deepEqual(
   assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.INSURANCE_DECISION_READY, 'PHARMACY', { insuranceItemsDecided: true, decision: 'APPROVED_PARTIAL' }),
   { ok: true },
 );
+assert.deepEqual(
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CONFIRMED, 'SYSTEM', { decision: 'APPROVED_FULL', coPayAmount: 0 }),
+  { ok: true },
+);
+assert.equal(
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.INSURANCE_DECISION_READY, PharmacyOrderState.CONFIRMED, 'SYSTEM', { decision: 'APPROVED_FULL', coPayAmount: 1 }).ok,
+  false,
+);
 assert.equal(
   assertTransition(SERVICE_TRANSITIONS, ServiceBookingState.DRAFT, ServiceBookingState.PAYMENT_PENDING, 'PATIENT', { coverage: 'CASH', serviceKind: 'LAB' }).ok,
   true,
