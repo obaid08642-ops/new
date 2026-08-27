@@ -203,6 +203,19 @@ describe('InsuranceFlowService', () => {
     });
   });
 
+  describe('settleVerifiedSelfPay', () => {
+    it('confirms an owned pending consultation only after the webhook-backed self-pay transaction matches', async () => {
+      const req = pendingReq();
+      req.state = 'SELF_PAY_PENDING'; req.self_pay_amount = 250; req.booking_kind = 'consultation'; req.booking_id = 'appt-1'; req.insurance_request_id = 'req-1';
+      requests.findOne.mockResolvedValue(req);
+      transactions.findOne.mockReturnValue({ lean: async () => ({ id: 'tx-self-1', patient_id: 'pat-1', booking_kind: 'insurance', booking_id: 'req-1', amount: 250, status: 'paid' }) });
+      await service.settleVerifiedSelfPay({ booking_kind: 'insurance', booking_id: 'req-1', patient_id: 'pat-1', transaction_id: 'tx-self-1' });
+      expect(req.state).toBe('SELF_PAY_PAID');
+      expect(req.self_pay_payment_id).toBe('tx-self-1');
+      expect(appointments.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'appt-1', status: 'PENDING' }), expect.objectContaining({ $set: expect.objectContaining({ status: 'CONFIRMED' }) }));
+    });
+  });
+
   describe('cancel', () => {
     it('cannot cancel after copay payment', async () => {
       const req = pendingReq();
