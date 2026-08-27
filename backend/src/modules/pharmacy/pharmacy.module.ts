@@ -57,6 +57,7 @@ import { ProviderAvailabilityRepository } from "./services/repositories/provider
 import { ProviderScoreSnapshotRepository } from "./services/repositories/providerscoresnapshot.repository";
 import { QuotationRepository } from "./services/repositories/quotation.repository";
 import { SystemConfigRepository } from "./services/repositories/systemconfig.repository";
+import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     PharmacyShortageService,
     PharmacyOrdersProviderService,
     PharmacyOfferService,
+    IdempotencyInterceptor,
     ProcurementService,
     GeoEngineService,
     { provide: "DrugRejectionLogRepository", useClass: DrugRejectionLogRepository },

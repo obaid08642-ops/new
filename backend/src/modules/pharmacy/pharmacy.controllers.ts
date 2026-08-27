@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, UseGuards, UseInterceptors, Query, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
@@ -12,6 +12,8 @@ import { PharmacyShortageService } from './services/pharmacy-shortage.service';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { isProviderRole } from '../../common/enums';
+import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
+import { SelectPharmacyOfferDto, SubmitPharmacyOfferDto } from './dto/pharmacy-offer.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -28,7 +30,10 @@ export class PatientPharmacyController {
   @Post('orders/:id/submit') submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
   @Post('orders/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listPatientOffers(u, id); }
-  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: { coverage_mode?: 'cash' | 'insurance' }) { return this.offers.selectOffer(u, id, offerId, b?.coverage_mode === 'insurance' ? 'insurance' : 'cash'); }
+  @Post('orders/:id/offers/:offerId/select')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: SelectPharmacyOfferDto) { return this.offers.selectOffer(u, id, offerId, b.coverage_mode); }
 }
 
 // =========================================================================
@@ -149,7 +154,10 @@ export class ProviderBroadcastController {
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.bc.detail(u, id); }
   @Post(':orderId/i-have-all') haveAll(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.claimHaveAll(u, oid, b); }
   @Post(':orderId/i-have-partial') havePartial(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondPartial(u, oid, b); }
-  @Post(':orderId/offers') submitOffer(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.offers.submitOffer(u, oid, b); }
+  @Post(':orderId/offers')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  submitOffer(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: SubmitPharmacyOfferDto) { return this.offers.submitOffer(u, oid, b); }
   @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
 }
 

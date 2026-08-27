@@ -5,8 +5,7 @@ import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { isProviderRole } from '../../../common/enums';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
-
-type SubmittedLine = { order_item_id: string; inventory_id?: string; offered_qty?: number; alternative?: Record<string, any> };
+import { SubmitPharmacyOfferDto } from '../dto/pharmacy-offer.dto';
 
 export function calculatePharmacyQuote(lines: Array<{ requested_qty: number; offered_qty: number; available: boolean; unit_price: number }>, deliveryFee: number) {
   if (!Number.isFinite(deliveryFee) || deliveryFee < 0) throw new BadRequestException('invalid_delivery_fee');
@@ -33,7 +32,7 @@ export class PharmacyOfferService {
     return this.offers.find({ order_id: order.id, patient_account_id: user.id, status: { $in: ['open', 'selected'] }, expires_at: { $gte: now } }).sort({ 'totals.total': 1, preparation_minutes: 1 }).lean();
   }
 
-  async submitOffer(user: any, orderId: string, body: { items: SubmittedLine[]; delivery_fee?: number; fulfillment?: 'pharmacy_delivery' | 'pickup'; cod_allowed?: boolean; insurance_ready?: boolean; preparation_minutes?: number }) {
+  async submitOffer(user: any, orderId: string, body: SubmitPharmacyOfferDto) {
     if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
     const order = await this.orders.findOne({ id: orderId });
     if (!order) throw new NotFoundException('order_not_found');

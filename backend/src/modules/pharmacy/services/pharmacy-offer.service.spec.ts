@@ -1,5 +1,45 @@
-import { BadRequestException } from '@nestjs/common';
-import { calculatePharmacyQuote } from './pharmacy-offer.service';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { PharmacyOrderState } from '../schemas/pharmacy.schema';
+import { PharmacyOfferService, calculatePharmacyQuote } from './pharmacy-offer.service';
+
+const lean = (value: unknown) => ({ lean: jest.fn().mockResolvedValue(value) });
+
+function createService(overrides: Record<string, any> = {}) {
+  const order = {
+    id: 'order-1',
+    patient_account_id: 'patient-1',
+    status: PharmacyOrderState.BROADCASTING,
+    items: [{ id: 'line-1', qty: 2, matched_sku: 'SKU-1', name_ar: 'دواء' }],
+    timeline: [],
+    save: jest.fn().mockResolvedValue(undefined),
+  };
+  const orders: any = {
+    findOne: jest.fn().mockResolvedValue(order),
+    findOneAndUpdate: jest.fn().mockResolvedValue({ ...order }),
+    updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
+  };
+  const offerDocument: any = {
+    timeline: [],
+    save: jest.fn().mockResolvedValue(undefined),
+    toObject() { return { ...this }; },
+  };
+  const offers: any = jest.fn(() => offerDocument);
+  offers.findOne = jest.fn().mockResolvedValue(null);
+  offers.updateOne = jest.fn().mockResolvedValue({ modifiedCount: 1 });
+  offers.updateMany = jest.fn().mockResolvedValue({ modifiedCount: 1 });
+  const allocations: any = { create: jest.fn().mockResolvedValue({ id: 'allocation-1', toObject: () => ({ id: 'allocation-1' }) }) };
+  const broadcasts: any = { findOne: jest.fn().mockResolvedValue(null) };
+  const inventory: any = {
+    findOne: jest.fn().mockReturnValue(lean({ id: 'inventory-1', sku: 'SKU-1', name_ar: 'دواء من المخزون', stock: 6, price: 19.95 })),
+    updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
+  };
+  const models = { orders, offers, allocations, broadcasts, inventory, order };
+  Object.assign(models, overrides);
+  return {
+    service: new PharmacyOfferService(models.orders, models.offers, models.allocations, models.broadcasts, models.inventory),
+    ...models,
+  };
+}
 
 describe('calculatePharmacyQuote', () => {
   it('prices available inventory lines server-side and preserves the delivery fee', () => {
@@ -9,7 +49,70 @@ describe('calculatePharmacyQuote', () => {
     ], 7.5)).toEqual({ subtotal: 25, delivery_fee: 7.5, total: 32.5, currency: 'SAR' });
   });
 
+  it('rounds the snapshot total to two decimal places', () => {
+    expect(calculatePharmacyQuote([{ requested_qty: 3, offered_qty: 3, available: true, unit_price: 6.665 }], 0.005))
+      .toEqual({ subtotal: 20, delivery_fee: 0.01, total: 20.01, currency: 'SAR' });
+  });
+
   it('rejects negative delivery fees rather than trusting a provider price payload', () => {
     expect(() => calculatePharmacyQuote([], -1)).toThrow(BadRequestException);
+  });
+});
+
+describe('PharmacyOfferService', () => {
+  it('rejects offer creation by an actor outside the provider scope', async () => {
+    const { service } = createService();
+    await expect(service.submitOffer({ id: 'patient-1', role: 'patient' }, 'order-1', { items: [{ order_item_id: 'line-1' }] }))
+      .rejects.toThrow(ForbiddenException);
+  });
+
+  it('derives the accepted unit price from provider inventory, not a submitted price field', async () => {
+    const { service } = createService();
+    const offer = await service.submitOffer(
+      { id: 'pharmacy-1', role: 'pharmacy' },
+      'order-1',
+      { items: [{ order_item_id: 'line-1', inventory_id: 'inventory-1', offered_qty: 2, unit_price: 0.01 } as any], delivery_fee: 4.5 },
+    );
+
+    expect(offer.items[0]).toMatchObject({ inventory_id: 'inventory-1', available: true, unit_price: 19.95 });
+    expect(offer.totals).toEqual({ subtotal: 39.9, delivery_fee: 4.5, total: 44.4, currency: 'SAR' });
+  });
+
+  it('enforces patient ownership before an offer can be selected', async () => {
+    const { service } = createService();
+    await expect(service.selectOffer({ id: 'patient-2' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow(ForbiddenException);
+  });
+
+  it('does not select an expired offer', async () => {
+    const { service, offers } = createService();
+    offers.findOne.mockReturnValue(lean(null));
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow(NotFoundException);
+  });
+
+  it('rejects an insurance selection when the offer cannot process insurance', async () => {
+    const { service, offers } = createService();
+    offers.findOne.mockReturnValue(lean({ id: 'offer-1', pharmacy_account_id: 'pharmacy-1', insurance_ready: false }));
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'insurance')).rejects.toThrow(BadRequestException);
+  });
+
+  it('rejects a competing selection when another request wins the order lock', async () => {
+    const { service, offers, orders, inventory } = createService();
+    offers.findOne.mockReturnValue(lean({
+      id: 'offer-1', pharmacy_account_id: 'pharmacy-1', insurance_ready: true, revision: 1, snapshot_hash: 'hash',
+      items: [{ order_item_id: 'line-1', inventory_id: 'inventory-1', available: true, offered_qty: 1 }], totals: { total: 19.95 },
+    }));
+    orders.findOneAndUpdate.mockResolvedValue(null);
+
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow('offer_selection_locked');
+    expect(inventory.updateOne).not.toHaveBeenCalled();
+  });
+
+  it('returns the existing selection without reserving stock twice for an idempotent retry', async () => {
+    const { service, orders, offers, inventory } = createService();
+    orders.findOne.mockResolvedValue({ id: 'order-1', patient_account_id: 'patient-1', selected_offer_id: 'offer-1' });
+    offers.findOne.mockReturnValue(lean({ id: 'offer-1', status: 'selected' }));
+
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).resolves.toEqual({ id: 'offer-1', status: 'selected' });
+    expect(inventory.updateOne).not.toHaveBeenCalled();
   });
 });
