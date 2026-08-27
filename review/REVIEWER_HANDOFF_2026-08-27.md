@@ -8,7 +8,7 @@
 | الفرع فقط | `remediation/provider-production-governed` |
 | رابط الفرع | https://github.com/obaid08642-ops/new/tree/remediation/provider-production-governed |
 | رابط المقارنة | https://github.com/obaid08642-ops/new/compare/main...remediation/provider-production-governed |
-| رأس المراجعة الحالي | `a37d9e5d956004f98ffb09cf634aaf5fb0d6cf92` |
+| رأس المراجعة الحالي | `ce9c39610da1e43a285b08330d3a8aa6888d0717` |
 
 ## الالتزامات التي يلزم مراجعتها بالترتيب
 
@@ -28,6 +28,10 @@
 | harness docs | `14e856f02672c4f8b340ce5ecb7817670ee788a1` | `docs(review): record isolated integration requirements` | https://github.com/obaid08642-ops/new/commit/14e856f02672c4f8b340ce5ecb7817670ee788a1 |
 | latest evidence | `501594bc50ac25391781629e933a06b9378804de` | `docs(review): record unified remediation test result` | https://github.com/obaid08642-ops/new/commit/501594bc50ac25391781629e933a06b9378804de |
 | surface cards | `a37d9e5d956004f98ffb09cf634aaf5fb0d6cf92` | `docs(review): add provider surface remediation cards` | https://github.com/obaid08642-ops/new/commit/a37d9e5d956004f98ffb09cf634aaf5fb0d6cf92 |
+| event reliability | `66006b5130ca6185ab5da800e7e37cbf0918086c` | `fix(pharmacy): surface critical event failures` | https://github.com/obaid08642-ops/new/commit/66006b5130ca6185ab5da800e7e37cbf0918086c |
+| governed surfaces/payment intent | `5b89876e0242932ac35ea67a8086cf71f4864657` | `fix(provider): fail closed ungoverned surfaces and payment intents` | https://github.com/obaid08642-ops/new/commit/5b89876e0242932ac35ea67a8086cf71f4864657 |
+| legacy contract tests | `708d78290750493ef81dc32254e257c5c575ba41` | `test(provider): align legacy route contracts` | https://github.com/obaid08642-ops/new/commit/708d78290750493ef81dc32254e257c5c575ba41 |
+| final artifacts | `ce9c39610da1e43a285b08330d3a8aa6888d0717` | `docs(review): publish final governed artifacts` | https://github.com/obaid08642-ops/new/commit/ce9c39610da1e43a285b08330d3a8aa6888d0717 |
 
 ## ترتيب القراءة والفحص
 
@@ -46,10 +50,11 @@
 | الأمر | النتيجة |
 |---|---|
 | `npm run build` | ناجح. |
-| `npm test -- --runInBand` | **97 suites / 512 tests ناجحة**. يتضمن تحذير Mongoose لمسار `errors` ورسالة webhook fail-closed متوقعة لغياب secret محلي. |
-| `npx tsc --noEmit` في provider | ناجح. |
+| `npm test -- --runInBand` | **102 suites / 529 tests ناجحة**. يتضمن تحذير Mongoose لمسار `errors` ورسالة webhook fail-closed متوقعة لغياب secret محلي. |
+| `npx tsc --noEmit` في provider | ناجح. | 
+| `npm test -- --runInBand` في provider | **1 suite / 12 tests ناجحة**. |
 | `node scripts/check-provider-runtime.js` | `RUNTIME_DATA_GATE=PASS`. |
-| `unzip -t` للحزمتين | ناجح. |
+| `unzip -t` للحزمتين | ناجح بعد إعادة التغليف؛ backend تقريباً 5.4 MB وProvider تقريباً 618 KB. |
 
 ## أسباب بقاء الرفض
 
