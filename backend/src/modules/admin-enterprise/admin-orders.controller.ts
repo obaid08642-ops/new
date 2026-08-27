@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { UserRole } from '../../common/enums';
@@ -34,6 +35,23 @@ export class AdminOrdersConsoleController {
     });
   }
 
+  @Get('export')
+  @RequirePermissions(Permission.ANALYTICS_EXPORT)
+  async exportCsv(
+    @Query('kind') kind: string | undefined,
+    @Query('q') q: string | undefined,
+    @Query('status') status: string | undefined,
+    @Query('from') from: string | undefined,
+    @Query('to') to: string | undefined,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const output = await this.svc.exportCsv({ kind, q, status, from, to });
+    res.setHeader('content-type', 'text/csv; charset=utf-8');
+    res.setHeader('content-disposition', `attachment; filename="${output.filename}"`);
+    res.setHeader('x-export-truncated', String(output.truncated));
+    return `\ufeff${output.csv}`;
+  }
+
   @Get(':kind/:id')
   @RequirePermissions(Permission.ORDER_READ)
   detail(@Param('kind') kind: string, @Param('id') id: string) {
@@ -62,6 +80,12 @@ export class AdminOrdersConsoleController {
   @RequirePermissions(Permission.ORDER_REASSIGN)
   reassign(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
     return this.svc.reassign(kind, id, b || {}, me);
+  }
+
+  @Post(':kind/:id/note')
+  @RequirePermissions(Permission.ORDER_NOTE_ADD)
+  addInternalNote(@Param('kind') kind: string, @Param('id') id: string, @Body() b: any, @CurrentUser() me: any) {
+    return this.svc.addInternalNote(kind, id, b?.note, me);
   }
 
   @Post(':kind/:id/sla-extend')

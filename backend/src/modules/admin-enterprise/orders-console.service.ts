@@ -109,8 +109,11 @@ export class OrdersConsoleService {
       const [count] = await col.aggregate([{ $match: match }, { $count: 'n' }]).toArray().catch(() => [{ n: 0 }]);
       total += count?.n || 0;
       const perCol = opts.kind && opts.kind !== 'all' ? limit : page * limit;
+      const mongoSort: Record<string, 1 | -1> = opts.sort === 'oldest' || opts.sort === 'amount_asc'
+        ? (opts.sort === 'amount_asc' ? { total: 1, total_price: 1, createdAt: -1 } : { createdAt: 1 })
+        : (opts.sort === 'amount_desc' ? { total: -1, total_price: -1, createdAt: -1 } : { createdAt: -1 });
       const items = await col.find(match)
-        .sort(opts.sort === 'oldest' ? { createdAt: 1 } : { createdAt: -1 })
+        .sort(mongoSort)
         .limit(perCol)
         .project({
           _id: 0, id: 1, tracking_id: 1,
@@ -140,10 +143,12 @@ export class OrdersConsoleService {
       }
     }
 
-    rows.sort((a, b) =>
-      opts.sort === 'oldest'
-        ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        : new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    rows.sort((a, b) => {
+      if (opts.sort === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (opts.sort === 'amount_asc') return Number(a.total || 0) - Number(b.total || 0);
+      if (opts.sort === 'amount_desc') return Number(b.total || 0) - Number(a.total || 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
     const sliced = opts.kind && opts.kind !== 'all' ? rows : rows.slice((page - 1) * limit, page * limit);
 
     // status facet across requested kinds (for filter chips)
@@ -162,6 +167,35 @@ export class OrdersConsoleService {
     }
 
     return { data: sliced, total, page, pages: Math.ceil(total / limit), by_status: byStatus, by_kind: byKind };
+  }
+
+  /**
+   * CSV export is produced from the same server-filtered queue used by the UI.
+   * The limit prevents an interactive HTTP request from exhausting the worker;
+   * callers receive an explicit truncation header and can use scheduled reports
+   * for larger ranges.
+   */
+  async exportCsv(opts: { kind?: string; q?: string; status?: string; from?: string; to?: string }) {
+    const maxRows = Math.max(1, Math.min(10_000, Number(process.env.ADMIN_EXPORT_MAX_ROWS || 10_000)));
+    const first = await this.list({ ...opts, page: 1, limit: 100 });
+    const rows = [...first.data];
+    for (let page = 2; rows.length < Math.min(first.total, maxRows) && page <= first.pages; page += 1) {
+      const next = await this.list({ ...opts, page, limit: 100 });
+      rows.push(...next.data);
+    }
+    const escape = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const header = ['id', 'kind', 'state', 'patient_id', 'patient_name', 'provider_id', 'payment_status', 'total', 'created_at', 'sla_due_at'];
+    const lines = rows.slice(0, maxRows).map((row: any) => [
+      row.id, row.kind, row.state, row.patient_id, row.patient_name, row.provider_id,
+      row.payment_status, row.total, row.created_at, row.sla_due_at,
+    ].map(escape).join(','));
+    return {
+      filename: `orders-${new Date().toISOString().slice(0, 10)}.csv`,
+      csv: [header.join(','), ...lines].join('\n'),
+      truncated: first.total > maxRows,
+      total_matching: first.total,
+      exported_rows: Math.min(rows.length, maxRows),
+    };
   }
 
   // ── Detail ───────────────────────────────────────────────────
@@ -342,6 +376,21 @@ export class OrdersConsoleService {
       reason, before: { sla_due_at: doc.sla_due_at || null }, after: { sla_due_at: newDue, hours },
     });
     return { ok: true, id, sla_due_at: newDue, extended_hours: hours };
+  }
+
+  /** Internal operations note; no client-side state is treated as the source of truth. */
+  async addInternalNote(kind: string, id: string, rawNote: unknown, admin: any) {
+    const note = this.reason(rawNote);
+    const spec = getKindSpec(kind);
+    const doc: any = await this.conn.collection(spec.collection).findOne({ id });
+    if (!doc) throw new NotFoundException('order_not_found');
+    const entry = { by_user_id: admin.id, by_role: 'admin', at: new Date(), note: `internal_note: ${note}` };
+    await this.conn.collection(spec.collection).updateOne({ id }, { $push: { internal_notes: entry } } as any);
+    await this.audit.write({
+      action: 'order_internal_note', actor: admin, target_type: spec.collection, target_id: id,
+      reason: note, after: { internal_note_added: true },
+    });
+    return { ok: true, id, note: entry };
   }
 
   private reason(raw: unknown): string {
