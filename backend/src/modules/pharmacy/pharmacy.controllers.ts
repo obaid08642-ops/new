@@ -168,6 +168,7 @@ export class ProviderBroadcastController {
   constructor(private bc: PharmacyBroadcastService, private offers: PharmacyOfferService) {}
   @Get() list(@CurrentUser() u: any) { return this.bc.listForPharmacy(u); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.bc.detail(u, id); }
+  /** Deprecated: an offer must be inventory-backed and independently selectable by the patient. */
   @Post(':orderId/i-have-all') haveAll(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.claimHaveAll(u, oid, b); }
   @Post(':orderId/i-have-partial') havePartial(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondPartial(u, oid, b); }
   @Post(':orderId/offers')
