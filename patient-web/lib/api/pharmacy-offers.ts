@@ -22,7 +22,18 @@ export type PatientPharmacyOffer = {
   expiresAt?: string;
   insuranceReady?: boolean;
   codAllowed?: boolean;
+  quoteHash?: string;
+  quoteRevision?: number;
   lines: PatientPharmacyOfferLine[];
+};
+
+export type PatientPharmacyOrderProgress = {
+  governedState?: string;
+  coverageMode?: "cash" | "insurance";
+  acceptedQuoteHash?: string;
+  acceptedQuoteRevision?: number;
+  codAllowed?: boolean;
+  paymentStatus?: string;
 };
 
 function valueRecord(value: unknown) {
@@ -88,10 +99,28 @@ export function extractPatientPharmacyOffers(payload: unknown): PatientPharmacyO
       expiresAt: stringValue(source, ["expires_at", "expiresAt"]),
       insuranceReady: booleanValue(source, ["insurance_ready", "insuranceReady"]),
       codAllowed: booleanValue(source, ["cod_allowed", "codAllowed"]),
+      quoteHash: stringValue(source, ["snapshot_hash", "quote_hash", "quoteHash"]),
+      quoteRevision: numberValue(source, ["revision", "quote_revision", "quoteRevision"]),
       lines: rawLines.flatMap((line) => {
         const parsed = parseLine(line);
         return parsed ? [parsed] : [];
       }),
     }];
   });
+}
+
+export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPharmacyOrderProgress | null {
+  const root = valueRecord(payload);
+  const source = valueRecord(root?.data) ?? root;
+  if (!source) return null;
+  const acceptedSnapshot = valueRecord(source.accepted_quote_snapshot);
+  const rawCoverageMode = stringValue(source, ["coverage_mode", "coverageMode"]);
+  return {
+    governedState: stringValue(source, ["governed_state", "governedState"]),
+    coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
+    acceptedQuoteHash: stringValue(source, ["accepted_quote_hash", "acceptedQuoteHash"]),
+    acceptedQuoteRevision: numberValue(source, ["accepted_quote_revision", "acceptedQuoteRevision"]),
+    codAllowed: booleanValue(acceptedSnapshot ?? {}, ["cod_allowed", "codAllowed"]),
+    paymentStatus: stringValue(source, ["payment_status", "paymentStatus"]),
+  };
 }

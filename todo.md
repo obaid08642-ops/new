@@ -21,6 +21,7 @@
 - [x] Add Patient Web offer selection through the governed endpoint with an idempotency key, explicit cash/insurance choice, pending state, and safe error recovery.
 - [x] Link governed pharmacy offer discovery from the Patient Web order-detail state while preserving the existing tracking route.
 - [x] Render the Patient Web offer selection action only for server-status `open` offers; selected and final-quote offers remain read-only at this stage.
+- [x] Add Patient Web final-quote acceptance for selected or revised offers using the server hash and revision, then present COD only when the accepted snapshot explicitly permits it.
 - [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.

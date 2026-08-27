@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractPatientPharmacyOffers } from "./pharmacy-offers";
+import { extractPatientPharmacyOffers, extractPatientPharmacyOrderProgress } from "./pharmacy-offers";
 
 describe("patient pharmacy offer adapter", () => {
   it("keeps only server offer fields needed by the patient and rejects invalid offer identities", () => {
@@ -21,5 +21,14 @@ describe("patient pharmacy offer adapter", () => {
       insuranceReady: true,
       lines: [{ id: "line-1", name: "دواء", requestedQuantity: 2, offeredQuantity: 1, available: true }],
     }]);
+  });
+});
+
+describe("patient pharmacy order-progress adapter", () => {
+  it("exposes only the state and accepted quote details required for patient actions", () => {
+    expect(extractPatientPharmacyOrderProgress({
+      governed_state: "FINAL_QUOTE_ACCEPTED", coverage_mode: "cash", accepted_quote_hash: "hash", accepted_quote_revision: 3,
+      accepted_quote_snapshot: { cod_allowed: true, provider_internal_cost: 12 }, payment_status: "pending",
+    })).toEqual({ governedState: "FINAL_QUOTE_ACCEPTED", coverageMode: "cash", acceptedQuoteHash: "hash", acceptedQuoteRevision: 3, codAllowed: true, paymentStatus: "pending" });
   });
 });
