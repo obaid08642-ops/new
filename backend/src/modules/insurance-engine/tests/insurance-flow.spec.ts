@@ -24,14 +24,16 @@ describe('InsuranceFlowService', () => {
   let requests: any;
   let transactions: any;
   let orders: any;
+  let labs: any;
   let appointments: any;
 
   beforeEach(() => {
     requests = { findOne: jest.fn(), create: jest.fn(async (data) => makeDoc(data)) };
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
+    labs = { findOne: jest.fn() };
     appointments = { updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
-    service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, {} as any, {} as any, {} as any, appointments);
+    service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, labs, {} as any, {} as any, appointments);
     jest.clearAllMocks();
   });
 
@@ -55,6 +57,17 @@ describe('InsuranceFlowService', () => {
     expect(result.provider_id).toBe('pharmacy-real');
     expect(result.price).toBe(120);
     expect(requests.create).toHaveBeenCalledWith(expect.objectContaining({ booking_id: 'order-1', booking_kind: 'pharmacy', provider_id: 'pharmacy-real', price: 120 }));
+  });
+
+  it('derives a laboratory provider from the owned provider_account_id rather than patient input', async () => {
+    labs.findOne.mockReturnValue({ lean: async () => ({ id: 'lab-booking-1', patient_id: 'pat-1', provider_account_id: 'lab-real', total: 140 }) });
+    requests.findOne.mockReturnValue({ lean: async () => null });
+    service.myPolicy = jest.fn(async () => ({ has_policy: true, policy: { company_id: 'company-1' } }));
+
+    const result = await service.createRequest({ id: 'pat-1', full_name: 'Patient' }, { booking_id: 'lab-booking-1', booking_kind: 'lab', provider_id: 'forged-provider', price: 1 });
+
+    expect(result.provider_id).toBe('lab-real');
+    expect(result.price).toBe(140);
   });
 
   describe('decide', () => {

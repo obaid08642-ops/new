@@ -297,7 +297,7 @@ export class InsuranceFlowService {
     const { kind, model } = this.bookingModel(body?.booking_kind);
     const booking: any = await model.findOne({ id: bookingId, patient_id: user.id }).lean();
     if (!booking) throw new NotFoundException('owned_booking_not_found');
-    const providerId = booking.provider_id || booking.doctor_user_id || booking.pharmacy_id || booking.facility_id;
+    const providerId = booking.provider_account_id || booking.provider_id || booking.doctor_user_id || booking.pharmacy_id || booking.facility_id;
     if (!providerId) throw new BadRequestException('booking_provider_assignment_required');
     const price = Number(booking.total ?? booking.total_price ?? booking.price ?? 0);
     if (!Number.isFinite(price) || price <= 0) throw new BadRequestException('booking_price_not_ready');

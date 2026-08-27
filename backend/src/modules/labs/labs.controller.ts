@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Delete, Body, Param, Query, UseGuards, UseInterceptors, ServiceUnavailableException } from '@nestjs/common';
 import { LabsService } from './labs.service';
 import { Public, CurrentUser } from '../../common/auth.guard';
+import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
 
 @Controller('labs')
 export class LabsController {
@@ -36,6 +37,8 @@ export class LabsController {
   one(@Param('id') id: string) { return this.svc.getById(id); }
 
   @Post('bookings')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
   book(@Body() body: any, @CurrentUser() user: any) { return this.svc.book(user, body); }
 
   @Get('bookings/mine')

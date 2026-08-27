@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 
 describe('LabsService', () => {
   let service: LabsService;
@@ -15,6 +16,8 @@ describe('LabsService', () => {
     find: jest.fn().mockReturnThis(),
     findOne: jest.fn(),
     create: jest.fn(),
+    countDocuments: jest.fn(),
+    deleteOne: jest.fn(),
     updateOne: jest.fn(),
     updateMany: jest.fn(),
     lean: jest.fn(),
@@ -31,8 +34,9 @@ describe('LabsService', () => {
   };
 
   const mockEventBus = {
-    emit: jest.fn(),
+    emit: jest.fn().mockResolvedValue(undefined),
   };
+  const mockInsuranceFlow = { createRequest: jest.fn() };
 
   const mockWorkflowEngine = {
     announceCreated: jest.fn(),
@@ -59,6 +63,7 @@ describe('LabsService', () => {
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: EventBusService, useValue: mockEventBus },
         { provide: WorkflowEngineService, useValue: mockWorkflowEngine },
+        { provide: InsuranceFlowService, useValue: mockInsuranceFlow },
       ],
     }).compile();
 
@@ -67,6 +72,48 @@ describe('LabsService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('governed insurance booking creation', () => {
+    const patient = { id: 'patient-a', role: 'patient', full_name: 'Patient A', phone: '0500000000' };
+    const payload = { items: [{ service_id: 'lab-service-1' }], scheduled_at: '2027-08-20T10:00:00.000Z', location_type: 'facility', provider_account_id: 'provider-a', payment_method: 'insurance', insurance_provider: 'insurer-a' };
+    const labService = { id: 'lab-service-1', name_ar: 'تحليل', name_en: 'Test', price: 100, sample_type: 'blood', fasting_required: false, home_visit_supported: true };
+
+    beforeEach(() => {
+      mockLabService.find.mockResolvedValue([labService]);
+      mockLabBooking.countDocuments.mockResolvedValue(0);
+      mockLabBooking.find.mockReturnValue(mockLabBooking);
+      mockLabBooking.lean.mockResolvedValue([]);
+      mockLabBooking.deleteOne.mockResolvedValue({ deletedCount: 1 });
+      mockWorkflowEngine.announceCreated.mockClear();
+      mockEventBus.emit.mockClear();
+      mockInsuranceFlow.createRequest.mockReset();
+    });
+
+    it('creates the owned insurance request from the new server-priced booking and persists only its identifiers', async () => {
+      const booking: any = { id: 'lab-booking-1', state: LabBookingState.NEW_REQUEST, tracking_id: 'LAB-1', location_type: 'facility', save: jest.fn(), toObject: jest.fn(function (this: any) { return { id: this.id, insurance_request_id: this.insurance_request_id, insurance_review_state: this.insurance_review_state }; }) };
+      mockLabBooking.create.mockResolvedValue(booking);
+      mockInsuranceFlow.createRequest.mockResolvedValue({ id: 'insurance-request-1', state: 'PENDING_PROVIDER_REVIEW', price: 100, provider_id: 'provider-a' });
+
+      const result = await service.book(patient, payload);
+
+      expect(mockInsuranceFlow.createRequest).toHaveBeenCalledWith(patient, { booking_id: 'lab-booking-1', booking_kind: 'lab' });
+      expect(booking.save).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ id: 'lab-booking-1', insurance_request_id: 'insurance-request-1', insurance_review_state: 'PENDING_PROVIDER_REVIEW' });
+      expect(mockWorkflowEngine.announceCreated).toHaveBeenCalledTimes(1);
+    });
+
+    it('removes the unconfirmed booking and emits no creation workflow when request creation fails', async () => {
+      const booking: any = { id: 'lab-booking-2', state: LabBookingState.NEW_REQUEST, tracking_id: 'LAB-2', location_type: 'facility', save: jest.fn(), toObject: jest.fn() };
+      mockLabBooking.create.mockResolvedValue(booking);
+      mockInsuranceFlow.createRequest.mockRejectedValue(new BadRequestException('NO_INSURANCE_POLICY'));
+
+      await expect(service.book(patient, payload)).rejects.toThrow('NO_INSURANCE_POLICY');
+
+      expect(mockLabBooking.deleteOne).toHaveBeenCalledWith({ id: 'lab-booking-2', patient_id: 'patient-a', state: LabBookingState.NEW_REQUEST });
+      expect(mockWorkflowEngine.announceCreated).not.toHaveBeenCalled();
+      expect(mockEventBus.emit).not.toHaveBeenCalled();
+    });
   });
 
   describe('effective provider roles', () => {
