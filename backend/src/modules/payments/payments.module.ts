@@ -8,6 +8,7 @@ import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+import { PharmacyOrderSchema } from '../pharmacy/schemas/pharmacy.schema';
 import { InsuranceServiceRequestSchema } from '../insurance-engine/insurance-engine.module';
 import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
 import { WorkflowEngineModule, WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -114,10 +115,18 @@ class MoyasarAdapter implements GatewayAdapter {
   }
 }
 
-const KIND_TO_MODEL: any = { pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name };
+const KIND_TO_MODEL: any = { pharmacy: 'PharmacyOrder', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name };
 function normalizeKind(k: string) {
   const m: any = { orders: 'pharmacy', pharmacy: 'pharmacy', lab: 'lab', labs: 'lab', radiology: 'radiology', rads: 'radiology', nursing: 'nursing', 'home-care': 'nursing', homecare: 'nursing', consultation: 'consultation', appt: 'consultation', insurance: 'insurance', 'insurance-copay': 'insurance', copay: 'insurance' };
   return m[k];
+}
+
+function normalizeOnlineMethod(value: unknown): 'card' | 'apple_pay' | 'google_pay' {
+  const normalized = String(value ?? 'card').trim().toLowerCase().replace(/-/g, '_');
+  if (['card', 'visa', 'mastercard', 'mada', 'amex'].includes(normalized)) return 'card';
+  if (normalized === 'apple_pay') return 'apple_pay';
+  if (normalized === 'google_pay') return 'google_pay';
+  throw new BadRequestException('unsupported_payment_method');
 }
 
 @Injectable()
@@ -127,6 +136,7 @@ export class PaymentsService {
   constructor(
     @InjectModel('Transaction') private txns: Model<any>,
     @InjectModel('Order') private orders: Model<any>,
+    @InjectModel('PharmacyOrder') private pharmacyOrders: Model<any>,
     @InjectModel('LabBooking') private labs: Model<any>,
     @InjectModel('RadiologyBooking') private rads: Model<any>,
     @InjectModel('HomeCareBooking') private home: Model<any>,
@@ -142,13 +152,31 @@ export class PaymentsService {
     const kind = normalizeKind(k);
     if (!kind) throw new BadRequestException('invalid_booking_kind');
     if (kind === 'insurance') return this.insReqs;
-    return kind === 'pharmacy' ? this.orders : kind === 'lab' ? this.labs : kind === 'radiology' ? this.rads : kind === 'nursing' ? this.home : this.appts;
+    return kind === 'pharmacy' ? this.pharmacyOrders : kind === 'lab' ? this.labs : kind === 'radiology' ? this.rads : kind === 'nursing' ? this.home : this.appts;
   }
 
   private assertBookingOwnerOrAdmin(user: any, booking: any) {
-    if (!user?.id || (booking.patient_id !== user.id && user.role !== 'admin')) {
+    if (!user?.id || ((booking.patient_id ?? booking.patient_account_id) !== user.id && user.role !== 'admin')) {
       throw new BadRequestException('not_authorized');
     }
+  }
+
+  private pharmacyPaymentSnapshot(booking: any): { amount: number; currency: string; quoteHash: string; quoteRevision: number; method: 'card' | 'apple_pay' | 'google_pay' } {
+    if (!['FINAL_QUOTE_ACCEPTED', 'CO_PAY_PENDING'].includes(booking.governed_state)) {
+      throw new BadRequestException('pharmacy_quote_not_accepted');
+    }
+    const snapshot = booking.accepted_quote_snapshot;
+    const quoteHash = String(booking.accepted_quote_hash ?? '');
+    const quoteRevision = Number(booking.accepted_quote_revision);
+    const currency = String(snapshot?.totals?.currency ?? '').toUpperCase();
+    if (!snapshot || !quoteHash || !Number.isInteger(quoteRevision) || quoteRevision < 1 || currency !== 'SAR') {
+      throw new BadRequestException('invalid_accepted_pharmacy_quote');
+    }
+    const amount = booking.governed_state === 'CO_PAY_PENDING'
+      ? Number(booking.insurance_decision_summary?.co_pay_amount)
+      : Number(snapshot.totals?.total);
+    if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('invalid_pharmacy_payment_amount');
+    return { amount, currency, quoteHash, quoteRevision, method: normalizeOnlineMethod(booking.payment_method) };
   }
 
   private assertTransactionVerifier(user: any, transaction: any) {
@@ -170,11 +198,17 @@ export class PaymentsService {
     if (booking.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
     // insurance copay intents charge the patient's copay share, not the full price
     let amount = kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
-    // Pharmacy insurance orders: after provider approval the patient pays only the
-    // provider-set copay — never the full order total (E1 S1/S2).
-    if (kind === 'pharmacy' && booking.payment_method === 'insurance'
-        && ['APPROVED', 'PARTIAL_APPROVAL'].includes(booking.insurance_status)) {
-      amount = Number(booking.insurance_copay || 0);
+    let currency = 'SAR';
+    let quoteHash: string | undefined;
+    let quoteRevision: number | undefined;
+    let method = booking.payment_method || 'card';
+    if (kind === 'pharmacy') {
+      const quote = this.pharmacyPaymentSnapshot(booking);
+      amount = quote.amount;
+      currency = quote.currency;
+      quoteHash = quote.quoteHash;
+      quoteRevision = quote.quoteRevision;
+      method = quote.method;
     }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
     const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
@@ -185,7 +219,7 @@ export class PaymentsService {
     // live gateway intent for the same booking during an in-flight request.
     let txn: any;
     try {
-      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id ?? booking.patient_account_id, amount, currency, quote_hash: quoteHash, quote_revision: quoteRevision, gateway: this.adapter.name, method, status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
         const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
@@ -195,7 +229,7 @@ export class PaymentsService {
     }
     let intent: { intent_id: string; client_secret?: string; checkout_url?: string };
     try {
-      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind } });
+      intent = await this.adapter.createIntent({ amount, currency, description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind, quote_hash: quoteHash, quote_revision: quoteRevision } });
     } catch (error: any) {
       // Never expose raw PSP responses or credentials to clients. Keep the detail in server logs for operations.
       const reason = error instanceof Error ? error.message : String(error);
@@ -337,7 +371,7 @@ export class PaymentsService {
     const booking: any = await this.modelFor(type).findOne({ id }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
     const staffRoles = ['admin', 'finance'];
-    if (booking.patient_id !== user.id && !staffRoles.includes(user.role)) {
+    if ((booking.patient_id ?? booking.patient_account_id) !== user.id && !staffRoles.includes(user.role)) {
       throw new BadRequestException('not_authorized');
     }
     return this.txns.find({ booking_kind: kind, booking_id: id }).sort({ createdAt: -1 }).lean();
@@ -405,6 +439,7 @@ export class PaymentsWebhookController {
     MongooseModule.forFeature([
       { name: 'Transaction', schema: TransactionSchema },
       { name: 'Order', schema: OrderSchema },
+      { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
       { name: 'LabBooking', schema: LabBookingSchema },
       { name: 'RadiologyBooking', schema: RadiologyBookingSchema },
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },

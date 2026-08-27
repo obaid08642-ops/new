@@ -12,8 +12,11 @@ export class Transaction {
   @Prop({ required: true }) patient_id: string;
   @Prop({ required: true }) amount: number;
   @Prop({ default: 'SAR' }) currency: string;
+  /** Immutable pharmacy quote reference used to validate intent creation and webhook settlement. */
+  @Prop() quote_hash?: string;
+  @Prop() quote_revision?: number;
   @Prop({ enum: ['stripe', 'tap', 'moyasar'], default: 'moyasar' }) gateway: string;
-  @Prop({ default: 'card' }) method: string; // card|cash|insurance
+  @Prop({ default: 'card' }) method: string; // card|apple_pay|google_pay; never a customer wallet
   @Prop({ enum: ['initiating', 'pending', 'authorized', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled'], default: 'pending', index: true }) status: string;
   @Prop() idempotency_key?: string;
   @Prop() gateway_intent_id?: string;
