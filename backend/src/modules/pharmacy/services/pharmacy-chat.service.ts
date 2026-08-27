@@ -12,6 +12,7 @@ import { PharmacyChatThreadRepository } from "./repositories/pharmacychatthread.
 import { PharmacyChatMessageRepository } from "./repositories/pharmacychatmessage.repository";
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
+import { PharmacyOrderState as GovernedPharmacyOrderState } from '@nabd/shared-contracts';
 
 const BLOCK_PATTERNS: Array<{ name: string; re: RegExp }> = [
   { name: 'phone_e164', re: /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){2,4}\d{2,4}/g },
@@ -108,28 +109,16 @@ export class PharmacyChatService {
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
     const msg = await this.messages.findOne({ id: message_id, thread_id }).lean();
     if (!msg || !msg.substitute_offer) throw new BadRequestException('no_substitute_offer');
-    // Find the pharmacy's allocation for this order and update the matching item
-    const alloc = await this.allocs.findOne({ order_id: t.order_id, pharmacy_account_id: t.pharmacy_account_id });
-    if (alloc) {
-      const item = alloc.items.find(i => i.order_item_id === t.order_item_id);
-      if (item) {
-        item.action = AllocationItemAction.SUBSTITUTE;
-        item.substitute_for_sku = item.sku;
-        item.sku = msg.substitute_offer.sku || item.sku;
-        item.name = msg.substitute_offer.name || item.name;
-        item.substitute_reason = msg.substitute_offer.notes || 'patient_accepted_in_chat';
-        item.unit_price = msg.substitute_offer.price || item.unit_price;
-        item.updated_at = new Date();
-        alloc.markModified('items');
-        await alloc.save();
-      }
-    }
+    const order: any = await this.orders.findOne({ id: t.order_id });
+    if (!order || order.governed_state !== GovernedPharmacyOrderState.NEGOTIATION_REQUIRED || order.selected_pharmacy_account_id !== t.pharmacy_account_id) throw new BadRequestException('negotiation_not_active_for_thread');
     t.status = 'closed';
-    t.resolution = 'accepted';
+    t.resolution = 'accepted_pending_requote';
     await t.save();
+    order.timeline = [...(order.timeline ?? []), { ts: new Date(), event: 'patient_accepted_substitute_pending_requote', by: user.id, meta: { thread_id, message_id, order_item_id: t.order_item_id } }];
+    await order.save();
     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: `البديل مقبول من المريض.` });
     this.bus.emit({ type: 'substitute.accepted', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id, message_id: msg.id } }).catch(() => null);
-    return { ok: true };
+    return { ok: true, final_quote_required: true };
   }
 
   async rejectOrRemove(user: any, thread_id: string, action: 'rejected' | 'removed'): Promise<any> {
@@ -137,22 +126,16 @@ export class PharmacyChatService {
     if (!t) throw new NotFoundException();
     if (t.patient_account_id !== user.id) throw new ForbiddenException();
     if (t.status !== 'open') throw new BadRequestException('thread_closed');
+    const order: any = await this.orders.findOne({ id: t.order_id });
+    if (!order || order.governed_state !== GovernedPharmacyOrderState.NEGOTIATION_REQUIRED || order.selected_pharmacy_account_id !== t.pharmacy_account_id) throw new BadRequestException('negotiation_not_active_for_thread');
     t.status = 'closed';
-    t.resolution = action;
+    t.resolution = `${action}_pending_requote`;
     await t.save();
-    if (action === 'removed') {
-      // Remove item from order
-      const order = await this.orders.findOne({ id: t.order_id });
-      if (order) {
-        order.items = order.items.filter((it: any) => it.id !== t.order_item_id);
-        order.markModified('items');
-        order.timeline.push({ ts: new Date(), event: 'item_removed_from_order', meta: { order_item_id: t.order_item_id } });
-        await order.save();
-      }
-    }
+    order.timeline = [...(order.timeline ?? []), { ts: new Date(), event: action === 'removed' ? 'patient_requested_item_removal_pending_requote' : 'patient_rejected_substitute_pending_requote', by: user.id, meta: { thread_id, order_item_id: t.order_item_id } }];
+    await order.save();
     await this.messages.create({ id: uuidv4(), thread_id, sender_account_id: 'system', sender_role: 'system', text: action === 'rejected' ? `المريض رفض البديل.` : `تم حذف الصنف من الطلب.` });
     this.bus.emit({ type: action === 'rejected' ? 'substitute.rejected' : 'substitute.item_removed', entity_type: 'chat', entity_id: t.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: t.patient_account_id, pharmacy_account_id: t.pharmacy_account_id, meta: { order_id: t.order_id, order_item_id: t.order_item_id } }).catch(() => null);
-    return { ok: true };
+    return { ok: true, final_quote_required: true };
   }
 
   /** Sweep closures (called by admin) — archive threads where order completed >12h ago. */
