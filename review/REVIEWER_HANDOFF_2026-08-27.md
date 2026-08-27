@@ -8,7 +8,7 @@
 | الفرع فقط | `remediation/provider-production-governed` |
 | رابط الفرع | https://github.com/obaid08642-ops/new/tree/remediation/provider-production-governed |
 | رابط المقارنة | https://github.com/obaid08642-ops/new/compare/main...remediation/provider-production-governed |
-| رأس المراجعة الحالي | `ce9c39610da1e43a285b08330d3a8aa6888d0717` |
+| رأس المراجعة الحالي | `715b5bb267c753afa077c25d82067770b1f3d0fa` |
 
 ## الالتزامات التي يلزم مراجعتها بالترتيب
 
@@ -32,6 +32,7 @@
 | governed surfaces/payment intent | `5b89876e0242932ac35ea67a8086cf71f4864657` | `fix(provider): fail closed ungoverned surfaces and payment intents` | https://github.com/obaid08642-ops/new/commit/5b89876e0242932ac35ea67a8086cf71f4864657 |
 | legacy contract tests | `708d78290750493ef81dc32254e257c5c575ba41` | `test(provider): align legacy route contracts` | https://github.com/obaid08642-ops/new/commit/708d78290750493ef81dc32254e257c5c575ba41 |
 | final artifacts | `ce9c39610da1e43a285b08330d3a8aa6888d0717` | `docs(review): publish final governed artifacts` | https://github.com/obaid08642-ops/new/commit/ce9c39610da1e43a285b08330d3a8aa6888d0717 |
+| handoff final | `715b5bb267c753afa077c25d82067770b1f3d0fa` | `docs(review): finalize reviewer handoff` | https://github.com/obaid08642-ops/new/commit/715b5bb267c753afa077c25d82067770b1f3d0fa |
 
 ## ترتيب القراءة والفحص
 
