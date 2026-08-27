@@ -10,6 +10,7 @@ import { apiFetch } from '../../src/utils/api';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 import { isHttpsCheckout } from '../../src/utils/consultation-payment';
 import { insurancePaymentAction, insuranceSelfPayHeaders, parseInsuranceCopayRequest, type InsuranceCopayRequest } from '../../src/utils/insurance-copay-contract';
+import { appointmentStatusRouteParams } from '../../src/utils/consultation-status-route';
 
 export default function InsurancePaymentSplitScreen() {
   const { colors, isDark } = useApp();
@@ -41,6 +42,12 @@ export default function InsurancePaymentSplitScreen() {
     await load();
   };
 
+  const returnToAppointmentStatus = async () => {
+    if (!request || request.booking_kind !== 'consultation') throw new Error('لا يمكن فتح حالة الاستشارة لهذا الطلب.');
+    const appointment = await apiFetch(`/care/appointments/${encodeURIComponent(request.booking_id)}`);
+    router.replace({ pathname: '/consultations/booking-pending', params: appointmentStatusRouteParams(appointment, request.booking_id) });
+  };
+
   const continueFlow = async () => {
     if (!request) return;
     const action = insurancePaymentAction(request);
@@ -49,7 +56,7 @@ export default function InsurancePaymentSplitScreen() {
       if (action === 'accept_self_pay') { setRequest(parseInsuranceCopayRequest(await apiFetch(`/insurance/requests/${encodeURIComponent(request.id)}/accept-self-pay`, { method: 'POST', headers: insuranceSelfPayHeaders(request.id) }))); }
       else if (action === 'checkout_copay') await openCheckout('copay');
       else if (action === 'checkout_self_pay') await openCheckout('self-pay');
-      else if (action === 'covered' || action === 'paid') router.replace({ pathname: '/consultations/booking-pending', params: { appointmentId: params.appointmentId || request.booking_id, visitType: 'clinic' } });
+      else if (action === 'covered' || action === 'paid') await returnToAppointmentStatus();
     } catch (reason: any) { setError(reason?.message || 'تعذر متابعة قرار التأمين. لم يُسجّل أي دفع محلياً.'); }
     finally { setSubmitting(false); }
   };
