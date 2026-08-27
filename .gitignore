@@ -1,2 +1,4 @@
 extracted/
 node_modules/
+.work/
+packages/shared-contracts/dist/
