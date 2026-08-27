@@ -100,11 +100,11 @@ export class PharmacyOfferService {
       if (order.selected_offer_id === offerId) return this.offers.findOne({ id: offerId }).lean();
       throw new BadRequestException('another_offer_already_selected');
     }
-    const offer = await this.offers.findOne({ id: offerId, order_id: order.id, patient_account_id: user.id, status: 'open', expires_at: { $gte: new Date() } }).lean();
+    const offer: any = await this.offers.findOne({ id: offerId, order_id: order.id, patient_account_id: user.id, status: 'open', expires_at: { $gte: new Date() } }).lean();
     if (!offer) throw new NotFoundException('active_offer_not_found');
     if (coverageMode === 'insurance' && !offer.insurance_ready) throw new BadRequestException('offer_not_insurance_ready');
 
-    const locked = await this.orders.findOneAndUpdate(
+    const locked: any = await this.orders.findOneAndUpdate(
       { id: order.id, selected_offer_id: { $exists: false } },
       { $set: { selected_offer_id: offer.id, selected_pharmacy_account_id: offer.pharmacy_account_id, coverage_mode: coverageMode, accepted_quote_snapshot: { items: offer.items, totals: offer.totals, snapshot_hash: offer.snapshot_hash }, accepted_quote_revision: offer.revision, status: PharmacyOrderState.FULLY_ALLOCATED }, $push: { timeline: { ts: new Date(), event: 'patient_selected_offer', by: user.id, meta: { offer_id: offer.id, coverage_mode: coverageMode, snapshot_hash: offer.snapshot_hash } } } },
       { new: true },
@@ -120,7 +120,7 @@ export class PharmacyOfferService {
       }
       await this.offers.updateOne({ id: offer.id, status: 'open' }, { $set: { status: 'selected' }, $push: { timeline: { ts: new Date(), event: 'selected_by_patient', by: user.id } } });
       await this.offers.updateMany({ order_id: order.id, id: { $ne: offer.id }, status: 'open' }, { $set: { status: 'superseded' } });
-      const allocation = await this.allocations.create({ id: uuidv4(), order_id: order.id, pharmacy_account_id: offer.pharmacy_account_id, status: PharmacyAllocationState.PENDING_REVIEW, items: offer.items.map((line: any) => ({ id: uuidv4(), order_item_id: line.order_item_id, inventory_id: line.inventory_id, sku: line.sku, name: line.name, action: line.available ? 'available' : 'unavailable', qty_requested: line.requested_qty, qty_offered: line.offered_qty, unit_price: line.unit_price })), totals: offer.totals, timeline: [{ ts: new Date(), event: 'accepted_quote_snapshot', meta: { offer_id: offer.id, revision: offer.revision } }] });
+      const allocation: any = await this.allocations.create({ id: uuidv4(), order_id: order.id, pharmacy_account_id: offer.pharmacy_account_id, status: PharmacyAllocationState.PENDING_REVIEW, items: offer.items.map((line: any) => ({ id: uuidv4(), order_item_id: line.order_item_id, inventory_id: line.inventory_id, sku: line.sku, name: line.name, action: line.available ? 'available' : 'unavailable', qty_requested: line.requested_qty, qty_offered: line.offered_qty, unit_price: line.unit_price })), totals: offer.totals, timeline: [{ ts: new Date(), event: 'accepted_quote_snapshot', meta: { offer_id: offer.id, revision: offer.revision } }] });
       await this.orders.updateOne({ id: order.id }, { $set: { allocations: [allocation.id], insurance_status: coverageMode === 'insurance' ? 'authorization_pending' : undefined } });
       return { offer, allocation: allocation.toObject(), payment_required: coverageMode === 'cash', insurance_authorization_required: coverageMode === 'insurance' };
     } catch (error) {
