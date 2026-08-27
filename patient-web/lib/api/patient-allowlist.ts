@@ -29,6 +29,8 @@ const patientReadRoutes = [
   new RegExp("^/insurance/benefits-summary$"),
   new RegExp("^/insurance/claims$"),
   new RegExp(`^/payments/pharmacy/${orderId}/capabilities$`, "i"),
+  new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
+  new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
   new RegExp("^/mental-health/dashboard$"),
   new RegExp("^/mental-health/crisis-contacts$"),
   new RegExp("^/mental-health/breathing$"),
@@ -55,6 +57,10 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/self-pay/accept$`, "i") },
   { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cod/register$`, "i") },
   { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/${threadId}$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {

@@ -210,10 +210,10 @@ export class PharmacyChatController {
   constructor(private chat: PharmacyChatService) {}
   @Get('threads') list(@CurrentUser() u: any, @Query('order_id') oid?: string) { return this.chat.listThreads(u, oid); }
   @Get('threads/:id/messages') msgs(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.listMessages(u, id); }
-  @Post('threads/:id/messages') post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.chat.postMessage(u, id, b); }
-  @Post('threads/:id/accept-substitute/:msgId') accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
-  @Post('threads/:id/reject') reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
-  @Post('threads/:id/remove-item') remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
+  @Post('threads/:id/messages') @UseInterceptors(IdempotencyInterceptor) @RequireIdempotency() post(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.chat.postMessage(u, id, b); }
+  @Post('threads/:id/accept-substitute/:msgId') @UseInterceptors(IdempotencyInterceptor) @RequireIdempotency() accept(@CurrentUser() u: any, @Param('id') id: string, @Param('msgId') mid: string) { return this.chat.acceptSubstitute(u, id, mid); }
+  @Post('threads/:id/reject') @UseInterceptors(IdempotencyInterceptor) @RequireIdempotency() reject(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'rejected'); }
+  @Post('threads/:id/remove-item') @UseInterceptors(IdempotencyInterceptor) @RequireIdempotency() remove(@CurrentUser() u: any, @Param('id') id: string) { return this.chat.rejectOrRemove(u, id, 'removed'); }
 }
 
 @Controller('admin/pharmacy/chat')
