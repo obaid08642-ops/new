@@ -1,66 +1,63 @@
-# مذكرة إعادة المراجعة — إصلاحات رحلة مزوّدي الخدمات
+# مذكرة المعالجة الحاكمة — 27 أغسطس 2026
 
-**الفرع المستهدف:** `remediation/provider-production-governed`  
-**قاعدة المقارنة:** `main`  
-**قرار هذه المذكرة:** **NO-MERGE / NO-DEPLOY** إلى أن تستوفي بوابات البيئة المعزولة الواردة أدناه. لا يتضمن هذا التغيير دمجاً إلى `main` أو نشر خدمة أو ترحيلاً لبيانات حية.
+**المستودع:** `obaid08642-ops/new`
 
-> أُجريت التغييرات داخل مصادر مفكوكة ثم أُعيد تغليفها في الأرشيفين المتتبعين. لذلك يجب أن يراجع المراجع الفروقات النصية في `review/*-source-remediation-2026-08-27.patch` إلى جانب الأرشيفين، لا أن يكتفي بفارق حجم ملف ZIP.
+**الفرع:** `remediation/provider-production-governed`
 
-## نطاق الإصلاحات المنفذة
+**قاعدة المقارنة:** `main`
 
-| الجذر التشغيلي | التغيير الحاكم | حالة المراجعة المحلية |
+**القرار المستمر:** **REJECT / NO-MERGE / NO-DEPLOY**.
+
+> أُعيد تغليف المصادر داخل `NabdProvider-provider.zip` و`nabdah-backend.zip`. يجب أن تعتمد المراجعة على الحزم وفروقات المصدر في `review/*-source-remediation-2026-08-27.patch`، لا على فرق حجم ZIP فقط.
+
+## الدفعات الجديدة القابلة للمراجعة
+
+| الدفعة | الالتزام الكامل | النطاق الحاكم |
 |---|---|---|
-| عرض صيدلية | أضيف سجل عرض مؤرخ بسعر ولقطة مخزون خادميين، واختيار مريض ذري مع idempotency. أُقفل القبول القديم الذي كان يخصص الطلب قبل الاختيار. | اختبار وحدة للعروض والبث؛ البناء ناجح. |
-| تطبيق المريض للصيدلية | رُبطت شاشة حالة البث بقائمة العروض واختيار عرض واحد بمفتاح idempotency. | مراجعة ساكنة؛ لا يوجد دليل جهاز حي. |
-| التغطية للمختبر والأشعة | تُرسل الواجهات قرار تغطية موثق بدل تغيير حالة عامة، ويحسب الخادم المبلغ/المشاركة من السعر المخزن ويطلب مرجع قرار داخلي. | 3 اختبارات وحدة؛ البناء وفحص النوع ناجحان. |
-| التمريض | أُقفل مسار قبول الزيارة القديم لأنّه كان يؤكد التخصيص قبل الدفع/التغطية/السعة. أزيلت محاكاة GPS والمسافة والتوقيع والإتمام الميداني من الواجهة، وتظهر حالة غير متاحة صريحة. | اختبار containment؛ فحص النوع ناجح. |
-| الطبيب | أزيلت هوية `guest_patient` وبيانات التشخيص/الجرعة الافتراضية، وإصدار الإجازة بنجاح عند الفشل، ورسائل/فيديو/EHR/SOAP الاستشارة المحلية. تعرض الميزات غير الخادمية حالة غير متاحة. | عقد واجهة وفحص النوع ناجحان. |
-| الإسعاف | فرض الخادم حساب إسعاف معتمداً وملكية المهمة وهوية حساب مستشفى معتمد وتحول حالة ذرياً قبل التسليم أو الإكمال، مع سجل تدقيق. أزيل إنشاء مهمة بديلة عند فشل التحميل. | 3 اختبارات وحدة؛ البناء وفحص النوع ناجحان. |
-| التسجيل | حساب التسجيل الجديد يستخدم دور `guest` مقيداً بـ`onboarding_only` بدلاً من دور مزود تشغيلي، مع إلزام الاسم والبريد قبل البدء. فشل moderation أو توليد العقد يصبح مرئياً. | اختباران؛ البناء ناجح. |
-| KYC والتخزين | أُزيل اختيار العميل لـCloudinary/visibility/target. رفع المستندات يستخدم مسار كائنات خاصاً فقط، ويتطلب مصادقة وتخزين S3/R2 مهيأ؛ مسار Cloudinary القديم غير متاح. | بناء ناجح؛ يلزم دليل S3/R2 حي. |
-| المحفظة | واجهة السحب تشترط `review_status=approved` للحساب البنكي، وتستخدم UUID مع `idempotency_key`، ولا تعرض قبولاً بلا مرجع خادمي. | عقد واجهة وفحص النوع ناجحان. |
+| PR-1 | `e86d2e375eef6eb63d378934f20eaf35ae01895f` | يربط allocation بالعرض المختار وإصداره، ويغلق التقدم دون دليل دفع/سياسة COD/قرار تأمين خادمي، ويغلق insurance payload القديم. |
+| PR-2 | `539a5086e73002f3c8e6b5f84ed4e3481a9f99a4` | يفرض صيدلية معتمدة ومُخطرة، ويقلل DTO البث، ويستبدل واجهة الاستجابة الفارغة بمؤلف عرض مرتبط بالكتالوج ومعاينة خادم وTTL. |
+| PR-3 | `021d3deb9415ff1c4b8acba606eb3732e0caf44e` | يضيف أمر انتهاء دفعي persistent-state وlease/cursor/outbox intent ويقفل sweep القديم؛ لا scheduler أو worker. |
 
-## مخطط الحالات والسلطة
+تفاصيل الجذور وانتقالات السلطة والترحيل والحدود لكل دفعة في `PR1_PHARMACY_POST_SELECTION_GATES.md` و`PR2_PHARMACY_BROADCAST_PRIVACY_AND_COMPOSER.md` و`PR3_DURABLE_PHARMACY_EXPIRY_COMMAND.md`.
 
-| المسار | الأمر المسموح | سلطة الخادم المطلوبة | حالة الفشل |
-|---|---|---|---|
-| صيدلية | `offer -> patient select -> reservation` | حساب صيدلية/طلب/مخزون/سعر من الخادم ومفتاح idempotency | لا تخصيص ولا حجز. |
-| تغطية حجز | `APPROVED_FULL` أو `APPROVED_PARTIAL` أو رفض موثق | حساب مزود معتمد، ملكية الحجز، حالة سابقة، مرجع قرار داخلي وسعر snapshot | لا تأكيد ولا co-pay محلي. |
-| تمريض | قبول مزود قديم | غير متاح حتى بناء أمر يجمع الدفع والتغطية والسعة وحساب التمريض المعتمد | يعيد `503` صريحاً. |
-| إسعاف | تسليم ثم إكمال | حساب إسعاف معتمد، مهمة مخصصة له، حساب مستشفى معتمد، انتقال حالة ذري وسجل تدقيق | `403` أو `400` بلا كتابة. |
-| سحب | حجز سحب | حساب بنك معتمد، رصيد ledger، مفتاح idempotency، معاملة قفل دفتر الأستاذ | لا طلب ولا نجاح بصري. |
+## حالة الضوابط الحرجة
 
-## الأدلة المحلية المنفذة
+| المجال | ما صار مقيداً | ما لا يزال مانعاً للإنتاج |
+|---|---|---|
+| اختيار عرض صيدلي | الاختيار الذري هو مصدر allocation؛ كل تقدم يتحقق من offer/version/totals ودفع أو تأمين/ COD خادمي. | PSP/webhook حي، reconciliation مالي، وقرار التأمين الخارجي لم تختبر. |
+| خصوصية البث | دور JWT وحده لا يكفي؛ يلزم حساب pharmacy معتمد وعضوية notified. DTO لا يعيد order خاماً أو اسم/هاتف/عنوان/مرفقات المريض. | لا E2E ضد حسابات/بيانات حقيقة أو audit للـPHI في كل المستهلكين. |
+| مؤلف العرض | `available/unavailable/substitute`، binding بالكتالوج، qty جزئية، preview خادم، TTL. لا إدخال price/stock/fee/ETA. | لا توجد سياسة delivery-zone/fee/ETA خادمية مفعلة؛ النتيجة `unavailable_read_only`. |
+| انتهاء العروض والبث | deadlines محفوظة، batches محدودة، claim fencing، transactions، cursor وoutbox intent، ولا auto-allocation. | يلزم تطبيق فهارس الترحيل في بيئة معتمدة قبل تفعيل أي مستدعٍ؛ legacy broadcasts بلا deadline لا تنتهي تلقائياً. |
+| outbox/ledger | فشل ledger عند التسليم لم يعد صامتاً، وقرار التأمين/انتهاء العروض يكتبان intent idempotent. | لا يوجد بعد worker/retry/DLQ/reconciliation أو دليل atomic settlement لتسليم مادي. |
+
+## الأدلة المحلية الحديثة
 
 | البوابة | الأمر | النتيجة |
 |---|---|---|
-| بناء الخادم | `npm run build` داخل `nabdah-backend` | ناجح. |
-| اختبار الخادم الكامل | `npm test -- --runInBand` داخل `nabdah-backend` | **94 مجموعة، 494 اختباراً ناجحاً**. |
-| عروض الصيدلية | `npx jest src/modules/pharmacy/tests/pharmacy-offer.service.spec.ts --runInBand` | ناجح. |
-| تغطية الحجز | `npx jest src/modules/provider-production/provider-production.coverage.spec.ts --runInBand` | 3 اختبارات ناجحة. |
-| سلطة الإسعاف | `npx jest src/modules/provider-ops/provider-ops.ambulance.spec.ts --runInBand` | 3 اختبارات ناجحة. |
-| تسجيل المزوّد | `npx jest src/modules/provider-onboarding/provider-onboarding.service.spec.ts --runInBand` | اختباران ناجحان. |
-| فحص تطبيق المزوّد | `npx tsc --noEmit` | ناجح. |
-| عقد تطبيق المزوّد | `npx jest provider-app.contracts.test.js --runInBand --ci` | **12 اختباراً ناجحاً**. |
-| العقود المشتركة | `npm run typecheck && npm run build && npm test` | TypeScript والبناء و7 اختبارات ناجحة. |
-| بوابة وقت التشغيل | `node scripts/check-provider-runtime.js` | `RUNTIME_DATA_GATE=PASS`. |
-| سلامة الأرشيف | `unzip -t NabdProvider-provider.zip` و`unzip -t nabdah-backend.zip` | ناجح. |
+| بناء الخادم | `npm run build` داخل `.work/backend` | ناجح بعد الدفعات. |
+| مجموعة الخادم الكاملة | `npm test -- --runInBand` داخل `.work/backend` | **97 مجموعة، 507 اختبارات ناجحة**. يوجد تحذير Mongoose معروف لمسار `errors`، ورسالة webhook fail-closed متوقعة لغياب السر المحلي. |
+| اختبار بوابات PR-1 | `pharmacy-insurance-decision` و`pharmacy-allocation.payment-gate` | 6/6 ناجح في التشغيلات المستهدفة؛ ويتضمن رفض update صفري لقرار التأمين. |
+| اختبار خصوصية/عروض PR-2 | `pharmacy-broadcast.service` و`pharmacy-offer.service` | 16/16 في التشغيلين المستهدفين؛ يتضمن PII/access وserver quote. |
+| اختبار انتهاء PR-3 | `pharmacy-expiry-command.service` | 4/4 ناجح؛ claim/outbox/cursor/no-allocation. |
+| فحص تطبيق المزوّد | `npx tsc --noEmit` داخل `.work/provider` | ناجح. |
+| بوابة runtime | `node scripts/check-provider-runtime.js` | `RUNTIME_DATA_GATE=PASS`. |
+| سلامة الحزم | `unzip -t` لكلا ZIP | ناجح. |
 
-## ما لم يختبر — مانع للنشر
+## ما لم يختبر — لا يُفسر كجاهزية إنتاج
 
-لا يوجد دليل E2E أو تشغيل مرحلي مع MongoDB وRedis وخدمة الدفع وS3/R2 وLiveKit والإشعارات وOTP والأجهزة الفعلية. لم يُشغّل ترحيل بيانات موظفي المستشفى، ولم يُشغّل أي ترحيل أو تغيير على إنتاج. كما أن اختيار الصيدلية المتزامن، webhook الدفع وإعادته، قرار تأمين حقيقي، حيازة العينة، سياسة فحص البرمجيات الخبيثة، والتسوية البنكية تحتاج جميعاً إلى بيئة معزولة وبيانات اختبار غير حية.
+لم تُشغّل اختبارات E2E أو بيئة مرحلية مع Mongo replica set، Redis، PSP/Moyasar webhook، S3/R2، LiveKit، OTP، push، أو جهاز Expo حقيقي. لم يُشغّل ترحيل قاعدة البيانات، ولم يُشغّل scheduler أو cron أو queue worker أو مستدعي أمر الانتهاء، ولم تستخدم بيانات أو أسرار حية. كما لم يثبت recovery بعد فشل ledger أو delivery مادي، ولا worker outbox أو retry/DLQ أو reconciliation.
 
-## استرجاع التغيير
+## الترحيل والتراجع
 
-لا يوجد ترحيل قاعدة بيانات في هذه الدفعة. الاسترجاع قبل دمج أي التزام يتم بإرجاع التزام الفرع. بعد نشر بيئة مرحلية، لا تُفعل أوامر الصيدلية أو التخزين الخاص أو تسليم الإسعاف إلا بعد اختبار المسارات بالتسلسل أعلاه، وتوثيق نتيجة كل بوابة. يبقى مسار التمريض القديم معطلاً عمداً؛ لا يعاد تفعيله إلا مع أمر جديد واختبارات ملكية/تغطية/دفع/سعة.
+الترحيل الوحيد الجديد اختياري ومحمي داخل `scripts/migrations/20260827-pharmacy-expiry-indexes.js`. يرفض التنفيذ ما لم يمرر مسؤول تغيير `APPLY_DB_MIGRATION=20260827` و`MONGODB_URI`، ويفحص تكرارات outbox قبل إنشاء الفهرس الفريد. لم يُنفذ. التراجع قبل دمج هو `git revert` للدفعة المطلوبة أو إعادة الفرع إلى التزام سابق عبر عملية مراجعة عادية؛ لا force-push. بعد تطبيق فهرس على بيئة، حذف فهرس unique يحتاج قرار change-management مستقل.
 
-## ملفات المراجعة الأساسية
+## حزمة المراجع
 
 | الملف | الغرض |
 |---|---|
-| `NabdProvider-provider.zip` | مصدر تطبيق مزوّد الخدمات بعد الإصلاحات. |
-| `nabdah-backend.zip` | مصدر NestJS بعد الإصلاحات. |
-| `review/provider-source-remediation-2026-08-27.patch` | diff نصي لتطبيق المزوّد مقابل `main`. |
-| `review/backend-source-remediation-2026-08-27.patch` | diff نصي للخادم مقابل `main`. |
-| `packages/shared-contracts/` | عقود الولايات والمسارات واختباراتها. |
-| `scripts/check-provider-runtime.js` | بوابة منع أنماط بيانات التشغيل الوهمية. |
+| `review/PR1_PHARMACY_POST_SELECTION_GATES.md` | جذور ومدفوعات/تأمين/انتقالات PR-1. |
+| `review/PR2_PHARMACY_BROADCAST_PRIVACY_AND_COMPOSER.md` | DTO الخصوصية والعرض/الكتالوج/preview في PR-2. |
+| `review/PR3_DURABLE_PHARMACY_EXPIRY_COMMAND.md` | أمر الانتهاء والترحيل وخيارات المستدعي غير المختارة في PR-3. |
+| `review/backend-source-remediation-2026-08-27.patch` | diff نصي للخادم مقابل main. |
+| `review/provider-source-remediation-2026-08-27.patch` | diff نصي لتطبيق المزوّد مقابل main. |
+| `scripts/check-provider-runtime.js` | بوابة ساكنة مساندة فقط، لا بديل لـE2E. |
