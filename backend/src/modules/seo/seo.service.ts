@@ -1,5 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { controlsMap, isTypeIndexable, robotsDisallowLines } from './seo-controls.util';
 import { buildSlug, parseSlugSuffix, slugify } from '../../common/slug.util';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
@@ -20,7 +23,30 @@ export class SeoService {
     @Inject('FacilityRepository') private facilityM: FacilityRepository,
     @Inject('ProviderProfileRepository') private providerM: ProviderProfileRepository,
     @Inject('ArticleRepository') private articleM: any,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
+
+  // ── SEO publishing controls (admin-managed, cached 30s, fail-open) ──
+  private controlsCache: { map: Map<string, boolean>; exp: number } | null = null;
+
+  private async loadControls(): Promise<Map<string, boolean>> {
+    const now = Date.now();
+    if (this.controlsCache && this.controlsCache.exp > now) return this.controlsCache.map;
+    let rows: any[] = [];
+    try {
+      rows = await this.conn.collection('seo_controls').find({}).toArray();
+    } catch {
+      rows = []; // fail-open: no collection ⇒ everything stays indexable
+    }
+    const map = controlsMap(rows);
+    this.controlsCache = { map, exp: now + 30_000 };
+    return map;
+  }
+
+  /** Invalidate after POST /admin/ops/seo/controls so changes apply instantly. */
+  invalidateControlsCache() {
+    this.controlsCache = null;
+  }
 
   private modelFor(type: string): any {
     switch (type) {
@@ -247,12 +273,14 @@ export class SeoService {
     };
 
     // Only explicitly index-eligible public entities may enter crawler outputs.
-    await pushEntities('medicine', this.medM, this.publicQuery('medicine', true), 0.8);
-    await pushEntities('doctor', this.providerM, this.publicQuery('doctor', true), 0.85, 'weekly');
-    await pushEntities('lab-service', this.labSvcM, this.publicQuery('lab-service', true), 0.7);
-    await pushEntities('home-care-service', this.hcSvcM, this.publicQuery('home-care-service', true), 0.7);
-    await pushEntities('facility', this.facilityM, this.publicQuery('facility', true), 0.6, 'monthly');
-    await pushEntities('article', this.articleM, this.publicQuery('article', true), 0.6, 'weekly');
+    // Admin seo_controls can additionally block a whole entity type.
+    const controls = await this.loadControls();
+    if (isTypeIndexable('medicine', controls)) await pushEntities('medicine', this.medM, this.publicQuery('medicine', true), 0.8);
+    if (isTypeIndexable('doctor', controls)) await pushEntities('doctor', this.providerM, this.publicQuery('doctor', true), 0.85, 'weekly');
+    if (isTypeIndexable('lab-service', controls)) await pushEntities('lab-service', this.labSvcM, this.publicQuery('lab-service', true), 0.7);
+    if (isTypeIndexable('home-care-service', controls)) await pushEntities('home-care-service', this.hcSvcM, this.publicQuery('home-care-service', true), 0.7);
+    if (isTypeIndexable('facility', controls)) await pushEntities('facility', this.facilityM, this.publicQuery('facility', true), 0.6, 'monthly');
+    if (isTypeIndexable('article', controls)) await pushEntities('article', this.articleM, this.publicQuery('article', true), 0.6, 'weekly');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`;
@@ -261,7 +289,8 @@ export class SeoService {
   // ====================================================================
   // ROBOTS.TXT — instructs crawlers + points to the sitemap.
   // ====================================================================
-  robots(): string {
+  async robots(): Promise<string> {
+    const controls = await this.loadControls();
     return [
       'User-agent: *',
       'Allow: /',
@@ -272,6 +301,8 @@ export class SeoService {
       'Disallow: /order/',
       'Disallow: /labs/bookings',
       'Disallow: /home-care/bookings',
+      // admin publishing controls: whole entity types flipped off
+      ...robotsDisallowLines(controls),
       '',
       `Sitemap: ${PUBLIC_BASE}/api/v1/seo/sitemap.xml`,
       '',

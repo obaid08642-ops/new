@@ -119,6 +119,7 @@ import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
 import { AdminWebCoreModule } from './modules/admin-web-core/admin-web-core.module';
+import { AdminEnterpriseModule } from './modules/admin-enterprise/admin-enterprise.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
 import { HomeCareCompatModule } from './modules/home-care-compat/home-care-compat.module';
@@ -251,6 +252,7 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     InsuranceEngineModule,
     AdminModule,
     AdminWebCoreModule,
+    AdminEnterpriseModule,
     CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
     AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
   ],

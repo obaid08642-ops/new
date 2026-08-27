@@ -71,25 +71,71 @@ export class MailService {
 
   /** Resend first → automatic SES fallback. Never throws. */
   async send(to: string, subject: string, html: string, text?: string): Promise<MailResult> {
+    return this.sendWithAttachment({ to, subject, html, text });
+  }
+
+  /**
+   * Send with an optional CSV attachment (scheduled reports, A7).
+   * Attachment is base64 for Resend, Buffer for nodemailer/SES.
+   */
+  async sendWithAttachment(opts: { to: string; subject: string; html: string; text?: string; filename?: string; content?: string }): Promise<MailResult> {
+    const attachment = opts.filename && opts.content
+      ? { filename: opts.filename, content: opts.content }
+      : null;
     // 1) Primary: Resend
     try {
-      await this.sendViaResend(to, subject, html, text);
-      this.events.emit('mail.sent', { to, subject, provider: 'resend', fallback_used: false });
+      if (!this.resend) throw new Error('resend_not_configured');
+      const { error } = await this.resend.emails.send({
+        from: this.fromAddress,
+        to: opts.to,
+        subject: opts.subject,
+        html: opts.html,
+        ...(opts.text ? { text: opts.text } : {}),
+        ...(attachment ? { attachments: [{ filename: attachment.filename!, content: Buffer.from(attachment.content, 'utf-8').toString('base64') }] } : {}),
+      });
+      if (error) throw new Error(error.message || 'resend_error');
+      this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'resend', fallback_used: false });
       return { ok: true, provider: 'resend', fallback_used: false };
     } catch (e: any) {
-      this.logger.warn(`Resend failed for ${to}: ${e.message} — attempting SES fallback`);
+      if (!this.sesConfigured()) {
+        this.logger.error(`No mail provider delivered to ${opts.to}: ${e.message}`);
+        this.events.emit('mail.failed', { to: opts.to, subject: opts.subject, error: e.message });
+        return { ok: false, provider: 'none', fallback_used: false, error: e.message };
+      }
+      this.logger.warn(`Resend failed for ${opts.to}: ${e.message} — attempting SES fallback`);
     }
     // 2) Automatic fallback: Amazon SES
     try {
-      await this.sendViaSes(to, subject, html, text);
-      this.logger.log(`SES fallback delivered mail to ${to}`);
-      this.events.emit('mail.sent', { to, subject, provider: 'ses', fallback_used: true });
+      await this.sendViaSesWithAttachment(opts, attachment);
+      this.logger.log(`SES fallback delivered mail to ${opts.to}`);
+      this.events.emit('mail.sent', { to: opts.to, subject: opts.subject, provider: 'ses', fallback_used: true });
       return { ok: true, provider: 'ses', fallback_used: true };
     } catch (e2: any) {
-      this.logger.error(`Both mail providers failed for ${to}: ${e2.message}`);
-      this.events.emit('mail.failed', { to, subject, error: e2.message });
+      this.logger.error(`Both mail providers failed for ${opts.to}: ${e2.message}`);
+      this.events.emit('mail.failed', { to: opts.to, subject: opts.subject, error: e2.message });
       return { ok: false, provider: 'none', fallback_used: true, error: e2.message };
     }
+  }
+
+  private async sendViaSesWithAttachment(
+    opts: { to: string; subject: string; html: string; text?: string },
+    attachment: { filename: string; content: string } | null,
+  ): Promise<void> {
+    if (!this.sesConfigured()) throw new Error('ses_not_configured');
+    const transporter = nodemailer.createTransport({
+      host: process.env.SES_SMTP_HOST,
+      port: parseInt(process.env.SES_SMTP_PORT || '587', 10),
+      secure: process.env.SES_SMTP_PORT === '465',
+      auth: { user: process.env.SES_SMTP_USER, pass: process.env.SES_SMTP_PASS },
+    });
+    await transporter.sendMail({
+      from: process.env.SES_FROM || this.fromAddress,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+      ...(opts.text ? { text: opts.text } : {}),
+      ...(attachment ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, 'utf-8') }] } : {}),
+    });
   }
 
   /** Shared OTP template (Arabic, RTL) — used by auth + notifications. */

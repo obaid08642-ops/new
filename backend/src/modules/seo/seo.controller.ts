@@ -69,7 +69,7 @@ export class SeoController {
   @Public()
   @Get('robots.txt')
   async robots(@Res() res: Response) {
-    const txt = this.svc.robots();
+    const txt = await this.svc.robots();
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=86400'); // 24h cache
     res.send(txt);

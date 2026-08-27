@@ -37,7 +37,92 @@ export enum Permission {
 
   DATA_EXPORT = 'data.export',
   DATA_BACKUP = 'data.backup',
+
+  // ── Enterprise Control Center (A1–A7) ──────────────────────
+  RBAC_MANAGE = 'rbac.manage',
+  DISPUTES_RESOLVE = 'disputes.resolve',
+  COMMAND_CENTER_VIEW = 'command.center.view',
+
+  ORDER_READ = 'order.read',
+  ORDER_CANCEL = 'order.cancel',
+  ORDER_REFUND = 'order.refund',
+  ORDER_COMPENSATE = 'order.compensate',
+  ORDER_REASSIGN = 'order.reassign',
+  ORDER_SLA_EXTEND = 'order.sla.extend',
+
+  FINANCE_READ = 'finance.read',
+  FINANCE_PAYOUT_APPROVE = 'finance.payout.approve',
+  FINANCE_CONFIG_EDIT = 'finance.config.edit',
+
+  ANALYTICS_READ = 'analytics.read',
+  ANALYTICS_EXPORT = 'analytics.export',
+  SCHEDULED_REPORTS_MANAGE = 'reports.schedule.manage',
+
+  CRM_READ = 'crm.read',
+  GDPR_MANAGE = 'gdpr.manage',
+
+  CMS_EDIT = 'cms.edit',
+  COUPONS_MANAGE = 'coupons.manage',
+
+  OPS_QUEUES_MANAGE = 'ops.queues.manage',
+  OPS_CRONS_RUN = 'ops.crons.run',
+  TRANSLATIONS_EDIT = 'translations.edit',
+  SEO_CONTROL = 'seo.control',
 }
+
+/** Arabic labels for the permission catalog (RBAC editor UI). */
+export const PERMISSION_LABELS_AR: Record<string, string> = {
+  [Permission.DOCTOR_CREATE]: 'إنشاء طبيب',
+  [Permission.DOCTOR_EDIT]: 'تعديل طبيب',
+  [Permission.DOCTOR_READ]: 'قراءة الأطباء',
+  [Permission.DOCTOR_DELETE]: 'حذف طبيب',
+  [Permission.APPOINTMENT_CREATE]: 'إنشاء موعد',
+  [Permission.APPOINTMENT_READ]: 'قراءة المواعيد',
+  [Permission.APPOINTMENT_UPDATE]: 'تحديث موعد',
+  [Permission.APPOINTMENT_DELETE]: 'حذف موعد',
+  [Permission.PRESCRIPTION_CREATE]: 'إنشاء وصفة',
+  [Permission.PRESCRIPTION_READ]: 'قراءة الوصفات',
+  [Permission.PRESCRIPTION_UPDATE]: 'تحديث وصفة',
+  [Permission.PRESCRIPTION_DELETE]: 'حذف وصفة',
+  [Permission.PHARMACY_INVENTORY_EDIT]: 'تعديل مخزون صيدلية',
+  [Permission.PHARMACY_INVENTORY_READ]: 'قراءة مخزون صيدلية',
+  [Permission.LAB_RESULT_UPLOAD]: 'رفع نتيجة مختبر',
+  [Permission.LAB_RESULT_READ]: 'قراءة نتائج مختبر',
+  [Permission.RADIOLOGY_RESULT_UPLOAD]: 'رفع نتيجة أشعة',
+  [Permission.RADIOLOGY_RESULT_READ]: 'قراءة نتائج أشعة',
+  [Permission.FACILITY_CREATE]: 'إنشاء منشأة',
+  [Permission.FACILITY_EDIT]: 'تعديل منشأة',
+  [Permission.FACILITY_READ]: 'قراءة المنشآت',
+  [Permission.FACILITY_DELETE]: 'حذف منشأة',
+  [Permission.USER_IMPERSONATE]: 'انتحال هوية مستخدم',
+  [Permission.USER_READ]: 'قراءة المستخدمين',
+  [Permission.USER_EDIT]: 'تعديل مستخدم',
+  [Permission.DATA_EXPORT]: 'تصدير بيانات',
+  [Permission.DATA_BACKUP]: 'نسخ احتياطي',
+  [Permission.RBAC_MANAGE]: 'إدارة الأدوار والصلاحيات',
+  [Permission.DISPUTES_RESOLVE]: 'حسم النزاعات المالية',
+  [Permission.COMMAND_CENTER_VIEW]: 'عرض مركز القيادة الحي',
+  [Permission.ORDER_READ]: 'قراءة الطلبات',
+  [Permission.ORDER_CANCEL]: 'إلغاء طلب',
+  [Permission.ORDER_REFUND]: 'استرداد مالي',
+  [Permission.ORDER_COMPENSATE]: 'تعويض محفظة',
+  [Permission.ORDER_REASSIGN]: 'إعادة إسناد مزود',
+  [Permission.ORDER_SLA_EXTEND]: 'تمديد SLA',
+  [Permission.FINANCE_READ]: 'قراءة المالية',
+  [Permission.FINANCE_PAYOUT_APPROVE]: 'اعتماد مدفوعات المزودين',
+  [Permission.FINANCE_CONFIG_EDIT]: 'تعديل إعدادات العمولات/VAT',
+  [Permission.ANALYTICS_READ]: 'قراءة التحليلات',
+  [Permission.ANALYTICS_EXPORT]: 'تصدير التقارير',
+  [Permission.SCHEDULED_REPORTS_MANAGE]: 'إدارة التقارير المجدولة',
+  [Permission.CRM_READ]: 'قراءة CRM 360',
+  [Permission.GDPR_MANAGE]: 'إدارة خصوصية البيانات (GDPR)',
+  [Permission.CMS_EDIT]: 'تحرير المحتوى (CMS)',
+  [Permission.COUPONS_MANAGE]: 'إدارة الكوبونات والعروض',
+  [Permission.OPS_QUEUES_MANAGE]: 'إدارة طوابير المهام',
+  [Permission.OPS_CRONS_RUN]: 'تشغيل المهام الدورية يدويًا',
+  [Permission.TRANSLATIONS_EDIT]: 'تحرير الترجمات',
+  [Permission.SEO_CONTROL]: 'التحكم بنشر SEO',
+};
 
 export interface OwnershipOptions {
   model: string;       // Name of mongoose model, e.g. 'Appointment'
@@ -60,7 +145,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.RADIOLOGY_RESULT_READ,
     Permission.FACILITY_CREATE, Permission.FACILITY_EDIT, Permission.FACILITY_READ,
     Permission.USER_READ, Permission.USER_EDIT,
-    Permission.DATA_EXPORT, Permission.DATA_BACKUP
+    Permission.DATA_EXPORT, Permission.DATA_BACKUP,
+    // Enterprise baseline for platform admins (A1–A7)
+    Permission.COMMAND_CENTER_VIEW, Permission.RBAC_MANAGE,
+    Permission.DISPUTES_RESOLVE,
+    Permission.ORDER_READ, Permission.ORDER_CANCEL, Permission.ORDER_REFUND,
+    Permission.ORDER_COMPENSATE, Permission.ORDER_REASSIGN, Permission.ORDER_SLA_EXTEND,
+    Permission.FINANCE_READ, Permission.FINANCE_PAYOUT_APPROVE, Permission.ANALYTICS_READ, Permission.ANALYTICS_EXPORT,
+    Permission.SCHEDULED_REPORTS_MANAGE, Permission.CRM_READ, Permission.GDPR_MANAGE,
+    Permission.CMS_EDIT, Permission.COUPONS_MANAGE,
+    Permission.OPS_QUEUES_MANAGE, Permission.OPS_CRONS_RUN,
+    Permission.TRANSLATIONS_EDIT, Permission.SEO_CONTROL,
   ],
   [UserRole.SUPPORT_AGENT]: [
     Permission.DOCTOR_READ,
@@ -72,11 +167,14 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.FACILITY_READ,
     Permission.USER_READ,
     Permission.USER_IMPERSONATE,
+    Permission.ORDER_READ, Permission.CRM_READ, Permission.COMMAND_CENTER_VIEW,
   ],
   [UserRole.FINANCE]: [
     Permission.APPOINTMENT_READ,
     Permission.FACILITY_READ,
     Permission.DATA_EXPORT,
+    Permission.FINANCE_READ, Permission.FINANCE_PAYOUT_APPROVE, Permission.FINANCE_CONFIG_EDIT,
+    Permission.ANALYTICS_READ, Permission.ANALYTICS_EXPORT, Permission.ORDER_READ,
   ],
   [UserRole.PATIENT]: [
     Permission.DOCTOR_READ,

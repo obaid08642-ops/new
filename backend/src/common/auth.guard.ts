@@ -5,6 +5,36 @@ import { SetMetadata } from '@nestjs/common';
 import { Request } from 'express';
 import { UserRole } from './enums';
 import { Permission, ROLE_PERMISSIONS, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } from './permissions';
+import { roleSatisfies, mergePermissions } from './rbac';
+
+// ── Dynamic RBAC (A1) ─────────────────────────────────────────
+// Custom roles live in `admin_custom_roles`; users reference them through
+// `custom_role_keys` on their document. Resolution is cached for 30s and can
+// be invalidated by RBAC mutations via invalidateDynamicRoleCache().
+const DYNAMIC_ROLE_TTL_MS = 30_000;
+const dynamicRoleCache = new Map<string, { perms: string[]; exp: number }>();
+
+export function invalidateDynamicRoleCache() {
+  dynamicRoleCache.clear();
+}
+
+async function resolveCustomRolePermissions(connection: Connection, payload: any): Promise<string[]> {
+  const keys: string[] = Array.isArray(payload?.custom_role_keys) ? payload.custom_role_keys.map(String) : [];
+  if (!keys.length) return [];
+  const ck = keys.slice().sort().join(',');
+  const now = Date.now();
+  const hit = dynamicRoleCache.get(ck);
+  if (hit && hit.exp > now) return hit.perms;
+  let docs: any[] = [];
+  try {
+    docs = await connection.collection('admin_custom_roles').find({ key: { $in: keys } }).toArray();
+  } catch {
+    docs = []; // fail closed: no collection → no extra permissions
+  }
+  const perms = mergePermissions(...docs.map((d) => d?.permissions || []));
+  dynamicRoleCache.set(ck, { perms, exp: now + DYNAMIC_ROLE_TTL_MS });
+  return perms;
+}
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
@@ -111,21 +141,26 @@ export class JwtAuthGuard implements CanActivate {
       throw new ForbiddenException('impersonation_session_required');
     }
 
-    // Role check (fallback compatibility)
+    // Role check (fallback compatibility) — hierarchy-aware: super_admin
+    // satisfies @Roles(ADMIN); nothing else inherits (fixes the A1 bug where
+    // super_admin accounts were 403'd out of every admin controller).
     const effectiveRoles = getEffectiveRoles(payload);
     const roles = this.reflector.getAllAndOverride<Array<UserRole | string>>(ROLES_KEY, [ctx.getHandler(), ctx.getClass()]);
-    if (roles && roles.length && !roles.some(required => effectiveRoles.includes(normalizeEffectiveRole(required)))) {
+    if (roles && roles.length && !roles.some(required => roleSatisfies(normalizeEffectiveRole(String(required)), effectiveRoles))) {
       throw new ForbiddenException('Insufficient role');
     }
 
-    // Fine-grained Permission check
+    // Fine-grained Permission check — static matrix + JWT grants + dynamic
+    // custom roles resolved from `admin_custom_roles` (cached).
     const requiredPermissions = this.reflector.getAllAndOverride<Permission[]>(PERMISSIONS_KEY, [ctx.getHandler(), ctx.getClass()]);
     if (requiredPermissions && requiredPermissions.length) {
-      const userPermissions = [
-        ...effectiveRoles.flatMap(role => ROLE_PERMISSIONS[role as UserRole] || []),
-        ...(payload.permissions || [])
-      ];
-      
+      const customPerms = await resolveCustomRolePermissions(this.connection, payload);
+      const userPermissions = mergePermissions(
+        ...effectiveRoles.map(role => ROLE_PERMISSIONS[role as UserRole] || []),
+        customPerms,
+        payload.permissions || [],
+      );
+
       const hasPermission = requiredPermissions.every(p => userPermissions.includes(p));
       if (!hasPermission) {
         throw new ForbiddenException('Insufficient permissions');
