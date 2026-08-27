@@ -334,7 +334,7 @@ export class PharmacyOfferService {
       GovernedPharmacyOrderState.FINAL_QUOTE_ACCEPTED,
       GovernedPharmacyOrderState.COD_REGISTERED,
       'PATIENT',
-      { codAllowed: true, codRegistered: true, quoteHash: order.accepted_quote_hash, quoteRevision: order.accepted_quote_revision },
+      { paymentMethod: 'COD', codAllowed: true, codRegistered: true, quoteHash: order.accepted_quote_hash, quoteRevision: order.accepted_quote_revision },
     );
     assertGovernedPharmacyTransition(
       GovernedPharmacyOrderState.COD_REGISTERED,
