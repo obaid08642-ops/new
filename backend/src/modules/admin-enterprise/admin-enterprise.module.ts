@@ -20,6 +20,7 @@ import { AdminCmsController } from './admin-cms.controller';
 import { AdminOpsController } from './admin-ops.controller';
 import { ScheduledReportsRunner } from './scheduled-reports.runner';
 import { AdminCommandCenterV2Controller } from './command-center-v2.controller';
+import { AdminGovernanceControlsController } from './admin-governance-controls.controller';
 
 /**
  * Enterprise Control Center (ADMIN_ENTERPRISE_PLAN batches A1→A7).
@@ -51,6 +52,7 @@ import { AdminCommandCenterV2Controller } from './command-center-v2.controller';
     AdminCouponsController,
     // ── A6 ──
     AdminOpsController,
+    AdminGovernanceControlsController,
     // ── A7 ──
     AdminCommandCenterV2Controller,
   ],

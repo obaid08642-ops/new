@@ -24,6 +24,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PushModule, PushService } from '../push/push.module';
+import { compileSegment } from '../admin-enterprise/segments.engine';
 
 // ── Schema ────────────────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ export class AdminNotificationCenterService {
     if (!title || !message || !segment) throw new BadRequestException('title, body, segment are required');
     if (title.length > 140 || message.length > 2000) throw new BadRequestException('notification content exceeds permitted length');
     const allowedSegments = new Set(['all', 'patients', 'providers', 'role:pharmacy', 'role:doctor', 'role:lab', 'role:radiology', 'role:nurse', 'role:driver']);
-    if (!allowedSegments.has(segment) && !/^user:[A-Za-z0-9_-]{1,128}$/.test(segment)) {
+    if (!allowedSegments.has(segment) && !/^user:[A-Za-z0-9_-]{1,128}$/.test(segment) && !/^segment:[A-Za-z0-9_-]{1,128}$/.test(segment)) {
       throw new BadRequestException('unsupported notification segment');
     }
     if (!segment.startsWith('user:') && body?.audience_confirmed !== true) {
@@ -87,7 +88,14 @@ export class AdminNotificationCenterService {
         throw new BadRequestException('scheduled time must be within the next 31 days');
       }
     }
-    return { title, message, segment };
+    const variants = Array.isArray(body?.variants) ? body.variants.map((item: any, index: number) => ({
+      id: String(item?.id || String.fromCharCode(65 + index)).slice(0, 20),
+      title: String(item?.title || '').trim(),
+      body: String(item?.body || '').trim(),
+    })).filter((item: any) => item.title && item.body) : [];
+    if (variants.length > 2) throw new BadRequestException('campaign_supports_at_most_two_variants');
+    if (variants.some((item: any) => item.title.length > 140 || item.body.length > 2000)) throw new BadRequestException('notification content exceeds permitted length');
+    return { title, message, segment, variants };
   }
 
   // ── Segment resolution ────────────────────────────────────────────
@@ -104,6 +112,13 @@ export class AdminNotificationCenterService {
       return rows.map((u: any) => u.id).filter(Boolean);
     }
     if (segment.startsWith('role:')) return this.usersByRole(segment.slice(5));
+    if (segment.startsWith('segment:')) {
+      const id = segment.slice('segment:'.length);
+      const saved: any = await this.conn.collection('segments').findOne({ id });
+      if (!saved) throw new NotFoundException('saved_segment_not_found');
+      const rows = await this.users.find(compileSegment(saved.definition), { projection: { id: 1, _id: 0 } }).limit(100000).toArray();
+      return rows.map((u: any) => u.id).filter(Boolean);
+    }
     if (segment.startsWith('user:')) {
       const id = segment.slice(5);
       const user = await this.users.findOne({ id }, { projection: { id: 1, _id: 0 } });
@@ -134,7 +149,7 @@ export class AdminNotificationCenterService {
   // ── Campaigns ───────────────────────────────────────────────────────
 
   async createCampaign(adminId: string, body: any) {
-    const { title, message, segment } = this.validateCampaignInput(body);
+    const { title, message, segment, variants } = this.validateCampaignInput(body);
     const id = `cmp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const scheduled = body.scheduled_at ? new Date(body.scheduled_at) : null;
     const doc = {
@@ -144,6 +159,7 @@ export class AdminNotificationCenterService {
       body: message,
       segment,
       deep_link: body.deep_link || null,
+      variants,
       scheduled_at: scheduled || undefined,
       status: scheduled && scheduled.getTime() > Date.now() ? 'scheduled' : 'draft',
       stats: {},
@@ -197,12 +213,17 @@ export class AdminNotificationCenterService {
         if (c.deep_link.params) data.params = c.deep_link.params;
       }
       let queued = 0;
+      const variants = Array.isArray(c.variants) && c.variants.length ? c.variants : [{ id: 'A', title: c.title, body: c.body }];
+      const variantStats: Record<string, number> = {};
       for (const uid of userIds) {
-        await this.push.queueNotification(uid, c.title, c.body, data, 'normal');
+        const hash = [...String(uid)].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+        const variant = variants[hash % variants.length];
+        await this.push.queueNotification(uid, variant.title, variant.body, { ...data, ab_variant: variant.id }, 'normal');
+        variantStats[variant.id] = (variantStats[variant.id] || 0) + 1;
         queued++;
       }
       await this.campaigns.updateOne({ id }, {
-        $set: { status: 'sent', sent_at: new Date(), stats: { targeted: userIds.length, sent: queued, failed: 0 }, updatedAt: new Date() },
+        $set: { status: 'sent', sent_at: new Date(), stats: { targeted: userIds.length, sent: queued, failed: 0, variants: variantStats }, updatedAt: new Date() },
       });
       this.logger.log(`Campaign ${id} sent to ${queued} users (segment=${c.segment})`);
       return { ok: true, targeted: userIds.length, queued };

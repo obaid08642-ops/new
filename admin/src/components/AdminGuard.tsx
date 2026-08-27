@@ -31,8 +31,10 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/admin/crm', label: 'CRM 360', permission: 'crm.read' },
       { href: '/admin/segments', label: 'شرائح العملاء', permission: 'crm.read' },
+      { href: '/admin/gdpr', label: 'خصوصية البيانات', permission: 'gdpr.manage' },
       { href: '/admin/content-growth', label: 'المحتوى والنمو', permission: 'cms.edit' },
-      { href: '/admin/catalog-governance', label: 'حوكمة الكتالوج' },
+      { href: '/admin/home-curation', label: 'ترتيب الصفحة الرئيسية', permission: 'cms.edit' },
+      { href: '/admin/medicines-catalog', label: 'حوكمة الكتالوج' },
       { href: '/admin/users-management', label: 'إدارة المستخدمين' },
     ],
   },
