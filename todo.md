@@ -16,3 +16,5 @@
 - [ ] Split completed work into reviewable branches and pull requests, obtain CI evidence, and prepare an auditor-ready change ledger without self-merging or deploying.
 - [ ] Remove the discovered in-process `setInterval` polling from Patient Mobile broadcast status and replace it with an explicit, user-driven refresh compatible with the governed expiry policy.
 - [ ] Implement the governed pharmacy broadcast, offer comparison, patient selection, negotiation, final-quote, cash/COD, and insurance decision presentation in Patient Web; the current cart checkout is not a substitute for this flow.
+- [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
+- [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
