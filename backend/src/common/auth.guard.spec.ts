@@ -172,3 +172,20 @@ describe('effective provider roles (FIX2)', () => {
     expect(getEffectiveRoles({ role: 'lab', provider_type: 'laboratory' })).toEqual([UserRole.LAB]);
   });
 });
+
+
+describe('JwtAuthGuard support session context', () => {
+  it('attaches the validated impersonation session and original actor to the request', async () => {
+    const jwt: any = { verifyAsync: jest.fn().mockResolvedValue({ id: 'patient-1', role: 'patient', scope: 'impersonation', impersonation_session_id: 'imp-1' }) };
+    const reflector: any = { getAllAndOverride: jest.fn().mockReturnValue(null) };
+    const connection: any = { collection: jest.fn() };
+    const sessions: any = { validate: jest.fn().mockResolvedValue({ session: { id: 'imp-1', expiresAt: new Date('2030-01-01T00:00:00.000Z') }, impersonator: { id: 'admin-1', role: 'admin' } }) };
+    const guard = new JwtAuthGuard(jwt, reflector, connection, sessions);
+    const req: any = { headers: { authorization: 'Bearer support-token' }, params: {}, query: {}, body: {}, path: '/api/v1/support-session/context', socket: { remoteAddress: '127.0.0.1' } };
+    const ctx: any = { switchToHttp: () => ({ getRequest: () => req }), getHandler: () => ({}), getClass: () => ({}) };
+
+    await expect(guard.canActivate(ctx)).resolves.toBe(true);
+    expect(req.impersonator).toEqual({ id: 'admin-1', role: 'admin' });
+    expect(req.impersonationSession).toEqual(expect.objectContaining({ id: 'imp-1' }));
+  });
+});

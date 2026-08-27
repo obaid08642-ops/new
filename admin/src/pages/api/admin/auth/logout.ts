@@ -7,6 +7,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     `admin_access=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
     `admin_refresh=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
     `admin_csrf=; Path=/; SameSite=Lax; Max-Age=0${secure}`,
+    `admin_support_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
   ]);
   return res.status(200).json({ ok: true });
 }

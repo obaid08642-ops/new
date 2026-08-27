@@ -124,6 +124,7 @@ export class MedicinesController {
   /** Admin: list shortage reports */
   @Get('admin/shortage-reports')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_READ)
   shortageReports(@Query('status') status?: string, @Query('page') page?: string, @Query('limit') limit?: string) {
     return this.svc.listShortageReports(status || 'pending', parseInt(page || '1'), parseInt(limit || '20'));
   }
@@ -131,6 +132,7 @@ export class MedicinesController {
   /** Admin: approve → badge appears */
   @Post('admin/shortage-reports/:reportId/approve')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   approveShortage(@Param('reportId') reportId: string, @CurrentUser('id') by: string) {
     return this.svc.approveShortageReport(reportId, by);
   }
@@ -138,6 +140,7 @@ export class MedicinesController {
   /** Admin: reject → no badge */
   @Post('admin/shortage-reports/:reportId/reject')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   rejectShortage(@Param('reportId') reportId: string, @CurrentUser('id') by: string, @Body() body: { reason?: string }) {
     return this.svc.rejectShortageReport(reportId, by, body?.reason);
   }
@@ -145,6 +148,7 @@ export class MedicinesController {
   /** Admin: clear badge when stock normalizes */
   @Post('admin/catalog/:id/clear-shortage-badge')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   clearBadge(@Param('id') id: string, @CurrentUser('id') by: string) {
     return this.svc.clearShortageBadge(id, by);
   }
@@ -152,6 +156,7 @@ export class MedicinesController {
   /** Admin: set availability explicitly (none | availability_may_be_limited | discontinued) */
   @Post('admin/catalog/:id/availability')
   @Roles(UserRole.ADMIN)
+  @RequirePermissions(Permission.CATALOG_SHORTAGE_DECIDE)
   setAvailability(@Param('id') id: string, @CurrentUser('id') by: string, @Body() body: { status: string }) {
     return this.svc.setAvailability(id, by, body?.status);
   }

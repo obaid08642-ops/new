@@ -4,40 +4,18 @@ import { Reflector } from '@nestjs/core';
 import { SetMetadata } from '@nestjs/common';
 import { Request } from 'express';
 import { UserRole } from './enums';
-import { Permission, ROLE_PERMISSIONS, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } from './permissions';
-import { roleSatisfies, mergePermissions } from './rbac';
+import { Permission, PERMISSIONS_KEY, CHECK_OWNERSHIP_KEY, OwnershipOptions } from './permissions';
+import { roleSatisfies } from './rbac';
 import { ImpersonationSessionService } from './impersonation-session.service';
-
-// ── Dynamic RBAC (A1) ─────────────────────────────────────────
-// Custom roles live in `admin_custom_roles`; users reference them through
-// `custom_role_keys` on their document. Resolution is cached for 30s and can
-// be invalidated by RBAC mutations via invalidateDynamicRoleCache().
-const DYNAMIC_ROLE_TTL_MS = 30_000;
-const dynamicRoleCache = new Map<string, { perms: string[]; exp: number }>();
-
-export function invalidateDynamicRoleCache() {
-  dynamicRoleCache.clear();
-}
-
-async function resolveCustomRolePermissions(connection: Connection, payload: any): Promise<string[]> {
-  const keys: string[] = Array.isArray(payload?.custom_role_keys) ? payload.custom_role_keys.map(String) : [];
-  if (!keys.length) return [];
-  const ck = keys.slice().sort().join(',');
-  const now = Date.now();
-  const hit = dynamicRoleCache.get(ck);
-  if (hit && hit.exp > now) return hit.perms;
-  let docs: any[] = [];
-  try {
-    docs = await connection.collection('admin_custom_roles').find({ key: { $in: keys } }).toArray();
-  } catch {
-    docs = []; // fail closed: no collection → no extra permissions
-  }
-  const perms = mergePermissions(...docs.map((d) => d?.permissions || []));
-  dynamicRoleCache.set(ck, { perms, exp: now + DYNAMIC_ROLE_TTL_MS });
-  return perms;
-}
+import { resolveEffectivePermissions } from './effective-permissions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+
+/**
+ * Compatibility hook for RBAC mutation handlers. Effective permissions are no
+ * longer cached in this guard, so there is no stale in-process entry to clear.
+ */
+export function invalidateDynamicRoleCache() {}
 
 export const PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(PUBLIC_KEY, true);
@@ -85,7 +63,7 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [ctx.getHandler(), ctx.getClass()]);
-    const req = ctx.switchToHttp().getRequest<Request & { user?: any; impersonator?: any; auditInfo?: any }>();
+    const req = ctx.switchToHttp().getRequest<Request & { user?: any; impersonator?: any; impersonationSession?: any; auditInfo?: any }>();
     
     // Extract IP and User Agent
     // Express applies the configured trusted-proxy policy to req.ip. Reading a
@@ -121,6 +99,7 @@ export class JwtAuthGuard implements CanActivate {
     if (payload?.scope === 'impersonation') {
       const context = await this.impersonationSessions.validate(payload);
       req.impersonator = context.impersonator;
+      req.impersonationSession = context.session;
       req.auditInfo = { ...req.auditInfo, impersonator_id: context.impersonator.id, impersonation_session_id: context.session.id, target_user_id: payload.id || payload.sub };
     }
 
@@ -155,17 +134,12 @@ export class JwtAuthGuard implements CanActivate {
       throw new ForbiddenException('Insufficient role');
     }
 
-    // Fine-grained Permission check — static matrix + JWT grants + dynamic
-    // custom roles resolved from `admin_custom_roles` (cached).
+    // Fine-grained Permission check — one resolver is shared with the
+    // impersonation-session validator, so a permission cannot grant session
+    // creation and then fail solely because the actor uses a custom role.
     const requiredPermissions = this.reflector.getAllAndOverride<Permission[]>(PERMISSIONS_KEY, [ctx.getHandler(), ctx.getClass()]);
     if (requiredPermissions && requiredPermissions.length) {
-      const customPerms = await resolveCustomRolePermissions(this.connection, payload);
-      const userPermissions = mergePermissions(
-        ...effectiveRoles.map(role => ROLE_PERMISSIONS[role as UserRole] || []),
-        customPerms,
-        payload.permissions || [],
-      );
-
+      const userPermissions = await resolveEffectivePermissions(this.connection, payload);
       const hasPermission = requiredPermissions.every(p => userPermissions.includes(p));
       if (!hasPermission) {
         throw new ForbiddenException('Insufficient permissions');
