@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { isProviderRole } from '../../../common/enums';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
-import { SubmitPharmacyOfferDto } from '../dto/pharmacy-offer.dto';
+import { EvaluatePharmacyInsuranceDto, SubmitPharmacyOfferDto } from '../dto/pharmacy-offer.dto';
 import { assertGovernedPharmacyTransition } from '../../../common/governed-workflow';
 import { PharmacyOrderState as GovernedPharmacyOrderState } from '@nabd/shared-contracts';
 
@@ -194,6 +194,86 @@ export class PharmacyOfferService {
       { new: true },
     );
     if (!updated) throw new BadRequestException('final_quote_acceptance_locked');
+    return updated.toObject ? updated.toObject() : updated;
+  }
+
+  async recordInsuranceDecision(user: any, orderId: string, body: EvaluatePharmacyInsuranceDto) {
+    if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
+    const order: any = await this.orders.findOne({ id: orderId });
+    if (!order) throw new NotFoundException('order_not_found');
+    if (order.selected_pharmacy_account_id !== user.id) throw new ForbiddenException('not_selected_pharmacy');
+    if (order.governed_state !== GovernedPharmacyOrderState.INSURANCE_PROCESSING) throw new BadRequestException('insurance_decision_not_allowed');
+    if (!order.insurance_details || !order.accepted_quote_snapshot) throw new BadRequestException('insurance_or_accepted_quote_missing');
+
+    const quoteItems = order.accepted_quote_snapshot.items ?? [];
+    const submitted = body.items ?? [];
+    if (new Set(submitted.map((item) => item.order_item_id)).size !== submitted.length) throw new BadRequestException('duplicate_insurance_item_decision');
+    if (submitted.length !== quoteItems.length || quoteItems.some((line: any) => !submitted.some((item) => item.order_item_id === line.order_item_id))) {
+      throw new BadRequestException('incomplete_insurance_item_decisions');
+    }
+
+    const decisions = submitted.map((item) => {
+      const line = quoteItems.find((candidate: any) => candidate.order_item_id === item.order_item_id);
+      const lineAmount = Math.round(Number(line?.offered_qty ?? 0) * Number(line?.unit_price ?? 0) * 100) / 100;
+      const coveredAmount = Math.round(Number(item.covered_amount) * 100) / 100;
+      const coPayAmount = Math.round(Number(item.co_pay_amount) * 100) / 100;
+      if (!Number.isFinite(coveredAmount) || !Number.isFinite(coPayAmount) || coveredAmount < 0 || coPayAmount < 0 || coveredAmount + coPayAmount > lineAmount) {
+        throw new BadRequestException(`invalid_insurance_amount:${item.order_item_id}`);
+      }
+      if (item.decision === 'APPROVED_FULL' && coPayAmount !== 0) throw new BadRequestException(`full_approval_has_copay:${item.order_item_id}`);
+      if (item.decision === 'REJECTED' && coveredAmount !== 0) throw new BadRequestException(`rejected_item_has_coverage:${item.order_item_id}`);
+      return { ...item, covered_amount: coveredAmount, co_pay_amount: coPayAmount, line_amount: lineAmount };
+    });
+    const summaryDecision = decisions.every((item) => item.decision === 'APPROVED_FULL')
+      ? 'APPROVED_FULL'
+      : decisions.every((item) => item.decision === 'REJECTED')
+        ? 'REJECTED'
+        : 'APPROVED_PARTIAL';
+    const coPayAmount = Math.round(decisions.reduce((sum, item) => sum + item.co_pay_amount, 0) * 100) / 100;
+    const coveredAmount = Math.round(decisions.reduce((sum, item) => sum + item.covered_amount, 0) * 100) / 100;
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.INSURANCE_PROCESSING,
+      GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
+      'PHARMACY',
+      { insuranceItemsDecided: true, decision: summaryDecision },
+    );
+    const updated: any = await this.orders.findOneAndUpdate(
+      { id: order.id, selected_pharmacy_account_id: user.id, governed_state: GovernedPharmacyOrderState.INSURANCE_PROCESSING },
+      {
+        $set: {
+          governed_state: GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
+          insurance_item_decisions: decisions,
+          insurance_decision_summary: { decision: summaryDecision, co_pay_amount: coPayAmount, covered_amount: coveredAmount, decided_at: new Date(), decided_by: user.id },
+          insurance_status: summaryDecision,
+        },
+        $push: { timeline: { ts: new Date(), event: 'pharmacy_insurance_items_decided', by: user.id, meta: { decision: summaryDecision, co_pay_amount: coPayAmount, covered_amount: coveredAmount } } },
+      },
+      { new: true },
+    );
+    if (!updated) throw new BadRequestException('insurance_decision_locked');
+    return updated.toObject ? updated.toObject() : updated;
+  }
+
+  async acceptInsuranceCoPay(user: any, orderId: string, paymentMethod: 'card' | 'apple-pay' | 'google-pay') {
+    const order = await this.ownedOrder(user, orderId);
+    const summary = order.insurance_decision_summary;
+    if (order.governed_state !== GovernedPharmacyOrderState.INSURANCE_DECISION_READY || !['APPROVED_FULL', 'APPROVED_PARTIAL'].includes(summary?.decision)) {
+      throw new BadRequestException('insurance_copay_not_available');
+    }
+    const coPayAmount = Number(summary.co_pay_amount);
+    if (!Number.isFinite(coPayAmount) || coPayAmount <= 0) throw new BadRequestException('no_payable_insurance_copay');
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.INSURANCE_DECISION_READY,
+      GovernedPharmacyOrderState.CO_PAY_PENDING,
+      'PATIENT',
+      { decision: summary.decision, coPayAccepted: true, coPayAmount },
+    );
+    const updated: any = await this.orders.findOneAndUpdate(
+      { id: order.id, patient_account_id: user.id, governed_state: GovernedPharmacyOrderState.INSURANCE_DECISION_READY },
+      { $set: { governed_state: GovernedPharmacyOrderState.CO_PAY_PENDING, payment_method: paymentMethod }, $push: { timeline: { ts: new Date(), event: 'patient_accepted_insurance_copay', by: user.id, meta: { co_pay_amount: coPayAmount, payment_method: paymentMethod } } } },
+      { new: true },
+    );
+    if (!updated) throw new BadRequestException('insurance_copay_acceptance_locked');
     return updated.toObject ? updated.toObject() : updated;
   }
 
