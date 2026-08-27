@@ -8,6 +8,7 @@ import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy
 import { EvaluatePharmacyInsuranceDto, SubmitPharmacyOfferDto } from '../dto/pharmacy-offer.dto';
 import { assertGovernedPharmacyTransition } from '../../../common/governed-workflow';
 import { PharmacyOrderState as GovernedPharmacyOrderState } from '@nabd/shared-contracts';
+import { PharmacyChatService } from './pharmacy-chat.service';
 
 export function calculatePharmacyQuote(lines: Array<{ requested_qty: number; offered_qty: number; available: boolean; unit_price: number }>, deliveryFee: number) {
   if (!Number.isFinite(deliveryFee) || deliveryFee < 0) throw new BadRequestException('invalid_delivery_fee');
@@ -25,6 +26,7 @@ export class PharmacyOfferService {
     @InjectModel('PharmacyAllocation') private readonly allocations: Model<any>,
     @InjectModel('PharmacyBroadcast') private readonly broadcasts: Model<any>,
     @InjectModel('PharmacyInventoryItem') private readonly inventory: Model<any>,
+    private readonly chats?: PharmacyChatService,
   ) {}
 
   private offerExpiry(): Date {
@@ -160,7 +162,25 @@ export class PharmacyOfferService {
       await this.offers.updateMany({ order_id: order.id, id: { $ne: offer.id }, status: 'open' }, { $set: { status: 'superseded' } });
       const allocation: any = await this.allocations.create({ id: uuidv4(), order_id: order.id, pharmacy_account_id: offer.pharmacy_account_id, status: PharmacyAllocationState.PENDING_REVIEW, items: offer.items.map((line: any) => ({ id: uuidv4(), order_item_id: line.order_item_id, inventory_id: line.inventory_id, sku: line.sku, name: line.name, action: line.available ? 'available' : 'unavailable', qty_requested: line.requested_qty, qty_offered: line.offered_qty, unit_price: line.unit_price })), totals: offer.totals, timeline: [{ ts: new Date(), event: 'selected_offer_snapshot', meta: { offer_id: offer.id, revision: offer.revision } }] });
       await this.orders.updateOne({ id: order.id }, { $set: { allocations: [allocation.id], insurance_status: coverageMode === 'insurance' ? 'authorization_pending' : undefined } });
-      return { offer, allocation: allocation.toObject(), final_quote_acceptance_required: true, payment_required: false, insurance_authorization_required: false };
+      const negotiationThreads: string[] = [];
+      if (negotiationRequired) {
+        assertGovernedPharmacyTransition(
+          GovernedPharmacyOrderState.OFFER_SELECTED,
+          GovernedPharmacyOrderState.NEGOTIATION_REQUIRED,
+          'SYSTEM',
+          { negotiationRequired: true },
+        );
+        const transitioned = await this.orders.updateOne(
+          { id: order.id, selected_offer_id: offer.id, governed_state: GovernedPharmacyOrderState.OFFER_SELECTED },
+          { $set: { governed_state: GovernedPharmacyOrderState.NEGOTIATION_REQUIRED }, $push: { timeline: { ts: new Date(), event: 'negotiation_required', meta: { offer_id: offer.id } } } },
+        );
+        if (transitioned?.modifiedCount !== undefined && transitioned.modifiedCount !== 1) throw new BadRequestException('negotiation_transition_locked');
+        for (const line of offer.items.filter((item: any) => !item.available || Boolean(item.alternative))) {
+          const thread = await this.chats?.openOrGetThread(order.id, line.order_item_id, offer.pharmacy_account_id);
+          if (thread?.id) negotiationThreads.push(thread.id);
+        }
+      }
+      return { offer, allocation: allocation.toObject(), final_quote_acceptance_required: !negotiationRequired, negotiation_required: negotiationRequired, negotiation_thread_ids: negotiationThreads, payment_required: false, insurance_authorization_required: false };
     } catch (error) {
       for (const line of reserved) await this.inventory.updateOne({ id: line.inventory_id, provider_account_id: offer.pharmacy_account_id }, { $inc: { stock: line.offered_qty } });
       await this.orders.updateOne({ id: order.id, selected_offer_id: offer.id }, { $unset: { selected_offer_id: 1, selected_pharmacy_account_id: 1, coverage_mode: 1, negotiation_required: 1, selected_offer_snapshot: 1, selected_offer_hash: 1, selected_offer_revision: 1, pending_final_quote_snapshot: 1, pending_final_quote_hash: 1, pending_final_quote_revision: 1, accepted_quote_snapshot: 1, accepted_quote_hash: 1, accepted_quote_revision: 1 }, $set: { status: PharmacyOrderState.AWAITING_FULL_ACCEPTANCE, governed_state: GovernedPharmacyOrderState.OFFERS_READY } });
