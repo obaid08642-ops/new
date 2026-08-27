@@ -37,7 +37,7 @@ export class PharmacyOrderService {
       dosage: it.dosage, form: it.form, frequency: it.frequency, duration: it.duration,
       qty: Math.max(1, Number(it.qty) || 1),
       match_status: OrderItemMatchStatus.MANUAL,
-      matched_sku: it.sku || it.matched_sku, unit_price: it.unit_price,
+      matched_sku: it.sku || it.matched_sku,
       intake_source: it.intake_source || 'manual',
       notes: it.notes,
     }));
@@ -100,7 +100,7 @@ export class PharmacyOrderService {
         dosage: it.dosage, form: it.form, frequency: it.frequency, duration: it.duration,
         qty: Math.max(1, Number(it.qty) || 1),
         match_status: it.match_status || OrderItemMatchStatus.MANUAL,
-        matched_sku: it.sku || it.matched_sku, unit_price: it.unit_price,
+        matched_sku: it.sku || it.matched_sku,
         intake_source: it.intake_source || 'manual',
         notes: it.notes,
       }));
