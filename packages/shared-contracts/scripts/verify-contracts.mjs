@@ -14,11 +14,27 @@ assert.deepEqual(
   { ok: true },
 );
 assert.equal(
-  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', { paymentMethod: 'COD' }).ok,
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', { paymentMethod: 'CARD', paymentMethodEnabled: true }).ok,
   false,
 );
 assert.deepEqual(
-  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.INSURANCE_PROCESSING, 'SYSTEM', { hasPolicy: true }),
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.OFFER_SELECTED, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, 'PATIENT', { negotiationRequired: false, quoteHash: 'quote-hash', quoteRevision: 1 }),
+  { ok: true },
+);
+assert.equal(
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', { paymentMethod: 'WALLET', paymentMethodEnabled: true }).ok,
+  false,
+);
+assert.deepEqual(
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.PAYMENT_PENDING, 'PATIENT', { paymentMethod: 'APPLE_PAY', paymentMethodEnabled: true }),
+  { ok: true },
+);
+assert.deepEqual(
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.FINAL_QUOTE_ACCEPTED, PharmacyOrderState.INSURANCE_PROCESSING, 'SYSTEM', { hasPolicy: true, insuranceReady: true }),
+  { ok: true },
+);
+assert.deepEqual(
+  assertTransition(PHARMACY_TRANSITIONS, PharmacyOrderState.INSURANCE_PROCESSING, PharmacyOrderState.INSURANCE_DECISION_READY, 'PHARMACY', { insuranceItemsDecided: true, decision: 'APPROVED_PARTIAL' }),
   { ok: true },
 );
 assert.equal(
