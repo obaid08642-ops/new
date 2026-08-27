@@ -42,7 +42,7 @@ const DEFAULTS = {
   minimum_payout_sar: 100,
   large_payout_sar: 10000,
   large_refund_sar: 5000,
-  loyalty_max_redeem_percent: 20,
+  loyalty_max_redeem_percent: 5,
   loyalty_point_value_sar: 0.1,
   refund_abuse_count_30d: 3,
   payment_velocity_failed_1h: 5,
