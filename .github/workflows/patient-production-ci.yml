@@ -3,8 +3,7 @@ name: Patient Production CI
 on:
   pull_request:
     branches:
-      - release/patient-production
-      - main
+      - '**'
   push:
     branches:
       - release/patient-production
@@ -67,12 +66,34 @@ jobs:
           cache-dependency-path: backend/package-lock.json
       - name: Install frozen dependencies
         run: npm ci
+      - name: Build governed shared contracts
+        run: npx tsc --project ../packages/shared-contracts/tsconfig.json
       - name: Type check
         run: npx tsc --noEmit
       - name: Run unit and contract tests
         run: npm test -- --runInBand
       - name: Build
         run: npm run build
+
+  shared-contracts:
+    name: Governed shared contracts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/shared-contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: Type check
+        run: npx tsc --project tsconfig.json --noEmit
+      - name: Build
+        run: npx tsc --project tsconfig.json
+      - name: Verify governed transitions
+        run: npm test
 
   patient-web:
     name: Patient Web build and tests

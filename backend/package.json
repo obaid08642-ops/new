@@ -13,6 +13,7 @@
     "test:boot": "jest --config jest.boot.config.js --runInBand"
   },
   "dependencies": {
+    "@nabd/shared-contracts": "file:../packages/shared-contracts",
     "@aws-sdk/client-s3": "^3.1075.0",
     "@aws-sdk/s3-request-presigner": "^3.1075.0",
     "@google-cloud/vision": "6.0.0",

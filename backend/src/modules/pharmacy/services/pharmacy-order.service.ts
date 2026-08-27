@@ -10,6 +10,8 @@ import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.mod
 
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
+import { assertGovernedPharmacyTransition } from '../../../common/governed-workflow';
+import { PharmacyOrderState as GovernedPharmacyOrderState } from '@nabd/shared-contracts';
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
@@ -121,6 +123,13 @@ export class PharmacyOrderService {
         throw new BadRequestException(`cannot_submit_from_${order.status}`);
       }
     }
+    // The legacy persistence state passes through READY_FOR_SPLIT, but the
+    // governed business action is one patient-owned transition: draft → broadcast.
+    assertGovernedPharmacyTransition(
+      GovernedPharmacyOrderState.CART_DRAFT,
+      GovernedPharmacyOrderState.ORDER_BROADCASTING,
+      'PATIENT',
+    );
     return await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: PharmacyOrderState.READY_FOR_SPLIT,
       actor_account_id: user.id, actor_role: 'patient', patient_account_id: order.patient_account_id, reason: 'patient_submitted',
@@ -169,5 +178,4 @@ export class PharmacyOrderService {
     });
   }
 }
-
 
