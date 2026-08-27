@@ -15,7 +15,7 @@
 | Branch/PR discipline | One bounded repair card per branch/PR; no direct `main`, squash-only history or force push after review begins. | Required, but no executable repair branch is supplied. | `BLOCKED_INPUT` | Engineering lead |
 | Source provenance | Original commit history or verified replay series for incoming work. | 50 claimed hashes unavailable in snapshot Git DB. | `BLOCKED_INPUT` | Workstation/source owner |
 | Scope completeness | Provider UI, Admin UI, shared contracts and excluded Mobile config scope are inventoried. | Provider source, Admin frontend and selected contracts/config are absent. | `BLOCKED_INPUT` | Surface owners |
-| Root repair cards | Every candidate maps to an authoritative root/subroot with one accountable owner. | Attachment cites a 125-root register, but required source files are unavailable. | `BLOCKED_INPUT` | Audit owner/Product |
+| Root repair cards | Every candidate maps to an authoritative root/subroot with one accountable owner. | The five cited inputs are present at verified remote commit `a3f5f388…`; direct revalidation of each baseline source anchor remains required. | `READY_FOR_DRAFTING_AFTER_SOURCE_RECHECK` | Audit owner/Product |
 | Feature flags | New/unsafe/unproven capabilities fail closed with accountable flag owner, expiry and removal plan. | Needs route-by-route inspection against complete source. | `NOT_STARTED` | Product + Backend |
 | Fake-success prevention | No financial, availability, coverage, clinical or operations result can be produced from local/catch/fallback truth. | Known Pharmacy/Mobile/Web defects are recorded; global proof needs root mapping and source scope. | `PARTIAL` | Backend/Data + surface owners |
 | Secrets/config hygiene | No secret in source/log/evidence; config has documented owner and environment scope. | Static audit does not constitute a full secret/config review; Mobile integration config excluded. | `BLOCKED_INPUT` | Security/SRE |
@@ -70,7 +70,7 @@ These are not replacement root IDs; they must be mapped to the authoritative roo
 
 The W0 register cannot advance to root-linked repairs without the following package:
 
-1. The five missing authoritative root/mapping files identified in `PHASE5_ATTACHMENT_INTAKE_AND_EXECUTION_BOUNDARY_2026-08-27.md`.
+1. Direct source-byte/line revalidation for every root selected for a repair card, using the verified root/mapping inputs recorded in `PHASE5_ROOT_REGISTER_PROVENANCE_AND_STRUCTURAL_VALIDATION_2026-08-27.md`.
 2. A complete Provider and Admin frontend source archive, shared contracts and a checksum manifest.
 3. Original commit history/replay export if claims are to be attributed to historical commits.
 4. Written policy owners for pharmacy COD/insurance/substitution, payment/ledger, PHI/consent, clinical safety, public indexing and external providers.
