@@ -3,8 +3,7 @@ name: Patient Production CI
 on:
   pull_request:
     branches:
-      - release/patient-production
-      - main
+      - '**'
   push:
     branches:
       - release/patient-production
