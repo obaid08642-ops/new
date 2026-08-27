@@ -8,4 +8,7 @@ describe('patient pharmacy draft', () => {
     expect(extractPatientPharmacyOrderId({ data: { id: 'order-1' } })).toBe('order-1');
     expect(extractPatientPharmacyOrderId({ id: '' })).toBeNull();
   });
+  it('preserves a declared manual intake source while still omitting client attachment, price, and payment fields', () => {
+    expect(buildPatientPharmacyDraft([{ name: 'دواء غير متوفر', qty: 1, intake_source: 'manual', price: 17, payment_method: 'card', photo_uri: 'file://local' }], { lat: 24.7, lng: 46.6 })).toEqual({ items: [{ raw_name: 'دواء غير متوفر', qty: 1, sku: undefined, intake_source: 'manual' }], delivery_address: { label: 'المنزل', street: '', city: '', lat: 24.7, lng: 46.6 }, prescription_attachments: [] });
+  });
 });

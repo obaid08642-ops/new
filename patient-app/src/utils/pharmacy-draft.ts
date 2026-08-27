@@ -7,7 +7,7 @@ export function buildPatientPharmacyDraft(items: CartDraftLine[], deliveryAddres
       raw_name: String(item.name_ar || item.name || '').trim(),
       qty: Math.max(1, Number(item.qty ?? item.quantity) || 1),
       sku: item.sku || item.id,
-      intake_source: 'cart',
+      intake_source: typeof item.intake_source === 'string' ? item.intake_source : 'cart',
     })).filter((item) => item.raw_name),
     delivery_address: {
       label: deliveryAddress.label || 'المنزل', street: deliveryAddress.street || '', city: deliveryAddress.city || '',
