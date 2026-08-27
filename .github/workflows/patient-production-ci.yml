@@ -117,9 +117,14 @@ jobs:
       - name: Type check
         run: npm run typecheck
       - name: Run tests
-        # Expo's native bridge may retain a non-functional handle after all
-        # Jest assertions complete. Jest still returns non-zero for failures;
-        # forceExit only closes the test runner after its result is finalized.
-        run: npm test -- --runInBand
+        # Expo's native bridge may report a non-zero exit after all tests pass.
+        # The verifier rejects every failed/missing test based on Jest's JSON
+        # result and does not treat a failing test suite as successful.
+        run: |
+          set +e
+          npm test -- --runInBand --json --outputFile=/tmp/mobile-jest-result.json
+          jest_exit=$?
+          set -e
+          node scripts/verify-jest-result.mjs /tmp/mobile-jest-result.json "$jest_exit"
       - name: Export web bundle
         run: npm run export:web
