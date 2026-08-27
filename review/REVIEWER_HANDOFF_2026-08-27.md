@@ -8,7 +8,7 @@
 | الفرع فقط | `remediation/provider-production-governed` |
 | رابط الفرع | https://github.com/obaid08642-ops/new/tree/remediation/provider-production-governed |
 | رابط المقارنة | https://github.com/obaid08642-ops/new/compare/main...remediation/provider-production-governed |
-| رأس المراجعة بعد PR-3 | `021d3deb9415ff1c4b8acba606eb3732e0caf44e` |
+| رأس المراجعة الحالي | `501594bc50ac25391781629e933a06b9378804de` |
 
 ## الالتزامات التي يلزم مراجعتها بالترتيب
 
@@ -19,6 +19,14 @@
 | PR-1 | `e86d2e375eef6eb63d378934f20eaf35ae01895f` | `fix(pharmacy): gate selected offer fulfillment` | https://github.com/obaid08642-ops/new/commit/e86d2e375eef6eb63d378934f20eaf35ae01895f |
 | PR-2 | `539a5086e73002f3c8e6b5f84ed4e3481a9f99a4` | `fix(pharmacy): restrict broadcasts and quote composer` | https://github.com/obaid08642-ops/new/commit/539a5086e73002f3c8e6b5f84ed4e3481a9f99a4 |
 | PR-3 | `021d3deb9415ff1c4b8acba606eb3732e0caf44e` | `fix(pharmacy): add durable expiry command` | https://github.com/obaid08642-ops/new/commit/021d3deb9415ff1c4b8acba606eb3732e0caf44e |
+| PR-A | `5ed4d26a51e02f7c68e493539aa78dccf4cbda3b` | `fix(pharmacy): persist broadcast recipient intents` | https://github.com/obaid08642-ops/new/commit/5ed4d26a51e02f7c68e493539aa78dccf4cbda3b |
+| PR-B | `6920328a36a0d517ecaf5f9cb4a744c63a4ee01d` | `fix(pharmacy): scope insurance to selected pharmacy` | https://github.com/obaid08642-ops/new/commit/6920328a36a0d517ecaf5f9cb4a744c63a4ee01d |
+| PR-C | `09d196ff9f87a1fd8e0222929c7b4c5d6ceff728` | `fix(pharmacy): bind fulfillment to payment evidence` | https://github.com/obaid08642-ops/new/commit/09d196ff9f87a1fd8e0222929c7b4c5d6ceff728 |
+| احتواء التسليم | `c3f8ba69a45cbeadfd7abef191c10884dd5564d8` | `fix(pharmacy): contain ungoverned delivery commands` | https://github.com/obaid08642-ops/new/commit/c3f8ba69a45cbeadfd7abef191c10884dd5564d8 |
+| PR-E أولي | `1427b8ee4f145fa7fb71d0bd0c73e1d64d525f21` | `fix(provider): contain ungoverned shared home` | https://github.com/obaid08642-ops/new/commit/1427b8ee4f145fa7fb71d0bd0c73e1d64d525f21 |
+| PR-D | `58f3466be3efecf48d22d436bd0a9b2450a52471` | `fix(pharmacy): minimize broadcast clinical fields` | https://github.com/obaid08642-ops/new/commit/58f3466be3efecf48d22d436bd0a9b2450a52471 |
+| harness docs | `14e856f02672c4f8b340ce5ecb7817670ee788a1` | `docs(review): record isolated integration requirements` | https://github.com/obaid08642-ops/new/commit/14e856f02672c4f8b340ce5ecb7817670ee788a1 |
+| latest evidence | `501594bc50ac25391781629e933a06b9378804de` | `docs(review): record unified remediation test result` | https://github.com/obaid08642-ops/new/commit/501594bc50ac25391781629e933a06b9378804de |
 
 ## ترتيب القراءة والفحص
 
