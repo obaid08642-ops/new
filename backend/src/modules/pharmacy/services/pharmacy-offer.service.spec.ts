@@ -107,6 +107,33 @@ describe('PharmacyOfferService', () => {
     expect(inventory.updateOne).not.toHaveBeenCalled();
   });
 
+  it('releases prior reservations and clears the selection when inventory changes during selection', async () => {
+    const { service, offers, orders, inventory, allocations } = createService();
+    offers.findOne.mockReturnValue(lean({
+      id: 'offer-1', pharmacy_account_id: 'pharmacy-1', insurance_ready: true, revision: 1, snapshot_hash: 'hash',
+      items: [
+        { order_item_id: 'line-1', inventory_id: 'inventory-1', available: true, offered_qty: 1 },
+        { order_item_id: 'line-2', inventory_id: 'inventory-2', available: true, offered_qty: 1 },
+      ],
+      totals: { total: 39.9 },
+    }));
+    inventory.updateOne
+      .mockResolvedValueOnce({ modifiedCount: 1 })
+      .mockResolvedValueOnce({ modifiedCount: 0 })
+      .mockResolvedValueOnce({ modifiedCount: 1 });
+
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash'))
+      .rejects.toThrow('inventory_changed:line-2');
+
+    expect(inventory.updateOne).toHaveBeenCalledTimes(3);
+    expect(inventory.updateOne.mock.calls[2][1]).toEqual({ $inc: { stock: 1 } });
+    expect(orders.updateOne).toHaveBeenCalledWith(
+      { id: 'order-1', selected_offer_id: 'offer-1' },
+      expect.objectContaining({ $unset: expect.objectContaining({ selected_offer_id: 1 }) }),
+    );
+    expect(allocations.create).not.toHaveBeenCalled();
+  });
+
   it('returns the existing selection without reserving stock twice for an idempotent retry', async () => {
     const { service, orders, offers, inventory } = createService();
     orders.findOne.mockResolvedValue({ id: 'order-1', patient_account_id: 'patient-1', selected_offer_id: 'offer-1' });
