@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { ApptState } from '../../schemas/appointment.schema';
 import { CreateAppointmentDto, CancelAppointmentDto, RescheduleAppointmentDto } from './appointments.dto';
+import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
 
 @Controller('care/appointments')
 @UseGuards(JwtAuthGuard)
@@ -12,6 +13,8 @@ export class AppointmentsController {
 
   // Patient creates appointment
   @Post()
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
   create(@Body() body: CreateAppointmentDto, @CurrentUser() user: any) {
     return this.svc.create(user, body);
   }
@@ -32,11 +35,15 @@ export class AppointmentsController {
   }
 
   @Patch(':id/cancel')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: CancelAppointmentDto) {
     return this.svc.cancel(id, user, body?.reason);
   }
 
   @Patch(':id/reschedule')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
   reschedule(@Param('id') id: string, @CurrentUser() user: any, @Body() body: RescheduleAppointmentDto) {
     return this.svc.reschedule(id, user, body);
   }

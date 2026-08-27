@@ -8,6 +8,7 @@ import { UserRole, ProviderType, ProviderStatus } from '../../common/enums';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 
 /** Platform fee schedule (SAR). Move to DB/config when admin dashboard supports it. */
 const PLATFORM_FEES = {
@@ -32,6 +33,7 @@ export class AppointmentsService {
     @InjectConnection() private connection: Connection,
     private events: EventEmitter2,
     private engine: WorkflowEngineService,
+    private insurance: InsuranceFlowService,
   ) {}
 
   /**
@@ -168,11 +170,28 @@ export class AppointmentsService {
         ],
       });
 
-      await this.engine.announceCreated({ kind: 'consultation', entity_id: appt.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: patientId, meta: { doctor_id: doctor.id, service_type: body.service_type, slot_start: slotStart, price, total_price } });
+      let insuranceRequest: any;
+      if (pm === 'insurance') {
+        try {
+          insuranceRequest = await this.insurance.createRequest(user, { booking_id: appt.id, booking_kind: 'consultation' });
+          appt.insurance_request_id = insuranceRequest.id;
+          appt.insurance_review_state = 'PENDING_PROVIDER_REVIEW';
+          await appt.save();
+        } catch (error) {
+          if (insuranceRequest?.id) {
+            await this.insurance.cancel(user, insuranceRequest.id).catch(() => undefined);
+          }
+          await this.apptModel.deleteOne({ id: appt.id }).catch(() => undefined);
+          throw error;
+        }
+      }
+
+      await this.engine.announceCreated({ kind: 'consultation', entity_id: appt.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: patientId, meta: { doctor_id: doctor.id, service_type: body.service_type, slot_start: slotStart, price, total_price, insurance_request_id: insuranceRequest?.id } });
 
       // Card payments stay PENDING until payment.completed webhook confirms.
-      // Cash & insurance auto-confirm immediately (instant booking UX).
-      if (pm !== 'card') {
+      // Only the explicitly eligible cash path confirms at creation. Insurance
+      // remains pending until the provider/insurer decision and any verified copay.
+      if (pm === 'cash') {
         await this.transition(appt.id, APPT_STATES.CONFIRMED, { id: 'system', role: 'system' }, `auto-confirmed (${pm})`);
         this.events.emit('appointment.confirmed', { id: appt.id });
       }

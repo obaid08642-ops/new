@@ -13,6 +13,7 @@ import { User, UserSchema } from '../../schemas/user.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
 import { Facility, FacilitySchema } from '../../schemas/facility.schema';
 import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
+import { InsuranceEngineModule } from '../insurance-engine/insurance-engine.module';
 import { AppointmentRepository } from "./repositories/appointment.repository";
 import { FacilityRepository } from "./repositories/facility.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
@@ -21,6 +22,7 @@ import { UserRepository } from "./repositories/user.repository";
 @Module({
   imports: [
     WorkflowEngineModule,
+    InsuranceEngineModule,
     MongooseModule.forFeature([
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: User.name, schema: UserSchema },

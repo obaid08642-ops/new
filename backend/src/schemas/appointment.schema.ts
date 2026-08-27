@@ -83,6 +83,8 @@ export class Appointment {
   @Prop() insurance_provider?: string;
   @Prop() insurance_member_id?: string;
   @Prop({ type: InsuranceDetailsSchema }) insurance_details?: InsuranceDetails;
+  @Prop() insurance_request_id?: string;
+  @Prop({ enum: ['NOT_APPLICABLE', 'PENDING_PROVIDER_REVIEW', 'DECIDED', 'SETTLED'], default: 'NOT_APPLICABLE' }) insurance_review_state?: string;
 
   // Patient inputs
   @Prop() patient_notes?: string;
