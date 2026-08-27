@@ -13,7 +13,7 @@ describe("governed appointment booking BFF", () => {
   beforeEach(() => { state.callPatientApi.mockReset(); state.cookieStore.get.mockImplementation((name: string) => name === "nabd_access" ? { value: "server-access" } : name === "nabd_device" ? { value: "device-1" } : undefined); });
   it("requires an idempotency key and validates the governed appointment body", async () => {
     expect((await POST(request(valid, { "idempotency-key": "short" }))).status).toBe(400);
-    expect((await POST(request({ ...valid, payment_method: "wallet" }))).status).toBe(400);
+    expect((await POST(request({ ...valid, payment_method: "unsupported" }))).status).toBe(400);
     expect((await POST(request({ ...valid, total: 1 }))).status).toBe(400);
   });
   it("requires an httpOnly access session", async () => {
