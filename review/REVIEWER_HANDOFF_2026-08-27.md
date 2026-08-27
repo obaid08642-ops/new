@@ -8,7 +8,7 @@
 | الفرع فقط | `remediation/provider-production-governed` |
 | رابط الفرع | https://github.com/obaid08642-ops/new/tree/remediation/provider-production-governed |
 | رابط المقارنة | https://github.com/obaid08642-ops/new/compare/main...remediation/provider-production-governed |
-| رأس المراجعة الحالي | `2f433bebce4d27ab57c441ee477b0909bcc721f3` |
+| رأس المراجعة الحالي | `f861ba74882abd7be1a0c2282898cb49cd39ce31` قبل توثيق هذا الملف |
 
 ## الالتزامات التي يلزم مراجعتها بالترتيب
 
@@ -33,7 +33,11 @@
 | legacy contract tests | `708d78290750493ef81dc32254e257c5c575ba41` | `test(provider): align legacy route contracts` | https://github.com/obaid08642-ops/new/commit/708d78290750493ef81dc32254e257c5c575ba41 |
 | final artifacts | `ce9c39610da1e43a285b08330d3a8aa6888d0717` | `docs(review): publish final governed artifacts` | https://github.com/obaid08642-ops/new/commit/ce9c39610da1e43a285b08330d3a8aa6888d0717 |
 | handoff final | `715b5bb267c753afa077c25d82067770b1f3d0fa` | `docs(review): finalize reviewer handoff` | https://github.com/obaid08642-ops/new/commit/715b5bb267c753afa077c25d82067770b1f3d0fa |
-| SHA correction | `2f433bebce4d27ab57c441ee477b0909bcc721f3` | `docs(review): correct final handoff head` | https://github.com/obaid08642-ops/new/commit/2f433bebce4d27ab57c441ee477b0909bcc721f3 |
+| legacy Orders/refill closure | `49c3d52d7985b67754e12edda191e3f72618885e` | `fix(provider): close legacy pharmacy order creation` | https://github.com/obaid08642-ops/new/commit/49c3d52d7985b67754e12edda191e3f72618885e |
+| PharmacyOps read/mutation containment | `40d4cac9939356f917af37539527e240de9c7d90` | `fix(pharmacy): close legacy ops reads and mutations` | https://github.com/obaid08642-ops/new/commit/40d4cac9939356f917af37527e240de9c7d90 |
+| durable webhook/payment replay | `8e38c53694620cb98fbddc51db4b304dd3dde888` | `fix(payments): persist evidence before webhook replay` | https://github.com/obaid08642-ops/new/commit/8e38c53694620cb98fbddc51db4b304dd3dde888 |
+| Pharmacy UI containment | `a9da4f1a949db06a0b00f3b2cdda86a09391b00a` | `fix(provider): disable ungoverned pharmacy surfaces` | https://github.com/obaid08642-ops/new/commit/a9da4f1a949db06a0b00f3b2cdda86a09391b00a |
+| UI acceptance contracts | `f861ba74882abd7be1a0c2282898cb49cd39ce31` | `test(provider): assert pharmacy surfaces are unavailable` | https://github.com/obaid08642-ops/new/commit/f861ba74882abd7be1a0c2282898cb49cd39ce31 |
 
 ## ترتيب القراءة والفحص
 
@@ -52,11 +56,15 @@
 | الأمر | النتيجة |
 |---|---|
 | `npm run build` | ناجح. |
-| `npm test -- --runInBand` | **102 suites / 529 tests ناجحة**. يتضمن تحذير Mongoose لمسار `errors` ورسالة webhook fail-closed متوقعة لغياب secret محلي. |
+| `npm test -- --runInBand` | **102 suites / 534 tests ناجحة**. يتضمن رسالة webhook fail-closed متوقعة لغياب secret محلي. |
 | `npx tsc --noEmit` في provider | ناجح. | 
-| `npm test -- --runInBand` في provider | **1 suite / 12 tests ناجحة**. |
-| `node scripts/check-provider-runtime.js` | `RUNTIME_DATA_GATE=PASS`. |
+| `npm test -- --runInBand` في provider | **1 suite / 12 tests ناجحة**، بعد إضافة assertions ضد static chat وlegacy prescription/dispatch/wallet/EOD calls. |
+| `runtime-data-gate` | لا يوجد script مستقل بهذا الاسم في الرأس الحالي؛ تم تسجيل `RUNTIME_DATA_GATE=PASS` كـsource gate سابق، وليس كاختبار خدمات حي. |
 | `unzip -t` للحزمتين | ناجح بعد إعادة التغليف؛ backend تقريباً 5.4 MB وProvider تقريباً 618 KB. |
+
+## التصحيحات المنفذة من قرار pasted_content_8
+
+تم إغلاق `/orders/create` قبل أي lookup أو dispatch أو persistence، وإغلاق refill الذي كان يستدعيه قبل reservation. كما أصبحت كل PharmacyOps reads/mutations compatibility fail-closed، وأضيفت اختبارات عدم لمس repository. أصبح webhook المالي يكتب evidence الحاكم قبل تعليم replay، ويستخدم `emitAsync` للأحداث غير المالية، مع اختبار retry بعد فشل DB. وتم تحويل chat الثابت، prescription legacy، dispatch/delivery، wallet/withdrawal/EOD إلى شاشة unavailable صريحة، مع اختبارات Provider تمنع عودة static chat أو denied-route calls.
 
 ## أسباب بقاء الرفض
 

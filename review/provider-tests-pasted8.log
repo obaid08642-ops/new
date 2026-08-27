@@ -1,0 +1,24 @@
+
+> nabdah-plus-provider@1.0.0 test
+> jest --runInBand
+
+PASS ./provider-app.contracts.test.js
+  Provider App release contracts
+    ✓ has explicit production API and native platform identifiers (1 ms)
+    ✓ does not fabricate patient identity or financial values in intake mapping (1 ms)
+    ✓ contains real doctor intake, reports, referral, CRM, and availability endpoints (1 ms)
+    ✓ uses server-backed pharmacy broadcasts and a native barcode scanner (1 ms)
+    ✓ uses structured lab data and private radiology uploads rather than terminal placeholders (3 ms)
+    ✓ requires an approved bank account and an idempotency key for provider withdrawals
+    ✓ connects shared referral, promotions, profile, and facility flows to governed APIs (1 ms)
+    ✓ uses server-backed availability rather than a locally online provider or pharmacy
+    ✓ does not mark cash collection or begin a consultation in the doctor UI without a server mutation (1 ms)
+    ✓ fails closed for ungoverned nursing field operations and unavailable ambulance missions
+    ✓ isolates native maps behind a web-safe component
+    ✓ does not seed provider registration with commercial or geographic values (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       12 passed, 12 total
+Snapshots:   0 total
+Time:        0.132 s, estimated 1 s
+Ran all test suites.
