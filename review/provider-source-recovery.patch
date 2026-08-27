@@ -1,0 +1,1733 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/App.tsx b/provider/App.tsx
+--- a/provider/App.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/App.tsx	2026-08-27 11:45:59.000000000 +0000
+@@ -27,6 +27,8 @@
+ import { RadiologyDashboardNavigator } from './src/screens/radiology/RadiologyDashboard';
+ import { NursingRegistration }       from './src/screens/nursing/NursingRegistration';
+ import { NursingDashboardNavigator } from './src/screens/nursing/NursingDashboard';
++import { AmbulanceDashboardNavigator } from './src/screens/ambulance/AmbulanceDashboard';
++import { AmbulanceRegistration } from './src/screens/ambulance/AmbulanceRegistration';
+ import { MedicalJobsScreen, MedicalDrugIndexScreen } from './src/screens/shared/SharedScreens';
+ 
+ import { NavigationContainer } from '@react-navigation/native';
+@@ -57,6 +59,7 @@
+               if (t === 'lab') return <LabDashboardNavigator onLogout={doLogout} />;
+               if (t === 'radiology') return <RadiologyDashboardNavigator onLogout={doLogout} />;
+               if (t === 'nursing' || t === 'nurse' || t === 'home_care')  return <NursingDashboardNavigator  onLogout={doLogout} />;
++              if (t === 'ambulance' || t === 'emergency') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
+               return <PendingDashboard providerType={t} onExplore={() => {}} onLogout={doLogout} />;
+             }}
+           </Stack.Screen>
+@@ -79,6 +82,7 @@
+                 if (pType === 'lab') return <LabRegistration providerType={pType} onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                 if (pType === 'radiology') return <RadiologyRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                 if (pType === 'nursing')  return <NursingRegistration  onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
++                if (pType === 'ambulance') return <AmbulanceRegistration onBack={() => navigation.goBack()} onDone={() => navigation.navigate('Pending')} />;
+                 return <PendingDashboard providerType={pType} onExplore={() => {}} onLogout={() => navigation.goBack()} />;
+               }}
+             </Stack.Screen>
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/provider-app.contracts.test.js b/provider/provider-app.contracts.test.js
+--- a/provider/provider-app.contracts.test.js	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/provider-app.contracts.test.js	2026-08-27 12:42:25.000000000 +0000
+@@ -3,18 +3,23 @@
+ 
+ describe('Provider App release contracts', () => {
+   const root = process.cwd();
+-  const dashboard = fs.readFileSync(path.join(root, 'src/screens/doctor/DoctorDashboard.tsx'), 'utf8');
+-  const pharmacyDashboard = fs.readFileSync(path.join(root, 'src/screens/pharmacy/PharmacyDashboard.tsx'), 'utf8');
+-  const radiologyDashboard = fs.readFileSync(path.join(root, 'src/screens/radiology/RadiologyDashboard.tsx'), 'utf8');
+-  const authContext = fs.readFileSync(path.join(root, 'src/context/index.tsx'), 'utf8');
+-  const platformMapWeb = fs.readFileSync(path.join(root, 'src/components/PlatformMap.web.tsx'), 'utf8');
++  const read = file => fs.readFileSync(path.join(root, 'src', file), 'utf8');
++  const dashboard = read('screens/doctor/DoctorDashboard.tsx');
++  const pharmacyDashboard = read('screens/pharmacy/PharmacyDashboard.tsx');
++  const labDashboard = read('screens/lab/LabDashboard.tsx');
++  const radiologyDashboard = read('screens/radiology/RadiologyDashboard.tsx');
++  const facilityDashboard = read('screens/facility/FacilityDashboard.tsx');
++  const sharedBlueprint = read('screens/shared/BlueprintScreens.tsx');
++  const app = fs.readFileSync(path.join(root, 'App.tsx'), 'utf8');
++  const authContext = read('context/index.tsx');
++  const platformMapWeb = read('components/PlatformMap.web.tsx');
+   const registrations = [
+     'doctor/DoctorRegistration.tsx',
+     'pharmacy/PharmacyRegistration.tsx',
+     'lab/LabRegistration.tsx',
+     'radiology/RadiologyRegistration.tsx',
+     'nursing/NursingRegistration.tsx',
+-  ].map(file => fs.readFileSync(path.join(root, 'src/screens', file), 'utf8')).join('\n');
++  ].map(file => read(`screens/${file}`)).join('\n');
+   const config = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8')).expo;
+ 
+   it('has explicit production API and native platform identifiers', () => {
+@@ -32,24 +37,49 @@
+     expect(dashboard).toContain('const patientId = apt?.patient_id');
+   });
+ 
+-  it('contains real provider intake actions and refreshes after mutations', () => {
++  it('contains real doctor intake, reports, referral, CRM, and availability endpoints', () => {
+     expect(dashboard).toContain('/provider/jobs/queue?status=incoming&kind=consultation');
+     expect(dashboard).toContain('/provider/jobs/');
+     expect(dashboard).toContain('/provider/stats/today');
++    expect(dashboard).toContain('/provider/reports/inbound');
++    expect(dashboard).toContain('/provider/referrals/mine');
++    expect(dashboard).toContain('/provider/profile/availability');
+     expect(dashboard).toContain('fetchQueue();');
+   });
+ 
+-  it('does not ship fake pharmacy/radiology terminal actions', () => {
++  it('uses server-backed pharmacy broadcasts and a native barcode scanner', () => {
+     expect(pharmacyDashboard).not.toContain('Simulate Drug Scan');
+     expect(pharmacyDashboard).not.toContain('طلب وصفة #B-9901');
+     expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/broadcasts')");
+     expect(pharmacyDashboard).toContain('/provider/pharmacy/orders/${orderId}/accept');
+     expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${rejectOrderId}/reject');
++    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${orderId}/i-have-all');
++    expect(pharmacyDashboard).toContain('/provider/pharmacy/broadcasts/${orderId}/i-have-partial');
++    expect(pharmacyDashboard).toContain("client.get('/provider/inventory/search', { params: { barcode: String(data) } })");
+     expect(pharmacyDashboard).not.toContain('/pharmacy/orders/${rejectOrderId}/reject');
+     expect(pharmacyDashboard).toContain("client.get('/provider/pharmacy/allocations', { params: { status: 'completed' } })");
++  });
++
++  it('uses structured lab data and private radiology uploads rather than terminal placeholders', () => {
++    expect(labDashboard).not.toContain('const RESULTS =');
++    expect(labDashboard).toContain('/labs/bookings/${sample.lab_order_id || sample.id}/upload-report');
+     expect(radiologyDashboard).not.toContain('Coming with S3 integration');
+     expect(radiologyDashboard).not.toContain("'https://storage.nabdah.com/reports/' + order.id + '.pdf'");
+-    expect(radiologyDashboard).toContain('HTTPS URL for the signed PDF report');
++    expect(radiologyDashboard).not.toContain('HTTPS URL for the signed PDF report');
++    expect(radiologyDashboard).toContain('DocumentPicker.getDocumentAsync');
++    expect(radiologyDashboard).toContain('ProviderApi.uploadFile');
++    expect(radiologyDashboard).toContain('/radiology/bookings/${order.id}/upload-report');
++  });
++
++  it('connects shared referral, promotions, profile, and facility flows to governed APIs', () => {
++    expect(sharedBlueprint).toContain('/provider/referral-network');
++    expect(sharedBlueprint).toContain('/provider/referrals');
++    expect(sharedBlueprint).toContain('/provider/promotions');
++    expect(sharedBlueprint).toContain("client.get('/provider/profile')");
++    expect(sharedBlueprint).toContain("client.patch('/provider/profile'");
++    expect(sharedBlueprint).not.toContain('/provider/features/');
++    expect(facilityDashboard).toContain("client.get('/facility/shifts')");
++    expect(app).toContain('AmbulanceDashboardNavigator');
+   });
+ 
+   it('uses server-backed availability rather than a locally online provider or pharmacy', () => {
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/api/catalogs.ts b/provider/src/api/catalogs.ts
+--- a/provider/src/api/catalogs.ts	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/api/catalogs.ts	2026-08-27 11:46:58.000000000 +0000
+@@ -42,12 +42,9 @@
+       return list;
+     }
+   } catch {
+-    // fall through to the offline constant
++    return [];
+   }
+-  // Offline fallback only — the authoritative catalog is the backend.
+-  const { INSURANCE } = await import('../constants');
+-  const fallback = INSURANCE as readonly { id: string; ar: string; en: string; plans: readonly string[] }[];
+-  return fallback.map((c) => ({ id: c.id, ar: c.ar, en: c.en, plans: [...c.plans] }));
++  return [];
+ }
+ 
+ /** Clear the in-memory catalog cache (e.g. after the admin edits companies). */
+@@ -68,9 +65,8 @@
+ }
+ 
+ // ─── Medical services catalogs (labs / radiology / nursing) ─────────────────
+-// Same principle: the backend collections (labservices, radiologyservices,
+-// homecareservices — managed from the admin dashboard) are the single source.
+-// The local constants remain only as an offline fallback.
++// The backend collections (labservices, radiologyservices, and
++// homecareservices) are the single source of truth for these records.
+ 
+ export interface CatalogService {
+   id: string;
+@@ -125,14 +121,9 @@
+       return list;
+     }
+   } catch {
+-    // offline → constant fallback below
++    return [];
+   }
+-  const C = await import('../constants');
+-  const fallback: any[] = type === 'lab' ? [...C.LAB_TESTS] : type === 'radiology' ? [...C.RAD_SCANS] : [...C.NURSING_SVCS];
+-  return fallback.map((s: any) => ({
+-    id: s.id, ar: s.ar, en: s.en,
+-    fasting: s.fasting, fastH: s.fastH, hours: s.hours, min: s.min, prep: s.prep, noteAr: s.noteAr,
+-  }));
++  return [];
+ }
+ 
+ /** React hook: unified services catalog for a provider type. */
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/auth/AuthScreens.tsx b/provider/src/screens/auth/AuthScreens.tsx
+--- a/provider/src/screens/auth/AuthScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/auth/AuthScreens.tsx	2026-08-27 11:46:27.000000000 +0000
+@@ -100,17 +100,10 @@
+           if (!r.ok) {
+             const msg = r.err || 'فشل تسجيل الدخول بالبصمة';
+             show(msg, 'error');
+-            if (msg.includes('Network Error') || msg.includes('Network request failed')) {
+-              alert(`Debug Info:\nTried to connect to: ${API_BASE}\nMake sure the backend is running on this IP and port 8002!`);
+-            }
+           }
+         } catch (err: any) {
+           const msg = err.message || err.error || err;
+           show(AR ? `خطأ: ${msg}` : `Error: ${msg}`, 'error');
+-          // TEMPORARY DEBUGGING ALERT FOR USER:
+-          if (String(msg).includes('Network') || String(msg).includes('Network request failed') || String(msg).includes('timeout')) {
+-            alert(`Debug Info:\nTried to connect to: ${API_BASE}\nMake sure the backend is running on this IP and port 8002!`);
+-          }
+         }
+       }
+     });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/doctor/DoctorDashboard.tsx b/provider/src/screens/doctor/DoctorDashboard.tsx
+--- a/provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/doctor/DoctorDashboard.tsx	2026-08-27 12:14:50.000000000 +0000
+@@ -25,6 +25,8 @@
+ import { SP, R, FS, FW, SPECIALTIES, API_BASE } from '../../constants';
+ import { buildHeaders } from '../../security/Security';
+ import client from '../../api/client';
++import { useServicesCatalog } from '../../api/catalogs';
++import { VideoCallRoom } from '../shared/VideoCallRoom';
+ import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
+ import { DoctorHeader } from './components/DoctorHeader';
+ import { DoctorStatsRow } from './components/DoctorStatsRow';
+@@ -122,6 +124,12 @@
+      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="location_config">{({ navigation }: any) => <DoctorLocationScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="inbound_reports">{({ navigation }: any) => <InboundMedicalReportsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
++     <Stack.Screen name="video_call">{({ navigation, route }: any) => {
++       const appointment = route.params?.param || {};
++       const appointmentId = String(appointment.id || appointment.appointment_id || '');
++       if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
++       return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
++     }}</Stack.Screen>
+    </Stack.Navigator>
+  );
+ }
+@@ -434,8 +442,8 @@
+  const AR = lang === 'ar';
+  const [view, setView] = useState<'day'|'week'|'list'>('list');
+  const [filter, setFilter] = useState<'all'|'video'|'clinic'|'home'>('all');
+- const [apts, setApts] = useState<any[]>([]);
+-
++  const [apts, setApts] = useState<any[]>([]);
++ const [loadError, setLoadError] = useState<string | null>(null);
+  const filters = [
+  { k:'all', ar:'الكل', en:'All' },
+  { k:'video', ar:'فيديو', en:'Video' },
+@@ -446,6 +454,7 @@
+  useEffect(() => {
+  client.get('/provider/jobs/queue?status=active&kind=consultation')
+  .then(res => {
++ setLoadError(null);
+  setApts((res.data || []).map((x: any) => ({
+  id: x.id,
+  patient: x.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient'),
+@@ -457,12 +466,8 @@
+  })));
+  })
+  .catch(() => {
+-  // Fallback: show demo appointments when API unavailable
+-  setApts([
+-    { id: 'apt1', patient: AR ? 'سارة المطيري' : 'Sara Al-Mutairi', time: '09:30', type: 'video', status: 'confirmed', price: 150, raw: {} },
+-    { id: 'apt2', patient: AR ? 'أحمد السالم' : 'Ahmed Al-Salem', time: '11:00', type: 'clinic', status: 'confirmed', price: 200, raw: {} },
+-    { id: 'apt3', patient: AR ? 'فيصل الحربي' : 'Faisal Al-Harbi', time: '14:30', type: 'home', status: 'confirmed', price: 300, raw: {} },
+-  ]);
++  setApts([]);
++  setLoadError(AR ? 'تعذر تحميل المواعيد من الخادم. حاول مرة أخرى.' : 'Unable to load appointments from the server. Please try again.');
+  });
+  }, [AR]);
+ 
+@@ -519,7 +524,7 @@
+  data={filtered}
+  keyExtractor={i => i.id}
+  contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}
+- ListEmptyComponent={<NEmpty title={AR ? 'لا توجد مواعيد' : 'No appointments'} sub={AR ? 'اختر تاريخاً أو نوعاً آخر.' : 'Try selecting another date or type.'} icon="calendar" />}
++ ListEmptyComponent={<NEmpty title={loadError ? (AR ? 'تعذر تحميل المواعيد' : 'Unable to load appointments') : (AR ? 'لا توجد مواعيد' : 'No appointments')} sub={loadError || (AR ? 'اختر تاريخاً أو نوعاً آخر.' : 'Try selecting another date or type.')} icon="calendar" />}
+  renderItem={({ item }) => (
+  <TouchableOpacity onPress={() => onNavigate('appointment_detail', item)}>
+  <NCard style={{ marginBottom: SP.md }}>
+@@ -1239,11 +1244,31 @@
+   const [reason, setReason] = useState('');
+   const [urgent, setUrgent] = useState(false);
+   const [viewMode, setViewMode] = useState<'create'|'track'>('create');
+-  const [referrals, setReferrals] = useState([
+-  { id: 'ref1', patientName: apt?.patient || (AR ? 'أحمد محمد السالم' : 'Ahmed Al-Salem'), date: '2026-06-17', target: AR ? 'مختبر البرج' : 'Al-Borg Lab', type: 'Lab', test: 'CBC, Vitamin D', status: AppointmentStatus.COMPLETED, statusAr: 'مكتمل' },
+-  { id: 'ref2', patientName: apt?.patient || (AR ? 'سارة خالد العتيبي' : 'Sara Al-Otaibi'), date: '2026-06-18', target: AR ? 'مستشفى دله' : 'Dallah Hospital', type: 'Hospital', test: AR ? 'تحويل قسم القلب' : 'Cardiology Referral', status: 'accepted', statusAr: 'تم القبول' },
+-  { id: 'ref3', patientName: apt?.patient || (AR ? 'فيصل عبد الله' : 'Faisal Abdullah'), date: '2026-06-18', target: AR ? 'قسم الأشعة بالنبض' : 'Nabd Radiology Dept', type: 'Radiology', test: 'Chest X-Ray', status: 'pending', statusAr: 'انتظار' }
+-  ]);
++  const [referrals, setReferrals] = useState<any[]>([]);
++  const [loadingReferrals, setLoadingReferrals] = useState(true);
++  const loadReferrals = useCallback(async () => {
++    setLoadingReferrals(true);
++    try {
++      const response = await client.get('/provider/referrals/mine');
++      const rows = Array.isArray(response.data) ? response.data : (response.data?.items || []);
++      setReferrals(rows.map((row: any) => ({
++        id: row.id,
++        patientName: row.patient_name || row.patientName || '—',
++        date: row.created_at || row.date || '',
++        target: row.target_name || row.target_type || '—',
++        type: row.target_type || '',
++        test: row.tests_summary || row.notes || '—',
++        status: String(row.status || 'pending').toLowerCase(),
++        statusAr: String(row.status || 'pending').toLowerCase() === 'completed' ? 'مكتمل' : String(row.status || 'pending').toLowerCase() === 'accepted' ? 'مقبول' : 'انتظار',
++      })));
++    } catch (error: any) {
++      setReferrals([]);
++      show(error?.response?.data?.message || (AR ? 'تعذر تحميل الإحالات من الخادم' : 'Unable to load referrals from the server'), 'error');
++    } finally {
++      setLoadingReferrals(false);
++    }
++  }, [AR, show]);
++  useEffect(() => { loadReferrals(); }, [loadReferrals]);
+  
+   return (
+   <NScroll>
+@@ -1261,7 +1286,7 @@
+ 
+   {viewMode === 'track' ? (
+   <View style={{ paddingHorizontal: SP.xl }}>
+-  {referrals.map(r => (
++  {loadingReferrals ? <ActivityIndicator color={theme.primary} /> : referrals.length === 0 ? <NEmpty title={AR ? 'لا توجد إحالات' : 'No referrals'} sub={AR ? 'ستظهر الإحالات المحفوظة في الخادم هنا.' : 'Server-saved referrals will appear here.'} icon="send" /> : referrals.map(r => (
+   <NCard key={r.id} style={{ marginBottom: SP.md }}>
+   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xs }}>
+   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{r.patientName}</Text>
+@@ -1322,25 +1347,18 @@
+     show(AR ? 'لا يمكن إنشاء الإحالة دون مريض مرتبط' : 'Cannot create a referral without a linked patient', 'error');
+     return;
+   }
+-  await client.post('/provider/features/referrals', {
++  await client.post('/provider/referrals', {
++  appointment_id: apt.id || apt.appointment_id,
+   target_type: spec,
+   notes: reason,
+   patient_id: apt.patient_id,
+-  urgent
++  patient_name: apt.patient || apt.patient_name || '',
++  urgent,
+   });
+-  const newRef = {
+-  id: String(Date.now()),
+-  patientName: apt?.patient || (AR ? 'مريض افتراضي' : 'Default Patient'),
+-  date: new Date().toISOString().split('T')[0],
+-  target: AR ? 'مقدم خدمة خارجي' : 'External Provider',
+-  type: 'Hospital',
+-  test: reason,
+-  status: 'pending',
+-  statusAr: 'انتظار'
+-  };
+-  setReferrals(prev => [newRef, ...prev]);
+-  show(AR?'تم إرسال التحويل بنجاح ':'Referral sent ', 'success');
++  await loadReferrals();
++  setReason('');
+   setViewMode('track');
++  show(AR ? 'تم إرسال التحويل وحفظه بنجاح' : 'Referral submitted and saved', 'success');
+   } catch(e) {
+   show(AR ? 'حدث خطأ أثناء إرسال التحويل' : 'Failed to send referral', 'error');
+   }
+@@ -1366,8 +1384,7 @@
+  const [selected, setSelected] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
+ 
+- const { LAB_TESTS, RAD_SCANS, NURSING_SVCS } = require('../../constants');
+- const items = type === 'lab' ? LAB_TESTS : type === 'radiology' ? RAD_SCANS : NURSING_SVCS;
++ const items = useServicesCatalog(type);
+ 
+  const toggle = (id: string) => {
+  setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+@@ -2684,10 +2701,21 @@
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+- const [pulseOn, setPulse] = useState(false);
++  const [pulseOn, setPulse] = useState(false);
+  const [minutes, setMinutes] = useState('5');
++ const [saving, setSaving] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+-
++ useEffect(() => {
++   let active = true;
++   client.get('/provider/profile/availability').then((response) => {
++     if (!active || !response.data) return;
++     setPulse(Boolean(response.data.instant_available));
++     if (response.data.instant_available_minutes) setMinutes(String(response.data.instant_available_minutes));
++   }).catch(() => {
++     if (active) show(AR ? 'تعذر تحميل حالة التوفر' : 'Unable to load availability state', 'error');
++   });
++   return () => { active = false; };
++ }, [AR, show]);
+  useEffect(() => {
+  if (!pulseOn) return;
+  const loop = Animated.loop(Animated.sequence([
+@@ -2757,16 +2785,22 @@
+  )}
+  </NCard>
+ 
+- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
++  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
+  <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
+-  {AR
+- ? 'الأطباء الذين يفعّلون "نبضة التوفر" يحصلون على طلبات أكثر بنسبة 65% في وقت النشاط.'
+- : 'Doctors using Availability Pulse receive 65% more requests during active time.'}
++  {AR ? 'لا يتم إعلان توفر فوري للمريض قبل حفظ هذا الإعداد في الخادم.' : 'Patients are not shown instant availability until this setting is saved on the server.'}
+  </Text>
+  </NCard>
+-
+- <NBtn label={AR ? ' حفظ' : ' Save'}
+- onPress={() => { show(AR ? 'تم حفظ الإعدادات' : 'Settings saved', 'success'); onBack(); }} />
++ <NBtn label={AR ? ' حفظ' : ' Save'} loading={saving}
++ onPress={async () => {
++   setSaving(true);
++   try {
++     await client.patch('/provider/profile/availability', { instant_available: pulseOn, instant_available_minutes: Number(minutes) });
++     show(AR ? 'تم حفظ حالة التوفر' : 'Availability saved', 'success');
++     onBack();
++   } catch (error: any) {
++     show(error?.response?.data?.message || (AR ? 'تعذر حفظ حالة التوفر' : 'Unable to save availability'), 'error');
++   } finally { setSaving(false); }
++ }} />
+  </NScroll>
+  );
+ }
+@@ -3289,26 +3323,26 @@
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+- const [saving, setSaving] = useState(false);
+-
++  const [saving, setSaving] = useState(false);
++ const [loadingAvailability, setLoadingAvailability] = useState(true);
+  const [vacationMode, setVacationMode] = useState(false);
+- const [weeklySchedule, setWeeklySchedule] = useState([
+- { day: 'Sunday', dayAr: 'الأحد', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
+- { day: 'Monday', dayAr: 'الأثنين', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
+- { day: 'Tuesday', dayAr: 'الثلاثاء', active: true, splitShift: false, morningStart: '09:00', morningEnd: '17:00', eveningStart: '', eveningEnd: '' },
+- { day: 'Wednesday', dayAr: 'الأربعاء', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
+- { day: 'Thursday', dayAr: 'الخميس', active: true, splitShift: true, morningStart: '09:00', morningEnd: '13:00', eveningStart: '17:00', eveningEnd: '21:00' },
+- { day: 'Friday', dayAr: 'الجمعة', active: false, splitShift: false, morningStart: '', morningEnd: '', eveningStart: '', eveningEnd: '' },
+- { day: 'Saturday', dayAr: 'السبت', active: false, splitShift: false, morningStart: '', morningEnd: '', eveningStart: '', eveningEnd: '' },
+- ]);
+-
+- const [exceptions, setExceptions] = useState<any[]>([
+- { id: '1', date: '2026-06-25', type: 'close_day', labelAr: 'إغلاق اليوم بالكامل', labelEn: 'Full Day Closed' },
+- { id: '2', date: '2026-06-28', type: 'block_time', labelAr: 'حظر (13:00 - 15:00)', labelEn: 'Blocked (13:00 - 15:00)', start: '13:00', end: '15:00' },
+- ]);
++ const [weeklySchedule, setWeeklySchedule] = useState<any[]>([]);
++ const [exceptions, setExceptions] = useState<any[]>([]);
++ useEffect(() => {
++   let active = true;
++   client.get('/provider/profile/availability').then((response) => {
++     if (!active || !response.data) return;
++     setVacationMode(Boolean(response.data.vacation_mode));
++     setWeeklySchedule(Array.isArray(response.data.weekly_schedule) ? response.data.weekly_schedule : []);
++     setExceptions(Array.isArray(response.data.availability_exceptions) ? response.data.availability_exceptions : []);
++   }).catch((error: any) => {
++     if (active) show(error?.response?.data?.message || (AR ? 'تعذر تحميل إعدادات التوفر' : 'Unable to load availability settings'), 'error');
++   }).finally(() => { if (active) setLoadingAvailability(false); });
++   return () => { active = false; };
++ }, [AR, show]);
+ 
+  const [showAddException, setShowAddException] = useState(false);
+- const [exDate, setExDate] = useState('2026-06-30');
++ const [exDate, setExDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [exType, setExType] = useState<'close_day'|'block_time'|'exceptional_open'>('close_day');
+  const [exStart, setExStart] = useState('12:00');
+  const [exEnd, setExEnd] = useState('14:00');
+@@ -3362,8 +3396,13 @@
+   const handleSaveSchedule = async () => {
+     setSaving(true);
+     try {
+-      await client.post('/provider/settings/delta', { newData: { weeklySchedule, exceptions, insurances } });
+-      show(AR ? 'تم حفظ جدول التوفر الأسبوعي' : 'Weekly availability saved', 'success');
++      await client.patch('/provider/profile/availability', {
++        is_accepting_requests: !vacationMode,
++        vacation_mode: vacationMode,
++        weekly_schedule: weeklySchedule,
++        availability_exceptions: exceptions,
++      });
++      show(AR ? 'تم حفظ جدول التوفر الأسبوعي في الخادم' : 'Weekly availability saved to the server', 'success');
+       onBack();
+     } catch (e) {
+       show(AR ? 'فشل حفظ الجدول' : 'Failed to save schedule', 'error');
+@@ -3408,8 +3447,8 @@
+  return (
+  <View style={{ flex: 1, backgroundColor: theme.bg }}>
+  <NHeader title={AR ? ' جدول المواعيد والتوفر' : ' Availability Settings'} onBack={onBack} />
+- <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
+- 
++  <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 100 }}>
++ {loadingAvailability ? <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} /> : null}
+  {/* Vacation Mode */}
+  <NCard style={{ marginBottom: SP.xl, backgroundColor: vacationMode ? `${theme.danger}15` : theme.surface }} accent={vacationMode ? theme.danger : undefined}>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+@@ -4140,7 +4179,7 @@
+                 {p.checkedIn && (
+                   <>
+                     <NBtn label={AR ? 'تنبيه (Ping)' : 'Ping'} variant="outline" onPress={() => pingPatient(p.id)} />
+-                    <NBtn label={AR ? 'بدء المكالمة' : 'Start Call'} onPress={() => onNavigate('consultation', p)} />
++                    <NBtn label={AR ? 'بدء المكالمة' : 'Start Call'} onPress={() => onNavigate('video_call', p)} />
+                   </>
+                 )}
+                 {!p.checkedIn && (
+@@ -4217,37 +4256,36 @@
+   const { show } = useToast();
+   const AR = lang === 'ar';
+ 
+-  const [loading, setLoading] = useState(false);
++    const [loading, setLoading] = useState(false);
++  const [loadError, setLoadError] = useState<string | null>(null);
+   const [reports, setReports] = useState<any[]>([]);
+-
+   useEffect(() => {
+-    // Simulated fetching of inbound reports for testing
++    let active = true;
+     setLoading(true);
+-    setTimeout(() => {
+-      setReports([
+-        {
+-          id: 'rad-123',
+-          type: 'RADIOLOGY',
+-          patientName: AR ? 'أحمد محمد' : 'Ahmed Mohammed',
+-          testName: 'MRI Brain w/o Contrast',
+-          status: 'COMPLETED',
+-          date: '2026-07-17',
+-          pdfUrl: 'https://example.com/report1.pdf',
+-          dicomViewerUrl: 'https://example.com/dicom-viewer?id=123',
+-        },
+-        {
+-          id: 'lab-456',
+-          type: 'LAB',
+-          patientName: AR ? 'سارة عبدالله' : 'Sarah Abdullah',
+-          testName: 'Complete Blood Count (CBC)',
+-          status: 'COMPLETED',
+-          date: '2026-07-16',
+-          pdfUrl: 'https://example.com/report2.pdf',
+-        }
+-      ]);
+-      setLoading(false);
+-    }, 1000);
+-  }, []);
++    client.get('/provider/reports/inbound')
++      .then((res) => {
++        if (!active) return;
++        const rows = Array.isArray(res.data) ? res.data : (res.data?.items || []);
++        setReports(rows.map((row: any) => ({
++          id: row.id,
++          type: String(row.type || row.service_type || row.kind || 'REPORT').toUpperCase(),
++          patientName: row.patient_name || row.patient?.full_name || '—',
++          testName: row.test_name || row.service_name || row.title || '—',
++          status: row.status || row.state || 'PUBLISHED',
++          date: row.published_at || row.completed_at || row.updatedAt || row.createdAt || '',
++          pdfUrl: row.pdf_url || row.report_pdf_url || row.file_url,
++          dicomViewerUrl: row.dicom_viewer_url || row.dicomViewerUrl,
++        })));
++        setLoadError(null);
++      })
++      .catch(() => {
++        if (!active) return;
++        setReports([]);
++        setLoadError(AR ? 'تعذر تحميل التقارير من الخادم. حاول مرة أخرى.' : 'Unable to load reports from the server. Please try again.');
++      })
++      .finally(() => { if (active) setLoading(false); });
++    return () => { active = false; };
++  }, [AR]);
+ 
+   return (
+     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+@@ -4259,7 +4297,7 @@
+       ) : (
+         <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
+           {reports.length === 0 ? (
+-            <NEmpty title={AR ? 'لا توجد تقارير' : 'No Reports'} sub={AR ? 'لا توجد نتائج جاهزة حتى الآن' : 'No results available yet.'} icon="folder" />
++            <NEmpty title={loadError ? (AR ? 'تعذر تحميل التقارير' : 'Unable to load reports') : (AR ? 'لا توجد تقارير' : 'No Reports')} sub={loadError || (AR ? 'لا توجد نتائج جاهزة حتى الآن' : 'No results available yet.')} icon="folder" />
+           ) : (
+             reports.map(report => (
+               <NCard key={report.id} style={{ marginBottom: 16 }}>
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/facility/FacilityDashboard.tsx b/provider/src/screens/facility/FacilityDashboard.tsx
+--- a/provider/src/screens/facility/FacilityDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/facility/FacilityDashboard.tsx	2026-08-27 12:25:37.000000000 +0000
+@@ -19,7 +19,7 @@
+  * ║ FacilitySettingsScreen — all facility settings ║
+  * ╚══════════════════════════════════════════════════════════════════════════════╝
+  */
+-import React, { useState, useRef, useEffect } from 'react';
++import React, { useState, useRef, useEffect, useCallback } from 'react';
+ import {
+  View, Text, TouchableOpacity, ScrollView, StyleSheet,
+  Animated, FlatList, Alert, Dimensions, Platform, Switch,
+@@ -1014,7 +1014,18 @@
+  const AR = lang === 'ar';
+  const [view, setView] = useState<'today'|'week'>('today');
+  const [shifts, setShifts] = useState<any[]>([]);
+- useEffect(() => { client.get('/provider/facility/shifts').then(r => setShifts(r.data || [])).catch(() => {}); }, []);
++ const [loadingShifts, setLoadingShifts] = useState(true);
++ const loadShifts = useCallback(async () => {
++   setLoadingShifts(true);
++   try {
++     const response = await client.get('/facility/shifts');
++     setShifts(Array.isArray(response.data) ? response.data : (response.data?.items || []));
++   } catch (error: any) {
++     setShifts([]);
++     show(error?.response?.data?.message || (AR ? 'تعذر تحميل المناوبات' : 'Unable to load shifts'), 'error');
++   } finally { setLoadingShifts(false); }
++ }, [AR, show]);
++ useEffect(() => { loadShifts(); }, [loadShifts]);
+  const needingSub = shifts.find((s: any) => s.status === 'substitute');
+ 
+  const DAYS = AR
+@@ -1060,7 +1071,8 @@
+  onPress={async () => {
+    try {
+      await client.post(`/facility/shifts/${needingSub.id}/substitute`, {});
+-     show(AR?'تم تعيين بديل':'Substitute assigned','success');
++     await loadShifts();
++     show(AR?'تم تسجيل طلب البديل':'Substitute request recorded','success');
+    } catch (e: any) { show(e?.message || (AR?'فشل التعيين':'Assign failed'), 'error'); }
+  }} />
+  )}
+@@ -1070,7 +1082,7 @@
+ 
+  {/* Shifts */}
+  <NSecHeader title={AR ? 'مناوبات اليوم' : "Today's Shifts"} />
+- {shifts.map((shift: any) => (
++ {loadingShifts ? <ActivityIndicator color={theme.primary} /> : shifts.length === 0 ? <NEmpty title={AR ? 'لا توجد مناوبات' : 'No shifts'} sub={AR ? 'ستظهر المناوبات المحفوظة للمنشأة هنا.' : 'Saved facility shifts will appear here.'} icon="calendar" /> : shifts.map((shift: any) => (
+  <NCard key={shift.id} style={{ marginBottom: SP.md }}
+  accent={shift.status === 'substitute' ? theme.warn : theme.primary}>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, alignItems: 'center' }}>
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/lab/LabDashboard.tsx b/provider/src/screens/lab/LabDashboard.tsx
+--- a/provider/src/screens/lab/LabDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/lab/LabDashboard.tsx	2026-08-27 12:42:21.000000000 +0000
+@@ -172,7 +172,6 @@
+ 
+      <Stack.Screen name="order_detail">{({ navigation, route }: any) => <LabOrderDetail order={route.params?.param} onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+      <Stack.Screen name="sample_tracking">{({ navigation }: any) => <SampleTracking onBack={() => navigation.goBack()} onNav={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+-     <Stack.Screen name="result_entry">{({ navigation, route }: any) => <ResultEntry sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="result_review">{({ navigation, route }: any) => <ResultReview sample={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="bundles">{({ navigation }: any) => <LabBundlesScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="add_test">{({ navigation }: any) => <AddCustomTest onBack={() => navigation.goBack()} />}</Stack.Screen>
+@@ -532,7 +531,7 @@
+ 
+       {order?.status === 'SAMPLE_COLLECTED' && (
+         <View style={{gap:SP.md}}>
+-          <NBtn label={AR ? 'بدء الفحص وإدخال النتائج' : 'Process & Enter Results'} onPress={() => onNav('result_entry', order)} />
++          <NBtn label={AR ? 'بدء الفحص وإدخال النتائج' : 'Process & Enter Results'} onPress={() => onNav('result_review', order)} />
+         </View>
+       )}
+ 
+@@ -689,7 +688,7 @@
+  <Text style={{fontSize:FS.xs,color:theme.textSub}}>{AR?`استلام: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | الباركود: ${sam.barcode}`:`Received: ${sam.createdAt ? new Date(sam.createdAt).toLocaleTimeString() : '—'} | Barcode: ${sam.barcode}`}</Text>
+  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginTop:SP.md}}>
+  {sam.stage==='received' && <NBtn label={AR?'بدء التحليل':'Start Analysis'} size="sm" full={false} style={{flex:1}} onPress={()=>handleStartAnalysis(sam)} />}
+- {sam.stage==='analyzing' && <NBtn label={AR?'إدخال النتائج':'Enter Results'} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_entry',sam)} />}
++ {sam.stage==='analyzing' && <NBtn label={AR?'إدخال النتائج':'Enter Results'} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
+  {sam.stage==='result_ready' && <NBtn label={AR?'مراجعة وإرسال':'Review & Send'} size="sm" full={false} style={{flex:1}} onPress={()=>onNav('result_review',sam)} />}
+  <NBtn label="QR" size="sm" variant="outline" full={false} style={{paddingHorizontal:SP.lg}} onPress={()=>onNav('qr_label',sam)} />
+  </View>
+@@ -701,185 +700,34 @@
+ }
+ 
+ // ══════════════════════════════════════════════════════════════════
+-// RESULT ENTRY — Per-parameter + reference range + auto-status
+-// ══════════════════════════════════════════════════════════════════
+-function ResultEntry({ sample, onBack }:{ sample:any; onBack:()=>void }) {
+- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+- const PARAMS = [
+- {id:'wbc',nameAr:'WBC كريات بيضاء',nameEn:'WBC',unit:'10³/µL',low:4.5,high:11},
+- {id:'rbc',nameAr:'RBC كريات حمراء',nameEn:'RBC',unit:'10⁶/µL',low:4.5,high:5.5},
+- {id:'hgb',nameAr:'HGB هيموجلوبين',nameEn:'Hemoglobin',unit:'g/dL',low:12,high:17},
+- {id:'hct',nameAr:'HCT هيماتوكريت',nameEn:'Hematocrit',unit:'%',low:36,high:54},
+- {id:'plt',nameAr:'PLT صفائح دموية',nameEn:'Platelets',unit:'10³/µL',low:150,high:400},
+- {id:'mcv',nameAr:'MCV حجم الكرية',nameEn:'MCV',unit:'fL',low:80,high:100},
+- ];
+- const [vals, setVals] = useState<Record<string,string>>({});
+- const [refRanges, setRefRanges] = useState<Record<string, { low: string; high: string }>>(
+- Object.fromEntries(PARAMS.map(p => [p.id, { low: String(p.low), high: String(p.high) }]))
+- );
+-
+- const [fastingChecked, setFastingChecked] = useState(false);
+-  const [pdfFile, setPdfFile] = useState<string|null>(null);
+-  const [pdfUploading, setPdfUploading] = useState(false);
+-  const [notes, setNotes] = useState('');
+-  const [loading, setLoading] = useState(false);
+-  const [showReject, setShowReject] = useState(false);
+-  const [rejectReason, setRejectReason] = useState(''); 
+-
+- const getStatus = (id:string):'normal'|'low'|'high'|'' => {
+- const v=parseFloat(vals[id]); if(isNaN(v)) return '';
+- const range=refRanges[id]; if(!range) return '';
+- const low = parseFloat(range.low);
+- const high = parseFloat(range.high);
+- if (isNaN(low) || isNaN(high)) return '';
+- return v<low?'low':v>high?'high':'normal';
+- };
+-
+- const handlePdfUpload = async () => {
+- setPdfUploading(true);
+- try {
+-   await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { file: 'lab_report_signature.pdf' });
+-   setPdfFile('lab_report_signature.pdf');
+-   show(AR ? ' تم إرفاق ملف الـ PDF بنجاح!' : ' PDF report attached successfully!', 'success');
+- } catch (e: any) {
+-   show(e.message, 'error');
+- } finally {
+-   setPdfUploading(false);
+- }
+- };
+-
+- return (
+- <NScroll>
+- <NHeader title={AR?'إدخال النتائج':'Enter Results'} onBack={onBack} />
+- <NCard style={{marginBottom:SP.xl,flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
+- <NAvatar name={sample?.patient??'مريض'} size={44} />
+- <View><Text style={{fontWeight:FW.bold,color:theme.text}}>{sample?.patient??'—'}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
+- </NCard>
+-
+- {PARAMS.map(p=>{
+- const st=getStatus(p.id);
+- const stColor=st==='normal'?'#4CAF50':st==='low'?'#FF9800':st==='high'?'#F44336':'';
+- return (
+- <NCard key={p.id} style={{marginBottom:SP.sm,padding:SP.lg}} accent={stColor||undefined}>
+- <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',marginBottom:SP.sm}}>
+- <Text style={{fontSize:FS.md,fontWeight:FW.semi,color:theme.text,flex:1,textAlign:AR?'right':'left'}}>{AR?p.nameAr:p.nameEn}</Text>
+- {st && <NBadge label={st==='normal'?(AR?'طبيعي':'Normal'):st==='low'?(AR?'منخفض':'Low'):(AR?'مرتفع':'High')} variant={st==='normal'?'success':st==='low'?'warning':'danger'} size="xs" />}
+- </View>
+- <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md,alignItems:'center'}}>
+- <View style={{flex:2}}><NInput placeholder="0.0" value={vals[p.id]??''} onChange={v=>setVals(pv=>({...pv,[p.id]:v}))} kbType="decimal-pad" style={{marginBottom:0}} /></View>
+- <Text style={{flex:1,fontSize:FS.xs,color:theme.textSub,textAlign:'center'}}>{p.unit}</Text>
+- 
+- {/* Editable Reference Range */}
+- <View style={{flex:3,flexDirection:AR?'row-reverse':'row',gap:4,alignItems:'center',justifyContent:'center'}}>
+- <Text style={{fontSize:10,color:theme.textSub}}>{AR?'الطبيعي:':'Ref:'}</Text>
+- <TextInput
+- value={refRanges[p.id]?.low}
+- onChangeText={v => setRefRanges(r => ({...r, [p.id]: {...r[p.id], low: v}}))}
+- style={{width:32,height:24,borderWidth:1,borderColor:theme.border,borderRadius:4,textAlign:'center',color:theme.text,fontSize:10,backgroundColor:theme.surface2,padding:0}}
+- keyboardType="decimal-pad"
+- />
+- <Text style={{fontSize:10,color:theme.textSub}}>–</Text>
+- <TextInput
+- value={refRanges[p.id]?.high}
+- onChangeText={v => setRefRanges(r => ({...r, [p.id]: {...r[p.id], high: v}}))}
+- style={{width:32,height:24,borderWidth:1,borderColor:theme.border,borderRadius:4,textAlign:'center',color:theme.text,fontSize:10,backgroundColor:theme.surface2,padding:0}}
+- keyboardType="decimal-pad"
+- />
+- </View>
+- </View>
+- </NCard>
+- );
+- })}
+-
+- <NCard style={{ marginBottom: SP.lg }}>
+- <NToggle 
+- label={AR ? ' تم التحقق من صيام المريض (8 ساعات)' : ' Verified patient was fasting (8 hours)'} 
+- value={fastingChecked} 
+- onChange={setFastingChecked} 
+- />
+- </NCard>
+-
+- {pdfFile && (
+- <NCard style={{ backgroundColor: theme.successBg, padding: SP.md, marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+- <Text style={{ fontSize: FS.xs, color: theme.success, fontWeight: FW.bold }}>
+-  {pdfFile} {AR ? '(تم الإرفاق)' : '(Attached)'}
+- </Text>
+- <TouchableOpacity onPress={() => setPdfFile(null)}>
+- <Text style={{ color: theme.danger, fontSize: FS.xs }}>{AR ? 'حذف' : 'Delete'}</Text>
+- </TouchableOpacity>
+- </NCard>
+- )}
+-
+- <NInput label={AR?'ملاحظات الفني':'Technician Notes'} placeholder={AR?'ملاحظات إضافية...':'Additional notes...'} value={notes} onChange={setNotes} multi lines={3} />
+-      <View style={{gap:SP.md,marginTop:SP.lg}}>
+-        <NCard style={{marginBottom:SP.md, backgroundColor: theme.surface2}}>
+-          <NBtn label={AR?'رفض العينة (إعادة سحب)':'Reject Sample (Recollect)'} variant="danger" onPress={() => setShowReject(true)} style={{marginBottom:SP.md}} />
+-          <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm}}>
+-            <NBtn label={AR?'رفع PDF':'Upload PDF'} variant="outline" loading={pdfUploading} onPress={handlePdfUpload} style={{flex:1}} />
+-            <NBtn label={AR?'حفظ كمسودة (للفني)':'Save Draft (Tech)'} variant="secondary" onPress={() => show(AR?'تم الحفظ كمسودة':'Draft Saved', 'success')} style={{flex:2}} />
+-          </View>
+-        </NCard>
+-
+-        <NBtn label={AR?'اعتماد المشرف ونشر النتيجة':'Supervisor Approve & Publish'} loading={loading} onPress={async () => {
+-          setLoading(true);
+-          try {
+-            await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'result_uploaded', approved_by_supervisor: true });
+-            show(AR ? 'تم النشر بنجاح' : 'Published Successfully', 'success');
+-            onBack();
+-          } catch (err: any) {
+-            show(err.message, 'error');
+-          } finally {
+-            setLoading(false);
+-          }
+-        }} />
+-      </View>
+-
+-      {/* Rejection Modal */}
+-      <NSheet visible={showReject} onClose={()=>setShowReject(false)} title={AR ? 'سبب رفض العينة' : 'Rejection Reason'} height={350}>
+-        <View style={{ padding: SP.md }}>
+-          {['عينة متخثرة (Clotted)', 'عينة متحللة (Hemolyzed)', 'عينة غير كافية', 'أنبوب خاطئ', 'تأخر النقل'].map((reason, idx) => (
+-            <TouchableOpacity key={idx} onPress={() => setRejectReason(reason)} style={{ paddingVertical: SP.sm, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
+-              <Text style={{ color: theme.text, fontSize: FS.md }}>{reason}</Text>
+-              {rejectReason === reason && <I name="check" size={16} color={theme.primary} />}
+-            </TouchableOpacity>
+-          ))}
+-          <NBtn label={AR ? 'تأكيد الرفض وإشعار المريض' : 'Confirm Reject & Notify'} variant="danger" style={{ marginTop: SP.lg }} loading={loading} onPress={async () => {
+-            setLoading(true);
+-            try {
+-              await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sample_rejected', reason: rejectReason });
+-              show(AR ? 'تم رفض العينة وإشعار المريض بطلب إعادة السحب مجاناً' : 'Sample rejected. Patient notified for free recollection.', 'success');
+-              setShowReject(false);
+-              onBack();
+-            } catch(e: any) {
+-              show(e.message, 'error');
+-            } finally {
+-              setLoading(false);
+-            }
+-          }} />
+-        </View>
+-      </NSheet>
+-
+-    </NScroll>
+- );
+-}
+-
+-// ══════════════════════════════════════════════════════════════════
+ // RESULT REVIEW — Preview before sending
+ // ══════════════════════════════════════════════════════════════════
+ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+- const [sendTo, setSendTo] = useState<'patient'|'both'>('both');
++  const [sendTo, setSendTo] = useState<'patient'|'both'>('both');
+  const [loading, setLoading] = useState(false);
+- const RESULTS = [
+- {name:'WBC',value:'7.2',ref:'4.5–11.0',st:'normal'},{name:'RBC',value:'4.8',ref:'4.5–5.5',st:'normal'},
+- {name:'HGB',value:'11.2',ref:'12.0–17.0',st:'low'},{name:'HCT',value:'38',ref:'36–54',st:'normal'},
+- {name:'PLT',value:'220',ref:'150–400',st:'normal'},
+- ];
+-
++ const [resultRows, setResultRows] = useState<any[]>(Array.isArray(sample?.structured_results) ? sample.structured_results : []);
++ const [analyte, setAnalyte] = useState('');
++ const [value, setValue] = useState('');
++ const [unit, setUnit] = useState('');
++ const [range, setRange] = useState('');
++ const [isCritical, setIsCritical] = useState(false);
++ const addResultRow = () => {
++   if (!analyte.trim() || !value.trim()) {
++     show(AR ? 'أدخل اسم الفحص والنتيجة قبل الإضافة' : 'Enter an analyte and result before adding it', 'error');
++     return;
++   }
++   setResultRows((rows) => [...rows, { analyte: analyte.trim(), value: value.trim(), unit: unit.trim(), range: range.trim(), isCritical }]);
++   setAnalyte(''); setValue(''); setUnit(''); setRange(''); setIsCritical(false);
++ };
+  const handleConfirmSend = async () => {
++ if (!resultRows.length) {
++   show(AR ? 'أضف نتيجة واحدة على الأقل قبل الإرسال' : 'Add at least one result before sending', 'error');
++   return;
++ }
+  setLoading(true);
+  try {
+- await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { results: RESULTS, send_to: sendTo });
++ await client.post(`/labs/bookings/${sample.lab_order_id || sample.id}/upload-report`, { structuredData: resultRows, send_to: sendTo });
+  await client.patch(`/labs/samples/${sample.id}/stage`, { stage: 'sent' });
+  show(AR ? 'تم إرسال النتيجة' : 'Result sent', 'success');
+  onBack();
+@@ -898,6 +746,15 @@
+  <NAvatar name={sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')} size={48} />
+  <View><Text style={{fontSize:FS.lg,fontWeight:FW.bold,color:theme.text}}>{sample?.patient_name || (AR ? 'مريض نبض' : 'Nabdah Patient')}</Text><Text style={{fontSize:FS.xs,color:theme.textSub}}>{sample?.barcode??'—'}</Text></View>
+  </View>
++ <NCard style={{ marginBottom: SP.lg }}>
++ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>{AR ? 'إضافة نتيجة مخبرية' : 'Add laboratory result'}</Text>
++ <NInput label={AR ? 'اسم الفحص' : 'Analyte'} value={analyte} onChange={setAnalyte} required />
++ <NInput label={AR ? 'النتيجة' : 'Result'} value={value} onChange={setValue} required />
++ <NInput label={AR ? 'الوحدة' : 'Unit'} value={unit} onChange={setUnit} />
++ <NInput label={AR ? 'المدى المرجعي' : 'Reference range'} value={range} onChange={setRange} />
++ <NToggle label={AR ? 'نتيجة حرجة' : 'Critical result'} value={isCritical} onChange={setIsCritical} />
++ <NBtn label={AR ? 'إضافة النتيجة' : 'Add result'} variant="outline" onPress={addResultRow} style={{ marginTop: SP.sm }} />
++ </NCard>
+  {/* Table header */}
+  <View style={{flexDirection:'row',backgroundColor:'#9C27B010',borderRadius:R.sm,padding:SP.sm,marginBottom:SP.sm}}>
+  <Text style={{flex:3,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الفحص':'Test'}</Text>
+@@ -905,12 +762,12 @@
+  <Text style={{flex:2,fontSize:FS.xs,fontWeight:FW.bold,color:'#9C27B0'}}>{AR?'الطبيعي':'Ref'}</Text>
+  <View style={{flex:1,alignItems:'center'}}><I name="alert" size={12} color="#9C27B0" /></View>
+  </View>
+- {RESULTS.map((r,i)=>(
+- <View key={i} style={{flexDirection:'row',paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border,alignItems:'center'}}>
+- <Text style={{flex:3,fontSize:FS.sm,color:theme.text}}>{r.name}</Text>
+- <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.st==='low'?'#FF9800':r.st==='high'?'#F44336':theme.text}}>{r.value}</Text>
+- <Text style={{flex:2,fontSize:FS.xs,color:theme.textSub}}>{r.ref}</Text>
+- <View style={{flex:1,alignItems:'center'}}><View style={{width:8,height:8,borderRadius:4,backgroundColor:r.st==='normal'?'#4CAF50':r.st==='low'?'#FF9800':'#F44336'}} /></View>
++ {resultRows.length === 0 ? <NEmpty title={AR ? 'لا توجد نتائج مدخلة' : 'No results entered'} sub={AR ? 'أضف نتائج العينة أعلاه قبل إصدار التقرير.' : 'Add sample results above before issuing the report.'} icon="flask" /> : resultRows.map((r,i)=>(
++ <View key={`${r.analyte}-${i}`} style={{flexDirection:'row',paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border,alignItems:'center'}}>
++ <Text style={{flex:3,fontSize:FS.sm,color:theme.text}}>{r.analyte}</Text>
++ <Text style={{flex:2,fontSize:FS.sm,fontWeight:FW.bold,color:r.isCritical?'#F44336':theme.text}}>{r.value}{r.unit ? ` ${r.unit}` : ''}</Text>
++ <Text style={{flex:2,fontSize:FS.xs,color:theme.textSub}}>{r.range}</Text>
++ <View style={{flex:1,alignItems:'center'}}><View style={{width:8,height:8,borderRadius:4,backgroundColor:r.isCritical?'#F44336':'#4CAF50'}} /></View>
+  </View>
+  ))}
+  </NCard>
+@@ -1446,7 +1303,7 @@
+  const sc=STAGES.find(st=>st.key===item.stage);
+  return (
+  <NCard style={{marginBottom:SP.md}} accent={sc?.color}
+- onPress={()=>{if(item.stage==='analyzing')onNav('result_entry',item);else if(item.stage==='result_ready')onNav('result_review',item);}}>
++ onPress={()=>{if(item.stage==='analyzing'||item.stage==='result_ready')onNav('result_review',item);}}>
+  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md}}>
+  <NAvatar name={item.patient} size={42} />
+  <View style={{flex:1}}>
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/pharmacy/PharmacyDashboard.tsx b/provider/src/screens/pharmacy/PharmacyDashboard.tsx
+--- a/provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/pharmacy/PharmacyDashboard.tsx	2026-08-27 12:07:01.000000000 +0000
+@@ -23,7 +23,9 @@
+  * ╚══════════════════════════════════════════════════════════════════════════════╝
+  */
+ import React, { useState, useRef, useEffect, useCallback } from 'react';
++import { io, Socket } from 'socket.io-client';
+ import { Audio } from 'expo-av';
++import { CameraView, useCameraPermissions } from 'expo-camera';
+ import * as ImagePicker from 'expo-image-picker';
+ import {
+  View, Text, TouchableOpacity, ScrollView, StyleSheet,
+@@ -193,6 +195,7 @@
+   const { user, toggleOnline } = useAuth();
+   const isOnline = !!user?.isOnline;
+   const [broadcasts, setBroadcasts] = useState<any[]>([]);
++  const knownBroadcastIds = useRef<Set<string>>(new Set());
+   const [sound, setSound] = useState<Audio.Sound | null>(null);
+ 
+   // Play alarm sound
+@@ -213,32 +216,60 @@
+     return sound ? () => { sound.unloadAsync(); } : undefined;
+   }, [sound]);
+ 
+-  // Simulated WebSocket connection for Live Radar (Polling fallback)
+-  useEffect(() => {
+-    if (!isOnline) return;
++    useEffect(() => {
++    if (!isOnline) {
++      knownBroadcastIds.current.clear();
++      setBroadcasts([]);
++      return;
++    }
+ 
+-    const fetchBroadcasts = () => {
+-      client.get('/provider/pharmacy/broadcasts') // real open broadcasts for this pharmacy
+-        .then(res => {
+-          const raw = Array.isArray(res.data) ? res.data : [];
+-          const newOrders = raw.map((b: any) => ({
+-            id: b.order_id || b.order?.id || b.id,
+-            ...b,
+-            items: b.items || b.order?.items || [],
+-            total: b.total ?? b.order?.total,
+-            patient_name: b.patient_name || b.patient?.full_name,
+-          }));
+-          if (newOrders.length > broadcasts.length) playAlarm(); // Trigger alarm on new order
+-          setBroadcasts(newOrders);
+-        })
+-        .catch(() => {});
++    let disposed = false;
++    let socket: Socket | undefined;
++    const normalizeBroadcasts = (data: any) => {
++      const raw = Array.isArray(data) ? data : (data?.items || []);
++      return raw.map((broadcast: any) => ({
++        id: broadcast.order_id || broadcast.order?.id || broadcast.id,
++        ...broadcast,
++        items: broadcast.items || broadcast.order?.items || [],
++        total: broadcast.total ?? broadcast.order?.total,
++        patient_name: broadcast.patient_name || broadcast.patient?.full_name,
++      })).filter((broadcast: any) => !!broadcast.id);
++    };
++    const fetchBroadcasts = async () => {
++      try {
++        const response = await client.get('/provider/pharmacy/broadcasts');
++        if (disposed) return;
++        const rows = normalizeBroadcasts(response.data);
++        const incoming = rows.some((row: any) => !knownBroadcastIds.current.has(row.id));
++        knownBroadcastIds.current = new Set(rows.map((row: any) => row.id));
++        setBroadcasts(rows);
++        if (incoming) await playAlarm();
++      } catch {
++        // Keep the last server-confirmed rows; never fabricate a broadcast locally.
++      }
++    };
++    const connectRealtime = async () => {
++      const token = await Vault.get(SK.ACCESS);
++      if (disposed || !token) return;
++      socket = io(process.env.EXPO_PUBLIC_BACKEND_URL || API_BASE.replace(/\/api\/v1$/, ''), {
++        transports: ['websocket'],
++        auth: { token },
++      });
++      socket.on('connect', fetchBroadcasts);
++      socket.on('pharmacy:broadcast:available', fetchBroadcasts);
++      socket.on('pharmacy:broadcast:cancelled', fetchBroadcasts);
++      socket.on('pharmacy:broadcast:changed', fetchBroadcasts);
+     };
+ 
+     fetchBroadcasts();
+-    const interval = setInterval(fetchBroadcasts, 5000); // Poll every 5s
+-
+-    return () => clearInterval(interval);
+-  }, [isOnline]);
++    connectRealtime();
++    const interval = setInterval(fetchBroadcasts, 5000);
++    return () => {
++      disposed = true;
++      clearInterval(interval);
++      socket?.disconnect();
++    };
++  }, [isOnline, user?.id]);
+ 
+   const [showRejectModal, setShowRejectModal] = useState(false);
+   const [rejectOrderId, setRejectOrderId] = useState<string|null>(null);
+@@ -1347,44 +1378,76 @@
+   const { lang } = useLang();
+   const { show } = useToast();
+   const AR = lang === 'ar';
++  const [permission, requestPermission] = useCameraPermissions();
++  const [scanned, setScanned] = useState(false);
++  const [loading, setLoading] = useState(false);
++  const [barcode, setBarcode] = useState<string | null>(null);
++  const [product, setProduct] = useState<any | null>(null);
+ 
+-  return (
+-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+-      <NHeader title={AR ? 'الماسح الضوئي الذكي' : 'Smart Barcode Scanner'} onBack={onBack} />
+-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+-        <View style={{ width: 250, height: 250, borderWidth: 2, borderColor: theme.primary, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)' }}>
+-          <Text style={{ color: '#FFF', textAlign: 'center', opacity: 0.8 }}>
+-            {AR ? 'قم بتوجيه الكاميرا نحو الباركود...' : 'Point camera at barcode...'}
+-          </Text>
++  const onBarcodeScanned = async ({ data }: { data?: string }) => {
++    if (!data || scanned) return;
++    setScanned(true);
++    setLoading(true);
++    setBarcode(String(data));
++    try {
++      const response = await client.get('/provider/inventory/search', { params: { barcode: String(data) } });
++      const rows = Array.isArray(response.data) ? response.data : (response.data?.items || response.data?.data || []);
++      const matched = rows[0] || null;
++      setProduct(matched);
++      show(matched ? (AR ? 'تم التحقق من المنتج من الخادم' : 'Product verified by the server') : (AR ? 'الباركود غير موجود في المخزون' : 'Barcode was not found in inventory'), matched ? 'success' : 'warning');
++    } catch (error: any) {
++      setProduct(null);
++      show(error?.response?.data?.message || (AR ? 'تعذر التحقق من الباركود' : 'Unable to verify the barcode'), 'error');
++    } finally {
++      setLoading(false);
++    }
++  };
++
++  if (!permission) {
++    return <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color={theme.primary} /></View>;
++  }
++  if (!permission.granted) {
++    return (
++      <View style={{ flex: 1, backgroundColor: theme.bg }}>
++        <NHeader title={AR ? 'ماسح الباركود' : 'Barcode Scanner'} onBack={onBack} />
++        <View style={{ flex: 1, justifyContent: 'center', padding: SP.xl, gap: SP.lg }}>
++          <NEmpty title={AR ? 'يلزم إذن الكاميرا' : 'Camera permission required'} sub={AR ? 'لا يمكن قراءة الباركود أو تعديل المخزون دون إذن الكاميرا.' : 'Camera permission is required to scan and verify inventory.'} icon="camera" />
++          <NBtn label={AR ? 'منح الإذن' : 'Grant permission'} onPress={requestPermission} />
+         </View>
+-        <Text style={{ color: '#FFF', marginTop: SP.xl, fontSize: FS.sm, textAlign: 'center', paddingHorizontal: SP.xl }}>
+-          {AR ? 'يُستخدم لتسجيل المخزون، التأكد من صحة التغليف، وصرف الوصفات الطبية.' : 'Used for inventory logging, packing verification, and dispensing prescriptions.'}
+-        </Text>
+       </View>
+-      <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111' }}>
+-        <NBtn
+-          label={AR ? 'الماسح غير متاح حالياً' : 'Scanner unavailable'}
+-          variant="outline"
+-          onPress={() => {}}
+-          disabled
+-        />
+-        <Text style={{ color: '#AAA', textAlign: 'center', marginTop: SP.sm, fontSize: FS.xs }}>
+-          {AR ? 'لن يتم اعتماد دواء أو مخزون دون تكامل كاميرا/باركود فعلي.' : 'No medicine or inventory is confirmed without a real camera/barcode integration.'}
+-        </Text>
++    );
++  }
++
++  return (
++    <View style={{ flex: 1, backgroundColor: '#000' }}>
++      <NHeader title={AR ? 'ماسح الباركود الذكي' : 'Smart Barcode Scanner'} onBack={onBack} />
++      {!product && <CameraView style={{ flex: 1 }} facing="back" barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'qr', 'datamatrix', 'pdf417'] }} onBarcodeScanned={scanned ? undefined : onBarcodeScanned} />}
++      <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111', gap: SP.md }}>
++        {loading && <ActivityIndicator color={theme.primary} />}
++        {barcode && <Text style={{ color: '#FFF', textAlign: 'center' }}>{AR ? `الباركود: ${barcode}` : `Barcode: ${barcode}`}</Text>}
++        {product && (
++          <NCard>
++            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? (product.name_ar || product.name_en || product.name || barcode) : (product.name_en || product.name_ar || product.name || barcode)}</Text>
++            <Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? `المخزون المتاح: ${product.stock ?? product.quantity ?? 0}` : `Available stock: ${product.stock ?? product.quantity ?? 0}`}</Text>
++          </NCard>
++        )}
++        <NBtn label={AR ? 'مسح باركود آخر' : 'Scan another barcode'} variant="outline" onPress={() => { setScanned(false); setBarcode(null); setProduct(null); }} />
+       </View>
+     </View>
+   );
+ }
+ 
++
+ function BroadcastOrderScreen({ onBack }: any) {
+   const { theme } = useTheme();
+   const { lang } = useLang();
+   const { show } = useToast();
+   const AR = lang === 'ar';
+   const [items, setItems] = useState<any[]>([]);
+-  const [loading, setLoading] = useState(true);
++    const [loading, setLoading] = useState(true);
+   const [actingId, setActingId] = useState<string | null>(null);
+-
++  const [partialOrderId, setPartialOrderId] = useState<string | null>(null);
++  const [partialAvailability, setPartialAvailability] = useState<Record<string, 'yes' | 'no'>>({});
+   const load = useCallback(async () => {
+     setLoading(true);
+     try {
+@@ -1402,13 +1465,51 @@
+   useEffect(() => { load(); }, [load]);
+ 
+   const accept = async (orderId: string) => {
++    if (!orderId) return;
++    setActingId(orderId);
++    try {
++      await client.post(`/provider/pharmacy/broadcasts/${orderId}/i-have-all`, {});
++      show(AR ? 'تم قبول الطلب بالكامل من الخادم' : 'Order fully accepted by the server', 'success');
++      await load();
++    } catch (e: any) {
++      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر قبول الطلب' : 'Could not accept order'), 'error');
++    } finally {
++      setActingId(null);
++    }
++  };
++  const reject = async (orderId: string) => {
++    if (!orderId) return;
++    setActingId(orderId);
++    try {
++      await client.post(`/provider/pharmacy/broadcasts/${orderId}/reject`, { reason: 'provider_declined' });
++      show(AR ? 'تم تسجيل رفض الطلب' : 'Order rejection recorded', 'info');
++      await load();
++    } catch (e: any) {
++      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر رفض الطلب' : 'Could not reject order'), 'error');
++    } finally {
++      setActingId(null);
++    }
++  };
++  const submitPartial = async (orderId: string, medicines: any[]) => {
++    if (!orderId) return;
++    const responseItems = medicines.map((item: any) => ({
++      order_item_id: String(item.id || item.order_item_id || ''),
++      have: partialAvailability[`${orderId}:${item.id || item.order_item_id}`] || 'no',
++      qty_available: Number(item.qty_available ?? item.qty ?? item.quantity ?? 0),
++    })).filter((item: any) => item.order_item_id);
++    if (!responseItems.length || responseItems.length !== medicines.length) {
++      show(AR ? 'بيانات بنود الطلب غير مكتملة؛ لا يمكن إرسال عرض جزئي.' : 'Order item identifiers are incomplete; a partial offer cannot be sent.', 'error');
++      return;
++    }
+     setActingId(orderId);
+     try {
+-      await client.post(`/provider/pharmacy/orders/${orderId}/accept`);
+-      show(AR ? 'تم قبول الطلب من الخادم' : 'Order accepted by the server', 'success');
++      await client.post(`/provider/pharmacy/broadcasts/${orderId}/i-have-partial`, { items: responseItems });
++      setPartialOrderId(null);
++      setPartialAvailability({});
++      show(AR ? 'تم إرسال العرض الجزئي للطلب' : 'Partial offer submitted', 'success');
+       await load();
+     } catch (e: any) {
+-      show(e?.message || (AR ? 'تعذر قبول الطلب' : 'Could not accept order'), 'error');
++      show(e?.response?.data?.message || e?.message || (AR ? 'تعذر إرسال العرض الجزئي' : 'Could not submit partial offer'), 'error');
+     } finally {
+       setActingId(null);
+     }
+@@ -1422,7 +1523,8 @@
+           <NEmpty title={AR ? 'لا توجد طلبات بث حالياً' : 'No live broadcast orders'} sub={AR ? 'ستظهر هنا الطلبات التي يوجهها النظام إلى صيدليتك.' : 'Orders routed to your pharmacy will appear here.'} />
+         ) : items.map((order: any) => {
+           const id = String(order.id || order.order_id || '');
+-          const medicines = order.items || order.medicines || [];
++          const orderId = String(order.order_id || order.order?.id || '');
++          const medicines = order.items || order.order?.items || order.medicines || [];
+           return (
+             <NCard key={id} style={{ marginBottom: SP.sm, borderLeftWidth: 4, borderLeftColor: theme.primary }}>
+               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+@@ -1432,10 +1534,38 @@
+               <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
+                 {medicines.map((item: any) => item.name_ar || item.name_en || item.name || item.sku).filter(Boolean).join(', ') || (AR ? 'تفاصيل الدواء غير متاحة' : 'Medicine details unavailable')}
+               </Text>
+-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
+-                <NBtn label={AR ? 'قبول الطلب' : 'Accept Order'} size="sm" loading={actingId === id} onPress={() => accept(id)} style={{ flex: 1 }} />
+-                <NBtn label={AR ? 'تحديث' : 'Refresh'} size="sm" variant="outline" onPress={load} />
+-              </View>
++              {!orderId ? (
++                <NEmpty title={AR ? 'بيانات الطلب غير مكتملة' : 'Order data is incomplete'} sub={AR ? 'لا يمكن تنفيذ قرار قبل استلام معرف الطلب من الخادم.' : 'A server order identifier is required before taking an action.'} icon="alertTriangle" />
++              ) : (
++                <>
++                  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.xs, marginTop: SP.sm }}>
++                    <NBtn label={AR ? 'قبول كامل' : 'Accept all'} size="sm" loading={actingId === orderId} onPress={() => accept(orderId)} style={{ flex: 1 }} />
++                    <NBtn label={AR ? 'عرض جزئي' : 'Partial offer'} size="sm" variant="outline" disabled={actingId === orderId} onPress={() => { setPartialOrderId(orderId); setPartialAvailability({}); }} style={{ flex: 1 }} />
++                    <NBtn label={AR ? 'رفض' : 'Reject'} size="sm" variant="danger" disabled={actingId === orderId} onPress={() => reject(orderId)} style={{ flex: 1 }} />
++                  </View>
++                  {partialOrderId === orderId && (
++                    <View style={{ marginTop: SP.md, gap: SP.sm }}>
++                      <Text style={{ color: theme.text, fontWeight: FW.bold, textAlign: AR ? 'right' : 'left' }}>{AR ? 'حدد البنود المتوفرة في المخزون' : 'Select the items available in your inventory'}</Text>
++                      {medicines.map((medicine: any) => {
++                        const itemId = String(medicine.id || medicine.order_item_id || '');
++                        const availabilityKey = `${orderId}:${itemId}`;
++                        const available = partialAvailability[availabilityKey] === 'yes';
++                        return (
++                          <View key={itemId || medicine.sku} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: SP.sm }}>
++                            <Text style={{ flex: 1, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{medicine.name_ar || medicine.name_en || medicine.name || medicine.sku || '—'}</Text>
++                            <NBtn label={available ? (AR ? 'متوفر' : 'Available') : (AR ? 'غير متوفر' : 'Unavailable')} size="sm" variant={available ? 'primary' : 'outline'} onPress={() => setPartialAvailability((previous) => ({ ...previous, [availabilityKey]: available ? 'no' : 'yes' }))} />
++                          </View>
++                        );
++                      })}
++                      <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
++                        <NBtn label={AR ? 'إرسال العرض الجزئي' : 'Submit partial offer'} loading={actingId === orderId} onPress={() => submitPartial(orderId, medicines)} style={{ flex: 1 }} />
++                        <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" onPress={() => { setPartialOrderId(null); setPartialAvailability({}); }} style={{ flex: 1 }} />
++                      </View>
++                    </View>
++                  )}
++                </>
++              )}
++              <NBtn label={AR ? 'تحديث' : 'Refresh'} size="sm" variant="outline" onPress={load} style={{ marginTop: SP.sm }} />
+             </NCard>
+           );
+         })}
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/radiology/RadiologyDashboard.tsx b/provider/src/screens/radiology/RadiologyDashboard.tsx
+--- a/provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/radiology/RadiologyDashboard.tsx	2026-08-27 12:22:06.000000000 +0000
+@@ -3,6 +3,8 @@
+ import { View, Text, TouchableOpacity, ScrollView, RefreshControl, ActivityIndicator, Switch } from 'react-native';
+ import { useTheme, useLang, useToast } from '../../context';
+ import client from '../../api/client';
++import { ProviderApi } from '../../api/provider';
++import * as DocumentPicker from 'expo-document-picker';
+ import { NBtn, NCard, NInput, NStatCard, NAvatar, NBadge, NHeader, NScroll, NSecHeader, NBottomNav, NSheet, NPriceInput, NEmpty } from '../../components/ui';
+ import { IBg, I } from '../../components/icons';
+ import { SP, R, FS, FW } from '../../constants';
+@@ -327,24 +329,42 @@
+   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast();
+   const AR = lang === 'ar';
+   const [loading, setLoading] = useState(false);
+-  const [pdfUrl, setPdfUrl] = useState(order.signed_report_pdf_url || '');
+-  const [pdfUploaded, setPdfUploaded] = useState(!!order.signed_report_pdf_url);
+-  const [dicomUrl, setDicomUrl] = useState(order.dicom_url || '');
++  const [reportFile, setReportFile] = useState<any | null>(null);
++  const [dicomFile, setDicomFile] = useState<any | null>(null);
++  const [pdfUploaded, setPdfUploaded] = useState(Boolean(order.report_storage_object_id));
+   const [findings, setFindings] = useState(order.clinical_impression_report || '');
+   const [reportStatus, setReportStatus] = useState(order.report_status || 'draft');
+ 
++  const pickFile = async (kind: 'report' | 'dicom') => {
++    const result = await DocumentPicker.getDocumentAsync({
++      type: kind === 'report' ? 'application/pdf' : '*/*',
++      copyToCacheDirectory: true,
++      multiple: false,
++    });
++    if (result.canceled) return;
++    const asset = result.assets?.[0];
++    if (!asset) return;
++    if (kind === 'report') setReportFile(asset); else setDicomFile(asset);
++  };
+   const handleUploadPdf = async () => {
+-    const normalizedPdfUrl = pdfUrl.trim();
+-    if (!/^https:\/\/.+/i.test(normalizedPdfUrl)) {
+-      show(AR ? 'أدخل رابط HTTPS فعلياً لملف التقرير الموقّع' : 'Enter a real HTTPS URL for the signed report PDF', 'warning');
++    if (!reportFile) {
++      show(AR ? 'اختر ملف PDF للتقرير أولاً' : 'Choose the PDF report file first', 'warning');
+       return;
+     }
+     setLoading(true);
+     try {
+-      await client.post(`/radiology/bookings/${order.id}/upload-report`, { pdf_url: normalizedPdfUrl, dicom_url: dicomUrl.trim() || null, findings: findings.trim() });
++      const reportStorageObjectId = await ProviderApi.uploadFile(reportFile.uri, reportFile.mimeType || 'application/pdf', reportFile.name || 'radiology-report.pdf');
++      const dicomStorageObjectId = dicomFile
++        ? await ProviderApi.uploadFile(dicomFile.uri, dicomFile.mimeType || 'application/dicom', dicomFile.name || 'scan.dcm')
++        : undefined;
++      await client.post(`/radiology/bookings/${order.id}/upload-report`, {
++        report_storage_object_id: reportStorageObjectId,
++        dicom_storage_object_id: dicomStorageObjectId,
++        findings: findings.trim(),
++      });
+       setPdfUploaded(true); setReportStatus('draft');
+-      show(AR ? 'تم حفظ رابط التقرير — المسودة جاهزة' : 'Report link saved — Draft ready', 'success');
+-    } catch (e: any) { show(e.message, 'error'); } finally { setLoading(false); }
++      show(AR ? 'تم رفع التقرير وحفظ المسودة' : 'Report uploaded and draft saved', 'success');
++    } catch (e: any) { show(e?.response?.data?.message || e.message, 'error'); } finally { setLoading(false); }
+   };
+ 
+   const handleSubmitForReview = async () => {
+@@ -379,19 +399,18 @@
+       {/* Section 1: PDF (Mandatory) */}
+       <NSecHeader title={AR?' قسم 1: تقرير PDF (إلزامي)':' Section 1: PDF Report (Mandatory)'} />
+       <NCard style={{ marginBottom: SP.lg }}>
+-        <NInput label={AR ? 'رابط HTTPS لتقرير PDF الموقّع' : 'HTTPS URL for the signed PDF report'} value={pdfUrl} onChange={setPdfUrl} placeholder="https://authorized-storage.example/report.pdf" />
++        <NBtn label={reportFile ? (AR ? `ملف التقرير: ${reportFile.name}` : `Report file: ${reportFile.name}`) : (AR ? 'اختيار تقرير PDF موقّع' : 'Choose signed PDF report')} variant="outline" onPress={() => pickFile('report')} />
+         <NInput label={AR ? 'النتائج السريرية (Findings)' : 'Clinical Findings'} value={findings} onChange={setFindings} multi lines={4} placeholder={AR ? 'اذكر النتائج الإشعاعية...' : 'Describe radiology findings...'} />
+-        <NBtn label={pdfUploaded? (AR?' حفظ رابط PDF محدّث':' Save updated PDF URL'): (AR?' حفظ رابط تقرير PDF':' Save PDF report URL')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded?'#4CAF50':'#009688' }} />
+-        {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: '#F44336', textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* رابط PDF موقّع وفعلي إلزامي قبل المراجعة' : '* A real signed PDF URL is mandatory before review'}</Text>}
++        <NBtn label={pdfUploaded ? (AR ? 'رفع نسخة تقرير محدثة' : 'Upload updated report') : (AR ? 'رفع وحفظ تقرير PDF' : 'Upload and save PDF report')} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? '#4CAF50' : '#009688' }} />
++        {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: '#F44336', textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{AR ? '* ملف PDF موقّع يُرفع للتخزين الخاص قبل المراجعة' : '* A signed PDF is uploaded to private storage before review'}</Text>}
+       </NCard>
+ 
+       {/* Section 2: DICOM (Optional) */}
+       <NSecHeader title={AR?' قسم 2: صور DICOM (اختياري)':' Section 2: DICOM Images (Optional)'} />
+       <NCard style={{ marginBottom: SP.lg }}>
+-        <NInput label={AR ? 'رابط PACS/DICOM الخارجي' : 'External PACS/DICOM URL'} value={dicomUrl} onChange={setDicomUrl} placeholder="https://pacs.hospital.com/viewer/..." />
+-        <NBtn label={AR ? 'رفع صور الأشعة غير متاح حالياً' : 'Scan image upload unavailable'} variant="outline" onPress={() => {}} disabled />
++        <NBtn label={dicomFile ? (AR ? `ملف DICOM: ${dicomFile.name}` : `DICOM file: ${dicomFile.name}`) : (AR ? 'اختيار ملف DICOM اختياري' : 'Choose optional DICOM file')} variant="outline" onPress={() => pickFile('dicom')} />
+         <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>
+-          {AR ? 'يمكن إضافة رابط PACS/DICOM خارجي؛ لن يتم اعتماد رفع ملف محلي قبل تكامل التخزين المصرح.' : 'An external PACS/DICOM URL may be provided; local file upload is disabled until authorized storage integration.'}
++          {AR ? 'تُرفع ملفات الأشعة إلى التخزين الخاص وتتحقق الخدمة من ملكيتها قبل اعتماد التقرير.' : 'Scan files are uploaded to private storage and ownership is verified before the report is accepted.'}
+         </Text>
+       </NCard>
+ 
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/shared/BlueprintScreens.tsx b/provider/src/screens/shared/BlueprintScreens.tsx
+--- a/provider/src/screens/shared/BlueprintScreens.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/shared/BlueprintScreens.tsx	2026-08-27 12:54:57.000000000 +0000
+@@ -27,10 +27,11 @@
+ } from 'react-native';
+ import { useTheme, useLang, useToast } from '../../context';
+ import client from '../../api/client';
++import { useServicesCatalog } from '../../api/catalogs';
+ import {
+  NBtn, NCard, NInput, NBadge, NHeader, NScroll, NDivider,
+  NPriceInput, NToggle, NSearch, NSecHeader, NStatCard, NAvatar,
+- NSheet
++ NSheet, NEmpty
+ } from '../../components/ui';
+ import { I, IBg } from '../../components/icons';
+ import { SP, R, FS, FW, SPECIALTIES, C } from '../../constants';
+@@ -56,7 +57,7 @@
+  const fetchPromos = useCallback(async () => {
+  setLoading(true);
+  try {
+- const res = await client.get('/provider/features/promotions');
++ const res = await client.get('/provider/promotions');
+  setPromos(res.data);
+  } catch (e) {
+  show(AR ? 'فشل تحميل العروض الترويجية' : 'Failed to load promotions', 'error');
+@@ -121,8 +122,8 @@
+  const [title, setTitle] = useState('');
+  const [origPrice, setOrigPrice] = useState('');
+  const [discPrice, setDiscPrice] = useState('');
+- const [startDate, setStartDate] = useState('2026-06-25');
+- const [endDate, setEndDate] = useState('2026-07-25');
++ const [startDate, setStartDate] = useState(() => new Date().toISOString().slice(0, 10));
++ const [endDate, setEndDate] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10));
+  const [loading, setLoading] = useState(false);
+ 
+  const handleCreate = async () => {
+@@ -132,7 +133,7 @@
+  }
+  setLoading(true);
+  try {
+- await client.post('/provider/features/promotions', {
++ await client.post('/provider/promotions', {
+  title_ar: title,
+  title_en: title,
+  original_price: parseFloat(origPrice),
+@@ -173,13 +174,42 @@
+  const { show } = useToast();
+  const AR = lang === 'ar';
+ 
+- const [active, setActive] = useState(true);
+- const [bio, setBio] = useState(AR ? 'مستشفى رائد في الرعاية والخدمات الطبية المنزلية.' : 'Leading hospital in premium home care and clinical services.');
+- const [socials, setSocials] = useState('https://x.com/nabdahplus');
+-
+- const handleSave = () => {
+- show(AR ? 'تم حفظ إعدادات الموقع بنجاح' : 'Public site configuration saved', 'success');
+- onBack();
++ const [active, setActive] = useState(false);
++ const [bio, setBio] = useState('');
++ const [socials, setSocials] = useState('');
++ const [publicUrl, setPublicUrl] = useState<string | null>(null);
++ const [loading, setLoading] = useState(true);
++ const [saving, setSaving] = useState(false);
++ useEffect(() => {
++   let alive = true;
++   client.get('/provider/profile').then((response) => {
++     if (!alive) return;
++     const profile = response.data || {};
++     setActive(Boolean(profile.public_eligibility));
++     setBio(AR ? (profile.description_ar || profile.bio || '') : (profile.description_en || profile.bio || ''));
++     setSocials(profile.social?.website || profile.social?.url || '');
++     setPublicUrl(profile.slug ? `https://nabdah.plus/provider/${profile.slug}` : null);
++   }).catch((error: any) => {
++     if (alive) show(error?.response?.data?.message || (AR ? 'تعذر تحميل إعدادات الموقع' : 'Unable to load site settings'), 'error');
++   }).finally(() => { if (alive) setLoading(false); });
++   return () => { alive = false; };
++ }, [AR, show]);
++ const handleSave = async () => {
++   setSaving(true);
++   try {
++     const response = await client.patch('/provider/profile', {
++       public_eligibility: active,
++       description_ar: AR ? bio : undefined,
++       description_en: AR ? undefined : bio,
++       social: { website: socials.trim() },
++     });
++     const profile = response.data || {};
++     setPublicUrl(profile.slug ? `https://nabdah.plus/provider/${profile.slug}` : null);
++     show(AR ? 'تم حفظ إعدادات الموقع في الخادم' : 'Public site settings saved to the server', 'success');
++     onBack();
++   } catch (error: any) {
++     show(error?.response?.data?.message || (AR ? 'تعذر حفظ إعدادات الموقع' : 'Unable to save site settings'), 'error');
++   } finally { setSaving(false); }
+  };
+ 
+  return (
+@@ -187,6 +217,7 @@
+  <NScroll>
+  <NHeader title={AR ? 'موقع مزود الخدمة العام' : 'Public Mini-Website'} onBack={onBack} />
+  <View style={{ padding: SP.xl, gap: SP.xl }}>
++ {loading ? <ActivityIndicator color={theme.primary} /> : null}
+  <NCard>
+  <NToggle
+  label={AR ? 'تفعيل الصفحة العامة للمريض' : 'Active Public Website'}
+@@ -199,16 +230,12 @@
+  <NInput label={AR ? 'النبذة التعريفية' : 'Doctor/Clinic Bio'} value={bio} onChange={setBio} multi lines={4} />
+  <NInput label={AR ? 'حسابات التواصل الاجتماعي' : 'Social Media Link'} value={socials} onChange={setSocials} />
+ 
+- <NCard style={{ backgroundColor: theme.primaryLight, borderColor: theme.primary }}>
++ {publicUrl && <NCard style={{ backgroundColor: theme.primaryLight, borderColor: theme.primary }}>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+- <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold }}>https://nabdah.plus/provider/p-1</Text>
+- <TouchableOpacity onPress={() => show(AR ? 'تم النسخ إلى الحافظة ' : 'Copied to clipboard ', 'success')}>
+- <I name="share" size={20} color={theme.primary} />
+- </TouchableOpacity>
++ <Text style={{ flex: 1, fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold }}>{publicUrl}</Text>
+  </View>
+- </NCard>
+-
+- <NBtn label={AR ? ' حفظ التعديلات' : ' Save Settings'} onPress={handleSave} />
++ </NCard>}
++ <NBtn label={AR ? ' حفظ التعديلات' : ' Save Settings'} loading={saving} onPress={handleSave} />
+  </View>
+  </NScroll>
+  </View>
+@@ -222,8 +249,8 @@
+  const { show } = useToast();
+  const AR = lang === 'ar';
+ 
+- const [budget, setBudget] = useState('500');
+- const [duration, setDuration] = useState('7');
++ const [budget, setBudget] = useState('');
++ const [duration, setDuration] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [plan, setPlan] = useState<{ name: string; renews?: string } | null>(null);
+ 
+@@ -246,7 +273,7 @@
+  if (!d || d <= 0) { show(AR ? 'أدخل مدة صحيحة' : 'Enter a valid duration', 'error'); return; }
+  setLoading(true);
+  try {
+- await client.post('/provider/features/promotions', {
++ await client.post('/provider/promotions', {
+  title_ar: `حملة إعلانية — ميزانية ${b} ريال`,
+  title_en: `Ad Campaign — SAR ${b} budget`,
+  original_price: b,
+@@ -556,8 +583,8 @@
+  const [PATIENTS, setPatients] = useState<{ id: string; name: string; is_vip?: boolean; is_favorite?: boolean; is_blocked?: boolean }[]>([]);
+  const [listLoading, setListLoading] = useState(true);
+  useEffect(() => {
+-   client.get('/provider/features/crm/patients')
+-     .then(r => setPatients((Array.isArray(r.data) ? r.data : []).map((p: any) => ({
++   client.get('/provider/crm')
++     .then(r => setPatients((Array.isArray(r.data) ? r.data : (r.data?.items || [])).map((p: any) => ({
+        id: p.patient_id, name: p.name, is_vip: p.is_vip, is_favorite: p.is_favorite, is_blocked: p.is_blocked,
+      }))))
+      .catch(() => setPatients([]))
+@@ -578,12 +605,12 @@
+  setSelectedPat(pat);
+  setCrmLoading(true);
+  try {
+- const res = await client.get(`/provider/features/crm/patients/${pat.id}`);
+- setIsVip(res.data.is_vip || false);
+- setIsFav(res.data.is_favorite || false);
+- setIsBlocked(res.data.is_blocked || false);
++ const res = await client.get(`/provider/crm/${pat.id}`);
++ setIsVip(Boolean(res.data.vip));
++ setIsFav(Boolean(res.data.favorite));
++ setIsBlocked(Boolean(res.data.blocked));
+  setBlockReason(res.data.blocked_reason || '');
+- setNotesList(res.data.private_notes || []);
++ setNotesList(Array.isArray(res.data.notes) ? res.data.notes.map((note: any) => typeof note === 'string' ? note : note.text).filter(Boolean) : []);
+  setNoteText('');
+  } catch (e) {
+  show(AR ? 'فشل تحميل بيانات العميل' : 'Failed to fetch CRM data', 'error');
+@@ -600,12 +627,12 @@
+  if (noteText.trim()) {
+  updatedNotes.push(noteText.trim());
+  }
+- await client.patch(`/provider/features/crm/patients/${selectedPat.id}`, {
+- is_vip: isVip,
+- is_favorite: isFav,
+- is_blocked: isBlocked,
++ await client.put(`/provider/crm/${selectedPat.id}`, {
++ vip: isVip,
++ favorite: isFav,
++ blocked: isBlocked,
+  blocked_reason: isBlocked ? blockReason : '',
+- private_notes: updatedNotes,
++ notes: updatedNotes.map((text, index) => ({ id: `${selectedPat.id}-${index}`, date: new Date().toISOString().slice(0, 10), text })),
+  });
+  show(AR ? 'تم حفظ تفاصيل العميل بنجاح' : 'Patient CRM updated successfully', 'success');
+  setSelectedPat(null);
+@@ -934,61 +961,51 @@
+   const AR = lang === 'ar';
+ 
+   const [search, setSearch] = useState('');
+-  const [patientId, setPatientId] = useState('patient_1');
++  const [patientId, setPatientId] = useState('');
+   const [selectedTests, setSelectedTests] = useState<string[]>([]);
++  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
+   const [refCode, setRefCode] = useState<string | null>(null);
+   const [loading, setLoading] = useState(false);
+-  const [showOverrideModal, setShowOverrideModal] = useState(false);
+-
+-  // Determine if the provider is linked to a facility with an internal lab
+-  const hasInternalLab = true;
+-
+-  const LABS = [
+-    { id: 'l1', name: AR ? 'مختبرات البرج الطبية' : 'Al Borg Diagnostics', type: 'Lab' },
+-    { id: 'l2', name: AR ? 'مختبرات ألفا' : 'Alfa Labs Group', type: 'Lab' },
+-    { id: 'l3', name: AR ? 'أشعة تشخيص تخصصي' : 'Tashkhis Radiology Center', type: 'Radiology' }
+-  ];
+-
+-  const CATALOGUE = [
+-    { id: 't1', label: 'CBC (Complete Blood Count)' },
+-    { id: 't2', label: 'HbA1c (Glycated Hemoglobin)' },
+-    { id: 't3', label: 'Kidney Function Panel (Urea, Creatinine)' },
+-    { id: 't4', label: 'Chest X-Ray Digital' }
+-  ];
++  const [network, setNetwork] = useState<any[]>([]);
++  const labCatalog = useServicesCatalog('lab');
++  const radiologyCatalog = useServicesCatalog('radiology');
++  const CATALOGUE = [...labCatalog, ...radiologyCatalog].map((service) => ({ id: service.id, label: AR ? service.ar : service.en }));
++  useEffect(() => {
++    let active = true;
++    client.get('/provider/referral-network').then((response) => {
++      if (active) setNetwork(Array.isArray(response.data) ? response.data : (response.data?.items || []));
++    }).catch(() => { if (active) setNetwork([]); });
++    return () => { active = false; };
++  }, []);
+ 
+   const handleToggleTest = (id: string) => {
+     setSelectedTests(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+   };
+ 
+   const attemptGenerate = () => {
+-    if (selectedTests.length === 0) {
+-      show(AR ? 'يرجى تحديد فحص واحد على الأقل' : 'Select at least one test', 'warning');
++    if (!patientId.trim() || !selectedProviderId || selectedTests.length === 0) {
++      show(AR ? 'أدخل معرف المريض وحدد الجهة وفحصاً واحداً على الأقل' : 'Enter a patient ID, select a destination, and choose at least one test', 'warning');
+       return;
+     }
+-    if (hasInternalLab) {
+-      setShowOverrideModal(true);
+-    } else {
+-      executeGenerate(false);
+-    }
++    executeGenerate();
+   };
+ 
+-  const executeGenerate = async (isOverride: boolean) => {
+-    setShowOverrideModal(false);
++  const executeGenerate = async () => {
++    const destination = network.find((item) => item.id === selectedProviderId);
++    if (!destination) return;
+     setLoading(true);
+     try {
+       const selectedTestLabels = selectedTests.map(id => CATALOGUE.find(c => c.id === id)?.label || id);
+-      const res = await client.post('/provider/features/referrals', {
+-        patient_id: patientId,
+-        target_type: 'lab',
+-        notes: AR ? 'تحويل طبي خارجي لإجراء فحوصات مخبرية' : 'Outbound medical referral for diagnostic tests',
++      const res = await client.post('/provider/referrals', {
++        patient_id: patientId.trim(),
++        target_type: destination.type,
++        target_provider_id: destination.id,
++        target_name: AR ? (destination.name || destination.name_en) : (destination.name_en || destination.name),
++        notes: AR ? 'تحويل تشخيصي خارجي' : 'Outbound diagnostic referral',
+         requested_tests: selectedTestLabels,
+-        override_internal: isOverride
+       });
+-      if (isOverride) {
+-        show(AR ? 'تم تسجيل الإحالة الخارجية في سجل التدقيق.' : 'Outbound override logged in Audit Trails.', 'warning');
+-      }
+-      setRefCode(res.data.referral_code);
+-      show(AR ? 'تم إصدار كود التحويل الموحد' : 'Outbound Referral Code Generated', 'success');
++      setRefCode(res.data.referral_code || null);
++      show(AR ? 'تم إنشاء الإحالة وحفظها' : 'Referral created and saved', 'success');
+     } catch (e) {
+       show(AR ? 'فشل إصدار كود التحويل' : 'Failed to generate referral code', 'error');
+     } finally {
+@@ -996,11 +1013,6 @@
+     }
+   };
+ 
+-  const routeInternally = () => {
+-    setShowOverrideModal(false);
+-    show(AR ? 'تم توجيه الإحالة للمختبر الداخلي بنجاح' : 'Referral routed to Internal Lab successfully', 'success');
+-    onBack();
+-  };
+ 
+   return (
+  <View style={{ flex: 1, backgroundColor: theme.bg }}>
+@@ -1013,13 +1025,15 @@
+  <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث عن معمل تحاليل أو مركز أشعة...' : 'Search lab networks / radiologies...'} />
+ 
+  <NSecHeader title={AR ? 'الشبكة المعتمدة' : 'Accredited Centers'} />
+- {LABS.filter(x => x.name.toLowerCase().includes(search.toLowerCase())).map(item => (
+- <NCard key={item.id} style={{ marginBottom: SP.sm }}>
++ {network.filter((item) => `${item.name || ''} ${item.name_en || ''}`.toLowerCase().includes(search.toLowerCase())).length === 0 ? <NEmpty title={AR ? 'لا توجد جهات معتمدة' : 'No accredited destinations'} sub={AR ? 'ستظهر الجهات المعتمدة من الخادم هنا.' : 'Approved destinations returned by the server will appear here.'} icon="hospital" /> : network.filter((item) => `${item.name || ''} ${item.name_en || ''}`.toLowerCase().includes(search.toLowerCase())).map(item => (
++ <TouchableOpacity key={item.id} onPress={() => setSelectedProviderId(item.id)}>
++ <NCard style={{ marginBottom: SP.sm, borderColor: selectedProviderId === item.id ? theme.primary : theme.border }}>
+  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+- <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>{item.name}</Text>
+- <NBadge label={item.type} variant={item.type === 'Lab' ? 'primary' : 'success'} />
++ <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>{AR ? (item.name || item.name_en) : (item.name_en || item.name)}</Text>
++ <NBadge label={item.type} variant={item.type === 'lab' ? 'primary' : 'success'} />
+  </View>
+  </NCard>
++ </TouchableOpacity>
+  ))}
+ 
+  <NSecHeader title={AR ? 'حدد الفحوصات المطلوبة للتحويل' : 'Select Referral Catalog tests'} />
+@@ -1051,26 +1065,7 @@
+  </NCard>
+  )}
+ 
+- {showOverrideModal && (
+-    <View style={{ position: 'absolute', top: -500, bottom: -500, left: -100, right: -100, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: SP.xl, zIndex: 10 }}>
+-      <NCard style={{ backgroundColor: theme.bg, borderColor: theme.danger }}>
+-        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.danger, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
+-          {AR?' تحذير: إحالة خارج المنشأة':' Warning: Outbound Referral'}
+-        </Text>
+-        <Text style={{ fontSize: FS.sm, color: theme.text, marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
+-          {AR 
+-            ? 'المنشأة التي تعمل بها توفر هذه الخدمات في المختبر الداخلي. يفضل توجيه المريض داخلياً.' 
+-            : 'Your linked facility provides these services internally. It is recommended to route the patient to the internal lab.'}
+-        </Text>
+-        
+-        <NBtn label={AR ? 'توجيه للمختبر الداخلي (موصى به)' : 'Route to Internal Lab (Recommended)'} onPress={routeInternally} style={{ marginBottom: SP.sm }} />
+-        <NBtn label={AR ? 'تخطي وإرسال للخارج (تُسجل في التدقيق)' : 'Override & Send Outside (Audited)'} variant="outline" onPress={() => executeGenerate(true)} />
+-        <TouchableOpacity onPress={() => setShowOverrideModal(false)} style={{ marginTop: SP.lg, alignItems: 'center' }}>
+-          <Text style={{ color: theme.textSub, fontWeight: FW.bold }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+-        </TouchableOpacity>
+-      </NCard>
+-    </View>
+-  )}
++ 
+ 
+  </View>
+  </NScroll>
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/provider/src/screens/shared/LiveKitRoomProvider.tsx b/provider/src/screens/shared/LiveKitRoomProvider.tsx
+--- a/provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-19 01:00:06.000000000 +0000
++++ b/provider/src/screens/shared/LiveKitRoomProvider.tsx	2026-08-27 11:42:56.000000000 +0000
+@@ -1,79 +1,42 @@
+-// @ts-nocheck
+-import React, { useState, useEffect } from 'react';
+-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+-import { LiveKitRoom, useRoomContext, VideoTrack } from '@livekit/react-native';
+-import { useAuth, useTheme } from '../../context';
+-import { apiFetch } from '../../utils/api';
++import React from 'react';
++import { View, Text } from 'react-native';
++import { VideoCallRoom } from './VideoCallRoom';
+ 
+ interface LiveKitRoomProviderProps {
+-  route: { params: { roomId: string } };
+-  navigation: any;
+-}
+-
+-const RoomUI = ({ navigation }: { navigation: any }) => {
+-  const room = useRoomContext();
+-  const { theme } = useTheme();
+-
+-  const handleEndCall = () => {
+-    room.disconnect();
+-    navigation.goBack();
++  route: {
++    params?: {
++      appointmentId?: string;
++      roomId?: string;
++      peerName?: string;
++      voiceOnly?: boolean;
++    };
+   };
++  navigation: { goBack: () => void };
++}
+ 
+-  return (
+-    <View style={styles.container}>
+-      <Text style={[styles.title, { color: theme.text }]}>مكالمة نشطة مع المريض</Text>
+-      
+-      <View style={styles.videoContainer}>
+-         <Text style={{color: theme.textMuted}}>Video UI requires tracks from hooks. Simplified for demo.</Text>
+-      </View>
+-
+-      <View style={styles.controls}>
+-        <TouchableOpacity style={[styles.btn, { backgroundColor: theme.red }]} onPress={handleEndCall}>
+-          <Text style={styles.btnText}>إنهاء المكالمة</Text>
+-        </TouchableOpacity>
+-      </View>
+-    </View>
+-  );
+-};
+-
++/**
++ * Backwards-compatible navigation wrapper. The room identifier is treated as
++ * the appointment identifier because the backend join endpoint authorizes the
++ * caller against the appointment before issuing a LiveKit token.
++ */
+ export const LiveKitRoomProvider = ({ route, navigation }: LiveKitRoomProviderProps) => {
+-  const { roomId } = route.params;
+-  const { user } = useAuth();
+-  const [token, setToken] = useState<string | null>(null);
++  const params = route.params || {};
++  const appointmentId = String(params.appointmentId || params.roomId || '');
+ 
+-  useEffect(() => {
+-    const fetchToken = async () => {
+-      try {
+-        const res = await apiFetch(`/calls/${roomId}/join`, { method: 'POST' });
+-        setToken(res.token);
+-      } catch (err) {
+-        // Token fetch failed — room join will gracefully timeout
+-      }
+-    };
+-    fetchToken();
+-  }, [roomId]);
+-
+-  if (!token) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
++  if (!appointmentId) {
++    return (
++      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
++        <Text style={{ textAlign: 'center' }}>Unable to start the call because its appointment identifier is missing.</Text>
++      </View>
++    );
++  }
+ 
+   return (
+-    <LiveKitRoom
+-      serverUrl={process.env.EXPO_PUBLIC_LIVEKIT_URL || 'wss://nabdah-livekit.example.com'}
+-      token={token}
+-      connect={true}
+-      audio={true}
+-      video={true}
+-    >
+-      <RoomUI navigation={navigation} />
+-    </LiveKitRoom>
++    <VideoCallRoom
++      appointmentId={appointmentId}
++      peerName={params.peerName}
++      voiceOnly={params.voiceOnly}
++      onEnd={() => navigation.goBack()}
++    />
+   );
+ };
+-
+-const styles = StyleSheet.create({
+-  container: { flex: 1, backgroundColor: '#000' },
+-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+-  title: { fontSize: 18, textAlign: 'center', marginTop: 50 },
+-  videoContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+-  controls: { flexDirection: 'row', justifyContent: 'center', padding: 20 },
+-  btn: { padding: 15, borderRadius: 30, paddingHorizontal: 30 },
+-  btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+-});

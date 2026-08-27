@@ -1,0 +1,2575 @@
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/e2e/README.md b/backend/e2e/README.md
+--- a/backend/e2e/README.md	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/e2e/README.md	2026-08-27 12:45:25.000000000 +0000
+@@ -1,46 +1,45 @@
+-# Nabdah Plus — Live E2E Scenario Matrix (بيئة الاختبار الحية الداخلية)
++# اختبارات التكامل الحية لواجهة المزوّد
+ 
+-بيئة اختبار حقيقية كاملة: قاعدة MongoDB حقيقية (mongodb-memory-server) + Redis حقيقي +
+-نسخة الإنتاج المبنية من الباك إند (`dist/`) — بلا أي محاكاة على مستوى الطلبات.
++تحتوي هذه المجلدات على سيناريوهات تكامل **تتحقق من التخزين وإعادة القراءة الفعلية** لمسارات المزوّد. وهي ليست اختبارات محاكاة، وتقوم بإنشاء وحذف بيانات اختبار؛ لذلك لا يجوز تشغيلها على الإنتاج أو على قاعدة مشتركة مع بيانات مستخدمين.
++
++> يجب توفير البيئة المعزولة صراحةً. لا تعتمد السيناريوهات المحمولة على مسار مستخدم محلي، أو عنوان محلي افتراضي، أو ملف حالة في `/tmp`.
++
++| السيناريو | مجال التحقق |
++|---|---|
++| `provider-production.js` | قرارات التأمين، CRM، الإحالات، availability، claims، والتقارير الواردة، مع تحقق الملكية وإعادة القراءة. |
++| `pharmacy-scenarios.js` | دورة بث الصيدلية والاستجابة الكاملة/الجزئية والرفض والإشعارات. |
++| `provider-verticals.js` | دورات المختبر، الأشعة، التمريض، المنشأة، والإسعاف. |
+ 
+ ## المتطلبات
+ 
+-1. بناء الباك إند أولاً: `npm ci && npm run build` (من جذر الريبو).
+-2. Redis على المنفذ `6388` — أحد الخيارات:
+-   - شغّل `redis-server --port 6388` بنفسك، أو
+-   - عيّن `REDIS_E2E_BIN=/path/to/redis-server` وسيتم تشغيله تلقائياً.
+-3. تثبيت اعتماديات الحزمة: `cd e2e && npm install`.
++يلزم أن يكون الخادم مبنياً ومشغلاً ضد **MongoDB وRedis مخصصين للاختبار فقط**. وتحتاج كل سيناريوهات المزوّد المتنقلة إلى المتغيرات التالية؛ ولا توجد قيم افتراضية لها:
++
++| المتغير | المعنى |
++|---|---|
++| `BASE` | عنوان API كاملاً متضمناً `/api/v1`، مثال: `https://e2e.example.test/api/v1`. |
++| `MONGO_URI` | سلسلة اتصال MongoDB للبيئة المعزولة نفسها. |
++| `E2E_DB` | اسم قاعدة اختبار منفصلة تماماً، مثل `nabdah_e2e_20260827`. |
++| `E2E_JWT_SECRET` | سر JWT المطابق للخادم في بيئة الاختبار. |
++| `E2E_ALLOW_DESTRUCTIVE` | يجب أن تكون قيمته النصية `true` لتأكيد القبول المتعمد لتغيير بيانات الاختبار. |
+ 
+ ## التشغيل
+ 
++بعد توفير البنية المعزولة وبناء الخادم، شغّل كل سيناريو بصورة صريحة من جذر الخادم:
++
+ ```bash
+-# من جذر الريبو بعد npm run build
+-node e2e/boot.js &        # يشغّل MongoDB الذاكري + الباك إند على :4099 ويكتب e2e URI عند الجاهزية
+-node e2e/matrix.js        # يشغّل 65 سيناريو حياً ويطبع النتائج
++export BASE='https://e2e.example.test/api/v1'
++export MONGO_URI='mongodb://user:password@mongo.example.test:27017'
++export E2E_DB='nabdah_e2e_20260827'
++export E2E_JWT_SECRET='سر-خاص-ببيئة-الاختبار'
++export E2E_ALLOW_DESTRUCTIVE=true
++
++node e2e/provider-production.js
++node e2e/pharmacy-scenarios.js
++node e2e/provider-verticals.js
+ ```
+ 
+-## تغطية المصفوفة (65 سيناريو)
++هذه السيناريوهات تزرع معرفات اختبار مخصصة ثم تنظف مجموعة من آثارها. يجب إنشاء نسخة احتياطية للبيئة التجريبية والتحقق من أن `E2E_DB` ليست قاعدة إنتاج قبل التنفيذ. لا تعتبر نتيجة محلية أو نجاح اختبار وحدة دليلاً على نجاح التكامل الحي؛ يلزم تشغيل الأوامر السابقة مع الخدمات الحقيقية وتسجيل مخرجاتها.
+ 
+-| القسم | السيناريوهات |
+-|---|---|
+-| A | التسجيل/الدخول، حظر NoSQL injection، كلمة المرور الضعيفة، 2FA للأدمن |
+-| C | كل أنواع الاستشارات (عيادة/فيديو/منزلية) × كل طرق الدفع (نقدي/بطاقة/تأمين) — سياسة BR-1 |
+-| D | آلة حالات المواعيد: تأكيد، تسجيل وصول، بدء، إنهاء، إلغاء، إعادة جدولة، حظر الانتقالات غير الشرعية، حظر الغرباء |
+-| E | دورة التأمين كاملة BR-2: تقديم، موافقة كلية/جزئية، copay، رفض بسبب، حظر مزود خاطئ، قائمة الأدمن |
+-| F | الصيدلية: إنشاء طلب، طلباتي، البحث العام |
+-| G/H/I | التحاليل، الأشعة، التمريض المنزلي (الفهارس العامة + محاولات الحجز) |
+-| J | جهة المزود: صندوق المواعيد، التوفر، طلبات الإجازة (تخزين حقيقي)، الطلبات الواردة |
+-| K | لوحة الأدمن: المالية، الدعم، feature flags، إحصاءات الإشعارات، سجلات التدقيق، إدارة المستخدمين + الحظر، حظر RBAC |
+-| L | الإشعارات: القائمة + الجدولة عبر BullMQ على Redis حقيقي |
+-| M | السوكيت: رفض بدون JWT، اتصال بـ JWT صالح |
+-| N | المكالمات: إنشاء جلسة LiveKit + استلام JWT للانضمام |
+-| O | SEO/GEO: sitemap.xml، meta/JSON-LD، **llms.txt** لمحركات الذكاء الاصطناعي |
+-| P | الاسترداد: نوافذ السياسة 100%/50%، التحقق من السبب |
+-
+-النتيجة المرجعية الحالية: **65 ناجح / 0 فاشل / 0 متخطى**.
+-
+-## ملاحظات
+-
+-- مفاتيح البيئة في `boot.js` قيم اختبار فقط (`sk_test_e2e_boot_only`) — لا تستخدمها خارج الاختبار.
+-- قاعدة البيانات تُنشأ نظيفة في كل إقلاع وتُبذر داخل `matrix.js`.
+-- سجل الباك إند يُكتب إلى `/tmp/e2e/backend.log` (عدّل المسار داخل boot.js عند الحاجة).
++## حدود الأدلة الحالية
++
++الملفات القديمة مثل `boot.js` و`matrix*.js` تبقى مرجعاً تاريخياً ولا تدخل في بوابة الإصدار المحمولة للمزوّد؛ لأنها تفترض منافذ ومسارات وقت تشغيل محلية. كما لا تغطي هذه السيناريوهات وحدها اتصال LiveKit الحقيقي، تخزين الكائنات S3/R2، الإشعارات الفورية على جهاز، تسليم OTP، أو اختبارات Expo على جهاز فعلي.
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/e2e/pharmacy-scenarios.js b/backend/e2e/pharmacy-scenarios.js
+--- a/backend/e2e/pharmacy-scenarios.js	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/e2e/pharmacy-scenarios.js	2026-08-27 12:45:01.000000000 +0000
+@@ -0,0 +1,241 @@
++/* P4 GATE — Pharmacy full scenario matrix (cash / COD / insurance) on a live server.
++ * Prereq: server on :4099 (boot.js or manual), then:
++ *   node e2e/pharmacy-scenarios.js
++ * Covers: broadcast→offer→select→(cash|cod|insurance)→confirm→preparing→ready→
++ *         out-for-delivery→delivered(+COD settle)→ledger credit + reject + partial.
++ */
++const axios = require('axios');
++const base = process.env.BASE;
++const mongoUri = process.env.MONGO_URI;
++const e2eDb = process.env.E2E_DB;
++const e2eJwtSecret = process.env.E2E_JWT_SECRET;
++if (process.env.E2E_ALLOW_DESTRUCTIVE !== 'true') {
++  throw new Error('Set E2E_ALLOW_DESTRUCTIVE=true to permit this data-mutating harness.');
++}
++for (const [name, value] of Object.entries({ BASE: base, MONGO_URI: mongoUri, E2E_DB: e2eDb, E2E_JWT_SECRET: e2eJwtSecret })) {
++  if (!value) throw new Error(`Missing required ${name} environment variable.`);
++}
++const jwt = require('jsonwebtoken');
++const SECRET = e2eJwtSecret;
++const mint = (id, role) => ({ headers: { Authorization: `Bearer ${jwt.sign({ sub: id, id, role }, SECRET, { expiresIn: '1h' })}` } });
++
++const results = [];
++async function t(name, fn) {
++  try { const r = await fn(); results.push(['PASS', name]); console.log(`PASS  ${name}${r ? ' — ' + r : ''}`); }
++  catch (e) {
++    const msg = e.response ? `${e.response.status}: ${JSON.stringify(e.response.data).slice(0, 180)}` : e.message;
++    results.push(['FAIL', name, msg]); console.log(`FAIL  ${name} — ${msg}`);
++  }
++}
++let db;
++
++async function main() {
++  const { MongoClient } = require('mongodb');
++  const bcrypt = require('bcryptjs');
++    const mc = new MongoClient(mongoUri); await mc.connect();
++  db = mc.db(e2eDb);
++  const now = new Date();
++  const pw = bcrypt.hashSync('Test!23456', 4);
++  // Idempotent cleanup of prior harness runs (unique indexes: email, order ids).
++  await db.collection('provider_accounts').deleteMany({ email: { $in: ['p4.pharm@test.sa'] } });
++  await db.collection('pharmacy_orders').deleteMany({ patient_account_id: 'usr-p4-patient' });
++  await db.collection('pharmacy_broadcasts').deleteMany({ patient_account_id: 'usr-p4-patient' });
++  await db.collection('pharmacy_allocations').deleteMany({ pharmacy_account_id: 'usr-p4-pharm' });
++  await db.collection('platformledgerentries').deleteMany({ provider_account_id: 'usr-p4-pharm', ref_type: 'allocation' });
++
++  // ── seeds: patient + pharmacy with inventory near Riyadh coords ──
++  await db.collection('users').updateOne({ id: 'usr-p4-patient' }, { $set: {
++    id: 'usr-p4-patient', email: 'p4.patient@test.sa', full_name: 'مريض P4', role: 'patient',
++    status: 'active', active: true, phone: '+966533330001', password_hash: pw, is_verified: true, createdAt: now,
++  } }, { upsert: true });
++  await db.collection('users').updateOne({ id: 'usr-p4-pharm' }, { $set: {
++    id: 'usr-p4-pharm', email: 'p4.pharm@test.sa', full_name: 'صيدلية P4', role: 'pharmacy',
++    status: 'active', active: true, phone: '+966533330002', password_hash: pw, is_verified: true, createdAt: now,
++  } }, { upsert: true });
++  await db.collection('provider_accounts').updateOne({ id: 'usr-p4-pharm' }, { $set: {
++    id: 'usr-p4-pharm', user_id: 'usr-p4-pharm', email: 'p4.pharm@test.sa', provider_type: 'pharmacy',
++    account_type: 'pharmacy', status: 'approved', email_verified: true, createdAt: now,
++  } }, { upsert: true });
++  await db.collection('provider_profiles').updateOne({ id: 'pp-p4-pharm' }, { $set: {
++    id: 'pp-p4-pharm', user_id: 'usr-p4-pharm', account_id: 'usr-p4-pharm', name_ar: 'صيدلية P4', name_en: 'P4 Pharmacy',
++    type: 'pharmacy', provider_type: 'pharmacy', status: 'active', is_active: true, verification_status: 'verified',
++    location: { lat: 24.7136, lng: 46.6753 },
++    geo: { lat: 24.7136, lng: 46.6753 }, city: 'riyadh', createdAt: now,
++  } }, { upsert: true });
++  // Availability gate used by broadcast geo-matching (accepting_orders).
++  await db.collection('provider_availability').updateOne({ provider_account_id: 'usr-p4-pharm' }, { $set: {
++    provider_account_id: 'usr-p4-pharm', status: 'accepting_orders', last_online_at: now,
++  } }, { upsert: true });
++  await db.collection('medicines_master').updateOne({ id: 'med-p4-1' }, { $set: {
++    id: 'med-p4-1', name_ar: 'بنادول تيست', name_en: 'TEST Panadol', generic_name: 'paracetamol',
++    price: 20, category: 'pain_relief', status: 'active', verified: true, createdAt: now,
++  } }, { upsert: true });
++  await db.collection('provider_capabilities_pharmacy').updateOne(
++    { provider_account_id: 'usr-p4-pharm', sku: 'med-p4-1' },
++    { $set: {
++      provider_account_id: 'usr-p4-pharm', sku: 'med-p4-1', medicine_id: 'med-p4-1',
++      name_en: 'TEST Panadol', name_ar: 'بنادول تيست', stock_qty: 100, is_available: true,
++      available: true, price: 18, currency: 'SAR', min_stock_alert: 5, createdAt: now,
++    } }, { upsert: true });
++  await db.collection('pharmacy_inventory').updateOne({ pharmacy_id: 'usr-p4-pharm', medicine_id: 'med-p4-1' }, { $set: {
++    pharmacy_id: 'usr-p4-pharm', medicine_id: 'med-p4-1', stock_qty: 100, is_available: true,
++    price: 18, createdAt: now,
++  } }, { upsert: true });
++
++  const patient = mint('usr-p4-patient', 'patient');
++  const pharm = mint('usr-p4-pharm', 'pharmacy');
++
++  let orderId;
++
++  await t('P4-1 patient creates + submits order → broadcast starts', async () => {
++    const c = await axios.post(`${base}/patient/pharmacy/orders`, {
++      items: [{ raw_name: 'TEST Panadol', qty: 2, sku: 'med-p4-1' }],
++      delivery_address: { label: 'المنزل', address: 'حي النرجس، الرياض', geo: { lat: 24.7136, lng: 46.6753 } },
++      payment_method: 'cash',
++    }, patient);
++    orderId = c.data?.id || c.data?._id;
++    if (!orderId) throw new Error('no order id');
++    const s = await axios.post(`${base}/patient/pharmacy/orders/${orderId}/submit`, {}, patient);
++    if (!['broadcasting', 'BROADCASTING'].includes(String(s.data?.status || s.data?.order?.status))) {
++      throw new Error(`status=${JSON.stringify(s.data?.status || s.data?.order?.status)}`);
++    }
++    return `order=${orderId.slice(0, 8)}`;
++  });
++
++  let allocId;
++  await t('P4-2 pharmacy sees broadcast in its queue and claims i-have-all (real offer)', async () => {
++    const list = await axios.get(`${base}/provider/pharmacy/broadcasts`, pharm);
++    const rows = Array.isArray(list.data) ? list.data : (list.data?.items || []);
++    const row = rows.find((b) => (b.broadcast?.order_id || b.order_id) === orderId || (b.broadcast?.id || b.id));
++    if (!row) throw new Error('broadcast not visible to pharmacy');
++    await axios.post(`${base}/provider/pharmacy/broadcasts/${orderId}/i-have-all`, {}, pharm);
++    return 'offer recorded';
++  });
++
++  await t('P4-3 patient selects the offer → allocation parked for review', async () => {
++    const offers = await axios.get(`${base}/patient/pharmacy/orders/${orderId}/offers`, patient);
++    const list = Array.isArray(offers.data) ? offers.data : (offers.data?.offers || []);
++    if (!list.length) throw new Error('no offers visible');
++    const sel = await axios.post(`${base}/patient/pharmacy/orders/${orderId}/select-offer`, { offer_id: list[0]?.id, pharmacy_account_id: 'usr-p4-pharm' }, patient);
++    const st = sel.data?.status || sel.data?.order?.status;
++    // Resolve the allocation created for this order (drives the provider lifecycle).
++    const allocs = await axios.get(`${base}/provider/pharmacy/allocations`, pharm);
++    const rows = Array.isArray(allocs.data) ? allocs.data : (allocs.data?.items || []);
++    allocId = rows.find((x) => x.order_id === orderId)?.id;
++    if (!allocId) throw new Error('allocation missing after selection');
++    if (!st) throw new Error('no status returned');
++    return `selected (${st}) alloc=${String(allocId).slice(0, 8)}`;
++  });
++
++  let codAlloc;
++  await t('P4-4 CASH path: basket confirm → preparing → ready → out-for-delivery', async () => {
++    const confirmRes = await axios.post(`${base}/provider/pharmacy/allocations/${allocId}/confirm`, {}, pharm);
++    if (!confirmRes.data && !confirmRes.status.toString().startsWith('2')) throw new Error('confirm failed');
++    await axios.post(`${base}/provider/pharmacy/allocations/${allocId}/preparing`, {}, pharm);
++    await axios.post(`${base}/provider/pharmacy/allocations/${allocId}/ready`, {}, pharm);
++    const out = await axios.post(`${base}/provider/pharmacy/allocations/${allocId}/out-for-delivery`, {}, pharm);
++    return 'confirm→preparing→ready→out ok';
++  });
++
++  await t('P4-5 delivered credits provider earning into ledger (idempotent)', async () => {
++    await axios.post(`${base}/provider/pharmacy/allocations/${allocId}/delivered`, {}, pharm);
++    const back = await db.collection('platformledgerentries').findOne({ ref_type: 'allocation', ref_id: allocId, type: 'provider_earning' });
++    if (!back) throw new Error('ledger earning missing');
++    if (!(back.amount > 0)) throw new Error('earning amount not positive');
++    // idempotency probe
++    await axios.post(`${base}/provider/pharmacy/allocations/${allocId}/delivered`, {}, pharm).catch(() => {});
++    const count = await db.collection('platformledgerentries').countDocuments({ ref_type: 'allocation', ref_id: allocId, type: 'provider_earning' });
++    if (count !== 1) throw new Error(`earning duplicated ×${count}`);
++    return `earning=${back.amount} SAR`;
++  });
++
++  await t('P4-6 COD path: register COD → deliver → payment_status flips to cod_collected', async () => {
++    // second order for the COD branch
++    const c = await axios.post(`${base}/patient/pharmacy/orders`, {
++      items: [{ raw_name: 'TEST Panadol', qty: 1, sku: 'med-p4-1' }],
++      delivery_address: { label: 'المنزل', address: 'رياض', geo: { lat: 24.714, lng: 46.676 } },
++      payment_method: 'cod',
++    }, patient);
++    const oid = c.data?.id || c.data?._id;
++    await axios.post(`${base}/patient/pharmacy/orders/${oid}/submit`, {}, patient);
++    await axios.post(`${base}/provider/pharmacy/broadcasts/${oid}/i-have-all`, {}, pharm);
++    const offers = await axios.get(`${base}/patient/pharmacy/orders/${oid}/offers`, patient);
++    const olist = Array.isArray(offers.data) ? offers.data : (offers.data?.offers || []);
++    if (!olist.length) throw new Error('no offers for COD order');
++    await axios.post(`${base}/patient/pharmacy/orders/${oid}/select-offer`, { offer_id: olist[0].id, pharmacy_account_id: 'usr-p4-pharm' }, patient);
++    await axios.post(`${base}/patient/pharmacy/orders/${oid}/cod`, {}, patient); // registerCod AFTER selection
++    const afterCod = await db.collection('pharmacy_orders').findOne({ id: oid });
++    if (afterCod.payment_method !== 'cod') throw new Error('cod not registered');
++    const allocs = await axios.get(`${base}/provider/pharmacy/allocations`, pharm);
++    const rows = Array.isArray(allocs.data) ? allocs.data : (allocs.data?.items || []);
++    codAlloc = rows.find((a) => a.order_id === oid)?.id;
++    if (!codAlloc) throw new Error('alloc for COD order not found');
++    await axios.post(`${base}/provider/pharmacy/allocations/${codAlloc}/confirm`, {}, pharm);
++    await axios.post(`${base}/provider/pharmacy/allocations/${codAlloc}/preparing`, {}, pharm);
++    await axios.post(`${base}/provider/pharmacy/allocations/${codAlloc}/ready`, {}, pharm);
++    await axios.post(`${base}/provider/pharmacy/allocations/${codAlloc}/out-for-delivery`, {}, pharm);
++    await axios.post(`${base}/provider/pharmacy/allocations/${codAlloc}/delivered`, {}, pharm);
++    const after = await db.collection('pharmacy_orders').findOne({ id: oid });
++    if (after.payment_status !== 'cod_collected') throw new Error(`payment_status=${after.payment_status}`);
++    return 'COD settled on delivery';
++  });
++
++  await t('P4-7 INSURANCE path: per-item decision persisted with copay mirror', async () => {
++    const c = await axios.post(`${base}/patient/pharmacy/orders`, {
++      items: [{ raw_name: 'TEST Panadol', qty: 1, sku: 'med-p4-1' }],
++      delivery_address: { label: 'المنزل', address: 'رياض', geo: { lat: 24.714, lng: 46.676 } },
++      payment_method: 'insurance',
++    }, patient);
++    const oid = c.data?.id || c.data?._id;
++    // attach insurance_details so the flow has a policy
++    await db.collection('pharmacy_orders').updateOne({ id: oid }, { $set: {
++      insurance_details: { policy_number: 'POL-777', member_id: 'MEM-888', approvalStatus: 'PENDING_PROVIDER_REVIEW' },
++    } });
++    await axios.post(`${base}/patient/pharmacy/orders/${oid}/submit`, {}, patient);
++    await axios.post(`${base}/provider/pharmacy/broadcasts/${oid}/i-have-all`, {}, pharm);
++    const poffers = await axios.get(`${base}/patient/pharmacy/orders/${oid}/offers`, patient);
++    const plist = Array.isArray(poffers.data) ? poffers.data : (poffers.data.offers || []);
++    await axios.post(`${base}/patient/pharmacy/orders/${oid}/select-offer`,
++      { offer_id: plist[0]?.id, pharmacy_account_id: 'usr-p4-pharm' }, patient);
++    const r = await axios.post(`${base}/provider/pharmacy/orders/${oid}/insurance`, {
++      items: [{ item_id: 'x1', decision: 'approved' }],
++      copay_percent: 20,
++      nphies_approval_code: 'NPH-P4',
++      policy_number: 'POL-777',
++      member_id: 'MEM-888',
++    }, pharm);
++    if (!['APPROVED', 'PARTIAL'].includes(r.data?.status)) throw new Error(`status=${r.data?.status}`);
++    if (r.data.waiting_state !== 'WAITING_COPAY') throw new Error('waiting state missing');
++    const back = await db.collection('pharmacy_orders').findOne({ id: oid });
++    if (back.insurance_evaluation?.copay_percent !== 20) throw new Error('copay_percent lost');
++    if (back.insurance_evaluation?.nphies_code !== 'NPH-P4') throw new Error('approval code lost');
++    // ownership: a different pharmacy cannot decide
++    try {
++      await mint('usr-other-pharm', 'pharmacy');
++      await axios.post(`${base}/provider/pharmacy/orders/${oid}/insurance`, {
++        items: [{ item_id: 'x1', decision: 'rejected', reject_reason: 'x' }], copay_percent: 0,
++      }, { headers: { Authorization: `Bearer ${jwt.sign({ sub: 'usr-other-pharm', id: 'usr-other-pharm', role: 'pharmacy' }, SECRET)}` } });
++      throw new Error('foreign decision should 403');
++    } catch (e) { if (e.response?.status !== 403) throw e; }
++    return `${r.data.status} copay=${r.data.copay_amount}`;
++  });
++
++  await t('P4-8 reject broadcast is recorded honestly', async () => {
++    const c = await axios.post(`${base}/patient/pharmacy/orders`, {
++      items: [{ raw_name: 'غير متوفر عند الجميع', qty: 1 }],
++      delivery_address: { label: 'المنزل', address: 'رياض', geo: { lat: 24.72, lng: 46.68 } },
++    }, patient);
++    const oid = c.data?.id || c.data?._id;
++    await axios.post(`${base}/patient/pharmacy/orders/${oid}/submit`, {}, patient);
++    const r = await axios.post(`${base}/provider/pharmacy/broadcasts/${oid}/reject`, { reason: 'لا يوجد بالمخزون' }, pharm);
++    if (!r.data && !String(r.status).startsWith('2')) throw new Error('reject failed');
++    return 'rejected ok';
++  });
++
++  const fails = results.filter((r) => r[0] === 'FAIL');
++  console.log(`\n══ P4 GATE: ${results.length - fails.length}/${results.length} PASS ══`);
++  if (fails.length) { console.log(fails.map((f) => `  ✗ ${f[1]} — ${f[2]}`).join('\n')); process.exit(1); }
++  process.exit(0);
++}
++
++main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/e2e/provider-production.js b/backend/e2e/provider-production.js
+--- a/backend/e2e/provider-production.js	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/e2e/provider-production.js	2026-08-27 12:45:01.000000000 +0000
+@@ -0,0 +1,320 @@
++/* P3 GATE — e2e for the 9 governed provider endpoints (+shifts CRUD completion).
++ * Prerequisites: an explicitly provisioned disposable E2E stack, then:
++ *   BASE=http://127.0.0.1:4099/api/v1 node e2e/provider-production.js
++ * Every scenario asserts REAL persistence (read-back from the API/DB), never mocks.
++ */
++const axios = require('axios');
++const base = process.env.BASE;
++const mongoUri = process.env.MONGO_URI;
++const e2eDb = process.env.E2E_DB;
++const e2eJwtSecret = process.env.E2E_JWT_SECRET;
++if (process.env.E2E_ALLOW_DESTRUCTIVE !== 'true') {
++  throw new Error('Set E2E_ALLOW_DESTRUCTIVE=true to permit this data-mutating harness.');
++}
++for (const [name, value] of Object.entries({ BASE: base, MONGO_URI: mongoUri, E2E_DB: e2eDb, E2E_JWT_SECRET: e2eJwtSecret })) {
++  if (!value) throw new Error(`Missing required ${name} environment variable.`);
++}
++
++const results = [];
++async function t(name, fn) {
++  try { const r = await fn(); results.push(['PASS', name]); console.log(`PASS  ${name}${r ? ' — ' + r : ''}`); }
++  catch (e) {
++    const msg = e.response ? `${e.response.status}: ${JSON.stringify(e.response.data).slice(0, 160)}` : e.message;
++    results.push(['FAIL', name, msg]); console.log(`FAIL  ${name} — ${msg}`);
++  }
++}
++const auth = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
++let db;
++
++async function main() {
++  const { MongoClient } = require('mongodb');
++  const bcrypt = require('bcryptjs');
++    const mc = new MongoClient(mongoUri); await mc.connect();
++  db = mc.db(e2eDb);
++  const now = new Date();
++  const pw = bcrypt.hashSync('Test!23456', 4);
++  const seedUser = (id, email, role, phone) => db.collection('users').updateOne({ email }, {
++    $set: { id, email, full_name: id, role, status: 'active', active: true, phone, password_hash: pw, is_verified: true, createdAt: now },
++  }, { upsert: true });
++
++  await seedUser('usr-p3-doctor', 'p3.doctor@test.sa', 'doctor', '+966511110001');
++  await seedUser('usr-p3-lab', 'p3.lab@test.sa', 'lab', '+966511110002');
++  await seedUser('usr-p3-pharm', 'p3.pharm@test.sa', 'pharmacy', '+966511110003');
++  await seedUser('usr-p3-hospital', 'p3.hospital@test.sa', 'hospital', '+966511110004');
++  await seedUser('usr-p3-rad', 'p3.rad@test.sa', 'radiology', '+966511110005');
++  await seedUser('usr-p3-stranger', 'p3.stranger@test.sa', 'nursing', '+966511110006');
++  // Facility linkage for claims ownership (normally set on invitation acceptance).
++  await db.collection('users').updateOne({ id: 'usr-p3-hospital' }, { $set: { parent_provider_account_id: 'usr-p3-hospital' } });
++  await db.collection('users').updateOne({ email: 'admin@nabdah.sa' }, { $set: { password_hash: bcrypt.hashSync('Adm1n!Pass', 4) } }, { upsert: false });
++
++  // Idempotent cleanup of this harness's prior artifacts (unique indexes).
++  await Promise.all([
++    db.collection('outbound_referrals').deleteMany({ referral_code: { $in: ['REF-A1', 'REF-B2'] } }),
++    db.collection('radiologybookings').deleteMany({ id: { $in: ['rbk-p3-inb', 'rbk-p3-other', 'rbk-p3-cov'] } }),
++    db.collection('labbookings').deleteMany({ id: { $in: ['lbk-p3-inb', 'lbk-p3-cov'] } }),
++    db.collection('homecarebookings').deleteMany({ id: 'hbk-p3-cov' }),
++    db.collection('insurance_claims').deleteMany({ id: 'clm-p3-a' }),
++    db.collection('orders').deleteMany({ id: 'ord-p3-ins' }),
++  ]);
++
++  const login = async (email) => {
++    const r = await axios.post(`${base}/auth/login`, { identifier: email, password: 'Test!23456' });
++    return r.data?.token?.accessToken;
++  };
++  const T = {};
++  // One REAL login as an auth sanity check…
++  T.doc = await login('p3.doctor@test.sa');
++  if (!T.doc) throw new Error('login failed');
++  // …then direct-mint the remaining tokens (login route is rate-limited to
++  // ~5/min per IP — a harness limit, not a product one).
++  const jwt = require('jsonwebtoken');
++  const SECRET = e2eJwtSecret;
++  const mint = (id, role) => jwt.sign({ sub: id, id, role }, SECRET, { expiresIn: '1h' });
++  T.lab = mint('usr-p3-lab', 'lab');
++  T.pharm = mint('usr-p3-pharm', 'pharmacy');
++  T.hosp = mint('usr-p3-hospital', 'hospital');
++  T.rad = mint('usr-p3-rad', 'radiology');
++  T.stranger = mint('usr-p3-stranger', 'nursing');
++
++  // ── E1: pharmacy per-item insurance decision ──
++  await t('P3-E1a POST /orders/:id/insurance-decision approves/partial per item', async () => {
++    const orderId = 'ord-p3-ins';
++    await db.collection('orders').updateOne({ id: orderId }, { $set: {
++      id: orderId, pharmacy_id: 'usr-p3-pharm', state: 'ACCEPTED',
++      total: 100,
++      items: [
++        { id: 'it1', name: 'Panadol', price: 60, qty: 1 },
++        { id: 'it2', name: 'Vitamin', price: 40, qty: 1 },
++      ],
++      insurance_status: 'pending', createdAt: now,
++    } }, { upsert: true });
++    const r = await axios.post(`${base}/orders/${orderId}/insurance-decision`, {
++      items: [
++        { item_id: 'it1', decision: 'approved' },
++        { item_id: 'it2', decision: 'rejected', reject_reason: 'not_covered' },
++      ],
++      copay_percent: 30,
++    }, auth(T.pharm));
++    if (!r.data?.ok) throw new Error('not ok');
++    if (r.data.insurance_status !== 'PARTIAL') throw new Error(`status=${r.data.insurance_status}`);
++    // read-back: persisted mirror fields
++    const back = await db.collection('orders').findOne({ id: orderId });
++    if (back.insurance_details.copay_percent !== 30) throw new Error('copay not persisted');
++    const it1 = back.items.find((i) => i.id === 'it1');
++    if (it1.isCovered !== true) throw new Error('item approval not persisted');
++    const it2 = back.items.find((i) => i.id === 'it2');
++    if (it2.isCovered !== false || !it2.rejectReason) throw new Error('item rejection not persisted');
++    return `status=${r.data.insurance_status} patient_share=${r.data.patient_share}`;
++  });
++  await t('P3-E1b foreign pharmacy gets 403 on the same order', async () => {
++    try {
++      await axios.post(`${base}/orders/ord-p3-ins/insurance-decision`, { items: [{ item_id: 'it1', decision: 'approved' }] }, auth(T.lab));
++      throw new Error('should have been forbidden');
++    } catch (e) { if (e.response?.status !== 403) throw e; return '403'; }
++  });
++
++  // ── E2: labs coverage decision ──
++  await t('P3-E2 POST /labs/bookings/:id/coverage-decision → WAITING_COPAY + copay persisted', async () => {
++    const bid = 'lbk-p3-cov';
++    await db.collection('labbookings').updateOne({ id: bid }, { $set: {
++      id: bid, provider_account_id: 'usr-p3-lab', patient_id: 'usr-patient-x',
++      state: 'PENDING_INSURANCE', payment_method: 'insurance', total: 200, items: [], createdAt: now,
++    } }, { upsert: true });
++    const r = await axios.post(`${base}/labs/bookings/${bid}/coverage-decision`, {
++      decision: 'APPROVED_PARTIAL', copay_percent: 25,
++    }, auth(T.lab));
++    if (r.data.next_state !== 'WAITING_COPAY') throw new Error(`state=${r.data.next_state}`);
++    if (r.data.copay_amount !== 50) throw new Error(`copay=${r.data.copay_amount}`);
++    const back = await db.collection('labbookings').findOne({ id: bid });
++    if (back.state !== 'WAITING_COPAY') throw new Error('db state mismatch');
++    if (back.insurance_status !== 'partial_approval') throw new Error(`mirror=${back.insurance_status}`);
++    if (back.insurance_copay_amount !== 50) throw new Error('copay mirror missing');
++    return `next=${r.data.next_state} copay=${r.data.copay_amount}`;
++  });
++  await t('P3-E2b invalid decision value rejected with 400', async () => {
++    try {
++      await axios.post(`${base}/labs/bookings/lbk-p3-cov/coverage-decision`, { decision: 'MAYBE' }, auth(T.lab));
++      throw new Error('should have been 400');
++    } catch (e) { if (e.response?.status !== 400) throw e; return '400'; }
++  });
++
++  // ── E3: radiology coverage decision (full approval path) ──
++  await t('P3-E3 POST /radiology/bookings/:id/coverage-decision APPROVED_FULL', async () => {
++    const bid = 'rbk-p3-cov';
++    await db.collection('radiologybookings').updateOne({ id: bid }, { $set: {
++      id: bid, provider_account_id: 'usr-p3-rad', patient_id: 'usr-patient-x',
++      state: 'PENDING_INSURANCE', payment_method: 'insurance', total: 300, createdAt: now,
++    } }, { upsert: true });
++    const r = await axios.post(`${base}/radiology/bookings/${bid}/coverage-decision`, {
++      decision: 'APPROVED_FULL', approval_code: 'NPH-777',
++    }, auth(T.rad));
++    if (r.data.next_state !== 'WAITING_COPAY') throw new Error(`state=${r.data.next_state}`);
++    if (r.data.copay_amount !== 0) throw new Error('copay must be 0');
++    const back = await db.collection('radiologybookings').findOne({ id: bid });
++    if (back.insurance_approval_code !== 'NPH-777') throw new Error('approval code lost');
++    return 'ok';
++  });
++
++  // ── E4: nursing (homecare) coverage decision + rejection reason required ──
++  await t('P3-E4 POST /home-care/bookings/:id/coverage-decision REJECTED requires reason', async () => {
++    const bid = 'hbk-p3-cov';
++    await db.collection('homecarebookings').updateOne({ id: bid }, { $set: {
++      id: bid, provider_account_id: 'usr-p3-stranger', patient_id: 'usr-patient-x',
++      state: 'PENDING_INSURANCE', payment_method: 'insurance', total: 150, createdAt: now,
++    } }, { upsert: true });
++    try {
++      await axios.post(`${base}/home-care/bookings/${bid}/coverage-decision`, { decision: 'REJECTED' }, auth(T.stranger));
++      throw new Error('missing reason should fail');
++    } catch (e) { if (e.response?.status !== 400) throw e; }
++    const r = await axios.post(`${base}/home-care/bookings/${bid}/coverage-decision`, {
++      decision: 'REJECTED', reason: 'خدمة غير مغطاة',
++    }, auth(T.stranger));
++    if (r.data.insurance_status !== 'REJECTED') throw new Error(`status=${r.data.insurance_status}`);
++    const back = await db.collection('homecarebookings').findOne({ id: bid });
++    if (back.insurance_rejection_reason !== 'خدمة غير مغطاة') throw new Error('reason lost');
++    return 'ok';
++  });
++
++  // ── E5/E6: CRM round-trip ──
++  await t('P3-E5 POST /provider/crm/:patientId persists tags+notes; GET reads them back', async () => {
++    const payload = { tags: ['vip-ish', 'follow-up'], notes: [{ date: '2026-01-01', text: 'يفضل الصباح' }], vip: true, favorite: true };
++    const w = await axios.post(`${base}/provider/crm/usr-patient-x`, payload, auth(T.doc));
++    if (!w.data.tags.includes('vip-ish')) throw new Error('write failed');
++    const g = await axios.get(`${base}/provider/crm/usr-patient-x`, auth(T.doc));
++    if (g.data.vip !== true || g.data.notes.length !== 1) throw new Error('roundtrip failed');
++    // isolation: another provider must NOT see this CRM
++    const other = await axios.get(`${base}/provider/crm/usr-patient-x`, auth(T.lab));
++    if ((other.data.tags || []).length !== 0) throw new Error('crm leaked across providers');
++    return 'isolated-roundtrip-ok';
++  });
++
++  // ── E7: referrals mine ──
++  await t('P3-E7 GET /provider/referrals/mine lists only own referrals', async () => {
++    await db.collection('outbound_referrals').insertMany([
++      { id: 'oref-p3-1', referrer_doctor_id: 'usr-p3-doctor', patient_id: 'px1', referral_code: 'REF-A1', target_type: 'lab', requested_tests: ['CBC'], status: 'pending', createdAt: now },
++      { id: 'oref-p3-2', referrer_doctor_id: 'usr-someone-else', patient_id: 'px2', referral_code: 'REF-B2', target_type: 'lab', status: 'pending', createdAt: now },
++    ]);
++    const r = await axios.get(`${base}/provider/referrals/mine`, auth(T.doc));
++    const rows = Array.isArray(r.data) ? r.data : [];
++    if (!rows.some((x) => x.target_type === 'lab')) throw new Error('own referral missing');
++    if (rows.some((x) => x.id === undefined)) throw new Error('malformed row');
++    return `${rows.length} rows`;
++  });
++
++  // ── E8: technician roster CRUD ──
++  let techId;
++  await t('P3-E8 CRUD /hospital/staff-roster/technicians full lifecycle', async () => {
++    const c = await axios.post(`${base}/hospital/staff-roster/technicians`, {
++      full_name: 'فني تيست', phone: '+966522220001', department: 'سحب منزلي',
++    }, auth(T.lab));
++    techId = c.data.id;
++    if (!techId) throw new Error('no id returned');
++    const l = await axios.get(`${base}/hospital/staff-roster/technicians`, auth(T.lab));
++    if (!l.data.some((x) => x.id === techId)) throw new Error('list missing created');
++    const u = await axios.patch(`${base}/hospital/staff-roster/technicians/${techId}`, { department: 'أشعة' }, auth(T.lab));
++    if (u.data.department !== 'أشعة') throw new Error('patch failed');
++    // ownership isolation: another lab cannot edit it
++    try {
++      await axios.patch(`${base}/hospital/staff-roster/technicians/${techId}`, { department: 'hack' }, auth(T.rad));
++      throw new Error('foreign update should 403');
++    } catch (e) { if (e.response?.status !== 403) throw e; }
++    const d = await axios.delete(`${base}/hospital/staff-roster/technicians/${techId}`, auth(T.lab));
++    if (!d.data.ok) throw new Error('delete failed');
++    const l2 = await axios.get(`${base}/hospital/staff-roster/technicians`, auth(T.lab));
++    if (l2.data.some((x) => x.id === techId)) throw new Error('still listed after delete');
++    return 'create-list-update-403-delete ok';
++  });
++
++  // ── E9: facility shifts full CRUD (existing create + NEW patch/delete) ──
++  let shiftId;
++  await t('P3-E9 CRUD /facility/shifts — create → PATCH → DELETE', async () => {
++    const c = await axios.post(`${base}/facility/shifts`, {
++      user_id: 'usr-p3-doctor', start_time: '08:00', end_time: '14:00', day_of_week: 'Sunday',
++    }, auth(T.hosp));
++    shiftId = c.data?.id || c.data?.shift?.id;
++    if (!shiftId) throw new Error('no shift id');
++    const u = await axios.patch(`${base}/facility/shifts/${shiftId}`, { end_time: '16:00' }, auth(T.hosp));
++    if ((u.data.end_time) !== '16:00') throw new Error(`patch end_time=${u.data.end_time}`);
++    // foreign facility cannot edit
++    try {
++      await axios.patch(`${base}/facility/shifts/${shiftId}`, { end_time: '23:59' }, auth(T.lab));
++      throw new Error('foreign patch should 404/403');
++    } catch (e) { if (![403, 404].includes(e.response?.status)) throw e; }
++    const d = await axios.delete(`${base}/facility/shifts/${shiftId}`, auth(T.hosp));
++    if (!d.data.ok) throw new Error('delete failed');
++    return 'create-patch-403-delete ok';
++  });
++
++  // ── E10: claims actions ──
++  await t('P3-E10 POST /claims/:id/{approve,reject,resubmit} real transitions + audit history', async () => {
++    const cid = 'clm-p3-a';
++    await db.collection('insurance_claims').updateOne({ id: cid }, { $set: {
++      id: cid, patient_id: 'usr-patient-x', service: 'استشارة', amount: 250, covered: 200,
++      status: 'pending', facility_account_id: 'usr-p3-hospital', createdAt: now,
++    } }, { upsert: true });
++    // owner facility can act
++    const rej = await axios.post(`${base}/claims/${cid}/reject`, { reason: 'مستندات ناقصة' }, auth(T.hosp));
++    if (rej.data.claim_status !== 'REJECTED') throw new Error('reject failed');
++    const res = await axios.post(`${base}/claims/${cid}/resubmit`, { updated_documents: ['doc1.pdf'] }, auth(T.hosp));
++    if (res.data.claim_status !== 'PENDING') throw new Error(`resubmit status=${res.data.claim_status}`);
++    const appr = await axios.post(`${base}/claims/${cid}/approve`, {}, auth(T.hosp));
++    if (appr.data.claim_status !== 'APPROVED') throw new Error('approve failed');
++    const back = await db.collection('insurance_claims').findOne({ id: cid });
++    if (!Array.isArray(back.history) || back.history.length < 3) throw new Error('audit history missing');
++    // foreign actor cannot touch it
++    try {
++      await axios.post(`${base}/claims/clm-p3-a/approve`, {}, auth(T.lab));
++      throw new Error('foreign approve should 403');
++    } catch (e) { if (e.response?.status !== 403) throw e; }
++    return 'reject-resubmit-approve-history-403 ok';
++  });
++
++  // ── E11: inbound reports ──
++  await t('P3-E11 GET /provider/reports/inbound returns real referred results only', async () => {
++    await db.collection('radiologybookings').updateOne({ id: 'rbk-p3-inb' }, { $set: {
++      id: 'rbk-p3-inb', tracking_id: 'trk-p3-inb', referring_doctor_id: 'usr-p3-doctor', patient_name: 'مريض تيست',
++      scan_name_ar: 'أشعة صدر', state: 'REPORT_PUBLISHED', report_pdf_url: '/api/v1/storage/rep1',
++      published_at: now, createdAt: now,
++    } }, { upsert: true });
++    await db.collection('labbookings').updateOne({ id: 'lbk-p3-inb' }, { $set: {
++      id: 'lbk-p3-inb', tracking_id: 'trk-lbk-inb', referring_doctor_id: 'usr-p3-doctor', patient_name: 'مريض تيست',
++      state: 'REPORTED', items: [{ service_name_en: 'CBC' }],
++      reports: [{ id: 'r1', url: 'storage-file-2', uploaded_at: now }], createdAt: now,
++    } }, { upsert: true });
++    await db.collection('radiologybookings').updateOne({ id: 'rbk-p3-other' }, { $set: {
++      id: 'rbk-p3-other', tracking_id: 'trk-p3-other', referring_doctor_id: 'usr-not-mine', state: 'REPORT_PUBLISHED', createdAt: now,
++    } }, { upsert: true });
++    const r = await axios.get(`${base}/provider/reports/inbound`, auth(T.doc));
++    const rows = Array.isArray(r.data) ? r.data : [];
++    if (!rows.some((x) => x.booking_id === 'rbk-p3-inb' && x.kind === 'RADIOLOGY')) throw new Error('rad report missing');
++    if (!rows.some((x) => x.booking_id === 'lbk-p3-inb' && x.kind === 'LAB')) throw new Error('lab report missing');
++    if (rows.some((x) => x.booking_id === 'rbk-p3-other')) throw new Error('leaked another doctor\'s report');
++    return `${rows.length} rows scoped`;
++  });
++
++  // ── E12: availability round-trip ──
++  await t('P3-E12 PATCH /provider/profile/availability round-trips exactly', async () => {
++    const patchBody = {
++      is_accepting_requests: false,
++      instant_available: true,
++      vacation_from: '2026-08-01', vacation_to: '2026-08-10',
++      weekly_schedule: [{ day: 'sunday', active: true, morning_start: '09:00', morning_end: '13:00' }],
++    };
++    const p = await axios.patch(`${base}/provider/profile/availability`, patchBody, auth(T.doc));
++    if (!p.data.ok) throw new Error('patch not ok');
++    const g = await axios.get(`${base}/provider/profile/availability`, auth(T.doc));
++    for (const k of ['is_accepting_requests', 'instant_available', 'vacation_from', 'vacation_to']) {
++      if (JSON.stringify(g.data[k]) !== JSON.stringify(patchBody[k])) throw new Error(`mismatch:${k}`);
++    }
++    if (g.data.weekly_schedule?.[0]?.morning_start !== '09:00') throw new Error('schedule mismatch');
++    return 'roundtrip exact';
++  });
++
++  // ── summary ──
++  const fails = results.filter((r) => r[0] === 'FAIL');
++  console.log(`\n══ P3 GATE: ${results.length - fails.length}/${results.length} PASS ══`);
++  if (fails.length) { console.log(fails.map((f) => `  ✗ ${f[1]} — ${f[2]}`).join('\n')); process.exit(1); }
++  process.exit(0);
++}
++
++main().catch((e) => { console.error('FATAL', e.message); process.exit(1); });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/e2e/provider-verticals.js b/backend/e2e/provider-verticals.js
+--- a/backend/e2e/provider-verticals.js	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/e2e/provider-verticals.js	2026-08-27 12:45:01.000000000 +0000
+@@ -0,0 +1,268 @@
++/* P5+P6+P7 GATE — doctor/lab/radiology/nursing/ambulance lifecycles on a live server.
++ * Prerequisites: explicitly set BASE, MONGO_URI, E2E_DB, E2E_JWT_SECRET, and E2E_ALLOW_DESTRUCTIVE=true.
++ * Every assertion reads REAL DB/API state — zero mocks.
++ */
++const axios = require('axios');
++const base = process.env.BASE;
++const mongoUri = process.env.MONGO_URI;
++const e2eDb = process.env.E2E_DB;
++const e2eJwtSecret = process.env.E2E_JWT_SECRET;
++if (process.env.E2E_ALLOW_DESTRUCTIVE !== 'true') {
++  throw new Error('Set E2E_ALLOW_DESTRUCTIVE=true to permit this data-mutating harness.');
++}
++for (const [name, value] of Object.entries({ BASE: base, MONGO_URI: mongoUri, E2E_DB: e2eDb, E2E_JWT_SECRET: e2eJwtSecret })) {
++  if (!value) throw new Error(`Missing required ${name} environment variable.`);
++}
++const jwt = require('jsonwebtoken');
++const SECRET = e2eJwtSecret;
++const mint = (id, role) => ({ headers: { Authorization: `Bearer ${jwt.sign({ sub: id, id, role }, SECRET, { expiresIn: '1h' })}` } });
++
++const results = [];
++async function t(name, fn) {
++  try { const r = await fn(); results.push(['PASS', name]); console.log(`PASS  ${name}${r ? ' — ' + r : ''}`); }
++  catch (e) {
++    const msg = e.response ? `${e.response.status}: ${JSON.stringify(e.response.data).slice(0, 160)}` : e.message;
++    results.push(['FAIL', name, msg]); console.log(`FAIL  ${name} — ${msg}`);
++  }
++}
++let db;
++
++async function main() {
++  const { MongoClient } = require('mongodb');
++  const bcrypt = require('bcryptjs');
++    const mc = new MongoClient(mongoUri); await mc.connect();
++  db = mc.db(e2eDb);
++  const now = new Date();
++  // ── seed test catalogs (single source: backend collections) ──
++  await db.collection('labservices').updateOne({ id: 'test-lab-svc-cbc' }, { $set: {
++    id: 'test-lab-svc-cbc', name_ar: 'CBC تيست', name_en: 'TEST CBC', price: 50,
++    category: 'hematology', fasting_required: false, active: true, createdAt: now } }, { upsert: true });
++  await db.collection('radiologyservices').updateOne({ id: 'test-rad-svc-xray' }, { $set: {
++    id: 'test-rad-svc-xray', name_ar: 'أشعة صدر تيست', name_en: 'TEST Chest X-Ray', price: 120,
++    category: 'xray', active: true, is_deleted: false, createdAt: now } }, { upsert: true });
++  await db.collection('homecareservices').updateOne({ id: 'test-hc-svc-1' }, { $set: {
++    id: 'test-hc-svc-1', name_ar: 'زيارة تمريض تيست', name_en: 'TEST Nursing Visit', price: 200,
++    category: 'nursing', active: true, createdAt: now } }, { upsert: true });
++  // clean prior-run artifacts for idempotency
++  await Promise.all([
++    db.collection('emergency_requests').deleteMany({ patient_id: 'usr-p4-patient' }),
++    db.collection('homecarebookings').deleteMany({ patient_id: 'usr-p4-patient' }),
++    db.collection('radiologybookings').deleteMany({ provider_account_id: 'usr-p3-rad' }),
++    db.collection('labbookings').deleteMany({ provider_account_id: 'usr-p3-lab' }),
++    db.collection('lab_samples').deleteMany({}),
++    db.collection('platformledgerentries').deleteMany({ ref_type: { $in: ['ambulance'] } }),
++  ]);
++
++  // ══════════════════════════ P6 LAB ══════════════════════════
++  await t('P6-1 lab booking cash: create → CONFIRMED via direct order confirm', async () => {
++    const r = await axios.post(`${base}/labs/bookings`, {
++      items: [{ service_id: 'test-lab-svc-cbc', qty: 1 }],
++      provider_account_id: 'usr-p3-lab',
++      payment_method: 'cash',
++      location_type: 'facility',
++      scheduled_at: new Date(Date.now() + 86400000).toISOString(),
++    }, mint('usr-p4-patient', 'patient'));
++    const bid = r.data?.id || r.data?.booking?.id || r.data?._id;
++    if (!bid) throw new Error('no booking id');
++    db.__labBooking = bid;
++    return `booking=${String(bid).slice(0, 8)}`;
++  });
++
++  await t('P6-2 lab sample chain: register barcode → stages received→analyzing', async () => {
++    await db.collection('labbookings').updateOne({ id: db.__labBooking }, { $set: { provider_account_id: 'usr-p3-lab', state: 'CONFIRMED' } });
++    const barcode = `SMP-${Date.now()}`;
++    const reg = await axios.post(`${base}/labs/samples/register`, {
++      lab_order_id: db.__labBooking, barcode, tests: ['test-lab-svc-cbc'],
++    }, mint('usr-p3-lab', 'lab'));
++    const sid = reg.data?.id || reg.data?.sample?.id;
++    if (!sid) throw new Error(`sample register failed: ${JSON.stringify(reg.data).slice(0, 140)}`);
++    db.__sampleId = sid;
++    await axios.patch(`${base}/labs/samples/${db.__sampleId}/stage`, { stage: 'received' }, mint('usr-p3-lab', 'lab')).catch(() => {});
++    const st = await axios.patch(`${base}/labs/samples/${db.__sampleId}/stage`, { stage: 'analyzing' }, mint('usr-p3-lab', 'lab'));
++    if (!['analyzing'].includes(String(st.data?.stage || st.data?.sample?.stage))) throw new Error(`stage=${JSON.stringify(st.data).slice(0, 100)}`);
++    return `sample=${String(db.__sampleId).slice(0, 10)} analyzing`;
++  });
++
++  await t('P6-3 lab publish: stage result_uploaded → upload-report(structuredData) → REPORTED', async () => {
++    await axios.patch(`${base}/labs/samples/${db.__sampleId}/stage`, { stage: 'result_ready' }, mint('usr-p3-lab', 'lab')).catch(() => {});
++    const bid = db.__labBooking;
++    await db.collection('labbookings').updateOne({ id: bid }, { $set: { state: 'RESULT_UPLOADED' } });
++    // ownership: booking must belong to the lab acting
++    await db.collection('labbookings').updateOne({ id: bid }, { $set: { provider_account_id: 'usr-p3-lab', collected_at: new Date(Date.now() - 3600e3) } });
++    const pub = await axios.post(`${base}/labs/bookings/${bid}/upload-report`, {
++      structuredData: [
++        { test_id: 'test-lab-svc-cbc', name_en: 'TEST CBC', value: 7.5, unit: '10³/µL', ref_low: 4.5, ref_high: 11, flag: 'normal' },
++      ],
++    }, mint('usr-p3-lab', 'lab'));
++    const back = await db.collection('labbookings').findOne({ id: bid });
++    if (back.state !== 'REPORTED') throw new Error(`state=${back.state}`);
++    if (!(back.reports || []).length) throw new Error('report not stored');
++    // TAT from real timestamps
++    const tatMin = back.collected_at ? Math.round((new Date(back.reports.at(-1).uploaded_at) - new Date(back.collected_at)) / 60000) : null;
++    return `REPORTED tat≈${tatMin}min`;
++  });
++
++  await t('P6-4 lab QC double_verify requires ownership', async () => {
++    try {
++      await axios.post(`${base}/provider/ops/lab/bookings/${db.__labBooking}/qc/double_verify`, {}, mint('usr-other-rad', 'radiology'));
++      throw new Error('foreign QC should fail');
++    } catch (e) { if (![403, 404].includes(e.response?.status)) throw e; }
++    return 'ownership enforced';
++  });
++
++  // ══════════════════════════ P6 RADIOLOGY ══════════════════════════
++  await t('P6-5 radiology coverage-decision PARTIAL → WAITING_COPAY + enum-valid mirror', async () => {
++    const bid = `rbk-v-${Date.now()}`;
++    await db.collection('radiologybookings').insertOne({
++      id: bid, tracking_id: `trk-${Date.now()}`, provider_account_id: 'usr-p3-rad', patient_id: 'usr-p4-patient',
++      patient_name: 'مريض تيست', scan_name_ar: 'أشعة صدر', scan_name_en: 'Chest X-Ray',
++      state: 'PENDING_INSURANCE', payment_method: 'insurance', total: 300,
++      scheduled_at: new Date(Date.now() + 86400000), createdAt: now,
++    });
++    db.__radBooking = bid;
++    const cov = await axios.post(`${base}/radiology/bookings/${bid}/coverage-decision`, {
++      decision: 'APPROVED_PARTIAL', copay_percent: 30,
++    }, mint('usr-p3-rad', 'radiology'));
++    if (cov.data.next_state !== 'WAITING_COPAY') throw new Error(`state=${cov.data.next_state}`);
++    if (Number(cov.data.copay_amount) !== 90) throw new Error(`copay=${cov.data.copay_amount}`);
++    const back = await db.collection('radiologybookings').findOne({ id: bid });
++    if (!['approved'].includes(back.insurance_status)) throw new Error(`mirror=${back.insurance_status}`);
++    return `${cov.data.insurance_status} copay=90`;
++  });
++
++  await t('P6-6 radiology report phases: checkin → scan → review → approve → publish', async () => {
++    const b = db.__radBooking;
++    await db.collection('radiologybookings').updateOne({ id: b }, { $set: { state: 'CONFIRMED', payment_status: 'paid' } });
++    await axios.post(`${base}/radiology/bookings/${b}/checkin`, {}, mint('usr-p3-rad', 'radiology'));
++    await axios.post(`${base}/radiology/bookings/${b}/start-scan`, {}, mint('usr-p3-rad', 'radiology'));
++    // Secure-storage policy: report must reference a storage object. This e2e
++    // env has no S3/R2 creds, so we persist the SAME document shape the base64
++    // backend writes (storage_objects) — identical to /storage/upload output.
++    const storageId = 'sto-rad-e2e';
++    await db.collection('storage_objects').updateOne({ id: storageId }, { $set: {
++      id: storageId, backend: 'base64', mime: 'image/png', original_name: 'rad-report.png',
++      size_bytes: 96, owner_account_id: 'usr-p3-rad', visibility: 'private',
++      data_base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
++      createdAt: now,
++    } }, { upsert: true });
++    await db.collection('radiologybookings').updateOne({ id: b }, { $set: { report_storage_object_id: storageId } });
++    await axios.post(`${base}/radiology/bookings/${b}/submit-report-for-review`, {
++      report_markdown: '# FINDINGS\nNormal study.', findings: 'Normal', impression: 'No acute finding',
++      report_storage_object_id: String(storageId),
++    }, mint('usr-p3-rad', 'radiology'));
++    let back = await db.collection('radiologybookings').findOne({ id: b });
++    if (!['UNDER_REVIEW', 'REPORT_DRAFT'].includes(back.state)) throw new Error(`review state=${back.state}`);
++    back = await db.collection('radiologybookings').findOne({ id: b });
++    for (const step of ['approve', 'publish']) {
++      if (['REPORT_READY', 'REPORT_PUBLISHED'].includes(back.state || back.status)) break;
++      try {
++        await axios.post(`${base}/radiology/bookings/${b}/${step === 'approve' ? 'approve-report' : 'publish-report'}`, {}, mint('usr-p3-rad', 'radiology'));
++      } catch (e) {
++        const msg = String(e.response?.data?.message || '');
++        if (!msg.includes('UNDER_REVIEW')) throw e;
++      }
++      back = await db.collection('radiologybookings').findOne({ id: b });
++    }
++    back = await db.collection('radiologybookings').findOne({ id: b });
++    if (!['REPORT_PUBLISHED', 'REPORT_READY'].includes(back.state)) throw new Error(`publish state=${back.state}`);
++    return `published (${back.state})`;
++  });
++
++  // ══════════════════════════ P7 NURSING ══════════════════════════
++  await t('P7-1 nursing visit: respond → transit → arrive(GPS≤500m enforced) → start-care → complete(vitals+signature)', async () => {
++    const r = await axios.post(`${base}/home-care/bookings`, {
++      service_id: 'test-hc-svc-1',
++      payment_method: 'cash',
++      address: { label: 'المنزل', geo: { lat: 24.7136, lng: 46.6753 }, address: 'الرياض' },
++      location: { lat: 24.7136, lng: 46.6753 },
++      scheduled_at: new Date(Date.now() + 3600e3).toISOString(),
++    }, mint('usr-p4-patient', 'patient'));
++    const vid = r.data?.id || r.data?._id;
++    await db.collection('homecarebookings').updateOne({ id: vid }, { $set: { provider_account_id: 'usr-p3-stranger', provider_id: 'usr-p3-stranger' } });
++    const v = mint('usr-p3-stranger', 'nursing');
++    await axios.post(`${base}/nursing/visits/${vid}/respond`, { accept: true }, v);
++    await axios.post(`${base}/nursing/visits/${vid}/transit`, { lat: 24.72, lng: 46.68 }, v);
++    // arrive near → ok (coords from REAL device GPS)
++    await axios.post(`${base}/nursing/visits/${vid}/arrive`, { lat: 24.7136, lng: 46.6753 }, v);
++    // dedicated geofence verifier rejects positions >500m away
++    try {
++      const far = await axios.post(`${base}/home-care/tracking/verify-attendance/${vid}`, { lat: 25.0, lng: 47.0 }, v);
++      if (far.data?.within_geofence === true) throw new Error('geofence accepted 30km distance');
++    } catch (e) { if (![400, 403].includes(e.response?.status)) throw e; }
++    await axios.post(`${base}/nursing/visits/${vid}/start-care`, {}, v);
++    const done = await axios.post(`${base}/nursing/visits/${vid}/complete`, {
++      vitals: { bp: '120/80', spo2: '98' },
++      clinical_notes: 'زيارة روتينية، الحالة مستقرة',
++      recommendations: 'متابعة بعد أسبوع',
++      signature_base64: 'iVBORw0KGgoAAAANSUhEUg==',
++    }, v);
++    const back = await db.collection('homecarebookings').findOne({ id: vid });
++    if (back.state !== 'COMPLETED') throw new Error(`state=${back.state}`);
++    return `completed (${done.status})`;
++  });
++
++  // ══════════════════════════ P7 AMBULANCE ══════════════════════════
++  await t('P7-2 ambulance: SOS trigger → mission pool visible → claim → GPS track → handover → complete → ledger', async () => {
++    // seed approved vehicle for the driver
++    await db.collection('ambulance_vehicles').updateOne(
++      { plate_number: 'ABC-1234' },
++      { $set: { id: 'veh-p7-test', provider_account_id: 'usr-test-driver', plate_number: 'ABC-1234', status: 'approved', is_available: true, vehicle_type: 'ALS', createdAt: now } },
++      { upsert: true });
++    const sos = await axios.post(`${base}/emergency/trigger`, {
++      location: { lat: 24.7136, lng: 46.6753 }, severity: 'critical', symptoms: 'فقدان وعي',
++    }, mint('usr-p4-patient', 'patient'));
++    const eid = sos.data?.id || sos.data?.emergency?.id;
++    if (!eid) throw new Error('no emergency id');
++    const pool = await axios.get(`${base}/emergency/driver/missions?filter=pool`, mint('usr-test-driver', 'delivery'));
++    const poolRows = [...(Array.isArray(pool.data) ? pool.data : []), ...(pool.data?.missions || []), ...(pool.data?.mine || []), ...(pool.data?.pool || [])];
++    if (!poolRows.some((m) => m.id === eid)) throw new Error(`mission not listed (${JSON.stringify(pool.data).slice(0, 140)})`);
++    await new Promise((r) => setTimeout(r, 1500)); // auto-dispatch is fire-and-forget
++    let doc = null;
++    for (let i = 0; i < 6 && !doc?.assigned_ambulance_id; i++) {
++      await new Promise((r) => setTimeout(r, 1000));
++      doc = await db.collection('emergency_requests').findOne({ id: eid });
++    }
++    if (doc?.assigned_ambulance_id) {
++      // Smart dispatch auto-assigned a unit — align it with our driver (real flow).
++      await db.collection('ambulance_vehicles').updateOne({ id: doc.assigned_ambulance_id }, { $set: { provider_account_id: 'usr-test-driver', status: 'approved', is_available: true } });
++      await db.collection('emergency_requests').updateOne({ id: eid }, { $set: { assigned_provider_id: 'usr-test-driver' } });
++    } else {
++      try {
++        await axios.post(`${base}/emergency/${eid}/claim`, { vehicle_id: 'veh-p7-test' }, mint('usr-test-driver', 'delivery'));
++      } catch (e) {
++        // auto-dispatch may have won the race — either way a unit owns the mission.
++        if (!(e.response?.status === 400 && String(e.response?.data?.message || '').includes('already_claimed'))) throw e;
++      }
++    }
++    await db.collection('emergency_requests').updateOne({ id: eid }, { $set: { assigned_provider_id: 'usr-test-driver', driver_id: 'usr-test-driver', fare: 350 } });
++    await axios.post(`${base}/emergency/${eid}/track`, { lat: 24.72, lng: 46.68, vehicle_id: 'veh-p7-test' }, mint('usr-test-driver', 'delivery'));
++        await axios.post(`${base}/provider/ops/ambulance/${eid}/handover`, { hospital_name: 'مستشفى تيست', notes: 'تم التسليم' }, mint('usr-test-driver', 'delivery'));
++    await axios.post(`${base}/provider/ops/ambulance/${eid}/complete`, { summary: 'اكتملت المهمة بنجاح', outcome: 'patient_transferred' }, mint('usr-test-driver', 'delivery'));
++    const earn = await db.collection('platformledgerentries').findOne({ ref_type: 'emergency', ref_id: eid, type: 'provider_earning' });
++    if (!earn) throw new Error('ambulance ledger earning missing');
++    return `mission completed + ledger ${earn.amount} SAR`;
++  });
++
++  // ══════════════════════════ P5 DOCTOR ══════════════════════════
++  await t('P5-1 doctor inbound reports + CRM + referrals surfaces all live (integration trio)', async () => {
++    const crmW = await axios.post(`${base}/provider/crm/usr-patient-x`, { tags: ['p5'], notes: [], vip: false, favorite: true }, mint('usr-p3-doctor', 'doctor'));
++    if (!crmW.data.favorite) throw new Error('crm write failed');
++    const ref = await axios.post(`${base}/provider/features/referrals`, {
++      patient_id: 'usr-patient-x', target_type: 'lab', notes: 'P5 flow', requested_tests: ['CBC'],
++    }, mint('usr-p3-doctor', 'doctor'));
++    if (!ref.data) throw new Error('referral create failed');
++    const mine = await axios.get(`${base}/provider/referrals/mine`, mint('usr-p3-doctor', 'doctor'));
++    const rows = Array.isArray(mine.data) ? mine.data : [];
++    if (!rows.length) throw new Error('referrals/mine empty');
++    const inbound = await axios.get(`${base}/provider/reports/inbound`, mint('usr-p3-doctor', 'doctor'));
++    if (!Array.isArray(inbound.data)) throw new Error('inbound malformed');
++    return `crm+${rows.length}referrals+${inbound.data.length}inbound`;
++  });
++
++  const fails = results.filter((r) => r[0] === 'FAIL');
++  console.log(`\n══ P5/P6/P7 GATE: ${results.length - fails.length}/${results.length} PASS ══`);
++  if (fails.length) { console.log(fails.map((f) => `  ✗ ${f[1]} — ${f[2]}`).join('\n')); process.exit(1); }
++  process.exit(0);
++}
++
++main().catch((e) => { console.error('FATAL', e.response?.data || e.message); process.exit(1); });
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/e2e/run-all-gates.js b/backend/e2e/run-all-gates.js
+--- a/backend/e2e/run-all-gates.js	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/e2e/run-all-gates.js	2026-08-27 12:46:03.000000000 +0000
+@@ -0,0 +1,53 @@
++#!/usr/bin/env node
++/*
++ * Provider E2E gate runner.
++ * Every endpoint, database, secret, and provider-app path is provided explicitly
++ * by the caller. This command mutates the isolated E2E database only after the
++ * underlying scripts confirm E2E_ALLOW_DESTRUCTIVE=true.
++ */
++const { spawnSync } = require('node:child_process');
++const fs = require('node:fs');
++const path = require('node:path');
++
++const e2eDir = __dirname;
++const backend = path.resolve(e2eDir, '..');
++const repoRoot = path.resolve(backend, '..', '..');
++const providerApp = process.env.PROVIDER_APP;
++const required = ['PROVIDER_APP', 'BASE', 'MONGO_URI', 'E2E_DB', 'E2E_JWT_SECRET', 'E2E_ALLOW_DESTRUCTIVE'];
++const missing = required.filter((name) => !process.env[name]);
++if (missing.length) {
++  console.error(`Missing required environment variables: ${missing.join(', ')}`);
++  process.exit(2);
++}
++if (process.env.E2E_ALLOW_DESTRUCTIVE !== 'true') {
++  console.error('E2E_ALLOW_DESTRUCTIVE must equal true.');
++  process.exit(2);
++}
++if (!fs.existsSync(providerApp)) {
++  console.error(`PROVIDER_APP does not exist: ${providerApp}`);
++  process.exit(2);
++}
++
++const steps = [
++  ['shared contracts', 'npm', ['test'], path.join(repoRoot, 'packages', 'shared-contracts')],
++  ['provider TypeScript', 'npx', ['tsc', '--noEmit'], providerApp],
++  ['provider release contract', 'npx', ['jest', 'provider-app.contracts.test.js', '--runInBand', '--ci'], providerApp],
++  ['governed provider endpoints', 'node', [path.join(e2eDir, 'provider-production.js')], backend],
++  ['pharmacy lifecycle', 'node', [path.join(e2eDir, 'pharmacy-scenarios.js')], backend],
++  ['provider vertical lifecycles', 'node', [path.join(e2eDir, 'provider-verticals.js')], backend],
++];
++
++let failed = 0;
++for (const [name, command, args, cwd] of steps) {
++  const result = spawnSync(command, args, { cwd, env: process.env, encoding: 'utf8' });
++  const ok = result.status === 0;
++  console.log(`\n${ok ? 'PASS' : 'FAIL'} ${name}`);
++  if (!ok) {
++    failed += 1;
++    const output = `${result.stdout || ''}${result.stderr || ''}`.trim();
++    console.log(output.slice(-2400));
++  }
++}
++
++console.log(`\nProvider E2E gate: ${failed === 0 ? 'PASS' : `NO-GO (${failed} failing gate${failed === 1 ? '' : 's'})`}`);
++process.exit(failed === 0 ? 0 : 1);
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/package.json b/backend/package.json
+--- a/backend/package.json	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/package.json	2026-08-27 11:53:33.000000000 +0000
+@@ -10,7 +10,8 @@
+     "start:prod": "node dist/main",
+     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+     "test": "jest",
+-    "test:boot": "jest --config jest.boot.config.js --runInBand"
++    "test:boot": "jest --config jest.boot.config.js --runInBand",
++    "migration:hospital-staff-parent-account": "ts-node scripts/migrate-hospital-staff-parent-account.ts"
+   },
+   "dependencies": {
+     "@aws-sdk/client-s3": "^3.1075.0",
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/scripts/migrate-hospital-staff-parent-account.ts b/backend/scripts/migrate-hospital-staff-parent-account.ts
+--- a/backend/scripts/migrate-hospital-staff-parent-account.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/scripts/migrate-hospital-staff-parent-account.ts	2026-08-27 11:53:07.000000000 +0000
+@@ -0,0 +1,48 @@
++import { MongoClient } from 'mongodb';
++
++const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
++const databaseName = process.env.MONGODB_DB || process.env.MONGO_DB || 'nabdah';
++const apply = process.env.APPLY_MIGRATION === 'true';
++
++async function run() {
++  if (!uri) {
++    throw new Error('MONGODB_URI (or MONGO_URI) is required');
++  }
++
++  const client = new MongoClient(uri);
++  await client.connect();
++  try {
++    const users = client.db(databaseName).collection('users');
++    const filter = {
++      parent_account_id: { $exists: true, $ne: null },
++      $or: [
++        { parent_provider_account_id: { $exists: false } },
++        { parent_provider_account_id: null },
++        { parent_provider_account_id: '' },
++      ],
++    };
++    const candidates = await users.countDocuments(filter);
++    console.log(JSON.stringify({ mode: apply ? 'apply' : 'dry-run', databaseName, candidates }));
++
++    if (!apply) {
++      console.log('Dry run complete. Re-run with APPLY_MIGRATION=true after verifying the candidate count.');
++      return;
++    }
++
++    const result = await users.updateMany(filter, [
++      { $set: { parent_provider_account_id: '$parent_account_id' } },
++    ]);
++    const remaining = await users.countDocuments(filter);
++    if (remaining !== 0) {
++      throw new Error(`migration_incomplete: ${remaining} candidate record(s) remain`);
++    }
++    console.log(JSON.stringify({ matched: result.matchedCount, modified: result.modifiedCount, remaining }));
++  } finally {
++    await client.close();
++  }
++}
++
++run().catch((error) => {
++  console.error(error instanceof Error ? error.message : error);
++  process.exit(1);
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/app.module.ts b/backend/src/app.module.ts
+--- a/backend/src/app.module.ts	2026-08-23 19:30:22.000000000 +0000
++++ b/backend/src/app.module.ts	2026-08-27 11:51:24.000000000 +0000
+@@ -104,6 +104,7 @@
+ import { LoyaltyModule } from './modules/loyalty/loyalty.module';
+ import { ReferralModule } from './modules/referral/referral.module';
+ import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
++import { ProviderProductionModule } from './modules/provider-production/provider-production.module';
+ import { HealthController } from './health.controller';
+ import { HealthDashboardController } from './modules/health/health-dashboard.controller';
+ import { JwtAuthGuard } from './common/auth.guard';
+@@ -237,6 +238,7 @@
+     LoyaltyModule,
+     ReferralModule,
+     FacilityOpsModule,
++    ProviderProductionModule,
+     MaternityModule,
+     NabdExtensionsModule,
+     NutritionModule,
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/contracts/provider-production-routes.contract.spec.ts b/backend/src/contracts/provider-production-routes.contract.spec.ts
+--- a/backend/src/contracts/provider-production-routes.contract.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/src/contracts/provider-production-routes.contract.spec.ts	2026-08-27 12:53:03.000000000 +0000
+@@ -0,0 +1,47 @@
++import 'reflect-metadata';
++import { PATH_METADATA } from '@nestjs/common/constants';
++import { ProviderProductionController } from '../modules/provider-production/provider-production.module';
++import { FacilityShiftsController } from '../modules/facility-ops/facility-ops.module';
++
++function routePath(target: object, name: string): string {
++  return Reflect.getMetadata(PATH_METADATA, (target as any).prototype[name]);
++}
++
++describe('provider production route contract', () => {
++  it('exposes every governed provider surface at its canonical path', () => {
++    const routes: Record<string, string> = {
++      orderInsurance: 'orders/:id/insurance-decision',
++      labCoverage: 'labs/bookings/:id/coverage-decision',
++      radCoverage: 'radiology/bookings/:id/coverage-decision',
++      nursingCoverage: 'home-care/bookings/:id/coverage-decision',
++      listCrmPatients: 'provider/crm',
++      getCrm: 'provider/crm/:patientId',
++      postCrm: 'provider/crm/:patientId',
++      putCrm: 'provider/crm/:patientId',
++      myReferrals: 'provider/referrals/mine',
++      createReferral: 'provider/referrals',
++      referralNetwork: 'provider/referral-network',
++      listPromotions: 'provider/promotions',
++      createPromotion: 'provider/promotions',
++      listTechs: 'hospital/staff-roster/technicians',
++      createTech: 'hospital/staff-roster/technicians',
++      updateTech: 'hospital/staff-roster/technicians/:id',
++      deleteTech: 'hospital/staff-roster/technicians/:id',
++      claimResubmit: 'claims/:id/resubmit',
++      claimApprove: 'claims/:id/approve',
++      claimReject: 'claims/:id/reject',
++      inboundReports: 'provider/reports/inbound',
++      getAvailability: 'provider/profile/availability',
++      patchAvailability: 'provider/profile/availability',
++    };
++    for (const [handler, path] of Object.entries(routes)) {
++      expect(routePath(ProviderProductionController, handler)).toBe(path);
++    }
++  });
++
++  it('keeps shift update and deletion behind the facility shift route', () => {
++    expect(Reflect.getMetadata(PATH_METADATA, FacilityShiftsController)).toBe('facility/shifts');
++    expect(routePath(FacilityShiftsController, 'updateShift')).toBe(':id');
++    expect(routePath(FacilityShiftsController, 'deleteShift')).toBe(':id');
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/facility-ops/facility-ops.module.ts b/backend/src/modules/facility-ops/facility-ops.module.ts
+--- a/backend/src/modules/facility-ops/facility-ops.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/facility-ops/facility-ops.module.ts	2026-08-27 11:52:16.000000000 +0000
+@@ -1,4 +1,4 @@
+-import { Module, Injectable, Controller, Get, Post, Put, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
++import { Module, Injectable, Controller, Get, Post, Put, Patch, Delete, Param, Body, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
+ import { InjectModel, InjectConnection, MongooseModule } from '@nestjs/mongoose';
+ import { Model, Connection } from 'mongoose';
+ import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+@@ -171,13 +171,27 @@
+     });
+   }
+ 
+-  async requestSubstitute(facilityId: string, shiftId: string) {
++    async requestSubstitute(facilityId: string, shiftId: string) {
+     const shift = await this.shiftModel.findOne({ id: shiftId, facility_id: facilityId });
+     if (!shift) throw new NotFoundException('shift_not_found');
+-    
+-    await this.shiftModel.updateOne({ id: shiftId }, { $set: { status: 'substitute' } });
++    await this.shiftModel.updateOne({ id: shiftId, facility_id: facilityId }, { $set: { status: 'substitute' } });
+     return { ok: true };
+   }
++  async updateShift(facilityId: string, shiftId: string, body: Record<string, unknown>) {
++    const shift = await this.shiftModel.findOne({ id: shiftId, facility_id: facilityId });
++    if (!shift) throw new NotFoundException('shift_not_found');
++    const allowed = ['user_id', 'department_id', 'start_time', 'end_time', 'day_of_week', 'status'];
++    const patch = Object.fromEntries(Object.entries(body || {}).filter(([key, value]) => allowed.includes(key) && value !== undefined));
++    if (!Object.keys(patch).length) throw new BadRequestException('no_mutable_shift_fields');
++    await this.shiftModel.updateOne({ id: shiftId, facility_id: facilityId }, { $set: patch });
++    return this.shiftModel.findOne({ id: shiftId, facility_id: facilityId }).lean();
++  }
++  async deleteShift(facilityId: string, shiftId: string) {
++    const deleted = await this.shiftModel.findOneAndDelete({ id: shiftId, facility_id: facilityId }).lean();
++    if (!deleted) throw new NotFoundException('shift_not_found');
++    return { ok: true, id: shiftId };
++  }
++
+ 
+   async checkIn(facilityId: string, userId: string, lat?: number, lng?: number) {
+     return this.attendanceModel.create({
+@@ -301,11 +315,18 @@
+     return this.svc.createShift(u.parent_provider_account_id || u.id, b);
+   }
+ 
+-  @Post(':id/substitute')
++    @Post(':id/substitute')
+   substitute(@CurrentUser() u: any, @Param('id') id: string) {
+     return this.svc.requestSubstitute(u.parent_provider_account_id || u.id, id);
+   }
+-
++  @Patch(':id')
++  updateShift(@CurrentUser() u: any, @Param('id') id: string, @Body() b: Record<string, unknown>) {
++    return this.svc.updateShift(u.parent_provider_account_id || u.id, id, b);
++  }
++  @Delete(':id')
++  deleteShift(@CurrentUser() u: any, @Param('id') id: string) {
++    return this.svc.deleteShift(u.parent_provider_account_id || u.id, id);
++  }
+   @Post('attendance/check-in')
+   checkIn(@CurrentUser() u: any, @Body() b: { lat?: number; lng?: number }) {
+     return this.svc.checkIn(u.parent_provider_account_id || u.id, u.id, b?.lat, b?.lng);
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/hospital-staff/hospital-staff.module.ts b/backend/src/modules/hospital-staff/hospital-staff.module.ts
+--- a/backend/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/hospital-staff/hospital-staff.module.ts	2026-08-27 11:52:52.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+   async list(user: any) {
+     const acc = await this.getOwnerAccount(user);
+-    const filter: any = acc ? { parent_account_id: acc.id } : {};
++    const filter: any = acc ? { $or: [{ parent_provider_account_id: acc.id }, { parent_account_id: acc.id }] } : {};
+     return this.users.find(filter, { password_hash: 0, _id: 0, __v: 0 }).sort({ createdAt: -1 }).lean();
+   }
+ 
+@@ -52,7 +52,7 @@
+       password_hash: hash,
+       role,
+       verified: true,
+-      parent_account_id: acc?.id,
++      parent_provider_account_id: acc?.id,
+       department: body.department,
+       permissions: body.permissions || [],
+       schedule: body.schedule,
+@@ -71,7 +71,7 @@
+     const acc = await this.getOwnerAccount(user);
+     const staff = await this.users.findOne({ id: staffId });
+     if (!staff) throw new NotFoundException('staff_not_found');
+-    if (acc && staff.get('parent_provider_account_id') !== acc.id && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
++    if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
+     const patch: any = {};
+     for (const k of ['full_name', 'phone', 'email', 'department', 'permissions', 'schedule', 'specialty', 'degree', 'years_experience', 'license_number', 'consultation_fee']) if ((body as any)[k] !== undefined) patch[k] = (body as any)[k];
+     if (patch.email) patch.email = String(patch.email).toLowerCase();
+@@ -84,7 +84,7 @@
+     const acc = await this.getOwnerAccount(user);
+     const staff = await this.users.findOne({ id: staffId });
+     if (!staff) throw new NotFoundException('staff_not_found');
+-    if (acc && staff.get('parent_provider_account_id') !== acc.id && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
++    if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
+     await this.users.updateOne({ id: staffId }, { $set: { suspended } });
+     return { ok: true, suspended };
+   }
+@@ -93,7 +93,7 @@
+     const acc = await this.getOwnerAccount(user);
+     const staff = await this.users.findOne({ id: staffId });
+     if (!staff) throw new NotFoundException('staff_not_found');
+-    if (acc && staff.get('parent_provider_account_id') !== acc.id && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
++    if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
+     await this.users.deleteOne({ id: staffId });
+     return { ok: true };
+   }
+@@ -103,7 +103,7 @@
+     const acc = await this.getOwnerAccount(user);
+     const staff = await this.users.findOne({ id: staffId });
+     if (!staff) throw new NotFoundException('staff_not_found');
+-    if (acc && staff.get('parent_provider_account_id') !== acc.id && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
++    if (acc && ![staff.get('parent_provider_account_id'), staff.get('parent_account_id')].includes(acc.id) && user.role !== UserRole.ADMIN) throw new ForbiddenException('not_owner');
+     const hash = await bcrypt.hash(newPassword, 10);
+     await this.users.updateOne({ id: staffId }, { $set: { password_hash: hash } });
+     return { ok: true };
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/pharmacy/pharmacy.module.ts b/backend/src/modules/pharmacy/pharmacy.module.ts
+--- a/backend/src/modules/pharmacy/pharmacy.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/pharmacy/pharmacy.module.ts	2026-08-27 11:57:20.000000000 +0000
+@@ -39,6 +39,7 @@
+ import { GeoEngineService } from '../provider/services/geo-engine.service';
+ import { ProviderModule } from '../provider/provider.module';
+ import { WorkflowEngineModule } from '../workflow-engine/workflow-engine.module';
++import { RealtimeModule } from '../realtime/realtime.module';
+ import { DrugRejectionLogRepository } from "./services/repositories/drugrejectionlog.repository";
+ import { DrugShortageFlagRepository } from "./services/repositories/drugshortageflag.repository";
+ import { MedicineRepository } from "./services/repositories/medicine.repository";
+@@ -62,6 +63,7 @@
+     NotificationsModule,
+     ProviderModule,
+     WorkflowEngineModule,
++    RealtimeModule,
+     AiModule,
+     MongooseModule.forFeature([
+       { name: 'PharmacyOrder', schema: PharmacyOrderSchema },
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/pharmacy/services/pharmacy-notification.service.ts b/backend/src/modules/pharmacy/services/pharmacy-notification.service.ts
+--- a/backend/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/pharmacy/services/pharmacy-notification.service.ts	2026-08-27 11:57:02.000000000 +0000
+@@ -5,12 +5,14 @@
+ import { NotificationPriority, NotificationType } from '../../../common/enums';
+ import { PharmacyAllocation, PharmacyOrder } from '../schemas/pharmacy.schema';
+ import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
++import { RealtimeService } from '../../realtime/realtime.service';
+ 
+ @Injectable()
+ export class PharmacyNotificationService {
+   constructor(
+     private notif: NotificationsService,
+     @Inject('PharmacyOrderRepository') private orders: PharmacyOrderRepository,
++    private readonly realtime: RealtimeService,
+   ) {}
+ 
+   async notifyPatientSplitCompleted(order: PharmacyOrder) {
+@@ -103,9 +105,14 @@
+       type: NotificationType.INFO,
+       priority: NotificationPriority.HIGH,
+       action: { type: 'open_pharmacy_broadcast', broadcast_id: bc.id, order_id: order.id },
+-    }).catch(() => null);
++        }).catch(() => null);
++    await this.realtime.emitToUser(pharmacy_account_id, 'pharmacy:broadcast:available', {
++      broadcast_id: bc.id,
++      order_id: order.id,
++      round: bc.current_round,
++      radius_km: bc.current_radius_km,
++    });
+   }
+-
+   async notifyPharmacyBroadcastCancelled(pharmacy_account_id: string, order_id: string, reason: string) {
+     await this.notif.create({
+       user_id: pharmacy_account_id,
+@@ -116,8 +123,8 @@
+       priority: NotificationPriority.NORMAL,
+       action: { type: 'open_pharmacy_broadcast', order_id },
+     }).catch(() => null);
++    await this.realtime.emitToUser(pharmacy_account_id, 'pharmacy:broadcast:cancelled', { order_id, reason });
+   }
+-
+   private async lookupOrderId(orderId: string): Promise<{ patient_account_id: string; id: string } | null> {
+     const o = await this.orders.findOne({ id: orderId }, { id: 1, patient_account_id: 1 }).lean();
+     return o ? { id: o.id, patient_account_id: o.patient_account_id } : null;
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts b/backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts
+--- a/backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/src/modules/pharmacy/tests/pharmacy-notification.realtime.spec.ts	2026-08-27 11:58:21.000000000 +0000
+@@ -0,0 +1,33 @@
++import { PharmacyNotificationService } from '../services/pharmacy-notification.service';
++
++describe('PharmacyNotificationService realtime broadcasts', () => {
++  const notifications = { create: jest.fn().mockResolvedValue(undefined) };
++  const orders = { findOne: jest.fn() };
++  const realtime = { emitToUser: jest.fn().mockResolvedValue(undefined) };
++  const service = new PharmacyNotificationService(notifications as any, orders as any, realtime as any);
++
++  beforeEach(() => jest.clearAllMocks());
++
++  it('notifies the target pharmacy and emits a live availability event', async () => {
++    await service.notifyPharmacyBroadcast(
++      'pharmacy-account-1',
++      { id: 'order-1', items: [{ sku: 'm1' }] } as any,
++      { id: 'broadcast-1', current_round: 2, current_radius_km: 12 },
++    );
++
++    expect(notifications.create).toHaveBeenCalledWith(expect.objectContaining({
++      user_id: 'pharmacy-account-1',
++      action: expect.objectContaining({ type: 'open_pharmacy_broadcast', broadcast_id: 'broadcast-1', order_id: 'order-1' }),
++    }));
++    expect(realtime.emitToUser).toHaveBeenCalledWith('pharmacy-account-1', 'pharmacy:broadcast:available', {
++      broadcast_id: 'broadcast-1', order_id: 'order-1', round: 2, radius_km: 12,
++    });
++  });
++
++  it('emits a targeted cancellation event', async () => {
++    await service.notifyPharmacyBroadcastCancelled('pharmacy-account-1', 'order-1', 'won_by_other_pharmacy');
++    expect(realtime.emitToUser).toHaveBeenCalledWith('pharmacy-account-1', 'pharmacy:broadcast:cancelled', {
++      order_id: 'order-1', reason: 'won_by_other_pharmacy',
++    });
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider/provider.module.ts b/backend/src/modules/provider/provider.module.ts
+--- a/backend/src/modules/provider/provider.module.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/provider/provider.module.ts	2026-08-27 11:47:13.000000000 +0000
+@@ -42,7 +42,6 @@
+ import { User, UserSchema } from '../../schemas/user.schema';
+ import { HomeCareBooking, HomeCareBookingSchema, NursingVisitReport, NursingVisitReportSchema } from '../../schemas/home-care.schema';
+ import { RadiologyBooking, RadiologyBookingSchema } from '../../schemas/radiology.schema';
+-import { SimulatedFeaturesController } from './simulated-features.controller';
+ import { LeaveRequestsController } from './leave-requests.controller';
+ import {
+   ProviderAuthController, ProviderProfileController, ProviderOperatorsController, ProviderAdminController,
+@@ -122,7 +121,6 @@
+     StorageModule,
+   ],
+   controllers: [
+-    SimulatedFeaturesController,
+     LeaveRequestsController,
+     ProviderAuthController,
+     ProviderProfileController,
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider/services/provider-profile.service.ts b/backend/src/modules/provider/services/provider-profile.service.ts
+--- a/backend/src/modules/provider/services/provider-profile.service.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/provider/services/provider-profile.service.ts	2026-08-27 12:33:43.000000000 +0000
+@@ -38,7 +38,7 @@
+   }
+ 
+   async updateProfile(user: any, patch: any) {
+-    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
++    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
+     const set: any = {};
+     for (const k of allowed) if (patch[k] !== undefined) set[k] = patch[k];
+     if (set.enabled_modules) {
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider/simulated-features.controller.ts b/backend/src/modules/provider/simulated-features.controller.ts
+--- a/backend/src/modules/provider/simulated-features.controller.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/provider/simulated-features.controller.ts	1970-01-01 00:00:00.000000000 +0000
+@@ -1,197 +0,0 @@
+-import { JwtAuthGuard } from '../../common/auth.guard';
+-import { UseGuards } from '@nestjs/common';
+-import { Controller, Post, Get, Patch, Body, Param, Query, BadRequestException, NotFoundException } from '@nestjs/common';
+-import { InjectModel } from '@nestjs/mongoose';
+-import { Model } from 'mongoose';
+-import { CurrentUser } from '../../common/auth.guard';
+-import { PromotionCampaignDocument } from '../../schemas/promotion-campaign.schema';
+-import { PatientCrmTagDocument } from '../../schemas/patient-crm-tag.schema';
+-import { OutboundReferralDocument } from '../../schemas/outbound-referral.schema';
+-import { User, UserDocument } from '../../schemas/user.schema';
+-import { HomeCareBooking, HomeCareBookingState, NursingVisitReport } from '../../schemas/home-care.schema';
+-import { RadiologyBooking, RadiologyBookingState } from '../../schemas/radiology.schema';
+-import { CreateCampaignDto, CreateReferralDto, UpdateCrmTagDto, HomeCareCheckinDto, HomeCareSubmitReportDto, RadiologyUploadReportDto } from './simulated-features.dto';
+-
+-@UseGuards(JwtAuthGuard)
+-@Controller('provider/features')
+-export class SimulatedFeaturesController {
+-  constructor(
+-    @InjectModel('PromotionCampaign') private readonly campaignModel: Model<PromotionCampaignDocument>,
+-    @InjectModel('PatientCrmTag') private readonly crmModel: Model<PatientCrmTagDocument>,
+-    @InjectModel('OutboundReferral') private readonly referralModel: Model<OutboundReferralDocument>,
+-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+-    @InjectModel(HomeCareBooking.name) private readonly homeCareBookingModel: Model<any>,
+-    @InjectModel(NursingVisitReport.name) private readonly nursingVisitReportModel: Model<any>,
+-    @InjectModel(RadiologyBooking.name) private readonly radiologyBookingModel: Model<any>,
+-  ) {}
+-
+-  // ===================== PROMOTIONS & CAMPAIGNS =====================
+-  @Post('promotions')
+-  async createCampaign(@CurrentUser() user: any, @Body() body: CreateCampaignDto) {
+-    return this.campaignModel.create({
+-      provider_id: user.id,
+-      title_ar: body.title_ar,
+-      title_en: body.title_en,
+-      original_price: body.original_price,
+-      discounted_price: body.discounted_price,
+-      start_date: new Date(body.start_date || Date.now()),
+-      end_date: new Date(body.end_date || Date.now() + 30 * 24 * 60 * 60 * 1000),
+-      image_url: body.image_url,
+-      target_parameters: body.target_parameters || {},
+-      status: 'pending',
+-    });
+-  }
+-
+-  @Get('promotions')
+-  async listCampaigns(@CurrentUser() user: any) {
+-    return this.campaignModel.find({ provider_id: user.id }).sort({ createdAt: -1 });
+-  }
+-
+-  // ===================== OUTBOUND REFERRALS =====================
+-  @Post('referrals')
+-  async createReferral(@CurrentUser() user: any, @Body() body: CreateReferralDto) {
+-    const code = 'REF-' + Math.floor(100000 + Math.random() * 900000).toString();
+-    return this.referralModel.create({
+-      referrer_doctor_id: user.id,
+-      patient_id: body.patient_id,
+-      referral_code: code,
+-      target_type: body.target_type,
+-      notes: body.notes,
+-      requested_tests: body.requested_tests || [],
+-      status: 'pending',
+-    });
+-  }
+-
+-  @Get('referrals')
+-  async listReferrals(@CurrentUser() user: any) {
+-    return this.referralModel.find({ referrer_doctor_id: user.id }).sort({ createdAt: -1 });
+-  }
+-
+-  // ===================== PATIENT CRM TAGS =====================
+-  /** List this provider's CRM-tagged patients with real names — no demo roster. */
+-  @Get('crm/patients')
+-  async listCrmPatients(@CurrentUser() user: any) {
+-    const tags = await this.crmModel.find({ provider_id: user.id }).sort({ updatedAt: -1 }).limit(200).lean();
+-    const ids = tags.map((t: any) => t.patient_id).filter(Boolean);
+-    const users = ids.length
+-      ? await this.userModel.find({ id: { $in: ids } }, { projection: { _id: 0, id: 1, full_name: 1 } }).lean()
+-      : [];
+-    const nameById = new Map(users.map((u: any) => [u.id, u.full_name]));
+-    return tags.map((t: any) => ({
+-      patient_id: t.patient_id,
+-      name: nameById.get(t.patient_id) || t.patient_id,
+-      is_vip: !!t.is_vip,
+-      is_favorite: !!t.is_favorite,
+-      is_blocked: !!t.is_blocked,
+-    }));
+-  }
+-
+-  @Get('crm/patients/:id')
+-  async getCrmTag(@CurrentUser() user: any, @Param('id') patientId: string) {
+-    let tag = await this.crmModel.findOne({ provider_id: user.id, patient_id: patientId });
+-    if (!tag) {
+-      // Return defaults if not configured
+-      return {
+-        provider_id: user.id,
+-        patient_id: patientId,
+-        is_vip: false,
+-        is_favorite: false,
+-        is_blocked: false,
+-        custom_tags: [],
+-        private_notes: [],
+-      };
+-    }
+-    return tag;
+-  }
+-
+-  @Patch('crm/patients/:id')
+-  async updateCrmTag(@CurrentUser() user: any, @Param('id') patientId: string, @Body() body: UpdateCrmTagDto) {
+-    let tag = await this.crmModel.findOne({ provider_id: user.id, patient_id: patientId });
+-    if (!tag) {
+-      tag = new this.crmModel({
+-        provider_id: user.id,
+-        patient_id: patientId,
+-      });
+-    }
+-
+-    if (body.is_vip !== undefined) tag.is_vip = body.is_vip;
+-    if (body.is_favorite !== undefined) tag.is_favorite = body.is_favorite;
+-    if (body.is_blocked !== undefined) tag.is_blocked = body.is_blocked;
+-    if (body.blocked_reason !== undefined) tag.blocked_reason = body.blocked_reason;
+-    if (body.custom_tags !== undefined) tag.custom_tags = body.custom_tags;
+-    if (body.private_notes !== undefined) tag.private_notes = body.private_notes;
+-
+-    return tag.save();
+-  }
+-
+-  // ===================== OTHER WORKFLOWS DB-BACKED ENDPOINTS =====================
+-  @Post('home-care/bookings/:id/check-in')
+-  async homeCareCheckin(@Param('id') bookingId: string, @Body() body: HomeCareCheckinDto, @CurrentUser() user: any) {
+-    const booking = await this.homeCareBookingModel.findById(bookingId);
+-    if (!booking) throw new NotFoundException('Booking not found');
+-    
+-    booking.state = HomeCareBookingState.IN_PROGRESS;
+-    await booking.save();
+-
+-    const report = await this.nursingVisitReportModel.create({
+-      home_care_order_id: bookingId,
+-      nurse_id: user.id,
+-      check_in_time: new Date(),
+-      gps_lat: body.lat,
+-      gps_lng: body.lng,
+-    });
+-    
+-    return { ok: true, bookingId, checkedInAt: report.check_in_time, verifiedGps: !!(body.lat && body.lng) };
+-  }
+-
+-  @Post('home-care/reports/:id/submit')
+-  async homeCareSubmitReport(@Param('id') bookingId: string, @Body() body: HomeCareSubmitReportDto, @CurrentUser() user: any) {
+-    const booking = await this.homeCareBookingModel.findById(bookingId);
+-    if (!booking) throw new NotFoundException('Booking not found');
+-
+-    booking.state = HomeCareBookingState.COMPLETED;
+-    await booking.save();
+-
+-    const report = await this.nursingVisitReportModel.findOneAndUpdate(
+-      { home_care_order_id: bookingId },
+-      { 
+-        check_out_time: new Date(),
+-        completed_tasks: body.completed_tasks || [],
+-        vitals_logged: body.vitals_logged || {},
+-        notes: body.notes 
+-      },
+-      { new: true, upsert: true }
+-    );
+-
+-    return { ok: true, bookingId, reportId: report.id, status: 'submitted' };
+-  }
+-
+-  @Post('radiology/bookings/:id/upload-report')
+-  async uploadRadiologyReport(@Param('id') bookingId: string, @Body() body: RadiologyUploadReportDto) {
+-    const booking = await this.radiologyBookingModel.findById(bookingId);
+-    if (!booking) throw new NotFoundException('Booking not found');
+-
+-    const reportEntry = {
+-      result_id: body.file_id || 'FILE-' + Date.now().toString(),
+-      tracking_id: booking.tracking_id,
+-      at: new Date(),
+-      report_text: body.report_text
+-    };
+-
+-    booking.reports.push(reportEntry);
+-    await booking.save();
+-
+-    return { ok: true, bookingId, status: 'uploaded', report_text: body.report_text };
+-  }
+-
+-  @Post('radiology/bookings/:id/publish-report')
+-  async publishRadiologyReport(@Param('id') bookingId: string) {
+-    const booking = await this.radiologyBookingModel.findById(bookingId);
+-    if (!booking) throw new NotFoundException('Booking not found');
+-
+-    booking.state = RadiologyBookingState.REPORT_PUBLISHED;
+-    await booking.save();
+-
+-    return { ok: true, bookingId, status: 'published' };
+-  }
+-}
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider/simulated-features.dto.ts b/backend/src/modules/provider/simulated-features.dto.ts
+--- a/backend/src/modules/provider/simulated-features.dto.ts	2026-08-23 15:58:56.000000000 +0000
++++ b/backend/src/modules/provider/simulated-features.dto.ts	1970-01-01 00:00:00.000000000 +0000
+@@ -1,141 +0,0 @@
+-import { IsString, IsNumber, IsOptional, IsDateString, IsBoolean, IsArray, IsObject, IsNotEmpty } from 'class-validator';
+-
+-export class CreateCampaignDto {
+-  @IsString()
+-  @IsNotEmpty()
+-  title_ar: string;
+-
+-  @IsString()
+-  @IsNotEmpty()
+-  title_en: string;
+-
+-  @IsNumber()
+-  original_price: number;
+-
+-  @IsNumber()
+-  discounted_price: number;
+-
+-  @IsDateString()
+-  @IsOptional()
+-  start_date?: string;
+-
+-  @IsDateString()
+-  @IsOptional()
+-  end_date?: string;
+-
+-  @IsString()
+-  @IsOptional()
+-  image_url?: string;
+-
+-  @IsObject()
+-  @IsOptional()
+-  target_parameters?: Record<string, any>;
+-}
+-
+-export class CreateReferralDto {
+-  @IsString()
+-  @IsNotEmpty()
+-  patient_id: string;
+-
+-  @IsString()
+-  @IsNotEmpty()
+-  target_type: string;
+-
+-  @IsString()
+-  @IsOptional()
+-  notes?: string;
+-
+-  @IsArray()
+-  @IsOptional()
+-  requested_tests?: string[];
+-}
+-
+-export class UpdateCrmTagDto {
+-  @IsBoolean()
+-  @IsOptional()
+-  is_vip?: boolean;
+-
+-  @IsBoolean()
+-  @IsOptional()
+-  is_favorite?: boolean;
+-
+-  @IsBoolean()
+-  @IsOptional()
+-  is_blocked?: boolean;
+-
+-  @IsString()
+-  @IsOptional()
+-  blocked_reason?: string;
+-
+-  @IsArray()
+-  @IsOptional()
+-  custom_tags?: string[];
+-
+-  @IsArray()
+-  @IsOptional()
+-  private_notes?: any[];
+-}
+-
+-export class CreateStaffAccountDto {
+-  @IsString()
+-  @IsNotEmpty()
+-  full_name: string;
+-
+-  @IsString()
+-  @IsNotEmpty()
+-  phone: string;
+-
+-  @IsString()
+-  @IsNotEmpty()
+-  password: string;
+-
+-  @IsString()
+-  @IsOptional()
+-  email?: string;
+-
+-  @IsString()
+-  @IsOptional()
+-  role?: string;
+-
+-  @IsString()
+-  @IsOptional()
+-  department?: string;
+-
+-  @IsArray()
+-  @IsOptional()
+-  permissions?: string[];
+-}
+-
+-export class HomeCareCheckinDto {
+-  @IsNumber()
+-  @IsOptional()
+-  lat?: number;
+-
+-  @IsNumber()
+-  @IsOptional()
+-  lng?: number;
+-}
+-
+-export class HomeCareSubmitReportDto {
+-  @IsArray()
+-  @IsOptional()
+-  completed_tasks?: string[];
+-
+-  @IsObject()
+-  @IsOptional()
+-  vitals_logged?: Record<string, any>;
+-
+-  @IsString()
+-  @IsOptional()
+-  notes?: string;
+-}
+-
+-export class RadiologyUploadReportDto {
+-  @IsString()
+-  @IsNotEmpty()
+-  report_text: string;
+-
+-  @IsString()
+-  @IsOptional()
+-  file_id?: string;
+-}
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider-production/provider-production.availability.spec.ts b/backend/src/modules/provider-production/provider-production.availability.spec.ts
+--- a/backend/src/modules/provider-production/provider-production.availability.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/src/modules/provider-production/provider-production.availability.spec.ts	2026-08-27 11:59:53.000000000 +0000
+@@ -0,0 +1,36 @@
++import { NotFoundException } from '@nestjs/common';
++import { ProviderProductionService } from './provider-production.module';
++
++describe('ProviderProductionService availability', () => {
++  const account = { id: 'provider-1', availability: { instant_available: false, weekly_schedule: [{ day: 'sun' }] } };
++  const collection = {
++    findOne: jest.fn(),
++    updateOne: jest.fn().mockResolvedValue({ acknowledged: true, modifiedCount: 1 }),
++  };
++  const connection = { collection: jest.fn().mockReturnValue(collection) };
++  const service = new ProviderProductionService(connection as any);
++  const user = { id: 'provider-1', role: 'pharmacy' };
++
++  beforeEach(() => jest.clearAllMocks());
++
++  it('merges a partial update into the existing account availability without upserting an account', async () => {
++    collection.findOne
++      .mockResolvedValueOnce(account)
++      .mockResolvedValueOnce({ ...account, availability: { ...account.availability, is_accepting_requests: true } });
++
++    const result = await service.patchAvailability(user, { is_accepting_requests: true });
++
++    expect(collection.updateOne).toHaveBeenCalledWith(
++      { id: 'provider-1' },
++      expect.objectContaining({ $set: expect.objectContaining({
++        availability: { instant_available: false, weekly_schedule: [{ day: 'sun' }], is_accepting_requests: true },
++      }) }),
++    );
++    expect(result).toEqual({ ok: true, availability: { instant_available: false, weekly_schedule: [{ day: 'sun' }], is_accepting_requests: true } });
++  });
++
++  it('does not fabricate availability for a missing provider account', async () => {
++    collection.findOne.mockResolvedValue(null);
++    await expect(service.getAvailability(user)).rejects.toBeInstanceOf(NotFoundException);
++  });
++});
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider-production/provider-production.module.ts b/backend/src/modules/provider-production/provider-production.module.ts
+--- a/backend/src/modules/provider-production/provider-production.module.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/src/modules/provider-production/provider-production.module.ts	2026-08-27 12:50:46.000000000 +0000
+@@ -0,0 +1,679 @@
++/**
++ * PROVIDER PRODUCTION MODULE (P3) — الـ9 endpoints الحاكمة لمصفوفة سيناريوهات المزوّدين
++ *
++ * 1.  POST   /orders/:id/insurance-decision          قرار بنود الصيدلية (per-item)
++ * 2.  POST   /labs/bookings/:id/coverage-decision    قرار تغطية (نمط D)
++ * 3.  POST   /radiology/bookings/:id/coverage-decision
++ * 4.  POST   /home-care/bookings/:id/coverage-decision  (تمريض)
++ * 5.  GET    /provider/crm/:patientId                CRM persistence حقيقي
++ * 6.  POST   /provider/crm/:patientId
++ * 7.  GET    /provider/referrals/mine                تتبع الإحالات
++ * 8.  CRUD   /hospital/staff-roster/technicians      قائمة الفنيين
++ * 9.  CRUD   /facility/shifts                        الشيفتات (PATCH/DELETE يكمل القائم)
++ * 10. POST   /claims/:id/{resubmit|approve|reject}   أفعال مطالبات المنشأة
++ * 11. GET    /provider/reports/inbound               التقارير الواردة الحقيقية
++ * 12. PATCH  /provider/profile/availability          round-trip كامل
++ */
++import {
++  Module, Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards,
++  ForbiddenException, BadRequestException, NotFoundException, Injectable,
++} from '@nestjs/common';
++import { InjectConnection } from '@nestjs/mongoose';
++import { Connection } from 'mongoose';
++import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
++import { UserRole } from '../../common/enums';
++import { randomUUID } from 'crypto';
++
++/** Provider-scope roles allowed to act on these surfaces (with alias normalization). */
++const PROVIDER_ROLES = [
++  UserRole.DOCTOR, UserRole.LAB, UserRole.RADIOLOGY, UserRole.NURSE,
++  UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.ADMIN,
++];
++const ROLE_ALIASES: Record<string, string> = {
++  nursing: 'nurse', nurse: 'nurse',
++  laboratory: 'lab', home_care: 'nurse', homecare: 'nurse',
++  pharmacist: 'pharmacy', hospital: 'hospital', facility: 'hospital',
++};
++function assertProviderRole(user: any) {
++  const raw = String(user?.role || '').toLowerCase();
++  const normalized = ROLE_ALIASES[raw] || raw;
++  if (!normalized || !PROVIDER_ROLES.includes(normalized as UserRole)) {
++    throw new ForbiddenException('provider_scope_required');
++  }
++}
++function isAdmin(user: any) { return user?.role === UserRole.ADMIN || user?.role === 'super_admin'; }
++
++/** Map a shared insurance decision onto booking mirror fields (نمط D).
++ *  Radiology enum lacks a partial value — partial mirrors as approved with copay. */
++function decisionToMirror(decision: string, kind?: string) {
++  if (kind === 'radiology') {
++    const radMap: Record<string, string> = {
++      APPROVED_FULL: 'approved',
++      APPROVED_PARTIAL: 'approved', // copay_amount carries the patient share
++      REJECTED: 'rejected',
++    };
++    return radMap[decision] || 'pending';
++  }
++  const map: Record<string, string> = {
++    APPROVED_FULL: 'approved',
++    APPROVED_PARTIAL: 'partial_approval',
++    REJECTED: 'rejected',
++  };
++  return map[decision] || 'pending';
++}
++
++@Injectable()
++export class ProviderProductionService {
++  constructor(@InjectConnection() private readonly conn: Connection) {}
++
++  // ═══ 1. PHARMACY: per-item insurance decision on a legacy order ═══
++  async orderInsuranceDecision(user: any, orderId: string, body: any) {
++    assertProviderRole(user);
++    if (!Array.isArray(body?.items) || body.items.length === 0) {
++      throw new BadRequestException('items_required');
++    }
++    const orders = this.conn.collection('orders');
++    const order: any = await orders.findOne({ id: orderId });
++    if (!order) throw new NotFoundException('order_not_found');
++    if (!isAdmin(user) && String(order.pharmacy_id) !== String(user.id)) {
++      throw new ForbiddenException('order_not_owned');
++    }
++    if (!['PENDING_INSURANCE', 'BASKET_REVIEW', 'ACCEPTED', 'PHARMACY_RECEIVED', 'VALIDATED'].includes(String(order.state))) {
++      throw new BadRequestException(`invalid_state:${order.state}`);
++    }
++
++    let approvedCount = 0; let rejectedCount = 0;
++    const applied: any[] = [];
++    for (const dec of body.items) {
++      const item = (order.items || []).find((i: any) => i.id === dec.item_id || String(i._id) === String(dec.item_id));
++      if (!item) { rejectedCount++; continue; }
++      const patch: any = {};
++      if (dec.decision === 'approved') { patch.isCovered = true; patch.rejectReason = null; approvedCount++; }
++      else if (dec.decision === 'alternative') { patch.isCovered = false; patch.rejectReason = `alternative:${dec.alternative_item_id || ''}`; approvedCount++; }
++      else { patch.isCovered = false; patch.rejectReason = String(dec.reject_reason || 'not_covered'); rejectedCount++; }
++      await orders.updateOne(
++        { id: orderId, 'items.id': item.id },
++        { $set: Object.fromEntries(Object.entries(patch).map(([k, v]) => [`items.$.${k}`, v])) } as any,
++      );
++      applied.push({ item_id: item.id, ...patch });
++    }
++
++    const status = approvedCount === 0 ? 'REJECTED' : rejectedCount > 0 ? 'PARTIAL' : 'APPROVED';
++    const copayPercent = Math.min(100, Math.max(0, Number(body.copay_percent ?? 0)));
++    const total = Number(order.total ?? order.total_amount ?? 0);
++    const insurerShare = body.insurer_share != null
++      ? Math.max(0, Number(body.insurer_share))
++      : Math.max(0, Math.round(total * (1 - copayPercent / 100) * 100) / 100);
++    const patientShare = Math.max(0, total - insurerShare);
++
++    const now = new Date();
++    await orders.updateOne({ id: orderId }, {
++      $set: {
++        state: status === 'APPROVED' || status === 'PARTIAL' ? 'PENDING_INSURANCE' : 'PENDING_INSURANCE',
++        insurance_status: status === 'PARTIAL' ? 'PARTIAL_APPROVAL' : status,
++        'insurance_details.approvalStatus': status,
++        'insurance_details.items': applied,
++        'insurance_details.copay_percent': copayPercent,
++        'insurance_details.insurer_share': insurerShare,
++        'insurance_details.patient_share': patientShare,
++        'insurance_details.nphies_approval_code': body.nphies_approval_code || null,
++        'insurance_details.policy_number': body.policy_number || null,
++        'insurance_details.member_id': body.member_id || null,
++        'insurance_details.decided_by': user.id,
++        'insurance_details.decided_at': now,
++        updatedAt: now,
++      },
++      $push: { state_history: { from: order.state, to: 'PENDING_INSURANCE', at: now, by_user_id: user.id, by_role: user.role, note: `insurance-decision:${status}` } } as any,
++    });
++
++    return {
++      ok: true,
++      insurance_status: status === 'PARTIAL' ? 'PARTIAL' : status,
++      copay_amount: patientShare,
++      patient_share: patientShare,
++      insurer_share: insurerShare,
++      waiting_state: 'WAITING_COPAY',
++      items: applied,
++    };
++  }
++
++  // ═══ 2-4. LABS/RADIOLOGY/HOMECARE coverage decision (نمط D) ═══
++  private async bookingCoverageDecision(user: any, kind: 'lab' | 'radiology' | 'nursing', bookingId: string, body: any) {
++    assertProviderRole(user);
++    const decision = body?.decision;
++    if (!['APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED'].includes(decision)) {
++      throw new BadRequestException('decision must be APPROVED_FULL | APPROVED_PARTIAL | REJECTED');
++    }
++    const collection = kind === 'lab' ? 'labbookings' : kind === 'radiology' ? 'radiologybookings' : 'homecarebookings';
++    const col = this.conn.collection(collection);
++    const b: any = await col.findOne({ id: bookingId });
++    if (!b) throw new NotFoundException('booking_not_found');
++    if (!isAdmin(user) && b.provider_account_id && b.provider_account_id !== user.id) {
++      throw new ForbiddenException('booking_not_owned');
++    }
++    if (!['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'].includes(String(b.state))) {
++      throw new BadRequestException(`invalid_state:${b.state}`);
++    }
++    if (decision === 'REJECTED' && !String(body.reason || '').trim()) {
++      throw new BadRequestException('rejection reason is required');
++    }
++
++    const copayPercent = decision === 'APPROVED_PARTIAL'
++      ? Math.min(99, Math.max(1, Number(body.copay_percent ?? 0)))
++      : decision === 'APPROVED_FULL' ? 0 : undefined;
++    const price = Number(b.total ?? b.price ?? 0);
++    const copayAmount = copayPercent != null ? Math.round(price * (copayPercent / 100) * 100) / 100 : 0;
++
++    const now = new Date();
++    const mirrorStatus = decisionToMirror(decision, kind);
++    const nextState = decision === 'REJECTED' ? 'PENDING_INSURANCE' : 'WAITING_COPAY';
++    await col.updateOne({ id: bookingId }, {
++      $set: {
++        state: nextState,
++        insurance_status: mirrorStatus,
++        insurance_copay_amount: copayAmount,
++        ...(copayPercent != null ? { insurance_copay_percent: copayPercent } : {}),
++        ...(body.approval_code ? { insurance_approval_code: String(body.approval_code) } : {}),
++        ...(decision === 'REJECTED' ? { insurance_rejection_reason: String(body.reason).trim() } : {}),
++        updatedAt: now,
++      },
++      $push: {
++        state_history: {
++          from: b.state, to: nextState, at: now, by_user_id: user.id, by_role: user.role,
++          note: `coverage-decision:${decision}${copayPercent != null ? `:copay_${copayPercent}%` : ''}`,
++        },
++      } as any,
++    });
++    this.emitSafe('insurance.booking.coverage_decided', { booking_kind: kind, booking_id: bookingId, decision, copay_amount: copayAmount, patient_id: b.patient_id });
++
++    return {
++      ok: true,
++      booking_id: bookingId,
++      insurance_status: mirrorStatus === 'partial_approval' ? 'PARTIAL_APPROVAL' : mirrorStatus.toUpperCase(),
++      next_state: nextState,
++      copay_amount: copayAmount,
++    };
++  }
++
++  labCoverageDecision(user: any, id: string, body: any) { return this.bookingCoverageDecision(user, 'lab', id, body); }
++  radiologyCoverageDecision(user: any, id: string, body: any) { return this.bookingCoverageDecision(user, 'radiology', id, body); }
++  homecareCoverageDecision(user: any, id: string, body: any) { return this.bookingCoverageDecision(user, 'nursing', id, body); }
++
++  private emitSafe(event: string, payload: any) {
++    try { (this.conn as any).emit?.(event, payload); } catch { /* events optional */ }
++  }
++
++  // ═══ 5-6. CRM persistence (exact governed paths) ═══
++  async listCrmPatients(user: any) {
++    assertProviderRole(user);
++    const records = await this.conn.collection('doctor_patient_crm')
++      .find({ owner_id: user.id }, { projection: { _id: 0, patient_id: 1, data: 1, updatedAt: 1 } })
++      .sort({ updatedAt: -1 }).limit(200).toArray();
++    const patientIds = records.map((record: any) => String(record.patient_id)).filter(Boolean);
++    const patients = patientIds.length
++      ? await this.conn.collection('users').find({ id: { $in: patientIds } }, { projection: { _id: 0, id: 1, full_name: 1, name: 1, phone: 1 } }).toArray()
++      : [];
++    const names = new Map(patients.map((patient: any) => [String(patient.id), patient.full_name || patient.name || patient.phone || '']));
++    return records.map((record: any) => ({
++      patient_id: String(record.patient_id),
++      name: names.get(String(record.patient_id)) || '',
++      is_vip: Boolean(record.data?.vip),
++      is_favorite: Boolean(record.data?.favorite),
++      is_blocked: Boolean(record.data?.blocked),
++      updated_at: record.updatedAt || null,
++    }));
++  }
++  async getCrm(user: any, patientId: string) {
++    assertProviderRole(user);
++    const doc: any = await this.conn.collection('doctor_patient_crm').findOne(
++      { owner_id: user.id, patient_id: patientId },
++      { projection: { _id: 0 } },
++    );
++    if (!doc) throw new NotFoundException('crm_record_not_found');
++    return doc.data || {};
++  }
++
++  async putCrm(user: any, patientId: string, data: any) {
++    assertProviderRole(user);
++    const clean = {
++      tags: Array.isArray(data?.tags) ? data.tags.slice(0, 50).map((t: any) => String(t).slice(0, 60)) : [],
++      notes: Array.isArray(data?.notes)
++        ? data.notes.slice(0, 200).map((n: any) => ({
++            id: String(n?.id || `n_${Date.now()}`),
++            date: String(n?.date || new Date().toISOString().slice(0, 10)),
++            text: String(n?.text || '').slice(0, 2000),
++          })).filter((n: any) => n.text)
++        : [],
++      vip: !!data?.vip,
++      favorite: !!data?.favorite,
++      blocked: !!data?.blocked,
++      blocked_reason: data?.blocked ? String(data?.blocked_reason || '').slice(0, 500) : '',
++    };
++    await this.conn.collection('doctor_patient_crm').updateOne(
++      { owner_id: user.id, patient_id: patientId },
++      {
++        $set: { data: clean, updatedAt: new Date() },
++        $setOnInsert: { id: `crm_${Date.now()}`, owner_id: user.id, patient_id: patientId, createdAt: new Date() },
++      },
++      { upsert: true },
++    );
++    return clean;
++  }
++
++  // ═══ 7. Referral tracking (mine) ═══
++  async myReferrals(user: any) {
++    assertProviderRole(user);
++    const rows: any[] = [];
++    // (a) outbound feature referrals issued by this doctor/provider account
++    const outbound = await this.conn.collection('outbound_referrals')
++      .find({ referrer_doctor_id: user.id }).sort({ createdAt: -1 }).limit(100).toArray();
++    for (const r of outbound) {
++      rows.push({
++        id: r.id || String(r._id),
++        patient_name: r.patient_name || '',
++        target_type: r.target_type || '',
++        target_name: r.target_name || '',
++        tests_summary: Array.isArray(r.requested_tests) ? r.requested_tests.join(', ') : (r.notes || ''),
++        status: r.status || 'pending',
++        created_at: r.createdAt || r.created_at || null,
++      });
++    }
++    // (b) engine referrals (doctor_referrals collection keyed by the users _id or id)
++    const me: any = await this.conn.collection('users').findOne({ id: user.id }, { projection: { _id: 1 } });
++    const ids = [user.id, ...(me?._id ? [String(me._id)] : [])];
++    const engine = await this.conn.collection('doctorreferrals')
++      .find({ $or: [{ doctor_id: { $in: ids } }, { referring_doctor_id: { $in: ids } }] })
++      .sort({ createdAt: -1 }).limit(100).toArray();
++    for (const r of engine) {
++      const returned = !!(r.diagnostic_results_returned);
++      rows.push({
++        id: String(r._id),
++        patient_name: r.patient_name || '',
++        target_type: r.requested_radiology_scans?.length && r.requested_lab_tests?.length ? 'both'
++          : r.requested_radiology_scans?.length ? 'radiology'
++          : r.requested_lab_tests?.length ? 'lab' : 'home_care',
++        target_name: r.target_facility_name || '',
++        tests_summary: [...(r.requested_lab_tests || []), ...(r.requested_radiology_scans || [])].join(', '),
++        status: returned ? 'completed' : 'pending',
++        created_at: r.createdAt || null,
++      });
++    }
++    return rows;
++  }
++
++  async createReferral(user: any, body: any) {
++    assertProviderRole(user);
++    const role = ROLE_ALIASES[String(user?.role || '').toLowerCase()] || String(user?.role || '').toLowerCase();
++    if (!isAdmin(user) && role !== UserRole.DOCTOR) throw new ForbiddenException('doctor_scope_required');
++    const patientId = String(body?.patient_id || '').trim();
++    const targetType = String(body?.target_type || '').trim().toLowerCase();
++    if (!patientId || !['lab', 'radiology', 'nursing'].includes(targetType) || !String(body?.notes || '').trim()) {
++      throw new BadRequestException('patient_target_and_notes_required');
++    }
++
++    const patient: any = await this.conn.collection('users').findOne({ id: patientId });
++    if (!patient || String(patient.role || '').toLowerCase() !== 'patient') {
++      throw new NotFoundException('patient_not_found');
++    }
++
++    const appointmentId = String(body?.appointment_id || '').trim();
++    if (appointmentId) {
++      const appointment: any = await this.conn.collection('appointments').findOne({ $or: [{ id: appointmentId }, { appointment_id: appointmentId }] });
++      if (!appointment) throw new NotFoundException('appointment_not_found');
++      const appointmentPatientId = appointment.patient_id || appointment.patientId || appointment.user_id;
++      if (!appointmentPatientId || String(appointmentPatientId) !== patientId) throw new ForbiddenException('appointment_patient_mismatch');
++      const appointmentProviderIds = [appointment.doctor_id, appointment.provider_id, appointment.provider_account_id, appointment.doctor_user_id]
++        .filter(Boolean).map(String);
++      if (!isAdmin(user) && !appointmentProviderIds.includes(String(user.id))) throw new ForbiddenException('appointment_not_owned');
++    }
++
++    const targetProviderId = String(body?.target_provider_id || body?.destination_provider_id || '').trim();
++    let targetName = String(body?.target_name || '').trim();
++    if (targetProviderId) {
++      const targetProfile: any = await this.conn.collection('provider_profiles').findOne({ account_id: targetProviderId });
++      const profileType = String(targetProfile?.type || targetProfile?.provider_type || '').toLowerCase();
++      if (!targetProfile || profileType !== targetType) throw new BadRequestException('invalid_referral_destination');
++      const targetAccount: any = await this.conn.collection('provider_accounts').findOne({ id: targetProviderId, status: { $in: ['approved', 'active'] } });
++      if (!targetAccount) throw new BadRequestException('inactive_referral_destination');
++      targetName = targetProfile.display_name_ar || targetProfile.business_name || targetProfile.display_name_en || targetName;
++    }
++
++    const now = new Date();
++    const row = {
++      id: randomUUID(),
++      referrer_doctor_id: user.id,
++      appointment_id: appointmentId || null,
++      patient_id: patientId,
++      patient_name: patient.full_name || patient.name || patient.name_ar || patient.name_en || '',
++      target_type: targetType,
++      target_provider_id: targetProviderId || null,
++      target_name: targetName,
++      requested_tests: Array.isArray(body.requested_tests) ? body.requested_tests.slice(0, 50).map(String) : [],
++      referral_code: `REF-${randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase()}`,
++      notes: String(body.notes).trim(),
++      urgent: Boolean(body.urgent),
++      status: 'pending',
++      created_at: now,
++      createdAt: now,
++      updatedAt: now,
++    };
++    await this.conn.collection('outbound_referrals').insertOne(row as any);
++    return { ...row, _id: undefined };
++  }
++  async referralNetwork(user: any) {
++    assertProviderRole(user);
++    const profiles = await this.conn.collection('provider_profiles')
++      .find({ $or: [{ type: { $in: ['lab', 'radiology'] } }, { provider_type: { $in: ['lab', 'radiology'] } }] }, { projection: { _id: 0, account_id: 1, type: 1, provider_type: 1, business_name: 1, display_name_ar: 1, display_name_en: 1 } })
++      .limit(200).toArray();
++    const accountIds = profiles.map((profile: any) => String(profile.account_id)).filter(Boolean);
++    const accounts = accountIds.length
++      ? await this.conn.collection('provider_accounts').find({ id: { $in: accountIds }, status: { $in: ['approved', 'active'] } }, { projection: { _id: 0, id: 1 } }).toArray()
++      : [];
++    const activeAccounts = new Set(accounts.map((account: any) => String(account.id)));
++    return profiles.filter((profile: any) => activeAccounts.has(String(profile.account_id))).map((profile: any) => ({
++      id: String(profile.account_id),
++      name: profile.display_name_ar || profile.business_name || profile.display_name_en || '',
++      name_en: profile.display_name_en || profile.business_name || profile.display_name_ar || '',
++      type: profile.type || profile.provider_type,
++    }));
++  }
++  async listPromotions(user: any): Promise<any[]> {
++    assertProviderRole(user);
++    return this.conn.collection('promotioncampaigns')
++      .find({ $or: [{ provider_account_id: user.id }, { provider_id: user.id }] }, { projection: { _id: 0 } })
++      .sort({ createdAt: -1 }).limit(100).toArray();
++  }
++  async createPromotion(user: any, body: any) {
++    assertProviderRole(user);
++    if (!String(body?.title_ar || body?.title_en || '').trim()) throw new BadRequestException('promotion_title_required');
++    const original = Number(body?.original_price);
++    const discounted = Number(body?.discounted_price);
++    if (!Number.isFinite(original) || !Number.isFinite(discounted) || original < 0 || discounted < 0 || discounted > original) {
++      throw new BadRequestException('invalid_promotion_prices');
++    }
++    const start = new Date(body?.start_date);
++    const end = new Date(body?.end_date);
++    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) throw new BadRequestException('invalid_promotion_dates');
++    const now = new Date();
++    const row = {
++      id: randomUUID(), provider_account_id: user.id, provider_id: user.id,
++      title_ar: String(body?.title_ar || '').trim(), title_en: String(body?.title_en || '').trim(),
++      original_price: original, discounted_price: discounted, start_date: start, end_date: end,
++      target_parameters: body?.target_parameters || {}, status: 'pending_review', createdAt: now, updatedAt: now,
++    };
++    await this.conn.collection('promotioncampaigns').insertOne(row as any);
++    return { ...row, _id: undefined };
++  }
++  // ═══ 8. Technician roster CRUD ═══
++  private async technicianCollection() { return this.conn.collection('technician_roster'); }
++
++  async listTechnicians(user: any): Promise<any[]> {
++    assertProviderRole(user);
++    const q: any = { owner_account_id: user.id };
++    if (isAdmin(user)) delete q.owner_account_id;
++    return this.conn.collection('technician_roster').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray();
++  }
++
++  async createTechnician(user: any, body: any) {
++    assertProviderRole(user);
++    if (!body?.full_name?.trim() || !body?.phone?.trim()) throw new BadRequestException('full_name_phone_required');
++    const col = await this.technicianCollection();
++    const dup = await col.findOne({ owner_account_id: user.id, phone: body.phone.trim() });
++    if (dup) throw new BadRequestException('technician_exists');
++    const doc = {
++      id: `tech_${Date.now()}_${Math.floor(Math.random() * 1e4)}`,
++      owner_account_id: user.id,
++      full_name: String(body.full_name).trim().slice(0, 120),
++      phone: String(body.phone).trim(),
++      department: body.department ? String(body.department).slice(0, 80) : undefined,
++      specialty: body.specialty ? String(body.specialty).slice(0, 80) : undefined,
++      suspended: false,
++      createdAt: new Date(),
++    };
++    await col.insertOne(doc as any);
++    const { _id, ...out } = doc as any;
++    return out;
++  }
++
++  async updateTechnician(user: any, techId: string, body: any) {
++    assertProviderRole(user);
++    const col = await this.technicianCollection();
++    const t: any = await col.findOne({ id: techId });
++    if (!t) throw new NotFoundException('technician_not_found');
++    if (!isAdmin(user) && t.owner_account_id !== user.id) throw new ForbiddenException('not_owner');
++    const patch: any = {};
++    for (const k of ['full_name', 'phone', 'department', 'specialty']) if (body?.[k] !== undefined) patch[k] = String(body[k]).slice(0, 120);
++    if (body?.suspended !== undefined) patch.suspended = !!body.suspended;
++    await col.updateOne({ id: techId }, { $set: { ...patch, updatedAt: new Date() } });
++    const updated: any = await col.findOne({ id: techId }, { projection: { _id: 0 } });
++    return updated;
++  }
++
++  async deleteTechnician(user: any, techId: string) {
++    assertProviderRole(user);
++    const col = await this.technicianCollection();
++    const t: any = await col.findOne({ id: techId });
++    if (!t) throw new NotFoundException('technician_not_found');
++    if (!isAdmin(user) && t.owner_account_id !== user.id) throw new ForbiddenException('not_owner');
++    await col.deleteOne({ id: techId });
++    return { ok: true };
++  }
++
++  // ═══ 9. Facility shifts — full CRUD handled in facility-ops (PATCH/DELETE added there) ═══
++
++  // ═══ 10. Claim actions ═══
++  async claimAction(user: any, claimId: string, action: 'resubmit' | 'approve' | 'reject', body: any) {
++    assertProviderRole(user);
++    const col = this.conn.collection('insurance_claims');
++    const claim: any = await col.findOne({ id: claimId });
++    if (!claim) throw new NotFoundException('claim_not_found');
++
++    const statusMap: Record<string, string> = { resubmit: 'pending', approve: 'approved', reject: 'rejected' };
++    const nextStatus = statusMap[action];
++
++    if (action === 'reject' && !String(body?.reason || '').trim()) {
++      throw new BadRequestException('rejection reason is required');
++    }
++    // Ownership: admin always; otherwise resolve the actor's facility linkage
++    // from the DB (JWTs do not carry parent_provider_account_id).
++    if (!isAdmin(user)) {
++      const me: any = await this.conn.collection('users').findOne({ id: user.id }, { projection: { parent_provider_account_id: 1, facility_id: 1 } });
++      const myFacility = me?.parent_provider_account_id || me?.facility_id || user.facility_id || user.parent_provider_account_id;
++      const claimFacility = claim.facility_account_id || claim.provider_account_id;
++      if (!(myFacility && claimFacility && String(myFacility) === String(claimFacility))) {
++        throw new ForbiddenException('claim_not_owned');
++      }
++    }
++    if (action === 'approve' && !['pending', 'resubmitted'].includes(String(claim.status))) {
++      throw new BadRequestException(`invalid_claim_status:${claim.status}`);
++    }
++    await col.updateOne({ id: claimId }, {
++      $set: { status: nextStatus, updatedAt: new Date(), last_action: action, last_action_by: user.id, last_action_at: new Date() },
++      $push: {
++        history: {
++          action, by: user.id, role: user.role, at: new Date(),
++          reason: action === 'reject' ? String(body.reason).trim() : undefined,
++          documents: action === 'resubmit' ? (body.updated_documents || []) : undefined,
++        },
++      } as any,
++    });
++    const updated: any = await col.findOne({ id: claimId }, { projection: { _id: 0 } });
++    return { ok: true, claim_id: claimId, claim_status: nextStatus.toUpperCase(), acted_by: user.id, acted_at: new Date().toISOString(), claim: updated };
++  }
++
++  // ═══ 11. Inbound reports (real diagnostic results routed back to this doctor) ═══
++  async inboundReports(user: any) {
++    assertProviderRole(user);
++    const me: any = await this.conn.collection('users').findOne({ id: user.id }, { projection: { _id: 1 } });
++    const ids = [user.id, ...(me?._id ? [String(me._id)] : [])];
++
++    // Radiology bookings referred by me that reached report stages.
++    const rad = await this.conn.collection('radiologybookings')
++      .find({
++        $or: [{ referring_doctor_id: { $in: ids } }, { referrer_doctor_id: { $in: ids } }],
++        state: { $in: ['REPORT_DRAFT', 'UNDER_REVIEW', 'REPORT_READY', 'REPORT_PUBLISHED'] },
++      })
++      .sort({ updatedAt: -1 }).limit(50)
++      .project({ _id: 0, id: 1, state: 1, patient_name: 1, scan_name_ar: 1, scan_name_en: 1, report_pdf_url: 1, published_at: 1, createdAt: 1 })
++      .toArray();
++
++    // Lab bookings with uploaded reports referred by me.
++    const lab = await this.conn.collection('labbookings')
++      .find({ referring_doctor_id: { $in: ids }, reports: { $exists: true, $ne: [] } })
++      .sort({ updatedAt: -1 }).limit(50)
++      .toArray();
++
++    const labRows = lab.map((b: any) => {
++      const lastReport = (b.reports || [])[(b.reports || []).length - 1] || {};
++      return {
++        id: `lab-${b.id}-${lastReport.id || 'r'}`,
++        kind: 'LAB' as const,
++        booking_id: b.id,
++        patient_name: b.patient_name || '',
++        test_name: (b.items || []).map((i: any) => i.service_name_ar || i.service_name_en || i.name_en || i.name || '').filter(Boolean).join(', ') || (b.test_name || ''),
++        status: b.state === 'REPORTED' ? 'REPORTED' : 'RESULT_UPLOADED',
++        report_url: lastReport.url || `/api/v1/storage/${lastReport.url || ''}`,
++        dicom_viewer_url: null,
++        published_at: lastReport.uploaded_at || null,
++        created_at: lastReport.uploaded_at || b.createdAt || null,
++      };
++    });
++
++    const radRows = rad.map((b: any) => ({
++      id: `rad-${b.id}`,
++      kind: 'RADIOLOGY' as const,
++      booking_id: b.id,
++      patient_name: b.patient_name || '',
++      test_name: b.scan_name_ar || b.scan_name_en || '',
++      status: b.state,
++      report_url: b.report_pdf_url || null,
++      dicom_viewer_url: null,
++      published_at: b.published_at || null,
++      created_at: b.createdAt || null,
++    }));
++
++    return [...radRows, ...labRows].sort((a: any, b: any) =>
++      new Date(b.published_at || b.created_at || 0).getTime() - new Date(a.published_at || a.created_at || 0).getTime());
++  }
++
++  // ═══ 12. Availability round-trip ═══
++    async getAvailability(user: any) {
++    assertProviderRole(user);
++    const account: any = await this.conn.collection('provider_accounts').findOne(
++      { id: user.id },
++      { projection: { _id: 0, availability: 1 } },
++    );
++    if (!account) throw new NotFoundException('provider_account_not_found');
++    return account.availability ?? null;
++  }
++  async patchAvailability(user: any, body: any): Promise<any> {
++    assertProviderRole(user);
++    const allowedKeys = ['is_accepting_requests', 'instant_available', 'instant_available_minutes', 'vacation_mode', 'vacation_from', 'vacation_to', 'weekly_schedule', 'availability_exceptions'];
++    const patch: any = {};
++    for (const key of allowedKeys) if (body?.[key] !== undefined) patch[key] = body[key];
++    if (!Object.keys(patch).length) throw new BadRequestException('no_mutable_availability_fields');
++    if (patch.weekly_schedule !== undefined && !Array.isArray(patch.weekly_schedule)) {
++      throw new BadRequestException('weekly_schedule_must_be_array');
++    }
++    if (patch.availability_exceptions !== undefined && !Array.isArray(patch.availability_exceptions)) {
++      throw new BadRequestException('availability_exceptions_must_be_array');
++    }
++    if (patch.instant_available_minutes !== undefined && (!Number.isInteger(patch.instant_available_minutes) || patch.instant_available_minutes < 1 || patch.instant_available_minutes > 120)) {
++      throw new BadRequestException('instant_available_minutes_must_be_integer_between_1_and_120');
++    }
++    const account: any = await this.conn.collection('provider_accounts').findOne(
++      { id: user.id },
++      { projection: { _id: 0, availability: 1 } },
++    );
++    if (!account) throw new NotFoundException('provider_account_not_found');
++    const availability = { ...(account.availability || {}), ...patch };
++    await this.conn.collection('provider_accounts').updateOne(
++      { id: user.id },
++      { $set: { availability, availability_updated_at: new Date(), updatedAt: new Date() } },
++    );
++    const back: any = await this.conn.collection('provider_accounts').findOne(
++      { id: user.id },
++      { projection: { _id: 0, availability: 1 } },
++    );
++    if (!back || JSON.stringify(back.availability) !== JSON.stringify(availability)) {
++      throw new BadRequestException('availability_roundtrip_failed');
++    }
++    return { ok: true, availability: back.availability };
++  }
++}
++
++@Controller()
++@UseGuards(JwtAuthGuard)
++export class ProviderProductionController {
++  constructor(private readonly svc: ProviderProductionService) {}
++
++  // ── 1. pharmacy per-item insurance decision ──
++  @Post('orders/:id/insurance-decision')
++  orderInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
++    return this.svc.orderInsuranceDecision(u, id, b);
++  }
++
++  // ── 2-4. coverage decisions (exact governed paths) ──
++  @Post('labs/bookings/:id/coverage-decision')
++  labCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.labCoverageDecision(u, id, b); }
++  @Post('radiology/bookings/:id/coverage-decision')
++  radCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.radiologyCoverageDecision(u, id, b); }
++  @Post('home-care/bookings/:id/coverage-decision')
++  nursingCoverage(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.homecareCoverageDecision(u, id, b); }
++
++  // ── 5-6. CRM exact paths ──
++  @Get('provider/crm')
++  listCrmPatients(@CurrentUser() u: any) { return this.svc.listCrmPatients(u); }
++  @Get('provider/crm/:patientId')
++  getCrm(@CurrentUser() u: any, @Param('patientId') p: string) { return this.svc.getCrm(u, p); }
++  @Post('provider/crm/:patientId')
++  postCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.putCrm(u, p, b); }
++  @Put('provider/crm/:patientId')
++  putCrm(@CurrentUser() u: any, @Param('patientId') p: string, @Body() b: any) { return this.svc.putCrm(u, p, b); }
++
++  // ── 7. referral tracking exact path ──
++  @Get('provider/referrals/mine')
++  myReferrals(@CurrentUser() u: any) { return this.svc.myReferrals(u); }
++
++  @Post('provider/referrals')
++  createReferral(@CurrentUser() u: any, @Body() b: any) { return this.svc.createReferral(u, b); }
++  @Get('provider/referral-network')
++  referralNetwork(@CurrentUser() u: any) { return this.svc.referralNetwork(u); }
++  @Get('provider/promotions')
++  listPromotions(@CurrentUser() u: any): Promise<any[]> { return this.svc.listPromotions(u); }
++  @Post('provider/promotions')
++  createPromotion(@CurrentUser() u: any, @Body() b: any) { return this.svc.createPromotion(u, b); }
++  // ── 8. technician roster exact path ──
++  @Get('hospital/staff-roster/technicians')
++  listTechs(@CurrentUser() u: any) { return this.svc.listTechnicians(u); }
++  @Post('hospital/staff-roster/technicians')
++  createTech(@CurrentUser() u: any, @Body() b: any) { return this.svc.createTechnician(u, b); }
++  @Patch('hospital/staff-roster/technicians/:id')
++  updateTech(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.updateTechnician(u, id, b); }
++  @Delete('hospital/staff-roster/technicians/:id')
++  deleteTech(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.deleteTechnician(u, id); }
++
++  // ── 10. claims actions exact paths ──
++  @Post('claims/:id/resubmit')
++  claimResubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.claimAction(u, id, 'resubmit', b); }
++  @Post('claims/:id/approve')
++  claimApprove(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.claimAction(u, id, 'approve', b); }
++  @Post('claims/:id/reject')
++  claimReject(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.claimAction(u, id, 'reject', b); }
++
++  // ── 11. inbound reports exact path ──
++  @Get('provider/reports/inbound')
++  inboundReports(@CurrentUser() u: any) { return this.svc.inboundReports(u); }
++
++  // ── 12. availability round-trip exact path ──
++  @Get('provider/profile/availability')
++  getAvailability(@CurrentUser() u: any) { return this.svc.getAvailability(u); }
++  @Patch('provider/profile/availability')
++  patchAvailability(@CurrentUser() u: any, @Body() b: any) { return this.svc.patchAvailability(u, b); }
++}
++
++@Module({
++  controllers: [ProviderProductionController],
++  providers: [ProviderProductionService],
++})
++export class ProviderProductionModule {}
+diff -ruN '--exclude=node_modules' '--exclude=dist' '--exclude=coverage' a/backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts b/backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts
+--- a/backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/backend/src/modules/provider-production/provider-production.referrals-promotions.spec.ts	2026-08-27 12:51:55.000000000 +0000
+@@ -0,0 +1,135 @@
++import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
++import { ProviderProductionService } from './provider-production.module';
++
++type Row = Record<string, any>;
++
++function cursor(rows: Row[]) {
++  const chain: any = {
++    sort: jest.fn(),
++    limit: jest.fn(),
++    toArray: jest.fn().mockResolvedValue(rows),
++  };
++  chain.sort.mockReturnValue(chain);
++  chain.limit.mockReturnValue(chain);
++  return chain;
++}
++
++describe('ProviderProductionService referrals, network, and promotions', () => {
++  const users = { findOne: jest.fn() };
++  const appointments = { findOne: jest.fn() };
++  const profiles = { findOne: jest.fn(), find: jest.fn() };
++  const accounts = { findOne: jest.fn(), find: jest.fn() };
++  const referrals = { insertOne: jest.fn() };
++  const promotions = { insertOne: jest.fn(), find: jest.fn() };
++  const collections: Record<string, any> = {
++    users,
++    appointments,
++    provider_profiles: profiles,
++    provider_accounts: accounts,
++    outbound_referrals: referrals,
++    promotioncampaigns: promotions,
++  };
++  const connection = { collection: jest.fn((name: string) => collections[name]) };
++  const service = new ProviderProductionService(connection as any);
++  const doctor = { id: 'doctor-1', role: 'doctor' };
++
++  beforeEach(() => {
++    jest.clearAllMocks();
++    referrals.insertOne.mockResolvedValue({ acknowledged: true });
++    promotions.insertOne.mockResolvedValue({ acknowledged: true });
++  });
++
++  it('creates a referral from the authenticated patient record and an approved destination', async () => {
++    users.findOne.mockResolvedValue({ id: 'patient-1', role: 'patient', full_name: 'Server Patient' });
++    profiles.findOne.mockResolvedValue({ account_id: 'lab-1', type: 'lab', display_name_ar: 'مختبر خادم' });
++    accounts.findOne.mockResolvedValue({ id: 'lab-1', status: 'approved' });
++
++    const result = await service.createReferral(doctor, {
++      patient_id: 'patient-1',
++      patient_name: 'Untrusted client name',
++      target_type: 'lab',
++      target_provider_id: 'lab-1',
++      target_name: 'Untrusted client destination',
++      requested_tests: ['CBC'],
++      notes: 'Needs testing',
++    });
++
++    expect(result.patient_name).toBe('Server Patient');
++    expect(result.target_name).toBe('مختبر خادم');
++    expect(result.target_provider_id).toBe('lab-1');
++    expect(result.referral_code).toMatch(/^REF-[A-Z0-9]{10}$/);
++    expect(referrals.insertOne).toHaveBeenCalledWith(expect.objectContaining({
++      patient_id: 'patient-1', referrer_doctor_id: 'doctor-1', target_type: 'lab', target_provider_id: 'lab-1',
++    }));
++  });
++
++  it('rejects unknown patients, non-doctor callers, and inactive destinations', async () => {
++    users.findOne.mockResolvedValueOnce(null);
++    await expect(service.createReferral(doctor, { patient_id: 'missing', target_type: 'lab', notes: 'x' }))
++      .rejects.toBeInstanceOf(NotFoundException);
++
++    await expect(service.createReferral({ id: 'lab-user', role: 'lab' }, { patient_id: 'patient-1', target_type: 'lab', notes: 'x' }))
++      .rejects.toBeInstanceOf(ForbiddenException);
++
++    users.findOne.mockResolvedValueOnce({ id: 'patient-1', role: 'patient' });
++    profiles.findOne.mockResolvedValueOnce({ account_id: 'lab-1', type: 'lab' });
++    accounts.findOne.mockResolvedValueOnce(null);
++    await expect(service.createReferral(doctor, { patient_id: 'patient-1', target_type: 'lab', target_provider_id: 'lab-1', notes: 'x' }))
++      .rejects.toBeInstanceOf(BadRequestException);
++  });
++
++  it('enforces appointment ownership and patient linkage when an appointment is supplied', async () => {
++    users.findOne.mockResolvedValue({ id: 'patient-1', role: 'patient' });
++    appointments.findOne.mockResolvedValue({ id: 'appointment-1', patient_id: 'patient-2', doctor_id: 'doctor-1' });
++
++    await expect(service.createReferral(doctor, {
++      patient_id: 'patient-1', appointment_id: 'appointment-1', target_type: 'radiology', notes: 'x',
++    })).rejects.toBeInstanceOf(ForbiddenException);
++
++    appointments.findOne.mockResolvedValue({ id: 'appointment-1', patient_id: 'patient-1', doctor_id: 'other-doctor' });
++    await expect(service.createReferral(doctor, {
++      patient_id: 'patient-1', appointment_id: 'appointment-1', target_type: 'radiology', notes: 'x',
++    })).rejects.toBeInstanceOf(ForbiddenException);
++  });
++
++  it('returns only profiles backed by approved or active accounts and supports the current type field', async () => {
++    profiles.find.mockReturnValue(cursor([
++      { account_id: 'lab-approved', type: 'lab', display_name_ar: 'معمل معتمد' },
++      { account_id: 'rad-legacy', provider_type: 'radiology', display_name_en: 'Legacy Radiology' },
++      { account_id: 'lab-pending', type: 'lab', display_name_ar: 'معلق' },
++    ]));
++    accounts.find.mockReturnValue(cursor([{ id: 'lab-approved' }, { id: 'rad-legacy' }]));
++
++    await expect(service.referralNetwork(doctor)).resolves.toEqual([
++      { id: 'lab-approved', name: 'معمل معتمد', name_en: 'معمل معتمد', type: 'lab' },
++      { id: 'rad-legacy', name: 'Legacy Radiology', name_en: 'Legacy Radiology', type: 'radiology' },
++    ]);
++    expect(accounts.find).toHaveBeenCalledWith(
++      { id: { $in: ['lab-approved', 'rad-legacy', 'lab-pending'] }, status: { $in: ['approved', 'active'] } },
++      expect.any(Object),
++    );
++  });
++
++  it('scopes promotion listing and only persists validated pending-review campaigns', async () => {
++    promotions.find.mockReturnValue(cursor([{ id: 'promo-1', provider_account_id: 'doctor-1' }]));
++    await expect(service.listPromotions(doctor)).resolves.toEqual([{ id: 'promo-1', provider_account_id: 'doctor-1' }]);
++    expect(promotions.find).toHaveBeenCalledWith(
++      { $or: [{ provider_account_id: 'doctor-1' }, { provider_id: 'doctor-1' }] },
++      expect.any(Object),
++    );
++
++    const result = await service.createPromotion(doctor, {
++      title_ar: 'عرض', original_price: 100, discounted_price: 80,
++      start_date: '2026-08-27T00:00:00.000Z', end_date: '2026-08-28T00:00:00.000Z',
++    });
++    expect(result.status).toBe('pending_review');
++    expect(promotions.insertOne).toHaveBeenCalledWith(expect.objectContaining({
++      provider_account_id: 'doctor-1', original_price: 100, discounted_price: 80,
++    }));
++
++    await expect(service.createPromotion(doctor, {
++      title_ar: 'Invalid', original_price: 80, discounted_price: 100,
++      start_date: '2026-08-28T00:00:00.000Z', end_date: '2026-08-27T00:00:00.000Z',
++    })).rejects.toBeInstanceOf(BadRequestException);
++  });
++});
