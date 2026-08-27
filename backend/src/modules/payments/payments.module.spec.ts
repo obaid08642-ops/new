@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { createHmac } from 'crypto';
 import { PaymentsService } from './payments.module';
 
 const lean = (value: unknown) => ({ lean: jest.fn().mockResolvedValue(value) });
@@ -58,5 +59,30 @@ describe('PaymentsService pharmacy quote guard', () => {
     });
     await service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1');
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ amount: 12.25, method: 'apple_pay' }));
+  });
+
+  it('rejects a paid gateway result whose amount or currency does not match the transaction', () => {
+    const { service } = createPaymentsService(acceptedBooking);
+    expect(() => (service as any).assertGatewayResultMatchesTransaction(
+      { gateway: 'moyasar', amount: 84.5, currency: 'SAR' },
+      { raw: { amount: 8400, currency: 'SAR' } },
+    )).toThrow('gateway_payment_amount_or_currency_mismatch');
+    expect(() => (service as any).assertGatewayResultMatchesTransaction(
+      { gateway: 'moyasar', amount: 84.5, currency: 'SAR' },
+      { raw: { amount: 8450, currency: 'USD' } },
+    )).toThrow('gateway_payment_amount_or_currency_mismatch');
+  });
+
+  it('returns an idempotent result for the same already-settled webhook event', async () => {
+    const previous = process.env.MOYASAR_WEBHOOK_SECRET;
+    process.env.MOYASAR_WEBHOOK_SECRET = 'test-webhook-secret';
+    const rawBody = '{"id":"evt-1"}';
+    const signature = createHmac('sha256', 'test-webhook-secret').update(rawBody).digest('hex');
+    const { service, txns } = createPaymentsService(acceptedBooking);
+    txns.findOne.mockResolvedValue({ id: 'txn-1', status: 'paid', webhook_event_id: 'evt-1' });
+
+    await expect(service.handleWebhook('moyasar', { id: 'evt-1' }, signature, rawBody)).resolves.toEqual({ ok: true, idempotent_replay: true });
+    if (previous === undefined) delete process.env.MOYASAR_WEBHOOK_SECRET;
+    else process.env.MOYASAR_WEBHOOK_SECRET = previous;
   });
 });

@@ -129,6 +129,15 @@ function normalizeOnlineMethod(value: unknown): 'card' | 'apple_pay' | 'google_p
   throw new BadRequestException('unsupported_payment_method');
 }
 
+function normalizeGatewayAmount(gateway: string, payload: any): number | undefined {
+  const amount = gateway === 'stripe' ? payload?.amount_received ?? payload?.amount : payload?.amount;
+  if (amount === undefined || amount === null) return undefined;
+  const numeric = Number(amount);
+  if (!Number.isFinite(numeric)) return undefined;
+  // Stripe and Moyasar report SAR in halalas; Tap reports its documented decimal amount.
+  return gateway === 'tap' ? numeric : numeric / 100;
+}
+
 @Injectable()
 export class PaymentsService {
   private logger = new Logger('PaymentsService');
@@ -177,6 +186,26 @@ export class PaymentsService {
       : Number(snapshot.totals?.total);
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('invalid_pharmacy_payment_amount');
     return { amount, currency, quoteHash, quoteRevision, method: normalizeOnlineMethod(booking.payment_method) };
+  }
+
+  private assertGatewayResultMatchesTransaction(transaction: any, result: any): void {
+    const gatewayAmount = normalizeGatewayAmount(transaction.gateway, result.raw);
+    const gatewayCurrency = String(result.raw?.currency ?? '').toUpperCase();
+    if (gatewayAmount === undefined || gatewayCurrency !== String(transaction.currency).toUpperCase() || Math.round(gatewayAmount * 100) !== Math.round(Number(transaction.amount) * 100)) {
+      throw new BadRequestException('gateway_payment_amount_or_currency_mismatch');
+    }
+  }
+
+  private async assertPharmacyQuoteStillMatchesTransaction(transaction: any): Promise<void> {
+    if (transaction.booking_kind !== 'pharmacy') return;
+    const booking: any = await this.pharmacyOrders.findOne({ id: transaction.booking_id }).lean();
+    if (!booking || booking.accepted_quote_hash !== transaction.quote_hash || Number(booking.accepted_quote_revision) !== Number(transaction.quote_revision)) {
+      throw new BadRequestException('pharmacy_quote_reference_mismatch');
+    }
+    const expected = this.pharmacyPaymentSnapshot(booking);
+    if (Math.round(expected.amount * 100) !== Math.round(Number(transaction.amount) * 100) || expected.currency !== transaction.currency) {
+      throw new BadRequestException('pharmacy_quote_amount_mismatch');
+    }
   }
 
   private assertTransactionVerifier(user: any, transaction: any) {
@@ -255,6 +284,8 @@ export class PaymentsService {
     t.status = result.status;
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
     if (result.status === 'paid') {
+      this.assertGatewayResultMatchesTransaction(t, result);
+      await this.assertPharmacyQuoteStillMatchesTransaction(t);
       t.paid_at = new Date();
       await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
@@ -386,6 +417,12 @@ export class PaymentsService {
     if (!intentId) return { ok: false, reason: 'no_intent_id' };
     const t = await this.txns.findOne({ gateway_intent_id: intentId });
     if (!t) return { ok: false, reason: 'no_match' };
+    const eventId = String(payload.id ?? payload.event_id ?? crypto.createHash('sha256').update(rawBody ?? JSON.stringify(payload)).digest('hex'));
+    if (t.status === 'paid' && t.webhook_event_id === eventId) return { ok: true, idempotent_replay: true };
+    if (t.status === 'paid') return { ok: true, already_settled: true };
+    t.webhook_event_id = eventId;
+    t.webhook_payload_hash = crypto.createHash('sha256').update(rawBody ?? JSON.stringify(payload)).digest('hex');
+    await t.save();
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };
   }
