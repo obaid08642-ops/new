@@ -47,6 +47,7 @@
 - [x] Replace Patient Mobile pharmacy order-history legacy list endpoint with a governed pharmacy-order list and order-state-aware navigation.
 - [x] Replace Patient Mobile pharmacy reorder legacy endpoints with an idempotent new governed draft built from a patient-owned prior order, without carrying historical prices or payment state.
 - [x] Update the parity audit and traceability matrix with the Patient Mobile governed pharmacy journey, review-only PR chain, local checks, and CI evidence captured at this milestone.
+- [x] Replace Patient Mobile prescription-cart intake with a price-free prescription item transfer into the governed pharmacy checkout, preserving a prescription reference without using the legacy prescription-cart endpoint.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
