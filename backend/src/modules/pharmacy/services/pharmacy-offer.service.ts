@@ -52,7 +52,7 @@ export class PharmacyOfferService {
         continue;
       }
       const quantity = Math.max(0, Math.min(Number(line.offered_qty ?? requested.qty), Number(requested.qty)));
-      const stock = line.inventory_id
+      const stock: any = line.inventory_id
         ? await this.inventory.findOne({ id: line.inventory_id, provider_account_id: user.id }).lean()
         : await this.inventory.findOne({ provider_account_id: user.id, sku: requested.matched_sku }).lean();
       const available = Boolean(stock && Number(stock.stock) >= quantity && quantity > 0);
