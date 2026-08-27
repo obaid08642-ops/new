@@ -4,7 +4,7 @@ import { PaymentsService } from './payments.module';
 
 const lean = (value: unknown) => ({ lean: jest.fn().mockResolvedValue(value) });
 
-function createPaymentsService(booking: any, insuranceRequest: any = null) {
+function createPaymentsService(booking: any, insuranceRequest: any = null, consultationBooking: any = null) {
   process.env.MOYASAR_API_KEY = 'test-payment-key';
   const txns: any = {
     findOne: jest.fn().mockReturnValue(lean(null)),
@@ -14,13 +14,14 @@ function createPaymentsService(booking: any, insuranceRequest: any = null) {
   };
   const pharmacyOrders: any = { findOne: jest.fn().mockReturnValue(lean(booking)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
   const insReqs: any = { findOne: jest.fn().mockReturnValue(lean(insuranceRequest)) };
+  const appointments: any = { findOne: jest.fn().mockReturnValue(lean(consultationBooking)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
   const service = new PaymentsService(
-    txns, {} as any, pharmacyOrders, {} as any, {} as any, {} as any, {} as any, insReqs,
+    txns, {} as any, pharmacyOrders, {} as any, {} as any, {} as any, appointments, insReqs,
     {} as any, { emit: jest.fn() } as any, { emitToUser: jest.fn() } as any, { detectDuplicatePayments: jest.fn(), checkPaymentVelocity: jest.fn() } as any,
   );
   const adapter = { name: 'moyasar' as const, createIntent: jest.fn().mockResolvedValue({ intent_id: 'gateway-intent' }), verify: jest.fn(), refund: jest.fn() };
   (service as any).adapter = adapter;
-  return { service, txns, pharmacyOrders, insReqs, adapter };
+  return { service, txns, pharmacyOrders, insReqs, appointments, adapter };
 }
 
 describe('PaymentsService pharmacy quote guard', () => {
@@ -180,5 +181,25 @@ describe('PaymentsService pharmacy quote guard', () => {
     const { service, txns } = createPaymentsService(acceptedBooking, request);
     await service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1', 'card');
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'insurance', booking_id: 'insurance-1', amount: 27.5, method: 'card' }));
+  });
+
+  it('returns server-declared online methods and total for a pending card consultation', async () => {
+    const appointment = { id: 'appointment-1', patient_id: 'patient-1', status: 'PENDING', payment_method: 'card', payment_status: 'pending', total_price: 215 };
+    const { service } = createPaymentsService(acceptedBooking, null, appointment);
+    await expect(service.consultationPaymentCapabilities({ id: 'patient-1' }, 'appointment-1')).resolves.toEqual({ booking_id: 'appointment-1', amount: 215, currency: 'SAR', purpose: 'consultation_card_payment', methods: [{ id: 'card', kind: 'online' }] });
+  });
+
+  it('refuses a consultation intent when insurance review is pending or the card booking is not pending', async () => {
+    const appointment = { id: 'appointment-1', patient_id: 'patient-1', status: 'PENDING', payment_method: 'insurance', payment_status: 'pending', total_price: 215 };
+    const { service, txns } = createPaymentsService(acceptedBooking, null, appointment);
+    await expect(service.createPaymentIntent({ id: 'patient-1' }, 'consultation', 'appointment-1', 'key-1')).rejects.toThrow('consultation_card_payment_not_payable');
+    expect(txns.create).not.toHaveBeenCalled();
+  });
+
+  it('uses the appointment server total and a configured card method for a consultation intent', async () => {
+    const appointment = { id: 'appointment-1', patient_id: 'patient-1', status: 'PENDING', payment_method: 'card', payment_status: 'pending', total_price: 215 };
+    const { service, txns } = createPaymentsService(acceptedBooking, null, appointment);
+    await service.createPaymentIntent({ id: 'patient-1' }, 'consultation', 'appointment-1', 'key-1', 'card');
+    expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'consultation', booking_id: 'appointment-1', amount: 215, method: 'card' }));
   });
 });

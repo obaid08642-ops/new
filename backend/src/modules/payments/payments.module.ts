@@ -259,6 +259,23 @@ export class PaymentsService {
     };
   }
 
+  async consultationPaymentCapabilities(user: any, appointmentId: string, userAgent?: string) {
+    const appointment: any = await this.appts.findOne({ id: appointmentId }).lean();
+    if (!appointment) throw new NotFoundException('appointment_not_found');
+    this.assertBookingOwnerOrAdmin(user, appointment);
+    const amount = Number(appointment.total_price);
+    if (appointment.status !== 'PENDING' || appointment.payment_method !== 'card' || appointment.payment_status === 'paid' || !Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('consultation_card_payment_not_payable');
+    }
+    return {
+      booking_id: appointment.id,
+      amount,
+      currency: 'SAR',
+      purpose: 'consultation_card_payment',
+      methods: this.configuredOnlineMethods(userAgent).map((method) => ({ id: method.replace('_', '-'), kind: 'online' })),
+    };
+  }
+
   private assertGatewayResultMatchesTransaction(transaction: any, result: any): void {
     const gatewayAmount = normalizeGatewayAmount(transaction.gateway, result.raw);
     const gatewayCurrency = String(result.raw?.currency ?? '').toUpperCase();
@@ -315,6 +332,14 @@ export class PaymentsService {
       if (booking.state !== 'COPAY_PENDING' || !Number.isFinite(Number(booking.copay_amount)) || Number(booking.copay_amount) <= 0) {
         throw new BadRequestException('insurance_copay_not_payable');
       }
+      method = requestedMethod === undefined ? 'card' : normalizeOnlineMethod(requestedMethod);
+      if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
+    }
+    if (kind === 'consultation') {
+      if (booking.status !== 'PENDING' || booking.payment_method !== 'card' || !Number.isFinite(Number(booking.total_price)) || Number(booking.total_price) <= 0) {
+        throw new BadRequestException('consultation_card_payment_not_payable');
+      }
+      amount = Number(booking.total_price);
       method = requestedMethod === undefined ? 'card' : normalizeOnlineMethod(requestedMethod);
       if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
     }
@@ -569,6 +594,8 @@ export class PaymentsController {
   pharmacyCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.pharmacyPaymentCapabilities(u, id, userAgent); }
   @Get('insurance/:id/capabilities')
   insuranceCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceCopayPaymentCapabilities(u, id, userAgent); }
+  @Get('consultation/:id/capabilities')
+  consultationCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.consultationPaymentCapabilities(u, id, userAgent); }
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
   @Post('retry/:type/:id')
   @UseInterceptors(IdempotencyInterceptor)
