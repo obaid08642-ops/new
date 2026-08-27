@@ -21,6 +21,7 @@ import { MailModule } from '../src/modules/mail/mail.module';
 import { WalletSchema } from '../src/schemas/wallet.schema';
 import { RedisService } from '../src/modules/redis/redis.service';
 import { RedisModule } from '../src/modules/redis/redis.module';
+import { ClientConfigModule } from '../src/modules/config/config.module';
 
 const fakeRedis = {
   getClient: () => ({
@@ -75,6 +76,7 @@ beforeAll(async () => {
       MailModule,
       WalletModule,
       AdminEnterpriseModule,
+      ClientConfigModule,
     ],
   })
     .overrideProvider('BullQueue_notifications-delivery')
@@ -375,10 +377,8 @@ describe('A4 integration', () => {
   it('GDPR export lifecycle produces a package the patient can fetch', async () => {
     const greq = await (await as('admin1')).post('/api/v1/admin/gdpr/requests')
       .send({ user_id: patient.id, type: 'export' }).expect(201);
-    console.error('DBG gdpr created:', JSON.stringify(greq.body).slice(0, 200));
-    const gs = await (await as('admin1')).post(`/api/v1/admin/gdpr/${greq.body.id}/start`);
-    if (gs.status !== 201) console.error('DBG gdpr start:', gs.status, JSON.stringify(gs.body));
-    expect(gs.status).toBe(201);
+    const gs = await (await as('admin1')).post(`/api/v1/admin/gdpr/${greq.body.id}/start`).expect(201);
+    expect(gs.body.status).toBe('processing');
     const done = await (await as('admin1')).post(`/api/v1/admin/gdpr/${greq.body.id}/export/complete`).expect(201);
     expect(done.body.collections).toContain('pharmacy');
 
@@ -485,5 +485,38 @@ describe('A7 integration', () => {
     // run history exists regardless of delivery outcome
     const runs = await (await as('admin1')).get('/api/v1/admin/scheduled-reports/sr_seed/runs').expect(200);
     expect(runs.body.data.length).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ════════ Enterprise extensions — newly implemented UI contracts ════════
+describe('Enterprise implementation extensions', () => {
+  it('records internal order notes and streams a server-generated CSV export', async () => {
+    await (await as('admin1')).post('/api/v1/admin/orders/pharmacy/ord_test_1/note')
+      .send({ note: 'ملاحظة تشغيلية موثقة للطلب' }).expect(201);
+    const detail = await (await as('admin1')).get('/api/v1/admin/orders/pharmacy/ord_test_1').expect(200);
+    expect(detail.body.order.internal_notes.some((note: any) => note.note.includes('ملاحظة تشغيلية'))).toBe(true);
+    const exported = await (await as('admin1')).get('/api/v1/admin/orders/export?kind=pharmacy').expect(200);
+    expect(exported.text).toContain('ord_test_1');
+    expect(exported.headers['content-type']).toContain('text/csv');
+  });
+
+  it('persists home curation and keeps feature flags in the unified stores', async () => {
+    const curation = await (await as('admin1')).post('/api/v1/admin/governance-controls/home-curation').send({
+      reason: 'ترتيب وحدات الصفحة الرئيسية',
+      sections: [{ id: 'hero', type: 'banner', title_ar: 'الرئيسية', enabled: true, items: [{ id: 'h1', title_ar: 'عرض', image_url: 'https://cdn.example/h1.jpg', deep_link: '/offers' }] }],
+    }).expect(201);
+    expect(curation.body.version).toBe(1);
+    const readCuration = await (await as('admin1')).get('/api/v1/admin/governance-controls/home-curation').expect(200);
+    expect(readCuration.body.sections[0].id).toBe('hero');
+
+    await (await as('admin1')).post('/api/v1/admin/governance-controls/feature-flags').send({
+      key: 'new.checkout', enabled: true, rollout_percentage: 25, reason: 'إطلاق متدرج مراقب',
+    }).expect(201);
+    const flags = await (await as('admin1')).get('/api/v1/admin/governance-controls/feature-flags').expect(200);
+    expect(flags.body.data.find((row: any) => row.key === 'new.checkout')?.rollout_percentage).toBe(25);
+    expect(await conn.collection('featureflags').countDocuments({ key: 'new.checkout' })).toBe(1);
+    const clientConfig = await request(app.getHttpServer()).get('/api/v1/config').expect(200);
+    expect(clientConfig.body.features['new.checkout']).toBe(true);
+    expect(clientConfig.body.feature_rollouts['new.checkout']).toBe(25);
   });
 });
