@@ -1,2 +1,32 @@
-extracted/
+# Archived delivery snapshots retained at the repository root are intentionally tracked.
+# Extracted sources live in explicit top-level application directories.
+
+# Dependencies and build output
 node_modules/
+**/node_modules/
+dist/
+**/dist/
+.next/
+**/.next/
+coverage/
+**/coverage/
+.expo/
+**/.expo/
+web-build/
+**/web-build/
+
+# Local configuration and credentials
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Tooling and operating-system noise
+*.tsbuildinfo
+.DS_Store
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
