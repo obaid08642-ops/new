@@ -1,5 +1,6 @@
 import { ServiceUnavailableException } from '@nestjs/common';
-import { AdminPharmacyController } from './pharmacy.controllers';
+import { REQUIRE_IDEMPOTENCY } from '../../common/idempotency.interceptor';
+import { AdminPharmacyController, PatientPharmacyController } from './pharmacy.controllers';
 
 describe('AdminPharmacyController test seed guard', () => {
   const seedSvc = {
@@ -37,4 +38,13 @@ describe('AdminPharmacyController test seed guard', () => {
     expect(controller.seed({ id: 'admin-1', role: 'admin' })).toEqual({ ok: true });
     expect(controller.sampleOrder({ id: 'patient-1', role: 'admin' }, {})).toEqual({ id: 'sample-order-1' });
   });
+});
+
+describe('PatientPharmacyController idempotency policy', () => {
+  it.each(['create', 'update', 'submit', 'cancel', 'selectOffer', 'acceptFinalQuote', 'acceptInsuranceCoPay', 'acceptInsuranceSelfPay', 'registerCod'])(
+    'requires an idempotency key for the %s patient mutation',
+    (method) => {
+      expect(Reflect.getMetadata(REQUIRE_IDEMPOTENCY, PatientPharmacyController.prototype[method])).toBe(true);
+    },
+  );
 });

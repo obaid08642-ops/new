@@ -18,3 +18,4 @@
 - [ ] Implement the governed pharmacy broadcast, offer comparison, patient selection, negotiation, final-quote, cash/COD, and insurance decision presentation in Patient Web; the current cart checkout is not a substitute for this flow.
 - [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
+- [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.

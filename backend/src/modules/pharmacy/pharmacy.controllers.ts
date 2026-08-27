@@ -23,12 +23,24 @@ import { AcceptPharmacyCoPayDto, AcceptPharmacyFinalQuoteDto, EvaluatePharmacyIn
 @Roles(UserRole.PATIENT)
 export class PatientPharmacyController {
   constructor(private orders: PharmacyOrderService, private offers: PharmacyOfferService) {}
-  @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
+  @Post('orders')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
   @Get('orders') list(@CurrentUser() u: any, @Query('status') status?: string) { return this.orders.list(u, status); }
   @Get('orders/:id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.detail(u, id); }
-  @Patch('orders/:id') update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
-  @Post('orders/:id/submit') submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
-  @Post('orders/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
+  @Patch('orders/:id')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  update(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.update(u, id, b); }
+  @Post('orders/:id/submit')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  submit(@CurrentUser() u: any, @Param('id') id: string) { return this.orders.submit(u, id); }
+  @Post('orders/:id/cancel')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.orders.cancel(u, id, b?.reason || ''); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listPatientOffers(u, id); }
   @Post('orders/:id/offers/:offerId/select')
   @UseInterceptors(IdempotencyInterceptor)
