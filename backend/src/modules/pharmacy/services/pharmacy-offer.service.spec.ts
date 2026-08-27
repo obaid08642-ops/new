@@ -33,10 +33,11 @@ function createService(overrides: Record<string, any> = {}) {
     findOne: jest.fn().mockReturnValue(lean({ id: 'inventory-1', sku: 'SKU-1', name_ar: 'دواء من المخزون', stock: 6, price: 19.95 })),
     updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
   };
-  const models = { orders, offers, allocations, broadcasts, inventory, order };
+  const chats: any = { openOrGetThread: jest.fn().mockResolvedValue({ id: 'thread-1' }) };
+  const models = { orders, offers, allocations, broadcasts, inventory, chats, order };
   Object.assign(models, overrides);
   return {
-    service: new PharmacyOfferService(models.orders, models.offers, models.allocations, models.broadcasts, models.inventory),
+    service: new PharmacyOfferService(models.orders, models.offers, models.allocations, models.broadcasts, models.inventory, models.chats),
     ...models,
   };
 }
@@ -270,5 +271,22 @@ describe('PharmacyOfferService', () => {
     });
     await expect(service.registerCod({ id: 'patient-1' }, 'order-1')).rejects.toThrow('cod_not_eligible');
     expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it('moves a selected offer with alternatives into governed negotiation and opens only affected item threads', async () => {
+    const { service, offers, orders, chats } = createService();
+    offers.findOne.mockReturnValue(lean({
+      id: 'offer-1', order_id: 'order-1', patient_account_id: 'patient-1', pharmacy_account_id: 'pharmacy-1', status: 'open', expires_at: new Date(Date.now() + 10_000),
+      items: [{ order_item_id: 'line-1', inventory_id: 'inventory-1', sku: 'ALT-1', name: 'بديل', requested_qty: 2, offered_qty: 2, available: true, unit_price: 19.95, alternative: { sku: 'ALT-1' } }], totals: { total: 39.9 }, snapshot_hash: 'quote-hash', revision: 1,
+    }));
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1' });
+
+    const result = await service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash');
+    expect(result).toEqual(expect.objectContaining({ negotiation_required: true, negotiation_thread_ids: ['thread-1'], payment_required: false }));
+    expect(chats.openOrGetThread).toHaveBeenCalledWith('order-1', 'line-1', 'pharmacy-1');
+    expect(orders.updateOne).toHaveBeenCalledWith(
+      expect.objectContaining({ governed_state: 'OFFER_SELECTED' }),
+      expect.objectContaining({ $set: { governed_state: 'NEGOTIATION_REQUIRED' } }),
+    );
   });
 });
