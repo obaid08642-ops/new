@@ -117,7 +117,7 @@ export default function OrderTrackingScreen() {
           </View>
           <TouchableOpacity
             style={styles.chatBtn}
-            onPress={() => router.push({ pathname: '/pharmacy/broadcast-status', params: { requestId: orderIdStr } })}
+            onPress={() => router.push({ pathname: '/pharmacy/pharmacist-chat', params: { orderId: orderIdStr } })}
             activeOpacity={0.8}
           >
             <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 26 }}>chat</LocalizedText>
