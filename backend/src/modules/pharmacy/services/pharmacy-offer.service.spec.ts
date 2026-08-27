@@ -273,6 +273,24 @@ describe('PharmacyOfferService', () => {
     expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
   });
 
+  it('confirms a fully covered insurance decision with zero co-pay without creating a payment step', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', selected_pharmacy_account_id: 'pharmacy-1', governed_state: 'INSURANCE_PROCESSING',
+      insurance_details: { policyNumber: 'P-1' }, accepted_quote_snapshot: { items: [{ order_item_id: 'line-1', offered_qty: 1, unit_price: 10 }] },
+    });
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1', governed_state: 'CONFIRMED', toObject: () => ({ id: 'order-1', governed_state: 'CONFIRMED' }) });
+
+    await expect(service.recordInsuranceDecision({ id: 'pharmacy-1', role: 'pharmacy' }, 'order-1', {
+      items: [{ order_item_id: 'line-1', decision: 'APPROVED_FULL', covered_amount: 10, co_pay_amount: 0 }],
+    })).resolves.toEqual({ id: 'order-1', governed_state: 'CONFIRMED' });
+    expect(orders.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ $set: expect.objectContaining({ governed_state: 'CONFIRMED', payment_status: 'covered_by_insurance' }) }),
+      { new: true },
+    );
+  });
+
   it('moves a selected offer with alternatives into governed negotiation and opens only affected item threads', async () => {
     const { service, offers, orders, chats } = createService();
     offers.findOne.mockReturnValue(lean({

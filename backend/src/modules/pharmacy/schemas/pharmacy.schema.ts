@@ -165,6 +165,8 @@ export class PharmacyOrder extends Document {
   @Prop({ index: true }) selected_pharmacy_account_id?: string;
   @Prop({ enum: ['cash', 'insurance'] }) coverage_mode?: 'cash' | 'insurance';
   @Prop({ enum: ['card', 'apple-pay', 'google-pay', 'cod'] }) payment_method?: 'card' | 'apple-pay' | 'google-pay' | 'cod';
+  @Prop() payment_status?: string;
+  @Prop() transaction_id?: string;
   @Prop({ type: Object }) cod_commitment?: { registered_at: Date; amount: number; currency: string; quote_hash: string; quote_revision: number };
   @Prop({ default: false }) negotiation_required: boolean;
   @Prop({ type: Object }) selected_offer_snapshot?: any;
