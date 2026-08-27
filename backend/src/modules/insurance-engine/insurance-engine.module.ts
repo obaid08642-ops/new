@@ -9,7 +9,7 @@
  * BR-1 (payment matrix): online/video/audio/home/delivery = online payment only;
  * clinic = online or pay-at-clinic. Enforced server-side via /bookings/quote.
  */
-import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Module, Controller, Injectable, Get, Post, Body, Param, Query, UseGuards, UseInterceptors, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -25,6 +25,7 @@ import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
 
 // ============================================================================
 // Schemas
@@ -47,7 +48,7 @@ export class InsuranceServiceRequest {
   };
   @Prop({
     default: 'PENDING_PROVIDER_REVIEW', index: true,
-    enum: ['PENDING_PROVIDER_REVIEW', 'APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED', 'COPAY_PENDING', 'COPAY_PAID', 'EXPIRED', 'CANCELLED', 'APPEAL_PENDING'],
+    enum: ['PENDING_PROVIDER_REVIEW', 'APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED', 'COPAY_PENDING', 'COPAY_PAID', 'SELF_PAY_PENDING', 'SELF_PAY_PAID', 'EXPIRED', 'CANCELLED', 'APPEAL_PENDING'],
   }) state: string;
   @Prop() copay_percent?: number;       // patient share % when partial
   @Prop() copay_amount?: number;        // computed = price * percent / 100
@@ -56,6 +57,8 @@ export class InsuranceServiceRequest {
   @Prop() decided_at?: Date;
   @Prop() payment_id?: string;          // moyasar payment for the copay
   @Prop() copay_paid_at?: Date;
+  @Prop() self_pay_amount?: number;
+  @Prop() self_pay_accepted_at?: Date;
   @Prop({ type: [Object], default: [] }) history: { state: string; at: Date; by: string; note?: string }[];
   @Prop({ type: [String], default: [] }) documents: string[];
   @Prop({ default: 0 }) resubmission_count: number;
@@ -450,6 +453,23 @@ export class InsuranceFlowService {
     return req.toObject();
   }
 
+  /** Patient may elect self-pay only after an explicit insurance rejection. */
+  async acceptSelfPay(user: any, id: string) {
+    const req = await this.requests.findOne({ id });
+    if (!req) throw new NotFoundException('request not found');
+    if (req.patient_id !== user.id) throw new ForbiddenException();
+    if (req.state === 'SELF_PAY_PENDING') return req.toObject();
+    if (req.state !== 'REJECTED') throw new BadRequestException('self_pay_not_available');
+    const amount = Number(req.price);
+    if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('self_pay_amount_not_ready');
+    req.self_pay_amount = amount;
+    req.self_pay_accepted_at = new Date();
+    this.push(req, 'SELF_PAY_PENDING', user.id, 'patient accepted self-pay after insurance rejection');
+    await req.save();
+    this.events.emit('insurance.self_pay.accepted', { request_id: req.id, patient_id: req.patient_id, booking_id: req.booking_id, amount });
+    return req.toObject();
+  }
+
   /** The payment event is the normal post-checkout settlement path; it cannot be faked by a client body. */
   @OnEvent('payment.completed')
   async settleVerifiedCopay(event: any) {
@@ -514,6 +534,8 @@ export class InsuranceFlowController {
   @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
   @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+  @Post('requests/:id/accept-self-pay') @UseInterceptors(IdempotencyInterceptor) @RequireIdempotency()
+  acceptSelfPay(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acceptSelfPay(u, id); }
   @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
   @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
   @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
