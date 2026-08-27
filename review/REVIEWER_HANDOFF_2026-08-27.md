@@ -37,7 +37,7 @@
 | الأمر | النتيجة |
 |---|---|
 | `npm run build` | ناجح. |
-| `npm test -- --runInBand` | **97 suites / 507 tests ناجحة**. يتضمن تحذير Mongoose لمسار `errors` ورسالة webhook fail-closed متوقعة لغياب secret محلي. |
+| `npm test -- --runInBand` | **97 suites / 512 tests ناجحة**. يتضمن تحذير Mongoose لمسار `errors` ورسالة webhook fail-closed متوقعة لغياب secret محلي. |
 | `npx tsc --noEmit` في provider | ناجح. |
 | `node scripts/check-provider-runtime.js` | `RUNTIME_DATA_GATE=PASS`. |
 | `unzip -t` للحزمتين | ناجح. |

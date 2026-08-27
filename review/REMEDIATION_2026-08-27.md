@@ -35,7 +35,7 @@
 | البوابة | الأمر | النتيجة |
 |---|---|---|
 | بناء الخادم | `npm run build` داخل `.work/backend` | ناجح بعد الدفعات. |
-| مجموعة الخادم الكاملة | `npm test -- --runInBand` داخل `.work/backend` | **97 مجموعة، 507 اختبارات ناجحة**. يوجد تحذير Mongoose معروف لمسار `errors`، ورسالة webhook fail-closed متوقعة لغياب السر المحلي. |
+| مجموعة الخادم الكاملة | `npm test -- --runInBand` داخل `.work/backend` | **97 مجموعة، 512 اختباراً ناجحاً**. يوجد تحذير Mongoose معروف لمسار `errors`، ورسالة webhook fail-closed متوقعة لغياب السر المحلي. |
 | اختبار بوابات PR-1 | `pharmacy-insurance-decision` و`pharmacy-allocation.payment-gate` | 6/6 ناجح في التشغيلات المستهدفة؛ ويتضمن رفض update صفري لقرار التأمين. |
 | اختبار خصوصية/عروض PR-2 | `pharmacy-broadcast.service` و`pharmacy-offer.service` | 16/16 في التشغيلين المستهدفين؛ يتضمن PII/access وserver quote. |
 | اختبار انتهاء PR-3 | `pharmacy-expiry-command.service` | 4/4 ناجح؛ claim/outbox/cursor/no-allocation. |
