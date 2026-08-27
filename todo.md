@@ -30,6 +30,7 @@
 - [ ] Add Patient Web negotiation-thread discovery and read-only message history, then expose substitute decisions only through the governed revised-quote path.
 - [x] Add idempotency to pharmacy-chat patient substitute decision mutations.
 - [x] Expose a pharmacy-chat-only Patient Web BFF allowlist for negotiation thread reads and governed substitute decisions.
+- [x] Add Patient Web negotiation screens for pharmacy threads and message history, with idempotent send/accept/reject/remove actions that only record a decision pending a revised final quote.
 - [ ] Inventory and eliminate all remaining `setTimeout` and `setInterval` uses from Patient Web and Patient Mobile where they drive business state, polling, payments, or expiry; retain no in-process lifecycle authority in patient clients.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
