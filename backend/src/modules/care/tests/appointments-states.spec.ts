@@ -108,12 +108,12 @@ describe('AppointmentsService state machine', () => {
       expect(events.emit).toHaveBeenCalledWith('appointment.refund.calculated', expect.objectContaining({ refund_percentage: 100 }));
     });
 
-    it('patient cancels <24h before → 50% refund to wallet', async () => {
+    it('patient cancels <24h before → 50% refund to the verified payment source', async () => {
       const appt = apptIn(APPT_STATES.CONFIRMED, { slot_start: new Date(Date.now() + 5 * 3600000) });
       apptModel.findOne.mockResolvedValue(appt);
       const res = await service.cancel('appt-1', { id: 'pat-1', role: 'patient' });
       expect(res.refund_percentage).toBe(50);
-      expect(res.refund_destination).toBe('wallet');
+      expect(res.refund_destination).toBe('source');
     });
 
     it('patient no-show → 0% refund', async () => {

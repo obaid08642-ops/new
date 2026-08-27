@@ -295,12 +295,12 @@ export class AppointmentsService {
         refundDestination = 'source';
       } else {
         refundPercentage = 50;
-        refundDestination = 'wallet';
+        refundDestination = 'source';
       }
     } else if (user.role === UserRole.DOCTOR || user.id === appt.doctor_user_id) {
       refundPercentage = 100;
       refundDestination = 'source';
-      penaltyAmount = 50; // 50 SAR penalty applied to Doctor's wallet
+      penaltyAmount = 50; // 50 SAR penalty recorded for provider settlement
     }
 
     appt.cancellation_reason = reason || '';
