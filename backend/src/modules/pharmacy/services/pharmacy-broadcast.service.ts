@@ -80,6 +80,7 @@ export class PharmacyBroadcastService {
     
     const stages = await this.getBroadcastStages();
     const round1 = stages[0];
+    const expirySeconds = Math.min(3600, Math.max(60, stages.reduce((sum, stage) => sum + Math.max(0, Number(stage.timeout_seconds) || 0), 0)));
     
     const bc = await this.broadcasts.create({
       id: uuidv4(),
@@ -90,7 +91,10 @@ export class PharmacyBroadcastService {
       max_radius_km: stages[stages.length - 1].radius_km,
       round_radii_km: stages.map(s => s.radius_km),
       lock_state: 'open',
-      timeline: [{ ts: new Date(), event: 'broadcast_started', meta: { radius: round1.radius_km } }],
+      expires_at: new Date(Date.now() + expirySeconds * 1000),
+      expiry_version: 1,
+      expiry_artifacts_pending: false,
+      timeline: [{ ts: new Date(), event: 'broadcast_started', meta: { radius: round1.radius_km, expiry_seconds: expirySeconds, expiry_policy_version: 'broadcast-stages-v1' } }],
     });
     
     await this.broadcastRound(bc, order);
@@ -530,36 +534,11 @@ export class PharmacyBroadcastService {
     return { broadcast: bc, order, patient_name, patient_phone };
   }
 
-  /** Sweep closures */
+  /**
+   * Retained only for a controlled 410 response to the legacy admin route.
+   * Expiry writes are governed exclusively by PharmacyExpiryService.
+   */
   async expireStaleBroadcasts(): Promise<any> {
-    const stages = await this.getBroadcastStages();
-    const activeBroadcasts = await this.broadcasts.find({ lock_state: 'open' });
-    let advanced = 0;
-    let fallbacked = 0;
-    let no_pharmacy = 0;
-    
-    for (const b of activeBroadcasts) {
-      try {
-        const nextIdx = b.current_round; // 1-based index
-        const currentStage = stages[nextIdx - 1];
-        const timeoutMs = (currentStage?.timeout_seconds || 90) * 1000;
-        const elapsedMs = Date.now() - (b as any).updatedAt.getTime();
-        
-        if (elapsedMs >= timeoutMs) {
-          if (nextIdx < stages.length) {
-            await this.advanceRound(b.order_id);
-            advanced++;
-          } else {
-            // Last round timed out → run Best Partial Match
-            await this.runBestPartialMatch(b, (await this.orders.findOne({ id: b.order_id }))!);
-            fallbacked++;
-          }
-        }
-      } catch (e: any) {
-        if (String(e?.message || '').includes('no_pharmacy')) no_pharmacy++;
-      }
-    }
-    
-    return { scanned: activeBroadcasts.length, advanced, fallbacked, no_pharmacy };
+    throw new GoneException('legacy_broadcast_expiry_disabled_use_governed_expiry_command');
   }
 }

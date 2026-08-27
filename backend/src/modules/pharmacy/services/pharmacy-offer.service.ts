@@ -38,8 +38,14 @@ export class PharmacyOfferService {
   async listPatientOffers(user: any, orderId: string) {
     const order = await this.ownedOrder(user, orderId);
     const now = new Date();
-    await this.offers.updateMany({ order_id: order.id, status: 'open', expires_at: { $lt: now } }, { $set: { status: 'expired' } });
-    return this.offers.find({ order_id: order.id, patient_account_id: user.id, status: { $in: ['open', 'selected'] }, expires_at: { $gte: now } }).sort({ 'totals.total': 1, preparation_minutes: 1 }).lean();
+    return this.offers.find({
+      order_id: order.id,
+      patient_account_id: user.id,
+      $or: [
+        { status: 'open', expires_at: { $gte: now } },
+        { status: { $in: ['selected', 'final_quote_ready'] } },
+      ],
+    }).sort({ 'totals.total': 1, preparation_minutes: 1 }).lean();
   }
 
   async submitOffer(user: any, orderId: string, body: SubmitPharmacyOfferDto) {
@@ -137,9 +143,15 @@ export class PharmacyOfferService {
       if (order.selected_offer_id === offerId) return this.offers.findOne({ id: offerId }).lean();
       throw new BadRequestException('another_offer_already_selected');
     }
-    const offer: any = await this.offers.findOne({ id: offerId, order_id: order.id, patient_account_id: user.id, status: 'open', expires_at: { $gte: new Date() } }).lean();
+    const selectionStartedAt = new Date();
+    const offer: any = await this.offers.findOne({ id: offerId, order_id: order.id, patient_account_id: user.id, status: 'open', expires_at: { $gte: selectionStartedAt } }).lean();
     if (!offer) throw new NotFoundException('active_offer_not_found');
     if (coverageMode === 'insurance' && !offer.insurance_ready) throw new BadRequestException('offer_not_insurance_ready');
+    const claim = await this.offers.updateOne(
+      { id: offer.id, status: 'open', expires_at: { $gte: selectionStartedAt }, $or: [{ selection_lock_until: { $exists: false } }, { selection_lock_until: { $lte: selectionStartedAt } }] },
+      { $set: { status: 'selection_pending', selection_lock_until: new Date(selectionStartedAt.getTime() + 60_000) }, $push: { timeline: { ts: selectionStartedAt, event: 'patient_selection_claimed', by: user.id } } },
+    );
+    if (claim?.modifiedCount !== undefined && claim.modifiedCount !== 1) throw new BadRequestException('offer_selection_claim_unavailable');
     const governedState = order.governed_state ?? GovernedPharmacyOrderState.OFFERS_READY;
     assertGovernedPharmacyTransition(governedState, GovernedPharmacyOrderState.OFFER_SELECTED, 'PATIENT', { offerId: offer.id });
     const negotiationRequired = offer.items.some((item: any) => !item.available || Boolean(item.alternative));
@@ -149,7 +161,10 @@ export class PharmacyOfferService {
       { $set: { selected_offer_id: offer.id, selected_pharmacy_account_id: offer.pharmacy_account_id, coverage_mode: coverageMode, negotiation_required: negotiationRequired, selected_offer_snapshot: { items: offer.items, totals: offer.totals, snapshot_hash: offer.snapshot_hash }, selected_offer_hash: offer.snapshot_hash, selected_offer_revision: offer.revision, governed_state: GovernedPharmacyOrderState.OFFER_SELECTED, status: negotiationRequired ? PharmacyOrderState.NEGOTIATING_SUBSTITUTES : PharmacyOrderState.FULLY_ALLOCATED }, $push: { timeline: { ts: new Date(), event: 'patient_selected_offer', by: user.id, meta: { offer_id: offer.id, coverage_mode: coverageMode, snapshot_hash: offer.snapshot_hash, negotiation_required: negotiationRequired } } } },
       { new: true },
     );
-    if (!locked) throw new BadRequestException('offer_selection_locked');
+    if (!locked) {
+      await this.offers.updateOne({ id: offer.id, status: 'selection_pending' }, { $set: { status: 'open', selection_lock_until: undefined } });
+      throw new BadRequestException('offer_selection_locked');
+    }
 
     const reserved: any[] = [];
     try {
@@ -158,7 +173,7 @@ export class PharmacyOfferService {
         if (result.modifiedCount !== 1) throw new BadRequestException(`inventory_changed:${line.order_item_id}`);
         reserved.push(line);
       }
-      await this.offers.updateOne({ id: offer.id, status: 'open' }, { $set: { status: 'selected' }, $push: { timeline: { ts: new Date(), event: 'selected_by_patient', by: user.id } } });
+      await this.offers.updateOne({ id: offer.id, status: 'selection_pending' }, { $set: { status: 'selected', selection_lock_until: undefined }, $push: { timeline: { ts: new Date(), event: 'selected_by_patient', by: user.id } } });
       await this.offers.updateMany({ order_id: order.id, id: { $ne: offer.id }, status: 'open' }, { $set: { status: 'superseded' } });
       const allocation: any = await this.allocations.create({ id: uuidv4(), order_id: order.id, pharmacy_account_id: offer.pharmacy_account_id, status: PharmacyAllocationState.PENDING_REVIEW, items: offer.items.map((line: any) => ({ id: uuidv4(), order_item_id: line.order_item_id, inventory_id: line.inventory_id, sku: line.sku, name: line.name, action: line.available ? 'available' : 'unavailable', qty_requested: line.requested_qty, qty_offered: line.offered_qty, unit_price: line.unit_price })), totals: offer.totals, timeline: [{ ts: new Date(), event: 'selected_offer_snapshot', meta: { offer_id: offer.id, revision: offer.revision } }] });
       await this.orders.updateOne({ id: order.id }, { $set: { allocations: [allocation.id], insurance_status: coverageMode === 'insurance' ? 'authorization_pending' : undefined } });
@@ -184,6 +199,7 @@ export class PharmacyOfferService {
     } catch (error) {
       for (const line of reserved) await this.inventory.updateOne({ id: line.inventory_id, provider_account_id: offer.pharmacy_account_id }, { $inc: { stock: line.offered_qty } });
       await this.orders.updateOne({ id: order.id, selected_offer_id: offer.id }, { $unset: { selected_offer_id: 1, selected_pharmacy_account_id: 1, coverage_mode: 1, negotiation_required: 1, selected_offer_snapshot: 1, selected_offer_hash: 1, selected_offer_revision: 1, pending_final_quote_snapshot: 1, pending_final_quote_hash: 1, pending_final_quote_revision: 1, accepted_quote_snapshot: 1, accepted_quote_hash: 1, accepted_quote_revision: 1 }, $set: { status: PharmacyOrderState.AWAITING_FULL_ACCEPTANCE, governed_state: GovernedPharmacyOrderState.OFFERS_READY } });
+      await this.offers.updateOne({ id: offer.id, status: 'selection_pending' }, { $set: { status: 'open', selection_lock_until: undefined } });
       throw error;
     }
   }

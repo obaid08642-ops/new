@@ -1,0 +1,10 @@
+# Local dependency trees and test artifacts must never enter release review branches.
+**/node_modules/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Local credentials and runtime configuration.
+.env
+.env.*
+!.env.example

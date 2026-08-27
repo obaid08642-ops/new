@@ -42,6 +42,28 @@ function createService(overrides: Record<string, any> = {}) {
   };
 }
 
+describe('PharmacyOfferService listing', () => {
+  it('keeps patient reads side-effect free and preserves selected or final offers after open-offer expiry', async () => {
+    const { service, offers } = createService();
+    offers.find = jest.fn().mockReturnValue({
+      sort: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockResolvedValue([{ id: 'offer-selected', status: 'selected' }]),
+    });
+
+    await expect(service.listPatientOffers({ id: 'patient-1' }, 'order-1')).resolves.toEqual([{ id: 'offer-selected', status: 'selected' }]);
+
+    expect(offers.updateMany).not.toHaveBeenCalled();
+    expect(offers.find).toHaveBeenCalledWith(expect.objectContaining({
+      order_id: 'order-1',
+      patient_account_id: 'patient-1',
+      $or: [
+        { status: 'open', expires_at: { $gte: expect.any(Date) } },
+        { status: { $in: ['selected', 'final_quote_ready'] } },
+      ],
+    }));
+  });
+});
+
 describe('calculatePharmacyQuote', () => {
   it('prices available inventory lines server-side and preserves the delivery fee', () => {
     expect(calculatePharmacyQuote([
@@ -105,6 +127,23 @@ describe('PharmacyOfferService', () => {
     orders.findOneAndUpdate.mockResolvedValue(null);
 
     await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow('offer_selection_locked');
+    expect(inventory.updateOne).not.toHaveBeenCalled();
+    expect(offers.updateOne).toHaveBeenLastCalledWith(
+      { id: 'offer-1', status: 'selection_pending' },
+      { $set: { status: 'open', selection_lock_until: undefined } },
+    );
+  });
+
+  it('refuses selection when expiry has atomically claimed the open offer first', async () => {
+    const { service, offers, orders, inventory } = createService();
+    offers.findOne.mockReturnValue(lean({
+      id: 'offer-1', pharmacy_account_id: 'pharmacy-1', insurance_ready: true, revision: 1, snapshot_hash: 'hash',
+      items: [{ order_item_id: 'line-1', inventory_id: 'inventory-1', available: true, offered_qty: 1 }], totals: { total: 19.95 },
+    }));
+    offers.updateOne.mockResolvedValueOnce({ modifiedCount: 0 });
+
+    await expect(service.selectOffer({ id: 'patient-1' }, 'order-1', 'offer-1', 'cash')).rejects.toThrow('offer_selection_claim_unavailable');
+    expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
     expect(inventory.updateOne).not.toHaveBeenCalled();
   });
 
