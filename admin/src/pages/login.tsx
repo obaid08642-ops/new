@@ -1,379 +1,173 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { startAuthentication } from '@simplewebauthn/browser';
+import { apiErrorMessage } from '@/lib/admin-client';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
+type LoginStep = 'credentials' | 'otp' | 'passkey' | 'reset-request' | 'reset-confirm';
 
-/**
- * Discreet sign-in — no role/panel branding by design (security through
- * obscurity): the page presents only "نبض — تسجيل دخول". The 2FA flow and
- * role gate stay identical; unauthorized accounts simply see a generic error.
- */
+async function publicAuth(action: 'send-otp' | 'reset-password', body: Record<string, string>) {
+  const response = await fetch(`/api/admin/auth/public/${action}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(apiErrorMessage({ status: response.status, payload }, 'تعذر تنفيذ الطلب.'));
+  return payload;
+}
+
 export default function AdminLogin() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'credentials' | 'otp' | 'passkey' | 'reset-request' | 'reset-confirm'>('credentials');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [info, setInfo] = useState('');
   const [passkeyOptions, setPasskeyOptions] = useState<any>(null);
+  const [step, setStep] = useState<LoginStep>('credentials');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  const returnTo = typeof router.query.returnTo === 'string' && router.query.returnTo.startsWith('/admin/')
+    ? router.query.returnTo
+    : '/admin/command-center';
+
+  function completeLogin(payload: any) {
+    const role = payload?.user?.role;
+    if (role !== 'admin' && role !== 'super_admin') {
+      setError('بيانات الدخول غير صحيحة.');
+      return;
+    }
+    router.replace(returnTo);
+  }
+
+  async function submitCredentials(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true); setError(''); setNotice('');
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+      const response = await fetch('/api/admin/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error('بيانات الدخول غير صحيحة');
-
-      if (data?.requires_passkey && data?.passkey_options) {
-        // Strict layer-2: WebAuthn challenge issued ONLY after a valid password.
-        setPasskeyOptions(data.passkey_options);
-        setStep('passkey');
-        return;
-      }
-      if (data?.requires_2fa) {
+      const payload = await response.json().catch(() => null);
+      if (response.status === 202 && payload?.requires_2fa) {
         setStep('otp');
         return;
       }
-      completeLogin(data);
-    } catch (err: any) {
-      setError(err?.message || 'تعذر الاتصال بالخادم');
+      if (response.status === 202 && payload?.requires_passkey && payload?.passkey_options) {
+        setPasskeyOptions(payload.passkey_options);
+        setStep('passkey');
+        return;
+      }
+      if (!response.ok) throw new Error('بيانات الدخول غير صحيحة.');
+      completeLogin(payload);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'تعذر الاتصال بالخادم.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  async function submitOtp(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true); setError('');
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/login/verify-2fa`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch('/api/admin/auth/verify-2fa', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), code: otp.trim() }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error('رمز التحقق غير صحيح');
-      completeLogin(data);
-    } catch (err: any) {
-      setError(err?.message || 'تعذر التحقق من الرمز');
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new Error('رمز التحقق غير صحيح أو منتهي.');
+      completeLogin(payload);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'تعذر التحقق من الرمز.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handlePasskey = async () => {
-    setError('');
-    setLoading(true);
+  async function submitPasskey() {
+    setLoading(true); setError('');
     try {
-      // Triggers Face ID / Touch ID / device passcode — or a QR code for
-      // cross-device sign-in (e.g. old Mac + iPhone camera) via hybrid transport.
       const assertion = await startAuthentication({ optionsJSON: passkeyOptions });
-      const res = await fetch(`${API_BASE}/api/v1/auth/passkey/login/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch('/api/admin/auth/passkey-verify', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ identifier: identifier.trim(), response: assertion }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error('فشل التحقق من مفتاح الأمان');
-      completeLogin(data);
-    } catch (err: any) {
-      setError(err?.name === 'NotAllowedError' ? 'تم إلغاء التحقق أو انتهت المهلة' : (err?.message || 'فشل التحقق من مفتاح الأمان'));
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new Error('فشل التحقق من مفتاح الأمان.');
+      completeLogin(payload);
+    } catch (reason: any) {
+      setError(reason?.name === 'NotAllowedError' ? 'تم إلغاء التحقق أو انتهت المهلة.' : (reason?.message || 'فشل التحقق من مفتاح الأمان.'));
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleResetRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(''); setInfo(''); setLoading(true);
+  async function requestReset(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true); setError(''); setNotice('');
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: identifier.trim() }),
-      });
-      if (!res.ok) throw new Error('تعذر إرسال رمز التحقق');
-      setInfo('أُرسل رمز التحقق إلى بريدك الإلكتروني — صالح لدقائق.');
+      await publicAuth('send-otp', { identifier: identifier.trim() });
+      setNotice('أُرسل رمز التحقق إلى بريدك الإلكتروني.');
       setStep('reset-confirm');
-    } catch (err: any) {
-      setError(err?.message || 'تعذر إرسال رمز التحقق');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'تعذر إرسال رمز التحقق.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleResetConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(''); setInfo(''); setLoading(true);
+  async function confirmReset(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true); setError(''); setNotice('');
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: identifier.trim(), code: resetCode.trim(), password: newPassword }),
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d?.message === 'OTP expired or not requested' ? 'رمز التحقق غير صحيح أو منتهي' : 'تعذر إعادة التعيين');
-      }
-      setInfo('تم تغيير كلمة المرور — سجّل دخولك الآن.');
-      setNewPassword(''); setResetCode('');
-      setStep('credentials');
-    } catch (err: any) {
-      setError(err?.message || 'تعذر إعادة التعيين');
+      await publicAuth('reset-password', { identifier: identifier.trim(), code: resetCode, password: newPassword });
+      setNotice('تم تغيير كلمة المرور. يمكنك تسجيل الدخول الآن.');
+      setPassword(''); setResetCode(''); setNewPassword(''); setStep('credentials');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'تعذر إعادة تعيين كلمة المرور.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const completeLogin = (data: any) => {
-    const role = data?.user?.role;
-    if (role !== 'admin' && role !== 'super_admin') {
-      // Generic message — never reveal that a privileged area exists
-      setError('بيانات الدخول غير صحيحة');
-      return;
-    }
-    localStorage.setItem('admin_token', data?.token?.accessToken || data?.token || '');
-    localStorage.setItem('admin_refresh_token', data?.token?.refreshToken || '');
-    localStorage.setItem('admin_role', role);
-    localStorage.setItem('admin_user', JSON.stringify(data?.user || {}));
-    router.push('/admin/dashboard');
-  };
+  const inputClass = 'w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100 outline-none ring-teal-400 focus:ring-2';
+  const buttonClass = 'w-full rounded-xl bg-teal-300 px-4 py-3 font-bold text-slate-950 transition hover:bg-teal-200 disabled:cursor-not-allowed disabled:opacity-50';
 
   return (
     <>
-      <Head>
-        <title>نبض — تسجيل دخول</title>
-        <meta name="robots" content="noindex, nofollow" />
-      </Head>
-      <div dir="rtl" style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'radial-gradient(70% 50% at 80% 10%, rgba(25,195,214,0.12), transparent 60%), radial-gradient(50% 40% at 15% 85%, rgba(109,93,246,0.12), transparent 60%), #0A0E1A',
-        fontFamily: "'Segoe UI', Tahoma, sans-serif",
-      }}>
-        <div style={{
-          width: '100%', maxWidth: 420, borderRadius: 24, padding: 36,
-          background: 'linear-gradient(165deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
-          border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)',
-          boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <svg width="52" height="52" viewBox="0 0 40 40" fill="none" style={{ margin: '0 auto 14px' }}>
-              <circle cx="20" cy="20" r="18" stroke="#19C3D6" strokeWidth="2.5" opacity="0.35" />
-              <path d="M8 20 h6 l3 -7 4 13 3 -6 h8" stroke="#19C3D6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: '#EAF2F6', letterSpacing: 0.5 }}>نبض</h1>
-            <p style={{ color: '#93A5B3', marginTop: 6, fontSize: 15 }}>تسجيل دخول</p>
-          </div>
+      <Head><title>نبض — دخول الإدارة</title><meta name="robots" content="noindex,nofollow" /></Head>
+      <main dir="rtl" className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+        <section className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/70 p-8 shadow-2xl">
+          <header className="mb-8 text-center"><h1 className="text-3xl font-black text-teal-300">نبض</h1><p className="mt-2 text-slate-400">دخول الإدارة المحمي</p></header>
+          {error ? <p role="alert" className="mb-4 rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p> : null}
+          {notice ? <p role="status" className="mb-4 rounded-lg border border-teal-500/40 bg-teal-500/10 p-3 text-sm text-teal-100">{notice}</p> : null}
 
-          {error && (
-            <div style={{
-              marginBottom: 16, padding: 12, borderRadius: 12,
-              background: 'rgba(240,86,122,0.1)', border: '1px solid rgba(240,86,122,0.35)',
-              color: '#F0567A', fontSize: 14, textAlign: 'center',
-            }}>
-              {error}
-            </div>
-          )}
+          {step === 'credentials' ? <form onSubmit={submitCredentials} className="space-y-4">
+            <label className="block text-sm text-slate-300">رقم الجوال أو البريد الإلكتروني<input className={`${inputClass} mt-2`} dir="ltr" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required autoComplete="username" /></label>
+            <label className="block text-sm text-slate-300">كلمة المرور<input className={`${inputClass} mt-2`} type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" /></label>
+            <button className={buttonClass} type="submit" disabled={loading}>{loading ? 'جارٍ التحقق…' : 'تسجيل الدخول'}</button>
+            <button className="w-full text-sm text-slate-400 underline hover:text-white" type="button" onClick={() => setStep('reset-request')}>نسيت كلمة المرور؟</button>
+          </form> : null}
 
-          {info && (
-            <div style={{
-              marginBottom: 16, padding: 12, borderRadius: 12,
-              background: 'rgba(46,204,113,0.1)', border: '1px solid rgba(46,204,113,0.35)',
-              color: '#2ECC71', fontSize: 14, textAlign: 'center',
-            }}>
-              {info}
-            </div>
-          )}
+          {step === 'otp' ? <form onSubmit={submitOtp} className="space-y-4">
+            <p className="text-sm text-slate-300">أدخل رمز التحقق المكوّن من 6 أرقام.</p>
+            <input className={`${inputClass} text-center text-xl tracking-[0.5em]`} dir="ltr" inputMode="numeric" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} required />
+            <button className={buttonClass} type="submit" disabled={loading || otp.length !== 6}>{loading ? 'جارٍ التحقق…' : 'تأكيد الرمز'}</button>
+            <button className="w-full text-sm text-slate-400 underline" type="button" onClick={() => setStep('credentials')}>رجوع</button>
+          </form> : null}
 
-          {step === 'credentials' ? (
-            <form onSubmit={handleLogin} style={{ display: 'grid', gap: 18 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 13, color: '#93A5B3', marginBottom: 8 }}>رقم الجوال أو البريد الإلكتروني</label>
-                <input
-                  type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required dir="ltr"
-                  style={{
-                    width: '100%', padding: '13px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
-                    background: 'rgba(255,255,255,0.04)', color: '#EAF2F6', fontSize: 15, outline: 'none',
-                  }}
-                  placeholder="+9665XXXXXXXX"
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: 13, color: '#93A5B3', marginBottom: 8 }}>كلمة المرور</label>
-                <input
-                  type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-                  style={{
-                    width: '100%', padding: '13px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
-                    background: 'rgba(255,255,255,0.04)', color: '#EAF2F6', fontSize: 15, outline: 'none',
-                  }}
-                  placeholder="••••••••••••"
-                />
-              </div>
-              <button
-                type="submit" disabled={loading}
-                style={{
-                  padding: '15px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                  background: 'linear-gradient(135deg, #19C3D6, #0E8FA3)', color: '#04121a',
-                  fontWeight: 800, fontSize: 16, opacity: loading ? 0.6 : 1,
-                  boxShadow: '0 10px 30px rgba(25,195,214,0.3)',
-                }}
-              >
-                {loading ? 'جاري التحقق...' : 'تسجيل دخول'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setStep('reset-request'); setError(''); setInfo(''); }}
-                style={{ background: 'none', border: 'none', color: '#93A5B3', fontSize: 13, cursor: 'pointer', textAlign: 'center' }}
-              >
-                نسيت كلمة المرور؟
-              </button>
-            </form>
-          ) : step === 'reset-request' ? (
-            <form onSubmit={handleResetRequest} style={{ display: 'grid', gap: 18 }}>
-              <p style={{ color: '#93A5B3', fontSize: 14, textAlign: 'center', lineHeight: 1.8 }}>
-                أدخل بريدك الإلكتروني وسنرسل لك رمز تحقق لإعادة تعيين كلمة المرور:
-              </p>
-              <input
-                type="email" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required dir="ltr"
-                style={{
-                  width: '100%', padding: '13px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
-                  background: 'rgba(255,255,255,0.04)', color: '#EAF2F6', fontSize: 15, outline: 'none',
-                }}
-                placeholder="name@example.com"
-              />
-              <button
-                type="submit" disabled={loading}
-                style={{
-                  padding: '15px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                  background: 'linear-gradient(135deg, #19C3D6, #0E8FA3)', color: '#04121a',
-                  fontWeight: 800, fontSize: 16, opacity: loading ? 0.6 : 1,
-                }}
-              >
-                {loading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}
-              </button>
-              <button
-                type="button" onClick={() => { setStep('credentials'); setError(''); setInfo(''); }}
-                style={{ background: 'none', border: 'none', color: '#93A5B3', fontSize: 14, cursor: 'pointer' }}
-              >
-                ← رجوع
-              </button>
-            </form>
-          ) : step === 'reset-confirm' ? (
-            <form onSubmit={handleResetConfirm} style={{ display: 'grid', gap: 18 }}>
-              <p style={{ color: '#93A5B3', fontSize: 14, textAlign: 'center', lineHeight: 1.8 }}>
-                أدخل رمز التحقق المرسل إلى بريدك ثم كلمة المرور الجديدة:
-              </p>
-              <input
-                type="text" inputMode="numeric" maxLength={6}
-                value={resetCode} onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))} required dir="ltr"
-                style={{
-                  width: '100%', padding: '14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
-                  background: 'rgba(255,255,255,0.04)', color: '#EAF2F6', fontSize: 22, textAlign: 'center',
-                  letterSpacing: '0.5em', outline: 'none',
-                }}
-                placeholder="——————"
-              />
-              <input
-                type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8}
-                style={{
-                  width: '100%', padding: '13px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
-                  background: 'rgba(255,255,255,0.04)', color: '#EAF2F6', fontSize: 15, outline: 'none',
-                }}
-                placeholder="كلمة المرور الجديدة (8 أحرف فأكثر)"
-              />
-              <button
-                type="submit" disabled={loading || resetCode.length !== 6 || newPassword.length < 8}
-                style={{
-                  padding: '15px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                  background: 'linear-gradient(135deg, #19C3D6, #0E8FA3)', color: '#04121a',
-                  fontWeight: 800, fontSize: 16,
-                  opacity: (loading || resetCode.length !== 6 || newPassword.length < 8) ? 0.6 : 1,
-                }}
-              >
-                {loading ? 'جاري التعيين...' : 'تعيين كلمة المرور'}
-              </button>
-              <button
-                type="button" onClick={() => { setStep('credentials'); setError(''); setInfo(''); }}
-                style={{ background: 'none', border: 'none', color: '#93A5B3', fontSize: 14, cursor: 'pointer' }}
-              >
-                ← رجوع
-              </button>
-            </form>
-          ) : step === 'passkey' ? (
-            <div style={{ display: 'grid', gap: 18 }}>
-              <p style={{ color: '#93A5B3', fontSize: 14, textAlign: 'center', lineHeight: 1.8 }}>
-                كلمة المرور صحيحة. أكّد هويتك بمفتاح الأمان (بصمة الوجه / الإصبع) لإتمام الدخول.
-              </p>
-              <div style={{ textAlign: 'center', fontSize: 42 }}>🔐</div>
-              <button
-                type="button" onClick={handlePasskey} disabled={loading}
-                style={{
-                  padding: '15px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                  background: 'linear-gradient(135deg, #19C3D6, #0E8FA3)', color: '#04121a',
-                  fontWeight: 800, fontSize: 16, opacity: loading ? 0.6 : 1,
-                  boxShadow: '0 10px 30px rgba(25,195,214,0.3)',
-                }}
-              >
-                {loading ? 'بانتظار البصمة...' : 'تأكيد بمفتاح الأمان (Face ID / Touch ID)'}
-              </button>
-              <p style={{ color: '#6B7C8A', fontSize: 12, textAlign: 'center', lineHeight: 1.7 }}>
-                من جهاز لا يحمل المفتاح؟ اختر «استخدام هاتف أو جهاز لوحي» في نافذة المتصفح وامسح رمز QR بكاميرا جهازك المسجّل.
-              </p>
-              <button
-                type="button" onClick={() => { setStep('credentials'); setPasskeyOptions(null); setError(''); }}
-                style={{ background: 'none', border: 'none', color: '#93A5B3', fontSize: 14, cursor: 'pointer' }}
-              >
-                ← رجوع
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleVerifyOtp} style={{ display: 'grid', gap: 18 }}>
-              <p style={{ color: '#93A5B3', fontSize: 14, textAlign: 'center', lineHeight: 1.8 }}>
-                أدخل رمز التحقق المرسل إليك (6 أرقام):
-              </p>
-              <input
-                type="text" inputMode="numeric" maxLength={6}
-                value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} required dir="ltr"
-                style={{
-                  width: '100%', padding: '14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)',
-                  background: 'rgba(255,255,255,0.04)', color: '#EAF2F6', fontSize: 26, textAlign: 'center',
-                  letterSpacing: '0.5em', outline: 'none',
-                }}
-                placeholder="——————"
-              />
-              <button
-                type="submit" disabled={loading || otp.length !== 6}
-                style={{
-                  padding: '15px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                  background: 'linear-gradient(135deg, #19C3D6, #0E8FA3)', color: '#04121a',
-                  fontWeight: 800, fontSize: 16, opacity: (loading || otp.length !== 6) ? 0.6 : 1,
-                }}
-              >
-                {loading ? 'جاري التحقق...' : 'تأكيد'}
-              </button>
-              <button
-                type="button" onClick={() => { setStep('credentials'); setOtp(''); setError(''); }}
-                style={{ background: 'none', border: 'none', color: '#93A5B3', fontSize: 14, cursor: 'pointer' }}
-              >
-                ← رجوع
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
+          {step === 'passkey' ? <div className="space-y-4 text-center"><p className="text-sm text-slate-300">أكّد الهوية بمفتاح الأمان المسجّل.</p><button className={buttonClass} type="button" onClick={submitPasskey} disabled={loading}>{loading ? 'بانتظار المفتاح…' : 'تأكيد بمفتاح الأمان'}</button><button className="w-full text-sm text-slate-400 underline" onClick={() => setStep('credentials')}>رجوع</button></div> : null}
+
+          {step === 'reset-request' ? <form onSubmit={requestReset} className="space-y-4"><p className="text-sm text-slate-300">أدخل بريدك أو رقمك المسجل لإرسال رمز الاستعادة.</p><input className={inputClass} dir="ltr" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required /><button className={buttonClass} disabled={loading}>{loading ? 'جارٍ الإرسال…' : 'إرسال الرمز'}</button><button className="w-full text-sm text-slate-400 underline" type="button" onClick={() => setStep('credentials')}>رجوع</button></form> : null}
+
+          {step === 'reset-confirm' ? <form onSubmit={confirmReset} className="space-y-4"><input className={inputClass} placeholder="رمز التحقق" inputMode="numeric" maxLength={6} value={resetCode} onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))} required /><input className={inputClass} type="password" placeholder="كلمة المرور الجديدة" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={8} required /><button className={buttonClass} disabled={loading || resetCode.length !== 6}>{loading ? 'جارٍ الحفظ…' : 'تعيين كلمة المرور'}</button><button className="w-full text-sm text-slate-400 underline" type="button" onClick={() => setStep('credentials')}>رجوع</button></form> : null}
+        </section>
+      </main>
     </>
   );
 }

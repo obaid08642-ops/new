@@ -1,33 +1,62 @@
-export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
-  };
+function csrfToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const entry = document.cookie.split('; ').find((item) => item.startsWith('admin_csrf='));
+  return entry ? decodeURIComponent(entry.slice('admin_csrf='.length)) : null;
+}
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  if (response.status === 401 || response.status === 403) {
-    // If we hit an access control gate natively
-    console.error('Admin Guard strictly rejected access. You lack @Roles(UserRole.ADMIN) permission.');
-    // In production: window.location.href = '/login';
-    throw new Error('Access denied by backend guard.');
+function toBffUrl(url: string) {
+  if (url.startsWith('/api/admin/')) return url;
+  if (url.startsWith('/')) {
+    if (url.startsWith('/api/v1/admin/')) return `/api/admin/${url.slice('/api/v1/admin/'.length)}`;
+    if (url.startsWith('/admin/')) return `/api/admin/${url.slice('/admin/'.length)}`;
+    return url;
   }
 
+  try {
+    const parsed = new URL(url);
+    const match = parsed.pathname.match(/\/api\/v1\/admin\/(.*)$/);
+    if (match) return `/api/admin/${match[1]}${parsed.search}`;
+  } catch {
+    // A relative URL that did not parse remains unchanged below.
+  }
+  return url;
+}
+
+/**
+ * Compatibility helper for pre-existing pages. It deliberately does not read,
+ * persist, or append browser-held bearer tokens: the BFF uses HttpOnly cookies.
+ */
+export const fetchWithAdminGuard = async (url: string, options: RequestInit = {}) => {
+  const method = (options.method || 'GET').toUpperCase();
+  const headers = new Headers(options.headers);
+  if (!headers.has('Content-Type') && options.body) headers.set('Content-Type', 'application/json');
+  if (WRITE_METHODS.has(method)) {
+    const csrf = csrfToken();
+    if (!csrf) throw new Error('csrf_validation_failed');
+    headers.set('x-admin-csrf', csrf);
+  }
+
+  const response = await fetch(toBffUrl(url), {
+    ...options,
+    method,
+    headers,
+    credentials: 'same-origin',
+  });
+
+  if (response.status === 401 && typeof window !== 'undefined') {
+    const returnTo = encodeURIComponent(window.location.pathname);
+    window.location.assign(`/login?returnTo=${returnTo}`);
+  }
   return response;
 };
 
-export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}/api/v1${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-  const response = await fetchWithAdminGuard(url, options);
+export const apiFetch = async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+  const response = await fetchWithAdminGuard(endpoint, options);
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const payload = await response.json().catch(() => null);
+    throw new Error(typeof payload?.message === 'string' ? payload.message : `HTTP ${response.status}`);
   }
-  return response.json();
+  return response.json() as Promise<T>;
 };

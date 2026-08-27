@@ -1,137 +1,50 @@
-import React, { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
+import { adminFetch, adminMutation, apiErrorMessage } from '@/lib/admin-client';
 
-/**
- * M5 / BR-7: RBAC matrix viewer — mirrors the backend source of truth
- * (src/common/permissions.ts ROLE_PERMISSIONS). Enforcement is server-side
- * via JwtAuthGuard + @Roles/@RequirePermissions; dynamic role editing is M6 scope.
- */
-
-const PERMISSIONS: { key: string; group: string; ar: string }[] = [
-  { key: 'doctor.create', group: 'الأطباء', ar: 'إنشاء طبيب' },
-  { key: 'doctor.edit', group: 'الأطباء', ar: 'تعديل طبيب' },
-  { key: 'doctor.read', group: 'الأطباء', ar: 'قراءة طبيب' },
-  { key: 'doctor.delete', group: 'الأطباء', ar: 'حذف طبيب' },
-  { key: 'appointment.create', group: 'المواعيد', ar: 'إنشاء موعد' },
-  { key: 'appointment.read', group: 'المواعيد', ar: 'قراءة موعد' },
-  { key: 'appointment.update', group: 'المواعيد', ar: 'تحديث موعد' },
-  { key: 'appointment.delete', group: 'المواعيد', ar: 'حذف موعد' },
-  { key: 'prescription.create', group: 'الوصفات', ar: 'إنشاء وصفة' },
-  { key: 'prescription.read', group: 'الوصفات', ar: 'قراءة وصفة' },
-  { key: 'prescription.update', group: 'الوصفات', ar: 'تحديث وصفة' },
-  { key: 'prescription.delete', group: 'الوصفات', ar: 'حذف وصفة' },
-  { key: 'pharmacy.inventory.edit', group: 'الصيدلية', ar: 'تعديل المخزون' },
-  { key: 'pharmacy.inventory.read', group: 'الصيدلية', ar: 'قراءة المخزون' },
-  { key: 'lab.result.upload', group: 'المختبر', ar: 'رفع نتيجة' },
-  { key: 'lab.result.read', group: 'المختبر', ar: 'قراءة نتيجة' },
-  { key: 'radiology.result.upload', group: 'الأشعة', ar: 'رفع تقرير' },
-  { key: 'radiology.result.read', group: 'الأشعة', ar: 'قراءة تقرير' },
-  { key: 'facility.create', group: 'المنشآت', ar: 'إنشاء منشأة' },
-  { key: 'facility.edit', group: 'المنشآت', ar: 'تعديل منشأة' },
-  { key: 'facility.read', group: 'المنشآت', ar: 'قراءة منشأة' },
-  { key: 'facility.delete', group: 'المنشآت', ar: 'حذف منشأة' },
-  { key: 'user.impersonate', group: 'المستخدمون', ar: 'انتحال هوية' },
-  { key: 'user.read', group: 'المستخدمون', ar: 'قراءة مستخدم' },
-  { key: 'user.edit', group: 'المستخدمون', ar: 'تعديل مستخدم' },
-  { key: 'data.export', group: 'البيانات', ar: 'تصدير البيانات' },
-  { key: 'data.backup', group: 'البيانات', ar: 'نسخ احتياطي' },
-];
-
-const ALL = PERMISSIONS.map((p) => p.key);
-
-const ROLES: { key: string; ar: string; perms: string[] }[] = [
-  { key: 'SUPER_ADMIN', ar: 'مدير عام', perms: ALL },
-  { key: 'ADMIN', ar: 'مدير', perms: ['doctor.create','doctor.edit','doctor.read','appointment.read','appointment.update','prescription.read','pharmacy.inventory.read','lab.result.read','radiology.result.read','facility.create','facility.edit','facility.read','user.read','user.edit','data.export','data.backup'] },
-  { key: 'SUPPORT_AGENT', ar: 'وكيل دعم', perms: ['doctor.read','appointment.read','prescription.read','pharmacy.inventory.read','lab.result.read','radiology.result.read','facility.read','user.read','user.impersonate'] },
-  { key: 'FINANCE', ar: 'مالية', perms: ['appointment.read','facility.read','data.export'] },
-  { key: 'PATIENT', ar: 'مريض', perms: ['doctor.read','appointment.create','appointment.read','appointment.update','prescription.read','facility.read','user.read','user.edit'] },
-  { key: 'DOCTOR', ar: 'طبيب', perms: ['doctor.read','doctor.edit','appointment.read','appointment.update','prescription.create','prescription.read','prescription.update','facility.read','user.read'] },
-  { key: 'PHARMACIST', ar: 'صيدلي', perms: ['prescription.read','prescription.update','pharmacy.inventory.edit','pharmacy.inventory.read','user.read'] },
-  { key: 'PHARMACY', ar: 'صيدلية', perms: ['prescription.read','prescription.update','pharmacy.inventory.edit','pharmacy.inventory.read','user.read'] },
-  { key: 'HOSPITAL', ar: 'مستشفى', perms: ['doctor.create','doctor.edit','doctor.read','appointment.read','appointment.update','prescription.read','prescription.create','facility.read','facility.edit','user.read'] },
-  { key: 'LAB', ar: 'مختبر', perms: ['lab.result.upload','lab.result.read','user.read'] },
-  { key: 'RADIOLOGY', ar: 'أشعة', perms: ['radiology.result.upload','radiology.result.read','user.read'] },
-  { key: 'NURSE', ar: 'ممرض', perms: ['appointment.read','appointment.update','prescription.read','user.read'] },
-  { key: 'HOME_CARE', ar: 'رعاية منزلية', perms: ['appointment.read','appointment.update','user.read'] },
-  { key: 'PHYSIOTHERAPIST', ar: 'علاج طبيعي', perms: ['appointment.read','appointment.update','user.read'] },
-  { key: 'DELIVERY', ar: 'توصيل', perms: ['appointment.read','appointment.update','user.read'] },
-];
-
-const GROUPS = [...new Set(PERMISSIONS.map((p) => p.group))];
+type Permission = { key: string; label_ar?: string };
+type Role = { id?: string; key: string; name_ar?: string; permissions: string[]; is_system?: boolean };
+type Catalog = { permissions: Permission[]; system_roles: Role[] };
 
 export default function RbacPage() {
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [catalog, setCatalog] = useState<Catalog>({ permissions: [], system_roles: [] });
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [form, setForm] = useState({ key: '', name_ar: '', permissions: [] as string[], reason: '' });
+  const [creating, setCreating] = useState(false);
 
-  const visibleRoles = selectedRole ? ROLES.filter((r) => r.key === selectedRole) : ROLES;
-  const visiblePerms = selectedGroup ? PERMISSIONS.filter((p) => p.group === selectedGroup) : PERMISSIONS;
+  const load = useCallback(async () => {
+    setLoading(true); setError('');
+    try {
+      const [nextCatalog, nextRoles] = await Promise.all([adminFetch<Catalog>('/rbac/catalog'), adminFetch<{ data?: Role[] } | Role[]>('/rbac/roles')]);
+      setCatalog(nextCatalog);
+      setRoles(Array.isArray(nextRoles) ? nextRoles : nextRoles.data || []);
+    } catch (cause) { setError(apiErrorMessage(cause, 'تعذر تحميل مصفوفة الصلاحيات.')); }
+    finally { setLoading(false); }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
 
-  return (
-    <>
-      <Head><title>الأدوار والصلاحيات | نبض</title></Head>
-        <div className="p-8 space-y-6">
-          <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-5 text-sm text-indigo-900 leading-7">
-            <strong>كيف تُفرض الصلاحيات (BR-7):</strong> هذه المصفوفة هي مرآة للمصدر الحقيقي في الباك إند
-            (<code className="bg-white px-1 rounded" dir="ltr">common/permissions.ts → ROLE_PERMISSIONS</code>).
-            الفرض يتم عبر <code className="bg-white px-1 rounded" dir="ltr">JwtAuthGuard + @Roles/@RequirePermissions</code> على كل مسار،
-            مع عزل البيانات (<code className="bg-white px-1 rounded" dir="ltr">@CheckOwnership</code>): المزود لا يرى إلا عملياته والمريض إلا بياناته.
-            تعديل الأدوار ديناميكيًا من الواجهة ضمن نطاق M6.
-          </div>
+  const allRoles = useMemo(() => [...catalog.system_roles, ...roles], [catalog.system_roles, roles]);
+  function togglePermission(key: string) {
+    setForm((current) => ({ ...current, permissions: current.permissions.includes(key) ? current.permissions.filter((item) => item !== key) : [...current.permissions, key] }));
+  }
+  async function createRole(event: React.FormEvent) {
+    event.preventDefault();
+    if (!form.key.trim() || !form.name_ar.trim() || form.reason.trim().length < 5) { setError('المعرّف والاسم وسبب لا يقل عن خمسة أحرف مطلوبة.'); return; }
+    setCreating(true); setError('');
+    try {
+      await adminMutation('/rbac/roles', 'POST', { key: form.key.trim(), name_ar: form.name_ar.trim(), permissions: form.permissions, reason: form.reason.trim() });
+      setForm({ key: '', name_ar: '', permissions: [], reason: '' });
+      await load();
+    } catch (cause) { setError(apiErrorMessage(cause, 'تعذر إنشاء الدور.')); }
+    finally { setCreating(false); }
+  }
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-slate-500 font-bold">الدور:</span>
-            <button onClick={() => setSelectedRole(null)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${!selectedRole ? 'bg-teal-600 text-white' : 'bg-white border border-slate-200'}`}>الكل</button>
-            {ROLES.map((r) => (
-              <button key={r.key} onClick={() => setSelectedRole(selectedRole === r.key ? null : r.key)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${selectedRole === r.key ? 'bg-teal-600 text-white' : 'bg-white border border-slate-200'}`}>{r.ar}</button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-slate-500 font-bold">المجال:</span>
-            <button onClick={() => setSelectedGroup(null)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${!selectedGroup ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200'}`}>الكل</button>
-            {GROUPS.map((g) => (
-              <button key={g} onClick={() => setSelectedGroup(selectedGroup === g ? null : g)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${selectedGroup === g ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200'}`}>{g}</button>
-            ))}
-          </div>
-
-          {/* Matrix */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-auto">
-            <table className="text-center text-xs border-collapse min-w-full">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="p-3 text-right sticky right-0 bg-slate-50 z-10 min-w-[180px]">الصلاحية \ الدور</th>
-                  {visibleRoles.map((r) => (
-                    <th key={r.key} className="p-3 font-bold text-slate-700 min-w-[70px]">
-                      <div>{r.ar}</div>
-                      <div className="text-[9px] text-slate-400 font-mono" dir="ltr">{r.key}</div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {visiblePerms.map((p) => (
-                  <tr key={p.key} className="hover:bg-slate-50">
-                    <td className="p-3 text-right sticky right-0 bg-white z-10">
-                      <span className="font-medium text-slate-800">{p.ar}</span>
-                      <span className="block text-[9px] text-slate-400 font-mono" dir="ltr">{p.key}</span>
-                    </td>
-                    {visibleRoles.map((r) => (
-                      <td key={r.key} className="p-3">
-                        {r.perms.includes(p.key)
-                          ? <span className="inline-block w-5 h-5 rounded-full bg-green-100 text-green-700 leading-5 font-bold"></span>
-                          : <span className="inline-block w-5 h-5 rounded-full bg-slate-50 text-slate-300 leading-5">—</span>}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="text-xs text-slate-400">
-            {visibleRoles.length} دور · {visiblePerms.length} صلاحية معروضة — المجموع الكامل: {ROLES.length} دور × {PERMISSIONS.length} صلاحية.
-          </div>
-        </div>
-    </>
-  );
+  return <><Head><title>الأدوار والصلاحيات | نبض</title></Head><section dir="rtl" className="space-y-6 p-6 md:p-8">
+    <header><h1 className="text-3xl font-bold">الأدوار والصلاحيات</h1><p className="mt-1 text-sm text-slate-500">الكتالوج والأدوار مصدرها backend؛ منع تعديل أدوار النظام مفروض خادمياً.</p></header>
+    {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
+    <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-600"><tr><th className="p-4">الدور</th><th className="p-4">النوع</th><th className="p-4">عدد الصلاحيات</th><th className="p-4">الصلاحيات</th></tr></thead><tbody>{loading ? <tr><td colSpan={4} className="p-10 text-center text-slate-500">جارٍ تحميل الأدوار…</td></tr> : allRoles.map((role) => <tr key={role.id || role.key} className="border-t"><td className="p-4 font-bold">{role.name_ar || role.key}<p dir="ltr" className="mt-1 text-xs font-normal text-slate-500">{role.key}</p></td><td className="p-4">{role.is_system ? 'دور نظامي محمي' : 'دور مخصص'}</td><td className="p-4">{role.permissions.length}</td><td className="max-w-2xl p-4 text-xs text-slate-600">{role.permissions.join('، ') || 'لا توجد صلاحيات'}</td></tr>)}</tbody></table></div>
+    <form onSubmit={createRole} className="rounded-2xl border bg-white p-6 shadow-sm"><h2 className="text-xl font-bold">إنشاء دور مخصص</h2><p className="mt-1 text-sm text-slate-500">سيُسجل الإنشاء في audit ولا تقبل مفاتيح الصلاحيات غير الموجودة في الكتالوج.</p><div className="mt-4 grid gap-4 md:grid-cols-2"><label className="text-sm font-medium">مفتاح الدور<input required value={form.key} onChange={(e) => setForm({ ...form, key: e.target.value.replace(/[^a-z0-9_]/gi, '_').toLowerCase() })} dir="ltr" className="mt-1 w-full rounded-lg border p-2" placeholder="support_ops" /></label><label className="text-sm font-medium">الاسم العربي<input required value={form.name_ar} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} className="mt-1 w-full rounded-lg border p-2" /></label></div><fieldset className="mt-5"><legend className="text-sm font-bold">صلاحيات الدور</legend><div className="mt-2 grid max-h-72 grid-cols-1 gap-2 overflow-y-auto rounded-lg border p-3 md:grid-cols-2">{catalog.permissions.map((permission) => <label key={permission.key} className="flex cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={form.permissions.includes(permission.key)} onChange={() => togglePermission(permission.key)} /><span>{permission.label_ar || permission.key}<small dir="ltr" className="mr-2 text-slate-400">{permission.key}</small></span></label>)}</div></fieldset><label className="mt-5 block text-sm font-medium">سبب الإنشاء<textarea required minLength={5} value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} className="mt-1 min-h-20 w-full rounded-lg border p-2" /></label><button disabled={creating} className="mt-4 rounded-lg bg-teal-700 px-5 py-2 font-bold text-white disabled:opacity-50">{creating ? 'جارٍ الحفظ…' : 'إنشاء الدور وتدقيقه'}</button></form>
+  </section></>;
 }

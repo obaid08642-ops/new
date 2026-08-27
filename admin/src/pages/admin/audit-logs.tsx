@@ -1,106 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
-import EmptyIcon from '../../components/EmptyIcon';
+import { adminFetch, apiErrorMessage, toQuery } from '@/lib/admin-client';
 
-interface AuditLogItem {
+type AuditLog = {
   id: string;
-  adminId: string;
   action: string;
-  target: string;
-  severity: 'info' | 'warning' | 'danger';
-  createdAt: string;
-}
+  actor?: { id?: string; full_name?: string; email?: string };
+  target_type?: string;
+  target_id?: string;
+  reason?: string;
+  createdAt?: string;
+};
+
+type AuditResponse = { data: AuditLog[]; total: number; page: number; pages: number };
 
 export default function AuditLogsPage() {
-  const [logs, setLogs] = useState<AuditLogItem[]>([]);
+  const [data, setData] = useState<AuditResponse>({ data: [], total: 0, page: 1, pages: 1 });
+  const [page, setPage] = useState(1);
+  const [action, setAction] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
+  const load = useCallback(async () => {
+    setLoading(true); setError('');
     try {
-      setLoading(true);
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-      const token = localStorage.getItem('admin_token');
-      const res = await fetch(`${API_BASE}/api/v1/admin/governance/audit-logs`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setLogs(json.data || []);
-      }
-    } catch (e) {
-      console.error('Failed to fetch audit logs', e);
+      const result = await adminFetch<AuditResponse>(`/audit${toQuery({ page, limit: 25, action })}`);
+      setData(result);
+    } catch (reason) {
+      setError(apiErrorMessage(reason, 'تعذر تحميل سجل التدقيق.'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [action, page]);
 
-  return (
-    <>
-      <Head>
-        <title>سجل التدقيق والحوكمة | نبض</title>
-      </Head>
+  useEffect(() => { void load(); }, [load]);
 
-      <div className="p-8 dir-rtl text-right">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">سجل عمليات الأمن والحوكمة (ABAC Audit Logs)</h1>
-            <p className="text-slate-500 mt-1">تتبع غير قابل للتغيير لكافة العمليات السيادية والتعديلات الجارية على المنظومة</p>
-          </div>
-          <button
-            onClick={fetchLogs}
-            className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors font-medium text-sm"
-          >
-            تحديث السجل 
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="p-12 text-center text-slate-500">جاري تحميل سجل التدقيق...</div>
-        ) : logs.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
-            <EmptyIcon name="shield" size={44} color="#0D9488" className="mb-3 mx-auto" />
-            <h3 className="text-lg font-bold text-slate-800">لا توجد عمليات غير طبيعية مسجلة</h3>
-            <p className="text-slate-500 text-sm mt-1">نظام الحوكمة والتحكم بالصلاحيات ABAC يراقب الاستدعاءات الأمنية على مدار الساعة.</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <table className="w-full text-right border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 text-xs font-bold uppercase">
-                  <th className="p-4">التاريخ والوقت</th>
-                  <th className="p-4">المدير المسؤول</th>
-                  <th className="p-4">الإجراء المنفذ</th>
-                  <th className="p-4">الهدف / التغيير</th>
-                  <th className="p-4">مستوى الأهمية</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
-                {logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 text-xs font-mono text-slate-500">{new Date(log.createdAt || Date.now()).toLocaleString('ar-SA-u-ca-gregory')}</td>
-                    <td className="p-4 font-medium text-slate-900">{log.adminId || 'Super Admin'}</td>
-                    <td className="p-4 font-semibold text-slate-800">{log.action}</td>
-                    <td className="p-4 text-slate-600">{log.target}</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        log.severity === 'danger' ? 'bg-red-50 text-red-700 border border-red-200' :
-                        log.severity === 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        'bg-teal-50 text-teal-700 border border-teal-200'
-                      }`}>
-                        {log.severity?.toUpperCase() || 'INFO'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+  return <>
+    <Head><title>سجل التدقيق | نبض</title></Head>
+    <section dir="rtl" className="p-6 md:p-8">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div><h1 className="text-3xl font-bold">سجل التدقيق</h1><p className="mt-1 text-sm text-slate-500">سجل خادمي غير قابل للتلاعب لعمليات الإدارة المؤثرة.</p></div>
+        <div className="flex gap-2"><input className="rounded-lg border px-3 py-2 text-sm" value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }} placeholder="تصفية باسم الإجراء" /><button onClick={() => void load()} className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">تحديث</button></div>
       </div>
-    </>
-  );
+      {error ? <p role="alert" className="mb-4 rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
+      <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">
+        <table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-600"><tr><th className="p-4">الوقت</th><th className="p-4">المنفّذ</th><th className="p-4">الإجراء</th><th className="p-4">المورد</th><th className="p-4">السبب</th></tr></thead>
+          <tbody>{loading ? <tr><td colSpan={5} className="p-10 text-center text-slate-500">جارٍ تحميل السجل…</td></tr> : data.data.length ? data.data.map((row) => <tr key={row.id} className="border-t"><td className="p-4 text-xs text-slate-500">{row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA') : '—'}</td><td className="p-4">{row.actor?.full_name || row.actor?.email || row.actor?.id || '—'}</td><td className="p-4 font-medium">{row.action}</td><td className="p-4">{row.target_type || '—'} {row.target_id || ''}</td><td className="p-4 text-slate-600">{row.reason || '—'}</td></tr>) : <tr><td colSpan={5} className="p-10 text-center text-slate-500">لا توجد نتائج مطابقة.</td></tr>}</tbody>
+        </table>
+      </div>
+      <div className="mt-4 flex items-center justify-between text-sm"><span>إجمالي السجلات: {data.total}</span><div className="flex gap-2"><button disabled={page <= 1 || loading} onClick={() => setPage((value) => value - 1)} className="rounded border px-3 py-1 disabled:opacity-40">السابق</button><span className="px-2">{data.page} / {data.pages || 1}</span><button disabled={page >= (data.pages || 1) || loading} onClick={() => setPage((value) => value + 1)} className="rounded border px-3 py-1 disabled:opacity-40">التالي</button></div></div>
+    </section>
+  </>;
 }
