@@ -8,7 +8,7 @@
 - [x] Open a review-only pull request for the static expiry package; do not deploy, merge, schedule, run migrations, or connect Redis in production.
 - [ ] Obtain operating constraints: maximum tolerated expiry delay, expected concurrent-offer volume, and Redis durability/MISCONF status before choosing the future runner.
 - [x] Audit all open stacked pull requests, release branches, and source-tree application surfaces before extending production scope.
-- [ ] Produce and approve a route, screen, API-action, state, and acceptance-criteria parity matrix for Patient Web and Patient Mobile.
+- [x] Produce and approve a baseline route, screen, API-action, state, and acceptance-criteria parity matrix for Patient Web and Patient Mobile; detailed closure remains tracked by the implementation waves below.
 - [ ] Close verified Backend contract and state-machine gaps required by the parity matrix, including wallet prohibition and capability-driven payment constraints.
 - [ ] Implement missing Patient Web pharmacy and shared patient-flow screens with loading, empty, error, forbidden, and success states.
 - [ ] Implement missing Patient Mobile pharmacy and shared patient-flow screens to the same approved functional contract.
