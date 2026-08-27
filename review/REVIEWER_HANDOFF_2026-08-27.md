@@ -8,7 +8,7 @@
 | الفرع فقط | `remediation/provider-production-governed` |
 | رابط الفرع | https://github.com/obaid08642-ops/new/tree/remediation/provider-production-governed |
 | رابط المقارنة | https://github.com/obaid08642-ops/new/compare/main...remediation/provider-production-governed |
-| رأس المراجعة الحالي | `501594bc50ac25391781629e933a06b9378804de` |
+| رأس المراجعة الحالي | `a37d9e5d956004f98ffb09cf634aaf5fb0d6cf92` |
 
 ## الالتزامات التي يلزم مراجعتها بالترتيب
 
@@ -27,6 +27,7 @@
 | PR-D | `58f3466be3efecf48d22d436bd0a9b2450a52471` | `fix(pharmacy): minimize broadcast clinical fields` | https://github.com/obaid08642-ops/new/commit/58f3466be3efecf48d22d436bd0a9b2450a52471 |
 | harness docs | `14e856f02672c4f8b340ce5ecb7817670ee788a1` | `docs(review): record isolated integration requirements` | https://github.com/obaid08642-ops/new/commit/14e856f02672c4f8b340ce5ecb7817670ee788a1 |
 | latest evidence | `501594bc50ac25391781629e933a06b9378804de` | `docs(review): record unified remediation test result` | https://github.com/obaid08642-ops/new/commit/501594bc50ac25391781629e933a06b9378804de |
+| surface cards | `a37d9e5d956004f98ffb09cf634aaf5fb0d6cf92` | `docs(review): add provider surface remediation cards` | https://github.com/obaid08642-ops/new/commit/a37d9e5d956004f98ffb09cf634aaf5fb0d6cf92 |
 
 ## ترتيب القراءة والفحص
 
