@@ -99,6 +99,7 @@ describe('PaymentsService ownership guards (E5-F2)', () => {
   it('maps gateway intent failures to a safe 502 without exposing PSP text', async () => {
     svc.modelFor = jest.fn(() => ({
       findOne: jest.fn(() => ({ lean: async () => ({ id: 'b1', patient_account_id: 'patient-1', governed_state: 'FINAL_QUOTE_ACCEPTED', accepted_quote_snapshot: { totals: { total: 12, currency: 'SAR' } }, accepted_quote_hash: 'quote-hash', accepted_quote_revision: 1, payment_status: 'pending', payment_method: 'card' }) })),
+      updateOne: jest.fn(async () => ({ modifiedCount: 1 })),
     }));
     svc.txns.findOne = jest.fn(() => ({ lean: async () => null }));
     svc.adapter.createIntent = jest.fn(async () => { throw new Error('Entity not activated to use live account'); });

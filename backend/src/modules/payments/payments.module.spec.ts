@@ -12,7 +12,7 @@ function createPaymentsService(booking: any) {
     findOneAndUpdate: jest.fn().mockResolvedValue({ id: 'txn-1', status: 'pending', toObject: () => ({ id: 'txn-1', status: 'pending' }) }),
     updateOne: jest.fn(),
   };
-  const pharmacyOrders: any = { findOne: jest.fn().mockReturnValue(lean(booking)) };
+  const pharmacyOrders: any = { findOne: jest.fn().mockReturnValue(lean(booking)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
   const service = new PaymentsService(
     txns, {} as any, pharmacyOrders, {} as any, {} as any, {} as any, {} as any, {} as any,
     {} as any, { emit: jest.fn() } as any, { emitToUser: jest.fn() } as any, { detectDuplicatePayments: jest.fn(), checkPaymentVelocity: jest.fn() } as any,
@@ -36,7 +36,7 @@ describe('PaymentsService pharmacy quote guard', () => {
   });
 
   it('uses only the immutable accepted quote amount, currency, hash, and revision', async () => {
-    const { service, txns, adapter } = createPaymentsService(acceptedBooking);
+    const { service, txns, pharmacyOrders, adapter } = createPaymentsService(acceptedBooking);
     await expect(service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1')).resolves.toEqual({ id: 'txn-1', status: 'pending' });
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1', amount: 84.5, currency: 'SAR', quote_hash: 'quote-hash', quote_revision: 4, method: 'card',
@@ -44,6 +44,10 @@ describe('PaymentsService pharmacy quote guard', () => {
     expect(adapter.createIntent).toHaveBeenCalledWith(expect.objectContaining({
       amount: 84.5, currency: 'SAR', metadata: expect.objectContaining({ quote_hash: 'quote-hash', quote_revision: 4 }),
     }));
+    expect(pharmacyOrders.updateOne).toHaveBeenCalledWith(
+      { id: 'order-1', governed_state: 'FINAL_QUOTE_ACCEPTED' },
+      { $set: { governed_state: 'PAYMENT_PENDING', transaction_id: 'txn-1' } },
+    );
   });
 
   it('rejects any customer wallet method even if a quote was accepted', async () => {

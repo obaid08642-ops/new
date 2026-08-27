@@ -215,6 +215,10 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id });
     if (!a) throw new NotFoundException();
     if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    if ([PharmacyAllocationState.PREPARING, PharmacyAllocationState.READY_FOR_PICKUP, PharmacyAllocationState.OUT_FOR_DELIVERY, PharmacyAllocationState.DELIVERED].includes(to)) {
+      const order: any = await this.orders.findOne({ id: a.order_id });
+      if (!order || order.governed_state !== 'CONFIRMED') throw new BadRequestException('payment_or_cod_confirmation_required');
+    }
     const fromStatus = a.status;
     this.transition(a, to, user.id);
     await a.save();
@@ -253,7 +257,7 @@ export class PharmacyAllocationService {
     if (allDelivered && order.status !== PharmacyOrderState.DELIVERED && order.status !== PharmacyOrderState.COMPLETED) { nextStatus = PharmacyOrderState.DELIVERED; event = 'all_allocations_delivered'; }
     else if (anyOut && order.status !== PharmacyOrderState.OUT_FOR_DELIVERY) { nextStatus = PharmacyOrderState.OUT_FOR_DELIVERY; event = 'first_out_for_delivery'; }
     else if (anyPreparing && order.status !== PharmacyOrderState.IN_FULFILLMENT) { nextStatus = PharmacyOrderState.IN_FULFILLMENT; event = 'fulfillment_started'; }
-    else if (allConfirmed && order.status === PharmacyOrderState.FULLY_ALLOCATED) { nextStatus = PharmacyOrderState.CONFIRMED; event = 'all_allocations_confirmed'; }
+    else if (allConfirmed && order.status === PharmacyOrderState.FULLY_ALLOCATED && order.governed_state === 'CONFIRMED') { nextStatus = PharmacyOrderState.CONFIRMED; event = 'all_allocations_confirmed'; }
     if (!nextStatus) return;
     await this.engine.transition({
       kind: 'pharmacy', entity_id: order.id, from_domain: order.status, to_domain: nextStatus,
