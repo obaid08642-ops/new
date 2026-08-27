@@ -4,7 +4,7 @@
  * If no FULL_ACCEPT exists, runs the Best Partial Match ranking algorithm.
  * Exposes reject/decline broadcast logging rejections to the Shortage Engine.
  */
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, GoneException, Logger, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -117,6 +117,7 @@ export class PharmacyBroadcastService {
 
   /** Pharmacy claims "FULL_ACCEPT" — atomic winner-take-all. */
   async claimHaveAll(user: any, order_id: string, body?: { eta_minutes?: number; delivery_fee?: number }): Promise<any> {
+    throw new GoneException('legacy_broadcast_claim_deprecated_use_inventory_backed_offer');
     if (!isProviderRole(user?.role)) throw new ForbiddenException('provider_scope_required');
     const bc = await this.broadcasts.findOne({ order_id });
     if (!bc) throw new NotFoundException('broadcast_not_found');
