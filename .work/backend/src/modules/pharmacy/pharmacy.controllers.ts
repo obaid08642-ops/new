@@ -84,19 +84,13 @@ export class ProviderPharmacyController {
   evaluateInsurance() { throw new ServiceUnavailableException('legacy_insurance_evaluation_disabled_use_governed_insurance_decision'); }
 
   @Post('orders/:id/preparing')
-  async orderPreparing(@CurrentUser() u: any, @Param('id') id: string) {
-    return this.providerOrders.orderPreparing(u, id);
-  }
+  orderPreparing() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
 
   @Post('orders/:id/ready')
-  async orderReady(@CurrentUser() u: any, @Param('id') id: string) {
-    return this.providerOrders.orderReady(u, id);
-  }
+  orderReady() { throw new ServiceUnavailableException('legacy_order_transition_disabled_use_selected_allocation'); }
 
   @Post('orders/:id/dispatch')
-  async orderDispatch(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) {
-    return this.providerOrders.orderDispatch(u, id, b);
-  }
+  orderDispatch() { throw new ServiceUnavailableException('legacy_order_dispatch_disabled_delivery_proof_required'); }
 }
 
 // =========================================================================
