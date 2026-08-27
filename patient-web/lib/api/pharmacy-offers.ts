@@ -32,8 +32,15 @@ export type PatientPharmacyOrderProgress = {
   coverageMode?: "cash" | "insurance";
   acceptedQuoteHash?: string;
   acceptedQuoteRevision?: number;
+  acceptedQuoteTotal?: number;
   codAllowed?: boolean;
   paymentStatus?: string;
+  insurance?: {
+    decision?: string;
+    coPayAmount?: number;
+    coveredAmount?: number;
+    items: Array<{ id: string; decision?: string; lineAmount?: number; coveredAmount?: number; coPayAmount?: number; reason?: string }>;
+  };
 };
 
 function valueRecord(value: unknown) {
@@ -115,12 +122,25 @@ export function extractPatientPharmacyOrderProgress(payload: unknown): PatientPh
   if (!source) return null;
   const acceptedSnapshot = valueRecord(source.accepted_quote_snapshot);
   const rawCoverageMode = stringValue(source, ["coverage_mode", "coverageMode"]);
+  const summary = valueRecord(source.insurance_decision_summary);
+  const items = Array.isArray(source.insurance_item_decisions) ? source.insurance_item_decisions.flatMap((value) => {
+    const item = valueRecord(value);
+    const id = item ? stringValue(item, ["order_item_id", "orderItemId", "id"]) : undefined;
+    return id ? [{ id, decision: stringValue(item!, ["decision"]), lineAmount: numberValue(item!, ["line_amount", "lineAmount"]), coveredAmount: numberValue(item!, ["covered_amount", "coveredAmount"]), coPayAmount: numberValue(item!, ["co_pay_amount", "coPayAmount"]), reason: stringValue(item!, ["reason"])}] : [];
+  }) : [];
   return {
     governedState: stringValue(source, ["governed_state", "governedState"]),
     coverageMode: rawCoverageMode === "cash" || rawCoverageMode === "insurance" ? rawCoverageMode : undefined,
     acceptedQuoteHash: stringValue(source, ["accepted_quote_hash", "acceptedQuoteHash"]),
     acceptedQuoteRevision: numberValue(source, ["accepted_quote_revision", "acceptedQuoteRevision"]),
+    acceptedQuoteTotal: numberValue(valueRecord(acceptedSnapshot?.totals) ?? {}, ["total"]),
     codAllowed: booleanValue(acceptedSnapshot ?? {}, ["cod_allowed", "codAllowed"]),
     paymentStatus: stringValue(source, ["payment_status", "paymentStatus"]),
+    insurance: summary || items.length ? {
+      decision: stringValue(summary ?? {}, ["decision"]),
+      coPayAmount: numberValue(summary ?? {}, ["co_pay_amount", "coPayAmount"]),
+      coveredAmount: numberValue(summary ?? {}, ["covered_amount", "coveredAmount"]),
+      items,
+    } : undefined,
   };
 }
