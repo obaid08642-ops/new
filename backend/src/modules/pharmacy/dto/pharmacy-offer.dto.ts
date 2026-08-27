@@ -81,3 +81,42 @@ export class AcceptPharmacyFinalQuoteDto {
   @Min(1)
   quote_revision!: number;
 }
+
+export class PharmacyInsuranceItemDecisionDto {
+  @IsString()
+  order_item_id!: string;
+
+  @IsIn(['APPROVED_FULL', 'APPROVED_PARTIAL', 'REJECTED'])
+  decision!: 'APPROVED_FULL' | 'APPROVED_PARTIAL' | 'REJECTED';
+
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  covered_amount!: number;
+
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  co_pay_amount!: number;
+
+  @IsOptional()
+  @IsString()
+  authorization_reference?: string;
+
+  @IsOptional()
+  @IsString()
+  reason_code?: string;
+}
+
+export class EvaluatePharmacyInsuranceDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => PharmacyInsuranceItemDecisionDto)
+  items!: PharmacyInsuranceItemDecisionDto[];
+}
+
+export class AcceptPharmacyCoPayDto {
+  @IsIn(['card', 'apple-pay', 'google-pay'])
+  payment_method!: 'card' | 'apple-pay' | 'google-pay';
+}

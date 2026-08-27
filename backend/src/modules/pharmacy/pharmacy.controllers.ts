@@ -13,7 +13,7 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { isProviderRole } from '../../common/enums';
 import { IdempotencyInterceptor, RequireIdempotency } from '../../common/idempotency.interceptor';
-import { AcceptPharmacyFinalQuoteDto, SelectPharmacyOfferDto, SubmitPharmacyOfferDto } from './dto/pharmacy-offer.dto';
+import { AcceptPharmacyCoPayDto, AcceptPharmacyFinalQuoteDto, EvaluatePharmacyInsuranceDto, SelectPharmacyOfferDto, SubmitPharmacyOfferDto } from './dto/pharmacy-offer.dto';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -38,6 +38,10 @@ export class PatientPharmacyController {
   @UseInterceptors(IdempotencyInterceptor)
   @RequireIdempotency()
   acceptFinalQuote(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AcceptPharmacyFinalQuoteDto) { return this.offers.acceptFinalQuote(u, id, b.quote_hash, b.quote_revision); }
+  @Post('orders/:id/insurance/co-pay/accept')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  acceptInsuranceCoPay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: AcceptPharmacyCoPayDto) { return this.offers.acceptInsuranceCoPay(u, id, b.payment_method); }
 }
 
 // =========================================================================
@@ -162,6 +166,10 @@ export class ProviderBroadcastController {
   @UseInterceptors(IdempotencyInterceptor)
   @RequireIdempotency()
   submitOffer(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: SubmitPharmacyOfferDto) { return this.offers.submitOffer(u, oid, b); }
+  @Post(':orderId/insurance/decision')
+  @UseInterceptors(IdempotencyInterceptor)
+  @RequireIdempotency()
+  recordInsuranceDecision(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: EvaluatePharmacyInsuranceDto) { return this.offers.recordInsuranceDecision(u, oid, b); }
   @Post(':orderId/reject') reject(@CurrentUser() u: any, @Param('orderId') oid: string, @Body() b: any) { return this.bc.respondReject(u, oid, b); }
 }
 

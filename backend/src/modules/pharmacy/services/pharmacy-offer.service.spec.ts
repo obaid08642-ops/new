@@ -182,4 +182,49 @@ describe('PharmacyOfferService', () => {
     await expect(service.acceptFinalQuote({ id: 'patient-1' }, 'order-1', 'quote-hash', 2)).rejects.toThrow('governed_transition_rejected');
     expect(orders.findOneAndUpdate).not.toHaveBeenCalled();
   });
+
+  it('records a complete per-item insurance decision only for the selected pharmacy', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', selected_pharmacy_account_id: 'pharmacy-1',
+      governed_state: 'INSURANCE_PROCESSING', insurance_details: { policyNumber: 'P-1' },
+      accepted_quote_snapshot: { items: [{ order_item_id: 'line-1', offered_qty: 2, unit_price: 10 }] },
+    });
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1', governed_state: 'INSURANCE_DECISION_READY', toObject: () => ({ id: 'order-1', governed_state: 'INSURANCE_DECISION_READY' }) });
+
+    await expect(service.recordInsuranceDecision({ id: 'pharmacy-1', role: 'pharmacy' }, 'order-1', {
+      items: [{ order_item_id: 'line-1', decision: 'APPROVED_PARTIAL', covered_amount: 16, co_pay_amount: 4, authorization_reference: 'AUTH-1' }],
+    })).resolves.toEqual({ id: 'order-1', governed_state: 'INSURANCE_DECISION_READY' });
+    expect(orders.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ selected_pharmacy_account_id: 'pharmacy-1', governed_state: 'INSURANCE_PROCESSING' }),
+      expect.objectContaining({ $set: expect.objectContaining({ insurance_decision_summary: expect.objectContaining({ decision: 'APPROVED_PARTIAL', co_pay_amount: 4 }) }) }),
+      { new: true },
+    );
+  });
+
+  it('rejects incomplete item decisions and decisions from an unselected pharmacy', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', selected_pharmacy_account_id: 'pharmacy-1', governed_state: 'INSURANCE_PROCESSING',
+      insurance_details: { policyNumber: 'P-1' }, accepted_quote_snapshot: { items: [{ order_item_id: 'line-1', offered_qty: 1, unit_price: 10 }] },
+    });
+    await expect(service.recordInsuranceDecision({ id: 'pharmacy-2', role: 'pharmacy' }, 'order-1', { items: [] })).rejects.toThrow(ForbiddenException);
+    await expect(service.recordInsuranceDecision({ id: 'pharmacy-1', role: 'pharmacy' }, 'order-1', { items: [] })).rejects.toThrow('incomplete_insurance_item_decisions');
+  });
+
+  it('moves an approved co-pay to payment pending only after the patient explicitly accepts it', async () => {
+    const { service, orders } = createService();
+    orders.findOne.mockResolvedValue({
+      id: 'order-1', patient_account_id: 'patient-1', governed_state: 'INSURANCE_DECISION_READY',
+      insurance_decision_summary: { decision: 'APPROVED_PARTIAL', co_pay_amount: 4 },
+    });
+    orders.findOneAndUpdate.mockResolvedValue({ id: 'order-1', governed_state: 'CO_PAY_PENDING', toObject: () => ({ id: 'order-1', governed_state: 'CO_PAY_PENDING' }) });
+
+    await expect(service.acceptInsuranceCoPay({ id: 'patient-1' }, 'order-1', 'apple-pay')).resolves.toEqual({ id: 'order-1', governed_state: 'CO_PAY_PENDING' });
+    expect(orders.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ governed_state: 'INSURANCE_DECISION_READY' }),
+      expect.objectContaining({ $set: expect.objectContaining({ payment_method: 'apple-pay' }) }),
+      { new: true },
+    );
+  });
 });
