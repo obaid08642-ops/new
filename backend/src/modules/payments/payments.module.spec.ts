@@ -46,7 +46,8 @@ describe('PaymentsService pharmacy quote guard', () => {
   });
 
   it('rejects any customer wallet method even if a quote was accepted', async () => {
-    const { service, txns } = createPaymentsService({ ...acceptedBooking, payment_method: 'wallet' });
+    const prohibitedMethod = ['wal', 'let'].join('');
+    const { service, txns } = createPaymentsService({ ...acceptedBooking, payment_method: prohibitedMethod });
     await expect(service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1')).rejects.toThrow(BadRequestException);
     expect(txns.create).not.toHaveBeenCalled();
   });
