@@ -50,6 +50,7 @@
 - [x] Replace Patient Mobile prescription-cart intake with a price-free prescription item transfer into the governed pharmacy checkout, preserving a prescription reference without using the legacy prescription-cart endpoint.
 - [x] Replace Patient Mobile manual medicine intake with a governed pharmacy draft entry that carries patient-supplied description only, excludes local price/payment, and does not claim unpersisted image attachment support.
 - [x] Replace Patient Mobile custom-item and drug-not-found legacy support-request entrypoints with explicit routes to the governed manual pharmacy intake, preserving no local attachment or payment behavior.
+- [x] Remove Patient Mobile pharmacy-cart display and persistence of client price, subtotal, and pre-selection payment type; retain a local item list that only creates a governed pharmacy draft at checkout.
 - [ ] Inventory and govern all NestJS timer, cron, queue, worker, and expiry-writer paths; retain no in-process authority for pharmacy offer or broadcast expiry and defer new production runners until the operating decision is made.
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
