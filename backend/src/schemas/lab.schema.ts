@@ -112,6 +112,8 @@ export class LabBooking extends Document {
   @Prop() insurance_member_id?: string;
   @Prop({ enum: ['none', 'pending', 'approved', 'rejected', 'partial_approval'], default: 'none' }) insurance_status: string;
   @Prop({ default: 0 }) insurance_copay: number;
+  @Prop() insurance_request_id?: string;
+  @Prop() insurance_review_state?: string;
   @Prop({ type: InsuranceDetailsSchema }) insurance_details?: InsuranceDetails;
   @Prop({ type: [Object], default: [] }) documents: Array<{ kind: 'prescription' | 'doctor_request' | 'preauth' | 'previous_report'; url_or_b64: string; filename?: string; uploaded_at: Date }>;
   

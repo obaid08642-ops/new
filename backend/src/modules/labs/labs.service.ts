@@ -11,6 +11,7 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { getEffectiveRoles } from '../../common/auth.guard';
+import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 
 @Injectable()
 export class LabsService {
@@ -23,6 +24,7 @@ export class LabsService {
     private readonly bus: EventBusService,
     private readonly engine: WorkflowEngineService,
     private readonly pdfService: LabPdfService,
+    private readonly insurance: InsuranceFlowService,
   ) {}
 
   async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
@@ -167,12 +169,21 @@ export class LabsService {
       insurance_status,
       documents,
     });
+    if (paymentMethod === 'insurance') {
+      try {
+        const request = await this.insurance.createRequest(user, { booking_id: booking.id, booking_kind: 'lab' });
+        booking.insurance_request_id = request.id;
+        booking.insurance_review_state = request.state;
+        await booking.save();
+      } catch (reason) {
+        await this.bkgModel.deleteOne({ id: booking.id, patient_id: user.id, state: LabBookingState.NEW_REQUEST } as any);
+        throw reason;
+      }
+      this.bus.emit({ type: 'insurance.pending', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, reason_code: data.insurance_provider || 'unknown_provider', meta: { docs: documents.length } }).catch(() => null);
+    }
     this.events.emit('lab.booking_created', { booking_id: booking.id, patient_id: user.id, tracking_id: booking.tracking_id });
     this.events.emit('lab.booking_state_changed', { booking_id: booking.id, patient_id: user.id, state: booking.state, tracking_id: booking.tracking_id });
     await this.engine.announceCreated({ kind: 'lab', entity_id: booking.id, actor_account_id: user.id, actor_role: 'patient', patient_account_id: user.id, meta: { tracking_id: booking.tracking_id, items: items.length, total, location_type: booking.location_type, payment_method: paymentMethod } });
-    if (paymentMethod === 'insurance') {
-      this.bus.emit({ type: 'insurance.pending', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, reason_code: data.insurance_provider || 'unknown_provider', meta: { docs: documents.length } }).catch(() => null);
-    }
     if (booking.location_type === 'home') {
       this.bus.emit({ type: 'home_visit.assigned', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, meta: { facility_id: booking.facility_id } }).catch(() => null);
     }
