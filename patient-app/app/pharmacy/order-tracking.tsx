@@ -187,6 +187,7 @@ export default function OrderTrackingScreen() {
           <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 6 }}>اختيار العرض والتفاوض والسعر النهائي والتأمين والدفع تتبع حالة الخادم؛ لا يجري التطبيق أي دفع أو انتقال تلقائي.</LocalizedText>
         </View>}
         {['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(governedState) && <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/final-quote', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13 }}>مراجعة السعر النهائي والدفع</LocalizedText></TouchableOpacity>}
+        {['INSURANCE_PROCESSING', 'INSURANCE_DECISION_READY'].includes(governedState) || (governedState === 'CONFIRMED' && orderData?.payment_status === 'covered_by_insurance') ? <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/insurance-decision', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13 }}>قرار التأمين ونسبة التحمل</LocalizedText></TouchableOpacity> : null}
 
         {/* Order Summary */}
         <View style={[styles.summaryCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
