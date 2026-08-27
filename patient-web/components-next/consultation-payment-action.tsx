@@ -1,0 +1,17 @@
+"use client";
+
+import { useState } from "react";
+import { CreditCard, ExternalLink, LoaderCircle, ShieldCheck } from "lucide-react";
+import styles from "./appointment-booking-form.module.css";
+import { isHttpsCheckoutUrl } from "@/lib/api/checkout-url";
+
+type Method = "card" | "apple-pay" | "google-pay";
+type Capabilities = { booking_id: string; amount: number; currency: "SAR"; purpose: "consultation_card_payment"; methods: Array<{ id: Method; kind: "online" }> };
+function label(method: Method) { return method === "apple-pay" ? "Apple Pay" : method === "google-pay" ? "Google Pay" : "بطاقة"; }
+
+export function ConsultationPaymentAction({ appointmentId }: { appointmentId: string }) {
+  const [capabilities, setCapabilities] = useState<Capabilities | null>(null); const [loading, setLoading] = useState(false); const [message, setMessage] = useState<string | null>(null);
+  async function load() { if (loading) return; setLoading(true); setMessage(null); try { const response = await fetch(`/api/appointments/${appointmentId}/payment-capabilities`, { cache: "no-store" }); const data = await response.json().catch(() => null); if (!response.ok || !data) { setMessage("لا تتوفر عملية دفع إلكتروني لهذا الموعد في حالته الحالية."); return; } setCapabilities(data as Capabilities); } catch { setMessage("تعذر جلب خيارات الدفع. أعد المحاولة يدوياً."); } finally { setLoading(false); } }
+  async function begin(method: Method) { if (loading || !capabilities?.methods.some((item) => item.id === method)) return; setLoading(true); setMessage(null); try { const response = await fetch(`/api/appointments/${appointmentId}/payment-intent`, { method: "POST", headers: { "content-type": "application/json", "idempotency-key": crypto.randomUUID() }, body: JSON.stringify({ method }) }); const data = await response.json().catch(() => null); if (!response.ok || !isHttpsCheckoutUrl(data?.checkoutUrl)) { setMessage("تعذر بدء الدفع الإلكتروني بأمان. لم يتم تأكيد أي دفع."); return; } window.location.assign(data.checkoutUrl); } catch { setMessage("تعذر بدء الدفع الإلكتروني. لم يتم تأكيد أي دفع."); } finally { setLoading(false); } }
+  return <section className={styles.panel} aria-labelledby="consultation-payment-title"><div className={styles.heading}><div><p className={styles.eyebrow}><CreditCard size={15} aria-hidden="true" />الدفع الإلكتروني</p><h2 id="consultation-payment-title">أكمل الدفع من خلال بوابة آمنة</h2></div></div><p className={styles.muted}>إنشاء الموعد ليس تأكيداً للدفع. لا تتغير حالة الموعد إلا بعد تحقق الخادم من نتيجة البوابة.</p>{capabilities ? <><p className={styles.muted}>المبلغ المحدد من الخادم: {capabilities.amount} {capabilities.currency}</p><div className={styles.slotGrid}>{capabilities.methods.map((item) => <button type="button" className={styles.slot} onClick={() => begin(item.id)} disabled={loading} key={item.id}>{loading ? <LoaderCircle className={styles.spinner} size={16} aria-hidden="true" /> : <ExternalLink size={16} aria-hidden="true" />}{label(item.id)}</button>)}</div>{capabilities.methods.length === 0 ? <p className={styles.muted}>لا توجد وسيلة إلكترونية مفعّلة لهذه البوابة والجهاز.</p> : null}</> : <button type="button" className={styles.submit} onClick={load} disabled={loading}>{loading ? <LoaderCircle className={styles.spinner} size={18} aria-hidden="true" /> : <ShieldCheck size={18} aria-hidden="true" />}عرض خيارات الدفع الآمنة</button>}{message ? <p className={styles.error} role="alert">{message}</p> : null}</section>;
+}
