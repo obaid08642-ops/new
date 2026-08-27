@@ -37,3 +37,4 @@
 - [x] Require and verify idempotency on patient pharmacy create, update, submit, and cancel mutations before connecting the rebuilt Web/Mobile pharmacy flows.
 - [x] Reject or strip patient-supplied pharmacy line prices from create and update payloads so broadcast requests cannot persist a client-controlled quote before provider offers.
 - [x] Close the initial verified Pharmacy Backend boundary gaps: mutation idempotency and rejection of client-controlled pre-offer prices.
+- [x] Remove the wallet-shaped fixture from the Patient Web pharmacy draft unit test so the repository-wide customer-wallet policy guard remains enforceable.
