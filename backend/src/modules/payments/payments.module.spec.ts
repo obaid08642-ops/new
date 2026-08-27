@@ -36,7 +36,7 @@ describe('PaymentsService pharmacy quote guard', () => {
   });
 
   it('uses only the immutable accepted quote amount, currency, hash, and revision', async () => {
-    const { service, txns, adapter } = createPaymentsService(acceptedBooking);
+    const { service, txns, pharmacyOrders, adapter } = createPaymentsService(acceptedBooking);
     await expect(service.createPaymentIntent({ id: 'patient-1' }, 'pharmacy', 'order-1', 'key-1')).resolves.toEqual({ id: 'txn-1', status: 'pending' });
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({
       patient_id: 'patient-1', amount: 84.5, currency: 'SAR', quote_hash: 'quote-hash', quote_revision: 4, method: 'card',
