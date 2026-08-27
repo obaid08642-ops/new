@@ -10,6 +10,8 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { Facility, FacilitySchema } from '../../schemas/facility.schema';
 import { LabService, LabServiceSchema } from '../../schemas/lab.schema';
 import { RadiologyService, RadiologyServiceSchema } from '../../schemas/radiology.schema';
+import { HomeCareService, HomeCareServiceSchema } from '../../schemas/home-care.schema';
+import { CatalogPublicationService, CatalogEntityType } from '../events/catalog-publication.service';
 
 @Injectable()
 export class ApprovalWorkflowService {
@@ -20,6 +22,8 @@ export class ApprovalWorkflowService {
     @InjectModel('Facility') private facilityModel: Model<any>,
     @InjectModel('LabService') private labModel: Model<any>,
     @InjectModel('RadiologyService') private radiologyModel: Model<any>,
+    @InjectModel('HomeCareService') private homeCareModel: Model<any>,
+    private readonly publication: CatalogPublicationService,
   ) {}
 
   async createRequest(
@@ -97,10 +101,22 @@ export class ApprovalWorkflowService {
     req.reviewed_by = adminUserId;
     req.reviewed_at = new Date();
 
-    const finalData = dto.edit_data ? { ...req.change_data, ...dto.edit_data } : req.change_data;
+    const reviewedAt = new Date();
+    const requestedData = dto.edit_data ? { ...req.change_data, ...dto.edit_data } : req.change_data;
+    // Approval is an explicit publication review; indexing still remains opt-in.
+    const finalData = {
+      ...requestedData,
+      public_eligibility: true,
+      indexing_eligibility: false,
+      medical_review_status: 'approved',
+      last_reviewed: reviewedAt,
+      provenance: `approval_workflow:${requestId}`,
+    };
+    let publicationType: CatalogEntityType;
 
     // Apply logic to target collection
     if (req.entity_type === 'medicine') {
+      publicationType = 'medicine';
       if (req.entity_id) {
         await this.medicineModel.updateOne({ id: req.entity_id }, { $set: finalData });
       } else {
@@ -108,6 +124,7 @@ export class ApprovalWorkflowService {
         req.entity_id = newDoc.id;
       }
     } else if (req.entity_type === 'provider') {
+      publicationType = 'provider';
       if (req.entity_id) {
         await this.providerModel.updateOne({ id: req.entity_id }, { $set: finalData });
       } else {
@@ -115,6 +132,7 @@ export class ApprovalWorkflowService {
         req.entity_id = newDoc.id;
       }
     } else if (req.entity_type === 'facility') {
+      publicationType = 'facility';
       if (req.entity_id) {
         await this.facilityModel.updateOne({ id: req.entity_id }, { $set: finalData });
       } else {
@@ -122,8 +140,11 @@ export class ApprovalWorkflowService {
         req.entity_id = newDoc.id;
       }
     } else if (req.entity_type === 'service') {
-      const isLab = finalData.type === 'lab' || req.change_data.type === 'lab';
-      const model = isLab ? this.labModel : this.radiologyModel;
+      const serviceType = String(requestedData.type || req.change_data.type || '').toLowerCase();
+      const isLab = serviceType === 'lab' || serviceType === 'laboratory';
+      const isHomeCare = serviceType === 'home_care' || serviceType === 'home-care' || serviceType === 'nursing';
+      publicationType = isLab ? 'lab_service' : isHomeCare ? 'home_care_service' : 'radiology_service';
+      const model = isLab ? this.labModel : isHomeCare ? this.homeCareModel : this.radiologyModel;
       if (req.entity_id) {
         await model.updateOne({ id: req.entity_id }, { $set: finalData });
       } else {
@@ -133,6 +154,14 @@ export class ApprovalWorkflowService {
     }
 
     await req.save();
+    await this.publication.refresh({
+      entityType: publicationType!,
+      entityId: req.entity_id!,
+      actorId: adminUserId,
+      actorRole: 'admin',
+      reason: 'approval_workflow_approved',
+      idempotencyKey: `approval-workflow:${requestId}:approved`,
+    });
     return req.toObject();
   }
 }
@@ -180,6 +209,7 @@ export class ApprovalWorkflowController {
       { name: 'Facility', schema: FacilitySchema },
       { name: 'LabService', schema: LabServiceSchema },
       { name: 'RadiologyService', schema: RadiologyServiceSchema },
+      { name: 'HomeCareService', schema: HomeCareServiceSchema },
     ]),
   ],
   controllers: [ApprovalWorkflowController],

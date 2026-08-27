@@ -24,16 +24,8 @@ export class ProviderAuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  private signToken(a: ProviderAccount, profile?: ProviderProfile | null) {
-    return this.jwt.sign({
-      sub: a.id,
-      id: a.id,
-      role: 'provider',
-      provider_type: a.provider_type,
-      scope: 'provider',
-      provider_account_id: a.id,
-      provider_profile_id: profile?.id,
-    });
+  private signToken(a: ProviderAccount) {
+    return this.jwt.sign({ sub: a.id, id: a.id, role: 'provider', provider_type: a.provider_type, scope: 'provider' });
   }
   private publicAccount(a: ProviderAccount) {
     return { id: a.id, email: a.email, provider_type: a.provider_type, status: a.status, email_verified: a.email_verified, onboarding_progress: a.onboarding_progress };
@@ -56,13 +48,7 @@ export class ProviderAuthService {
     if (exists) throw new ConflictException('email already registered');
     const password_hash = await bcrypt.hash(input.password, 10);
     const acc = await this.accounts.create({ email, password_hash, provider_type: input.provider_type, status: ProviderAccountStatus.EMAIL_UNVERIFIED, status_history: [{ from: '', to: ProviderAccountStatus.EMAIL_UNVERIFIED, by_user_id: 'system', by_role: 'system', at: new Date() }] });
-    await this.profiles.create({
-      account_id: acc.id,
-      user_id: acc.id,
-      provider_type: input.provider_type,
-      type: input.provider_type,
-      status: 'pending',
-    });
+    await this.profiles.create({ account_id: acc.id, provider_type: input.provider_type });
     await this.audit.create({ provider_account_id: acc.id, actor_id: acc.id, actor_role: 'provider', action: 'auth.register', target: { collection: 'provider_accounts', id: acc.id } });
     const otpRes = await this.otp.issue(email, OtpPurpose.EMAIL_VERIFICATION, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: acc.id });
     return { account: this.publicAccount(acc), otp: otpRes, required_documents: REQUIRED_DOCS_BY_PROVIDER_TYPE[input.provider_type] };
@@ -98,7 +84,7 @@ export class ProviderAuthService {
     const profileData = p ? p.toObject() : null;
 
     return { 
-      access_token: this.signToken(a, p),
+      access_token: this.signToken(a),
       refresh_token,
       session_id: session.id,
       provider_id: a.id,
@@ -155,7 +141,7 @@ export class ProviderAuthService {
     const profileData = p ? p.toObject() : null;
 
     return { 
-      access_token: this.signToken(a, p),
+      access_token: this.signToken(a),
       refresh_token: new_refresh_token,
       provider_id: a.id,
       provider_type: a.provider_type,
@@ -181,9 +167,11 @@ export class ProviderAuthService {
   }
 
   async verifyEmail(input: { email: string; code: string; meta?: any }) {
+    // During ONBOARDING the provider record lives in users/provider_profiles,
+    // not provider_accounts — so the OTP check must not hard-require an account.
     const a = await this.accounts.findOne({ email: input.email.toLowerCase().trim() });
-    if (!a) throw new NotFoundException();
-    await this.otp.verify(input.email, OtpPurpose.EMAIL_VERIFICATION, input.code, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a.id });
+    await this.otp.verify(input.email, OtpPurpose.EMAIL_VERIFICATION, input.code, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a?.id });
+    if (!a) return { ok: true, onboarding: true };
     if (!a.email_verified) {
       a.email_verified = true; a.email_verified_at = new Date();
       const allowed = PROVIDER_STATUS_TRANSITIONS[a.status] || [];
@@ -202,6 +190,14 @@ export class ProviderAuthService {
     if (!a) return { ok: true };
     await this.otp.issue(a.email, OtpPurpose.PASSWORD_RESET, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a.id });
     return { ok: true };
+  }
+
+  /** Non-consuming code check for the reset screen's OTP step. Generic OK
+   *  when the account doesn't exist (anti-enumeration, same as forgot). */
+  async verifyResetCode(input: { email: string; code: string; meta?: any }) {
+    const a = await this.accounts.findOne({ email: input.email.toLowerCase().trim() });
+    if (!a) throw new BadRequestException('no active code — please request a new one');
+    return this.otp.check(input.email, OtpPurpose.PASSWORD_RESET, input.code, { ip: input.meta?.ip, ua: input.meta?.ua, account_id: a.id });
   }
 
   async resetPassword(input: { email: string; code: string; new_password: string; meta?: any }) {

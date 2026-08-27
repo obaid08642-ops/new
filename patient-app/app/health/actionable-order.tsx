@@ -1,62 +1,45 @@
 // @ts-nocheck
-import React, { useMemo, useState } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { BorderRadius as R, Spacing as SP } from '../../src/theme';
-import { useApp } from '../../src/context/AppContext';
-import I from 'react-native-vector-icons/Feather';
+import { Colors, Spacing as SP, BorderRadius as R } from '../../src/theme';
+import { Icon as I } from '../../src/components/Icon';
+import { LocalizedText } from '../../src/components/LocalizedText';
+
+// Theme facade over the real design tokens (light palette — screen is static-styled)
+const theme = {
+  bg: Colors.light.background,
+  surface: Colors.light.surface,
+  border: Colors.light.border,
+  text: Colors.light.textPrimary,
+  textSub: Colors.light.textSecondary,
+  primary: Colors.light.primary,
+  success: Colors.light.success,
+  successBg: Colors.light.successSurface,
+  warning: Colors.light.warning,
+  info: Colors.light.info,
+};
 
 export default function ActionableOrderScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const { colors } = useApp();
-  const theme = useMemo(() => ({
-    bg: colors.bg,
-    surface: colors.s,
-    border: colors.bd,
-    text: colors.n,
-    textSub: colors.t2,
-    primary: colors.p,
-    success: colors.gr,
-    successBg: colors.grs,
-    warning: colors.am,
-    info: colors.bl,
-  }), [colors]);
-  const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const payload = useMemo(() => {
-    if (typeof params.payload !== 'string') return { erx: [], labs: [], radiology: [], referral: null };
-    try {
-      const parsed = JSON.parse(params.payload);
-      return {
-        erx: Array.isArray(parsed.erx) ? parsed.erx : [],
-        labs: Array.isArray(parsed.labs) ? parsed.labs : [],
-        radiology: Array.isArray(parsed.radiology) ? parsed.radiology : [],
-        referral: parsed.referral ?? null,
-      };
-    } catch {
-      return { erx: [], labs: [], radiology: [], referral: null };
-    }
-  }, [params.payload]);
+  // Parse payload pushed from the consultation end
+  const payload = typeof params.payload === 'string' ? JSON.parse(params.payload) : {
+    erx: [],
+    labs: [],
+    radiology: [],
+    referral: null
+  };
 
   const handleOrderMeds = () => {
-    setLoading(true);
-    router.push('/pharmacy');
-    setLoading(false);
+    router.push('/(tabs)/pharmacy');
   };
 
   const handleBookLabs = () => {
-    setLoading(true);
-    router.push('/diagnostics');
-    setLoading(false);
+    // M1-33: fixed broken route — /labs does not exist; labs live under /diagnostics
+    router.push('/diagnostics/search');
   };
 
   return (
@@ -65,7 +48,7 @@ export default function ActionableOrderScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <I name="arrow-right" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>أوامر طبية قابلة للتنفيذ</Text>
+        <LocalizedText style={styles.headerTitle}>أوامر طبية قابلة للتنفيذ</LocalizedText>
         <View style={{ width: 40 }} />
       </View>
 
@@ -73,8 +56,8 @@ export default function ActionableOrderScreen() {
         <View style={styles.alertBox}>
           <I name="check-circle" size={24} color={theme.success} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.alertTitle}>انتهت الاستشارة بنجاح</Text>
-            <Text style={styles.alertSub}>قام الطبيب بإصدار الأوامر الطبية التالية. يمكنك تنفيذها الآن مباشرة عبر منصة نبض.</Text>
+            <LocalizedText style={styles.alertTitle}>انتهت الاستشارة بنجاح</LocalizedText>
+            <LocalizedText style={styles.alertSub}>قام الطبيب بإصدار الأوامر الطبية التالية. يمكنك تنفيذها الآن مباشرة عبر منصة نبض.</LocalizedText>
           </View>
         </View>
 
@@ -82,28 +65,28 @@ export default function ActionableOrderScreen() {
         {payload.erx && payload.erx.length > 0 ? (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <I name="file-text" size={20} color={theme.primary} />
-              <Text style={styles.sectionTitle}>الوصفة الطبية (E-Rx)</Text>
+              <I name="document" size={20} color={theme.primary} />
+              <LocalizedText style={styles.sectionTitle}>الوصفة الطبية (E-Rx)</LocalizedText>
             </View>
             {payload.erx.map((med: any, idx: number) => (
               <View key={idx} style={styles.itemRow}>
                 <I name="disc" size={16} color={theme.primary} />
                 <View style={{ flex: 1, marginRight: SP.sm }}>
-                  <Text style={styles.itemText}>{med.name}</Text>
-                  <Text style={styles.itemSub}>{med.dosage} - {med.frequency}</Text>
+                  <LocalizedText style={styles.itemText}>{med.name}</LocalizedText>
+                  <LocalizedText style={styles.itemSub}>{med.dosage} - {med.frequency}</LocalizedText>
                 </View>
               </View>
             ))}
             <TouchableOpacity style={styles.actionBtn} onPress={handleOrderMeds} disabled={loading}>
-              <I name="shopping-bag" size={20} color="#fff" />
-              <Text style={styles.actionBtnText}>اطلب الأدوية الآن (صيدلية نبض)</Text>
+              <I name="shopping_cart" size={20} color="#fff" />
+              <LocalizedText style={styles.actionBtnText}>اطلب الأدوية الآن (صيدلية نبض)</LocalizedText>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <I name="file-text" size={20} color={theme.textSub} />
-              <Text style={[styles.sectionTitle, { color: theme.textSub }]}>لا توجد أدوية موصوفة</Text>
+              <I name="document" size={20} color={theme.textSub} />
+              <LocalizedText style={[styles.sectionTitle, { color: theme.textSub }]}>لا توجد أدوية موصوفة</LocalizedText>
             </View>
           </View>
         )}
@@ -112,20 +95,20 @@ export default function ActionableOrderScreen() {
         {payload.labs && payload.labs.length > 0 ? (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <I name="activity" size={20} color={theme.warning} />
-              <Text style={styles.sectionTitle}>التحاليل الطبية (Labs)</Text>
+              <I name="pulse" size={20} color={theme.warning} />
+              <LocalizedText style={styles.sectionTitle}>التحاليل الطبية (Labs)</LocalizedText>
             </View>
             {payload.labs.map((lab: any, idx: number) => (
               <View key={idx} style={styles.itemRow}>
-                <I name="activity" size={16} color={theme.warning} />
+                <I name="pulse" size={16} color={theme.warning} />
                 <View style={{ flex: 1, marginRight: SP.sm }}>
-                  <Text style={styles.itemText}>{lab.name}</Text>
+                  <LocalizedText style={styles.itemText}>{lab.name}</LocalizedText>
                 </View>
               </View>
             ))}
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.warning }]} onPress={handleBookLabs} disabled={loading}>
               <I name="home" size={20} color="#fff" />
-              <Text style={styles.actionBtnText}>حجز زيارة منزلية لسحب الدم</Text>
+              <LocalizedText style={styles.actionBtnText}>حجز زيارة منزلية لسحب الدم</LocalizedText>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -135,19 +118,19 @@ export default function ActionableOrderScreen() {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <I name="monitor" size={20} color={theme.info} />
-              <Text style={styles.sectionTitle}>طلب أشعة (Radiology)</Text>
+              <LocalizedText style={styles.sectionTitle}>طلب أشعة (Radiology)</LocalizedText>
             </View>
             {payload.radiology.map((rad: any, idx: number) => (
               <View key={idx} style={styles.itemRow}>
                 <I name="monitor" size={16} color={theme.info} />
                 <View style={{ flex: 1, marginRight: SP.sm }}>
-                  <Text style={styles.itemText}>{rad.name}</Text>
+                  <LocalizedText style={styles.itemText}>{rad.name}</LocalizedText>
                 </View>
               </View>
             ))}
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.info }]} onPress={() => router.push('/diagnostics')} disabled={loading}>
-              <I name="map-pin" size={20} color="#fff" />
-              <Text style={styles.actionBtnText}>استعراض المراكز القريبة</Text>
+            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.info }]} onPress={() => router.push('/diagnostics/search')}>
+              <I name="location" size={20} color="#fff" />
+              <LocalizedText style={styles.actionBtnText}>استعراض مراكز الأشعة</LocalizedText>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -157,10 +140,7 @@ export default function ActionableOrderScreen() {
   );
 }
 
-const createStyles = (theme: {
-  bg: string; surface: string; border: string; text: string; textSub: string;
-  primary: string; success: string; successBg: string; warning: string; info: string;
-}) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.bg },
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: SP.lg, backgroundColor: theme.surface, borderBottomWidth: 1, borderBottomColor: theme.border },
   backBtn: { padding: SP.xs },

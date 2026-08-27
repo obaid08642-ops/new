@@ -6,10 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   KeyboardAvoidingView,
-  Platform
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  Platform,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +26,7 @@ import {
 } from "../../src/components/ui";
 
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const QUICK_REPLIES = [
   "إلغاء حجز",
@@ -40,6 +43,7 @@ export default function SupportChatScreen() {
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [attaching, setAttaching] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   React.useEffect(() => {
@@ -240,8 +244,43 @@ export default function SupportChatScreen() {
             textAlign="right"
             onSubmitEditing={() => sendMessage(inputText)}
           />
-          <TouchableOpacity style={styles.attachBtn}>
-            <Icon name="attach" size={20} color={colors.textTertiary} />
+          <TouchableOpacity
+            style={styles.attachBtn}
+            disabled={attaching}
+            onPress={async () => {
+              try {
+                const ImagePicker = await import('expo-image-picker');
+                const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (!perm.granted) {
+                  showLocalizedAlert('الصلاحية مطلوبة', 'نحتاج إذن الوصول للصور لإرفاق ملف');
+                  return;
+                }
+                const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+                if (result.canceled || !result.assets?.[0]) return;
+                setAttaching(true);
+                const asset = result.assets[0];
+                const formData = new FormData();
+                formData.append('file', {
+                  uri: asset.uri,
+                  name: asset.fileName || 'attachment.jpg',
+                  type: asset.mimeType || 'image/jpeg',
+                } as any);
+                formData.append('folder', 'support');
+                const up = await apiFetch<any>('/media/upload', { method: 'POST', body: formData });
+                const url = up?.url || up?.data?.url;
+                if (url) sendMessage(`مرفق: ${url}`);
+              } catch (err: any) {
+                showLocalizedAlert('تعذّر الإرفاق', err?.message || 'فشل رفع المرفق');
+              } finally {
+                setAttaching(false);
+              }
+            }}
+          >
+            {attaching ? (
+              <ActivityIndicator size="small" color={colors.textTertiary} />
+            ) : (
+              <Icon name="attach" size={20} color={colors.textTertiary} />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

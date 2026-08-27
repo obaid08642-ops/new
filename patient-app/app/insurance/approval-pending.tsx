@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
+import { apiFetch } from '../../src/utils/api';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 
 export default function InsuranceApprovalPendingScreen() {
@@ -12,19 +13,51 @@ export default function InsuranceApprovalPendingScreen() {
   const { colors, isDark } = useApp();
   const params = useLocalSearchParams();
   const [status, setStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
-  const [copayPercent, setCopayPercent] = useState(20);
-  const [totalAmount, setTotalAmount] = useState(350);
+  const [copayPercent, setCopayPercent] = useState<number | null>(null);
+  const [copayAmountReal, setCopayAmountReal] = useState<number | null>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
+  const [policyNumber, setPolicyNumber] = useState<string | null>(null);
+  const totalAmount = Number(params.amount) || 0;
 
+  // Poll the real insurance-approval request linked to this booking — never auto-approve.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setStatus('approved');
-      setCopayPercent(20);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    let stopped = false;
+    const TERMINAL_APPROVED = ['COPAY_PENDING', 'COPAY_PAID', 'APPROVED', 'CONFIRMED'];
+    const TERMINAL_REJECTED = ['REJECTED', 'DECLINED', 'CANCELLED'];
 
-  const copayAmount = Math.round(totalAmount * copayPercent / 100);
-  const insurancePays = totalAmount - copayAmount;
+    const check = async () => {
+      try {
+        let req: any = null;
+        if (params.requestId) {
+          req = await apiFetch(`/insurance/requests/${params.requestId}`).catch(() => null);
+        } else {
+          const list = await apiFetch('/insurance/requests/my').catch(() => []);
+          const arr = Array.isArray(list) ? list : [];
+          req = params.bookingId
+            ? arr.find((r: any) => r.booking_id === params.bookingId)
+            : arr[0];
+        }
+        if (stopped || !req) return;
+        if (req.copay_percent !== undefined && req.copay_percent !== null) setCopayPercent(Number(req.copay_percent));
+        if (req.copay_amount !== undefined && req.copay_amount !== null) setCopayAmountReal(Number(req.copay_amount));
+        if (TERMINAL_APPROVED.includes(req.state)) setStatus('approved');
+        else if (TERMINAL_REJECTED.includes(req.state)) setStatus('rejected');
+      } catch { /* keep polling */ }
+    };
+
+    apiFetch('/users/me/profile').then((p: any) => {
+      if (stopped) return;
+      setCompanyName(p?.insurance?.provider || null);
+      setPolicyNumber(p?.insurance?.policy_number || null);
+    }).catch(() => {});
+
+    check();
+    const t = setInterval(check, 6000);
+    return () => { stopped = true; clearInterval(t); };
+  }, [params.requestId, params.bookingId]);
+
+  const copayAmount = copayAmountReal ?? (copayPercent !== null ? Math.round(totalAmount * copayPercent / 100) : null);
+  const insurancePays = copayAmount !== null ? totalAmount - copayAmount : null;
 
   if (status === 'pending') {
     return (
@@ -35,16 +68,23 @@ export default function InsuranceApprovalPendingScreen() {
         </View>
         <AppText variant="h3" align="center">جاري مراجعة التأمين</AppText>
         <AppText variant="bodySM" color={colors.textTertiary} align="center">نتحقق من تغطية التأمين الخاص بك. عادةً يستغرق أقل من دقيقة</AppText>
-        <View style={[st.infoBox, { backgroundColor: colors.infoSurface } ]}>
-          <View style={{ flexDirection: 'row-reverse', gap: 8, alignItems: 'center' }}>
-            <Icon name="shield" size={18} color={colors.info} />
-            <AppText variant="bodySM" color={colors.textSecondary}>شركة التأمين: بوبا العربية</AppText>
+        {(companyName || policyNumber) && (
+          <View style={[st.infoBox, { backgroundColor: colors.infoSurface } ]}>
+            {companyName && (
+              <View style={{ flexDirection: 'row-reverse', gap: 8, alignItems: 'center' }}>
+                <Icon name="shield" size={18} color={colors.info} />
+                <AppText variant="bodySM" color={colors.textSecondary}>شركة التأمين: {companyName}</AppText>
+              </View>
+            )}
+            {policyNumber && (
+              <View style={{ flexDirection: 'row-reverse', gap: 8, alignItems: 'center' }}>
+                <Icon name="document" size={18} color={colors.info} />
+                <AppText variant="bodySM" color={colors.textSecondary}>رقم الوثيقة: {policyNumber}</AppText>
+              </View>
+            )}
           </View>
-          <View style={{ flexDirection: 'row-reverse', gap: 8, alignItems: 'center' }}>
-            <Icon name="document" size={18} color={colors.info} />
-            <AppText variant="bodySM" color={colors.textSecondary}>رقم الوثيقة: INS-2026-4521</AppText>
-          </View>
-        </View>
+        )}
+        <Button label="متابعة حالة الطلبات" variant="ghost" icon="refresh" onPress={() => router.push('/insurance/claim-tracking')} />
       </View>
     );
   }
@@ -59,7 +99,9 @@ export default function InsuranceApprovalPendingScreen() {
         <AppText variant="h3" align="center" color={colors.error}>لم تتم الموافقة</AppText>
         <AppText variant="bodySM" color={colors.textTertiary} align="center">التأمين لا يغطي هذه الخدمة. يمكنك الدفع كاش أو الاتصال بشركة التأمين</AppText>
         <View style={{ gap: 10, width: '100%' }}>
-          <Button label={`ادفع كاش — ${totalAmount} ر.س`} variant="gradient" icon="card" onPress={() => router.push('/payments/processing')} />
+          {totalAmount > 0 && (
+            <Button label={`ادفع كاش — ${totalAmount} ر.س`} variant="gradient" icon="card" onPress={() => router.push('/payments/processing')} />
+          )}
           <Button label="اتصل بشركة التأمين" variant="outline" icon="call" onPress={() => router.replace('/(tabs)/consultations')} />
           <Button label="إلغاء" variant="ghost" icon="close" onPress={() => router.back()} />
         </View>
@@ -85,16 +127,30 @@ export default function InsuranceApprovalPendingScreen() {
             <AppText variant="h5" color={colors.primary}>{totalAmount} ر.س</AppText>
             <AppText variant="bodySM" color={colors.textSecondary}>إجمالي التكلفة</AppText>
           </View>
-          <View style={[st.divider, { backgroundColor: colors.borderLight }]} />
-          <View style={st.row}>
-            <AppText variant="h5" color={colors.success}>{insurancePays} ر.س</AppText>
-            <AppText variant="bodySM" color={colors.textSecondary}>يدفع التأمين ({100 - copayPercent}%)</AppText>
-          </View>
-          <View style={[st.divider, { backgroundColor: colors.borderLight }]} />
-          <View style={st.row}>
-            <AppText variant="h4" color={colors.warning}>{copayAmount} ر.س</AppText>
-            <AppText variant="bodySM" color={colors.textSecondary}>نسبة تحملك ({copayPercent}%)</AppText>
-          </View>
+          {insurancePays !== null && copayPercent !== null && (
+            <>
+              <View style={[st.divider, { backgroundColor: colors.borderLight }]} />
+              <View style={st.row}>
+                <AppText variant="h5" color={colors.success}>{insurancePays} ر.س</AppText>
+                <AppText variant="bodySM" color={colors.textSecondary}>يدفع التأمين ({100 - copayPercent}%)</AppText>
+              </View>
+            </>
+          )}
+          {copayAmount !== null && copayPercent !== null && (
+            <>
+              <View style={[st.divider, { backgroundColor: colors.borderLight }]} />
+              <View style={st.row}>
+                <AppText variant="h4" color={colors.warning}>{copayAmount} ر.س</AppText>
+                <AppText variant="bodySM" color={colors.textSecondary}>نسبة تحملك ({copayPercent}%)</AppText>
+              </View>
+            </>
+          )}
+          {copayAmount === null && (
+            <>
+              <View style={[st.divider, { backgroundColor: colors.borderLight }]} />
+              <AppText variant="bodySM" color={colors.textTertiary} align="center">سيُحدَّد مبلغ التحمل عند اكتمال مراجعة التأمين</AppText>
+            </>
+          )}
         </Card>
 
         {copayPercent === 0 && (
@@ -118,7 +174,7 @@ export default function InsuranceApprovalPendingScreen() {
       </View>
 
       <View style={[st.bottom, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight } ]}>
-        <Button label={copayAmount > 0 ? `تأكيد ودفع ${copayAmount} ر.س` : 'تأكيد (بدون دفع)'} variant="gradient" size="lg" icon="check_circle" onPress={() => router.push('/payments/processing')} />
+        <Button label={copayAmount !== null && copayAmount > 0 ? `تأكيد ودفع ${copayAmount} ر.س` : 'تأكيد'} variant="gradient" size="lg" icon="check_circle" onPress={() => router.push('/payments/processing')} />
       </View>
     </View>
   );

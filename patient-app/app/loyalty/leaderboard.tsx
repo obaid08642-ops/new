@@ -15,65 +15,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 
-const LEADERS = [
-  {
-    rank: 1,
-    name: "سارة العتيبي",
-    pts: 18_420,
-    tier: "diamond",
-    emoji: "face_3",
-    change: 0,
-  },
-  {
-    rank: 2,
-    name: "محمد القحطاني",
-    pts: 16_800,
-    tier: "diamond",
-    emoji: "face",
-    change: +1,
-  },
-  {
-    rank: 3,
-    name: "فاطمة السيد",
-    pts: 15_200,
-    tier: "diamond",
-    emoji: "face_3",
-    change: -1,
-  },
-  {
-    rank: 4,
-    name: "أحمد العتيبي (أنت)",
-    pts: 4_850,
-    tier: "workspace_premium",
-    emoji: "face_6",
-    change: +3,
-    isMe: true,
-  },
-  {
-    rank: 5,
-    name: "خالد المطيري",
-    pts: 4_200,
-    tier: "workspace_premium",
-    emoji: "face",
-    change: 0,
-  },
-  {
-    rank: 6,
-    name: "نورة الغامدي",
-    pts: 3_800,
-    tier: "workspace_premium",
-    emoji: "face_3",
-    change: -2,
-  },
-  {
-    rank: 7,
-    name: "عبدالله الدوسري",
-    pts: 3_100,
-    tier: "military_tech",
-    emoji: "face",
-    change: +1,
-  },
-];
+import { apiFetch } from "../../src/utils/api";
 
 const TIER_COLORS = {
   diamond: "#23B5CE",
@@ -86,7 +28,30 @@ export default function LeaderboardScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
 
+  const [LEADERS, setLeaders] = React.useState<any[]>([]);
+  const [loadingLb, setLoadingLb] = React.useState(true);
+
+  React.useEffect(() => {
+    // Real leaderboard from the loyalty service (privacy-safe: no names exposed)
+    apiFetch('/loyalty/leaderboard?limit=50')
+      .then((res) => {
+        const rows = Array.isArray(res) ? res : (res?.data || []);
+        setLeaders(rows.map((r: any, i: number) => ({
+          rank: i + 1,
+          name: `مستخدم نبض ${String(r.user_id || '').slice(0, 4)}****`,
+          pts: r.lifetime_points || 0,
+          tier: r.tier || 'military_tech',
+          emoji: 'face',
+          change: 0,
+          isMe: false,
+        })));
+      })
+      .catch(() => setLeaders([]))
+      .finally(() => setLoadingLb(false));
+  }, []);
+
   const top3 = LEADERS.slice(0, 3);
+  const hasTop3 = top3.length >= 3;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -117,6 +82,17 @@ export default function LeaderboardScreen() {
         </View>
       </View>
       {/* Podium Area */}
+      {loadingLb && (
+        <View style={{ padding: 40, alignItems: 'center' }}>
+          <AppText variant="bodySM" color={colors.textTertiary}>جاري تحميل المتصدرين…</AppText>
+        </View>
+      )}
+      {!loadingLb && LEADERS.length === 0 && (
+        <View style={{ padding: 40, alignItems: 'center' }}>
+          <AppText variant="bodySM" color={colors.textTertiary}>لا توجد بيانات متصدرين بعد — اجمع النقاط لتظهر هنا</AppText>
+        </View>
+      )}
+      {!loadingLb && hasTop3 && (
       <View
         style={[
           styles.header,
@@ -181,6 +157,7 @@ export default function LeaderboardScreen() {
           </View>
         </View>
       </View>
+      )}
 
       <FlatList
         data={LEADERS.slice(3)}

@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { CustomServiceRequest, CustomServiceKind, CustomServiceStatus } from '../../schemas/custom-service.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CustomServiceRequestRepository } from "./repositories/customservicerequest.repository";
+import { isProviderRole } from '../../common/enums';
 
 @Injectable()
 export class CustomServicesService {
@@ -42,7 +43,7 @@ export class CustomServicesService {
   async one(user: any, id: string) {
     const r = await this.model.findOne({ id }, { _id: 0, __v: 0 });
     if (!r) throw new NotFoundException();
-    if (r.patient_id !== user.id && user.role !== 'admin' && user.role !== 'provider') throw new NotFoundException();
+    if (r.patient_id !== user.id && user.role !== 'admin' && !isProviderRole(user.role)) throw new NotFoundException();
     return r;
   }
 

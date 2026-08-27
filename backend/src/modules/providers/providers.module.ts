@@ -7,7 +7,6 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { UserRepository } from "./repositories/user.repository";
 import { HospitalSubEntity, HospitalSubEntitySchema } from './schemas/hospital-sub-entity.schema';
-import { ProviderDelta, ProviderDeltaSchema } from './schemas/provider-delta.schema';
 import { HospitalEnterpriseController } from './controllers/hospital-enterprise.controller';
 
 import { ProviderBranch, ProviderBranchSchema } from '../../schemas/provider-branch.schema';
@@ -19,7 +18,6 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
       { name: User.name, schema: UserSchema },
       { name: ProviderProfile.name, schema: ProviderProfileSchema },
       { name: HospitalSubEntity.name, schema: HospitalSubEntitySchema },
-      { name: ProviderDelta.name, schema: ProviderDeltaSchema },
       { name: ProviderBranch.name, schema: ProviderBranchSchema },
       { name: Appointment.name, schema: AppointmentSchema },
     ]),

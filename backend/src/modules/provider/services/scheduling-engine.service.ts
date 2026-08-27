@@ -4,9 +4,10 @@ import { ProviderScheduleSlot } from '../schemas/capabilities.schema';
 import { ProviderRequest, ProviderRequestStatus } from '../schemas/requests.schema';
 import { ProviderScheduleSlotRepository } from "./repositories/providerscheduleslot.repository";
 import { ProviderRequestRepository } from "./repositories/providerrequest.repository";
+import { isProviderRole } from '../../../common/enums';
 
 function assertProvider(user: any) {
-  if (!user || user.role !== 'provider') throw new ForbiddenException('provider scope required');
+  if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
 

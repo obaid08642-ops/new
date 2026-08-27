@@ -149,6 +149,10 @@ export const Tokens = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Register Phase 1B Repositories
 // ─────────────────────────────────────────────────────────────────────────────
+// Register the domain EventBus singleton so consumers (e.g. Redux integration
+// in src/store/index.ts) don't hit "[DI] Service not found for token: EventBus"
+container.register(Tokens.EventBus, new EventBus());
+
 container.registerFactory(Tokens.UserRepository, () => {
   const localSource = new AsyncStorageDataSource<User>('users');
   const remoteSource = new HttpRemoteDataSource<User>('/users');

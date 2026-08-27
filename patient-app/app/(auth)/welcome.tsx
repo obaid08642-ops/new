@@ -1,15 +1,6 @@
 // @ts-nocheck
 import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Dimensions,
-  Modal,
-  Platform
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Modal, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
@@ -17,29 +8,11 @@ import { useApp } from '../../src/context/AppContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux';
-import { guestLogin } from '../../src/store/slices/authSlice';
-import { apiFetch } from '../../src/utils/api';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 const { width } = Dimensions.get('window');
 
 export default function Welcome() {
-  const dispatch = useDispatch();
-  const [loadingGuest, setLoadingGuest] = useState(false);
-  const handleGuestLogin = async () => {
-    setLoadingGuest(true);
-    try {
-      const res = await apiFetch('/auth/guest', { method: 'POST', body: JSON.stringify({}) });
-      if (res?.token) {
-        dispatch(guestLogin({ user: res.user, token: res.token }));
-        router.push('/(tabs)');
-      }
-    } catch (err) {
-      console.log('Guest login error', err);
-    } finally {
-      setLoadingGuest(false);
-    }
-  };
   const { isDark, toggleTheme, lang, setLang } = useApp() as any;
   const toggleDark = toggleTheme;
   const changeLang = setLang;
@@ -112,9 +85,9 @@ export default function Welcome() {
           onPress={() => setLangModalVisible(true)}
           style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', backgroundColor: colors.s, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: colors.bd }}
         >
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 16, marginLeft: isRTL ? 6 : 0, marginRight: isRTL ? 0 : 6 }}>language</Text>
-          <Text style={{ color: colors.n, fontSize: 13, fontWeight: '700' }}>{langs.find(l => l.code === lang)?.name || 'Language'}</Text>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 16, marginRight: isRTL ? 4 : 0, marginLeft: isRTL ? 0 : 4 }}>arrow_drop_down</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 16, marginLeft: isRTL ? 6 : 0, marginRight: isRTL ? 0 : 6 }}>language</LocalizedText>
+          <LocalizedText style={{ color: colors.n, fontSize: 13, fontWeight: '700' }}>{langs.find(l => l.code === lang)?.name || 'Language'}</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 16, marginRight: isRTL ? 4 : 0, marginLeft: isRTL ? 0 : 4 }}>arrow_drop_down</LocalizedText>
         </TouchableOpacity>
       </View>
 
@@ -126,8 +99,8 @@ export default function Welcome() {
                 key={l.code} 
                 style={{ paddingVertical: 12, paddingHorizontal: 16, flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', borderRadius: 8, backgroundColor: lang === l.code ? colors.bg : 'transparent' }} onPress={() => { changeLang(l.code); setLangModalVisible(false); }}
               >
-                <Text style={{ fontSize: 15, fontWeight: lang === l.code ? '800' : '600', color: lang === l.code ? resolveColor('var(--p)') : colors.n }}>{l.name}</Text>
-                {lang === l.code && <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 18 }}>check</Text>}
+                <LocalizedText style={{ fontSize: 15, fontWeight: lang === l.code ? '800' : '600', color: lang === l.code ? resolveColor('var(--p)') : colors.n }}>{l.name}</LocalizedText>
+                {lang === l.code && <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 18 }}>check</LocalizedText>}
               </TouchableOpacity>
             ))}
           </View>
@@ -139,28 +112,20 @@ export default function Welcome() {
           <NpLogo size={96} />
         </View>
 
-        <Text style={[styles.title, { color: resolveColor('var(--n)') } ]}>{lang === 'ar' ? 'نبض بلس' : 'Nabd Plus'}</Text>
+        <LocalizedText style={[styles.title, { color: resolveColor('var(--n)') } ]}>{lang === 'ar' ? 'نبض بلس' : 'Nabd Plus'}</LocalizedText>
         
-        <Text style={[styles.subtitle, { color: resolveColor('var(--t2)') } ]}>
+        <LocalizedText style={[styles.subtitle, { color: resolveColor('var(--t2)') } ]}>
           {lang === 'ar' 
             ? 'رعايتك الصحية المتكاملة في تطبيق واحد — استشارات، صيدلية، تحاليل، وأكثر' 
             : 'Your complete healthcare in one app — consultations, pharmacy, labs, and more'}
-        </Text>
-
-        <TouchableOpacity 
-          style={[styles.primaryBtn, { backgroundColor: colors.n, shadowColor: colors.n, marginBottom: 12 }]} 
-          onPress={handleGuestLogin}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.primaryBtnText, { color: '#fff' } ]}>{lang === 'ar' ? 'الاستمرار بدون تسجيل' : 'Continue as Guest'}</Text>
-        </TouchableOpacity>
+        </LocalizedText>
 
         <TouchableOpacity 
           style={[styles.primaryBtn, { backgroundColor: resolveColor('var(--p)'), shadowColor: resolveColor('var(--p)') }]} 
           onPress={() => go('s86')}
           activeOpacity={0.8}
         >
-          <Text style={styles.primaryBtnText}>{lang === 'ar' ? 'تسجيل' : 'Register'}</Text>
+          <LocalizedText style={styles.primaryBtnText}>{lang === 'ar' ? 'تسجيل' : 'Register'}</LocalizedText>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -168,15 +133,15 @@ export default function Welcome() {
           onPress={() => go('s85')}
           activeOpacity={0.8}
         >
-          <Text style={[styles.secondaryBtnText, { color: resolveColor('var(--n)') } ]}>{lang === 'ar' ? 'تسجيل دخول' : 'Log In'}</Text>
+          <LocalizedText style={[styles.secondaryBtnText, { color: resolveColor('var(--n)') } ]}>{lang === 'ar' ? 'تسجيل دخول' : 'Log In'}</LocalizedText>
         </TouchableOpacity>
 
         <View style={{ marginTop: 24, width: '100%', alignItems: 'center' }}>
           <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 20, width: '80%' }}>
             <View style={{ flex: 1, height: 1, backgroundColor: resolveColor('var(--bd)') }}/>
-            <Text style={{ textAlign: 'center', color: resolveColor('var(--t3)'), fontSize: 13, paddingHorizontal: 12, fontWeight: '600' }}>
+            <LocalizedText style={{ textAlign: 'center', color: resolveColor('var(--t3)'), fontSize: 13, paddingHorizontal: 12, fontWeight: '600' }}>
               {lang === 'ar' ? 'أو الدخول بواسطة' : 'Or continue with'}
-            </Text>
+            </LocalizedText>
             <View style={{ flex: 1, height: 1, backgroundColor: resolveColor('var(--bd)') }}/>
           </View>
           

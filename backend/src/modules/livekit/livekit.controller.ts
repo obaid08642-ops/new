@@ -1,5 +1,6 @@
-// @ts-nocheck
 import { Controller, Post, Get, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Roles } from '../../common/auth.guard';
+import { UserRole } from '../../common/enums';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 import { LiveKitService } from './livekit.service';
 
@@ -53,8 +54,8 @@ export class LiveKitController {
   }
 
   @Post(':sessionId/reject')
-  rejectCall(@Param('sessionId') sessionId: string) {
-    return this.svc.rejectCall(sessionId);
+  rejectCall(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
+    return this.svc.rejectCall(sessionId, u.id);
   }
 
   @Post(':sessionId/metrics')
@@ -72,25 +73,29 @@ export class LiveKitController {
   }
 
   @Get('sessions/:sessionId')
-  getSession(@Param('sessionId') sessionId: string) {
-    return this.svc.getSessionById(sessionId);
+  getSession(@CurrentUser() u: any, @Param('sessionId') sessionId: string) {
+    return this.svc.getSessionById(sessionId, u.id);
   }
 
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Get('admin/rooms')
   getRooms() {
     return this.svc.getActiveRooms();
   }
 
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Get('admin/analytics')
   getAnalytics() {
     return this.svc.getCallAnalytics();
   }
 
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Get('admin/rooms/:roomName/participants')
   getParticipants(@Param('roomName') roomName: string) {
     return this.svc.getRoomParticipants(roomName);
   }
 
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Post('admin/rooms/:roomName/mute/:participantId')
   muteParticipant(
     @Param('roomName') roomName: string,
@@ -100,6 +105,7 @@ export class LiveKitController {
     return this.svc.muteParticipant(roomName, pid, body.muted);
   }
 
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Post('admin/rooms/:roomName/remove/:participantId')
   removeParticipant(@Param('roomName') roomName: string, @Param('participantId') pid: string) {
     return this.svc.removeParticipant(roomName, pid);

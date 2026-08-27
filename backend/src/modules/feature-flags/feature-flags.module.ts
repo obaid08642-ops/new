@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FeatureFlagsService } from './feature-flags.service';
 import { FeatureFlag, FeatureFlagSchema } from './feature-flag.schema';
-import { FeatureFlagsController } from './feature-flags.controller';
+import { FeatureFlagsController, PublicFeatureFlagsController } from './feature-flags.controller';
 import { FeatureFlagRepository } from "./repositories/featureflag.repository";
 
 @Module({
@@ -12,7 +11,7 @@ import { FeatureFlagRepository } from "./repositories/featureflag.repository";
       { name: FeatureFlag.name, schema: FeatureFlagSchema },
     ])
   ],
-  controllers: [FeatureFlagsController],
+  controllers: [FeatureFlagsController, PublicFeatureFlagsController],
   providers: [FeatureFlagsService, { provide: 'FeatureFlagRepository', useClass: FeatureFlagRepository }],
   exports: [FeatureFlagsService],
 })

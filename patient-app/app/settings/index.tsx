@@ -10,7 +10,15 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
+import { logout } from "../../src/store/slices/authSlice";
 import { useApp, LANGUAGES } from "../../src/context/AppContext";
+import {
+  getCalendarPref,
+  setCalendarPref,
+  onCalendarPrefChange,
+  CalendarPref,
+} from "../../src/utils/dates";
 import { Icon, IconName } from "../../src/components/Icon";
 import { AppText, Card, IconButton } from "../../src/components/ui";
 
@@ -30,6 +38,7 @@ const ITEMS: SettingsItem[][] = [
   [
     { icon: "moon", label: "الوضع الليلي", toggle: true },
     { icon: "globe", label: "اللغة" },
+    { icon: "document", label: "التقويم" },
     {
       icon: "bell",
       label: "الإشعارات",
@@ -47,15 +56,36 @@ const ITEMS: SettingsItem[][] = [
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const dispatch = useDispatch();
   const { colors, isDark, toggleTheme, lang } = useApp();
   const currentLang = LANGUAGES.find((l) => l.code === lang);
+  const [calPref, setCalPref] = React.useState<CalendarPref>(getCalendarPref());
+
+  React.useEffect(() => onCalendarPrefChange(() => setCalPref(getCalendarPref())), []);
+
+  const CAL_LABELS: Record<CalendarPref, string> = {
+    gregory: "ميلادي",
+    hijri: "هجري",
+    auto: "تلقائي (حسب الجهاز)",
+  };
 
   const handlePress = (item: SettingsItem) => {
+    if (item.label === "التقويم") {
+      // Cycle: gregory (default) → hijri → auto (follow device)
+      const order: CalendarPref[] = ["gregory", "hijri", "auto"];
+      const next = order[(order.indexOf(calPref) + 1) % order.length];
+      setCalendarPref(next);
+      return;
+    }
     if (item.label === "اللغة") {
-      router.push("/(onboarding)/language");
+      // E2: was routing to the onboarding screen (which restarts the first-run flow);
+      // the real settings language screen already exists at /settings/language
+      router.push("/settings/language");
       return;
     }
     if (item.label === "تسجيل الخروج") {
+      // E2: was navigating to welcome WITHOUT clearing the session — tokens stayed alive
+      dispatch(logout());
       router.replace("/(auth)/welcome");
       return;
     }
@@ -103,6 +133,23 @@ export default function SettingsScreen() {
                     onValueChange={toggleTheme}
                     trackColor={{ false: colors.border, true: colors.primary }}
                   />
+                ) : item.label === "التقويم" ? (
+                  <View
+                    style={{
+                      flexDirection: "row-reverse",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <AppText variant="labelSM" color={colors.primary}>
+                      {CAL_LABELS[calPref]}
+                    </AppText>
+                    <Icon
+                      name="chevronLeft"
+                      size={16}
+                      color={colors.textTertiary}
+                    />
+                  </View>
                 ) : item.label === "اللغة" ? (
                   <View
                     style={{

@@ -30,7 +30,6 @@ export const mockConfig: AppConfig = {
   maxLoginAttempts: 5,
   lockoutDuration:  300_000,
   googleMapsApiKey: 'TEST_KEY',
-  oneSignalAppId:   'TEST_APP_ID',
   googleClientId:   '',
   googleIosClientId: '',
   googleAndroidClientId: '',

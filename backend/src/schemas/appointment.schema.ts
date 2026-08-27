@@ -86,12 +86,33 @@ export class Appointment {
 
   // Patient inputs
   @Prop() patient_notes?: string;
+  /** Set when a family member booked this appointment on behalf of the patient */
+  @Prop() booked_by_user_id?: string;
   @Prop({ default: [] }) symptoms: string[];
   @Prop({
     type: { lat: Number, lng: Number, address: String },
     _id: false,
   })
   visit_location?: { lat: number; lng: number; address: string }; // for home visits
+
+  // Doctor-written consultation summary (SOAP) — the ONLY source for patient summary screen
+  @Prop({
+    type: {
+      diagnosis: String,
+      notes: String,
+      recommendations: String,
+      prescription: [{ name: String, dose: String, duration: String }],
+      follow_up_recommended: Boolean,
+      follow_up_window_days: Number,
+      written_at: Date,
+    },
+    _id: false,
+  })
+  summary?: {
+    diagnosis?: string; notes?: string; recommendations?: string;
+    prescription?: { name?: string; dose?: string; duration?: string }[];
+    follow_up_recommended?: boolean; follow_up_window_days?: number; written_at?: Date;
+  };
 
   // Outputs (filled later)
   @Prop({ type: [String], default: [] }) prescriptions?: string[];
@@ -111,3 +132,6 @@ AppointmentSchema.index(
   { doctor_id: 1, slot_start: 1 },
   { unique: true, partialFilterExpression: { status: { $in: ['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS'] } } },
 );
+// M6/ER-10: hot read path — "my appointments, newest first"
+AppointmentSchema.index({ patient_id: 1, slot_start: -1 });
+AppointmentSchema.index({ doctor_id: 1, status: 1, slot_start: -1 });

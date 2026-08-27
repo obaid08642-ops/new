@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
-import {
+import { FlatList,
   View,
   StyleSheet,
   ScrollView,
@@ -22,6 +22,7 @@ import {
   DoctorCard,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
 
 // Removed STATIC_DOCS
 
@@ -41,30 +42,30 @@ export default function DoctorSearchScreen() {
       if (search) qs.set("search", search);
       if (sortBy) qs.set("sort", sortBy);
       const res = await apiFetch(`/care/doctors?${qs.toString()}`);
-      if (res && Array.isArray(res?.data) && res?.data.length > 0) {
-        // Map backend fields to local UI shape
-        setDoctors(
-          res?.data.map((d: any) => ({
-            id: d._id || d.id,
-            name: d.name_ar || d.name || d.display_name,
-            deg: d.degree || d.title || "استشاري",
-            spec: d.specialty_ar || d.specialty,
-            rating: d.rating || 4.5,
-            reviews: d.review_count || 0,
-            price: d.consultation_fee || d.price || 200,
-            wait: d.average_wait ? `${d.average_wait} دق` : "10 دق",
-            exp: d.years_experience || 5,
-            online: d.offers_online ?? true,
-            clinic: d.offers_clinic ?? true,
-            home: d.offers_home ?? false,
-            ins: d.accepts_insurance ?? false,
-            hospital: d.facility_name || d.clinic_name || "عيادة خاصة",
-            slot: d.next_available_slot || "اليوم",
-          })),
-        );
-      }
+      // E2: always set (empty search must clear old results) and never invent stats —
+      // rating/price/wait/exp/hospital stay null when the backend doesn't provide them
+      const rows = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      setDoctors(
+        rows.map((d: any) => ({
+          id: d._id || d.id,
+          name: pickLocalized(d.name_ar, d.name) || d.display_name,
+          deg: d.degree || d.title || null,
+          spec: pickLocalized(d.specialty_ar, d.specialty) || null,
+          rating: d.rating ?? null,
+          reviews: d.review_count ?? d.reviews_count ?? null,
+          price: d.consultation_fee ?? d.price ?? null,
+          wait: d.average_wait ? `${d.average_wait} دق` : null,
+          exp: d.years_experience ?? d.experience_years ?? null,
+          online: d.offers_online ?? false,
+          clinic: d.offers_clinic ?? false,
+          home: d.offers_home ?? false,
+          ins: d.accepts_insurance ?? false,
+          hospital: d.facility_name || d.clinic_name || null,
+          slot: d.next_available_slot || null,
+        })),
+      );
     } catch {
-      // Keep static fallback on error
+      setDoctors([]);
     } finally {
       setLoading(false);
     }
@@ -77,14 +78,15 @@ export default function DoctorSearchScreen() {
   const handleSearch = () => fetchDoctors(query, sort);
 
   const filtered = query
-    ? doctors.filter((d) => d.name.includes(query) || d.spec.includes(query))
+    ? doctors.filter((d) => (d.name || '').includes(query) || (d.spec || '').includes(query))
     : doctors;
+  // Null-safe sort: unknown values sink to the end instead of producing NaN ordering
   const sorted = [...filtered].sort((a, b) =>
     sort === "price"
-      ? a.price - b.price
+      ? (a.price ?? Infinity) - (b.price ?? Infinity)
       : sort === "wait"
-        ? a.wait.localeCompare(b.wait)
-        : b.rating - a.rating,
+        ? (a.wait || '٩٩٩').localeCompare(b.wait || '٩٩٩')
+        : (b.rating ?? -1) - (a.rating ?? -1),
   );
 
   return (
@@ -151,10 +153,15 @@ export default function DoctorSearchScreen() {
           </AppText>
         </View>
       ) : (
-        <ScrollView
+        <FlatList
+          data={sorted}
+          keyExtractor={(d) => String(d.id)}
           contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
-        >
-          {sorted.length === 0 ? (
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={7}
+          removeClippedSubviews
+          ListEmptyComponent={
             <View style={{ alignItems: "center", paddingTop: 40 }}>
               <Icon name="search" size={48} color={colors.textTertiary} />
               <AppText variant="h5" style={{ marginTop: 12 }}>
@@ -164,27 +171,25 @@ export default function DoctorSearchScreen() {
                 جرب البحث بتخصص مختلف
               </AppText>
             </View>
-          ) : (
-            sorted.map((d) => (
-              <DoctorCard
-                key={d.id}
-                doctor={d}
-                onPress={() =>
-                  router.push({
-                    pathname: "/consultations/doctor/[id]",
-                    params: { id: d.id },
-                  })
-                }
-                onBook={() =>
-                  router.push({
-                    pathname: "/consultations/book/[id]",
-                    params: { id: d.id },
-                  })
-                }
-              />
-            ))
+          }
+          renderItem={({ item: d }) => (
+            <DoctorCard
+              doctor={d}
+              onPress={() =>
+                router.push({
+                  pathname: "/consultations/doctor/[id]",
+                  params: { id: d.id },
+                })
+              }
+              onBook={() =>
+                router.push({
+                  pathname: "/consultations/book/[id]",
+                  params: { id: d.id },
+                })
+              }
+            />
           )}
-        </ScrollView>
+        />
       )}
     </View>
   );

@@ -4,16 +4,10 @@
  */
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
-  View,
-  StyleSheet,
-  NativeSyntheticEvent,
-  TextInputKeyPressEventData,
-  StyleProp,
-  ViewStyle,
-  Clipboard,
-  Platform
+  View, TextInput, StyleSheet, NativeSyntheticEvent,
+  TextInputKeyPressEventData, StyleProp, ViewStyle,
+  Clipboard, Platform,
 } from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
 import { useApp } from '../../context/AppContext';
 import { BorderRadius, Spacing, Animation } from '../tokens';
 import { DSText } from './Text';
@@ -130,7 +124,10 @@ export function DSOTPInput({
               onFocus={() => setFocusedIndex(index)}
               onBlur={() => setFocusedIndex(null)}
               keyboardType="number-pad"
-              maxLength={Platform.OS === 'android' ? 2 : 1}
+              maxLength={index === 0 ? length : (Platform.OS === 'android' ? 2 : 1)}
+              autoComplete={index === 0 ? (Platform.OS === 'android' ? 'sms-otp' : 'one-time-code') : 'off'}
+              textContentType={index === 0 ? 'oneTimeCode' : 'none'}
+              importantForAutofill={index === 0 ? 'yes' : 'no'}
               selectTextOnFocus
               editable={!disabled}
               accessible
@@ -179,6 +176,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    direction: 'ltr', // digits always read left→right regardless of app language
     gap: Spacing.md,
   },
   cell: {

@@ -1,5 +1,8 @@
 import { logger } from '../../../services/Logger';
 import { SecureStorageService } from './SecureStorageService';
+import { BASE_URL } from '../../../utils/api';
+import { STORAGE_KEYS } from '../../../constants';
+import * as SecureStore from 'expo-secure-store';
 
 export interface SessionData {
   sessionId: string;
@@ -70,15 +73,31 @@ export class SessionManager {
       throw new Error('Absolute session expired');
     }
     
-    // API Call to rotate tokens (Placeholder for Phase 1C-C/Phase 3)
+    // Real rotation against the backend — issues a new pair and revokes the old one server-side
+    const res = await fetch(`${BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-device-id': this.currentSession.deviceId },
+      body: JSON.stringify({ refresh_token: oldRefreshToken }),
+    });
+    if (!res.ok) {
+      this.log.warn(`Token rotation rejected (${res.status}). Revoking session.`);
+      await this.revokeSession();
+      throw new Error('refresh_token_rejected');
+    }
+    const data = await res.json();
+    if (!data?.accessToken || !data?.refreshToken) {
+      await this.revokeSession();
+      throw new Error('refresh_response_invalid');
+    }
     const newSession = {
       ...this.currentSession,
-      accessToken: 'new-access-token',
-      refreshToken: 'new-refresh-token',
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
       expiresAt: new Date(Date.now() + 3600000), // +1 hour
     };
-    
+
     await this.createSession(newSession); // Will update memory & SecureStorage
+    try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, data.accessToken); } catch { /* token mirror for apiFetch */ }
     return newSession;
   }
 

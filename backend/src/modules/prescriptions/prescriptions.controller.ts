@@ -9,7 +9,7 @@ export class PrescriptionsController {
   constructor(private svc: PrescriptionsService) {}
 
   @Post('create')
-  @Roles(UserRole.DOCTOR, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR)
   create(@Body() body: any, @CurrentUser() user: any) {
     return this.svc.create(user, body);
   }
@@ -20,7 +20,7 @@ export class PrescriptionsController {
   }
 
   @Post('manual-entry')
-  @Roles(UserRole.DOCTOR, UserRole.PHARMACY, UserRole.ADMIN)
+  @Roles(UserRole.DOCTOR)
   manualEntry(@Body() body: any, @CurrentUser() user: any) {
     return this.svc.create(user, body);
   }
@@ -42,6 +42,13 @@ export class PrescriptionsController {
     return this.svc.substitute(id, body.item_index, body.new_medicine_id, user);
   }
 
+  @Get('manual-review/queue')
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  manualReviewQueue(@CurrentUser() user: any) { return this.svc.manualReviewQueue(user); }
+
+  @Get('active')
+  active(@CurrentUser() user: any) { return this.svc.activeForPatient(user); }
+
   @Get('mine')
   mine(@CurrentUser('id') id: string) {
     return this.svc.listMine(id);
@@ -60,7 +67,7 @@ export class PrescriptionsController {
   }
 
   @Get(':id')
-  one(@Param('id') id: string) {
-    return this.svc.getById(id);
+  one(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getByIdForUser(id, user);
   }
 }

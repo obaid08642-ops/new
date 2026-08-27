@@ -1,204 +1,81 @@
-// @ts-nocheck
-// medication-reminder-add.tsx — Add medication reminder
-// pills/day, times, duration (days/weeks/months/permanent), chronic flag
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Switch } from 'react-native';
-import { router } from 'expo-router';
+import React from 'react';
+import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { Icon, IconName } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, Input, SegmentedControl, SectionHeader } from '../../src/components/ui';
-import { useGuestGuard } from '../../src/hooks/useGuestGuard';
+import { AppText, Card, Button, IconButton, Input, SegmentedControl } from '../../src/components/ui';
+import { apiFetch } from '../../src/utils/api';
+import { getMedicationNotificationPreferences, medicationDisplayName, scheduleMedicationNotifications, setMedicationNotificationPreferences } from '../../src/utils/medication-notifications';
+import { medicationT } from '../../src/i18n/medications';
 
-const FREQ_OPTIONS = [
-  { key: 'daily', label: 'يومياً' },
-  { key: 'weekly', label: 'أسبوعياً' },
-  { key: 'monthly', label: 'شهرياً' },
-];
-
-const DURATION_OPTIONS = [
-  { key: '7', label: '7 أيام' },
-  { key: '14', label: '14 يوم' },
-  { key: '30', label: 'شهر' },
-  { key: '90', label: '3 أشهر' },
-  { key: 'permanent', label: 'دائم (مزمن)' },
-];
-
-const TIME_PRESETS = ['06:00 ص', '08:00 ص', '12:00 م', '02:00 م', '06:00 م', '08:00 م', '10:00 م'];
+const TIME_OPTIONS = ['06:00', '08:00', '12:00', '14:00', '18:00', '20:00', '22:00'];
+const currentZone = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } };
+type ExistingReminder = { id: string; medicine_name_ar?: string; medicine_name_en?: string; dose?: string; dosage_count?: number; times?: string[]; frequency?: string; duration_days?: number; chronic?: boolean; instructions_ar?: string; pills_remaining?: number; refill_date?: string | null; time_zone?: string; active?: boolean };
 
 export default function MedicationReminderAddScreen() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const editing = typeof id === 'string' && id.length > 0;
   const insets = useSafeAreaInsets();
-  const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) { requireAuth(); return null; }
-  const { colors, isDark } = useApp();
-  const [name, setName] = useState('');
-  const [pillsPerDose, setPillsPerDose] = useState('1');
-  const [timesPerDay, setTimesPerDay] = useState('2');
-  const [freq, setFreq] = useState('daily');
-  const [duration, setDuration] = useState('30');
-  const [isChronic, setIsChronic] = useState(false);
-  const [selectedTimes, setSelectedTimes] = useState<string[]>(['08:00 ص', '08:00 م']);
-  const [notes, setNotes] = useState('');
-  const [beforeFood, setBeforeFood] = useState(true);
-  const [reorderReminder, setReorderReminder] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const { colors, isDark, lang } = useApp();
+  const t = (key: any, vars?: any) => medicationT(lang, key, vars);
+  const [name, setName] = React.useState(''); const [dose, setDose] = React.useState(''); const [count, setCount] = React.useState('1'); const [times, setTimes] = React.useState<string[]>(['08:00']);
+  const [frequency, setFrequency] = React.useState('daily'); const [duration, setDuration] = React.useState('30'); const [chronic, setChronic] = React.useState(false); const [pillsRemaining, setPillsRemaining] = React.useState(''); const [refillDate, setRefillDate] = React.useState(''); const [instructions, setInstructions] = React.useState(''); const [timeZone, setTimeZone] = React.useState(currentZone());
+  const [important, setImportant] = React.useState(false); const [refillLeadDays, setRefillLeadDays] = React.useState<2 | 3>(3);
+  const [loading, setLoading] = React.useState(editing); const [saving, setSaving] = React.useState(false); const [error, setError] = React.useState<string | null>(null);
 
-  const toggleTime = (t: string) => {
-    setSelectedTimes(p => p.includes(t) ? p.filter(x => x !== t) : [...p, t]);
+  React.useEffect(() => {
+    if (!editing) return;
+    const load = async () => {
+      setLoading(true); setError(null);
+      try {
+        const response: any = await apiFetch('/health/reminders');
+        const rows: ExistingReminder[] = Array.isArray(response) ? response : response?.data || [];
+        const item = rows.find((row) => row.id === id);
+        if (!item) throw new Error('not_found');
+        setName(item.medicine_name_ar || item.medicine_name_en || ''); setDose(item.dose || ''); setCount(String(item.dosage_count ?? 1)); setTimes(item.times?.length ? item.times : ['08:00']); setFrequency(item.frequency || 'daily'); setDuration(String(item.duration_days ?? 30)); setChronic(Boolean(item.chronic)); setInstructions(item.instructions_ar || ''); setPillsRemaining(item.pills_remaining == null ? '' : String(item.pills_remaining)); setRefillDate(item.refill_date ? String(item.refill_date).slice(0, 10) : ''); setTimeZone(item.time_zone || currentZone());
+        const preferences = await getMedicationNotificationPreferences(item.id);
+        setImportant(Boolean(preferences.important)); setRefillLeadDays(preferences.refill_lead_days === 2 ? 2 : 3);
+      } catch { setError(t('saveError')); } finally { setLoading(false); }
+    };
+    load();
+  }, [editing, id, lang]);
+
+  const toggleTime = (time: string) => setTimes((current) => current.includes(time) ? current.filter((item) => item !== time) : [...current, time].sort());
+  const save = async () => {
+    const dosage_count = Number(count); const duration_days = chronic ? 0 : Number(duration); const pills_remaining = pillsRemaining.trim() ? Number(pillsRemaining) : undefined;
+    if (!name.trim() || !dose.trim() || !times.length) { setError(t('formRequired')); return; }
+    if (!Number.isFinite(dosage_count) || dosage_count <= 0 || !Number.isInteger(duration_days) || duration_days < 0 || (pills_remaining !== undefined && (!Number.isInteger(pills_remaining) || pills_remaining < 0))) { setError(t('formInvalid')); return; }
+    setSaving(true); setError(null);
+    try {
+      const payload = { medicine_name_ar: name.trim(), dose: dose.trim(), dosage_count, times, time_zone: timeZone.trim(), frequency, duration_days, chronic, pills_remaining, refill_date: refillDate.trim() || undefined, instructions_ar: instructions.trim() || undefined };
+      const response: any = await apiFetch(editing ? `/health/reminders/${id}` : '/health/reminders', { method: editing ? 'PATCH' : 'POST', body: JSON.stringify(payload) });
+      const saved: ExistingReminder = response?.data || response;
+      const reminderId = saved?.id || (editing ? id : undefined);
+      if (!reminderId) throw new Error('missing_reminder_id');
+      const preferences = await setMedicationNotificationPreferences(reminderId, { important, refill_lead_days: refillLeadDays });
+      const notificationResult = await scheduleMedicationNotifications({ id: reminderId, medicine_name_ar: saved.medicine_name_ar || name.trim(), medicine_name_en: saved.medicine_name_en, dose: saved.dose || dose.trim(), times: saved.times || times, frequency: saved.frequency || frequency, active: saved.active !== false }, {
+        title: t('notificationTitle'), body: t('notificationBody', { name: medicationDisplayName(saved, name.trim()), dose: saved.dose || dose.trim() }), taken: t('takeFromAlert'), snooze: t('snoozeTenMinutes'), permissionDenied: t('alertPermissionDenied'),
+      }, preferences);
+      router.replace({ pathname: '/health/medication-reminder-list', params: notificationResult.permissionDenied ? { alertStatus: 'permission_denied' } : { alertStatus: 'synced' } });
+    } catch { setError(t('saveError')); } finally { setSaving(false); }
   };
 
-  const handleSave = () => {
-    if (!name.trim()) return;
-    setSaving(true);
-    // In production: save to AsyncStorage/API + schedule expo-notifications
-    setTimeout(() => {
-      setSaving(false);
-      router.back();
-    }, 800);
-  };
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background } ]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
-        <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ width: 44 }}/>
-          <AppText variant="h3" color={colors.textPrimary}>إضافة تذكير دواء</AppText>
-          <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-        {/* Drug name */}
-        <Card>
-          <SectionHeader title="اسم الدواء" />
-          <Input value={name} onChangeText={setName} placeholder="مثال: بنادول إكسترا 500mg" icon="medication" />
-          <View style={{ flexDirection: 'row-reverse', gap: 8, marginTop: 10 }}>
-            <Button label="البحث في الصيدلية" variant="ghost" icon="search" size="sm" full={false} onPress={() => router.push('/(tabs)/pharmacy')} />
-            <Button label="من وصفة طبية" variant="ghost" icon="prescriptions" size="sm" full={false} onPress={() => router.push('/health/prescriptions')} />
-          </View>
-        </Card>
-
-        {/* Dosage */}
-        <Card>
-          <SectionHeader title="الجرعة" />
-          <View style={{ flexDirection: 'row-reverse', gap: 12 }}>
-            <View style={{ flex: 1 }}>
-              <AppText variant="labelSM" color={colors.textTertiary} style={{ marginBottom: 6 }}>عدد الحبات لكل جرعة</AppText>
-              <View style={[st.stepper, { borderColor: colors.border } ]}>
-                <TouchableOpacity onPress={() => setPillsPerDose(String(Math.max(0.5, parseFloat(pillsPerDose) - 0.5)))} style={[st.stepBtn, { backgroundColor: colors.surfaceSecondary } ]}>
-                  <Icon name="remove" size={18} color={colors.primary} />
-                </TouchableOpacity>
-                <AppText variant="h4">{pillsPerDose}</AppText>
-                <TouchableOpacity onPress={() => setPillsPerDose(String(parseFloat(pillsPerDose) + 0.5))} style={[st.stepBtn, { backgroundColor: colors.primary } ]}>
-                  <Icon name="add" size={18} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={{ flex: 1 }}>
-              <AppText variant="labelSM" color={colors.textTertiary} style={{ marginBottom: 6 }}>عدد المرات يومياً</AppText>
-              <View style={[st.stepper, { borderColor: colors.border } ]}>
-                <TouchableOpacity onPress={() => setTimesPerDay(String(Math.max(1, parseInt(timesPerDay) - 1)))} style={[st.stepBtn, { backgroundColor: colors.surfaceSecondary } ]}>
-                  <Icon name="remove" size={18} color={colors.primary} />
-                </TouchableOpacity>
-                <AppText variant="h4">{timesPerDay}</AppText>
-                <TouchableOpacity onPress={() => setTimesPerDay(String(parseInt(timesPerDay) + 1))} style={[st.stepBtn, { backgroundColor: colors.primary } ]}>
-                  <Icon name="add" size={18} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Card>
-
-        {/* Timing */}
-        <Card>
-          <SectionHeader title="مواعيد الجرعات" />
-          <View style={{ flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 }}>
-            {TIME_PRESETS.map(t => {
-              const active = selectedTimes.includes(t);
-              return (
-                <TouchableOpacity key={t} onPress={() => toggleTime(t)} style={[st.timeChip, { backgroundColor: active ? colors.primary : colors.surfaceSecondary, borderColor: active ? colors.primary : colors.border } ]}>
-                  <Icon name="clock" size={14} color={active ? '#fff' : colors.textTertiary} />
-                  <AppText variant="labelSM" color={active ? '#fff' : colors.textPrimary}>{t}</AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </Card>
-
-        {/* Before/after food */}
-        <Card>
-          <SectionHeader title="تعليمات" />
-          <SegmentedControl value={beforeFood ? 'before' : 'after'} onChange={v => setBeforeFood(v === 'before')} options={[
-            { key: 'before', label: 'قبل الأكل', icon: 'clock' },
-            { key: 'after', label: 'بعد الأكل', icon: 'food' },
-            { key: 'any', label: 'أي وقت', icon: 'check' },
-          ]} />
-        </Card>
-
-        {/* Frequency */}
-        <Card>
-          <SectionHeader title="التكرار" />
-          <SegmentedControl value={freq} onChange={setFreq} options={FREQ_OPTIONS.map(o => ({ key: o.key, label: o.label }))} />
-        </Card>
-
-        {/* Duration */}
-        <Card>
-          <SectionHeader title="المدة" />
-          <View style={{ flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 }}>
-            {DURATION_OPTIONS.map(d => {
-              const active = duration === d.key || (isChronic && d.key === 'permanent');
-              return (
-                <TouchableOpacity key={d.key} onPress={() => { setDuration(d.key); setIsChronic(d.key === 'permanent'); }} style={[st.durChip, { backgroundColor: active ? colors.primary : colors.surfaceSecondary, borderColor: active ? colors.primary : colors.border } ]}>
-                  <AppText variant="labelSM" color={active ? '#fff' : colors.textPrimary}>{d.label}</AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </Card>
-
-        {/* Chronic medication options */}
-        {isChronic && (
-          <Card style={{ backgroundColor: colors.warningSurface }}>
-            <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <AppText variant="h6">تذكير إعادة الطلب</AppText>
-                <AppText variant="bodyXS" color={colors.textTertiary}>تذكير قبل نفاد الدواء لإعادة طلبه من الصيدلية</AppText>
-              </View>
-              <Switch value={reorderReminder} onValueChange={setReorderReminder} trackColor={{ false: colors.border, true: colors.warning }} />
-            </View>
-            {reorderReminder && (
-              <View style={{ marginTop: 12, padding: 12, backgroundColor: colors.surface, borderRadius: 14, gap: 6 }}>
-                <View style={{ flexDirection: 'row-reverse', gap: 6, alignItems: 'center' }}>
-                  <Icon name="bell" size={16} color={colors.warning} />
-                  <AppText variant="bodySM" color={colors.textSecondary}>سنذكّرك قبل 5 أيام من نفاد الدواء</AppText>
-                </View>
-                <View style={{ flexDirection: 'row-reverse', gap: 6, alignItems: 'center' }}>
-                  <Icon name="shopping_cart" size={16} color={colors.warning} />
-                  <AppText variant="bodySM" color={colors.textSecondary}>زر "طلب" يوجهك مباشرة للصيدلية</AppText>
-                </View>
-              </View>
-            )}
-          </Card>
-        )}
-
-        {/* Notes */}
-        <Input value={notes} onChangeText={setNotes} placeholder="ملاحظات إضافية (اختياري)" icon="edit" multiline />
-      </ScrollView>
-
-      <View style={[st.bottom, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight } ]}>
-        <Button label="حفظ التذكير" variant="gradient" size="lg" icon="bell" loading={saving} onPress={handleSave} />
-      </View>
-    </View>
-  );
+  return <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}><View style={{ width: 44 }} /><View style={styles.titleWrap}><AppText variant="h3">{editing ? t('editTitle') : t('addTitle')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('safeReminder')}</AppText></View><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>
+    {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>{t('loading')}</AppText></View> : <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
+      {error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText></Card>}
+      <Animated.View entering={FadeInDown.duration(300)}><Card style={styles.section}><SectionTitle index="1" title={t('medicationAndDose')} colors={colors} /><Input value={name} onChangeText={setName} placeholder={t('medicationName')} /><Input value={dose} onChangeText={setDose} placeholder={t('dosePlaceholder')} /><Input value={count} onChangeText={setCount} placeholder={t('unitsPerDose')} keyboardType="numeric" /><AppText variant="caption" color={colors.textTertiary} align="right">{t('doseSafety')}</AppText></Card></Animated.View>
+      <Animated.View entering={FadeInDown.delay(70).duration(300)}><Card style={styles.section}><SectionTitle index="2" title={t('schedule')} colors={colors} /><View style={styles.times}>{TIME_OPTIONS.map((time) => { const selected = times.includes(time); return <TouchableOpacity key={time} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} onPress={() => toggleTime(time)} style={[styles.time, { backgroundColor: selected ? colors.primary : colors.surfaceSecondary, borderColor: selected ? colors.primary : colors.border }]}><AppText variant="labelSM" color={selected ? '#fff' : colors.textPrimary}>{time}</AppText></TouchableOpacity>; })}</View><AppText variant="caption" color={colors.textTertiary} align="right">{t('timeZone')}</AppText><Input value={timeZone} onChangeText={setTimeZone} placeholder="Asia/Riyadh" /><AppText variant="caption" color={colors.textTertiary} align="right">{t('timeZoneHint')}</AppText></Card></Animated.View>
+      <Animated.View entering={FadeInDown.delay(140).duration(300)}><Card style={styles.section}><SectionTitle index="3" title={t('frequencyAndDuration')} colors={colors} /><SegmentedControl value={frequency} onChange={setFrequency} options={[{ key: 'daily', label: t('daily') }, { key: 'weekly', label: t('weekly') }, { key: 'as_needed', label: t('asNeeded') }]} /><SegmentedControl value={chronic ? 'chronic' : 'limited'} onChange={(value) => setChronic(value === 'chronic')} options={[{ key: 'limited', label: t('limitedDuration') }, { key: 'chronic', label: t('chronicMedication') }]} />{!chronic && <Input value={duration} onChangeText={setDuration} placeholder={t('durationDays')} keyboardType="numeric" />}</Card></Animated.View>
+      <Animated.View entering={FadeInDown.delay(180).duration(300)}><Card style={[styles.section, { borderColor: important ? colors.warning + '70' : colors.border }]}><SectionTitle index="4" title={t('deviceAlerts')} colors={colors} /><SegmentedControl value={important ? 'important' : 'normal'} onChange={(value) => setImportant(value === 'important')} options={[{ key: 'normal', label: t('normalAlert') }, { key: 'important', label: t('importantAlert') }]} /><AppText variant="caption" color={colors.textTertiary} align="right">{t('importantMedicationHint')}</AppText></Card></Animated.View>
+      {chronic && <Animated.View entering={FadeInDown.duration(260)}><Card style={[styles.section, { borderColor: colors.warning + '55' }]}><SectionTitle index="5" title={t('refillTracking')} colors={colors} /><Input value={pillsRemaining} onChangeText={setPillsRemaining} placeholder={t('remainingUnits')} keyboardType="numeric" /><Input value={refillDate} onChangeText={setRefillDate} placeholder={t('refillDate')} /><SegmentedControl value={String(refillLeadDays)} onChange={(value) => setRefillLeadDays(value === '2' ? 2 : 3)} options={[{ key: '2', label: t('twoDays') }, { key: '3', label: t('threeDays') }]} /><AppText variant="caption" color={colors.textTertiary} align="right">{t('refillHint')}</AppText></Card></Animated.View>}
+      <Animated.View entering={FadeInDown.delay(230).duration(300)}><Card style={styles.section}><AppText variant="h6" align="right">{t('instructions')}</AppText><Input value={instructions} onChangeText={setInstructions} placeholder={t('instructionsHint')} multiline /></Card></Animated.View>
+      <Animated.View entering={FadeInDown.delay(300).duration(300)}><Button label={editing ? t('saveChanges') : t('saveReminder')} variant="gradient" icon="check_circle" loading={saving} onPress={save} /></Animated.View>
+    </ScrollView>}
+  </View>;
 }
 
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  stepper: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1.5, borderRadius: 14, padding: 4 },
-  stepBtn: { width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  timeChip: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1 },
-  durChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1 },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});
+function SectionTitle({ index, title, colors }: { index: string; title: string; colors: any }) { return <View style={styles.sectionTitle}><View style={[styles.step, { backgroundColor: colors.primary }]}><AppText variant="labelSM" color="#fff">{index}</AppText></View><AppText variant="h6">{title}</AppText></View>; }
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 8 }, titleWrap: { flex: 1, alignItems: 'center', gap: 1, paddingHorizontal: 6 }, content: { padding: 16, gap: 14 }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }, section: { gap: 12, borderWidth: 1, borderColor: 'transparent' }, sectionTitle: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }, step: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, error: { backgroundColor: '#FEE2E2', alignItems: 'flex-end' }, times: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 }, time: { minWidth: 70, alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12, borderWidth: 1 } });

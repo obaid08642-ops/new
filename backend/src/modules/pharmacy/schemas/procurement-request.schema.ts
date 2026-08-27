@@ -5,17 +5,20 @@ export type ProcurementRequestDocument = ProcurementRequest & Document;
 
 @Schema({ timestamps: true })
 export class ProcurementRequest {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  pharmacy_id: Types.ObjectId;
+  // User ids are UUID strings across the platform (not Mongo ObjectIds) — storing
+  // them as ObjectId made every submit/my-requests call throw a CastError.
+  @Prop({ type: String, required: true, index: true })
+  pharmacy_id: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  created_by: Types.ObjectId;
+  @Prop({ type: String, required: true })
+  created_by: string;
 
   @Prop({
     type: [{
       medicine_id: { type: Types.ObjectId, ref: 'Medicine', default: null },
       raw_name_string: { type: String, required: true },
       requested_quantity: { type: Number, required: true },
+      category_group: { type: String, enum: ['medical', 'non_medical'], default: 'medical' },
       notes: String
     }],
     required: true,

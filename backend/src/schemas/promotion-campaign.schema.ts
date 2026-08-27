@@ -2,7 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 
-@Schema({ timestamps: true, collection: 'promotion_campaigns' })
+// NOTE: collection name must match the compat/admin controllers ('promotioncampaigns').
+// A previous value ('promotion_campaigns') split writes (admin) from reads (patient home).
+@Schema({ timestamps: true, collection: 'promotioncampaigns' })
 export class PromotionCampaign extends Document {
   @Prop({ default: () => uuid(), unique: true })
   id: string;

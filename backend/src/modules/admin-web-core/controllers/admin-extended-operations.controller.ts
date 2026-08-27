@@ -1,24 +1,13 @@
-import { Controller, Get, Patch, Param, Body, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ProviderDelta } from '../schemas/provider-delta.schema';
 import { ProcurementRequest } from '../schemas/procurement-request.schema';
-import { JwtAuthGuard, Roles } from '../../../common/auth.guard';
-import { UserRole } from '../../../common/enums';
+
 @Controller('admin/extended-operations')
-@UseGuards(JwtAuthGuard)
-@Roles(UserRole.ADMIN)
 export class AdminExtendedOperationsController {
   constructor(
-    @InjectModel(ProviderDelta.name) private deltaModel: Model<ProviderDelta>,
     @InjectModel(ProcurementRequest.name) private procurementModel: Model<ProcurementRequest>
   ) {}
-
-  @Get('pending-deltas')
-  async getPendingDeltas() {
-    const data = await this.deltaModel.find({ status: 'PENDING' }).exec();
-    return { data };
-  }
 
   @Get('procurement/pending')
   async getPendingProcurement() {
@@ -26,27 +15,9 @@ export class AdminExtendedOperationsController {
     return { data };
   }
 
-  @Patch('commit-delta/:id')
-  async commitDeltaChanges(@Param('id') deltaId: string) {
-    const delta = await this.deltaModel.findById(deltaId);
-    if (!delta || delta.status !== 'PENDING') throw new BadRequestException('Delta alteration log not open.');
-
-    delta.status = 'APPROVED';
-    await delta.save();
-
-    // Core logic to dynamically overwrite master Profile collection based on path fields goes here...
-    return { success: true, message: 'تمت مراجعة التعديلات وتحديث ملف المزود المرجعي حياً على المنظومة.' };
-  }
-
-  @Patch('reject-delta/:id')
-  async rejectDeltaChanges(@Param('id') deltaId: string) {
-    const delta = await this.deltaModel.findById(deltaId);
-    if (!delta || delta.status !== 'PENDING') throw new BadRequestException('Delta alteration log not open.');
-
-    delta.status = 'REJECTED';
-    await delta.save();
-    return { success: true, message: 'تم رفض التعديلات وحفظ القرار خادمياً.' };
-  }
+  // NOTE: provider edit-review ("delta") commit was removed from here — it marked
+  // deltas APPROVED with a placeholder instead of applying them. The canonical,
+  // applying path is /providers/provider-deltas/:id/approve (provider module).
 
   @Patch('issue-quote/:procurementId')
   async issueWarehouseQuotation(

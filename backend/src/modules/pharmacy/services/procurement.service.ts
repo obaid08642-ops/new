@@ -28,8 +28,8 @@ export class ProcurementService {
     dto: CreateProcurementRequestDto,
   ): Promise<any> {
     return this.procurementModel.create({
-      pharmacy_id: new Types.ObjectId(pharmacyId),
-      created_by: new Types.ObjectId(createdBy),
+      pharmacy_id: String(pharmacyId),
+      created_by: String(createdBy),
       items: dto.items,
       status: ProcurementStatus.PENDING_ADMIN_REVIEW,
     });
@@ -38,7 +38,7 @@ export class ProcurementService {
   // ─── PHARMACY: List own requests ──────────────────────────────────────────
   async getPharmacyRequests(pharmacyId: string): Promise<any[]> {
     return this.procurementModel
-      .find({ pharmacy_id: new Types.ObjectId(pharmacyId) })
+      .find({ pharmacy_id: String(pharmacyId) })
       .sort({ createdAt: -1 })
       .lean() as any[];
   }
@@ -46,7 +46,7 @@ export class ProcurementService {
   // ─── PHARMACY: Get single request ─────────────────────────────────────────
   async getPharmacyRequest(pharmacyId: string, requestId: string): Promise<any> {
     const req = await this.procurementModel
-      .findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: new Types.ObjectId(pharmacyId) })
+      .findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: String(pharmacyId) })
       .lean() as any;
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
@@ -58,7 +58,7 @@ export class ProcurementService {
     requestId: string,
     dto: PharmacyQuotationFeedbackDto,
   ): Promise<any> {
-    const req = await this.procurementModel.findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: new Types.ObjectId(pharmacyId) });
+    const req = await this.procurementModel.findOne({ _id: new Types.ObjectId(requestId), pharmacy_id: String(pharmacyId) });
     if (!req) throw new NotFoundException('Procurement request not found');
 
     if (req.status !== ProcurementStatus.QUOTATION_ISSUED) {
@@ -99,6 +99,33 @@ export class ProcurementService {
     const req = await this.procurementModel.findById(requestId).lean() as any;
     if (!req) throw new NotFoundException('Procurement request not found');
     return req;
+  }
+
+  // ─── ADMIN: status counts for dashboard chips ─────────────────────────────
+  async adminSummary(): Promise<any> {
+    const rows = await (this.procurementModel as any).aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 }, items: { $sum: { $size: { $ifNull: ['$items', []] } } } } },
+    ]);
+    const by_status: Record<string, number> = {};
+    let total_items = 0;
+    for (const r of rows) { by_status[r._id || 'UNKNOWN'] = r.count; total_items += r.items || 0; }
+    return { by_status, total_requests: rows.reduce((a, r) => a + r.count, 0), total_items };
+  }
+
+  // ─── ADMIN: export request items as CSV (Excel-compatible, Arabic-safe) ───
+  async adminExportCsv(requestId: string): Promise<string> {
+    const req = await this.adminGetRequest(requestId);
+    const esc = (v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const header = ['اسم الصنف', 'الكمية المطلوبة', 'الفئة', 'مطابق للكتالوج', 'ملاحظات'];
+    const lines = (req.items || []).map((it: any) => [
+      esc(it.raw_name_string || it.medicine_name || ''),
+      esc(it.requested_quantity ?? it.quantity ?? ''),
+      esc(it.category_group === 'non_medical' ? 'غير دوائية' : 'أدوية'),
+      esc(it.medicine_id ? 'نعم' : 'لا'),
+      esc(it.notes || ''),
+    ].join(','));
+    // BOM so Excel renders Arabic correctly
+    return '﻿' + header.map(esc).join(',') + '\n' + lines.join('\n') + '\n';
   }
 
   // ─── ADMIN: Move request to UNDER_ADMIN_REVIEW ───────────────────────────

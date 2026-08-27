@@ -1,42 +1,104 @@
 // @ts-nocheck
-import React, { useState } from 'react';
-import { View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, StyleSheet, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
-import { CameraView, useCameraPermissions } from 'expo-camera';
 import { apiFetch } from '../../src/utils/api';
+import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { pickLocalized } from '../../src/utils/localize';
 
 export default function BarcodeScannerScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [scanning, setScanning] = useState(true);
-  const [result, setResult] = useState<any>(null);
+  const { colors } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [notFound, setNotFound] = useState<string | null>(null);
+  const [lookingUp, setLookingUp] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const busyRef = useRef(false);
+  const cameraRef = useRef<CameraView | null>(null);
 
-  const handleBarcodeScanned = async ({ data }: { data: string }) => {
-    if (!scanning) return;
-    setScanning(false);
-    setErrorMessage(null);
+  // Identify a medicine by photographing its packaging (Gemini vision on the
+  // backend) — the real fallback since most catalog items carry no barcode.
+  const captureAndIdentify = async () => {
+    if (aiBusy || busyRef.current) return;
+    setAiError(null);
+    setAiBusy(true);
+    busyRef.current = true;
     try {
-      const medicine = await apiFetch(`/patient/pharmacy/medicines/barcode/${encodeURIComponent(data)}`);
-      setResult(medicine);
-    } catch (error: any) {
-      setResult(null);
-      setErrorMessage(error?.message || 'لم يتم العثور على دواء موثق لهذا الباركود.');
+      const photo = await cameraRef.current?.takePictureAsync({ base64: true, quality: 0.4 });
+      if (!photo?.base64) throw new Error('capture_failed');
+      const ai = await apiFetch<any>('/ai/medicine-image-search', {
+        method: 'POST',
+        body: JSON.stringify({ image_base64: photo.base64 }),
+      });
+      const name = String(ai?.name || '').trim();
+      if (!name || name.toLowerCase() === 'unknown') {
+        setAiError('لم نتمكن من التعرف على العبوة — قرّب الكاميرا من اسم الدواء وحاول مجدداً');
+        return;
+      }
+      const res = await apiFetch<any>(`/medicines?search=${encodeURIComponent(name)}&limit=5`);
+      const items = Array.isArray(res) ? res : (res?.items || res?.data || []);
+      if (items.length > 0) {
+        const m = items[0];
+        router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id || m._id, name: pickLocalized(m.name_ar, m.name_en) } });
+      } else {
+        router.push({ pathname: '/search', params: { q: name } });
+      }
+    } catch {
+      setAiError('تعذّر تحليل الصورة — تحقق من الاتصال وحاول مجدداً');
+    } finally {
+      setAiBusy(false);
+      busyRef.current = false;
     }
   };
 
+  const lookup = async (code: string) => {
+    setLookingUp(true);
+    try {
+      const res = await apiFetch<any>(`/medicines/by-barcode/${encodeURIComponent(code)}`);
+      if (res?.found && res.medicine) {
+        const m = res.medicine;
+        setResult({
+          barcode: code,
+          id: m.id,
+          name: pickLocalized(m.name_ar, m.name_en),
+          dose: pickLocalized(m.dosage_ar, m.dosage_en) || null,
+          brand: m.manufacturer || null,
+          price: typeof m.price === 'number' && m.price > 0 ? m.price : null,
+          available: true,
+          requiresRx: !!m.requires_prescription,
+        });
+      } else {
+        setNotFound(code);
+      }
+    } catch {
+      setNotFound(code);
+    } finally {
+      setLookingUp(false);
+      busyRef.current = false;
+    }
+  };
+
+  const onBarcodeScanned = ({ data }: { data?: string }) => {
+    const code = String(data || '').trim();
+    if (!code || busyRef.current || result || notFound) return;
+    busyRef.current = true;
+    lookup(code);
+  };
+
+  const reset = () => { setResult(null); setNotFound(null); busyRef.current = false; };
+
   const handleAddToCart = () => {
-    if (!result?.id) return;
-    router.push({ pathname: '/pharmacy/product-detail', params: { id: result.barcode, name: result.name } });
+    router.push({ pathname: '/pharmacy/product-detail', params: { id: result.id || result.barcode, name: result.name } });
   };
 
   return (
-    <View style={[st.c, { backgroundColor: colors.textPrimary } ]}>
+    <View style={[st.c, { backgroundColor: '#000' } ]}>
       <StatusBar barStyle="light-content" />
 
       {/* Header overlay */}
@@ -46,23 +108,53 @@ export default function BarcodeScannerScreen() {
         <IconButton icon="back" bg="rgba(255,255,255,0.18)" color="#fff" onPress={() => router.back()} />
       </View>
 
-      {!permission ? (
-        <View style={st.cameraArea}><AppText variant="bodySM" color="#fff">جاري التحقق من إذن الكاميرا…</AppText></View>
-      ) : !permission.granted ? (
+      {!result && !notFound ? (
         <View style={st.cameraArea}>
-          <AppText variant="bodySM" color="#fff" align="center">يلزم إذن الكاميرا لمسح الباركود.</AppText>
-          <Button label="السماح بالكاميرا" variant="outline" icon="photo_camera" onPress={requestPermission} style={{ marginTop: 20, borderColor: 'rgba(255,255,255,0.4)' }}/>
-        </View>
-      ) : scanning ? (
-        <View style={st.cameraArea}>
-          <CameraView style={st.camera} onBarcodeScanned={handleBarcodeScanned} barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'qr'] }} />
-          <View pointerEvents="none" style={st.scanFrame}>
-            <View style={[st.corner, st.tl]} /><View style={[st.corner, st.tr]} />
-            <View style={[st.corner, st.bl]} /><View style={[st.corner, st.br]} />
-          </View>
-          <AppText variant="bodySM" color="rgba(255,255,255,0.8)" align="center" style={{ marginTop: 24 }}>
-            وجّه الكاميرا نحو باركود أو QR code الدواء
-          </AppText>
+          {!permission ? (
+            <ActivityIndicator size="large" color="#fff" />
+          ) : !permission.granted ? (
+            <>
+              <AppText variant="bodySM" color="rgba(255,255,255,0.85)" align="center">
+                نحتاج إذن الكاميرا لمسح باركود الدواء
+              </AppText>
+              <Button label="منح إذن الكاميرا" variant="gradient" icon="photo_camera" onPress={requestPermission} style={{ marginTop: 16 }} />
+            </>
+          ) : (
+            <>
+              <View style={st.scanFrame}>
+                <CameraView
+                  ref={cameraRef}
+                  style={StyleSheet.absoluteFill}
+                  facing="back"
+                  barcodeScannerSettings={{
+                    barcodeTypes: ['qr', 'code128', 'code39', 'code93', 'ean13', 'ean8', 'upc_a', 'upc_e', 'datamatrix', 'pdf417', 'itf14'],
+                  }}
+                  onBarcodeScanned={onBarcodeScanned}
+                />
+                <View style={[st.corner, st.tl]} />
+                <View style={[st.corner, st.tr]} />
+                <View style={[st.corner, st.bl]} />
+                <View style={[st.corner, st.br]} />
+              </View>
+              {lookingUp && <ActivityIndicator size="small" color="#fff" style={{ marginTop: 16 }} />}
+              <AppText variant="bodySM" color="rgba(255,255,255,0.8)" align="center" style={{ marginTop: 24 }}>
+                وجّه الكاميرا نحو باركود أو QR code الدواء
+              </AppText>
+
+              {/* AI photo identification — works even when the product has no barcode */}
+              <Button
+                label={aiBusy ? 'جارٍ تحليل الصورة…' : 'صوّر عبوة الدواء للتعرف عليها'}
+                variant="gradient"
+                icon="document_scanner"
+                loading={aiBusy}
+                onPress={captureAndIdentify}
+                style={{ marginTop: 20, alignSelf: 'stretch' }}
+              />
+              {aiError && (
+                <AppText variant="caption" color="#FCA5A5" align="center" style={{ marginTop: 8 }}>{aiError}</AppText>
+              )}
+            </>
+          )}
 
           {/* Manual entry */}
           <TouchableOpacity onPress={() => router.push('/pharmacy/drug-not-found')} style={{ marginTop: 16 }}>
@@ -71,7 +163,7 @@ export default function BarcodeScannerScreen() {
         </View>
       ) : (
         <View style={[st.resultArea, { backgroundColor: colors.background } ]}>
-          {result ? (
+          {result && (
             <Card style={{ gap: 12, marginTop: 40 }}>
               <View style={{ alignItems: 'center', gap: 10 }}>
                 <View style={[st.foundIcon, { backgroundColor: colors.successSurface } ]}>
@@ -86,12 +178,14 @@ export default function BarcodeScannerScreen() {
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', gap: 4 }}>
                   <AppText variant="h5">{result.name}</AppText>
-                  <AppText variant="bodySM" color={colors.textTertiary}>{result.brand} · {result.dose}</AppText>
+                  {(result.brand || result.dose) && (
+                    <AppText variant="bodySM" color={colors.textTertiary}>{[result.brand, result.dose].filter(Boolean).join(' · ')}</AppText>
+                  )}
                   <View style={{ flexDirection: 'row-reverse', gap: 6 }}>
-                    <Badge label="دواء موثق" color={colors.success} />
+                    <Badge label={result.available ? 'متوفر' : 'غير متوفر'} color={result.available ? colors.success : colors.error} />
                     {result.requiresRx && <Badge label="يتطلب وصفة" color={colors.warning} />}
                   </View>
-                  <AppText variant="h4" color={colors.primary}>{result.price == null ? 'السعر غير متاح' : `${result.price} ر.س`}</AppText>
+                  {result.price !== null && <AppText variant="h4" color={colors.primary}>{result.price} ر.س</AppText>}
                 </View>
               </View>
 
@@ -99,14 +193,27 @@ export default function BarcodeScannerScreen() {
 
               <View style={{ gap: 8 }}>
                 <Button label="عرض التفاصيل وإضافة للسلة" variant="gradient" icon="shopping_cart" onPress={handleAddToCart} />
-                <Button label="مسح دواء آخر" variant="outline" icon="qr_code_scanner" onPress={() => { setScanning(true); setResult(null); }} />
+                <Button label="مسح دواء آخر" variant="outline" icon="qr_code_scanner" onPress={reset} />
               </View>
             </Card>
-          ) : (
-            <Card style={{ gap: 14, marginTop: 40, alignItems: 'center' }}>
-              <Icon name="error" size={40} color={colors.error} />
-              <AppText variant="bodyMD" align="center">{errorMessage || 'تعذر التحقق من الباركود.'}</AppText>
-              <Button label="المسح مرة أخرى" variant="outline" icon="qr_code_scanner" onPress={() => { setScanning(true); setErrorMessage(null); }} />
+          )}
+
+          {notFound && (
+            <Card style={{ gap: 12, marginTop: 40 }}>
+              <View style={{ alignItems: 'center', gap: 10 }}>
+                <View style={[st.foundIcon, { backgroundColor: colors.errorSurface } ]}>
+                  <Icon name="search_off" size={40} color={colors.error} />
+                </View>
+                <AppText variant="h4" align="center">لم يُعثر على الدواء</AppText>
+                <AppText variant="bodySM" color={colors.textTertiary} align="center">
+                  الباركود {notFound} غير مسجّل في دليل الأدوية
+                </AppText>
+              </View>
+              <View style={{ gap: 8 }}>
+                <Button label="التعرف بالذكاء الاصطناعي (تصوير العبوة)" variant="gradient" icon="document_scanner" onPress={() => { setNotFound(null); busyRef.current = false; }} />
+                <Button label="إضافة الدواء يدوياً" variant="outline" icon="add" onPress={() => router.push('/pharmacy/drug-not-found')} />
+                <Button label="مسح باركود آخر" variant="outline" icon="qr_code_scanner" onPress={reset} />
+              </View>
             </Card>
           )}
         </View>
@@ -119,8 +226,7 @@ const st = StyleSheet.create({
   c: { flex: 1 },
   hdr: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12 },
   cameraArea: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-  camera: { ...StyleSheet.absoluteFillObject },
-  scanFrame: { width: 250, height: 250, position: 'relative', zIndex: 2 },
+  scanFrame: { width: 250, height: 250, position: 'relative', overflow: 'hidden', borderRadius: 12 },
   corner: { position: 'absolute', width: 40, height: 40, borderColor: '#10B981', borderWidth: 3 },
   tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 12 },
   tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 12 },

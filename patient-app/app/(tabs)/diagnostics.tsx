@@ -1,28 +1,11 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-  Image,
-  ActivityIndicator,
-  Platform,
-  Alert,
-  StatusBar,
-  KeyboardAvoidingView,
-  Modal,
-  I18nManager,
-  Dimensions
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '../../src/components/ui';
 import { useApp } from '../../src/context/AppContext';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter, Tabs } from 'expo-router';
+import { useRouter, Tabs, useFocusEffect } from 'expo-router';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import Animated, { FadeInUp, FadeInDown, FadeIn, SlideInUp, FadeInRight, ZoomIn, SlideInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -30,6 +13,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
 import { apiFetch } from '../../src/utils/api';
+import { normalizeLabList, normalizeLabService } from '../../src/utils/labMappers';
+import { resolveEffectiveAddress, formatAddressLine } from '../../src/utils/selectedAddress';
 
 export default function DiagnosticsHub() {
   const router = useRouter();
@@ -48,6 +33,24 @@ export default function DiagnosticsHub() {
   const [radiologyServices, setRadiologyServices] = useState<any[]>([]);
   const [labs, setLabs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deliveryAddress, setDeliveryAddress] = useState<any>(null);
+  const [addressLoaded, setAddressLoaded] = useState(false);
+
+  // Reload the effective delivery address whenever the tab gains focus
+  // (covers returning from the address picker).
+  useFocusEffect(
+    React.useCallback(() => {
+      let active = true;
+      (async () => {
+        const addr = await resolveEffectiveAddress();
+        if (active) {
+          setDeliveryAddress(addr);
+          setAddressLoaded(true);
+        }
+      })();
+      return () => { active = false; };
+    }, [])
+  );
 
   React.useEffect(() => {
     const fetchHomeData = async () => {
@@ -59,13 +62,13 @@ export default function DiagnosticsHub() {
           apiFetch('/providers?type=lab').catch(() => ({ data: [] }))
         ]);
         
-        setPackages(pkgsRes?.data || pkgsRes || []);
+        setPackages(normalizeLabList(pkgsRes?.data || pkgsRes || []));
         
-        const allTests = testsRes?.data || testsRes || [];
+        const allTests = normalizeLabList(testsRes?.data || testsRes || []);
         setTestsPart1(allTests.slice(0, Math.ceil(allTests.length / 2)));
         setTestsPart2(allTests.slice(Math.ceil(allTests.length / 2)));
         
-        setRadiologyServices(radsRes?.data || radsRes || []);
+        setRadiologyServices(normalizeLabList(radsRes?.data || radsRes || []));
         
         const labsData = labsRes?.data || labsRes;
         if (Array.isArray(labsData) && labsData.length > 0) {
@@ -165,8 +168,18 @@ export default function DiagnosticsHub() {
             <View style={[styles.locationIconWrap, { backgroundColor: `${colors.secondary}15` }]} >
               <Icon name="map-marker-radius-outline" size={18} color={colors.secondary} />
             </View>
-            <AppText style={{ flex: 1, fontSize: 13, color: colors.textPrimary, marginLeft: 8, textAlign: 'right' }}>التوصيل إلى: <AppText style={{fontWeight: 'bold'}}>حي الملقا، الرياض</AppText></AppText>
-            <TouchableOpacity><AppText style={{ fontSize: 13, color: colors.primary, fontWeight: 'bold' }}>تغيير</AppText></TouchableOpacity>
+            <AppText style={{ flex: 1, fontSize: 13, color: colors.textPrimary, marginLeft: 8, textAlign: 'right' }}>
+              {deliveryAddress ? (
+                <>التوصيل إلى: <AppText style={{fontWeight: 'bold'}}>{formatAddressLine(deliveryAddress)}</AppText></>
+              ) : addressLoaded ? (
+                'لم تحدد عنواناً للتوصيل بعد'
+              ) : (
+                'جاري تحميل العنوان...'
+              )}
+            </AppText>
+            <TouchableOpacity onPress={() => (router.push as any)('/delivery/address-select')}>
+              <AppText style={{ fontSize: 13, color: colors.primary, fontWeight: 'bold' }}>{deliveryAddress ? 'تغيير' : 'اختيار'}</AppText>
+            </TouchableOpacity>
           </Animated.View>
         )}
 
@@ -205,8 +218,10 @@ export default function DiagnosticsHub() {
                           <AppText style={{ fontSize: 10, color: '#fff', fontWeight: 'bold' }}>الأكثر طلباً</AppText>
                         </View>
                       )}
-                      <View style={[styles.pkgIcon, { backgroundColor: `${pkg.color}15` }]} >
-                        <Icon name={pkg.icon as any} size={32} color={pkg.color} />
+                      <View style={[styles.pkgIcon, { backgroundColor: `${pkg.color}15`, overflow: 'hidden' }]} >
+                        {pkg.image
+                          ? <Image source={{ uri: pkg.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                          : <Icon name={pkg.icon as any} size={32} color={pkg.color} />}
                       </View>
                       <AppText style={{ fontWeight: 'bold', fontSize: 15, marginTop: 16, color: colors.textPrimary, textAlign: 'right' }}>{pkg.name}</AppText>
                       <AppText style={{ fontSize: 11, color: colors.textSecondary, marginTop: 4, height: 34, lineHeight: 16, textAlign: 'right' }} numberOfLines={2}>{pkg.desc}</AppText>
@@ -232,8 +247,10 @@ export default function DiagnosticsHub() {
                 <Animated.View key={test.id} entering={FadeInDown.delay(400 + (index * 100))}>
                   <TouchableOpacity style={[styles.testItem, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => (router.push as any)(`/diagnostics/test-detail?id=${test.id}`)}>
                     
-                    <View style={[styles.testIconWrap, { backgroundColor: `${test.color}15` }]} >
-                      <Icon name={test.icon as any} size={28} color={test.color} />
+                    <View style={[styles.testIconWrap, { backgroundColor: `${test.color}15`, overflow: 'hidden' }]} >
+                      {test.image
+                        ? <Image source={{ uri: test.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                        : <Icon name={test.icon as any} size={28} color={test.color} />}
                     </View>
 
                     <View style={styles.testTextWrap}>
@@ -288,8 +305,10 @@ export default function DiagnosticsHub() {
                 <Animated.View key={test.id} entering={FadeInDown.delay(600 + (index * 100))}>
                   <TouchableOpacity style={[styles.testItem, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => (router.push as any)(`/diagnostics/test-detail?id=${test.id}`)}>
                     
-                    <View style={[styles.testIconWrap, { backgroundColor: `${test.color}15` }]} >
-                      <Icon name={test.icon as any} size={28} color={test.color} />
+                    <View style={[styles.testIconWrap, { backgroundColor: `${test.color}15`, overflow: 'hidden' }]} >
+                      {test.image
+                        ? <Image source={{ uri: test.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                        : <Icon name={test.icon as any} size={28} color={test.color} />}
                     </View>
 
                     <View style={styles.testTextWrap}>
@@ -338,18 +357,21 @@ export default function DiagnosticsHub() {
               <Animated.View key={rad.id} entering={FadeInDown.delay(100 + (index * 100))}>
                 <TouchableOpacity style={[styles.testItem, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => (router.push as any)(`/diagnostics/test-detail?id=${rad.id}&isRadiology=true`)}>
                   
-                  <View style={[styles.testIconWrap, { backgroundColor: `${rad.color}15`, borderRadius: 16 }]} >
-                    <Icon name={rad.icon as any} size={32} color={rad.color} />
+                  <View style={[styles.testIconWrap, { backgroundColor: `${rad.color}15`, borderRadius: 16, overflow: 'hidden' }]} >
+                    {rad.image
+                      ? <Image source={{ uri: rad.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                      : <Icon name={rad.icon as any} size={32} color={rad.color} />}
                   </View>
 
                   <View style={styles.testTextWrap}>
                     <AppText style={{ fontWeight: 'bold', fontSize: 15, color: colors.textPrimary, textAlign: 'left' }}>{rad.name}</AppText>
                     <AppText style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, textAlign: 'left' }}>{rad.desc}</AppText>
+                    <AppText style={{ fontSize: 16, fontWeight: '900', color: colors.primary, marginTop: 6, textAlign: 'left' }}>{rad.price} ر.س</AppText>
                   </View>
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[styles.addBtnRed, { backgroundColor: colors.primary }]}
-                    onPress={() => (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName: rad.name, total: '٢٥٠', isRadiology: 'true', radiologyType: rad.name } })}
+                    onPress={() => (router.push as any)({ pathname: '/diagnostics/checkout', params: { serviceType, labName: rad.name, total: String(rad.price || ''), isRadiology: 'true', radiologyType: rad.name, serviceId: rad.id } })}
                   >
                     <Icon name="calendar-check" size={18} color="#fff" />
                     <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 12, marginLeft: 4 }}>احجز الآن</AppText>
@@ -434,7 +456,7 @@ const styles = StyleSheet.create({
   locationIndicator: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', marginBottom: 20, paddingHorizontal: 4 },
   locationIconWrap: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   insuranceCard: { borderRadius: 24, overflow: 'hidden', marginBottom: 24, shadowColor: '#F5A623', shadowOpacity: 0.3, shadowRadius: 15, elevation: 6 },
-  insuranceGradient: { flexDirection: 'row', alignItems: 'center', padding: 24, justifyContent: 'space-between' },
+  insuranceGradient: { flexDirection: 'row', alignItems: 'center', padding: 24, justifyContent: 'space-between', backgroundColor: '#B87714' },
   insuranceIconWrap: { width: 56, height: 56, borderRadius: 28, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
   insuranceText: { flex: 1, paddingRight: 16 },
   section: { marginBottom: 32 },
@@ -446,7 +468,7 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 16 },
   
   testItem: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', padding: 16, borderRadius: 20, borderWidth: 1, marginBottom: 16, shadowColor: '#000', shadowOpacity: 0.02, shadowRadius: 5, elevation: 1 },
-  testIconWrap: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginLeft: I18nManager.isRTL ? 0 : 12, marginRight: I18nManager.isRTL ? 12 : 0 },
+  testIconWrap: { width: 88, height: 88, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginLeft: I18nManager.isRTL ? 0 : 12, marginRight: I18nManager.isRTL ? 12 : 0 },
   testTextWrap: { flex: 1, paddingHorizontal: 8 },
   addBtnRed: { flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 14, shadowColor: '#E53935', shadowOpacity: 0.2, shadowRadius: 6, elevation: 3 },
   

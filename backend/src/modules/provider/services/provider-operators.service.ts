@@ -36,7 +36,7 @@ export class ProviderOperatorsService {
     const acceptUrl = `${process.env.PROVIDER_APP_BASE_URL || 'https://nabd.app/provider'}/operators/accept?token=${token}&email=${encodeURIComponent(email)}`;
     await this.mailer.send({ to: email, subject: 'دعوة للانضمام إلى فريق مقدم الخدمة على نبض', text: `لقد تمت دعوتك للانضمام إلى فريق مقدم خدمة على نبض.\nالدور: ${body.role}\n\nاضغط الرابط التالي لإتمام إنشاء حسابك:\n${acceptUrl}\n\n(الرابط صالح لمدة 72 ساعة)`, tag: 'operator_invite' });
     await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'operator.invited', target: { collection: 'provider_operators', id: op.id }, after: { email, role: op.role } });
-    return { id: op.id, email: op.email, role: op.role, status: op.status, permissions: op.permissions, invite_token_log_only: token /* visible only in non-prod when LOG_ONLY */ };
+    return { id: op.id, email: op.email, role: op.role, status: op.status, permissions: op.permissions };
   }
 
   async acceptInvite(body: { token: string; email: string; full_name?: string; phone?: string; password: string }) {

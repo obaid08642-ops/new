@@ -10,6 +10,7 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Button, IconButton, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { setSelectedAddress } from '../../src/utils/selectedAddress';
 
 interface Address {
   id: string;
@@ -38,20 +39,19 @@ export default function AddressSelectScreen() {
         const def = list.find(a => a.is_default) || list[0];
         if (def) setSelected(def.id);
       } catch {
-        // Fallback
-        setAddresses([
-          { id: '1', label: 'المنزل', street: 'شارع الأمير سلطان، حي السلامة', city: 'جدة', is_default: true },
-        ]);
-        setSelected('1');
+        // No mock fallback — show the honest empty state
+        setAddresses([]);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     const chosen = addresses.find(a => a.id === selected);
-    // Pass chosen address back (can use global state or router params)
+    if (chosen) {
+      await setSelectedAddress(chosen);
+    }
     router.back();
   }, [selected, addresses]);
 

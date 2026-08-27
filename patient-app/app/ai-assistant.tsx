@@ -1,13 +1,12 @@
 // @ts-nocheck
 import React, { useState, useRef } from 'react';
 import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Stack } from 'expo-router';
-import { DSText, DSInput, DSButton, DSTokens, DSAvatar, DSBadge } from '@/design-system';
-import { useTranslation } from 'react-i18next';
+import { Stack, useRouter } from 'expo-router';
+import { DSText, DSInput, DSChip, DSAvatar, Spacing, BorderRadius } from '@/design-system';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { HttpClient } from '@/services/HttpClient';
-import { useAppSelector } from '@/store';
+import { useAppSelector } from '@/store/hooks';
+import { useThemeColors, IconButton } from '../src/components/ui';
 
 interface Message {
   id: string;
@@ -17,7 +16,8 @@ interface Message {
 }
 
 export default function AIAssistantScreen() {
-  const { t } = useTranslation();
+  const router = useRouter();
+  const colors = useThemeColors();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -46,7 +46,7 @@ export default function AIAssistantScreen() {
     setLoading(true);
 
     try {
-      const response = await HttpClient.post<{ response: string }>('/ai/triage-chat', {
+      const response = await HttpClient.post<{ response: string }>('/ai/triage/chat', {
         messages: messages.concat(userMessage).map(m => ({ role: m.role, content: m.content })),
       });
 
@@ -78,50 +78,38 @@ export default function AIAssistantScreen() {
     return (
       <View style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowAssistant]}>
         {!isUser && (
-          <DSAvatar 
-            source={{ uri: 'https://ui-avatars.com/api/?name=AI&background=0D8ABC&color=fff' }} 
-            size="small" 
-          />
+          <DSAvatar name="AI" size="sm" fallbackColor={colors.primary} />
         )}
-        <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}>
-          <DSText 
-            variant="body" 
-            color={isUser ? DSTokens.colors.base.white : DSTokens.colors.text.primary}
-          >
+        <View style={[styles.bubble, isUser
+          ? [styles.bubbleUser, { backgroundColor: colors.primary }]
+          : [styles.bubbleAssistant, { backgroundColor: colors.surface, borderColor: colors.border }]]}>
+          <DSText variant="bodyMD" color={isUser ? '#FFFFFF' : colors.textPrimary}>
             {item.content}
           </DSText>
-          <DSText 
-            variant="caption" 
-            color={isUser ? 'rgba(255,255,255,0.7)' : DSTokens.colors.text.secondary}
+          <DSText
+            variant="caption"
+            color={isUser ? 'rgba(255,255,255,0.7)' : colors.textSecondary}
             style={{ marginTop: 4, alignSelf: isUser ? 'flex-end' : 'flex-start' }}
           >
             {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </DSText>
         </View>
         {isUser && (
-          <DSAvatar 
-            source={{ uri: user?.profilePicture || 'https://ui-avatars.com/api/?name=User&background=EEE' }} 
-            size="small" 
-          />
+          <DSAvatar source={user?.profilePicture || null} name={user?.name || 'مستخدم'} size="sm" />
         )}
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen 
-        options={{ 
-          title: 'المساعد الطبي AI',
-          headerTitleStyle: { fontFamily: DSTokens.typography.fonts.primary.bold },
-        }} 
-      />
-      
-      <View style={styles.headerChips}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <Stack.Screen options={{ title: 'المساعد الطبي AI' }} />
+
+      <View style={[styles.headerChips, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <DSBadge label="تشخيص الأعراض" variant="info" style={styles.chip} />
-          <DSBadge label="قراءة روشتة" variant="success" style={styles.chip} />
-          <DSBadge label="معلومات دواء" variant="warning" style={styles.chip} />
+          <DSChip label="تشخيص الأعراض" color={colors.primary} style={styles.chip} />
+          <DSChip label="قراءة روشتة" color={colors.success} style={styles.chip} />
+          <DSChip label="معلومات دواء" color={colors.warning} style={styles.chip} />
         </ScrollView>
       </View>
 
@@ -134,17 +122,17 @@ export default function AIAssistantScreen() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        <View style={styles.inputContainer}>
-          <DSButton 
-            title="" 
-            icon={<MaterialCommunityIcons name="camera" size={24} color={DSTokens.colors.text.secondary} />} 
-            variant="ghost"
+        <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+          <IconButton
+            icon="camera"
+            accessibilityLabel="رفع صورة وصفة"
+            bg={colors.surfaceSecondary}
+            color={colors.textSecondary}
             onPress={() => router.push('/ai/prescription-translator')}
-            style={styles.iconButton}
           />
           <DSInput
             placeholder="اكتب استفسارك الطبي..."
@@ -153,13 +141,13 @@ export default function AIAssistantScreen() {
             containerStyle={styles.inputField}
             onSubmitEditing={sendMessage}
           />
-          <DSButton 
-            title="" 
-            icon={<MaterialCommunityIcons name="send" size={24} color={DSTokens.colors.base.white} />} 
-            variant="primary"
+          <IconButton
+            icon="send"
+            accessibilityLabel="إرسال"
+            bg={colors.primary}
+            color="#FFFFFF"
+            size={48}
             onPress={sendMessage}
-            isLoading={loading}
-            style={styles.sendButton}
           />
         </View>
       </KeyboardAvoidingView>
@@ -170,27 +158,24 @@ export default function AIAssistantScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DSTokens.colors.background.default,
   },
   headerChips: {
-    paddingVertical: DSTokens.spacing.sm,
-    paddingHorizontal: DSTokens.spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: DSTokens.colors.border.subtle,
-    backgroundColor: DSTokens.colors.background.paper,
   },
   chip: {
-    marginRight: DSTokens.spacing.sm,
+    marginRight: Spacing.sm,
   },
   listContent: {
-    padding: DSTokens.spacing.md,
+    padding: Spacing.md,
     flexGrow: 1,
   },
   messageRow: {
     flexDirection: 'row',
-    marginBottom: DSTokens.spacing.md,
+    marginBottom: Spacing.md,
     alignItems: 'flex-end',
-    gap: DSTokens.spacing.sm,
+    gap: Spacing.sm,
   },
   messageRowUser: {
     justifyContent: 'flex-end',
@@ -200,42 +185,26 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '75%',
-    padding: DSTokens.spacing.md,
-    borderRadius: DSTokens.radii.lg,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
   },
   bubbleUser: {
-    backgroundColor: DSTokens.colors.primary.main,
     borderBottomRightRadius: 0,
   },
   bubbleAssistant: {
-    backgroundColor: DSTokens.colors.background.paper,
     borderBottomLeftRadius: 0,
     borderWidth: 1,
-    borderColor: DSTokens.colors.border.subtle,
   },
   inputContainer: {
     flexDirection: 'row',
-    padding: DSTokens.spacing.sm,
-    paddingHorizontal: DSTokens.spacing.md,
-    backgroundColor: DSTokens.colors.background.paper,
+    padding: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: DSTokens.colors.border.subtle,
     alignItems: 'center',
-    gap: DSTokens.spacing.sm,
+    gap: Spacing.sm,
   },
   inputField: {
     flex: 1,
     marginBottom: 0,
   },
-  iconButton: {
-    padding: DSTokens.spacing.xs,
-  },
-  sendButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 0,
-  }
 });

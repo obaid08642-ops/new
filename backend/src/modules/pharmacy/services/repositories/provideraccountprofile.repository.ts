@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -8,7 +7,7 @@ import { ProviderProfile } from '../../../provider/schemas';
 
 @Injectable()
 export class ProviderAccountProfileRepository extends MongoRepository<ProviderProfile> {
-  constructor(@InjectModel('ProviderProfile') model: Model<ProviderProfile>) {
+  constructor(@InjectModel('ProviderAccountProfile') model: Model<ProviderProfile>) {
     super(model);
   }
 }

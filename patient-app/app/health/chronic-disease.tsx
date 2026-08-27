@@ -41,7 +41,7 @@ export default function ChronicDiseaseScreen() {
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
       <View style={{ paddingTop: insets.top + 16, paddingBottom: 8, paddingHorizontal: 16 }}>
         <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' }}>
-          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} />
+          <IconButton icon="add" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.push('/health/edit-profile')} />
           <AppText variant="h3" color={colors.textPrimary}>الأمراض المزمنة</AppText>
           <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
         </View>
@@ -51,7 +51,7 @@ export default function ChronicDiseaseScreen() {
         
         {/* Stats Card */}
         <Card style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', padding: 16, backgroundColor: colors.surface }}>
-          {[{ num: conditions.length.toString(), label: 'حالة' }, { num: conditions.filter(c => c.controlled).length.toString(), label: 'تحت السيطرة' }, { num: conditions.reduce((acc, c) => acc + (c.medications?.length || 0), 0).toString(), label: 'أدوية' }].map((s, i) => (
+          {[{ num: conditions.length.toString(), label: 'حالة' }, { num: conditions.some(c => c.controlled === true || c.controlled === false) ? conditions.filter(c => c.controlled === true).length.toString() : '—', label: 'تحت السيطرة' }, { num: conditions.reduce((acc, c) => acc + (c.medications?.length || 0), 0).toString(), label: 'أدوية' }].map((s, i) => (
             <View key={i} style={{ alignItems: 'center', flex: 1, borderRightWidth: i > 0 ? 1 : 0, borderRightColor: colors.borderLight }}>
               <AppText variant="h4" color={colors.primary}>{s.num}</AppText>
               <AppText variant="caption" color={colors.textSecondary}>{s.label}</AppText>
@@ -63,21 +63,21 @@ export default function ChronicDiseaseScreen() {
           <Card key={cond.id} style={{ backgroundColor: isDark ? colors.surface : colors.white, padding: 0, overflow: 'hidden' }}>
             <TouchableOpacity onPress={() => setExpandedId(expandedId === cond.id ? null : cond.id)} style={styles.condHeader}>
               <View style={styles.condHeaderLeft}>
-                <View style={[styles.controlledBadge, { backgroundColor: cond.controlled ? '#DCFCE7' : '#FEE2E2', flexDirection: 'row-reverse' } ]}>
-                  <Icon name={cond.controlled ? 'check-circle' : 'alert-circle'} size={14} color={cond.controlled ? '#16A34A' : '#DC2626'} />
-                  <AppText variant="caption" color={cond.controlled ? '#16A34A' : '#DC2626'} style={{ marginRight: 4 }}>
-                    {cond.controlled ? 'تحت السيطرة' : 'يحتاج متابعة'}
+                <View style={[styles.controlledBadge, { backgroundColor: cond.controlled === true ? '#DCFCE7' : cond.controlled === false ? '#FEE2E2' : colors.backgroundSecondary, flexDirection: 'row-reverse' } ]}>
+                  <Icon name={cond.controlled === true ? 'check-circle' : cond.controlled === false ? 'alert-circle' : 'info'} size={14} color={cond.controlled === true ? '#16A34A' : cond.controlled === false ? '#DC2626' : colors.textTertiary} />
+                  <AppText variant="caption" color={cond.controlled === true ? '#16A34A' : cond.controlled === false ? '#DC2626' : colors.textTertiary} style={{ marginRight: 4 }}>
+                    {cond.controlled === true ? 'تحت السيطرة' : cond.controlled === false ? 'يحتاج متابعة' : 'مسجّلة'}
                   </AppText>
                 </View>
                 <Icon name={expandedId === cond.id ? 'chevronUp' : 'chevronDown'} size={20} color={colors.textTertiary} />
               </View>
               <View style={styles.condHeaderRight}>
-                <View style={[styles.condIconWrap, { backgroundColor: cond.color + '18' } ]}>
-                  <Icon name={cond.icon} size={24} color={cond.color} />
+                <View style={[styles.condIconWrap, { backgroundColor: (cond.color || colors.primary) + '18' } ]}>
+                  <Icon name={cond.icon || 'medication'} size={24} color={cond.color || colors.primary} />
                 </View>
                 <View style={styles.condTitles}>
                   <AppText variant="h6">{cond.name}</AppText>
-                  <AppText variant="caption" color={colors.textSecondary}>شدة {cond.severity}</AppText>
+                  {cond.severity && <AppText variant="caption" color={colors.textSecondary}>شدة {cond.severity}</AppText>}
                 </View>
               </View>
             </TouchableOpacity>
@@ -90,7 +90,7 @@ export default function ChronicDiseaseScreen() {
                   { label: 'الطبيب المعالج', val: cond.doctor },
                   { label: 'آخر فحص', val: cond.lastCheckup },
                   { label: 'الفحص القادم', val: cond.nextCheckup },
-                ].map((d, i) => (
+                ].filter(d => d.val).map((d, i) => (
                   <View key={i} style={[styles.detailRow, { borderBottomColor: colors.borderLight } ]}>
                     <AppText variant="bodySM" color={colors.textSecondary}>{d.val}</AppText>
                     <AppText variant="bodySM">{d.label}</AppText>
@@ -106,32 +106,40 @@ export default function ChronicDiseaseScreen() {
                 )}
 
                 {/* Medications */}
+                {!!cond.medications?.length && (
+                <>
                 <View style={{ flexDirection: 'row-reverse', alignItems: 'center', marginVertical: 12, gap: 6 }}>
                   <Icon name="medication" size={18} color={colors.primary} />
                   <AppText variant="h6">الأدوية</AppText>
                 </View>
                 <View style={styles.medsRow}>
-                  {cond.medications?.map((med: string, i: number) => (
-                    <View key={i} style={[styles.medTag, { backgroundColor: cond.color + '15' } ]}>
-                      <AppText variant="caption" color={cond.color}>{med}</AppText>
+                  {cond.medications.map((med: string, i: number) => (
+                    <View key={i} style={[styles.medTag, { backgroundColor: (cond.color || colors.primary) + '15' } ]}>
+                      <AppText variant="caption" color={cond.color || colors.primary}>{med}</AppText>
                     </View>
                   ))}
                 </View>
+                </>
+                )}
 
                 {/* Tips */}
+                {!!cond.tips?.length && (
+                <>
                 <View style={{ flexDirection: 'row-reverse', alignItems: 'center', marginVertical: 12, gap: 6 }}>
                   <Icon name="lightbulb" size={18} color="#F0A526" />
                   <AppText variant="h6">نصائح الإدارة</AppText>
                 </View>
-                {cond.tips?.map((tip: string, i: number) => (
+                {cond.tips.map((tip: string, i: number) => (
                   <View key={i} style={styles.tipRow}>
                     <AppText variant="bodySM" color={colors.textSecondary}>{tip}</AppText>
                     <Icon name="check" size={16} color={colors.primary} />
                   </View>
                 ))}
+                </>
+                )}
 
                 <TouchableOpacity onPress={() => router.push('/(tabs)/consultations')}
-                  style={[styles.bookCheckBtn, { backgroundColor: cond.color } ]}>
+                  style={[styles.bookCheckBtn, { backgroundColor: cond.color || colors.primary } ]}>
                   <AppText variant="bodySM" color="#fff" style={{ fontWeight: 'bold' }}>احجز فحص دوري</AppText>
                 </TouchableOpacity>
               </View>
@@ -145,16 +153,21 @@ export default function ChronicDiseaseScreen() {
             <Icon name="analytics" size={20} color={colors.primary} />
             <AppText variant="h6">سجل القياسات الأخيرة</AppText>
           </View>
-          {readings.map((r, i) => (
+          {readings.length === 0 && (
+            <AppText variant="bodySM" color={colors.textTertiary}>لا توجد قياسات مسجّلة بعد</AppText>
+          )}
+          {readings.slice(0, 10).map((r, i) => (
             <View key={i} style={[styles.readingRow, { borderBottomColor: colors.borderLight } ]}>
-              <View style={[styles.notesBadge, { backgroundColor: isDark ? colors.background : '#EEF2FF' } ]}>
-                <AppText variant="caption" color={colors.textSecondary}>{r.notes}</AppText>
-              </View>
+              {!!r.notes && (
+                <View style={[styles.notesBadge, { backgroundColor: isDark ? colors.background : '#EEF2FF' } ]}>
+                  <AppText variant="caption" color={colors.textSecondary}>{r.notes}</AppText>
+                </View>
+              )}
               <View style={styles.readingValues}>
-                <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="monitor_heart" size={16} color={colors.primary} /><AppText variant="bodySM" color={colors.textPrimary}>{r.bp}</AppText></View>
-                <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="bloodtype" size={16} color={colors.primary} /><AppText variant="bodySM" color={colors.textPrimary}>{r.glucose} mg/dL</AppText></View>
+                <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="monitor_heart" size={16} color={colors.primary} /><AppText variant="bodySM" color={colors.textPrimary}>{r.type}</AppText></View>
+                <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="bloodtype" size={16} color={colors.primary} /><AppText variant="bodySM" color={colors.textPrimary}>{r.value}{r.unit ? ` ${r.unit}` : ''}</AppText></View>
               </View>
-              <AppText variant="caption" color={colors.textTertiary}>{r.date}</AppText>
+              <AppText variant="caption" color={colors.textTertiary}>{r.measured_at ? new Date(r.measured_at).toLocaleDateString('ar') : ''}</AppText>
             </View>
           ))}
           <TouchableOpacity onPress={() => router.push('/health/vitals')}

@@ -38,22 +38,27 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      this.logger.log('Automatic seed skipped; test seeding requires NODE_ENV=test and ALLOW_TEST_SEED=true.');
-      return;
-    }
     try {
+      // Reference/master data — safe in every environment.
       await this.seedSystemConfig();
       await this.seedMedicines();
-      await this.seedPatient();
-      await this.seedPharmacies();
-      await this.seedFacilities();
-      await this.seedDoctors();
-      await this.seedExtraProviders();
-      await this.seedDelivery();
-      await this.seedInventory();
       await this.seedLabs();
-      this.logger.log('Seed complete — idempotent (with facilities + inventory + labs + config)');
+
+      // Demo identities and operational fixtures require a disposable test
+      // environment. A feature flag alone is not sufficient protection.
+      const testSeedEnabled = process.env.NODE_ENV === 'test' && process.env.ALLOW_TEST_SEED === 'true';
+      if (testSeedEnabled) {
+        await this.seedPatient();
+        await this.seedPharmacies();
+        await this.seedFacilities();
+        await this.seedDoctors();
+        await this.seedExtraProviders();
+        await this.seedDelivery();
+        await this.seedInventory();
+        this.logger.log('Seed complete — idempotent test data enabled explicitly');
+      } else {
+        this.logger.log('Seed complete — reference data only (demo identities skipped outside explicit test mode)');
+      }
     } catch (e: any) {
       this.logger.error(`Seed failed: ${e.message}`);
     }
@@ -84,7 +89,7 @@ export class SeedService implements OnModuleInit {
     for (const p of SEED_USERS) {
       const exists = await this.userModel.findOne({ phone: p.phone });
       if (exists) continue;
-      const hash = await bcrypt.hash(p.password, 8);
+      const hash = await bcrypt.hash(p.password, 12);
       const u = await this.userModel.create({
         full_name: p.full_name,
         phone: p.phone,
@@ -104,7 +109,7 @@ export class SeedService implements OnModuleInit {
     for (const ph of SEED_PHARMACIES) {
       const exists = await this.userModel.findOne({ phone: ph.phone });
       if (exists) continue;
-      const hash = await bcrypt.hash(ph.password, 8);
+      const hash = await bcrypt.hash(ph.password, 12);
       const u = await this.userModel.create({
         full_name: ph.full_name,
         phone: ph.phone,
@@ -138,7 +143,7 @@ export class SeedService implements OnModuleInit {
     for (const d of SEED_DOCTORS) {
       let user = await this.userModel.findOne({ phone: d.phone });
       if (!user) {
-        const hash = await bcrypt.hash(d.password, 8);
+        const hash = await bcrypt.hash(d.password, 12);
         user = await this.userModel.create({
           full_name: d.full_name, phone: d.phone, password_hash: hash,
           role: UserRole.DOCTOR, city: d.city, district: d.district,
@@ -188,7 +193,7 @@ export class SeedService implements OnModuleInit {
     const hospPhone = '+966555000004';
     let hospUser = await this.userModel.findOne({ phone: hospPhone });
     if (!hospUser) {
-      const hash = await bcrypt.hash('Hospital@123', 8);
+      const hash = await bcrypt.hash('Hospital@123', 12);
       hospUser = await this.userModel.create({
         full_name: 'مستشفى الملك فيصل التخصصي', phone: hospPhone, password_hash: hash,
         role: UserRole.HOSPITAL, city: 'الرياض', district: 'العليا',
@@ -206,7 +211,7 @@ export class SeedService implements OnModuleInit {
     const labPhone = '+966555000005';
     let labUser = await this.userModel.findOne({ phone: labPhone });
     if (!labUser) {
-      const hash = await bcrypt.hash('Lab@123', 8);
+      const hash = await bcrypt.hash('Lab@123', 12);
       labUser = await this.userModel.create({
         full_name: 'معمل نبض الطبي', phone: labPhone, password_hash: hash,
         role: UserRole.LAB, city: 'الرياض', district: 'العليا',
@@ -224,7 +229,7 @@ export class SeedService implements OnModuleInit {
     const radPhone = '+966555000006';
     let radUser = await this.userModel.findOne({ phone: radPhone });
     if (!radUser) {
-      const hash = await bcrypt.hash('Radiology@123', 8);
+      const hash = await bcrypt.hash('Radiology@123', 12);
       radUser = await this.userModel.create({
         full_name: 'مركز نبض للأشعة', phone: radPhone, password_hash: hash,
         role: UserRole.RADIOLOGY, city: 'الرياض', district: 'العليا',
@@ -242,7 +247,7 @@ export class SeedService implements OnModuleInit {
     const nursePhone = '+966555000007';
     let nurseUser = await this.userModel.findOne({ phone: nursePhone });
     if (!nurseUser) {
-      const hash = await bcrypt.hash('Nurse@123', 8);
+      const hash = await bcrypt.hash('Nurse@123', 12);
       nurseUser = await this.userModel.create({
         full_name: 'ممرض نبض المنزلي', phone: nursePhone, password_hash: hash,
         role: UserRole.NURSE, city: 'الرياض', district: 'العليا',
@@ -261,7 +266,7 @@ export class SeedService implements OnModuleInit {
     for (const dd of SEED_DELIVERY) {
       const exists = await this.userModel.findOne({ phone: dd.phone });
       if (exists) continue;
-      const hash = await bcrypt.hash(dd.password, 8);
+      const hash = await bcrypt.hash(dd.password, 12);
       await this.userModel.create({
         full_name: dd.full_name, phone: dd.phone, password_hash: hash,
         role: UserRole.DELIVERY, city: dd.city, active: true,

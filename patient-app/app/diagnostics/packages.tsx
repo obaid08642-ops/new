@@ -5,17 +5,18 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  TextInput,
+  ActivityIndicator,
+} from "react-native";
 import { AppText } from "../../src/components/ui";
-import { useApp } from "../../src/context/AppContext";
+import { Colors } from "../../src/theme";
+const theme = { colors: Colors.light };
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
 
 export default function DiagnosticsPackages() {
-  const { colors } = useApp();
   const router = useRouter();
   const [activeCat, setActiveCat] = useState("الكل");
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export default function DiagnosticsPackages() {
       apiFetch('/labs/categories')
     ]).then(([pkgRes, catRes]: any) => {
       setAllPackages(pkgRes?.data || pkgRes || []);
-      const cats = (catRes?.data || catRes || []).map((c: any) => c.name_ar || c.slug || c);
+      const cats = (catRes?.data || catRes || []).map((c: any) => pickLocalized(c.name_ar, c.name_en) || c.slug || c);
       setCategories(["الكل", ...cats]);
       setLoading(false);
     }).catch((err) => {
@@ -43,13 +44,13 @@ export default function DiagnosticsPackages() {
       : allPackages.filter((p) => p.category === activeCat);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
-      <View style={[styles.header, { backgroundColor: colors.s }]}>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Icon
             name="arrow-forward"
             size={24}
-            color={colors.n}
+            color={theme.colors.textPrimary}
           />
         </TouchableOpacity>
         <AppText variant="h2" style={styles.headerTitle}>
@@ -57,13 +58,13 @@ export default function DiagnosticsPackages() {
         </AppText>
       </View>
 
-      <View style={[styles.searchContainer, { backgroundColor: colors.s, borderBottomColor: colors.bd }]}>
-        <View style={[styles.searchBar, { backgroundColor: colors.bg }]}>
-          <Icon name="search" size={20} color={colors.t2} />
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Icon name="search" size={20} color={theme.colors.textSecondary} />
           <TextInput
-            style={[styles.searchInput, { color: colors.n }]}
+            style={styles.searchInput}
             placeholder="ابحث عن باقة..."
-            placeholderTextColor={colors.t2}
+            placeholderTextColor={theme.colors.textSecondary}
           />
         </View>
       </View>
@@ -77,14 +78,14 @@ export default function DiagnosticsPackages() {
           {categories.map((c, i) => (
             <TouchableOpacity
               key={i}
-              style={[styles.catChip, { backgroundColor: colors.s, borderColor: colors.bd }, activeCat === c && [styles.catChipActive, { backgroundColor: colors.p, borderColor: colors.p }]]}
+              style={[styles.catChip, activeCat === c && styles.catChipActive]}
               onPress={() => setActiveCat(c)}
             >
               <AppText
                 style={{
                   fontSize: 13,
                   fontWeight: "bold",
-                  color: activeCat === c ? '#FFFFFF' : colors.n,
+                  color: activeCat === c ? "#fff" : theme.colors.textPrimary,
                 }}
               >
                 {c}
@@ -95,7 +96,7 @@ export default function DiagnosticsPackages() {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color={colors.p} style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 40 }} />
       ) : (
 
       <ScrollView
@@ -105,27 +106,27 @@ export default function DiagnosticsPackages() {
         {filtered.map((pkg) => (
           <TouchableOpacity
             key={pkg.id}
-            style={[styles.pkgCard, { backgroundColor: colors.s, borderColor: colors.bd }]}
+            style={styles.pkgCard}
             onPress={() =>
               router.push(`/diagnostics/package-detail?id=${pkg.id}`)
             }
           >
             <View style={styles.pkgHeader}>
               <View style={styles.pkgIcon}>
-                <Icon name="biotech" size={24} color={colors.p} />
+                <Icon name="biotech" size={24} color={theme.colors.primary} />
               </View>
               <View style={styles.pkgInfo}>
                 <AppText style={{ fontWeight: "bold", fontSize: 16 }}>
-                  {pkg.name_ar || pkg.name}
+                  {pickLocalized(pkg.name_ar, pkg.name)}
                 </AppText>
                 <AppText
                   style={{
                     fontSize: 12,
-                      color: colors.t2,
+                    color: theme.colors.textSecondary,
                     marginTop: 4,
                   }}
                 >
-                  {pkg.description_ar || pkg.desc || "باقة تحاليل شاملة"}
+                  {pickLocalized(pkg.description_ar, pkg.desc) || "باقة تحاليل شاملة"}
                 </AppText>
               </View>
               <View style={styles.pkgPrice}>
@@ -133,28 +134,28 @@ export default function DiagnosticsPackages() {
                   style={{
                     fontSize: 18,
                     fontWeight: "900",
-                    color: colors.p,
+                    color: theme.colors.primary,
                   }}
                 >
                   {pkg.price}
                 </AppText>
                 <AppText
-                  style={{ fontSize: 10, color: colors.t2 }}
+                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
                 >
                   ر.س
                 </AppText>
               </View>
             </View>
-            <View style={[styles.pkgFooter, { borderTopColor: colors.bd }]}>
+            <View style={styles.pkgFooter}>
               <AppText
-                style={{ fontSize: 11, color: colors.t2 }}
+                style={{ fontSize: 11, color: theme.colors.textSecondary }}
               >
                 متاحة في: {pkg.labs ? pkg.labs.join(" • ") : "كل المختبرات المعتمدة"}
               </AppText>
               <Icon
                 name="arrow-back-ios"
                 size={14}
-                color={colors.t2}
+                color={theme.colors.textSecondary}
               />
             </View>
           </TouchableOpacity>
@@ -166,17 +167,19 @@ export default function DiagnosticsPackages() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: "transparent" },
   header: {
     flexDirection: "row",
     alignItems: "center",
     padding: 24,
     paddingTop: 60,
+    backgroundColor: "transparent",
   },
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -184,11 +187,14 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 24,
     paddingBottom: 16,
+    backgroundColor: "transparent",
     borderBottomWidth: 1,
+    borderBottomColor: "transparent",
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "transparent",
     borderRadius: 16,
     padding: 14,
   },
@@ -197,6 +203,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontFamily: "Tajawal-Medium",
     fontSize: 14,
+    color: "transparent",
     textAlign: "right",
   },
   catScroll: { paddingHorizontal: 24, paddingVertical: 16, gap: 10 },
@@ -204,21 +211,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
+    backgroundColor: "transparent",
     borderWidth: 1,
+    borderColor: "transparent",
   },
-  catChipActive: {},
+  catChipActive: { backgroundColor: "transparent", borderColor: "transparent" },
   scrollContent: { padding: 24, paddingTop: 8 },
   pkgCard: {
+    backgroundColor: "transparent",
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
+    borderColor: "transparent",
   },
   pkgHeader: { flexDirection: "row", gap: 12, marginBottom: 16 },
   pkgIcon: {
     width: 48,
     height: 48,
     borderRadius: 16,
+    backgroundColor: `${"transparent"}15`,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -230,5 +242,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 12,
     borderTopWidth: 1,
+    borderTopColor: "transparent",
   },
 });

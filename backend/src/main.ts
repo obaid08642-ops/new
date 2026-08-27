@@ -2,14 +2,15 @@ import * as Sentry from '@sentry/node';
 Sentry.init({
   dsn: process.env.SENTRY_DSN || '',
   environment: process.env.NODE_ENV || 'development',
-  tracesSampleRate: 1.0,
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 });
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { IoAdapter } from '@nestjs/platform-socket.io';
+import { createNabdahOpenApiDocument } from './config/openapi.config';
+import { ConfiguredIoAdapter } from './config/configured-io.adapter';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
 import { SentryExceptionFilter } from './common/sentry.filter';
@@ -18,16 +19,20 @@ const compression = require('compression');
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 
-import { MongoMemoryServer } from 'mongodb-memory-server';
-
 async function bootstrap() {
   const loggerConfig = process.env.NODE_ENV === 'production'
     ? winston.format.combine(winston.format.timestamp(), winston.format.json())
     : winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple());
 
+  // M0-07: in-memory Mongo is a dev/test convenience — it must never run in production,
+  // because it silently replaces the real database with an empty ephemeral one.
   if (process.env.USE_MEMORY_MONGO === 'true') {
-    console.log('[MongoMemoryServer] Starting...');
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('FATAL: USE_MEMORY_MONGO must not be enabled in production');
+    }
+    console.log('[MongoMemoryServer] Starting (non-production only)...');
     try {
+      const { MongoMemoryServer } = await import('mongodb-memory-server');
       const mongod = await MongoMemoryServer.create();
       process.env.MONGO_URL = mongod.getUri();
       console.log(`[MongoMemoryServer] Started at ${process.env.MONGO_URL}`);
@@ -36,11 +41,11 @@ async function bootstrap() {
     }
   }
 
-  const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : process.env.NODE_ENV === 'production'
-      ? ['https://nabdah.com', 'https://admin.nabdah.com', 'https://provider.nabdah.com']
-      : true;
+  const configuredOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean);
+  if (process.env.NODE_ENV === 'production' && !configuredOrigins?.length) {
+    throw new Error('FATAL: ALLOWED_ORIGINS is required in production');
+  }
+  const allowedOrigins = configuredOrigins?.length ? configuredOrigins : true;
 
   const app = await NestFactory.create(AppModule, { 
     cors: typeof allowedOrigins === 'boolean' ? allowedOrigins : {
@@ -55,7 +60,13 @@ async function bootstrap() {
     }),
   });
   const logger = new Logger('Bootstrap');
-  
+
+  // Trust TWO proxy hops (Cloudflare → nginx → app) so req.ip is the REAL
+  // client IP, not a shared Cloudflare edge IP. With only 1 hop, every user
+  // behind the same CF edge node shares one rate-limit bucket (5 logins/min
+  // across thousands of users) and one bot can ban them all.
+  app.getHttpAdapter().getInstance().set('trust proxy', 2);
+
   // Apply helmet security headers
   app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
@@ -70,7 +81,7 @@ async function bootstrap() {
   }));
   app.use(compression());
   app.use(cookieParser());
-  app.useWebSocketAdapter(new IoAdapter(app));
+  app.useWebSocketAdapter(new ConfiguredIoAdapter(app, allowedOrigins));
   
   // Register global Sentry Exception Filter
   app.useGlobalFilters(new SentryExceptionFilter(app.getHttpAdapter()));
@@ -96,19 +107,25 @@ async function bootstrap() {
     transform: true 
   }));
 
-  // Swagger Configuration
-  const config = new DocumentBuilder()
-    .setTitle('Nabdah Plus Enterprise API')
-    .setDescription('The core backend production runtime API for Nabdah Plus')
-    .setVersion('2.0.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  // Swagger Configuration — E5-F3: in production the full API surface must not be
+  // publicly enumerable; serve docs only when explicitly enabled (SWAGGER_ENABLED=true).
+  const swaggerEnabled = process.env.SWAGGER_ENABLED === 'true' || process.env.NODE_ENV !== 'production';
+  if (swaggerEnabled) {
+    const document = createNabdahOpenApiDocument(app);
+    SwaggerModule.setup('api/docs', app, document, {
+      jsonDocumentUrl: 'api/docs-json',
+      yamlDocumentUrl: 'api/docs-yaml',
+    });
+  }
+
+  // E5-F3 graceful shutdown: lets BullMQ workers/queues, mongoose, and the Redis
+  // client finish in-flight work and close cleanly on SIGTERM (deploys, autoscaling).
+  // Without this, container stops killed in-flight queue jobs mid-processing.
+  app.enableShutdownHooks();
 
   const port = parseInt(process.env.PORT || '8002', 10);
   await app.listen(port, '0.0.0.0');
   logger.log(`Nabd NestJS Backend listening on http://0.0.0.0:${port}`);
-  logger.log(`Swagger UI available at http://0.0.0.0:${port}/api/docs`);
+  if (swaggerEnabled) logger.log(`Swagger UI available at http://0.0.0.0:${port}/api/docs`);
 }
 bootstrap();

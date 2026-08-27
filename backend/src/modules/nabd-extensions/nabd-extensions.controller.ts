@@ -21,38 +21,6 @@ export class NabdExtensionsController {
     return this.svc.logActivity('notifications.read', user.id, undefined, { notificationId: id });
   }
 
-  @Get('wallet/balance')
-  async getWalletBalance(@CurrentUser() user: any) {
-    const balance = await this.svc.getWalletBalance(user.id, user.role !== UserRole.PATIENT ? 'provider' : 'patient');
-    return { balance };
-  }
-
-  @Post('wallet/credit')
-  async creditWallet(@CurrentUser() user: any, @Body() body: any) {
-    return this.svc.processWalletTransaction({
-      ownerId: user.id,
-      ownerType: user.role !== UserRole.PATIENT ? 'provider' : 'patient',
-      amount: body.amount,
-      type: 'credit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || 'manual',
-      description: body.description || 'Manual Wallet Credit',
-    });
-  }
-
-  @Post('wallet/debit')
-  async debitWallet(@CurrentUser() user: any, @Body() body: any) {
-    return this.svc.processWalletTransaction({
-      ownerId: user.id,
-      ownerType: user.role !== UserRole.PATIENT ? 'provider' : 'patient',
-      amount: body.amount,
-      type: 'debit',
-      referenceType: body.referenceType || 'booking',
-      referenceId: body.referenceId || 'manual',
-      description: body.description || 'Manual Wallet Debit',
-    });
-  }
-
   @Post('referral/code')
   async getReferralCode(@CurrentUser() user: any) {
     const code = await this.svc.generateReferralCode(user.id);
@@ -156,8 +124,8 @@ export class NabdExtensionsController {
   }
 
   @Get('pharmacy/inventory/expiry')
-  async getExpiringInventory() {
-    return this.svc.getExpiringInventory();
+  async getExpiringInventory(@CurrentUser() provider: any) {
+    return this.svc.getExpiringInventory(provider.id);
   }
 
   @Post('labs/samples/barcode-verify')

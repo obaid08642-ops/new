@@ -73,12 +73,6 @@ export default function PaymentFailedScreen() {
             </View>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push("/wallet/hub")}
-          style={[styles.walletBtn, { borderColor: colors.border }]}
-        >
-          <AppText variant="bodySM"> الدفع من المحفظة</AppText>
-        </TouchableOpacity>
         <TouchableOpacity onPress={() => router.replace("/(tabs)")}>
           <AppText variant="bodySM">إلغاء والعودة</AppText>
         </TouchableOpacity>

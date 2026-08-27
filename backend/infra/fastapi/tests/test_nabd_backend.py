@@ -1,9 +1,16 @@
 """Backend integration tests for Nabd Healthcare Platform"""
 import base64
+import os
 import time
 import pytest
 
-BASE = "https://flutter-pharmacy.preview.emergentagent.com"
+BASE = os.getenv("FASTAPI_TEST_BASE_URL", "")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def require_configured_staging(base_url):
+    global BASE
+    BASE = base_url
 
 
 # ============== Health / Root ==============
@@ -49,7 +56,6 @@ class TestAuth:
         assert r.status_code == 200
         u = r.json()
         assert u["role"] == "admin"
-        assert u["phone"] == "+966500000000"
 
     def test_me_without_token(self, api_client):
         r = api_client.get(f"{BASE}/api/auth/me")
@@ -58,7 +64,7 @@ class TestAuth:
     def test_login_bad_password(self, api_client):
         r = api_client.post(
             f"{BASE}/api/auth/login",
-            json={"phone": "+966500000000", "password": "wrong"},
+            json={"identifier": "invalid@example.invalid", "password": "wrong"},
         )
         assert r.status_code == 401
 

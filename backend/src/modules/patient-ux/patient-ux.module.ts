@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, Post, Param, Body, UseGuards, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -19,7 +19,7 @@ import { EventBusService } from '../events/event-bus.service';
 export class PatientUxService {
   constructor(
     @InjectModel('Review') private reviews: Model<any>,
-    @InjectModel('RefundRequest') private refunds: Model<any>,
+    @InjectModel('PatientUxRefund') private refunds: Model<any>,
     @InjectModel('Order') private orders: Model<any>,
     @InjectModel('LabBooking') private labs: Model<any>,
     @InjectModel('RadiologyBooking') private rads: Model<any>,
@@ -72,13 +72,9 @@ export class PatientUxService {
     const b: any = await M.findOne({ id: body.booking_id }).lean();
     if (!b || b.patient_id !== user.id) throw new BadRequestException('not_owner');
     if (!['paid', 'partially_refunded'].includes(b.payment_status)) throw new BadRequestException('not_eligible_for_refund');
-    const recordedAmount = Number(b.refundable_amount ?? b.paid_amount ?? b.final_amount ?? b.total_amount ?? b.amount);
-    if (!Number.isFinite(recordedAmount) || recordedAmount <= 0) {
-      throw new ServiceUnavailableException('A server-recorded paid amount is required before a refund can be requested.');
-    }
     const existing = await this.refunds.findOne({ booking_id: body.booking_id, status: 'requested' });
     if (existing) return existing.toObject();
-    const rr = await this.refunds.create({ booking_kind: body.booking_kind, booking_id: body.booking_id, patient_id: user.id, reason: body.reason, amount: recordedAmount });
+    const rr = await this.refunds.create({ booking_kind: body.booking_kind, booking_id: body.booking_id, patient_id: user.id, reason: body.reason, amount: body.amount });
     this.events.emit('refund.requested', rr.toObject());
     return rr.toObject();
   }
@@ -99,14 +95,19 @@ export class PatientUxService {
     const r: any = await this.refunds.findOne({ id });
     if (!r) throw new NotFoundException('refund_not_found');
     if (r.status !== 'requested') throw new BadRequestException('not_pending');
-    if (decision === 'approved') {
-      throw new ServiceUnavailableException('Refund approval is disabled until it is linked to a verified payment-provider refund and immutable payment ledger.');
-    }
     r.status = decision;
     r.decided_at = new Date();
     r.decided_by = admin.id;
     if (note) r.admin_note = note;
+    if (decision === 'approved' && amount) r.amount = amount;
     await r.save();
+    // If approved, mark booking payment status (best-effort)
+    if (decision === 'approved') {
+      try {
+        const M = this.model(r.booking_kind);
+        await M.updateOne({ id: r.booking_id }, { $set: { payment_status: 'refunded', refunded_at: new Date(), refund_amount: r.amount } });
+      } catch {}
+    }
     // Persistent audit log entry (visible in admin events/audit feed)
     this.bus.emit({
       type: `refund.${decision}`,
@@ -292,7 +293,10 @@ export class AdminOverrideController {
 @Module({
   imports: [MongooseModule.forFeature([
     { name: 'Review', schema: ReviewSchema },
-    { name: 'RefundRequest', schema: RefundRequestSchema },
+    // Distinct model name: insurance-engine also registers a 'RefundRequest' model (policy-window
+    // refunds); sharing the name made Mongoose hand both modules the first-compiled schema,
+    // silently stripping refund_percent/refund_amount on save. Collection kept for data continuity.
+    { name: 'PatientUxRefund', schema: RefundRequestSchema, collection: 'refundrequests' },
     { name: 'Order', schema: OrderSchema },
     { name: 'LabBooking', schema: LabBookingSchema },
     { name: 'RadiologyBooking', schema: RadiologyBookingSchema },

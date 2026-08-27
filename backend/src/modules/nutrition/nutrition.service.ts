@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import {
   NutritionProfile,
@@ -34,83 +34,99 @@ export class NutritionService {
     return { start, end };
   }
 
-  /** BMI = weight (kg) / height (m)² */
-  calculateBMI(height_cm: number, weight_kg: number): number {
-    if (!height_cm || height_cm <= 0) return 0;
+  /** BMI = weight (kg) / height (m)²; it is absent until both patient-entered measurements exist. */
+  calculateBMI(height_cm?: number, weight_kg?: number): number | null {
+    if (!height_cm || !weight_kg || height_cm <= 0 || weight_kg <= 0) return null;
     const heightM = height_cm / 100;
     return Math.round((weight_kg / (heightM * heightM)) * 10) / 10;
   }
 
-  /* ───────── Profile ───────── */
-
-  async getProfile(userId: string): Promise<NutritionProfile> {
-    let profile = await this.profileModel.findOne({ patient_id: userId });
-    if (!profile) {
-      profile = await this.profileModel.create({
-        patient_id: userId,
-        goal: 'healthy_lifestyle',
-        height_cm: 0,
-        weight_kg: 0,
-        target_weight_kg: 0,
-        bmi: 0,
-        body_fat_percent: 0,
-        daily_calorie_target: 2000,
-        daily_water_target_ml: 2000,
-        activity_level: 'moderate',
-        dietary_restrictions: [],
-        allergies: [],
-      });
+  private numberInRange(value: unknown, field: string, min: number, max: number, integer = false): number {
+    const number = Number(value);
+    if (!Number.isFinite(number) || number < min || number > max || (integer && !Number.isInteger(number))) {
+      throw new BadRequestException(`${field} must be ${integer ? 'an integer ' : ''}between ${min} and ${max}`);
     }
-    return profile.toObject();
+    return number;
   }
 
-  async updateProfile(userId: string, data: any): Promise<NutritionProfile> {
+  private safeStringList(value: unknown, field: string): string[] {
+    if (!Array.isArray(value) || value.length > 30 || value.some((item) => typeof item !== 'string' || item.trim().length > 100)) {
+      throw new BadRequestException(`${field} must be a list of up to 30 short strings`);
+    }
+    return [...new Set(value.map((item) => item.trim()).filter(Boolean))];
+  }
+
+  private safeLoggedAt(value: unknown): Date {
+    const at = value ? new Date(String(value)) : new Date();
+    if (Number.isNaN(at.getTime()) || at.getTime() > Date.now() + 5 * 60 * 1000 || at.getTime() < Date.now() - 31 * 24 * 60 * 60 * 1000) {
+      throw new BadRequestException('logged_at must be within the last 31 days');
+    }
+    return at;
+  }
+
+  /* ───────── Profile ───────── */
+
+  async getProfile(userId: string): Promise<any> {
+    const profile = await this.profileModel.findOne({ patient_id: userId });
+    // No target is invented when a patient has not completed nutrition setup.
+    return profile ? profile.toObject() : { patient_id: userId, profile_ready: false };
+  }
+
+  async updateProfile(userId: string, data: any): Promise<any> {
     let profile = await this.profileModel.findOne({ patient_id: userId });
-
     const fields: any = {};
+    const allowedGoals = ['weight_loss', 'muscle_gain', 'healthy_lifestyle', 'maintain'];
+    const allowedActivity = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
 
-    if (data.goal !== undefined) fields.goal = data.goal;
-    if (data.height_cm !== undefined) fields.height_cm = data.height_cm;
-    if (data.weight_kg !== undefined) fields.weight_kg = data.weight_kg;
-    if (data.target_weight_kg !== undefined) fields.target_weight_kg = data.target_weight_kg;
-    if (data.body_fat_percent !== undefined) fields.body_fat_percent = data.body_fat_percent;
-    if (data.daily_calorie_target !== undefined) fields.daily_calorie_target = data.daily_calorie_target;
-    if (data.daily_water_target_ml !== undefined) fields.daily_water_target_ml = data.daily_water_target_ml;
-    if (data.activity_level !== undefined) fields.activity_level = data.activity_level;
-    if (data.dietary_restrictions !== undefined) fields.dietary_restrictions = data.dietary_restrictions;
-    if (data.allergies !== undefined) fields.allergies = data.allergies;
+    if (data.goal !== undefined) {
+      if (!allowedGoals.includes(data.goal)) throw new BadRequestException('invalid nutrition goal');
+      fields.goal = data.goal;
+    }
+    if (data.height_cm !== undefined) fields.height_cm = this.numberInRange(data.height_cm, 'height_cm', 50, 260, false);
+    if (data.weight_kg !== undefined) fields.weight_kg = this.numberInRange(data.weight_kg, 'weight_kg', 15, 500, false);
+    if (data.target_weight_kg !== undefined) fields.target_weight_kg = this.numberInRange(data.target_weight_kg, 'target_weight_kg', 15, 500, false);
+    if (data.body_fat_percent !== undefined) fields.body_fat_percent = this.numberInRange(data.body_fat_percent, 'body_fat_percent', 0, 100, false);
+    if (data.daily_calorie_target !== undefined) fields.daily_calorie_target = this.numberInRange(data.daily_calorie_target, 'daily_calorie_target', 500, 10000, true);
+    if (data.daily_water_target_ml !== undefined) fields.daily_water_target_ml = this.numberInRange(data.daily_water_target_ml, 'daily_water_target_ml', 250, 10000, true);
+    if (data.activity_level !== undefined) {
+      if (!allowedActivity.includes(data.activity_level)) throw new BadRequestException('invalid activity_level');
+      fields.activity_level = data.activity_level;
+    }
+    if (data.dietary_restrictions !== undefined) fields.dietary_restrictions = this.safeStringList(data.dietary_restrictions, 'dietary_restrictions');
+    if (data.allergies !== undefined) fields.allergies = this.safeStringList(data.allergies, 'allergies');
 
-    // Recalculate BMI when height or weight are provided / changed
-    const height = data.height_cm ?? profile?.height_cm ?? 0;
-    const weight = data.weight_kg ?? profile?.weight_kg ?? 0;
-    fields.bmi = this.calculateBMI(height, weight);
+    const height = fields.height_cm ?? profile?.height_cm;
+    const weight = fields.weight_kg ?? profile?.weight_kg;
+    const bmi = this.calculateBMI(height, weight);
+    if (bmi !== null) fields.bmi = bmi;
 
     if (profile) {
       Object.assign(profile, fields);
       await profile.save();
     } else {
-      profile = await this.profileModel.create({
-        patient_id: userId,
-        ...fields,
-      });
+      profile = await this.profileModel.create({ patient_id: userId, ...fields });
     }
-    return profile.toObject();
+    return { ...profile.toObject(), profile_ready: Boolean(profile.goal && profile.daily_calorie_target && profile.daily_water_target_ml) };
   }
 
   /* ───────── Meals ───────── */
 
   async logMeal(userId: string, data: any): Promise<MealLog> {
+    const name = typeof data?.name === 'string' ? data.name.trim() : '';
+    if (!name || name.length > 200) throw new BadRequestException('meal name is required and must be at most 200 characters');
+    const mealType = data?.meal_type ?? 'snack';
+    if (!['breakfast', 'lunch', 'dinner', 'snack'].includes(mealType)) throw new BadRequestException('invalid meal_type');
     const meal = await this.mealModel.create({
       patient_id: userId,
-      name: data.name,
-      calories: data.calories ?? 0,
-      protein_g: data.protein_g ?? 0,
-      carbs_g: data.carbs_g ?? 0,
-      fat_g: data.fat_g ?? 0,
-      fiber_g: data.fiber_g ?? 0,
-      meal_type: data.meal_type ?? 'snack',
-      image_url: data.image_url ?? '',
-      logged_at: data.logged_at ? new Date(data.logged_at) : new Date(),
+      name,
+      calories: this.numberInRange(data?.calories, 'calories', 0, 10000, false),
+      protein_g: data?.protein_g === undefined ? 0 : this.numberInRange(data.protein_g, 'protein_g', 0, 2000, false),
+      carbs_g: data?.carbs_g === undefined ? 0 : this.numberInRange(data.carbs_g, 'carbs_g', 0, 2000, false),
+      fat_g: data?.fat_g === undefined ? 0 : this.numberInRange(data.fat_g, 'fat_g', 0, 2000, false),
+      fiber_g: data?.fiber_g === undefined ? 0 : this.numberInRange(data.fiber_g, 'fiber_g', 0, 1000, false),
+      meal_type: mealType,
+      image_url: typeof data?.image_url === 'string' && data.image_url.length <= 2000 ? data.image_url : '',
+      logged_at: this.safeLoggedAt(data?.logged_at),
     });
     return meal.toObject();
   }
@@ -130,7 +146,7 @@ export class NutritionService {
   async logWater(userId: string, amount_ml: number): Promise<WaterLog> {
     const log = await this.waterModel.create({
       patient_id: userId,
-      amount_ml,
+      amount_ml: this.numberInRange(amount_ml, 'amount_ml', 50, 3000, true),
       logged_at: new Date(),
     });
     return log.toObject();
@@ -149,13 +165,15 @@ export class NutritionService {
   /* ───────── Exercise ───────── */
 
   async logExercise(userId: string, data: any): Promise<ExerciseLog> {
+    const name = typeof data?.name === 'string' ? data.name.trim() : '';
+    if (!name || name.length > 200) throw new BadRequestException('exercise name is required and must be at most 200 characters');
     const log = await this.exerciseModel.create({
       patient_id: userId,
-      name: data.name,
-      duration_minutes: data.duration_minutes ?? 0,
-      calories_burned: data.calories_burned ?? 0,
-      exercise_type: data.exercise_type ?? '',
-      logged_at: data.logged_at ? new Date(data.logged_at) : new Date(),
+      name,
+      duration_minutes: this.numberInRange(data?.duration_minutes, 'duration_minutes', 1, 1440, true),
+      calories_burned: data?.calories_burned === undefined ? 0 : this.numberInRange(data.calories_burned, 'calories_burned', 0, 10000, false),
+      exercise_type: typeof data?.exercise_type === 'string' && data.exercise_type.length <= 100 ? data.exercise_type.trim() : '',
+      logged_at: this.safeLoggedAt(data?.logged_at),
     });
     return log.toObject();
   }
@@ -197,7 +215,7 @@ export class NutritionService {
       calories: {
         consumed: totalCalories,
         burned: totalCaloriesBurned,
-        target: profile?.daily_calorie_target ?? 2000,
+        target: profile?.daily_calorie_target ?? null,
         net: totalCalories - totalCaloriesBurned,
       },
       macros: {
@@ -208,7 +226,7 @@ export class NutritionService {
       },
       water: {
         consumed_ml: totalWater,
-        target_ml: profile?.daily_water_target_ml ?? 2000,
+        target_ml: profile?.daily_water_target_ml ?? null,
       },
       exercise: {
         total_minutes: totalExerciseMinutes,

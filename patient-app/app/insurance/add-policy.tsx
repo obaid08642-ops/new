@@ -1,22 +1,15 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
-
-// Connected to NPHIES Insurance API
+import * as ImagePicker from 'expo-image-picker';
+import { pickLocalized } from '../../src/utils/localize';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function AddPolicyScreen() {
   const insets = useSafeAreaInsets();
@@ -25,6 +18,9 @@ export default function AddPolicyScreen() {
   const [company, setCompany] = useState('');
   const [policyNum, setPolicyNum] = useState('');
   const [memberId, setMemberId] = useState('');
+  const [memberName, setMemberName] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [ocrUsed, setOcrUsed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [companies, setCompanies] = useState<any[]>([]);
@@ -36,11 +32,68 @@ export default function AddPolicyScreen() {
   }, []);
 
   const handleScanCard = async () => {
-    Alert.alert('المسح غير متاح', 'لا يمكن مسح أو استخراج بيانات بطاقة التأمين حتى يتوفر عقد رفع وتحقيق خادمي محمي.');
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        showLocalizedAlert('إذن الكاميرا', 'نحتاج إذن الكاميرا لمسح بطاقة التأمين.');
+        return;
+      }
+      const shot = await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7 });
+      if (shot.canceled || !shot.assets?.[0]?.base64) return;
+      setIsScanning(true);
+      const res = await apiFetch('/insurance/ocr-extract', {
+        method: 'POST',
+        body: JSON.stringify({ image_base64: shot.assets[0].base64, mime_type: 'image/jpeg' }),
+      });
+      if (res.success && res.extracted_data) {
+        const data = res.extracted_data;
+        if (data.policy_number) setPolicyNum(data.policy_number);
+        if (data.national_id) setMemberId(data.national_id);
+        if (data.member_name) setMemberName(data.member_name);
+        if (data.expiry_date) setExpiry(data.expiry_date);
+        // Match the extracted provider name against the real companies list
+        if (data.provider) {
+          const needle = String(data.provider).toLowerCase();
+          const match = companies.find(c =>
+            String(c.name_ar || '').toLowerCase().includes(needle) ||
+            String(c.name_en || '').toLowerCase().includes(needle) ||
+            needle.includes(String(c.code || '').toLowerCase()));
+          if (match) setCompany(match.id);
+        }
+        setOcrUsed(true);
+        showLocalizedAlert('نجح المسح', 'تم استخراج البيانات المرئية من البطاقة — راجعها قبل الحفظ.');
+      }
+    } catch (err: any) {
+      showLocalizedAlert('خطأ', err.message || 'فشل التعرف على البطاقة — أدخل البيانات يدويًا');
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const handleSave = async () => {
-    Alert.alert('الحفظ غير متاح', 'لم تُحفظ أي بوليصة. يتطلب هذا التدفق عقد خادمي للتحقق من العضوية ورفع المستندات قبل تفعيله.');
+    if (!company || !policyNum) return;
+    setIsSaving(true);
+    try {
+      const compObj = companies.find(c => c.id === company);
+      await apiFetch('/insurance/save-policy', {
+        method: 'POST',
+        body: JSON.stringify({
+          provider: pickLocalized(compObj?.name_ar, compObj?.name_en) || compObj?.code,
+          company_id: compObj?.code,
+          policy_number: policyNum,
+          ...(expiry ? { expiry_date: expiry } : {}),
+          ...(memberName ? { member_name: memberName } : {}),
+          national_id: memberId || undefined,
+          verified: false,
+          ocr_extracted: ocrUsed,
+        }),
+      });
+      router.replace('/insurance/hub');
+    } catch (err: any) {
+      showLocalizedAlert('خطأ', err.message || 'فشل حفظ بوليصة التأمين');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -55,15 +108,15 @@ export default function AddPolicyScreen() {
         {/* Scan Card Option */}
         <TouchableOpacity 
           onPress={handleScanCard}
-          disabled={false}
+          disabled={isScanning}
           style={[styles.scanCard, { backgroundColor: isDark ? colors.surface : '#EBF3FF', borderColor: colors.primary + '40' } ]}>
           {isScanning ? (
             <ActivityIndicator size="small" color={colors.primary} />
           ) : (
             <>
               <View>
-                <AppText variant="bodySM">مسح بطاقة التأمين غير متاح</AppText>
-                <AppText variant="bodySM">يتطلب عقد رفع وتحقيق خادمي محمي.</AppText>
+                <AppText variant="bodySM">مسح بطاقة التأمين</AppText>
+                <AppText variant="bodySM">صوّر بطاقتك وسنستخرج البيانات تلقائياً</AppText>
               </View>
               <Icon name="camera" size={28} color={colors.primary} />
             </>
@@ -79,12 +132,14 @@ export default function AddPolicyScreen() {
         {/* Company Selection */}
         <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <AppText variant="bodySM">شركة التأمين</AppText>
+          {companies.length === 0 && (
+            <AppText variant="bodySM" color={colors.textTertiary}>لا توجد شركات تأمين متعاقدة متاحة حاليًا</AppText>
+          )}
           <View style={styles.companiesGrid}>
             {companies.map(c => (
               <TouchableOpacity key={c.id} onPress={() => setCompany(c.id)}
-                style={[styles.companyBtn, company === c.id && { borderColor: c.color, backgroundColor: c.color + '12' } ]}>
-                <AppText variant="bodySM">{c.logo}</AppText>
-                <AppText variant="bodySM">{c.name}</AppText>
+                style={[styles.companyBtn, company === c.id && { borderColor: colors.primary, backgroundColor: colors.primary + '12' } ]}>
+                <AppText variant="bodySM">{pickLocalized(c.name_ar, c.name_en) || c.code}</AppText>
               </TouchableOpacity>
             ))}
           </View>
@@ -94,8 +149,10 @@ export default function AddPolicyScreen() {
         <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <AppText variant="bodySM">بيانات البوليصة</AppText>
           {[
-            { label: 'رقم البوليصة', val: policyNum, setter: setPolicyNum, placeholder: 'BUP-XXXX-XXXXXX' },
-            { label: 'رقم العضوية / الهوية الوطنية', val: memberId, setter: setMemberId, placeholder: 'M-XXXXXX' },
+            { label: 'رقم البوليصة', val: policyNum, setter: setPolicyNum, placeholder: 'رقم البوليصة كما في البطاقة' },
+            { label: 'رقم العضوية / الهوية الوطنية', val: memberId, setter: setMemberId, placeholder: 'الهوية الوطنية / الإقامة' },
+            { label: 'اسم العضو (اختياري)', val: memberName, setter: setMemberName, placeholder: 'الاسم كما في البطاقة' },
+            { label: 'تاريخ الانتهاء (اختياري)', val: expiry, setter: setExpiry, placeholder: 'YYYY-MM-DD' },
           ].map((f, i) => (
             <View key={i} style={styles.fieldWrap}>
               <AppText variant="bodySM">{f.label}</AppText>
@@ -108,10 +165,10 @@ export default function AddPolicyScreen() {
         </View>
       </ScrollView>
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8, backgroundColor: isDark ? colors.surface : colors.white } ]}>
-        <TouchableOpacity onPress={handleSave} disabled={isSaving}
-          activeOpacity={0.85} style={{ opacity: 0.6 }}>
+        <TouchableOpacity onPress={handleSave} disabled={!company || !policyNum || isSaving}
+          activeOpacity={0.85} style={{ opacity: !company || !policyNum ? 0.6 : 1 }}>
           <View style={[styles.saveBtn, { backgroundColor: '#0f3460' }]}>
-            <AppText variant="bodySM">{isSaving ? 'جاري التحقق...' : 'حفظ البوليصة غير متاح'}</AppText>
+            <AppText variant="bodySM">{isSaving ? 'جاري الحفظ...' : 'حفظ وإضافة البوليصة '}</AppText>
           </View>
         </TouchableOpacity>
       </View>

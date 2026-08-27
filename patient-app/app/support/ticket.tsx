@@ -66,6 +66,7 @@ export default function TicketTrackingScreen() {
           tickets.map((t) => (
             <TouchableOpacity
               key={t.id}
+              onPress={() => router.push("/support/chat")}
               style={[
                 styles.ticketCard,
                 {
@@ -76,8 +77,8 @@ export default function TicketTrackingScreen() {
               ]}
             >
               <View style={styles.ticketBottom}>
-                <AppText variant="bodySM">آخر تحديث: {t.lastUpdate || "اليوم"}</AppText>
-                <AppText variant="bodySM">{t.date || "اليوم"}</AppText>
+                <AppText variant="bodySM">آخر تحديث: {t.lastUpdate || "—"}</AppText>
+                <AppText variant="bodySM">{t.date || "—"}</AppText>
               </View>
               <View style={styles.ticketTop}>
                 <View

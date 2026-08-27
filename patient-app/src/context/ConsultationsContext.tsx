@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { apiFetch } from '../utils/api';
 
 import { Appointment, AppointmentStatus, AppointmentMode } from '../types/contracts';
+import { dateLocale } from '@/utils/dates';
 
 interface ConsultationsContextValue {
   appointments: Appointment[];
@@ -30,7 +31,7 @@ export function ConsultationsProvider({ children }: { children: ReactNode }) {
           docName: a.doctor_name || a.provider_name || 'طبيب',
           spec: a.specialty || a.specialty_ar || '',
           emoji: '',
-          date: a.appointment_date ? new Date(a.appointment_date).toLocaleDateString('ar-SA') : '',
+          date: a.appointment_date ? new Date(a.appointment_date).toLocaleDateString(dateLocale()) : '',
           time: a.start_time || '',
           type: a.consultation_type || 'online',
           status: a.status || 'pending',

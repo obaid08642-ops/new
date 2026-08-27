@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Injectable, BadRequestException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
@@ -13,6 +13,8 @@ import {
 import { ProviderProfile, ProviderProfileDocument, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { Facility, FacilityDocument, FacilitySchema } from '../../schemas/facility.schema';
 import { PatientProfile, PatientProfileSchema } from '../../schemas/patient-profile.schema';
+import { AiModule } from '../ai/ai.module';
+import { AiGatewayService } from '../ai/ai-gateway.service';
 
 @Injectable()
 export class InsuranceService {
@@ -24,11 +26,38 @@ export class InsuranceService {
     @InjectModel('Facility') private facilityModel: Model<FacilityDocument>,
     @InjectModel('PatientProfile') private patientModel: Model<any>,
     @InjectModel('InsuranceClaim') private claimModel: Model<InsuranceClaimDocument>,
+    private readonly ai: AiGatewayService,
   ) {}
 
+  private cleanJson(text: string): string {
+    return String(text || '').replace(/```json|```/g, '').trim();
+  }
+
   // Companies
-  async listCompanies(): Promise<InsuranceCompany[]> {
-    return this.companyModel.find({ is_active: true }).lean();
+  /**
+   * SINGLE SOURCE OF TRUTH for the insurance directory.
+   * Every client (provider onboarding, provider dashboard, patient app) reads
+   * companies from here — with their plan tiers (الفئات) embedded from
+   * insurance_networks so no app ever hardcodes a second list.
+   */
+  async listCompanies(): Promise<any[]> {
+    const [companies, networks] = await Promise.all([
+      this.companyModel.find({ is_active: true }).lean(),
+      // Legacy network records remain in the database for audit/reactivation.
+      // Only explicitly retired networks are excluded from the public catalog;
+      // legacy records without catalog_status keep their current visible behavior.
+      this.networkModel.find({ catalog_status: { $ne: 'retired' } }, { _id: 0, company_id: 1, id: 1, code: 1, name_ar: 1, name_en: 1, tier_level: 1 } as any).lean(),
+    ]);
+    const byCompany = new Map<string, any[]>();
+    for (const n of networks as any[]) {
+      const arr = byCompany.get(n.company_id) || [];
+      arr.push(n);
+      byCompany.set(n.company_id, arr);
+    }
+    return (companies as any[]).map((c) => ({
+      ...c,
+      plans: (byCompany.get(c.id) || []).sort((a, b) => (a.tier_level || 0) - (b.tier_level || 0)),
+    }));
   }
 
   async createCompany(data: any): Promise<InsuranceCompany> {
@@ -38,9 +67,51 @@ export class InsuranceService {
     return this.companyModel.create({ ...data, code });
   }
 
+  /** Admin: all companies (incl. disabled) with their tier networks embedded. */
+  async listAllCompaniesWithNetworks(): Promise<any[]> {
+    const [companies, networks] = await Promise.all([
+      this.companyModel.find({}).sort({ name_en: 1 }).lean(),
+      this.networkModel.find({}).sort({ tier_level: 1 }).lean(),
+    ]);
+    const byCompany = new Map<string, any[]>();
+    for (const n of networks as any[]) {
+      const arr = byCompany.get(n.company_id) || [];
+      arr.push(n);
+      byCompany.set(n.company_id, arr);
+    }
+    return (companies as any[]).map((c) => ({ ...c, tiers: byCompany.get(c.id) || [] }));
+  }
+
+  /**
+   * Admin-only, whitelist-based company update. Records are never deleted:
+   * operators retain historical/temporarily inactive insurers and can later
+   * reactivate them after a documented regulatory/medical review.
+   */
+  async updateCompany(id: string, allowed: any): Promise<any> {
+    if (!Object.keys(allowed).length) throw new BadRequestException('nothing_to_update');
+    const res = await this.companyModel.findOneAndUpdate({ id }, { $set: allowed }, { new: true }).lean();
+    if (!res) throw new NotFoundException('Company not found');
+    return res;
+  }
+
+  /** Admin: remove a tier network from a company. */
+  async deleteNetwork(companyId: string, networkId: string): Promise<any> {
+    const res = await this.networkModel.deleteOne({ id: networkId, company_id: companyId });
+    if (!res.deletedCount) throw new NotFoundException('Network not found');
+    return { ok: true };
+  }
+
   // Networks
+  /**
+   * Public network projection. A disabled insurer remains available in the
+   * administrative catalogue and historical contracts, but cannot be selected
+   * by a new patient/provider flow. Explicitly retired networks are likewise
+   * withheld while their records remain fully recoverable by administrators.
+   */
   async listNetworks(companyId: string): Promise<InsuranceNetwork[]> {
-    return this.networkModel.find({ company_id: companyId }).lean();
+    const company = await this.companyModel.findOne({ id: companyId, is_active: true }, { _id: 1 } as any).lean();
+    if (!company) return [];
+    return this.networkModel.find({ company_id: companyId, catalog_status: { $ne: 'retired' } }).lean();
   }
 
   async createNetwork(companyId: string, data: any): Promise<InsuranceNetwork> {
@@ -153,24 +224,140 @@ export class InsuranceService {
     };
   }
 
-  async ocrExtract(_fileData: any): Promise<never> {
-    throw new ServiceUnavailableException('Insurance OCR is not configured. A verified file-storage and OCR integration is required.');
+  /** Real insurance-card OCR through the AI vision gateway. Never invents fields. */
+  async ocrExtract(fileData: any) {
+    const base64 = fileData?.image_base64 || fileData?.file;
+    if (!base64 || typeof base64 !== 'string' || base64.length < 100 || base64 === 'base64_simulated_data') {
+      throw new BadRequestException('card image (image_base64) is required');
+    }
+    const prompt = `Read this Saudi health insurance card image and extract the fields as ONLY valid JSON:
+{ "provider": string|null, "policy_number": string|null, "member_name": string|null, "national_id": string|null, "network": string|null, "class": string|null, "expiry_date": string|null }
+Use null for any field not clearly visible. Do not guess.`;
+    try {
+      const r = await this.ai.generate({ prompt, feature: 'insuranceCardOcr', imageBase64: base64, mimeType: fileData?.mime_type || 'image/jpeg' });
+      const data = JSON.parse(this.cleanJson(r.text));
+      // Strip anything the model could not actually see
+      const extracted: any = {};
+      for (const k of ['provider', 'policy_number', 'member_name', 'national_id', 'network', 'class', 'expiry_date']) {
+        if (data?.[k]) extracted[k] = String(data[k]).slice(0, 120);
+      }
+      if (!Object.keys(extracted).length) {
+        throw new ServiceUnavailableException('تعذّر استخراج بيانات البطاقة — أدخلها يدويًا');
+      }
+      return { success: true, extracted_data: extracted };
+    } catch (e: any) {
+      if (e instanceof ServiceUnavailableException || e instanceof BadRequestException) throw e;
+      throw new ServiceUnavailableException('تعذّر مسح البطاقة حاليًا — أدخل البيانات يدويًا');
+    }
   }
 
-  async uploadPolicy(_fileData: any): Promise<never> {
-    throw new ServiceUnavailableException('Insurance policy upload is not configured. A verified storage and validation workflow is required.');
+  /** Stores the uploaded policy on the patient profile as UNVERIFIED pending review. */
+  async uploadPolicy(fileData: any, patientId?: string) {
+    const policyNumber = String(fileData?.policy_number || '').trim();
+    const provider = String(fileData?.provider || '').trim();
+    if (!policyNumber || !provider) {
+      throw new BadRequestException('provider and policy_number are required');
+    }
+    const doc: any = {
+      provider,
+      company_id: fileData.company_id || provider,
+      policy_number: policyNumber,
+      network: fileData.network || null,
+      class: fileData.class || null,
+      expiry_date: fileData.expiry_date || null,
+      member_name: fileData.member_name || null,
+      national_id: fileData.national_id || null,
+      verified: false,
+      pdf_url: fileData.pdf_url || null,
+      ocr_extracted: !!fileData.ocr_extracted,
+      nphies_eligible: false,
+    };
+    if (patientId) {
+      await this.patientModel.findOneAndUpdate(
+        { user_id: patientId },
+        { $set: { insurance: doc } },
+        { upsert: true, new: true },
+      );
+    }
+    return { success: true, policy: doc };
   }
 
-  async nphiesEligibility(_nationalId: string, _companyCode: string, _memberId?: string): Promise<never> {
-    throw new ServiceUnavailableException('Insurance eligibility is not configured. A verified NPHIES integration is required.');
+  /**
+   * Eligibility check against the patient's stored, verified policy.
+   * NOTE: the live NPHIES exchange is NOT integrated yet — this answers from
+   * locally stored policy data only and says so explicitly (nphies_live: false).
+   */
+  async nphiesEligibility(nationalId: string, companyCode: string, memberId?: string) {
+    if (!nationalId || !companyCode) {
+      throw new BadRequestException('national_id and insurance_company_code are required');
+    }
+    const patient: any = await this.patientModel.findOne({ 'insurance.national_id': nationalId }).lean();
+    const ins = patient?.insurance;
+    const code = String(companyCode).toLowerCase();
+    const matches = ins && (
+      String(ins.provider || '').toLowerCase().includes(code) ||
+      String(ins.company_id || '').toLowerCase().includes(code)
+    );
+    if (!matches) {
+      return { eligible: false, reason: 'no_matching_policy_on_file', nphies_live: false };
+    }
+    return {
+      eligible: true,
+      source: 'stored_policy',
+      nphies_live: false,
+      verified: !!ins.verified,
+      network: ins.network || null,
+      network_class: ins.class || null,
+      expiry_date: ins.expiry_date || null,
+    };
   }
 
-  async savePolicy(_patientId: string, _policyData: any): Promise<never> {
-    throw new ServiceUnavailableException('Insurance policy persistence is disabled until it accepts only validated data from a verified policy workflow.');
+  async savePolicy(patientId: string, policyData: any) {
+    let patient = await this.patientModel.findOne({ user_id: patientId });
+    if (!patient) {
+      patient = await this.patientModel.create({ user_id: patientId });
+    }
+    patient.insurance = {
+      company_id: policyData.company_id || policyData.provider,
+      provider: policyData.provider,
+      policy_number: policyData.policy_number,
+      network: policyData.network,
+      class: policyData.class,
+      expiry_date: policyData.expiry_date,
+      member_name: policyData.member_name,
+      national_id: policyData.national_id,
+      verified: policyData.verified ?? false,
+      pdf_url: policyData.pdf_url,
+      ocr_extracted: policyData.ocr_extracted ?? false,
+      nphies_eligible: policyData.nphies_eligible ?? false,
+    };
+    await patient.save();
+    return { success: true, insurance: patient.insurance };
   }
 
-  async submitClaim(_patientId: string, _claimData: any): Promise<never> {
-    throw new ServiceUnavailableException('Insurance claims are disabled until amounts and coverage are derived from an owned, server-priced service order.');
+  async submitClaim(patientId: string, claimData: any) {
+    const amount = Number(claimData?.amount);
+    if (!claimData?.service || !String(claimData.service).trim()) {
+      throw new BadRequestException('service is required');
+    }
+    if (!amount || amount <= 0) {
+      throw new BadRequestException('a valid amount is required');
+    }
+    const claim = await this.claimModel.create({
+      patient_id: patientId,
+      service: String(claimData.service).trim(),
+      amount,
+      covered: Number(claimData.covered) || 0,
+      status: 'pending',
+      date: new Date().toISOString()
+    });
+    return {
+      success: true,
+      claim_id: claim.id,
+      status: claim.status,
+      submitted_at: new Date().toISOString(),
+      ...claimData
+    };
   }
 
   async getClaims(patientId: string) {
@@ -189,10 +376,52 @@ export class InsuranceController {
     return this.svc.listCompanies();
   }
 
+  /**
+   * Admin directory: ALL companies (active + disabled) with their tier networks
+   * embedded — powers the admin insurance-companies management screen.
+   */
+  @Get('companies/all')
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  async allCompanies() {
+    return this.svc.listAllCompaniesWithNetworks();
+  }
+
   @Post('companies')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createCompany(@Body() b: any) {
     return this.svc.createCompany(b);
+  }
+
+  /** Admin edit (whitelist): rename, logo, enable/disable. */
+  @Patch('companies/:id')
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  updateCompany(@Param('id') id: string, @Body() b: any) {
+    const allowed: any = {};
+    for (const k of [
+      'name_ar', 'name_en', 'logo_url', 'logo_source_url', 'logo_sha256',
+      'regulatory_source_url', 'entity_type', 'catalog_status', 'provenance',
+      'superseded_by_company_id',
+    ]) {
+      if (typeof b?.[k] === 'string' && b[k].trim()) allowed[k] = b[k].trim();
+    }
+    if (typeof b?.catalog_version === 'number' && Number.isInteger(b.catalog_version) && b.catalog_version > 0) {
+      allowed.catalog_version = b.catalog_version;
+    }
+    if (b?.logo_verified_at && !Number.isNaN(Date.parse(b.logo_verified_at))) {
+      allowed.logo_verified_at = new Date(b.logo_verified_at);
+    }
+    if (b?.retired_at && !Number.isNaN(Date.parse(b.retired_at))) {
+      allowed.retired_at = new Date(b.retired_at);
+    }
+    if (typeof b?.is_active === 'boolean') allowed.is_active = b.is_active;
+    return this.svc.updateCompany(id, allowed);
+  }
+
+  /** Admin: delete a tier (network) from a company. */
+  @Delete('companies/:companyId/networks/:networkId')
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  deleteNetwork(@Param('companyId') companyId: string, @Param('networkId') networkId: string) {
+    return this.svc.deleteNetwork(companyId, networkId);
   }
 
   @Public()
@@ -202,7 +431,7 @@ export class InsuranceController {
   }
 
   @Post('companies/:companyId/networks')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createNetwork(@Param('companyId') companyId: string, @Body() b: any) {
     return this.svc.createNetwork(companyId, b);
   }
@@ -214,7 +443,7 @@ export class InsuranceController {
   }
 
   @Post('networks/:networkId/rules')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   createRule(@Param('networkId') networkId: string, @Body() b: any) {
     return this.svc.createRule(networkId, b);
   }
@@ -242,8 +471,8 @@ export class InsuranceController {
   }
 
   @Post('upload-policy')
-  uploadPolicy(@Body() body: any) {
-    return this.svc.uploadPolicy(body);
+  uploadPolicy(@CurrentUser() u: any, @Body() body: any) {
+    return this.svc.uploadPolicy(body, u?.id);
   }
 
   @Post('nphies/eligibility')
@@ -278,6 +507,7 @@ export class InsuranceController {
       { name: 'PatientProfile', schema: PatientProfileSchema },
       { name: 'InsuranceClaim', schema: InsuranceClaimSchema },
     ]),
+    AiModule
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],

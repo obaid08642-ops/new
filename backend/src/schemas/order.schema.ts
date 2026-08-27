@@ -75,6 +75,18 @@ export class Order {
   @Prop() notes?: string;
   @Prop({ default: 'cash' }) payment_method: string;
   @Prop({ default: 'pending' }) payment_status: string;
+  // ============ FINANCE (E1) — must be declared: strict schemas silently drop undeclared props ==========
+  @Prop() coupon_code?: string;
+  @Prop({ default: 0 }) coupon_discount?: number;
+  @Prop({ default: 0 }) loyalty_points_used?: number;
+  @Prop({ default: 0 }) loyalty_discount?: number;
+  @Prop({ default: 0 }) price_before_discounts?: number;
+  @Prop() refund_status?: string;
+  @Prop() paid_at?: Date;
+  @Prop() paid_via?: string;
+  @Prop() refunded_at?: Date;
+  @Prop({ default: 0 }) cancellation_fee?: number;
+  @Prop() cancellation_fee_reason?: string;
   // ============ GEO DISPATCH ============
   @Prop({ type: Object, default: null }) dispatch?: {
     current_radius_km: number;
@@ -96,7 +108,7 @@ export class Order {
   @Prop() pharmacy_basket_note?: string;
   @Prop() transaction_id?: string;
   // ============ INSURANCE (pharmacy pre-auth) ============
-  @Prop({ type: String, enum: ['PENDING', 'APPROVED', 'PARTIAL', 'REJECTED'], default: 'PENDING' }) insurance_status: string;
+  @Prop({ type: String, enum: ['NONE', 'PENDING', 'APPROVED', 'PARTIAL', 'REJECTED'], default: 'NONE' }) insurance_status: string;
   @Prop() insurance_provider?: string;
   @Prop() insurance_member_id?: string;
   @Prop() insurance_card_image?: string;
@@ -134,4 +146,3 @@ export class PharmacyBid extends Document {
   @Prop({ type: String, enum: ['pending', 'accepted', 'rejected', 'expired'], default: 'pending' }) status: 'pending' | 'accepted' | 'rejected' | 'expired';
 }
 export const PharmacyBidSchema = SchemaFactory.createForClass(PharmacyBid);
-

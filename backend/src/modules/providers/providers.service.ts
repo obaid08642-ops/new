@@ -5,12 +5,12 @@ import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { ProviderBranch, ProviderBranchDocument } from '../../schemas/provider-branch.schema';
-import { ProviderDelta, ProviderDeltaSchema, DeltaStatus } from './schemas/provider-delta.schema';
 import { ProviderType, ProviderStatus, UserRole } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { UserRepository } from "./repositories/user.repository";
 import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
 import { InjectModel } from '@nestjs/mongoose';
+import { CatalogPublicationService } from '../events/catalog-publication.service';
 
 /**
  * Provider Onboarding Service
@@ -25,9 +25,21 @@ export class ProvidersService {
     @Inject('UserRepository') private userModel: UserRepository,
     @Inject('ProviderProfileRepository') private providerModel: ProviderProfileRepository,
     @InjectModel(ProviderBranch.name) private branchModel: Model<ProviderBranchDocument>,
-    @InjectModel(ProviderDelta.name) private deltaModel: Model<any>,
     private events: EventEmitter2,
+    private readonly publication: CatalogPublicationService,
   ) {}
+
+  private async refreshPublicProjection(provider: any, actorId: string, reason: string) {
+    const reviewedAt = provider?.last_reviewed || provider?.approved_at || provider?.updatedAt || new Date();
+    return this.publication.refresh({
+      entityType: 'provider',
+      entityId: provider.id,
+      actorId,
+      actorRole: 'admin',
+      reason,
+      idempotencyKey: `catalog-publication:provider:${provider.id}:${reason}:${new Date(reviewedAt).toISOString()}`,
+    });
+  }
 
   async createBranchStaffAccount(adminId: string, branchId: string, staffDto: any) {
     const admin = await this.userModel.findOne({ id: adminId });
@@ -40,7 +52,7 @@ export class ProvidersService {
     if (!branch) throw new NotFoundException('الفرع المحدد غير موجود بالمنظومة.');
 
     // Create Sub-Account User
-    const hash = await bcrypt.hash(staffDto.password || 'Temp123!', 8);
+    const hash = await bcrypt.hash(staffDto.password || 'Temp123!', 12);
     const staffUser = await this.userModel.create({
       full_name: staffDto.fullName,
       email: staffDto.email,
@@ -88,7 +100,7 @@ export class ProvidersService {
   }) {
     const exists = await this.userModel.findOne({ phone: data.phone });
     if (exists) throw new ConflictException('Phone already registered');
-    const hash = await bcrypt.hash(data.password, 8);
+    const hash = await bcrypt.hash(data.password, 12);
     const role = this.typeToRole(data.type);
     const user = await this.userModel.create({
       full_name: data.full_name,
@@ -127,7 +139,7 @@ export class ProvidersService {
     const exists = await this.userModel.findOne({ phone: data.phone });
     if (exists) throw new ConflictException('Phone already registered');
     const password = data.password || `Temp@${Math.floor(Math.random() * 10000)}`;
-    const hash = await bcrypt.hash(password, 8);
+    const hash = await bcrypt.hash(password, 12);
     const role = this.typeToRole(data.type);
     const status: ProviderStatus = data.auto_approve ? ProviderStatus.ACTIVE : ProviderStatus.PENDING;
     const user = await this.userModel.create({
@@ -177,9 +189,15 @@ export class ProvidersService {
     p.approved_at = new Date();
     p.approved_by = admin.id;
     p.license_verified = true;
+    p.public_eligibility = true;
+    p.indexing_eligibility = false;
+    p.medical_review_status = 'approved';
+    p.last_reviewed = p.approved_at;
+    p.provenance = 'admin_provider_review';
     await p.save();
     await this.userModel.updateOne({ id: p.user_id }, { $set: { active: true } });
     this.events.emit('provider.approved', { provider_id: p.id });
+    await this.refreshPublicProjection(p, admin.id, 'provider_approved');
     return p.toObject();
   }
 
@@ -188,9 +206,15 @@ export class ProvidersService {
     if (!p) throw new NotFoundException();
     p.status = ProviderStatus.REJECTED;
     p.rejected_reason = reason;
+    p.public_eligibility = false;
+    p.indexing_eligibility = false;
+    p.medical_review_status = 'rejected';
+    p.last_reviewed = new Date();
+    p.provenance = 'admin_provider_review';
     await p.save();
     await this.userModel.updateOne({ id: p.user_id }, { $set: { active: false } });
     this.events.emit('provider.rejected', { provider_id: p.id, reason });
+    await this.refreshPublicProjection(p, admin.id, 'provider_rejected');
     return p.toObject();
   }
 
@@ -199,9 +223,15 @@ export class ProvidersService {
     if (!p) throw new NotFoundException();
     p.status = ProviderStatus.SUSPENDED;
     p.rejected_reason = reason;
+    p.public_eligibility = false;
+    p.indexing_eligibility = false;
+    p.medical_review_status = 'suspended';
+    p.last_reviewed = new Date();
+    p.provenance = 'admin_provider_review';
     await p.save();
     await this.userModel.updateOne({ id: p.user_id }, { $set: { active: false } });
     this.events.emit('provider.suspended', { provider_id: p.id });
+    await this.refreshPublicProjection(p, admin.id, 'provider_suspended');
     return p.toObject();
   }
 
@@ -216,6 +246,14 @@ export class ProvidersService {
     if (search) q.$or = [{ name_ar: { $regex: search, $options: 'i' } }, { name_en: { $regex: search, $options: 'i' } }];
     return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ createdAt: -1 }).limit(500);
   }
+  private publicDiscoveryFilter() {
+    return {
+      status: ProviderStatus.ACTIVE,
+      public_eligibility: true,
+      medical_review_status: 'approved',
+    };
+  }
+
   async listPublic(
     type?: ProviderType,
     city?: string,
@@ -223,7 +261,7 @@ export class ProvidersService {
     insurance_network?: string,
     insurance_class?: string,
   ) {
-    const q: any = { status: ProviderStatus.ACTIVE };
+    const q: any = this.publicDiscoveryFilter();
     if (type) q.type = type;
     if (city) q.city = city;
 
@@ -270,13 +308,58 @@ export class ProvidersService {
 
     return this.providerModel.find(q, { _id: 0, __v: 0 }).sort({ rating: -1, createdAt: -1 }).limit(200);
   }
+  /** Map providers: ACTIVE only, must have real stored coordinates. */
+  async mapProviders(type?: string, lat?: number, lng?: number, radiusKm?: number) {
+    const q: any = { ...this.publicDiscoveryFilter(), 'location.lat': { $exists: true, $ne: null }, 'location.lng': { $exists: true, $ne: null } };
+    if (type) q.type = type;
+    const rows = await this.providerModel.find(q, { _id: 0, __v: 0, password_hash: 0 }).limit(300);
+    const hav = (la1: number, ln1: number, la2: number, ln2: number) => {
+      const R = 6371, dLa = (la2 - la1) * Math.PI / 180, dLn = (ln2 - ln1) * Math.PI / 180;
+      const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * Math.PI / 180) * Math.cos(la2 * Math.PI / 180) * Math.sin(dLn / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    };
+    let out = rows.map((r: any) => {
+      const o = r.toObject ? r.toObject() : r;
+      const loc = o.location || {};
+      const item: any = {
+        id: o.id || o.user_id, type: o.type, name_ar: o.name_ar, name_en: o.name_en,
+        city: o.city, district: o.district, rating: o.rating ?? null,
+        lat: loc.lat, lng: loc.lng,
+        distance_km: (lat != null && lng != null && isFinite(lat) && isFinite(lng))
+          ? Math.round(hav(lat, lng, loc.lat, loc.lng) * 10) / 10 : null,
+      };
+      return item;
+    });
+    if (radiusKm && lat != null && lng != null) out = out.filter((x: any) => x.distance_km != null && x.distance_km <= radiusKm);
+    if (lat != null && lng != null) out.sort((a: any, b: any) => (a.distance_km ?? 9e9) - (b.distance_km ?? 9e9));
+    return out;
+  }
+
   async getById(id: string) {
     const p = await this.providerModel.findOne({ id }, { _id: 0, __v: 0 });
     if (!p) throw new NotFoundException();
     return p;
   }
-  async myProfile(user_id: string) {
-    return this.providerModel.findOne({ user_id }, { _id: 0, __v: 0 });
+
+  async getPublicById(id: string) {
+    const p = await this.providerModel.findOne({ id, ...this.publicDiscoveryFilter() }, { _id: 0, __v: 0 });
+    if (!p) throw new NotFoundException();
+    return p;
+  }
+  async myProfile(actor: any) {
+    const identifiers = [
+      actor?.id,
+      actor?.account_id,
+      actor?.provider_id,
+      actor?.provider_profile_id,
+    ].filter((value): value is string => typeof value === 'string' && value.length > 0);
+    if (identifiers.length === 0) throw new NotFoundException();
+    const profile = await this.providerModel.findOne(
+      { $or: [{ user_id: { $in: identifiers } }, { id: { $in: identifiers } }, { account_id: { $in: identifiers } }] },
+      { _id: 0, __v: 0 },
+    );
+    if (!profile) throw new NotFoundException();
+    return profile;
   }
 
   // ============ Helpers ============
@@ -289,6 +372,8 @@ export class ProvidersService {
       [ProviderType.LAB]: UserRole.LAB,
       [ProviderType.RADIOLOGY]: UserRole.RADIOLOGY,
       [ProviderType.HOME_CARE]: UserRole.HOME_CARE,
+      [ProviderType.NURSING]: UserRole.NURSING,
+      [ProviderType.AMBULANCE]: UserRole.AMBULANCE,
     }[type];
   }
   private publicUser(u: any) {
@@ -297,28 +382,87 @@ export class ProvidersService {
     return o;
   }
 
+  /** Idempotent demo-data seeder for lab/radiology/home_care/hospital. Skips existing. */
+  async seedDemoProviders() {
+    const inserted: any[] = [];
+    const skipped: any[] = [];
+    const cities = ['الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة'];
+    const insurances = ['Bupa', 'Tawuniya', 'MedGulf', 'AlRajhi', 'SAICO'];
+    const sets: any = {
+      lab: [['مختبر الرياض الطبي', 'Riyadh Medical Lab'], ['مختبر الفيصل', 'Al Faisal Lab'], ['البرج الذهبي', 'Golden Tower Lab'], ['الياسمين الطبي', 'Yasmin Medical Lab'], ['الرعاية المتقدمة', 'Advanced Care Lab']],
+      radiology: [['مركز الأشعة المتقدم', 'Advanced Imaging'], ['الرياض للأشعة', 'Riyadh Imaging Center'], ['شعاع الطبي', 'Shoaa Medical Imaging'], ['الفجر للأشعة', 'Al Fajr Imaging'], ['الصفوة الطبية', 'Al Safwa Medical']],
+      home_care: [['تمريض المنزل', 'Home Nursing SA'], ['الرعاية المنزلية', 'Care At Home'], ['تمريض راحة', 'Comfort Nursing']],
+      hospital: [['مستشفى الأمل', 'Al Amal Hospital'], ['الحياة الطبي', 'Al Hayat Medical'], ['الشفاء الجامعي', 'Shifaa University']],
+    };
+    for (const type of Object.keys(sets)) {
+      for (let i = 0; i < sets[type].length; i++) {
+        const [name_ar, name_en] = sets[type][i];
+        const exists = await this.providerModel.findOne({ name_ar, type });
+        if (exists) { skipped.push({ type, name_ar }); continue; }
+        const doc = await this.providerModel.create({
+          user_id: `system-seed-${type}-${i}`,
+          type: type as any,
+          status: ProviderStatus.ACTIVE,
+          name_ar, name_en,
+          license_number: `LIC-${type.toUpperCase()}-${1000 + i}`,
+          license_verified: true,
+          city: cities[i % cities.length], district: `حي ${cities[i % cities.length]}`,
+          location: { lat: 24.7 + Math.random() * 0.5, lng: 46.6 + Math.random() * 0.5 },
+          rating: 4.2 + Math.random() * 0.7,
+          reviews_count: 30 + Math.floor(Math.random() * 250),
+          coverage_radius_km: 15,
+          home_visit_supported: i % 2 === 0,
+          home_visit_radius_km: 20,
+          accepts_cash: true,
+          accepts_insurance: true,
+          accepted_insurance: insurances.slice(0, 2 + (i % 3)),
+          test_categories: type === 'lab' ? ['hematology', 'chemistry', 'immunology', 'microbiology'] : type === 'radiology' ? ['xray', 'ultrasound', 'mri', 'ct'] : [],
+          equipment_list: type === 'radiology' ? ['MRI 1.5T', 'CT Scan', 'Ultrasound', 'X-Ray'] : [],
+          working_hours: ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday'].map((day) => ({ day, open: '08:00', close: '22:00', closed: false })).concat([{ day: 'friday', open: '14:00', close: '22:00', closed: false }]),
+          onboarding_completed: true,
+          approved_at: new Date(),
+          approved_by: 'system-seed',
+        });
+        inserted.push({ id: doc.id, type, name_ar });
+      }
+    }
+  }
+
   async updateProviderConfig(providerId: string, payload: any) {
-    return (this.providerModel as any).findByIdAndUpdate(providerId, payload, { new: true });
+    const provider: any = await this.providerModel.findOne({ id: providerId });
+    if (!provider) throw new NotFoundException('Provider not found');
+
+    // This is intentionally an allow-list: configuration updates must never
+    // mutate identity, status, verification, or public-governance fields.
+    const editable = new Set([
+      'name_ar', 'name_en', 'phone', 'email', 'avatar', 'specialty', 'city',
+      'district', 'location', 'about_ar', 'about_en', 'working_hours',
+      'home_visit_supported', 'home_visit_radius_km', 'coverage_radius_km',
+      'accepts_cash', 'accepts_insurance', 'accepted_insurance',
+      'consultation_fee', 'languages', 'services',
+    ]);
+    const patch = Object.fromEntries(Object.entries(payload || {}).filter(([key, value]) => editable.has(key) && value !== undefined));
+    if (!Object.keys(patch).length) throw new BadRequestException('No editable provider configuration fields supplied');
+
+    const requiresReapproval = provider.public_eligibility === true
+      || provider.indexing_eligibility === true
+      || provider.medical_review_status === 'approved';
+    const governanceReset = requiresReapproval ? {
+      public_eligibility: false,
+      indexing_eligibility: false,
+      medical_review_status: 'pending',
+      last_reviewed: null,
+      provenance: 'provider_config_edit_pending_review',
+    } : {};
+    const updated: any = await (this.providerModel as any).findOneAndUpdate(
+      { id: providerId },
+      { $set: { ...patch, ...governanceReset, updatedAt: new Date() } },
+      { new: true },
+    );
+    if (requiresReapproval) {
+      await this.refreshPublicProjection(updated || { ...provider, ...patch, ...governanceReset }, provider.user_id || provider.id, 'provider_config_edit_reapproval');
+    }
+    return updated;
   }
 
-  async requestDeltaUpdate(providerId: string, oldData: any, newData: any) {
-    return this.deltaModel.create({
-      providerId,
-      oldData,
-      newData,
-      status: DeltaStatus.PENDING,
-    });
-  }
-
-  async listPendingDeltas() {
-    return this.deltaModel.find({ status: DeltaStatus.PENDING });
-  }
-
-  async approveDelta(deltaId: string, adminId: string) {
-    return this.deltaModel.findByIdAndUpdate(deltaId, { status: DeltaStatus.APPROVED, reviewedBy: adminId }, { new: true });
-  }
-
-  async rejectDelta(deltaId: string, adminId: string, reason: string) {
-    return this.deltaModel.findByIdAndUpdate(deltaId, { status: DeltaStatus.REJECTED, reviewedBy: adminId, rejectionReason: reason }, { new: true });
-  }
 }

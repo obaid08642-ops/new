@@ -1,7 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
 import { apiFetch } from './api';
 
 // Configure notification behavior
@@ -35,33 +34,45 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
       return null;
     }
 
-    const projectId =
-      process.env.EXPO_PUBLIC_PROJECT_ID ||
-      Constants.easConfig?.projectId ||
-      Constants.expoConfig?.extra?.eas?.projectId;
-    if (!projectId) {
-      console.warn('Push registration skipped: EXPO_PUBLIC_PROJECT_ID is not configured');
-      return null;
+    // Prefer native FCM token on Android (direct via our Firebase project);
+    // fall back to Expo push service token otherwise (iOS until APNs keys arrive).
+    let token: string | null = null;
+    let provider: 'fcm' | 'expo' = 'expo';
+    if (Platform.OS === 'android') {
+      try {
+        const nativeToken = await Notifications.getDevicePushTokenAsync();
+        if (nativeToken?.data) {
+          token = nativeToken.data as string;
+          provider = 'fcm';
+        }
+      } catch (e) {
+        console.warn('Native FCM token unavailable, falling back to Expo token:', e);
+      }
     }
-
-    // Get Expo push token
-    let tokenData;
-    try {
-      tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId,
-      });
-    } catch (e) {
-      console.warn('Could not get push token:', e);
-      return null;
+    if (!token) {
+      const projectId = process.env.EXPO_PUBLIC_PROJECT_ID;
+      // Skip Expo push token when no valid EAS projectId is configured (Expo Go / local dev)
+      const uuidRe = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+      if (!projectId || !uuidRe.test(projectId)) {
+        console.log('No valid EAS projectId configured — skipping Expo push token (Expo Go/dev).');
+        return null;
+      }
+      let tokenData;
+      try {
+        tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+      } catch (e) {
+        console.warn('Could not get push token:', e);
+        return null;
+      }
+      token = tokenData?.data;
     }
-    const token = tokenData?.data;
 
     // Register token with backend
     await apiFetch('/push/register', {
       method: 'POST',
       body: JSON.stringify({
         token,
-        provider: 'expo',
+        provider,
         platform: Platform.OS,
         device_name: Device.modelName || 'Device',
       }),

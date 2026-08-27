@@ -5,16 +5,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  ActivityIndicator,
+  Alert,
+  Text,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../../src/context/AppContext";
 import { useCart } from "../../src/context/CartContext";
 import { darkColors, lightColors } from "../../src/theme/colors";
+import { pickLocalized } from '../../src/utils/localize';
+import { apiFetch } from '../../src/utils/api';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ScanPrescriptionScreen() {
   const insets = useSafeAreaInsets();
@@ -34,11 +38,11 @@ export default function ScanPrescriptionScreen() {
       if (useCamera) {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
-          Alert.alert("عذراً", "نحتاج صلاحية الكاميرا لالتقاط صورة الوصفة.");
+          showLocalizedAlert("عذراً", "نحتاج صلاحية الكاميرا لالتقاط صورة الوصفة.");
           return;
         }
         result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ['images'] as any,
           quality: 0.8,
           base64: true,
         });
@@ -46,11 +50,11 @@ export default function ScanPrescriptionScreen() {
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
-          Alert.alert("عذراً", "نحتاج صلاحية المعرض لاختيار صورة الوصفة.");
+          showLocalizedAlert("عذراً", "نحتاج صلاحية المعرض لاختيار صورة الوصفة.");
           return;
         }
         result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: ['images'] as any,
           quality: 0.8,
           base64: true,
         });
@@ -72,8 +76,7 @@ export default function ScanPrescriptionScreen() {
     );
 
     try {
-      // 1. Call AI OCR API
-      const { apiFetch } = require("../../src/utils/api");
+      // 1. Extract candidate items, then persist the source prescription through the backend.
       const response = await apiFetch("/ai/prescription-ocr", {
         method: "POST",
         body: JSON.stringify({
@@ -81,36 +84,43 @@ export default function ScanPrescriptionScreen() {
         }),
       });
 
-      setStatusText("تم استخراج الأدوية بنجاح! جاري إضافتها للسلة...");
-      setPrescriptionUrl(uri);
+      const ocrItems = Array.isArray(response?.items) ? response.items : [];
+      const savedPrescription = await apiFetch('/prescriptions/upload', {
+        method: 'POST',
+        body: JSON.stringify({
+          upload_image: `data:image/jpeg;base64,${base64Str}`,
+          items: ocrItems,
+          notes: 'OCR extraction; requires pharmacy review',
+        }),
+      });
+      if (!savedPrescription?.id) throw new Error('تعذر حفظ الوصفة');
+      setPrescriptionUrl(String(savedPrescription.id));
+      setStatusText("تم حفظ الوصفة. جاري إضافة الأدوية المطابقة إلى السلة...");
 
-      // 2. Add medicines to cart
-      if (response && response.medicines && Array.isArray(response.medicines)) {
-        for (const m of response.medicines) {
-          // We might need to map AI response to cart item structure
+      // 2. Add only persisted backend medicine identifiers. Unmatched OCR lines remain in the prescription for review.
+      let added = 0;
+      if (Array.isArray(savedPrescription.items)) {
+        for (const m of savedPrescription.items) {
+          if (!m.medicine_id) continue;
           await addItem({
-            id: m.id || m.medicine_id || `ocr-${Math.random()}`,
-            name: m.name_ar || m.name || m.name_en || "دواء",
-            price: m.price || 0,
-            rx: true, // Assuming prescription items need rx
+            id: m.medicine_id,
+            name: pickLocalized(m.medicine_name_ar, m.name_ar) || m.medicine_name_en || 'دواء يحتاج مراجعة',
+            price: 0,
+            rx: true,
             icon: "vaccines",
             iconColor: "#F0695C",
             iconBg: "#FEEFED",
-            qty: m.qty || m.quantity || 1,
+            qty: m.quantity || 1,
           });
+          added += 1;
         }
       }
-
-      setTimeout(() => {
-        setLoading(false);
-        router.push("/pharmacy/cart");
-      }, 1000);
+      setLoading(false);
+      router.push(added ? '/pharmacy/cart' : '/pharmacy/rx-order');
     } catch (e) {
       console.log("OCR Error", e);
-      setStatusText("حدث خطأ أثناء تحليل الروشتة. يرجى المحاولة مرة أخرى.");
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
+      setStatusText("تعذر حفظ الوصفة أو تحليلها. يرجى المحاولة مرة أخرى.");
+      setLoading(false);
     }
   };
 
@@ -132,7 +142,7 @@ export default function ScanPrescriptionScreen() {
           onPress={() => router.back()}
           style={[styles.iconBtn, { backgroundColor: colors.s }]}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: colors.n,
@@ -140,19 +150,19 @@ export default function ScanPrescriptionScreen() {
             }}
           >
             {isRTL ? "arrow_forward" : "arrow_back"}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
-        <Text
+        <LocalizedText
           style={{ fontFamily: "Cairo-Black", fontSize: 18, color: colors.n }}
         >
           مسح وصفة طبية
-        </Text>
+        </LocalizedText>
         <View style={{ width: 44 }} />
       </View>
 
       <View style={styles.content}>
         <View style={[styles.infoBanner, { backgroundColor: "#DEF5F9" }]}>
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: "#23B5CE",
@@ -161,8 +171,8 @@ export default function ScanPrescriptionScreen() {
             }}
           >
             document_scanner
-          </Text>
-          <Text
+          </LocalizedText>
+          <LocalizedText
             style={{
               fontFamily: "Cairo-Black",
               fontSize: 16,
@@ -172,8 +182,8 @@ export default function ScanPrescriptionScreen() {
             }}
           >
             الذكاء الاصطناعي بخدمتك
-          </Text>
-          <Text
+          </LocalizedText>
+          <LocalizedText
             style={{
               fontFamily: "Cairo-Regular",
               fontSize: 13,
@@ -184,7 +194,7 @@ export default function ScanPrescriptionScreen() {
           >
             قم بتصوير الروشتة أو رفعها من الاستوديو، وسيقوم النظام باستخراج
             الأدوية وإضافتها للسلة تلقائياً.
-          </Text>
+          </LocalizedText>
         </View>
 
         {!imageUri ? (
@@ -198,7 +208,7 @@ export default function ScanPrescriptionScreen() {
               activeOpacity={0.8}
             >
               <View style={[styles.iconBox, { backgroundColor: "#23B5CE" }]}>
-                <Text
+                <LocalizedText
                   style={{
                     fontFamily: "MaterialSymbolsRounded",
                     color: "#fff",
@@ -206,9 +216,9 @@ export default function ScanPrescriptionScreen() {
                   }}
                 >
                   photo_camera
-                </Text>
+                </LocalizedText>
               </View>
-              <Text
+              <LocalizedText
                 style={{
                   fontFamily: "Cairo-Black",
                   fontSize: 16,
@@ -216,8 +226,8 @@ export default function ScanPrescriptionScreen() {
                 }}
               >
                 التقاط صورة
-              </Text>
-              <Text
+              </LocalizedText>
+              <LocalizedText
                 style={{
                   fontFamily: "Cairo-Regular",
                   fontSize: 13,
@@ -225,7 +235,7 @@ export default function ScanPrescriptionScreen() {
                 }}
               >
                 استخدم الكاميرا لتصوير الروشتة الآن
-              </Text>
+              </LocalizedText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -237,7 +247,7 @@ export default function ScanPrescriptionScreen() {
               activeOpacity={0.8}
             >
               <View style={[styles.iconBox, { backgroundColor: colors.t2 }]}>
-                <Text
+                <LocalizedText
                   style={{
                     fontFamily: "MaterialSymbolsRounded",
                     color: "#fff",
@@ -245,9 +255,9 @@ export default function ScanPrescriptionScreen() {
                   }}
                 >
                   photo_library
-                </Text>
+                </LocalizedText>
               </View>
-              <Text
+              <LocalizedText
                 style={{
                   fontFamily: "Cairo-Black",
                   fontSize: 16,
@@ -255,8 +265,8 @@ export default function ScanPrescriptionScreen() {
                 }}
               >
                 اختر من المعرض
-              </Text>
-              <Text
+              </LocalizedText>
+              <LocalizedText
                 style={{
                   fontFamily: "Cairo-Regular",
                   fontSize: 13,
@@ -264,7 +274,7 @@ export default function ScanPrescriptionScreen() {
                 }}
               >
                 رفع صورة محفوظة في هاتفك
-              </Text>
+              </LocalizedText>
             </TouchableOpacity>
           </View>
         ) : (
@@ -282,7 +292,7 @@ export default function ScanPrescriptionScreen() {
                   ]}
                 >
                   <ActivityIndicator size="large" color="#23B5CE" />
-                  <Text
+                  <LocalizedText
                     style={{
                       fontFamily: "Cairo-Bold",
                       fontSize: 16,
@@ -293,7 +303,7 @@ export default function ScanPrescriptionScreen() {
                     }}
                   >
                     {statusText}
-                  </Text>
+                  </LocalizedText>
                 </View>
               )}
             </View>

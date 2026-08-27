@@ -1,4 +1,4 @@
-import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, NotFoundException, UseGuards, Req, HttpCode } from '@nestjs/common';
+import { Module, Injectable, Controller, Post, Get, Body, Param, Logger, BadRequestException, BadGatewayException, NotFoundException, UseGuards, UseInterceptors, Req, HttpCode, Headers } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -8,10 +8,15 @@ import { LabBookingSchema } from '../../schemas/lab.schema';
 import { RadiologyBookingSchema } from '../../schemas/radiology.schema';
 import { HomeCareBookingSchema } from '../../schemas/home-care.schema';
 import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema';
+import { InsuranceServiceRequestSchema } from '../insurance-engine/insurance-engine.module';
 import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
 import { WorkflowEngineModule, WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { RealtimeService } from '../realtime/realtime.service';
 import { RealtimeModule } from '../realtime/realtime.module';
+import { FraudService } from '../finance-engine/finance-engine.module';
+import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
+import * as crypto from 'crypto';
+import { Request } from 'express';
 
 /**
  * PAYMENT GATEWAY ADAPTERS — additive layer, never bypasses WorkflowEngine.
@@ -111,7 +116,7 @@ class MoyasarAdapter implements GatewayAdapter {
 
 const KIND_TO_MODEL: any = { pharmacy: 'Order', lab: 'LabBooking', radiology: 'RadiologyBooking', nursing: 'HomeCareBooking', consultation: Appointment.name };
 function normalizeKind(k: string) {
-  const m: any = { orders: 'pharmacy', pharmacy: 'pharmacy', lab: 'lab', labs: 'lab', radiology: 'radiology', rads: 'radiology', nursing: 'nursing', 'home-care': 'nursing', homecare: 'nursing', consultation: 'consultation', appt: 'consultation' };
+  const m: any = { orders: 'pharmacy', pharmacy: 'pharmacy', lab: 'lab', labs: 'lab', radiology: 'radiology', rads: 'radiology', nursing: 'nursing', 'home-care': 'nursing', homecare: 'nursing', consultation: 'consultation', appt: 'consultation', insurance: 'insurance', 'insurance-copay': 'insurance', copay: 'insurance' };
   return m[k];
 }
 
@@ -126,36 +131,92 @@ export class PaymentsService {
     @InjectModel('RadiologyBooking') private rads: Model<any>,
     @InjectModel('HomeCareBooking') private home: Model<any>,
     @InjectModel(Appointment.name) private appts: Model<any>,
+    @InjectModel('InsuranceServiceRequest') private insReqs: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
     private realtime: RealtimeService,
+    private readonly fraud: FraudService,
   ) { this.adapter = selectAdapter(); this.logger.log(`Payment adapter: ${this.adapter.name}`); }
 
   private modelFor(k: string): Model<any> {
     const kind = normalizeKind(k);
     if (!kind) throw new BadRequestException('invalid_booking_kind');
+    if (kind === 'insurance') return this.insReqs;
     return kind === 'pharmacy' ? this.orders : kind === 'lab' ? this.labs : kind === 'radiology' ? this.rads : kind === 'nursing' ? this.home : this.appts;
   }
 
-  async createPaymentIntent(user: any, type: string, id: string) {
+  private assertBookingOwnerOrAdmin(user: any, booking: any) {
+    if (!user?.id || (booking.patient_id !== user.id && user.role !== 'admin')) {
+      throw new BadRequestException('not_authorized');
+    }
+  }
+
+  private assertTransactionVerifier(user: any, transaction: any) {
+    if (!user?.id || (transaction.patient_id !== user.id && !['admin', 'system'].includes(user.role))) {
+      throw new BadRequestException('not_authorized');
+    }
+  }
+
+  async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
+    const requestKey = String(idempotencyKey || '').trim();
+    if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
     const kind = normalizeKind(type);
     const M = this.modelFor(type);
     const booking: any = await M.findOne({ id }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
-    if (booking.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not_authorized');
-    const amount = booking.total || booking.totals?.total || booking.price || 0;
+    this.assertBookingOwnerOrAdmin(user, booking);
+    // S4/S7 double-payment prevention: never create a new charge for an already-paid booking.
+    // (fraud.detectDuplicatePayments only alerts AFTER the fact — this stops it upfront.)
+    if (booking.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
+    // insurance copay intents charge the patient's copay share, not the full price
+    let amount = kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
+    // Pharmacy insurance orders: after provider approval the patient pays only the
+    // provider-set copay — never the full order total (E1 S1/S2).
+    if (kind === 'pharmacy' && booking.payment_method === 'insurance'
+        && ['APPROVED', 'PARTIAL_APPROVAL'].includes(booking.insurance_status)) {
+      amount = Number(booking.insurance_copay || 0);
+    }
     if (amount <= 0) throw new BadRequestException('invalid_amount');
-    const existing: any = await this.txns.findOne({ booking_id: id, status: { $in: ['pending', 'authorized'] } }).lean();
+    const existing: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
     if (existing) return existing;
-    const intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind } });
-    const txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'pending', gateway_intent_id: intent.intent_id, client_secret: intent.client_secret, checkout_url: intent.checkout_url });
-    return txn.toObject ? txn.toObject() : txn;
+
+    // Persist an active reservation before calling the PSP. The partial unique
+    // index is the cross-process guard: a second request cannot create another
+    // live gateway intent for the same booking during an in-flight request.
+    let txn: any;
+    try {
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
+    } catch (error: any) {
+      if (error?.code === 11000) {
+        const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
+        if (active) return active;
+      }
+      throw error;
+    }
+    let intent: { intent_id: string; client_secret?: string; checkout_url?: string };
+    try {
+      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind } });
+    } catch (error: any) {
+      // Never expose raw PSP responses or credentials to clients. Keep the detail in server logs for operations.
+      const reason = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Payment gateway intent failed adapter=${this.adapter.name} booking=${id} reason=${reason}`);
+      await this.txns.updateOne({ id: txn.id }, { $set: { status: 'failed', failure_reason: 'payment_gateway_unavailable' } });
+      throw new BadGatewayException({ code: 'payment_gateway_unavailable', message: 'الدفع غير متاح حالياً' });
+    }
+    const persisted: any = await this.txns.findOneAndUpdate(
+      { id: txn.id, status: 'initiating' },
+      { $set: { status: 'pending', gateway_intent_id: intent.intent_id, client_secret: intent.client_secret, checkout_url: intent.checkout_url } },
+      { new: true },
+    );
+    return persisted?.toObject ? persisted.toObject() : persisted;
   }
 
   async verifyPayment(user: any, transactionId: string) {
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException('txn_not_found');
-    if (t.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not_authorized');
+    // Gateway verification can mutate booking and ledger state. Only the owning
+    // patient, an admin, or the signature-authenticated internal webhook path may trigger it.
+    this.assertTransactionVerifier(user, t);
     const result = await this.adapter.verify(t.gateway_intent_id);
     t.status = result.status;
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
@@ -174,6 +235,8 @@ export class PaymentsService {
         transaction_id: t.id
       });
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
+      // E1 S15: a second PAID payment for the same booking is a double charge — alert admins
+      await this.fraud.detectDuplicatePayments(t.booking_id).catch(() => null);
     } else if (result.status === 'failed') {
       t.failure_reason = result.raw?.last_payment_error?.message || 'gateway_failure';
       this.events.emit('payment.failed', {
@@ -187,34 +250,42 @@ export class PaymentsService {
         reason: t.failure_reason
       });
       this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'failed', booking_id: t.booking_id });
+      // E1 S15: repeated failures in a short window = card testing / bot activity
+      await this.fraud.checkPaymentVelocity(t.patient_id).catch(() => false);
     }
     t.webhook_payload = result.raw;
     await t.save();
     return t.toObject();
   }
 
-  async retryPayment(user: any, type: string, id: string) {
-    const M = this.modelFor(type);
-    const booking: any = await M.findOne({ id }).lean();
+  async retryPayment(user: any, type: string, id: string, idempotencyKey: string) {
+    const kind = normalizeKind(type);
+    const booking: any = await this.modelFor(type).findOne({ id }).lean();
     if (!booking) throw new NotFoundException('booking_not_found');
-    if (booking.patient_id !== user.id && user.role !== 'admin') throw new BadRequestException('not_authorized');
-    // Cancel only this authorized booking's pending or failed attempts before creating a new intent.
-    await this.txns.updateMany({ booking_id: id, status: { $in: ['pending', 'failed'] } }, { $set: { status: 'cancelled' } });
-    return this.createPaymentIntent(user, type, id);
+    // Authorize before cancelling an existing transaction.
+    this.assertBookingOwnerOrAdmin(user, booking);
+    if (booking.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
+    await this.txns.updateMany(
+      { booking_kind: kind, booking_id: id, status: { $in: ['pending', 'failed'] } },
+      { $set: { status: 'cancelled' } },
+    );
+    return this.createPaymentIntent(user, type, id, idempotencyKey);
   }
 
   async refundPayment(user: any, transactionId: string, amount?: number, reason?: string) {
+    // E5-F2: refunds are ADMIN-ONLY (consistent with moyasar refund E1-F3).
+    // Any provider/pharmacy/doctor could previously refund ANY transaction id —
+    // a sabotage vector (griefing patients' paid bookings). Providers escalate
+    // to admin; patients use the approval flow (/refunds/request).
     if (user.role !== 'admin') throw new BadRequestException('not_authorized');
     const t = await this.txns.findOne({ id: transactionId });
     if (!t) throw new NotFoundException();
     if (t.status !== 'paid' && t.status !== 'partially_refunded') throw new BadRequestException('cannot_refund');
-    const remaining = t.amount - (t.refunded_amount || 0);
-    if (!Number.isFinite(remaining) || remaining <= 0) throw new BadRequestException('nothing_to_refund');
-    if (amount !== undefined && amount !== remaining) throw new BadRequestException('partial_refund_not_supported');
-    const r = await this.adapter.refund(t.gateway_charge_id, remaining);
+    const r = await this.adapter.refund(t.gateway_charge_id, amount);
     if (!r.refunded) throw new BadRequestException('refund_failed');
-    t.status = 'refunded';
-    t.refunded_amount = (t.refunded_amount || 0) + remaining;
+    const full = !amount || amount >= t.amount;
+    t.status = full ? 'refunded' : 'partially_refunded';
+    t.refunded_amount = (t.refunded_amount || 0) + (amount || t.amount);
     t.refunded_at = new Date();
     t.refund_reason = reason;
     await t.save();
@@ -223,12 +294,59 @@ export class PaymentsService {
     return t.toObject();
   }
 
-  async listForBooking(type: string, id: string) {
+  /**
+   * E1 S3: capture an authorized-only payment (auth-then-capture flow).
+   * Moyasar: POST /payments/:id/capture. Admin/provider initiated.
+   */
+  async capturePayment(user: any, transactionId: string) {
+    if (user.role !== 'admin') throw new BadRequestException('not_authorized');
+    const t = await this.txns.findOne({ id: transactionId });
+    if (!t) throw new NotFoundException('txn_not_found');
+    if (t.status !== 'authorized') throw new BadRequestException(`cannot_capture_status_${t.status}`);
+    if (t.gateway !== 'moyasar') throw new BadRequestException('capture_supported_for_moyasar_only');
+    const key = process.env.MOYASAR_SECRET_KEY || process.env.MOYASAR_SECRET || process.env.MOYASAR_API_KEY;
+    if (!key) throw new BadRequestException('payment_gateway_not_configured');
+    const r = await fetch(`https://api.moyasar.com/v1/payments/${t.gateway_intent_id}/capture`, {
+      method: 'POST',
+      headers: { Authorization: `Basic ${Buffer.from(`${key}:`).toString('base64')}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    const j: any = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      t.webhook_payload = j;
+      await t.save();
+      throw new BadRequestException(`capture_failed: ${j?.message || r.status}`);
+    }
+    t.status = 'paid';
+    t.paid_at = new Date();
+    t.webhook_payload = j;
+    await t.save();
+    await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+    this.events.emit('payment.completed', {
+      kind: t.booking_kind, id: t.booking_id, booking_kind: t.booking_kind, booking_id: t.booking_id,
+      patient_id: t.patient_id, amount: t.amount, transaction_id: t.id,
+    });
+    this.realtime.emitToUser(t.patient_id, 'payment.updated', { transaction_id: t.id, status: 'paid', booking_id: t.booking_id });
+    return t.toObject();
+  }
+
+  async listForBooking(user: any, type: string, id: string) {
     const kind = normalizeKind(type);
+    // E5-F2 IDOR fix: transactions expose payment metadata — only the booking
+    // owner (patient) or staff roles may list them.
+    const booking: any = await this.modelFor(type).findOne({ id }).lean();
+    if (!booking) throw new NotFoundException('booking_not_found');
+    const staffRoles = ['admin', 'finance'];
+    if (booking.patient_id !== user.id && !staffRoles.includes(user.role)) {
+      throw new BadRequestException('not_authorized');
+    }
     return this.txns.find({ booking_kind: kind, booking_id: id }).sort({ createdAt: -1 }).lean();
   }
 
-  async handleWebhook(provider: string, payload: any) {
+  async handleWebhook(provider: string, payload: any, signature?: string, rawBody?: string) {
+    if (!this.verifyWebhookSignature(provider, signature, rawBody ?? JSON.stringify(payload))) {
+      throw new BadRequestException('invalid_webhook_signature');
+    }
     // Look up by gateway_intent_id or gateway_charge_id present in payload
     const intentId = payload.data?.object?.id || payload.id || payload.payment_intent;
     if (!intentId) return { ok: false, reason: 'no_intent_id' };
@@ -237,25 +355,47 @@ export class PaymentsService {
     await this.verifyPayment({ id: t.patient_id, role: 'system' }, t.id);
     return { ok: true };
   }
+
+  /** Only a configured Moyasar HMAC over the raw request body may trigger payment mutation. */
+  private verifyWebhookSignature(provider: string, signature: string | undefined, rawBody: string): boolean {
+    if (provider !== 'moyasar') return false;
+    const secret = process.env.MOYASAR_WEBHOOK_SECRET;
+    if (!secret || !signature) return false;
+    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+    const received = Buffer.from(signature, 'utf8');
+    const expectedBuffer = Buffer.from(expected, 'utf8');
+    return received.length === expectedBuffer.length && crypto.timingSafeEqual(received, expectedBuffer);
+  }
 }
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
   constructor(private svc: PaymentsService) {}
-  @Post('intent/:type/:id') intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.createPaymentIntent(u, t, id); }
+  @Post('intent/:type/:id')
+  @UseInterceptors(IdempotencyInterceptor)
+  intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.createPaymentIntent(u, t, id, key); }
   @Post('verify/:txn') verify(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.verifyPayment(u, txn); }
-  @Post('retry/:type/:id') retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.retryPayment(u, t, id); }
+  @Post('retry/:type/:id')
+  @UseInterceptors(IdempotencyInterceptor)
+  retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
   @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: { amount?: number; reason?: string }) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
-  @Get('booking/:type/:id') list(@Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(t, id); }
+  @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
+  @Get('booking/:type/:id') list(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(u, t, id); }
 }
 
 @Controller('payments/webhook')
 export class PaymentsWebhookController {
   constructor(private svc: PaymentsService) {}
   @Public()
-  @Post(':provider') @HttpCode(200) async webhook(@Param('provider') p: string, @Body() b: any) {
-    return this.svc.handleWebhook(p, b);
+  @Post(':provider') @HttpCode(200) async webhook(
+    @Param('provider') p: string,
+    @Body() b: any,
+    @Headers('moyasar-signature') signature: string,
+    @Req() req: Request,
+  ) {
+    const rawBody = (req as any).rawBody || JSON.stringify(b);
+    return this.svc.handleWebhook(p, b, signature, rawBody);
   }
 }
 
@@ -269,10 +409,11 @@ export class PaymentsWebhookController {
       { name: 'RadiologyBooking', schema: RadiologyBookingSchema },
       { name: 'HomeCareBooking', schema: HomeCareBookingSchema },
       { name: Appointment.name, schema: AppointmentSchema },
+      { name: 'InsuranceServiceRequest', schema: InsuranceServiceRequestSchema },
     ]),
   ],
   controllers: [PaymentsController, PaymentsWebhookController],
-  providers: [PaymentsService],
+  providers: [PaymentsService, IdempotencyInterceptor],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}

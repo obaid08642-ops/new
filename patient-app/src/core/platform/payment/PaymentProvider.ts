@@ -4,7 +4,7 @@ export interface PaymentRequest {
   orderId: string;
   userId: string;
   amount: Money;
-  method: 'card' | 'wallet' | 'cash' | 'apple-pay';
+  method: 'card' | 'cash' | 'apple-pay' | 'google-pay';
   idempotencyKey: string;
 }
 

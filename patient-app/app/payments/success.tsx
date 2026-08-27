@@ -1,20 +1,28 @@
 // @ts-nocheck
 // app/payments/success.tsx
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated, Share } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
+import { useCart } from '../../src/context/CartContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { dateLocale } from '@/utils/dates';
 
 export default function PaymentSuccessScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
-  
-  
+  const { clearCart } = useCart();
+
   const params = useLocalSearchParams();
+  const isPharmacy = (params.bookingKind as string) === 'pharmacy';
+
+  // A paid pharmacy order means the cart was actually purchased — clear it once.
+  useEffect(() => {
+    if (isPharmacy) clearCart();
+  }, [isPharmacy]);
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -25,9 +33,9 @@ export default function PaymentSuccessScreen() {
     ]).start();
   }, []);
 
-  const serviceName = params.serviceName as string || 'الخدمة';
+  const serviceName = (params.serviceName as string) || (isPharmacy ? 'طلب الصيدلية' : 'الخدمة');
   const amount = params.amount as string || '';
-  const refNumber = `PAY-${Date.now().toString().slice(-8)}`;
+  const refNumber = (params.moyasarId as string) ? String(params.moyasarId).slice(0, 18) : '—';
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background } ]}>
@@ -47,8 +55,8 @@ export default function PaymentSuccessScreen() {
       <View style={[styles.detailsSection, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
         {[
           { label: 'رقم المرجع', val: refNumber },
-          { label: 'التاريخ والوقت', val: new Date().toLocaleString('ar-SA') },
-          { label: 'طريقة الدفع', val: params.method as string || 'فيزا •••• 4521' },
+          { label: 'التاريخ والوقت', val: new Date().toLocaleString(dateLocale()) },
+          { label: 'طريقة الدفع', val: (params.paymentMethod || params.method) as string || 'بطاقة بنكية' },
           { label: 'الحالة', val: 'ناجح' },
         ].map((r, i) => (
           <View key={i} style={[styles.detailRow, { borderBottomColor: colors.border } ]}>
@@ -59,19 +67,37 @@ export default function PaymentSuccessScreen() {
       </View>
 
       <View style={[styles.actions, { paddingBottom: insets.bottom + 8 } ]}>
-        <TouchableOpacity style={[styles.receiptBtn, { borderColor: colors.border } ]}>
-          <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="document" size={16} color={colors.primary} /><AppText variant="bodySM">تحميل الإيصال</AppText></View>
+        <TouchableOpacity
+          style={[styles.receiptBtn, { borderColor: colors.border }]}
+          onPress={() => {
+            Share.share({
+              message: `إيصال دفع — تطبيق نبض\nرقم المرجع: ${refNumber}\nالتاريخ: ${new Date().toLocaleString(dateLocale())}\nطريقة الدفع: ${(params.paymentMethod || params.method) as string || 'بطاقة بنكية'}\nالحالة: ناجح`,
+            }).catch(() => {});
+          }}
+        >
+          <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="share" size={16} color={colors.primary} /><AppText variant="bodySM">مشاركة الإيصال</AppText></View>
         </TouchableOpacity>
         {params.visitType && (
           <TouchableOpacity onPress={() => {
             const vt = params.visitType as string;
-            if (vt === 'clinic') router.push('/consultations/clinic-location');
+            const apptId = (params.bookingId || params.appointmentId || '') as string;
+            if (apptId) router.push({ pathname: '/consultations/booking-pending', params: { appointmentId: apptId, visitType: vt } });
+            else if (vt === 'clinic') router.push('/consultations/clinic-location');
             else if (vt === 'home') router.push('/consultations/home-visit-tracking');
             else router.push({ pathname: '/consultations/booking-success', params: { visitType: vt } });
           }}
           style={{ borderRadius: 16, overflow: 'hidden' }}>
             <View style={styles.homeBtn}>
               <AppText variant="bodySM" color="#fff">{params.visitType === 'clinic' ? 'عرض موقع العيادة' : params.visitType === 'home' ? 'تتبع الطبيب' : 'غرفة الانتظار'}</AppText>
+            </View>
+          </TouchableOpacity>
+        )}
+        {isPharmacy && (
+          <TouchableOpacity
+            onPress={() => router.replace({ pathname: '/pharmacy/order-tracking', params: { orderId: (params.bookingId || '') as string } })}
+            style={{ borderRadius: 16, overflow: 'hidden' }}>
+            <View style={styles.homeBtn}>
+              <AppText variant="bodySM" color="#fff">تتبع الطلب</AppText>
             </View>
           </TouchableOpacity>
         )}

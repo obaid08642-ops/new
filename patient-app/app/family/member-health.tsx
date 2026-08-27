@@ -21,6 +21,8 @@ import {
   SectionHeader,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
 
 // DEFAULT_MEMBER removed
 
@@ -30,8 +32,8 @@ export default function MemberHealthScreen() {
   const params = useLocalSearchParams();
 
   const memberId = (params.id as string) || "";
-  const memberName = (params.name as string) || "فاطمة أحمد";
-  const memberRelation = (params.relation as string) || "ابنة";
+  const memberName = (params.name as string) || "فرد من العائلة";
+  const memberRelation = (params.relation as string) || "";
 
   const [member, setMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -43,50 +45,69 @@ export default function MemberHealthScreen() {
   const loadMemberHealth = async () => {
     try {
       setLoading(true);
-      const res = await apiFetch(`/family/member-health/${memberId}`);
-      // Structure the data to match expected fields
+      // Granular, permission-filtered bundle — sections appear only when granted
+      const res = await apiFetch(`/family/member-records/${memberId}`);
+      const readings: any[] = Array.isArray(res.vitals) ? res.vitals : [];
+      const latestOf = (t: string) => readings.find((r) => r.type === t);
+      const hr = latestOf("heart_rate");
+      const bp = latestOf("bp");
+      const wt = latestOf("weight");
+      const vitals = [
+        hr && {
+          label: "نبض القلب",
+          value: hr.value,
+          unit: hr.unit || "bpm",
+          status: "مسجّلة",
+          color: "#16A34A",
+        },
+        bp && {
+          label: "ضغط الدم",
+          value: bp.value,
+          unit: bp.unit || "mmHg",
+          status: "مسجّلة",
+          color: "#23B5CE",
+        },
+        wt && {
+          label: "الوزن",
+          value: wt.value,
+          unit: wt.unit || "كغ",
+          status: "مسجّلة",
+          color: "#16A34A",
+        },
+      ].filter(Boolean);
+      const age = res.profile?.birth_date
+        ? Math.max(0, Math.floor((Date.now() - new Date(res.profile.birth_date).getTime()) / (365.25 * 24 * 3600 * 1000)))
+        : null;
+      const next = res.next_appointment;
       setMember({
         name: memberName,
         relation: memberRelation,
-        age: res.age || 12,
-        vitals: [
-          {
-            label: "نبض القلب",
-            value: res.vitals?.heart_rate?.value || "76",
-            unit: "bpm",
-            status: "طبيعي",
-            color: "#16A34A",
-          },
-          {
-            label: "ضغط الدم",
-            value: res.vitals?.bp?.value || "120/80",
-            unit: "mmHg",
-            status: "طبيعي",
-            color: "#23B5CE",
-          },
-          {
-            label: "الوزن",
-            value: res.weight || "38",
-            unit: "كغ",
-            status: "طبيعي",
-            color: "#16A34A",
-          },
-        ],
+        age,
+        vitals,
         meds: (res.meds || [])
           .map((m: any) => ({
-            name: m.medicine_name_ar || m.medicine_name_en,
+            name: pickLocalized(m.medicine_name_ar, m.medicine_name_en),
             dose: m.dose,
             freq: m.frequency,
           }))
-          .slice(0, 3),
-        nextAppointment: res.nextAppointment || null,
+          .slice(0, 5),
+        nextAppointment: next
+          ? {
+              doctor: next.doctor_name || "—",
+              spec: next.specialty || "",
+              date: next.scheduled_at
+                ? new Date(next.scheduled_at).toLocaleDateString(dateLocale())
+                : "",
+            }
+          : null,
       });
     } catch (err) {
+      // Honest failure: no permission or network — show empty state, not dummy data
       console.error("Could not fetch family member health details:", err);
       setMember({
         name: memberName,
         relation: memberRelation,
-        age: "--",
+        age: null,
         vitals: [],
         meds: [],
         nextAppointment: null,
@@ -160,16 +181,20 @@ export default function MemberHealthScreen() {
             {member.name}
           </AppText>
           <View style={{ flexDirection: "row-reverse", gap: 8 }}>
-            <Badge
-              label={member.relation}
-              color="#fff"
-              bg="rgba(255,255,255,0.2)"
-            />
-            <Badge
-              label={`${member.age} سنة`}
-              color="#fff"
-              bg="rgba(255,255,255,0.2)"
-            />
+            {!!member.relation && (
+              <Badge
+                label={member.relation}
+                color="#fff"
+                bg="rgba(255,255,255,0.2)"
+              />
+            )}
+            {member.age != null && (
+              <Badge
+                label={`${member.age} سنة`}
+                color="#fff"
+                bg="rgba(255,255,255,0.2)"
+              />
+            )}
           </View>
         </View>
       </View>
@@ -257,15 +282,9 @@ export default function MemberHealthScreen() {
             onPress={() => router.push("/family/chat")}
           />
           <Button
-            label="مكالمة صوتية"
-            variant="outline"
-            icon="call"
-            onPress={() => router.push("/family/voice-call")}
-          />
-          <Button
             label="حجز موعد نيابةً"
             variant="gradient"
-            icon="calendarCheck"
+            icon="calendar-check"
             onPress={() => router.push("/(tabs)/consultations")}
           />
         </View>

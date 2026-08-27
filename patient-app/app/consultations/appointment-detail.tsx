@@ -1,16 +1,19 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Modal, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function AppointmentDetailScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { colors, isDark, lang } = useApp();
+  const AR = lang !== 'en';
   const params = useLocalSearchParams();
   const [appointment, setAppointment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +21,7 @@ export default function AppointmentDetailScreen() {
   useEffect(() => {
     if (!params.appointmentId) return;
     setLoading(true);
-    apiFetch<any>(`/appointments/${params.appointmentId}`)
+    apiFetch<any>(`/care/appointments/${params.appointmentId}`)
       .then(res => {
         if (res) {
           setAppointment(res);
@@ -47,8 +50,8 @@ export default function AppointmentDetailScreen() {
     );
   }
 
-  const formattedDate = appointment?.scheduled_at ? new Date(appointment.scheduled_at).toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'غداً';
-  const formattedTime = appointment?.scheduled_at ? new Date(appointment.scheduled_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '10:00 ص';
+  const formattedDate = appointment?.scheduled_at ? new Date(appointment.scheduled_at).toLocaleDateString(dateLocale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'غداً';
+  const formattedTime = appointment?.scheduled_at ? new Date(appointment.scheduled_at).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '10:00 ص';
 
   const DETAILS = [
     { icon: 'calendar' as IconName, label: 'التاريخ', value: formattedDate },
@@ -85,8 +88,8 @@ export default function AppointmentDetailScreen() {
               <AppText variant="labelSM" color={colors.primary}>عرض الملف</AppText>
             </TouchableOpacity>
             <View style={styles.docInfo}>
-              <AppText variant="h5">{appointment?.doctor?.name || 'د. أحمد محمد السيد'}</AppText>
-              <AppText variant="caption" color={colors.textSecondary}>{appointment?.doctor?.specialty || 'جراح قلب وأوعية'}</AppText>
+              <AppText variant="h5">{appointment?.doctor?.name || appointment?.doctor_name || 'الطبيب المعالج'}</AppText>
+              <AppText variant="caption" color={colors.textSecondary}>{appointment?.doctor?.specialty || appointment?.specialty || ''}</AppText>
             </View>
             <View style={[styles.docAva, { backgroundColor: colors.primarySurface } ]}>
               <Icon name="doctor" size={24} color={colors.primary} />
@@ -108,17 +111,45 @@ export default function AppointmentDetailScreen() {
           ))}
         </View>
 
-        {/* Price */}
-        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 } ]}>
-          <View style={styles.priceRow}>
-            <AppText variant="h4" color={colors.primary}>{appointment?.price || 350} ر.س</AppText>
-            <AppText variant="labelMD" color={colors.textPrimary}>المبلغ المدفوع</AppText>
+        {/* Price — shown only when a real amount exists on the appointment */}
+        {(appointment?.price ?? appointment?.amount ?? null) != null && (
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 } ]}>
+            <View style={styles.priceRow}>
+              <AppText variant="h4" color={colors.primary}>{appointment.price ?? appointment.amount} ر.س</AppText>
+              <AppText variant="labelMD" color={colors.textPrimary}>المبلغ المدفوع</AppText>
+            </View>
           </View>
-          <TouchableOpacity style={[styles.receiptBtn, { backgroundColor: colors.primarySurface } ]}>
-            <Icon name="receipt" size={16} color={colors.primary} />
-            <AppText variant="labelSM" color={colors.primary}>عرض الفاتورة الإلكترونية</AppText>
+        )}
+
+        {/* Post-consultation summary (M4) */}
+        {appointment?.status === 'COMPLETED' && (
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/consultations/summary', params: { appointmentId: appointment?.id } })}
+            style={[styles.card, { backgroundColor: colors.primarySurface, borderColor: colors.primary, borderWidth: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }]}
+          >
+            <Icon name="document" size={20} color={colors.primary} />
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <AppText variant="labelMD" color={colors.primary}>عرض ملخص الاستشارة</AppText>
+              <AppText variant="caption" color={colors.textSecondary}>التشخيص والوصفة والتوصيات</AppText>
+            </View>
+            <Icon name="chevronLeft" size={18} color={colors.primary} />
           </TouchableOpacity>
-        </View>
+        )}
+
+        {/* Rate the experience (M4) — only after completion */}
+        {appointment?.status === 'COMPLETED' && (
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'appointment', booking_id: appointment?.id, providerName: appointment?.doctor?.name || appointment?.doctor_name || '' } })}
+            style={[styles.card, { backgroundColor: colors.surface, borderColor: '#F59E0B', borderWidth: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }]}
+          >
+            <Icon name="star" size={20} color="#F59E0B" />
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <AppText variant="labelMD" color={colors.textPrimary}>قيّم تجربتك</AppText>
+              <AppText variant="caption" color={colors.textSecondary}>تقييمك يساعد المرضى الآخرين</AppText>
+            </View>
+            <Icon name="chevronLeft" size={18} color="#F59E0B" />
+          </TouchableOpacity>
+        )}
 
         {/* Preparation Tips */}
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 } ]}>
@@ -149,10 +180,14 @@ export default function AppointmentDetailScreen() {
               </AppText>
               
               <View style={{ width: '100%', marginTop: 24, gap: 12 }}>
-                <Button label={AR ? `دفع ${appointment?.copay_amount || 0} ريال` : `Pay ${appointment?.copay_amount || 0} SAR`} onPress={() => {
-                  apiFetch('/patient/pay-copay', { method: 'POST', body: { id: appointment.id } })
-                    .then(() => setAppointment({...appointment, status: 'CONFIRMED'}))
-                    .catch(() => {})
+                <Button label={AR ? 'عرض طلب التأمين والدفع الآمن' : 'Review insurance request and pay securely'} onPress={() => {
+                  apiFetch<any[]>('/insurance/requests/my')
+                    .then((requests) => {
+                      const request = (requests || []).find((item: any) => item.booking_kind === 'consultation' && item.booking_id === appointment.id && ['PENDING_PROVIDER_REVIEW', 'APPROVED_FULL', 'COPAY_PENDING', 'COPAY_PAID'].includes(item.state));
+                      if (!request?.id) throw new Error('insurance_request_not_found');
+                      router.push({ pathname: '/insurance/payment-split', params: { request_id: request.id } });
+                    })
+                    .catch(() => showLocalizedAlert(AR ? 'تعذر تحميل طلب التأمين' : 'Insurance request unavailable', AR ? 'لا يمكن تأكيد أو دفع التحمل من دون طلب تأمين مملوك ومراجع.' : 'A reviewed, owned insurance request is required before payment.'))
                 }} />
                 <Button variant="outline" label={AR ? 'إلغاء الموعد' : 'Cancel Appointment'} onPress={() => router.back()} />
               </View>

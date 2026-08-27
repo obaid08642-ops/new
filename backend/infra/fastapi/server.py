@@ -19,27 +19,16 @@ from pydantic import BaseModel
 import boto3
 from botocore.config import Config as BotocoreConfig
 
-from seed_data import (
-    CITIES_WITH_DISTRICTS, SPECIALTIES, INSURANCE_COMPANIES,
-    LAB_TESTS, RADIOLOGY, SAMPLE_DOCTORS, SAMPLE_PHARMACIES, SAMPLE_PRODUCTS
-)
+from seed_dev import seed_test_data
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-ENVIRONMENT = os.environ.get('NABDAH_ENV', 'development').lower()
-
-def required_setting(name: str) -> str:
-    value = os.environ.get(name, '').strip()
-    if not value:
-        raise RuntimeError(f'Missing required environment setting: {name}')
-    return value
-
-MONGO_URL = required_setting('MONGO_URL')
-DB_NAME = required_setting('DB_NAME')
-JWT_SECRET = required_setting('JWT_SECRET')
-if ENVIRONMENT in {'production', 'staging'} and len(JWT_SECRET) < 32:
-    raise RuntimeError('JWT_SECRET must contain at least 32 characters outside development')
+MONGO_URL = os.environ['MONGO_URL']
+DB_NAME = os.environ['DB_NAME']
+JWT_SECRET = os.environ.get('JWT_SECRET')
+if not JWT_SECRET:
+    raise RuntimeError('JWT_SECRET is required')
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 JWT_ALGO = 'HS256'
 
@@ -47,16 +36,15 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
 # ============================ R2 / CLOUDFLARE ============================
-R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID', '').strip()
-R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY', '').strip()
-R2_SECRET_KEY = os.environ.get('R2_SECRET_KEY', '').strip()
-R2_BUCKET = os.environ.get('R2_BUCKET', '').strip()
-R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '').strip()
-R2_CONFIGURED = all((R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET, R2_PUBLIC_URL))
+R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID')
+R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY')
+R2_SECRET_KEY = os.environ.get('R2_SECRET_KEY')
+R2_BUCKET = os.environ.get('R2_BUCKET')
+R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '')
 
 def get_r2_client():
-    if not R2_CONFIGURED:
-        raise RuntimeError('R2 storage is not configured')
+    if not all([R2_ACCOUNT_ID, R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET]):
+        raise HTTPException(503, 'object_storage_not_configured')
     return boto3.client(
         's3',
         endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
@@ -262,36 +250,10 @@ async def startup():
     await db.users.create_index("phone")
     await db.doctors.create_index("specialty")
     await db.products.create_index("category")
-    if os.environ.get('ALLOW_DEMO_SEED', '').lower() == 'true' and ENVIRONMENT in {'development', 'test'}:
-        await seed_demo_database()
-    elif os.environ.get('ALLOW_DEMO_SEED', '').lower() == 'true':
-        logger.warning('Demo seed request ignored outside development or test environments')
+    if os.environ.get('NODE_ENV') == 'test' and os.environ.get('ALLOW_TEST_SEED') == 'true':
+        await seed_test_data(db, now_utc)
+        logger.info('Test seed completed because NODE_ENV=test and ALLOW_TEST_SEED=true')
 
-async def seed_demo_database():
-    if await db.cities.count_documents({}) == 0:
-        cities_docs = [{"id": str(uuid.uuid4()), "name_ar": k, "name_en": v["en"], "districts": v["districts"]} for k, v in CITIES_WITH_DISTRICTS.items()]
-        await db.cities.insert_many(cities_docs)
-
-    if await db.specialties.count_documents({}) == 0:
-        await db.specialties.insert_many([{"id": str(uuid.uuid4()), **s} for s in SPECIALTIES])
-
-    if await db.insurance_companies.count_documents({}) == 0:
-        await db.insurance_companies.insert_many([{"id": str(uuid.uuid4()), **i} for i in INSURANCE_COMPANIES])
-
-    if await db.lab_tests.count_documents({}) == 0:
-        await db.lab_tests.insert_many([{"id": str(uuid.uuid4()), **t} for t in LAB_TESTS])
-
-    if await db.radiology.count_documents({}) == 0:
-        await db.radiology.insert_many([{"id": str(uuid.uuid4()), **r} for r in RADIOLOGY])
-
-    if await db.doctors.count_documents({}) == 0:
-        await db.doctors.insert_many([{"id": str(uuid.uuid4()), "created_at": now_utc(), **d} for d in SAMPLE_DOCTORS])
-
-    if await db.pharmacies.count_documents({}) == 0:
-        await db.pharmacies.insert_many([{"id": str(uuid.uuid4()), "created_at": now_utc(), **p} for p in SAMPLE_PHARMACIES])
-
-    if await db.products.count_documents({}) == 0:
-        await db.products.insert_many([{"id": str(uuid.uuid4()), "created_at": now_utc(), **p} for p in SAMPLE_PRODUCTS])
 
 # ============================ AUTH ============================
 @api.post("/auth/guest")

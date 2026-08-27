@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, Res } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
+import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { OrderState, UserRole, DeliveryState } from '../../common/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -9,8 +10,9 @@ import { CreateOrderDto } from './dto/create-order.dto';
 export class OrdersController {
   constructor(private svc: OrdersService) {}
 
-  // Patient
+  // Patient only — providers use the read-only Drug Index and can never order
   @Post('create')
+  @Roles(UserRole.PATIENT, UserRole.ADMIN)
   create(@Body() body: CreateOrderDto, @CurrentUser() user: any) {
     return this.svc.create(user, body);
   }
@@ -22,16 +24,19 @@ export class OrdersController {
   }
 
   @Post(':id/reorder')
+  @RequireIdempotency()
   reorder(@Param('id') id: string, @CurrentUser() user: any) {
     return this.svc.reorder(id, user);
   }
 
   @Post(':id/reorder-partial')
+  @RequireIdempotency()
   reorderPartial(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
     return this.svc.reorderPartial(id, user, body);
   }
 
   @Post(':id/cancel')
+  @RequireIdempotency()
   cancel(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
     return this.svc.cancel(id, user, body?.reason || 'patient-cancel');
   }
@@ -46,26 +51,29 @@ export class OrdersController {
     return this.svc.patientRejectBasket(user, id, body?.reason);
   }
 
+  // Static pharmacy route must be declared before the `:id` wildcard.
+  @Get('pharmacy/queue')
+  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
+  pharmacyQueue(@CurrentUser('id') id: string, @Query('state') state: OrderState) {
+    return this.svc.listForPharmacy(id, state);
+  }
+
   @Get(':id')
-  one(@Param('id') id: string) {
-    return this.svc.getById(id);
+  one(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getById(id, user);
   }
 
   @Get(':id/report.pdf')
-  async getReportPdf(@Param('id') id: string, @Res() res: any) {
-    try {
-      const pdfBuffer = await this.svc.generatePdf(id);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=NabdPlus_Report_${id}.pdf`);
-      res.send(pdfBuffer);
-    } catch (e) {
-      res.status(500).send('Failed to generate PDF');
-    }
+  async getReportPdf(@Param('id') id: string, @CurrentUser() user: any, @Res() res: any) {
+    const pdfBuffer = await this.svc.generatePdf(id, user);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=NabdPlus_Report_${id}.pdf`);
+    res.send(pdfBuffer);
   }
 
   @Get(':id/tracking')
-  getTracking(@Param('id') id: string) {
-    return this.svc.getTracking(id);
+  getTracking(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.svc.getTracking(id, user);
   }
 
   @Patch(':id/items/:itemId/opt-in-cash')
@@ -73,13 +81,7 @@ export class OrdersController {
     return this.svc.optInCash(id, itemId, body, user);
   }
 
-  // Pharmacy
-
-  @Get('pharmacy/queue')
-  @Roles(UserRole.PHARMACY, UserRole.ADMIN)
-  pharmacyQueue(@CurrentUser('id') id: string, @Query('state') state: OrderState) {
-    return this.svc.listForPharmacy(id, state);
-  }
+  // Pharmacy static route is declared above the `:id` wildcard.
 
   @Patch(':id/insurance-approval')
   @Roles(UserRole.LAB, UserRole.PHARMACY, UserRole.HOSPITAL, UserRole.RADIOLOGY, UserRole.ADMIN)

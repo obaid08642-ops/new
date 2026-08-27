@@ -1,5 +1,6 @@
-import { LinkingOptions } from '@react-navigation/native';
 import * as Linking from 'expo-linking';
+
+type DeepLinkScreens = Record<string, string | { screens: DeepLinkScreens }>;
 
 // ---------------------------------------------------------------------------
 // Deep Link configuration for Nabdah Plus
@@ -17,7 +18,7 @@ export const DEEP_LINK_PREFIXES = [
 ];
 
 // Maps all app routes to deep link paths
-export const DEEP_LINK_CONFIG: LinkingOptions<object>['config'] = {
+export const DEEP_LINK_CONFIG: { screens: DeepLinkScreens } = {
   screens: {
     // Auth
     '(auth)/login': 'login',
@@ -95,7 +96,6 @@ export const DEEP_LINK_CONFIG: LinkingOptions<object>['config'] = {
     'nursing/service-detail': 'nursing/:slug',
     'nursing/booking-confirm': 'nursing/booking/:id',
     'nursing/live-tracking': 'nursing/tracking/:id',
-    'nursing/live-doctor-tracking': 'nursing/doctor-tracking/:id',
 
     // Health
     'health/vitals': 'health/vitals',
@@ -121,7 +121,6 @@ export const DEEP_LINK_CONFIG: LinkingOptions<object>['config'] = {
     'family': 'family',
     'family/invite': 'family/invite',
     'family/chat': 'family/chat',
-    'family/voice-call': 'family/call',
     'family/member-health': 'family/:memberId',
     'family/permissions': 'family/permissions',
 
@@ -135,11 +134,6 @@ export const DEEP_LINK_CONFIG: LinkingOptions<object>['config'] = {
     'insurance/claim-tracking': 'insurance/claim/:id',
     'insurance/approval-pending': 'insurance/pending/:id',
     'insurance/refund-status': 'insurance/refund/:id',
-
-    // Wallet
-    'wallet/hub': 'wallet',
-    'wallet/transactions': 'wallet/transactions',
-    'wallet/cards': 'wallet/cards',
 
     // Payments
     'payments/processing': 'payments/processing/:id',

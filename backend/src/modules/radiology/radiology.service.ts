@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { RadiologyService, RadiologyBookingState, RADIOLOGY_BOOKING_TRANSITIONS } from '../../schemas/radiology.schema';
 import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
@@ -14,7 +13,10 @@ export class RadiologyOpsService {
   constructor(
     @InjectModel('RadiologyService') private svcModel: Model<any>,
     @InjectModel('RadiologyBooking') private bkgModel: Model<any>,
+    @InjectModel('RadiologyCenterBooking') private centerBkgModel: Model<any>,
+    @InjectModel('User') private userModel: Model<any>,
     @InjectModel('LabResult') private resultModel: Model<any>,
+    @InjectModel('StorageObject') private storageObjects: Model<any>,
     private engine: WorkflowEngineService,
     private events: EventEmitter2,
   ) {}
@@ -22,15 +24,34 @@ export class RadiologyOpsService {
   // ──────────────────────────────────────────────
   // PILLAR 1: State Transition (validated)
   // ──────────────────────────────────────────────
+  /** Bookings may live in either collection (legacy or center) — unify lookup. */
+  private async findBooking(id: string): Promise<any> {
+    return (await this.bkgModel.findOne({ id })) || (await this.centerBkgModel.findOne({ id }));
+  }
+
+  private async privateProviderStorage(id: string, user: any, requirePdf = false): Promise<any> {
+    const object: any = await this.storageObjects.findOne({ id, owner_account_id: user.id, visibility: 'private', deleted: false }).lean();
+    if (!object) throw new ForbiddenException('private_storage_object_not_owned');
+    if (requirePdf && object.mime !== 'application/pdf') throw new BadRequestException('report_pdf_storage_object_required');
+    return object;
+  }
+
   async transition(id: string, targetState: RadiologyBookingState, user: any, note?: string) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException('Radiology booking not found');
-    const allowed = RADIOLOGY_BOOKING_TRANSITIONS[b.state as RadiologyBookingState] ?? [];
+    // Center bookings store the lifecycle in `status`; legacy in `state`.
+    // Normalize the center vocabulary onto the ops transitions map.
+    let current = b.state || b.status;
+    const aliases: Record<string, string> = { PENDING_ACCEPTANCE: 'NEW_REQUEST', ACCEPTED: 'CONFIRMED', CHECKED_IN: 'ARRIVED_CHECKIN', SCANNING_COMPLETED: 'REPORT_DRAFT', REPORT_UPLOADED: 'REPORT_DRAFT' };
+    current = aliases[current] || current;
+    const allowed = RADIOLOGY_BOOKING_TRANSITIONS[current as RadiologyBookingState] ?? [];
     if (!allowed.includes(targetState)) {
-      throw new BadRequestException(`Cannot transition from ${b.state} to ${targetState}`);
+      throw new BadRequestException(`Cannot transition from ${current} to ${targetState}`);
     }
-    b.state_history.push({ from: b.state, to: targetState, by_user_id: user.id, by_role: user.role, at: new Date(), note });
+    b.state_history = [...(b.state_history || []), { from: current, to: targetState, by_user_id: user.id, by_role: user.role, at: new Date(), note }];
     b.state = targetState;
+    if (b.status !== undefined) b.status = targetState;
+    b.markModified?.('state_history');
     await b.save();
     // MODULE 16: Emit notification
     this.events.emit('radiology.state_changed', { bookingId: id, state: targetState, patientId: b.patient_id });
@@ -41,10 +62,10 @@ export class RadiologyOpsService {
   // PILLAR 5: Check-In → ARRIVED_CHECKIN
   // ──────────────────────────────────────────────
   async checkin(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     if (b.state !== RadiologyBookingState.CONFIRMED) throw new BadRequestException('Booking must be CONFIRMED to check-in');
-    b.state_history.push({ from: b.state, to: RadiologyBookingState.ARRIVED_CHECKIN, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Patient checked-in at reception' });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.ARRIVED_CHECKIN, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Patient checked-in at reception' });
     b.state = RadiologyBookingState.ARRIVED_CHECKIN;
     b.checkin_at = new Date();
     await b.save();
@@ -56,10 +77,10 @@ export class RadiologyOpsService {
   // PILLAR 5: Start Scan → IN_SCANNING
   // ──────────────────────────────────────────────
   async startScan(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     if (b.state !== RadiologyBookingState.ARRIVED_CHECKIN) throw new BadRequestException('Patient must check-in first');
-    b.state_history.push({ from: b.state, to: RadiologyBookingState.IN_SCANNING, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Scan started — patient called into scanning room' });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.IN_SCANNING, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Scan started — patient called into scanning room' });
     b.state = RadiologyBookingState.IN_SCANNING;
     b.scan_started_at = new Date();
     await b.save();
@@ -75,10 +96,16 @@ export class RadiologyOpsService {
     if (!VALID_ABORT_REASONS.includes(reason)) {
       throw new BadRequestException(`Invalid abort reason. Must be one of: ${VALID_ABORT_REASONS.join(', ')}`);
     }
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
+    // State machine: a scan can only be aborted while the patient is checked-in / mid-scan —
+    // aborting a fresh or completed booking corrupts the lifecycle and refund flow.
+    const abortable = [RadiologyBookingState.ARRIVED_CHECKIN, RadiologyBookingState.IN_SCANNING];
+    if (!abortable.includes(b.state as RadiologyBookingState)) {
+      throw new BadRequestException(`invalid_transition_${b.state}_to_SCAN_ABORTED`);
+    }
     b.abort_reason = reason;
-    b.state_history.push({ from: b.state, to: RadiologyBookingState.SCAN_ABORTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `EMERGENCY ABORT: ${reason}` });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.SCAN_ABORTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `EMERGENCY ABORT: ${reason}` });
     b.state = RadiologyBookingState.SCAN_ABORTED;
     b.scan_completed_at = new Date();
     await b.save();
@@ -91,28 +118,41 @@ export class RadiologyOpsService {
   // PILLAR 6 + MODULE 10: Upload Report → REPORT_DRAFT
   // ──────────────────────────────────────────────
   async uploadReport(id: string, user: any, body: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
-    // Store PDF + DICOM URL + image slices
-    if (body.pdf_url) b.signed_report_pdf_url = body.pdf_url;
-    if (body.dicom_url) b.dicom_url = body.dicom_url;
-    if (body.image_urls && Array.isArray(body.image_urls)) b.scan_image_urls = body.image_urls;
+    if (body.pdf_url || body.dicom_url || body.image_urls) throw new BadRequestException('raw_report_urls_not_allowed');
+    const reportObjectId = String(body.report_storage_object_id || '').trim();
+    if (!reportObjectId) throw new BadRequestException('report_storage_object_id_required');
+    await this.privateProviderStorage(reportObjectId, user, true);
+    if (body.dicom_storage_object_id) await this.privateProviderStorage(String(body.dicom_storage_object_id), user);
+    const imageObjectIds = Array.isArray(body.scan_storage_object_ids) ? body.scan_storage_object_ids.map(String) : [];
+    for (const objectId of imageObjectIds) await this.privateProviderStorage(objectId, user);
+    b.report_storage_object_id = reportObjectId;
+    b.dicom_storage_object_id = body.dicom_storage_object_id ? String(body.dicom_storage_object_id) : undefined;
+    b.scan_storage_object_ids = imageObjectIds;
+    b.signed_report_pdf_url = undefined;
+    b.dicom_url = undefined;
+    b.scan_image_urls = [];
     if (body.findings) b.clinical_impression_report = body.findings;
     b.report_status = 'draft';
-    b.state_history.push({ from: b.state, to: RadiologyBookingState.REPORT_DRAFT, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report files uploaded by technician' });
+    (b.state_history = b.state_history || []).push({ from: b.state || b.status, to: RadiologyBookingState.REPORT_DRAFT, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report files uploaded by technician' });
     b.state = RadiologyBookingState.REPORT_DRAFT;
+    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_DRAFT as any;
+    b.markModified?.('state_history');
     await b.save();
     return b;
   }
 
   // MODULE 10: Submit for Radiologist Review → UNDER_REVIEW
   async submitReportForReview(id: string, user: any, body: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
-    if (!b.signed_report_pdf_url) throw new BadRequestException('PDF report is mandatory before submitting for review');
+    if (!b.report_storage_object_id) throw new BadRequestException('secure_report_storage_object_required_before_review');
     b.report_status = 'under_review';
-    b.state_history.push({ from: b.state, to: RadiologyBookingState.UNDER_REVIEW, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Submitted for radiologist quality review' });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.UNDER_REVIEW, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Submitted for radiologist quality review' });
     b.state = RadiologyBookingState.UNDER_REVIEW;
+    if (b.status !== undefined) b.status = RadiologyBookingState.UNDER_REVIEW as any;
+    b.markModified?.('state_history');
     await b.save();
     this.events.emit('radiology.report_under_review', { bookingId: id });
     return b;
@@ -120,14 +160,16 @@ export class RadiologyOpsService {
 
   // MODULE 10: Radiologist Approves → REPORT_READY + notify patient + doctor
   async approveReport(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
-    if (b.state !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
+    if ((b.state || b.status) !== RadiologyBookingState.UNDER_REVIEW) throw new BadRequestException('Report must be UNDER_REVIEW to approve');
     b.report_status = 'ready';
     b.report_approved_by = user.id;
     b.report_approved_at = new Date();
-    b.state_history.push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: RadiologyBookingState.REPORT_READY, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'Report approved and published by radiologist' });
     b.state = RadiologyBookingState.REPORT_READY;
+    if (b.status !== undefined) b.status = RadiologyBookingState.REPORT_READY as any;
+    b.markModified?.('state_history');
     await b.save();
     // MODULE 11: Doctor auto-routing if referral exists
     if (b.referring_doctor_id) {
@@ -149,13 +191,19 @@ export class RadiologyOpsService {
   // PILLAR 4: Insurance NPHIES Gatekeeper
   // ──────────────────────────────────────────────
   async processInsuranceApproval(id: string, user: any, body: { approval_code: string; copay: number }) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
+    // State machine: insurance approval is only valid during the insurance phase —
+    // approving on an in-progress/completed booking would rewind it to CONFIRMED.
+    const insurancePhase = [RadiologyBookingState.NEW_REQUEST, RadiologyBookingState.PENDING_INSURANCE, RadiologyBookingState.WAITING_COPAY];
+    if (!insurancePhase.includes(b.state as RadiologyBookingState)) {
+      throw new BadRequestException(`invalid_transition_${b.state}_to_insurance_approval`);
+    }
     b.insurance_approval_code = body.approval_code;
     b.insurance_copay = body.copay;
     b.insurance_status = 'approved';
     const nextState = body.copay > 0 ? RadiologyBookingState.WAITING_COPAY : RadiologyBookingState.CONFIRMED;
-    b.state_history.push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `NPHIES approved. Code: ${body.approval_code}. Copay: ${body.copay} SAR` });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: nextState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `NPHIES approved. Code: ${body.approval_code}. Copay: ${body.copay} SAR` });
     b.state = nextState;
     await b.save();
     this.events.emit('radiology.insurance_approved', { bookingId: id, patientId: b.patient_id, copay: body.copay });
@@ -166,12 +214,12 @@ export class RadiologyOpsService {
   // MODULE 14: Reschedule Booking
   // ──────────────────────────────────────────────
   async rescheduleBooking(id: string, user: any, body: { new_date: string; reason: string }) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     const oldDate = b.scheduled_at;
     b.scheduled_at = new Date(body.new_date);
     b.reschedule_reason = body.reason;
-    b.state_history.push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled from ${oldDate} to ${b.scheduled_at}. Reason: ${body.reason}` });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled from ${oldDate} to ${b.scheduled_at}. Reason: ${body.reason}` });
     await b.save();
     this.events.emit('radiology.rescheduled', { bookingId: id, patientId: b.patient_id, newDate: b.scheduled_at });
     return b;
@@ -181,7 +229,7 @@ export class RadiologyOpsService {
   // MODULE 9: Tracking / Timeline for patient
   // ──────────────────────────────────────────────
   async getTracking(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id }).lean();
+    const b: any = await this.bkgModel.findOne({ id }).lean();
     if (!b) throw new NotFoundException();
     const steps = (b.state_history || []).map((h: any) => ({
       state: h.to,
@@ -228,7 +276,7 @@ export class RadiologyOpsService {
 
   // MODULE 12: Patient confirms preparation
   async confirmPreparation(id: string, user: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     b.preparation_confirmed = true;
     b.preparation_confirmed_at = new Date();
@@ -240,7 +288,7 @@ export class RadiologyOpsService {
   // Legacy / Existing Methods
   // ──────────────────────────────────────────────
   async list(opts: any) {
-    const q: any = { is_deleted: false };
+    const q: any = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.modality) q.modality = opts.modality;
     if (opts.body_part) q.body_part = opts.body_part;
     if (opts.search) q.$text = { $search: opts.search };
@@ -249,16 +297,31 @@ export class RadiologyOpsService {
   }
 
   async modalities() {
-    return this.svcModel.distinct('modality', { is_deleted: false, active: true });
+    return this.svcModel.distinct('modality', { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' });
   }
 
   async getById(id: string) {
-    const svc = await this.svcModel.findOne({ id }).lean();
+    // The legacy `id` field on catalog docs is stored as binary garbage, so
+    // public detail lookup must use `_id` (or human `short_code`) instead.
+    const base = { is_deleted: false, active: true, public_eligibility: true, medical_review_status: 'approved' } as const;
+    const or: Record<string, unknown>[] = [{ short_code: id }];
+    if (Types.ObjectId.isValid(id)) or.unshift({ _id: new Types.ObjectId(id) });
+    const svc = await this.svcModel.findOne({ ...base, $or: or }).lean();
     if (!svc) throw new NotFoundException();
     return svc;
   }
 
   async book(user: any, body: any) {
+    // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
+    if (body?.service_id) {
+      const dupe = await this.bkgModel.findOne({
+        patient_id: user.id,
+        service_id: body.service_id,
+        createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
+        state: { $nin: [RadiologyBookingState.CANCELLED, RadiologyBookingState.REPORT_READY] },
+      }).lean();
+      if (dupe) return dupe;
+    }
     const booking = await this.bkgModel.create({
       ...body,
       id: require('uuid').v4(),
@@ -284,7 +347,7 @@ export class RadiologyOpsService {
   }
 
   async updateInsuranceStatus(id: string, user: any, status: string, reason?: string) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     b.insurance_status = status;
     if (reason) b.rejection_reason = reason;
@@ -293,7 +356,7 @@ export class RadiologyOpsService {
   }
 
   async addDocument(id: string, user: any, body: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     b.documents.push({ ...body, uploaded_at: new Date() });
     await b.save();
@@ -307,7 +370,7 @@ export class RadiologyOpsService {
   }
 
   async assignTechnician(id: string, user: any, body: any) {
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
     b.technician_id = body.technician_id;
     await b.save();
@@ -323,7 +386,15 @@ export class RadiologyOpsService {
   }
 
   async myReports(user: any) {
-    return this.bkgModel.find({ patient_id: user.id, state: RadiologyBookingState.REPORT_READY }).lean();
+    // Center bookings store patient_id as the user's Mongo _id; legacy stores the
+    // app-level UUID — resolve both forms before unioning.
+    const me: any = await this.userModel.findOne({ id: user.id }, { _id: 1 }).lean();
+    const ids: any[] = me?._id ? [user.id, me._id] : [user.id];
+    const [legacy, center] = await Promise.all([
+      this.bkgModel.find({ patient_id: { $in: ids }, state: RadiologyBookingState.REPORT_READY }, { _id: 0, __v: 0 }).lean(),
+      this.centerBkgModel.find({ patient_id: { $in: ids }, status: RadiologyBookingState.REPORT_READY }, { _id: 0, __v: 0 }).lean(),
+    ]);
+    return [...(legacy as any[]), ...(center as any[])].sort((a: any, b: any) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
   }
 
   // --- Admin Catalog CRUD ---
@@ -348,12 +419,11 @@ export class RadiologyOpsService {
 
   async adminForceState(user: any, id: string, targetState: RadiologyBookingState, note: string) {
     if (user.role !== 'admin') throw new ForbiddenException('admin_only');
-    const b = await this.bkgModel.findOne({ id });
+    const b = await this.findBooking(id);
     if (!b) throw new NotFoundException();
-    b.state_history.push({ from: b.state, to: targetState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `admin_forced: ${note}` });
+    (b.state_history = b.state_history || []).push({ from: b.state, to: targetState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `admin_forced: ${note}` });
     b.state = targetState;
     await b.save();
     return b;
   }
 }
-

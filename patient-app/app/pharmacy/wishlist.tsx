@@ -20,12 +20,16 @@ import {
 } from "../../src/components/ui";
 
 import { apiFetch } from '../../src/utils/api';
+import { useCart } from '../../src/context/CartContext';
+import { pickLocalized } from '../../src/utils/localize';
 
 export default function WishlistScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
+  const { addItem } = useCart();
 
   const [items, setItems] = useState<any[]>([]);
+  const [addingId, setAddingId] = useState<string | null>(null);
 
   React.useEffect(() => {
     (async () => {
@@ -37,10 +41,30 @@ export default function WishlistScreen() {
   }, []);
 
   const removeFromWishlist = async (id: string) => {
+    const prev = items;
     setItems((p) => p.filter((i) => i.id !== id));
     try {
-      await apiFetch(`/users/me/wishlist/${id}`, 'POST');
-    } catch (err) {}
+      await apiFetch(`/users/me/wishlist/${id}`, { method: 'POST' });
+    } catch (err) {
+      setItems(prev); // revert on failure
+    }
+  };
+
+  const addToCart = async (item: any) => {
+    setAddingId(item.id);
+    try {
+      await addItem({
+        id: item.id,
+        name: pickLocalized(item.name_ar, item.name) || 'منتج',
+        price: item.price ?? 0,
+        rx: !!item.rx || !!item.requires_prescription,
+        image: item.image,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAddingId(null);
+    }
   };
 
   return (
@@ -93,15 +117,16 @@ export default function WishlistScreen() {
                 <Icon name="info" size={16} color="#F0695C" />
               </TouchableOpacity>
               <TouchableOpacity
+                onPress={() => addToCart(item)}
                 style={[
                   styles.cartBtn,
                   {
-                    backgroundColor: item.inStock
+                    backgroundColor: item.inStock !== false
                       ? colors.secondary
                       : colors.textDisabled,
                   },
                 ]}
-                disabled={!item.inStock}
+                disabled={item.inStock === false || addingId === item.id}
               >
                 <Icon name="shopping_cart" size={16} color="#fff" />
               </TouchableOpacity>

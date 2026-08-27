@@ -1,15 +1,21 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SegmentedControl, SectionHeader } from '../../src/components/ui';
-import { INSURANCE_COMPANIES, INSURANCE_CATEGORIES } from '../../src/constants/insurance';
+import { STORAGE_KEYS, API_BASE_URL } from '../../src/constants';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { apiFetch } from '../../src/utils/api';
+import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 import { Alert } from 'react-native';
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const VISIT_TYPES = [
   { key: 'video', label: 'فيديو', icon: 'video' as IconName, desc: 'استشارة عن بعد' },
@@ -21,12 +27,42 @@ export default function BookingConfirmScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const params = useLocalSearchParams();
-  const [visitType, setVisitType] = useState('video');
+  const [visitType, setVisitType] = useState((params.visitType as string) || 'clinic');
   const [payMethod, setPayMethod] = useState('card');
   const [loading, setLoading] = useState(false);
   const [showInsurance, setShowInsurance] = useState(false);
   const [insCompany, setInsCompany] = useState('');
   const [insCategory, setInsCategory] = useState('');
+  // Unified insurance catalog from the backend (single source of truth used
+  // by profile, pharmacy, labs, radiology, nursing and provider contracts).
+  const [insCompanies, setInsCompanies] = useState<any[]>([]);
+  const [insCategories, setInsCategories] = useState<any[]>([]);
+  const [insuranceCatalogUnavailable, setInsuranceCatalogUnavailable] = useState(false);
+
+  useEffect(() => {
+    if (!showInsurance) return;
+    (async () => {
+      try {
+        const list = await apiFetch('/insurance/companies');
+        const companies = Array.isArray(list) ? list : [];
+        setInsCompanies(companies);
+        setInsuranceCatalogUnavailable(companies.length === 0);
+      } catch {
+        setInsCompanies([]);
+        setInsuranceCatalogUnavailable(true);
+      }
+    })();
+  }, [showInsurance]);
+
+  useEffect(() => {
+    if (!insCompany) { setInsCategories([]); return; }
+    (async () => {
+      try {
+        const nets = await apiFetch(`/insurance/companies/${insCompany}/networks`);
+        setInsCategories(Array.isArray(nets) ? nets : []);
+      } catch { setInsCategories([]); }
+    })();
+  }, [insCompany]);
   const { isGuest, requireAuth } = useGuestGuard();
   const [coverage, setCoverage] = useState<any>(null);
   const [loadingCoverage, setLoadingCoverage] = useState(false);
@@ -39,10 +75,13 @@ export default function BookingConfirmScreen() {
       .then(res => {
         if (res) {
           setDoctor({
-            name: res.name_ar || res.name || res.display_name || 'طبيب استشاري',
-            degree: res.degree || res.title || 'أخصائي',
-            spec: res.specialty_ar || res.specialty || 'ممارس طبي',
-            price: res.consultation_fee || res.price || 200,
+            name: pickLocalized(res.name_ar, res.name_en) || res.display_name || '',
+            degree: res.degree || res.title || '',
+            spec: pickLocalized(res.specialty_ar, res.specialty) || '',
+            // Real per-mode prices from the provider profile — no invented fallback
+            price_clinic: typeof res.price_clinic === 'number' ? res.price_clinic : null,
+            price_online: typeof res.price_online === 'number' ? res.price_online : null,
+            price_home: typeof res.price_home === 'number' ? res.price_home : null,
           });
         }
       })
@@ -73,12 +112,25 @@ export default function BookingConfirmScreen() {
       const checkCoverage = async () => {
         setLoadingCoverage(true);
         try {
-          if (!params.doctorId) throw new Error('معرف الطبيب مطلوب للتحقق من التغطية');
-          const data = await apiFetch(`/insurance/coverage-check?provider_id=${encodeURIComponent(String(params.doctorId))}&service_type=consultation`);
-          setCoverage(data);
+          let token = null;
+          try {
+            token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
+          } catch {
+            token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+          }
+          if (!token) return;
+          const baseUrl = API_BASE_URL.replace('https://api.nabdahplus.com/v1', `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8002'}/api/v1`);
+          const res = await fetch(`${baseUrl}/insurance/coverage-check?provider_id=${params.doctorId}&service_type=consultation`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setCoverage(data);
+          }
         } catch (err) {
           console.log('Error checking coverage', err);
-          setCoverage(null);
         } finally {
           setLoadingCoverage(false);
         }
@@ -89,8 +141,10 @@ export default function BookingConfirmScreen() {
     }
   }, [payMethod, params.doctorId]);
 
-  const basePrice = visitType === 'home' ? ((doctor?.price || 0) + 150) : (doctor?.price || 0);
-  const homeVisitFee = visitType === 'home' ? 100 : 0;
+  // Real per-mode price only — no invented surcharges
+  const modePrice = visitType === 'home' ? doctor?.price_home : visitType === 'video' ? doctor?.price_online : doctor?.price_clinic;
+  const basePrice = typeof modePrice === 'number' ? modePrice : 0;
+  const homeVisitFee = 0;
   const subtotal = basePrice + homeVisitFee;
   const vat = Math.round(subtotal * 0.15);
   const totalWithoutInsurance = subtotal + vat;
@@ -107,27 +161,39 @@ export default function BookingConfirmScreen() {
   }
 
   const handleConfirm = async () => {
-    if (isGuest) {
-      requireAuth('تأكيد الحجز');
+    // Guests CAN book — only paying via INSURANCE requires a registered account.
+    if (isGuest && payMethod === 'insurance') {
+      requireAuth('insurance');
       return;
     }
     setLoading(true);
     try {
-      // 1. Construct future slot start date/time
-      const dateStr = (params.date as string) || new Date().toISOString().substring(0, 10);
-      const timeVal = (params.time as string) || '14:00';
-      const slotStartObj = new Date(`${dateStr}T${timeVal.length === 5 ? timeVal : '14:00'}:00Z`);
+      // 1. Prefer the exact slot picked on the booking screen (full ISO).
+      //    Legacy callers pass date/time — interpret them in LOCAL time (not UTC).
+      let slotStartIso: string;
+      if (params.slot_start) {
+        slotStartIso = new Date(params.slot_start as string).toISOString();
+      } else if (params.date && params.time) {
+        const t = String(params.time);
+        slotStartIso = new Date(`${params.date}T${t.length === 5 ? t : '09:00'}:00`).toISOString();
+      } else {
+        throw new Error('لم يتم اختيار موعد. ارجع واختر وقتاً متاحاً.');
+      }
 
       // 2. Call backend /care/appointments
       const appt = await apiFetch<any>('/care/appointments', {
         method: 'POST',
         body: JSON.stringify({
-          doctor_id: params.doctorId || 'dr-mohamed-alkurdi',
+          doctor_id: params.doctorId,
           service_type: visitType,
-          slot_start: slotStartObj.toISOString(),
+          slot_start: slotStartIso,
           payment_method: payMethod === 'card' ? 'card' : payMethod === 'insurance' ? 'insurance' : 'cash',
           insurance_provider: payMethod === 'insurance' ? (insCompany || userProfile.insuranceId) : undefined,
           insurance_member_id: payMethod === 'insurance' ? userProfile.policyNumber : undefined,
+          patient_notes: (params.notes as string) || undefined,
+          visit_location: visitType === 'home' && params.visit_lat && params.visit_lng
+            ? { lat: Number(params.visit_lat), lng: Number(params.visit_lng), address: (params.visit_address as string) || '' }
+            : undefined,
         }),
       });
 
@@ -139,6 +205,7 @@ export default function BookingConfirmScreen() {
         // 3. Create payment intent for Card payment
         const txn = await apiFetch<any>(`/payments/intent/consultation/${appt.id}`, {
           method: 'POST',
+          headers: paymentIntentHeaders('consultation', appt.id),
         });
 
         if (!txn || !txn.id) {
@@ -156,10 +223,21 @@ export default function BookingConfirmScreen() {
             amount: String(txn.amount),
           },
         });
-      } else {
-        // Cash or Insurance auto-confirms
+      } else if (payMethod === 'insurance') {
+        // Insurance never auto-confirms: create the owned request from the server-created appointment.
+        const insuranceRequest = await apiFetch<any>('/insurance/requests', {
+          method: 'POST',
+          body: JSON.stringify({ booking_id: appt.id, booking_kind: 'consultation' }),
+        });
+        if (!insuranceRequest?.id) throw new Error('تعذر إنشاء طلب مراجعة التأمين');
         setLoading(false);
-        const isToday = !params.date || parseInt(params.date as string) === new Date().getDate();
+        router.replace({ pathname: '/insurance/payment-split', params: { request_id: insuranceRequest.id } });
+      } else {
+        // Cash remains subject to the appointment server state and is not an insurance approval.
+        setLoading(false);
+        const apptDate = new Date(slotStartIso);
+        const now = new Date();
+        const isToday = apptDate.toDateString() === now.toDateString();
         router.replace({
           pathname: '/consultations/booking-success',
           params: {
@@ -171,7 +249,7 @@ export default function BookingConfirmScreen() {
       }
     } catch (err: any) {
       setLoading(false);
-      Alert.alert('خطأ', err?.message || 'تعذر تأكيد الحجز. الرجاء المحاولة مرة أخرى.');
+      showLocalizedAlert('خطأ', err?.message || 'تعذر تأكيد الحجز. الرجاء المحاولة مرة أخرى.');
     }
   };
 
@@ -214,11 +292,15 @@ export default function BookingConfirmScreen() {
         {/* Appointment details */}
         <Card>
           <SectionHeader title="تفاصيل الموعد" />
-          {[
-            { icon: 'calendar' as IconName, label: 'التاريخ', value: params.date ? new Date(params.date as string).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'اليوم' },
-            { icon: 'clock' as IconName, label: 'الوقت', value: (params.time as string) || 'غير محدد' },
-            { icon: 'clock' as IconName, label: 'المدة', value: '30 دقيقة' },
-          ].map((item, i) => (
+          {(() => {
+            const slotIso = (params.slot_start as string) || (params.date && params.time ? `${params.date}T${String(params.time).length === 5 ? params.time : '09:00'}:00` : null);
+            const d = slotIso ? new Date(slotIso) : null;
+            return [
+              { icon: 'calendar' as IconName, label: 'التاريخ', value: d ? d.toLocaleDateString(dateLocale(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'غير محدد' },
+              { icon: 'clock' as IconName, label: 'الوقت', value: d ? d.toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : 'غير محدد' },
+              { icon: 'clock' as IconName, label: 'المدة', value: '30 دقيقة' },
+            ];
+          })().map((item, i) => (
             <View key={i} style={[st.detailRow, i > 0 && { borderTopWidth: 1, borderTopColor: colors.borderLight }]}>
               <AppText variant="labelMD" color={colors.textPrimary}>{item.value}</AppText>
               <View style={{ flexDirection: 'row-reverse', gap: 6, alignItems: 'center' }}>
@@ -229,14 +311,24 @@ export default function BookingConfirmScreen() {
           ))}
         </Card>
 
-        {/* Payment method */}
+        {/* Payment method — mirrors backend policy:
+            video → card only · home → card/insurance · clinic → cash/card/insurance */}
         <Card>
           <SectionHeader title="طريقة الدفع" />
-          <SegmentedControl value={payMethod} onChange={(v) => { setPayMethod(v); setShowInsurance(v === 'insurance'); }} options={[
-            { key: 'card', label: 'بطاقة', icon: 'card' },
-            { key: 'wallet', label: 'المحفظة', icon: 'wallet' },
-            { key: 'insurance', label: 'تأمين', icon: 'shield' },
-          ]} />
+          <SegmentedControl value={payMethod} onChange={(v) => { setPayMethod(v); setShowInsurance(v === 'insurance'); }} options={
+            visitType === 'video'
+              ? [{ key: 'card', label: 'بطاقة', icon: 'card' }]
+              : visitType === 'home'
+                ? [
+                    { key: 'card', label: 'بطاقة', icon: 'card' },
+                    { key: 'insurance', label: 'تأمين', icon: 'shield' },
+                  ]
+                : [
+                    { key: 'card', label: 'بطاقة', icon: 'card' },
+                    { key: 'cash', label: 'كاش', icon: 'wallet' },
+                    { key: 'insurance', label: 'تأمين', icon: 'shield' },
+                  ]
+          } />
         </Card>
 
         {/* Insurance details — visible only when insurance selected */}
@@ -250,7 +342,7 @@ export default function BookingConfirmScreen() {
                     <Icon name="check_circle" size={20} color={colors.success} />
                     <View style={{ flex: 1, alignItems: 'flex-end' }}>
                       <AppText variant="h6" color={colors.success}>تأمين مسجّل في ملفك</AppText>
-                      <AppText variant="bodySM" color={colors.textSecondary}>{INSURANCE_COMPANIES.find(c => c.id === userProfile.insuranceId)?.name} — فئة {INSURANCE_CATEGORIES.find(c => c.key === userProfile.categoryKey)?.label}</AppText>
+                      <AppText variant="bodySM" color={colors.textSecondary}>{insCompanies.find(c => c.id === userProfile.insuranceId || c.code === userProfile.insuranceId)?.name_ar || 'تأمين مسجّل'}{userProfile.categoryKey ? ` — فئة ${insCategories.find(c => c.key === userProfile.categoryKey || c.code === userProfile.categoryKey)?.name_ar || userProfile.categoryKey}` : ''}</AppText>
                       <AppText variant="caption" color={colors.textTertiary}>وثيقة: {userProfile.policyNumber}</AppText>
                     </View>
                   </View>
@@ -261,20 +353,24 @@ export default function BookingConfirmScreen() {
               <View style={{ gap: 10 }}>
                 <AppText variant="bodySM" color={colors.textTertiary}>اختر شركة التأمين والفئة. سيتم التحقق عبر NPHIES</AppText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-                  {INSURANCE_COMPANIES.map(company => (
-                    <TouchableOpacity key={company.id} onPress={() => { setInsCompany(company.id); setInsCategory(''); }} style={[st.insChip, { borderColor: insCompany === company.id ? colors.primary : colors.border, backgroundColor: insCompany === company.id ? colors.primarySurface : 'transparent' } ]}>
-                      <AppText variant="labelSM" color={insCompany === company.id ? colors.primary : colors.textSecondary} numberOfLines={1}>{company.name}</AppText>
+                  {insCompanies.map(company => (
+                    <TouchableOpacity key={company.id || company.code} onPress={() => { setInsCompany(company.id || company.code); setInsCategory(''); }} style={[st.insChip, { borderColor: insCompany === (company.id || company.code) ? colors.primary : colors.border, backgroundColor: insCompany === (company.id || company.code) ? colors.primarySurface : 'transparent' } ]}>
+                      <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
+                        {(company.logo_url || company.logo) ? <Image source={{ uri: company.logo_url || company.logo }} style={{ width: 22, height: 22, borderRadius: 4 }} resizeMode="contain" accessibilityLabel={`شعار ${company.name_ar || company.name}`} /> : null}
+                        <AppText variant="labelSM" color={insCompany === (company.id || company.code) ? colors.primary : colors.textSecondary} numberOfLines={1}>{company.name_ar || company.name}</AppText>
+                      </View>
                     </TouchableOpacity>
                   ))}
+                  {insuranceCatalogUnavailable && <AppText variant="caption" color={colors.textTertiary}>كتالوج شركات التأمين غير متاح حالياً. يرجى إعادة المحاولة لاحقاً.</AppText>}
                 </ScrollView>
                 {insCompany !== '' && (
                   <View style={{ gap: 6 }}>
                     <AppText variant="labelMD" color={colors.textPrimary}>اختر الفئة:</AppText>
                     <View style={{ flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6 }}>
-                      {INSURANCE_CATEGORIES.map(cat => (
-                        <TouchableOpacity key={cat.key} onPress={() => setInsCategory(cat.key)} style={[st.catChip, { borderColor: insCategory === cat.key ? colors.primary : colors.border, backgroundColor: insCategory === cat.key ? colors.primarySurface : 'transparent' } ]}>
-                          <AppText variant="labelSM" color={insCategory === cat.key ? colors.primary : colors.textSecondary}>{cat.label}</AppText>
-                          <AppText variant="caption" color={colors.textTertiary}>تحمل {cat.copayPercent}%</AppText>
+                      {insCategories.map(cat => (
+                        <TouchableOpacity key={cat.key || cat.code} onPress={() => setInsCategory(cat.key || cat.code)} style={[st.catChip, { borderColor: insCategory === (cat.key || cat.code) ? colors.primary : colors.border, backgroundColor: insCategory === (cat.key || cat.code) ? colors.primarySurface : 'transparent' } ]}>
+                          <AppText variant="labelSM" color={insCategory === (cat.key || cat.code) ? colors.primary : colors.textSecondary}>{cat.label || cat.name_ar}</AppText>
+                          {cat.copayPercent != null && <AppText variant="caption" color={colors.textTertiary}>تحمل {cat.copayPercent}%</AppText>}
                         </TouchableOpacity>
                       ))}
                     </View>

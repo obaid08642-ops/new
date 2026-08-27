@@ -14,9 +14,11 @@ import { ProviderScoringService } from './provider-scoring.service';
 import { AssignmentStrategyService } from './assignment-strategy.service';
 import { ProviderRequestRepository } from "./repositories/providerrequest.repository";
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
+import { ProviderOperatorRepository } from './repositories/provideroperator.repository';
+import { isProviderRole } from '../../../common/enums';
 
 function assertProvider(user: any) {
-  if (!user || user.role !== 'provider') throw new ForbiddenException('provider scope required');
+  if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
 
@@ -30,6 +32,7 @@ export class ProviderRequestEngineService {
     private readonly scoring: ProviderScoringService,
     private readonly events: EventEmitter2,
     @Inject(forwardRef(() => AssignmentStrategyService)) private readonly assignment: AssignmentStrategyService,
+    @Inject('ProviderOperatorRepository') private readonly operators: ProviderOperatorRepository,
   ) {}
 
   // ---------- LIST ----------
@@ -131,16 +134,36 @@ export class ProviderRequestEngineService {
 
   /** Hospital/Clinic assigns a staff member to a request. */
   async assignStaff(user: any, id: string, body: { staff_id: string; notes?: string }) {
+    if (!body?.staff_id || typeof body.staff_id !== 'string') throw new BadRequestException('staff_id_required');
     const r: any = await this.requests.findOne({ id });
     if (!r) throw new (await import('@nestjs/common')).NotFoundException('request_not_found');
     const acc = (user as any).provider_account_id || (user as any).id;
     if (r.provider_account_id !== acc && (user as any).role !== 'admin' && (user as any).parent_provider_account_id !== acc) {
       throw new (await import('@nestjs/common')).ForbiddenException('not_owner');
     }
-    r.assigned_staff_id = body.staff_id;
-    r.assigned_at = new Date();
-    if (body.notes) r.assignment_notes = body.notes;
+    const staff: any = await this.operators.findOne({
+      id: body.staff_id,
+      provider_account_id: r.provider_account_id,
+      status: 'active',
+    });
+    if (!staff) throw new ForbiddenException('staff_not_in_active_facility_roster');
+    const now = new Date();
+    const previousStaffId = r.assigned_staff_id || null;
+    r.assigned_staff_id = staff.id;
+    r.assigned_staff_name = staff.full_name || staff.email || undefined;
+    r.assigned_at = now;
+    r.assignment_roster_id = staff.id;
+    if (body.notes) r.assignment_notes = String(body.notes).slice(0, 1000);
     await r.save();
+    await this.audit.create({
+      provider_account_id: r.provider_account_id,
+      actor_id: user.id,
+      actor_role: user.role || 'provider',
+      action: 'request.staff_assigned',
+      target: { collection: 'provider_requests', id: r.id },
+      before: { assigned_staff_id: previousStaffId },
+      after: { assigned_staff_id: staff.id, assignment_roster_id: staff.id },
+    });
     return r.toObject();
   }
 

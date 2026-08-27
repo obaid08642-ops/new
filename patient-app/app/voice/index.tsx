@@ -1,12 +1,11 @@
 // @ts-nocheck
 // app/voice/index.tsx
-// ️ المساعد الصوتي — احجز وأطلب بصوتك
-import React, { useState, useRef, useEffect } from "react";
+// المساعد السريع — أوامر جاهزة تنقلك مباشرة للخدمة
+import React from "react";
 import {
   View,
   StyleSheet,
   TouchableOpacity,
-  Animated,
   StatusBar,
   ScrollView,
 } from "react-native";
@@ -15,335 +14,127 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import {
   AppText,
   Card,
-  Badge,
-  Button,
   IconButton,
 } from "../../src/components/ui";
 
-const COMMANDS = [
+const ACTIONS = [
   {
     icon: "calendar",
-    text: "احجز موعد مع طبيب قلب",
-    action: "book_doctor",
+    text: "احجز موعد مع طبيب",
     category: "استشارة",
+    route: "/consultations/doctor-search",
   },
   {
     icon: "medication",
-    text: "اطلب دواءً موصوفاً من الصيدلية",
-    action: "order_medicine",
+    text: "اطلب دواء من الصيدلية",
     category: "صيدلية",
+    route: "/(tabs)/pharmacy",
   },
   {
     icon: "science",
-    text: "احجز تحليل صورة دم",
-    action: "book_lab",
+    text: "احجز تحليل مخبري",
     category: "تحاليل",
-  },
-  {
-    icon: "emergency",
-    text: "اتصل بالإسعاف",
-    action: "emergency",
-    category: "طوارئ",
+    route: "/(tabs)/diagnostics",
   },
   {
     icon: "medication",
     text: "احجز ممرض منزلي",
-    action: "book_nurse",
     category: "تمريض",
+    route: "/(tabs)/nursing",
   },
   {
     icon: "document",
-    text: "ما هي مواعيدي اليوم؟",
-    action: "show_appointments",
+    text: "عرض مواعيدي القادمة",
     category: "مواعيد",
+    route: "/consultations/appointments",
+  },
+  {
+    icon: "emergency",
+    text: "طوارئ — إسعاف",
+    category: "طوارئ",
+    route: "/emergency/sos",
+    danger: true,
   },
 ];
-
-const SUGGESTIONS = [
-  "احجز موعد مع طبيب قلب غداً",
-  "اطلب أدويتي المعتادة",
-  "كم نقطة نبض لدي؟",
-  "أقرب صيدلية مفتوحة",
-  "تذكير دوائي القادم",
-];
-
-type VoiceState = "idle" | "listening" | "processing" | "responded";
 
 export default function VoiceAssistantScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
 
-  const [state, setState] = useState<VoiceState>("idle");
-  const [transcript, setTranscript] = useState("");
-  const [response, setResponse] = useState("");
-  const [history, setHistory] = useState<Array<{ user: string; ai: string }>>(
-    [],
-  );
-
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const wave1 = useRef(new Animated.Value(0.3)).current;
-  const wave2 = useRef(new Animated.Value(0.5)).current;
-  const wave3 = useRef(new Animated.Value(0.7)).current;
-  const wave4 = useRef(new Animated.Value(0.4)).current;
-  const wave5 = useRef(new Animated.Value(0.6)).current;
-
-  useEffect(() => {
-    if (state === "listening") {
-      // Pulse mic button
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.15,
-            duration: 700,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 700,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-      // Wave bars animation
-      const animateWave = (anim: Animated.Value, duration: number) =>
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(anim, {
-              toValue: 1,
-              duration,
-              useNativeDriver: false,
-            }),
-            Animated.timing(anim, {
-              toValue: 0.2,
-              duration,
-              useNativeDriver: false,
-            }),
-          ]),
-        ).start();
-      animateWave(wave1, 400);
-      animateWave(wave2, 300);
-      animateWave(wave3, 500);
-      animateWave(wave4, 350);
-      animateWave(wave5, 450);
-    } else {
-      pulseAnim.stopAnimation();
-      pulseAnim.setValue(1);
-    }
-  }, [state]);
-
-  const handlePress = () => {
-    setState("idle");
-    Alert.alert(
-      "الخدمة غير متاحة حالياً",
-      "لن يحاكي التطبيق التعرف الصوتي أو ينشئ حجزاً أو طلباً أو اتصال طوارئ قبل ربط خدمة صوت وعقود تنفيذ مصادق عليها.",
-    );
-  };
-
-  const useSuggestion = (text: string) => {
-    setTranscript(text);
-    setState("idle");
-    Alert.alert("الخدمة غير متاحة حالياً", "هذه العبارة لا تنفذ أي إجراء حتى يتوفر مسار صوتي موثق.");
-  };
-
-  const waveHeight = (anim: Animated.Value) =>
-    anim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [8, 40],
-    });
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
-      <View style={StyleSheet.absoluteFillObject} />
-      {/* Orbs */}
-      <View style={styles.orb1} />
-      <View style={styles.orb2} />
-
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-          <Icon name="back" size={22} color="#fff" />
-        </TouchableOpacity>
-        <AppText variant="bodySM">المساعد الصوتي ️</AppText>
-        <TouchableOpacity style={styles.hBtn}>
-          <Icon name="settings" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
-        showsVerticalScrollIndicator={false}
+      <LinearGradient
+        colors={["#0B3B60", "#23B5CE"]}
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
       >
-        {/* Conversation history */}
-        {history.length > 0 && (
-          <View style={styles.historySection}>
-            {history.slice(-3).map((item, i) => (
-              <View key={i} style={styles.historyItem}>
-                <View
-                  style={[
-                    styles.aiBubble,
-                    { backgroundColor: "rgba(0,102,204,0.25)" },
-                  ]}
-                >
-                  <AppText variant="bodySM">{item.ai}</AppText>
-                </View>
-                <View
-                  style={[
-                    styles.userBubble,
-                    { backgroundColor: "rgba(255,255,255,0.12)" },
-                  ]}
-                >
-                  <AppText variant="bodySM">️ {item.user}</AppText>
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Main mic area */}
-        <View style={styles.micArea}>
-          {/* Wave visualization */}
-          {state === "listening" && (
-            <View style={styles.waveContainer}>
-              {[wave1, wave2, wave3, wave4, wave5].map((w, i) => (
-                <Animated.View
-                  key={i}
-                  style={[
-                    styles.waveBar,
-                    {
-                      height: waveHeight(w),
-                      backgroundColor:
-                        i === 2 ? "#23B5CE" : "rgba(255,255,255,0.5)",
-                    },
-                  ]}
-                />
-              ))}
-            </View>
-          )}
-
-          {/* Status text */}
-          <AppText variant="bodySM">
-            {state === "idle" && "اضغط للتحدث"}
-            {state === "listening" && "أنا أستمع..."}
-            {state === "processing" && "جاري المعالجة..."}
-            {state === "responded" && ""}
+        <View style={styles.headerRow}>
+          <View style={{ width: 40 }} />
+          <AppText variant="h4" color="#fff">
+            المساعد السريع
           </AppText>
-
-          {/* Transcript */}
-          {transcript && (
-            <View
-              style={[
-                styles.transcriptBox,
-                { backgroundColor: "rgba(255,255,255,0.1)" },
-              ]}
-            >
-              <AppText variant="bodySM">️ {transcript}</AppText>
-            </View>
-          )}
-
-          {/* Response */}
-          {response && (
-            <View
-              style={[
-                styles.responseBox,
-                {
-                  backgroundColor: "rgba(0,102,204,0.3)",
-                  borderColor: "#23B5CE50",
-                },
-              ]}
-            >
-              <AppText variant="bodySM">{response}</AppText>
-              {state === "responded" && (
-                <View style={styles.responseActions}>
-                  <TouchableOpacity
-                    style={[styles.responseBtn, { backgroundColor: "#23B5CE" }]}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row-reverse",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <Icon name="check" size={16} color={colors.primary} />
-                      <AppText variant="bodySM">تأكيد</AppText>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.responseBtn,
-                      { backgroundColor: "rgba(255,255,255,0.15)" },
-                    ]}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row-reverse",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <Icon name="close" size={16} color={colors.primary} />
-                      <AppText variant="bodySM">إلغاء</AppText>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
-
-          {/* Mic Button */}
-          <TouchableOpacity onPress={handlePress} activeOpacity={0.85}>
-            <Animated.View
-              style={[
-                styles.micButton,
-                { transform: [{ scale: pulseAnim }] },
-                state === "listening" && { backgroundColor: "#F0695C" },
-              ]}
-            >
-              {state === "listening" ? (
-                <View style={styles.stopSquare} />
-              ) : state === "processing" ? (
-                <Icon name="refresh" size={32} color="#fff" />
-              ) : (
-                <Icon name="mic" size={36} color="#fff" />
-              )}
-            </Animated.View>
-          </TouchableOpacity>
-
-          {state === "idle" && (
-            <AppText variant="bodySM">أو اختر من الاقتراحات أدناه</AppText>
-          )}
+          <IconButton
+            icon="back"
+            bg="rgba(255,255,255,0.18)"
+            color="#fff"
+            onPress={() => router.back()}
+          />
         </View>
+        <AppText
+          variant="bodySM"
+          color="rgba(255,255,255,0.85)"
+          style={{ textAlign: "center", marginTop: 8, lineHeight: 20 }}
+        >
+          اختر الأمر لتنتقل مباشرة للخدمة. الإدخال الصوتي غير متاح في هذا
+          الإصدار.
+        </AppText>
+      </LinearGradient>
 
-        {/* Quick commands */}
-        <View style={styles.commandsSection}>
-          <AppText variant="bodySM">اقتراحات سريعة</AppText>
-          <View style={styles.commandsGrid}>
-            {COMMANDS.map((cmd, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={() => useSuggestion(cmd.text)}
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 60 }}>
+        {ACTIONS.map((a, i) => (
+          <TouchableOpacity
+            key={i}
+            activeOpacity={0.85}
+            onPress={() => router.push(a.route)}
+          >
+            <Card
+              style={{
+                flexDirection: "row-reverse",
+                alignItems: "center",
+                gap: 14,
+                borderWidth: a.danger ? 1.5 : 0,
+                borderColor: a.danger ? colors.error : "transparent",
+              }}
+            >
+              <View
                 style={[
-                  styles.commandChip,
+                  styles.actionIcon,
                   {
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    borderColor: "rgba(255,255,255,0.2)",
+                    backgroundColor: a.danger
+                      ? colors.errorSurface
+                      : colors.primarySurface,
                   },
                 ]}
               >
-                <AppText variant="bodySM">{cmd.icon}</AppText>
-                <View>
-                  <AppText variant="bodySM">{cmd.text}</AppText>
-                  <AppText variant="bodySM">{cmd.category}</AppText>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+                <Icon
+                  name={a.icon}
+                  size={24}
+                  color={a.danger ? colors.error : colors.primary}
+                />
+              </View>
+              <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
+                <AppText variant="h6">{a.text}</AppText>
+                <AppText variant="caption" color={colors.textTertiary}>
+                  {a.category}
+                </AppText>
+              </View>
+              <Icon name="chevron_left" size={20} color={colors.textTertiary} />
+            </Card>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
     </View>
   );
@@ -351,153 +142,22 @@ export default function VoiceAssistantScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  orb1: {
-    position: "absolute",
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: "rgba(0,102,204,0.08)",
-    top: -80,
-    right: -80,
-  },
-  orb2: {
-    position: "absolute",
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: "rgba(0,201,167,0.06)",
-    bottom: 100,
-    left: -60,
-  },
   header: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+  },
+  headerRow: {
     flexDirection: "row-reverse",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 10,
   },
-  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "800" },
-  hBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 11,
-    backgroundColor: "rgba(255,255,255,0.12)",
+  actionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
-  },
-  historySection: { paddingHorizontal: 20, paddingTop: 10, gap: 8 },
-  historyItem: { gap: 6 },
-  userBubble: {
-    alignSelf: "flex-end",
-    borderRadius: 14,
-    padding: 10,
-    maxWidth: "85%",
-  },
-  aiBubble: {
-    alignSelf: "flex-start",
-    borderRadius: 14,
-    padding: 10,
-    maxWidth: "90%",
-  },
-  bubbleText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "400",
-    textAlign: "right",
-    lineHeight: 18,
-  },
-  micArea: {
-    alignItems: "center",
-    paddingVertical: 30,
-    gap: 16,
-    paddingHorizontal: 24,
-  },
-  waveContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    height: 50,
-  },
-  waveBar: {
-    width: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.6)",
-  },
-  statusText: {
-    color: "rgba(255,255,255,0.75)",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  transcriptBox: { borderRadius: 16, padding: 14, width: "100%" },
-  transcriptText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "700",
-    textAlign: "right",
-    lineHeight: 22,
-  },
-  responseBox: { borderRadius: 16, padding: 14, width: "100%", borderWidth: 1 },
-  responseText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "400",
-    textAlign: "right",
-    lineHeight: 20,
-  },
-  responseActions: { flexDirection: "row-reverse", gap: 8, marginTop: 10 },
-  responseBtn: { borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
-  responseBtnText: { color: "#fff", fontSize: 13, fontWeight: "800" },
-  micButton: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "#23B5CE",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#23B5CE",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 24,
-    elevation: 12,
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.3)",
-  },
-  stopSquare: {
-    width: 24,
-    height: 24,
-    borderRadius: 5,
-    backgroundColor: undefined,
-  },
-  micHint: { color: "rgba(255,255,255,0.45)", fontSize: 12, fontWeight: "400" },
-  commandsSection: { paddingHorizontal: 16, paddingBottom: 30, gap: 10 },
-  commandsTitle: {
-    color: "rgba(255,255,255,0.6)",
-    fontSize: 12,
-    fontWeight: "700",
-    textAlign: "right",
-    paddingHorizontal: 4,
-  },
-  commandsGrid: { gap: 8 },
-  commandChip: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 12,
-  },
-  commandIcon: { fontSize: 24 },
-  commandText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "700",
-    textAlign: "right",
-    flex: 1,
-  },
-  commandCat: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: 10,
-    fontWeight: "400",
-    textAlign: "right",
   },
 });

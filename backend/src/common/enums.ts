@@ -12,6 +12,7 @@ export enum UserRole {
   HOME_CARE = 'home_care',
   NURSING = 'nursing',
   NURSE = 'nurse',
+  AMBULANCE = 'ambulance',
   PHYSIOTHERAPIST = 'physiotherapist',
   ADMIN = 'admin',
   DELIVERY = 'delivery',
@@ -19,6 +20,41 @@ export enum UserRole {
   SUPPORT_AGENT = 'support_agent',
   FINANCE = 'finance',
   PHARMACIST = 'pharmacist',
+}
+
+/**
+ * Roles that represent any service-provider-side account (individual practitioner
+ * or facility staff). Provider apps authenticate with one of these roles — there is
+ * no literal 'provider' value in UserRole, so provider-scope guards must test
+ * membership of this set rather than equality with 'provider'.
+ */
+export const PROVIDER_ROLES: string[] = [
+  UserRole.DOCTOR,
+  UserRole.PHARMACY,
+  UserRole.HOSPITAL,
+  UserRole.HOSPITAL_ADMIN,
+  UserRole.BRANCH_ADMIN,
+  UserRole.RECEPTIONIST,
+  UserRole.LAB,
+  UserRole.RADIOLOGY,
+  UserRole.HOME_CARE,
+  UserRole.NURSING,
+  UserRole.NURSE,
+  UserRole.PHYSIOTHERAPIST,
+  UserRole.DELIVERY,
+  UserRole.PHARMACIST,
+];
+
+/** True when the role belongs to the provider side (admins included for support tooling). */
+export function isProviderRole(role?: string | null): boolean {
+  if (!role) return false;
+  const r = String(role).toLowerCase();
+  return (
+    PROVIDER_ROLES.includes(r) ||
+    r === 'provider' ||
+    r === UserRole.ADMIN ||
+    r === UserRole.SUPER_ADMIN
+  );
 }
 
 export enum ProviderType {
@@ -30,6 +66,7 @@ export enum ProviderType {
   RADIOLOGY = 'radiology',
   HOME_CARE = 'home_care',
   NURSING = 'nursing',
+  AMBULANCE = 'ambulance',
 }
 
 export enum ProviderStatus {
@@ -89,6 +126,7 @@ export enum EmergencyState {
   NEAREST_PROVIDER_IDENTIFIED = 'NEAREST_PROVIDER_IDENTIFIED',
   DISPATCH_INITIATED = 'DISPATCH_INITIATED',
   RESOLVED = 'RESOLVED',
+  CANCELLED = 'CANCELLED',
   CLOSED = 'CLOSED',
 }
 
@@ -243,12 +281,13 @@ export const ORDER_TRANSITIONS: Record<string, any[]> = {
 };
 
 export const EMERGENCY_TRANSITIONS: Record<EmergencyState, EmergencyState[]> = {
-  [EmergencyState.TRIGGERED]: [EmergencyState.LOCATION_CAPTURED, EmergencyState.ADMIN_NOTIFIED],
-  [EmergencyState.LOCATION_CAPTURED]: [EmergencyState.ADMIN_NOTIFIED],
-  [EmergencyState.ADMIN_NOTIFIED]: [EmergencyState.NEAREST_PROVIDER_IDENTIFIED, EmergencyState.RESOLVED],
-  [EmergencyState.NEAREST_PROVIDER_IDENTIFIED]: [EmergencyState.DISPATCH_INITIATED, EmergencyState.RESOLVED],
-  [EmergencyState.DISPATCH_INITIATED]: [EmergencyState.RESOLVED],
+  [EmergencyState.TRIGGERED]: [EmergencyState.LOCATION_CAPTURED, EmergencyState.ADMIN_NOTIFIED, EmergencyState.CANCELLED],
+  [EmergencyState.LOCATION_CAPTURED]: [EmergencyState.ADMIN_NOTIFIED, EmergencyState.CANCELLED],
+  [EmergencyState.ADMIN_NOTIFIED]: [EmergencyState.NEAREST_PROVIDER_IDENTIFIED, EmergencyState.RESOLVED, EmergencyState.CANCELLED],
+  [EmergencyState.NEAREST_PROVIDER_IDENTIFIED]: [EmergencyState.DISPATCH_INITIATED, EmergencyState.RESOLVED, EmergencyState.CANCELLED],
+  [EmergencyState.DISPATCH_INITIATED]: [EmergencyState.RESOLVED, EmergencyState.CANCELLED],
   [EmergencyState.RESOLVED]: [EmergencyState.CLOSED],
+  [EmergencyState.CANCELLED]: [EmergencyState.CLOSED],
   [EmergencyState.CLOSED]: [],
 };
 

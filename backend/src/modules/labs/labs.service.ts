@@ -1,5 +1,5 @@
-// @ts-nocheck
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -9,6 +9,8 @@ import { LabPdfService } from './lab-pdf.service';
 import { LabServiceRepository } from "./repositories/labservice.repository";
 import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
+import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
+import { getEffectiveRoles } from '../../common/auth.guard';
 
 @Injectable()
 export class LabsService {
@@ -16,6 +18,7 @@ export class LabsService {
     @Inject('LabServiceRepository') private readonly svcModel: LabServiceRepository,
     @Inject('LabBookingRepository') private readonly bkgModel: LabBookingRepository,
     @Inject('LabSampleRepository') private readonly sampleModel: LabSampleRepository,
+    @InjectModel(ProviderProfile.name) private readonly providerProfiles: Model<ProviderProfileDocument>,
     private readonly events: EventEmitter2,
     private readonly bus: EventBusService,
     private readonly engine: WorkflowEngineService,
@@ -23,7 +26,7 @@ export class LabsService {
   ) {}
 
   async list(opts: { category?: string; search?: string; home_only?: boolean; packages_only?: boolean; highest_rated?: boolean; nearest?: boolean; lowest_price?: boolean }) {
-    const q: any = { active: true, is_deleted: { $ne: true } };
+    const q: any = { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' };
     if (opts.category) q.category = opts.category;
     if (opts.home_only) q.home_visit_supported = true;
     if (opts.packages_only) q.is_package = true;
@@ -43,7 +46,7 @@ export class LabsService {
 
   async categoryCounts() {
     const agg = await this.svcModel.aggregate([
-      { $match: { active: true, is_deleted: { $ne: true }, is_package: false, category: { $ne: 'imaging' }, sample_type: { $ne: 'imaging' } } },
+      { $match: { active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved', is_package: false, category: { $ne: 'imaging' }, sample_type: { $ne: 'imaging' } } },
       { $group: { _id: '$category', count: { $sum: 1 } } },
       { $project: { _id: 0, slug: '$_id', count: 1 } },
       { $sort: { count: -1 } },
@@ -52,35 +55,32 @@ export class LabsService {
   }
 
   async getById(id: string) {
-    const s = await this.svcModel.findOne({ id, is_deleted: { $ne: true } }, { _id: 0, __v: 0 });
+    const s = await this.svcModel.findOne({ id, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, __v: 0 });
     if (!s) throw new NotFoundException();
     return s;
   }
 
   async compatibleProviders(testIds: string[]) {
-    // In a real system, we'd check which facility provides which test.
-    
-    const facilities = await this.svcModel.db.model('Facility').find(
-      { type: { $in: ['lab', 'hospital'] }, is_active: true },
-      { _id: 0, __v: 0 }
-    ).limit(5).lean();
-
-    // If no real facilities exist, provide fallbacks
-    if (!facilities || facilities.length === 0) {
-      return [];
-    }
-
-    
-    return facilities.map((f: any, i: number) => ({
-      id: f.id,
-      name: f.name_ar || f.name_en,
-      rating: (4.5 + (i * 0.1)).toFixed(1),
-      distance: `${(1.2 + i * 1.5).toFixed(1)} كم`,
-      logo: i % 2 === 0 ? 'hospital-building' : 'flask-outline',
-      priceMultiplier: 1.0 + (i * 0.05),
-      homeVisitAvailable: f.home_visit_enabled || false,
-      time: i === 0 ? '١٢ ساعة' : '٢٤ ساعة',
-      color: i === 0 ? '#1E88E5' : i === 1 ? '#D32F2F' : '#43A047'
+    const ids = [...new Set((testIds || []).filter(Boolean))];
+    if (!ids.length) return [];
+    const services = await this.svcModel.find({ id: { $in: ids }, active: true, is_deleted: { $ne: true }, public_eligibility: true, medical_review_status: 'approved' }, { _id: 0, category: 1 });
+    if (services.length !== ids.length) return [];
+    const categories = [...new Set(services.map((service: any) => service.category).filter(Boolean))];
+    const profiles = await this.providerProfiles.find({
+      type: { $in: ['lab', 'hospital'] },
+      status: 'active',
+      public_eligibility: true,
+      medical_review_status: 'approved',
+      account_id: { $exists: true, $ne: null },
+      ...(categories.length ? { test_categories: { $all: categories } } : {}),
+    }, { _id: 0, account_id: 1, id: 1, name_ar: 1, name_en: 1, home_visit_supported: 1, rating_avg: 1, rating_count: 1, logo: 1 }).limit(50).lean();
+    return profiles.map((profile: any) => ({
+      id: profile.account_id,
+      facility_id: profile.id,
+      name: profile.name_ar || profile.name_en,
+      homeVisitAvailable: Boolean(profile.home_visit_supported),
+      rating: profile.rating_count > 0 ? profile.rating_avg : null,
+      logo: profile.logo || null,
     }));
   }
 
@@ -90,6 +90,9 @@ export class LabsService {
     const services = await this.svcModel.find({ id: { $in: data.items.map((x: any) => x.service_id) } });
     if (!services.length) throw new BadRequestException('no_valid_services');
     const paymentMethod = ['cash', 'card', 'insurance'].includes(data.payment_method) ? data.payment_method : 'cash';
+    // Normalize location_type: schema enum is home|facility — accept clinic aliases
+    if (['in_clinic', 'clinic', 'lab', 'center'].includes(data.location_type)) data.location_type = 'facility';
+    if (!['home', 'facility'].includes(data.location_type)) data.location_type = 'home';
     // Enforce Nabd payment policy
     const svcCtx = data.location_type === 'home' ? 'home_visit' : 'in_clinic';
     const pmAllowed: Record<string, string[]> = {
@@ -130,6 +133,18 @@ export class LabsService {
       if (overlapping >= 3) throw new BadRequestException('slot_taken');
     }
     const items = services.map((s: any) => ({ service_id: s.id, name_ar: s.name_ar, name_en: s.name_en, price: s.price, sample_type: s.sample_type, fasting_required: s.fasting_required }));
+    // S4 duplicate-booking prevention: a retried/double-tapped submit by the same patient
+    // for the same service set within 3 minutes returns the ORIGINAL booking (idempotent)
+    // instead of creating a second one.
+    const dupWindow = new Date(Date.now() - 3 * 60_000);
+    const svcIds = data.items.map((x: any) => x.service_id).sort();
+    const recent = await this.bkgModel.find({
+      patient_id: user.id,
+      createdAt: { $gte: dupWindow },
+      state: { $nin: [LabBookingState.CANCELLED, LabBookingState.REPORTED] },
+    }).lean();
+    const dupe = recent.find((b: any) => JSON.stringify((b.items || []).map((i: any) => i.service_id).sort()) === JSON.stringify(svcIds));
+    if (dupe) return dupe;
     const total = items.reduce((sum, i) => sum + (i.price || 0), 0) + (data.location_type === 'home' ? 25 : 0);
     const insurance_status = paymentMethod === 'insurance' ? 'pending' : 'none';
     const booking = await this.bkgModel.create({
@@ -143,8 +158,8 @@ export class LabsService {
       provider_account_id: data.provider_account_id,
       address: data.address,
       scheduled_at: new Date(data.scheduled_at),
-      state: LabBookingState.CREATED,
-      state_history: [{ from: '', to: LabBookingState.CREATED, by_user_id: user.id, by_role: user.role, at: new Date() }],
+      state: LabBookingState.NEW_REQUEST,
+      state_history: [{ from: '', to: LabBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
       notes: data.notes,
       payment_method: paymentMethod,
       insurance_provider: data.insurance_provider,
@@ -175,7 +190,7 @@ export class LabsService {
   }
 
   async updateInsuranceApproval(id: string, payload: { status?: string; totalCopay?: number; items?: any[] }, user: any) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
 
@@ -252,7 +267,7 @@ export class LabsService {
 
   /** Provider/Admin only — transition lab booking through lifecycle. */
   async transition(id: string, to: LabBookingState, user: any, note?: string) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException('admin/lab only');
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException('admin/lab only');
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     const allowed = LAB_BOOKING_TRANSITIONS[b.state] || [];
@@ -272,7 +287,7 @@ export class LabsService {
 
   /** Provider/Admin list bookings for inbox. */
   async listForProvider(user: any, status?: string) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const q: any = {};
     if (user.role !== 'admin') q.provider_account_id = user.id;
     if (status) q.state = status;
@@ -281,7 +296,7 @@ export class LabsService {
 
   /** Provider: assign technician to a booking. */
   async assignTechnician(id: string, user: any, body: { technician_id?: string; technician_name?: string; notes?: string }) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
@@ -294,11 +309,17 @@ export class LabsService {
 
   /** Provider: upload final report (base64 PDF/image) or JSON structured data. Pushes to reports[] and transitions to REPORTED. */
   async uploadReport(id: string, user: any, body: { name?: string; mime?: string; base64?: string; url?: string; notes?: string; structuredData?: any[] }) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
     if (!body?.base64 && !body?.url && !body?.structuredData) throw new BadRequestException('report_file_required');
+    // State machine: a report can only be uploaded once the sample is in the lab pipeline —
+    // never on a fresh/cancelled booking (resurrecting terminal bookings corrupts the lifecycle).
+    const reportable = [LabBookingState.RESULT_UPLOADED, LabBookingState.REPORTED];
+    if (!reportable.includes(b.state)) {
+      throw new BadRequestException(`invalid_transition_${b.state}_to_REPORTED`);
+    }
     
     let base64Data = body.base64;
     let mimeType = body.mime || 'application/pdf';
@@ -319,14 +340,21 @@ export class LabsService {
       uploaded_at: new Date(),
       uploaded_by: user.id,
     };
-    (b.reports as any[]).push(report);
-    if (b.state !== LabBookingState.REPORTED) {
-      b.state_history.push({ from: b.state, to: LabBookingState.REPORTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'report_uploaded' });
-      b.state = LabBookingState.REPORTED;
-    }
-    await b.save();
-    this.events.emit('lab.report_uploaded', { booking_id: b.id, patient_id: b.patient_id, report_id: report.id, name: report.name });
-    return b.toObject();
+    const persist = async () => {
+      (b.reports as any[]).push(report);
+      if (b.state !== LabBookingState.REPORTED) {
+        b.state_history.push({ from: b.state, to: LabBookingState.REPORTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'report_uploaded' });
+        b.state = LabBookingState.REPORTED;
+      }
+      await b.save();
+      this.events.emit('lab.report_uploaded', { booking_id: b.id, patient_id: b.patient_id, report_id: report.id, name: report.name });
+      return b.toObject();
+    };
+    if (b.state === LabBookingState.REPORTED) return persist();
+    return this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.REPORTED,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'report_uploaded', mutate: persist,
+    });
   }
 
   /** Admin list ALL bookings (any provider). */
@@ -347,83 +375,98 @@ export class LabsService {
   }
 
   async registerSample(user: any, body: { lab_order_id: string; barcode: string; tests: string[]; notes?: string }) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    const providerAccountId = user.provider_account_id;
-    if (user.role !== 'admin' && !providerAccountId) throw new ForbiddenException('provider_context_required');
-    const bookingFilter: any = { id: body.lab_order_id };
-    if (user.role !== 'admin') bookingFilter.provider_account_id = providerAccountId;
-    const b = await this.bkgModel.findOne(bookingFilter);
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
+    const b = await this.bkgModel.findOne({ id: body.lab_order_id });
     if (!b) throw new NotFoundException('lab_order_not_found');
+    this.assertBookingOwner(user, b);
 
     const existing = await this.sampleModel.findOne({ barcode: body.barcode });
     if (existing) throw new BadRequestException('barcode_already_registered');
 
-    const sample = await this.sampleModel.create({
-      id: require('uuid').v4(),
-      lab_order_id: body.lab_order_id,
-      provider_account_id: b.provider_account_id,
-      patient_id: b.patient_id,
-      barcode: body.barcode,
-      tests: body.tests || [],
-      stage: 'received',
-      assigned_to: user.id,
-      notes: body.notes,
-    });
-
-    if (b.state === LabBookingState.CONFIRMED || b.state === LabBookingState.CREATED) {
-      b.state_history.push({ from: b.state, to: LabBookingState.SAMPLE_COLLECTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'sample_registered' });
-      b.state = LabBookingState.SAMPLE_COLLECTED;
-      await b.save();
+    const persist = async () => {
+      const sample = await this.sampleModel.create({
+        id: require('uuid').v4(), lab_order_id: body.lab_order_id, patient_id: b.patient_id,
+        barcode: body.barcode, tests: body.tests || [], stage: 'received', assigned_to: user.id, notes: body.notes,
+      });
+      if (b.state !== LabBookingState.SAMPLE_COLLECTED) {
+        b.state_history.push({ from: b.state, to: LabBookingState.SAMPLE_COLLECTED, by_user_id: user.id, by_role: user.role, at: new Date(), note: 'sample_registered' });
+        b.state = LabBookingState.SAMPLE_COLLECTED;
+        await b.save();
+      }
+      return sample;
+    };
+    if (b.state === LabBookingState.SAMPLE_COLLECTED) return persist();
+    if (![LabBookingState.CONFIRMED, LabBookingState.IN_TRANSIT, LabBookingState.IN_LAB].includes(b.state)) {
+      throw new BadRequestException(`invalid_transition_${b.state}_to_SAMPLE_COLLECTED`);
     }
-
-    return sample;
+    return this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: LabBookingState.SAMPLE_COLLECTED,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'sample_registered', mutate: persist,
+    });
   }
 
   async updateSampleStage(user: any, sampleId: string, stage: 'received' | 'analyzing' | 'result_ready' | 'sent', notes?: string) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    const providerAccountId = user.provider_account_id;
-    if (user.role !== 'admin' && !providerAccountId) throw new ForbiddenException('provider_context_required');
-    const sampleFilter: any = { id: sampleId };
-    if (user.role !== 'admin') sampleFilter.provider_account_id = providerAccountId;
-    const sample = await this.sampleModel.findOne(sampleFilter);
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
+    const sample = await this.sampleModel.findOne({ id: sampleId });
     if (!sample) throw new NotFoundException('sample_not_found');
 
-    const allowedStages: Record<string, string[]> = {
-      received: ['analyzing'],
-      analyzing: ['result_ready'],
-      result_ready: ['sent'],
-      sent: [],
+    const b = await this.bkgModel.findOne({ id: sample.lab_order_id });
+    if (!b) throw new NotFoundException('lab_order_not_found');
+    this.assertBookingOwner(user, b);
+    const allowedSampleStages: Record<string, string[]> = {
+      received: ['analyzing'], analyzing: ['result_ready'], result_ready: ['sent'], sent: [],
     };
-    if (sample.stage !== stage && !allowedStages[sample.stage]?.includes(stage)) {
-      throw new BadRequestException('invalid_sample_stage_transition');
+    if (sample.stage !== stage && !(allowedSampleStages[sample.stage] || []).includes(stage)) {
+      throw new BadRequestException(`invalid_sample_transition_${sample.stage}_to_${stage}`);
     }
-    if (sample.stage === stage) return { ok: true, stage, idempotent: true };
-
-    await this.sampleModel.updateOne(sampleFilter, { $set: { stage, notes } });
-
-    const bookingFilter: any = { id: sample.lab_order_id };
-    if (user.role !== 'admin') bookingFilter.provider_account_id = providerAccountId;
-    const b = await this.bkgModel.findOne(bookingFilter);
-    if (b) {
-      let targetBookingState: LabBookingState | null = null;
-      if (stage === 'analyzing') targetBookingState = LabBookingState.PROCESSING;
-      else if (stage === 'result_ready') targetBookingState = LabBookingState.RESULT_READY;
-
+    const targetBookingState = stage === 'analyzing' ? LabBookingState.PROCESSING
+      : stage === 'result_ready' ? LabBookingState.RESULT_UPLOADED : null;
+    if (stage === 'sent' && b.state !== LabBookingState.REPORTED) throw new BadRequestException('sample_cannot_be_sent_before_reported');
+    const persist = async () => {
+      await this.sampleModel.updateOne({ id: sampleId }, { $set: { stage, notes } });
       if (targetBookingState && b.state !== targetBookingState) {
         b.state_history.push({ from: b.state, to: targetBookingState, by_user_id: user.id, by_role: user.role, at: new Date(), note: `sample_stage_${stage}` });
         b.state = targetBookingState;
         await b.save();
       }
-    }
-
-    return { ok: true, stage };
+      return { ok: true, stage };
+    };
+    if (!targetBookingState || b.state === targetBookingState) return persist();
+    const allowed = (LAB_BOOKING_TRANSITIONS as any)[b.state] || [];
+    if (!allowed.includes(targetBookingState)) throw new BadRequestException(`invalid_transition_${b.state}_to_${targetBookingState}`);
+    return this.engine.apply({
+      kind: 'lab', entity_id: b.id, from_domain: b.state, to_domain: targetBookingState,
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: `sample_stage_${stage}`, mutate: persist,
+    });
   }
 
   async listSamples(user: any) {
-    if (!['admin', 'lab', 'hospital'].includes(user.role)) throw new ForbiddenException();
-    if (user.role === 'admin') return this.sampleModel.find().sort({ createdAt: -1 }).lean();
-    if (!user.provider_account_id) throw new ForbiddenException('provider_context_required');
-    return this.sampleModel.find({ provider_account_id: user.provider_account_id }).sort({ createdAt: -1 }).lean();
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
+    if (getEffectiveRoles(user).includes('admin')) return this.sampleModel.find({}).sort({ createdAt: -1 }).lean();
+    const bookings = await this.bkgModel.find({ provider_account_id: user.id }, { id: 1 }).lean();
+    const bookingIds = bookings.map((booking: any) => booking.id).filter(Boolean);
+    if (!bookingIds.length) return [];
+    return this.sampleModel.find({ lab_order_id: { $in: bookingIds } }).sort({ createdAt: -1 }).lean();
+  }
+
+  private assertAssignedProviderOrAdmin(user: any, booking: any) {
+    if (getEffectiveRoles(user).includes('admin')) return;
+    const providerRoles = ['lab', 'hospital'];
+    if (providerRoles.some(role => getEffectiveRoles(user).includes(role)) && booking.provider_account_id === user.id) return;
+    throw new ForbiddenException('lab_booking_not_owned');
+  }
+
+  private assertPatientOrAssignedProvider(user: any, booking: any) {
+    if (getEffectiveRoles(user).includes('admin')) return;
+    if (booking.patient_id === user.id) return;
+    this.assertAssignedProviderOrAdmin(user, booking);
+  }
+
+  private assertBookingOwner(user: any, booking: any) {
+    if (getEffectiveRoles(user).includes('admin')) return;
+    if (!booking.provider_account_id || booking.provider_account_id !== user.id) {
+      throw new ForbiddenException('lab_booking_not_owned');
+    }
   }
 
   // --- Admin Catalog CRUD ---
@@ -462,6 +505,7 @@ export class LabsService {
   async rescheduleBooking(id: string, user: any, body: any) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
+    this.assertPatientOrAssignedProvider(user, b);
     b.scheduled_at = new Date(body.new_date);
     b.reschedule_reason = body.reason;
     b.state_history.push({ from: b.state, to: b.state, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Rescheduled to ${b.scheduled_at}. Reason: ${body.reason}` });
@@ -472,6 +516,7 @@ export class LabsService {
   async updateGps(id: string, user: any, body: any) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
+    this.assertAssignedProviderOrAdmin(user, b);
     b.gps_location = {
       lat: body.lat || 0,
       lng: body.lng || 0,
@@ -485,6 +530,7 @@ export class LabsService {
   async getTracking(id: string, user: any) {
     const b = await this.bkgModel.findOne({ id }).lean();
     if (!b) throw new NotFoundException('Booking not found');
+    this.assertPatientOrAssignedProvider(user, b);
     
     // Convert history into tracking steps
     const steps = b.state_history.map((h: any) => ({
@@ -505,11 +551,33 @@ export class LabsService {
   async declareEmergency(id: string, user: any, body: any) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException('Booking not found');
+    this.assertPatientOrAssignedProvider(user, b);
+    if ([LabBookingState.REPORTED, LabBookingState.CANCELLED].includes(b.state)) {
+      throw new BadRequestException('booking_already_closed');
+    }
     b.emergency_reason = body.reason;
     // For emergency, we cancel the appointment or mark it for review
     b.state_history.push({ from: b.state, to: LabBookingState.CANCELLED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `Emergency declared: ${body.reason}` });
     b.state = LabBookingState.CANCELLED;
     await b.save();
     return b;
+  }
+
+  /** Provider: cancel current technician assignment and return the booking to the CONFIRMED pool for reassignment. */
+  async reassign(id: string, user: any) {
+    if (!getEffectiveRoles(user).some(role => ['admin', 'lab', 'hospital'].includes(role))) throw new ForbiddenException();
+    const b = await this.bkgModel.findOne({ id });
+    if (!b) throw new NotFoundException('Booking not found');
+    if (user.role !== 'admin' && b.provider_account_id && b.provider_account_id !== user.id) throw new ForbiddenException();
+    if ([LabBookingState.CANCELLED, LabBookingState.REPORTED].includes(b.state)) {
+      throw new BadRequestException('booking_already_closed');
+    }
+    const prevTech = b.technician_id || null;
+    b.technician_id = undefined as any;
+    b.state_history.push({ from: b.state, to: LabBookingState.CONFIRMED, by_user_id: user.id, by_role: user.role, at: new Date(), note: `reassigned: technician ${prevTech || 'none'} unassigned, returned to pool` });
+    b.state = LabBookingState.CONFIRMED;
+    await b.save();
+    this.events.emit('lab.booking_reassigned', { booking_id: b.id, patient_id: b.patient_id, previous_technician_id: prevTech });
+    return b.toObject();
   }
 }

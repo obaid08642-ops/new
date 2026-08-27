@@ -1,26 +1,40 @@
 // @ts-nocheck
-// app/insurance/network-providers.tsx
-import React, { useState } from "react";
+// app/insurance/network-providers.tsx — مزودو شبكة تأمين المريض (بيانات حقيقية)
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
   FlatList,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  Linking,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
-import {
-  AppText,
-  Card,
-  Badge,
-  Button,
-  IconButton,
-} from "../../src/components/ui";
+import { AppText } from "../../src/components/ui";
+import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
 
-// Network Providers DB Connected
+const PROVIDER_TYPES = [
+  { id: "all", label: "الكل", icon: "apps" },
+  { id: "doctor", label: "أطباء", icon: "doctor" },
+  { id: "hospital", label: "مستشفيات", icon: "hospital" },
+  { id: "pharmacy", label: "صيدليات", icon: "pill" },
+  { id: "lab", label: "مختبرات", icon: "microscope" },
+];
+
+const TYPE_LABELS: any = {
+  doctor: "طبيب",
+  hospital: "مستشفى",
+  clinic: "عيادة",
+  pharmacy: "صيدلية",
+  lab: "مختبر",
+  radiology: "أشعة",
+  home_care: "رعاية منزلية",
+};
 
 export default function NetworkProvidersScreen() {
   const insets = useSafeAreaInsets();
@@ -28,11 +42,38 @@ export default function NetworkProvidersScreen() {
 
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [insurance, setInsurance] = useState<any>(null);
 
-  const filtered = PROVIDERS.filter(
+  useEffect(() => {
+    (async () => {
+      try {
+        const profile = await apiFetch("/users/me/profile").catch(() => null);
+        const ins = profile?.insurance || null;
+        setInsurance(ins);
+        if (!ins?.provider) {
+          setProviders([]);
+          return;
+        }
+        const qs = new URLSearchParams();
+        qs.set("insurance_company", ins.company_id || ins.provider);
+        if (ins.network) qs.set("insurance_network", ins.network);
+        if (ins.class) qs.set("insurance_class", ins.class);
+        const res = await apiFetch(`/providers?${qs.toString()}`).catch(() => []);
+        setProviders(Array.isArray(res) ? res : res?.data || []);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const filtered = providers.filter(
     (p) =>
       (filter === "all" || p.type === filter) &&
-      (!query || p.name.includes(query)),
+      (!query ||
+        String(p.name_ar || p.name_en || "").includes(query) ||
+        String(p.city || "").includes(query)),
   );
 
   return (
@@ -46,10 +87,8 @@ export default function NetworkProvidersScreen() {
           },
         ]}
       >
-        <TouchableOpacity onPress={() => router.push("/map")}>
-          <Icon name="map" size={22} color={colors.primary} />
-        </TouchableOpacity>
-        <AppText variant="bodySM">مزودو الشبكة</AppText>
+        <View style={{ width: 36 }} />
+        <AppText variant="bodySM" style={{ fontWeight: "800" }}>مزودو الشبكة</AppText>
         <TouchableOpacity onPress={() => router.back()}>
           <Icon name="back" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
@@ -118,138 +157,123 @@ export default function NetworkProvidersScreen() {
         })}
       </View>
 
-      <FlatList
-        data={filtered}
-        keyExtractor={(p) => p.id}
-        contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 80 }}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => {
-          const iconName =
-            item.type === "pharmacy"
-              ? "pill"
-              : item.type === "lab"
-                ? "microscope"
-                : "hospital";
-          return (
-            <View
-              style={[
-                styles.providerCard,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  borderWidth: 1,
-                },
-              ]}
-            >
-              <View style={styles.providerTop}>
-                <View style={styles.providerMeta}>
-                  <View
-                    style={[
-                      styles.classBadge,
-                      {
-                        backgroundColor:
-                          item.class === "A" ? "#DCFCE7" : "#FEF3C7",
-                      },
-                    ]}
-                  >
-                    <AppText
-                      variant="labelSM"
-                      color={item.class === "A" ? "#16A34A" : "#D97706"}
-                    >
-                      فئة {item.class}
-                    </AppText>
-                  </View>
-                  <View style={styles.providerActions}>
-                    <TouchableOpacity
-                      style={[styles.callBtn, { backgroundColor: "#E6FAF7" }]}
-                    >
-                      <Icon name="call" size={15} color="#00977D" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.callBtn, { backgroundColor: "#EBF3FF" }]}
-                    >
-                      <Icon name="navigate" size={15} color={colors.primary} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                <View style={styles.providerInfo}>
-                  <AppText variant="h6" color={colors.textPrimary}>
-                    {item.name}
-                  </AppText>
-                  <View style={styles.providerSpecRow}>
-                    {(item.specialty || []).slice(0, 3).map((s, i) => (
-                      <View
-                        key={i}
-                        style={[
-                          styles.specTag,
-                          { backgroundColor: colors.surfaceSecondary },
-                        ]}
-                      >
-                        <AppText variant="caption" color={colors.textSecondary}>
-                          {s}
-                        </AppText>
-                      </View>
-                    ))}
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row-reverse",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <Icon name="location" size={16} color={colors.primary} />
-                    <AppText variant="caption" color={colors.textTertiary}>
-                      {item.distance} كم
-                    </AppText>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 14,
-                    backgroundColor: colors.primarySurface,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Icon
-                    name={iconName as any}
-                    size={20}
-                    color={colors.primary}
-                  />
-                </View>
-              </View>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(p) => String(p.id)}
+          contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 80 }}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={{ alignItems: "center", paddingVertical: 48, gap: 10 }}>
+              <Icon name="info" size={40} color={colors.textTertiary} />
+              <AppText variant="bodySM" color={colors.textSecondary} style={{ textAlign: "center" }}>
+                {insurance?.provider
+                  ? "لا يوجد مزودون متعاقدون مطابقون لشبكتك حاليًا"
+                  : "أضف بوليصة تأمين أولاً لعرض مزودي شبكتك"}
+              </AppText>
+              {!insurance?.provider && (
+                <TouchableOpacity onPress={() => router.push("/insurance/add-policy")}>
+                  <AppText variant="bodySM" color={colors.primary}>إضافة بوليصة</AppText>
+                </TouchableOpacity>
+              )}
+            </View>
+          }
+          renderItem={({ item }) => {
+            const iconName =
+              item.type === "pharmacy"
+                ? "pill"
+                : item.type === "lab"
+                  ? "microscope"
+                  : item.type === "doctor"
+                    ? "doctor"
+                    : "hospital";
+            return (
               <View
                 style={[
-                  styles.insuranceRow,
-                  { borderTopColor: colors.borderLight },
+                  styles.providerCard,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                    borderWidth: 1,
+                  },
                 ]}
               >
-                <AppText variant="labelSM" color={colors.textTertiary}>
-                  يقبل:{" "}
-                </AppText>
-                <View style={styles.acceptedTags}>
-                  {item.accepted.map((ins, i) => (
+                <View style={styles.providerTop}>
+                  <View style={styles.providerMeta}>
                     <View
-                      key={i}
                       style={[
-                        styles.insTag,
-                        { backgroundColor: colors.primarySurface },
+                        styles.classBadge,
+                        { backgroundColor: colors.surfaceSecondary },
                       ]}
                     >
-                      <AppText variant="labelSM" color={colors.primary}>
-                        {ins}
+                      <AppText variant="labelSM" color={colors.textSecondary}>
+                        {TYPE_LABELS[item.type] || item.type}
                       </AppText>
                     </View>
-                  ))}
+                    {!!item.phone && (
+                      <TouchableOpacity
+                        style={[styles.callBtn, { backgroundColor: "#E6FAF7" }]}
+                        onPress={() => Linking.openURL(`tel:${item.phone}`)}
+                      >
+                        <Icon name="call" size={15} color="#00977D" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <View style={styles.providerInfo}>
+                    <AppText variant="h6" color={colors.textPrimary}>
+                      {pickLocalized(item.name_ar, item.name_en)}
+                    </AppText>
+                    <View style={styles.providerSpecRow}>
+                      {(item.specialties || item.specialty
+                        ? Array.isArray(item.specialties)
+                          ? item.specialties
+                          : [item.specialty]
+                        : []
+                      ).slice(0, 3).map((s: string, i: number) => (
+                        <View
+                          key={i}
+                          style={[
+                            styles.specTag,
+                            { backgroundColor: colors.surfaceSecondary },
+                          ]}
+                        >
+                          <AppText variant="caption" color={colors.textSecondary}>
+                            {s}
+                          </AppText>
+                        </View>
+                      ))}
+                    </View>
+                    {!!item.city && (
+                      <View
+                        style={{
+                          flexDirection: "row-reverse",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <Icon name="location" size={14} color={colors.textTertiary} />
+                        <AppText variant="caption" color={colors.textTertiary}>
+                          {item.city}
+                        </AppText>
+                      </View>
+                    )}
+                  </View>
+                  <View
+                    style={[
+                      styles.providerIcon,
+                      { backgroundColor: colors.primarySurface },
+                    ]}
+                  >
+                    <Icon name={iconName} size={22} color={colors.primary} />
+                  </View>
                 </View>
               </View>
-            </View>
-          );
-        }}
-      />
+            );
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -260,80 +284,62 @@ const styles = StyleSheet.create({
     flexDirection: "row-reverse",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
-  title: { fontSize: 17, fontWeight: "800" } as any,
   searchRow: { paddingHorizontal: 16, paddingBottom: 10 },
   searchBox: {
     flexDirection: "row-reverse",
     alignItems: "center",
-    gap: 8,
     borderRadius: 12,
     borderWidth: 1,
-    height: 42,
+    height: 44,
     paddingHorizontal: 12,
+    gap: 8,
   },
-  searchInput: { flex: 1, fontSize: 13, fontWeight: "400" },
+  searchInput: { flex: 1, fontSize: 14 },
   filterRow: {
     flexDirection: "row-reverse",
-    paddingHorizontal: 12,
-    paddingBottom: 10,
-    gap: 6,
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexWrap: "wrap",
   },
   filterChip: {
     flexDirection: "row-reverse",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
     borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: "rgba(0,0,0,0.06)",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
   },
-  filterIcon: { fontSize: 13 } as any,
-  filter: { fontSize: 11, fontWeight: "700" } as any,
-  providerCard: {
-    borderRadius: 18,
-    padding: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
+  providerCard: { borderRadius: 16, padding: 14 },
   providerTop: {
     flexDirection: "row-reverse",
     alignItems: "flex-start",
-    gap: 10,
-    marginBottom: 10,
+    gap: 12,
   },
-  providerEmoji: { fontSize: 28 } as any,
-  providerInfo: { flex: 1, alignItems: "flex-end", gap: 6 },
-  providerName: { fontSize: 14, fontWeight: "800" } as any,
-  providerSpecRow: { flexDirection: "row-reverse", gap: 4 },
-  specTag: { borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
-  spec: { fontSize: 10, fontWeight: "400" } as any,
-  providerDist: { fontSize: 11, fontWeight: "400" } as any,
-  providerMeta: { alignItems: "center", gap: 6 },
-  providerActions: { gap: 6 },
-  callBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
+  providerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
   },
-  classBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  class: { fontSize: 10, fontWeight: "800" } as any,
-  insuranceRow: {
+  providerInfo: { flex: 1, alignItems: "flex-end", gap: 6 },
+  providerMeta: { alignItems: "center", gap: 8 },
+  providerSpecRow: {
     flexDirection: "row-reverse",
-    alignItems: "center",
-    borderTopWidth: 1,
-    paddingTop: 10,
+    flexWrap: "wrap",
     gap: 6,
   },
-  acceptsLabel: { fontSize: 11, fontWeight: "400" } as any,
-  acceptedTags: { flexDirection: "row-reverse", flexWrap: "wrap", gap: 4 },
-  insTag: { borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
-  insTagAlt: { fontSize: 10, fontWeight: "700" } as any,
+  specTag: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+  classBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
+  callBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

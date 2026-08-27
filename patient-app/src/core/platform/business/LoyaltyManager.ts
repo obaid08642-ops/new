@@ -1,5 +1,5 @@
 import { logger } from '../../../services/Logger';
-import { Loyalty, Wallet } from '../../domain/entities';
+import { Loyalty } from '../../domain/entities';
 
 export class LoyaltyManager {
   private log = logger.scope('LoyaltyManager');
@@ -11,17 +11,6 @@ export class LoyaltyManager {
       userId,
       points: 0,
       tier: 'bronze',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }
-
-  public async getWalletBalance(userId: string): Promise<Wallet> {
-    return {
-      id: 'wal-123',
-      userId,
-      balance: { amount: 0, currency: 'SAR' },
-      lastUpdated: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

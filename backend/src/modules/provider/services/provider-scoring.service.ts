@@ -5,9 +5,10 @@ import { ProviderRequest, ProviderRequestStatus } from '../schemas/requests.sche
 import { ProviderScoreSnapshotRepository } from "./repositories/providerscoresnapshot.repository";
 import { ProviderRequestRepository } from "./repositories/providerrequest.repository";
 import { ProviderAssignmentAttemptRepository } from "./repositories/providerassignmentattempt.repository";
+import { isProviderRole } from '../../../common/enums';
 
 function assertProvider(user: any) {
-  if (!user || user.role !== 'provider') throw new ForbiddenException('provider scope required');
+  if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
 

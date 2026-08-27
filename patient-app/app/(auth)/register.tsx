@@ -1,16 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
@@ -23,21 +13,23 @@ import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { STORAGE_KEYS } from '../../src/constants';
 import { decodeJwt } from '../../src/utils/jwt';
+import { createRegistrationTransaction } from '../../src/services/auth/RegistrationTransaction';
 
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const AuthField = ({ label, icon, placeholder, value, onChangeText, isPass, isDark, isRTL, focusedInput, setFocusedInput, showPassword, setShowPassword }: any) => (
   <View style={styles.inputWrapper}>
-    <Text style={[styles.inputLabel, { color: resolveColor('var(--t3)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>{label}</Text>
+    <LocalizedText style={[styles.inputLabel, { color: resolveColor('var(--t3)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>{label}</LocalizedText>
     <View style={[
       styles.inputContainer, 
       { backgroundColor: resolveColor('var(--s)', isDark), flexDirection: isRTL ? 'row-reverse' : 'row', borderColor: focusedInput === label ? resolveColor('var(--p)', isDark) : resolveColor('var(--bd)', isDark) } ]}>
-      <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: resolveColor('var(--t3)', isDark), marginHorizontal: 10 }}>{icon}</Text>
+      <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: resolveColor('var(--t3)', isDark), marginHorizontal: 10 }}>{icon}</LocalizedText>
       <TextInput 
         style={[styles.input, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' }]}
         placeholder={placeholder}
@@ -51,9 +43,9 @@ const AuthField = ({ label, icon, placeholder, value, onChangeText, isPass, isDa
       />
       {isPass && (
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 10 }}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 18, color: resolveColor('var(--t3)', isDark) }}>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 18, color: resolveColor('var(--t3)', isDark) }}>
             {showPassword ? 'visibility_off' : 'visibility'}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       )}
     </View>
@@ -64,7 +56,7 @@ export default function RegisterScreen() {
   const { isDark, lang } = useApp() as any;
   const insets = useSafeAreaInsets();
   
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const isRTL = lang === 'ar' || lang === 'ur' || true; // Force RTL
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', confirmPw: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -122,16 +114,18 @@ export default function RegisterScreen() {
         method: 'POST',
         body: JSON.stringify({ provider, token }),
       });
-      const jwtToken = res?.token ?? res?.access_token;
-      if (!jwtToken) throw new Error('لم يُرجع خادم المصادقة رمز جلسة صالحاً');
-      const decoded = decodeJwt(jwtToken);
-      if (!decoded?.id || decoded.role !== 'patient') {
-        throw new Error('هذا الحساب غير مصرح له باستخدام تطبيق المريض');
-      }
+      // M1: real session only — no dummy token fallback
+      const jwtToken = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
+      if (!jwtToken) throw new Error('لم يستلم التطبيق جلسة صالحة من الخادم');
       try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       
-      router.replace('/(tabs)');
+      const decoded = decodeJwt(jwtToken);
+      if (decoded?.role !== 'patient') {
+        router.replace('/(auth)/provider-info' as any);
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (err: any) {
       setErrorMessage(err.message || `فشل التسجيل بواسطة ${provider}`);
     } finally {
@@ -174,19 +168,22 @@ export default function RegisterScreen() {
     try {
       await apiFetch('/auth/send-otp', {
         method: 'POST',
-        body: JSON.stringify({ email: form.email.trim().toLowerCase() }),
+        body: JSON.stringify({ email: form.email.trim().toLowerCase(), purpose: 'register' }),
       });
       setLoading(false);
       // Forcing +966 for real backend
       const fullPhone = form.phone.startsWith('+') ? form.phone : `+966${form.phone.replace(/^0+/, '')}`;
+      const registrationTransactionId = createRegistrationTransaction({
+        fullName: form.name,
+        phone: fullPhone,
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      });
       router.push({
         pathname: '/(auth)/otp',
         params: {
-          phone: fullPhone,
-          email: form.email.trim().toLowerCase(),
+          transactionId: registrationTransactionId,
           mode: 'register',
-          full_name: form.name,
-          password: form.password,
         },
       });
     } catch (err: any) {
@@ -215,18 +212,18 @@ export default function RegisterScreen() {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingTop: insets.top + 20, paddingBottom: 120, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: resolveColor('var(--s)', isDark), borderColor: resolveColor('var(--bd)', isDark) } ]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
             {isRTL ? 'arrow_forward' : 'arrow_back'}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
 
-        <Text style={[styles.title, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>إنشاء حساب</Text>
-        <Text style={[styles.subtitle, { color: resolveColor('var(--t2)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>انضم لنبض بلس وابدأ رحلتك الصحية</Text>
+        <LocalizedText style={[styles.title, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>إنشاء حساب</LocalizedText>
+        <LocalizedText style={[styles.subtitle, { color: resolveColor('var(--t2)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>انضم لنبض بلس وابدأ رحلتك الصحية</LocalizedText>
 
         <AuthField 
           label={'الاسم الكامل'} 
           icon="person" 
-          placeholder={'أدخل اسمك الكامل'}
+          placeholder={'أحمد السالم'} 
           value={form.name} 
           onChangeText={(t: string) => setForm({...form, name: t})} 
           isDark={isDark} isRTL={isRTL} focusedInput={focusedInput} setFocusedInput={setFocusedInput}
@@ -234,7 +231,7 @@ export default function RegisterScreen() {
         
         <AuthField 
           label={'رقم الهاتف'} 
-          icon="smartphone" 
+          icon="mobile" 
           placeholder={'0500000000'} 
           value={form.phone} 
           onChangeText={(t: string) => setForm({...form, phone: t.replace(/\D/g, '')})} 
@@ -273,17 +270,17 @@ export default function RegisterScreen() {
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', marginVertical: 6, marginBottom: 24 }}>
           <TouchableOpacity onPress={() => setAgreed(!agreed)} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', flexShrink: 0 }} activeOpacity={0.8}>
             <View style={{ width: 20, height: 20, borderRadius: 6, backgroundColor: agreed ? resolveColor('var(--p)', isDark) : 'transparent', borderWidth: agreed ? 0 : 1.5, borderColor: resolveColor('var(--bd)', isDark), alignItems: 'center', justifyContent: 'center', marginLeft: isRTL ? 8 : 0, marginRight: isRTL ? 8 : 0 }}>
-              {agreed && <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 14, color: '#fff' }}>check</Text>}
+              {agreed && <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 14, color: '#fff' }}>check</LocalizedText>}
             </View>
           </TouchableOpacity>
-          <Text style={{ fontSize: 11, color: resolveColor('var(--t2)', isDark), lineHeight: 18, textAlign: isRTL ? 'right' : 'left', flex: 1, fontWeight: '600' }}>
-            أوافق على <Text onPress={() => router.push('/(auth)/terms')} style={{ color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>الشروط والأحكام</Text> و<Text onPress={() => router.push('/(auth)/privacy')} style={{ color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>سياسة الخصوصية</Text>
-          </Text>
+          <LocalizedText style={{ fontSize: 11, color: resolveColor('var(--t2)', isDark), lineHeight: 18, textAlign: isRTL ? 'right' : 'left', flex: 1, fontWeight: '600' }}>
+            أوافق على <LocalizedText onPress={() => router.push('/(auth)/terms')} style={{ color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>الشروط والأحكام</LocalizedText> و<LocalizedText onPress={() => router.push('/(auth)/privacy')} style={{ color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>سياسة الخصوصية</LocalizedText>
+          </LocalizedText>
         </View>
 
         {errorMessage && (
           <View style={{ backgroundColor: '#FEE2E2', padding: 12, borderRadius: 12, marginBottom: 16 }}>
-            <Text style={{ color: '#EF4444', textAlign: 'right', fontWeight: '700', fontSize: 13 }}>{errorMessage}</Text>
+            <LocalizedText style={{ color: '#EF4444', textAlign: 'right', fontWeight: '700', fontSize: 13 }}>{errorMessage}</LocalizedText>
           </View>
         )}
 
@@ -293,12 +290,12 @@ export default function RegisterScreen() {
           style={[styles.primaryBtn, { backgroundColor: resolveColor('var(--p)', isDark), shadowColor: resolveColor('var(--p)', isDark), opacity: loading ? 0.7 : 1 }]} 
           activeOpacity={0.8}
         >
-          <Text style={styles.primaryBtnText}>{loading ? 'جاري الإرسال...' : 'إنشاء الحساب'}</Text>
+          <LocalizedText style={styles.primaryBtnText}>{loading ? 'جاري الإرسال...' : 'إنشاء الحساب'}</LocalizedText>
         </TouchableOpacity>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 24 }}>
           <View style={{ flex: 1, height: 1, backgroundColor: resolveColor('var(--bd)', isDark) }}/>
-          <Text style={{ fontSize: 10, color: resolveColor('var(--t3)', isDark), marginHorizontal: 12, fontWeight: '800' }}>أو التسجيل بواسطة</Text>
+          <LocalizedText style={{ fontSize: 10, color: resolveColor('var(--t3)', isDark), marginHorizontal: 12, fontWeight: '800' }}>أو التسجيل بواسطة</LocalizedText>
           <View style={{ flex: 1, height: 1, backgroundColor: resolveColor('var(--bd)', isDark) }}/>
         </View>
 
@@ -327,9 +324,9 @@ export default function RegisterScreen() {
         </View>
 
         <View style={{ flexDirection: 'row-reverse', justifyContent: 'center', marginTop: 32 }}>
-          <Text style={{ fontSize: 13, color: resolveColor('var(--t2)', isDark), fontWeight: '700' }}>لديك حساب بالفعل؟ </Text>
+          <LocalizedText style={{ fontSize: 13, color: resolveColor('var(--t2)', isDark), fontWeight: '700' }}>لديك حساب بالفعل؟ </LocalizedText>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <Text style={{ fontSize: 13, color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>تسجيل الدخول</Text>
+            <LocalizedText style={{ fontSize: 13, color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>تسجيل الدخول</LocalizedText>
           </TouchableOpacity>
         </View>
 

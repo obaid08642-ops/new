@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, ForbiddenException, NotFoundException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ProviderRequest, ProviderRequestStatus, ProviderAvailability, ProviderAvailabilityStatus } from '../schemas/requests.schema';
@@ -7,9 +6,10 @@ import { ProviderRequestRepository } from "./repositories/providerrequest.reposi
 import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
+import { isProviderRole } from '../../../common/enums';
 
 function assertProvider(user: any) {
-  if (!user || user.role !== 'provider') throw new ForbiddenException('provider scope required');
+  if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
 
@@ -65,9 +65,9 @@ export class ProviderDashboardService {
 
   async getAvailability(user: any) {
     assertProvider(user);
-    let a = await this.avails.findOne({ account_id: user.id });
+    let a = await this.avails.findOne({ provider_account_id: user.id });
     if (!a) {
-      a = await this.avails.create({ account_id: user.id, status: ProviderAvailabilityStatus.OFFLINE });
+      a = await this.avails.create({ provider_account_id: user.id, status: ProviderAvailabilityStatus.OFFLINE });
     }
     return { status: a.status, last_online_at: a.last_online_at, last_offline_at: a.last_offline_at, note: a.note };
   }
@@ -78,7 +78,7 @@ export class ProviderDashboardService {
       throw new NotFoundException('invalid availability status');
     }
     const a = await this.avails.findOneAndUpdate(
-      { account_id: user.id },
+      { provider_account_id: user.id },
       {
         $set: {
           status: body.status,

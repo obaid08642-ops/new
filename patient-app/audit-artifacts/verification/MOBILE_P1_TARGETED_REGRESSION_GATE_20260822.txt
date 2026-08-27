@@ -1,0 +1,185 @@
+MOBILE_P1_TARGETED_REGRESSION_GATE_20260822
+
+=== src/utils/api.security.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/utils/api.security.test.ts
+
+  console.warn
+    [apiFetch] Auth error for endpoint: /patient-only
+
+      103 |     // Handle missing/invalid token or auth error
+      104 |     if (errorMsg.toLowerCase().includes('missing token') || response.status === 401 || response.status === 403) {
+    > 105 |       console.warn(`[apiFetch] Auth error for endpoint: ${endpoint}`);
+          |               ^
+      106 |       try { await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN); } catch {}
+      107 |       await clearLegacyTokenMirror();
+      108 |       throw new Error(`AUTH_ERROR_${response.status}: ${errorMsg}`);
+
+      at warn (src/utils/api.ts:105:15)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+
+PASS src/utils/api.security.test.ts
+  apiFetch security contract
+    ✓ never reads an authorization token from the legacy AsyncStorage mirror (5 ms)
+    ✓ raises a typed contract error when a successful HTTP response is not JSON (2 ms)
+    ✓ does not create or retry as a guest session after an authentication error (26 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.624 s, estimated 1 s
+Ran all test suites matching /src\/utils\/api.security.test.ts/i.
+
+=== src/utils/security.storage.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/utils/security.storage.test.ts
+
+  console.warn
+    An error occurred while requiring the 'ExpoModulesCoreJSLogger' module: Cannot read properties of undefined (reading 'get')
+
+      at warn (node_modules/expo-modules-core/src/requireNativeModule.ts:46:13)
+      at Object.<anonymous> (node_modules/expo-modules-core/src/sweet/setUpJsLogger.fx.ts:14:53)
+      at Object.require (node_modules/expo-modules-core/src/index.ts:2:1)
+      at node_modules/jest-expo/src/preset/setup.js:234:32
+      at Object.require (node_modules/expo/src/winter/fetch/ExpoFetchModule.ts:1:1)
+      at Object.require (node_modules/expo/src/winter/fetch/fetch.ts:1:1)
+      at Object.require (node_modules/expo/src/winter/fetch/index.ts:1:1)
+      at require (node_modules/expo/src/winter/runtime.native.ts:52:26)
+      at getValue (node_modules/expo/src/winter/installGlobal.ts:102:21)
+      at Object.get [as fetch] (node_modules/expo/src/winter/installGlobal.ts:44:16)
+          at Array.forEach (<anonymous>)
+
+PASS src/utils/security.storage.test.ts
+  native secure storage contract
+    ✓ fails closed and never writes a native secret to AsyncStorage (3 ms)
+    ✓ fails closed and never reads a native secret from AsyncStorage (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.586 s, estimated 1 s
+Ran all test suites matching /src\/utils\/security.storage.test.ts/i.
+
+=== src/services/auth/RegistrationTransaction.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/services/auth/RegistrationTransaction.test.ts
+
+PASS src/services/auth/RegistrationTransaction.test.ts
+  RegistrationTransaction
+    ✓ keeps credentials outside navigation state and consumes them exactly once (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.582 s, estimated 1 s
+Ran all test suites matching /src\/services\/auth\/RegistrationTransaction.test.ts/i.
+
+=== src/services/HttpClient.offline.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/services/HttpClient.offline.test.ts
+
+PASS src/services/HttpClient.offline.test.ts
+  HttpClient offline mutation contract
+    ✓ rejects a network-failed mutation without retry, queue, or synthetic success (2 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.595 s, estimated 1 s
+Ran all test suites matching /src\/services\/HttpClient.offline.test.ts/i.
+
+=== src/services/SyncManager.offline.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/services/SyncManager.offline.test.ts
+
+PASS src/services/SyncManager.offline.test.ts
+  SyncManager offline mutation safety
+    ✓ refuses to persist or replay a mutation until the live idempotency contract exists (4 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.58 s, estimated 1 s
+Ran all test suites matching /src\/services\/SyncManager.offline.test.ts/i.
+
+=== src/store/persistence/SecureStorageAdapter.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/store/persistence/SecureStorageAdapter.test.ts
+
+PASS src/store/persistence/SecureStorageAdapter.test.ts
+  secureStorageAdapter
+    ✓ fails closed and does not write when SecureStore cannot supply the encryption key (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.663 s, estimated 1 s
+Ran all test suites matching /src\/store\/persistence\/SecureStorageAdapter.test.ts/i.
+
+=== utils/api.security.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand utils/api.security.test.ts
+
+PASS src/utils/api.security.test.ts
+  ● Console
+
+    console.warn
+      [apiFetch] Auth error for endpoint: /patient-only
+
+      103 |     // Handle missing/invalid token or auth error
+      104 |     if (errorMsg.toLowerCase().includes('missing token') || response.status === 401 || response.status === 403) {
+    > 105 |       console.warn(`[apiFetch] Auth error for endpoint: ${endpoint}`);
+          |               ^
+      106 |       try { await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN); } catch {}
+      107 |       await clearLegacyTokenMirror();
+      108 |       throw new Error(`AUTH_ERROR_${response.status}: ${errorMsg}`);
+
+      at warn (src/utils/api.ts:105:15)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+
+PASS utils/api.security.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        0.81 s, estimated 1 s
+Ran all test suites matching /utils\/api.security.test.ts/i.
+
+=== src/utils/offlineQueue.security.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand src/utils/offlineQueue.security.test.ts
+
+PASS src/utils/offlineQueue.security.test.ts
+  offline message queue safety
+    ✓ purges legacy data and rejects a message instead of persisting its content (4 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.579 s, estimated 1 s
+Ran all test suites matching /src\/utils\/offlineQueue.security.test.ts/i.
+
+=== app/authGuestPolicy.test.ts ===
+
+> nabdah-plus@1.0.0 test
+> jest --runInBand app/authGuestPolicy.test.ts
+
+PASS app/authGuestPolicy.test.ts
+  guest authentication policy
+    ✓ does not invoke the legacy guest endpoint or restore guest sessions from app entry points (7 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.577 s, estimated 1 s
+Ran all test suites matching /app\/authGuestPolicy.test.ts/i.

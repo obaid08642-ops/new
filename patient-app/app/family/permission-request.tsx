@@ -1,11 +1,13 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon, IconName } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 // Connected to GET /family/permissions/pending
 
 export default function PermissionRequestScreen() {
@@ -46,13 +48,16 @@ export default function PermissionRequestScreen() {
   const submitResponse = async (decision: 'approved' | 'rejected') => {
     try {
       if (requestInfo) {
+        const granted = permissions.filter(p => p.granted).map(p => p.key);
         await apiFetch(`/family/permissions/respond/${requestInfo._id || requestInfo.id}`, {
           method: 'PUT',
-          body: JSON.stringify({ decision, note: '' })
+          body: JSON.stringify({ decision, note: '', permissions: decision === 'approved' ? granted : [] })
         });
       }
     } catch (e) {
       console.error(e);
+      showLocalizedAlert('خطأ', 'تعذر إرسال الرد. حاول مرة أخرى.');
+      return;
     }
     setResponded(true);
     setTimeout(() => router.back(), 1500);
@@ -97,7 +102,7 @@ export default function PermissionRequestScreen() {
               </View>
               <View style={{ flex: 1, alignItems: 'flex-end', gap: 3 }}>
                 <AppText variant="h5">{requestInfo.requester_name || 'عضو من العائلة'}</AppText>
-                <AppText variant="caption" color={colors.textTertiary}>{requestInfo.createdAt ? new Date(requestInfo.createdAt).toLocaleDateString('ar-SA') : 'اليوم'}</AppText>
+                <AppText variant="caption" color={colors.textTertiary}>{requestInfo.createdAt ? new Date(requestInfo.createdAt).toLocaleDateString(dateLocale()) : 'اليوم'}</AppText>
               </View>
               <Badge label="طلب جديد" color={colors.warning} />
             </Card>

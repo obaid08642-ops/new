@@ -1,15 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
@@ -17,6 +8,10 @@ import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
 import { router as expRouter, useLocalSearchParams as expSearchParams } from 'expo-router';
 import { useSocket } from '../../src/context/SocketContext';
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ChatWithDoctorScreen() {
   const { doctorId } = expSearchParams();
@@ -27,33 +22,64 @@ export default function ChatWithDoctorScreen() {
 
   const { socket, onlineUsers, typingUsers, sendTyping, joinThread, leaveThread, isConnected } = useSocket();
 
+  // Real presence: is the doctor's user id currently online? (onlineUsers is a map: userId → bool)
+  const docOnline = !!(docData && onlineUsers && onlineUsers[docData.user_id || docData.account_id]);
+
   const [loading, setLoading] = useState(true);
   const [docData, setDocData] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [msg, setMsg] = useState('');
 
-  const threadId = doctorId ? `doc_${doctorId}` : '';
+  // M1-32: real chat contract — a direct thread fetched/created via POST /chat/threads/direct
+  const [threadId, setThreadId] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
     if (doctorId) {
+      // 1) Resolve the doctor profile first — the chat thread needs the doctor's
+      //    USER id (provider_profile.user_id), not the profile id.
       apiFetch(`/care/doctors/${doctorId}`)
-        .then((res: any) => { setDocData(res?.data || res); setLoading(false); })
-        .catch(() => { setDocData(null); setLoading(false); });
-      
-      apiFetch(`/chat/history/${doctorId}`)
-        .then((res: any) => setMessages(res?.data || []))
-        .catch(() => setMessages([]));
-        
-      if (threadId) {
-        joinThread(threadId);
-      }
+        .then((res: any) => {
+          const doc = res?.data || res;
+          if (cancelled) return null;
+          setDocData(doc);
+          setLoading(false);
+          const doctorUserId = doc?.user_id || doc?.account_id;
+          if (!doctorUserId) return null;
+
+          // 2) Get-or-create the direct thread with this doctor's user id
+          return apiFetch(`/chat/threads/direct`, { method: 'POST', body: JSON.stringify({ other_user_id: doctorUserId }) })
+            .then((tres: any) => {
+              const thread = tres?.data || tres;
+              const tid = thread?.id || thread?.thread_id;
+              if (!tid || cancelled) return null;
+              setThreadId(tid);
+              joinThread(tid);
+              return apiFetch(`/chat/threads/${tid}/messages`).then((mres: any) => ({ mres, doctorUserId }));
+            });
+        })
+        .then((out: any) => {
+          if (!out || cancelled) return;
+          const { mres, doctorUserId } = out;
+          if (mres) {
+            const list = mres?.data || mres || [];
+            setMessages(Array.isArray(list) ? list.map((m: any) => ({
+              id: m.id || m._id,
+              sender: m.sender_id === doctorUserId ? 'doc' : 'me',
+              text: m.body || m.content || m.text || '',
+              time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '',
+            })) : []);
+          }
+        })
+        .catch(() => { if (!cancelled) { setDocData(null); setLoading(false); } });
     } else {
       setDocData(null);
       setMessages([]);
       setLoading(false);
     }
-    
+
     return () => {
+      cancelled = true;
       if (threadId) leaveThread(threadId);
     };
   }, [doctorId, isConnected]);
@@ -63,7 +89,13 @@ export default function ChatWithDoctorScreen() {
     
     const handleNewMessage = (newMsg: any) => {
       if (newMsg.thread_id === threadId) {
-        setMessages(prev => [...prev, { id: newMsg.id, sender: 'doc', text: newMsg.content, time: 'الآن' }]);
+        const mine = newMsg.sender_id !== undefined && docData && newMsg.sender_id !== (docData.user_id || docData.account_id);
+        setMessages(prev => [...prev, {
+          id: newMsg.id || String(Date.now()),
+          sender: mine ? 'me' : 'doc',
+          text: newMsg.body || newMsg.content || '',
+          time: new Date().toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }),
+        }]);
       }
     };
     
@@ -78,13 +110,24 @@ export default function ChatWithDoctorScreen() {
     if (threadId) sendTyping(threadId);
   };
 
-  const send = () => {
-    if (!msg.trim()) return;
-    const newMsg = { id: Date.now(), sender: 'me', text: msg, time: 'الآن' };
-    setMessages([...messages, newMsg]);
+  const send = async () => {
+    const text = msg.trim();
+    if (!text) return;
+    if (!threadId) {
+      showLocalizedAlert('تعذر الإرسال', 'قناة المحادثة غير جاهزة بعد. حاول بعد لحظات.');
+      return;
+    }
+    const tempId = `tmp-${Date.now()}`;
+    const newMsg = { id: tempId, sender: 'me', text, time: new Date().toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }), pending: true };
+    setMessages(prev => [...prev, newMsg]);
     setMsg('');
-    if (doctorId) {
-      apiFetch(`/chat/send`, { method: 'POST', body: JSON.stringify({ doctorId, text: newMsg.text }) }).catch(() => {});
+    try {
+      await apiFetch(`/chat/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ body: text, type: 'text', client_message_id: tempId }) });
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, pending: false } : m));
+    } catch {
+      // Honest failure — mark the message as failed instead of pretending it sent
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, pending: false, failed: true } : m));
+      showLocalizedAlert('فشل إرسال الرسالة', 'لم تصل رسالتك. تحقق من اتصالك ثم أعد المحاولة.');
     }
   };
 
@@ -98,45 +141,42 @@ export default function ChatWithDoctorScreen() {
       <View style={[styles.header, { backgroundColor: colors.s, borderBottomColor: colors.bd, paddingTop: insets.top + 8 } ]}>
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingBottom: 8 }}>
           <TouchableOpacity onPress={() => expRouter.back()} style={styles.iconBtn}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 22 }}>arrow_forward</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 22 }}>arrow_forward</LocalizedText>
           </TouchableOpacity>
           <View style={{ position: 'relative' }}>
             <View style={[styles.docImgPlaceholder, { backgroundColor: resolveColor('var(--ps)') } ]}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 24 }}>person</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 24 }}>person</LocalizedText>
             </View>
-            <View style={[styles.onlineDot, { backgroundColor: resolveColor('var(--gr)'), borderColor: colors.s }]} />
+            {docOnline && (
+              <View style={[styles.onlineDot, { backgroundColor: resolveColor('var(--gr)'), borderColor: colors.s }]} />
+            )}
           </View>
           <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.n }}>{docData?.name}</Text>
-            <Text style={{ fontSize: 9, color: resolveColor('var(--gr)') }}>متصل الآن</Text>
+            <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n }}>{pickLocalized(docData?.name_ar, docData?.name_en) || docData?.name || ''}</LocalizedText>
+            <LocalizedText style={{ fontSize: 9, color: docOnline ? resolveColor('var(--gr)') : colors.t3 }}>{docOnline ? 'متصل الآن' : (docData?.specialty || '')}</LocalizedText>
           </View>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: resolveColor('var(--ps)') }]} onPress={() => expRouter.push('/consultations/video-call')}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>call</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: resolveColor('var(--ps)') }]} onPress={() => expRouter.push('/consultations/video-call')}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>videocam</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.chatArea}>
-        <Text style={{ textAlign: 'center', fontSize: 9, color: colors.t3, marginVertical: 4 }}>اليوم</Text>
 
         {messages.map((m: any) => m.sender === 'doc' ? (
           <View key={m.id} style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, marginBottom: 12 }}>
             <View style={[styles.chatAvatar, { backgroundColor: resolveColor('var(--ps)') } ]}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>person</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 20 }}>person</LocalizedText>
             </View>
             <View style={[styles.docBubble, { backgroundColor: colors.s, borderColor: colors.bd, borderTopLeftRadius: isRTL ? 4 : 14, borderTopRightRadius: isRTL ? 14 : 4 } ]}>
-              <Text style={{ fontSize: 12, color: colors.n, lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</Text>
-              <Text style={{ fontSize: 8, color: colors.t3, textAlign: isRTL ? 'left' : 'right', marginTop: 4 }}>{m.time}</Text>
+              <LocalizedText style={{ fontSize: 12, color: colors.n, lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</LocalizedText>
+              <LocalizedText style={{ fontSize: 8, color: colors.t3, textAlign: isRTL ? 'left' : 'right', marginTop: 4 }}>{m.time}</LocalizedText>
             </View>
           </View>
         ) : (
-          <View key={m.id} style={{ flexDirection: isRTL ? 'row' : 'row-reverse', marginBottom: 12 }}>
-            <View style={[styles.myBubble, { backgroundColor: resolveColor('var(--p)'), borderTopRightRadius: isRTL ? 4 : 14, borderTopLeftRadius: isRTL ? 14 : 4 } ]}>
-              <Text style={{ fontSize: 12, color: '#fff', lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</Text>
-              <Text style={{ fontSize: 8, color: 'rgba(255,255,255,0.7)', textAlign: isRTL ? 'right' : 'left', marginTop: 4 }}>{m.time}</Text>
+          <View key={m.id} style={{ flexDirection: isRTL ? 'row' : 'row-reverse', marginBottom: 12, opacity: m.pending ? 0.6 : 1 }}>
+            <View style={[styles.myBubble, { backgroundColor: m.failed ? '#B91C1C' : resolveColor('var(--p)'), borderTopRightRadius: isRTL ? 4 : 14, borderTopLeftRadius: isRTL ? 14 : 4 } ]}>
+              <LocalizedText style={{ fontSize: 12, color: '#fff', lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>{m.text}</LocalizedText>
+              <LocalizedText style={{ fontSize: 8, color: 'rgba(255,255,255,0.7)', textAlign: isRTL ? 'right' : 'left', marginTop: 4 }}>
+                {m.failed ? 'فشل الإرسال' : m.pending ? 'جاري الإرسال...' : m.time}
+              </LocalizedText>
             </View>
           </View>
         ))}
@@ -144,10 +184,7 @@ export default function ChatWithDoctorScreen() {
 
       {/* Input */}
       <View style={[styles.inputArea, { backgroundColor: colors.s, borderTopColor: colors.bd, paddingBottom: Math.max(insets.bottom, 12) } ]}>
-        <TouchableOpacity style={styles.attachBtn}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: resolveColor('var(--p)'), fontSize: 22 }}>add_circle</Text>
-        </TouchableOpacity>
-        <TextInput 
+        <TextInput
           style={[styles.input, { backgroundColor: colors.bg, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
           placeholder="اكتب رسالة..."
           placeholderTextColor={colors.t3}
@@ -156,7 +193,7 @@ export default function ChatWithDoctorScreen() {
           onSubmitEditing={send}
         />
         <TouchableOpacity style={[styles.micBtn, { backgroundColor: resolveColor('var(--p)') }]} onPress={send}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 21 }}>{msg ? 'send' : 'mic'}</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 21 }}>{msg ? 'send' : 'mic'}</LocalizedText>
         </TouchableOpacity>
       </View>
     </View>

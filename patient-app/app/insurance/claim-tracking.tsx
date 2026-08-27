@@ -27,7 +27,7 @@ export default function ClaimTrackingScreen() {
   React.useEffect(() => {
     async function fetchClaims() {
       try {
-        const res = await apiFetch('/api/v1/insurance/claims/my');
+        const res = await apiFetch('/insurance/claims/my');
         if (Array.isArray(res)) setClaims(res);
         else if (res?.data) setClaims(res.data);
       } catch (e) {
@@ -105,7 +105,7 @@ export default function ClaimTrackingScreen() {
               {item.status === 'rejected' && (item as any).rejectionReason && (
                 <View style={[styles.rejectionNote, { backgroundColor: '#FEE2E2' } ]}>
                   <View style={{flexDirection:'row-reverse',alignItems:'center',gap:6}}><Icon name="error" size={16} color={colors.primary} /><AppText variant="bodySM">سبب الرفض: {(item as any).rejectionReason}</AppText></View>
-                  <TouchableOpacity><AppText variant="bodySM">تقديم اعتراض</AppText></TouchableOpacity>
+                  <TouchableOpacity onPress={() => router.push('/support/chat')}><AppText variant="bodySM" color={colors.primary}>تقديم اعتراض عبر الدعم</AppText></TouchableOpacity>
                 </View>
               )}
               {item.status === 'approved' && (

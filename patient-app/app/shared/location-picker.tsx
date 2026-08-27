@@ -6,15 +6,15 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  TextInput,
   ScrollView,
   Keyboard,
   Platform,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import MapView, { Marker, PROVIDER_DEFAULT, Region } from "react-native-maps";
+import MapView, { Marker, PROVIDER_DEFAULT, Region } from '../../src/components/MapPrimitives';
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
@@ -23,6 +23,8 @@ import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
 import { AppText } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { setSelectedAddress } from "../../src/utils/selectedAddress";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 // ── Types ──────────────────────────────────────────────────────
 interface SavedAddress {
@@ -96,7 +98,7 @@ export default function LocationPickerScreen() {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("الإذن مرفوض", "يرجى السماح بالوصول للموقع من الإعدادات.");
+        showLocalizedAlert("الإذن مرفوض", "يرجى السماح بالوصول للموقع من الإعدادات.");
         return;
       }
       const loc = await Location.getCurrentPositionAsync({
@@ -128,7 +130,7 @@ export default function LocationPickerScreen() {
 
       setMode("map");
     } catch {
-      Alert.alert("خطأ", "تعذّر الحصول على موقعك الحالي.");
+      showLocalizedAlert("خطأ", "تعذّر الحصول على موقعك الحالي.");
     } finally {
       setLocating(false);
     }
@@ -169,19 +171,25 @@ export default function LocationPickerScreen() {
         method: "POST",
         body: JSON.stringify(payload),
       });
-      // Go back with address data
+      // Persist the newly saved address as the effective selection
+      if (saved && saved.id) {
+        await setSelectedAddress(saved);
+      } else {
+        await setSelectedAddress({ ...payload, id: (saved && saved.id) || `local-${Date.now()}` });
+      }
       router.back();
-    } catch {
-      // Optimistic — go back anyway
-      router.back();
+    } catch (e) {
+      // Honest failure — do NOT pretend the address was saved
+      showLocalizedAlert("تعذّر حفظ العنوان", "حدث خطأ أثناء حفظ العنوان. تحقق من اتصالك وحاول مرة أخرى.");
     } finally {
       setSaving(false);
     }
   }, [newAddr, pin]);
 
   // ── Confirm a saved address ───────────────────────────────────
-  const handleConfirmSaved = useCallback(() => {
+  const handleConfirmSaved = useCallback(async () => {
     if (!selectedAddress) return;
+    await setSelectedAddress(selectedAddress);
     router.back();
   }, [selectedAddress]);
 

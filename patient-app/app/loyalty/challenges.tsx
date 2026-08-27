@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, StatusBar, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +8,8 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 // Challenges will be loaded from API
 export default function LoyaltyChallengesScreen() {
@@ -29,10 +31,10 @@ export default function LoyaltyChallengesScreen() {
       const list = Array.isArray(res) ? res : res?.data || [];
       setChallenges(list);
 
-      // Mark joined automatically if they have progress
+      // Joined state comes from the server (persisted progress record)
       const joined: Record<string, boolean> = {};
       list.forEach((c: any) => {
-        if (c.user_progress > 0 || c.completed) {
+        if (c.joined || c.user_progress > 0 || c.completed) {
           joined[c.id] = true;
         }
       });
@@ -45,8 +47,14 @@ export default function LoyaltyChallengesScreen() {
     }
   };
 
-  const joinChallenge = (id: string) => {
-    setJoinedList(prev => ({ ...prev, [id]: true }));
+  const joinChallenge = async (id: string) => {
+    try {
+      await apiFetch(`/loyalty/challenges/${id}/join`, { method: 'POST' });
+      setJoinedList(prev => ({ ...prev, [id]: true }));
+    } catch (err) {
+      console.error(err);
+      showLocalizedAlert('خطأ', 'تعذر الانضمام إلى التحدي، حاول لاحقاً');
+    }
   };
 
   if (loading) {
@@ -105,7 +113,7 @@ export default function LoyaltyChallengesScreen() {
               <View style={styles.challengeHeader}>
                 <View style={styles.challengeLeft}>
                   <View style={[styles.rewardBadge, { backgroundColor: color + '20' } ]}>
-                    <AppText variant="bodySM" style={[styles.rewardPts, { color } ]}>+{item.reward_points}</AppText>
+                    <AppText variant="bodySM" style={[styles.rewardPts, { color } ]}>+{item.reward_points} </AppText>
                   </View>
                   {joined ? (
                     <View style={[styles.statusBadge, { backgroundColor: item.completed ? '#DCFCE7' : '#EBF3FF' } ]}>
@@ -127,7 +135,7 @@ export default function LoyaltyChallengesScreen() {
                     <AppText variant="bodySM" style={styles.challengeTitle}>{item.title}</AppText>
                     <AppText variant="bodySM" style={styles.challengeDesc}>{item.desc}</AppText>
                     <AppText variant="bodySM" style={[styles.challengeEnd, { color: colors.textTertiary } ]}>
-                      ينتهي {item.end_date ? new Date(item.end_date).toLocaleDateString('ar-SA') : '30 يونيو'}
+                      ينتهي {item.end_date ? new Date(item.end_date).toLocaleDateString(dateLocale()) : '30 يونيو'}
                     </AppText>
                   </View>
                 </View>

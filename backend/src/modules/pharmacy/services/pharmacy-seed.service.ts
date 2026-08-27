@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, ForbiddenException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,6 +11,7 @@ import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventor
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
+import { ProviderType, ProviderAccountStatus } from '../../provider/provider.enums';
 
 function assertAdmin(u: any) { if (!u || u.role !== 'admin') throw new ForbiddenException('admin_required'); }
 
@@ -25,9 +25,16 @@ export class PharmacySeedService {
     @Inject('ProviderAvailabilityRepository') private avails: ProviderAvailabilityRepository,
   ) {}
 
+  private assertTestSeedAllowed() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      throw new ForbiddenException('test_seed_only');
+    }
+  }
+
   /** Idempotent seed: 2 extra approved pharmacy providers with overlapping inventory so split engine has work to do. */
   async seed(user: any) {
     assertAdmin(user);
+    this.assertTestSeedAllowed();
     const created: any[] = [];
     const pharmacies = [
       {
@@ -58,16 +65,15 @@ export class PharmacySeedService {
     for (const p of pharmacies) {
       let acc = await this.accounts.findOne({ email: p.email });
       if (!acc) {
-        const hash = await bcrypt.hash('Pharm@123456', 8);
+        const hash = await bcrypt.hash('Pharm@123456', 12);
         acc = await this.accounts.create({
           id: uuidv4(),
           email: p.email,
           phone_e164: `+9665${Math.floor(10000000 + Math.random() * 89999999)}`,
           password_hash: hash,
-          role: 'provider',
-          provider_type: 'pharmacy',
+          provider_type: ProviderType.PHARMACY,
           email_verified: true,
-          status: 'approved',
+          status: ProviderAccountStatus.APPROVED,
         });
       }
       let prof = await this.profiles.findOne({ account_id: acc.id });
@@ -75,17 +81,15 @@ export class PharmacySeedService {
         prof = await this.profiles.create({
           id: uuidv4(),
           account_id: acc.id,
-          provider_type: 'pharmacy',
+          provider_type: ProviderType.PHARMACY,
           business_name: p.business_name,
           legal_name: p.business_name,
-          status: 'approved',
           address: { country: 'SA', city: 'الرياض', district: p.district },
           geo: { ...p.geo, service_radius_km: 15 },
         });
       } else {
         (prof as any).business_name = p.business_name;
         (prof as any).geo = { ...p.geo, service_radius_km: 15 };
-        (prof as any).status = 'approved';
         await prof.save();
       }
       await this.avails.findOneAndUpdate(
@@ -108,6 +112,7 @@ export class PharmacySeedService {
 
   /** Create a realistic sample patient order for split-engine testing. */
   async seedSampleOrder(patient_account_id: string) {
+    this.assertTestSeedAllowed();
     const sample = await this.orders.create({
       id: uuidv4(),
       patient_account_id,

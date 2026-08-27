@@ -1,6 +1,7 @@
 import { SyncManager } from './SyncManager';
 import * as TaskManager from 'expo-task-manager';
 import * as BackgroundFetch from 'expo-background-fetch';
+import Constants from 'expo-constants';
 
 const SYNC_BACKGROUND_TASK = 'SYNC_BACKGROUND_TASK';
 
@@ -19,6 +20,11 @@ export class BackgroundSynchronizer {
    * Registers a background task with the OS to periodically wake up the app and flush the queue.
    */
   async registerBackgroundFetch(): Promise<void> {
+    // Background fetch requires a development/production build — not available in Expo Go
+    if (Constants.appOwnership === 'expo') {
+      console.log('[BackgroundSynchronizer] Skipping background fetch registration in Expo Go');
+      return;
+    }
     console.log('[BackgroundSynchronizer] Registering OS background fetch task');
     
     // Register the background fetch task

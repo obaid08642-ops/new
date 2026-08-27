@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { MedicalProfile } from '../../schemas/medical-profile.schema';
 import { MedicalProfileRepository } from "./repositories/medicalprofile.repository";
@@ -27,12 +28,13 @@ export class MedicalProfileService {
     return p.toObject();
   }
 
-  // Provider-side view (future: with role check)
+  // Provider-side view is intentionally closed until an explicit, audited consent
+  // and active-care-relationship contract exists. Looking up a profile by ID was
+  // otherwise a direct BOLA disclosure of sensitive medical data.
   async getForPatient(user: any, patientId: string) {
-    // FUTURE: enforce that `user` has active consultation/order with patientId
-    const p = await this.model.findOne({ patient_id: patientId }, { _id: 0, __v: 0 });
-    if (!p) throw new NotFoundException();
-    return p;
+    void user;
+    void patientId;
+    throw new ForbiddenException('Provider medical-profile access requires an approved consent contract.');
   }
 
   // Item-level helpers for chronic_diseases / allergies / surgeries / long_term_medications

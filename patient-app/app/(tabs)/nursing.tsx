@@ -1,17 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  ImageBackground,
-  Modal,
-  TouchableWithoutFeedback
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Dimensions, ImageBackground, Modal, TouchableWithoutFeedback, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useApp } from '../../src/context/AppContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +8,8 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Rect, Line, Defs, Stop, LinearGradient as SvgGradient } from 'react-native-svg';
 import { apiFetch } from '../../src/utils/api';
+import { pickLocalized, pickDbField } from '../../src/utils/localize';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 const { width } = Dimensions.get('window');
 
@@ -51,8 +42,14 @@ export default function NursingDirectoryHub() {
   const [dbPackages, setDbPackages] = useState<any[]>([]);
 
   useEffect(() => {
-    apiFetch('/home-care/services').then(setDbServices).catch(console.error);
-    apiFetch('/home-care/packages').then(setDbPackages).catch(console.error);
+    apiFetch('/home-care/services')
+      .then((rows: any) => setDbServices((Array.isArray(rows) ? rows : []).map((s: any) => ({
+        ...s,
+        title: pickDbField(s, 'name') || s.name_ar || s.name_en || s.title,
+        image: s.image_url || s.image || null,
+      }))))
+      .catch(console.error);
+    apiFetch('/home-care/packages').then((r: any) => setDbPackages(Array.isArray(r) ? r : (r?.data || []))).catch(console.error);
   }, []);
 
   const getIcon = (id: string) => {
@@ -75,8 +72,9 @@ export default function NursingDirectoryHub() {
     }
   };
 
-  const getPackageImage = (id: string) => {
-    return id.includes('icu') ? 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500' : 'https://images.unsplash.com/photo-1514415008039-38779659cdbf?w=500';
+  const getPackageImage = (id: string, pkg?: any) => {
+    // E2: only real images from the catalog — never stock photos
+    return pkg?.image || pkg?.image_url || null;
   };
 
   const applyFiltersAndSearch = () => {
@@ -96,11 +94,19 @@ export default function NursingDirectoryHub() {
     });
   };
 
+  // Card tap → service PROFILE (image + full description + احجز الآن)
+  const navToServiceInfo = (id: string) => {
+    router.push({
+      pathname: '/nursing/service-info',
+      params: { serviceId: id, flow: paymentFlow, gender, availability, nationality, search }
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={StyleSheet.absoluteFillObject} />
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingTop: 20 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]} showsVerticalScrollIndicator={false}>
         
         {/* PREMIUM SEARCH BAR */}
         <View style={styles.searchRow}>
@@ -124,41 +130,58 @@ export default function NursingDirectoryHub() {
         <View style={styles.toggleRow}>
           <TouchableOpacity activeOpacity={0.8} style={styles.toggleBtnWrap} onPress={() => setPaymentFlow('insurance')}>
             <View
-              style={[styles.toggleBtn, paymentFlow === 'insurance' && styles.toggleShadowBlue, { borderColor: colors.surface } ]}>
+              style={[styles.toggleBtn, paymentFlow === 'insurance' && styles.toggleActiveBlue, { borderColor: colors.surface } ]}>
               <Icons.Insurance active={paymentFlow === 'insurance'} />
-              <Text style={[styles.toggleText, paymentFlow === 'insurance' && styles.toggleTextActive]} >تأمين طبي</Text>
+              <LocalizedText style={[styles.toggleText, paymentFlow === 'insurance' && styles.toggleTextActive]} >تأمين طبي</LocalizedText>
             </View>
           </TouchableOpacity>
           <View style={{ width: 12 }}/>
           <TouchableOpacity activeOpacity={0.8} style={styles.toggleBtnWrap} onPress={() => setPaymentFlow('cash')}>
             <View
-              style={[styles.toggleBtn, paymentFlow === 'cash' && styles.toggleShadowGreen, { borderColor: colors.surface } ]}>
+              style={[styles.toggleBtn, paymentFlow === 'cash' && styles.toggleActiveGreen, { borderColor: colors.surface } ]}>
               <Icons.Cash active={paymentFlow === 'cash'} />
-              <Text style={[styles.toggleText, paymentFlow === 'cash' && styles.toggleTextActive]} >بدون تأمين / نقدي</Text>
+              <LocalizedText style={[styles.toggleText, paymentFlow === 'cash' && styles.toggleTextActive]} >بدون تأمين / نقدي</LocalizedText>
             </View>
           </TouchableOpacity>
         </View>
 
         {/* CONTINUOUS CARE PACKAGES */}
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary } ]}>باقات الرعاية المستمرة</Text>
+          <LocalizedText style={[styles.sectionTitle, { color: colors.textPrimary } ]}>باقات الرعاية المستمرة</LocalizedText>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.packagesScroll}>
-          {dbPackages.map((pkg) => (
-            <TouchableOpacity key={pkg.id} activeOpacity={0.9} onPress={() => navToService(pkg.id, pkg.title)}>
-              <ImageBackground source={{ uri: getPackageImage(pkg.id) }} style={styles.packageCard} imageStyle={{ borderRadius: 24 }}>
+          {dbPackages.map((pkg) => {
+            const pkgImg = getPackageImage(pkg.id, pkg);
+            return (
+            <TouchableOpacity key={pkg.id} activeOpacity={0.9} onPress={() => navToService(pkg.id, pickLocalized(pkg.name_ar, pkg.title))}>
+              {pkgImg ? (
+              <ImageBackground source={{ uri: pkgImg }} style={styles.packageCard} imageStyle={{ borderRadius: 24 }}>
                 <BlurView intensity={80} tint="dark" style={styles.packageBlur}>
-                  <Text style={styles.packageTitle}>{pkg.title}</Text>
-                  <Text style={styles.packageDesc}>{pkg.type === 'monthly' ? 'باقة شهرية' : 'باقة أسبوعية'}</Text>
+                  <LocalizedText style={styles.packageTitle}>{pickLocalized(pkg.name_ar, pkg.title)}</LocalizedText>
+                  <LocalizedText style={styles.packageDesc}>{pkg.type === 'monthly' ? 'باقة شهرية' : pkg.type === 'weekly' ? 'باقة أسبوعية' : (pkg.duration || 'خدمة رعاية')}</LocalizedText>
                 </BlurView>
               </ImageBackground>
+              ) : (
+              <View style={[styles.packageCard, { borderRadius: 24, overflow: 'hidden', backgroundColor: '#0D9488' }]}>
+                <View style={[styles.packageBlur, { backgroundColor: 'transparent', justifyContent: 'center', padding: 16 }]}>
+                  <LocalizedText style={styles.packageTitle}>{pickLocalized(pkg.name_ar, pkg.title)}</LocalizedText>
+                  <LocalizedText style={styles.packageDesc}>{pkg.type === 'monthly' ? 'باقة شهرية' : pkg.type === 'weekly' ? 'باقة أسبوعية' : (pkg.duration || 'خدمة رعاية')}</LocalizedText>
+                </View>
+              </View>
+              )}
             </TouchableOpacity>
-          ))}
+            );
+          })}
+          {dbPackages.length === 0 && (
+            <View style={{ paddingVertical: 24, paddingHorizontal: 32, alignItems: 'center' }}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>لا توجد باقات متاحة حالياً — تابعنا قريباً</LocalizedText>
+            </View>
+          )}
         </ScrollView>
 
         {/* SERVICES GRID */}
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary } ]}>الرعاية الأساسية والمتقدمة</Text>
+          <LocalizedText style={[styles.sectionTitle, { color: colors.textPrimary } ]}>الرعاية الأساسية والمتقدمة</LocalizedText>
         </View>
         <View style={styles.grid}>
           {dbServices.map((svc) => (
@@ -166,10 +189,28 @@ export default function NursingDirectoryHub() {
               activeOpacity={0.7}
               key={svc.id} 
               style={[styles.gridItem, { backgroundColor: getColor(svc.id) }]}
-              onPress={() => navToService(svc.id, svc.title)}
+              onPress={() => navToServiceInfo(svc.id)}
             >
-              <View style={styles.iconWrapper}>{getIcon(svc.id)}</View>
-              <Text style={[styles.gridTitle, { color: colors.textPrimary } ]}>{svc.title}</Text>
+              <View style={[styles.iconWrapper, svc.image && { overflow: 'hidden', borderRadius: 20, width: 64, height: 64 }]}>
+                {svc.image
+                  ? <Image source={{ uri: svc.image }} style={{ width: 64, height: 64 }} resizeMode="cover" />
+                  : getIcon(svc.id)}
+              </View>
+              <LocalizedText style={[styles.gridTitle, { color: colors.textPrimary } ]}>{svc.title}</LocalizedText>
+              {(pickDbField(svc, 'description')) ? (
+                <LocalizedText numberOfLines={2} style={{ fontSize: 10, color: colors.textSecondary || '#64748B', textAlign: 'center', marginTop: 4, lineHeight: 15 }}>{pickDbField(svc, 'description')}</LocalizedText>
+              ) : null}
+              {svc.price != null && (
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 12, color: '#23B5CE', marginTop: 4 }}>{svc.price} ر.س</LocalizedText>
+              )}
+              {/* حجز سريع — يتخطى صفحة التفاصيل مباشرة لاختيار الممرض */}
+              <TouchableOpacity
+                style={styles.quickBookBtn}
+                activeOpacity={0.85}
+                onPress={() => navToService(svc.id, svc.title)}
+              >
+                <LocalizedText style={styles.quickBookText}>احجز الآن</LocalizedText>
+              </TouchableOpacity>
             </TouchableOpacity>
           ))}
         </View>
@@ -184,36 +225,36 @@ export default function NursingDirectoryHub() {
               
               <View style={styles.modalHeaderRow}>
                 <TouchableOpacity onPress={resetFilters}>
-                  <Text style={styles.resetText}>إعادة ضبط</Text>
+                  <LocalizedText style={styles.resetText}>إعادة ضبط</LocalizedText>
                 </TouchableOpacity>
-                <Text style={[styles.modalTitle, { color: colors.textPrimary } ]}>خيارات التصفية</Text>
+                <LocalizedText style={[styles.modalTitle, { color: colors.textPrimary } ]}>خيارات التصفية</LocalizedText>
               </View>
               
-              <Text style={[styles.filterLabel, { color: colors.textSecondary } ]}>الجنس</Text>
+              <LocalizedText style={[styles.filterLabel, { color: colors.textSecondary } ]}>الجنس</LocalizedText>
               <View style={styles.filterOptions}>
-                <TouchableOpacity onPress={() => setGender('any')} style={[gender === 'any' ? styles.filterOptionActive : styles.filterOption]} ><Text style={gender === 'any' ? styles.filterOptionTextActive : styles.filterOptionText}>الكل</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setGender('male')} style={[gender === 'male' ? styles.filterOptionActive : styles.filterOption]} ><Text style={gender === 'male' ? styles.filterOptionTextActive : styles.filterOptionText}>رجال فقط</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setGender('female')} style={[gender === 'female' ? styles.filterOptionActive : styles.filterOption]} ><Text style={gender === 'female' ? styles.filterOptionTextActive : styles.filterOptionText}>نساء فقط</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setGender('any')} style={[gender === 'any' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={gender === 'any' ? styles.filterOptionTextActive : styles.filterOptionText}>الكل</LocalizedText></TouchableOpacity>
+                <TouchableOpacity onPress={() => setGender('male')} style={[gender === 'male' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={gender === 'male' ? styles.filterOptionTextActive : styles.filterOptionText}>رجال فقط</LocalizedText></TouchableOpacity>
+                <TouchableOpacity onPress={() => setGender('female')} style={[gender === 'female' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={gender === 'female' ? styles.filterOptionTextActive : styles.filterOptionText}>نساء فقط</LocalizedText></TouchableOpacity>
               </View>
 
-              <Text style={[styles.filterLabel, { color: colors.textSecondary } ]}>التوافر (Availability)</Text>
+              <LocalizedText style={[styles.filterLabel, { color: colors.textSecondary } ]}>التوافر (Availability)</LocalizedText>
               <View style={styles.filterOptions}>
-                <TouchableOpacity onPress={() => setAvailability('any')} style={[availability === 'any' ? styles.filterOptionActive : styles.filterOption]} ><Text style={availability === 'any' ? styles.filterOptionTextActive : styles.filterOptionText}>الكل</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setAvailability('now')} style={[availability === 'now' ? styles.filterOptionActive : styles.filterOption]} ><Text style={availability === 'now' ? styles.filterOptionTextActive : styles.filterOptionText}>متاح الآن (للطوارئ)</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setAvailability('any')} style={[availability === 'any' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={availability === 'any' ? styles.filterOptionTextActive : styles.filterOptionText}>الكل</LocalizedText></TouchableOpacity>
+                <TouchableOpacity onPress={() => setAvailability('now')} style={[availability === 'now' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={availability === 'now' ? styles.filterOptionTextActive : styles.filterOptionText}>متاح الآن (للطوارئ)</LocalizedText></TouchableOpacity>
               </View>
 
-              <Text style={[styles.filterLabel, { color: colors.textSecondary } ]}>الجنسية</Text>
+              <LocalizedText style={[styles.filterLabel, { color: colors.textSecondary } ]}>الجنسية</LocalizedText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 32 }}>
                 <View style={styles.filterOptions}>
-                  <TouchableOpacity onPress={() => setNationality('any')} style={[nationality === 'any' ? styles.filterOptionActive : styles.filterOption]} ><Text style={nationality === 'any' ? styles.filterOptionTextActive : styles.filterOptionText}>الكل</Text></TouchableOpacity>
-                  <TouchableOpacity onPress={() => setNationality('saudi')} style={[nationality === 'saudi' ? styles.filterOptionActive : styles.filterOption]} ><Text style={nationality === 'saudi' ? styles.filterOptionTextActive : styles.filterOptionText}>سعودي</Text></TouchableOpacity>
-                  <TouchableOpacity onPress={() => setNationality('filipino')} style={[nationality === 'filipino' ? styles.filterOptionActive : styles.filterOption]} ><Text style={nationality === 'filipino' ? styles.filterOptionTextActive : styles.filterOptionText}>فلبيني</Text></TouchableOpacity>
-                  <TouchableOpacity onPress={() => setNationality('egyptian')} style={[nationality === 'egyptian' ? styles.filterOptionActive : styles.filterOption]} ><Text style={nationality === 'egyptian' ? styles.filterOptionTextActive : styles.filterOptionText}>مصري</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setNationality('any')} style={[nationality === 'any' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={nationality === 'any' ? styles.filterOptionTextActive : styles.filterOptionText}>الكل</LocalizedText></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setNationality('saudi')} style={[nationality === 'saudi' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={nationality === 'saudi' ? styles.filterOptionTextActive : styles.filterOptionText}>سعودي</LocalizedText></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setNationality('filipino')} style={[nationality === 'filipino' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={nationality === 'filipino' ? styles.filterOptionTextActive : styles.filterOptionText}>فلبيني</LocalizedText></TouchableOpacity>
+                  <TouchableOpacity onPress={() => setNationality('egyptian')} style={[nationality === 'egyptian' ? styles.filterOptionActive : styles.filterOption]} ><LocalizedText style={nationality === 'egyptian' ? styles.filterOptionTextActive : styles.filterOptionText}>مصري</LocalizedText></TouchableOpacity>
                 </View>
               </ScrollView>
 
               <TouchableOpacity style={styles.applyBtn} onPress={applyFiltersAndSearch}>
-                <Text style={styles.applyBtnText}>تطبيق الفلاتر</Text>
+                <LocalizedText style={styles.applyBtnText}>تطبيق الفلاتر</LocalizedText>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -239,7 +280,9 @@ const styles = StyleSheet.create({
   toggleRow: { flexDirection: 'row-reverse', paddingHorizontal: 20, marginBottom: 32 },
   toggleBtnWrap: { flex: 1 },
   toggleBtn: { padding: 18, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#fff', shadowColor: '#64748B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
+  toggleActiveBlue: { backgroundColor: '#2563EB', borderColor: 'transparent', shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 6 },
   toggleShadowBlue: { shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 6, borderColor: 'transparent' },
+  toggleActiveGreen: { backgroundColor: '#059669', borderColor: 'transparent', shadowColor: '#10B981', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 6 },
   toggleShadowGreen: { shadowColor: '#10B981', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 16, elevation: 6, borderColor: 'transparent' },
   toggleText: { fontFamily: 'Cairo-Bold', fontSize: 13, color: '#64748B', marginTop: 8 },
   toggleTextActive: { color: '#fff' },
@@ -257,6 +300,8 @@ const styles = StyleSheet.create({
   gridItem: { width: (width - 56) / 2, padding: 20, borderRadius: 24, alignItems: 'center', marginBottom: 16, shadowColor: '#94A3B8', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 2, borderWidth: 1.5, borderColor: '#fff' },
   iconWrapper: { marginBottom: 12 },
   gridTitle: { fontFamily: 'Cairo-Bold', fontSize: 15, color: '#1E293B', textAlign: 'center' },
+  quickBookBtn: { marginTop: 10, backgroundColor: '#23B5CE', paddingHorizontal: 18, paddingVertical: 8, borderRadius: 100 },
+  quickBookText: { fontFamily: 'Cairo-Bold', fontSize: 12, color: '#fff' },
 
   modalBg: { flex: 1, backgroundColor: 'rgba(15,23,42,0.4)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: 'transparent', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40 },

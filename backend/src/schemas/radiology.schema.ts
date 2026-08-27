@@ -34,7 +34,16 @@ export class RadiologyService extends Document {
   @Prop({ default: true }) active: boolean;
   @Prop({ default: false }) unavailable: boolean;
   @Prop({ default: false, index: true }) is_deleted: boolean;
+  // Public eligibility is a reviewed governance decision, not an operational default.
+  @Prop({ default: false, index: true }) public_eligibility: boolean;
+  @Prop({ default: false, index: true }) indexing_eligibility: boolean;
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected', 'suspended'], default: 'pending', index: true })
+  medical_review_status: string;
+  @Prop() last_reviewed?: Date;
+  @Prop() provenance?: string;
   @Prop({ default: 1 }) version: number;
+  @Prop() image_url?: string; // Cloudinary catalog image
+  @Prop() icon?: string;
 
   // PILLAR 2: Duration Lock — affects calendar slot calculation
   @Prop({ default: 30 }) estimated_duration_minutes: number;
@@ -144,6 +153,7 @@ export class RadiologyBooking extends Document {
   @Prop({ type: String, default: null }) allocated_machine_id?: string;
   @Prop({ type: [String], default: [] }) scanned_files_s3_urls: string[];
   @Prop({ type: String, default: null }) signed_report_pdf_url?: string;
+  @Prop({ type: String, default: null }) report_storage_object_id?: string;
   @Prop({ type: String, default: null }) clinical_impression_report?: string;
   @Prop({ required: true, enum: ['IN_CENTER', 'MOBILE_HOME_VISIT'], default: 'IN_CENTER' }) delivery_mode: string;
   @Prop() scan_type_code?: string;
@@ -161,6 +171,8 @@ export class RadiologyBooking extends Document {
   // PILLAR 6: DICOM & Images
   @Prop() dicom_url?: string;                      // External PACS/DICOM cloud viewer URL
   @Prop({ type: [String], default: [] }) scan_image_urls: string[]; // JPEG/PNG slices
+  @Prop({ type: String, default: null }) dicom_storage_object_id?: string;
+  @Prop({ type: [String], default: [] }) scan_storage_object_ids: string[];
 
   // MODULE 12: Patient Preparation Validation
   @Prop() preparation_confirmed_at?: Date;
@@ -193,5 +205,4 @@ export class RadiologyBooking extends Document {
 export const RadiologyBookingSchema = SchemaFactory.createForClass(RadiologyBooking);
 RadiologyBookingSchema.index({ patient_id: 1, createdAt: -1 });
 RadiologyBookingSchema.index({ state: 1, scheduled_at: 1 });
-
 

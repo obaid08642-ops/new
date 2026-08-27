@@ -2,17 +2,19 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Linking
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  Linking,
+} from "react-native";
 import { useApp } from "../../src/context/AppContext";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { apiFetch } from "../../src/utils/api";
+import MapView, { Marker, PROVIDER_DEFAULT } from "../../src/components/MapPrimitives";
+import { LocalizedText } from '../../src/components/LocalizedText';
 import Svg, {
   Path,
   Circle,
@@ -74,25 +76,22 @@ export default function NursingLiveTracking() {
 
   const [eta, setEta] = useState<number | null>(null);
   const [trackingData, setTrackingData] = useState<any>(null);
-  const [trackingError, setTrackingError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bookingId) return;
+    let stopped = false;
     const fetchTracking = async () => {
       try {
         const res = await apiFetch(`/nursing/visits/${bookingId}/tracking`);
+        if (stopped) return;
         setTrackingData(res);
-        setEta(Number.isFinite(Number(res?.eta_minutes)) ? Number(res.eta_minutes) : null);
-        setTrackingError(null);
-      } catch (error: any) {
-        setTrackingData(null);
-        setEta(null);
-        setTrackingError(error?.message || 'تعذر تحميل التتبع الحي للزيارة.');
-      }
+        if (res?.eta_minutes != null) setEta(res.eta_minutes);
+      } catch { /* keep last known state; next poll retries */ }
     };
     fetchTracking();
-    const interval = setInterval(fetchTracking, 30000);
-    return () => clearInterval(interval);
+    // E2: poll the live API every 15s (was: fetch once + a fake local ETA countdown)
+    const interval = setInterval(fetchTracking, 15000);
+    return () => { stopped = true; clearInterval(interval); };
   }, [bookingId]);
 
   const isNurseComing = type === "nurse";
@@ -104,27 +103,33 @@ export default function NursingLiveTracking() {
           <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#D1FAE5', justifyContent: 'center', alignItems: 'center', marginBottom: 24 }}>
             <Svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><Path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><Path d="M22 4L12 14.01l-3-3"/></Svg>
           </View>
-          <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 24, color: '#1E293B', marginBottom: 12 }}>اكتملت الزيارة بنجاح</Text>
-          <Text style={{ fontFamily: 'Cairo-Medium', fontSize: 16, color: '#64748B', textAlign: 'center', marginBottom: 32 }}>تم رفع التقرير الطبي للزيارة. يمكنك الآن تقييم الممرض والاطلاع على السجل الطبي.</Text>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 24, color: '#1E293B', marginBottom: 12 }}>اكتملت الزيارة بنجاح</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 16, color: '#64748B', textAlign: 'center', marginBottom: 32 }}>تم رفع التقرير الطبي للزيارة. يمكنك الآن تقييم الممرض والاطلاع على السجل الطبي.</LocalizedText>
           
           <View style={{ width: '100%', backgroundColor: '#fff', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 24 }}>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#1E293B', marginBottom: 16, textAlign: 'right' }}>التقرير السريري للزيارة</Text>
-            <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B' }}>النبض (BPM):</Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#1E293B' }}>{trackingData.vitals?.pulse ?? 'غير مسجل'}</Text>
-            </View>
-            <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B' }}>ضغط الدم:</Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#1E293B' }}>{trackingData.vitals?.bp ?? 'غير مسجل'}</Text>
-            </View>
-            <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B' }}>ملاحظات الممرض:</Text>
-              <Text style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#1E293B', flex: 1, textAlign: 'left' }}>{trackingData.notes ?? 'لا توجد ملاحظات مسجلة.'}</Text>
-            </View>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#1E293B', marginBottom: 16, textAlign: 'right' }}>التقرير السريري للزيارة</LocalizedText>
+            {trackingData.vitals || trackingData.notes ? (
+              <>
+                <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B' }}>النبض (BPM):</LocalizedText>
+                  <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#1E293B' }}>{trackingData.vitals?.pulse ?? '—'}</LocalizedText>
+                </View>
+                <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B' }}>ضغط الدم:</LocalizedText>
+                  <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#1E293B' }}>{trackingData.vitals?.bp ?? '—'}</LocalizedText>
+                </View>
+                <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B' }}>ملاحظات الممرض:</LocalizedText>
+                  <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#1E293B', flex: 1, textAlign: 'left' }}>{trackingData.notes ?? '—'}</LocalizedText>
+                </View>
+              </>
+            ) : (
+              <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B', textAlign: 'right' }}>لم يُرفق الممرض تقريرًا سريريًا لهذه الزيارة.</LocalizedText>
+            )}
           </View>
 
           <TouchableOpacity style={{ backgroundColor: '#23B5CE', width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12 }} onPress={() => router.push('/(tabs)')}>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#fff' }}>تقييم الزيارة والعودة للرئيسية</Text>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#fff' }}>تقييم الزيارة والعودة للرئيسية</LocalizedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -133,12 +138,40 @@ export default function NursingLiveTracking() {
 
   return (
     <View style={styles.container}>
-      <View style={[StyleSheet.absoluteFillObject, { alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: '#F8FAFC' }]}>
-        <Icons.MapPin color="#23B5CE" />
-        <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 16, color: '#1E293B', marginTop: 12, textAlign: 'center' }}>خريطة الموقع الحي</Text>
-        <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: '#64748B', marginTop: 6, textAlign: 'center' }}>
-          {trackingError || (trackingData?.location ? 'تم استلام موقع الزيارة. يتطلب العرض الجغرافي مزود خرائط مهيأ.' : 'لم يستلم النظام موقعاً حياً لهذه الزيارة بعد.')}
-        </Text>
+      {/* REAL MAP — nurse GPS + destination from the live tracking API */}
+      <View style={styles.mapBg}>
+        {trackingData?.current_lat != null && trackingData?.current_lng != null ? (
+          <MapView
+            provider={PROVIDER_DEFAULT}
+            style={StyleSheet.absoluteFillObject}
+            region={{
+              latitude: trackingData.current_lat,
+              longitude: trackingData.current_lng,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            }}
+          >
+            <Marker
+              coordinate={{ latitude: trackingData.current_lat, longitude: trackingData.current_lng }}
+              title={isNurseComing ? 'الممرض' : 'المسعف'}
+              pinColor="#3b82f6"
+            />
+            {trackingData?.hospital_lat != null && trackingData?.hospital_lng != null && (
+              <Marker
+                coordinate={{ latitude: trackingData.hospital_lat, longitude: trackingData.hospital_lng }}
+                title={isNurseComing ? 'منزلك (الوجهة)' : 'المستشفى (الوجهة)'}
+                pinColor="#EF4444"
+              />
+            )}
+          </MapView>
+        ) : (
+          <View style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', gap: 8, backgroundColor: '#F1F5F9' }]}>
+            <Icons.MapPin color="#94A3B8" />
+            <LocalizedText style={{ fontFamily: 'Cairo-Medium', fontSize: 14, color: '#64748B', textAlign: 'center', paddingHorizontal: 32 }}>
+              {trackingData ? 'لم يبدأ مشاركة الموقع الحي بعد — سيظهر المسار هنا فور انطلاقه' : 'جاري تحميل بيانات التتبع...'}
+            </LocalizedText>
+          </View>
+        )}
       </View>
 
       {/* HEADER */}
@@ -158,9 +191,9 @@ export default function NursingLiveTracking() {
             <Path d="M9 18l6-6-6-6" />
           </Svg>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
+        <LocalizedText style={styles.headerTitle}>
           {isNurseComing ? "تتبع الممرض" : "التوجه للمستشفى"}
-        </Text>
+        </LocalizedText>
       </BlurView>
 
       {/* TRACKING CARD (BOTTOM) */}
@@ -171,20 +204,20 @@ export default function NursingLiveTracking() {
           {/* ETA ROW */}
           <View style={styles.etaRow}>
             <View style={styles.etaCircle}>
-              <Text style={styles.etaNum}>{eta ?? '—'}</Text>
-              <Text style={styles.etaMin}>{eta === null ? 'غير متاح' : 'دقيقة'}</Text>
+              <LocalizedText style={styles.etaNum}>{eta != null ? eta : '—'}</LocalizedText>
+              <LocalizedText style={styles.etaMin}>{eta != null ? 'دقيقة' : 'تقدير غير متاح'}</LocalizedText>
             </View>
             <View style={{ flex: 1, marginRight: 16 }}>
-              <Text style={styles.statusTitle}>
+              <LocalizedText style={styles.statusTitle}>
                 {isNurseComing
                   ? "الممرض في الطريق إليك"
                   : "يرجى التوجه لإحضار الممرض"}
-              </Text>
-              <Text style={styles.statusDesc}>
+              </LocalizedText>
+              <LocalizedText style={styles.statusDesc}>
                 {isNurseComing
-                  ? `مقدم الخدمة: ${trackingData?.nurse_name ?? 'غير متاح'}.`
-                  : `الوجهة: ${trackingData?.facility_name ?? 'غير متاحة'}.`}
-              </Text>
+                  ? `سيصل ${trackingData?.nurse_name || 'الممرض'} إلى موقعك قريباً.`
+                  : 'يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.'}
+              </LocalizedText>
             </View>
           </View>
 
@@ -206,8 +239,8 @@ export default function NursingLiveTracking() {
               </Svg>
             </View>
             <View style={{ flex: 1, marginRight: 12 }}>
-              <Text style={styles.infoName}>{trackingData?.nurse_name ?? 'مقدم الخدمة غير متاح'}</Text>
-              <Text style={styles.infoSub}>{trackingData?.nurse_title ?? trackingData?.facility_name ?? 'لا توجد بيانات مهنية مؤكدة'}</Text>
+              <LocalizedText style={styles.infoName}>{trackingData?.nurse_name || 'طاقم التمريض'}</LocalizedText>
+              <LocalizedText style={styles.infoSub}>{trackingData?.nurse_title || 'تمريض منزلي معتمد'}</LocalizedText>
             </View>
 
             {isNurseComing ? (

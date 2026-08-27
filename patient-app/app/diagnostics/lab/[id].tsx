@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, TextInput, Image, ActivityIndicator, Platform, Alert, StatusBar, KeyboardAvoidingView, Modal, I18nManager, Dimensions, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '../../../src/components/ui';
 import { useApp } from '../../../src/context/AppContext';
@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useDiagnosticsCart } from '../../../src/context/DiagnosticsCartContext';
 import { apiFetch } from '../../../src/utils/api';
+import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
 
 export default function LabProfile() {
   const router = useRouter();
@@ -82,22 +83,36 @@ export default function LabProfile() {
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <Icon name="star" size={16} color="#FFD700" />
-              <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.rating || '4.9'}</AppText>
+              <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.rating ?? '—'}</AppText>
             </View>
-            <View style={styles.metaItem}>
-              <Icon name="map-marker-outline" size={16} color={colors.textSecondary} />
-              <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.distance || '1.2 كم'}</AppText>
-            </View>
-            <View style={styles.metaItem}>
-              <Icon name="store-outline" size={16} color={colors.textSecondary} />
-              <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.branches || 1} فرع</AppText>
-            </View>
+            {lab.distance != null && (
+              <View style={styles.metaItem}>
+                <Icon name="map-marker-outline" size={16} color={colors.textSecondary} />
+                <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.distance}</AppText>
+              </View>
+            )}
+            {lab.branches != null && (
+              <View style={styles.metaItem}>
+                <Icon name="store-outline" size={16} color={colors.textSecondary} />
+                <AppText style={{ fontSize: 14, color: colors.textSecondary, marginLeft: 4 }}>{lab.branches} فرع</AppText>
+              </View>
+            )}
           </View>
 
-          <TouchableOpacity style={[styles.directionBtn, { backgroundColor: colors.primary } ]}>
-            <Icon name="directions" size={20} color="#fff" />
-            <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 14, marginLeft: 8 }}>الاتجاهات للمختبر</AppText>
-          </TouchableOpacity>
+          {(lab.lat != null && lab.lng != null) || lab.address ? (
+            <TouchableOpacity
+              style={[styles.directionBtn, { backgroundColor: colors.primary }]}
+              onPress={() => {
+                const url = lab.lat != null && lab.lng != null
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${lab.lat},${lab.lng}`
+                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lab.address)}`;
+                Linking.openURL(url).catch(() => showLocalizedAlert('تعذّر فتح الخرائط'));
+              }}
+            >
+              <Icon name="directions" size={20} color="#fff" />
+              <AppText style={{ color: '#fff', fontWeight: 'bold', fontSize: 14, marginLeft: 8 }}>الاتجاهات للمختبر</AppText>
+            </TouchableOpacity>
+          ) : null}
         </Animated.View>
 
         {/* About */}

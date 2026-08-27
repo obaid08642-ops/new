@@ -6,16 +6,18 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+  Alert,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
 import { Icon } from "../../src/components/Icon";
 import { AppText, Button, Input, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function ForgotPasswordScreen() {
   const insets = useSafeAreaInsets();
@@ -41,7 +43,7 @@ export default function ForgotPasswordScreen() {
         },
       });
     } catch (err: any) {
-      Alert.alert("خطأ", err.message || "فشل إرسال رمز التحقق");
+      showLocalizedAlert("خطأ", err.message || "فشل إرسال رمز التحقق");
       setLoading(false);
     }
   };
@@ -77,7 +79,7 @@ export default function ForgotPasswordScreen() {
             borderColor: colors.borderLight,
           }}
         >
-          <Text
+          <LocalizedText
             style={{
               fontFamily: "MaterialSymbolsRounded",
               color: colors.textPrimary,
@@ -85,7 +87,7 @@ export default function ForgotPasswordScreen() {
             }}
           >
             {lang === "ar" ? "arrow_forward" : "arrow_back"}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
       </View>
       <View style={st.body}>

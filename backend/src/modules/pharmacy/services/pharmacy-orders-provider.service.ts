@@ -1,84 +1,140 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Inject, NotImplementedException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { RedisService } from '../../redis/redis.service';
 import { EventBusService } from '../../events/event-bus.service';
-import { OrdersService } from '../../orders/orders.service';
+import { PharmacyAllocationService } from './pharmacy-allocation.service';
+import { PharmacyOrderRepository } from './repositories/pharmacyorder.repository';
 
+/**
+ * Order-level provider endpoints (Blueprint V1.2).
+ * These address the parent order; real persistence happens on the pharmacy's
+ * allocation (state machine) and on the pharmacy_orders document (basket /
+ * insurance evaluation). No simulated responses — every action persists.
+ */
 @Injectable()
 export class PharmacyOrdersProviderService {
   constructor(
     private redis: RedisService,
     private bus: EventBusService,
-    private orders: OrdersService,
+    @Inject('PharmacyOrderRepository') private orders: PharmacyOrderRepository,
+    private allocs: PharmacyAllocationService,
   ) {}
-
-  async incomingOrders(user: any) {
-    const providerId = user?.provider_account_id || user?.provider_profile_id || user?.id;
-    if (!providerId) throw new ForbiddenException('Provider identity is missing from the token');
-    const orders: any[] = await this.orders.listForPharmacy(String(providerId));
-    return orders.filter((order) => ['CREATED', 'BROADCAST', 'PHARMACY_RECEIVED'].includes(order.state));
-  }
 
   async acceptOrder(user: any, orderId: string) {
     // Redis SETNX Lock to prevent race condition across multiple pharmacies
     const lockKey = `order:accept:lock:${orderId}`;
     const acquired = await this.redis.setnx(lockKey, user.id);
-    
+
     if (!acquired) {
       throw new BadRequestException('Order already accepted by another pharmacy');
     }
-    
+
     // Set an expiry on the lock in case of processing failure
     await this.redis.expire(lockKey, 300);
 
-    const order = await this.orders.accept(orderId, user);
+    // Real persistence: confirm this pharmacy's allocation (state machine +
+    // patient notification + parent order refresh handled by the service).
+    const alloc = await this.allocs.findByOrderForProvider(user, orderId);
+    const confirmed = await this.allocs.confirm(user, alloc.id);
+
     this.bus.emit({
       type: 'system.event',
       payload: {
         orderId,
-        previousState: 'BROADCAST',
-        newState: 'ACCEPTED',
+        allocationId: alloc.id,
+        newState: confirmed.status,
         actorId: user.id,
         actorRole: 'pharmacy',
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     } as any).catch(() => null);
 
-    return { success: true, status: 'ACCEPTED', order };
-  }
-
-  async rejectOrder(user: any, orderId: string, reason: string) {
-    const order = await this.orders.reject(orderId, user, reason);
-    return { success: true, status: 'REJECTED', order };
+    return { success: true, status: confirmed.status, order_id: orderId, allocation_id: alloc.id };
   }
 
   async submitBasket(user: any, orderId: string, payload: any) {
-    void user;
-    void orderId;
-    void payload;
-    throw new NotImplementedException('Basket submission requires a persisted basket-review contract and is unavailable until configured.');
+    const order: any = await this.orders.findOne({ id: orderId });
+    if (!order) throw new NotFoundException('order_not_found');
+
+    const basket = Array.isArray(payload?.basket) ? payload.basket : (Array.isArray(payload?.items) ? payload.items : []);
+    if (!basket.length) throw new BadRequestException('basket_empty');
+
+    const subtotal = basket.reduce(
+      (s: number, i: any) => s + (Number(i?.price ?? i?.unit_price) || 0) * (Number(i?.qty ?? i?.qty_offered ?? 1) || 1),
+      0,
+    );
+    const deliveryFee = Number(order.totals?.delivery_fee) || 0;
+
+    await this.orders.updateOne(
+      { id: orderId },
+      {
+        $set: {
+          pharmacy_basket: basket,
+          'totals.subtotal': Math.round(subtotal * 100) / 100,
+          'totals.total': Math.round((subtotal + deliveryFee) * 100) / 100,
+          insurance_status: payload?.insuranceStatus || payload?.insurance_status || order.insurance_status || null,
+          copay: Number(payload?.copay) || 0,
+        },
+        $push: {
+          timeline: { ts: new Date(), event: 'basket_submitted', by: user.id, meta: { items: basket.length, subtotal } },
+        },
+      },
+    );
+
+    this.bus.emit({
+      type: 'system.event',
+      payload: { orderId, newState: 'basket_submitted', actorId: user.id, actorRole: 'pharmacy', timestamp: new Date() },
+    } as any).catch(() => null);
+
+    return { success: true, status: 'basket_submitted', order_id: orderId, subtotal: Math.round(subtotal * 100) / 100 };
   }
 
   async evaluateInsurance(user: any, orderId: string, payload: any) {
-    void user;
-    void orderId;
-    void payload;
-    throw new NotImplementedException('Provider insurance evaluation requires a persisted authorization contract and is unavailable until configured.');
+    const order: any = await this.orders.findOne({ id: orderId });
+    if (!order) throw new NotFoundException('order_not_found');
+
+    const copay = Number(payload?.copay) || 0;
+    await this.orders.updateOne(
+      { id: orderId },
+      {
+        $set: {
+          insurance_status: payload?.status || payload?.insuranceStatus || 'evaluated',
+          copay,
+          insurance_evaluation: {
+            nphies_code: payload?.nphies_code || payload?.nphiesCode || null,
+            status: payload?.status || payload?.insuranceStatus || 'evaluated',
+            copay,
+            notes: payload?.notes || null,
+            evaluated_by: user.id,
+            evaluated_at: new Date(),
+          },
+        },
+        $push: {
+          timeline: { ts: new Date(), event: 'insurance_evaluated', by: user.id, meta: { copay } },
+        },
+      },
+    );
+
+    return { success: true, status: 'insurance_evaluated', insurance_copay: copay };
   }
 
   async orderPreparing(user: any, orderId: string) {
-    const order = await this.orders.markPreparing(orderId, user);
-    return { success: true, status: 'PREPARING', order };
+    const alloc = await this.allocs.findByOrderForProvider(user, orderId);
+    const a = await this.allocs.preparing(user, alloc.id);
+    return { success: true, status: a.status, order_id: orderId, allocation_id: alloc.id };
   }
 
   async orderReady(user: any, orderId: string) {
-    const order = await this.orders.markReady(orderId, user);
-    return { success: true, status: 'READY_FOR_DISPATCH', order };
+    const alloc = await this.allocs.findByOrderForProvider(user, orderId);
+    const a = await this.allocs.ready(user, alloc.id);
+    return { success: true, status: a.status, order_id: orderId, allocation_id: alloc.id };
   }
 
   async orderDispatch(user: any, orderId: string, payload: any) {
-    void user;
-    void orderId;
-    void payload;
-    throw new NotImplementedException('Provider dispatch requires an assigned delivery contract and is unavailable until configured.');
+    const alloc = await this.allocs.findByOrderForProvider(user, orderId);
+    const a = await this.allocs.outForDelivery(user, alloc.id, {
+      courier_name: payload?.driver || payload?.courier_name,
+      courier_phone: payload?.phone || payload?.courier_phone,
+    } as any);
+    return { success: true, status: a.status, order_id: orderId, allocation_id: alloc.id, delivery_mode: payload?.delivery_mode };
   }
 }

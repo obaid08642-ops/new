@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Module, Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, ForbiddenException, NotFoundException, BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -94,7 +93,7 @@ export class ServiceCatalogService {
   async updateService(user: any, entity_type: 'lab' | 'radiology', id: string, patch: any) {
     this.assertProvider(user);
     const own = await this.own.findOne({ entity_id: id, entity_type });
-    if (user.role !== 'admin' && (!own || own.provider_account_id !== user.id)) throw new ForbiddenException();
+    if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
     const r = await Model.findOneAndUpdate({ id }, { $set: patch }, { new: true });
     if (!r) throw new NotFoundException();
@@ -109,7 +108,7 @@ export class ServiceCatalogService {
   async deleteService(user: any, entity_type: 'lab' | 'radiology', id: string) {
     this.assertProvider(user);
     const own = await this.own.findOne({ entity_id: id, entity_type });
-    if (user.role !== 'admin' && (!own || own.provider_account_id !== user.id)) throw new ForbiddenException();
+    if (user.role !== 'admin' && (!own || own.account_id !== user.id)) throw new ForbiddenException();
     const Model: any = entity_type === 'lab' ? this.labs : this.rads;
     await Model.deleteOne({ id });
     await this.own.deleteMany({ entity_id: id, entity_type });
@@ -158,7 +157,7 @@ export class ServiceCatalogService {
 
   // Compute generic available slots for a given provider/entity_type/date
   async availableSlots(account_id: string, entity_type: string, date: string, bookedCounter?: (slotISO: string) => Promise<number>) {
-    let s: any = await this.sched.findOne({ provider_account_id, entity_type }).lean();
+    let s: any = await this.sched.findOne({ account_id, entity_type }).lean();
     if (!s) s = { weekly: DEFAULT_WEEKLY, blocked_dates: [], slot_minutes: 30, max_per_slot: 1 };
     const day = new Date(date);
     if (s.blocked_dates?.includes(date)) return [];

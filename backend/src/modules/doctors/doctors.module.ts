@@ -40,9 +40,9 @@ export class DoctorsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
-      return;
-    }
+    // Demo doctors are seeded ONLY when explicitly enabled — never in production,
+    // where they would appear to patients without any admin review.
+    if (process.env.SEED_DEMO_DATA !== 'true') return;
     const count = await this.doctors.countDocuments();
     if (count === 0) {
       for (const d of SEED_DOCTORS) await this.doctors.create({ ...d, weekly_schedule: DEFAULT_SCHEDULE });

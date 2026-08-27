@@ -6,9 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  StatusBar
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  StatusBar,
+  Alert,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../../src/context/AppContext";
@@ -21,6 +21,7 @@ import {
   IconButton,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 type TimelineCategory =
   "all" | "appointment" | "lab" | "prescription" | "vitals";
@@ -39,7 +40,7 @@ export default function MedicalTimelineScreen() {
   React.useEffect(() => {
     async function load() {
       try {
-        const res = await apiFetch('/reports/timeline');
+        const res = await apiFetch('/medical-reports/timeline');
         setEvents(Array.isArray(res) ? res : res?.data || []);
       } catch (err) {
         console.error(err);
@@ -56,7 +57,7 @@ export default function MedicalTimelineScreen() {
       : events.filter((e) => e.type === filter);
 
   const handleDownload = (title: string) => {
-    Alert.alert("تحميل التقرير", `جاري تحميل ملف PDF الخاص بـ "${title}"...`, [
+    showLocalizedAlert("تحميل التقرير", `جاري تحميل ملف PDF الخاص بـ "${title}"...`, [
       { text: "حسناً" },
     ]);
   };

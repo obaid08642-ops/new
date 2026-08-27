@@ -9,6 +9,7 @@ import { AppText, Card, Badge, Button, IconButton } from '../../src/components/u
 
 import { apiFetch } from '../../src/utils/api';
 import { useLocalSearchParams } from 'expo-router';
+import { pickLocalized } from '../../src/utils/localize';
 
 const COMPARE_ROWS = [
   { label: 'المادة الفعالة', key: 'ingredient', icon: 'science' },
@@ -69,7 +70,7 @@ export default function MedicineCompareScreen() {
               <View style={[styles.productEmoji, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary } ]}>
                 <AppText variant="bodySM">{m.emoji}</AppText>
               </View>
-              <AppText variant="bodySM">{m.name_ar || m.name}</AppText>
+              <AppText variant="bodySM">{pickLocalized(m.name_ar, m.name)}</AppText>
               <AppText variant="bodySM">{m.manufacturer || m.brand}</AppText>
             </View>
           ))}

@@ -38,7 +38,7 @@ export class ProviderProfileService {
   }
 
   async updateProfile(user: any, patch: any) {
-    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time'];
+    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
     const set: any = {};
     for (const k of allowed) if (patch[k] !== undefined) set[k] = patch[k];
     if (set.enabled_modules) {
@@ -92,7 +92,9 @@ export class ProviderProfileService {
   async uploadDocument(user: any, body: any) {
     if (!body?.doc_type || !Object.values(ProviderDocumentType).includes(body.doc_type)) throw new BadRequestException('invalid doc_type');
     if (!body?.file?.data_base64 || !body?.file?.mime) throw new BadRequestException('file required');
-    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type });
+    // KYC documents are provider content → Cloudinary (private/authenticated
+    // delivery; patients can never reach them, admin reviews via signed URL).
+    const sto = await this.storage.upload({ owner_account_id: user.id, owner_kind: 'provider_account', mime: body.file.mime, data_base64: body.file.data_base64, original_name: body.file.original_name || body.doc_type, target: 'cloudinary' });
     // delete previous PENDING/NEEDS_REPLACEMENT of same type? keep history but mark prior as superseded by leaving them.
     const existing = await this.docs.findOne({ account_id: user.id, doc_type: body.doc_type, review_status: { $in: [DocumentReviewStatus.PENDING, DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.UNDER_REVIEW] } });
     if (existing) {
@@ -177,10 +179,17 @@ export class ProviderProfileService {
 
   // ===================== DELTA GUARD =====================
   async submitDelta(user: any, body: any) {
+    // Some app screens wrap the payload as { changes: {...} } — unwrap so the
+    // stored requested_changes is always the flat change-set.
+    const requested = (body && typeof body === 'object' && body.changes && typeof body.changes === 'object' && Object.keys(body).length <= 2)
+      ? body.changes
+      : (body && typeof body === 'object' && body.newData && typeof body.newData === 'object' && Object.keys(body).length <= 2)
+        ? body.newData
+        : body;
     const delta = {
       id: uuidv4(),
       provider_id: user.id,
-      requested_changes: body,
+      requested_changes: requested,
       status: 'pending',
       createdAt: new Date(),
       updatedAt: new Date()
@@ -198,9 +207,9 @@ export class ProviderProfileService {
       return {
         id: a.id,
         name: p?.display_name_ar || p?.display_name_en || 'طبيب',
-        spec: 'عام',
-        hospital: 'مستشفى نبض الافتراضي',
-        mutual: Math.floor(Math.random() * 10)
+        // Real profile fields only — no fabricated specialty/hospital and no random "mutual" counts.
+        spec: (p as any)?.specialty || '',
+        hospital: (p as any)?.hospital || '',
       };
     });
   }

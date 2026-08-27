@@ -51,6 +51,13 @@ export class Facility {
   @Prop({ default: 0 }) rating: number;
   @Prop({ default: 0 }) reviews_count: number;
   @Prop({ default: true }) is_active: boolean;
+  // Operational activity never implies public discovery or search indexing.
+  @Prop({ default: false, index: true }) public_eligibility: boolean;
+  @Prop({ default: false, index: true }) indexing_eligibility: boolean;
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected', 'suspended'], default: 'pending', index: true })
+  medical_review_status: string;
+  @Prop() last_reviewed?: Date;
+  @Prop() provenance?: string;
 }
 export type FacilityDocument = Facility & Document;
 export const FacilitySchema = SchemaFactory.createForClass(Facility);

@@ -54,14 +54,14 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
       for (const m of offlineMsgs) {
         try {
-          await apiFetch(`/chats/threads/${m.threadId}/messages`, {
-            method: 'POST',
-            body: JSON.stringify({
-              content: m.content,
-              message_type: m.messageType,
-              receiver_id: m.receiverId,
-            }),
-          });
+            await apiFetch(`/chats/threads/${m.threadId}/messages`, {
+              method: 'POST',
+              body: JSON.stringify({
+                body: m.content,
+                type: m.messageType,
+                client_message_id: m.id,
+              }),
+            });
           await removeOfflineMessage(m.id);
         } catch (err) {
           console.warn('Syncing offline message failed, halting queue processing', err);

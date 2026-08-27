@@ -17,6 +17,15 @@ export class EmergencyRequest {
   state: EmergencyState;
   @Prop() assigned_hospital_id?: string;
   @Prop() assigned_ambulance_id?: string;
+  /** INTERNAL ONLY: owning provider account (hospital fleet vs independent) — never exposed to patients (S1) */
+  @Prop() assigned_provider_id?: string;
+  /** Patient-safe unit label (plate number) shown instead of internal ids */
+  @Prop() unit_label?: string;
+  /** Patient-safe paramedic/driver display name once known */
+  @Prop() paramedic_name?: string;
+  @Prop() claimed_at?: Date;
+  @Prop({ type: { lat: Number, lng: Number, updated_at: Date }, _id: false })
+  unit_location?: { lat?: number; lng?: number; updated_at?: Date };
   @Prop() admin_notes?: string;
   @Prop() resolved_at?: Date;
   @Prop() resolved_by?: string;

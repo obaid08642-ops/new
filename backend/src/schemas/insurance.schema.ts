@@ -25,6 +25,19 @@ export class InsuranceCompany {
   @Prop({ required: true }) name_ar: string;
   @Prop({ required: true }) name_en: string;
   @Prop() logo_url?: string;
+  /** Official published origin for the stored logo; never a logo-aggregator URL. */
+  @Prop() logo_source_url?: string;
+  @Prop() logo_sha256?: string;
+  @Prop() logo_verified_at?: Date;
+  /** Regulatory/source evidence for the entity identity and its eligibility. */
+  @Prop() regulatory_source_url?: string;
+  @Prop({ enum: ['insurer', 'foreign_branch', 'reinsurer', 'insurance_service_provider'], default: 'insurer' }) entity_type: string;
+  @Prop({ enum: ['pending_review', 'verified', 'retired'], default: 'pending_review', index: true }) catalog_status: string;
+  @Prop() provenance?: string;
+  @Prop({ default: 1 }) catalog_version: number;
+  /** Keeps historical identifiers resolvable after a legal name change/rebrand. */
+  @Prop() superseded_by_company_id?: string;
+  @Prop() retired_at?: Date;
   @Prop({ default: true }) is_active: boolean;
 }
 export type InsuranceCompanyDocument = InsuranceCompany & Document;
@@ -39,6 +52,13 @@ export class InsuranceNetwork {
   @Prop({ required: true }) name_ar: string;
   @Prop({ required: true }) name_en: string;
   @Prop({ default: 1 }) tier_level: number;
+  /** Evidence that this precise company-specific network/tier is official. */
+  @Prop() source_url?: string;
+  @Prop() source_label?: string;
+  @Prop() verified_at?: Date;
+  @Prop({ enum: ['pending_review', 'verified', 'retired'], default: 'pending_review', index: true }) catalog_status: string;
+  @Prop() provenance?: string;
+  @Prop() retired_at?: Date;
 }
 export type InsuranceNetworkDocument = InsuranceNetwork & Document;
 export const InsuranceNetworkSchema = SchemaFactory.createForClass(InsuranceNetwork);

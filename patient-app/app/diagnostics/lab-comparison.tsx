@@ -4,24 +4,25 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  StyleSheet
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { AppText } from "../../src/components/ui";
-import { useApp } from "../../src/context/AppContext";
+import { Colors } from "../../src/theme";
+const theme = { colors: Colors.light };
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useDiagnosticsCart } from "../../src/context/DiagnosticsCartContext";
 import { apiFetch } from "../../src/utils/api";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function LabComparison() {
-  const { colors } = useApp();
   const router = useRouter();
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
   const { addItem } = useDiagnosticsCart();
   const [adding, setAdding] = useState(false);
 
-  const testName = name || "باقة الفحص الشامل";
+  const testName = name || "الفحص المختار";
 
   const [loading, setLoading] = useState(true);
   const [labs, setLabs] = useState<any[]>([]);
@@ -33,15 +34,9 @@ export default function LabComparison() {
       apiFetch(`/labs/services/${id}`),
       apiFetch(`/labs/compatible-providers?testIds=${id}`)
     ]).then(([svcRes, labsRes]: any) => {
-      const price = (svcRes?.data || svcRes)?.price || 299;
+      const price = Number((svcRes?.data || svcRes)?.price || 0);
       setBasePrice(price);
-      
-      const compatible = (labsRes?.data || labsRes || []).map((l: any, i: number) => ({
-        ...l,
-        price: Math.round(price * (l.priceMultiplier || 1)),
-        bestValue: i === 0, // best value recommendation
-      }));
-      setLabs(compatible);
+      setLabs(labsRes?.data || labsRes || []);
       setLoading(false);
     }).catch((err) => {
       console.error(err);
@@ -53,14 +48,14 @@ export default function LabComparison() {
     setAdding(true);
     // Ask user if they want Home Visit or Clinic Visit (if home visit is available)
     if (lab.homeVisitAvailable) {
-      Alert.alert(
+      showLocalizedAlert(
         "تحديد مكان الخدمة",
         "هل تفضل زيارة فرع المختبر أم إرسال فني لسحب العينة من منزلك؟",
         [
           { text: "إلغاء", style: "cancel", onPress: () => setAdding(false) },
           { text: "زيارة الفرع", onPress: () => processAdd(lab, false) },
           {
-            text: "سحب من المنزل (+٥٠ ر.س)",
+            text: "سحب من المنزل (تُحسب الرسوم من الخادم)",
             onPress: () => processAdd(lab, true),
           },
         ],
@@ -73,16 +68,16 @@ export default function LabComparison() {
   const processAdd = async (lab: any, isHomeVisit: boolean) => {
     try {
       await addItem({
-        id: id || "test1",
+        id,
         name: `${testName} - ${lab.name}`,
-        price: lab.price,
+        price: basePrice,
         kind: "lab",
         provider: lab.name,
+        lockedProviderId: lab.id,
         isHomeVisit,
-        turnaroundTime: lab.time,
         icon: "biotech",
-        iconBg: `${lab.color}15`,
-        iconColor: lab.color,
+        iconBg: `${theme.colors.primary}15`,
+        iconColor: theme.colors.primary,
       });
       router.push("/diagnostics/cart");
     } finally {
@@ -91,13 +86,13 @@ export default function LabComparison() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.bd }]}>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Icon
             name="arrow-forward"
             size={24}
-            color={colors.n}
+            color={theme.colors.textPrimary}
           />
         </TouchableOpacity>
         <AppText variant="h2" style={styles.headerTitle}>
@@ -109,67 +104,44 @@ export default function LabComparison() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.infoBox, { backgroundColor: colors.ps }]}>
-          <AppText style={{ fontSize: 13, color: colors.t2 }}>
+        <View style={styles.infoBox}>
+          <AppText style={{ fontSize: 13, color: theme.colors.textSecondary }}>
             مقارنة الأسعار لـ:
           </AppText>
           <AppText
             variant="h3"
-            style={{ marginTop: 4, color: colors.p }}
+            style={{ marginTop: 4, color: theme.colors.primary }}
           >
             {testName}
           </AppText>
         </View>
 
         {loading ? (
-          <AppText style={{ textAlign: 'center', marginTop: 40, color: colors.t2 }}>جاري تحميل المختبرات المتوفرة...</AppText>
+          <AppText style={{ textAlign: 'center', marginTop: 40, color: theme.colors.textSecondary }}>جاري تحميل المختبرات المتوفرة...</AppText>
         ) : (
           labs.map((lab) => (
             <View
             key={lab.id}
-            style={[styles.labCard, { backgroundColor: colors.s, borderColor: lab.bestValue ? colors.p : colors.bd }, lab.bestValue && styles.labCardBest]}
+            style={styles.labCard}
           >
-            {lab.bestValue && (
-              <View style={[styles.bestValueBadge, { backgroundColor: colors.ps, borderColor: colors.p }]}>
-                <AppText
-                  style={{
-                    fontSize: 10,
-                    color: colors.p,
-                    fontWeight: "bold",
-                  }}
-                >
-                  الأفضل قيمة
-                </AppText>
-              </View>
-            )}
-
             <View style={styles.cardHeader}>
               <View style={{ flex: 1 }}>
                 <AppText style={{ fontSize: 16, fontWeight: "900" }}>
                   {lab.name}
                 </AppText>
                 <View style={styles.ratingRow}>
-                  <Icon name="star" size={14} color="#F5A623" />
-                  <AppText
-                    style={{
-                      fontSize: 12,
-                      color: colors.t2,
-                      marginLeft: 4,
-                    }}
-                  >
-                    {lab.rating}
-                  </AppText>
+                  {lab.rating != null && <><Icon name="star" size={14} color="#F5A623" /><AppText style={{ fontSize: 12, color: theme.colors.textSecondary, marginLeft: 4 }}>{lab.rating}</AppText></>}
                   {lab.homeVisitAvailable && (
-                    <View style={[styles.homeBadge, { backgroundColor: colors.ts }]}>
+                    <View style={styles.homeBadge}>
                       <Icon
                         name="home"
                         size={10}
-                        color={colors.tl}
+                        color={theme.colors.secondary}
                       />
                       <AppText
                         style={{
                           fontSize: 9,
-                          color: colors.tl,
+                          color: theme.colors.secondary,
                           marginLeft: 2,
                         }}
                       >
@@ -184,28 +156,32 @@ export default function LabComparison() {
                   style={{
                     fontSize: 24,
                     fontWeight: "900",
-                    color: colors.p,
+                    color: theme.colors.primary,
                   }}
                 >
-                  {lab.price}
+                  {basePrice || '—'}
                 </AppText>
-                <AppText style={{ fontSize: 10, color: colors.t2 }}>
-                  ر.س
+                <AppText
+                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
+                >
+                  {basePrice ? 'ر.س (أساسي)' : 'يحدده الخادم'}
                 </AppText>
               </View>
             </View>
 
             <View style={styles.cardFooter}>
-              <View style={[styles.timeBox, { backgroundColor: colors.bg }]}>
-                <AppText style={{ fontSize: 10, color: colors.t2 }}>
-                  النتيجة خلال
+              <View style={styles.timeBox}>
+                <AppText
+                  style={{ fontSize: 10, color: theme.colors.textSecondary }}
+                >
+                  التوفر
                 </AppText>
                 <AppText style={{ fontSize: 13, fontWeight: "bold" }}>
-                  {lab.time}
+                  بعد تأكيد المزوّد
                 </AppText>
               </View>
               <TouchableOpacity
-                style={[styles.bookBtn, { backgroundColor: colors.p }]}
+                style={styles.bookBtn}
                 onPress={() => handleBook(lab)}
                 disabled={adding}
               >
@@ -217,7 +193,8 @@ export default function LabComparison() {
               </TouchableOpacity>
             </View>
           </View>
-        )))}
+        ))) }
+        {!loading && labs.length === 0 && <AppText style={{ textAlign: 'center', marginTop: 40, color: theme.colors.textSecondary }}>لا يوجد مزوّد متوافق ومفعّل لهذا الفحص حالياً.</AppText>}
       </ScrollView>
     </View>
   );
@@ -230,12 +207,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
     paddingTop: 60,
+    backgroundColor: "transparent",
     borderBottomWidth: 1,
+    borderBottomColor: "transparent",
   },
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -244,24 +224,17 @@ const styles = StyleSheet.create({
   infoBox: {
     marginBottom: 24,
     padding: 16,
+    backgroundColor: `${"transparent"}10`,
     borderRadius: 16,
   },
   labCard: {
+    backgroundColor: "transparent",
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1.5,
+    borderColor: "transparent",
     position: "relative",
-  },
-  labCardBest: {},
-  bestValueBadge: {
-    position: "absolute",
-    top: -12,
-    right: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
   },
   cardHeader: {
     flexDirection: "row",
@@ -273,6 +246,7 @@ const styles = StyleSheet.create({
   homeBadge: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: `${"transparent"}15`,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -282,12 +256,14 @@ const styles = StyleSheet.create({
   cardFooter: { flexDirection: "row", gap: 12 },
   timeBox: {
     flex: 1,
+    backgroundColor: "transparent",
     borderRadius: 12,
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
   },
   bookBtn: {
+    backgroundColor: "transparent",
     borderRadius: 12,
     paddingHorizontal: 32,
     alignItems: "center",

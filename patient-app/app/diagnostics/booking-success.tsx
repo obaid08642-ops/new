@@ -20,7 +20,9 @@ import Animated, {
 export default function BookingSuccess() {
   const router = useRouter();
   const { colors } = useApp();
-  const { serviceType = 'clinic' } = useLocalSearchParams();
+  const { serviceType = 'clinic', bookingId, reference, total } = useLocalSearchParams();
+  const bookingReference = typeof reference === 'string' && reference ? reference : (typeof bookingId === 'string' ? bookingId : '—');
+  const bookingTotal = typeof total === 'string' && total ? total : null;
 
   const scale = useSharedValue(0);
   const checkOpacity = useSharedValue(0);
@@ -54,27 +56,27 @@ export default function BookingSuccess() {
 
         <Animated.View entering={FadeInDown.duration(600).delay(500)} style={{ alignItems: 'center', marginTop: 32 }}>
           <AppText style={{ fontSize: 28, fontWeight: '900', color: colors.textPrimary, marginBottom: 12, textAlign: 'center' }}>
-            تم تأكيد الحجز بنجاح!
+            تم استلام طلب الحجز
           </AppText>
           <AppText style={{ fontSize: 16, color: colors.textSecondary, textAlign: 'center', lineHeight: 24, paddingHorizontal: 32 }}>
-            {serviceType === 'home' 
-              ? 'سيقوم أخصائي التحاليل بزيارتك في الوقت المحدد. يمكنك تتبع مسار المختص من خلال التطبيق.' 
-              : 'الرجاء الحضور للمركز قبل الموعد بـ ١٥ دقيقة وإبراز كود الحجز لموظف الاستقبال.'}
+            {serviceType === 'home'
+              ? 'ستظهر حالة الطلب وتفاصيل الزيارة المنزلية بعد مراجعة التوافر من المزود.'
+              : 'ستظهر حالة تأكيد الموعد وتفاصيل المركز في سجل حجوزاتك بعد مراجعة المزود.'}
           </AppText>
         </Animated.View>
 
         <Animated.View entering={ZoomIn.duration(600).delay(800)} style={[styles.bookingDetails, { backgroundColor: colors.surface, borderColor: colors.border } ]}>
           <View style={styles.detailRow}>
             <AppText style={{ color: colors.textSecondary }}>رقم المرجع:</AppText>
-            <AppText style={{ fontWeight: 'bold', color: colors.textPrimary }}>#NBD-7894</AppText>
+            <AppText style={{ fontWeight: 'bold', color: colors.textPrimary }}>{bookingReference}</AppText>
           </View>
-          {serviceType === 'clinic' && (
+          {bookingTotal && (
             <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.05)' }}>
-              <AppText style={{ color: colors.textSecondary, marginBottom: 8, textAlign: 'left' }}>عنوان المختبر:</AppText>
+              <AppText style={{ color: colors.textSecondary, marginBottom: 8, textAlign: 'left' }}>إجمالي الحجز:</AppText>
               <View style={{ flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse', alignItems: 'center' }}>
-                <Icon name="map-marker-outline" size={18} color={colors.primary} />
+                <Icon name="cash" size={18} color={colors.primary} />
                 <AppText style={{ fontWeight: 'bold', color: colors.textPrimary, marginLeft: 8, flex: 1, textAlign: 'left' }}>
-                  شارع التخصصي، حي المحمدية، الرياض
+                  {bookingTotal} ر.س
                 </AppText>
               </View>
             </View>
@@ -83,17 +85,10 @@ export default function BookingSuccess() {
       </View>
 
       <Animated.View entering={FadeInDown.duration(600).delay(1000)} style={styles.footer}>
-        {serviceType === 'home' ? (
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary, marginBottom: 16 }]} onPress={() => router.push('/(tabs)')}>
-            <Icon name="account-search-outline" size={20} color="#fff" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
-            <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>تتبع أخصائي المختبر</AppText>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary, marginBottom: 16 }]} onPress={() => router.push('/(tabs)')}>
-            <Icon name="map-marker-radius" size={20} color="#fff" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
-            <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>توجيه بخريطة الموقع</AppText>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary, marginBottom: 16 }]} onPress={() => router.replace('/diagnostics/orders' as never)}>
+          <Icon name="clipboard-text-outline" size={20} color="#fff" style={{ marginLeft: I18nManager.isRTL ? 0 : 8, marginRight: I18nManager.isRTL ? 8 : 0 }}/>
+          <AppText style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>عرض حجوزاتي</AppText>
+        </TouchableOpacity>
 
         <TouchableOpacity style={[styles.secondaryBtn, { borderColor: colors.primary }]} onPress={() => router.push('/(tabs)')}>
           <AppText style={{ color: colors.primary, fontSize: 16, fontWeight: 'bold' }}>العودة للرئيسية</AppText>

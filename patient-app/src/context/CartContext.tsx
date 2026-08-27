@@ -32,8 +32,8 @@ interface CartContextType {
   hasRxItems: boolean;
   prescriptionUrl: string | null;
   setPrescriptionUrl: (url: string | null) => void;
-  paymentType: 'cash' | 'insurance';
-  setPaymentType: (type: 'cash' | 'insurance') => void;
+  paymentType: 'cash' | 'card' | 'insurance';
+  setPaymentType: (type: 'cash' | 'card' | 'insurance') => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -41,7 +41,7 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [prescriptionUrl, setPrescriptionUrl] = useState<string | null>(null);
-  const [paymentType, setPaymentType] = useState<'cash' | 'insurance'>('cash');
+  const [paymentType, setPaymentType] = useState<'cash' | 'card' | 'insurance'>('card');
 
   // Load from backend on mount
   useEffect(() => {

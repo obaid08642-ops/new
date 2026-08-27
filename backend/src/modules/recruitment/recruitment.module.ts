@@ -1,7 +1,7 @@
 import { Module, Controller, Get, Post, Put, Patch, Param, Query, Body, UseGuards, Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtAuthGuard, Roles, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, Roles, CurrentUser, Public } from '../../common/auth.guard';
 import { Audited } from '../../common/audit-log.interceptor';
 import { UserRole } from '../../common/enums';
 import { CandidateProfile, CandidateProfileSchema, JobPosting, JobPostingSchema, JobApplication, JobApplicationSchema } from '../../schemas/job-board.schema';
@@ -254,11 +254,14 @@ export class RecruitmentController {
     return this.svc.updateJob(id, u.id, u.role, b);
   }
 
+  // Public: visitors (no account) can browse open medical jobs from the landing screen
+  @Public()
   @Get('jobs')
   listJobs(@CurrentUser() u: any, @Query() q: any) {
     return this.svc.listJobs(q, u);
   }
 
+  @Public()
   @Get('jobs/:id')
   getJob(@Param('id') id: string) {
     return this.svc.getJob(id);

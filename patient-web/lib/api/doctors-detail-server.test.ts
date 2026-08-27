@@ -1,0 +1,3 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getPublicDoctor } from "./doctors-server";
+describe("doctor detail wrapper",()=>{const old=globalThis.fetch;beforeEach(()=>{globalThis.fetch=vi.fn().mockResolvedValue(new Response("{}",{status:200}))});afterEach(()=>{globalThis.fetch=old;vi.restoreAllMocks()});it("uses public GET without Authorization",async()=>{await getPublicDoctor("doc-1");const [,o]=(globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];expect(o.headers).toEqual({Accept:"application/json"});await expect(getPublicDoctor("bad/id")).rejects.toThrow("invalid_doctor_id")})});

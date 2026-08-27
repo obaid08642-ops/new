@@ -1,88 +1,118 @@
 // @ts-nocheck
-// view-report.tsx — View lab/radiology report + read details + download PDF
+// view-report.tsx — REAL medical report viewer (/reports/:id → medicalreports).
+// EPIC4/S21: the previous version expected a lab-results shape that medical
+// reports don't have (so it rendered empty), and its PDF/share buttons were
+// setTimeout + Alert simulations. Now: real fields, honest states, real Share.
 import React, { useState } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   StatusBar,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+  ActivityIndicator,
+  Share,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Sharing from "expo-sharing";
 import { useApp } from "../../src/context/AppContext";
-import { Icon, IconName } from "../../src/components/Icon";
+import { Icon } from "../../src/components/Icon";
 import {
   AppText,
   Card,
   Badge,
   Button,
   IconButton,
-  SectionHeader,
 } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
+import { pickLocalized } from '../../src/utils/localize';
+import { dateLocale } from '@/utils/dates';
 
-// Report fetched from API
+function fmtDate(d: any): string {
+  if (!d) return "";
+  try {
+    return new Date(d).toLocaleDateString(dateLocale(), {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  clinic_note: "ملاحظة طبية",
+  discharge_summary: "ملخص خروج",
+  surgery_report: "تقرير عملية",
+  consultation_note: "ملاحظة استشارة",
+  second_opinion: "رأي طبي ثانٍ",
+  medical_certificate: "شهادة طبية",
+  referral: "خطاب تحويل",
+  other: "تقرير طبي",
+};
 
 export default function ViewReportScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const params = useLocalSearchParams();
-  const [downloading, setDownloading] = useState(false);
   const [report, setReport] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   React.useEffect(() => {
     async function load() {
-      if (!params?.id) return;
+      if (!params?.id) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
       try {
         const res = await apiFetch(`/reports/${params.id}`);
         setReport(res?.data || res);
       } catch (err) {
         console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
     }
     load();
   }, [params?.id]);
 
-  const statusColor = (s: string) =>
-    s === "normal"
-      ? colors.success
-      : s === "high"
-        ? colors.error
-        : colors.warning;
-  const statusLabel = (s: string) =>
-    s === "normal" ? "طبيعي" : s === "high" ? "مرتفع" : "منخفض";
-
-  const totalTests = report?.categories?.reduce((s: number, c: any) => s + c.tests.length, 0) || 0;
-  const abnormal = report?.categories?.reduce(
-    (s: number, c: any) => s + c.tests.filter((t: any) => t.status !== "normal").length,
-    0,
-  ) || 0;
-
-  if (!report) return null;
-
-  const handleDownloadPDF = async () => {
-    setDownloading(true);
-    // In production: generate PDF with expo-print or fetch from API
-    setTimeout(async () => {
-      setDownloading(false);
-      // Simulate share/download
-      Alert.alert("تحميل PDF", "تم تجهيز التقرير كملف PDF — جاري التحميل...", [
-        { text: "حسناً" },
-      ]);
-    }, 1200);
-  };
-
   const handleShare = async () => {
+    if (!report) return;
     try {
-      // In production: share actual PDF file
-      if (await Sharing.isAvailableAsync()) {
-        Alert.alert("مشاركة", "جاري مشاركة التقرير...");
-      }
+      const lines = [
+        pickLocalized(report.title_ar, report.title_en) || "تقرير طبي",
+        report.facility_name || report.doctor_name || "",
+        report.summary ? `\nالملخص: ${report.summary}` : "",
+        report.diagnosis ? `\nالتشخيص: ${report.diagnosis}` : "",
+        report.recommendations ? `\nالتوصيات: ${report.recommendations}` : "",
+        "\n— عبر تطبيق نبض",
+      ];
+      await Share.share({ message: lines.filter(Boolean).join("\n") });
     } catch {}
   };
+
+  if (loading) {
+    return (
+      <View style={[st.c, { backgroundColor: colors.background, alignItems: "center", justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error || !report) {
+    return (
+      <View style={[st.c, { backgroundColor: colors.background, alignItems: "center", justifyContent: "center", gap: 12, padding: 24 }]}>
+        <Icon name="warning" size={40} color={colors.warning} />
+        <AppText variant="h6">تعذر تحميل التقرير</AppText>
+        <Button label="رجوع" size="sm" full={false} onPress={() => router.back()} />
+      </View>
+    );
+  }
+
+  const hasLabTable = Array.isArray(report.categories) && report.categories.length > 0;
 
   return (
     <View style={[st.c, { backgroundColor: colors.background }]}>
@@ -95,20 +125,12 @@ export default function ViewReportScreen() {
         }}
       >
         <View style={st.hdrRow}>
-          <View style={{ flexDirection: "row-reverse", gap: 8 }}>
-            <IconButton
-              icon="share"
-              bg="rgba(255,255,255,0.18)"
-              color="#fff"
-              onPress={handleShare}
-            />
-            <IconButton
-              icon="download"
-              bg="rgba(255,255,255,0.18)"
-              color="#fff"
-              onPress={handleDownloadPDF}
-            />
-          </View>
+          <IconButton
+            icon="share"
+            bg="rgba(255,255,255,0.18)"
+            color="#fff"
+            onPress={handleShare}
+          />
           <AppText variant="h4" color="#fff">
             التقرير
           </AppText>
@@ -122,227 +144,119 @@ export default function ViewReportScreen() {
 
         <View style={st.reportMeta}>
           <AppText variant="h5" color="#fff">
-            {report.title}
+            {pickLocalized(report.title_ar, report.title_en) || "تقرير طبي"}
           </AppText>
-          <View style={{ flexDirection: "row-reverse", gap: 12, marginTop: 8 }}>
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                gap: 4,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="hospital" size={14} color="rgba(255,255,255,0.8)" />
+          <View style={{ flexDirection: "row-reverse", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
+            {!!(report.facility_name || report.lab) && (
+              <View style={{ flexDirection: "row-reverse", gap: 4, alignItems: "center" }}>
+                <Icon name="hospital" size={14} color="rgba(255,255,255,0.8)" />
+                <AppText variant="caption" color="rgba(255,255,255,0.8)">
+                  {report.facility_name || report.lab}
+                </AppText>
+              </View>
+            )}
+            {!!fmtDate(report.issued_at || report.createdAt || report.date) && (
+              <View style={{ flexDirection: "row-reverse", gap: 4, alignItems: "center" }}>
+                <Icon name="calendar" size={14} color="rgba(255,255,255,0.8)" />
+                <AppText variant="caption" color="rgba(255,255,255,0.8)">
+                  {fmtDate(report.issued_at || report.createdAt || report.date)}
+                </AppText>
+              </View>
+            )}
+          </View>
+          {!!(report.doctor_name || report.doctor) && (
+            <View style={{ flexDirection: "row-reverse", gap: 4, alignItems: "center", marginTop: 4 }}>
+              <Icon name="doctor" size={14} color="rgba(255,255,255,0.8)" />
               <AppText variant="caption" color="rgba(255,255,255,0.8)">
-                {report.lab}
+                {report.doctor_name || report.doctor}
               </AppText>
             </View>
-            <View
-              style={{
-                flexDirection: "row-reverse",
-                gap: 4,
-                alignItems: "center",
-              }}
-            >
-              <Icon name="calendar" size={14} color="rgba(255,255,255,0.8)" />
-              <AppText variant="caption" color="rgba(255,255,255,0.8)">
-                {report.date}
-              </AppText>
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              gap: 4,
-              alignItems: "center",
-              marginTop: 4,
-            }}
-          >
-            <Icon name="doctor" size={14} color="rgba(255,255,255,0.8)" />
-            <AppText variant="caption" color="rgba(255,255,255,0.8)">
-              بطلب: {report.doctor}
-            </AppText>
-          </View>
-        </View>
-
-        {/* Summary */}
-        <View style={st.summaryRow}>
-          <View style={{ alignItems: "center", flex: 1 }}>
-            <AppText variant="h3" color="#fff">
-              {totalTests}
-            </AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.7)">
-              تحليل
-            </AppText>
-          </View>
-          <View style={{ alignItems: "center", flex: 1 }}>
-            <AppText variant="h3" color="#fff">
-              {totalTests - abnormal}
-            </AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.7)">
-              طبيعي
-            </AppText>
-          </View>
-          <View style={{ alignItems: "center", flex: 1 }}>
-            <AppText variant="h3" color={abnormal > 0 ? "#FFD166" : "#fff"}>
-              {abnormal}
-            </AppText>
-            <AppText variant="caption" color="rgba(255,255,255,0.7)">
-              يحتاج متابعة
-            </AppText>
+          )}
+          <View style={{ flexDirection: "row-reverse", gap: 6, marginTop: 8 }}>
+            <Badge
+              label={TYPE_LABELS[report.report_type] || "تقرير طبي"}
+              color="rgba(255,255,255,0.9)"
+            />
+            {!!report.critical && (
+              <Badge label="مهم — يحتاج متابعة" color="#FFD3D6" />
+            )}
           </View>
         </View>
       </View>
 
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}
-      >
-        {/* AI analysis CTA */}
-        <Card
-          onPress={() =>
-            router.push({
-              pathname: "/reports/ai-analysis",
-              params: { reportId: report.id },
-            })
-          }
-          style={{
-            backgroundColor: colors.primarySurface,
-            flexDirection: "row-reverse",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <Icon name="robot" size={28} color={colors.primary} />
-          <View style={{ flex: 1, alignItems: "flex-end" }}>
-            <AppText variant="h6" color={colors.primary}>
-              تحليل AI للنتائج
-            </AppText>
-            <AppText variant="caption" color={colors.textTertiary}>
-              اضغط لقراءة تفسير ذكي لنتائجك
-            </AppText>
-          </View>
-          <Icon name="chevronLeft" size={18} color={colors.primary} />
-        </Card>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}>
+        {!!report.summary && (
+          <Card>
+            <AppText variant="h6" style={{ marginBottom: 6 }}>الملخص</AppText>
+            <AppText variant="body" color={colors.textSecondary}>{report.summary}</AppText>
+          </Card>
+        )}
 
-        {/* Test categories */}
-        {report?.categories?.map((cat: any, ci: number) => (
+        {!!report.diagnosis && (
+          <Card>
+            <AppText variant="h6" style={{ marginBottom: 6 }}>التشخيص</AppText>
+            <AppText variant="body" color={colors.textSecondary}>{report.diagnosis}</AppText>
+          </Card>
+        )}
+
+        {!!report.body && (
+          <Card>
+            <AppText variant="h6" style={{ marginBottom: 6 }}>تفاصيل التقرير</AppText>
+            <AppText variant="body" color={colors.textSecondary}>{report.body}</AppText>
+          </Card>
+        )}
+
+        {!!report.recommendations && (
+          <Card>
+            <AppText variant="h6" style={{ marginBottom: 6 }}>التوصيات</AppText>
+            <AppText variant="body" color={colors.textSecondary}>{report.recommendations}</AppText>
+          </Card>
+        )}
+
+        {hasLabTable && report.categories.map((cat: any, ci: number) => (
           <Card key={ci}>
-            <SectionHeader title={cat.name} />
-            {cat.tests?.map((test: any, ti: number) => (
-              <View
-                key={ti}
-                style={[
-                  st.testRow,
-                  ti > 0 && {
-                    borderTopWidth: 1,
-                    borderTopColor: colors.borderLight,
-                  },
-                ]}
-              >
-                <Badge
-                  label={statusLabel(test.status)}
-                  color={statusColor(test.status)}
-                />
-                <View style={{ flex: 1, alignItems: "flex-end", gap: 2 }}>
-                  <AppText variant="h6">{test.name}</AppText>
-                  <View
-                    style={{
-                      flexDirection: "row-reverse",
-                      gap: 8,
-                      alignItems: "center",
-                    }}
-                  >
-                    <AppText variant="h5" color={statusColor(test.status)}>
-                      {test.value}
-                    </AppText>
-                    <AppText variant="caption" color={colors.textTertiary}>
-                      {test.unit}
-                    </AppText>
-                  </View>
-                  <AppText variant="caption" color={colors.textTertiary}>
-                    المرجع: {test.ref}
-                  </AppText>
-                </View>
-                <View
-                  style={[
-                    st.statusDot,
-                    { backgroundColor: statusColor(test.status) },
-                  ]}
-                />
+            <AppText variant="h6" style={{ marginBottom: 8 }}>{cat.name}</AppText>
+            {(cat.tests || []).map((t: any, ti: number) => (
+              <View key={ti} style={{ flexDirection: "row-reverse", justifyContent: "space-between", paddingVertical: 6, borderTopWidth: ti ? 1 : 0, borderTopColor: colors.border }}>
+                <AppText variant="bodySM">{t.name}</AppText>
+                <AppText
+                  variant="bodySM"
+                  color={t.status === "normal" ? colors.success : colors.error}
+                >
+                  {t.value} {t.unit || ""}
+                </AppText>
               </View>
             ))}
           </Card>
         ))}
-      </ScrollView>
 
-      {/* Bottom download bar */}
-      <View
-        style={[
-          st.bottom,
-          {
-            paddingBottom: insets.bottom + 8,
-            backgroundColor: colors.surface,
-            borderTopColor: colors.borderLight,
-          },
-        ]}
-      >
-        <View style={{ flexDirection: "row-reverse", gap: 10 }}>
-          <Button
-            label="تحميل PDF"
-            variant="gradient"
-            icon="download"
-            loading={downloading}
-            onPress={handleDownloadPDF}
-            full={false}
-            style={{ flex: 1 }}
-          />
-          <Button
-            label="تحليل AI"
-            variant="outline"
-            icon="robot"
-            onPress={() =>
-              router.push({
-                pathname: "/reports/ai-analysis",
-                params: { reportId: report.id },
-              })
-            }
-            full={false}
-            style={{ flex: 1 }}
-          />
-        </View>
-      </View>
+        {!report.summary && !report.diagnosis && !report.body && !hasLabTable && (
+          <Card style={{ alignItems: "center", paddingVertical: 24, gap: 8 }}>
+            <Icon name="document" size={36} color={colors.textTertiary} />
+            <AppText variant="body" color={colors.textTertiary}>
+              لا توجد تفاصيل إضافية في هذا التقرير
+            </AppText>
+          </Card>
+        )}
+
+        <Button
+          label="تحليل التقرير بالذكاء الاصطناعي"
+          icon="robot"
+          onPress={() =>
+            router.push({ pathname: "/reports/ai-analysis", params: { id: report.id } })
+          }
+        />
+      </ScrollView>
     </View>
   );
 }
 
 const st = StyleSheet.create({
   c: { flex: 1 },
-  hdr: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
   hdrRow: {
     flexDirection: "row-reverse",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
   },
-  reportMeta: { alignItems: "flex-end" },
-  summaryRow: {
-    flexDirection: "row-reverse",
-    backgroundColor: "rgba(255,255,255,0.14)",
-    borderRadius: 16,
-    marginTop: 14,
-    padding: 12,
-  },
-  testRow: {
-    flexDirection: "row-reverse",
-    alignItems: "center",
-    gap: 10,
-    paddingVertical: 10,
-  },
-  statusDot: { width: 10, height: 10, borderRadius: 5 },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
+  reportMeta: { marginTop: 16, alignItems: "flex-end" },
 });

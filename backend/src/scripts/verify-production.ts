@@ -19,7 +19,7 @@ async function verifyProduction() {
       }
     }
     if (!envOk) throw new Error('Environment variables check failed.');
-    logger.log('✅ Environment variables OK.');
+    logger.log(' Environment variables OK.');
 
     const app = await NestFactory.createApplicationContext(AppModule);
 
@@ -27,7 +27,7 @@ async function verifyProduction() {
     if (mongoose.connection.readyState !== 1) {
       throw new Error('MongoDB is not connected.');
     }
-    logger.log('✅ MongoDB connection OK.');
+    logger.log(' MongoDB connection OK.');
 
     // 3. Verify Redis Connection
     const redisService = app.get(RedisService);
@@ -35,10 +35,10 @@ async function verifyProduction() {
     if (ping !== 'PONG') {
       throw new Error('Redis ping failed.');
     }
-    logger.log('✅ Redis connection OK.');
+    logger.log(' Redis connection OK.');
 
     logger.log('===================================================');
-    logger.log('🚀 SYSTEM IS FULLY VERIFIED AND READY FOR PRODUCTION 🚀');
+    logger.log(' SYSTEM IS FULLY VERIFIED AND READY FOR PRODUCTION');
     logger.log('===================================================');
 
     await app.close();

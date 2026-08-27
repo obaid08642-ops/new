@@ -3,6 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { ApprovalWorkflowService } from './approval-workflow.module';
 import { ApprovalStatus } from '../../schemas/approval-request.schema';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { CatalogPublicationService } from '../events/catalog-publication.service';
 
 describe('ApprovalWorkflowService', () => {
   let service: ApprovalWorkflowService;
@@ -12,6 +13,8 @@ describe('ApprovalWorkflowService', () => {
   let facilityModel: any;
   let labModel: any;
   let radiologyModel: any;
+  let homeCareModel: any;
+  let publication: any;
 
   beforeEach(async () => {
     reqModel = {
@@ -39,6 +42,11 @@ describe('ApprovalWorkflowService', () => {
       create: jest.fn(),
       updateOne: jest.fn(),
     };
+    homeCareModel = {
+      create: jest.fn(),
+      updateOne: jest.fn(),
+    };
+    publication = { refresh: jest.fn().mockResolvedValue({ published: true }) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -49,6 +57,8 @@ describe('ApprovalWorkflowService', () => {
         { provide: getModelToken('Facility'), useValue: facilityModel },
         { provide: getModelToken('LabService'), useValue: labModel },
         { provide: getModelToken('RadiologyService'), useValue: radiologyModel },
+        { provide: getModelToken('HomeCareService'), useValue: homeCareModel },
+        { provide: CatalogPublicationService, useValue: publication },
       ],
     }).compile();
 
@@ -110,9 +120,43 @@ describe('ApprovalWorkflowService', () => {
 
       const res = await service.decide('admin1', 'r1', { decision: 'approved' });
       expect(res.status).toBe(ApprovalStatus.APPROVED);
-      expect(medicineModel.create).toHaveBeenCalledWith(mockReq.change_data);
+      expect(medicineModel.create).toHaveBeenCalledWith(expect.objectContaining({
+        ...mockReq.change_data,
+        public_eligibility: true,
+        indexing_eligibility: false,
+        medical_review_status: 'approved',
+        provenance: 'approval_workflow:r1',
+      }));
       expect(mockReq.entity_id).toBe('med1');
       expect(mockReq.save).toHaveBeenCalled();
+      expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({
+        entityType: 'medicine', entityId: 'med1', actorId: 'admin1', idempotencyKey: 'approval-workflow:r1:approved',
+      }));
+    });
+
+    it('publishes home-care services through the same governed projection', async () => {
+      const mockReq: any = {
+        id: 'r-home',
+        entity_type: 'service',
+        entity_id: null,
+        status: ApprovalStatus.PENDING_REVIEW,
+        change_data: { type: 'home_care', name_ar: 'تمريض منزلي', name_en: 'Home nursing', active: true },
+        save: jest.fn(),
+        toObject: () => ({ id: 'r-home', status: ApprovalStatus.APPROVED, entity_id: 'home-1' }),
+      };
+      reqModel.findOne.mockResolvedValue(mockReq);
+      homeCareModel.create.mockResolvedValue({ id: 'home-1' });
+
+      await service.decide('admin1', 'r-home', { decision: 'approved' });
+
+      expect(homeCareModel.create).toHaveBeenCalledWith(expect.objectContaining({
+        public_eligibility: true,
+        indexing_eligibility: false,
+        medical_review_status: 'approved',
+      }));
+      expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({
+        entityType: 'home_care_service', entityId: 'home-1', actorId: 'admin1',
+      }));
     });
 
     it('should patch actual medicine document on approval if entity_id exists', async () => {
@@ -132,9 +176,18 @@ describe('ApprovalWorkflowService', () => {
       expect(res.status).toBe(ApprovalStatus.APPROVED);
       expect(medicineModel.updateOne).toHaveBeenCalledWith(
         { id: 'med1' },
-        { $set: mockReq.change_data }
+        { $set: expect.objectContaining({
+          ...mockReq.change_data,
+          public_eligibility: true,
+          indexing_eligibility: false,
+          medical_review_status: 'approved',
+          provenance: 'approval_workflow:r1',
+        }) },
       );
       expect(mockReq.save).toHaveBeenCalled();
+      expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({
+        entityType: 'medicine', entityId: 'med1', actorId: 'admin1', idempotencyKey: 'approval-workflow:r1:approved',
+      }));
     });
   });
 });

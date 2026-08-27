@@ -48,6 +48,8 @@ export class HealthController {
     return {
       status,
       time: new Date().toISOString(),
+      // Process uptime in seconds — consumed by the admin dashboard health widget.
+      uptime: Math.round(process.uptime()),
       details: {
         mongodb: mongoOk ? 'up' : 'down',
         redis: redisOk ? 'up' : 'down',

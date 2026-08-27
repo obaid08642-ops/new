@@ -30,6 +30,13 @@ export class LabService extends Document {
   @Prop({ default: false }) unavailable: boolean; // admin manual flag
   @Prop({ default: false }) medical_referral_required: boolean;
   @Prop({ default: false }) is_deleted: boolean;
+  // Public eligibility is a reviewed governance decision, not an operational default.
+  @Prop({ default: false, index: true }) public_eligibility: boolean;
+  @Prop({ default: false, index: true }) indexing_eligibility: boolean;
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected', 'suspended'], default: 'pending', index: true })
+  medical_review_status: string;
+  @Prop() last_reviewed?: Date;
+  @Prop() provenance?: string;
   @Prop({ default: 1 }) version: number;
 
   // Added per Addendum
@@ -39,6 +46,8 @@ export class LabService extends Document {
   @Prop({ default: true }) in_lab_availability: boolean;
   @Prop() special_notes?: string;
   @Prop({ type: Object }) reference_ranges?: { min: number; max: number; unit: string };
+  @Prop() image_url?: string; // Cloudinary catalog image
+  @Prop() icon?: string;
 }
 export const LabServiceSchema = SchemaFactory.createForClass(LabService);
 LabServiceSchema.index({ name_ar: 'text', name_en: 'text' });
@@ -50,6 +59,7 @@ export enum LabBookingState {
   WAITING_COPAY = 'WAITING_COPAY',
   CONFIRMED = 'CONFIRMED',
   IN_TRANSIT = 'IN_TRANSIT',
+  IN_LAB = 'IN_LAB',
   SAMPLE_COLLECTED = 'SAMPLE_COLLECTED',
   PROCESSING = 'PROCESSING',
   RESULT_UPLOADED = 'RESULT_UPLOADED',
@@ -63,10 +73,11 @@ export const LAB_BOOKING_TRANSITIONS: Record<string, any[]> = {
   [LabBookingState.PENDING_INSURANCE]: [LabBookingState.WAITING_COPAY, LabBookingState.CANCELLED],
   [LabBookingState.WAITING_COPAY]: [LabBookingState.CONFIRMED, LabBookingState.CANCELLED],
   [LabBookingState.CONFIRMED]: [LabBookingState.IN_TRANSIT, LabBookingState.SAMPLE_COLLECTED, LabBookingState.CANCELLED],
-  [LabBookingState.IN_TRANSIT]: [LabBookingState.SAMPLE_COLLECTED, LabBookingState.CANCELLED],
+  [LabBookingState.IN_TRANSIT]: [LabBookingState.IN_LAB, LabBookingState.SAMPLE_COLLECTED, LabBookingState.CANCELLED],
+  [LabBookingState.IN_LAB]: [LabBookingState.SAMPLE_COLLECTED, LabBookingState.PROCESSING, LabBookingState.CANCELLED],
   [LabBookingState.SAMPLE_COLLECTED]: [LabBookingState.PROCESSING, LabBookingState.SAMPLE_REJECTED],
   [LabBookingState.PROCESSING]: [LabBookingState.RESULT_UPLOADED, LabBookingState.SAMPLE_REJECTED],
-  [LabBookingState.RESULT_UPLOADED]: [],
+  [LabBookingState.RESULT_UPLOADED]: [LabBookingState.REPORTED],
   [LabBookingState.SAMPLE_REJECTED]: [LabBookingState.CONFIRMED, LabBookingState.CANCELLED],
   [LabBookingState.CANCELLED]: [],
 };
@@ -128,7 +139,6 @@ LabBookingSchema.index({ state: 1, scheduled_at: 1 });
 export class LabSample extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ required: true, index: true }) lab_order_id: string;
-  @Prop({ required: true, index: true }) provider_account_id: string;
   @Prop({ required: true, index: true }) patient_id: string;
   @Prop({ required: true, unique: true, index: true }) barcode: string;
   @Prop({ type: [String], default: [] }) tests: string[];
@@ -137,4 +147,3 @@ export class LabSample extends Document {
   @Prop() notes?: string;
 }
 export const LabSampleSchema = SchemaFactory.createForClass(LabSample);
-LabSampleSchema.index({ provider_account_id: 1, createdAt: -1 });

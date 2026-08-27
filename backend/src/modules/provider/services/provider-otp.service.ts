@@ -75,4 +75,24 @@ export class ProviderOtpService {
     await this.audit.create({ provider_account_id: meta.account_id, actor_id: meta.account_id || 'unknown', actor_role: 'provider', action: 'otp.verified', target: { collection: 'provider_otp_codes', id: doc.id }, ip: meta.ip, user_agent: meta.ua });
     return { ok: true };
   }
+
+  /** Validate the latest active OTP WITHOUT consuming it — used by the
+   *  password-reset UI to verify the code step before the actual reset call
+   *  (which consumes the code). Wrong codes still burn attempts so this
+   *  cannot be abused as a brute-force oracle. */
+  async check(email: string, purpose: OtpPurpose, code: string, meta: { ip?: string; ua?: string; account_id?: string } = {}) {
+    email = (email || '').toLowerCase().trim();
+    if (!code || code.length !== 6) throw new BadRequestException('invalid code');
+    const doc = await this.otpModel.findOne({ email, purpose, status: OtpStatus.ACTIVE }).sort({ createdAt: -1 });
+    if (!doc) throw new BadRequestException('no active code — please request a new one');
+    if (doc.expires_at.getTime() < Date.now()) { doc.status = OtpStatus.EXPIRED; await doc.save(); throw new BadRequestException('code expired'); }
+    if (doc.attempts >= OTP_MAX_ATTEMPTS) { doc.status = OtpStatus.INVALIDATED; await doc.save(); throw new BadRequestException('too many attempts — please request a new code'); }
+    const matches = doc.code_hash === this.hash(code);
+    if (!matches) {
+      doc.attempts += 1; await doc.save();
+      await this.audit.create({ provider_account_id: meta.account_id, actor_id: meta.account_id || 'unknown', actor_role: 'provider', action: 'otp.verify_failed', target: { collection: 'provider_otp_codes', id: doc.id }, ip: meta.ip, user_agent: meta.ua });
+      throw new BadRequestException(`incorrect code (${OTP_MAX_ATTEMPTS - doc.attempts} attempts left)`);
+    }
+    return { ok: true };
+  }
 }

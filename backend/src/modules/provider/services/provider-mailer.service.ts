@@ -2,10 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
 /**
- * Mailer abstraction. Currently runs in LOG_ONLY mode — prints the email body
- * to the NestJS logs so OTP flows can be tested without external dependencies.
- * When RESEND_API_KEY is present, it sends via Resend.
- * When SMTP_USER and SMTP_PASS are present, it sends via Nodemailer SMTP.
+ * Mailer abstraction. Delivery requires configured Resend or SMTP credentials.
+ * The service fails closed when no delivery channel is configured and never logs
+ * message bodies or verification codes.
  */
 export interface MailMessage {
   to: string;
@@ -17,11 +16,9 @@ export interface MailMessage {
 
 interface MailerAdapter { send(msg: MailMessage): Promise<{ id?: string; status: 'sent' | 'logged' | 'failed'; error?: string }> }
 
-class LogOnlyAdapter implements MailerAdapter {
-  private logger = new Logger('Mailer:LogOnly');
-  async send(msg: MailMessage) {
-    this.logger.log(`\n╔═══ EMAIL (LOG_ONLY) ═══════════════════════════════════════════════╗\n║ To:      ${msg.to}\n║ Subject: ${msg.subject}\n║ Tag:     ${msg.tag || '-'}\n║ Body:\n${(msg.text || msg.html || '').split('\n').map((l) => '║   ' + l).join('\n')}\n╚══════════════════════════════════════════════════════════╝`);
-    return { status: 'logged' as const, id: 'log-' + Date.now() };
+class DisabledAdapter implements MailerAdapter {
+  async send(_msg: MailMessage) {
+    return { status: 'failed' as const, error: 'mail_delivery_unavailable' };
   }
 }
 
@@ -90,8 +87,8 @@ export class ProviderMailerService {
       this.adapter = new NodemailerAdapter(smtpHost, smtpPort, smtpUser, smtpPass, mailFrom);
       this.logger.log(`Initialised Nodemailer SMTP adapter (host=${smtpHost}, port=${smtpPort}, from=${mailFrom})`);
     } else {
-      this.adapter = new LogOnlyAdapter();
-      this.logger.warn('Neither RESEND_API_KEY nor SMTP credentials set — running in LOG_ONLY mode. OTP codes will be visible in backend logs.');
+      this.adapter = new DisabledAdapter();
+      this.logger.warn('Provider mail delivery is disabled because no delivery credentials are configured.');
     }
   }
   send(msg: MailMessage) { return this.adapter.send(msg); }

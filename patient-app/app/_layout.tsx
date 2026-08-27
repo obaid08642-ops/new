@@ -1,5 +1,9 @@
 // @ts-nocheck
 // app/_layout.tsx — Root Layout (Expo SDK 54)
+
+// Polyfills must run before ANY other import (LiveKit expects DOMException).
+import '../src/polyfills';
+
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -15,11 +19,8 @@ import { SocketProvider } from '../src/context/SocketContext';
 import { CartProvider } from '../src/context/CartContext';
 import { DiagnosticsCartProvider } from '../src/context/DiagnosticsCartContext';
 import { ConsultationsProvider } from '../src/context/ConsultationsContext';
-import { useDispatch } from 'react-redux';
-import { guestLogin } from '../src/store/slices/authSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../src/constants';
 import NotificationHandler from '../src/components/NotificationHandler';
+import OfflineBanner from '../src/components/OfflineBanner';
 import { initSentry } from '../src/utils/sentry';
 import { SyncManager } from '../src/data/sync/SyncManager';
 import { BackgroundSynchronizer } from '../src/data/sync/BackgroundSynchronizer';
@@ -35,27 +36,6 @@ SplashScreen.preventAutoHideAsync();
 function ThemedStatusBar() {
   const { isDark } = useApp();
   return <StatusBar style={isDark ? 'light' : 'dark'} />;
-}
-
-function StoreHydrator({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const hydrate = async () => {
-      try {
-        const guestMode = await AsyncStorage.getItem(STORAGE_KEYS.GUEST_MODE ?? '@nabdah_guest');
-        if (guestMode === 'true') {
-          dispatch(guestLogin({
-            user: { id: 'guest_user', role: 'patient', full_name: 'زائر', phone: '', email: '' } as any,
-            token: 'guest_token',
-          }));
-        }
-      } catch {}
-    };
-    hydrate();
-  }, [dispatch]);
-
-  return <>{children}</>;
 }
 
 function RootLayout() {
@@ -84,8 +64,7 @@ function RootLayout() {
 
   return (
     <Provider store={store}>
-      <StoreHydrator>
-        <AppProvider>
+      <AppProvider>
           <SocketProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <SafeAreaProvider>
@@ -94,6 +73,7 @@ function RootLayout() {
                     <ConsultationsProvider>
                       <ThemedStatusBar />
                       <NotificationHandler />
+                      <OfflineBanner />
                       <Stack 
                         screenOptions={{ headerShown: false }}
                       >
@@ -112,7 +92,6 @@ function RootLayout() {
             </GestureHandlerRootView>
           </SocketProvider>
         </AppProvider>
-      </StoreHydrator>
     </Provider>
   );
 }

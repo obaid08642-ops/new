@@ -2,12 +2,13 @@ export const APP_NAME = 'نبض بلس';
 export const APP_NAME_EN = 'Nabdah Plus';
 export const APP_VERSION = '1.0.0';
 
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.nabdahplus.com/v1';
-export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? 'wss://socket.nabdahplus.com';
-export const CDN_URL = process.env.EXPO_PUBLIC_CDN_URL ?? 'https://cdn.nabdahplus.com';
+// M1-ENV: fixed wrong default (was missing the /api prefix → pointed at non-existent /v1)
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL
+  ?? (process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '')}/api/v1` : 'https://api.nabd.plus/api/v1');
+export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? 'https://api.nabd.plus';
+export const CDN_URL = process.env.EXPO_PUBLIC_CDN_URL ?? 'https://cdn.nabd.plus';
 
 export const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
-export const ONESIGNAL_APP_ID = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID ?? '';
 
 export const STORAGE_KEYS = {
   AUTH_TOKEN: '@nabdah_auth_token',

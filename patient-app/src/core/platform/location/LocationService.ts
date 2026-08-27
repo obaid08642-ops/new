@@ -30,8 +30,15 @@ export class LocationService {
    * Calculate straight-line or routed distance between two points.
    */
   public calculateDistance(pointA: GeoCoordinates, pointB: GeoCoordinates, unit: 'km' | 'mi' = 'km'): number {
-    // Haversine formula implementation placeholder
-    return 0;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const R = 6371; // Earth radius in km
+    const dLat = toRad(pointB.latitude - pointA.latitude);
+    const dLng = toRad(pointB.longitude - pointA.longitude);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(pointA.latitude)) * Math.cos(toRad(pointB.latitude)) * Math.sin(dLng / 2) ** 2;
+    const km = 2 * R * Math.asin(Math.sqrt(a));
+    return unit === 'mi' ? km * 0.621371 : km;
   }
 
   /**

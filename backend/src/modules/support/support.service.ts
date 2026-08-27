@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { SupportRequest, SupportStatus, PatientSettings } from '../../schemas/support.schema';
 import { SupportRequestRepository } from "./repositories/supportrequest.repository";
 import { PatientSettingsRepository } from "./repositories/patientsettings.repository";
@@ -9,6 +11,7 @@ export class SupportService {
   constructor(
     @Inject('SupportRequestRepository') private readonly req: SupportRequestRepository,
     @Inject('PatientSettingsRepository') private readonly settings: PatientSettingsRepository,
+    @InjectConnection() private readonly conn: Connection,
   ) {}
 
   // SUPPORT

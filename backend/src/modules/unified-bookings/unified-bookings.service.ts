@@ -1,13 +1,13 @@
-// @ts-nocheck
 import { Injectable, ConflictException } from '@nestjs/common';
 import Redis from 'ioredis';
+import { redisUrlFromEnv } from '../redis/redis.service';
 
 @Injectable()
 export class UnifiedBookingsService {
   private redisClient: Redis;
 
   constructor() {
-    this.redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+    this.redisClient = new Redis(redisUrlFromEnv());
   }
 
   async acquireBookingLock(providerId: string, slotStartTimestamp: number, patientId: string): Promise<void> {
@@ -15,7 +15,7 @@ export class UnifiedBookingsService {
     const ttlSeconds = 300; // Enforce a 5-minute isolation lock for payment processing
 
     // Atomic transaction using SETNX wrapped parameter strings
-    const lockAcquired = await this.redisClient.set(lockKey, patientId, 'NX', 'EX', ttlSeconds);
+    const lockAcquired = await this.redisClient.set(lockKey, patientId, 'EX', ttlSeconds, 'NX');
 
     if (!lockAcquired) {
       throw new ConflictException({

@@ -14,6 +14,10 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "target": "ESNext",
+    "types": [
+      "node",
+      "jest"
+    ],
     "paths": {
       "@/*": ["./src/*"],
       "@/design-system": ["./src/design-system/index.ts"],

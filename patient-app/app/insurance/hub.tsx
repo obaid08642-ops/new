@@ -2,17 +2,9 @@
 // app/insurance/hub.tsx — CHI WebView DOM Scraper + Full Backend Integration
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-  StatusBar,
-  Modal,
-  ActivityIndicator,
-  TextInput
+  View, StyleSheet, ScrollView, TouchableOpacity,
+  Dimensions, StatusBar, Modal, Alert, ActivityIndicator, TextInput,
 } from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
 import { WebView } from 'react-native-webview';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,6 +14,7 @@ import { Icon } from '../../src/components/Icon';
 import { useGuestGuard } from '../../src/hooks/useGuestGuard';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -89,7 +82,8 @@ export default function InsuranceHubScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const { isGuest, requireAuth } = useGuestGuard();
-  if (isGuest) { requireAuth(); return null; }
+  // Insurance is one of the ONLY two guest-restricted areas (with family).
+  if (isGuest) { requireAuth('insurance'); return null; }
 
   const [policies, setPolicies] = useState<any[]>([]);
   const [claims, setClaims] = useState<any[]>([]);
@@ -151,11 +145,11 @@ export default function InsuranceHubScreen() {
       const msg = JSON.parse(event.nativeEvent.data);
 
       if (msg.status === 'timeout') {
-        Alert.alert('انتهت المهلة', 'لم يتم العثور على نتائج تأمين. تأكد من إدخال رقم الهوية والضغط على استعلام.');
+        showLocalizedAlert('انتهت المهلة', 'لم يتم العثور على نتائج تأمين. تأكد من إدخال رقم الهوية والضغط على استعلام.');
         return;
       }
       if (msg.status === 'error') {
-        Alert.alert('خطأ في الاستعلام', msg.message || 'تعذّر جلب بيانات التأمين من بوابة الضمان.');
+        showLocalizedAlert('خطأ في الاستعلام', msg.message || 'تعذّر جلب بيانات التأمين من بوابة الضمان.');
         return;
       }
       if (msg.status === 'success' && msg.data?.length > 0) {
@@ -180,7 +174,7 @@ export default function InsuranceHubScreen() {
           }).catch(() => null);
 
           setChiVisible(false);
-          Alert.alert(
+          showLocalizedAlert(
             'تم سحب بيانات التأمين تلقائياً',
             `شركة التأمين: ${item.company}\nرقم البوليصة: ${item.policy_number}\nالفئة: ${item.class}\nشبكة: ${item.network}`,
             [{ text: 'موافق' }]
@@ -193,7 +187,7 @@ export default function InsuranceHubScreen() {
             network: item.class || prev[0].network,
           }]);
         } catch (_) {
-          Alert.alert('خطأ', 'تم سحب البيانات لكن فشل حفظها. يرجى المحاولة لاحقاً.');
+          showLocalizedAlert('خطأ', 'تم سحب البيانات لكن فشل حفظها. يرجى المحاولة لاحقاً.');
         } finally {
           setChiSaving(false);
         }

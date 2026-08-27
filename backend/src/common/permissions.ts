@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { SetMetadata } from '@nestjs/common';
 import { UserRole } from './enums';
 
@@ -135,6 +134,33 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     Permission.USER_READ,
   ],
   [UserRole.DELIVERY]: [
+    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
+    Permission.USER_READ,
+  ],
+  [UserRole.GUEST]: [],
+  [UserRole.NURSING]: [
+    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
+    Permission.PRESCRIPTION_READ,
+    Permission.USER_READ,
+  ],
+  [UserRole.AMBULANCE]: [
+    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
+    Permission.USER_READ,
+  ],
+  [UserRole.HOSPITAL_ADMIN]: [
+    Permission.DOCTOR_CREATE, Permission.DOCTOR_EDIT, Permission.DOCTOR_READ,
+    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
+    Permission.PRESCRIPTION_READ, Permission.PRESCRIPTION_CREATE,
+    Permission.FACILITY_READ, Permission.FACILITY_EDIT,
+    Permission.USER_READ,
+  ],
+  [UserRole.BRANCH_ADMIN]: [
+    Permission.DOCTOR_READ,
+    Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
+    Permission.FACILITY_READ,
+    Permission.USER_READ,
+  ],
+  [UserRole.RECEPTIONIST]: [
     Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
     Permission.USER_READ,
   ],

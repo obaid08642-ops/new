@@ -86,10 +86,14 @@ class NotificationsManager {
     const hasPermission = await this.requestPermissions();
     if (!hasPermission) return null;
 
+    const projectId = process.env.EXPO_PUBLIC_PROJECT_ID;
+    const uuidRe = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!projectId || !uuidRe.test(projectId)) {
+      log.info('No valid EAS projectId — skipping push token (Expo Go/dev)');
+      return null;
+    }
     try {
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        // projectId: Constants.expoConfig?.extra?.eas?.projectId,
-      });
+      const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
       this.pushToken = tokenData.data;
       log.info('Push token generated', { token: this.pushToken });
       return this.pushToken;

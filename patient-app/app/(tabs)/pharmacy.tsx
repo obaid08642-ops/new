@@ -8,20 +8,9 @@
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Animated,
-  Platform,
-  FlatList,
-  StatusBar,
-  Image
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput,
+  ActivityIndicator, Animated, Platform, FlatList, StatusBar, Image, Alert,
 } from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
@@ -29,8 +18,15 @@ import { useApp } from '../../src/context/AppContext';
 import { useCart } from '../../src/context/CartContext';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { apiFetch, BASE_URL } from '../../src/utils/api';
+import ProductImage from '@/components/ProductImage';
+import RotatingCardImage from '@/components/RotatingCardImage';
+import { resolveGallery } from '@/utils/imageUrl';
+import { setVisibleProductIds } from '@/utils/productNav';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { pickLocalized, pickDbField } from '../../src/utils/localize';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
-const IMAGE_BASE_URL = BASE_URL.replace('/api/v1', '') + '/static/images';
 
 const CATEGORIES = [
   { id: 'all', label: 'الكل', icon: 'apps' },
@@ -64,6 +60,7 @@ export default function PharmacyTab() {
   const [medicines, setMedicines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewCols, setViewCols] = useState<1 | 2>(1); // 1 = wide row cards, 2 = two-per-row grid
 
   // Fetch categories from database
   useEffect(() => {
@@ -111,7 +108,7 @@ export default function PharmacyTab() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      try {
+      {
         const q = new URLSearchParams();
         if (searchQuery)           q.append('search', searchQuery);
         const cat = params.filter_category || activeCat;
@@ -123,12 +120,23 @@ export default function PharmacyTab() {
         if (params.filter_max_price)  q.append('max_price', params.filter_max_price);
         if (params.filter_sort)       q.append('sort', params.filter_sort);
 
-        const data = await apiFetch(`/medicines?${q.toString()}`);
-        setMedicines(Array.isArray(data) ? data : []);
-      } catch {
-        setMedicines([]);
-      } finally {
-        setLoading(false);
+        const ep = `/medicines?${q.toString()}`;
+        const ck = `@nabdah_offline_cat_${q.toString()}`;
+        // Offline-first: show last cached copy instantly, then refresh
+        try {
+          const raw = await AsyncStorage.getItem(ck);
+          if (raw) setMedicines(JSON.parse(raw).data || []);
+        } catch {}
+        try {
+          const data = await apiFetch(ep);
+          const rows = Array.isArray(data) ? data : [];
+          setMedicines(rows);
+          AsyncStorage.setItem(ck, JSON.stringify({ data: rows, ts: Date.now() })).catch(() => {});
+        } catch {
+          // Offline — cached copy (if any) already shown above; never mock data
+        } finally {
+          setLoading(false);
+        }
       }
     })();
   }, [searchQuery, activeCat, params.filter_category, params.filter_forms, params.filter_brands, params.filter_rx, params.filter_min_price, params.filter_max_price, params.filter_sort]);
@@ -154,7 +162,7 @@ export default function PharmacyTab() {
 
     addItem({
       id: m.id,
-      name: m.name || m.name_ar,
+      name: pickDbField(m, 'name') || m.name,
       price: m.price || m.p || 0,
       rx: m.rx || m.requires_prescription || false,
       image: m.image,
@@ -165,6 +173,7 @@ export default function PharmacyTab() {
     });
   }, [addItem, fabScale]);
 
+  // (visible product ids feed swipe navigation on the product page)
   // Filter client-side as fallback if backend isn't filtering correctly
   const filtered = medicines.filter(m => {
     const cat = params.filter_category || activeCat;
@@ -202,17 +211,19 @@ export default function PharmacyTab() {
     return 0; // 'relevant' or none
   });
 
+  useEffect(() => { setVisibleProductIds(filtered.map((x) => String(x.id))); }, [filtered]);
+
   const getItemQty = (id: string) => items.find(i => i.id === id)?.qty || 0;
 
 
   const renderHeader = () => (
     <View>
       {/* ─── Top Section (Scrolls with page) ─── */}
-        <View style={styles.topSection}>
+        <View style={[styles.topSection, { paddingTop: insets.top + 10 }]}>
           {/* Search Row */}
           <View style={[styles.searchRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
             <View style={[styles.searchBar, { backgroundColor: colors.s, borderColor: colors.bd, flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 22 }}>search</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 22 }}>search</LocalizedText>
               <TextInput
                 style={[styles.searchInput, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
                 placeholder={lang === 'ar' ? 'ابحث بالاسم أو المادة الفعالة...' : 'Search medicines...'}
@@ -225,9 +236,20 @@ export default function PharmacyTab() {
                 onPress={() => router.push('/pharmacy/barcode-scanner')}
                 activeOpacity={0.7}
               >
-                <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 20 }}>document_scanner</Text>
+                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 20 }}>document_scanner</LocalizedText>
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              style={[styles.filterBtn, {
+                backgroundColor: colors.s,
+                borderColor: colors.bd,
+              }]}
+              onPress={() => setViewCols(v => (v === 1 ? 2 : 1))}
+              activeOpacity={0.7}
+            >
+              <Icon name={viewCols === 1 ? 'grid_view' : 'view_agenda'} color={colors.n} size={20} />
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.filterBtn, {
@@ -240,7 +262,7 @@ export default function PharmacyTab() {
               <Icon name="tune" color={activeFilterCount > 0 ? '#fff' : colors.n} size={20} />
               {activeFilterCount > 0 && (
                 <View style={styles.filterBadge}>
-                  <Text style={{ fontSize: 9, color: '#fff', fontWeight: '900' }}>{activeFilterCount}</Text>
+                  <LocalizedText style={{ fontSize: 9, color: '#fff', fontWeight: '900' }}>{activeFilterCount}</LocalizedText>
                 </View>
               )}
             </TouchableOpacity>
@@ -263,8 +285,8 @@ export default function PharmacyTab() {
                   <Icon name="document" size={26} color="#0EA5E9" />
                 </View>
                 <View style={{ marginTop: 10, alignItems: 'flex-end' }}>
-                  <Text style={styles.bannerTitle}>وصفة طبية</Text>
-                  <Text style={styles.bannerSub}>ارفع روشتة واطلب</Text>
+                  <LocalizedText style={styles.bannerTitle}>وصفة طبية</LocalizedText>
+                  <LocalizedText style={styles.bannerSub}>ارفع روشتة واطلب</LocalizedText>
                 </View>
                 <View style={styles.bannerArrow}>
                   <Icon name="chevronLeft" size={16} color="rgba(255,255,255,0.7)" />
@@ -285,8 +307,8 @@ export default function PharmacyTab() {
                   <Icon name="receipt" size={26} color="#F59E0B" />
                 </View>
                 <View style={{ marginTop: 10, alignItems: 'flex-end' }}>
-                  <Text style={styles.bannerTitle}>طلباتي</Text>
-                  <Text style={styles.bannerSub}>سجل طلبات الأدوية</Text>
+                  <LocalizedText style={styles.bannerTitle}>طلباتي</LocalizedText>
+                  <LocalizedText style={styles.bannerSub}>سجل طلبات الأدوية</LocalizedText>
                 </View>
                 <View style={styles.bannerArrow}>
                   <Icon name="chevronLeft" size={16} color="rgba(255,255,255,0.7)" />
@@ -309,7 +331,7 @@ export default function PharmacyTab() {
                 activeOpacity={0.8}
               >
                 <Icon name={c.icon} color={activeCat === c.id ? '#fff' : colors.t2} size={18} />
-                <Text style={{
+                <LocalizedText style={{
                   fontFamily: activeCat === c.id ? 'Cairo-Bold' : 'Cairo-SemiBold',
                   fontSize: 13,
                   color: activeCat === c.id ? '#fff' : colors.n,
@@ -317,7 +339,7 @@ export default function PharmacyTab() {
                   textAlign: isRTL ? 'right' : 'left'
                 }}>
                   {c.label}
-                </Text>
+                </LocalizedText>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -329,10 +351,11 @@ export default function PharmacyTab() {
     <View style={[styles.container, { backgroundColor: colors.bg } ]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <FlatList
+        key={`cols-${viewCols}`}
         data={filtered}
         keyExtractor={item => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={styles.cardsGrid}
+        numColumns={viewCols}
+        columnWrapperStyle={viewCols === 2 ? { gap: 10 } : undefined}
         contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={renderHeader()}
@@ -340,79 +363,143 @@ export default function PharmacyTab() {
           loading ? (
             <View style={styles.centered}>
               <ActivityIndicator size="large" color="#23B5CE" />
-              <Text style={[styles.loadingText, { color: colors.t2 } ]}>جاري تحميل الأدوية...</Text>
+              <LocalizedText style={[styles.loadingText, { color: colors.t2 } ]}>جاري تحميل الأدوية...</LocalizedText>
             </View>
           ) : (
             <View style={styles.centered}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 64 }}>search_off</Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: colors.n, marginTop: 12 }}>لم نجد ما تبحث عنه</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.t3, fontSize: 64 }}>search_off</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: colors.n, marginTop: 12 }}>لم نجد ما تبحث عنه</LocalizedText>
               <TouchableOpacity
                 style={[styles.manualBtn, { backgroundColor: '#23B5CE' }]}
                 onPress={() => router.push('/pharmacy/manual-order')}
               >
-                <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: '#fff' }}>طلب يدوي</Text>
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: '#fff' }}>طلب يدوي</LocalizedText>
               </TouchableOpacity>
             </View>
           )
         }
         renderItem={({ item: m }) => {
           const qty = getItemQty(m.id);
+          const gallery = resolveGallery(m);
+
+          // ── Two-per-row square grid card ──────────────────────────────
+          if (viewCols === 2) {
+            return (
+              <TouchableOpacity
+                key={m.id}
+                style={[styles.gridCard, { backgroundColor: colors.s, borderColor: colors.bd }]}
+                onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: pickDbField(m, 'name') || m.name } })}
+                activeOpacity={0.85}
+              >
+                <View style={[styles.gridImgWrap, { backgroundColor: gallery.length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
+                  {gallery.length ? (
+                    <RotatingCardImage images={gallery} style={{ width: '100%', height: '100%' }} iconSize={40} />
+                  ) : (
+                    <Icon name={m.icon || m.ic || 'pill'} size={40} color={m.iconColor || m.c || '#23B5CE'} />
+                  )}
+                  {(m.rx || m.requires_prescription) && (
+                    <View style={styles.rxBadgeRow}><LocalizedText style={styles.rxText}>Rx</LocalizedText></View>
+                  )}
+                </View>
+                <View style={{ padding: 10, flex: 1 }}>
+                  <LocalizedText style={[styles.gridName, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={2}>
+                    {pickDbField(m, 'name') || m.name}
+                  </LocalizedText>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: isRTL ? 'flex-end' : 'flex-start', marginTop: 4 }}>
+                    <LocalizedText style={[styles.price, { color: '#23B5CE' }]}>{(m.price || m.p || 0).toFixed(2)}</LocalizedText>
+                    <LocalizedText style={[styles.currency, { color: colors.t3 }]}>ر.س</LocalizedText>
+                  </View>
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'flex-end', marginTop: 6 }}>
+                    {qty > 0 ? (
+                      <View style={[styles.qtyControlGrid, { backgroundColor: '#DEF5F9' }]}>
+                        <TouchableOpacity onPress={() => updateQty(m.id, 1)} style={styles.qtyBtnCol}>
+                          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 18 }}>add</LocalizedText>
+                        </TouchableOpacity>
+                        <LocalizedText style={[styles.qtyNum, { color: '#23B5CE' }]}>{qty}</LocalizedText>
+                        <TouchableOpacity onPress={() => updateQty(m.id, -1)} style={styles.qtyBtnCol}>
+                          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 18 }}>remove</LocalizedText>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity onPress={() => {
+                        if (m.rx || m.requires_prescription) {
+                          showLocalizedAlert(
+                            isRTL ? 'مطلوب وصفة طبية' : 'Prescription Required',
+                            isRTL ? 'هذا الدواء يتطلب إرفاق روشتة طبية سارية. سيُطلب منك رفعها في سلة المشتريات لإتمام الطلب.' : 'This medicine requires a valid prescription. You will be asked to upload it in the cart.',
+                            [{ text: isRTL ? 'موافق' : 'OK' }]
+                          );
+                        }
+                        addItem({...m, rx: m.rx || m.requires_prescription});
+                      }} style={[styles.addBtnGrid, { backgroundColor: '#23B5CE' }]}>
+                        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 20 }}>add_shopping_cart</LocalizedText>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }
+
+          // Horizontal card: BIG image on the LEFT, cart control on the RIGHT.
           return (
                   <TouchableOpacity
                     key={m.id}
-                    style={[styles.card, { backgroundColor: colors.s, borderColor: colors.bd }]}
-                    onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: m.name || m.name_ar } })}
+                    style={[styles.cardRow, { backgroundColor: colors.s, borderColor: colors.bd }]}
+                    onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: pickDbField(m, 'name') || m.name } })}
                     activeOpacity={0.85}
                   >
-                    <View style={[styles.iconBox, { backgroundColor: m.image ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' } ]}>
-                      {m.image ? (
-                        <Image source={{ uri: `${IMAGE_BASE_URL}/${m.image}` }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+                    {/* Image — LEFT, large */}
+                    <View style={[styles.cardImgWrap, { backgroundColor: resolveGallery(m).length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' } ]}>
+                      {resolveGallery(m).length ? (
+                        <RotatingCardImage images={resolveGallery(m)} style={{ width: '100%', height: '100%' }} iconSize={44} />
                       ) : (
-                        <Icon name={m.icon || m.ic || 'pill'} size={40} color={m.iconColor || m.c || '#23B5CE'} />
+                        <Icon name={m.icon || m.ic || 'pill'} size={44} color={m.iconColor || m.c || '#23B5CE'} />
+                      )}
+                      {(m.rx || m.requires_prescription) && (
+                        <View style={styles.rxBadgeRow}>
+                          <LocalizedText style={styles.rxText}>Rx</LocalizedText>
+                        </View>
                       )}
                     </View>
 
-                    {(m.rx || m.requires_prescription) && (
-                      <View style={styles.rxBadge}>
-                        <Text style={styles.rxText}>Rx</Text>
+                    {/* Text — middle */}
+                    <View style={styles.cardMid}>
+                      <LocalizedText style={[styles.medNameRow, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={2}>
+                        {pickDbField(m, 'name') || m.name}
+                      </LocalizedText>
+                      <LocalizedText style={[styles.medDesc, { color: colors.t3, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={2}>
+                        {pickDbField(m, 'description') || m.d}
+                      </LocalizedText>
+                      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: isRTL ? 'flex-end' : 'flex-start' }}>
+                        <LocalizedText style={[styles.price, { color: '#23B5CE' } ]}>{(m.price || m.p || 0).toFixed(2)}</LocalizedText>
+                        <LocalizedText style={[styles.currency, { color: colors.t3 } ]}>ر.س</LocalizedText>
                       </View>
-                    )}
+                    </View>
 
-                    <Text style={[styles.medName, { color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>
-                      {m.name || m.name_ar}
-                    </Text>
-                    <Text style={[styles.medDesc, { color: colors.t3, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={2}>
-                      {m.d || m.description_ar}
-                    </Text>
-
-                    <View style={[styles.cardFooter, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-                      <View>
-                        <Text style={[styles.price, { color: '#23B5CE' } ]}>{(m.price || m.p || 0).toFixed(2)}</Text>
-                        <Text style={[styles.currency, { color: colors.t3 } ]}>ر.س</Text>
-                      </View>
-
+                    {/* Cart — RIGHT */}
+                    <View style={styles.cardCartSide}>
                       {qty > 0 ? (
-                        <View style={[styles.qtyControl, { backgroundColor: '#DEF5F9' } ]}>
-                          <TouchableOpacity onPress={() => updateQty(m.id, 1)} style={styles.qtyBtn}>
-                            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 18 }}>add</Text>
+                        <View style={[styles.qtyControlCol, { backgroundColor: '#DEF5F9' } ]}>
+                          <TouchableOpacity onPress={() => updateQty(m.id, 1)} style={styles.qtyBtnCol}>
+                            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 20 }}>add</LocalizedText>
                           </TouchableOpacity>
-                          <Text style={[styles.qtyNum, { color: '#23B5CE' } ]}>{qty}</Text>
-                          <TouchableOpacity onPress={() => updateQty(m.id, -1)} style={styles.qtyBtn}>
-                            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 18 }}>remove</Text>
+                          <LocalizedText style={[styles.qtyNum, { color: '#23B5CE' } ]}>{qty}</LocalizedText>
+                          <TouchableOpacity onPress={() => updateQty(m.id, -1)} style={styles.qtyBtnCol}>
+                            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 20 }}>remove</LocalizedText>
                           </TouchableOpacity>
                         </View>
                       ) : (
                         <TouchableOpacity onPress={() => {
                           if (m.rx || m.requires_prescription) {
-                            Alert.alert(
+                            showLocalizedAlert(
                               isRTL ? 'مطلوب وصفة طبية' : 'Prescription Required',
                               isRTL ? 'هذا الدواء يتطلب إرفاق روشتة طبية سارية. سيُطلب منك رفعها في سلة المشتريات لإتمام الطلب.' : 'This medicine requires a valid prescription. You will be asked to upload it in the cart.',
                               [{ text: isRTL ? 'موافق' : 'OK' }]
                             );
                           }
                           addItem({...m, rx: m.rx || m.requires_prescription});
-                        }} style={[styles.addBtn, { backgroundColor: '#23B5CE' } ]}>
-                          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 24 }}>add_shopping_cart</Text>
+                        }} style={[styles.addBtnRow, { backgroundColor: '#23B5CE' } ]}>
+                          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 26 }}>add_shopping_cart</LocalizedText>
                         </TouchableOpacity>
                       )}
                     </View>
@@ -437,10 +524,10 @@ export default function PharmacyTab() {
             opacity: toastAnim,
           },
         ]}>
-        <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 24, marginRight: 8 }}>receipt_long</Text>
-        <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13, flex: 1, textAlign: 'left' }}>
+        <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 24, marginRight: 8 }}>receipt_long</LocalizedText>
+        <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13, flex: 1, textAlign: 'left' }}>
           هذا الدواء يتطلب وصفة طبية، يرجى إرفاقها عند الدفع
-        </Text>
+        </LocalizedText>
       </Animated.View>
 
       {/* ─── Floating Cart Button ─── */}
@@ -451,9 +538,9 @@ export default function PharmacyTab() {
             onPress={() => router.push('/pharmacy/cart')}
             activeOpacity={0.9}
           >
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 24 }}>shopping_cart</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 24 }}>shopping_cart</LocalizedText>
             <View style={styles.fabBadge}>
-              <Text style={styles.fabBadgeText}>{itemCount}</Text>
+              <LocalizedText style={styles.fabBadgeText}>{itemCount}</LocalizedText>
             </View>
           </TouchableOpacity>
         </Animated.View>
@@ -504,4 +591,19 @@ const styles = StyleSheet.create({
   fabBadgeText: { fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 11 },
   toast: { position: 'absolute', bottom: 180, alignSelf: 'center', backgroundColor: '#F0695C', borderRadius: 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, width: '85%', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
   qtyNum: { fontFamily: 'Cairo-Bold', fontSize: 13, color: '#1E293B' },
+  // ── Horizontal product row (image LEFT / cart RIGHT) ──
+  cardRow: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, borderWidth: 1, padding: 10, marginBottom: 12, overflow: 'hidden' },
+  gridCard: { flex: 1, borderRadius: 20, borderWidth: 1, marginBottom: 12, overflow: 'hidden', maxWidth: '49%' },
+  gridImgWrap: { width: '100%', height: 120, justifyContent: 'center', alignItems: 'center' },
+  gridName: { fontFamily: 'Cairo-Bold', fontSize: 13, lineHeight: 18 },
+  qtyControlGrid: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2, gap: 6 },
+  addBtnGrid: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#23B5CE', justifyContent: 'center', alignItems: 'center' },
+  cardImgWrap: { width: 110, height: 110, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
+  rxBadgeRow: { position: 'absolute', top: 6, left: 6, backgroundColor: '#F0695C', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+  cardMid: { flex: 1, paddingHorizontal: 12, justifyContent: 'center' },
+  medNameRow: { fontFamily: 'Cairo-Bold', fontSize: 14, lineHeight: 20, marginBottom: 4 },
+  cardCartSide: { justifyContent: 'center', alignItems: 'center', marginLeft: 4 },
+  addBtnRow: { width: 46, height: 46, borderRadius: 15, backgroundColor: '#23B5CE', justifyContent: 'center', alignItems: 'center' },
+  qtyControlCol: { alignItems: 'center', borderRadius: 14, paddingVertical: 4, paddingHorizontal: 6 },
+  qtyBtnCol: { paddingHorizontal: 8, paddingVertical: 5 },
 });

@@ -1,0 +1,5 @@
+import { z } from "zod";
+const pointSchema=z.object({value:z.number().finite(),at:z.string().max(80)});
+const trendSchema=z.object({id:z.enum(["glucose","heart_rate","bp","spo2","temperature","weight"]),name:z.string().max(120),unit:z.string().max(30),current:z.number().finite(),trendDir:z.enum(["flat","up","down"]),labels:z.array(z.string().max(20)).max(30),data:z.array(pointSchema).max(30)}).passthrough();
+export type HealthTrend={id:string;name:string;unit:string;current:number;trendDir:"flat"|"up"|"down";labels:string[];data:{value:number;at:string}[]};
+export function parseHealthTrends(payload:unknown):HealthTrend[]{const rows=Array.isArray(payload)?payload:(payload&&typeof payload==="object"&&Array.isArray((payload as Record<string,unknown>).data)?(payload as Record<string,unknown>).data:[]);return (rows as unknown[]).flatMap((value)=>{const p=trendSchema.safeParse(value);if(!p.success)return[];const r=p.data;return [{id:r.id,name:r.name,unit:r.unit,current:r.current,trendDir:r.trendDir,labels:r.labels,data:r.data}];});}

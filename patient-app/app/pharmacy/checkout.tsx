@@ -2,29 +2,24 @@
 /**
  * app/pharmacy/checkout.tsx
  * Checkout screen: collect delivery address, delivery mode, payment method.
- * - Creates then submits a real pharmacy request to the backend broadcast workflow.
+ * - Sends real POST /orders/create to backend with cart items + location.
  * - On success → navigates to waiting-for-pharmacy with orderId.
- * - Never creates an order locally when the backend is unavailable.
+ * - No offline simulated order flow; every order is created by the backend.
  */
 import React, { useState, useEffect } from 'react';
 import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Platform
+  View, Text, StyleSheet, TouchableOpacity, ScrollView,
+  ActivityIndicator, Alert, Platform, TextInput,
 } from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedText as Text } from '@/components/LocalizedText';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { useCart } from '../../src/context/CartContext';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
-// Removed FALLBACK_ADDRESS
 export default function PharmacyCheckoutScreen() {
   const insets = useSafeAreaInsets();
   const { isDark, lang } = useApp() as any;
@@ -37,6 +32,16 @@ export default function PharmacyCheckoutScreen() {
   const [hasInsurance, setHasInsurance] = useState(false);
   const [userAddress, setUserAddress] = useState<any>({});
   const [loadingAddress, setLoadingAddress] = useState(true);
+
+  // ─── Coupon and loyalty discount (server-verified) ─────────────────────────
+  const [couponCode, setCouponCode] = useState('');
+  const [couponResult, setCouponResult] = useState<any>(null); // {valid, discount, reason}
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
+  const [loyaltyQuote, setLoyaltyQuote] = useState<any>(null); // {max_points_for_order, point_value_sar, balance}
+  const [usePoints, setUsePoints] = useState(false);
+
+  // "Online Exclusive" is a badge only — both home delivery and pharmacy
+  // pickup remain available (business decision: never block checkout).
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -58,9 +63,38 @@ export default function PharmacyCheckoutScreen() {
     fetchProfile();
   }, []);
 
-  const handlePaymentSelect = (id: 'cash' | 'insurance') => {
+  const deliveryFee = deliveryMode === 'delivery' ? 15 : 0;
+  const preTotal = subtotal + deliveryFee;
+
+  useEffect(() => {
+    if (paymentType === 'insurance') return;
+    apiFetch('/finance-engine/loyalty/redeem-quote', {
+      method: 'POST',
+      body: JSON.stringify({ order_total: preTotal }),
+    }).then(setLoyaltyQuote).catch(() => setLoyaltyQuote(null));
+  }, [preTotal, paymentType]);
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim();
+    if (!code) return;
+    setCheckingCoupon(true);
+    try {
+      const res = await apiFetch('/finance-engine/coupons/validate', {
+        method: 'POST',
+        body: JSON.stringify({ code, order_total: preTotal }),
+      });
+      setCouponResult(res);
+      if (!res?.valid) setCouponResult({ valid: false, reason: res?.reason || 'كوبون غير صالح' });
+    } catch (e: any) {
+      setCouponResult({ valid: false, reason: e?.message || 'تعذر التحقق من الكوبون' });
+    } finally {
+      setCheckingCoupon(false);
+    }
+  };
+
+  const handlePaymentSelect = (id: 'cash' | 'card' | 'insurance') => {
     if (id === 'insurance' && !hasInsurance) {
-      Alert.alert(
+      showLocalizedAlert(
         'التأمين غير مضاف',
         'لم تقم بإضافة بطاقة التأمين الطبي الخاصة بك. يرجى إضافتها من الملف الشخصي ليتسنى لنا تغطية الطلب.',
         [
@@ -79,49 +113,59 @@ export default function PharmacyCheckoutScreen() {
     router.push('/shared/location-picker');
   };
 
-  const hasDeliveryAddress = Boolean(
-    userAddress?.street &&
-    userAddress?.city &&
-    Number.isFinite(Number(userAddress?.lat)) &&
-    Number.isFinite(Number(userAddress?.lng)),
-  );
+  const couponDiscount = couponResult?.valid ? Number(couponResult.discount || 0) : 0;
+  const loyaltyDiscount = usePoints && loyaltyQuote?.enabled ? Number(loyaltyQuote.max_discount_sar || 0) : 0;
+  const loyaltyPointsToUse = usePoints && loyaltyQuote?.enabled ? Number(loyaltyQuote.max_points_for_order || 0) : 0;
+  const total = Math.max(0, Math.round((preTotal - couponDiscount - loyaltyDiscount) * 100) / 100);
 
   const handleConfirmOrder = async () => {
     if (!items.length) {
-      Alert.alert('السلة فارغة', 'أضف الأصناف المطلوبة قبل إرسال الطلب.');
+      showLocalizedAlert('السلة فارغة', 'أضف منتجات قبل إنشاء الطلب.');
       return;
     }
-    if (deliveryMode === 'delivery' && !hasDeliveryAddress) {
-      Alert.alert('عنوان التوصيل مطلوب', 'اختر عنواناً محفوظاً يتضمن الموقع قبل إرسال الطلب.');
+    if (!Number.isFinite(Number(userAddress?.lat)) || !Number.isFinite(Number(userAddress?.lng))) {
+      showLocalizedAlert('حدد موقع الاستلام', 'يلزم تحديد موقع حقيقي لاختيار الصيدلية المناسبة أو التوصيل.');
       return;
     }
     setSubmitting(true);
     try {
+      // Build payload for backend
       const payload = {
         items: items.map(i => ({
-          raw_name: i.name,
+          medicine_id: i.id,
           name_ar: i.name,
           qty: i.qty,
+          price: i.price,
         })),
-        delivery_address: deliveryMode === 'delivery' ? {
-          label: userAddress.label,
-          street: userAddress.street,
-          city: userAddress.city,
+        delivery_address: {
+          label: userAddress.label || 'المنزل',
+          street: userAddress.street || '',
+          city: userAddress.city || '',
           lat: Number(userAddress.lat),
           lng: Number(userAddress.lng),
-        } : undefined,
-        patient_notes: '',
-        prescription_attachments: prescriptionUrl ? [prescriptionUrl] : [],
+        },
+        delivery_mode: deliveryMode === 'pickup' ? 'PICKUP' : 'DELIVERY',
+        payment_method: paymentType,
+        prescription_id: prescriptionUrl || undefined,
+        // Server computes the authoritative total; these are validated server-side too.
+        coupon_code: couponResult?.valid ? couponCode.trim().toUpperCase() : undefined,
+        loyalty_points: loyaltyPointsToUse > 0 ? loyaltyPointsToUse : undefined,
+        notes: '',
       };
 
-      const created = await apiFetch('/patient/pharmacy/orders', { method: 'POST', body: JSON.stringify(payload) });
-      const orderId = created?.id || created?.order_id;
-      if (!orderId) throw new Error('لم تُعد الخدمة معرف طلب صالحاً.');
-      await apiFetch(`/patient/pharmacy/orders/${encodeURIComponent(orderId)}/submit`, { method: 'POST' });
+      let orderId: string = '';
+      try {
+        const res = await apiFetch('/orders/create', { method: 'POST', body: JSON.stringify(payload) });
+        orderId = res?.id || res?.order_id || '';
+      } catch (err) {
+        console.error('Checkout API error:', err);
+        throw new Error('فشل إنشاء الطلب. يرجى التأكد من اتصالك بالإنترنت والمحاولة مجدداً.');
+      }
 
+      // Navigate to waiting screen with orderId
       router.push({ pathname: '/pharmacy/waiting-for-pharmacy', params: { orderId } });
     } catch (e) {
-      Alert.alert('خطأ', 'حدث خطأ أثناء تأكيد الطلب، يرجى المحاولة مجدداً');
+      showLocalizedAlert('خطأ', 'حدث خطأ أثناء تأكيد الطلب، يرجى المحاولة مجدداً');
     } finally {
       setSubmitting(false);
     }
@@ -133,37 +177,42 @@ export default function PharmacyCheckoutScreen() {
       {/* Header */}
       <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.iconBtn, { backgroundColor: colors.s } ]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>arrow_forward</LocalizedText>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.n } ]}>إتمام الطلب</Text>
+        <LocalizedText style={[styles.headerTitle, { color: colors.n } ]}>إتمام الطلب</LocalizedText>
         <View style={{ width: 44 }}/>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 180 }} showsVerticalScrollIndicator={false}>
 
         {/* ─── Delivery Mode ───────────────────────────────────────────────────── */}
-        <Text style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>طريقة الاستلام</Text>
+        <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>طريقة الاستلام</LocalizedText>
         <View style={[styles.modeRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
           {[
-            { id: 'delivery' as const, icon: 'local_shipping', label: 'توصيل للمنزل', sub: 'تحدد الرسوم في العرض' },
-            { id: 'pickup' as const, icon: 'storefront', label: 'استلام من الصيدلية', sub: 'مجاناً' },
+            { id: 'delivery' as const, icon: 'local_shipping', label: 'توصيل للمنزل', sub: `${deliveryFee} ر.س`, disabled: false },
+            { id: 'pickup' as const, icon: 'storefront', label: 'استلام من الصيدلية', sub: 'مجاناً', disabled: false },
           ].map(opt => (
             <TouchableOpacity
               key={opt.id}
+              disabled={opt.disabled}
               style={[styles.modeCard, {
                 backgroundColor: deliveryMode === opt.id ? '#DEF5F9' : colors.s,
                 borderColor: deliveryMode === opt.id ? '#23B5CE' : colors.bd,
                 marginRight: isRTL ? 0 : (opt.id === 'delivery' ? 10 : 0),
                 marginLeft: isRTL ? (opt.id === 'delivery' ? 10 : 0) : 0,
+                opacity: opt.disabled ? 0.4 : 1,
               }]}
-              onPress={() => setDeliveryMode(opt.id)}
+              onPress={() => !opt.disabled && setDeliveryMode(opt.id)}
               activeOpacity={0.8}
             >
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 32, color: deliveryMode === opt.id ? '#23B5CE' : colors.t2, marginBottom: 8 }}>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 32, color: deliveryMode === opt.id ? '#23B5CE' : colors.t2, marginBottom: 8 }}>
                 {opt.icon}
-              </Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: deliveryMode === opt.id ? '#141A2A' : colors.t2 }}>{opt.label}</Text>
-              <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: '#23B5CE', marginTop: 4 }}>{opt.sub}</Text>
+              </LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: deliveryMode === opt.id ? '#141A2A' : colors.t2 }}>{opt.label}</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: '#23B5CE', marginTop: 4 }}>{opt.sub}</LocalizedText>
+              {opt.disabled && (
+                <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 10, color: '#7A6BEA', marginTop: 2 }}>غير متاح — حصري أونلاين</LocalizedText>
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -172,26 +221,80 @@ export default function PharmacyCheckoutScreen() {
         {deliveryMode === 'delivery' && (
           <View style={[styles.addressCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
             <View style={[{ flexDirection: isRTL ? 'row-reverse' : 'row' }, styles.addressTop]} >
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 22, marginRight: 10 }}>location_on</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 22, marginRight: 10 }}>location_on</LocalizedText>
               <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n }}>{userAddress.label || 'عنوان التوصيل'}</Text>
-                <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2, marginTop: 2 }}>
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n }}>{userAddress.label || 'عنوان التوصيل'}</LocalizedText>
+                <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2, marginTop: 2 }}>
                   {loadingAddress ? 'جاري التحميل...' : `${userAddress.street || ''}، ${userAddress.city || ''}`}
-                </Text>
+                </LocalizedText>
               </View>
               <TouchableOpacity onPress={handleChangeAddress}>
-                <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: '#23B5CE' }}>تغيير</Text>
+                <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: '#23B5CE' }}>تغيير</LocalizedText>
               </TouchableOpacity>
             </View>
           </View>
         )}
 
+        {/* ─── Coupon ────────────────────────────────────────────────────────── */}
+        <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>كوبون الخصم</LocalizedText>
+        <View style={[styles.couponRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+          <TextInput
+            value={couponCode}
+            onChangeText={(t) => { setCouponCode(t); setCouponResult(null); }}
+            placeholder="أدخل كود الكوبون"
+            placeholderTextColor={colors.t2}
+            autoCapitalize="characters"
+            style={[styles.couponInput, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
+          />
+          <TouchableOpacity
+            onPress={handleApplyCoupon}
+            disabled={checkingCoupon || !couponCode.trim()}
+            style={[styles.couponBtn, { backgroundColor: checkingCoupon || !couponCode.trim() ? colors.bd : '#23B5CE' }]}
+          >
+            {checkingCoupon ? <ActivityIndicator color="#fff" size="small" /> : (
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 14 }}>تطبيق</LocalizedText>
+            )}
+          </TouchableOpacity>
+        </View>
+        {couponResult && (
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: couponResult.valid ? '#2BB89C' : '#E55', marginBottom: 12, textAlign: isRTL ? 'right' : 'left' }}>
+            {couponResult.valid ? `تم تطبيق الكوبون — خصم ${Number(couponResult.discount || 0).toFixed(2)} ر.س` : `الكوبون غير صالح: ${couponResult.reason || ''}`}
+          </LocalizedText>
+        )}
+
+        {/* ─── Loyalty points ────────────────────────────────────────────────── */}
+        {loyaltyQuote?.enabled && Number(loyaltyQuote.max_points_for_order || 0) > 0 && paymentType !== 'insurance' && (
+          <TouchableOpacity
+            style={[styles.payCard, {
+              backgroundColor: usePoints ? '#E2F7F2' : colors.s,
+              borderColor: usePoints ? '#2BB89C' : colors.bd,
+              flexDirection: isRTL ? 'row-reverse' : 'row',
+            }]}
+            onPress={() => setUsePoints(!usePoints)}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.payIcon, { backgroundColor: usePoints ? '#2BB89C' : colors.bg }]}>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: usePoints ? '#fff' : colors.t2 }}>stars</LocalizedText>
+            </View>
+            <View style={{ flex: 1, marginHorizontal: 14, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n }}>استخدام نقاط الولاء</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 2 }}>
+                {loyaltyQuote.max_points_for_order} نقطة = خصم {Number(loyaltyQuote.max_discount_sar || 0).toFixed(2)} ر.س (بحد أقصى 5% من قيمة الطلب)
+              </LocalizedText>
+            </View>
+            <View style={[styles.radioOuter, { borderColor: usePoints ? '#2BB89C' : colors.bd }]}>
+              {usePoints && <View style={[styles.radioInner, { backgroundColor: '#2BB89C' }]} />}
+            </View>
+          </TouchableOpacity>
+        )}
+
         {/* ─── Payment Mode ────────────────────────────────────────────────────── */}
-        <Text style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>طريقة الدفع</Text>
+        <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>طريقة الدفع</LocalizedText>
         {[
-          { id: 'cash' as const, icon: 'credit_card', label: 'بطاقة ائتمانية / مدى', sub: 'Visa · Mastercard · Mada' },
-          { id: 'insurance' as const, icon: 'health_and_safety', label: 'التأمين الطبي', sub: 'التعاونية · بوبا · ميدغلف' },
-        ].map(opt => (
+          { id: 'card' as const, icon: 'credit_card', label: 'بطاقة بنكية أو محفظة رقمية', sub: 'Visa وMastercard وApple Pay وGoogle Pay بحسب دعم البوابة', show: true },
+          { id: 'cash' as const, icon: 'payments', label: 'الدفع عند الاستلام', sub: 'نقداً أو بالشبكة عند التوصيل', show: true },
+          { id: 'insurance' as const, icon: 'health_and_safety', label: 'التأمين الطبي', sub: 'التعاونية · بوبا · ميدغلف', show: true },
+        ].filter(o => o.show).map(opt => (
           <TouchableOpacity
             key={opt.id}
             style={[styles.payCard, {
@@ -203,13 +306,13 @@ export default function PharmacyCheckoutScreen() {
             activeOpacity={0.8}
           >
             <View style={[styles.payIcon, { backgroundColor: paymentType === opt.id ? '#23B5CE' : colors.bg } ]}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: paymentType === opt.id ? '#fff' : colors.t2 }}>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: paymentType === opt.id ? '#fff' : colors.t2 }}>
                 {opt.icon}
-              </Text>
+              </LocalizedText>
             </View>
             <View style={{ flex: 1, marginHorizontal: 14, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n }}>{opt.label}</Text>
-              <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 2 }}>{opt.sub}</Text>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n }}>{opt.label}</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 2 }}>{opt.sub}</LocalizedText>
             </View>
             <View style={[styles.radioOuter, { borderColor: paymentType === opt.id ? '#23B5CE' : colors.bd } ]}>
               {paymentType === opt.id && <View style={styles.radioInner} />}
@@ -218,28 +321,40 @@ export default function PharmacyCheckoutScreen() {
         ))}
 
         {/* ─── Order Summary ───────────────────────────────────────────────────── */}
-        <Text style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>ملخص الطلب</Text>
+        <LocalizedText style={[styles.sectionTitle, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>ملخص الطلب</LocalizedText>
         <View style={[styles.summaryCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
           {items.map(item => (
             <View key={item.id} style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-              <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2, flex: 1 }} numberOfLines={1}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2, flex: 1 }} numberOfLines={1}>
                 {item.name} × {item.qty}
-              </Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.n }}>
+              </LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.n }}>
                 {(item.price * item.qty).toFixed(2)} ر.س
-              </Text>
+              </LocalizedText>
             </View>
           ))}
           <View style={[styles.divider, { backgroundColor: colors.bd }]} />
           <View style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-            <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>رسوم التوصيل</Text>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.t2 }}>
-              تحدد بعد عروض الصيدليات
-            </Text>
+            <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>رسوم التوصيل</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: deliveryFee === 0 ? '#2BB89C' : colors.n }}>
+              {deliveryFee === 0 ? 'مجاناً' : `${deliveryFee} ر.س`}
+            </LocalizedText>
           </View>
+          {couponDiscount > 0 && (
+            <View style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>خصم الكوبون</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: '#2BB89C' }}>-{couponDiscount.toFixed(2)} ر.س</LocalizedText>
+            </View>
+          )}
+          {loyaltyDiscount > 0 && (
+            <View style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>خصم نقاط الولاء</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: '#2BB89C' }}>-{loyaltyDiscount.toFixed(2)} ر.س</LocalizedText>
+            </View>
+          )}
           <View style={[styles.summaryRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-            <Text style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: colors.n }}>الإجمالي النهائي</Text>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.t2 }}>يظهر بعد اختيار العرض</Text>
+            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: colors.n }}>الإجمالي</LocalizedText>
+            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: '#23B5CE' }}>{total.toFixed(2)} ر.س</LocalizedText>
           </View>
         </View>
 
@@ -257,8 +372,8 @@ export default function PharmacyCheckoutScreen() {
             <ActivityIndicator color="#fff" size="small" />
           ) : (
             <>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22, marginRight: 10 }}>check_circle</Text>
-              <Text style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>إرسال الطلب للصيدليات</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 22, marginRight: 10 }}>check_circle</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Black', color: '#fff', fontSize: 16 }}>تأكيد الطلب ({total.toFixed(2)} ر.س)</LocalizedText>
             </>
           )}
         </TouchableOpacity>
@@ -281,6 +396,9 @@ const styles = StyleSheet.create({
   payIcon: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   radioOuter: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
   radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#23B5CE' },
+  couponRow: { gap: 10, marginBottom: 8 },
+  couponInput: { flex: 1, borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontFamily: 'Cairo-Bold', fontSize: 14 },
+  couponBtn: { borderRadius: 14, paddingHorizontal: 22, justifyContent: 'center', alignItems: 'center' },
   summaryCard: { padding: 16, borderRadius: 20, borderWidth: 1, marginBottom: 20 },
   summaryRow: { justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
   divider: { height: 1, marginVertical: 8 },

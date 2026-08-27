@@ -14,8 +14,10 @@ export enum NursingBookingState {
   CARE_IN_PROGRESS = 'CARE_IN_PROGRESS',
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
+  PROVIDER_ASSIGNED = 'PROVIDER_ASSIGNED',
   NO_SHOW = 'NO_SHOW',
   ESCALATED_EMERGENCY = 'ESCALATED_EMERGENCY',
+  CANCELLED = 'CANCELLED',
 }
 export const HomeCareBookingState = NursingBookingState;
 
@@ -37,8 +39,18 @@ export class HomeCareService extends Document {
   @Prop({ default: false }) requires_companion: boolean;
   @Prop({ default: true }) cash_availability: boolean;
   @Prop({ default: true }) insurance_availability: boolean;
-  
+
+  @Prop() image_url?: string; // Cloudinary catalog image (category-level visual)
   @Prop({ default: true }) active: boolean;
+  @Prop({ default: false }) is_deleted: boolean; // soft delete — bookings keep history
+  // Public eligibility is a reviewed governance decision, not an operational default.
+  @Prop({ default: false, index: true }) public_eligibility: boolean;
+  @Prop({ default: false, index: true }) indexing_eligibility: boolean;
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected', 'suspended'], default: 'pending', index: true })
+  medical_review_status: string;
+  @Prop() last_reviewed?: Date;
+  @Prop() provenance?: string;
+  @Prop({ default: 0 }) popularity: number;
 }
 export const HomeCareServiceSchema = SchemaFactory.createForClass(HomeCareService);
 
@@ -48,12 +60,20 @@ export class HomeCareBooking extends Document {
   @Prop({ required: true, unique: true, default: () => uuidv4() }) id: string;
   @Prop({ unique: true, default: () => trackingId(TRACK_PREFIX.home_care) }) tracking_id: string;
   @Prop({ required: true, index: true }) patient_id: string;
+  @Prop() patient_name?: string;
+  @Prop() patient_phone?: string;
+  @Prop({ index: true }) service_id?: string;
   @Prop({ required: true }) service_name_ar: string;
+  @Prop() service_name_en?: string;
+  @Prop() notes?: string;
+  @Prop({ default: 1 }) sessions_count: number;
   @Prop({ required: true }) duration: string;
   @Prop({ required: true }) total: number;
   
   // Pricing breakdown
   @Prop({ default: 0 }) service_fee: number;
+  @Prop({ default: 0 }) home_visit_fee: number;
+  @Prop({ default: 0 }) transportation_fee: number;
   @Prop({ default: 0 }) total_price: number;
 
   @Prop({ type: Object }) address?: { lat?: number; lng?: number; address?: string; city?: string; district?: string };
@@ -107,17 +127,11 @@ export class HomeCareBooking extends Document {
   @Prop() consumables_used?: string;
   @Prop() recommendations?: string;
   @Prop() follow_up_instructions?: string;
-  @Prop({ type: [Object], default: [] }) pending_supply_requests?: {
-    requested_at: Date;
-    nurse_id: string;
-    items: { name: string; qty: number; unit: string; status: 'PENDING' | 'APPROVED' | 'DISPATCHED' | 'DELIVERED' }[];
-  }[];
   
   // Photos (Module 12)
   @Prop() before_procedure_image?: string;
   @Prop() after_procedure_image?: string;
   @Prop() patient_signature_base64?: string;
-  @Prop({ type: Object }) provider_attestation?: { provider_id: string; provider_name?: string; attested_at: Date };
 
   // Emergency & Abort (Pillar 5)
   @Prop({ type: Object, default: {} }) emergency_escalation: { reason?: string; refunded_amount?: number; at?: Date };
@@ -137,8 +151,11 @@ HomeCareBookingSchema.index({ state: 1, scheduled_at: 1 });
 
 HomeCareBookingSchema.pre('save', function (next) {
   const self = this as any;
-  self.total_price = self.service_fee || 0;
-  self.total = self.total_price;
+  // Never overwrite an explicitly computed total: only fall back to the fee
+  // fields when the service left them unset. (Previously this hook zeroed every
+  // booking's total — patients were charged nothing and providers earned nothing.)
+  if (self.total_price == null) self.total_price = self.service_fee || 0;
+  if (self.total == null) self.total = self.total_price;
   next();
 });
 
@@ -160,8 +177,58 @@ export class NursingVisitReport extends Document {
   @Prop({ required: true, index: true }) booking_id: string;
   @Prop({ required: true }) patient_id: string;
   @Prop({ required: true }) nurse_id: string;
+  @Prop() check_in_time?: Date;
+  @Prop() check_out_time?: Date;
+  @Prop() gps_lat?: number;
+  @Prop() gps_lng?: number;
+  @Prop({ type: [String] }) completed_tasks?: string[];
+  @Prop({ type: Object }) vitals_logged?: any;
   @Prop({ type: Object }) vital_signs?: any;
   @Prop() notes?: string;
   @Prop({ type: [String] }) procedures_performed?: string[];
 }
 export const NursingVisitReportSchema = SchemaFactory.createForClass(NursingVisitReport);
+
+// ─── Care Plan (nurse/doctor-authored task plan for a patient) ──────────────
+@Schema({ timestamps: true })
+export class CarePlan extends Document {
+  @Prop({ index: true }) id: string;
+  @Prop({ required: true, index: true }) patient_id: string;
+  @Prop() doctor_id?: string;
+  @Prop() nurse_id?: string;
+  @Prop({ required: true }) title: string;
+  @Prop() description?: string;
+  @Prop({ type: [String], default: [] }) tasks: string[];
+  @Prop({ default: 'active', index: true }) status: string; // active | completed | cancelled
+}
+export const CarePlanSchema = SchemaFactory.createForClass(CarePlan);
+
+// ─── Home Care Package (sellable bundle of visits) ──────────────────────────
+@Schema({ timestamps: true })
+export class HomeCarePackage extends Document {
+  @Prop({ required: true }) name_ar: string;
+  @Prop() name_en?: string;
+  @Prop() description_ar?: string;
+  @Prop() description_en?: string;
+  @Prop({ required: true }) price: number;
+  @Prop({ default: 1 }) visits_count: number;
+  @Prop({ default: 30 }) duration_days: number;
+  @Prop({ type: [String], default: [] }) service_ids: string[];
+  @Prop({ default: true, index: true }) active: boolean;
+}
+export const HomeCarePackageSchema = SchemaFactory.createForClass(HomeCarePackage);
+
+// ─── Medical Supply Request (nurse requests supplies after a visit) ─────────
+@Schema({ timestamps: true })
+export class MedicalSupplyRequest extends Document {
+  @Prop({ index: true }) id: string;
+  @Prop({ required: true, index: true }) visit_report_id: string;
+  @Prop({ required: true, index: true }) nurse_id: string;
+  @Prop({
+    type: [{ name: { type: String, required: true }, qty: { type: Number, required: true }, unit: { type: String, default: 'pcs' }, status: { type: String, default: 'pending' } }],
+    default: [],
+  })
+  items: any[];
+  @Prop({ default: 'pending', index: true }) status: string; // pending | approved | dispatched | delivered | rejected
+}
+export const MedicalSupplyRequestSchema = SchemaFactory.createForClass(MedicalSupplyRequest);

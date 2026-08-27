@@ -7,9 +7,11 @@ import React, {
   useEffect,
 } from 'react';
 import { useColorScheme as useDeviceColorScheme } from 'react-native';
+import { getLocales } from 'react-native-localize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme';
-import { i18nManager } from '../i18n/LanguageManager';
+import { LanguageManager } from '../i18n/LanguageManager';
+import { config as appConfig } from '../core/config';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -38,6 +40,14 @@ export const LANGUAGES: {
 const STORAGE_THEME = '@nabdah_theme_mode';
 const STORAGE_LANG = '@nabdah_language';
 
+function detectDeviceLanguage(): LangCode {
+  const code = String(getLocales()?.[0]?.languageCode || '').toLowerCase();
+  if (code === 'ar' || code === 'en' || code === 'ur' || code === 'hi' || code === 'bn' || code === 'fil' || code === 'tl') {
+    return code === 'tl' ? 'fil' : code as LangCode;
+  }
+  return 'ar';
+}
+
 // ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------
@@ -58,14 +68,23 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const deviceScheme = useDeviceColorScheme();
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
-  const [lang, setLangState] = useState<LangCode>('ar');
-  const [config] = useState<any>(null);
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [lang, setLangState] = useState<LangCode>(() => detectDeviceLanguage());
+  const [runtimeConfig, setRuntimeConfig] = useState<any>({});
 
-  const refreshConfig = useCallback(async () => undefined, []);
+  const refreshConfig = useCallback(async () => {
+    try {
+      const res = await fetch(`${appConfig.apiBaseUrl}/config`);
+      if (res.ok) {
+        const data = await res.json();
+        setRuntimeConfig(data);
+      }
+    } catch (_err) {
+      // Fail silently, keep default configurations
+    }
+  }, []);
 
-  // Hydrate persisted display preferences. Operational remote configuration
-  // remains unavailable until a protected, versioned contract is published.
+  // Hydrate persisted preferences and fetch remote configuration
   useEffect(() => {
     (async () => {
       try {
@@ -80,19 +99,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ) {
           setThemeModeState(savedTheme);
         }
-        const normalizedLang = savedLang === 'tl' ? 'fil' : savedLang;
-        if (normalizedLang && LANGUAGES.some((language) => language.code === normalizedLang)) {
-          setLangState(normalizedLang);
-          i18nManager.setLanguage(normalizedLang as LangCode, false).catch(() => undefined);
-          if (normalizedLang !== savedLang) {
-            AsyncStorage.setItem(STORAGE_LANG, normalizedLang).catch(() => undefined);
-          }
+        if (savedLang && LANGUAGES.some((language) => language.code === savedLang)) {
+          setLangState(savedLang as LangCode);
+          // Keep the i18n engine (and every DB field picker) in sync
+          try { LanguageManager.getInstance().setLanguage(savedLang as LangCode, false); } catch {}
         }
       } catch (_storageErr) {
         /* keep defaults */
       }
     })();
-  }, []);
+    refreshConfig();
+  }, [refreshConfig]);
 
   const isDark =
     themeMode === 'system' ? deviceScheme === 'dark' : themeMode === 'dark';
@@ -118,10 +135,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const setLang = useCallback((l: LangCode) => {
     setLangState(l);
-    i18nManager.setLanguage(l, false).catch(() => undefined);
     AsyncStorage.setItem(STORAGE_LANG, l).catch((_err) => {
       /* handled */
     });
+    // Sync the shared i18n engine so pickDbField/currentDbLang render DB
+    // content (drug names, descriptions...) in the newly selected language.
+    try { LanguageManager.getInstance().setLanguage(l as any, false); } catch {}
   }, []);
 
   const value = useMemo<AppContextValue>(
@@ -134,10 +153,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       lang,
       isRTL,
       setLang,
-      config,
+      config: runtimeConfig,
       refreshConfig,
     }),
-    [themeMode, isDark, colors, setThemeMode, toggleTheme, lang, isRTL, setLang, config, refreshConfig],
+    [themeMode, isDark, colors, setThemeMode, toggleTheme, lang, isRTL, setLang, runtimeConfig, refreshConfig],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
@@ -155,7 +174,7 @@ export function useApp(): AppContextValue {
       lang: 'ar',
       isRTL: true,
       setLang: () => {},
-      config: null,
+      config: {},
       refreshConfig: async () => {},
     };
   }

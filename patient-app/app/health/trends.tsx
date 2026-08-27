@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Dimensions,
   StatusBar,
+  Share,
 } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -27,6 +28,7 @@ const { width } = Dimensions.get("window");
 const CHART_W = width - 32;
 
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '@/utils/dates';
 
 const TIME_FILTERS = [
   { key: "1w", label: "أسبوع" },
@@ -148,7 +150,17 @@ export default function HealthTrendsScreen() {
   }, []);
 
   const vital = vitalTrends.find((v) => v.id === activeVital) || vitalTrends[0] || {};
-  if (loading || !vital.data) return null;
+  if (loading) return null;
+  if (!vital.data) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 32 }]}>
+        <Icon name="analytics" size={48} color={colors.textTertiary} />
+        <AppText variant="h5" color={colors.textSecondary} style={{ marginTop: 12, textAlign: 'center' }}>لا توجد قراءات صحية بعد</AppText>
+        <AppText variant="bodySM" color={colors.textTertiary} style={{ marginTop: 6, textAlign: 'center' }}>سجّل قياساتك من صفحة المؤشرات الحيوية لتظهر اتجاهاتك هنا</AppText>
+        <IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} />
+      </View>
+    );
+  }
   const trendIcon =
     vital.trendDir === "down"
       ? "trendingDown"
@@ -165,7 +177,7 @@ export default function HealthTrendsScreen() {
       : "#F0A526";
 
   const isInRange =
-    vital.current >= vital.normal[0] && vital.current <= vital.normal[1];
+    Array.isArray(vital.normal) && vital.current >= vital.normal[0] && vital.current <= vital.normal[1];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -188,6 +200,18 @@ export default function HealthTrendsScreen() {
             icon="share"
             bg={colors.surfaceSecondary}
             color={colors.textPrimary}
+            onPress={() => {
+              const lines = vitalTrends
+                .filter((v) => v?.data?.length)
+                .map((v) => {
+                  const last = v.data[v.data.length - 1];
+                  return `• ${v.name || v.id}: ${last?.value ?? '—'} ${v.unit || ''}`;
+                });
+              if (!lines.length) return;
+              Share.share({
+                message: `ملخص مؤشراتي الصحية — تطبيق نبض\nالتاريخ: ${new Date().toLocaleDateString(dateLocale())}\n\n${lines.join('\n')}`,
+              }).catch(() => {});
+            }}
           />
           <AppText variant="h3" color={colors.textPrimary}>
             مؤشراتي الصحية
@@ -303,7 +327,7 @@ export default function HealthTrendsScreen() {
               </AppText>
             </View>
             <AppText variant="bodySM">
-              المعدل الطبيعي: {vital.normal[0]}-{vital.normal[1]} {vital.unit}
+              {Array.isArray(vital.normal) ? `المعدل الطبيعي: ${vital.normal[0]}-${vital.normal[1]} ${vital.unit}` : ''}
             </AppText>
           </View>
           <View style={styles.currentRight}>
@@ -433,7 +457,7 @@ export default function HealthTrendsScreen() {
         <View style={{ marginHorizontal: 16, marginTop: 14 }}>
           <AppText variant="bodySM">نظرة عامة على كل المؤشرات</AppText>
           {vitalTrends.filter((v) => v.id !== activeVital).map((v) => {
-            const inRng = v.current >= v.normal[0] && v.current <= v.normal[1];
+            const inRng = Array.isArray(v.normal) && v.current >= v.normal[0] && v.current <= v.normal[1];
             return (
               <TouchableOpacity
                 key={v.id}
@@ -474,8 +498,20 @@ export default function HealthTrendsScreen() {
           })}
         </View>
 
-        {/* Export */}
+        {/* Export — shares a real text summary of the loaded trends */}
         <TouchableOpacity
+          onPress={() => {
+            const lines = vitalTrends
+              .filter((v) => v?.data?.length)
+              .map((v) => {
+                const last = v.data[v.data.length - 1];
+                return `• ${v.name || v.id}: ${last?.value ?? '—'} ${v.unit || ''}`;
+              });
+            if (!lines.length) return;
+            Share.share({
+              message: `ملخص مؤشراتي الصحية — تطبيق نبض\nالتاريخ: ${new Date().toLocaleDateString(dateLocale())}\n\n${lines.join('\n')}`,
+            }).catch(() => {});
+          }}
           style={[
             styles.exportBtn,
             {
@@ -486,8 +522,8 @@ export default function HealthTrendsScreen() {
             },
           ]}
         >
-          <Icon name="download" size={18} color={colors.primary} />
-          <AppText variant="bodySM">تصدير التقرير الصحي PDF</AppText>
+          <Icon name="share" size={18} color={colors.primary} />
+          <AppText variant="bodySM">مشاركة ملخص المؤشرات الصحية</AppText>
         </TouchableOpacity>
       </ScrollView>
     </View>

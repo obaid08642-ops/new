@@ -85,6 +85,18 @@ const authSlice = createSlice({
       state.sessionStartedAt = Date.now();
     },
 
+    offlineUnauthenticated: (state) => {
+      state.user = null;
+      state.token = null;
+      state.refreshToken = null;
+      state.tokenExpiry = null;
+      state.isAuthenticated = false;
+      state.isGuest = false;
+      state.isLoading = false;
+      state.error = 'offline_unauthenticated';
+      state.sessionStartedAt = null;
+    },
+
     refreshTokenSuccess: (
       state,
       action: PayloadAction<{
@@ -156,6 +168,7 @@ export const {
   setLoading,
   loginSuccess,
   guestLogin,
+  offlineUnauthenticated,
   refreshTokenSuccess,
   logout,
   updateUser,

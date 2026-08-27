@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
 @Schema({ timestamps: true })
@@ -10,4 +11,6 @@ export class ProviderAvailability {
   @Prop({ type: Object, default: null }) vacation_mode?: { from: Date; to: Date; reason?: string } | null;
   @Prop({ default: true }) instant_available: boolean;
 }
+export type ProviderAvailabilityDocument = ProviderAvailability & Omit<Document, "id">;
+
 export const ProviderAvailabilitySchema = SchemaFactory.createForClass(ProviderAvailability);

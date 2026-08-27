@@ -1,16 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -21,7 +11,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { useApp } from '../../src/context/AppContext';
 import { resolveColor } from '../../src/theme/colors';
-import { apiFetch } from '../../src/utils/api';
+import { apiFetch, storeAuthSession } from '../../src/utils/api';
 import { decodeJwt } from '../../src/utils/jwt';
 import { STORAGE_KEYS } from '../../src/constants';
 
@@ -29,6 +19,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -39,7 +30,7 @@ export default function LoginScreen() {
   const { isDark, lang } = useApp() as any;
   const insets = useSafeAreaInsets();
   
-  const isRTL = lang === 'ar' || lang === 'ur';
+  const isRTL = lang === 'ar' || lang === 'ur' || true; // Force RTL for Arabic
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -101,16 +92,18 @@ export default function LoginScreen() {
         method: 'POST',
         body: JSON.stringify({ provider, token }),
       });
-      const jwtToken = res?.token ?? res?.access_token;
-      if (!jwtToken) throw new Error('لم يُرجع خادم المصادقة رمز جلسة صالحاً');
-      const decoded = decodeJwt(jwtToken);
-      if (!decoded?.id || decoded.role !== 'patient') {
-        throw new Error('هذا الحساب غير مصرح له باستخدام تطبيق المريض');
-      }
+      // M1: no more dummy token fallback — a real session or an explicit error
+      const jwtToken = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
+      if (!jwtToken) throw new Error('لم يستلم التطبيق جلسة صالحة من الخادم');
       try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
       catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, jwtToken); }
-      
-      router.replace('/(tabs)');
+
+      const decoded = decodeJwt(jwtToken);
+      if (decoded?.role !== 'patient') {
+        router.replace('/(auth)/provider-info' as any);
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (err: any) {
       setErrorMessage(err.message || `فشل تسجيل الدخول بواسطة ${provider}`);
     } finally {
@@ -154,12 +147,13 @@ export default function LoginScreen() {
     
     setLoading(true);
     try {
-        const identifier = phone.trim();
+        const fullPhone = phone.startsWith('+') ? phone : `+966${phone.replace(/^0+/, '')}`;
         const res = await apiFetch('/auth/login', {
           method: 'POST',
-          body: JSON.stringify({ identifier, password }),
+          body: JSON.stringify({ phone: fullPhone, password }),
         });
-        const token = res?.token ?? res?.access_token;
+        // M1: backend returns { user, token: { accessToken, refreshToken } }
+        const token = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
 
       if (!token) {
         setAttempts(prev => {
@@ -172,16 +166,18 @@ export default function LoginScreen() {
         return;
       }
       
-      try { await SecureStore.setItemAsync(STORAGE_KEYS.AUTH_TOKEN, token); }
-      catch (_err) { await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token); }
+      // M1: persist both access + refresh tokens through the shared session helper
+      await storeAuthSession(res?.token);
       setAttempts(0);
       setLockoutUntil(null);
 
       const decoded = decodeJwt(token);
-      if (!decoded?.id || decoded.role !== 'patient') {
-        throw new Error('هذا الحساب غير مصرح له باستخدام تطبيق المريض');
+      const userRole = decoded?.role || 'patient';
+      if (userRole !== 'patient') {
+        router.replace('/(auth)/provider-info' as any);
+      } else {
+        router.replace('/(tabs)');
       }
-      router.replace('/(tabs)');
     } catch (err: any) { 
       setErrorMessage(err.message || 'فشل تسجيل الدخول، حاول مجدداً');
       setAttempts(prev => {
@@ -222,29 +218,29 @@ export default function LoginScreen() {
       
       <ScrollView contentContainerStyle={{ paddingHorizontal: 28, paddingTop: insets.top + 20, paddingBottom: 120, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: resolveColor('var(--s)', isDark), borderColor: resolveColor('var(--bd)', isDark) } ]}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 22, color: resolveColor('var(--n)', isDark) }}>
             {isRTL ? 'arrow_forward' : 'arrow_back'}
-          </Text>
+          </LocalizedText>
         </TouchableOpacity>
 
         <View style={{ marginBottom: 30 }}>
           <NpLogoSmall />
         </View>
 
-        <Text style={[styles.title, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>
+        <LocalizedText style={[styles.title, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>
           أهلاً بعودتك
-        </Text>
-        <Text style={[styles.subtitle, { color: resolveColor('var(--t2)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>
+        </LocalizedText>
+        <LocalizedText style={[styles.subtitle, { color: resolveColor('var(--t2)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>
           سجّل دخولك لمتابعة رعايتك الصحية
-        </Text>
+        </LocalizedText>
 
         {/* Phone Input */}
         <View style={styles.inputWrapper}>
-          <Text style={[styles.inputLabel, { color: resolveColor('var(--t3)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>البريد الإلكتروني</Text>
+          <LocalizedText style={[styles.inputLabel, { color: resolveColor('var(--t3)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>البريد الإلكتروني</LocalizedText>
           <View style={[
             styles.inputContainer, 
             { backgroundColor: resolveColor('var(--s)', isDark), flexDirection: isRTL ? 'row-reverse' : 'row', borderColor: focusedInput === 'phone' ? resolveColor('var(--p)', isDark) : resolveColor('var(--bd)', isDark) } ]}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: resolveColor('var(--t3)', isDark), marginHorizontal: 10 }}>mail</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: resolveColor('var(--t3)', isDark), marginHorizontal: 10 }}>mail</LocalizedText>
             <TextInput 
               style={[styles.input, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' }]}
               placeholder="example@mail.com"
@@ -260,11 +256,11 @@ export default function LoginScreen() {
 
         {/* Password Input */}
         <View style={styles.inputWrapper}>
-          <Text style={[styles.inputLabel, { color: resolveColor('var(--t3)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>كلمة المرور</Text>
+          <LocalizedText style={[styles.inputLabel, { color: resolveColor('var(--t3)', isDark), textAlign: isRTL ? 'right' : 'left' } ]}>كلمة المرور</LocalizedText>
           <View style={[
             styles.inputContainer, 
             { backgroundColor: resolveColor('var(--s)', isDark), flexDirection: isRTL ? 'row-reverse' : 'row', borderColor: focusedInput === 'password' ? resolveColor('var(--p)', isDark) : resolveColor('var(--bd)', isDark) } ]}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: resolveColor('var(--t3)', isDark), marginHorizontal: 10 }}>lock</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 20, color: resolveColor('var(--t3)', isDark), marginHorizontal: 10 }}>lock</LocalizedText>
             <TextInput 
               style={[styles.input, { color: resolveColor('var(--n)', isDark), textAlign: isRTL ? 'right' : 'left' }]}
               placeholder="••••••••"
@@ -276,24 +272,24 @@ export default function LoginScreen() {
               onBlur={() => setFocusedInput(null)}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 10 }}>
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 18, color: resolveColor('var(--t3)', isDark) }}>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 18, color: resolveColor('var(--t3)', isDark) }}>
                 {showPassword ? 'visibility_off' : 'visibility'}
-              </Text>
+              </LocalizedText>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={{ alignItems: isRTL ? 'flex-end' : 'flex-start', marginBottom: 24 }}>
           <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
-            <Text style={{ fontSize: 12, color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>
+            <LocalizedText style={{ fontSize: 12, color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>
               نسيت كلمة المرور؟
-            </Text>
+            </LocalizedText>
           </TouchableOpacity>
         </View>
 
         {errorMessage && (
           <View style={{ backgroundColor: '#FEE2E2', padding: 12, borderRadius: 12, marginBottom: 16 }}>
-            <Text style={{ color: '#EF4444', textAlign: 'right', fontWeight: '700', fontSize: 13 }}>{errorMessage}</Text>
+            <LocalizedText style={{ color: '#EF4444', textAlign: 'right', fontWeight: '700', fontSize: 13 }}>{errorMessage}</LocalizedText>
           </View>
         )}
 
@@ -303,7 +299,7 @@ export default function LoginScreen() {
           style={[styles.primaryBtn, { backgroundColor: resolveColor('var(--p)', isDark), shadowColor: resolveColor('var(--p)', isDark), opacity: loading ? 0.7 : 1 }]} 
           activeOpacity={0.8}
         >
-          <Text style={styles.primaryBtnText}>{loading ? 'جاري التحقق...' : 'تسجيل الدخول'}</Text>
+          <LocalizedText style={styles.primaryBtnText}>{loading ? 'جاري التحقق...' : 'تسجيل الدخول'}</LocalizedText>
         </TouchableOpacity>
 
         {/* OTP Login Option */}
@@ -312,12 +308,12 @@ export default function LoginScreen() {
           style={[styles.secondaryBtn, { borderColor: resolveColor('var(--p)', isDark), marginTop: 12 }]} 
           activeOpacity={0.8}
         >
-          <Text style={[styles.secondaryBtnText, { color: resolveColor('var(--p)', isDark) } ]}>الدخول برمز التحقق (OTP)</Text>
+          <LocalizedText style={[styles.secondaryBtnText, { color: resolveColor('var(--p)', isDark) } ]}>الدخول برمز التحقق (OTP)</LocalizedText>
         </TouchableOpacity>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 24 }}>
           <View style={{ flex: 1, height: 1, backgroundColor: resolveColor('var(--bd)', isDark) }}/>
-          <Text style={{ fontSize: 10, color: resolveColor('var(--t3)', isDark), marginHorizontal: 12, fontWeight: '800' }}>أو الدخول بواسطة</Text>
+          <LocalizedText style={{ fontSize: 10, color: resolveColor('var(--t3)', isDark), marginHorizontal: 12, fontWeight: '800' }}>أو الدخول بواسطة</LocalizedText>
           <View style={{ flex: 1, height: 1, backgroundColor: resolveColor('var(--bd)', isDark) }}/>
         </View>
 
@@ -347,9 +343,9 @@ export default function LoginScreen() {
         </View>
         
         <View style={{ flexDirection: 'row-reverse', justifyContent: 'center', marginTop: 32 }}>
-          <Text style={{ fontSize: 13, color: resolveColor('var(--t2)', isDark), fontWeight: '700' }}>ليس لديك حساب؟ </Text>
+          <LocalizedText style={{ fontSize: 13, color: resolveColor('var(--t2)', isDark), fontWeight: '700' }}>ليس لديك حساب؟ </LocalizedText>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Text style={{ fontSize: 13, color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>سجل الآن</Text>
+            <LocalizedText style={{ fontSize: 13, color: resolveColor('var(--p)', isDark), fontWeight: '800' }}>سجل الآن</LocalizedText>
           </TouchableOpacity>
         </View>
 

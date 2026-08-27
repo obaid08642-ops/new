@@ -5,7 +5,14 @@ import { ProviderProfileSchema } from '../schemas/provider-profile.schema';
 import { UserRole, ProviderType, ProviderStatus } from '../common/enums';
 import { v4 as uuidv4 } from 'uuid';
 
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://localhost:27017/nabd';
+const MONGO_URL = process.env.MONGO_URL;
+
+function assertTestSeedAllowed() {
+  if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+    throw new Error('seed_test_providers is restricted to NODE_ENV=test with ALLOW_TEST_SEED=true');
+  }
+  if (!MONGO_URL) throw new Error('MONGO_URL is required for test seeding');
+}
 
 const providersData = [
   {
@@ -89,14 +96,14 @@ const providersData = [
 ];
 
 async function seed() {
-  
+  assertTestSeedAllowed();
   await mongoose.connect(MONGO_URL);
   
 
   const UserModel = mongoose.model('User', UserSchema);
   const ProviderModel = mongoose.model('ProviderProfile', ProviderProfileSchema);
 
-  const passwordHash = await bcrypt.hash('Test@1234', 8);
+  const passwordHash = await bcrypt.hash('Test@1234', 12);
 
   for (const prov of providersData) {
     let user = await UserModel.findOne({ phone: prov.phone });

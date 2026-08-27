@@ -1,19 +1,13 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import { View, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton, Input, SectionHeader } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function DrugNotFoundScreen() {
   const insets = useSafeAreaInsets();
@@ -38,8 +32,8 @@ export default function DrugNotFoundScreen() {
       const res: any = await apiFetch(`/patient/pharmacy/shortage-flags/lookup?generic_name=${encodeURIComponent(name)}`);
       setSending(false);
       if (res && res.flagged) {
-        Alert.alert(
-          '️ نقص في توريد الدواء',
+        showLocalizedAlert(
+          ' نقص في توريد الدواء',
           `توضح البيانات الطبية وجود نقص عام في دواء "${name}". هل تود الاستمرار لنبحث لك عن بديل مكافئ علمياً؟`,
           [
             { text: 'إلغاء', style: 'cancel' },

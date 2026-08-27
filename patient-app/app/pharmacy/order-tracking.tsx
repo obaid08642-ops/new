@@ -3,23 +3,18 @@
  * app/pharmacy/order-tracking.tsx
  * Real-time order tracking screen.
  * - Polls GET /orders/:orderId/tracking every 30 seconds.
- * - Displays dynamic timeline steps based on backend status.
- * - Shows pharmacy info and chat button.
- * - Shows an explicit unavailable state if live tracking cannot be retrieved.
+ * - Displays dynamic timeline steps based on backend status and saved delivery mode.
+ * - Shows only backend-provided pharmacy, delivery, and total fields.
  */
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '@/utils/dates';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 type TrackingStep = {
   id: string;
@@ -30,8 +25,8 @@ type TrackingStep = {
   active: boolean;
 };
 
-const buildSteps = (state: string, updatedAt?: string): TrackingStep[] => {
-  const time = (s: string) => s ? new Date(s).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '';
+const buildSteps = (state: string, updatedAt?: string, pharmacyName?: string, deliveryMode = 'DELIVERY'): TrackingStep[] => {
+  const time = (s: string) => s ? new Date(s).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) : '';
 
   const stateMap: Record<string, number> = {
     'CREATED': 0, 'VALIDATED': 0, 'PHARMACY_RECEIVED': 0,
@@ -41,11 +36,17 @@ const buildSteps = (state: string, updatedAt?: string): TrackingStep[] => {
   };
   const currentLevel = stateMap[state] ?? 0;
 
-  return [
+  const initial = [
     { id: 's1', title: 'تم استلام طلبك', desc: 'تم تأكيد طلبك بنجاح وإرساله للمعالجة.', time: time(updatedAt || ''), done: currentLevel >= 0, active: currentLevel === 0 },
-    { id: 's2', title: 'الصيدلية تجهّز طلبك', desc: 'صيدلية النهدي تراجع وتجهّز الأدوية المطلوبة.', time: currentLevel >= 1 ? time(updatedAt || '') : '', done: currentLevel > 1, active: currentLevel === 1 },
+    { id: 's2', title: 'الصيدلية تجهّز طلبك', desc: `${pharmacyName || 'الصيدلية'} تراجع وتجهّز الأدوية المطلوبة.`, time: currentLevel >= 1 ? time(updatedAt || '') : '', done: currentLevel > 1, active: currentLevel === 1 },
+  ];
+  if (deliveryMode === 'PICKUP') {
+    const ready = ['READY', 'READY_FOR_DISPATCH', 'ASSIGNED_TO_DELIVERY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED'].includes(state);
+    return [...initial, { id: 's3', title: 'جاهز للاستلام', desc: 'أصبح الطلب جاهزاً للاستلام من الصيدلية.', time: ready ? time(updatedAt || '') : '', done: ['DELIVERED', 'COMPLETED'].includes(state), active: ready && !['DELIVERED', 'COMPLETED'].includes(state) }];
+  }
+  return [...initial,
     { id: 's3', title: 'في الطريق إليك', desc: 'المندوب استلم الطلب وهو الآن في طريقه إليك.', time: currentLevel >= 2 ? time(updatedAt || '') : '', done: currentLevel > 2, active: currentLevel === 2 },
-    { id: 's4', title: 'تم التوصيل بنجاح', desc: 'وصل طلبك. نتمنى لك الشفاء العاجل ', time: currentLevel >= 3 ? time(updatedAt || '') : '', done: currentLevel >= 3, active: false },
+    { id: 's4', title: 'تم التوصيل بنجاح', desc: 'وصل طلبك. نتمنى لك الشفاء العاجل.', time: currentLevel >= 3 ? time(updatedAt || '') : '', done: currentLevel >= 3, active: false },
   ];
 };
 
@@ -58,7 +59,7 @@ export default function OrderTrackingScreen() {
 
   const [steps, setSteps] = useState<TrackingStep[]>([]);
   const [orderData, setOrderData] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState(false);
 
   const orderIdStr = Array.isArray(orderId) ? orderId[0] : orderId;
 
@@ -68,14 +69,13 @@ export default function OrderTrackingScreen() {
       if (!orderIdStr) return;
       try {
         const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
-        if (!data?.state) throw new Error('لا توجد حالة تتبع صالحة لهذا الطلب');
-        setOrderData(data);
-        setSteps(buildSteps(data.state, data.updated_at));
-        setErrorMessage(null);
-      } catch (error: any) {
-        setSteps([]);
-        setOrderData(null);
-        setErrorMessage(error?.message || 'تعذر تحميل تتبع الطلب. لا يمكن عرض بيانات تقديرية.');
+        if (data) {
+          setOrderData(data);
+          setSteps(buildSteps(data.state, data.updated_at, data.pharmacy_name, data.delivery_mode));
+        }
+      } catch {
+        // API unavailable — keep last known state, no demo data
+        setFetchError(true);
       }
     };
 
@@ -84,21 +84,11 @@ export default function OrderTrackingScreen() {
     return () => clearInterval(interval);
   }, [orderIdStr]);
 
-  const orderNum = orderIdStr ? `#${orderIdStr.slice(-6).toUpperCase()}` : '#------';
-  const pharmacyName = orderData?.pharmacy_name ?? 'غير متاح';
-  const estimatedTime = orderData?.estimated_arrival ?? 'غير متاح';
-  const total = Number(orderData?.total ?? 0);
-
-  if (!orderData) {
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-        <Text style={{ fontFamily: 'Cairo-Bold', color: colors.n, textAlign: 'center' }}>{errorMessage || 'تعذر تحميل تتبع الطلب.'}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 18, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 12, backgroundColor: '#23B5CE' }}>
-          <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff' }}>العودة</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const orderNum = orderIdStr ? `#${orderIdStr.slice(-6).toUpperCase()}` : 'غير متاح';
+  const pharmacyName = orderData?.pharmacy_name || 'الصيدلية قيد التعيين';
+  const deliveryMode = orderData?.delivery_mode || 'DELIVERY';
+  const etaMinutes = Number(orderData?.delivery?.eta_minutes);
+  const total = Number(orderData?.total);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 } ]}>
@@ -109,9 +99,9 @@ export default function OrderTrackingScreen() {
           style={[styles.iconBtn, { backgroundColor: colors.s }]}
           onPress={() => router.replace('/(tabs)/pharmacy')}
         >
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>home</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>home</LocalizedText>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.n } ]}>تتبع الطلب {orderNum}</Text>
+        <LocalizedText style={[styles.headerTitle, { color: colors.n } ]}>تتبع الطلب {orderNum}</LocalizedText>
         <View style={{ width: 44 }}/>
       </View>
 
@@ -120,26 +110,35 @@ export default function OrderTrackingScreen() {
         {/* Pharmacy Card */}
         <View style={[styles.pharmacyCard, { backgroundColor: '#DEF5F9', flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
           <View style={styles.pharIcon}>
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 30 }}>local_pharmacy</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 30 }}>local_pharmacy</LocalizedText>
           </View>
           <View style={{ flex: 1, marginHorizontal: 12, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-            <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: '#141A2A' }}>{pharmacyName}</Text>
+            <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: '#141A2A' }}>{pharmacyName}</LocalizedText>
+            {deliveryMode === 'DELIVERY' && Number.isFinite(etaMinutes) && (
             <View style={[{ flexDirection: isRTL ? 'row-reverse' : 'row' }, { alignItems: 'center', marginTop: 4 }]} >
-              <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#4C5566', fontSize: 15, marginRight: 4 }}>schedule</Text>
-              <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: '#4C5566' }}>الوقت المتوقع: {estimatedTime}</Text>
+              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#4C5566', fontSize: 15, marginRight: 4 }}>schedule</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: '#4C5566' }}>الوقت المتوقع: {etaMinutes} دقيقة</LocalizedText>
             </View>
+            )}
           </View>
           <TouchableOpacity
             style={styles.chatBtn}
             onPress={() => router.push('/pharmacy/chat-with-pharmacist')}
             activeOpacity={0.8}
           >
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 26 }}>chat</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 26 }}>chat</LocalizedText>
           </TouchableOpacity>
         </View>
 
         {/* Timeline */}
         <View style={styles.timeline}>
+          {steps.length === 0 && (
+            <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', color: colors.t2, textAlign: 'center' }}>
+                {fetchError ? 'تعذر تحميل حالة الطلب — سيعاد المحاولة تلقائياً' : 'جاري تحميل حالة الطلب…'}
+              </LocalizedText>
+            </View>
+          )}
           {steps.map((step, idx) => {
             const isLast = idx === steps.length - 1;
             const nodeBg = step.done ? '#2BB89C' : step.active ? '#23B5CE' : colors.s;
@@ -152,7 +151,7 @@ export default function OrderTrackingScreen() {
                 <View style={styles.nodeCol}>
                   <View style={[styles.node, { backgroundColor: nodeBg, borderColor: nodeColor } ]}>
                     {step.done
-                      ? <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 14 }}>check</Text>
+                      ? <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 14 }}>check</LocalizedText>
                       : step.active
                         ? <View style={styles.activeDot} />
                         : null
@@ -164,21 +163,21 @@ export default function OrderTrackingScreen() {
                 {/* Content */}
                 <View style={{ flex: 1, marginBottom: 28, paddingTop: 2, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
                   <View style={[{ flexDirection: isRTL ? 'row-reverse' : 'row' }, { justifyContent: 'space-between', width: '100%' }]} >
-                    <Text style={{
+                    <LocalizedText style={{
                       fontFamily: step.active ? 'Cairo-Black' : step.done ? 'Cairo-Bold' : 'Cairo-Regular',
                       fontSize: step.active ? 16 : 15,
                       color: (step.active || step.done) ? colors.n : colors.t3,
                     }}>
                       {step.title}
-                    </Text>
+                    </LocalizedText>
                     {step.time ? (
-                      <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t3 }}>{step.time}</Text>
+                      <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t3 }}>{step.time}</LocalizedText>
                     ) : null}
                   </View>
                   {(step.active || step.done) && (
-                    <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 4, lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>
+                    <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 4, lineHeight: 18, textAlign: isRTL ? 'right' : 'left' }}>
                       {step.desc}
-                    </Text>
+                    </LocalizedText>
                   )}
                 </View>
               </View>
@@ -188,18 +187,34 @@ export default function OrderTrackingScreen() {
 
         {/* Order Summary */}
         <View style={[styles.summaryCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
-          <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n, marginBottom: 14, textAlign: isRTL ? 'right' : 'left' }}>تفاصيل الطلب</Text>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: colors.n, marginBottom: 14, textAlign: isRTL ? 'right' : 'left' }}>تفاصيل الطلب</LocalizedText>
           {[
             { label: 'رقم الطلب', val: orderNum },
-            { label: 'طريقة الاستلام', val: 'توصيل للمنزل' },
-            { label: 'الإجمالي المدفوع', val: `${total.toFixed(2)} ر.س` },
+            { label: 'طريقة الاستلام', val: deliveryMode === 'PICKUP' ? 'استلام من الصيدلية' : 'توصيل للمنزل' },
+            { label: 'إجمالي الطلب', val: Number.isFinite(total) ? `${total.toFixed(2)} ر.س` : '—' },
           ].map((row, i) => (
             <View key={i} style={[styles.detailRow, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-              <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>{row.label}</Text>
-              <Text style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.n }}>{row.val}</Text>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: colors.t2 }}>{row.label}</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 13, color: colors.n }}>{row.val}</LocalizedText>
             </View>
           ))}
         </View>
+
+        {/* Rate the experience — only after delivery */}
+        {orderData?.state === 'DELIVERED' && (
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/reviews', params: { booking_kind: 'pharmacy', booking_id: orderIdStr, providerName: orderData?.pharmacy_name || '' } })}
+            activeOpacity={0.85}
+            style={{ marginTop: 16, backgroundColor: colors.s, borderWidth: 1, borderColor: '#F59E0B', borderRadius: 20, padding: 16, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 10 }}
+          >
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#F59E0B', fontSize: 24 }}>star</LocalizedText>
+            <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: colors.n }}>قيّم تجربتك مع الصيدلية</LocalizedText>
+              <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2 }}>تقييمك يساعد المرضى الآخرين</LocalizedText>
+            </View>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#F59E0B', fontSize: 22 }}>{isRTL ? 'chevron_left' : 'chevron_right'}</LocalizedText>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
@@ -226,10 +241,10 @@ const styles = StyleSheet.create({
 export function ErrorBoundary({ error, retry }: any) {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      <Text style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: '#F0695C', marginBottom: 10 }}>حدث خطأ غير متوقع</Text>
-      <Text style={{ fontFamily: 'Cairo-Regular', fontSize: 14, color: '#4C5566', textAlign: 'center', marginBottom: 20 }}>{error?.message || 'تعذر تحميل الصفحة'}</Text>
+      <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: '#F0695C', marginBottom: 10 }}>حدث خطأ غير متوقع</LocalizedText>
+      <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 14, color: '#4C5566', textAlign: 'center', marginBottom: 20 }}>{error?.message || 'تعذر تحميل الصفحة'}</LocalizedText>
       <TouchableOpacity onPress={retry} style={{ backgroundColor: '#23B5CE', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 12 }}>
-        <Text style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 15 }}>إعادة المحاولة</Text>
+        <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 15 }}>إعادة المحاولة</LocalizedText>
       </TouchableOpacity>
     </View>
   );

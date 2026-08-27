@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { HomeCareService, HomeCareBooking, NursingBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
+import { HomeCareService, HomeCareBooking, NursingBookingState, HomeCareBookingState, NursingVisitReport, CarePlan, MedicalSupplyRequest } from '../../schemas/home-care.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
@@ -53,6 +52,14 @@ export class HomeCareSvc {
     if (!data.scheduled_at) throw new BadRequestException('scheduled_at required');
     const svc = await this.svcModel.findOne({ id: data.service_id });
     if (!svc) throw new NotFoundException('service');
+    // S4 duplicate-booking prevention: idempotent replay for double-tap/retry within 3 minutes
+    const dupe = await this.bkgModel.findOne({
+      patient_id: user.id,
+      service_id: data.service_id,
+      createdAt: { $gte: new Date(Date.now() - 3 * 60_000) },
+      state: { $nin: ['CANCELLED', NursingBookingState.COMPLETED] },
+    }).lean();
+    if (dupe) return dupe;
     const sessions = Math.max(1, parseInt(data.sessions_count || 1, 10));
     const total = svc.price * sessions;
     const booking = await this.bkgModel.create({
@@ -107,7 +114,7 @@ export class HomeCareSvc {
   }
 
   /** Provider/Admin transition. */
-  async transition(id: string, to: HomeCareBookingState, user: any, note?: string) {
+  async transition(id: string, to: NursingBookingState, user: any, note?: string) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     return await this.engine.apply({
@@ -133,7 +140,8 @@ export class HomeCareSvc {
 
     const report = await this.reportModel.create({
       id: require('uuid').v4(),
-      home_care_order_id: bookingId,
+      booking_id: bookingId,
+      patient_id: b.patient_id,
       nurse_id: user.id,
       check_in_time: new Date(),
       gps_lat: lat,
@@ -158,7 +166,7 @@ export class HomeCareSvc {
     });
 
     // Complete the booking
-    await this.transition(report.home_care_order_id, HomeCareBookingState.COMPLETED, user, 'visit_completed');
+    await this.transition(report.booking_id, HomeCareBookingState.COMPLETED, user, 'visit_completed');
 
     return { ok: true };
   }

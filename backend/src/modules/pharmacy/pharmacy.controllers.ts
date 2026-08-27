@@ -1,15 +1,16 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, NotImplementedException, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
-import { IdempotencyInterceptor } from '../../common/idempotency.interceptor';
 import { UserRole } from '../../common/enums';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
 import { PharmacyAllocationService } from './services/pharmacy-allocation.service';
 import { PharmacyInventoryExtService } from './services/pharmacy-inventory-ext.service';
+import { PharmacySeedService } from './services/pharmacy-seed.service';
 import { SmartSplitService } from './services/smart-split.service';
 import { PharmacyBroadcastService } from './services/pharmacy-broadcast.service';
 import { PharmacyChatService } from './services/pharmacy-chat.service';
 import { PharmacyShortageService } from './services/pharmacy-shortage.service';
 import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provider.service';
+import { isProviderRole } from '../../common/enums';
 
 // =========================================================================
 //  PATIENT ENDPOINTS (/api/v2/patient/pharmacy/*)
@@ -17,7 +18,6 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 @Controller('patient/pharmacy')
 @UseGuards(JwtAuthGuard)
 @Roles(UserRole.PATIENT)
-@UseInterceptors(IdempotencyInterceptor)
 export class PatientPharmacyController {
   constructor(private orders: PharmacyOrderService) {}
   @Post('orders') create(@CurrentUser() u: any, @Body() b: any) { return this.orders.create(u, b); }
@@ -33,7 +33,6 @@ export class PatientPharmacyController {
 // =========================================================================
 @Controller('provider/pharmacy')
 @UseGuards(JwtAuthGuard)
-@UseInterceptors(IdempotencyInterceptor)
 export class ProviderPharmacyController {
   constructor(
     private allocs: PharmacyAllocationService,
@@ -41,17 +40,12 @@ export class ProviderPharmacyController {
     private providerOrders: PharmacyOrdersProviderService,
   ) {}
 
-  @Get('orders/incoming')
-  async incomingOrders(@CurrentUser() u: any) {
-    return this.providerOrders.incomingOrders(u);
-  }
-
   @Get('allocations') list(@CurrentUser() u: any, @Query('status') status?: string) {
-    if (u?.role !== 'provider') throw new ForbiddenException();
+    if (!isProviderRole(u?.role)) throw new ForbiddenException();
     return this.allocs.listForProvider(u, status);
   }
   @Get('allocations/:id') detail(@CurrentUser() u: any, @Param('id') id: string) {
-    if (u?.role !== 'provider') throw new ForbiddenException();
+    if (!isProviderRole(u?.role)) throw new ForbiddenException();
     return this.allocs.detail(u, id);
   }
   @Post('allocations/:id/items/:itemId') itemAction(@CurrentUser() u: any, @Param('id') id: string, @Param('itemId') itemId: string, @Body() b: any) {
@@ -71,11 +65,6 @@ export class ProviderPharmacyController {
   @Post('orders/:id/accept')
   async acceptOrder(@CurrentUser() u: any, @Param('id') id: string) {
     return this.providerOrders.acceptOrder(u, id);
-  }
-
-  @Post('orders/:id/reject')
-  async rejectOrder(@CurrentUser() u: any, @Param('id') id: string, @Body() body: { reason?: string }) {
-    return this.providerOrders.rejectOrder(u, id, body?.reason || 'provider_rejected');
   }
 
   @Post('orders/:id/submit-basket')
@@ -125,10 +114,19 @@ export class ProviderInventoryExtController {
 @Roles(UserRole.ADMIN)
 export class AdminPharmacyController {
   constructor(
+    private seedSvc: PharmacySeedService,
     private split: SmartSplitService,
     private allocs: PharmacyAllocationService,
     private broadcast: PharmacyBroadcastService,
   ) {}
+  private assertTestSeedAllowed() {
+    if (process.env.NODE_ENV !== 'test' || process.env.ALLOW_TEST_SEED !== 'true') {
+      throw new ServiceUnavailableException('test_seed_disabled');
+    }
+  }
+
+  @Post('seed') seed(@CurrentUser() u: any) { this.assertTestSeedAllowed(); return this.seedSvc.seed(u); }
+  @Post('seed/sample-order') sampleOrder(@CurrentUser() u: any, @Body() b: any) { this.assertTestSeedAllowed(); return this.seedSvc.seedSampleOrder(b?.patient_account_id || u.id); }
   @Post('split/:orderId') async manualSplit(@Param('orderId') id: string) {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
@@ -209,25 +207,4 @@ export class AdminShortageController {
 export class PatientShortageController {
   constructor(private svc: PharmacyShortageService) {}
   @Get('lookup') lookup(@Query('sku') sku?: string, @Query('generic_name') gn?: string) { return this.svc.lookupForPatient(sku, gn); }
-}
-
-// =========================================================================
-//  BLUEPRINT V1.2 ENDPOINTS (AI PROCUREMENT & RETURNS)
-// =========================================================================
-@Controller('ai')
-@UseGuards(JwtAuthGuard)
-export class AIB2BProcurementController {
-  @Post('voice-to-order')
-  async voiceToOrder(@CurrentUser() u: any, @Body() b: any) {
-    void u;
-    void b;
-    throw new NotImplementedException('Voice-to-order is unavailable until a validated parsing provider is configured.');
-  }
-
-  @Post('prescription-ocr')
-  async ocrToOrder(@CurrentUser() u: any, @Body() b: any) {
-    void u;
-    void b;
-    throw new NotImplementedException('Prescription OCR is unavailable until a validated OCR provider is configured.');
-  }
 }

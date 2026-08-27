@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MedicalProfileController } from './medical-profile.controller';

@@ -6,7 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
   getItem: jest.fn(),
-  removeItem: jest.fn(),
+  removeItem: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('expo-secure-store', () => ({
@@ -20,7 +20,8 @@ describe('SecureStorageAdapter', () => {
   });
 
   it('should encrypt and save item', async () => {
-    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('test-key');
+    (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
+      Promise.resolve(key === 'REDUX_PERSIST_KEY_VERSION' ? 'v1' : 'test-key'));
     
     await secureStorageAdapter.setItem('myKey', 'myValue');
     
@@ -32,7 +33,8 @@ describe('SecureStorageAdapter', () => {
   });
 
   it('should decrypt and retrieve item', async () => {
-    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('test-key');
+    (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) =>
+      Promise.resolve(key === 'REDUX_PERSIST_KEY_VERSION' ? 'v1' : 'test-key'));
     
     // Encrypt 'testValue' with 'test-key'
     const CryptoJS = require('crypto-js');

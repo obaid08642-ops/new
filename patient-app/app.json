@@ -6,32 +6,49 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0066CC"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "scheme": "nabdplus",
-    "sdkVersion": "54.0.0",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0066CC"
       },
-      "package": "com.nabdahplus.app",
+      "package": "com.patient.nabd",
       "intentFilters": [
         {
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "app.nabdahplus.com", "pathPrefix": "/" },
-            { "scheme": "nabdplus" }
+            {
+              "scheme": "https",
+              "host": "app.nabd.plus",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "nabd.plus",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.nabd.plus",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "app.nabdahplus.com",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "nabdplus"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "permissions": [
@@ -46,16 +63,23 @@
         "android.permission.VIBRATE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.POST_NOTIFICATIONS",
+        "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.ACTIVITY_RECOGNITION",
         "android.permission.MANAGE_OWN_CALLS",
         "android.permission.READ_PHONE_STATE",
         "android.permission.BIND_TELECOM_CONNECTION_SERVICE"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.nabdahplus.app",
-      "associatedDomains": ["applinks:app.nabdahplus.com"],
+      "bundleIdentifier": "com.patient.nabd",
+      "associatedDomains": [
+        "applinks:app.nabd.plus",
+        "applinks:nabd.plus",
+        "applinks:www.nabd.plus",
+        "applinks:app.nabdahplus.com"
+      ],
       "infoPlist": {
         "NSCameraUsageDescription": "نحتاج الكاميرا لمسح الوصفات الطبية والباركود وتحليل البشرة",
         "NSMicrophoneUsageDescription": "نحتاج الميكروفون للاستشارات الصوتية ومساعد الصوت",
@@ -68,7 +92,8 @@
           "audio",
           "remote-notification"
         ]
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -99,9 +124,23 @@
       ],
       "expo-local-authentication",
       "expo-secure-store",
-      "@react-native-community/datetimepicker",
       "expo-audio",
-      "expo-sqlite"
+      "expo-sqlite",
+      "@sentry/react-native",
+      "expo-image",
+      "expo-sharing",
+      "expo-video",
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0066CC"
+        }
+      ],
+      "expo-status-bar",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

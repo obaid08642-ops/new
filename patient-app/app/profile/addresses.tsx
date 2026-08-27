@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +14,7 @@ import { useApp } from "../../src/context/AppContext";
 import { AppText, Button, IconButton } from "../../src/components/ui";
 import { apiFetch } from "../../src/utils/api";
 import { Icon } from "../../src/components/Icon";
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 export default function AddressesScreen() {
   const insets = useSafeAreaInsets();
@@ -35,6 +37,8 @@ export default function AddressesScreen() {
   }, []);
 
   const handleSetDefault = async (id: string) => {
+    // E2: optimistic update with revert + alert on failure (was silent catch{} — UI lied about the default)
+    const snapshot = addresses;
     setAddresses((prev) =>
       prev.map((a) => ({ ...a, is_default: a.id === id })),
     );
@@ -43,7 +47,10 @@ export default function AddressesScreen() {
         method: "PATCH",
         body: JSON.stringify({ is_default: true }),
       });
-    } catch {}
+    } catch (e: any) {
+      setAddresses(snapshot);
+      showLocalizedAlert('تعذر تعيين العنوان الافتراضي', e?.message || 'تحقق من اتصالك وحاول مرة أخرى.');
+    }
   };
 
   return (

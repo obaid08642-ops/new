@@ -3,13 +3,20 @@ import { UseGuards } from '@nestjs/common';
 import { Controller, Get, Patch, Post, Delete, Body, Param } from '@nestjs/common';
 import { MedicalProfileService } from './medical-profile.service';
 import { CurrentUser } from '../../common/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-profile')
 export class MedicalProfileController {
-  constructor(private readonly svc: MedicalProfileService) {}
+  constructor(private readonly svc: MedicalProfileService, private readonly jwt: JwtService) {}
 
   @Get() get(@CurrentUser() u: any) { return this.svc.getOrCreate(u); }
+  @Get('passport-token')
+  async passportToken(@CurrentUser() u: any) {
+    const expiresInSeconds = 5 * 60;
+    const token = await this.jwt.signAsync({ sub: u.id, scope: 'health_passport', type: 'qr' }, { expiresIn: expiresInSeconds });
+    return { format: 'nabd_health_passport', version: 2, token, expires_at: new Date(Date.now() + expiresInSeconds * 1000).toISOString() };
+  }
   @Patch() update(@CurrentUser() u: any, @Body() b: any) { return this.svc.update(u, b); }
 
   @Post('chronic-diseases') addCd(@CurrentUser() u: any, @Body() b: any) { return this.svc.addItem(u, 'chronic_diseases', b); }

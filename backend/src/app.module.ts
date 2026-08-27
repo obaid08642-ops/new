@@ -1,16 +1,26 @@
-// @ts-nocheck
-import { ChatController } from './modules/chat/chat.controller';
 
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { LiveKitModule } from './modules/livekit/livekit.module';
 import { CoturnModule } from './modules/coturn/coturn.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { MailModule } from './modules/mail/mail.module';
+import { AdminNotificationCenterModule } from './modules/admin-notification-center/admin-notification-center.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { ApiSecurityModule } from './modules/api-security/api-security.module';
+import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
+import { SeoSearchModule } from './modules/seo-search/seo-search.module';
+import { LegalModule } from './modules/legal/legal.module';
+import { RatingsModule } from './modules/ratings/ratings.module';
+import { ProviderPayoutsController } from './modules/payouts/provider-payouts.controller';
 import { PresenceModule } from './modules/presence/presence.module';
+import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { MediaModule } from './modules/media/media.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { MoyasarModule } from './modules/moyasar/moyasar.module';
+import { FinanceEngineModule } from './modules/finance-engine/finance-engine.module';
 import { ConfigModule } from '@nestjs/config';
+import { validateEnvironment } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -49,6 +59,16 @@ import { StorageModule } from './modules/storage/storage.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { CartModule } from './modules/cart/cart.module';
 import { AdminAuthorityModule } from './modules/admin-authority/admin-authority.module';
+
+function bullRedisConnection() {
+  const configuredUrl = process.env.REDIS_URL ? new URL(process.env.REDIS_URL) : undefined;
+  return {
+    host: configuredUrl?.hostname || process.env.REDIS_HOST || 'localhost',
+    port: Number(configuredUrl?.port || process.env.REDIS_PORT || '6379'),
+    password: configuredUrl?.password ? decodeURIComponent(configuredUrl.password) : (process.env.REDIS_PASSWORD || undefined),
+    ...(configuredUrl?.protocol === 'rediss:' ? { tls: {} } : {}),
+  };
+}
 import { ProviderOnboardingModule } from './modules/provider-onboarding/provider-onboarding.module';
 import { UnifiedBookingsModule } from './modules/unified-bookings/unified-bookings.module';
 import { AdminGovernanceModule } from './modules/admin-governance/admin-governance.module';
@@ -77,30 +97,39 @@ import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { ClientConfigModule } from './modules/config/config.module';
 import { ExportModule } from './modules/export/export.module';
 import { InsuranceModule } from './modules/insurance/insurance.module';
-import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ApprovalWorkflowModule } from './modules/approval-workflow/approval-workflow.module';
 import { RecruitmentModule } from './modules/recruitment/recruitment.module';
 import { FamilyModule } from './modules/family/family.module';
 import { CommunityModule } from './modules/community/community.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
+import { ReferralModule } from './modules/referral/referral.module';
 import { FacilityOpsModule } from './modules/facility-ops/facility-ops.module';
 import { HealthController } from './health.controller';
+import { HealthDashboardController } from './modules/health/health-dashboard.controller';
 import { JwtAuthGuard } from './common/auth.guard';
 import { AuditLogInterceptor } from './common/audit-log.interceptor';
+import { IdempotencyInterceptor } from './common/idempotency.interceptor';
 
 import { MaternityModule } from './modules/maternity/maternity.module';
 import { NabdExtensionsModule } from './modules/nabd-extensions/nabd-extensions.module';
 import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { MentalHealthModule } from './modules/mental-health/mental-health.module';
-import { WalletModule } from './modules/wallet/wallet.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
 import { AdminWebCoreModule } from './modules/admin-web-core/admin-web-core.module';
 import { HomeModule } from './modules/home/home.module';
 import { SystemHealthModule } from './modules/system-health/system-health.module';
+import { HomeCareCompatModule } from './modules/home-care-compat/home-care-compat.module';
+import { CompatModule } from './modules/compat/compat.module';
+import { AdminSpaModule } from './modules/compat/admin-spa.module';
+import { InsuranceEngineModule } from './modules/insurance-engine/insurance-engine.module';
+import { BillingModule } from './modules/billing/billing.module';
+import { ArticlesModule } from './modules/articles/articles.module';
 
 import { CorrelationMiddleware } from './common/correlation.middleware';
+import { DoctorsModule } from './modules/doctors/doctors.module';
+import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
 
 @Module({
   imports: [
@@ -109,38 +138,32 @@ import { CorrelationMiddleware } from './common/correlation.middleware';
     LiveKitModule,
     CoturnModule,
     RedisModule,
+    MailModule,
+    AdminNotificationCenterModule,
+    AnalyticsModule,
+    ApiSecurityModule,
+    DeviceTrustModule,
+    SeoSearchModule,
+    LegalModule,
+    RatingsModule,
     PresenceModule,
+    OpsModule,
     FeatureFlagsModule,
     MediaModule,
     NotificationModule,
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     MongooseModule.forRootAsync({
-      useFactory: () => {
-        const uri = process.env.MONGO_URL?.trim();
-        const dbName = process.env.DB_NAME?.trim();
-        if (!uri || !dbName) throw new Error('MONGO_URL and DB_NAME must be configured');
-        return {
-          uri,
-          dbName,
-          connectionFactory: (connection) => {
-            connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
-            return connection;
-          },
-        };
-      },
+      useFactory: () => ({
+        uri: process.env.MONGO_URL || 'mongodb://localhost:27017',
+        dbName: process.env.DB_NAME || 'nabd_nestjs',
+        connectionFactory: (connection) => {
+          connection.plugin(require('./common/database/audit.plugin').AuditPlugin);
+          return connection;
+        }
+      }),
     }),
     BullModule.forRoot({
-      connection: (() => {
-        const redisUrl = process.env.REDIS_URL?.trim();
-        if (!redisUrl) throw new Error('REDIS_URL must be configured');
-        const parsed = new URL(redisUrl);
-        return {
-          host: parsed.hostname,
-          port: Number(parsed.port || 6379),
-          username: parsed.username || undefined,
-          password: parsed.password || undefined,
-        };
-      })(),
+      connection: bullRedisConnection(),
     }),
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 50 }),
     ScheduleModule.forRoot(),
@@ -161,8 +184,8 @@ import { CorrelationMiddleware } from './common/correlation.middleware';
     DriversModule,
     PharmacyOpsModule,
     CareModule,
+    DoctorsModule,
     LabsModule,
-    HomeCareModule,
     HealthModule,
     SystemHealthModule,
     SupportModule,
@@ -193,6 +216,7 @@ import { CorrelationMiddleware } from './common/correlation.middleware';
     BookingOpsModule,
     PaymentsModule,
     MoyasarModule,
+    FinanceEngineModule,
     SlotLocksModule,
     PushModule,
     SecurityModule,
@@ -205,28 +229,36 @@ import { CorrelationMiddleware } from './common/correlation.middleware';
     ClientConfigModule,
     ExportModule,
     InsuranceModule,
-    AnalyticsModule,
     ApprovalWorkflowModule,
     RecruitmentModule,
     FamilyModule,
     CommunityModule,
     LoyaltyModule,
+    ReferralModule,
     FacilityOpsModule,
     MaternityModule,
     NabdExtensionsModule,
     NutritionModule,
     MentalHealthModule,
-    WalletModule,
     ReturnsModule,
     BansModule,
+    HomeCareCompatModule,
+    HomeCareModule,
+    BillingModule,
+    ArticlesModule,
+    InsuranceEngineModule,
     AdminModule,
     AdminWebCoreModule,
+    CompatModule, // gap-fill endpoints from the screen↔API wiring audit — registered last
+    AdminSpaModule, // admin console SPA REST surface (top-level paths, admin-role guarded)
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, HealthDashboardController, ProviderPayoutsController],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
 })
 export class AppModule implements NestModule {

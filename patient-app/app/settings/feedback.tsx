@@ -1,12 +1,7 @@
 // @ts-nocheck
 // app/settings/feedback.tsx
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import { View, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

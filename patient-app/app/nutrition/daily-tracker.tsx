@@ -1,179 +1,50 @@
-// @ts-nocheck
-// app/nutrition/daily-tracker.tsx — Connected to /nutrition/daily-summary, /nutrition/meals, /nutrition/water
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-  RefreshControl
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
+import React from 'react';
+import { View, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
+import { AppText, Badge, Button, Card, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { nutritionT } from '../../src/i18n/nutrition';
 
-interface DailySummary {
-  total_calories: number;
-  total_water_ml: number;
-  total_exercise_minutes: number;
-  target_calories: number;
-  target_water_ml: number;
-  meals: { name: string; calories: number; meal_type: string; logged_at: string }[];
-  water_logs: { amount_ml: number; logged_at: string }[];
-}
+type Meal = { id?: string; name: string; calories: number; meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack'; protein_g?: number; logged_at: string };
+type Summary = { calories: { consumed: number; burned: number; target: number | null; net: number }; macros: { protein_g: number; carbs_g: number; fat_g: number; fiber_g: number }; water: { consumed_ml: number; target_ml: number | null }; exercise: { total_minutes: number; calories_burned: number; sessions: number }; meals_count: number };
+const localDate = () => { const now = new Date(); const offset = now.getTimezoneOffset() * 60_000; return new Date(now.getTime() - offset).toISOString().slice(0, 10); };
 
 export default function DailyTrackerScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [summary, setSummary] = useState<DailySummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const today = new Date().toISOString().split('T')[0];
+  const { colors, isDark, lang } = useApp();
+  const t = (key: any, vars?: any) => nutritionT(lang, key, vars);
+  const [summary, setSummary] = React.useState<Summary | null>(null); const [meals, setMeals] = React.useState<Meal[]>([]); const [loading, setLoading] = React.useState(true); const [error, setError] = React.useState<string | null>(null); const [waterBusy, setWaterBusy] = React.useState<number | null>(null);
+  const date = localDate();
 
-  const loadSummary = useCallback(async () => {
+  const load = React.useCallback(async () => {
+    setLoading(true); setError(null);
     try {
-      const data = await apiFetch<DailySummary>(`/nutrition/daily-summary?date=${today}`);
-      setSummary(data);
-    } catch (e: any) {
-      // Fallback: show empty state
-      setSummary({ total_calories: 0, total_water_ml: 0, total_exercise_minutes: 0, target_calories: 2000, target_water_ml: 2000, meals: [], water_logs: [] });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [today]);
+      const [summaryResponse, mealsResponse]: any[] = await Promise.all([apiFetch(`/nutrition/daily-summary?date=${date}`), apiFetch(`/nutrition/meals?date=${date}`)]);
+      setSummary(summaryResponse?.data || summaryResponse); const rows = Array.isArray(mealsResponse) ? mealsResponse : mealsResponse?.data; setMeals(Array.isArray(rows) ? rows : []);
+    } catch { setError(t('error')); setSummary(null); setMeals([]); } finally { setLoading(false); }
+  }, [date, lang]);
+  React.useEffect(() => { load(); }, [load]);
 
-  useEffect(() => { loadSummary(); }, [loadSummary]);
+  const addWater = async (amount: number) => { setWaterBusy(amount); setError(null); try { await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml: amount }) }); await load(); } catch { setError(t('saveError')); } finally { setWaterBusy(null); } };
+  const caloriesTarget = summary?.calories.target ?? null; const caloriesPercent = caloriesTarget ? Math.min(100, Math.round((summary?.calories.consumed || 0) / caloriesTarget * 100)) : 0; const waterTarget = summary?.water.target_ml ?? null; const waterPercent = waterTarget ? Math.min(100, Math.round((summary?.water.consumed_ml || 0) / waterTarget * 100)) : 0;
 
-  const onRefresh = () => { setRefreshing(true); loadSummary(); };
-
-  const addWater = async (amount_ml: number) => {
-    try {
-      await apiFetch('/nutrition/water', { method: 'POST', body: JSON.stringify({ amount_ml }) });
-      loadSummary();
-    } catch { Alert.alert('خطأ', 'تعذر تسجيل الماء'); }
-  };
-
-  const totalCal = summary?.total_calories ?? 0;
-  const targetCal = summary?.target_calories ?? 2000;
-  const totalWaterMl = summary?.total_water_ml ?? 0;
-  const targetWaterMl = summary?.target_water_ml ?? 2000;
-  const waterGlasses = Math.round(totalWaterMl / 250);
-  const targetGlasses = Math.round(targetWaterMl / 250);
-
-  const MEAL_TYPES = ['breakfast', 'lunch', 'dinner'];
-  const MEAL_LABELS: Record<string, string> = { breakfast: 'الفطور', lunch: 'الغداء', dinner: 'العشاء' };
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background } ]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 8, backgroundColor: colors.surface, borderBottomColor: colors.borderLight } ]}>
-        <View style={{ width: 40 }}/>
-        <AppText variant="h4">التتبع اليومي</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {/* Calories Progress Ring */}
-        <Card style={{ alignItems: 'center', gap: 10 }}>
-          <AppText variant="caption" color={colors.textTertiary}>السعرات اليوم</AppText>
-          <View style={[st.ring, { borderColor: totalCal > targetCal ? colors.error : colors.success } ]}>
-            <AppText variant="h2" color={totalCal > targetCal ? colors.error : colors.success}>{totalCal}</AppText>
-            <AppText variant="caption" color={colors.textTertiary}>/ {targetCal}</AppText>
-          </View>
-          {loading ? (
-            <AppText variant="bodySM" color={colors.textTertiary}>جاري التحميل...</AppText>
-          ) : (
-            <AppText variant="bodySM" color={colors.textSecondary}>
-              {totalCal >= targetCal ? 'وصلت هدفك!' : `باقي ${targetCal - totalCal} سعرة`}
-            </AppText>
-          )}
-        </Card>
-
-        {/* Meals */}
-        <SectionHeader title="الوجبات" />
-        {MEAL_TYPES.map((type) => {
-          const meal = summary?.meals.find(m => m.meal_type === type);
-          return (
-            <Card
-              key={type}
-              onPress={() => !meal ? router.push({ pathname: '/nutrition/log-meal', params: { meal_type: type } } as any) : 'transparent'}
-              style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }}
-            >
-              <View style={[st.mealIcon, { backgroundColor: meal ? colors.successSurface : colors.surfaceSecondary } ]}>
-                <Icon name={meal ? 'check-circle' : 'add'} size={22} color={meal ? colors.success : colors.textTertiary} />
-              </View>
-              <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
-                <AppText variant="h6">{MEAL_LABELS[type]}</AppText>
-                {meal ? (
-                  <AppText variant="caption" color={colors.textTertiary}>{meal.name}</AppText>
-                ) : (
-                  <AppText variant="caption" color={colors.primary}>اضغط لتسجيل الوجبة</AppText>
-                )}
-              </View>
-              {meal && <Badge label={`${meal.calories} kcal`} color={colors.accent} />}
-            </Card>
-          );
-        })}
-
-        {/* Water Tracker */}
-        <Card>
-          <SectionHeader title="الماء" />
-          <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12, marginTop: 8 }}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row-reverse', gap: 6, flexWrap: 'wrap' }}>
-                {Array.from({ length: Math.max(targetGlasses, 8) }).map((_, i) => (
-                  <TouchableOpacity key={i} onPress={() => addWater(250)}>
-                    <Icon name="water" size={28} color={i < waterGlasses ? '#10B981' : colors.border} />
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <AppText variant="bodySM" color={colors.textTertiary} style={{ marginTop: 6 }}>
-                {waterGlasses}/{targetGlasses} أكواب ({totalWaterMl} مل)
-              </AppText>
-            </View>
-          </View>
-          <View style={{ flexDirection: 'row-reverse', gap: 8, marginTop: 10 }}>
-            {[{ label: 'كوب (250)', ml: 250 }, { label: 'قنينة (500)', ml: 500 }].map(s => (
-              <TouchableOpacity key={s.ml} onPress={() => addWater(s.ml)}
-                style={{ flex: 1, backgroundColor: colors.primarySurface, borderRadius: 12, padding: 10, alignItems: 'center' }}>
-                <AppText variant="bodySM" color={colors.primary}>+ {s.label}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Card>
-
-        {/* Exercise */}
-        <Card onPress={() => router.push('/nutrition/exercise-plan')} style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }}>
-          <View style={[st.mealIcon, { backgroundColor: colors.primarySurface } ]}>
-            <Icon name="run" size={22} color={colors.primary} />
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <AppText variant="h6">التمارين</AppText>
-            <AppText variant="caption" color={colors.textTertiary}>
-              {summary?.total_exercise_minutes ? `${summary.total_exercise_minutes} دقيقة اليوم` : 'لم تسجّل تمرين اليوم'}
-            </AppText>
-          </View>
-          <Icon name="chevronLeft" size={18} color={colors.textTertiary} />
-        </Card>
-
-        <Button label="تحليل وجبة بالـ AI" variant="outline" icon="robot" onPress={() => router.push('/nutrition/calorie-analyzer')} />
-      </ScrollView>
-    </View>
-  );
+  return <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+    <View style={[styles.header, { paddingTop: insets.top + 16 }]}><Button label={t('logMeal')} variant="ghost" size="sm" icon="add" full={false} onPress={() => router.push('/nutrition/log-meal')} /><View style={styles.titleWrap}><AppText variant="h3">{t('dailyTracker')}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('today')}</AppText></View><IconButton icon="back" bg={colors.surfaceSecondary} color={colors.textPrimary} onPress={() => router.back()} /></View>
+    {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /><AppText variant="bodySM" color={colors.textTertiary}>{t('loading')}</AppText></View> : <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
+      {error && <Card style={styles.error}><AppText variant="bodySM" color="#B91C1C" align="right">{error}</AppText><Button label={t('retry')} variant="outline" size="sm" full={false} onPress={load} /></Card>}
+      {summary && <>
+        <Animated.View entering={FadeInDown.duration(320)}><Card style={[styles.hero, { backgroundColor: colors.primarySurface, borderColor: colors.primary + '33' }]}><View style={styles.heroTop}><View style={[styles.ring, { borderColor: colors.primary }]}><AppText variant="h4" color={colors.primary}>{caloriesTarget ? `${caloriesPercent}%` : '—'}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('calories')}</AppText></View><View style={styles.heroCopy}><AppText variant="h5">{t('summary')}</AppText><AppText variant="bodySM" color={colors.textSecondary}>{caloriesTarget ? `${summary.calories.consumed} / ${caloriesTarget}` : `${summary.calories.consumed} ${t('consumed')}`}</AppText><AppText variant="caption" color={colors.textTertiary}>{caloriesTarget ? `${t('remaining')}: ${Math.max(0, caloriesTarget - summary.calories.consumed)}` : t('noTarget')}</AppText></View></View><View style={[styles.track, { backgroundColor: colors.surface }]}><View style={[styles.fill, { width: `${caloriesPercent}%`, backgroundColor: colors.primary }]} /></View></Card></Animated.View>
+        <Animated.View entering={FadeInDown.delay(70).duration(320)}><View style={styles.metrics}><MetricCard label={t('protein')} value={`${summary.macros.protein_g} g`} color={colors.success} /><MetricCard label={t('carbs')} value={`${summary.macros.carbs_g} g`} color={colors.warning} /><MetricCard label={t('fat')} value={`${summary.macros.fat_g} g`} color={colors.secondary} /></View></Animated.View>
+        <Animated.View entering={FadeInDown.delay(140).duration(320)}><Card style={styles.section}><View style={styles.sectionHeader}><AppText variant="h6">{t('waterLog')}</AppText><Badge label={waterTarget ? `${waterPercent}%` : t('noTarget')} color={colors.info} /></View><AppText variant="bodySM" color={colors.textSecondary} align="right">{waterTarget ? `${summary.water.consumed_ml} / ${waterTarget} ml` : t('waterProgress', { value: summary.water.consumed_ml })}</AppText><View style={[styles.track, { backgroundColor: colors.surfaceSecondary }]}><View style={[styles.fill, { width: `${waterPercent}%`, backgroundColor: colors.info }]} /></View><View style={styles.waterActions}><Button label="+250 ml" variant="outline" size="sm" full={false} loading={waterBusy === 250} onPress={() => addWater(250)} /><Button label="+500 ml" variant="primary" size="sm" full={false} loading={waterBusy === 500} onPress={() => addWater(500)} /></View></Card></Animated.View>
+        <Animated.View entering={FadeInDown.delay(210).duration(320)}><Card style={styles.section}><View style={styles.sectionHeader}><AppText variant="h6">{t('mealHistory')}</AppText><Button label={t('addMeal')} variant="ghost" size="sm" full={false} onPress={() => router.push('/nutrition/log-meal')} /></View>{meals.length === 0 ? <AppText variant="bodySM" color={colors.textTertiary} align="right">{t('noMeals')}</AppText> : meals.map((meal) => <View key={meal.id || `${meal.name}-${meal.logged_at}`} style={[styles.mealRow, { borderTopColor: colors.borderLight }]}><Badge label={t(meal.meal_type)} color={colors.primary} /><View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}><AppText variant="labelMD">{meal.name}</AppText><AppText variant="caption" color={colors.textTertiary}>{`${meal.calories} kcal${meal.protein_g ? ` · ${meal.protein_g} g ${t('protein')}` : ''}`}</AppText></View></View>)}</Card></Animated.View>
+      </>}
+      {!summary && !error && <Card style={styles.empty}><AppText variant="bodySM" color={colors.textTertiary} align="right">{t('noData')}</AppText></Card>}
+    </ScrollView>}
+  </View>;
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  ring: { width: 110, height: 110, borderRadius: 55, borderWidth: 6, alignItems: 'center', justifyContent: 'center' },
-  mealIcon: { width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-});
+function MetricCard({ label, value, color }: { label: string; value: string; color: string }) { return <Card style={[styles.metric, { borderColor: color + '33' }]}><AppText variant="caption" color={color}>{label}</AppText><AppText variant="h6">{value}</AppText></Card>; }
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10 }, titleWrap: { alignItems: 'center', gap: 2 }, content: { padding: 16, gap: 14 }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }, hero: { gap: 14, borderWidth: 1 }, heroTop: { flexDirection: 'row-reverse', alignItems: 'center', gap: 14 }, ring: { width: 72, height: 72, borderRadius: 36, borderWidth: 5, alignItems: 'center', justifyContent: 'center' }, heroCopy: { flex: 1, alignItems: 'flex-end', gap: 3 }, track: { height: 8, borderRadius: 99, overflow: 'hidden', width: '100%' }, fill: { height: '100%', borderRadius: 99 }, metrics: { flexDirection: 'row-reverse', gap: 8 }, metric: { flex: 1, borderWidth: 1, alignItems: 'flex-end', gap: 4, minHeight: 72 }, section: { gap: 12 }, sectionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' }, waterActions: { flexDirection: 'row-reverse', gap: 8, justifyContent: 'flex-start' }, mealRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingTop: 10 }, error: { backgroundColor: '#FEE2E2', alignItems: 'flex-end', gap: 8 }, empty: { alignItems: 'flex-end' } });

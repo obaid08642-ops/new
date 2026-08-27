@@ -32,11 +32,20 @@ describe('SessionManager', () => {
 
   it('should rotate tokens and update session', async () => {
     await sessionManager.createSession(mockSession);
-    const newSession = await sessionManager.rotateTokens('old-refresh');
-    expect(newSession.accessToken).toBe('new-access-token');
-    
-    const retrieved = await sessionManager.getSession();
-    expect(retrieved?.accessToken).toBe('new-access-token');
+    const originalFetch = global.fetch;
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: 'new-access-token', refreshToken: 'new-refresh-token' }),
+    }) as any;
+    try {
+      const newSession = await sessionManager.rotateTokens('old-refresh');
+      expect(newSession.accessToken).toBe('new-access-token');
+
+      const retrieved = await sessionManager.getSession();
+      expect(retrieved?.accessToken).toBe('new-access-token');
+    } finally {
+      global.fetch = originalFetch;
+    }
   });
 
   it('should validate session version successfully', async () => {

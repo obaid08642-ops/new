@@ -1,11 +1,7 @@
 // @ts-nocheck
-import React from "react";
-import { View } from "react-native";
-import { AppText } from "../../src/components/ui";
-export default function UploadRx() {
-  return (
-    <View>
-      <AppText>Upload</AppText>
-    </View>
-  );
+// Legacy route — prescription scanning/upload lives in /pharmacy/scan-prescription.
+// This file previously rendered a bare "Upload" placeholder stub.
+import { Redirect } from "expo-router";
+export default function R() {
+  return <Redirect href="/pharmacy/scan-prescription" />;
 }

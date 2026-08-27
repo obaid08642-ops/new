@@ -181,7 +181,8 @@ export class ProviderImageProcessorService {
       .webp({ quality: 70 })
       .toBuffer();
 
-    // Step 4: Upload all versions to Cloudflare R2
+    // Step 4: Upload all versions to Cloudinary (provider content lives on Cloudinary;
+    // deterministic customKey + overwrite + CDN invalidation = old image truly replaced)
     const originalPath = `doctors/original/${job.owner_id}.webp`;
     const largePath = `doctors/large/${job.owner_id}.webp`;
     const mediumPath = `doctors/medium/${job.owner_id}.webp`;
@@ -195,6 +196,7 @@ export class ProviderImageProcessorService {
       original_name: 'profile_original.webp',
       visibility: 'public_read',
       customKey: originalPath,
+      target: 'cloudinary',
     });
 
     const largeUpload = await this.storage.upload({
@@ -205,6 +207,7 @@ export class ProviderImageProcessorService {
       original_name: 'profile_large.webp',
       visibility: 'public_read',
       customKey: largePath,
+      target: 'cloudinary',
     });
 
     const mediumUpload = await this.storage.upload({
@@ -215,6 +218,7 @@ export class ProviderImageProcessorService {
       original_name: 'profile_medium.webp',
       visibility: 'public_read',
       customKey: mediumPath,
+      target: 'cloudinary',
     });
 
     const smallUpload = await this.storage.upload({
@@ -225,6 +229,7 @@ export class ProviderImageProcessorService {
       original_name: 'profile_thumbnail.webp',
       visibility: 'public_read',
       customKey: smallPath,
+      target: 'cloudinary',
     });
 
     const originalUrl = originalUpload.id;

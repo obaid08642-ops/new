@@ -1,4 +1,4 @@
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard } from '../../common/auth.guard';
 import { UseGuards } from '@nestjs/common';
 // src/modules/payments/paymob.controller.ts
 import { Controller, Post, Body, Get } from '@nestjs/common';
@@ -17,8 +17,9 @@ export class PaymobController {
   }
 
   @Post('initiate')
-  async initiatePayment(@CurrentUser() user: any, @Body() payload: any) {
-    return this.paymobService.initiate(user, payload);
+  async initiatePayment(@Body() payload: any) {
+    
+    return this.paymobService.initiate(payload);
   }
 
   @Post('verify')

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, StyleSheet, ScrollView, TouchableOpacity,
-  Dimensions, Animated, StatusBar, ActivityIndicator
+  Dimensions, Animated, StatusBar, ActivityIndicator, Alert
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,15 +12,22 @@ import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '@/utils/dates';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const { width } = Dimensions.get('window');
 
+// Pre-load placeholders only — /loyalty/config overwrites with the live table.
+// Values mirror the backend POINTS_TABLE so nothing inflated is ever shown.
 const DEFAULT_TIERS = [
   { id: 'bronze', label: 'برونزي', icon: 'emoji_events', color: '#CD7C3C', minPts: 0, maxPts: 1000, perks: ['5% كاشباك'] },
 ];
 
 const DEFAULT_EARN_WAYS = [
-  { action: 'استشارة طبية', pts: '+100', icon: 'stethoscope', color: '#23B5CE' },
+  { action: 'استشارة طبية مكتملة', pts: '+50', icon: 'stethoscope', color: '#23B5CE' },
+  { action: 'طلب صيدلية مكتمل', pts: '+30', icon: 'medication', color: '#5BA84F' },
+  { action: 'دعوة صديق (عند أول حجز له)', pts: '+100', icon: 'group_add', color: '#EC4899' },
+  { action: 'تسجيل مؤشرات حيوية', pts: '+10', icon: 'assignment', color: '#F0A526' },
 ];
 
 export default function LoyaltyHubScreen() {
@@ -29,6 +36,7 @@ export default function LoyaltyHubScreen() {
 
   const [points, setPoints] = useState(0);
   const [tierName, setTierName] = useState('bronze');
+  const [claiming, setClaiming] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState<any[]>([]);
   const [tiers, setTiers] = useState<any[]>(DEFAULT_TIERS);
@@ -277,12 +285,26 @@ export default function LoyaltyHubScreen() {
               <View key={i} style={[styles.rewardCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
                 <View style={styles.rewardRight}>
                   <TouchableOpacity
-                    disabled={points < reward.points_required}
+                    disabled={points < reward.points_required || claiming === (reward.id || reward._id)}
+                    onPress={async () => {
+                      const rid = reward.id || reward._id;
+                      if (!rid) return;
+                      setClaiming(rid);
+                      try {
+                        await apiFetch(`/loyalty/rewards/${rid}/claim`, { method: 'POST' });
+                        showLocalizedAlert('تم الاستبدال', 'تم استبدال المكافأة بنجاح');
+                        await loadLoyaltyData();
+                      } catch (err: any) {
+                        showLocalizedAlert('تعذّر الاستبدال', err?.message || 'فشل استبدال المكافأة');
+                      } finally {
+                        setClaiming(null);
+                      }
+                    }}
                     style={[styles.redeemBtn, {
                       backgroundColor: points >= reward.points_required ? currentTier.color : colors.border
                     }]}>
                     <AppText variant="bodySM">
-                      {points >= reward.points_required ? 'استبدل' : 'غير كافٍ'}
+                      {claiming === (reward.id || reward._id) ? 'جاري…' : points >= reward.points_required ? 'استبدل' : 'غير كافٍ'}
                     </AppText>
                   </TouchableOpacity>
                   <AppText variant="bodySM">{reward.points_required} نقطة</AppText>
@@ -310,7 +332,7 @@ export default function LoyaltyHubScreen() {
                     {act.type === 'earn' ? '+' : ''}{act.points.toLocaleString()}
                   </AppText>
                   <AppText variant="bodySM">
-                    {act.createdAt ? new Date(act.createdAt).toLocaleDateString('ar-SA') : 'اليوم'}
+                    {act.createdAt ? new Date(act.createdAt).toLocaleDateString(dateLocale()) : 'اليوم'}
                   </AppText>
                 </View>
                 <AppText variant="bodySM">{act.description}</AppText>

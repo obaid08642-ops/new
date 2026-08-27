@@ -1,20 +1,13 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  ActivityIndicator
-} from 'react-native';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, TextInput, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { resolveColor, darkColors, lightColors } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
+import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
 const RATING_LABELS = ['', 'سيئ', 'مقبول', 'جيد', 'ممتاز', 'رائع جداً'];
 const TAGS = ['ممتاز', 'سريع', 'احترافي', 'نظيف', 'متعاون', 'أنصح به'];
@@ -44,14 +37,18 @@ export default function PostCallRatingScreen() {
     setLoading(true);
     try {
       if (appointmentId) {
-        await apiFetch('/care/appointments/rating', {
+        // E2: real endpoint (was non-existent POST /care/appointments/rating with a swallowed catch)
+        await apiFetch('/patient-ux/review', {
           method: 'POST',
-          body: JSON.stringify({ appointmentId, rating, comment, tags: activeTags })
+          body: JSON.stringify({ booking_kind: 'appointment', booking_id: String(appointmentId), rating, comment, aspects: activeTags })
         });
       }
-    } catch {}
-    setLoading(false);
-    router.replace('/(tabs)/consultations');
+      setLoading(false);
+      router.replace('/(tabs)/consultations');
+    } catch (e: any) {
+      setLoading(false);
+      showLocalizedAlert('تعذر إرسال التقييم', e?.message || 'حاول مرة أخرى لاحقاً.');
+    }
   };
 
   return (
@@ -60,42 +57,42 @@ export default function PostCallRatingScreen() {
       
       <View style={[styles.header, { paddingTop: insets.top + 10, borderBottomColor: colors.bd } ]}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/consultations')} style={{ width: 40, height: 40, justifyContent: 'center' }}>
-          <Text style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>close</Text>
+          <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 24 }}>close</LocalizedText>
         </TouchableOpacity>
-        <Text style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>التقييم</Text>
+        <LocalizedText style={{ fontSize: 16, fontWeight: '800', color: colors.n }}>التقييم</LocalizedText>
         <View style={{ width: 40 }}/>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <View style={{ alignItems: 'center', paddingVertical: 20 }}>
           <View  style={styles.iconCircle}  >
-            <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 40, color: resolveColor('var(--p)') }}>thumb_up</Text>
+            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 40, color: resolveColor('var(--p)') }}>thumb_up</LocalizedText>
           </View>
           
-          <Text style={{ fontSize: 20, fontWeight: '900', color: colors.n, marginBottom: 6 }}>كيف كانت تجربتك؟</Text>
-          <Text style={{ fontSize: 12, color: colors.t2, marginBottom: 24 }}>تقييمك يساعدنا على تحسين خدماتنا</Text>
+          <LocalizedText style={{ fontSize: 20, fontWeight: '900', color: colors.n, marginBottom: 6 }}>كيف كانت تجربتك؟</LocalizedText>
+          <LocalizedText style={{ fontSize: 12, color: colors.t2, marginBottom: 24 }}>تقييمك يساعدنا على تحسين خدماتنا</LocalizedText>
           
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map(n => (
               <TouchableOpacity key={n} onPress={() => setRating(n)} activeOpacity={0.7}>
-                <Text style={{ 
+                <LocalizedText style={{ 
                   fontFamily: 'MaterialSymbolsRounded', 
                   fontSize: 42, 
                   color: n <= rating ? resolveColor('var(--am)') : colors.bd,
                   transform: [{ scale: n <= rating ? 1.1 : 1 }]
                 }}>
                   {n <= rating ? 'star' : 'star'}
-                </Text>
+                </LocalizedText>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: resolveColor('var(--am)'), height: 20, marginBottom: 24 }}>
+          <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: resolveColor('var(--am)'), height: 20, marginBottom: 24 }}>
             {RATING_LABELS[rating]}
-          </Text>
+          </LocalizedText>
         </View>
 
         <View style={{ marginTop: 0 }}>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: colors.n, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>أضف تعليقاً (اختياري)</Text>
+          <LocalizedText style={{ fontSize: 13, fontWeight: '700', color: colors.n, marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}>أضف تعليقاً (اختياري)</LocalizedText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.bg, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
             placeholder="اكتب رأيك في الخدمة..."
@@ -116,7 +113,7 @@ export default function PostCallRatingScreen() {
                 style={[
                   styles.chip, 
                   active ? { backgroundColor: resolveColor('var(--ps)'), borderColor: resolveColor('var(--p)') } : { backgroundColor: colors.s, borderColor: colors.bd }]} >
-                <Text style={{ fontSize: 11, fontWeight: '600', color: active ? resolveColor('var(--pt)') : colors.t2 }}>{t}</Text>
+                <LocalizedText style={{ fontSize: 11, fontWeight: '600', color: active ? resolveColor('var(--pt)') : colors.t2 }}>{t}</LocalizedText>
               </TouchableOpacity>
             );
           })}
@@ -127,7 +124,7 @@ export default function PostCallRatingScreen() {
           onPress={submit}
           disabled={rating === 0 || loading}
         >
-          {loading ? <ActivityIndicator color={colors.bg} /> : <Text style={{ fontSize: 14, fontWeight: '800', color: colors.bg }}>إرسال التقييم</Text>}
+          {loading ? <ActivityIndicator color={colors.bg} /> : <LocalizedText style={{ fontSize: 14, fontWeight: '800', color: colors.bg }}>إرسال التقييم</LocalizedText>}
         </TouchableOpacity>
       </ScrollView>
     </View>

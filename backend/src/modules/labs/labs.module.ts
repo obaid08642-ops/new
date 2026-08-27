@@ -15,6 +15,7 @@ import { LabBookingRepository } from "./repositories/labbooking.repository";
 import { LabResultRepository } from "./repositories/labresult.repository";
 import { LabSampleRepository } from "./repositories/labsample.repository";
 import { LabServiceRepository } from "./repositories/labservice.repository";
+import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { LabServiceRepository } from "./repositories/labservice.repository";
       { name: 'LabCatalog', schema: LabCatalogSchema },
       { name: 'LabResult', schema: LabResultSchema },
       { name: 'LabSample', schema: LabSampleSchema },
+      { name: ProviderProfile.name, schema: ProviderProfileSchema },
     ]),
   ],
   controllers: [LabsController, LabResultsController, LabsEngineController],

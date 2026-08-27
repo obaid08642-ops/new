@@ -12,6 +12,8 @@ export class SystemEvent extends Document {
   @Prop({ required: true, index: true }) type: string; // e.g. order.created
   @Prop({ required: true, index: true }) entity_type: string; // order | allocation | broadcast | chat | shortage
   @Prop({ required: true, index: true }) entity_id: string;
+  /** Stable command key for exactly-once durable event recording. */
+  @Prop({ unique: true, sparse: true, index: true }) idempotency_key?: string;
   @Prop({ index: true }) actor_account_id?: string;
   @Prop({ index: true }) actor_role?: string; // patient | provider | admin | system
   @Prop({ index: true }) reason_code?: string;

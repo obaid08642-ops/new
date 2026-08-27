@@ -1,50 +1,120 @@
-export const apiFetch = async (endpoint: string, options: any = {}) => {
-  console.log(`[API Call] ${options.method || 'GET'} ${endpoint}`);
-  if (options.body) console.log(`[Payload] ${options.body}`);
-  
-  await new Promise(resolve => setTimeout(resolve, 800));
+import { HttpClient } from '../src/services/HttpClient';
+import { STORAGE_KEYS } from '../src/constants';
+import { secureDelete, secureGet, secureSet } from '../src/utils/security';
 
-  // 1. Providers List (with filters)
-  if (endpoint.includes('/home-care/providers?')) {
-    return [
-      { id: 'nurse-1', name_ar: 'سارة أحمد', facility_name: 'مستشفى دله', gender: 'female', rating: 4.9, distance_km: 3.2, price: 150, available_now: true },
-      { id: 'nurse-2', name_ar: 'محمد السيد', facility_name: 'مستوصف الحياة', gender: 'male', rating: 4.7, distance_km: 5.1, price: 130, available_now: false }
-    ];
+/**
+ * M1-01 — REAL network client (replaces the former in-memory mock that returned
+ * hardcoded data after a fake 800ms delay and never touched the network).
+ *
+ * The exported signature is intentionally unchanged (`apiFetch(endpoint, options)`)
+ * so all 157 screens that were wired to the mock become live against the real
+ * backend without per-screen rewrites.
+ *
+ * Behavior:
+ *  - Injects the JWT from secure storage as `Authorization: Bearer <token>`.
+ *  - `options.body` may be a JSON string (screens already JSON.stringify) or an object.
+ *  - Returns the parsed response body directly (screens read res.data / arrays / res.token).
+ *  - On 401: clears the stored session so the app falls back to the auth flow.
+ *  - Throws Error with the server's message when available — no silent fake fallbacks.
+ */
+
+const TOKEN_KEYS = [STORAGE_KEYS.AUTH_TOKEN, 'userToken'];
+
+async function getStoredToken(): Promise<string | null> {
+  for (const key of TOKEN_KEYS) {
+    try {
+      const token = await secureGet(key);
+      if (token) return token;
+    } catch {
+      // A native client without SecureStore is unauthenticated, never downgraded
+      // to plaintext AsyncStorage token retrieval.
+      return null;
+    }
+  }
+  return null;
+}
+
+async function clearStoredSession(): Promise<void> {
+  for (const key of [...TOKEN_KEYS, STORAGE_KEYS.REFRESH_TOKEN, STORAGE_KEYS.USER_DATA]) {
+    try { await secureDelete(key); } catch { /* best-effort logout cleanup */ }
+  }
+}
+
+export interface ApiFetchOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  body?: string | Record<string, any>;
+  headers?: Record<string, string>;
+  /** Skip attaching the Authorization header (public endpoints) */
+  skipAuth?: boolean;
+  timeout?: number;
+}
+
+function normalizeError(err: any): Error {
+  const serverMessage =
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    err?.data?.message;
+  if (serverMessage) {
+    return new Error(Array.isArray(serverMessage) ? serverMessage.join('، ') : String(serverMessage));
+  }
+  if (err?.response?.status === 404) return new Error('العنصر المطلوب غير موجود');
+  if (err?.response?.status === 429) return new Error('محاولات كثيرة — انتظر قليلًا ثم أعد المحاولة');
+  if (err?.response?.status >= 500) return new Error('خطأ في الخادم — حاول مرة أخرى لاحقًا');
+  if (!err?.response && err?.request) return new Error('لا يوجد اتصال بالإنترنت — تحقق من الشبكة');
+  return new Error(err?.message || 'حدث خطأ غير متوقع');
+}
+
+export async function apiFetch<T = any>(endpoint: string, options: ApiFetchOptions = {}): Promise<T> {
+  const method = (options.method || 'GET').toUpperCase();
+
+  let data: any = undefined;
+  if (options.body !== undefined && options.body !== null) {
+    data = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
   }
 
-  // 2. Single Provider Details
-  if (endpoint.includes('/home-care/providers/') && !endpoint.includes('?')) {
-    return {
-      id: 'nurse-1',
-      name: 'سارة أحمد',
-      facility: 'مستشفى دله',
-      degree: 'بكالوريوس تمريض متقدم - العناية المركزة',
-      rating: 4.9,
-      reviews_count: 120,
-      price: 150,
-      reviews: [{ id: 1, user: 'أم محمد', text: 'ممرضة ممتازة وحنونة جداً مع كبار السن.' }]
-    };
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  };
+
+  if (!options.skipAuth) {
+    const token = await getStoredToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // 3. Insurance Verification
-  if (endpoint.includes('/insurance/verify')) {
-    return { provider: 'بوبا (Bupa)', policy: 'BUP-9928172', coverage: 'فعال' };
+  try {
+    const response = await HttpClient.request({
+      url: endpoint,
+      method: method as any,
+      data,
+      headers,
+      timeout: options.timeout,
+    });
+    return response.data as T;
+  } catch (err: any) {
+    if (err?.response?.status === 401 && !options.skipAuth) {
+      await clearStoredSession();
+    }
+    throw normalizeError(err);
   }
+}
 
-  // 4. Booking Submission
-  if (endpoint.includes('/home-care/bookings')) {
-    return { success: true, booking_id: 'BKG-9921', status: 'pending_approval' };
+/** Store the session tokens after a successful login/register. */
+export async function storeAuthSession(tokenPayload: any): Promise<string | null> {
+  const accessToken =
+    typeof tokenPayload === 'string' ? tokenPayload : tokenPayload?.accessToken || null;
+  const refreshToken =
+    typeof tokenPayload === 'object' ? tokenPayload?.refreshToken : undefined;
+
+  if (!accessToken) return null;
+
+  try {
+    await secureSet(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+    if (refreshToken) await secureSet(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+    return accessToken;
+  } catch {
+    // Do not claim a durable authenticated session when secure storage failed.
+    await clearStoredSession();
+    return null;
   }
-
-  // 5. Tracking Data
-  if (endpoint.includes('/tracking')) {
-    return { 
-      nurse_phone: '+966500000000', 
-      hospital_lat: 24.7136, 
-      hospital_lng: 46.6753, 
-      eta_minutes: 15 
-    };
-  }
-
-  return {};
-};
+}

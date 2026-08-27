@@ -14,8 +14,16 @@ export class PatientProfile {
   @Prop({ default: [] }) allergies: string[];
   @Prop({ default: [] }) chronic_diseases: string[];
   @Prop({ default: [] }) current_medications: string[];
-  @Prop({ type: [{ name: String, phone: String, relation: String }], _id: false, default: [] })
-  emergency_contacts: { name: string; phone: string; relation: string }[];
+  @Prop({ type: [{ id: String, name: String, phone: String, relation: String, isPrimary: Boolean }], _id: false, default: [] })
+  emergency_contacts: { id?: string; name: string; phone: string; relation: string; isPrimary?: boolean }[];
+  @Prop() full_name?: string;
+  @Prop() phone?: string;
+  @Prop() email?: string;
+  @Prop() dob?: string;
+  @Prop() national_id?: string;
+  @Prop({ type: Object }) notification_settings?: Record<string, any>;
+  @Prop({ type: Object }) privacy_settings?: Record<string, any>;
+  @Prop({ type: Object }) security_settings?: Record<string, any>;
   
   @Prop({
     type: [{

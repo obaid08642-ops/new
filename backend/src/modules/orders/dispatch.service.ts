@@ -181,4 +181,16 @@ export class DispatchService {
       );
     }
   }
+
+  /** Restore stock when a previously-accepted order is cancelled before delivery. */
+  async restoreStock(pharmacy_user_id: string, items: { medicine_id: string; qty: number }[]) {
+    if (!pharmacy_user_id || !Array.isArray(items)) return;
+    for (const it of items) {
+      if (!it?.medicine_id || !(it.qty > 0)) continue;
+      await this.invModel.updateOne(
+        { pharmacy_id: pharmacy_user_id, medicine_id: it.medicine_id },
+        { $inc: { stock_qty: it.qty }, $set: { last_restocked_at: new Date() } },
+      );
+    }
+  }
 }

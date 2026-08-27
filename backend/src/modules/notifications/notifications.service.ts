@@ -1,14 +1,18 @@
-// @ts-nocheck
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, Inject } from '@nestjs/common';
+import { I18nService } from '../i18n/i18n.service';
 import { Model } from 'mongoose';
+import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Notification, NotificationDocument } from '../../schemas/notification.schema';
 import { NotificationPriority, NotificationType } from '../../common/enums';
 import { EVENTS } from '../../common/events';
 import { NotificationRepository } from "./repositories/notification.repository";
-import * as admin from 'firebase-admin';
-import * as nodemailer from 'nodemailer';
+import { initializeApp, getApps, cert } from 'firebase-admin';
+import { getMessaging } from 'firebase-admin/messaging';
 import { SmsService } from '../sms/sms.service';
+import { MailService } from '../mail/mail.module';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import axios from 'axios';
 
 @Injectable()
@@ -18,29 +22,108 @@ export class NotificationsService {
     @Inject('NotificationRepository') private model: NotificationRepository,
     private events: EventEmitter2,
     private smsService: SmsService,
+    private mail: MailService,
+    @InjectQueue('notifications-delivery') private queue: Queue,
+    private readonly i18n: I18nService,
   ) {}
 
   async create(data: {
     user_id?: string; role?: string;
-    title_key: string; body_key: string;
+    title_key?: string; body_key?: string;
+    title?: string; body?: string; // ad-hoc admin broadcasts send raw text
     params?: any; type?: NotificationType; priority?: NotificationPriority;
     action?: any;
+    scheduled_at?: Date | string; // M6/ER-8: scheduled delivery
   }) {
+    const sched = data.scheduled_at ? new Date(data.scheduled_at) : null;
+    const delay = sched ? sched.getTime() - Date.now() : 0;
+    const titleKey = data.title_key || data.title;
+    const bodyKey = data.body_key || data.body;
+    if (!titleKey || !bodyKey) throw new BadRequestException('title/body (or title_key/body_key) are required');
     const n = await this.model.create({
       user_id: data.user_id,
       role: data.role,
-      title_key: data.title_key,
-      body_key: data.body_key,
+      title_key: titleKey,
+      body_key: bodyKey,
       params: data.params || {},
       type: data.type || NotificationType.INFO,
       priority: data.priority || NotificationPriority.NORMAL,
       action: data.action,
+      scheduled_at: sched || undefined,
+      status: delay > 5000 ? 'SCHEDULED' : 'PENDING',
     });
     this.events.emit(EVENTS.NOTIFICATION_CREATED, { id: n.id, user_id: n.user_id, role: n.role, title_key: n.title_key, body_key: n.body_key, priority: n.priority });
-    
-    // Broadcast notification to multiple adapters (Push, SMS, Email, WhatsApp)
-    await this.broadcast(n);
+
+    // M6/ER-8: delivery via BullMQ (retry + delay); direct fallback if queue is down
+    await this.enqueueDelivery(n.id, Math.max(delay, 0));
     return n.toObject();
+  }
+
+  private async enqueueDelivery(id: string, delayMs = 0) {
+    try {
+      await this.queue.add('deliver', { id }, {
+        jobId: `deliver:${id}`, // E5-F5: BullMQ dedup — a second enqueue for the same notification is dropped
+        delay: delayMs,
+        attempts: 4,
+        backoff: { type: 'exponential', delay: 30000 },
+        removeOnComplete: 100,
+        removeOnFail: 500,
+      });
+    } catch (e: any) {
+      this.logger.error(`Delivery queue unavailable (${e.message}) — falling back to direct delivery`);
+      await this.deliverById(id).catch((err: any) => this.logger.error(`Direct delivery failed: ${err.message}`));
+    }
+  }
+
+  /** Processor entry: deliver + record per-channel status; throws when ALL channels failed (→ retry). */
+  async deliverById(id: string) {
+    const n: any = await this.model.findOne({ id });
+    if (!n) { this.logger.warn(`deliverById: notification ${id} not found`); return; }
+    const prev = n.delivery || {};
+    const bump = (ch: string, ok: boolean, err?: string) => ({
+      status: ok ? 'SENT' : 'FAILED',
+      attempts: (prev[ch]?.attempts || 0) + 1,
+      ...(err ? { last_error: String(err).slice(0, 300) } : {}),
+      ...(ok ? { sent_at: new Date() } : {}),
+    });
+
+    const delivery: any = {};
+    // Push
+    try { const sent = await this.sendPush(n); delivery.push = bump('push', sent !== false); }
+    catch (e: any) { delivery.push = bump('push', false, e.message); }
+    // User-targeted channels
+    if (n.user_id) {
+      try {
+        const user = (await this.model.db.model('User').findOne({ id: n.user_id }).lean()) as any;
+        if (user?.phone) {
+          try { await this.sendSms(n, user.phone); delivery.sms = bump('sms', true); }
+          catch (e: any) { delivery.sms = bump('sms', false, e.message); }
+          try { await this.sendWhatsApp(n, user.phone); delivery.whatsapp = bump('whatsapp', true); }
+          catch (e: any) { delivery.whatsapp = bump('whatsapp', false, e.message); }
+        }
+        if (user?.email) {
+          try { await this.sendEmail(n, user.email); delivery.email = bump('email', true); }
+          catch (e: any) { delivery.email = bump('email', false, e.message); }
+        }
+      } catch (e: any) {
+        this.logger.error('Failed resolving user channels', e.message);
+      }
+    }
+
+    const vals = Object.values(delivery) as any[];
+    const anySent = vals.some(v => v.status === 'SENT');
+    const anyFailed = vals.some(v => v.status === 'FAILED');
+    const status = vals.length === 0 ? 'SENT' : anySent && anyFailed ? 'PARTIAL' : anySent ? 'SENT' : 'FAILED';
+    await this.model.updateOne({ id }, { $set: { delivery, status, sent_push: delivery.push?.status === 'SENT' } });
+    if (status === 'FAILED') throw new Error(`notification ${id}: all channels failed`);
+  }
+
+  /** M6/ER-8: admin delivery analytics. */
+  async deliveryStats() {
+    const rows = await this.model.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]);
+    const by_status: any = {};
+    for (const r of rows) by_status[r._id || 'UNKNOWN'] = r.count;
+    return { by_status, total: rows.reduce((s: number, r: any) => s + r.count, 0) };
   }
 
   async broadcast(n: any) {
@@ -66,38 +149,93 @@ export class NotificationsService {
     }
   }
 
+  /**
+   * M6/ER-8: push payload carries the deep-link contract — every notification
+   * opens its exact screen even when the app is terminated:
+   *   data = { type, screen (action.route), params (action.payload), action }
+   * Tokens are routed by type: Expo tokens → Expo Push API, native → FCM.
+   * Returns true when at least one channel accepted the message.
+   */
   async sendPush(n: any) {
-    if (!process.env.FIREBASE_PROJECT_ID) {
-      this.logger.debug(`Push payload: ${n.title_key} → ${n.user_id || n.role}`);
-      return;
-    }
-    try {
-      if (admin.apps.length === 0) {
-        admin.initializeApp({
-          credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-          }),
-        });
-      }
-      
-      const payload = {
-        notification: { title: n.title_key, body: n.body_key },
-        data: { action: JSON.stringify(n.action || {}) }
-      };
+    const dataPayload: any = {
+      type: String(n.type || 'info'),
+      action: JSON.stringify(n.action || {}),
+    };
+    if (n.action?.route) dataPayload.screen = String(n.action.route);
+    if (n.action?.payload) dataPayload.params = JSON.stringify(n.action.payload);
 
-      if (n.user_id) {
-        const userTokens = await this.model.db.model('DeviceToken').find({ user_id: n.user_id }).lean();
-        const tokens = userTokens.map((t: any) => t.token);
-        if (tokens.length > 0) {
-          await admin.messaging().sendEachForMulticast({ tokens, ...payload });
-        }
-      } else if (n.role) {
-        await admin.messaging().send({ topic: n.role, ...payload });
+    let sent = false;
+
+    if (n.user_id) {
+      // PushToken is the single source of truth (registered via /push/register
+      // or /notifications/register-token). The old DeviceToken model never
+      // existed as a schema — querying it threw MissingSchemaError.
+      const userTokens = await this.model.db.model('PushToken').find({ user_id: n.user_id, active: true }).lean();
+      const tokens = userTokens.map((t: any) => ({ token: t.token, provider: t.provider })).filter((t: any) => t.token);
+      const expoTokens = tokens.filter((t: any) => t.provider === 'expo' || t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
+      const fcmTokens = tokens.filter((t: any) => t.provider === 'fcm' && !t.token.startsWith('ExponentPushToken')).map((t: any) => t.token);
+
+      if (expoTokens.length > 0) {
+        sent = (await this.sendExpoPush(expoTokens, n, dataPayload)) || sent;
       }
-    } catch (e) {
-      this.logger.error('Failed to send Firebase Push', e.stack);
+      if (fcmTokens.length > 0) {
+        sent = (await this.sendFcmPush(fcmTokens, n, dataPayload)) || sent;
+      }
+    } else if (n.role) {
+      sent = (await this.sendFcmPush(null, n, dataPayload, n.role)) || sent;
+    }
+    return sent;
+  }
+
+  private async sendFcmPush(tokens: string[] | null, n: any, dataPayload: any, topic?: string): Promise<boolean> {
+    const fbProjectId = process.env.FIREBASE_PROJECT_ID || process.env.FCM_PROJECT_ID;
+    const fbClientEmail = process.env.FIREBASE_CLIENT_EMAIL || process.env.FCM_CLIENT_EMAIL;
+    const fbPrivateKey = process.env.FIREBASE_PRIVATE_KEY || process.env.FCM_PRIVATE_KEY;
+    if (!fbProjectId || !fbClientEmail || !fbPrivateKey) {
+      this.logger.debug(`Push payload: ${n.title_key} → ${n.user_id || n.role}`);
+      return false;
+    }
+    if (getApps().length === 0) {
+      initializeApp({
+        credential: cert({
+          projectId: fbProjectId,
+          clientEmail: fbClientEmail,
+          privateKey: fbPrivateKey?.replace(/\\n/g, '\n'),
+        }),
+      });
+    }
+    const payload = {
+      notification: { title: n.title_key, body: n.body_key },
+      data: dataPayload,
+    };
+    if (tokens && tokens.length > 0) {
+      const res = await getMessaging().sendEachForMulticast({ tokens, ...payload });
+      return res.successCount > 0;
+    }
+    if (topic) {
+      await getMessaging().send({ topic, ...payload });
+      return true;
+    }
+    return false;
+  }
+
+  private async sendExpoPush(tokens: string[], n: any, dataPayload: any): Promise<boolean> {
+    try {
+      const messages = tokens.map((to) => ({
+        to,
+        title: n.title_key,
+        body: n.body_key,
+        data: dataPayload,
+        sound: n.priority === 'HIGH' || n.priority === 'CRITICAL' ? 'default' : undefined,
+      }));
+      const res = await axios.post('https://exp.host/--/api/v2/push/send', messages, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const receipts = Array.isArray(res.data?.data) ? res.data.data : [];
+      return receipts.some((r: any) => r.status === 'ok');
+    } catch (e: any) {
+      this.logger.error('Expo push failed', e.message);
+      return false;
     }
   }
 
@@ -106,28 +244,18 @@ export class NotificationsService {
   }
 
   async sendEmail(n: any, email: string) {
-    if (!process.env.SMTP_HOST) {
-      this.logger.debug(`Email queued to ${email} for event: ${n.title_key}`);
-      return;
-    }
+    // Unified pipeline: Resend primary → Amazon SES automatic fallback (MailModule).
     try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || '"Nabdah Plus" <no-reply@nabdah.com>',
-        to: email,
-        subject: n.title_key,
-        text: n.body_key,
-      });
+      const result = await this.mail.send(
+        email,
+        n.title_key,
+        `<div dir="rtl" style="font-family: system-ui, sans-serif; text-align: right;"><h3>${n.title_key}</h3><p>${n.body_key}</p></div>`,
+        n.body_key,
+      );
+      if (!result.ok) throw new Error(result.error || 'mail_failed');
     } catch (e) {
       this.logger.error('Failed to send Email', e.stack);
+      throw e;
     }
   }
 
@@ -150,14 +278,30 @@ export class NotificationsService {
   }
 
   async listForUser(user: any) {
-    return this.model.find(
+    const rows: any[] = await this.model.find(
       { $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
       { _id: 0, __v: 0 },
     ).sort({ createdAt: -1 }).limit(200);
+    // Resolve i18n keys to readable text; creators that stored plain Arabic pass through unchanged
+    const lang = (user?.lang as any) || 'ar';
+    return rows.map((r: any) => {
+      const o = typeof r.toObject === 'function' ? r.toObject() : r;
+      return {
+        ...o,
+        title: this.i18n.t(o.title_key, lang, o.params),
+        body: this.i18n.t(o.body_key, lang, o.params),
+        read: Array.isArray(o.read_by) ? o.read_by.includes(user.id) : false,
+      };
+    });
   }
 
   async markRead(id: string, user: any) {
-    await this.model.updateOne({ id }, { $addToSet: { read_by: user.id } });
+    const result: any = await this.model.updateOne(
+      { id, $or: [{ user_id: user.id }, { role: user.role }, { role: 'all' }] },
+      { $addToSet: { read_by: user.id } },
+    );
+    const matched = result?.matchedCount ?? result?.nMatched;
+    if (matched === 0) throw new NotFoundException('notification_not_found');
     return { ok: true };
   }
 
@@ -247,6 +391,117 @@ export class NotificationsService {
   async onOrderEscalated(p: any) {
     await this.create({ role: 'admin', title_key: 'notif.order_escalated.title', body_key: 'notif.order_escalated.body', type: NotificationType.ALERT, priority: NotificationPriority.CRITICAL });
   }
+  @OnEvent('order.preparing')
+  async onOrderPreparing(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_preparing.title', body_key: 'notif.order_preparing.body', type: NotificationType.ORDER, action: { route: `/orders/${p.order_id}/tracking` } });
+  }
+  @OnEvent('order.ready')
+  async onOrderReady(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_ready.title', body_key: 'notif.order_ready.body', type: NotificationType.ORDER, priority: NotificationPriority.HIGH, action: { route: `/orders/${p.order_id}/tracking` } });
+  }
+  @OnEvent('order.assigned_to_delivery')
+  async onOrderAssignedDelivery(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_driver_assigned.title', body_key: 'notif.order_driver_assigned.body', type: NotificationType.ORDER, action: { route: `/orders/${p.order_id}/tracking` } });
+  }
+  @OnEvent('order.out_for_delivery')
+  async onOrderOutForDelivery(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_out_for_delivery.title', body_key: 'notif.order_out_for_delivery.body', type: NotificationType.ORDER, priority: NotificationPriority.HIGH, action: { route: `/orders/${p.order_id}/tracking` } });
+  }
+  @OnEvent('order.cancelled')
+  async onOrderCancelled(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_cancelled.title', body_key: 'notif.order_cancelled.body', type: NotificationType.ORDER, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('order.partially_fulfilled')
+  async onOrderPartial(p: any) {
+    if (p.patient_id) await this.create({ user_id: p.patient_id, title_key: 'notif.order_partial.title', body_key: 'notif.order_partial.body', type: NotificationType.ORDER, action: { route: `/orders/${p.order_id}` } });
+  }
+  // ============ APPOINTMENT Lifecycle (EventBus payload shape: patient_account_id) ============
+  @OnEvent('doctor_appointment.created')
+  async onApptCreated(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_created.title', body_key: 'notif.appt_created.body', type: NotificationType.INFO, action: { route: `/consultations/appointments` } });
+    // Notify the doctor about the new booking
+    if (p.meta?.doctor_id) {
+      await this.create({ user_id: p.meta.doctor_id, title_key: 'notif.appt_new_for_doctor.title', body_key: 'notif.appt_new_for_doctor.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+    }
+  }
+  @OnEvent('doctor_appointment.confirmed')
+  async onApptConfirmed(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_confirmed.title', body_key: 'notif.appt_confirmed.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH, action: { route: `/consultations/appointments` } });
+  }
+  @OnEvent('doctor_appointment.cancelled')
+  async onApptCancelled(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_cancelled.title', body_key: 'notif.appt_cancelled.body', type: NotificationType.INFO, priority: NotificationPriority.HIGH });
+  }
+  @OnEvent('doctor_appointment.completed')
+  async onApptCompleted(p: any) {
+    const uid = p.patient_account_id || p.patient_id;
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.appt_completed.title', body_key: 'notif.appt_completed.body', type: NotificationType.INFO, action: { route: `/consultations/appointments` } });
+  }
+
+  // ============ HOME NURSING Lifecycle ============
+  @OnEvent('homecare.booking_created')
+  async onHomecareCreated(p: any) {
+    if (!p.patient_id) return;
+    await this.create({ user_id: p.patient_id, title_key: 'notif.homecare_created.title', body_key: 'notif.homecare_created.body', type: NotificationType.INFO });
+  }
+  @OnEvent('homecare.booking_state_changed')
+  async onHomecareState(p: any) {
+    if (!p.patient_id) return;
+    const key = ({
+      PROVIDER_ASSIGNED: 'assigned', IN_TRANSIT: 'transit', ARRIVED: 'arrived',
+      CARE_IN_PROGRESS: 'care', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'no_show',
+    } as any)[p.state] || 'state';
+    await this.create({
+      user_id: p.patient_id,
+      title_key: `notif.homecare_${key}.title`,
+      body_key: `notif.homecare_${key}.body`,
+      type: NotificationType.INFO,
+      priority: ['ARRIVED', 'COMPLETED', 'CANCELLED'].includes(p.state) ? NotificationPriority.HIGH : NotificationPriority.NORMAL,
+      action: { route: `/nursing/tracking/${p.booking_id}` },
+    });
+  }
+
+  // ============ RADIOLOGY Lifecycle ============
+  /** Radiology events may carry the patient's Mongo _id instead of the app UUID — resolve. */
+  private async resolveUserId(raw: any): Promise<string | null> {
+    if (!raw) return null;
+    const s = String(raw);
+    if (s.includes('-')) return s; // app-level UUID already
+    try {
+      const u: any = await this.model.db.model('User').findOne({ _id: s }, { id: 1 }).lean();
+      return u?.id || null;
+    } catch { return null; }
+  }
+
+  @OnEvent('radiology.new_booking')
+  async onRadBooking(p: any) {
+    const uid = await this.resolveUserId(p.patientId || p.patient_id);
+    if (!uid) return;
+    await this.create({ user_id: uid, title_key: 'notif.rad_booked.title', body_key: 'notif.rad_booked.body', type: NotificationType.INFO });
+  }
+  @OnEvent('radiology.state_changed')
+  async onRadState(p: any) {
+    const key = p.state === 'REPORT_READY' ? 'ready' : p.state === 'CANCELLED' ? 'cancelled' : 'state';
+    if (key === 'state') return; // only meaningful transitions notify the patient
+    const uid = await this.resolveUserId(p.patientId || p.patient_id);
+    if (!uid) return;
+    await this.create({
+      user_id: uid,
+      title_key: `notif.rad_${key}.title`,
+      body_key: `notif.rad_${key}.body`,
+      type: NotificationType.INFO,
+      priority: NotificationPriority.HIGH,
+      action: { route: `/diagnostics/results-history` },
+    });
+  }
+
   @OnEvent('emergency.triggered')
   async onEmergency(p: any) {
     await this.create({ role: 'admin', title_key: 'notif.emergency.title', body_key: 'notif.emergency.body', type: NotificationType.EMERGENCY, priority: NotificationPriority.CRITICAL });
@@ -308,6 +563,20 @@ export class NotificationsService {
       action: { route: `/labs/booking/view/${p.booking_id}` },
     });
   }
+  @OnEvent('lab.report_uploaded')
+  async onLabReportUploaded(p: any) {
+    if (!p.patient_id) return;
+    await this.create({
+      user_id: p.patient_id,
+      title_key: 'notif.lab_result_ready.title',
+      body_key: 'notif.lab_result_ready.body',
+      params: { tracking_id: p.tracking_id },
+      type: NotificationType.INFO,
+      priority: NotificationPriority.HIGH,
+      action: { route: `/labs/bookings/${p.booking_id}` },
+    });
+  }
+
   @OnEvent('lab.result_ready')
   async onLabResultReady(p: any) {
     if (!p.patient_id) return;
@@ -389,6 +658,195 @@ export class NotificationsService {
       type: NotificationType.INFO,
       priority: p.critical ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
       action: { route: `/health/reports/${p.id}` },
+    });
+  }
+
+  // ============ EPIC4/S20: Family scenarios ============
+  @OnEvent('family.invite_accepted')
+  async onFamilyInviteAccepted(p: any) {
+    if (!p?.owner_id) return;
+    await this.create({
+      user_id: p.owner_id,
+      title_key: 'notif.family_member_joined.title',
+      body_key: 'notif.family_member_joined.body',
+      type: NotificationType.INFO,
+      action: { route: '/family/hub' },
+    });
+  }
+  @OnEvent('family.permission_requested')
+  async onFamilyPermissionRequested(p: any) {
+    if (!p?.owner_id) return;
+    await this.create({
+      user_id: p.owner_id,
+      title_key: 'notif.family_perm_requested.title',
+      body_key: 'notif.family_perm_requested.body',
+      type: NotificationType.INFO,
+      priority: NotificationPriority.HIGH,
+      action: { route: '/family/permission-request' },
+    });
+  }
+  @OnEvent('family.permission_responded')
+  async onFamilyPermissionResponded(p: any) {
+    if (!p?.requester_id) return;
+    const approved = p.decision === 'approved';
+    await this.create({
+      user_id: p.requester_id,
+      title_key: approved ? 'notif.family_perm_approved.title' : 'notif.family_perm_rejected.title',
+      body_key: approved ? 'notif.family_perm_approved.body' : 'notif.family_perm_rejected.body',
+      type: NotificationType.INFO,
+      action: { route: '/family/hub' },
+    });
+  }
+  @OnEvent('family.permissions_updated')
+  async onFamilyPermissionsUpdated(p: any) {
+    if (!p?.member_id) return;
+    await this.create({
+      user_id: p.member_id,
+      title_key: 'notif.family_perms_updated.title',
+      body_key: 'notif.family_perms_updated.body',
+      type: NotificationType.INFO,
+      action: { route: '/family/hub' },
+    });
+  }
+
+  // ============ EPIC4/S20: Referral scenarios ============
+  @OnEvent('referral.converted')
+  async onReferralConverted(p: any) {
+    if (!p?.user_id) return;
+    await this.create({
+      user_id: p.user_id,
+      title_key: 'notif.referral_converted.title',
+      body_key: 'notif.referral_converted.body',
+      type: NotificationType.PROMO,
+      action: { route: '/loyalty/referrals' },
+    });
+  }
+  @OnEvent('referral.welcome_bonus')
+  async onReferralWelcome(p: any) {
+    if (!p?.user_id) return;
+    await this.create({
+      user_id: p.user_id,
+      title_key: 'notif.referral_welcome.title',
+      body_key: 'notif.referral_welcome.body',
+      type: NotificationType.PROMO,
+      action: { route: '/loyalty/hub' },
+    });
+  }
+
+  // ============ EPIC4/S20: Points / loyalty scenarios ============
+  @OnEvent('loyalty.points_awarded')
+  async onPointsAwarded(p: any) {
+    if (!p?.user_id || !p?.points) return;
+    if (p.tier_changed && p.new_tier) {
+      await this.create({
+        user_id: p.user_id,
+        title_key: 'notif.tier_upgraded.title',
+        body_key: 'notif.tier_upgraded.body',
+        params: { tier: p.new_tier },
+        type: NotificationType.PROMO,
+        priority: NotificationPriority.HIGH,
+        action: { route: '/loyalty/hub' },
+      });
+      return; // one meaningful notification beats two noisy ones
+    }
+    if (p.reason === 'challenge_completed') {
+      await this.create({
+        user_id: p.user_id,
+        title_key: 'notif.challenge_completed.title',
+        body_key: 'notif.challenge_completed.body',
+        params: { points: p.points },
+        type: NotificationType.PROMO,
+        action: { route: '/loyalty/challenges' },
+      });
+    }
+    // Routine per-action points are intentionally silent — the user sees them
+    // in the loyalty hub; push-spamming every +10 would be terrible UX.
+  }
+
+  // ============ EPIC4/S20: Community scenarios ============
+  @OnEvent('community.comment_added')
+  async onCommunityComment(p: any) {
+    if (!p?.post_author_id) return;
+    await this.create({
+      user_id: p.post_author_id,
+      title_key: 'notif.community_reply.title',
+      body_key: 'notif.community_reply.body',
+      type: NotificationType.INFO,
+      action: { route: `/community/post-detail?id=${p.post_id}` },
+    });
+  }
+
+  // ============ EPIC4/S20: AI scenarios ============
+  @OnEvent('ai.triage_completed')
+  async onAiTriageCompleted(p: any) {
+    if (!p?.patient_id || p.patient_id === 'guest') return;
+    if (p.urgency !== 'emergency' && p.urgency !== 'urgent') return; // only flag concerning triages
+    await this.create({
+      user_id: p.patient_id,
+      title_key: p.urgency === 'emergency' ? 'notif.ai_triage_emergency.title' : 'notif.ai_triage_urgent.title',
+      body_key: p.urgency === 'emergency' ? 'notif.ai_triage_emergency.body' : 'notif.ai_triage_urgent.body',
+      type: NotificationType.ALERT,
+      priority: p.urgency === 'emergency' ? NotificationPriority.CRITICAL : NotificationPriority.HIGH,
+      action: { route: '/ai/symptom-timeline' },
+    });
+  }
+
+  // ============ EPIC5/S3: Insurance decisions (approval / rejection) ============
+  @OnEvent('insurance.decided')
+  async onInsuranceDecided(p: any) {
+    if (!p?.patient_id) return;
+    const approved = ['approved', 'partially_approved', 'partial_approval', 'APPROVED'].includes(p.state);
+    await this.create({
+      user_id: p.patient_id,
+      title_key: approved ? 'notif.insurance_approved.title' : 'notif.insurance_rejected.title',
+      body_key: approved ? 'notif.insurance_approved.body' : 'notif.insurance_rejected.body',
+      params: approved && p.copay_amount != null ? { amount: p.copay_amount } : {},
+      type: NotificationType.INFO,
+      priority: NotificationPriority.HIGH,
+      action: { route: '/insurance/hub' },
+    });
+  }
+
+  // ============ EPIC5/S3: Finance — payout approved / refund rejected ============
+  @OnEvent('finance.operation.executed')
+  async onFinanceOperationExecuted(p: any) {
+    const providerId = p?.payload?.provider_account_id || p?.payload?.provider_id;
+    if (!providerId) return; // only provider-facing ops (payouts) notify here
+    await this.create({
+      user_id: providerId,
+      title_key: 'notif.payout_approved.title',
+      body_key: 'notif.payout_approved.body',
+      params: p?.payload?.amount != null ? { amount: p.payload.amount } : {},
+      type: NotificationType.INFO,
+      priority: NotificationPriority.HIGH,
+      action: { route: '/provider/payouts' },
+    });
+  }
+  @OnEvent('finance.operation.rejected')
+  async onFinanceOperationRejected(p: any) {
+    const pid = p?.payload?.patient_id;
+    if (!pid) return;
+    await this.create({
+      user_id: pid,
+      title_key: 'notif.refund_rejected.title',
+      body_key: 'notif.refund_rejected.body',
+      type: NotificationType.INFO,
+      priority: NotificationPriority.HIGH,
+      action: { route: '/returns/hub' },
+    });
+  }
+
+  // ============ EPIC5/S3: Payment received (in-app record; push already via push.module) ============
+  @OnEvent('payment.completed')
+  async onPaymentCompletedInApp(p: any) {
+    if (!p?.patient_id) return;
+    await this.create({
+      user_id: p.patient_id,
+      title_key: 'notif.payment_received.title',
+      body_key: 'notif.payment_received.body',
+      params: p.amount != null ? { amount: p.amount } : {},
+      type: NotificationType.INFO,
+      action: { route: '/orders' },
     });
   }
 }

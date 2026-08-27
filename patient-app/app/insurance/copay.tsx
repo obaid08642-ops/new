@@ -1,19 +1,14 @@
 // @ts-nocheck
-import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions
-} from 'react-native';
-import { LocalizedText as Text } from '@/components/LocalizedText';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useApp } from '../../src/context/AppContext';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import Icon from '../../src/components/Icon';
 import Header from '../../src/components/Header';
 import { apiFetch } from '../../src/utils/api';
+import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
 const { width } = Dimensions.get('window');
 
@@ -25,20 +20,44 @@ export default function InsuranceCopayScreen() {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [copayRequest, setCopayRequest] = useState<any>(null);
+  const [loadError, setLoadError] = useState('');
+
+  // Resolve the real COPAY_PENDING insurance request (written by the provider's
+  // insurance decision / gatekeeper) — the payment must reference its id.
+  useEffect(() => {
+    (async () => {
+      try {
+        const rows = await apiFetch<any[]>('/insurance/requests/my');
+        const pending = (rows || [])
+          .filter((r: any) => r.state === 'COPAY_PENDING')
+          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        if (pending.length) setCopayRequest(pending[0]);
+        else setLoadError(isRTL ? 'لا توجد مطالبة تأمين بانتظار الدفع حالياً' : 'No insurance copay is currently pending');
+      } catch {
+        setLoadError(isRTL ? 'تعذر تحميل مطالبة التأمين' : 'Failed to load the insurance request');
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const dueAmount = copayRequest?.copay_amount ?? (amount ? parseFloat(amount as string) : 0);
 
   const handlePay = async () => {
+    if (!copayRequest?.id) {
+      alert(isRTL ? 'لا توجد مطالبة بانتظار الدفع' : 'No pending copay request');
+      return;
+    }
     setLoading(true);
     try {
-      await apiFetch('/provider/jobs/insurance-copay', {
-        method: 'POST',
-        body: JSON.stringify({ approval_code: approvalCode, amount: parseFloat(amount as string) })
-      });
-      setSuccess(true);
-      setTimeout(() => {
-        router.push('/(tabs)');
-      }, 3000);
+      // 1) Create a payment intent for the copay amount via the payments gateway
+      const txn = await apiFetch<any>(`/payments/intent/insurance/${copayRequest.id}`, { method: 'POST', headers: paymentIntentHeaders('insurance', copayRequest.id) });
+      if (!txn?.id) throw new Error('payment_intent_failed');
+      // Hosted checkout/verified payment event is the only path that can settle
+      // COPAY_PENDING. Never mark a service paid from a client-held transaction ID.
+      router.replace({ pathname: '/payments/processing', params: { moyasarId: txn.id, paymentUrl: txn.checkout_url || '', bookingId: copayRequest.id, bookingKind: 'insurance', amount: String(txn.amount ?? dueAmount) } });
     } catch (err) {
-      alert(isRTL ? 'فشل إتمام الدفع' : 'Payment failed');
+      alert(isRTL ? 'فشل إتمام الدفع — تحقق من وسيلة الدفع وحاول مجدداً' : 'Payment failed — check your payment method and retry');
     } finally {
       setLoading(false);
     }
@@ -50,10 +69,10 @@ export default function InsuranceCopayScreen() {
         <View style={[styles.circle, { backgroundColor: colors.s, marginBottom: 20 }]}>
           <Icon name="check" size={40} color="#fff" />
         </View>
-        <Text style={[styles.title, { color: colors.t1 }]}>{isRTL ? 'تم الدفع بنجاح' : 'Payment Successful'}</Text>
-        <Text style={[styles.subtitle, { color: colors.t3, textAlign: 'center', marginTop: 10 }]}>
+        <LocalizedText style={[styles.title, { color: colors.t1 }]}>{isRTL ? 'تم الدفع بنجاح' : 'Payment Successful'}</LocalizedText>
+        <LocalizedText style={[styles.subtitle, { color: colors.t3, textAlign: 'center', marginTop: 10 }]}>
           {isRTL ? 'تم تحصيل نسبة التحمل بنجاح. يمكنك الآن المتابعة مع طبيبك.' : 'Copay paid successfully. You may now continue with your doctor.'}
-        </Text>
+        </LocalizedText>
       </View>
     );
   }
@@ -64,17 +83,18 @@ export default function InsuranceCopayScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={[styles.card, { backgroundColor: colors.c1 }]}>
           <Icon name="shield" size={40} color={colors.p} />
-          <Text style={[styles.title, { color: colors.t1, marginTop: 16 }]}>
+          <LocalizedText style={[styles.title, { color: colors.t1, marginTop: 16 }]}>
             {isRTL ? 'مطلوب دفع نسبة التحمل' : 'Copay Payment Required'}
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.t3, marginTop: 8 }]}>
+          </LocalizedText>
+          <LocalizedText style={[styles.subtitle, { color: colors.t3, marginTop: 8 }]}>
             {isRTL ? `كود الموافقة من نفييس:` : 'NPHIES Approval Code:'} {approvalCode || 'N/A'}
-          </Text>
+          </LocalizedText>
         </View>
 
         <View style={styles.amountContainer}>
-          <Text style={[styles.amountLabel, { color: colors.t2 }]}>{isRTL ? 'المبلغ المطلوب دفعه' : 'Amount to Pay'}</Text>
-          <Text style={[styles.amountValue, { color: colors.p }]}>{amount || '0'} {isRTL ? 'ر.س' : 'SAR'}</Text>
+          <LocalizedText style={[styles.amountLabel, { color: colors.t2 }]}>{isRTL ? 'المبلغ المطلوب دفعه' : 'Amount to Pay'}</LocalizedText>
+          <LocalizedText style={[styles.amountValue, { color: colors.p }]}>{dueAmount || '0'} {isRTL ? 'ر.س' : 'SAR'}</LocalizedText>
+          {loadError ? <LocalizedText style={[styles.subtitle, { color: colors.t3, marginTop: 8, textAlign: 'center' }]}>{loadError}</LocalizedText> : null}
         </View>
 
         <TouchableOpacity 
@@ -82,7 +102,7 @@ export default function InsuranceCopayScreen() {
           onPress={handlePay}
           disabled={loading}
         >
-          <Text style={styles.payBtnText}>{loading ? (isRTL ? 'جاري الدفع...' : 'Processing...') : (isRTL ? 'تأكيد الدفع' : 'Confirm Payment')}</Text>
+          <LocalizedText style={styles.payBtnText}>{loading ? (isRTL ? 'جاري الدفع...' : 'Processing...') : (isRTL ? 'تأكيد الدفع' : 'Confirm Payment')}</LocalizedText>
         </TouchableOpacity>
       </ScrollView>
     </View>

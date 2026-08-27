@@ -1,189 +1,127 @@
-// @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  RefreshControl
-} from 'react-native';
-import { LocalizedAlert as Alert } from '@/components/LocalizedAlert';
-import { LocalizedTextInput as TextInput } from '@/components/LocalizedTextInput';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
+import { dateLocale } from '../../src/utils/dates';
+import { mentalHealthT } from '../../src/i18n/mental-health';
+import { buildMoodJournalPayload, parseMoodHistory, type MoodEntry, type MoodValue } from '../../src/utils/mood-journal-contract';
 
-const MOOD_EMOJIS = [
-  { emoji: '', label: 'رائع', value: 5, color: '#5BA84F' },
-  { emoji: '', label: 'جيد', value: 4, color: '#84CC16' },
-  { emoji: '', label: 'محايد', value: 3, color: '#F0A526' },
-  { emoji: '', label: 'حزين', value: 2, color: '#F97316' },
-  { emoji: '', label: 'قلق', value: 1, color: '#F0695C' },
+const moodOptions: { value: MoodValue; key: 'moodGreat' | 'moodGood' | 'moodOkay' | 'moodBad' | 'moodTerrible'; color: string; icon: string }[] = [
+  { value: 'great', key: 'moodGreat', color: '#15803D', icon: 'emoticon-excited-outline' },
+  { value: 'good', key: 'moodGood', color: '#65A30D', icon: 'emoticon-happy-outline' },
+  { value: 'okay', key: 'moodOkay', color: '#D97706', icon: 'emoticon-neutral-outline' },
+  { value: 'bad', key: 'moodBad', color: '#EA580C', icon: 'emoticon-sad-outline' },
+  { value: 'terrible', key: 'moodTerrible', color: '#DC2626', icon: 'emoticon-frown-outline' },
 ];
 
-const EMOTIONS = ['سعيد', 'هادئ', 'متحمس', 'ممتن', 'متعب', 'قلق', 'محبط', 'وحيد', 'غاضب', 'متوتر', 'مرتاح', 'خائف'];
-const ACTIVITIES = ['تمرين رياضي', 'تأمل', 'قراءة ', 'مع العائلة ‍‍', 'عمل ', 'نوم جيد ', 'طعام صحي ', 'طبيعة '];
-
-const PAST_ENTRIES: any[] = [];
-
+const tagOptions: { value: string; key: 'tagCalm' | 'tagTired' | 'tagStressed' | 'tagConnected' | 'tagRested' | 'tagOverwhelmed' }[] = [
+  { value: 'calm', key: 'tagCalm' }, { value: 'tired', key: 'tagTired' }, { value: 'stressed', key: 'tagStressed' },
+  { value: 'connected', key: 'tagConnected' }, { value: 'rested', key: 'tagRested' }, { value: 'overwhelmed', key: 'tagOverwhelmed' },
+];
 
 export default function MoodJournalScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const [selectedMood, setSelectedMood] = useState<number | null>(null);
-  const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
-  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const { colors, isDark, lang } = useApp();
+  const t = (key: Parameters<typeof mentalHealthT>[1], vars?: Record<string, string | number>) => mentalHealthT(lang, key, vars);
+  const [selectedMood, setSelectedMood] = useState<MoodValue | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [note, setNote] = useState('');
+  const [energy, setEnergy] = useState<number | undefined>();
+  const [stress, setStress] = useState<number | undefined>();
+  const [sleep, setSleep] = useState('');
+  const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [pastEntries, setPastEntries] = useState<any[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
 
-  useEffect(() => {
-    apiFetch('/mental-health/mood?days=7')
-      .then((res: any) => setPastEntries(res.entries ?? res ?? []))
-      .catch(() => setPastEntries([]))
-      .finally(() => setLoadingHistory(false));
-  }, [saved]);
-
-  const toggleEmotion = (e: string) => setSelectedEmotions(p => p.includes(e) ? p.filter(x => x !== e) : [...p, e]);
-  const toggleActivity = (a: string) => setSelectedActivities(p => p.includes(a) ? p.filter(x => x !== a) : [...p, a]);
-
-  const handleSave = async () => {
-    if (!selectedMood) return;
-    const moodMap: Record<number, string> = { 5: 'great', 4: 'good', 3: 'okay', 2: 'bad', 1: 'terrible' };
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    setLoadError(false);
     try {
-      await apiFetch('/mental-health/mood', {
-        method: 'POST',
-        body: JSON.stringify({
-          mood: moodMap[selectedMood],
-          energy_level: 3,
-          stress_level: 3,
-          sleep_hours: 7,
-          notes: note,
-          tags: selectedEmotions,
-          activities: selectedActivities,
-        }),
-      });
-      setSaved(true);
-      setSelectedMood(null);
-      setSelectedEmotions([]);
-      setSelectedActivities([]);
-      setNote('');
-      setTimeout(() => setSaved(false), 2500);
+      const result: unknown = await apiFetch('/mental-health/mood?days=30');
+      setEntries(parseMoodHistory(result));
     } catch {
-      Alert.alert('خطأ', 'تعذر حفظ المزاج');
+      setEntries([]);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadHistory(); }, [loadHistory]);
+
+  const resetForm = () => {
+    setSelectedMood(null); setSelectedTags([]); setNote(''); setEnergy(undefined); setStress(undefined); setSleep('');
+  };
+
+  const submit = async () => {
+    if (!selectedMood || saving) return;
+    setSaving(true); setSaveError(false); setSaved(false);
+    try {
+      const payload = buildMoodJournalPayload({ mood: selectedMood, energy, stress, sleep, note, tags: selectedTags });
+      await apiFetch('/mental-health/mood', { method: 'POST', body: JSON.stringify(payload) });
+      resetForm(); setSaved(true); await loadHistory();
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const currentMood = MOOD_EMOJIS.find(m => m.value === selectedMood);
+  const selectedMoodColor = useMemo(() => moodOptions.find((option) => option.value === selectedMood)?.color ?? '#7A6BEA', [selectedMood]);
+  const toggleTag = (tag: string) => setSelectedTags((current) => current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]);
+  const scale = (label: Parameters<typeof mentalHealthT>[1], value: number | undefined, onChange: (next: number) => void) => (
+    <View style={styles.scaleGroup}>
+      <AppText variant="caption" color={colors.textSecondary}>{t(label)}</AppText>
+      <View style={styles.scaleRow}>
+        {[1, 2, 3, 4, 5].map((number) => <TouchableOpacity key={number} accessibilityRole="button" onPress={() => onChange(number)} style={[styles.scaleDot, { borderColor: selectedMoodColor }, value === number && { backgroundColor: selectedMoodColor }]}><AppText variant="caption" color={value === number ? '#FFFFFF' : colors.textSecondary}>{number}</AppText></TouchableOpacity>)}
+      </View>
+    </View>
+  );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background } ]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 } ]}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.hBtn}>
-            <Icon name="back" size={22} color="#fff" />
-          </TouchableOpacity>
-          <AppText variant="bodySM">يومية المزاج </AppText>
-          <View style={{ width: 36 }}/>
-        </View>
-        <AppText variant="bodySM">{new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</AppText>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: '#312E81', paddingTop: insets.top + 12 }]}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('cancel')} onPress={() => router.back()} style={styles.backButton}><Icon name="back" size={22} color="#FFFFFF" /></TouchableOpacity>
+        <AppText variant="h4" color="#FFFFFF">{t('moodJournal')}</AppText>
+        <AppText variant="caption" color="rgba(255,255,255,0.82)">{t('noDiagnosis')}</AppText>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
-        {/* Mood Selection */}
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">كيف مزاجك اليوم؟ ️</AppText>
-          <View style={styles.moodRow}>
-            {MOOD_EMOJIS.map(m => (
-              <TouchableOpacity key={m.value} onPress={() => setSelectedMood(m.value)}
-                style={[styles.moodBtn, selectedMood === m.value && { backgroundColor: m.color + '20', borderColor: m.color, borderWidth: 2 } ]}>
-                <AppText variant="bodySM">{m.emoji}</AppText>
-                <AppText variant="bodySM">{m.label}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <AppText variant="h6" color={colors.textPrimary}>{t('moodPrompt')}</AppText>
+          <View style={styles.moodRow}>{moodOptions.map((option) => <TouchableOpacity key={option.value} accessibilityRole="button" onPress={() => setSelectedMood(option.value)} style={[styles.moodOption, selectedMood === option.value && { backgroundColor: option.color + '19', borderColor: option.color }]}><Icon name={option.icon} size={27} color={selectedMood === option.value ? option.color : colors.textSecondary} /><AppText variant="caption" color={colors.textPrimary}>{t(option.key)}</AppText></TouchableOpacity>)}</View>
         </View>
 
-        {/* Emotions */}
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">ما الذي تشعر به؟ </AppText>
-          <View style={styles.tagsWrap}>
-            {EMOTIONS.map(e => (
-              <TouchableOpacity key={e} onPress={() => toggleEmotion(e)}
-                style={[styles.emotionTag, selectedEmotions.includes(e) && { backgroundColor: '#EC4899', borderColor: '#EC4899' } ]}>
-                <AppText variant="bodySM">{e}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <AppText variant="h6" color={colors.textPrimary}>{t('optionalDetails')}</AppText>
+          <View style={styles.scales}>{scale('energy', energy, setEnergy)}{scale('stress', stress, setStress)}</View>
+          <AppText variant="caption" color={colors.textSecondary}>{t('sleep')}</AppText>
+          <TextInput value={sleep} onChangeText={setSleep} keyboardType="decimal-pad" maxLength={4} placeholder="0–24" placeholderTextColor={colors.textTertiary} style={[styles.shortInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />
         </View>
 
-        {/* Activities */}
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">ماذا فعلت اليوم؟ </AppText>
-          <View style={styles.tagsWrap}>
-            {ACTIVITIES.map(a => (
-              <TouchableOpacity key={a} onPress={() => toggleActivity(a)}
-                style={[styles.activityTag, selectedActivities.includes(a) && { backgroundColor: '#6366F1', borderColor: '#6366F1' } ]}>
-                <AppText variant="bodySM">{a}</AppText>
-              </TouchableOpacity>
-            ))}
-          </View>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <AppText variant="h6" color={colors.textPrimary}>{t('tags')}</AppText>
+          <View style={styles.tagWrap}>{tagOptions.map((option) => <TouchableOpacity key={option.value} accessibilityRole="button" onPress={() => toggleTag(option.value)} style={[styles.tag, { borderColor: colors.border }, selectedTags.includes(option.value) && { backgroundColor: '#7A6BEA', borderColor: '#7A6BEA' }]}><AppText variant="caption" color={selectedTags.includes(option.value) ? '#FFFFFF' : colors.textPrimary}>{t(option.key)}</AppText></TouchableOpacity>)}</View>
+          <AppText variant="caption" color={colors.textSecondary}>{t('note')}</AppText>
+          <TextInput value={note} onChangeText={setNote} maxLength={500} multiline textAlignVertical="top" placeholder={t('notePlaceholder')} placeholderTextColor={colors.textTertiary} style={[styles.noteInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]} />
         </View>
 
-        {/* Note */}
-        <View style={[styles.card, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
-          <AppText variant="bodySM">ملاحظة سريعة</AppText>
-          <TextInput
-            style={[styles.noteInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}
-            value={note} onChangeText={setNote}
-            placeholder="اكتب ما يخطر على بالك..."
-            placeholderTextColor={colors.textTertiary}
-            multiline numberOfLines={4} textAlignVertical="top" textAlign="right"
-          />
-        </View>
+        {saveError && <AppText variant="caption" color="#B91C1C" style={styles.message}>{t('saveError')}</AppText>}
+        {saved && <View style={[styles.saved, { backgroundColor: '#DCFCE7' }]}><Icon name="success" size={18} color="#15803D" /><AppText variant="caption" color="#166534">{t('saved')}</AppText></View>}
+        <TouchableOpacity accessibilityRole="button" disabled={!selectedMood || saving} onPress={() => void submit()} style={[styles.saveButton, { backgroundColor: selectedMoodColor, opacity: !selectedMood || saving ? 0.55 : 1 }]}>{saving ? <ActivityIndicator color="#FFFFFF" /> : <AppText variant="h6" color="#FFFFFF">{t('save')}</AppText>}</TouchableOpacity>
 
-        {/* Save Button */}
-        <TouchableOpacity onPress={handleSave} disabled={!selectedMood} activeOpacity={0.85}
-          style={{ opacity: !selectedMood ? 0.6 : 1 }}>
-          <View style={styles.saveBtn}>
-            <AppText variant="bodySM">{saved ? 'تم الحفظ!' : ' حفظ السجل اليومي'}</AppText>
-          </View>
-        </TouchableOpacity>
-
-        {/* Past entries */}
-        <AppText variant="bodySM">السجلات السابقة</AppText>
-        {loadingHistory ? (
-          <AppText variant="bodySM" color={colors.textTertiary}>جاري تحميل السجلات...</AppText>
-        ) : pastEntries.length === 0 ? (
-          <AppText variant="bodySM" color={colors.textTertiary}>لا توجد سجلات سابقة بعد</AppText>
-        ) : pastEntries.map((entry: any, i: number) => {
-          const moodKey: Record<string, number> = { great: 5, good: 4, okay: 3, bad: 2, terrible: 1 };
-          const moodScore = typeof entry.mood === 'string' ? moodKey[entry.mood] : entry.mood;
-          const m = MOOD_EMOJIS.find(x => x.value === moodScore) ?? MOOD_EMOJIS[2];
-          const dateStr = new Date(entry.logged_at ?? entry.createdAt).toLocaleDateString('ar-SA', { weekday: 'short', month: 'short', day: 'numeric' });
-          return (
-            <View key={i} style={[styles.pastEntry, { backgroundColor: isDark ? colors.surface : colors.white, borderRightWidth: 4, borderRightColor: m.color } ]}>
-              <View style={styles.pastLeft}>
-                <AppText variant="bodySM">{m.emoji}</AppText>
-              </View>
-              <View style={styles.pastInfo}>
-                <AppText variant="bodySM">{dateStr}</AppText>
-                <View style={styles.pastEmotions}>
-                  {(entry.tags ?? entry.emotions ?? []).map((em: string, j: number) => (
-                    <View key={j} style={[styles.pastEmoTag, { backgroundColor: m.color + '20' } ]}>
-                      <AppText variant="bodySM">{em}</AppText>
-                    </View>
-                  ))}
-                </View>
-                {entry.note && <AppText variant="bodySM">{entry.note}</AppText>}
-              </View>
-            </View>
-          );
+        <AppText variant="h6" color={colors.textPrimary} style={styles.historyTitle}>{t('history')}</AppText>
+        {loading ? <View style={styles.loading}><ActivityIndicator color="#7A6BEA" /><AppText variant="caption" color={colors.textSecondary}>{t('loading')}</AppText></View> : loadError ? <View style={styles.empty}><AppText variant="caption" color={colors.textSecondary}>{t('loadError')}</AppText><TouchableOpacity onPress={() => void loadHistory()}><AppText variant="caption" color="#5B21B6">{t('retry')}</AppText></TouchableOpacity></View> : entries.length === 0 ? <View style={styles.empty}><AppText variant="caption" color={colors.textSecondary} style={styles.centerText}>{t('noHistory')}</AppText></View> : entries.map((entry, index) => {
+          const option = moodOptions.find((item) => item.value === entry.mood) ?? moodOptions[2];
+          const date = new Date(entry.logged_at).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
+          return <View key={entry.id || `${entry.logged_at}-${index}`} style={[styles.entry, { backgroundColor: colors.surface, borderRightColor: option.color }]}><Icon name={option.icon} size={26} color={option.color} /><View style={styles.entryText}><AppText variant="h6" color={colors.textPrimary}>{t(option.key)}</AppText><AppText variant="caption" color={colors.textTertiary}>{t('recordLabel', { date })}</AppText>{entry.notes ? <AppText variant="caption" color={colors.textSecondary}>{entry.notes}</AppText> : null}{entry.tags?.length ? <AppText variant="caption" color={colors.textTertiary}>{entry.tags.map((tag) => { const found = tagOptions.find((option) => option.value === tag); return found ? t(found.key) : tag; }).join(' · ')}</AppText> : null}</View></View>;
         })}
       </ScrollView>
     </View>
@@ -191,35 +129,5 @@ export default function MoodJournalScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 16 },
-  headerRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '800' } as any,
-  hBtn: { width: 36, height: 36, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
-  date: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '400', textAlign: 'center' } as any,
-  card: { borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
-  cardTitle: { fontSize: 14, fontWeight: '800', textAlign: 'right', marginBottom: 14 },
-  moodRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  moodBtn: { alignItems: 'center', gap: 5, borderRadius: 16, padding: 10, borderWidth: 1.5, borderColor: 'transparent', width: 60 },
-  moodEmoji: { fontSize: 26 } as any,
-  moodEmojiSelected: { fontSize: 32 } as any,
-  moodLabel: { fontSize: 9, fontWeight: '700', textAlign: 'center' } as any,
-  tagsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
-  emotionTag: { borderRadius: 20, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 12, paddingVertical: 7 },
-  emotion: { fontSize: 12, fontWeight: '700' } as any,
-  activityTag: { borderRadius: 20, borderWidth: 1.5, borderColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 12, paddingVertical: 7 },
-  activity: { fontSize: 12, fontWeight: '700' } as any,
-  noteInput: { borderRadius: 14, borderWidth: 1, padding: 12, minHeight: 90, fontSize: 13, fontWeight: '400' },
-  saveBtn: { height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  saveBtnAlt: { color: '#fff', fontSize: 16, fontWeight: '800' } as any,
-  sectionTitle: { fontSize: 15, fontWeight: '800', textAlign: 'right' } as any,
-  pastEntry: { borderRadius: 16, padding: 12, flexDirection: 'row-reverse', gap: 10, alignItems: 'flex-start' },
-  pastLeft: { alignItems: 'center' },
-  pastMoodEmoji: { fontSize: 26 } as any,
-  pastInfo: { flex: 1, alignItems: 'flex-end', gap: 4 },
-  pastDate: { fontSize: 13, fontWeight: '800' } as any,
-  pastEmotions: { flexDirection: 'row-reverse', gap: 6, flexWrap: 'wrap' },
-  pastEmoTag: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  pastEmo: { fontSize: 10, fontWeight: '700' } as any,
-  pastNote: { fontSize: 11, fontWeight: '400', textAlign: 'right' } as any,
+  container: { flex: 1 }, header: { paddingHorizontal: 20, paddingBottom: 24, gap: 7, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }, backButton: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.16)', alignSelf: 'flex-end' }, content: { padding: 16, gap: 13, paddingBottom: 96 }, card: { borderRadius: 18, padding: 15, gap: 13 }, moodRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 5 }, moodOption: { flex: 1, alignItems: 'center', gap: 5, paddingVertical: 9, borderRadius: 14, borderWidth: 1, borderColor: 'transparent' }, scales: { flexDirection: 'row', gap: 14 }, scaleGroup: { flex: 1, gap: 8 }, scaleRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 4 }, scaleDot: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' }, shortInput: { borderWidth: 1, borderRadius: 12, minHeight: 44, paddingHorizontal: 12, marginTop: -4 }, tagWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 }, tag: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 12, paddingVertical: 7 }, noteInput: { borderWidth: 1, borderRadius: 12, minHeight: 90, padding: 12, textAlign: 'right' }, saveButton: { minHeight: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, saved: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, borderRadius: 14 }, message: { textAlign: 'right' }, historyTitle: { marginTop: 8 }, loading: { flexDirection: 'row-reverse', justifyContent: 'center', alignItems: 'center', gap: 10, padding: 24 }, empty: { alignItems: 'center', gap: 12, padding: 24 }, centerText: { textAlign: 'center', lineHeight: 20 }, entry: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: 12, padding: 14, borderRadius: 16, borderRightWidth: 4 }, entryText: { flex: 1, alignItems: 'flex-end', gap: 3 },
 });

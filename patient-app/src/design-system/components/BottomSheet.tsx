@@ -148,7 +148,7 @@ export function DSBottomSheet({
         >
           <Animated.View
             style={[
-              StyleSheet.absoluteFillObject,
+              StyleSheet.absoluteFill,
               { backgroundColor: colors.overlay, opacity: backdropOpacity },
             ]}
           />

@@ -151,6 +151,13 @@ export class PharmacyOrder extends Document {
 
   @Prop({ type: InsuranceDetailsSchema }) insurance_details?: InsuranceDetails;
 
+  /** Provider-submitted basket (Blueprint V1.2 flow) with quoted prices */
+  @Prop({ type: [Object], default: [] }) pharmacy_basket?: Array<any>;
+  /** Insurance evaluation outcome recorded by the provider (approved/rejected/partial + copay) */
+  @Prop() insurance_status?: string;
+  @Prop({ default: 0 }) copay?: number;
+  @Prop({ type: Object }) insurance_evaluation?: any;
+
   @Prop({ type: [String], default: [], index: true }) allocations: string[];
   @Prop({ default: 0 }) splits_count: number;
   @Prop({ default: 'single', enum: ['single', 'multi'] }) split_strategy: 'single' | 'multi';
