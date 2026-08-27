@@ -8,7 +8,7 @@
 | الفرع فقط | `remediation/provider-production-governed` |
 | رابط الفرع | https://github.com/obaid08642-ops/new/tree/remediation/provider-production-governed |
 | رابط المقارنة | https://github.com/obaid08642-ops/new/compare/main...remediation/provider-production-governed |
-| رأس المراجعة الحالي | `715b5bb267c753afa077c25d82067770b1f3d0fa` |
+| رأس المراجعة الحالي | `2f433bebce4d27ab57c441ee477b0909bcc721f3` |
 
 ## الالتزامات التي يلزم مراجعتها بالترتيب
 
@@ -33,6 +33,7 @@
 | legacy contract tests | `708d78290750493ef81dc32254e257c5c575ba41` | `test(provider): align legacy route contracts` | https://github.com/obaid08642-ops/new/commit/708d78290750493ef81dc32254e257c5c575ba41 |
 | final artifacts | `ce9c39610da1e43a285b08330d3a8aa6888d0717` | `docs(review): publish final governed artifacts` | https://github.com/obaid08642-ops/new/commit/ce9c39610da1e43a285b08330d3a8aa6888d0717 |
 | handoff final | `715b5bb267c753afa077c25d82067770b1f3d0fa` | `docs(review): finalize reviewer handoff` | https://github.com/obaid08642-ops/new/commit/715b5bb267c753afa077c25d82067770b1f3d0fa |
+| SHA correction | `2f433bebce4d27ab57c441ee477b0909bcc721f3` | `docs(review): correct final handoff head` | https://github.com/obaid08642-ops/new/commit/2f433bebce4d27ab57c441ee477b0909bcc721f3 |
 
 ## ترتيب القراءة والفحص
 
