@@ -3,7 +3,7 @@ import path from 'path';
 
 describe('guest authentication policy', () => {
   it('does not invoke the legacy guest endpoint or restore guest sessions from app entry points', () => {
-    const appDir = __dirname;
+    const appDir = path.resolve(__dirname, '../../../app');
     const files = [
       path.join(appDir, '_layout.tsx'),
       path.join(appDir, '(auth)', 'welcome.tsx'),
