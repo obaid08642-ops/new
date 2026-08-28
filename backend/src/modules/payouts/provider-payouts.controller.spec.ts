@@ -22,10 +22,13 @@ describe('ProviderPayoutsController reservation integrity', () => {
     controller = new ProviderPayoutsController(conn, { providerBalance: jest.fn() } as any);
   });
 
-  it('rejects pharmacy payout and balance until settlement proof exists', async () => {
-    await expect(controller.request({ id: 'pharmacy-a', role: 'pharmacy' }, { amount: 100, idempotency_key: 'pharmacy_payout_key_001' })).rejects.toThrow('pharmacy_settlement_proof_required');
-    expect(session.withTransaction).not.toHaveBeenCalled();
-    expect(() => controller.balance({ id: 'pharmacy-a', role: 'pharmacy' })).toThrow('pharmacy_settlement_proof_required');
+  it('allows pharmacy payout now that delivery settlement posts to the ledger (same guards as all providers)', async () => {
+    withdrawals.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+    bankAccounts.findOne.mockResolvedValue({ id: 'bank-1', iban: 'SA1234567890123456789012', bank_name: 'Bank', review_status: 'approved' });
+    ledgerEntries.aggregate.mockReturnValue({ toArray: jest.fn().mockResolvedValue([{ earned_cleared: 500, paid: 0, debits: 0, locked: 0, earned_pending: 25 }]) });
+    const result = await controller.request({ id: 'pharmacy-a', role: 'pharmacy' }, { amount: 200, idempotency_key: 'pharmacy_payout_key_001' });
+    expect(result).toEqual(expect.objectContaining({ ok: true, available_balance: 300 }));
+    expect(withdrawals.insertOne).toHaveBeenCalledWith(expect.objectContaining({ provider_id: 'pharmacy-a', state: 'PENDING_ADMIN_APPROVAL' }), expect.objectContaining({ session }));
   });
 
   it('fails closed without an approved bank account before starting a reservation', async () => {

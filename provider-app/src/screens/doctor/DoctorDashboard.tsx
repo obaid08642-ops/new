@@ -1896,38 +1896,78 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
   const { user } = useAuth();
   const AR = lang === 'ar';
   
-  // Mock facility link state
-  const isLinkedToFacility = !!(user as any)?.parent_facility_id;
-  const facilityName = "مستشفى نبضة الطبي";
+  // Real facility link state (from the authenticated user record).
+  const isLinkedToFacility = !!(user as any)?.parent_provider_account_id || !!(user as any)?.parent_facility_id;
+  const [facilityName, setFacilityName] = useState<string>('');
+  const [invitationsCount, setInvitationsCount] = useState(0);
 
-  const [clinicPrice, setClinicPrice] = useState('150');
-  const [onlinePrice, setOnlinePrice] = useState('100');
-  const [homePrice, setHomePrice] = useState('300');
-  
-  const [clinicActive, setClinicActive] = useState(true);
-  const [onlineActive, setOnlineActive] = useState(true);
+  // Pricing: persisted server-side per provider.
+  const [clinicPrice, setClinicPrice] = useState('');
+  const [onlinePrice, setOnlinePrice] = useState('');
+  const [homePrice, setHomePrice] = useState('');
+  const [clinicActive, setClinicActive] = useState(false);
+  const [onlineActive, setOnlineActive] = useState(false);
   const [homeActive, setHomeActive] = useState(false);
+  const [pricingLoaded, setPricingLoaded] = useState(false);
 
-  // Mock facility permissions locking
-  const isPricingLocked = isLinkedToFacility; // In real implementation, check permissions matrix
+  // Real facility permissions: a linked provider keeps only the permissions granted by the facility.
+  const grantedPerms: string[] = Array.isArray((user as any)?.permissions) ? (user as any).permissions : [];
+  const isPricingLocked = isLinkedToFacility && !grantedPerms.includes('pricing');
+
+  useEffect(() => {
+    let active = true;
+    client.get('/provider/settings/pricing').then((res) => {
+      if (!active) return;
+      const pr = res.data?.pricing;
+      if (pr) {
+        setClinicPrice(pr.price_clinic != null ? String(pr.price_clinic) : '');
+        setOnlinePrice(pr.price_online != null ? String(pr.price_online) : '');
+        setHomePrice(pr.price_home != null ? String(pr.price_home) : '');
+        setClinicActive(!!pr.active_clinic);
+        setOnlineActive(!!pr.active_online);
+        setHomeActive(!!pr.active_home);
+      }
+    }).catch(() => {}).finally(() => { if (active) setPricingLoaded(true); });
+    client.get('/hospital/invitations/inbox').then((res) => {
+      if (!active) return;
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+      setInvitationsCount(list.filter((i: any) => i.status === 'pending').length);
+      const accepted = list.find((i: any) => i.status === 'accepted' && i.facility_name);
+      if (accepted) setFacilityName(accepted.facility_name);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   const requestDeltaUpdate = async () => {
     try {
-      await client.post('/provider/settings/delta', {
-        newData: { 
-          price_clinic: clinicPrice, price_online: onlinePrice, price_home: homePrice,
-          active_clinic: clinicActive, active_online: onlineActive, active_home: homeActive
-        }
-      });
+      const pricing = {
+        price_clinic: clinicPrice !== '' ? Number(clinicPrice) : null,
+        price_online: onlinePrice !== '' ? Number(onlinePrice) : null,
+        price_home: homePrice !== '' ? Number(homePrice) : null,
+        active_clinic: clinicActive, active_online: onlineActive, active_home: homeActive,
+      };
+      await client.post('/provider/settings/delta', { newData: pricing });
+      await client.put('/provider/settings/pricing', { pricing }).catch(() => {});
       show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending Admin Approval for Settings Delta', 'info');
     } catch (err) {
       show(AR ? 'فشل إرسال التعديل' : 'Failed to push delta', 'error');
     }
   };
 
-  const handleUnlink = () => {
-    // In real app: call API to nullify parent_facility_id
-    show(AR ? 'تم إرسال طلب فك الارتباط' : 'Unlink request sent', 'info');
+  const [unlinking, setUnlinking] = useState(false);
+  const handleUnlink = async () => {
+    if (unlinking) return;
+    setUnlinking(true);
+    try {
+      await client.post('/hospital/leave-facility');
+      show(AR ? 'تم إنهاء الارتباط بالمنشأة' : 'Facility link ended', 'success');
+    } catch (e: any) {
+      show(e?.response?.data?.message === 'not_linked_to_facility'
+        ? (AR ? 'لا يوجد ارتباط حالي بمنشأة' : 'No active facility link')
+        : (AR ? 'تعذر إنهاء الارتباط' : 'Could not leave facility'), 'error');
+    } finally {
+      setUnlinking(false);
+    }
   };
 
   return (
@@ -1945,7 +1985,9 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
                   {AR ? 'مرتبط بمنشأة' : 'Linked to Facility'}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.info, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? `تعمل حالياً ضمن طاقم ${facilityName}` : `Currently working under ${facilityName}`}
+                  {facilityName
+                    ? (AR ? `تعمل حالياً ضمن طاقم ${facilityName}` : `Currently working under ${facilityName}`)
+                    : (AR ? 'أنت مرتبط حالياً بمنشأة طبية' : 'You are currently linked to a medical facility')}
                 </Text>
               </View>
             </View>
@@ -1956,7 +1998,7 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
             </TouchableOpacity>
           </NCard>
         ) : (
-          <NSettingsRow icon="document" label={AR ? 'دعوات المنشآت (0)' : 'Facility Invitations (0)'} onPress={() => onNavigate('facility_invitations')} />
+          <NSettingsRow icon="document" label={AR ? `دعوات المنشآت (${invitationsCount})` : `Facility Invitations (${invitationsCount})`} onPress={() => onNavigate('facility_invitations')} />
         )}
 
         {/* ── Appearance & Language ─────────────────────────────────── */}
@@ -3004,23 +3046,42 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  { k:'year', ar:'سنة', en:'Year' },
  ] as const;
 
- const STATS = period === 'week'
- ? { revenue: '4,200', apts: 18, rating: 4.8, newPts: 5, topService: AR?'استشارة فيديو':'Video' }
- : period === 'month'
- ? { revenue: '18,500', apts: 72, rating: 4.8, newPts: 22, topService: AR?'استشارة فيديو':'Video' }
- : { revenue: '224,000', apts: 860, rating: 4.9, newPts: 180, topService: AR?'استشارة فيديو':'Video' };
+ // Real period statistics from the backend (bookings + wallet ledger + ratings).
+ const [stats, setStats] = useState<any>(null);
+ const [statsLoading, setStatsLoading] = useState(true);
+ useEffect(() => {
+   let active = true;
+   setStatsLoading(true);
+   client.get(`/provider/stats/period?period=${period}`).then((res) => {
+     if (active) setStats(res.data || null);
+   }).catch(() => {
+     if (active) { setStats(null); show(AR ? 'تعذر تحميل الإحصائيات' : 'Unable to load statistics', 'error'); }
+   }).finally(() => { if (active) setStatsLoading(false); });
+   return () => { active = false; };
+ }, [period]);
 
- // Mock bar chart data
- const BAR_DATA = period === 'week'
- ? [600,800,1100,750,1200,400,350]
- : period === 'month'
- ? [3200,4100,3800,5200,4700,2100,3900,4800,5100,3600,4400,3800]
- : [15000,17000,19000,18000,22000,20000,21000,24000,19000,18000,16000,22000];
+ const fmtNum = (n: number) => (Number(n) || 0).toLocaleString(AR ? 'ar-SA' : 'en-US');
+ const STATS = {
+   revenue: stats ? fmtNum(stats.revenue) : '—',
+   apts: stats ? String(stats.appointments ?? 0) : '—',
+   rating: stats && stats.rating != null ? String(stats.rating) : (AR ? 'لا يوجد' : 'N/A'),
+   newPts: stats ? String(stats.new_patients ?? 0) : '—',
+ };
 
- const maxBar = Math.max(...BAR_DATA);
+ const BAR_DATA: number[] = Array.isArray(stats?.series) ? stats.series : [];
+ const maxBar = BAR_DATA.length ? Math.max(...BAR_DATA) : 1;
  const LABELS_WEEK = AR ? ['أحد','اثن','ثلا','أرب','خمس','جمع','سبت'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
  const LABELS_MONTH = AR ? Array.from({length:12},(_,i)=>`${i+1}`) : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
  const LABELS = period === 'week' ? LABELS_WEEK : LABELS_MONTH;
+ const SERVICE_LABELS: Record<string, { ar: string; en: string }> = {
+   consultation: { ar: 'استشارة', en: 'Consultation' },
+   lab: { ar: 'مختبر', en: 'Lab' },
+   home_care: { ar: 'رعاية منزلية', en: 'Home Care' },
+   radiology: { ar: 'أشعة', en: 'Radiology' },
+ };
+ const BREAKDOWN_COLORS = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336'];
+ const BREAKDOWN: Array<{ label: string; pct: number; color: string }> = (Array.isArray(stats?.service_breakdown) ? stats.service_breakdown : [])
+   .map((b: any, i: number) => ({ label: SERVICE_LABELS[b.label] ? (AR ? SERVICE_LABELS[b.label].ar : SERVICE_LABELS[b.label].en) : b.label, pct: b.pct, color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length] }));
 
  return (
  <NScroll>
@@ -3055,6 +3116,13 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
  {AR ? ' الإيرادات' : ' Revenue Trend'}
  </Text>
+ {statsLoading ? (
+ <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />
+ ) : BAR_DATA.length === 0 || BAR_DATA.every((v) => v === 0) ? (
+ <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: SP.xl }}>
+ {AR ? 'لا توجد إيرادات في هذه الفترة' : 'No revenue in this period'}
+ </Text>
+ ) : (
  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: SP.sm, height: 120 }}>
  {BAR_DATA.map((val, i) => (
@@ -3070,6 +3138,7 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  ))}
  </View>
  </ScrollView>
+ )}
  </NCard>
 
  {/* Service Breakdown */}
@@ -3078,11 +3147,11 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
  {AR ? ' توزيع الخدمات' : ' Service Breakdown'}
  </Text>
- {[
- { label: AR?'استشارة فيديو':'Video Consult', pct: 55, color: '#2196F3' },
- { label: AR?'كشف عيادة':'Clinic Visit', pct: 30, color: '#4CAF50' },
- { label: AR?'زيارة منزلية':'Home Visit', pct: 15, color: '#FF9800' },
- ].map((item, i) => (
+ {BREAKDOWN.length === 0 && !statsLoading ? (
+ <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: SP.md }}>
+ {AR ? 'لا توجد خدمات في هذه الفترة' : 'No services in this period'}
+ </Text>
+ ) : BREAKDOWN.map((item, i) => (
  <View key={i} style={{ marginBottom: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: 4 }}>
  <Text style={{ fontSize: FS.sm, color: theme.text }}>{item.label}</Text>
@@ -3095,12 +3164,6 @@ export function StatisticsScreen({ onBack }: { onBack: () => void }) {
  ))}
  </NCard>
 
- <NBtn
- label={AR ? ' تصدير تقرير PDF' : ' Export PDF Report'}
- variant="outline"
- icon=""
- onPress={() => show(AR ? 'جاري إنشاء التقرير...' : 'Generating report...', 'info')}
- />
  </NScroll>
  );
 }

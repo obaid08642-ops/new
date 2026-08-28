@@ -82,4 +82,9 @@ export class HospitalController {
   async respondInvitation(@CurrentUser() user: any, @Param('id') id: string, @Body() body: { accept?: boolean }) {
     return this.hospitalService.respondInvitation(user.id, id, !!body?.accept);
   }
+
+  @Post('leave-facility')
+  async leaveFacility(@CurrentUser() user: any) {
+    return this.hospitalService.leaveFacility(user.id);
+  }
 }

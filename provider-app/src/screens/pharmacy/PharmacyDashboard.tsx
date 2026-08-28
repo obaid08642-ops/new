@@ -141,6 +141,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="b2b_supply">{({ navigation }: any) => <B2BSupplyRequestScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="scanner">{({ navigation }: any) => <SmartBarcodeScannerScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="wallet">{({ navigation }: any) => <PharmacyWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
+     <Stack.Screen name="withdrawal_workflow">{({ navigation }: any) => <WithdrawalWorkflow onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="order_history">{({ navigation }: any) => <OrderHistoryScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="returns_rma">{({ navigation }: any) => <ReturnsRMAScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="delivery_track">{({ navigation, route }: any) => <DeliveryTrackingScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -233,6 +234,11 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
         current_round: broadcast.current_round,
         current_radius_km: broadcast.current_radius_km,
         payment_summary: broadcast.payment_summary,
+        insurance: broadcast.insurance || null,
+        fulfillment_method: broadcast.fulfillment_method || 'delivery',
+        approx_distance_km: broadcast.approx_distance_km ?? null,
+        approx_area: broadcast.approx_area || null,
+        attachments: Array.isArray(broadcast.attachments) ? broadcast.attachments : [],
         items: Array.isArray(broadcast.items) ? broadcast.items : [],
       })).filter((broadcast: any) => !!broadcast.id && !!broadcast.order_id);
     };
@@ -327,8 +333,49 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab }: any) {
                     </View>
                     <Text style={{ color: theme.textSub, fontSize: 12 }}>{AR ? `الجولة ${b.current_round || '—'} · النطاق ${b.current_radius_km || '—'} كم` : `Round ${b.current_round || '—'} · radius ${b.current_radius_km || '—'} km`}</Text>
                   </View>
-                  <Text style={{ fontWeight: 'bold', fontSize: 13, color: theme.primary }}>{b.payment_summary?.method || (AR ? 'طريقة الدفع غير متاحة' : 'Payment method unavailable')}</Text>
+                  <Text style={{ fontWeight: 'bold', fontSize: 13, color: theme.primary }}>
+                    {b.payment_summary?.method === 'insurance' ? (AR ? 'تأمين' : 'Insurance')
+                      : b.payment_summary?.method === 'cod' ? (AR ? 'عند الاستلام' : 'COD')
+                      : b.payment_summary?.method === 'cash' ? (AR ? 'نقدي' : 'Cash')
+                      : b.payment_summary?.method === 'card' ? (AR ? 'بطاقة' : 'Card')
+                      : (AR ? 'طريقة الدفع غير متاحة' : 'Payment method unavailable')}
+                  </Text>
                 </View>
+                <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                  <NBadge size="xs" variant="info" label={b.fulfillment_method === 'pickup' ? (AR ? 'استلام ذاتي' : 'Self pickup') : (AR ? 'توصيل' : 'Delivery')} />
+                  {b.approx_distance_km != null && (
+                    <NBadge size="xs" variant="default" label={(AR ? 'يبعد تقريباً ' : 'Approx. ') + b.approx_distance_km + (AR ? ' كم' : ' km')} />
+                  )}
+                  {!!b.approx_area && <NBadge size="xs" variant="default" label={b.approx_area} />}
+                </View>
+                {b.payment_summary?.method === 'insurance' && b.insurance && (
+                  <View style={{ backgroundColor: theme.infoBg, borderRadius: 8, padding: 10, marginBottom: 12 }}>
+                    <Text style={{ color: theme.info, fontWeight: 'bold', fontSize: 13, textAlign: AR ? 'right' : 'left' }}>
+                      {(AR ? 'شركة التأمين: ' : 'Insurance: ') + (b.insurance.company_name_ar || b.insurance.company_name_en || '—')}
+                    </Text>
+                    {!!b.insurance.category && (
+                      <Text style={{ color: theme.info, fontSize: 12, textAlign: AR ? 'right' : 'left' }}>
+                        {(AR ? 'الفئة: ' : 'Category: ') + b.insurance.category}
+                      </Text>
+                    )}
+                  </View>
+                )}
+                {b.attachments.length > 0 && (
+                  <View style={{ marginBottom: 12 }}>
+                    <Text style={{ color: theme.textSub, fontSize: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>
+                      {AR ? 'مرفقات الروشتة' : 'Prescription attachments'}
+                    </Text>
+                    <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8 }}>
+                      {b.attachments.map((a: any, ai: number) => (
+                        <TouchableOpacity key={ai} onPress={() => Linking.openURL(a.uri)} style={{ backgroundColor: theme.surface2, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
+                          <Text style={{ color: theme.primary, fontSize: 12 }}>
+                            {a.type === 'pdf' ? (AR ? `📄 ملف PDF ${ai + 1}` : `📄 PDF ${ai + 1}`) : (AR ? `🖼️ صورة ${ai + 1}` : `🖼️ Image ${ai + 1}`)}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                )}
                 <NDivider style={{ marginBottom: 12 }} />
                 <View style={{ marginBottom: 16 }}>
                   {b.items?.map((it: any, i: number) => (
@@ -379,7 +426,111 @@ function GovernanceUnavailableScreen({ onBack, titleAr, titleEn, bodyAr, bodyEn 
 }
 
 function PharmacyChatTab({ onBack }: any) {
-  return <GovernanceUnavailableScreen onBack={onBack} titleAr="المحادثات" titleEn="Chats" bodyAr="المحادثات الصيدلانية ليست مفعلة في هذه النسخة قبل اعتماد عقد الخصوصية والملكية والتدقيق." bodyEn="Pharmacy chat is not enabled in this release until its privacy, ownership, and audit contract is approved." />;
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+  const [threads, setThreads] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState<any | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const loadThreads = async () => {
+    try {
+      const res = await client.get('/pharmacy/chat/threads');
+      setThreads(Array.isArray(res.data) ? res.data : (res.data?.items || []));
+    } catch {
+      show(AR ? 'تعذر تحميل المحادثات' : 'Unable to load chats', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => { loadThreads(); }, []);
+
+  const openThread = async (t: any) => {
+    setActive(t);
+    try {
+      const res = await client.get(`/pharmacy/chat/threads/${t.id}/messages`);
+      setMessages(Array.isArray(res.data) ? res.data : (res.data?.items || []));
+    } catch {
+      show(AR ? 'تعذر تحميل الرسائل' : 'Unable to load messages', 'error');
+    }
+  };
+
+  const send = async () => {
+    const body = text.trim();
+    if (!body || !active || sending) return;
+    setSending(true);
+    try {
+      await client.post(`/pharmacy/chat/threads/${active.id}/messages`, { text: body });
+      setText('');
+      await openThread(active);
+    } catch {
+      show(AR ? 'تعذر إرسال الرسالة' : 'Unable to send message', 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (active) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <NHeader title={AR ? `محادثة الطلب #${String(active.order_id || '').slice(-6)}` : `Order chat #${String(active.order_id || '').slice(-6)}`} onBack={() => setActive(null)} />
+        <FlatList
+          data={messages}
+          keyExtractor={(m: any, i: number) => String(m.id || i)}
+          contentContainerStyle={{ padding: 16, gap: 8 }}
+          renderItem={({ item: m }: any) => {
+            const mine = String(m.sender_role || m.sender || '').toLowerCase().includes('pharmacy') || String(m.sender_role || '').toLowerCase() === 'provider';
+            return (
+              <View style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '80%', backgroundColor: mine ? theme.primary : theme.surface2, borderRadius: 12, padding: 10 }}>
+                <Text style={{ color: mine ? '#FFF' : theme.text, fontSize: 14 }}>{m.text || m.body}</Text>
+              </View>
+            );
+          }}
+          ListEmptyComponent={<NEmpty title={AR ? 'لا توجد رسائل بعد' : 'No messages yet'} />}
+        />
+        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: theme.border }}>
+          <View style={{ flex: 1 }}>
+            <NInput placeholder={AR ? 'اكتب رسالة...' : 'Type a message...'} value={text} onChange={setText} />
+          </View>
+          <NBtn label={AR ? 'إرسال' : 'Send'} loading={sending} onPress={send} style={{ width: 90 }} full={false} />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'المحادثات' : 'Chats'} onBack={onBack} />
+      {loading ? (
+        <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+      ) : (
+        <FlatList
+          data={threads}
+          keyExtractor={(t: any, i: number) => String(t.id || i)}
+          contentContainerStyle={{ padding: 16 }}
+          renderItem={({ item: t }: any) => (
+            <TouchableOpacity onPress={() => openThread(t)}>
+              <NCard style={{ marginBottom: 10, padding: 14 }}>
+                <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? `محادثة الطلب #${String(t.order_id || '').slice(-6)}` : `Order chat #${String(t.order_id || '').slice(-6)}`}
+                </Text>
+                {!!t.last_message && (
+                  <Text numberOfLines={1} style={{ color: theme.textSub, fontSize: 12, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
+                    {t.last_message.text || t.last_message}
+                  </Text>
+                )}
+              </NCard>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={<NEmpty title={AR ? 'لا توجد محادثات' : 'No chats'} sub={AR ? 'تظهر محادثات الطلبات هنا' : 'Order chats will appear here'} />}
+        />
+      )}
+    </View>
+  );
 }
 function PrescriptionProcessing({ onBack }: any) {
   return <GovernanceUnavailableScreen onBack={onBack} titleAr="صرف الوصفات الطبية" titleEn="Prescription dispensing" bodyAr="مسار الوصفة القديم متوقف. استخدم فقط العرض الخادمي المرتبط بالبث واختيار المريض؛ لا يتم عرض اسم المريض أو هاتفه أو بيانات الطلب الخام." bodyEn="The legacy prescription path is disabled. Only the server-authoritative broadcast/offer/patient-selection flow may be used; raw patient/order data is not exposed." />;
@@ -641,8 +792,9 @@ function B2BSupplyRequestScreen({ onBack }: any) {
     </View>
   );
 }
-function PharmacyWalletScreen({ onBack }: any) {
-  return <GovernanceUnavailableScreen onBack={onBack} titleAr="المحفظة والتسويات" titleEn="Wallet & settlement" bodyAr="الرصيد والأرباح والسحب وتقرير نهاية اليوم غير متاحة قبل إثبات ledger والتسوية والتحصيل الخادمي." bodyEn="Balances, earnings, withdrawals, and end-of-day reporting are unavailable until a server ledger, reconciliation, and collection proof are approved." />;
+function PharmacyWalletScreen({ onBack, onNavigate }: any) {
+  // Real server-backed wallet (ledger balance, transactions) + governed withdrawal flow.
+  return <ProviderWalletScreen onBack={onBack} onNavigate={onNavigate} />;
 }
 function ReturnsRMAScreen({ onBack }: any) {
   const { theme } = useTheme();
@@ -712,7 +864,215 @@ function ReturnsRMAScreen({ onBack }: any) {
 // DISPATCH & DELIVERY SCREEN (Screen 3 - Workflows)
 // ══════════════════════════════════════════════════════════════════════════════
 function DispatchWorkflowScreen({ onBack }: any) {
-  return <GovernanceUnavailableScreen onBack={onBack} titleAr="التوصيل والتسليم" titleEn="Dispatch & delivery" bodyAr="التوصيل والتسليم متوقفان في واجهة المزوّد حتى يتوفر إثبات التحصيل والتسوية ومسار تسليم خادمي مكتمل." bodyEn="Dispatch and delivery are unavailable until collection proof, settlement, and a complete server-authoritative delivery flow are approved." />;
+  const { theme } = useTheme();
+  const { lang } = useLang();
+  const { show } = useToast();
+  const AR = lang === 'ar';
+
+  const [allocations, setAllocations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionId, setActionId] = useState<string | null>(null);
+  const [details, setDetails] = useState<Record<string, any>>({});
+
+  // Courier form (out-for-delivery)
+  const [courierFor, setCourierFor] = useState<string | null>(null);
+  const [courierName, setCourierName] = useState('');
+  const [courierPhone, setCourierPhone] = useState('');
+
+  // COD collection form (delivered)
+  const [collectFor, setCollectFor] = useState<any | null>(null);
+  const [collectMethod, setCollectMethod] = useState<'cash' | 'card_terminal'>('cash');
+  const [collectAmount, setCollectAmount] = useState('');
+
+  const load = async () => {
+    try {
+      const res = await client.get('/provider/pharmacy/allocations');
+      setAllocations(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      show(AR ? 'تعذر تحميل الطلبات' : 'Unable to load orders', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => { load(); }, []);
+
+  const loadDetail = async (id: string) => {
+    try {
+      const res = await client.get(`/provider/pharmacy/allocations/${id}`);
+      setDetails((prev) => ({ ...prev, [id]: res.data }));
+    } catch { /* detail is best-effort; the card stays usable */ }
+  };
+
+  const doAction = async (id: string, action: string, body?: any) => {
+    if (actionId) return;
+    setActionId(id);
+    try {
+      await client.post(`/provider/pharmacy/allocations/${id}/${action}`, body || {});
+      show(AR ? 'تم تحديث حالة الطلب' : 'Order status updated', 'success');
+      setCourierFor(null); setCollectFor(null);
+      await load();
+    } catch (e: any) {
+      const code = e?.response?.data?.message;
+      const known: Record<string, string> = {
+        cod_collection_proof_required: AR ? 'يجب إدخال إثبات تحصيل المبلغ' : 'Collection proof is required',
+        collected_amount_must_match_selected_quote_total: AR ? 'المبلغ المحصّل يجب أن يطابق إجمالي العرض المختار بالضبط' : 'Collected amount must exactly match the selected quote total',
+        pickup_orders_are_handed_over_not_shipped: AR ? 'طلبات الاستلام الذاتي تُسلَّم ولا تُشحَن' : 'Pickup orders are handed over, not shipped',
+        payment_confirmation_required: AR ? 'لم يُؤكَّد الدفع بعد' : 'Payment is not confirmed yet',
+        insurance_decision_required: AR ? 'قرار التأمين مطلوب أولاً' : 'Insurance decision required first',
+        cod_policy_confirmation_required: AR ? 'سياسة الدفع عند الاستلام غير مؤكدة' : 'COD policy not confirmed',
+      };
+      show(known[code] || code || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error');
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const statusMeta = (st: string) => {
+    const k = String(st || '').toLowerCase();
+    const map: Record<string, { ar: string; en: string; variant: any }> = {
+      pending_review: { ar: 'بانتظار المراجعة', en: 'Pending review', variant: 'warning' },
+      partially_confirmed: { ar: 'مؤكد جزئياً', en: 'Partially confirmed', variant: 'warning' },
+      confirmed: { ar: 'مؤكد', en: 'Confirmed', variant: 'info' },
+      preparing: { ar: 'قيد التجهيز', en: 'Preparing', variant: 'info' },
+      ready_for_pickup: { ar: 'جاهز للتسليم', en: 'Ready', variant: 'primary' },
+      out_for_delivery: { ar: 'في الطريق', en: 'Out for delivery', variant: 'primary' },
+      delivered: { ar: 'تم التسليم', en: 'Delivered', variant: 'success' },
+      cancelled: { ar: 'ملغي', en: 'Cancelled', variant: 'danger' },
+      rejected: { ar: 'مرفوض', en: 'Rejected', variant: 'danger' },
+    };
+    const m = map[k] || { ar: st, en: st, variant: 'default' };
+    return { label: AR ? m.ar : m.en, variant: m.variant };
+  };
+
+  const active = allocations.filter((a) => !['delivered', 'cancelled', 'rejected'].includes(String(a.status)));
+  const done = allocations.filter((a) => ['delivered', 'cancelled', 'rejected'].includes(String(a.status)));
+
+  const renderCard = (a: any) => {
+    const meta = statusMeta(a.status);
+    const d = details[a.id];
+    const isCod = String(d?.order?.payment_method || '').toLowerCase() === 'cod' || d?.order?.status === 'cod_due_on_delivery';
+    const expectedTotal = d?.order?.pricing_snapshot?.totals?.total ?? a.totals?.total;
+    return (
+      <NCard key={a.id} style={{ marginBottom: 12, padding: 16 }}>
+        <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text }}>
+            {AR ? `طلب #${String(a.order_id || '').slice(-6)}` : `Order #${String(a.order_id || '').slice(-6)}`}
+          </Text>
+          <NBadge label={meta.label} variant={meta.variant} size="xs" />
+        </View>
+        <Text style={{ color: theme.textSub, fontSize: 12, textAlign: AR ? 'right' : 'left' }}>
+          {(AR ? 'الأصناف: ' : 'Items: ') + (Array.isArray(a.items) ? a.items.length : 0) + ' · ' + (AR ? 'الإجمالي: ' : 'Total: ') + (a.totals?.total ?? 0) + (AR ? ' ر.س' : ' SAR')}
+        </Text>
+        {d?.patient_contact && (
+          <View style={{ backgroundColor: theme.surface2, borderRadius: 8, padding: 10, marginTop: 8 }}>
+            <Text style={{ color: theme.text, fontSize: 13, textAlign: AR ? 'right' : 'left' }}>
+              {(AR ? 'المريض: ' : 'Patient: ') + (d.patient_contact.name || '—')}
+            </Text>
+            {!!d.patient_contact.phone && (
+              <TouchableOpacity onPress={() => Linking.openURL(`tel:${d.patient_contact.phone}`)}>
+                <Text style={{ color: theme.primary, fontSize: 13, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
+                  {(AR ? 'هاتف: ' : 'Phone: ') + d.patient_contact.phone}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+        {courierFor === a.id && (
+          <View style={{ marginTop: 10, gap: 8 }}>
+            <NInput placeholder={AR ? 'اسم المندوب (اختياري)' : 'Courier name (optional)'} value={courierName} onChange={setCourierName} />
+            <NInput placeholder={AR ? 'هاتف المندوب (اختياري)' : 'Courier phone (optional)'} value={courierPhone} onChange={setCourierPhone} kbType="phone-pad" />
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" style={{ flex: 1 }} onPress={() => setCourierFor(null)} />
+              <NBtn label={AR ? 'تأكيد الانطلاق' : 'Confirm dispatch'} style={{ flex: 2 }} loading={actionId === a.id}
+                onPress={() => doAction(a.id, 'out-for-delivery', { courier_name: courierName || undefined, courier_phone: courierPhone || undefined })} />
+            </View>
+          </View>
+        )}
+        {collectFor === a.id && (
+          <View style={{ marginTop: 10, gap: 8 }}>
+            <Text style={{ color: theme.text, fontWeight: '600', textAlign: AR ? 'right' : 'left' }}>
+              {(AR ? 'إثبات تحصيل الدفع عند الاستلام — المبلغ المطلوب: ' : 'COD collection proof — expected: ') + (expectedTotal ?? 0) + (AR ? ' ر.س' : ' SAR')}
+            </Text>
+            <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8 }}>
+              {(['cash', 'card_terminal'] as const).map((m) => (
+                <TouchableOpacity key={m} onPress={() => setCollectMethod(m)}
+                  style={{ flex: 1, paddingVertical: 10, borderRadius: 8, borderWidth: 1.5, alignItems: 'center', backgroundColor: collectMethod === m ? theme.primary : theme.surface2, borderColor: collectMethod === m ? theme.primary : theme.border }}>
+                  <Text style={{ color: collectMethod === m ? '#FFF' : theme.text, fontWeight: '600' }}>
+                    {m === 'cash' ? (AR ? 'نقداً' : 'Cash') : (AR ? 'شبكة' : 'Card terminal')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <NInput placeholder={AR ? 'المبلغ المحصّل' : 'Collected amount'} value={collectAmount} onChange={setCollectAmount} kbType="numeric" />
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" style={{ flex: 1 }} onPress={() => setCollectFor(null)} />
+              <NBtn label={AR ? 'تأكيد التسليم' : 'Confirm delivery'} style={{ flex: 2 }} loading={actionId === a.id}
+                onPress={() => doAction(a.id, 'delivered', { collection: { method: collectMethod, amount_collected: Number(collectAmount) } })} />
+            </View>
+          </View>
+        )}
+        {courierFor !== a.id && collectFor !== a.id && (
+          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+            {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
+              <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
+            )}
+            {String(a.status) === 'confirmed' && (
+              <NBtn label={AR ? 'بدء التجهيز' : 'Start preparing'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
+            )}
+            {String(a.status) === 'preparing' && (
+              <NBtn label={AR ? 'جاهز' : 'Ready'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'ready')} />
+            )}
+            {String(a.status) === 'ready_for_pickup' && (
+              <>
+                <NBtn label={AR ? 'انطلاق التوصيل' : 'Dispatch'} size="sm" onPress={() => { setCourierFor(a.id); if (!details[a.id]) loadDetail(a.id); }} />
+                <NBtn label={AR ? 'تسليم (استلام ذاتي)' : 'Hand over (pickup)'} size="sm" variant="outline" loading={actionId === a.id}
+                  onPress={() => { if (isCod) { setCollectFor(a.id); setCollectAmount(String(expectedTotal ?? '')); } else doAction(a.id, 'delivered'); }} />
+              </>
+            )}
+            {String(a.status) === 'out_for_delivery' && (
+              <NBtn label={AR ? 'تم التسليم' : 'Mark delivered'} size="sm" loading={actionId === a.id}
+                onPress={() => { if (isCod || !details[a.id]) { setCollectFor(a.id); if (!details[a.id]) loadDetail(a.id); setCollectAmount(String(expectedTotal ?? '')); } else doAction(a.id, 'delivered'); }} />
+            )}
+            {!d && ['ready_for_pickup', 'out_for_delivery'].includes(String(a.status)) && (
+              <NBtn label={AR ? 'التفاصيل' : 'Details'} size="sm" variant="outline" onPress={() => loadDetail(a.id)} />
+            )}
+          </View>
+        )}
+      </NCard>
+    );
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <NHeader title={AR ? 'التوصيل والتسليم' : 'Dispatch & delivery'} onBack={onBack} />
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }}>
+        {loading ? (
+          <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
+        ) : allocations.length === 0 ? (
+          <NEmpty icon="moon" title={AR ? 'لا توجد طلبات' : 'No orders'} sub={AR ? 'ستظهر الطلبات المختارة هنا بعد اختيار المريض لعرضك' : 'Selected orders will appear here once a patient picks your offer'} />
+        ) : (
+          <>
+            {active.length > 0 && (
+              <>
+                <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? 'طلبات نشطة' : 'Active orders'}
+                </Text>
+                {active.map(renderCard)}
+              </>
+            )}
+            {done.length > 0 && (
+              <>
+                <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.textSub, marginTop: 8, marginBottom: 8, textAlign: AR ? 'right' : 'left' }}>
+                  {AR ? 'طلبات منتهية' : 'Completed orders'}
+                </Text>
+                {done.slice(0, 20).map(renderCard)}
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </View>
+  );
 }
 function OrderDetailScreen({ orderId, onBack }: any) {
   const { theme } = useTheme();

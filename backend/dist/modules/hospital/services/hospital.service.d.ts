@@ -62,6 +62,9 @@ export declare class HospitalService {
     } & {
         __v: number;
     }>;
+    leaveFacility(userId: string): Promise<{
+        ok: boolean;
+    }>;
     createBranch(hospitalId: string, data: Partial<HospitalBranch>, actor?: any): Promise<import("mongoose").Document<unknown, {}, HospitalBranch, {}, {}> & HospitalBranch & {
         _id: Types.ObjectId;
     } & {

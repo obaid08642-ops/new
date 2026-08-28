@@ -41,6 +41,7 @@ export declare class PharmacyAllocationService {
             amount_collected: number;
         };
     }): Promise<any>;
+    private settleDeliveredAllocation;
     private advance;
     cancel(user: any, id: string, reason: string): Promise<any>;
     private refreshOrderAfterAllocationChange;
