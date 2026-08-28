@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Nabd Plus Provider",
+    "slug": "nabd-plus-provider",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "scheme": "nabdplus-provider",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nabd.plus.provider",
+      "infoPlist": {
+        "NSCameraUsageDescription": "نحتاج الكاميرا لرفع مستندات المزوّد والتحقق من الهوية.",
+        "NSMicrophoneUsageDescription": "نحتاج الميكروفون للمكالمات الصوتية والمرئية.",
+        "NSLocationWhenInUseUsageDescription": "نحتاج الموقع لتتبع الزيارات المنزلية وتطبيق geofence.",
+        "NSPhotoLibraryUsageDescription": "نحتاج الصور لرفع التقارير والمستندات.",
+        "NSFaceIDUsageDescription": "نستخدم التحقق الحيوي لتسجيل الدخول بشكل آمن."
+      }
+    },
+    "android": {
+      "package": "com.nabd.plus.provider",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
+      ],
+      "usesCleartextTraffic": false
+    },
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      "expo-camera",
+      "expo-notifications",
+      "expo-location",
+      "expo-local-authentication",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "apiBaseUrl": "https://api.nabd.plus/api/v1"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /s/
+Allow: /doctors
+Allow: /medicines
+Allow: /facilities
+Allow: /lab-services
+Allow: /home-care-services
+Allow: /articles
+Disallow: /admin/
+Disallow: /login
+Disallow: /api/
+
+Sitemap: https://api.nabd.plus/api/v1/seo/sitemap.xml

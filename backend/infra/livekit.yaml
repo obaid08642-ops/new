@@ -1,0 +1,31 @@
+# LiveKit Server Configuration
+port: 7880
+bind_addresses:
+  - ""
+
+# API keys for authenticating access token generation and management APIs
+keys:
+  change_this_livekit_key: "change_this_livekit_secret"
+
+# Turn configurations matching our Coturn setup
+turn:
+  enabled: true
+  domain: turn.example.com
+  cert_file: ""
+  key_file: ""
+  tls_port: 5349
+  udp_port: 3478
+  external_ips:
+    - 1.2.3.4
+
+# Webhooks to forward room, participant, and recording events to the backend
+webhooks:
+  - apiKey: "change_this_livekit_key"
+    urls:
+      - "http://backend-api:3000/webhooks/livekit"
+
+# RTCP/RTP settings
+rtc:
+  use_external_ip: true
+  port_range_start: 50000
+  port_range_end: 60000
