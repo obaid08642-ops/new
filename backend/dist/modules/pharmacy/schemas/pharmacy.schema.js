@@ -492,13 +492,17 @@ __decorate([
     __metadata("design:type", Number)
 ], PharmacyBroadcast.prototype, "current_radius_km", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: 7 }),
+    (0, mongoose_1.Prop)({ default: 8 }),
     __metadata("design:type", Number)
 ], PharmacyBroadcast.prototype, "max_radius_km", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: [Number], default: [3, 5, 7] }),
+    (0, mongoose_1.Prop)({ type: [Number], default: [3, 5, 8] }),
     __metadata("design:type", Array)
 ], PharmacyBroadcast.prototype, "round_radii_km", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: false }),
+    __metadata("design:type", Boolean)
+], PharmacyBroadcast.prototype, "extended_stage", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: 'open', enum: ['open', 'locked', 'fallback_split', 'closed'], index: true }),
     __metadata("design:type", String)

@@ -142,7 +142,7 @@ export class PharmacyOrdersProviderService {
     return { success: true, status: a.status, order_id: orderId, allocation_id: alloc.id };
   }
 
-  async orderDispatch(user: any, orderId: string, payload: any): Promise<never> {
+  async orderDispatch(user: any, orderId: string, payload: any) {
     const alloc = await this.selectedAllocationForProvider(user, orderId);
     return this.allocs.outForDelivery(user, alloc.id, payload);
   }

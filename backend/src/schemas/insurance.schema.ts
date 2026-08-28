@@ -94,6 +94,9 @@ export const InsuranceClaimSchema = SchemaFactory.createForClass(InsuranceClaim)
 
 @Schema({ _id: false })
 export class InsuranceDetails {
+  @Prop() company_name_ar?: string;
+  @Prop() company_name_en?: string;
+  @Prop() category?: string;
   @Prop() policyNumber: string;
   @Prop() memberId: string;
   @Prop() approvalReferenceNumber?: string;

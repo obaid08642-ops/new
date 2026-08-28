@@ -44,7 +44,7 @@ describe('PharmacyBroadcastService', () => {
     toArray: jest.fn().mockResolvedValue([]),
   };
   const mockProfileModel = {
-    find: jest.fn(),
+    find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
     db: { collection: jest.fn().mockReturnValue(mockProviderAccountCollection) },
   };
 
@@ -228,7 +228,7 @@ describe('PharmacyBroadcastService', () => {
     const broadcast = { id: 'bc-1', order_id: 'order-1', notified_pharmacies: ['pharm-123'], lock_state: 'open', current_round: 1, current_radius_km: 3, createdAt: new Date('2026-01-01') };
     const order = { id: 'order-1', patient_account_id: 'patient-1', patient_phone: '+966500000000', delivery_address: { line1: 'secret street' }, attachments: [{ key: 'secret' }], items: [{ id: 'i-1', raw_name: 'دواء', qty: 2 }] };
 
-    it('returns no raw order, patient identity, address, phone, or attachments to a notified approved pharmacy', async () => {
+    it('returns no raw order, patient identity, address, or phone to a notified approved pharmacy', async () => {
       mockBroadcastModel.find.mockReturnValueOnce({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([broadcast]) }) });
       mockOrderModel.find.mockReturnValueOnce({ lean: jest.fn().mockResolvedValue([order]) });
       const result = await service.listForPharmacy({ id: 'pharm-123', role: 'provider' });
@@ -237,7 +237,10 @@ describe('PharmacyBroadcastService', () => {
       expect(serialized).not.toContain('patient-1');
       expect(serialized).not.toContain('secret street');
       expect(serialized).not.toContain('+966500000000');
-      expect(serialized).not.toContain('attachments');
+      // Raw order-level attachments (with internal storage keys) are never exposed;
+      // the spec-mandated sanitized prescription_attachments projection is empty here.
+      expect(serialized).not.toContain('secret');
+      expect(result[0].attachments).toEqual([]);
       expect(result[0].items[0]).toEqual(expect.objectContaining({ order_item_id: 'i-1', qty_requested: 2 }));
     });
 

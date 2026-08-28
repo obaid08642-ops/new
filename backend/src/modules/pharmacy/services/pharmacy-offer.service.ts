@@ -14,6 +14,8 @@ type ProviderOfferItemInput = {
   qty_offered?: number;
   inventory_item_id?: string;
   substitute_inventory_item_id?: string;
+  unit_price_override?: number;
+  price_override_reason?: string;
 };
 
 type ProviderOfferInput = {
@@ -94,7 +96,7 @@ export class PharmacyOfferService {
 
     const requested = Math.max(1, Number(orderItem.qty) || 1);
     const offered = Math.min(requested, Math.max(1, Math.floor(Number(input.qty_offered) || requested)), Number(inventoryItem.stock));
-    return {
+    const result: any = {
       order_item_id: orderItem.id,
       action: input.availability,
       qty_requested: requested,
@@ -107,6 +109,19 @@ export class PharmacyOfferService {
       currency: inventoryItem.currency || 'SAR',
       inventory_price_updated_at: inventoryItem.updatedAt || null,
     };
+    // Master spec: provider may override the item price; the catalog price is preserved for admin audit.
+    if (input.unit_price_override !== undefined && input.unit_price_override !== null) {
+      const override = Number(input.unit_price_override);
+      if (!Number.isFinite(override) || override <= 0 || override > 100000) throw new BadRequestException('invalid_price_override');
+      const rounded = Math.round(override * 100) / 100;
+      if (rounded !== result.unit_price) {
+        result.catalog_price = result.unit_price;
+        result.unit_price = rounded;
+        result.price_source = 'provider_override';
+        result.price_override_reason = String(input.price_override_reason || '').slice(0, 500);
+      }
+    }
+    return result;
   }
 
   private async serverQuote(userId: string, order: any, inputs: ProviderOfferItemInput[]) {
@@ -184,6 +199,27 @@ export class PharmacyOfferService {
       { new: true },
     );
     if (!offer) throw new BadRequestException('offer_not_submittable');
+    // Master spec: every provider price override lands in an admin-visible audit collection.
+    const overridden = (offer.items || []).filter((item: any) => item.price_source === 'provider_override');
+    if (overridden.length) {
+      await this.connection.collection('pharmacy_price_override_audit').insertMany(overridden.map((item: any) => ({
+        id: uuidv4(),
+        order_id: orderId,
+        offer_id: offer.id,
+        offer_version: offer.version,
+        pharmacy_account_id: user.id,
+        order_item_id: item.order_item_id,
+        sku: item.sku || null,
+        name_ar: item.name_ar || null,
+        name_en: item.name_en || null,
+        catalog_price: item.catalog_price ?? null,
+        override_price: item.unit_price,
+        currency: item.currency || 'SAR',
+        reason: item.price_override_reason || '',
+        changed_by: user.id,
+        changed_at: now,
+      })));
+    }
     await this.bus.emit({
       type: 'pharmacy.offer.submitted', entity_type: 'pharmacy_offer', entity_id: offer.id,
       actor_account_id: user.id, actor_role: 'pharmacy', patient_account_id: offer.patient_account_id,
@@ -198,7 +234,29 @@ export class PharmacyOfferService {
     if (!order) throw new NotFoundException('order_not_found');
     const offers: any[] = await this.offers.find({ order_id: orderId, patient_account_id: user.id, status: 'submitted', quote_expires_at: { $gt: new Date() } })
       .sort({ submitted_at: -1 }).lean();
-    return offers.map((offer) => this.patientDto(offer));
+    return Promise.all(offers.map((offer) => this.patientDtoAsync(offer, order)));
+  }
+
+  private async patientDtoAsync(offer: any, order: any) {
+    const base = this.patientDto(offer);
+    const profile: any = await this.connection.collection('provider_profiles').findOne({ account_id: offer.pharmacy_account_id });
+    let approx: number | null = null;
+    const pg = profile?.geo; const og = order?.delivery_address?.geo;
+    if (pg && og && Number.isFinite(Number(pg.lat)) && Number.isFinite(Number(og.lat))) {
+      const toRad = (v: number) => (v * Math.PI) / 180;
+      const dLat = toRad(Number(og.lat) - Number(pg.lat));
+      const dLng = toRad(Number(og.lng) - Number(pg.lng));
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(Number(pg.lat))) * Math.cos(toRad(Number(og.lat))) * Math.sin(dLng / 2) ** 2;
+      const d = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      if (Number.isFinite(d)) approx = Math.round(d * 2) / 2; // 0.5km rounding — approximate only
+    }
+    return {
+      ...base,
+      pharmacy_name_ar: profile?.display_name_ar || profile?.name_ar || null,
+      pharmacy_name_en: profile?.display_name_en || profile?.name_en || null,
+      approx_distance_km: approx,
+      approx_delivery: { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' },
+    };
   }
 
   async selectByPatient(user: any, orderId: string, offerId: string, idempotencyKey: string) {

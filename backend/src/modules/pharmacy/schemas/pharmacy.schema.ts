@@ -333,8 +333,9 @@ export class PharmacyBroadcast extends Document {
   @Prop({ required: true }) patient_account_id: string;
   @Prop({ default: 1 }) current_round: number;
   @Prop({ default: 3 }) current_radius_km: number;
-  @Prop({ default: 7 }) max_radius_km: number;
-  @Prop({ type: [Number], default: [3, 5, 7] }) round_radii_km: number[];
+  @Prop({ default: 8 }) max_radius_km: number;
+  @Prop({ type: [Number], default: [3, 5, 8] }) round_radii_km: number[];
+  @Prop({ default: false }) extended_stage?: boolean;
   // Atomic full-acceptance lock: first pharmacy to claim sets this.
   @Prop({ default: 'open', enum: ['open', 'locked', 'fallback_split', 'closed'], index: true }) lock_state: string;
   @Prop() locked_to_pharmacy_account_id?: string;

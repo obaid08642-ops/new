@@ -45,8 +45,14 @@ export class PharmacyAllocationService {
     const a = await this.allocs.findOne({ id }, { _id: 0, __v: 0 }).lean();
     if (!a) throw new NotFoundException('allocation_not_found');
     if (user.role === 'provider' && a.pharmacy_account_id !== user.id) throw new ForbiddenException('not_yours');
-    const order = await this.orders.findOne({ id: a.order_id }, { _id: 0, __v: 0, patient_account_id: 0 }).lean();
-    return { ...a, order };
+    const order: any = await this.orders.findOne({ id: a.order_id }, { _id: 0, __v: 0, patient_account_id: 0 }).lean();
+    // Master spec: patient contact is revealed to the pharmacy ONLY after the patient selected this offer.
+    let patient_contact: any = null;
+    if (order && order.selected_allocation_id === a.id && order.selected_offer_id === a.offer_id) {
+      const patient: any = await this.orders.db.collection('users').findOne({ id: order.patient_account_id });
+      if (patient) patient_contact = { name: patient.full_name || patient.name || null, phone: patient.phone || null };
+    }
+    return { ...a, order, patient_contact };
   }
 
   /** Pharmacist sets an item-level action: available / substitute / unavailable. */
@@ -225,14 +231,79 @@ export class PharmacyAllocationService {
 
   async preparing(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.PREPARING); }
   async ready(user: any, id: string) { return this.advance(user, id, PharmacyAllocationState.READY_FOR_PICKUP); }
-  async outForDelivery(_user: any, _id: string, _body?: { courier_name?: string; courier_phone?: string; eta?: Date }): Promise<never> {
-    // Courier identity, precise delivery instructions and ETA require a dedicated policy/purpose contract.
-    throw new ServiceUnavailableException('delivery_operation_policy_required');
+  async outForDelivery(user: any, id: string, body?: { courier_name?: string; courier_phone?: string; eta?: Date }) {
+    assertProvider(user);
+    const a = await this.allocs.findOne({ id });
+    if (!a) throw new NotFoundException();
+    if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    await this.assertFulfillmentAuthorized(a);
+    const order: any = await this.orders.findOne({ id: a.order_id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (order?.delivery?.method === 'pickup') throw new BadRequestException('pickup_orders_are_handed_over_not_shipped');
+    const fromStatus = a.status;
+    this.transition(a, PharmacyAllocationState.OUT_FOR_DELIVERY, user.id);
+    await a.save();
+    await this.orders.updateOne({ id: a.order_id }, {
+      $set: {
+        'delivery.courier_name': String(body?.courier_name || '').slice(0, 120) || undefined,
+        'delivery.courier_phone': String(body?.courier_phone || '').slice(0, 32) || undefined,
+        'delivery.courier_eta': body?.eta ? new Date(body.eta) : undefined,
+        'delivery.dispatched_at': new Date(),
+      },
+      $push: { timeline: { ts: new Date(), event: 'out_for_delivery', by: user.id } },
+    });
+    await this.refreshOrderAfterAllocationChange(a.order_id);
+    await this.notif.notifyPatientAllocationProgress(a);
+    await this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: 'transition_to_out_for_delivery', before: { status: fromStatus }, after: { status: a.status }, meta: { order_id: a.order_id } });
+    return a.toObject();
   }
-  async delivered(_user: any, _id: string): Promise<never> {
-    // A governed COD collection-proof and settlement/reconciliation command is not yet available.
-    // Fail before any transition rather than recording a delivered state or earning from UI intent.
-    throw new ServiceUnavailableException('delivery_settlement_reconciliation_required');
+
+  async delivered(user: any, id: string, body?: { collection?: { method: 'cash' | 'card_terminal'; amount_collected: number } }) {
+    assertProvider(user);
+    const a = await this.allocs.findOne({ id });
+    if (!a) throw new NotFoundException();
+    if (a.pharmacy_account_id !== user.id) throw new ForbiddenException();
+    await this.assertFulfillmentAuthorized(a);
+    const order: any = await this.orders.findOne({ id: a.order_id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    const method = String(order.payment_method || order.payment?.method || (order.insurance_details ? 'insurance' : 'cash')).toLowerCase();
+    const isCod = method === 'cod' || order.status === PharmacyOrderState.COD_DUE_ON_DELIVERY;
+    if (isCod) {
+      // Master spec: COD delivery requires collection proof matching the selected quote total exactly.
+      const expected = Math.round(Number(order.pricing_snapshot?.totals?.total ?? a.totals?.total) * 100) / 100;
+      const collected = Number(body?.collection?.amount_collected);
+      const collMethod = body?.collection?.method;
+      if (!['cash', 'card_terminal'].includes(String(collMethod)) || !Number.isFinite(collected)) {
+        throw new BadRequestException('cod_collection_proof_required');
+      }
+      if (Math.round(collected * 100) / 100 !== expected) {
+        throw new BadRequestException('collected_amount_must_match_selected_quote_total');
+      }
+      await this.orders.db.collection('pharmacy_payment_evidence').insertOne({
+        id: uuidv4(),
+        kind: 'cod_collection',
+        order_id: order.id,
+        allocation_id: a.id,
+        selected_offer_id: a.offer_id,
+        selected_offer_version: a.offer_version,
+        amount: Math.round(collected * 100) / 100,
+        currency: String(a.totals?.currency || 'SAR'),
+        method: collMethod,
+        collected_by: user.id,
+        collected_at: new Date(),
+        status: 'confirmed',
+      });
+      await this.orders.updateOne({ id: a.order_id }, {
+        $set: { 'delivery.collection_proof': { method: collMethod, amount_collected: Math.round(collected * 100) / 100, collected_by: user.id, collected_at: new Date() } },
+      });
+    }
+    const fromStatus = a.status;
+    this.transition(a, PharmacyAllocationState.DELIVERED, user.id);
+    await a.save();
+    await this.refreshOrderAfterAllocationChange(a.order_id);
+    await this.notif.notifyPatientAllocationProgress(a);
+    await this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: 'transition_to_delivered', before: { status: fromStatus }, after: { status: a.status }, meta: { order_id: a.order_id } });
+    return a.toObject();
   }
 
   private async advance(user: any, id: string, to: PharmacyAllocationState) {

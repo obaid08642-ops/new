@@ -67,8 +67,16 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
         }
         return account;
     }
-    providerBroadcastDto(broadcast, order) {
+    providerBroadcastDto(broadcast, order, viewerProfile) {
         const method = String(order?.payment_method || order?.payment?.method || (order?.insurance_details ? 'insurance' : 'cash')).toLowerCase();
+        const ins = order?.insurance_details || null;
+        const orderGeo = order?.delivery_address?.geo;
+        let approx = null;
+        if (viewerProfile?.geo && orderGeo && Number.isFinite(Number(orderGeo.lat)) && Number.isFinite(Number(orderGeo.lng))) {
+            const d = this.geo.distanceKm({ lat: Number(viewerProfile.geo.lat), lng: Number(viewerProfile.geo.lng) }, { lat: Number(orderGeo.lat), lng: Number(orderGeo.lng) });
+            if (Number.isFinite(d))
+                approx = Math.round(d * 2) / 2;
+        }
         return {
             id: broadcast.id,
             order_id: broadcast.order_id,
@@ -76,7 +84,18 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
             current_radius_km: broadcast.current_radius_km,
             lock_state: broadcast.lock_state,
             offer_deadline_hint: broadcast.round_expires_at || null,
+            fulfillment_method: order?.delivery?.method === 'pickup' ? 'pickup' : 'delivery',
             payment_summary: { method, insurance_required: method === 'insurance' },
+            insurance: method === 'insurance' && ins ? {
+                company_name_ar: ins.company_name_ar || null,
+                company_name_en: ins.company_name_en || null,
+                category: ins.category || null,
+            } : null,
+            approx_distance_km: approx,
+            approx_area: order?.delivery_address?.district || order?.delivery_address?.city || null,
+            attachments: (Array.isArray(order?.prescription_attachments) ? order.prescription_attachments : [])
+                .filter((a) => a && a.uri && (a.type === 'image' || a.type === 'pdf'))
+                .map((a) => ({ type: a.type, uri: a.uri })),
             items: (order?.items || []).map((item) => ({
                 order_item_id: item.id,
                 name_ar: item.name_ar || item.raw_name || null,
@@ -85,6 +104,10 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
                 matched_sku: item.matched_sku || null,
             })),
         };
+    }
+    async viewerProfile(userId) {
+        const r = await this.profiles.find({ account_id: userId }).lean();
+        return Array.isArray(r) ? (r[0] || null) : (r || null);
     }
     async getBroadcastStages() {
         const config = await this.configs.findOne({ key: 'pharmacy_broadcast_stages' }).lean();
@@ -132,7 +155,7 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
     }
     async broadcastRound(bc, order) {
         const center = order.delivery_address?.geo;
-        const pharms = await this.findEligiblePharmaciesWithin(center, bc.current_radius_km);
+        const pharms = await this.findEligiblePharmaciesWithin(center, bc.current_radius_km, { extended: Boolean(bc.extended_stage) });
         const alreadyNotified = new Set(Array.isArray(bc.notified_pharmacies) ? bc.notified_pharmacies : []);
         const candidates = pharms.map((pharmacy) => String(pharmacy.account_id)).filter((id) => id && !alreadyNotified.has(id));
         const now = new Date();
@@ -215,6 +238,22 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
         const stages = await this.getBroadcastStages();
         const nextIdx = bc.current_round;
         if (nextIdx >= stages.length) {
+            const orderForExtended = await this.orders.findOne({ id: order_id });
+            if (!bc.extended_stage && orderForExtended) {
+                const isPickup = orderForExtended?.delivery?.method === 'pickup';
+                const lastStage = stages[stages.length - 1];
+                const extendedRadius = isPickup ? 15 : Number(lastStage.radius_km);
+                const extendedAt = new Date();
+                const extendedDeadline = new Date(extendedAt.getTime() + (Number(lastStage.timeout_seconds) * 1000));
+                bc.extended_stage = true;
+                bc.current_round = nextIdx + 1;
+                bc.current_radius_km = extendedRadius;
+                bc.round_expires_at = extendedDeadline;
+                bc.timeline.push({ ts: extendedAt, event: isPickup ? 'extended_round_self_pickup_15km' : 'extended_round_own_delivery', meta: { round: bc.current_round, radius: extendedRadius, round_expires_at: extendedDeadline } });
+                await bc.save();
+                await this.broadcastRound(bc, orderForExtended);
+                return bc.toObject();
+            }
             const order = await this.orders.findOne({ id: order_id });
             if (order) {
                 return this.runBestPartialMatch(bc, order);
@@ -263,7 +302,7 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
         }
         return { order_id, selection_required: true, reason: 'automatic_split_disabled' };
     }
-    async findEligiblePharmaciesWithin(center, radius_km) {
+    async findEligiblePharmaciesWithin(center, radius_km, opts) {
         const accs = await this.profiles.db.collection('provider_accounts').find({ provider_type: 'pharmacy', status: { $in: ['approved', 'active'] } }).project({ id: 1 }).toArray();
         if (!accs.length || !Number.isFinite(Number(center?.lat)) || !Number.isFinite(Number(center?.lng)) || !Number.isFinite(Number(radius_km)) || Number(radius_km) <= 0)
             return [];
@@ -271,6 +310,8 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
         const profs = await this.profiles.find({ account_id: { $in: ids }, provider_type: 'pharmacy' }).lean();
         const avs = await this.avails.find({ provider_account_id: { $in: ids }, status: { $in: [requests_schema_1.ProviderAvailabilityStatus.ACCEPTING_ORDERS, requests_schema_1.ProviderAvailabilityStatus.ONLINE] } }).lean();
         const okIds = new Set(avs.map(a => a.provider_account_id));
+        const policyDoc = await this.configs.findOne({ key: 'pharmacy_platform_radius_km' }).lean();
+        const platformRadius = Number(policyDoc?.value);
         const out = [];
         for (const p of profs) {
             if (!okIds.has(p.account_id))
@@ -278,12 +319,22 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
             if (!Number.isFinite(Number(p.geo?.lat)) || !Number.isFinite(Number(p.geo?.lng)))
                 continue;
             const pharm = p;
-            const providerRadius = Number(pharm.max_delivery_radius_km ?? pharm.delivery_radius_km);
-            const policyDoc = await this.configs.findOne({ key: 'pharmacy_platform_radius_km' }).lean();
-            const platformRadius = Number(policyDoc?.value);
-            const effectiveRadius = Math.min(Number(radius_km), Number.isFinite(providerRadius) && providerRadius > 0 ? providerRadius : Number(radius_km), Number.isFinite(platformRadius) && platformRadius > 0 ? platformRadius : Number(radius_km));
             const d = this.geo.distanceKm({ lat: Number(p.geo.lat), lng: Number(p.geo.lng) }, center);
-            if (Number.isFinite(d) && d <= effectiveRadius)
+            if (!Number.isFinite(d))
+                continue;
+            const hasOwnDelivery = Boolean(pharm.has_own_delivery || pharm.has_own_drivers);
+            const ownRadius = Number(pharm.delivery_radius_km ?? pharm.max_delivery_radius_km);
+            let qualifies = false;
+            if (opts?.extended && hasOwnDelivery && Number.isFinite(ownRadius) && ownRadius > 0) {
+                qualifies = d <= ownRadius;
+            }
+            else {
+                let cap = Number(radius_km);
+                if (Number.isFinite(platformRadius) && platformRadius > 0)
+                    cap = Math.min(cap, platformRadius);
+                qualifies = d <= cap;
+            }
+            if (qualifies)
                 out.push({ ...p, _distance: d });
         }
         return out;
@@ -293,7 +344,8 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
         const bcs = await this.broadcasts.find({ notified_pharmacies: user.id, lock_state: { $in: ['open'] } }).sort({ createdAt: -1 }).lean();
         const orders = await this.orders.find({ id: { $in: bcs.map(b => b.order_id) } }).lean();
         const ordersMap = new Map(orders.map(o => [o.id, o]));
-        return bcs.map((broadcast) => this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id)));
+        const viewer = await this.viewerProfile(user.id);
+        return bcs.map((broadcast) => this.providerBroadcastDto(broadcast, ordersMap.get(broadcast.order_id), viewer));
     }
     async detail(user, broadcast_id) {
         await this.assertActiveNotifiedPharmacy(user);
@@ -304,7 +356,8 @@ let PharmacyBroadcastService = class PharmacyBroadcastService {
         const order = await this.orders.findOne({ id: bc.order_id }).lean();
         if (!order)
             throw new common_1.NotFoundException('order_not_found');
-        return this.providerBroadcastDto(bc, order);
+        const viewer = await this.viewerProfile(user.id);
+        return this.providerBroadcastDto(bc, order, viewer);
     }
     async expireStaleBroadcasts() {
         throw new common_1.ServiceUnavailableException('legacy_expiry_sweep_disabled_use_expire_due_command');

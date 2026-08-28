@@ -34,6 +34,14 @@ export declare class PatientPharmacyController {
     }>;
     cancelRejectedInsurance(u: any, id: string, b: any): Promise<any>;
     listOffers(u: any, id: string): Promise<{
+        pharmacy_name_ar: any;
+        pharmacy_name_en: any;
+        approx_distance_km: number;
+        approx_delivery: {
+            eta_minutes: number;
+            label_ar: string;
+            label_en: string;
+        };
         id: any;
         pharmacy_account_id: any;
         version: any;
@@ -70,8 +78,8 @@ export declare class ProviderPharmacyController {
     confirm(u: any, id: string): Promise<any>;
     preparing(u: any, id: string): Promise<any>;
     ready(u: any, id: string): Promise<any>;
-    out(u: any, id: string, b: any): Promise<never>;
-    delivered(u: any, id: string): Promise<never>;
+    out(u: any, id: string, b: any): Promise<any>;
+    delivered(u: any, id: string, b: any): Promise<any>;
     updateInsurance(): void;
     insuranceDecision(u: any, id: string, b: any): Promise<any>;
     cancel(u: any, id: string, b: any): Promise<any>;
@@ -103,6 +111,12 @@ export declare class AdminPharmacyController {
     }>;
     sampleOrder(u: any, b: any): Promise<any>;
     manualSplit(id: string): Promise<any>;
+    priceOverrides(q: any): Promise<{
+        items: any;
+        total: any;
+        page: number;
+        limit: number;
+    }>;
     expireStale(): Promise<{
         expired: number;
         scanned: any;
