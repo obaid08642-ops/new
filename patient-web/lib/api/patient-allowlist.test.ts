@@ -17,21 +17,42 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/cart/checkout")).toBe(true);
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
+    expect(isAllowedPatientApiPath("/nursing/visits")).toBe(true);
+    expect(isAllowedPatientApiPath("/health/vitals-log")).toBe(true);
+    expect(isAllowedPatientApiPath("/users/me/profile")).toBe(true);
+    expect(isAllowedPatientApiPath("/users/me/notification-settings")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/wishlist")).toBe(true);
+    expect(isAllowedPatientApiPath("/payments/pharmacy/91047ef2-ad36-422a-a184-629693e7c729/capabilities")).toBe(true);
+    expect(isAllowedPatientApiPath("/pharmacy/chat/threads?order_id=91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
+    expect(isAllowedPatientApiPath("/pharmacy/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/messages")).toBe(true);
     expect(isAllowedPatientApiPath("/medical-profile")).toBe(false);
   });
 
-  it("rejects administrative, provider, unlisted patient domains, and writes", () => {
+  it("allows only governed pharmacy writes and rejects administrative, provider, or unlisted writes", () => {
     expect(isAllowedPatientApiPath("/admin/users")).toBe(false);
     expect(isAllowedPatientApiPath("/provider/queue")).toBe(false);
     expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
-    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(false);
-    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/insurance/co-pay/accept", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/payment", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/payments/intent/pharmacy/91047ef2-ad36-422a-a184-629693e7c729", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/payments/refund/91047ef2-ad36-422a-a184-629693e7c729", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/pharmacy/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/accept-substitute/81047ef2-ad36-422a-a184-629693e7c729", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/pharmacy/chat/threads/91047ef2-ad36-422a-a184-629693e7c729/archive", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/orders/91047ef2-ad36-422a-a184-629693e7c729/tracking", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/lines/line-1", "PATCH")).toBe(false);
     expect(isAllowedPatientApiRequest("/cart/clear", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/nursing/visits", "POST")).toBe(false);
+    expect(isAllowedPatientApiRequest("/health/vitals-log", "POST")).toBe(false);
+    expect(isAllowedPatientApiPath("/health/vitals-log?limit=10")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/profile", "PATCH")).toBe(false);
+    expect(isAllowedPatientApiRequest("/users/me/notification-settings", "POST")).toBe(false);
+    expect(isAllowedPatientApiPath("/nursing/visits?limit=10")).toBe(false);
     expect(isAllowedPatientApiRequest("/users/me/wishlist", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/users/me/wishlist/med-1", "POST")).toBe(false);
   });

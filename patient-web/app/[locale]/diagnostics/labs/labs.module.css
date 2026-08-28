@@ -5,6 +5,10 @@
 .back { display: inline-flex; align-items: center; gap: .35rem; width: fit-content; color: var(--brand-deep); font-size: .85rem; font-weight: 760; text-decoration: none; }
 .back:focus-visible { outline: 3px solid rgba(37,99,235,.56); outline-offset: 3px; border-radius: .35rem; }
 .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; }
+.detailCard { display: grid; gap: 1.15rem; padding: clamp(1.2rem, 3vw, 2rem); border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255,255,255,.94); box-shadow: var(--shadow-md); }
+.section { display: grid; gap: .65rem; }
+.section h2 { margin: 0; color: var(--ink); font-size: 1.05rem; }
+.section ul { display: grid; gap: .45rem; margin: 0; padding-inline-start: 1.2rem; color: var(--muted); line-height: 1.6; }
 .fact, .panel { border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255,255,255,.92); box-shadow: var(--shadow-sm); }
 .fact { display: grid; gap: .4rem; padding: 1rem; }
 .fact strong { color: var(--muted); font-size: .76rem; }

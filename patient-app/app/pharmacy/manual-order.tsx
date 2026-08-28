@@ -1,141 +1,20 @@
-// @ts-nocheck
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { useCart } from '../../src/context/CartContext';
 import { darkColors, lightColors } from '../../src/theme/colors';
-import * as ImagePicker from 'expo-image-picker';
+import { apiFetch } from '../../src/utils/api';
+import { buildPatientPharmacyDraft, extractPatientPharmacyOrderId } from '../../src/utils/pharmacy-draft';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
-export default function ManualOrderScreen() {
-  const insets = useSafeAreaInsets();
-  const { isDark, lang } = useApp() as any;
-  const colors = isDark ? darkColors : lightColors;
-  const isRTL = lang === 'ar' || lang === 'ur';
-
-  const { addItem } = useCart();
-
-  const [medName, setMedName] = useState('');
-  const [medDesc, setMedDesc] = useState('');
-  const [photo, setPhoto] = useState<string | null>(null);
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'] as any,
-      allowsEditing: true,
-      quality: 0.8,
-    });
-    if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
-    }
-  };
-
-  const handleAddToCart = () => {
-    // Add custom item to cart
-    addItem({
-      id: `manual_${Date.now()}`,
-      name: medName,
-      price: 0, // Price will be updated by pharmacy later
-      rx: false,
-      icon: 'inventory_2',
-      iconColor: '#23B5CE',
-      iconBg: '#DEF5F9',
-      qty: 1
-    });
-    router.push('/pharmacy/cart');
-  };
-
-  return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 } ]}>
-        
-        {/* Header */}
-        <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' } ]}>
-          <TouchableOpacity onPress={() => router.back()} style={[styles.iconBtn, { backgroundColor: colors.s } ]}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 28 }}>
-              {isRTL ? 'arrow_forward' : 'arrow_back'}
-            </LocalizedText>
-          </TouchableOpacity>
-          <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 18, color: colors.n }}>طلب دواء غير متوفر</LocalizedText>
-          <View style={{ width: 44 }}/>
-        </View>
-
-        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
-          
-          <View style={[styles.infoBanner, { backgroundColor: '#DEF5F9' } ]}>
-            <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 32, marginBottom: 8 }}>inventory_2</LocalizedText>
-            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: '#141A2A', marginBottom: 4, textAlign: 'center' }}>هنوفره لك بأسرع وقت</LocalizedText>
-            <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 13, color: '#4C5566', textAlign: 'center', lineHeight: 22 }}>
-              اكتب اسم الدواء أو ارفع صورته، وسيقوم الصيدلي بالبحث عنه وإضافته لطلبك لتسعيره.
-            </LocalizedText>
-          </View>
-
-          {/* Form */}
-          <LocalizedText style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>اسم الدواء <LocalizedText style={{ color: '#F0695C' }}>*</LocalizedText></LocalizedText>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]}
-            placeholder="مثال: كونجستال أقراص"
-            placeholderTextColor={colors.t3}
-            value={medName}
-            onChangeText={setMedName}
-          />
-
-          <LocalizedText style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left' } ]}>ملاحظات أو تركيز الدواء (اختياري)</LocalizedText>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left', height: 100, paddingTop: 16 }]}
-            placeholder="أضف أي تفاصيل أخرى تساعد الصيدلي..."
-            placeholderTextColor={colors.t3}
-            value={medDesc}
-            onChangeText={setMedDesc}
-            multiline
-          />
-
-          {/* Photo Upload */}
-          <LocalizedText style={[styles.label, { color: colors.n, textAlign: isRTL ? 'right' : 'left', marginTop: 8 } ]}>صورة الدواء أو الروشتة (اختياري)</LocalizedText>
-          {photo ? (
-            <View style={[styles.photoWrap, { borderColor: colors.bd } ]}>
-              <Image source={{ uri: photo }} style={styles.photo} />
-              <TouchableOpacity style={[styles.removeBtn, { backgroundColor: '#F0695C' }]} onPress={() => setPhoto(null)}>
-                <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#fff', fontSize: 20 }}>close</LocalizedText>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity style={[styles.uploadBox, { backgroundColor: colors.s, borderColor: '#23B5CE' }]} onPress={pickImage}>
-              <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 32, marginBottom: 8 }}>add_a_photo</LocalizedText>
-              <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: '#23B5CE' }}>اضغط لرفع صورة الدواء</LocalizedText>
-            </TouchableOpacity>
-          )}
-
-        </ScrollView>
-
-        <View style={[styles.footer, { backgroundColor: colors.bg, borderTopColor: colors.bd, paddingBottom: insets.bottom + 20 } ]}>
-          <TouchableOpacity 
-            style={[styles.submitBtn, { backgroundColor: medName.length > 2 ? '#23B5CE' : colors.bd }]} 
-            onPress={handleAddToCart}
-            disabled={medName.length <= 2}
-          >
-            <LocalizedText style={{ fontFamily: 'Cairo-Black', fontSize: 16, color: medName.length > 2 ? '#fff' : colors.t3 }}>أضف للسلة</LocalizedText>
-          </TouchableOpacity>
-        </View>
-
-      </View>
-    </KeyboardAvoidingView>
-  );
+const key = () => `mobile-pharmacy-manual-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+export default function ManualPharmacyOrderScreen() {
+  const insets = useSafeAreaInsets(); const { isDark, lang } = useApp() as any; const colors = isDark ? darkColors : lightColors; const isRTL = lang === 'ar' || lang === 'ur'; const requestKey = useRef(key());
+  const [name, setName] = useState(''); const [details, setDetails] = useState(''); const [address, setAddress] = useState<any>(null); const [loadingAddress, setLoadingAddress] = useState(true); const [submitting, setSubmitting] = useState(false);
+  useEffect(() => { let active = true; void (async () => { try { const profile: any = await apiFetch('/users/me/profile'); const addresses = profile?.addresses || []; if (active) setAddress(addresses.find((entry: any) => entry.is_default) || addresses[0] || null); } finally { if (active) setLoadingAddress(false); } })(); return () => { active = false; }; }, []);
+  async function submit() { const medicine = name.trim(); if (medicine.length < 3) return; if (!Number.isFinite(Number(address?.lat)) || !Number.isFinite(Number(address?.lng))) return showLocalizedAlert('حدد موقع الاستلام', 'يلزم عنوان ذو موقع حقيقي قبل بث طلب الدواء اليدوي.'); const rawName = details.trim() ? `${medicine} — ${details.trim()}` : medicine; setSubmitting(true); try { const draft = buildPatientPharmacyDraft([{ name: rawName, qty: 1, intake_source: 'manual' }], address); const created: any = await apiFetch('/patient/pharmacy/orders', { method: 'POST', headers: { 'Idempotency-Key': requestKey.current }, body: JSON.stringify(draft) }); const orderId = extractPatientPharmacyOrderId(created); if (!orderId) throw new Error('governed_pharmacy_order_id_missing'); await apiFetch(`/patient/pharmacy/orders/${orderId}/submit`, { method: 'POST', headers: { 'Idempotency-Key': `${requestKey.current}-submit` }, body: JSON.stringify({}) }); router.replace({ pathname: '/pharmacy/broadcast-status', params: { orderId } }); } catch (reason: any) { showLocalizedAlert('تعذر بث الطلب', reason?.message || 'لم يُنشأ طلب مكتمل. أعد المحاولة يدوياً.'); } finally { setSubmitting(false); } }
+  return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 }]}><View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}><TouchableOpacity onPress={() => router.back()} style={[styles.back, { backgroundColor: colors.s }]}><LocalizedText style={{ color: colors.n, fontFamily: 'MaterialSymbolsRounded', fontSize: 25 }}>{isRTL ? 'arrow_forward' : 'arrow_back'}</LocalizedText></TouchableOpacity><LocalizedText style={[styles.title, { color: colors.n }]}>طلب دواء غير متوفر</LocalizedText><View style={{ width: 44 }} /></View><ScrollView contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: insets.bottom + 28 }}><LocalizedText style={[styles.copy, { color: colors.t2 }]}>اكتب الاسم والتفاصيل ليُبث الطلب إلى الصيدليات. لا تدخل سعراً أو وسيلة دفع، ولا تُرسل صورة محلية غير محفوظة في هذا المسار.</LocalizedText><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>اسم الدواء</LocalizedText><TextInput value={name} onChangeText={setName} placeholder="مثال: كونجستال أقراص" placeholderTextColor={colors.t3} style={[styles.input, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} /><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>تفاصيل تساعد الصيدلية (اختياري)</LocalizedText><TextInput value={details} onChangeText={setDetails} multiline placeholder="تركيز الدواء أو الشكل أو ملاحظة" placeholderTextColor={colors.t3} style={[styles.input, styles.details, { backgroundColor: colors.s, borderColor: colors.bd, color: colors.n, textAlign: isRTL ? 'right' : 'left' }]} /><View style={[styles.address, { backgroundColor: colors.s, borderColor: colors.bd }]}><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>{loadingAddress ? 'جاري تحميل العنوان…' : address?.label || 'لا يوجد عنوان صالح'}</LocalizedText><LocalizedText style={{ color: colors.t2 }}>{address ? 'يستخدم البث عنوان ملفك الحالي.' : 'أضف عنواناً بموقع حقيقي قبل البث.'}</LocalizedText><TouchableOpacity onPress={() => router.push('/shared/location-picker')}><LocalizedText style={{ color: colors.p, fontFamily: 'Cairo-Bold' }}>تغيير الموقع</LocalizedText></TouchableOpacity></View><TouchableOpacity disabled={submitting || loadingAddress || name.trim().length < 3} onPress={() => void submit()} style={[styles.submit, { backgroundColor: submitting || loadingAddress || name.trim().length < 3 ? colors.bd : colors.p }]}>{submitting ? <ActivityIndicator color="#fff" /> : <LocalizedText style={styles.submitText}>بث الطلب وطلب عروض</LocalizedText>}</TouchableOpacity></ScrollView></View>;
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 },
-  iconBtn: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
-  infoBanner: { padding: 24, borderRadius: 24, alignItems: 'center', marginBottom: 24 },
-  label: { fontFamily: 'Cairo-Bold', fontSize: 14, marginBottom: 8, marginTop: 16 },
-  input: { fontFamily: 'Cairo-Regular', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, borderWidth: 1, fontSize: 14, marginBottom: 8 },
-  uploadBox: { height: 120, borderRadius: 16, borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  photoWrap: { height: 160, borderRadius: 16, marginTop: 4, borderWidth: 1, overflow: 'hidden' },
-  photo: { width: '100%', height: '100%' },
-  removeBtn: { position: 'absolute', top: 12, right: 12, width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingTop: 16, borderTopWidth: 1 },
-  submitBtn: { padding: 18, borderRadius: 20, alignItems: 'center', justifyContent: 'center', shadowColor: '#23B5CE', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 }
-});
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 }, back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }, title: { fontFamily: 'Cairo-Black', fontSize: 18 }, copy: { fontFamily: 'Cairo-Regular', lineHeight: 21, textAlign: 'center' }, input: { borderWidth: 1, borderRadius: 14, padding: 14, fontFamily: 'Cairo-Regular' }, details: { minHeight: 110, textAlignVertical: 'top' }, address: { gap: 5, borderWidth: 1, borderRadius: 14, padding: 14 }, submit: { minWidth: '100%', alignItems: 'center', borderRadius: 14, paddingVertical: 16 }, submitText: { color: '#fff', fontFamily: 'Cairo-Bold' } });

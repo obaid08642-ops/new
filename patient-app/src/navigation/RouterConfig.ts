@@ -9,7 +9,6 @@ export const Routes = {
   Home: '/' as Href,
   Consultations: '/consultations' as Href,
   Pharmacy: '/pharmacy' as Href,
-  Wallet: '/wallet' as Href,
   Profile: '/profile' as Href,
   
   // Auth

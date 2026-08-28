@@ -19,7 +19,6 @@ const MENU: { icon: IconName; label: string; route: string; color: string; badge
   { icon: 'document', label: 'تقاريري', route: '/health/reports', color: '#F0A526' },
   { icon: 'calendar', label: 'مواعيدي', route: '/consultations/appointments', color: '#0284C7' },
   { icon: 'shopping_cart', label: 'طلباتي', route: '/orders', color: '#D97706' },
-  { icon: 'wallet', label: 'محفظتي', route: '/wallet/hub', color: '#059669' },
   { icon: 'shield', label: 'التأمين الطبي', route: '/profile/insurance', color: '#4F46E5' },
   { icon: 'location', label: 'عناويني', route: '/profile/addresses', color: '#DB2777' },
   { icon: 'users', label: 'عائلتي', route: '/health/family-hub', color: '#0D9488' },
@@ -42,7 +41,7 @@ export default function ProfileScreen() {
   React.useEffect(() => {
     if (isGuest) return;
     apiFetch('/loyalty/account')
-      .then((acc: any) => setLoyaltyPoints(Number(acc?.points ?? acc?.balance ?? 0)))
+      .then((acc: any) => setLoyaltyPoints(Number(acc?.points ?? 0)))
       .catch(() => setLoyaltyPoints(null));
   }, [isGuest]);
 

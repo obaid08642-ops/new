@@ -46,4 +46,11 @@ describe('apiFetch security contract', () => {
     await expect(apiFetch('/patient-only')).rejects.toThrow('AUTH_ERROR_401');
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
+
+  it('does not retry a failed request with a local timer', async () => {
+    (global.fetch as jest.Mock).mockRejectedValue(new Error('network unavailable'));
+
+    await expect(apiFetch('/patient-only', { method: 'POST', body: JSON.stringify({ action: 'submit' }) })).rejects.toThrow('OFFLINE_ERROR');
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
 });

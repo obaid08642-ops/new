@@ -1,0 +1,17 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/admin/catalog-governance": [
+      "static/chunks/30nmkga4jqz62.js",
+      "static/chunks/1kmcworlogavf.js",
+      "static/chunks/1uz6-00ru-zj0.js",
+      "static/chunks/3dz9a40bznqe0.js",
+      "static/chunks/turbopack-2v5o5wicjiwhn.js"
+    ]
+  },
+  "ampFirstPages": []
+}

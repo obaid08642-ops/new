@@ -58,7 +58,6 @@ const SECTIONS: { title: string; items: ServiceItem[] }[] = [
     items: [
       { title: 'مركز الطلبات', desc: 'كل طلباتك وحجوزاتك في مكان واحد', icon: 'receipt', route: '/orders' },
       { title: 'التأمين الطبي', desc: 'وثيقتك وتغطيتك التأمينية', icon: 'shield', route: '/insurance' },
-      { title: 'المحفظة', desc: 'رصيدك ومعاملاتك المالية', icon: 'wallet', route: '/wallet/hub' },
       { title: 'نقاط الولاء', desc: 'اكسب واستبدل النقاط', icon: 'gift', route: '/loyalty/hub' },
       { title: 'العروض والباقات', desc: 'خصومات وباقات صحية', icon: 'tag', route: '/offers' },
       { title: 'خريطة مقدمي الخدمة', desc: 'أقرب المنشآت إليك', icon: 'map', route: '/map' },

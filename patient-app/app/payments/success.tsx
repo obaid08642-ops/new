@@ -18,7 +18,6 @@ export default function PaymentSuccessScreen() {
 
   const params = useLocalSearchParams();
   const isPharmacy = (params.bookingKind as string) === 'pharmacy';
-  const isWalletTopup = params.wallet === 'true';
 
   // A paid pharmacy order means the cart was actually purchased — clear it once.
   useEffect(() => {
@@ -34,7 +33,7 @@ export default function PaymentSuccessScreen() {
     ]).start();
   }, []);
 
-  const serviceName = (params.serviceName as string) || (isPharmacy ? 'طلب الصيدلية' : isWalletTopup ? 'شحن المحفظة' : 'الخدمة');
+  const serviceName = (params.serviceName as string) || (isPharmacy ? 'طلب الصيدلية' : 'الخدمة');
   const amount = params.amount as string || '';
   const refNumber = (params.moyasarId as string) ? String(params.moyasarId).slice(0, 18) : '—';
 
@@ -99,15 +98,6 @@ export default function PaymentSuccessScreen() {
             style={{ borderRadius: 16, overflow: 'hidden' }}>
             <View style={styles.homeBtn}>
               <AppText variant="bodySM" color="#fff">تتبع الطلب</AppText>
-            </View>
-          </TouchableOpacity>
-        )}
-        {isWalletTopup && (
-          <TouchableOpacity
-            onPress={() => router.replace('/wallet/hub')}
-            style={{ borderRadius: 16, overflow: 'hidden' }}>
-            <View style={styles.homeBtn}>
-              <AppText variant="bodySM" color="#fff">العودة للمحفظة</AppText>
             </View>
           </TouchableOpacity>
         )}

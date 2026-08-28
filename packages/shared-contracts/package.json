@@ -4,13 +4,13 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "tsc -p tsconfig.json",
-    "test": "vitest run --globals"
+    "build": "tsc --project tsconfig.json",
+    "check": "tsc --project tsconfig.json --noEmit",
+    "test": "node scripts/verify-contracts.mjs"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "vitest": "^2.1.9"
+    "typescript": "5.9.3"
   }
 }

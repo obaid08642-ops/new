@@ -1,0 +1,7 @@
+__turbopack_load_page_chunks__("/admin/nursing-portal", [
+  "static/chunks/3sacddq494hq7.js",
+  "static/chunks/1kmcworlogavf.js",
+  "static/chunks/1uz6-00ru-zj0.js",
+  "static/chunks/3dz9a40bznqe0.js",
+  "static/chunks/turbopack-197k5u87mjcw6.js"
+])

@@ -1,12 +1,11 @@
 // @ts-nocheck
 /**
  * app/pharmacy/order-tracking.tsx
- * Real-time order tracking screen.
- * - Polls GET /orders/:orderId/tracking every 30 seconds.
- * - Displays dynamic timeline steps based on backend status and saved delivery mode.
- * - Shows only backend-provided pharmacy, delivery, and total fields.
+ * Governed pharmacy order status screen.
+ * - Reads the owned pharmacy order once and refreshes only by explicit patient action.
+ * - Does not infer a payment, negotiation, or fulfillment state from a client timer.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -60,35 +59,30 @@ export default function OrderTrackingScreen() {
   const [steps, setSteps] = useState<TrackingStep[]>([]);
   const [orderData, setOrderData] = useState<any>(null);
   const [fetchError, setFetchError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const orderIdStr = Array.isArray(orderId) ? orderId[0] : orderId;
 
-  // ─── Poll tracking status ────────────────────────────────────────────────────
-  useEffect(() => {
-    const fetch = async () => {
-      if (!orderIdStr) return;
-      try {
-        const data = await apiFetch(`/orders/${orderIdStr}/tracking`);
-        if (data) {
-          setOrderData(data);
-          setSteps(buildSteps(data.state, data.updated_at, data.pharmacy_name, data.delivery_mode));
-        }
-      } catch {
-        // API unavailable — keep last known state, no demo data
-        setFetchError(true);
+  const load = useCallback(async () => {
+    if (!orderIdStr) { setLoading(false); return; }
+    setLoading(true); setFetchError(false);
+    try {
+      const response: any = await apiFetch(`/patient/pharmacy/orders/${orderIdStr}`);
+      const data = response?.data || response;
+      if (data) {
+        setOrderData(data);
+        setSteps(buildSteps(data.governed_state || data.effective_status || data.status, data.updatedAt || data.updated_at, data.selected_pharmacy_name || data.pharmacy_name, data.delivery_mode));
       }
-    };
-
-    fetch();
-    const interval = setInterval(fetch, 30000);
-    return () => clearInterval(interval);
+    } catch { setFetchError(true); } finally { setLoading(false); }
   }, [orderIdStr]);
+  useEffect(() => { void load(); }, [load]);
 
   const orderNum = orderIdStr ? `#${orderIdStr.slice(-6).toUpperCase()}` : 'غير متاح';
-  const pharmacyName = orderData?.pharmacy_name || 'الصيدلية قيد التعيين';
+  const pharmacyName = orderData?.selected_pharmacy_name || orderData?.pharmacy_name || 'الصيدلية قيد التعيين';
   const deliveryMode = orderData?.delivery_mode || 'DELIVERY';
   const etaMinutes = Number(orderData?.delivery?.eta_minutes);
-  const total = Number(orderData?.total);
+  const total = Number(orderData?.accepted_quote_snapshot?.totals?.total ?? orderData?.totals?.total);
+  const governedState = orderData?.governed_state || orderData?.effective_status || orderData?.status;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 } ]}>
@@ -123,7 +117,7 @@ export default function OrderTrackingScreen() {
           </View>
           <TouchableOpacity
             style={styles.chatBtn}
-            onPress={() => router.push('/pharmacy/chat-with-pharmacist')}
+            onPress={() => router.push({ pathname: '/pharmacy/pharmacist-chat', params: { orderId: orderIdStr } })}
             activeOpacity={0.8}
           >
             <LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: '#23B5CE', fontSize: 26 }}>chat</LocalizedText>
@@ -135,7 +129,7 @@ export default function OrderTrackingScreen() {
           {steps.length === 0 && (
             <View style={{ alignItems: 'center', paddingVertical: 40 }}>
               <LocalizedText style={{ fontFamily: 'Cairo-Regular', color: colors.t2, textAlign: 'center' }}>
-                {fetchError ? 'تعذر تحميل حالة الطلب — سيعاد المحاولة تلقائياً' : 'جاري تحميل حالة الطلب…'}
+                {fetchError ? 'تعذر تحميل حالة الطلب. استخدم التحديث اليدوي.' : loading ? 'جاري تحميل حالة الطلب…' : 'لا توجد حالة متاحة بعد.'}
               </LocalizedText>
             </View>
           )}
@@ -184,6 +178,16 @@ export default function OrderTrackingScreen() {
             );
           })}
         </View>
+
+        <TouchableOpacity onPress={() => void load()} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.s }]}>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', color: colors.n, fontSize: 13 }}>تحديث حالة الطلب يدوياً</LocalizedText>
+        </TouchableOpacity>
+        {governedState && <View style={[styles.summaryCard, { backgroundColor: colors.s, borderColor: colors.bd }]}>
+          <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 14, color: colors.n }}>الحالة الحاكمة: {governedState}</LocalizedText>
+          <LocalizedText style={{ fontFamily: 'Cairo-Regular', fontSize: 12, color: colors.t2, marginTop: 6 }}>اختيار العرض والتفاوض والسعر النهائي والتأمين والدفع تتبع حالة الخادم؛ لا يجري التطبيق أي دفع أو انتقال تلقائي.</LocalizedText>
+        </View>}
+        {['OFFER_SELECTED', 'FINAL_QUOTE_READY', 'FINAL_QUOTE_ACCEPTED', 'COD_REGISTERED'].includes(governedState) && <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/final-quote', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13 }}>مراجعة السعر النهائي والدفع</LocalizedText></TouchableOpacity>}
+        {['INSURANCE_PROCESSING', 'INSURANCE_DECISION_READY'].includes(governedState) || (governedState === 'CONFIRMED' && orderData?.payment_status === 'covered_by_insurance') ? <TouchableOpacity onPress={() => router.push({ pathname: '/pharmacy/insurance-decision', params: { orderId: orderIdStr } })} activeOpacity={0.8} style={[styles.refresh, { borderColor: colors.bd, backgroundColor: colors.p }]}><LocalizedText style={{ fontFamily: 'Cairo-Bold', color: '#fff', fontSize: 13 }}>قرار التأمين ونسبة التحمل</LocalizedText></TouchableOpacity> : null}
 
         {/* Order Summary */}
         <View style={[styles.summaryCard, { backgroundColor: colors.s, borderColor: colors.bd } ]}>
@@ -236,6 +240,7 @@ const styles = StyleSheet.create({
   line: { width: 2, flex: 1, minHeight: 20, marginTop: 2 },
   summaryCard: { padding: 18, borderRadius: 20, borderWidth: 1 },
   detailRow: { justifyContent: 'space-between', paddingVertical: 7 },
+  refresh: { alignItems: 'center', borderWidth: 1, borderRadius: 14, paddingVertical: 12, marginBottom: 16 },
 });
 
 export function ErrorBoundary({ error, retry }: any) {

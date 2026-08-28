@@ -12,6 +12,18 @@ const llmsText = `# Nabd Plus
 - [Hindi home](/hi): Public Nabd Plus patient portal entry point.
 - [Bengali home](/bn): Public Nabd Plus patient portal entry point.
 - [Filipino home](/fil): Public Nabd Plus patient portal entry point.
+- [Arabic articles](/ar/articles): Public article listing, populated only from published backend content.
+- [English articles](/en/articles): Public article listing, populated only from published backend content.
+
+## Agent discovery
+
+- [API catalog](https://nabd.plus/.well-known/api-catalog): RFC 9727 Linkset for the limited public catalog subset.
+- [OpenAPI subset](https://nabd.plus/.well-known/openapi.json): Public catalog operations only; not the private patient API.
+- [ARD catalog](https://nabd.plus/.well-known/ai-catalog.json): Public capabilities discoverable by agents.
+- [Agent Skills index](https://nabd.plus/.well-known/agent-skills/index.json): Public-content skill only.
+- [Auth instructions](https://nabd.plus/auth.md): Current authentication boundary and agent-access status.
+
+No public OAuth/OIDC authorization server, OAuth protected-resource metadata, MCP server card, WebMCP tool surface, or DNS-AID records are enabled by this website deployment. Agents must not infer those capabilities from the patient web login.
 
 ## Privacy and content boundaries
 

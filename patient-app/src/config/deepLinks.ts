@@ -135,11 +135,6 @@ export const DEEP_LINK_CONFIG: { screens: DeepLinkScreens } = {
     'insurance/approval-pending': 'insurance/pending/:id',
     'insurance/refund-status': 'insurance/refund/:id',
 
-    // Wallet
-    'wallet/hub': 'wallet',
-    'wallet/transactions': 'wallet/transactions',
-    'wallet/cards': 'wallet/cards',
-
     // Payments
     'payments/processing': 'payments/processing/:id',
     'payments/success': 'payments/success/:id',

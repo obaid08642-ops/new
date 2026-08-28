@@ -1,0 +1,17 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/admin/gdpr": [
+      "static/chunks/3bsl8j7nof4t7.js",
+      "static/chunks/1kmcworlogavf.js",
+      "static/chunks/1uz6-00ru-zj0.js",
+      "static/chunks/3dz9a40bznqe0.js",
+      "static/chunks/turbopack-2mk-rfibm48hf.js"
+    ]
+  },
+  "ampFirstPages": []
+}

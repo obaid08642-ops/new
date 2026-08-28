@@ -1,0 +1,32 @@
+import { OnModuleInit } from '@nestjs/common';
+import { UserRepository } from "./repositories/user.repository";
+import { PatientProfileRepository } from "./repositories/patientprofile.repository";
+import { ProviderProfileRepository } from "./repositories/providerprofile.repository";
+import { MedicineRepository } from "./repositories/medicine.repository";
+import { PharmacyInventoryRepository } from "./repositories/pharmacyinventory.repository";
+import { FacilityRepository } from "./repositories/facility.repository";
+import { LabServiceRepository } from "./repositories/labservice.repository";
+import { SystemConfigRepository } from "./repositories/systemconfig.repository";
+export declare class SeedService implements OnModuleInit {
+    private userModel;
+    private patientModel;
+    private providerModel;
+    private medModel;
+    private invModel;
+    private facilityModel;
+    private labSvcModel;
+    private configModel;
+    private logger;
+    constructor(userModel: UserRepository, patientModel: PatientProfileRepository, providerModel: ProviderProfileRepository, medModel: MedicineRepository, invModel: PharmacyInventoryRepository, facilityModel: FacilityRepository, labSvcModel: LabServiceRepository, configModel: SystemConfigRepository);
+    onModuleInit(): Promise<void>;
+    seedFacilities(): Promise<void>;
+    seedMedicines(): Promise<void>;
+    seedPatient(): Promise<void>;
+    seedPharmacies(): Promise<void>;
+    seedDoctors(): Promise<void>;
+    seedExtraProviders(): Promise<void>;
+    seedDelivery(): Promise<void>;
+    seedInventory(): Promise<void>;
+    private seedLabs;
+    seedSystemConfig(): Promise<void>;
+}

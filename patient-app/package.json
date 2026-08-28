@@ -11,7 +11,7 @@
     "clean": "expo start -c",
     "clean:cache": "expo start -c",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --forceExit",
     "export:web": "expo export",
     "lint": "expo lint"
   },
@@ -110,7 +110,7 @@
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.1",
     "jest": "^29.7.0",
-    "jest-circus": "^30.4.2",
+    "jest-circus": "^29.7.0",
     "jest-expo": "~57.0.4",
     "typescript": "~6.0.3"
   },

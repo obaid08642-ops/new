@@ -27,10 +27,9 @@ export default function PaymentProcessingScreen() {
     bookingId: string;
     bookingKind: string;
     amount: string;
-    walletTopupId?: string;
   }>();
 
-  const { moyasarId, paymentUrl, bookingId, bookingKind, amount, walletTopupId } = params;
+  const { moyasarId, paymentUrl, bookingId, bookingKind, amount } = params;
 
   const [phase, setPhase] = useState<PaymentStatus>(
     paymentUrl ? 'webview' : 'polling'
@@ -117,7 +116,7 @@ export default function PaymentProcessingScreen() {
   // Poll payment status from backend
   const pollPaymentStatus = useCallback(
     async (attempt: number = 1) => {
-      if (!isMountedRef.current || (!moyasarId && !walletTopupId)) return;
+      if (!isMountedRef.current || !moyasarId) return;
 
       const MAX_ATTEMPTS = 15;
       const POLL_INTERVAL = 3000;
@@ -137,31 +136,6 @@ export default function PaymentProcessingScreen() {
             ? 'جاري التحقق من حالة الدفع...'
             : `جاري التحقق... (${attempt}/${MAX_ATTEMPTS})`
         );
-
-        // Wallet top-up flow: confirm (and credit) via the wallet endpoint.
-        if (walletTopupId) {
-          const res = await apiFetch<{ status: string; balance?: number; amount?: number }>(
-            '/wallet/topup/confirm',
-            { method: 'POST', body: JSON.stringify({ topup_id: walletTopupId }) }
-          );
-          if (!isMountedRef.current) return;
-          if (res.status === 'credited') {
-            router.replace({
-              pathname: '/payments/success',
-              params: { wallet: 'true', amount: String(res.amount ?? amount ?? ''), serviceName: 'شحن المحفظة' },
-            });
-            return;
-          }
-          if (res.status === 'failed') {
-            router.replace({
-              pathname: '/payments/failed',
-              params: { amount: amount || '', reason: 'فشلت عملية شحن المحفظة' },
-            });
-            return;
-          }
-          pollTimerRef.current = setTimeout(() => pollPaymentStatus(attempt + 1), POLL_INTERVAL);
-          return;
-        }
 
         // Detect if moyasarId is a general transaction UUID vs a Moyasar pay ID
         const isTxn = moyasarId.startsWith('txn_') || moyasarId.includes('-') || !moyasarId.startsWith('pay_');
@@ -221,7 +195,7 @@ export default function PaymentProcessingScreen() {
         }
       }
     },
-    [moyasarId, bookingId, bookingKind, amount, walletTopupId]
+    [moyasarId, bookingId, bookingKind, amount]
   );
 
   // If no paymentUrl (sandbox mode), start polling immediately

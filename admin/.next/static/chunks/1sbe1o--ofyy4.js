@@ -1,0 +1,7 @@
+__turbopack_load_page_chunks__("/admin/scheduled-reports", [
+  "static/chunks/1rib4n4hfugk1.js",
+  "static/chunks/1kmcworlogavf.js",
+  "static/chunks/1uz6-00ru-zj0.js",
+  "static/chunks/3dz9a40bznqe0.js",
+  "static/chunks/turbopack-34ifghr1k3b1-.js"
+])

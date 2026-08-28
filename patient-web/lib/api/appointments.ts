@@ -9,6 +9,9 @@ export type AppointmentRow = {
   slotStart?: string;
   doctorName?: string;
   specialty?: string;
+  paymentMethod?: string;
+  insuranceRequestId?: string;
+  insuranceReviewState?: string;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -30,6 +33,10 @@ function firstText(record: Record<string, unknown>, keys: string[]) {
   }
   return undefined;
 }
+function firstUuid(record: Record<string, unknown>, keys: string[]) {
+  const value = firstText(record, keys); const parsed = appointmentIdSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
+}
 
 function appointmentFrom(value: unknown): AppointmentRow | null {
   const record = asRecord(value);
@@ -42,6 +49,9 @@ function appointmentFrom(value: unknown): AppointmentRow | null {
     slotStart: firstText(record as Record<string, unknown>, ["slot_start", "slotStart"]),
     doctorName: firstText(record as Record<string, unknown>, ["doctor_name", "doctorName"]),
     specialty: firstText(record as Record<string, unknown>, ["specialty_ar", "specialty"]),
+    paymentMethod: firstText(record as Record<string, unknown>, ["payment_method", "paymentMethod"]),
+    insuranceRequestId: firstUuid(record as Record<string, unknown>, ["insurance_request_id", "insuranceRequestId"]),
+    insuranceReviewState: firstText(record as Record<string, unknown>, ["insurance_review_state", "insuranceReviewState"]),
   };
 }
 

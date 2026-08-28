@@ -1,128 +1,18 @@
-// app/pharmacy/rx-order.tsx — prescription items are transferred to the live pharmacy cart before checkout.
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, StatusBar, Alert, ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
-import { Icon } from '../../src/components/Icon';
-import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../src/components/ui';
-import { useCart } from '../../src/context/CartContext';
 import { apiFetch } from '../../src/utils/api';
-import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { mapPrescriptionToPharmacyDraftLines } from '../../src/utils/pharmacy-prescription';
+import { lightColors, darkColors } from '../../src/theme/colors';
+import { LocalizedText } from '../../src/components/LocalizedText';
 
-export default function RxOrderScreen() {
-  const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
-  const { items, addItem, setPrescriptionUrl, setPaymentType } = useCart();
-  const [meds, setMeds] = useState<any[]>([]);
-  const [rxDetails, setRxDetails] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    apiFetch('/cart/prescription')
-      .then((data: any) => {
-        setRxDetails(data || null);
-        setMeds(Array.isArray(data?.medications) ? data.medications : []);
-      })
-      .catch(() => setMeds([]))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const continueToCheckout = async () => {
-    const validMeds = meds.filter((med: any) => typeof med?.id === 'string' && med.id && typeof med?.name === 'string' && med.name);
-    if (!validMeds.length) {
-      showLocalizedAlert('لا توجد وصفة قابلة للطلب', 'تحقق من أن الطبيب أرسل الأدوية إلى سلة الوصفة، ثم حاول مجدداً.');
-      return;
-    }
-    setSubmitting(true);
-    try {
-      for (const med of validMeds) {
-        if (!items.some((item) => item.id === med.id)) {
-          await addItem({
-            id: med.id,
-            name: med.name,
-            price: Number(med.price || 0),
-            qty: Math.max(1, Number(med.qty || 1)),
-            rx: Boolean(med.requiresRx),
-            icon: 'medication',
-            iconColor: colors.primary,
-            iconBg: colors.primarySurface,
-          });
-        }
-      }
-      const prescriptionReference = rxDetails?.prescription_id || rxDetails?.id || rxDetails?.prescription_url || null;
-      setPrescriptionUrl(prescriptionReference ? String(prescriptionReference) : null);
-      setPaymentType('insurance');
-      router.replace('/pharmacy/checkout');
-    } catch {
-      showLocalizedAlert('تعذر تجهيز السلة', 'تعذر إضافة أدوية الوصفة إلى السلة. تحقق من الاتصال وحاول مرة أخرى.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <View style={[st.c, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-      <View style={[st.hdr, { paddingTop: insets.top + 12, backgroundColor: colors.surface, borderBottomColor: colors.borderLight }]}>
-        <View style={{ width: 40 }} />
-        <AppText variant="h4">طلب أدوية الوصفة</AppText>
-        <IconButton icon="back" onPress={() => router.back()} />
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 120 }}>
-        <Card style={{ backgroundColor: colors.infoSurface }}>
-          <View style={{ flexDirection: 'row-reverse', gap: 10, alignItems: 'flex-start' }}>
-            <Icon name="info" size={18} color={colors.info} />
-            <AppText variant="bodySM" color={colors.textSecondary} style={{ flex: 1 }}>تتم مراجعة الصيدلية والتوفر والعنوان والسعر النهائي وسداد التأمين من الخادم في خطوة إتمام الطلب. لا ينشأ طلب أو دفع من هذه الشاشة.</AppText>
-          </View>
-        </Card>
-
-        {rxDetails && <Card style={{ backgroundColor: colors.successSurface }}>
-          <View style={{ flexDirection: 'row-reverse', gap: 10, alignItems: 'center' }}>
-            <Icon name="check_circle" size={22} color={colors.success} />
-            <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <AppText variant="h6" color={colors.success}>تم العثور على وصفة مرسلة</AppText>
-              {!!rxDetails?.date && <AppText variant="caption" color={colors.textTertiary}>{rxDetails.date}</AppText>}
-            </View>
-          </View>
-        </Card>}
-
-        <Card>
-          <SectionHeader title="الأدوية الموصوفة" />
-          {loading ? <ActivityIndicator color={colors.primary} /> : meds.length ? meds.map((med, index) => (
-            <View key={med.id || `${med.name}-${index}`} style={[st.medRow, index > 0 && { borderTopWidth: 1, borderTopColor: colors.borderLight }]}>
-              <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flexDirection: 'row-reverse', gap: 8, alignItems: 'center', flex: 1 }}>
-                  <View style={[st.medIcon, { backgroundColor: med.requiresRx ? '#F0695C18' : colors.primarySurface }]}>
-                    <Icon name="medication" size={18} color={med.requiresRx ? '#F0695C' : colors.primary} />
-                  </View>
-                  <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
-                    <View style={{ flexDirection: 'row-reverse', gap: 6, alignItems: 'center' }}>
-                      <AppText variant="labelMD">{med.name}</AppText>
-                      {med.requiresRx && <Badge label="يتطلب وصفة" color="#F0695C" />}
-                    </View>
-                    <AppText variant="caption" color={colors.textTertiary}>{med.dose || 'الجرعة حسب الوصفة'}{med.qty ? ` — الكمية ${med.qty}` : ''}</AppText>
-                  </View>
-                </View>
-              </View>
-            </View>
-          )) : <AppText variant="bodySM" color={colors.textSecondary}>لا توجد أدوية مرسلة في سلة الوصفة حالياً.</AppText>}
-        </Card>
-      </ScrollView>
-
-      <View style={[st.bottom, { paddingBottom: insets.bottom + 8, backgroundColor: colors.surface, borderTopColor: colors.borderLight }]}>
-        <Button label="مراجعة السلة وإتمام الطلب" variant="gradient" size="lg" icon="cart" loading={submitting} disabled={loading || !meds.length} onPress={continueToCheckout} />
-      </View>
-    </View>
-  );
+export default function PharmacyPrescriptionOrderScreen() {
+  const insets = useSafeAreaInsets(); const { isDark } = useApp() as any; const colors = isDark ? darkColors : lightColors; const { prescriptionId } = useLocalSearchParams<{ prescriptionId?: string }>(); const requestedId = Array.isArray(prescriptionId) ? prescriptionId[0] : prescriptionId;
+  const [prescription, setPrescription] = useState<any>(null); const [active, setActive] = useState<any[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
+  const load = useCallback(async () => { setLoading(true); setError(''); try { if (requestedId) { const response: any = await apiFetch(`/prescriptions/${requestedId}`); setPrescription(response?.data || response); setActive([]); } else { const response: any = await apiFetch('/prescriptions/active'); const list = response?.data || response; setActive(Array.isArray(list) ? list : []); setPrescription(null); } } catch (reason: any) { setError(reason?.message || 'تعذر تحميل الوصفة'); } finally { setLoading(false); } }, [requestedId]);
+  useEffect(() => { void load(); }, [load]); const lines = mapPrescriptionToPharmacyDraftLines(prescription || {});
+  return <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top + 16 }]}><View style={styles.header}><TouchableOpacity onPress={() => router.back()} style={[styles.back, { backgroundColor: colors.s }]}><LocalizedText style={{ fontFamily: 'MaterialSymbolsRounded', color: colors.n, fontSize: 25 }}>arrow_forward</LocalizedText></TouchableOpacity><LocalizedText style={[styles.title, { color: colors.n }]}>طلب أدوية الوصفة</LocalizedText><View style={{ width: 44 }} /></View><ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: insets.bottom + 28 }}>{loading ? <ActivityIndicator color={colors.p} /> : error ? <><LocalizedText style={{ color: colors.cr, textAlign: 'center' }}>{error}</LocalizedText><TouchableOpacity onPress={() => void load()} style={[styles.primary, { backgroundColor: colors.p }]}><LocalizedText style={styles.primaryText}>تحديث يدوياً</LocalizedText></TouchableOpacity></> : prescription ? <><LocalizedText style={[styles.copy, { color: colors.t2 }]}>تُرسل هذه الوصفة المحفوظة إلى الصيدليات كمرجع طبي. لا يظهر أو يُرسل سعر أو وسيلة دفع قبل اختيار عرض وسعر نهائي.</LocalizedText>{lines.map((line) => <View key={line.id} style={[styles.card, { backgroundColor: colors.s, borderColor: colors.bd }]}><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>{line.name}</LocalizedText><LocalizedText style={{ color: colors.t2 }}>الكمية: {line.qty}</LocalizedText></View>)}{!lines.length && <LocalizedText style={{ color: colors.cr, textAlign: 'center' }}>لا توجد أصناف قابلة للطلب في هذه الوصفة.</LocalizedText>}{Boolean(lines.length) && <TouchableOpacity onPress={() => router.replace({ pathname: '/pharmacy/checkout', params: { prescriptionId: String(prescription.id) } })} style={[styles.primary, { backgroundColor: colors.p }]}><LocalizedText style={styles.primaryText}>مراجعة العنوان وطلب عروض</LocalizedText></TouchableOpacity>}</> : <><LocalizedText style={[styles.copy, { color: colors.t2 }]}>اختر وصفة نشطة لبدء طلب جديد. لا يعاد استخدام سعر أو دفع من أي طلب سابق.</LocalizedText>{active.map((rx) => <TouchableOpacity key={rx.id} onPress={() => router.replace({ pathname: '/pharmacy/rx-order', params: { prescriptionId: String(rx.id) } })} style={[styles.card, { backgroundColor: colors.s, borderColor: colors.bd }]}><LocalizedText style={{ color: colors.n, fontFamily: 'Cairo-Bold' }}>وصفة #{String(rx.id).slice(-6).toUpperCase()}</LocalizedText><LocalizedText style={{ color: colors.t2 }}>{Array.isArray(rx.items) ? `${rx.items.length} أصناف` : 'تفاصيل الوصفة'}</LocalizedText></TouchableOpacity>)}{!active.length && <LocalizedText style={{ color: colors.t2, textAlign: 'center' }}>لا توجد وصفات نشطة قابلة للطلب.</LocalizedText>}</>}</ScrollView></View>;
 }
-
-const st = StyleSheet.create({
-  c: { flex: 1 },
-  hdr: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1 },
-  medRow: { paddingVertical: 12 },
-  medIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  bottom: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1 },
-});
+const styles = StyleSheet.create({ container: { flex: 1 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16 }, back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }, title: { fontFamily: 'Cairo-Black', fontSize: 18 }, copy: { fontFamily: 'Cairo-Regular', lineHeight: 21, textAlign: 'center' }, card: { gap: 6, borderWidth: 1, borderRadius: 16, padding: 15 }, primary: { minWidth: '100%', borderRadius: 14, paddingVertical: 15, alignItems: 'center', marginTop: 4 }, primaryText: { color: '#fff', fontFamily: 'Cairo-Bold' } });

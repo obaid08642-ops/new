@@ -18,6 +18,7 @@
 .item dt { display: inline-flex; align-items: center; gap: .35rem; color: var(--muted); font-size: .78rem; font-weight: 700; }
 .item dd { margin: 0; color: var(--ink); font-size: .94rem; font-weight: 730; line-height: 1.55; overflow-wrap: anywhere; }
 .notice { margin: 0; padding: 1rem 1.1rem; border: 1px solid rgba(8,127,140,.12); border-inline-start: 3px solid var(--brand); border-radius: var(--radius-md); color: var(--muted); background: rgba(231,247,247,.56); font-size: .9rem; line-height: 1.7; }
+.actions { display: flex; flex-wrap: wrap; gap: .9rem 1.2rem; align-items: center; }
 .state { display: grid; justify-items: center; gap: .75rem; padding: clamp(2rem, 7vw, 3.5rem) 1.25rem; border: 1px dashed rgba(8,127,140,.28); border-radius: var(--radius-xl); background: linear-gradient(145deg, rgba(255,255,255,.76), rgba(231,247,247,.58)); color: var(--muted); text-align: center; }
 .state svg { color: var(--brand-deep); }
 .state h1, .state p { margin: 0; }

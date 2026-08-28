@@ -52,6 +52,7 @@
     "otpExchangeInvalid": "The secure session could not be established. No local session was created.",
     "otpUnavailable": "The authentication service is unavailable. No session was created."
   },
+  "NursingCatalog": {"eyebrow":"Verified nursing services","title":"Nursing at home","subtitle":"Browse services published by the nursing catalogue.","price":"From {value}","insurance":"Insurance available","empty":"No nursing services are currently available.","unavailable":"Nursing catalogue unavailable","unavailableBody":"The catalogue could not be loaded from the authorized service.","back":"Back"},
   "Dashboard": {
     "eyebrow": "Private portal",
     "title": "Patient session is protected.",
@@ -214,6 +215,7 @@
     "notice": "Only service, booking status, and schedule are shown. Location, tracking, clinical information, and pricing are not displayed in this interface.",
     "browseServices": "Browse home-care services"
   },
+  "HomeCareProviders": {"eyebrow":"Verified home-care providers","title":"Nursing providers","subtitle":"View approved nursing providers from the protected catalog.","verified":"Verified provider","empty":"No providers are available right now.","unavailable":"Providers are unavailable","unavailableBody":"The approved provider service could not be loaded."},
   "Family": {
     "eyebrow": "Private family",
     "title": "Family members",
@@ -798,7 +800,15 @@
     "unavailableTitle": "Radiology is unavailable",
     "unavailableBody": "The live radiology catalog could not be loaded.",
     "retry": "Try again",
-    "detailBlocked": "Details temporarily unavailable"
+    "detailBlocked": "Details temporarily unavailable",
+    "backToRadiology": "Back to radiology",
+    "detailTitle": "Service details",
+    "invalidResponse": "The live service response was invalid.",
+    "detailDescriptionUnavailable": "No description is available for this service.",
+    "turnaround": "{value} hours",
+    "fasting": "Fasting may be required",
+    "preparationTitle": "Preparation",
+    "bookingUnavailableNotice": "Online booking for this service is not available yet."
   },
   "Wishlist": {
     "eyebrow": "Private wishlist",

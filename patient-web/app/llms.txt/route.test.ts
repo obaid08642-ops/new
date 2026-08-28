@@ -11,6 +11,8 @@ describe("llms.txt route", () => {
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(body).toContain("[Arabic home](/ar)");
     expect(body).toContain("[Filipino home](/fil)");
+    expect(body).toContain("[Arabic articles](/ar/articles)");
+    expect(body).toContain("[English articles](/en/articles)");
     expect(body).toContain("Patient records");
     expect(body).not.toContain("accessToken");
   });

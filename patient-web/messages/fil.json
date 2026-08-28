@@ -259,6 +259,8 @@
     "notice": "Serbisyo, status ng booking at iskedyul lamang ang ipinapakita. Hindi ipinapakita sa interface na ito ang lokasyon, pagsubaybay, klinikal na impormasyon at mga presyo.",
     "browseServices": "Tingnan ang mga serbisyo sa home care"
   },
+  "NursingCatalog": {"eyebrow":"Mga verified na nursing service","title":"Nursing sa bahay","subtitle":"Tingnan ang mga serbisyong inilathala sa nursing catalogue.","price":"Mula {value}","insurance":"May insurance","empty":"Walang nursing service na available ngayon.","unavailable":"Hindi available ang nursing catalogue","unavailableBody":"Hindi ma-load ang catalogue mula sa awtorisadong serbisyo.","back":"Bumalik"},
+  "HomeCareProviders": {"eyebrow":"Mga verified na home-care provider","title":"Mga nursing provider","subtitle":"Tingnan ang mga aprubadong nursing provider mula sa protected catalog.","verified":"Verified provider","empty":"Walang provider na available ngayon.","unavailable":"Hindi available ang mga provider","unavailableBody":"Hindi ma-load ang aprubadong provider service."},
   "Family": {
     "eyebrow": "Pribadong pamilya",
     "title": "Mga miyembro ng pamilya",
@@ -798,7 +800,15 @@
     "unavailableTitle": "Hindi available ang radiology",
     "unavailableBody": "Hindi ma-load ang live radiology catalog.",
     "retry": "Subukan muli",
-    "detailBlocked": "Pansamantalang hindi available ang detalye"
+    "detailBlocked": "Pansamantalang hindi available ang detalye",
+    "backToRadiology": "Bumalik sa radiology",
+    "detailTitle": "Mga detalye ng serbisyo",
+    "invalidResponse": "Hindi wasto ang live na tugon ng serbisyo.",
+    "detailDescriptionUnavailable": "Walang available na paglalarawan para sa serbisyong ito.",
+    "turnaround": "{value} oras",
+    "fasting": "Maaaring kailanganin ang pag-aayuno",
+    "preparationTitle": "Paghahanda",
+    "bookingUnavailableNotice": "Hindi pa available ang online booking para sa serbisyong ito."
   },
   "Wishlist": {
     "eyebrow": "Pribadong wishlist",
