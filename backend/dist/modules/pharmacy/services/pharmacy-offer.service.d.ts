@@ -6,6 +6,8 @@ type ProviderOfferItemInput = {
     qty_offered?: number;
     inventory_item_id?: string;
     substitute_inventory_item_id?: string;
+    unit_price_override?: number;
+    price_override_reason?: string;
 };
 type ProviderOfferInput = {
     items: ProviderOfferItemInput[];
@@ -70,6 +72,14 @@ export declare class PharmacyOfferService {
         pricing_source: any;
     }>;
     listForPatient(user: any, orderId: string): Promise<{
+        pharmacy_name_ar: any;
+        pharmacy_name_en: any;
+        approx_distance_km: number;
+        approx_delivery: {
+            eta_minutes: number;
+            label_ar: string;
+            label_en: string;
+        };
         id: any;
         pharmacy_account_id: any;
         version: any;
@@ -79,6 +89,7 @@ export declare class PharmacyOfferService {
         estimated_preparation_minutes: any;
         fulfillment: any;
     }[]>;
+    private patientDtoAsync;
     selectByPatient(user: any, orderId: string, offerId: string, idempotencyKey: string): Promise<{
         offer: {
             id: any;

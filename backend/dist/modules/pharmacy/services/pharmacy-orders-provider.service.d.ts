@@ -38,5 +38,5 @@ export declare class PharmacyOrdersProviderService {
         order_id: string;
         allocation_id: any;
     }>;
-    orderDispatch(user: any, orderId: string, payload: any): Promise<never>;
+    orderDispatch(user: any, orderId: string, payload: any): Promise<any>;
 }

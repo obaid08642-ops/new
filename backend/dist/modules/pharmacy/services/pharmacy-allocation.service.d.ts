@@ -30,12 +30,17 @@ export declare class PharmacyAllocationService {
     confirm(user: any, id: string): Promise<any>;
     preparing(user: any, id: string): Promise<any>;
     ready(user: any, id: string): Promise<any>;
-    outForDelivery(_user: any, _id: string, _body?: {
+    outForDelivery(user: any, id: string, body?: {
         courier_name?: string;
         courier_phone?: string;
         eta?: Date;
-    }): Promise<never>;
-    delivered(_user: any, _id: string): Promise<never>;
+    }): Promise<any>;
+    delivered(user: any, id: string, body?: {
+        collection?: {
+            method: 'cash' | 'card_terminal';
+            amount_collected: number;
+        };
+    }): Promise<any>;
     private advance;
     cancel(user: any, id: string, reason: string): Promise<any>;
     private refreshOrderAfterAllocationChange;

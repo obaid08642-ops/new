@@ -309,6 +309,7 @@ export declare class PharmacyBroadcast extends Document {
     current_radius_km: number;
     max_radius_km: number;
     round_radii_km: number[];
+    extended_stage?: boolean;
     lock_state: string;
     locked_to_pharmacy_account_id?: string;
     locked_at?: Date;

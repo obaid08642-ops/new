@@ -167,7 +167,7 @@ let ProviderPharmacyController = class ProviderPharmacyController {
     preparing(u, id) { return this.allocs.preparing(u, id); }
     ready(u, id) { return this.allocs.ready(u, id); }
     out(u, id, b) { return this.allocs.outForDelivery(u, id, b); }
-    delivered(u, id) { return this.allocs.delivered(u, id); }
+    delivered(u, id, b) { return this.allocs.delivered(u, id, b); }
     updateInsurance() { return this.allocs.updateInsurance(); }
     insuranceDecision(u, id, b) { return this.insurance.decide(u, id, b); }
     cancel(u, id, b) { return this.allocs.cancel(u, id, b?.reason || ''); }
@@ -242,8 +242,9 @@ __decorate([
     (0, common_1.Post)('allocations/:id/delivered'),
     __param(0, (0, auth_guard_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
 ], ProviderPharmacyController.prototype, "delivered", null);
 __decorate([
@@ -386,6 +387,32 @@ let AdminPharmacyController = class AdminPharmacyController {
             throw e;
         }
     }
+    async priceOverrides(q) {
+        const col = this.allocs.orders.db.collection('pharmacy_price_override_audit');
+        const filter = {};
+        if (q?.order_id)
+            filter.order_id = String(q.order_id);
+        if (q?.offer_id)
+            filter.offer_id = String(q.offer_id);
+        if (q?.pharmacy_account_id)
+            filter.pharmacy_account_id = String(q.pharmacy_account_id);
+        if (q?.sku)
+            filter.sku = String(q.sku);
+        if (q?.from || q?.to) {
+            filter.changed_at = {};
+            if (q.from)
+                filter.changed_at.$gte = new Date(String(q.from));
+            if (q.to)
+                filter.changed_at.$lte = new Date(String(q.to));
+        }
+        const page = Math.max(1, Number(q?.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+        const [items, total] = await Promise.all([
+            col.find(filter).sort({ changed_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+            col.countDocuments(filter),
+        ]);
+        return { items, total, page, limit };
+    }
     expireStale() { return this.allocs.expireStale(); }
 };
 exports.AdminPharmacyController = AdminPharmacyController;
@@ -411,6 +438,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminPharmacyController.prototype, "manualSplit", null);
+__decorate([
+    (0, common_1.Get)('price-overrides'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminPharmacyController.prototype, "priceOverrides", null);
 __decorate([
     (0, common_1.Post)('expire-stale-allocations'),
     __metadata("design:type", Function),

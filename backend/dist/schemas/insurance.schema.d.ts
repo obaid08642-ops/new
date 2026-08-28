@@ -111,6 +111,9 @@ export declare const InsuranceClaimSchema: import("mongoose").Schema<InsuranceCl
     __v: number;
 }>;
 export declare class InsuranceDetails {
+    company_name_ar?: string;
+    company_name_en?: string;
+    category?: string;
     policyNumber: string;
     memberId: string;
     approvalReferenceNumber?: string;

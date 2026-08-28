@@ -36,6 +36,7 @@ export declare class PharmacyBroadcastService {
     constructor(orders: PharmacyOrderRepository, allocs: PharmacyAllocationRepository, broadcasts: PharmacyBroadcastRepository, inv: PharmacyInventoryItemRepository, profiles: ProviderAccountProfileRepository, avails: ProviderAvailabilityRepository, configs: SystemConfigRepository, rejections: DrugRejectionLogRepository, medicines: MedicineRepository, geo: GeoEngineService, split: SmartSplitService, notif: PharmacyNotificationService, bus: EventBusService, shortage: PharmacyShortageService, chatService: PharmacyChatService, redisService: RedisService);
     private assertActiveNotifiedPharmacy;
     private providerBroadcastDto;
+    private viewerProfile;
     getBroadcastStages(): Promise<Array<{
         stage: number;
         radius_km: number;
@@ -51,7 +52,9 @@ export declare class PharmacyBroadcastService {
     advanceRound(order_id: string, now?: Date): Promise<any>;
     runBestPartialMatch(bc: PharmacyBroadcast, order: PharmacyOrder): Promise<any>;
     fallbackSplit(order_id: string): Promise<any>;
-    findEligiblePharmaciesWithin(center: any, radius_km: number): Promise<any[]>;
+    findEligiblePharmaciesWithin(center: any, radius_km: number, opts?: {
+        extended?: boolean;
+    }): Promise<any[]>;
     listForPharmacy(user: any): Promise<any>;
     detail(user: any, broadcast_id: string): Promise<any>;
     expireStaleBroadcasts(): Promise<never>;

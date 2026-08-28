@@ -328,9 +328,9 @@ let SeedService = class SeedService {
             await this.configModel.create({
                 key,
                 value: [
-                    { stage: 1, radius_km: 3, timeout_seconds: 90 },
-                    { stage: 2, radius_km: 5, timeout_seconds: 90 },
-                    { stage: 3, radius_km: 7, timeout_seconds: 90 }
+                    { stage: 1, radius_km: 3, timeout_seconds: 60 },
+                    { stage: 2, radius_km: 5, timeout_seconds: 60 },
+                    { stage: 3, radius_km: 8, timeout_seconds: 60 }
                 ]
             });
             this.logger.log('Seeded default pharmacy broadcast stages config');

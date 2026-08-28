@@ -261,6 +261,18 @@ exports.InsuranceDetails = InsuranceDetails;
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
+], InsuranceDetails.prototype, "company_name_ar", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], InsuranceDetails.prototype, "company_name_en", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], InsuranceDetails.prototype, "category", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
 ], InsuranceDetails.prototype, "policyNumber", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),

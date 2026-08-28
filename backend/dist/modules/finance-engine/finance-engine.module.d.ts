@@ -77,7 +77,7 @@ export declare class CommissionResolver {
         effective_to?: Date;
     }): Promise<{
         id: string;
-        scope: "service" | "provider" | "campaign" | "category";
+        scope: "service" | "category" | "provider" | "campaign";
         scope_id: string;
         service_type: string;
         percent: number;
@@ -305,7 +305,7 @@ export declare class AdminFinanceEngineController {
     }>;
     setCommissionRule(u: any, b: any): Promise<{
         id: string;
-        scope: "service" | "provider" | "campaign" | "category";
+        scope: "service" | "category" | "provider" | "campaign";
         scope_id: string;
         service_type: string;
         percent: number;

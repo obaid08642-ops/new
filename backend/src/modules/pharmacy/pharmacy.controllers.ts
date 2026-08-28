@@ -66,7 +66,7 @@ export class ProviderPharmacyController {
   @Post('allocations/:id/preparing') preparing(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.preparing(u, id); }
   @Post('allocations/:id/ready') ready(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.ready(u, id); }
   @Post('allocations/:id/out-for-delivery') out(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.outForDelivery(u, id, b); }
-  @Post('allocations/:id/delivered') delivered(@CurrentUser() u: any, @Param('id') id: string) { return this.allocs.delivered(u, id); }
+  @Post('allocations/:id/delivered') delivered(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.delivered(u, id, b); }
   @Post('allocations/:id/insurance') updateInsurance() { return this.allocs.updateInsurance(); }
   @Post('orders/:id/insurance-decision') insuranceDecision(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.decide(u, id, b); }
   @Post('allocations/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.cancel(u, id, b?.reason || ''); }
@@ -133,6 +133,27 @@ export class AdminPharmacyController {
     // Backward-compat: if order is in broadcasting state, route to broadcast fallback.
     try { return await this.split.runForOrder(id); }
     catch (e: any) { if (String(e?.message || '').includes('order_not_splittable')) return this.broadcast.fallbackSplit(id); throw e; }
+  }
+  // Master spec: admin audit trail for provider unit-price overrides on offers.
+  @Get('price-overrides') async priceOverrides(@Query() q: any) {
+    const col = (this.allocs as any).orders.db.collection('pharmacy_price_override_audit');
+    const filter: any = {};
+    if (q?.order_id) filter.order_id = String(q.order_id);
+    if (q?.offer_id) filter.offer_id = String(q.offer_id);
+    if (q?.pharmacy_account_id) filter.pharmacy_account_id = String(q.pharmacy_account_id);
+    if (q?.sku) filter.sku = String(q.sku);
+    if (q?.from || q?.to) {
+      filter.changed_at = {};
+      if (q.from) filter.changed_at.$gte = new Date(String(q.from));
+      if (q.to) filter.changed_at.$lte = new Date(String(q.to));
+    }
+    const page = Math.max(1, Number(q?.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(q?.limit) || 25));
+    const [items, total] = await Promise.all([
+      col.find(filter).sort({ changed_at: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+      col.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
   }
   @Post('expire-stale-allocations') expireStale() { return this.allocs.expireStale(); }
 }
