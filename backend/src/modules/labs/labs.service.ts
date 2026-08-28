@@ -160,8 +160,8 @@ export class LabsService {
       provider_account_id: data.provider_account_id,
       address: data.address,
       scheduled_at: new Date(data.scheduled_at),
-      state: LabBookingState.NEW_REQUEST,
-      state_history: [{ from: '', to: LabBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
+      state: paymentMethod === 'insurance' ? LabBookingState.PENDING_INSURANCE : LabBookingState.NEW_REQUEST,
+      state_history: [{ from: '', to: paymentMethod === 'insurance' ? LabBookingState.PENDING_INSURANCE : LabBookingState.NEW_REQUEST, by_user_id: user.id, by_role: user.role, at: new Date() }],
       notes: data.notes,
       payment_method: paymentMethod,
       insurance_provider: data.insurance_provider,
@@ -176,7 +176,7 @@ export class LabsService {
         booking.insurance_review_state = request.state;
         await booking.save();
       } catch (reason) {
-        await this.bkgModel.deleteOne({ id: booking.id, patient_id: user.id, state: LabBookingState.NEW_REQUEST } as any);
+        await this.bkgModel.deleteOne({ id: booking.id, patient_id: user.id, state: { $in: [LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE] } } as any);
         throw reason;
       }
       this.bus.emit({ type: 'insurance.pending', entity_type: 'lab_booking', entity_id: booking.id, patient_account_id: user.id, reason_code: data.insurance_provider || 'unknown_provider', meta: { docs: documents.length } }).catch(() => null);

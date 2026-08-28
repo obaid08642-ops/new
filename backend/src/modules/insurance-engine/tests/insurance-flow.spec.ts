@@ -31,7 +31,7 @@ describe('InsuranceFlowService', () => {
     requests = { findOne: jest.fn(), create: jest.fn(async (data) => makeDoc(data)) };
     transactions = { findOne: jest.fn() };
     orders = { findOne: jest.fn() };
-    labs = { findOne: jest.fn() };
+    labs = { findOne: jest.fn(), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
     appointments = { updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
     service = new InsuranceFlowService(requests, {} as any, {} as any, events, transactions, orders, labs, {} as any, {} as any, appointments);
     jest.clearAllMocks();
@@ -71,6 +71,24 @@ describe('InsuranceFlowService', () => {
   });
 
   describe('decide', () => {
+    it.each([
+      ['approve_full', 'APPROVED_FULL', 'CONFIRMED'],
+      ['approve_partial', 'COPAY_PENDING', 'WAITING_COPAY'],
+      ['reject', 'REJECTED', 'PENDING_INSURANCE'],
+    ])('applies %s to an owned laboratory booking without a payment side effect', async (decision, requestState, bookingState) => {
+      const req = pendingReq();
+      req.booking_kind = 'lab'; req.booking_id = 'lab-booking-1'; req.id = 'req-lab-1';
+      requests.findOne.mockResolvedValue(req);
+      if (decision === 'approve_full') labs.updateOne.mockResolvedValue({ modifiedCount: 1 });
+      const body = decision === 'approve_partial' ? { decision, copay_percent: 20 } : decision === 'reject' ? { decision, reason: 'not covered' } : { decision };
+
+      const res = await service.decide({ id: 'prov-1', role: 'provider' }, 'req-lab-1', body);
+
+      expect(res.state).toBe(requestState);
+      expect(labs.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'lab-booking-1', patient_id: 'pat-1', insurance_request_id: 'req-lab-1' }), expect.objectContaining({ $set: expect.objectContaining({ state: bookingState }) }));
+      expect(transactions.findOne).not.toHaveBeenCalled();
+    });
+
     it('approve_full → APPROVED_FULL with zero copay and confirms an owned pending consultation without a payment', async () => {
       const req = pendingReq();
       req.booking_kind = 'consultation'; req.booking_id = 'appt-1'; req.insurance_request_id = 'req-1';
