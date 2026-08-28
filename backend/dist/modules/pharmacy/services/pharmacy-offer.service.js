@@ -286,6 +286,11 @@ let PharmacyOfferService = class PharmacyOfferService {
                         throw new common_1.BadRequestException('offer_stock_changed_requote_required');
                 }
                 const paymentMethod = String(order.payment_method || order.payment?.method || (order.insurance_details ? 'insurance' : 'cash')).toLowerCase();
+                if (paymentMethod === 'insurance') {
+                    const hasRx = Array.isArray(order.prescription_attachments) && order.prescription_attachments.some((a) => a && a.uri && (a.type === 'image' || a.type === 'pdf'));
+                    if (!hasRx)
+                        throw new common_1.BadRequestException('prescription_required_for_insurance_orders');
+                }
                 const nextStatus = paymentMethod === 'insurance'
                     ? pharmacy_schema_1.PharmacyOrderState.INSURANCE_DECISION_PENDING
                     : paymentMethod === 'cod'

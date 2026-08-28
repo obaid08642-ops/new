@@ -36,6 +36,7 @@ const pharmacy_orders_provider_service_1 = require("./services/pharmacy-orders-p
 const pharmacy_offer_service_1 = require("./services/pharmacy-offer.service");
 const pharmacy_insurance_decision_service_1 = require("./services/pharmacy-insurance-decision.service");
 const pharmacy_expiry_command_service_1 = require("./services/pharmacy-expiry-command.service");
+const pharmacy_expiry_scheduler_1 = require("./services/pharmacy-expiry.scheduler");
 const pharmacy_payment_evidence_service_1 = require("./services/pharmacy-payment-evidence.service");
 const notifications_module_1 = require("../notifications/notifications.module");
 const geo_engine_service_1 = require("../provider/services/geo-engine.service");
@@ -107,6 +108,7 @@ exports.PharmacyModule = PharmacyModule = __decorate([
             pharmacy_offer_service_1.PharmacyOfferService,
             pharmacy_insurance_decision_service_1.PharmacyInsuranceDecisionService,
             pharmacy_expiry_command_service_1.PharmacyExpiryCommandService,
+            pharmacy_expiry_scheduler_1.PharmacyExpiryScheduler,
             pharmacy_payment_evidence_service_1.PharmacyPaymentEvidenceService,
             procurement_service_1.ProcurementService,
             geo_engine_service_1.GeoEngineService,

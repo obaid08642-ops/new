@@ -38,6 +38,7 @@ import { PharmacyOrdersProviderService } from './services/pharmacy-orders-provid
 import { PharmacyOfferService } from './services/pharmacy-offer.service';
 import { PharmacyInsuranceDecisionService } from './services/pharmacy-insurance-decision.service';
 import { PharmacyExpiryCommandService } from './services/pharmacy-expiry-command.service';
+import { PharmacyExpiryScheduler } from './services/pharmacy-expiry.scheduler';
 import { PharmacyPaymentEvidenceService } from './services/pharmacy-payment-evidence.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { GeoEngineService } from '../provider/services/geo-engine.service';
@@ -107,6 +108,7 @@ import { SystemConfigRepository } from "./services/repositories/systemconfig.rep
     PharmacyOfferService,
     PharmacyInsuranceDecisionService,
     PharmacyExpiryCommandService,
+    PharmacyExpiryScheduler,
     PharmacyPaymentEvidenceService,
     ProcurementService,
     GeoEngineService,

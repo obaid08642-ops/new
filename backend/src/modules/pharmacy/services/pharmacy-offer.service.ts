@@ -293,6 +293,11 @@ export class PharmacyOfferService {
         }
 
         const paymentMethod = String(order.payment_method || order.payment?.method || (order.insurance_details ? 'insurance' : 'cash')).toLowerCase();
+        // Master spec: a prescription is mandatory for insurance pharmacy orders.
+        if (paymentMethod === 'insurance') {
+          const hasRx = Array.isArray(order.prescription_attachments) && order.prescription_attachments.some((a: any) => a && a.uri && (a.type === 'image' || a.type === 'pdf'));
+          if (!hasRx) throw new BadRequestException('prescription_required_for_insurance_orders');
+        }
         const nextStatus = paymentMethod === 'insurance'
           ? PharmacyOrderState.INSURANCE_DECISION_PENDING
           : paymentMethod === 'cod'
