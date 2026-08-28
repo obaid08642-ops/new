@@ -1,0 +1,524 @@
+{
+  "version": "2026-08-27-admin-archive-transfer",
+  "purpose": "narrow admin archive integration from reviewed source delta",
+  "backend_members_copied": [
+    {
+      "path": "e2e/a1-security-pentest.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "7b41130d78ee14c784f074b9e1fd3b9b51370d3f568b9b964036b6647a7581a2"
+    },
+    {
+      "path": "e2e/governing-rules.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "251ced695117fc873763371f8cec0aa3b9ee1b767571f72eda14333a64284528"
+    },
+    {
+      "path": "e2e/pharmacy-scenarios.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "69f17bc9b4eeb7da17d6210285eb869f0499e012e76c3588d79a4b9dd2fe39eb"
+    },
+    {
+      "path": "e2e/provider-production.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "3a2ce1393f9b211d00922b9d8ad548e63d61b98dc7cd847b477e8eff7f627a32"
+    },
+    {
+      "path": "e2e/provider-verticals.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "2fdc86a814e59fbfb681f3a7ef8c3223ca749c8fb000c56cdea5a9b19a74af2d"
+    },
+    {
+      "path": "e2e/run-all-gates.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "0292efc405a6317fa633dc89707d8c43302cb71f413d18b852d86cbb535d1dc6"
+    },
+    {
+      "path": "jest.enterprise.config.js",
+      "before_sha256": "ADDED",
+      "after_sha256": "3cfa02ad9d00e78551746388663ef9ffe37bb8b2016d3fad75554640ef0b1b02"
+    },
+    {
+      "path": "package-lock.json",
+      "before_sha256": "ec84d9244a058ea1e22ac88e338435dbfc494d8d63c9f94ba7859da328162aaf",
+      "after_sha256": "5bc4a29cba73874c9365efe011b173b8ddaf7896b5e2cb409bfa34e0f32e707b"
+    },
+    {
+      "path": "package.json",
+      "before_sha256": "ad6f3a4cec2645d40aaea002cde50644c32af776b24d64e01165e3fea6528d47",
+      "after_sha256": "e9839e341d3b90dff6d39301ebe6624794a1e134602eb103b62708bb3044126c"
+    },
+    {
+      "path": "src/app.module.ts",
+      "before_sha256": "036aaa35fbc1736466cb697e2c97f43ee1baa8a882426fa1cb6e3c4b1fe87c60",
+      "after_sha256": "cf17afecfc435d9f2ac226ef71736dc4ab86d0f86c9dfaf2888c5838b8ef75d2"
+    },
+    {
+      "path": "src/common/auth.guard.spec.ts",
+      "before_sha256": "a1ebfb3ae9dd4cc94220a684e1d66520fa3c9af689c428ec42fe083bc40d1042",
+      "after_sha256": "6708b31ea22232e9ac49c7e7db1b34c8484f4500dd3e38cc0310b2f608ac7f9b"
+    },
+    {
+      "path": "src/common/auth.guard.ts",
+      "before_sha256": "b82f51bdc156e629c28790ceb70d8ec0d5939fb549478f4f687d50c2d4b93234",
+      "after_sha256": "6ccc59281e5e454fd4f83e710893255d120ea7ec6986ada409cb3a2a63f7e266"
+    },
+    {
+      "path": "src/common/effective-permissions.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "0f1fe58e681e85456ccdd503dd6f75c5c0fc22733837b46052f0ceda352dc8fb"
+    },
+    {
+      "path": "src/common/effective-permissions.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "375940863b39a6c0ba3087bb225106f5482dc180aed5f95220509622c04726f4"
+    },
+    {
+      "path": "src/common/impersonation-security.module.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "41a7d9ec8cec6dd45b541fd5db0ed0b51b0f531692e0cee656b0c1c1d43dd946"
+    },
+    {
+      "path": "src/common/impersonation-session.service.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "19433f9b5adb99038e5a67ea83c8bf5b791cb1891f9d8e0271558a5516ba22de"
+    },
+    {
+      "path": "src/common/permissions.ts",
+      "before_sha256": "1a78dea258c408aa315c3ae5a087df3fa71158ef488936d2f41768ea7a1fb22e",
+      "after_sha256": "102903624ce1f4014aef1b7e98b2141493eff530ffdab53f156a364bee2eafbb"
+    },
+    {
+      "path": "src/common/rbac.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "10c776c0da09796f77448306a8af42fba31d622c7ac687d3f9d08f23254b89b1"
+    },
+    {
+      "path": "src/common/support-session-context.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "c856e121ae2e2ddbfb9dd142d8c0d4dc10c30776769042e14b6e8cf3d97c3c10"
+    },
+    {
+      "path": "src/contracts/insurance-openapi.contract.spec.ts",
+      "before_sha256": "aecafbeac3c4c275af7f1b57e8d6a23a92ae7ad3238418a64df627b89b5cbe97",
+      "after_sha256": "43991f95e27eb6a351ec410dccfd41f98df20ca87a4e37dd070832a8f2923b00"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-analytics.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "28879824fe754ae057057862ea14778dd385a20787bc13e7bda5a662c2a54e0c"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-cms.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "be8d3503cb7439eb3dd0cde50c5269d61c1c83a6881b370e79d1fbb2e0251a2c"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-coupons.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "226d205ca40669dc99f9199e64ed21c4eab2720038c7e0c3e334365419789a4a"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-crm.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "55be31609245545d67502bbc935b3ea132d9aa809b90eaa2de9dae7e28b84c8e"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-disputes.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "58fb00ee614157cf04c4248f2af4b82187df5cca5aa5f300afc2620816d24c2c"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-enterprise.module.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "2639786f1563cc97aecf09fe260b229d037986ab64a5ee6bc4c27e04466d9514"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-finance.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "267d11e715f1b34b18076c07d5b7aaedea8fcbdb3dd23de2da4907be9d5d5c68"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-governance-controls.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "99aed8376fb89753bb60954f43e8b3ad6a7c4472a04a6c8a7936153c0bfc5b79"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-impersonation.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "ee76a3ba52e47cc9e1ae98b5f59902c4956c9784c8b34724a86fa6bdb98383cd"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-ops.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "444dd6040e7942ab0e70f6cf18d14b9efc9ba75127cddad9c1227563c824460a"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-orders.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "0d3b1437bc5e1fb38ef88356b7f57e481e07fd3a94912f98c14a3a8ee9302534"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-security.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "daa60098ad106cac2398c3a2b1725a8a1229bf0a6bd043306651c3063301de5a"
+    },
+    {
+      "path": "src/modules/admin-enterprise/admin-segments.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "244b39a7ce4eea12aa0ad07f6f88e0d600f271bfbfecb5ab0d645b109df25c7d"
+    },
+    {
+      "path": "src/modules/admin-enterprise/analytics-suite.service.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "5acd9721a3562cd19bb21a5eab0260209161281c9122d93dc45e74f2110e3b8b"
+    },
+    {
+      "path": "src/modules/admin-enterprise/audit.service.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "ca4eea4247f86edf8b07b9fe8dfcc42bf88993321534bde663c844fa5eeaa106"
+    },
+    {
+      "path": "src/modules/admin-enterprise/command-center-v2.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "bad56e932438d3e6e5269075409d4f3b0547f97e9d23f91c9fb74b55522f9384"
+    },
+    {
+      "path": "src/modules/admin-enterprise/finance-suite.service.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "c2ada6079ae8da16bff7734415b086ce80e9d52e87190ac3efe44bfea7a7d221"
+    },
+    {
+      "path": "src/modules/admin-enterprise/orders-console.service.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "a3d79dd81db1dd7aab6644fc8539df513c23bfb3f85285e2382e524e136ebbcb"
+    },
+    {
+      "path": "src/modules/admin-enterprise/patient-gdpr.controller.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "6dbc93dbf435227e4056d654ee604ff5f38c49a4f48e1c9638759e9fcb9d2df6"
+    },
+    {
+      "path": "src/modules/admin-enterprise/scheduled-reports.runner.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "9816483eadd00f27aac02b3856218398d4b17d67b7bd74a16ea6559bf1379507"
+    },
+    {
+      "path": "src/modules/admin-enterprise/segments.engine.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "b944db5ab7b2d9f0e95e02b7c27af9009baee04f4511ab863d917bf59d6dda0e"
+    },
+    {
+      "path": "src/modules/admin-notification-center/admin-notification-center.module.ts",
+      "before_sha256": "23bd607b52da2854f0a6463bc7ca275f8be1138cf1c491687ce309f5ecf6fb3f",
+      "after_sha256": "e187572286eaca46d2ed274d5769ae77ad851cb21de6347f18ce8427a7793072"
+    },
+    {
+      "path": "src/modules/config/config.controller.ts",
+      "before_sha256": "682f474ca475d96df9a41a9f27ea2d341bc411ad4cc36aee47ea403b555e6e5b",
+      "after_sha256": "4f0ae9ed9d316095a6f9194df2bf7e3b421f8650f21cbbe2715179085aaf2852"
+    },
+    {
+      "path": "src/modules/config/config.service.ts",
+      "before_sha256": "ce3ed3b99d92d20619954657cc267d67e2249debaf647244d7bc8d02d8454d6e",
+      "after_sha256": "8539d946c01fb1a3cb3bb72eaa46a12a9077bd1725d141b85dd2a6db84b3e951"
+    },
+    {
+      "path": "src/modules/mail/mail.module.ts",
+      "before_sha256": "1bca19335de48e4e42f5e76029492b6cefd958c0785ccdb74fc4f5538fbc625f",
+      "after_sha256": "33b0ce0a0e248b53291ea5687dc316761d0adf534949e87f11f0be1b39aa9d04"
+    },
+    {
+      "path": "src/modules/medicines/medicines.controller.ts",
+      "before_sha256": "5cf010c48506955ab7e8e4f9f44cb8948b26d9384a1831d27515cc57f5758c03",
+      "after_sha256": "8998f0ecc3491264fe93ca2150690739c502ce4acf4333be5a6fdc71ad4cbd72"
+    },
+    {
+      "path": "src/modules/medicines/medicines.permissions.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "643d3ec1be26281e1ab827df96c858faad775339fad4eeb76bf4c2d48780bed9"
+    },
+    {
+      "path": "src/modules/medicines/medicines.service.ts",
+      "before_sha256": "e9e7d5c329199fa64f2557500c27b740672b1f5f6126ef965ffecd26faa303e4",
+      "after_sha256": "08b091e0c26bf4f8e03dadc809940348d0b0b7142d603eedeb49b010b7ea3807"
+    },
+    {
+      "path": "src/modules/seo/seo-controls.util.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "a80be52c0af2ea0bac986936a5fa02371a8869b49bbba903bd4517ff5da3a992"
+    },
+    {
+      "path": "src/modules/seo/seo.controller.ts",
+      "before_sha256": "6ab37fda9930b3e95ce757482b4ac0934fabeaa98179f664b969777110ea4a65",
+      "after_sha256": "73db0b113c43b10b65e1fbf1395d4ed4c4816431835643c255b4bb4563e96c6a"
+    },
+    {
+      "path": "src/modules/seo/seo.service.spec.ts",
+      "before_sha256": "9fe05a8636a265bd0ab98f8365961727b96e7b48209bd547a5e6e0d1602aa0c6",
+      "after_sha256": "5189c7b6dde5b6b621d47446ba7ef4e2c00d23dbed3eca0c24705a1b3fbee983"
+    },
+    {
+      "path": "src/modules/seo/seo.service.ts",
+      "before_sha256": "aad23482b97ab989dd84c8f6bd25bb0b3d2280127fc372bdcd04f1129c300808",
+      "after_sha256": "b79ec52cef8d23207c437b3f88c91a2e0b269c35fd3f21167cdc39adb35cc9f5"
+    },
+    {
+      "path": "test/a-enterprise.integration.e2e-spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "a238bb23b10813cf9163d67c47ebb84d7cf4582a937a59306cd836085736cac8"
+    },
+    {
+      "path": "test/a1-security.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "0e0a2c04f065529546dd5b1d9120251226aafcddc500ae6f5a37b3747eb99337"
+    },
+    {
+      "path": "test/a2-finance.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "2263297de3e0895ec1ac0f3816ce4cd64cfef31afce5185fd548d765e8ecbf90"
+    },
+    {
+      "path": "test/a3-analytics.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "bbb6d0b537a4876c898f69cc59e6f4017871877c1a8befe004350350e3872189"
+    },
+    {
+      "path": "test/a4-segments.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "c0c12fb0bbe120a11ee88ce4135c1e900282d9badb75c07aecc484c9439df474"
+    },
+    {
+      "path": "test/a5-coupons.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "35535ce675d6b445a3e624da6171a2a110754b035ea820fcc5d74496896c7a68"
+    },
+    {
+      "path": "test/go3-seo-controls.spec.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "fc9b9412e7d9f635060be589e06cdcc31dde9f9e9b951d11df747cf24c426ebd"
+    }
+  ],
+  "admin_members_copied": [
+    {
+      "path": "package-lock.json",
+      "before_sha256": "b3184d3acf144fae7704535190cef91ef09b6510b25bb6b89d4e8b29309c60d0",
+      "after_sha256": "b06a865fa839b4aae7024f3b8c02ec9a1a5a4360ef6115e5ab5a1057457d02f9"
+    },
+    {
+      "path": "package.json",
+      "before_sha256": "2f9908f486af3d78094b8014fe4142c238d8206ae34ce9b9c9a7b2243210815b",
+      "after_sha256": "48c7c1f5e02d30ab1fb5ccc6b114d82edf6ec03f097a92279044a03ee65eaa2b"
+    },
+    {
+      "path": "src/components/AdminGuard.tsx",
+      "before_sha256": "e850a746b172dbeabafa7192999ada76c431b0774afeab3b6f2a61d0bd40f694",
+      "after_sha256": "f2e368fa46c37e314b397753f57789c303ddfdcc5f760dffd3b9623cffc5ab4e"
+    },
+    {
+      "path": "src/components/ProviderFullDetail.tsx",
+      "before_sha256": "034e056d7d1b2208c02ee711c2cb850a03d8f8da0837b571f46749525427c153",
+      "after_sha256": "fb8a175440d951e1581248069484fc7678b951abddb641918cf04b570e6cd84e"
+    },
+    {
+      "path": "src/components/PublicDirectory.tsx",
+      "before_sha256": "33c310d4f7441358adbb580301e7f4972102bdb443e6d809a4bac89fe893e960",
+      "after_sha256": "582ca33f3c71f9a9905d3d2b0dc06610e068d9d9e37744e2ca5fceec48470c56"
+    },
+    {
+      "path": "src/lib/admin-client.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "91087514545dda8e768e10c4a522d479e335904c674f63eff72913dcc8719471"
+    },
+    {
+      "path": "src/pages/admin/ambulance-fleet.tsx",
+      "before_sha256": "c307f2eb7e373b5fe9c6c7681bf2b778c7e0bd74d2842f3ad23a130fbd9b75d8",
+      "after_sha256": "a1260229a709f66bebdd9a712776ea24a447d51b8abfec013444f1c3117a80ad"
+    },
+    {
+      "path": "src/pages/admin/analytics-suite.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "1165cf957e7529c871b972f0df14e12ae0694f945f923dbdbfa0122d13ea5d4e"
+    },
+    {
+      "path": "src/pages/admin/audit-logs.tsx",
+      "before_sha256": "2244739d97bca0472269257229a840a39d02a0d0c63ef50868c8b50d1ffe1558",
+      "after_sha256": "065bd8db9ff4933e701f9ba028030b8bd7acb6539a95320bb1f456e67e795350"
+    },
+    {
+      "path": "src/pages/admin/catalog-governance.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "d1bcc46aa201332ea3fe8030e562b1027991b66ee799386e84af4bc0796a02dc"
+    },
+    {
+      "path": "src/pages/admin/command-center.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "3c85e09a84e36ec69795f76d12e8d2b82b80b2e2e97033298f810350c7ce7cfa"
+    },
+    {
+      "path": "src/pages/admin/config-portal.tsx",
+      "before_sha256": "7e78317313220c6bab5bb56754c9adf1f80fafb43780e2efc358078c4a583fb8",
+      "after_sha256": "340d07098f3973a97e84e9c6546e88a846b256b0e6bad722be98f87ef165a1a4"
+    },
+    {
+      "path": "src/pages/admin/content-growth.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "c8240ed9a57b19792fdc6b78721e9a65feaca2cb9447d50912251bcbbc8ee999"
+    },
+    {
+      "path": "src/pages/admin/crm.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "3e0f64799938e9ef718383a819f1bbfde717fc9fc52b71d42362360dd6be558b"
+    },
+    {
+      "path": "src/pages/admin/dashboard.tsx",
+      "before_sha256": "882f77e5d0531618ca69493d9055292b4614b448f436160831a518e8df4500cd",
+      "after_sha256": "86db66ff62e12960ac55165d8710174a0a443d93f7e2ca9278f1427017e219a5"
+    },
+    {
+      "path": "src/pages/admin/disputes.tsx",
+      "before_sha256": "d7e3e700b3689f78d9cdcebfef4fdafe44494b8916eed65b5d43b3101cc1c325",
+      "after_sha256": "d94890fc29849b6c457f45fd2ee32a5d102820d0b9a79770a0404d8ef3dbdab3"
+    },
+    {
+      "path": "src/pages/admin/finance-suite.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "398bc8be219dae9a6c4263d986fef03af6236b46097a30211483c3dc8ca901a6"
+    },
+    {
+      "path": "src/pages/admin/financial-ledger.tsx",
+      "before_sha256": "df6e0383dfccdac183f155e196d5c53b32dcf733c4fc114067451c5db1f170d6",
+      "after_sha256": "88a0780fb798bdf197091c6ee733c9a26f619beed5303dafc547cd607eed512d"
+    },
+    {
+      "path": "src/pages/admin/fraud-monitoring.tsx",
+      "before_sha256": "dd893f8f910cae17f8f9e877e4b4f8057675d8fbfd03ce152a5a88ebeccf1c70",
+      "after_sha256": "46c11bbc664bbc9755eca62196160acb80a34f4eeb84d156aa50c2188dbfd2bb"
+    },
+    {
+      "path": "src/pages/admin/gdpr.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "a8685e05f4df33a9b579bb5c515de4ec3ddfe7cdd78986d355ec9f8e014fa0ab"
+    },
+    {
+      "path": "src/pages/admin/home-curation.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "224d3fb71d81239e281d64682ddd8d159571eef352a66e00936bdc9caa0c4dc5"
+    },
+    {
+      "path": "src/pages/admin/impersonation.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "bcdda3b364daed109b3e6579a1c9dc91279df190c5031eb58913ecfb592bbd3c"
+    },
+    {
+      "path": "src/pages/admin/orders/[kind]/[id].tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "b3bbdd658595cfac0ad7da0d289f25582e939eaa4ef784a08c5b68d2531bf1dd"
+    },
+    {
+      "path": "src/pages/admin/orders/index.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "504dbc1f47e54b173de8df8f4e2f8836795fb073f5de6c340a56c49de9b71267"
+    },
+    {
+      "path": "src/pages/admin/provider-moderation.tsx",
+      "before_sha256": "a5c7d2cf77bf485a30007dcc5ce88980d41db52b79bdfb71907bd64c536c92fe",
+      "after_sha256": "b4e261f0bb078f133bc885cd3a142360518460f40efb2896e454b5351f6e7e9a"
+    },
+    {
+      "path": "src/pages/admin/rbac.tsx",
+      "before_sha256": "1ce439fc9d76aad7d793c5a13302b8516a23aab14056b5dec75ab69df208d11f",
+      "after_sha256": "4cb6b71050065198e4326fa8b8a2a656084cab719e29951508861e5c96bddc73"
+    },
+    {
+      "path": "src/pages/admin/scheduled-reports.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "ea73c2df25f16dfac89154b89bf072f35b710582b9bd56aa4962ff60e7106a3f"
+    },
+    {
+      "path": "src/pages/admin/segments.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "6b21a0bdbee18d2a73390e5f0f219dfde3497e67c494cc8514d34ca7548f8ef4"
+    },
+    {
+      "path": "src/pages/admin/system-ops.tsx",
+      "before_sha256": "ADDED",
+      "after_sha256": "ca328aeac099650b6ec47ea700e16d9b3ec4324c6b64f2cf367d7df8c9e414d6"
+    },
+    {
+      "path": "src/pages/api/admin/[...path].ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "2a6777858a09c15621bac25a12d68d2e69f51f25848225de75d05e01ea613b7e"
+    },
+    {
+      "path": "src/pages/api/admin/auth/login.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "eb061102d03a37e9ff5c8252e774f63f8f15724b360b8e5fb7b7c7b374e105a5"
+    },
+    {
+      "path": "src/pages/api/admin/auth/logout.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "16deb5f07f8e8f3d3ee7af69c9c2f9aad839bb8a0d7b27b92570822d7bde890b"
+    },
+    {
+      "path": "src/pages/api/admin/auth/passkey-verify.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "88b3109805435b1700b40f51b375460b98045b584e475ebe7db3b5b2e4655602"
+    },
+    {
+      "path": "src/pages/api/admin/auth/public/[action].ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "a4f19434ce8180b1c7bdb4e2643ffd7379b8ab7640d46d4716210a05bbb5ba88"
+    },
+    {
+      "path": "src/pages/api/admin/auth/verify-2fa.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "645e157408fdc7d436d80f7a5128713ababed382033fe16ce461622a89727f2e"
+    },
+    {
+      "path": "src/pages/api/admin/impersonation/context.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "fe2eaf16ccffd99e6288d291792bfb6b4aa897c0621565eefaf8fc7fa20aec4e"
+    },
+    {
+      "path": "src/pages/api/admin/impersonation/revoke.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "9d9c350dbf8c0f2ab02ee47daf3adcc8854f04dccfe08e77819d8bd6320c6b90"
+    },
+    {
+      "path": "src/pages/api/admin/impersonation/start.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "9f607d6ce681434520a7175b11e1ff1f0fd15e3edffbd7ae5dc8afaf5ab874fb"
+    },
+    {
+      "path": "src/pages/login.tsx",
+      "before_sha256": "0cccf5e30392476ee3dad530e33c09de9a8669b85ea0ac8f1c4ee59c5b51b314",
+      "after_sha256": "577bd67d278df904b370e831d583a876c32f4732f950dcf4512f44109f64b64b"
+    },
+    {
+      "path": "src/pages/s/[type]/[slug].tsx",
+      "before_sha256": "3fedad17614dff0007a5d63f21dcd29332e84c4b8d090f9f31e5a30a0772c698",
+      "after_sha256": "087d74b5dd13c96ec2340146d5b3fdf706c9dd3f7cf138d6bffbf93152781687"
+    },
+    {
+      "path": "src/proxy.ts",
+      "before_sha256": "ADDED",
+      "after_sha256": "a0399c72c312bed4cf96a3caeaaae10a3eb148cdaadba16cce2e31ed1d32bf6f"
+    },
+    {
+      "path": "src/utils/api.ts",
+      "before_sha256": "fb9f1432a4cc8a843338bfee2b684773001a0b67e2601fb308018f56b38373d4",
+      "after_sha256": "4e583065b6e4c694485c5c2f2d7ae1ef7435f2885487c0c40fc413db6449b6bb"
+    }
+  ],
+  "admin_members_removed": [
+    "tsconfig.tsbuildinfo"
+  ],
+  "archives": {
+    "nabdah-backend.zip": {
+      "sha256": "8b8662209597b8bce1ce09812a438d73fea3ca48ff68b83ced419d4523f47c53"
+    },
+    "web_admin_dashboard.zip": {
+      "sha256": "1f48b105141a41fb4e34ce362562bae68784d21446936238938a7f15739ac5aa"
+    }
+  }
+}
