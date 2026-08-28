@@ -110,7 +110,7 @@ describe('LabsService', () => {
 
       await expect(service.book(patient, payload)).rejects.toThrow('NO_INSURANCE_POLICY');
 
-      expect(mockLabBooking.deleteOne).toHaveBeenCalledWith({ id: 'lab-booking-2', patient_id: 'patient-a', state: LabBookingState.NEW_REQUEST });
+      expect(mockLabBooking.deleteOne).toHaveBeenCalledWith({ id: 'lab-booking-2', patient_id: 'patient-a', state: { $in: [LabBookingState.NEW_REQUEST, LabBookingState.PENDING_INSURANCE] } });
       expect(mockWorkflowEngine.announceCreated).not.toHaveBeenCalled();
       expect(mockEventBus.emit).not.toHaveBeenCalled();
     });

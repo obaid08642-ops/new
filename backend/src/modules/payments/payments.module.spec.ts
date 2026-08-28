@@ -15,13 +15,14 @@ function createPaymentsService(booking: any, insuranceRequest: any = null, consu
   const pharmacyOrders: any = { findOne: jest.fn().mockReturnValue(lean(booking)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
   const insReqs: any = { findOne: jest.fn().mockReturnValue(lean(insuranceRequest)) };
   const appointments: any = { findOne: jest.fn().mockReturnValue(lean(consultationBooking)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
+  const labs: any = { findOne: jest.fn().mockReturnValue(lean(booking)), updateOne: jest.fn() };
   const service = new PaymentsService(
-    txns, {} as any, pharmacyOrders, {} as any, {} as any, {} as any, appointments, insReqs,
+    txns, {} as any, pharmacyOrders, labs, {} as any, {} as any, appointments, insReqs,
     {} as any, { emit: jest.fn() } as any, { emitToUser: jest.fn() } as any, { detectDuplicatePayments: jest.fn(), checkPaymentVelocity: jest.fn() } as any,
   );
   const adapter = { name: 'moyasar' as const, createIntent: jest.fn().mockResolvedValue({ intent_id: 'gateway-intent' }), verify: jest.fn(), refund: jest.fn() };
   (service as any).adapter = adapter;
-  return { service, txns, pharmacyOrders, insReqs, appointments, adapter };
+  return { service, txns, pharmacyOrders, insReqs, appointments, labs, adapter };
 }
 
 describe('PaymentsService pharmacy quote guard', () => {
@@ -194,6 +195,22 @@ describe('PaymentsService pharmacy quote guard', () => {
     const { service, txns } = createPaymentsService(acceptedBooking, request);
     await service.createPaymentIntent({ id: 'patient-1' }, 'insurance', 'insurance-1', 'key-1', 'card');
     expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'insurance', booking_id: 'insurance-1', amount: 250, method: 'card' }));
+  });
+
+  it('returns server-declared online methods and total for a confirmed lab card booking', async () => {
+    const { service } = createPaymentsService({ id: 'lab-1', patient_id: 'patient-1', state: 'CONFIRMED', payment_method: 'card', payment_status: 'pending', total: 180 });
+    await expect(service.labPaymentCapabilities({ id: 'patient-1' }, 'lab-1')).resolves.toEqual({ booking_id: 'lab-1', amount: 180, currency: 'SAR', purpose: 'lab_card_payment', methods: [{ id: 'card', kind: 'online' }] });
+  });
+
+  it('refuses a lab payment capability before provider confirmation and does not use a client amount', async () => {
+    const { service } = createPaymentsService({ id: 'lab-1', patient_id: 'patient-1', state: 'NEW_REQUEST', payment_method: 'card', total: 1 });
+    await expect(service.labPaymentCapabilities({ id: 'patient-1' }, 'lab-1')).rejects.toThrow('lab_card_payment_not_payable');
+  });
+
+  it('uses the confirmed lab server total for the selected online payment intent', async () => {
+    const { service, txns } = createPaymentsService({ id: 'lab-1', patient_id: 'patient-1', state: 'CONFIRMED', payment_method: 'card', payment_status: 'pending', total: 180 });
+    await service.createPaymentIntent({ id: 'patient-1' }, 'lab', 'lab-1', 'lab-key-1', 'card');
+    expect(txns.create).toHaveBeenCalledWith(expect.objectContaining({ booking_kind: 'lab', booking_id: 'lab-1', amount: 180, method: 'card' }));
   });
 
   it('returns server-declared online methods and total for a pending card consultation', async () => {

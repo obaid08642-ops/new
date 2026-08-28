@@ -253,6 +253,37 @@ export class InsuranceFlowService {
     );
   }
 
+  private async settleLabInsurance(req: any, actorId: string, note: string) {
+    if (req.booking_kind !== 'lab') return;
+    const now = new Date();
+    const result = await this.labs.updateOne(
+      { id: req.booking_id, patient_id: req.patient_id, insurance_request_id: req.id, state: { $in: ['PENDING_INSURANCE', 'WAITING_COPAY'] } },
+      {
+        $set: { state: 'CONFIRMED', insurance_status: 'approved', insurance_copay: 0, insurance_review_state: 'SETTLED' },
+        $push: { state_history: { from: 'PENDING_INSURANCE', to: 'CONFIRMED', at: now, by_user_id: actorId, by_role: 'insurance', note } },
+      },
+    );
+    if (result?.modifiedCount !== undefined && result.modifiedCount !== 1) {
+      this.events.emit('insurance.lab.confirmation_pending_reconciliation', { request_id: req.id, booking_id: req.booking_id });
+    }
+  }
+
+  private async markLabDecision(req: any) {
+    if (req.booking_kind !== 'lab') return;
+    const approvedPartial = req.state === 'COPAY_PENDING';
+    await this.labs.updateOne(
+      { id: req.booking_id, patient_id: req.patient_id, insurance_request_id: req.id, state: 'PENDING_INSURANCE' },
+      {
+        $set: {
+          state: approvedPartial ? 'WAITING_COPAY' : 'PENDING_INSURANCE',
+          insurance_status: approvedPartial ? 'partial_approval' : 'rejected',
+          insurance_copay: approvedPartial ? Number(req.copay_amount) : 0,
+          insurance_review_state: 'DECIDED',
+        },
+      },
+    );
+  }
+
   async companiesList() {
     return this.companies.find({ is_active: true }, { _id: 0, __v: 0 }).lean();
   }
@@ -418,8 +449,10 @@ export class InsuranceFlowService {
     await req.save();
     if (req.state === 'APPROVED_FULL') {
       await this.settleConsultationInsurance(req, user.id, 'insurance-approved-full');
+      await this.settleLabInsurance(req, user.id, 'insurance-approved-full');
     } else {
       await this.markConsultationDecision(req);
+      await this.markLabDecision(req);
     }
     this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, state: req.state, copay_amount: req.copay_amount });
     return req.toObject();

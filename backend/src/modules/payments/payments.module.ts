@@ -301,6 +301,23 @@ export class PaymentsService {
     }
   }
 
+  async labPaymentCapabilities(user: any, bookingId: string, userAgent?: string) {
+    const booking: any = await this.labs.findOne({ id: bookingId }).lean();
+    if (!booking) throw new NotFoundException('booking_not_found');
+    this.assertBookingOwnerOrAdmin(user, booking);
+    const amount = Number(booking.total);
+    if (booking.state !== 'CONFIRMED' || booking.payment_method !== 'card' || booking.payment_status === 'paid' || !Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('lab_card_payment_not_payable');
+    }
+    return {
+      booking_id: booking.id,
+      amount,
+      currency: 'SAR',
+      purpose: 'lab_card_payment',
+      methods: this.configuredOnlineMethods(userAgent).map((method) => ({ id: method.replace('_', '-'), kind: 'online' })),
+    };
+  }
+
   private async assertPharmacyQuoteStillMatchesTransaction(transaction: any): Promise<void> {
     if (transaction.booking_kind !== 'pharmacy') return;
     const booking: any = await this.pharmacyOrders.findOne({ id: transaction.booking_id }).lean();
@@ -350,6 +367,14 @@ export class PaymentsService {
       const isSelfPay = booking.state === 'SELF_PAY_PENDING' && Number.isFinite(Number(booking.self_pay_amount)) && Number(booking.self_pay_amount) > 0;
       if (!isCopay && !isSelfPay) throw new BadRequestException('insurance_payment_not_payable');
       amount = isSelfPay ? Number(booking.self_pay_amount) : Number(booking.copay_amount);
+      method = requestedMethod === undefined ? 'card' : normalizeOnlineMethod(requestedMethod);
+      if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
+    }
+    if (kind === 'lab') {
+      if (booking.state !== 'CONFIRMED' || booking.payment_method !== 'card' || !Number.isFinite(Number(booking.total)) || Number(booking.total) <= 0) {
+        throw new BadRequestException('lab_card_payment_not_payable');
+      }
+      amount = Number(booking.total);
       method = requestedMethod === undefined ? 'card' : normalizeOnlineMethod(requestedMethod);
       if (!this.configuredOnlineMethods(userAgent).includes(method)) throw new BadRequestException('payment_method_not_enabled_for_gateway_or_device');
     }
@@ -610,8 +635,9 @@ export class PaymentsController {
   intent(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string, @Body() body: { method?: unknown }, @Headers('user-agent') userAgent?: string) { return this.svc.createPaymentIntent(u, t, id, key, body?.method, userAgent); }
   @Get('pharmacy/:id/capabilities')
   pharmacyCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.pharmacyPaymentCapabilities(u, id, userAgent); }
-  @Get('insurance/:id/capabilities')
-  insuranceCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceCopayPaymentCapabilities(u, id, userAgent); }
+    @Get('insurance/:id/capabilities') insuranceCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceCopayPaymentCapabilities(u, id, userAgent); }
+  @Get('lab/:id/capabilities') labCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.labPaymentCapabilities(u, id, userAgent); }
+
   @Get('insurance/:id/self-pay-capabilities')
   insuranceSelfPayCapabilities(@CurrentUser() u: any, @Param('id') id: string, @Headers('user-agent') userAgent?: string) { return this.svc.insuranceSelfPayPaymentCapabilities(u, id, userAgent); }
   @Get('consultation/:id/capabilities')
