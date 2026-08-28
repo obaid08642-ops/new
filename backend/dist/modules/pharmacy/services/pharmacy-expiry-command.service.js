@@ -122,13 +122,20 @@ let PharmacyExpiryCommandService = class PharmacyExpiryCommandService {
             }
             throw error;
         }
-        const nextStage = stages[Number(claimed.current_round || 1)];
-        if (!nextStage) {
-            await this.closeBroadcast(claimed, token, now, 'final_round_elapsed_without_selected_offer');
-            return { outcome: 'closed', recipient_intents: 0 };
-        }
         const order = await this.orders.findOne({ id: claimed.order_id }).lean();
-        const eligible = await this.broadcastService.findEligiblePharmaciesWithin(order?.delivery_address?.geo, nextStage.radius_km);
+        let nextStage = stages[Number(claimed.current_round || 1)];
+        let extendedEvent = null;
+        if (!nextStage) {
+            if (claimed.extended_stage || !order) {
+                await this.closeBroadcast(claimed, token, now, 'final_round_elapsed_without_selected_offer');
+                return { outcome: 'closed', recipient_intents: 0 };
+            }
+            const isPickup = order?.delivery?.method === 'pickup';
+            const lastStage = stages[stages.length - 1];
+            nextStage = { stage: Number(claimed.current_round || 1) + 1, radius_km: isPickup ? 15 : Number(lastStage.radius_km), timeout_seconds: Number(lastStage.timeout_seconds) };
+            extendedEvent = isPickup ? 'extended_round_self_pickup_15km' : 'extended_round_own_delivery';
+        }
+        const eligible = await this.broadcastService.findEligiblePharmaciesWithin(order?.delivery_address?.geo, nextStage.radius_km, { extended: Boolean(extendedEvent) });
         const knownRecipients = new Set(Array.isArray(claimed.notified_pharmacies) ? claimed.notified_pharmacies : []);
         const candidateRecipients = eligible.map((profile) => String(profile.account_id)).filter((accountId) => accountId && !knownRecipients.has(accountId));
         const nextRound = Number(claimed.current_round || 1) + 1;
@@ -140,7 +147,7 @@ let PharmacyExpiryCommandService = class PharmacyExpiryCommandService {
                 if (await this.createRecipientIntent(claimed, recipientId, nextRound, now, session))
                     uniqueRecipients.push(recipientId);
             }
-            const result = await this.broadcasts.updateOne({ id: claimed.id, lock_state: 'open', 'expiry_claim.token': token, round_expires_at: { $lte: now } }, { $set: { current_round: nextRound, current_radius_km: nextStage.radius_km, round_expires_at: deadline }, $addToSet: { notified_pharmacies: { $each: uniqueRecipients } }, $unset: { expiry_claim: 1 }, $push: { timeline: { ts: now, event: 'round_advanced_by_durable_command', meta: { round: nextRound, radius_km: nextStage.radius_km, round_expires_at: deadline, recipient_intents: uniqueRecipients.length } } } }, { session });
+            const result = await this.broadcasts.updateOne({ id: claimed.id, lock_state: 'open', 'expiry_claim.token': token, round_expires_at: { $lte: now } }, { $set: { current_round: nextRound, current_radius_km: nextStage.radius_km, round_expires_at: deadline, ...(extendedEvent ? { extended_stage: true } : {}) }, $addToSet: { notified_pharmacies: { $each: uniqueRecipients } }, $unset: { expiry_claim: 1 }, $push: { timeline: { ts: now, event: extendedEvent || 'round_advanced_by_durable_command', meta: { round: nextRound, radius_km: nextStage.radius_km, round_expires_at: deadline, recipient_intents: uniqueRecipients.length } } } }, { session });
             if (!this.modified(result))
                 throw new common_1.BadRequestException('broadcast_expiry_claim_lost');
             await this.upsertOutbox({

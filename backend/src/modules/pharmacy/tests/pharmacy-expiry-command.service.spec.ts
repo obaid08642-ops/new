@@ -51,7 +51,7 @@ describe('PharmacyExpiryCommandService', () => {
     const { service, broadcasts, orders, outbox, recipients, broadcastService } = setup({ offers: [], broadcasts: [dueBroadcast], eligible: [{ account_id: 'pharmacy-1' }, { account_id: 'pharmacy-2' }] });
     const result = await service.expireDuePharmacyOffers(now);
     expect(result).toEqual(expect.objectContaining({ scanned_broadcasts: 1, advanced_rounds: 1, closed_broadcasts: 0, recipient_intents: 1 }));
-    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 5);
+    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 5, { extended: false });
     expect(recipients.updateOne).toHaveBeenCalledWith({ broadcast_id: 'broadcast-1', pharmacy_account_id: 'pharmacy-2' }, expect.anything(), expect.objectContaining({ upsert: true }));
     expect(broadcasts.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'broadcast-1', 'expiry_claim.token': expect.any(String) }), expect.objectContaining({ $set: expect.objectContaining({ current_round: 2 }), $addToSet: { notified_pharmacies: { $each: ['pharmacy-2'] } } }), expect.anything());
     expect(orders.updateOne).not.toHaveBeenCalled();
@@ -71,13 +71,24 @@ describe('PharmacyExpiryCommandService', () => {
   });
 
   it('closes the final elapsed round into manual review without allocation or recipient delivery', async () => {
-    const finalRound = { ...dueBroadcast, current_round: 3, current_radius_km: 10 };
+    const finalRound = { ...dueBroadcast, current_round: 4, current_radius_km: 10, extended_stage: true };
     const { service, broadcasts, orders, broadcastService } = setup({ offers: [], broadcasts: [finalRound], broadcastClaim: finalRound });
     const result = await service.expireDuePharmacyOffers(now);
     expect(result).toEqual(expect.objectContaining({ closed_broadcasts: 1, advanced_rounds: 0, recipient_intents: 0 }));
     expect(broadcastService.findEligiblePharmaciesWithin).not.toHaveBeenCalled();
     expect(broadcasts.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'broadcast-1' }), expect.objectContaining({ $set: { lock_state: 'closed' } }), expect.anything());
     expect(orders.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'order-1', $or: expect.any(Array) }), expect.objectContaining({ $set: { status: 'manual_review' } }), expect.anything());
+  });
+
+  it('runs one extended stage after the final standard round instead of closing (own-delivery radius)', async () => {
+    const lastStandard = { ...dueBroadcast, current_round: 3, current_radius_km: 10 };
+    const { service, broadcasts, broadcastService } = setup({ offers: [], broadcasts: [lastStandard], broadcastClaim: lastStandard });
+    const result = await service.expireDuePharmacyOffers(now);
+    expect(result).toEqual(expect.objectContaining({ advanced_rounds: 1, closed_broadcasts: 0 }));
+    // Fixture order has no pickup flag → extended own-delivery stage at the last standard radius.
+    expect(broadcastService.findEligiblePharmaciesWithin).toHaveBeenCalledWith({ lat: 24.7, lng: 46.7 }, 10, { extended: true });
+    expect(broadcasts.updateOne).toHaveBeenCalledWith(expect.objectContaining({ id: 'broadcast-1' }),
+      expect.objectContaining({ $set: expect.objectContaining({ current_round: 4, current_radius_km: 10, extended_stage: true }) }), expect.anything());
   });
 
   it('returns independent cursor fields when a bounded stream reaches its limit', async () => {
