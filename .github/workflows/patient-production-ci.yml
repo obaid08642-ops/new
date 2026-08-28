@@ -1,0 +1,151 @@
+name: Patient Production CI
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - release/patient-production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: patient-production-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  policy:
+    name: Policy and source guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify release governance documents
+        run: |
+          set -euo pipefail
+          for file in \
+            docs/release/DECISIONS_LOCKED.md \
+            docs/release/SOURCE_PROVENANCE.md \
+            docs/release/TRACEABILITY_MATRIX.md \
+            docs/release/MIGRATION_AND_ROLLBACK.md \
+            docs/release/REVIEW_PACKET.md; do
+            test -s "$file"
+          done
+      - name: Reject customer wallet payment implementations
+        run: |
+          set -euo pipefail
+          if git grep -nEi -- \
+            'payment_method[[:space:]:]*[=:][[:space:]]*["'"'"']wallet["'"'"']|paymentMethod[[:space:]:]*[=:][[:space:]]*["'"'"']wallet["'"'"']|wallet_(paid|debit|payment)|payWithWallet' \
+            -- backend patient-web patient-app; then
+            echo 'Customer wallet payment code is prohibited by PAY-001.' >&2
+            exit 1
+          fi
+      - name: Reject tracked secrets and application archives
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -Ei '(^|/)(google-services\.json|GoogleService-Info\.plist|.*\.p8|.*\.keystore|.*\.zip)$'; then
+            echo 'Tracked credentials or application archives are prohibited in release source.' >&2
+            exit 1
+          fi
+
+  backend:
+    name: Backend build and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install frozen dependencies
+        run: npm ci
+      - name: Build governed shared contracts
+        run: npx tsc --project ../packages/shared-contracts/tsconfig.json
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Run unit and contract tests
+        run: npm test -- --runInBand
+      - name: Build
+        run: npm run build
+
+  shared-contracts:
+    name: Governed shared contracts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/shared-contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install compiler
+        run: npm install --ignore-scripts --no-save typescript@5.9.3
+      - name: Type check
+        run: npx tsc --project tsconfig.json --noEmit
+      - name: Build
+        run: npx tsc --project tsconfig.json
+      - name: Verify governed transitions
+        run: npm test
+
+  patient-web:
+    name: Patient Web build and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: patient-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: patient-web/pnpm-lock.yaml
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Type check
+        run: pnpm check
+      - name: Run tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+
+  patient-mobile:
+    name: Patient Mobile build and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: patient-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: patient-app/package-lock.json
+      - name: Install frozen dependencies
+        run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Run tests
+        # Expo's native bridge may report a non-zero exit after all tests pass.
+        # The verifier rejects every failed/missing test based on Jest's JSON
+        # result and does not treat a failing test suite as successful.
+        run: |
+          set +e
+          npm test -- --runInBand --json --outputFile=/tmp/mobile-jest-result.json
+          jest_exit=$?
+          set -e
+          node scripts/verify-jest-result.mjs /tmp/mobile-jest-result.json "$jest_exit"
+      - name: Export web bundle
+        run: npm run export:web

@@ -1,0 +1,7 @@
+__turbopack_load_page_chunks__("/admin/sos-monitor", [
+  "static/chunks/0t6pjy0gw4q_q.js",
+  "static/chunks/1kmcworlogavf.js",
+  "static/chunks/1uz6-00ru-zj0.js",
+  "static/chunks/3dz9a40bznqe0.js",
+  "static/chunks/turbopack-20k15nc_t-y5z.js"
+])

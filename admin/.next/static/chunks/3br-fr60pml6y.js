@@ -1,0 +1,9 @@
+__turbopack_load_page_chunks__("/admin/finance-suite", [
+  "static/chunks/2v-e7ikg49ek3.js",
+  "static/chunks/1kmcworlogavf.js",
+  "static/chunks/05gwgwt2wlshk.js",
+  "static/chunks/3dz9a40bznqe0.js",
+  "static/chunks/1uz6-00ru-zj0.js",
+  "static/chunks/1byaq5s018d7f.js",
+  "static/chunks/turbopack-0ebv5zd0x4qvo.js"
+])

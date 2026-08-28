@@ -1,0 +1,91 @@
+import { UsersRepository } from '../UsersRepository';
+import { ILocalDataSource } from '../interfaces/ILocalDataSource';
+import { IRemoteDataSource } from '../interfaces/IRemoteDataSource';
+import { EventBus } from '../../../core/events/EventBus';
+import { ConflictResolver } from '../../sync/ConflictResolver';
+import { UserEntity } from '../UsersRepository';
+
+describe('UsersRepository', () => {
+  let repository: UsersRepository;
+  let mockLocalDataSource: jest.Mocked<ILocalDataSource<UserEntity>>;
+  let mockRemoteDataSource: jest.Mocked<IRemoteDataSource<UserEntity>>;
+  let mockEventBus: jest.Mocked<EventBus>;
+  let mockConflictResolver: jest.Mocked<ConflictResolver>;
+
+  beforeEach(() => {
+    mockLocalDataSource = {
+      findAll: jest.fn(),
+      findById: jest.fn(),
+      match: jest.fn(),
+      insert: jest.fn(),
+      insertMany: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+      executeRaw: jest.fn(),
+      transaction: jest.fn(),
+    };
+
+    mockRemoteDataSource = {
+      findAll: jest.fn(),
+      findById: jest.fn(),
+      match: jest.fn(),
+      insert: jest.fn(),
+      insertMany: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      sync: jest.fn(),
+    };
+
+    mockEventBus = {
+      subscribe: jest.fn(),
+      publish: jest.fn(),
+    } as any;
+
+    mockConflictResolver = {
+      resolve: jest.fn(),
+    } as any;
+
+    repository = new UsersRepository(
+      mockLocalDataSource,
+      mockRemoteDataSource,
+      mockEventBus,
+      mockConflictResolver
+    );
+  });
+
+  it('should initialize successfully', () => {
+    expect(repository).toBeDefined();
+  });
+
+  it('should delegate findById to local data source', async () => {
+    const mockUser: UserEntity = {
+      id: '1',
+      email: 'test@example.com',
+      is_active: 1,
+      created_at: 1234567890,
+      updated_at: 1234567890
+    };
+    mockLocalDataSource.findById.mockResolvedValue(mockUser);
+
+    const result = await repository.findById('1');
+    expect(result).toEqual(mockUser);
+    expect(mockLocalDataSource.findById).toHaveBeenCalledWith('1');
+  });
+
+  it('should publish event on insert', async () => {
+    const newUser: UserEntity = {
+      id: '2',
+      email: 'new@example.com',
+      is_active: 1,
+      created_at: 1234567890,
+      updated_at: 1234567890
+    };
+    mockLocalDataSource.insert.mockResolvedValue(newUser);
+
+    const result = await repository.insert(newUser);
+    expect(result).toEqual(newUser);
+    expect(mockLocalDataSource.insert).toHaveBeenCalledWith(newUser);
+    expect(mockEventBus.publish).toHaveBeenCalledWith('ENTITY_INSERTED', expect.objectContaining({ entity: newUser }), 'users');
+  });
+});

@@ -1,0 +1,7 @@
+__turbopack_load_page_chunks__("/doctors", [
+  "static/chunks/2t0q105llkvmy.js",
+  "static/chunks/1kmcworlogavf.js",
+  "static/chunks/3dz9a40bznqe0.js",
+  "static/chunks/1uz6-00ru-zj0.js",
+  "static/chunks/turbopack-07-js2_y2pqi3.js"
+])

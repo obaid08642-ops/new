@@ -1,0 +1,58 @@
+import { PharmacyOrder, PharmacyBroadcast } from '../schemas/pharmacy.schema';
+import { GeoEngineService } from '../../provider/services/geo-engine.service';
+import { SmartSplitService } from './smart-split.service';
+import { PharmacyNotificationService } from './pharmacy-notification.service';
+import { EventBusService } from '../../events/event-bus.service';
+import { PharmacyShortageService } from './pharmacy-shortage.service';
+import { PharmacyChatService } from './pharmacy-chat.service';
+import { RedisService } from '../../redis/redis.service';
+import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
+import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
+import { PharmacyBroadcastRepository } from "./repositories/pharmacybroadcast.repository";
+import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
+import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
+import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
+import { SystemConfigRepository } from "./repositories/systemconfig.repository";
+import { DrugRejectionLogRepository } from "./repositories/drugrejectionlog.repository";
+import { MedicineRepository } from "./repositories/medicine.repository";
+export declare class PharmacyBroadcastService {
+    private orders;
+    private allocs;
+    private broadcasts;
+    private inv;
+    private profiles;
+    private avails;
+    private configs;
+    private rejections;
+    private medicines;
+    private geo;
+    private split;
+    private notif;
+    private bus;
+    private shortage;
+    private chatService;
+    private redisService;
+    private logger;
+    constructor(orders: PharmacyOrderRepository, allocs: PharmacyAllocationRepository, broadcasts: PharmacyBroadcastRepository, inv: PharmacyInventoryItemRepository, profiles: ProviderAccountProfileRepository, avails: ProviderAvailabilityRepository, configs: SystemConfigRepository, rejections: DrugRejectionLogRepository, medicines: MedicineRepository, geo: GeoEngineService, split: SmartSplitService, notif: PharmacyNotificationService, bus: EventBusService, shortage: PharmacyShortageService, chatService: PharmacyChatService, redisService: RedisService);
+    private assertActiveNotifiedPharmacy;
+    private providerBroadcastDto;
+    getBroadcastStages(): Promise<Array<{
+        stage: number;
+        radius_km: number;
+        timeout_seconds: number;
+    }>>;
+    start(order: PharmacyOrder): Promise<PharmacyBroadcast>;
+    private broadcastRound;
+    claimHaveAll(): Promise<never>;
+    respondPartial(): Promise<never>;
+    respondReject(user: any, order_id: string, body?: {
+        reason?: string;
+    }): Promise<any>;
+    advanceRound(order_id: string, now?: Date): Promise<any>;
+    runBestPartialMatch(bc: PharmacyBroadcast, order: PharmacyOrder): Promise<any>;
+    fallbackSplit(order_id: string): Promise<any>;
+    findEligiblePharmaciesWithin(center: any, radius_km: number): Promise<any[]>;
+    listForPharmacy(user: any): Promise<any>;
+    detail(user: any, broadcast_id: string): Promise<any>;
+    expireStaleBroadcasts(): Promise<never>;
+}

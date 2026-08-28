@@ -1,0 +1,73 @@
+const orderId = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
+const threadId = orderId;
+const patientReadRoutes = [
+  new RegExp("^/orders/mine$"),
+  new RegExp(`^/orders/${orderId}$`, "i"),
+  new RegExp("^/patient/pharmacy/orders$"),
+  new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i"),
+  new RegExp(`^/orders/${orderId}/tracking$`, "i"),
+  new RegExp("^/cart$"),
+  new RegExp("^/cart/checkout$"),
+  new RegExp("^/cart/prescription$"),
+  new RegExp("^/nursing/visits$"),
+  new RegExp("^/users/me/wishlist$"),
+  new RegExp("^/users/me/profile$"),
+  new RegExp("^/users/me/notification-settings$"),
+  new RegExp(`^/unified-bookings/consultation/${orderId}$`, "i"),
+  new RegExp(`^/care/appointments/${orderId}$`, "i"),
+  new RegExp("^/health/score$"),
+  new RegExp("^/health/reports$"),
+  new RegExp("^/health/sleep\\?limit=100$"),
+  new RegExp("^/health/vitals\\?limit=100$"),
+  new RegExp("^/health/vitals-log$"),
+  new RegExp("^/health/emergency-contacts$"),
+  new RegExp("^/health/chronic-diseases$"),
+  new RegExp("^/health/chronic-meds$"),
+  new RegExp("^/health/trends$"),
+  new RegExp("^/family/my-group$"),
+  new RegExp("^/insurance/my-policy$"),
+  new RegExp("^/insurance/benefits-summary$"),
+  new RegExp("^/insurance/claims$"),
+  new RegExp(`^/payments/pharmacy/${orderId}/capabilities$`, "i"),
+  new RegExp(`^/pharmacy/chat/threads\\?order_id=${orderId}$`, "i"),
+  new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i"),
+  new RegExp("^/mental-health/dashboard$"),
+  new RegExp("^/mental-health/crisis-contacts$"),
+  new RegExp("^/mental-health/breathing$"),
+  new RegExp("^/mental-health/mood\\?days=30$"),
+  new RegExp("^/mental-health/meditation$"),
+  new RegExp("^/users/me/privacy-settings$"),
+  new RegExp("^/users/me/security-settings$"),
+  new RegExp("^/users/me/storage$"),
+  new RegExp("^/users/me/sessions$"),
+  new RegExp("^/articles/bookmarks/mine$"),
+  new RegExp("^/chat/threads$"),
+  new RegExp(`^/chat/threads/${threadId}$`, "i"),
+  new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
+];
+
+const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
+  { method: "POST", route: new RegExp("^/patient/pharmacy/orders$") },
+  { method: "PATCH", route: new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/submit$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cancel$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/offers/${orderId}/select$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/final-quote/accept$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/co-pay/accept$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/insurance/self-pay/accept$`, "i") },
+  { method: "POST", route: new RegExp(`^/patient/pharmacy/orders/${orderId}/cod/register$`, "i") },
+  { method: "POST", route: new RegExp(`^/payments/intent/pharmacy/${orderId}$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/messages$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/${threadId}$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
+  { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },
+];
+
+export function isAllowedPatientApiPath(path: string) {
+  return patientReadRoutes.some((route) => route.test(path));
+}
+
+export function isAllowedPatientApiRequest(path: string, method: string) {
+  return (method === "GET" && isAllowedPatientApiPath(path))
+    || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
+}

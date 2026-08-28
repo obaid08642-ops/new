@@ -1,0 +1,3 @@
+{
+  "/api/admin/auth/login": "pages/api/admin/auth/login.js"
+}
