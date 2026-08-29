@@ -50,7 +50,9 @@
     "otpRequestInvalid": "Hindi makapag-request ng code. Suriin ang identifier at subukan muli.",
     "otpInvalid": "Hindi tinanggap ang one-time code. Subukan muli.",
     "otpExchangeInvalid": "Hindi naitatag ang secure session. Walang lokal na session na ginawa.",
-    "otpUnavailable": "Hindi available ang authentication service. Walang session na ginawa."
+    "otpUnavailable": "Hindi available ang authentication service. Walang session na ginawa.",
+    "guestContinue": "Magpatuloy bilang bisita (walang account)",
+    "guestLoading": "Gumagawa ng guest session..."
   },
   "Dashboard": {
     "eyebrow": "Pribadong portal",
