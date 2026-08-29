@@ -80,8 +80,132 @@ export class PharmacyOrderService {
       else if (anyOOD) effective_status = 'out_for_delivery' as any;
       else if (anyPreparing) effective_status = 'in_fulfillment' as any;
     }
-    return { ...order, effective_status, allocations_detail: allocs };
+    return { ...order, effective_status, allocations_detail: allocs, ...this.governedView(order) };
   }
+
+  /**
+   * Derived governed patient view (shared by patient-app and patient-web):
+   * state machine labels, quote snapshot handles, and insurance summaries —
+   * all computed server-side from the persisted order document.
+   */
+  private governedView(order: any) {
+    const method = String(order.payment_method || '').toLowerCase();
+    const decision: any = order.insurance_decision || null;
+    const snapshot = order.pricing_snapshot || null;
+    const selected = !!order.selected_offer_id && !!snapshot?.hash;
+    const quoteAccepted = !!order.quote_accepted_at;
+    const codRegistered = method === 'cod' && !!order.cod_registered_at;
+
+    let governed_state: string | null = null;
+    if (selected) {
+      if (method === 'insurance') {
+        if (!decision) governed_state = 'INSURANCE_PROCESSING';
+        else if (decision.outcome === 'full') governed_state = 'CONFIRMED';
+        else governed_state = 'INSURANCE_DECISION_READY';
+      } else if (codRegistered) governed_state = 'COD_REGISTERED';
+      else if (order.pending_final_quote_snapshot?.hash) governed_state = 'FINAL_QUOTE_READY';
+      else if (quoteAccepted) governed_state = 'FINAL_QUOTE_ACCEPTED';
+      else governed_state = 'OFFER_SELECTED';
+    }
+
+    const view: any = {
+      governed_state,
+      coverage_mode: order.coverage_mode || (method === 'insurance' ? 'insurance' : selected ? 'cash' : undefined),
+      selected_offer_snapshot: selected ? snapshot : undefined,
+      selected_offer_hash: selected ? snapshot.hash : undefined,
+      selected_offer_revision: selected ? Number(order.selected_offer_version) : undefined,
+      pending_final_quote_snapshot: order.pending_final_quote_snapshot || undefined,
+      pending_final_quote_hash: order.pending_final_quote_snapshot?.hash || undefined,
+      pending_final_quote_revision: order.pending_final_quote_snapshot?.offer_version || undefined,
+      accepted_quote_snapshot: quoteAccepted || codRegistered
+        ? { ...snapshot, cod_allowed: true }
+        : undefined,
+      accepted_quote_hash: quoteAccepted || codRegistered ? snapshot?.hash : undefined,
+      accepted_quote_revision: quoteAccepted || codRegistered ? Number(order.selected_offer_version) : undefined,
+    };
+
+    if (decision) {
+      view.insurance_decision_summary = {
+        decision: decision.outcome === 'full' ? 'APPROVED_FULL' : decision.outcome === 'partial' ? 'APPROVED_PARTIAL' : 'REJECTED',
+        co_pay_amount: Number(decision.patient_share || 0),
+        insurer_share: Number(decision.insurer_share || 0),
+        currency: decision.currency || snapshot?.totals?.currency || 'SAR',
+      };
+      view.insurance_item_decisions = (decision.items || []).map((item: any) => {
+        const lineAmount = Math.round(Number(item.unit_price || 0) * Number(item.quoted_qty || 0) * 100) / 100;
+        const covered = Math.round(Number(item.insurer_share || 0) * 100) / 100;
+        return {
+          order_item_id: item.order_item_id,
+          decision: item.outcome === 'approved' ? 'APPROVED_FULL' : item.outcome === 'partial' ? 'APPROVED_PARTIAL' : 'REJECTED',
+          line_amount: lineAmount,
+          covered_amount: covered,
+          co_pay_amount: Math.round((lineAmount - covered) * 100) / 100,
+          reason: item.reason || null,
+        };
+      });
+      if (decision.outcome === 'full' && !order.payment_status) {
+        view.payment_status = 'covered_by_insurance';
+      }
+    }
+    return view;
+  }
+
+  /**
+   * Patient explicitly accepts the final quote snapshot (hash + revision must
+   * match the server-side selected quote). No payment is created here.
+   */
+  async acceptFinalQuote(user: any, id: string, quoteHash: string, quoteRevision: any, idempotencyKey: string) {
+    if (!user?.id) throw new ForbiddenException('patient_identity_required');
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
+    const hash = String(quoteHash || '').toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(hash)) throw new BadRequestException('quote_hash_required');
+    const revision = Number(quoteRevision);
+    if (!Number.isInteger(revision) || revision <= 0) throw new BadRequestException('quote_revision_required');
+    const order: any = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (order.final_quote_idempotency_key === idempotencyKey && order.quote_accepted_at) {
+      return { ok: true, idempotent: true, status: order.status };
+    }
+    if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    if (String(order.pricing_snapshot.hash).toLowerCase() !== hash || Number(order.selected_offer_version) !== revision) {
+      throw new BadRequestException('quote_hash_or_revision_mismatch');
+    }
+    const method = String(order.payment_method || '').toLowerCase();
+    if (method === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
+    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    const now = new Date();
+    await this.orders.updateOne({ id: order.id }, {
+      $set: { quote_accepted_at: now, final_quote_idempotency_key: idempotencyKey },
+      $push: { timeline: { ts: now, event: 'final_quote_accepted', by: user.id, meta: { quote_hash: hash, quote_revision: revision } } },
+    } as any);
+    return { ok: true, idempotent: false, status: order.status };
+  }
+
+  /**
+   * Patient registers a cash-on-delivery commitment for an accepted quote.
+   * This is a qualified commitment, not a collected payment; collection proof
+   * is enforced at delivery time by the allocation gate.
+   */
+  async registerCod(user: any, id: string, idempotencyKey: string) {
+    if (!user?.id) throw new ForbiddenException('patient_identity_required');
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
+    const order: any = await this.orders.findOne({ id, patient_account_id: user.id }).lean();
+    if (!order) throw new NotFoundException('order_not_found');
+    if (String(order.payment_method || '').toLowerCase() === 'cod' && order.cod_registered_at) {
+      return { ok: true, idempotent: true, status: order.status };
+    }
+    if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
+    if (String(order.payment_method || '').toLowerCase() === 'insurance') throw new BadRequestException('insurance_orders_follow_insurance_decision_flow');
+    if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('order_not_actionable');
+    const now = new Date();
+    await this.orders.updateOne({ id: order.id }, {
+      $set: { payment_method: 'cod', cod_registered_at: now, cod_idempotency_key: idempotencyKey, status: PharmacyOrderState.COD_DUE_ON_DELIVERY },
+      $push: { timeline: { ts: now, event: 'cod_registered', by: user.id, meta: { amount: order.pricing_snapshot?.totals?.total } } },
+    } as any);
+    return { ok: true, idempotent: false, status: PharmacyOrderState.COD_DUE_ON_DELIVERY };
+  }
+
 
   async update(user: any, id: string, body: any): Promise<any> {
     assertPatient(user);

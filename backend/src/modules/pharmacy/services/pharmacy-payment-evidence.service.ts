@@ -73,7 +73,14 @@ export class PharmacyPaymentEvidenceService {
     if (String(order.pricing_snapshot?.hash || '') !== snapshotHash) throw new BadRequestException('payment_quote_hash_mismatch');
     if (String(order.pricing_snapshot?.totals?.currency || 'SAR').toUpperCase() !== currency) throw new BadRequestException('payment_currency_mismatch');
     const expected = Math.round(Number(order.pricing_snapshot?.totals?.total || 0) * 100) / 100;
-    if (amount !== expected) throw new BadRequestException('payment_amount_mismatch');
+    // Insurance orders with a partial decision settle only the accepted co-pay
+    // share online; the insurer share is settled off-gateway.
+    const copayExpected = String(order.payment_method || '').toLowerCase() === 'insurance'
+      && order.insurance_decision?.outcome === 'partial'
+      && order.insurance_decision?.patient_acceptance?.kind === 'co-pay'
+      ? Math.round(Number(order.insurance_decision.patient_share || 0) * 100) / 100
+      : null;
+    if (amount !== expected && amount !== copayExpected) throw new BadRequestException('payment_amount_mismatch');
     if (['cancelled', 'expired'].includes(String(order.status))) throw new BadRequestException('payment_order_not_collectable');
 
     const evidence = {

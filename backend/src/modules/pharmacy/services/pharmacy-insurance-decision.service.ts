@@ -145,4 +145,61 @@ export class PharmacyInsuranceDecisionService {
       return { ok: true, idempotent: false, status: PharmacyOrderState.CANCELLED };
     });
   }
+
+  /**
+   * Patient accepts the recorded insurance outcome: 'co-pay' accepts the
+   * derived patient share (partial approvals), 'self-pay' opts to pay the full
+   * selected quote out of pocket (partial or rejected decisions). Acceptance
+   * never creates a payment — it only unlocks the governed payment step.
+   */
+  async acceptByPatient(patient: any, orderId: string, kind: string, paymentMethodChosen?: string, idempotencyKey?: string) {
+    if (!patient?.id) throw new ForbiddenException('patient_identity_required');
+    const acceptanceKind = String(kind || '').toLowerCase();
+    if (!['co-pay', 'self-pay'].includes(acceptanceKind)) throw new BadRequestException('invalid_insurance_acceptance_kind');
+    if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) throw new BadRequestException('idempotency_key_required');
+    return this.withTransaction(async (session) => {
+      const order: any = await (this.orders.findOne({ id: orderId, patient_account_id: patient.id }) as any).session(session);
+      if (!order) throw new NotFoundException('order_not_found');
+      if (order.insurance_decision?.patient_acceptance?.idempotency_key === idempotencyKey) {
+        return { ok: true, idempotent: true, status: order.status };
+      }
+      if (this.paymentMethod(order) !== 'insurance') throw new BadRequestException('order_has_no_insurance');
+      const decision = order.insurance_decision;
+      if (!decision) throw new BadRequestException('insurance_decision_pending');
+      if (decision.patient_acceptance) throw new BadRequestException('insurance_acceptance_already_recorded');
+      if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+      if (acceptanceKind === 'co-pay' && !(decision.outcome === 'partial' && Number(decision.patient_share || 0) > 0)) {
+        throw new BadRequestException('copay_acceptance_requires_partial_decision');
+      }
+      if (acceptanceKind === 'self-pay' && !['partial', 'rejected'].includes(decision.outcome)) {
+        throw new BadRequestException('self_pay_acceptance_not_applicable');
+      }
+      const now = new Date();
+      const acceptance = { kind: acceptanceKind, payment_method: String(paymentMethodChosen || 'card').toLowerCase(), idempotency_key: idempotencyKey, accepted_at: now };
+      // Self-pay converts the order to a plain online-paid order for the full quote.
+      const set: any = { 'insurance_decision.patient_acceptance': acceptance };
+      if (acceptanceKind === 'self-pay') {
+        set.payment_method = 'card';
+        set.coverage_mode = 'cash';
+        set.status = PharmacyOrderState.CASH_CARD_PAYMENT_PENDING;
+        set.quote_accepted_at = now;
+      }
+      const update = await this.orders.updateOne(
+        { id: order.id, patient_account_id: patient.id, 'insurance_decision.patient_acceptance': { $exists: false } },
+        { $set: set, $push: { timeline: { ts: now, event: `insurance_${acceptanceKind.replace('-', '_')}_accepted`, by: patient.id, meta: { outcome: decision.outcome, patient_share: decision.patient_share } } } },
+        { session },
+      );
+      if (!this.modified(update)) throw new BadRequestException('insurance_acceptance_conflict');
+      try {
+        await this.connection.collection('domain_outbox').updateOne(
+          { aggregate_type: 'pharmacy_order', aggregate_id: order.id, event_type: `pharmacy.insurance.${acceptanceKind}_accepted`, idempotency_key: idempotencyKey },
+          { $setOnInsert: { aggregate_type: 'pharmacy_order', aggregate_id: order.id, event_type: `pharmacy.insurance.${acceptanceKind}_accepted`, idempotency_key: idempotencyKey, payload: { order_id: order.id, patient_account_id: patient.id, kind: acceptanceKind }, state: 'pending', created_at: now } },
+          { upsert: true, session },
+        );
+      } catch (error: any) {
+        if (Number(error?.code) !== 11000) throw error;
+      }
+      return { ok: true, idempotent: false, kind: acceptanceKind, status: set.status || order.status };
+    });
+  }
 }

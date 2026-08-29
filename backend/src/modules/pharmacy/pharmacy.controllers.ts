@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, UseGuards, Query, Headers, ForbiddenException, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentUser, JwtAuthGuard, Roles } from '../../common/auth.guard';
 import { UserRole } from '../../common/enums';
 import { PharmacyOrderService } from './services/pharmacy-order.service';
@@ -33,8 +33,20 @@ export class PatientPharmacyController {
   @Post('orders/:id/payment-intent') paymentIntent(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.payments.createPaymentIntent(u, id, b?.idempotency_key); }
   @Post('orders/:id/insurance-rejection/cancel') cancelRejectedInsurance(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.cancelRejectedByPatient(u, id, b?.idempotency_key); }
   @Get('orders/:id/offers') listOffers(@CurrentUser() u: any, @Param('id') id: string) { return this.offers.listForPatient(u, id); }
-  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: any) {
-    return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key);
+  @Post('orders/:id/offers/:offerId/select') selectOffer(@CurrentUser() u: any, @Param('id') id: string, @Param('offerId') offerId: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+    return this.offers.selectByPatient(u, id, offerId, b?.idempotency_key || idemHeader, b?.coverage_mode);
+  }
+
+  @Post('orders/:id/final-quote/accept') acceptFinalQuote(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+    return this.orders.acceptFinalQuote(u, id, b?.quote_hash, b?.quote_revision, b?.idempotency_key || idemHeader);
+  }
+
+  @Post('orders/:id/cod/register') registerCod(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+    return this.orders.registerCod(u, id, b?.idempotency_key || idemHeader);
+  }
+
+  @Post('orders/:id/insurance/:kind/accept') acceptInsurance(@CurrentUser() u: any, @Param('id') id: string, @Param('kind') kind: string, @Body() b: any, @Headers('idempotency-key') idemHeader?: string) {
+    return this.insurance.acceptByPatient(u, id, kind, b?.payment_method, b?.idempotency_key || idemHeader);
   }
 }
 
