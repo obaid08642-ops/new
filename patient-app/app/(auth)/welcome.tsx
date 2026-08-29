@@ -9,6 +9,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { lightColors, darkColors } from '../../src/theme/colors';
 import { router } from 'expo-router';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { useDispatch } from 'react-redux';
+import { apiFetch, storeAuthSession } from '../../utils/api';
+import { getDeviceId } from '../../src/utils/deviceId';
+import { decodeJwt } from '../../src/utils/jwt';
+import { guestLogin } from '../../src/store/slices/authSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +29,40 @@ export default function Welcome() {
   };
   const colors = isDark ? darkColors : lightColors;
   const [langModalVisible, setLangModalVisible] = useState(false);
-  
+  const dispatch = useDispatch();
+  const [guestBusy, setGuestBusy] = useState(false);
+  const [guestError, setGuestError] = useState(null);
+
+  // Guest entry — a REAL device-bound guest account from the backend
+  // (/auth/guest). The same device always gets the same guest account, so the
+  // guest's orders/history persist and merge into their account on register.
+  const continueAsGuest = async () => {
+    if (guestBusy) return;
+    setGuestBusy(true);
+    setGuestError(null);
+    try {
+      const deviceId = await getDeviceId();
+      const res = await apiFetch('/auth/guest', {
+        method: 'POST',
+        headers: { 'x-device-id': deviceId },
+        body: JSON.stringify({}),
+      });
+      const token = typeof res?.token === 'string' ? res.token : (res?.token?.accessToken || null);
+      if (!token) throw new Error('guest_session_failed');
+      await storeAuthSession(res?.token);
+      const decoded = decodeJwt(token) || {};
+      dispatch(guestLogin({
+        user: res?.user || { id: decoded.sub, role: 'guest', name: lang === 'ar' ? 'زائر' : 'Guest' },
+        token,
+      }));
+      router.replace('/(tabs)');
+    } catch (e) {
+      setGuestError(lang === 'ar' ? 'تعذر بدء جلسة الضيف — تحقق من الاتصال وحاول مجدداً' : 'Could not start a guest session — check your connection and retry');
+    } finally {
+      setGuestBusy(false);
+    }
+  };
+
   const langs = [
     { code: 'ar', name: 'العربية' },
     { code: 'en', name: 'English' },
@@ -135,6 +173,23 @@ export default function Welcome() {
         >
           <LocalizedText style={[styles.secondaryBtnText, { color: resolveColor('var(--n)') } ]}>{lang === 'ar' ? 'تسجيل دخول' : 'Log In'}</LocalizedText>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.secondaryBtn, { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: resolveColor('var(--bd)'), opacity: guestBusy ? 0.6 : 1 }]}
+          onPress={continueAsGuest}
+          activeOpacity={0.8}
+          disabled={guestBusy}
+        >
+          <LocalizedText style={[styles.secondaryBtnText, { color: resolveColor('var(--t2)') } ]}>
+            {guestBusy
+              ? (lang === 'ar' ? 'جارٍ إنشاء جلسة الضيف...' : 'Creating guest session...')
+              : (lang === 'ar' ? 'المتابعة كضيف (بدون حساب)' : 'Continue as Guest (no account)')}
+          </LocalizedText>
+        </TouchableOpacity>
+
+        {guestError ? (
+          <LocalizedText style={{ color: '#DC2626', fontSize: 12, marginTop: 8, textAlign: 'center' }}>{guestError}</LocalizedText>
+        ) : null}
 
         <View style={{ marginTop: 24, width: '100%', alignItems: 'center' }}>
           <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 20, width: '80%' }}>
