@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   Switch, Dimensions, Alert, TextInput, Image
@@ -12,7 +12,7 @@ import { useTheme, useLang, useToast } from '../../context';
 import {
   NBtn, NCard, NInput, NPhoneInput, NPassStrength,
   NCheckbox, NToggle, NBadge, NDivider,
-  NHeader, NScroll, NPriceInput, NSearch, NDropdown, NDatePickerSheet
+  NHeader, NScroll, NPriceInput, NSearch, NDropdown, NDatePickerSheet, WizardSection
 } from '../../components/ui';
 import { I, IBg } from '../../components/icons';
 import { Validate } from '../../security/Security';
@@ -95,29 +95,74 @@ export function NursingRegistration({ onBack, onDone }: { onBack: () => void; on
   const [step, setStep] = useState(1);
   const [data, setData] = useState<NurseRegData>(INIT);
   const [showMap, setShowMap] = useState(false);
-  const TOTAL = 8;
+  const TOTAL = 4;
   const [submitted, setSub] = useState(false);
   const update = useCallback((p: Partial<NurseRegData>) => setData(prev => ({ ...prev, ...p })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+  const next = () => { if (step < TOTAL) setStep(s => s + 1); };
   const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
 
   if (submitted) return <RegistrationSuccess onDone={onDone} email={data.managerEmail} providerType="nursing" />;
 
   const screens: Record<number, React.ReactElement> = {
-    1: <NS1 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    2: <NS2 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    3: <NS3 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    4: <NS4 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    5: <NS5 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    6: <NS6 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    7: <PStep7SubmitAdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    8: <NS8Signature data={data} update={update} onDone={() => setSub(true)} onBack={back} step={step} total={TOTAL} />,
+    1: <MergedNursingStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الحساب والتراخيص" titleEn="Account & Licensing"
+         subAr="بيانات الدخول ثم التراخيص والوثائق الرسمية" subEn="Login details, then licenses & official documents"
+         sections={[
+           { comp: NS1, titleAr: 'المعلومات الأساسية', titleEn: 'Basic Info' },
+           { comp: NS2, titleAr: 'التراخيص والوثائق', titleEn: 'Licenses & KYC' },
+         ]} />,
+    2: <MergedNursingStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الخدمات والأسعار" titleEn="Services & Pricing"
+         subAr="حدد خدماتك التمريضية ونماذج التسعير" subEn="Select your nursing services and pricing models"
+         sections={[
+           { comp: NS3, titleAr: 'الخدمات التمريضية', titleEn: 'Nursing Services' },
+           { comp: NS4, titleAr: 'نموذج التسعير', titleEn: 'Pricing Model' },
+         ]} />,
+    3: <MergedNursingStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="التغطية والجدولة والتأمين" titleEn="Coverage, Schedule & Insurance"
+         subAr="نطاق التغطية وساعات العمل وشركات التأمين" subEn="Coverage area, working hours & insurance"
+         sections={[
+           { comp: NS5, titleAr: 'نطاق التغطية', titleEn: 'Coverage Area' },
+           { comp: NS6, titleAr: 'الجدولة والتأمين', titleEn: 'Schedule & Insurance' },
+           { comp: PStep7SubmitAdminWarning, titleAr: 'تنبيه هام', titleEn: 'Important Notice' },
+         ]} />,
+    4: <NS8Signature data={data} update={update} onDone={() => setSub(true)} onBack={back} step={step} total={TOTAL} />,
   };
   return screens[step] ?? null;
 }
 
+function MergedNursingStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
+  const { lang } = useLang(); const AR = lang === 'ar';
+  const refs = useRef<any[]>([]);
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    if (busy) return; setBusy(true);
+    try {
+      for (let i = 0; i < sections.length; i++) {
+        const ok = await refs.current[i]?.();
+        if (ok === false) return; // child already surfaced the validation error
+      }
+      onNext();
+    } finally { setBusy(false); }
+  };
+  return (
+    <NScroll>
+      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
+      {sections.map((s: any, idx: number) => {
+        const Comp = s.comp;
+        return (
+          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
+            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
+          </WizardSection>
+        );
+      })}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
+    </NScroll>
+  );
+}
+
 // ── STEP 1: BASIC INFO ──────────────────────────────────────────
-function NS1({ data, update, onNext, onBack, step, total }: any) {
+function NS1({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [showLocModal, setShowLocModal] = useState(false);
@@ -144,8 +189,8 @@ function NS1({ data, update, onNext, onBack, step, total }: any) {
   };
 
   const [loading, setLoading] = useState(false);
-    const handleNext = async () => {
-    if (!validate()) return;
+    const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
     setLoading(true);
     try {
       await ProviderApi.start({
@@ -156,22 +201,28 @@ function NS1({ data, update, onNext, onBack, step, total }: any) {
         type: 'home_care',
       });
       await ProviderApi.login(data.managerPhone, data.password);
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       try {
         await ProviderApi.login(data.managerPhone, data.password);
-        onNext();
+        if (!bare) onNext();
+        return true;
       } catch (loginErr: any) {
         setErrs({ phone: e.message || 'Error' });
       }
+      return false;
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'بيانات مقدم الخدمة' : 'Provider Basic Info'} sub={AR ? 'تمريض منزلي — اختر نوع التسجيل' : 'Home Nursing — choose registration type'} step={step} total={total} onBack={onBack} />
+  const body = (
+    <>
 
       <View style={{ marginBottom: SP.xl }}>
         <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'نوع مقدم الخدمة' : 'Provider Type'}<Text style={{ color: theme.danger }}> *</Text></Text>
@@ -236,13 +287,21 @@ function NS1({ data, update, onNext, onBack, step, total }: any) {
           );
         })}
       </View>
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'بيانات مقدم الخدمة' : 'Provider Basic Info'} sub={AR ? 'تمريض منزلي — اختر نوع التسجيل' : 'Home Nursing — choose registration type'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} loading={loading} />
     </NScroll>
   );
+
 }
 
 // ── STEP 2: KYC ─────────────────────────────────────────────────
-function NS2({ data, update, onNext, onBack, step, total }: any) {
+function NS2({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const isIndiv = data.mode === 'individual';
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -304,8 +363,8 @@ function NS2({ data, update, onNext, onBack, step, total }: any) {
   };
 
   const [loading, setLoading] = useState(false);
-  const handleNext = async () => {
-    if (!validate()) return;
+  const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
     setLoading(true);
     try {
       const urls: string[] = [];
@@ -327,17 +386,22 @@ function NS2({ data, update, onNext, onBack, step, total }: any) {
         gender: data.gender || undefined,
         languages: data.languages,
       });
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      return false;
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التراخيص والوثائق' : 'Licenses & KYC'} sub={AR ? 'جميع البيانات مشفّرة ومحمية' : 'All data encrypted'} step={step} total={total} onBack={onBack} />
+  const body = (
+    <>
 
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
@@ -378,9 +442,17 @@ function NS2({ data, update, onNext, onBack, step, total }: any) {
           </>
         )}
       </View>
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'التراخيص والوثائق' : 'Licenses & KYC'} sub={AR ? 'جميع البيانات مشفّرة ومحمية' : 'All data encrypted'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} loading={loading} />
     </NScroll>
   );
+
 }
 
 function DocBtn({ label, done, onPress, theme }: { label: string; done: boolean; onPress: () => void; theme: any }) {
@@ -394,7 +466,7 @@ function DocBtn({ label, done, onPress, theme }: { label: string; done: boolean;
 }
 
 // ── STEP 3: SERVICES SETUP ──────────────────────────────────────
-function NS3({ data, update, onNext, onBack, step, total }: any) {
+function NS3({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
  const nursingCatalog = useServicesCatalog('nursing');
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
 
@@ -408,9 +480,18 @@ function NS3({ data, update, onNext, onBack, step, total }: any) {
     return true;
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'الخدمات التمريضية' : 'Nursing Services'} sub={AR ? 'حدد الخدمات التي تقدمها' : 'Select services you offer'} step={step} total={total} onBack={onBack} />
+    const handleNext = () => {
+    if (!validate()) return false;
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+const body = (
+    <>
 
       <NCard style={{ backgroundColor: '#E91E6310', marginBottom: SP.xl }}>
         <Text style={{ fontSize: FS.sm, color: '#E91E63', lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
@@ -444,17 +525,33 @@ function NS3({ data, update, onNext, onBack, step, total }: any) {
         );
       })}
       <View style={{ height: SP.xl }} />
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={() => { if (validate()) onNext(); }} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'الخدمات التمريضية' : 'Nursing Services'} sub={AR ? 'حدد الخدمات التي تقدمها' : 'Select services you offer'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} />
     </NScroll>
   );
+
 }
 
 // ── STEP 4: PRICING MODEL ───────────────────────────────────────
-function NS4({ data, update, onNext, onBack, step, total }: any) {
+function NS4({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نموذج التسعير' : 'Pricing Model'} sub={AR ? 'حدد طريقة التسعير لخدماتك' : 'Set your pricing model'} step={step} total={total} onBack={onBack} />
+    const handleNext = () => {
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+const body = (
+    <>
 
       {PRICING_MODELS.map(pm => {
         const isActive = data.pricingModels.includes(pm.id);
@@ -487,13 +584,21 @@ function NS4({ data, update, onNext, onBack, step, total }: any) {
           {AR ? 'يمكنك تفعيل أكثر من نموذج تسعير لاحقاً من الإعدادات. حالياً اختر النموذج الأساسي.' : 'You can enable multiple pricing models later in settings. Choose your primary model now.'}
         </Text>
       </NCard>
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={onNext} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'نموذج التسعير' : 'Pricing Model'} sub={AR ? 'حدد طريقة التسعير لخدماتك' : 'Set your pricing model'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} />
     </NScroll>
   );
+
 }
 
 // ── STEP 5: COVERAGE ────────────────────────────────────────────
-function NS5({ data, update, onNext, onBack, step, total }: any) {
+function NS5({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [showLocModal, setShowLocModal] = useState(false);
@@ -505,35 +610,19 @@ function NS5({ data, update, onNext, onBack, step, total }: any) {
     setErrs(e); return Object.keys(e).length === 0;
   };
 
-  const [loading, setLoading] = useState(false);
-  const handleNext = async () => {
-    if (!validate()) return;
-    setLoading(true);
-    try {
-      await ProviderApi.start({
-        phone: data.managerPhone,
-        password: data.password,
-        full_name: data.managerName,
-        email: data.managerEmail,
-        type: 'home_care',
-      });
-      await ProviderApi.login(data.managerPhone, data.password);
-      onNext();
-    } catch (e: any) {
-      try {
-        await ProviderApi.login(data.managerPhone, data.password);
-        onNext();
-      } catch (loginErr: any) {
-        setErrs({ phone: e.message || 'Error' });
-      }
-    } finally {
-      setLoading(false);
-    }
+    const [loading, setLoading] = useState(false);
+  const handleNext = () => {
+    if (!validate()) return false;
+    if (!bare) onNext();
+    return true;
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نطاق التغطية' : 'Coverage Area'} sub={AR ? 'حدد المناطق التي تغطيها' : 'Define your service area'} step={step} total={total} onBack={onBack} />
+  const body = (
+    <>
 
       <Text style={[st.label, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>{AR ? 'المدينة' : 'City'}<Text style={{ color: theme.danger }}> *</Text></Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.lg }}>
@@ -601,13 +690,21 @@ function NS5({ data, update, onNext, onBack, step, total }: any) {
         <LocationPickerModal visible={showLocModal} onClose={() => setShowLocModal(false)} onSelectLocation={(l) => update({ location: l })} initialLocation={data.location.lat ? data.location : undefined} />
       </NCard>
 
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={() => { if (validate()) onNext(); }} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'نطاق التغطية' : 'Coverage Area'} sub={AR ? 'حدد المناطق التي تغطيها' : 'Define your service area'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} />
     </NScroll>
   );
+
 }
 
 // ── STEP 6: SCHEDULE & INSURANCE ────────────────────────────────────────────
-function NS6({ data, update, onNext, onBack, step, total }: any) {
+function NS6({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
@@ -639,9 +736,17 @@ function NS6({ data, update, onNext, onBack, step, total }: any) {
     update({ acceptedInsurance: updated });
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'المواعيد والتأمين' : 'Schedule & Insurance'} sub={AR ? 'حدد أوقات العمل وقبول التأمين' : 'Set availability and insurance options'} step={step} total={total} onBack={onBack} />
+    const handleNext = () => {
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+const body = (
+    <>
 
       <NCard style={{ marginBottom: SP.xl }}>
         <NToggle label={AR ? 'متاح 24/7' : 'Available 24/7'} sub={AR ? 'خدمة متواصلة كل الأيام' : 'Around-the-clock every day'} value={data.is24_7} onChange={v => update({ is24_7: v, workDays: v ? ['SUN','MON','TUE','WED','THU','FRI','SAT'] : data.workDays })} />
@@ -759,17 +864,33 @@ function NS6({ data, update, onNext, onBack, step, total }: any) {
         )}
       </NCard>
 
-      <NBtn label={AR ? 'التالي' : 'Next'} onPress={onNext} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'المواعيد والتأمين' : 'Schedule & Insurance'} sub={AR ? 'حدد أوقات العمل وقبول التأمين' : 'Set availability and insurance options'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} />
     </NScroll>
   );
+
 }
 
 // ── STEP 7: ADMIN WARNING ───────────────────────────────────────────────────
-function PStep7SubmitAdminWarning({ data, update, onNext, onBack, step, total }: any) {
+function PStep7SubmitAdminWarning({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
+    const handleNext = () => {
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+const body = (
+    <>
       
       <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
         <View style={{ alignSelf: 'center', marginBottom: SP.md }}><I name="info" size={40} color={theme.danger} /></View>
@@ -784,9 +905,17 @@ function PStep7SubmitAdminWarning({ data, update, onNext, onBack, step, total }:
         </Text>
       </View>
 
-      <NBtn label={AR ? 'أوافق وأتفهم ذلك' : 'I Understand & Agree'} onPress={onNext} style={{ marginTop: SP.xl }} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'أوافق وأتفهم ذلك' : 'I Understand & Agree'} onPress={handleNext} style={{ marginTop: SP.xl }} />
     </NScroll>
   );
+
 }
 
 // ── STEP 8: REVIEW & SUBMIT ─────────────────────────────────────

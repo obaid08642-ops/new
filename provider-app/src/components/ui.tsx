@@ -361,6 +361,21 @@ export function NDivider({ label, style }:{ label?:string; style?:object }) {
  );
 }
 
+// ─── Wizard Section (bare-mode wrapper for merged registration screens) ──────
+// A titled sub-section rendered inline inside a merged wizard screen — the
+// child step keeps its own fields but drops its private header/scroll/footer.
+export function WizardSection({ title, sub, children }:{ title?:string; sub?:string; children:ReactNode }) {
+ const { theme } = useTheme();
+ const { isRTL } = useLang();
+ return (
+ <View style={{ marginBottom:SP.lg }}>
+ {title ? <Text style={{ fontSize:FS.lg, fontWeight:FW.bold, color:theme.text, textAlign:isRTL?'right':'left', marginBottom:sub?4:SP.md }}>{title}</Text> : null}
+ {sub ? <Text style={{ fontSize:FS.sm, color:theme.textSub, textAlign:isRTL?'right':'left', marginBottom:SP.md, lineHeight:20 }}>{sub}</Text> : null}
+ {children}
+ </View>
+ );
+}
+
 // ─── Step Bar ─────────────────────────────────────────────────────────────────
 export function NStepBar({ total, current, style }:{ total:number; current:number; style?:object }) {
  const { theme } = useTheme();

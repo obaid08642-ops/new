@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   Switch, Dimensions, Alert, Image, TextInput, Modal } from 'react-native';
@@ -7,7 +7,7 @@ import { WebView } from 'react-native-webview';
 import { useTheme, useLang, useToast } from '../../context';
 import {
   NBtn, NInput, NPhoneInput, NPassStrength,
-  NCheckbox, NHeader, NScroll, NDropdown, NDatePickerSheet, NDivider
+  NCheckbox, NHeader, NScroll, NDropdown, NDatePickerSheet, NDivider, WizardSection
 } from '../../components/ui';
 import { Validate } from '../../security/Security';
 import { SP, R, FS, FW, SPECIALTIES, DEGREES, INSURANCE, CITIES } from '../../constants';
@@ -30,7 +30,9 @@ const { width: W } = Dimensions.get('window');
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface DoctorRegData {
-  // Step 1
+  // Step 1 — legalName = full official name (as in ID/license); nameAr/nameEn
+  // are the SHORT display names shown to patients per app language.
+  legalName: string;
   nameAr: string; nameEn: string; email: string;
   phone: string; password: string; confirmPass: string; gender: string;
   // Step 2
@@ -61,7 +63,7 @@ interface DoctorRegData {
 }
 
 const INITIAL: DoctorRegData = {
-  nameAr:'', nameEn:'', email:'', phone:'', password:'', confirmPass:'', gender:'',
+  legalName:'', nameAr:'', nameEn:'', email:'', phone:'', password:'', confirmPass:'', gender:'',
   scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
   specialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
   offersClinic:false, clinicPrice:'', clinicDuration:'',
@@ -103,31 +105,79 @@ export function DoctorRegistration({ onBack, onDone }: { onBack: () => void; onD
   const [step, setStep] = useState(1);
   const [data, setData] = useState<DoctorRegData>(INITIAL);
   const [showMap, setShowMap] = useState(false);
-    const TOTAL = 7;
+    const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);
 
   const update = useCallback((patch: Partial<DoctorRegData>) => setData(p => ({ ...p, ...patch })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(5); };
   const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
 
+  // 4 merged screens (was 7): related few-field steps now live on ONE page.
   const screens: Record<number, React.ReactElement> = {
-    8: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
-    1: <Step1Basic data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    2: <Step2KYC data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    3: <Step3Profile data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    4: <Step4PricingAndLocation data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    5: <Step5Schedule data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    6: <Step6Insurance data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    7: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+    5: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+    1: <MergedDoctorStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الحساب والتوثيق" titleEn="Account & Licensing"
+         subAr="بيانات الدخول والاسم الرسمي والمستندات" subEn="Login, official name & documents"
+         sections={[
+           { comp: Step1Basic, titleAr: 'المعلومات الأساسية', titleEn: 'Basic Info' },
+           { comp: Step2KYC, titleAr: 'التوثيق والمستندات', titleEn: 'KYC & Documents' },
+         ]} />,
+    2: <MergedDoctorStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الملف المهني والخدمات" titleEn="Profile & Services"
+         subAr="التخصص والصور وخدماتك وأسعارها" subEn="Specialty, photos, services & pricing"
+         sections={[
+           { comp: Step3Profile, titleAr: 'الملف الشخصي المهني', titleEn: 'Professional Profile' },
+           { comp: Step4PricingAndLocation, titleAr: 'الخدمات والأسعار', titleEn: 'Services & Pricing' },
+         ]} />,
+    3: <MergedDoctorStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الجدولة والتأمين والعنوان" titleEn="Schedule, Insurance & Address"
+         subAr="مواعيد العمل وشركات التأمين وموقع العيادة" subEn="Working hours, insurance & clinic address"
+         sections={[
+           { comp: Step5Schedule, titleAr: 'مواعيد العمل والجدولة', titleEn: 'Working Hours' },
+           { comp: Step6Insurance, titleAr: 'التأمين وموقع تقديم الخدمة', titleEn: 'Insurance & Clinic Info' },
+         ]} />,
+    4: <Step7Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
   };
   return screens[step] ?? null;
 }
 
+// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
+function MergedDoctorStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
+  const { lang } = useLang(); const AR = lang === 'ar';
+  const refs = useRef<any[]>([]);
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    if (busy) return; setBusy(true);
+    try {
+      for (let i = 0; i < sections.length; i++) {
+        const ok = await refs.current[i]?.();
+        if (ok === false) return; // child already surfaced the validation error
+      }
+      onNext();
+    } finally { setBusy(false); }
+  };
+  return (
+    <NScroll>
+      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
+      {sections.map((s: any, idx: number) => {
+        const Comp = s.comp;
+        return (
+          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
+            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
+          </WizardSection>
+        );
+      })}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
+    </NScroll>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
-function Step1Basic({ data, update, onNext, onBack, step, total }: any) {
+function Step1Basic({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<any>({});
 
+  const legalNameRef = useRef<any>(null);
   const nameArRef = useRef<any>(null);
   const nameEnRef = useRef<any>(null);
   const phoneRef = useRef<any>(null);
@@ -137,6 +187,7 @@ function Step1Basic({ data, update, onNext, onBack, step, total }: any) {
 
   const validate = () => {
     const e: any = {};
+    if (!data.legalName || String(data.legalName).trim().split(/\s+/).length < 2) e.legalName = AR ? 'الاسم الرسمي الكامل مطلوب (ثنائي على الأقل)' : 'Full official name required (at least two parts)';
     if (!data.nameAr) e.nameAr = AR ? 'مطلوب' : 'Required';
     if (!data.nameEn) e.nameEn = AR ? 'مطلوب' : 'Required';
     if (!Validate.email(data.email)) e.email = AR ? 'بريد غير صحيح' : 'Invalid email';
@@ -149,40 +200,52 @@ function Step1Basic({ data, update, onNext, onBack, step, total }: any) {
   };
 
   const [loading, setLoading] = useState(false);
-  
-    
-  const handleNext = async () => {
-    if (!validate()) return;
+
+  const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
 
     setLoading(true);
     try {
       await ProviderApi.start({
         phone: data.phone,
         password: data.password,
-        full_name: data.nameAr,
+        // Account carries the OFFICIAL name; patients see display_name_ar/en instead.
+        full_name: data.legalName,
         email: data.email,
         type: 'doctor',
       });
       await ProviderApi.login(data.phone, data.password);
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       try {
         await ProviderApi.login(data.phone, data.password);
-        onNext();
+        if (!bare) onNext();
+        return true;
       } catch (loginErr: any) {
         setErrs({ phone: e.message || 'Error' });
+        return false;
       }
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'المعلومات الأساسية' : 'Basic Info'} sub={AR ? 'الاسم وبيانات الدخول' : 'Name & Login Info'} step={step} total={total} onBack={onBack} />
-      
-      <NInput innerRef={nameArRef} label={AR ? 'الاسم الكامل (بالعربية)' : 'Full Name (Arabic)'} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={AR ? 'الاسم الكامل (بالإنجليزية)' : 'Full Name (English)'} value={data.nameEn} onChange={v => update({ nameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+  const body = (
+    <>
+      <NInput innerRef={legalNameRef} label={AR ? 'الاسم الكامل كما في الأوراق الرسمية' : 'Full Name (as in official documents)'} value={data.legalName} onChange={v => update({ legalName: v })} required error={errs.legalName} returnKey="next" onSubmit={() => nameArRef.current?.focus()} />
+      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: -SP.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
+        {AR ? 'يُستخدم في العقد والتوثيق الرسمي — لا يظهر للمرضى.' : 'Used for the contract & official verification — patients never see it.'}
+      </Text>
+      <NInput innerRef={nameArRef} label={AR ? 'الاسم المختصر الذي يظهر للمرضى (بالعربية)' : 'Display Name for patients (Arabic)'} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.nameAr} returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={AR ? 'الاسم المختصر الذي يظهر للمرضى (بالإنجليزية)' : 'Display Name for patients (English)'} value={data.nameEn} onChange={v => update({ nameEn: v })} required error={errs.nameEn} returnKey="next" onSubmit={() => phoneRef.current?.focus()} />
+      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: -SP.sm, marginBottom: SP.md, textAlign: AR ? 'right' : 'left', lineHeight: 18 }}>
+        {AR ? 'يظهر للمريض الاسم العربي إذا كانت لغة تطبيقه العربية، والإنجليزي لأي لغة أخرى.' : 'Patients see the Arabic name in Arabic locale, the English name in any other locale.'}
+      </Text>
       
       <NPhoneInput innerRef={phoneRef} label={AR ? 'رقم الجوال' : 'Phone'} value={data.phone} onChange={v => update({ phone: v })} error={errs.phone} required />
       <NInput innerRef={emailRef} label={AR ? 'البريد الإلكتروني' : 'Email'} value={data.email} onChange={v => update({ email: v })} kbType="email-address" caps="none" error={errs.email} required returnKey="next" onSubmit={() => passwordRef.current?.focus()} />
@@ -196,16 +259,20 @@ function Step1Basic({ data, update, onNext, onBack, step, total }: any) {
       <NInput innerRef={passwordRef} label={AR ? 'كلمة المرور' : 'Password'} value={data.password} onChange={v => update({ password: v })} secure error={errs.password} required returnKey="next" onSubmit={() => confirmPassRef.current?.focus()} />
       <NPassStrength password={data.password} />
       <NInput innerRef={confirmPassRef} label={AR ? 'تأكيد كلمة المرور' : 'Confirm Password'} value={data.confirmPass} onChange={v => update({ confirmPass: v })} secure error={errs.confirmPass} required returnKey="done" onSubmit={handleNext} />
-      
-      
-          
-          <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} style={{ marginTop: SP.xl }} />
-          </NScroll>
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'المعلومات الأساسية' : 'Basic Info'} sub={AR ? 'الاسم وبيانات الدخول' : 'Name & Login Info'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} style={{ marginTop: SP.xl }} />
+    </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step2KYC({ data, update, onNext, onBack, step, total }: any) {
+function Step2KYC({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   
   const pickDocument = (field: string) => {
@@ -265,7 +332,11 @@ function Step2KYC({ data, update, onNext, onBack, step, total }: any) {
   );
 
   const [loading, setLoading] = useState(false);
-  const handleNext = async () => {
+  const handleNext = async (): Promise<boolean> => {
+    if (!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri) {
+      show(AR ? 'أكمل بيانات التوثيق والمستندات المطلوبة' : 'Complete the required licensing fields & documents', 'error');
+      return false;
+    }
     setLoading(true);
     try {
       const idFrontUrl = await ProviderApi.uploadFile(data.idFrontUri, 'image/jpeg', 'id_front.jpg');
@@ -277,17 +348,22 @@ function Step2KYC({ data, update, onNext, onBack, step, total }: any) {
         license_number: data.scfhsNumber,
         license_documents: [idFrontUrl, scfhsUrl, extraUrl].filter(Boolean),
       });
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      return false;
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التوثيق والمستندات' : 'KYC & Documents'} step={step} total={total} onBack={onBack} />
+  const body = (
+    <>
       <NInput label={AR ? 'رقم الهوية الوطنية / الإقامة' : 'National ID'} value={data.nationalId} onChange={v=>update({nationalId:v})} kbType="numeric" required />
       <NInput label={AR ? 'رقم تصنيف الهيئة (SCFHS)' : 'SCFHS Number'} value={data.scfhsNumber} onChange={v=>update({scfhsNumber:v})} kbType="numeric" required />
       
@@ -295,26 +371,43 @@ function Step2KYC({ data, update, onNext, onBack, step, total }: any) {
       <DocBtn label={AR ? 'الهوية الوطنية (الوجه الأمامي)' : 'National ID (Front)'} field="idFrontUri" />
       <DocBtn label={AR ? 'بطاقة تصنيف الهيئة' : 'SCFHS License'} field="scfhsDocUri" />
       <DocBtn label={AR ? 'شهادات أو مستندات إضافية (اختياري)' : 'Additional Documents (Optional)'} field="extraDocUri" desc={AR ? 'مثل البورد، شهادات الزمالة...' : 'Fellowships, Board...'} />
-      
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'التوثيق والمستندات' : 'KYC & Documents'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} loading={loading} disabled={!data.nationalId || !data.scfhsNumber || !data.idFrontUri || !data.scfhsDocUri} style={{ marginTop: SP.lg }} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step3Profile({ data, update, onNext, onBack, step, total }: any) {
+function Step3Profile({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [showRemoveBg, setShowRemoveBg] = useState(false);
-  
+
+  const handleNext = (): boolean => {
+    if (!data.specialty || !data.degree) {
+      show(AR ? 'اختر التخصص والدرجة العلمية' : 'Select specialty and degree', 'error');
+      return false;
+    }
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
   const pickPhoto = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
     if (!result.canceled) update({ profilePhotoUri: result.assets[0].uri });
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'الملف الشخصي' : 'Professional Profile'} step={step} total={total} onBack={onBack} />
-      
+  const body = (
+    <>
       <View style={{ alignItems: 'center', marginBottom: SP.md }}>
         <TouchableOpacity onPress={pickPhoto} style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 2, borderColor: theme.primary }}>
           {data.profilePhotoUri ? <Image source={{ uri: data.profilePhotoUri }} style={{ width: 100, height: 100 }} /> : <I name="camera" size={32} color={theme.textSub} />}
@@ -387,13 +480,20 @@ function Step3Profile({ data, update, onNext, onBack, step, total }: any) {
         </ScrollView>
       </View>
       
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={onNext} disabled={!data.specialty || !data.degree} style={{ marginTop: SP.lg }} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'الملف الشخصي' : 'Professional Profile'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} disabled={!data.specialty || !data.degree} style={{ marginTop: SP.lg }} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step4PricingAndLocation({ data, update, onNext, onBack, step, total }: any) {
+function Step4PricingAndLocation({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [showMap, setShowMap] = useState(false);
 
@@ -419,13 +519,18 @@ function Step4PricingAndLocation({ data, update, onNext, onBack, step, total }: 
     return true;
   };
 
-  return (
-    <NScroll pad={false}>
-      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
-        <NHeader title={AR ? 'الخدمات والأسعار' : 'Services & Pricing'} step={step} total={total} onBack={onBack} />
-      </View>
-      
-      <View style={{ paddingHorizontal: SP.xl }}>
+  const handleNext = (): boolean => {
+    if (!validate()) return false;
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+      <View>
         {/* Clinic */}
         <View style={{ backgroundColor: theme.surface2, padding: SP.md, borderRadius: R.md, marginBottom: SP.md }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: data.offersClinic ? SP.md : 0 }}>
@@ -531,16 +636,32 @@ function Step4PricingAndLocation({ data, update, onNext, onBack, step, total }: 
           )}
         </View>
 
-        <NBtn label={AR ? 'متابعة' : 'Next'} onPress={() => { if (validate()) onNext(); }} style={{ marginTop: SP.lg, marginBottom: 50 }} />
+      </View>
+  );
+  if (bare) return body;
+  return (
+    <NScroll pad={false}>
+      <View style={{ padding: SP.xl, paddingBottom: 0 }}>
+        <NHeader title={AR ? 'الخدمات والأسعار' : 'Services & Pricing'} step={step} total={total} onBack={onBack} />
+      </View>
+      <View style={{ paddingHorizontal: SP.xl }}>
+        {body}
+        <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg, marginBottom: 50 }} />
       </View>
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step5Schedule({ data, update, onNext, onBack, step, total }: any) {
+function Step5Schedule({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
+
+  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
   const toggleDay = (day: string, service: 'unified' | 'clinic' | 'video' | 'home') => {
     let daysKey = `${service}Days` as keyof DoctorRegData;
@@ -613,10 +734,8 @@ function Step5Schedule({ data, update, onNext, onBack, step, total }: any) {
     );
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'مواعيد العمل والجدولة' : 'Working Hours'} step={step} total={total} onBack={onBack} />
-      
+  const body = (
+    <>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.lg }}>
         <TouchableOpacity onPress={() => update({ scheduleType: 'unified' })} style={{ flex: 1, padding: SP.md, borderWidth: 1, borderColor: data.scheduleType === 'unified' ? theme.primary : theme.border, backgroundColor: data.scheduleType === 'unified' ? theme.primaryLight : theme.bg, borderRadius: R.md, alignItems: 'center' }}>
           <Text style={{ color: data.scheduleType === 'unified' ? theme.primary : theme.text, fontWeight: FW.bold }}>{AR ? 'جدول موحد' : 'Unified'}</Text>
@@ -694,13 +813,20 @@ function Step5Schedule({ data, update, onNext, onBack, step, total }: any) {
         title={AR ? 'اختر تاريخ إجازتك' : 'Select Vacation Date'}
       />
 
-      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={onNext} style={{ marginTop: SP.lg }} />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'مواعيد العمل والجدولة' : 'Working Hours'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg }} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function Step6Insurance({ data, update, onNext, onBack, step, total }: any) {
+function Step6Insurance({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
@@ -728,10 +854,25 @@ function Step6Insurance({ data, update, onNext, onBack, step, total }: any) {
     update({ acceptedInsurance: updated });
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'التأمين وموقع تقديم الخدمة' : 'Insurance & Clinic Info'} step={step} total={total} onBack={onBack} />
-      
+  const handleNext = (): boolean => {
+    if (!data.city || !data.district || !data.address) {
+      show(AR ? 'يرجى إكمال العنوان الشامل (المدينة، الحي، الشارع)' : 'Please complete the address (City, District, Street)', 'error');
+      return false;
+    }
+    if (!data.cashOnly && (!data.acceptedInsurance || data.acceptedInsurance.length === 0)) {
+      show(AR ? 'يرجى اختيار شركة تأمين واحدة على الأقل أو تفعيل الدفع النقدي فقط' : 'Please select at least one insurance company or enable Cash Only', 'error');
+      return false;
+    }
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.surface2, padding: SP.lg, borderRadius: R.md, marginBottom: SP.sm }}>
         <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{AR ? 'الدفع نقداً فقط (لا أقبل التأمين)' : 'Cash Only (No Insurance)'}</Text>
         <Switch value={data.cashOnly} onValueChange={v=>update({cashOnly:v})} />
@@ -827,21 +968,14 @@ function Step6Insurance({ data, update, onNext, onBack, step, total }: any) {
         </TouchableOpacity>
       </View>
 
-      <NBtn 
-        label={AR ? 'متابعة' : 'Next'} 
-        onPress={() => {
-          if (!data.city || !data.district || !data.address) {
-            show(AR ? 'يرجى إكمال العنوان الشامل (المدينة، الحي، الشارع)' : 'Please complete the address (City, District, Street)', 'error');
-            return;
-          }
-          if (!data.cashOnly && (!data.acceptedInsurance || data.acceptedInsurance.length === 0)) {
-            show(AR ? 'يرجى اختيار شركة تأمين واحدة على الأقل أو تفعيل الدفع النقدي فقط' : 'Please select at least one insurance company or enable Cash Only', 'error');
-            return;
-          }
-          onNext();
-        }} 
-        style={{ marginTop: SP.lg }} 
-      />
+    </>
+  );
+  if (bare) return <View>{body}</View>;
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'التأمين وموقع تقديم الخدمة' : 'Insurance & Clinic Info'} step={step} total={total} onBack={onBack} />
+      {body}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={handleNext} style={{ marginTop: SP.lg }} />
     </NScroll>
   );
 }
@@ -951,8 +1085,12 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
       }
 
       await ProviderApi.step2({
-        name_ar: data.nameAr,
-        name_en: data.nameEn,
+        // Official identity (contracts/verification) + patient-facing display names.
+        legal_name: data.legalName,
+        name_ar: data.legalName,
+        name_en: data.legalName,
+        display_name_ar: data.nameAr,
+        display_name_en: data.nameEn,
         city: data.city,
         district: data.district,
         location: data.location,
