@@ -122,7 +122,7 @@ const RENDERED_ONBOARDING_KEYS = new Set([
   'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster',
   'license_status', 'license_verified', 'commission_rate', 'onboarding_step', 'onboarding_completed',
   'createdAt', 'updatedAt',
-  'display_name_ar', 'display_name_en', 'gender', 'national_id', 'profile_photo', 'logo',
+  'display_name_ar', 'display_name_en', 'gender', 'national_id', 'profile_photo', 'logo', 'legal_name',
   'schedule_clinic', 'schedule_video', 'schedule_home', 'home_visit_radius_km',
   'clinic_duration', 'video_duration', 'home_transport_fee', 'home_transport_price',
   'vacation_date', 'registration_steps',
@@ -274,6 +274,7 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
             <div className="grid grid-cols-2 gap-4">
               <Field label="الاسم (عربي)" value={ob.name_ar} />
               <Field label="الاسم (إنجليزي)" value={ob.name_en} />
+              <Field label="الاسم الرسمي الكامل (الأوراق الرسمية)" value={ob.legal_name} />
               <Field label="الاسم المعروض للمستخدمين (عربي)" value={ob.display_name_ar} />
               <Field label="الاسم المعروض للمستخدمين (إنجليزي)" value={ob.display_name_en} />
               <Field label="الجنس" value={ob.gender === 'male' ? 'ذكر' : ob.gender === 'female' ? 'أنثى' : ob.gender} />

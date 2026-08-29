@@ -110,7 +110,9 @@ export class ProviderOnboardingService {
     const fields = ['name_ar', 'name_en', 'city', 'district', 'address', 'location', 'license_number', 'license_documents', 'coverage_radius_km', 'accepts_insurance', 'accepted_insurance', 'accepts_cash', 'bio', 'languages', 'iban', 'bank_account_name', 'pharmacy_type', 'cr_number', 'moh_license_number', 'sfda_license_number', 'tax_number',
       // widened: fields the apps already sent but that were silently dropped
       'clinic_images', 'scfhs_license_number', 'national_id', 'gender', 'clinic_name',
-      'display_name_ar', 'display_name_en', 'profile_photo', 'logo'];
+      'display_name_ar', 'display_name_en', 'profile_photo', 'logo',
+      // official full name (contracts/verification) — patients see display_name_* instead
+      'legal_name'];
     for (const f of fields) if (body[f] !== undefined) (profile as any)[f] = body[f];
     this.snapshotStep(profile, 'step2', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 2);

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   Switch, Dimensions, Alert, TextInput, Image
@@ -12,7 +12,7 @@ import { useTheme, useLang, useToast } from '../../context';
 import {
   NBtn, NCard, NInput, NPhoneInput, NPassStrength,
   NCheckbox, NToggle, NBadge, NDivider,
-  NHeader, NScroll, NPriceInput, NSearch, NDropdown, NDatePickerSheet
+  NHeader, NScroll, NPriceInput, NSearch, NDropdown, NDatePickerSheet, WizardSection
 } from '../../components/ui';
 import { I as Icon, IBg as IconBg, ProviderIcon } from '../../components/icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -118,32 +118,78 @@ export function RadiologyRegistration({ onBack, onDone }: { onBack: () => void; 
   const [step, setStep] = useState(1);
   const [data, setData] = useState<RadiologyRegData>({ ...INIT, centerType: 'radiology' });
   const [showMap, setShowMap] = useState(false);
-  const TOTAL = 7;
+  const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);
   const update = useCallback((p: Partial<RadiologyRegData>) => setData(prev => ({ ...prev, ...p })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(8); };
+  const next = () => { if (step < TOTAL) setStep(s => s + 1); else setStep(5); };
   const back = () => { if (step === 1) onBack(); else setStep(s => s - 1); };
 
+  // 4 merged screens (was 7): related few-field steps now live on ONE page.
   const screens: Record<number, React.ReactElement> = {
-    8: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
-    1: <LStep1 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    2: <LStep2 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    3: <LStep3 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    4: <LStep4 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    5: <LStep6 data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    6: <LStep7AdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    7: <LStep8Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+    5: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+    1: <MergedDiagnosticsStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الحساب والتراخيص" titleEn="Account & Licenses"
+         subAr="بيانات الدخول والسجل والتراخيص" subEn="Login, CR & licenses"
+         sections={[
+           { comp: LStep1, titleAr: 'بيانات المركز الأساسية', titleEn: 'Center Basic Info' },
+           { comp: LStep2, titleAr: 'التراخيص والوثائق القانونية', titleEn: 'Licenses & Legal Documents' },
+         ]} />,
+    2: <MergedDiagnosticsStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الموقع وقائمة الفحوصات" titleEn="Location & Test Menu"
+         subAr="موقع المركز والفحوصات وأسعارها" subEn="Location, tests & pricing"
+         sections={[
+           { comp: LStep3, titleAr: 'الموقع والخدمة المنزلية', titleEn: 'Location & Home Service' },
+           { comp: LStep4, titleAr: 'قائمة الفحوصات والأسعار', titleEn: 'Test/Scan Menu & Pricing' },
+         ]} />,
+    3: <MergedDiagnosticsStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="المواعيد والتأمين" titleEn="Schedule & Insurance"
+         subAr="أوقات العمل وشركات التأمين المعتمدة" subEn="Working hours & accepted insurers"
+         sections={[
+           { comp: LStep6, titleAr: 'المواعيد والتأمين', titleEn: 'Schedule & Insurance' },
+           { comp: LStep7AdminWarning, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
+         ]} />,
+    4: <LStep8Signature data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
   };
   return screens[step] ?? null;
+}
+
+// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
+function MergedDiagnosticsStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
+  const { lang } = useLang(); const AR = lang === 'ar';
+  const refs = useRef<any[]>([]);
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    if (busy) return; setBusy(true);
+    try {
+      for (let i = 0; i < sections.length; i++) {
+        const ok = await refs.current[i]?.();
+        if (ok === false) return; // child already surfaced the validation error
+      }
+      onNext();
+    } finally { setBusy(false); }
+  };
+  return (
+    <NScroll>
+      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
+      {sections.map((s: any, idx: number) => {
+        const Comp = s.comp;
+        return (
+          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
+            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
+          </WizardSection>
+        );
+      })}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
+    </NScroll>
+  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 1 — BASIC INFO
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep1({ data, update, onNext, onBack, step, total }: {
+function LStep1({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
   data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number;
-}) {
+  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const AR = lang === 'ar';
@@ -176,8 +222,8 @@ function LStep1({ data, update, onNext, onBack, step, total }: {
 
   const [loading, setLoading] = useState(false);
   
-    const handleNext = async () => {
-    if (!validate()) return;
+    const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
     setLoading(true);
     try {
       await ProviderApi.start({
@@ -188,26 +234,29 @@ function LStep1({ data, update, onNext, onBack, step, total }: {
         type: data.centerType === 'lab' ? 'lab' : 'radiology',
       });
       await ProviderApi.login(data.managerPhone, data.password);
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       try {
         await ProviderApi.login(data.managerPhone, data.password);
-        onNext();
+        if (!bare) onNext();
+        return true;
       } catch (loginErr: any) {
         setErrs({ phone: e.message || 'Error' });
+        return false;
       }
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'بيانات المركز الأساسية' : 'Center Basic Info'}
-        sub={AR ? 'أدخل بيانات معملك أو مركز الأشعة' : 'Enter your lab or radiology center details'}
-        step={step} total={total} onBack={onBack}
-      />
+
+  const body = (
+    <>
 
       {/* Center Type Removed (Auto-detected from Welcome Screen) */}
 
@@ -316,6 +365,18 @@ function LStep1({ data, update, onNext, onBack, step, total }: {
           );
         })}
       </View>
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader
+        title={AR ? 'بيانات المركز الأساسية' : 'Center Basic Info'}
+        sub={AR ? 'أدخل بيانات معملك أو مركز الأشعة' : 'Enter your lab or radiology center details'}
+        step={step} total={total} onBack={onBack}
+      />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} loading={loading} />
     </NScroll>
   );
@@ -324,10 +385,9 @@ function LStep1({ data, update, onNext, onBack, step, total }: {
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 2 — KYC & LICENSES
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep2({ data, update, onNext, onBack, step, total }: {
+function LStep2({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
   data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number;
-}) {
+  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -436,8 +496,8 @@ function LStep2({ data, update, onNext, onBack, step, total }: {
   };
 
   const [loading, setLoading] = useState(false);
-  const handleNext = async () => {
-    if (!validate()) return;
+  const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
     setLoading(true);
     try {
       const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
@@ -450,21 +510,23 @@ function LStep2({ data, update, onNext, onBack, step, total }: {
         license_number: data.crNumber,
         license_documents: [crUrl, mohUrl, radUrl].filter(Boolean) as string[],
       });
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      return false;
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'التراخيص والوثائق القانونية' : 'Licenses & Legal Documents'}
-        sub={AR ? 'جميع البيانات مشفّرة ومحمية' : 'All data is encrypted & protected'}
-        step={step} total={total} onBack={onBack}
-      />
+
+  const body = (
+    <>
 
       <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
@@ -547,6 +609,18 @@ function LStep2({ data, update, onNext, onBack, step, total }: {
         <DocCard label={AR ? 'شعار\nالمركز' : 'Center\nLogo'} field="logoUri" />
       </View>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader
+        title={AR ? 'التراخيص والوثائق القانونية' : 'Licenses & Legal Documents'}
+        sub={AR ? 'جميع البيانات مشفّرة ومحمية' : 'All data is encrypted & protected'}
+        step={step} total={total} onBack={onBack}
+      />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={handleNext} loading={loading} style={{ marginTop: SP.lg }} />
     </NScroll>
   );
@@ -555,10 +629,9 @@ function LStep2({ data, update, onNext, onBack, step, total }: {
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 3 — LOCATION & HOME COLLECTION
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep3({ data, update, onNext, onBack, step, total }: {
+function LStep3({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
   data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number;
-}) {
+  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -574,39 +647,18 @@ function LStep3({ data, update, onNext, onBack, step, total }: {
     return Object.keys(e).length === 0;
   };
 
-  const [loading, setLoading] = useState(false);
-  const handleNext = async () => {
-    if (!validate()) return;
-    setLoading(true);
-    try {
-      await ProviderApi.start({
-        phone: data.managerPhone,
-        password: data.password,
-        full_name: data.managerName,
-        email: data.managerEmail,
-        type: data.centerType === 'lab' ? 'lab' : 'radiology',
-      });
-      await ProviderApi.login(data.managerPhone, data.password);
-      onNext();
-    } catch (e: any) {
-      try {
-        await ProviderApi.login(data.managerPhone, data.password);
-        onNext();
-      } catch (loginErr: any) {
-        setErrs({ phone: e.message || 'Error' });
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleNext = (): boolean => {
+    if (!validate()) return false;
+    if (!bare) onNext();
+    return true;
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? (data.centerType === 'radiology' ? 'الموقع والتصوير المنزلي' : 'الموقع وخدمة السحب المنزلي') : (data.centerType === 'radiology' ? 'Location & Home Scan' : 'Location & Home Collection')}
-        sub={AR ? (data.centerType === 'radiology' ? 'حدد موقع المركز ونطاق التصوير المنزلي' : 'حدد موقع المركز ونطاق الخدمة المنزلية') : 'Set center location and home service coverage'}
-        step={step} total={total} onBack={onBack}
-      />
+  const body = (
+    <>
 
       {/* City */}
       <View style={{ marginBottom: SP.lg }}>
@@ -763,6 +815,18 @@ function LStep3({ data, update, onNext, onBack, step, total }: {
         )}
       </NCard>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader
+        title={AR ? (data.centerType === 'radiology' ? 'الموقع والتصوير المنزلي' : 'الموقع وخدمة السحب المنزلي') : (data.centerType === 'radiology' ? 'Location & Home Scan' : 'Location & Home Collection')}
+        sub={AR ? (data.centerType === 'radiology' ? 'حدد موقع المركز ونطاق التصوير المنزلي' : 'حدد موقع المركز ونطاق الخدمة المنزلية') : 'Set center location and home service coverage'}
+        step={step} total={total} onBack={onBack}
+      />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={() => { if (validate()) onNext(); }} />
     </NScroll>
   );
@@ -771,10 +835,9 @@ function LStep3({ data, update, onNext, onBack, step, total }: {
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 4 — TEST/SCAN MENU BUILDER
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep4({ data, update, onNext, onBack, step, total }: {
+function LStep4({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
   data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number;
-}) {
+  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -842,13 +905,18 @@ function LStep4({ data, update, onNext, onBack, step, total }: {
     return true;
   };
 
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'قائمة الفحوصات والأسعار' : 'Test/Scan Menu & Pricing'}
-        sub={AR ? 'حدد الفحوصات المتاحة وأسعارها' : 'Select available tests/scans and set pricing'}
-        step={step} total={total} onBack={onBack}
-      />
+  const handleNext = (): boolean => {
+    if (!validate()) return false;
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
 
       {/* Tab selector */}
       {data.centerType === 'both' && (
@@ -1114,6 +1182,18 @@ function LStep4({ data, update, onNext, onBack, step, total }: {
       ))}
 
       <View style={{ height: SP.xl }} />
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader
+        title={AR ? 'قائمة الفحوصات والأسعار' : 'Test/Scan Menu & Pricing'}
+        sub={AR ? 'حدد الفحوصات المتاحة وأسعارها' : 'Select available tests/scans and set pricing'}
+        step={step} total={total} onBack={onBack}
+      />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={() => { if (validate()) onNext(); }} />
     </NScroll>
   );
@@ -1288,10 +1368,9 @@ function LStep5({ data, update, onNext, onBack, step, total }: {
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 6 — SCHEDULE + INSURANCE
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep6({ data, update, onNext, onBack, step, total }: {
+function LStep6({ data, update, onNext, onBack, step, total, bare = false, submitRef }: {
   data: RadiologyRegData; update: (p: Partial<RadiologyRegData>) => void;
-  onNext: () => void; onBack: () => void; step: number; total: number;
-}) {
+  onNext: () => void; onBack: () => void; step: number; total: number; bare?: boolean; submitRef?: any;}) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme();
   const { lang } = useLang();
@@ -1333,13 +1412,14 @@ function LStep6({ data, update, onNext, onBack, step, total }: {
     update({ acceptedInsurance: updated });
   };
 
-  return (
-    <NScroll>
-      <NHeader
-        title={AR ? 'المواعيد والتأمين' : 'Schedule & Insurance'}
-        sub={AR ? 'حدد أوقات العمل وشركات التأمين المقبولة' : 'Set working hours and accepted insurance companies'}
-        step={step} total={total} onBack={onBack}
-      />
+  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
 
       {/* Center Working Hours */}
       <NCard style={{ marginBottom: SP.xl }}>
@@ -1519,6 +1599,18 @@ function LStep6({ data, update, onNext, onBack, step, total }: {
       )}
 
       <View style={{ height: SP.xl }} />
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader
+        title={AR ? 'المواعيد والتأمين' : 'Schedule & Insurance'}
+        sub={AR ? 'حدد أوقات العمل وشركات التأمين المقبولة' : 'Set working hours and accepted insurance companies'}
+        step={step} total={total} onBack={onBack}
+      />
+      {body}
       <NBtn label={AR ? 'التالي' : 'Next'} onPress={onNext} />
     </NScroll>
   );
@@ -1527,11 +1619,16 @@ function LStep6({ data, update, onNext, onBack, step, total }: {
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 7 — ADMIN APPROVAL WARNING
 // ══════════════════════════════════════════════════════════════════════════════
-function LStep7AdminWarning({ data, update, onNext, onBack, step, total }: any) {
+function LStep7AdminWarning({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
+  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
       
       <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
         <View style={{ alignSelf: 'center', marginBottom: SP.md }}><Icon name="info" size={40} color={theme.danger} /></View>
@@ -1546,6 +1643,14 @@ function LStep7AdminWarning({ data, update, onNext, onBack, step, total }: any) 
         </Text>
       </View>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR ? 'أوافق وأتفهم ذلك' : 'I Understand & Agree'} onPress={onNext} style={{ marginTop: SP.xl }} />
     </NScroll>
   );

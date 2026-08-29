@@ -191,8 +191,18 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
+  const googleConfigured = Boolean(
+    process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ||
+    process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ||
+    process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+  );
+
   const handleSocialLogin = async (provider: string) => {
     if (provider === 'google') {
+      if (!googleConfigured) {
+        setErrorMessage(lang === 'ar' ? 'تسجيل الدخول عبر جوجل غير متاح حالياً.' : 'Google sign-in is not available right now.');
+        return;
+      }
       promptAsync();
     } else if (provider === 'apple') {
       handleAppleLogin();

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
   Switch, Dimensions, Alert, Image, TextInput
@@ -13,7 +13,7 @@ import { useTheme, useLang, useToast } from '../../context';
 import {
   NBtn, NCard, NInput, NPhoneInput, NPassStrength,
   NCheckbox, NToggle, NBadge, NDivider,
-  NHeader, NScroll, NSuccess, NPriceInput, NSearch, NDropdown, NDatePickerSheet
+  NHeader, NScroll, NSuccess, NPriceInput, NSearch, NDropdown, NDatePickerSheet, WizardSection
 } from '../../components/ui';
 import { Validate } from '../../security/Security';
 import { SP, R, FS, FW, PHARMA_CATS, CITIES, LIMITS, C, INSURANCE , LANGS } from '../../constants';
@@ -92,28 +92,75 @@ export function PharmacyRegistration({ onBack, onDone }: { onBack:()=>void; onDo
   const [step, setStep] = useState(1);
   const [data, setData] = useState<PharmacyRegData>(INIT);
   const [showMap, setShowMap] = useState(false);
-  const TOTAL = 8;
+  const TOTAL = 4;
   const [showSuccess, setShowSuccess] = useState(false);
   const update = useCallback((p: Partial<PharmacyRegData>) => setData(prev => ({ ...prev, ...p })), []);
-  const next = () => { if (step < TOTAL) setStep(s => s+1); else setStep(9); };
+  const next = () => { if (step < TOTAL) setStep(s => s+1); else setStep(5); };
   const back = () => { if (step === 1) onBack(); else setStep(s => s-1); };
 
+  // 4 merged screens (was 8): related few-field steps now live on ONE page.
   const screens: Record<number, React.ReactElement> = {
-    9: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
-    1: <PStep1Basic data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    2: <PStep2Legal data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    3: <PStep3Location data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    4: <PStep4Hours data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    5: <PStep5Catalog data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    6: <PStep6Delivery data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    7: <PStep7AdminWarning data={data} update={update} onNext={next} onBack={back} step={step} total={TOTAL} />,
-    8: <PStep7Submit data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
+    5: <SuccessScreen onDone={() => { setShowSuccess(false); onDone(); }} />,
+    1: <MergedPharmacyStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="بيانات الصيدلية والتراخيص" titleEn="Pharmacy & Licenses"
+         subAr="بيانات الدخول والسجل والتراخيص" subEn="Login, CR & licenses"
+         sections={[
+           { comp: PStep1Basic, titleAr: 'بيانات الصيدلية', titleEn: 'Pharmacy Basic Info' },
+           { comp: PStep2Legal, titleAr: 'التراخيص والوثائق', titleEn: 'Licenses & Documents' },
+         ]} />,
+    2: <MergedPharmacyStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الموقع وأوقات العمل" titleEn="Location & Working Hours"
+         subAr="موقع الصيدلية ونطاق التوصيل والدوام" subEn="Location, delivery zone & schedule"
+         sections={[
+           { comp: PStep3Location, titleAr: 'الموقع ونطاق التوصيل', titleEn: 'Location & Delivery Zone' },
+           { comp: PStep4Hours, titleAr: 'أوقات العمل والجدولة', titleEn: 'Working Hours' },
+         ]} />,
+    3: <MergedPharmacyStep step={step} onBack={back} onNext={next} data={data} update={update}
+         titleAr="الكتالوج والتوصيل والتأمين" titleEn="Catalog, Delivery & Insurance"
+         subAr="فئات المنتجات وشروط التوصيل" subEn="Product categories & delivery terms"
+         sections={[
+           { comp: PStep5Catalog, titleAr: 'كتالوج المنتجات', titleEn: 'Product Catalog' },
+           { comp: PStep6Delivery, titleAr: 'شروط التوصيل والتأمين', titleEn: 'Delivery & Insurance' },
+           { comp: PStep7AdminWarning, titleAr: 'نظام الموافقات', titleEn: 'Approval System' },
+         ]} />,
+    4: <PStep7Submit data={data} update={update} onDone={onDone} onBack={back} step={step} total={TOTAL} />,
   };
   return screens[step] ?? null;
 }
 
+// ─── Merged screen shell: stacks child steps inline and runs their savers in order ──
+function MergedPharmacyStep({ titleAr, titleEn, subAr, subEn, step, onBack, onNext, data, update, sections }: any) {
+  const { lang } = useLang(); const AR = lang === 'ar';
+  const refs = useRef<any[]>([]);
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    if (busy) return; setBusy(true);
+    try {
+      for (let i = 0; i < sections.length; i++) {
+        const ok = await refs.current[i]?.();
+        if (ok === false) return; // child already surfaced the validation error
+      }
+      onNext();
+    } finally { setBusy(false); }
+  };
+  return (
+    <NScroll>
+      <NHeader title={AR ? titleAr : titleEn} sub={AR ? subAr : subEn} step={step} total={4} onBack={onBack} />
+      {sections.map((s: any, idx: number) => {
+        const Comp = s.comp;
+        return (
+          <WizardSection key={idx} title={AR ? s.titleAr : s.titleEn}>
+            <Comp bare submitRef={(fn: any) => { refs.current[idx] = fn; }} data={data} update={update} onNext={() => {}} onBack={onBack} step={step} total={4} />
+          </WizardSection>
+        );
+      })}
+      <NBtn label={AR ? 'متابعة' : 'Next'} onPress={go} loading={busy} style={{ marginTop: SP.sm }} />
+    </NScroll>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep1Basic({ data, update, onNext, onBack, step, total }: any) {
+function PStep1Basic({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
 
@@ -143,8 +190,8 @@ function PStep1Basic({ data, update, onNext, onBack, step, total }: any) {
 
   const [loading, setLoading] = useState(false);
   
-    const handleNext = async () => {
-    if (!validate()) return;
+    const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
 
     setLoading(true);
     try {
@@ -156,22 +203,29 @@ function PStep1Basic({ data, update, onNext, onBack, step, total }: any) {
         type: 'pharmacy',
       });
       await ProviderApi.login(data.managerPhone, data.password);
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       try {
         await ProviderApi.login(data.managerPhone, data.password);
-        onNext();
+        if (!bare) onNext();
+        return true;
       } catch (loginErr: any) {
         setErrs({ phone: e.message || 'Error' });
+        return false;
       }
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR?'بيانات الصيدلية':'Pharmacy Basic Info'} sub={AR?'أدخل بيانات صيدليتك':'Enter your pharmacy details'} step={step} total={total} onBack={onBack} />
+
+  const body = (
+    <>
 
       <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'نوع الصيدلية':'Pharmacy Type'} *</Text>
       <View style={{ gap:SP.sm, marginBottom:SP.xl }}>
@@ -212,13 +266,21 @@ function PStep1Basic({ data, update, onNext, onBack, step, total }: any) {
           );
         })}
       </View>
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR?'بيانات الصيدلية':'Pharmacy Basic Info'} sub={AR?'أدخل بيانات صيدليتك':'Enter your pharmacy details'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR?'التالي':'Next'} onPress={handleNext} loading={loading} />
-          </NScroll>
+    </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep2Legal({ data, update, onNext, onBack, step, total }: any) {
+function PStep2Legal({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
   const [loading, setLoading] = useState(false);
@@ -291,29 +353,35 @@ function PStep2Legal({ data, update, onNext, onBack, step, total }: any) {
     );
   };
 
-  const handleNext = async () => {
-    if (!validate()) return;
+  const handleNext = async (): Promise<boolean> => {
+    if (!validate()) return false;
     setLoading(true);
     try {
       const crUrl = await ProviderApi.uploadFile(data.crUri, 'image/jpeg', 'cr.jpg');
       const mohUrl = await ProviderApi.uploadFile(data.mohUri, 'image/jpeg', 'moh.jpg');
       const sfdaUrl = await ProviderApi.uploadFile(data.sfdaUri, 'image/jpeg', 'sfda.jpg');
-      
+
       await ProviderApi.step2({
         license_number: data.crNumber,
         license_documents: [crUrl, mohUrl, sfdaUrl],
       });
-      onNext();
+      if (!bare) onNext();
+      return true;
     } catch (e: any) {
       show(AR ? 'فشل رفع المستندات' : 'Failed to upload documents', 'error');
+      return false;
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
 
-  return (
-    <NScroll>
-      <NHeader title={AR?'التراخيص والوثائق':'Licenses & Documents'} sub={AR?'جميع البيانات مشفّرة ومحمية':'All data encrypted & protected'} step={step} total={total} onBack={onBack} />
+
+  const body = (
+    <>
       <NInput label={AR?'رقم السجل التجاري CR':'CR Number'} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
       <NInput label={AR?'رقم ترخيص وزارة الصحة MOH':'MOH License Number'} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={AR?'ترخيص الصيدلية من وزارة الصحة السعودية':'Saudi Ministry of Health pharmacy license'} />
       <NInput label={AR?'رقم ترخيص SFDA (هيئة الغذاء والدواء)':'SFDA License Number'} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={AR?'ترخيص صرف الأدوية من هيئة الغذاء والدواء':'Saudi Food and Drug Authority license'} />
@@ -328,13 +396,21 @@ function PStep2Legal({ data, update, onNext, onBack, step, total }: any) {
         <DocCard label={AR?'شعار الصيدلية':'Pharmacy Logo'} field="logoUri" />
       </View>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR?'التراخيص والوثائق':'Licenses & Documents'} sub={AR?'جميع البيانات مشفّرة ومحمية':'All data encrypted & protected'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR?'التالي':'Next'} onPress={handleNext} loading={loading} style={{ marginTop:SP.lg }} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep3Location({ data, update, onNext, onBack, step, total }: any) {
+function PStep3Location({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [errs, setErrs] = useState<Record<string,string>>({});
 
@@ -345,9 +421,18 @@ function PStep3Location({ data, update, onNext, onBack, step, total }: any) {
     setErrs(e); return Object.keys(e).length === 0;
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR?'الموقع ونطاق التوصيل':'Location & Delivery Zone'} sub={AR?'حدد موقع الصيدلية ونطاق التوصيل':'Set pharmacy location and delivery coverage'} step={step} total={total} onBack={onBack} />
+  const handleNext = (): boolean => {
+    if (!validate()) return false;
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
 
       <Text style={[s.label, { color:theme.text, textAlign:AR?'right':'left' }]}>{AR?'المدينة':'City'} *</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom:SP.lg }}>
@@ -444,13 +529,21 @@ function PStep3Location({ data, update, onNext, onBack, step, total }: any) {
         )}
       </NCard>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR?'الموقع ونطاق التوصيل':'Location & Delivery Zone'} sub={AR?'حدد موقع الصيدلية ونطاق التوصيل':'Set pharmacy location and delivery coverage'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR?'التالي':'Next'} onPress={() => { if(validate()) onNext(); }} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep4Hours({ data, update, onNext, onBack, step, total }: any) {
+function PStep4Hours({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
   const [showVacationCal, setShowVacationCal] = useState(false);
 
@@ -465,9 +558,14 @@ function PStep4Hours({ data, update, onNext, onBack, step, total }: any) {
     update({ workDays:days });
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR?'أوقات العمل والجدولة':'Working Hours'} sub={AR?'حدد أيام وساعات عمل صيدليتك':'Set your pharmacy working days and hours'} step={step} total={total} onBack={onBack} />
+  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
 
       <NCard style={{ marginBottom:SP.xl }}>
         <NToggle label={AR?' مفتوح 24/7':' Open 24/7'} sub={AR?'الصيدلية مفتوحة طوال اليوم والأسبوع':'Open around the clock every day'} value={data.is24_7} onChange={v => update({ is24_7:v, workDays: v? ['SUN','MON','TUE','WED','THU','FRI','SAT']: data.workDays })} />
@@ -542,23 +640,43 @@ function PStep4Hours({ data, update, onNext, onBack, step, total }: any) {
         title={AR ? 'اختر تاريخ الإجازة' : 'Select Vacation Date'}
       />
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR?'أوقات العمل والجدولة':'Working Hours'} sub={AR?'حدد أيام وساعات عمل صيدليتك':'Set your pharmacy working days and hours'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR?'التالي':'Next'} onPress={onNext} style={{ marginTop: SP.md }} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep5Catalog({ data, update, onNext, onBack, step, total }: any) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+function PStep5Catalog({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
 
   const toggleCat = (id:string) => {
     const cats = data.enabledCategories.includes(id) ? data.enabledCategories.filter(c=>c!==id) : [...data.enabledCategories, id];
     update({ enabledCategories:cats });
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR?'كتالوج المنتجات الفئات':'Product Catalog'} sub={AR?'حدد فئات المنتجات التي تدعمها صيدليتك':'Select product categories supported'} step={step} total={total} onBack={onBack} />
+  const handleNext = (): boolean => {
+    if (!data.enabledCategories || data.enabledCategories.length === 0) {
+      show(AR ? 'حدد فئة واحدة على الأقل من الكتالوج' : 'Select at least one catalog category', 'error');
+      return false;
+    }
+    if (!bare) onNext();
+    return true;
+  };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
 
       <NCard style={{ marginBottom:SP.xl }}>
         <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginBottom:SP.lg }]}>{AR?'الخدمات الأساسية':'Core Services'}</Text>
@@ -584,13 +702,21 @@ function PStep5Catalog({ data, update, onNext, onBack, step, total }: any) {
         <View style={{ flex:1 }}><NBtn label={AR?'إلغاء الكل':'Clear All'} variant="secondary" size="sm" onPress={() => update({ enabledCategories:[] })} /></View>
       </View>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR?'كتالوج المنتجات الفئات':'Product Catalog'} sub={AR?'حدد فئات المنتجات التي تدعمها صيدليتك':'Select product categories supported'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR?'التالي':'Next'} onPress={onNext} disabled={data.enabledCategories.length === 0} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep6Delivery({ data, update, onNext, onBack, step, total }: any) {
+function PStep6Delivery({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
  const insuranceCatalog = useInsuranceCatalog();
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
 
@@ -616,9 +742,14 @@ function PStep6Delivery({ data, update, onNext, onBack, step, total }: any) {
     update({ acceptedInsurance: updated });
   };
 
-  return (
-    <NScroll>
-      <NHeader title={AR?'شروط التوصيل والتأمين':'Delivery & Insurance'} sub={AR?'حدد رسوم التوصيل وشركات التأمين المقبولة':'Configure delivery terms & insurance tiers'} step={step} total={total} onBack={onBack} />
+  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
 
       {data.hasDelivery && (
         <NCard style={{ marginBottom:SP.xl }}>
@@ -681,17 +812,30 @@ function PStep6Delivery({ data, update, onNext, onBack, step, total }: any) {
         )}
       </NCard>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR?'شروط التوصيل والتأمين':'Delivery & Insurance'} sub={AR?'حدد رسوم التوصيل وشركات التأمين المقبولة':'Configure delivery terms & insurance tiers'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR?'التالي':'Next'} onPress={onNext} />
     </NScroll>
   );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-function PStep7AdminWarning({ data, update, onNext, onBack, step, total }: any) {
+function PStep7AdminWarning({ data, update, onNext, onBack, step, total, bare = false, submitRef }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-  return (
-    <NScroll>
-      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
+  const handleNext = (): boolean => { if (!bare) onNext(); return true; };
+  useEffect(() => {
+    if (!submitRef) return;
+    if (typeof submitRef === 'function') submitRef(handleNext); else submitRef.current = handleNext;
+  });
+
+  const body = (
+    <>
       
       <View style={{ backgroundColor: theme.dangerBg, padding: SP.xl, borderRadius: R.lg, borderWidth: 1, borderColor: theme.danger, marginTop: SP.lg }}>
         <View style={{ alignSelf: 'center', marginBottom: SP.md }}><I name="info" size={40} color={theme.danger} /></View>
@@ -706,6 +850,14 @@ function PStep7AdminWarning({ data, update, onNext, onBack, step, total }: any) 
         </Text>
       </View>
 
+          </>
+  );
+  if (bare) return <View>{body}</View>;
+
+  return (
+    <NScroll>
+      <NHeader title={AR ? 'نظام الموافقات' : 'Approval System'} step={step} total={total} onBack={onBack} />
+      {body}
       <NBtn label={AR ? 'أوافق وأتفهم ذلك' : 'I Understand & Agree'} onPress={onNext} style={{ marginTop: SP.xl }} />
     </NScroll>
   );
