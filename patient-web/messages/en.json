@@ -86,7 +86,10 @@
     "reports": "Reports",
     "loyalty": "Loyalty",
     "support": "Support",
-    "emergency": "Emergency"
+    "emergency": "Emergency",
+    "programs": "Programs",
+    "offers": "Offers",
+    "returns": "Returns"
   },
   "Orders": {
     "eyebrow": "Private orders",
@@ -904,5 +907,22 @@
     "cancelling": "Cancelling…",
     "error": "Could not complete the action right now",
     "state": "State"
+  },
+  "Programs": {
+    "title": "My health programs",
+    "empty": "No active health programs right now",
+    "error": "Could not load programs right now"
+  },
+  "Offers": {
+    "title": "Offers",
+    "empty": "No offers available right now",
+    "error": "Could not load offers right now",
+    "sar": "SAR"
+  },
+  "Returns": {
+    "title": "Return requests",
+    "empty": "No return requests",
+    "error": "Could not load return requests right now",
+    "sar": "SAR"
   }
 }

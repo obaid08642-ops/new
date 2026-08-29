@@ -75,7 +75,10 @@
     "reports": "Mga Ulat",
     "loyalty": "Loyalty",
     "support": "Suporta",
-    "emergency": "Emergency"
+    "emergency": "Emergency",
+    "programs": "Mga Programa",
+    "offers": "Mga Offer",
+    "returns": "Mga Return"
   },
   "Metadata": {
     "siteTitle": "Nabd Plus",
@@ -904,5 +907,22 @@
     "cancelling": "Kinakansela…",
     "error": "Hindi makumpleto ang aksyon ngayon",
     "state": "Estado"
+  },
+  "Programs": {
+    "title": "Aking mga health program",
+    "empty": "Walang aktibong programa ngayon",
+    "error": "Hindi ma-load ang mga programa ngayon"
+  },
+  "Offers": {
+    "title": "Mga offer",
+    "empty": "Walang available na offer ngayon",
+    "error": "Hindi ma-load ang mga offer ngayon",
+    "sar": "SAR"
+  },
+  "Returns": {
+    "title": "Mga return request",
+    "empty": "Walang mga return request",
+    "error": "Hindi ma-load ngayon",
+    "sar": "SAR"
   }
 }
