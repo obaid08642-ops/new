@@ -72,6 +72,7 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
   { method: "POST", route: new RegExp("^/emergency/trigger$", "i") },
   { method: "POST", route: new RegExp("^/emergency/[A-Za-z0-9-]{1,64}/cancel$", "i") },
+  { method: "POST", route: new RegExp("^/ai/triage$", "i") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {
