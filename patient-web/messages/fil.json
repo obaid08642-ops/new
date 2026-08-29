@@ -78,7 +78,11 @@
     "emergency": "Emergency",
     "programs": "Mga Programa",
     "offers": "Mga Offer",
-    "returns": "Mga Return"
+    "returns": "Mga Return",
+    "community": "Komunidad",
+    "nutrition": "Nutrisyon",
+    "maternity": "Maternity",
+    "aiTriage": "AI triage"
   },
   "Metadata": {
     "siteTitle": "Nabd Plus",
@@ -924,5 +928,40 @@
     "empty": "Walang mga return request",
     "error": "Hindi ma-load ngayon",
     "sar": "SAR"
+  },
+  "Community": {
+    "title": "Komunidad",
+    "empty": "Wala pang mga post",
+    "error": "Hindi ma-load ngayon"
+  },
+  "Nutrition": {
+    "title": "Nutrisyon",
+    "calories": "Calories ngayon",
+    "target": "Target",
+    "water": "Tubig",
+    "ml": "ml",
+    "meals": "Mga pagkain ngayon",
+    "noMeals": "Walang naitalang pagkain",
+    "empty": "Walang datos ng nutrisyon ngayon",
+    "error": "Hindi ma-load ngayon",
+    "kcal": "kcal"
+  },
+  "Maternity": {
+    "title": "Maternity",
+    "empty": "Wala pang maternity profile",
+    "error": "Hindi ma-load ngayon",
+    "week": "Linggo ng pagbubuntis",
+    "dueDate": "Inaasahang petsa",
+    "mode": "Mode"
+  },
+  "AiTriage": {
+    "title": "AI symptom triage",
+    "subtitle": "Ilarawan ang iyong mga sintomas.",
+    "placeholder": "Halimbawa: sakit ng ulo…",
+    "submit": "Suriin",
+    "submitting": "Sinusuri…",
+    "error": "Hindi masuri ngayon",
+    "resultTitle": "Paunang pagtatasa",
+    "disclaimer": "Ito ay paunang pagtatasa lamang, hindi medikal na dyagnosis."
   }
 }

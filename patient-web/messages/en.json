@@ -89,7 +89,11 @@
     "emergency": "Emergency",
     "programs": "Programs",
     "offers": "Offers",
-    "returns": "Returns"
+    "returns": "Returns",
+    "community": "Community",
+    "nutrition": "Nutrition",
+    "maternity": "Maternity",
+    "aiTriage": "AI triage"
   },
   "Orders": {
     "eyebrow": "Private orders",
@@ -924,5 +928,40 @@
     "empty": "No return requests",
     "error": "Could not load return requests right now",
     "sar": "SAR"
+  },
+  "Community": {
+    "title": "Community",
+    "empty": "No posts yet",
+    "error": "Could not load the community right now"
+  },
+  "Nutrition": {
+    "title": "Nutrition",
+    "calories": "Calories today",
+    "target": "Target",
+    "water": "Water",
+    "ml": "ml",
+    "meals": "Today's meals",
+    "noMeals": "No meals logged today",
+    "empty": "No nutrition data for today",
+    "error": "Could not load nutrition data right now",
+    "kcal": "kcal"
+  },
+  "Maternity": {
+    "title": "Maternity",
+    "empty": "No maternity profile yet — complete setup from the app",
+    "error": "Could not load maternity data right now",
+    "week": "Pregnancy week",
+    "dueDate": "Expected due date",
+    "mode": "Mode"
+  },
+  "AiTriage": {
+    "title": "AI symptom triage",
+    "subtitle": "Describe your symptoms and the system will suggest the right next step.",
+    "placeholder": "Example: persistent headache for two days with nausea…",
+    "submit": "Analyze symptoms",
+    "submitting": "Analyzing…",
+    "error": "Could not analyze symptoms right now",
+    "resultTitle": "Preliminary assessment",
+    "disclaimer": "This is a preliminary assessment, not a medical diagnosis. In emergencies use the emergency page."
   }
 }
