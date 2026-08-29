@@ -11,7 +11,9 @@ import * as SecureStore from 'expo-secure-store';
 
 import { useApp } from '../../src/context/AppContext';
 import { resolveColor } from '../../src/theme/colors';
-import { apiFetch, storeAuthSession } from '../../src/utils/api';
+// storeAuthSession lives in the shared network client (root utils/api.ts) —
+// src/utils/api.ts is a legacy thin wrapper that does not export it.
+import { apiFetch, storeAuthSession } from '../../utils/api';
 import { decodeJwt } from '../../src/utils/jwt';
 import { STORAGE_KEYS } from '../../src/constants';
 
