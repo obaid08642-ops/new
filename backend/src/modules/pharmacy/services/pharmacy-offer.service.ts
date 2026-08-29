@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
 import { EventBusService } from '../../events/event-bus.service';
 
@@ -250,19 +251,50 @@ export class PharmacyOfferService {
       const d = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       if (Number.isFinite(d)) approx = Math.round(d * 2) / 2; // 0.5km rounding — approximate only
     }
+    const pharmacyNameAr = profile?.display_name_ar || profile?.name_ar || null;
+    const pharmacyNameEn = profile?.display_name_en || profile?.name_en || null;
     return {
       ...base,
-      pharmacy_name_ar: profile?.display_name_ar || profile?.name_ar || null,
-      pharmacy_name_en: profile?.display_name_en || profile?.name_en || null,
+      // Shared governed contract: patient-app reads `lines` + status 'open'.
+      status: offer.status === 'submitted' ? 'open' : offer.status,
+      lines: (offer.items || []).map((item: any) => ({
+        order_item_id: item.order_item_id,
+        sku: item.sku,
+        name: item.name_ar || item.name_en || item.sku || null,
+        available: item.action !== 'unavailable',
+        requested_qty: item.qty_requested,
+        offered_qty: item.qty_offered,
+        unit_price: item.unit_price,
+        currency: item.currency,
+        alternative: item.action === 'substitute' ? (item.name_ar || item.name_en || item.sku || null) : null,
+      })),
+      pharmacy_name_ar: pharmacyNameAr,
+      pharmacy_name_en: pharmacyNameEn,
+      pharmacy_name: pharmacyNameAr || pharmacyNameEn,
+      preparation_minutes: offer.estimated_preparation_minutes ?? null,
+      expires_at: offer.quote_expires_at || null,
+      insurance_ready: true,
+      cod_allowed: true,
+      quote_revision: Number(offer.version || 1),
+      // Deterministic quote hash — identical to the one stored in
+      // pricing_snapshot.hash at selection time.
+      snapshot_hash: crypto
+        .createHash('sha256')
+        .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
+        .digest('hex'),
       approx_distance_km: approx,
       approx_delivery: { eta_minutes: 60, label_ar: 'خلال ساعة تقريباً', label_en: 'Approximately within 1 hour' },
     };
   }
 
-  async selectByPatient(user: any, orderId: string, offerId: string, idempotencyKey: string) {
+  async selectByPatient(user: any, orderId: string, offerId: string, idempotencyKey: string, coverageMode?: string) {
     if (!user?.id) throw new ForbiddenException('patient_identity_required');
     if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) {
       throw new BadRequestException('idempotency_key_required');
+    }
+    const coverage = String(coverageMode || '').toLowerCase();
+    if (coverage && !['cash', 'cod', 'card', 'insurance'].includes(coverage)) {
+      throw new BadRequestException('invalid_coverage_mode');
     }
     const session = await this.connection.startSession();
     try {
@@ -292,7 +324,11 @@ export class PharmacyOfferService {
           if (!reserved) throw new BadRequestException('offer_stock_changed_requote_required');
         }
 
-        const paymentMethod = String(order.payment_method || order.payment?.method || (order.insurance_details ? 'insurance' : 'cash')).toLowerCase();
+        // Coverage mode chosen at selection time overrides the order's payment method.
+        let paymentMethod = String(order.payment_method || order.payment?.method || (order.insurance_details ? 'insurance' : 'cash')).toLowerCase();
+        if (coverage === 'insurance') paymentMethod = 'insurance';
+        else if (coverage === 'cod') paymentMethod = 'cod';
+        else if (coverage === 'cash' || coverage === 'card') paymentMethod = 'card';
         // Master spec: a prescription is mandatory for insurance pharmacy orders.
         if (paymentMethod === 'insurance') {
           const hasRx = Array.isArray(order.prescription_attachments) && order.prescription_attachments.some((a: any) => a && a.uri && (a.type === 'image' || a.type === 'pdf'));
@@ -312,6 +348,10 @@ export class PharmacyOfferService {
           timeline: [{ ts: now, event: 'created_after_patient_offer_selection', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version } }],
         }], { session });
         await this.offers.updateOne({ id: offer.id, status: 'submitted' }, { $set: { status: 'selected', selected_at: now, selected_by_patient_account_id: user.id, allocation_id: allocation[0].id } }, { session });
+        const quoteHash = crypto
+          .createHash('sha256')
+          .update(JSON.stringify({ offer_id: offer.id, offer_version: offer.version, totals: offer.totals }))
+          .digest('hex');
         const orderUpdate: any = await this.orders.updateOne({ id: orderId, patient_account_id: user.id, $or: [{ selected_offer_id: { $exists: false } }, { selected_offer_id: null }] }, {
           $set: {
             selected_offer_id: offer.id,
@@ -319,8 +359,10 @@ export class PharmacyOfferService {
             offer_selection_idempotency_key: idempotencyKey,
             selected_allocation_id: allocation[0].id,
             status: nextStatus,
+            payment_method: paymentMethod,
+            coverage_mode: coverage === 'insurance' ? 'insurance' : 'cash',
             totals: offer.totals,
-            pricing_snapshot: { offer_id: offer.id, offer_version: offer.version, totals: offer.totals, captured_at: now },
+            pricing_snapshot: { offer_id: offer.id, offer_version: offer.version, totals: offer.totals, hash: quoteHash, captured_at: now },
           },
           $push: { timeline: { ts: now, event: 'patient_offer_selected', by: user.id, meta: { offer_id: offer.id, offer_version: offer.version, payment_method: paymentMethod } } },
         }, { session });

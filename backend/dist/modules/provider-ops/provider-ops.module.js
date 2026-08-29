@@ -372,6 +372,81 @@ let ProviderOpsService = class ProviderOpsService {
             .reduce((s, t) => s + (t.amount || 0), 0);
         return { todayCount, revenue, pendingCount };
     }
+    async statsPeriod(providerId, period) {
+        const now = new Date();
+        const days = period === 'week' ? 7 : period === 'month' ? 30 : 365;
+        const rangeStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+        const bucketCount = period === 'week' ? 7 : 12;
+        const bucketMs = (days * 24 * 60 * 60 * 1000) / bucketCount;
+        const sources = [
+            { coll: 'doctor_appointments', label: 'consultation' },
+            { coll: 'labbookings', label: 'lab' },
+            { coll: 'homecarebookings', label: 'home_care' },
+            { coll: 'radiologybookings', label: 'radiology' },
+        ];
+        const idFields = ['doctor_id', 'lab_id', 'provider_id', 'nurse_id', 'radiology_id', 'pharmacy_id', 'account_id'];
+        let appointments = 0;
+        const perService = {};
+        const patientIds = new Set();
+        for (const src of sources) {
+            try {
+                const rows = await this.conn.collection(src.coll)
+                    .find({ $or: idFields.map((f) => ({ [f]: providerId })), createdAt: { $gte: rangeStart } })
+                    .project({ patient_id: 1, user_id: 1, createdAt: 1 }).toArray();
+                perService[src.label] = rows.length;
+                appointments += rows.length;
+                rows.forEach((r) => { const pid = r.patient_id || r.user_id; if (pid)
+                    patientIds.add(String(pid)); });
+            }
+            catch { }
+        }
+        let newPatients = 0;
+        for (const pid of patientIds) {
+            let first = null;
+            for (const src of sources) {
+                try {
+                    const row = await this.conn.collection(src.coll)
+                        .find({ $or: idFields.map((f) => ({ [f]: providerId })), $and: [{ $or: [{ patient_id: pid }, { user_id: pid }] }] })
+                        .sort({ createdAt: 1 }).limit(1).next();
+                    if (row && (!first || new Date(row.createdAt) < new Date(first.createdAt)))
+                        first = row;
+                }
+                catch { }
+            }
+            if (first && new Date(first.createdAt) >= rangeStart)
+                newPatients++;
+        }
+        const ledger = await this.walletLedger(providerId, 1000);
+        const inRange = ledger.transactions.filter((t) => t.type === 'provider_earning' && new Date(t.createdAt) >= rangeStart);
+        const revenue = inRange.reduce((sum, t) => sum + (t.amount || 0), 0);
+        const series = new Array(bucketCount).fill(0);
+        for (const t of inRange) {
+            const idx = Math.min(bucketCount - 1, Math.max(0, Math.floor((new Date(t.createdAt).getTime() - rangeStart.getTime()) / bucketMs)));
+            series[idx] += Math.round((t.amount || 0) * 100) / 100;
+        }
+        const ratingRows = await this.conn.collection('ratings')
+            .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }], createdAt: { $gte: rangeStart } })
+            .project({ rating: 1, value: 1, stars: 1 }).toArray();
+        const ratingValues = ratingRows.map((r) => Number(r.rating ?? r.value ?? r.stars)).filter((v) => Number.isFinite(v) && v > 0);
+        const rating = ratingValues.length ? Math.round((ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length) * 10) / 10 : null;
+        const topService = Object.entries(perService).sort((a, b) => b[1] - a[1])[0];
+        const service_breakdown = Object.entries(perService)
+            .filter(([, count]) => count > 0)
+            .map(([label, count]) => ({ label, count, pct: appointments > 0 ? Math.round((count / appointments) * 100) : 0 }))
+            .sort((a, b) => b.count - a.count);
+        return {
+            period,
+            service_breakdown,
+            revenue: Math.round(revenue * 100) / 100,
+            appointments,
+            rating,
+            ratings_count: ratingValues.length,
+            new_patients: newPatients,
+            top_service: topService && topService[1] > 0 ? topService[0] : null,
+            series,
+            currency: 'SAR',
+        };
+    }
     async providerReviews(providerId) {
         const rows = await this.conn.collection('ratings')
             .find({ $or: [{ provider_id: providerId }, { entity_id: providerId }] })
@@ -732,6 +807,16 @@ let ProviderCompatController = class ProviderCompatController {
     async statsToday(u) {
         return this.svc.statsToday(u.id);
     }
+    async statsPeriod(u, period) {
+        const p = period === 'week' || period === 'year' ? period : 'month';
+        return this.svc.statsPeriod(u.id, p);
+    }
+    async getPricing(u) {
+        return { pricing: await this.svc.getProviderSetting(u.id, 'pricing', null) };
+    }
+    async putPricing(u, b) {
+        return this.svc.setProviderSetting(u.id, 'pricing', b?.pricing ?? b);
+    }
     async myReviews(u) {
         return this.svc.providerReviews(u.id);
     }
@@ -783,6 +868,29 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ProviderCompatController.prototype, "statsToday", null);
+__decorate([
+    (0, common_1.Get)('stats/period'),
+    __param(0, (0, auth_guard_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)('period')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ProviderCompatController.prototype, "statsPeriod", null);
+__decorate([
+    (0, common_1.Get)('settings/pricing'),
+    __param(0, (0, auth_guard_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProviderCompatController.prototype, "getPricing", null);
+__decorate([
+    (0, common_1.Put)('settings/pricing'),
+    __param(0, (0, auth_guard_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ProviderCompatController.prototype, "putPricing", null);
 __decorate([
     (0, common_1.Get)('reviews'),
     __param(0, (0, auth_guard_1.CurrentUser)()),

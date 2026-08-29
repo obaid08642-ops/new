@@ -114,6 +114,17 @@ let HospitalService = class HospitalService {
         }
         return inv;
     }
+    async leaveFacility(userId) {
+        const user = await this.userModel.findOne({ id: userId });
+        if (!user)
+            throw new common_1.NotFoundException('user_not_found');
+        if (!user.parent_provider_account_id)
+            throw new common_1.BadRequestException('not_linked_to_facility');
+        user.parent_provider_account_id = undefined;
+        user.permissions = [];
+        await user.save();
+        return { ok: true };
+    }
     async createBranch(hospitalId, data, actor) {
         this.assertFacilityActor(actor, true);
         return this.branchModel.create({ ...data, hospital_id: await this.objectIdForUser(hospitalId) });

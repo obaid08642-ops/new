@@ -26,11 +26,6 @@ let ProviderPayoutsController = class ProviderPayoutsController {
     }
     get withdrawals() { return this.conn.collection('providerwithdrawals'); }
     get ledgerEntries() { return this.conn.collection('platformledgerentries'); }
-    assertPharmacySettlementReady(user) {
-        if (String(user?.role || '').toLowerCase() === 'pharmacy') {
-            throw new common_1.ServiceUnavailableException('pharmacy_settlement_proof_required');
-        }
-    }
     validateIban(iban) {
         if (!iban)
             throw new common_1.BadRequestException('verified_bank_account_required');
@@ -57,7 +52,6 @@ let ProviderPayoutsController = class ProviderPayoutsController {
         };
     }
     async request(user, body) {
-        this.assertPharmacySettlementReady(user);
         const amount = Math.round(Number(body?.amount) * 100) / 100;
         const idempotencyKey = String(body?.idempotency_key || '').trim();
         if (!Number.isFinite(amount) || amount <= 0)
@@ -133,7 +127,6 @@ let ProviderPayoutsController = class ProviderPayoutsController {
         return this.withdrawals.find({ provider_id: user.id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(50).toArray();
     }
     balance(user) {
-        this.assertPharmacySettlementReady(user);
         return this.ledger.providerBalance(user.id);
     }
 };

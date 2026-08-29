@@ -303,7 +303,54 @@ export class PharmacyAllocationService {
     await this.refreshOrderAfterAllocationChange(a.order_id);
     await this.notif.notifyPatientAllocationProgress(a);
     await this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: 'transition_to_delivered', before: { status: fromStatus }, after: { status: a.status }, meta: { order_id: a.order_id } });
+    await this.settleDeliveredAllocation(a, isCod);
     return a.toObject();
+  }
+
+  /**
+   * Wallet settlement on delivery completion (idempotent per allocation):
+   *  - Online-paid (card/insurance copay via gateway): platform holds the money →
+   *    credit the pharmacy its net (gross − commission − VAT) into escrow.
+   *  - COD: the pharmacy already holds the full cash → it owes the platform
+   *    commission + VAT (ledger debit). No earning is posted.
+   */
+  private async settleDeliveredAllocation(a: any, isCod: boolean) {
+    const ledger = this.orders.db.collection('platformledgerentries');
+    const refType = 'pharmacy_allocation';
+    const refId = String(a.id);
+    const dup = await ledger.findOne({ ref_type: refType, ref_id: refId, type: { $in: ['provider_earning', 'provider_debit'] } });
+    if (dup) return;
+    const gross = Math.round(Number(a.totals?.total || 0) * 100) / 100;
+    if (!(gross > 0)) return;
+    const cfg: any = await this.orders.db.collection('finance_config').findOne({ key: 'commissions' });
+    const pct = Number(cfg?.service_types?.pharmacy?.percent ?? 10);
+    const vatPct = Number(cfg?.tax?.vat_percent ?? 15);
+    const commission = Math.round(gross * pct) / 100;
+    const vat = Math.round(commission * vatPct) / 100;
+    const now = new Date();
+    if (isCod) {
+      await ledger.insertOne({
+        id: `le_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        provider_account_id: a.pharmacy_account_id, type: 'provider_debit', state: 'cleared',
+        amount: Math.round((commission + vat) * 100) / 100,
+        ref_type: refType, ref_id: refId, order_id: a.order_id,
+        gross, commission_percent: pct, commission, vat,
+        description: 'COD commission + VAT owed to platform (cash collected by pharmacy)',
+        actor_id: 'system', createdAt: now,
+      });
+      return;
+    }
+    const delayDays = Number(cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? 3);
+    const net = Math.round((gross - commission - vat) * 100) / 100;
+    await ledger.insertOne({
+      id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      provider_account_id: a.pharmacy_account_id, type: 'provider_earning', state: 'pending',
+      available_at: new Date(now.getTime() + delayDays * 24 * 3600 * 1000),
+      amount: net, gross, commission_percent: pct, commission, vat,
+      ref_type: refType, ref_id: refId, order_id: a.order_id,
+      description: 'Pharmacy order earning (escrow until settlement delay)',
+      actor_id: 'system', createdAt: now,
+    });
   }
 
   private async advance(user: any, id: string, to: PharmacyAllocationState) {

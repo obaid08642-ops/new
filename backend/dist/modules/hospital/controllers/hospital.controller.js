@@ -62,6 +62,9 @@ let HospitalController = class HospitalController {
     async respondInvitation(user, id, body) {
         return this.hospitalService.respondInvitation(user.id, id, !!body?.accept);
     }
+    async leaveFacility(user) {
+        return this.hospitalService.leaveFacility(user.id);
+    }
 };
 exports.HospitalController = HospitalController;
 __decorate([
@@ -172,6 +175,13 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], HospitalController.prototype, "respondInvitation", null);
+__decorate([
+    (0, common_1.Post)('leave-facility'),
+    __param(0, (0, auth_guard_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], HospitalController.prototype, "leaveFacility", null);
 exports.HospitalController = HospitalController = __decorate([
     (0, common_1.Controller)('hospital'),
     (0, common_1.UseGuards)(auth_guard_1.JwtAuthGuard),

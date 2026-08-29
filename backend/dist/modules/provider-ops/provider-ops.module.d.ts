@@ -180,6 +180,7 @@ export declare class ProviderOpsService {
         instant_available: boolean;
     }>;
     statsToday(providerId: string): Promise<any>;
+    statsPeriod(providerId: string, period: 'week' | 'month' | 'year'): Promise<any>;
     providerReviews(providerId: string): Promise<any[]>;
     replyReview(providerId: string, ratingId: string, reply: string): Promise<{
         ok: boolean;
@@ -316,6 +317,13 @@ export declare class ProviderCompatController {
     }>;
     walletTx(u: any): Promise<any>;
     statsToday(u: any): Promise<any>;
+    statsPeriod(u: any, period?: string): Promise<any>;
+    getPricing(u: any): Promise<{
+        pricing: any;
+    }>;
+    putPricing(u: any, b: any): Promise<{
+        ok: boolean;
+    }>;
     myReviews(u: any): Promise<any[]>;
     replyReview(u: any, id: string, b: any): Promise<{
         ok: boolean;

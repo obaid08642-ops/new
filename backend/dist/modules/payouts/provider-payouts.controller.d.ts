@@ -6,7 +6,6 @@ export declare class ProviderPayoutsController {
     constructor(conn: Connection, ledger: LedgerService);
     private get withdrawals();
     private get ledgerEntries();
-    private assertPharmacySettlementReady;
     private validateIban;
     private balanceForReservation;
     request(user: any, body: {

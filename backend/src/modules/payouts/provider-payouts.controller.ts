@@ -1,5 +1,5 @@
 /** Provider-initiated withdrawal requests with an atomic ledger reservation. */
-import { Controller, Post, Get, Body, UseGuards, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, ClientSession } from 'mongoose';
 import { v4 as uuid } from 'uuid';
@@ -16,12 +16,6 @@ export class ProviderPayoutsController {
 
   private get withdrawals() { return this.conn.collection('providerwithdrawals'); }
   private get ledgerEntries() { return this.conn.collection('platformledgerentries'); }
-
-  private assertPharmacySettlementReady(user: any): void {
-    if (String(user?.role || '').toLowerCase() === 'pharmacy') {
-      throw new ServiceUnavailableException('pharmacy_settlement_proof_required');
-    }
-  }
 
   private validateIban(iban: string | null | undefined): string {
     if (!iban) throw new BadRequestException('verified_bank_account_required');
@@ -50,7 +44,6 @@ export class ProviderPayoutsController {
 
   @Post('request')
   async request(@CurrentUser() user: any, @Body() body: { amount?: number; idempotency_key?: string }) {
-    this.assertPharmacySettlementReady(user);
     const amount = Math.round(Number(body?.amount) * 100) / 100;
     const idempotencyKey = String(body?.idempotency_key || '').trim();
     if (!Number.isFinite(amount) || amount <= 0) throw new BadRequestException('valid_amount_required');
@@ -122,7 +115,6 @@ export class ProviderPayoutsController {
 
   @Get('balance')
   balance(@CurrentUser() user: any) {
-    this.assertPharmacySettlementReady(user);
     return this.ledger.providerBalance(user.id);
   }
 }

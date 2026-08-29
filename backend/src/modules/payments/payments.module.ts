@@ -157,19 +157,118 @@ export class PaymentsService {
     }
   }
 
+  // ── Governed pharmacy orders (pharmacy_orders collection) ─────────────────
+  // The broadcast→offer→selection flow stores orders in `pharmacy_orders` with
+  // patient_account_id / pricing_snapshot, not in the legacy `orders` collection.
+  private async governedPharmacyOrder(id: string): Promise<any | null> {
+    if (!this.txns.db) return null;
+    return this.txns.db.collection('pharmacy_orders').findOne({ id });
+  }
+
+  /**
+   * Server-side due amount for a governed pharmacy order. For insurance orders
+   * the patient only ever pays the recorded co-pay (and only AFTER explicitly
+   * accepting it); a rejected decision becomes payable only after the patient
+   * accepted self-pay (which switches payment_method to card).
+   */
+  private pharmacyDueAmount(order: any): number {
+    const total = Math.round(Number(order.pricing_snapshot?.totals?.total || 0) * 100) / 100;
+    if (!(total > 0)) throw new BadRequestException('selected_quote_required');
+    const method = String(order.payment_method || '').toLowerCase();
+    if (method === 'cod') throw new BadRequestException('cod_orders_do_not_require_online_payment');
+    if (method === 'insurance') {
+      const decision = order.insurance_decision;
+      if (!decision) throw new BadRequestException('insurance_decision_pending');
+      if (decision.outcome === 'full') throw new BadRequestException('covered_by_insurance_no_payment_due');
+      if (decision.outcome === 'rejected') throw new BadRequestException('insurance_rejected_acceptance_required');
+      if (decision.patient_acceptance?.kind !== 'co-pay') throw new BadRequestException('copay_acceptance_required');
+      const share = Math.round(Number(decision.patient_share || 0) * 100) / 100;
+      if (!(share > 0)) throw new BadRequestException('invalid_amount');
+      return share;
+    }
+    // Online payment is created only after the patient accepted the final quote.
+    if (!order.quote_accepted_at) throw new BadRequestException('final_quote_acceptance_required');
+    return total;
+  }
+
+  /** Public payment capabilities advertised for a governed pharmacy order. */
+  async getPharmacyCapabilities(user: any, orderId: string) {
+    const order = await this.governedPharmacyOrder(orderId);
+    if (!order) throw new NotFoundException('booking_not_found');
+    if (order.patient_account_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
+    if (!order.selected_offer_id || !order.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    const amount = this.pharmacyDueAmount(order);
+    const configured = !!(process.env.MOYASAR_API_KEY || process.env.STRIPE_SECRET_KEY || process.env.TAP_API_KEY);
+    const methods = configured
+      ? [{ id: 'card', kind: 'online' }, { id: 'apple-pay', kind: 'online' }, { id: 'google-pay', kind: 'online' }]
+      : [];
+    return {
+      booking_id: order.id,
+      amount,
+      currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
+      methods,
+    };
+  }
+
+  /**
+   * After a pharmacy transaction is verified paid: mark the governed order and
+   * emit the gateway-paid event that PharmacyPaymentEvidenceService turns into
+   * the fulfillment-gate evidence record. All quote-binding metadata is read
+   * from the order document server-side — never from client or gateway input.
+   */
+  private async finalizeGovernedPharmacyPaid(t: any): Promise<boolean> {
+    const order = await this.governedPharmacyOrder(t.booking_id);
+    if (!order) return false;
+    await this.txns.db.collection('pharmacy_orders').updateOne(
+      { id: order.id },
+      { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } },
+    );
+    this.events.emit('moyasar.payment.paid', {
+      id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
+      event_id: `txn_${t.id}`,
+      amount_halalas: Math.round(Number(t.amount) * 100),
+      currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
+      metadata: {
+        order_id: order.id,
+        selected_offer_id: order.selected_offer_id,
+        selected_offer_version: Number(order.selected_offer_version),
+        quote_snapshot_hash: String(order.pricing_snapshot?.hash || ''),
+        payer_account_id: order.patient_account_id,
+      },
+    });
+    return true;
+  }
+
   async createPaymentIntent(user: any, type: string, id: string, idempotencyKey: string) {
     const requestKey = String(idempotencyKey || '').trim();
     if (!requestKey || requestKey.length > 128) throw new BadRequestException('idempotency_key_required');
     const kind = normalizeKind(type);
-    const M = this.modelFor(type);
-    const booking: any = await M.findOne({ id }).lean();
+    // Governed pharmacy orders live in pharmacy_orders — resolve them first.
+    let booking: any;
+    let governedPharmacy = false;
+    if (kind === 'pharmacy') {
+      booking = await this.governedPharmacyOrder(id);
+      if (booking) governedPharmacy = true;
+    }
+    if (!booking) {
+      const M = this.modelFor(type);
+      booking = await M.findOne({ id }).lean();
+    }
     if (!booking) throw new NotFoundException('booking_not_found');
-    this.assertBookingOwnerOrAdmin(user, booking);
+    if (governedPharmacy) {
+      if (booking.patient_account_id !== user?.id && user?.role !== 'admin') throw new BadRequestException('not_authorized');
+      if (['cancelled', 'expired'].includes(String(booking.status))) throw new BadRequestException('payment_order_not_collectable');
+      if (!booking.selected_offer_id || !booking.pricing_snapshot?.hash) throw new BadRequestException('selected_quote_required');
+    } else {
+      this.assertBookingOwnerOrAdmin(user, booking);
+    }
     // S4/S7 double-payment prevention: never create a new charge for an already-paid booking.
     // (fraud.detectDuplicatePayments only alerts AFTER the fact — this stops it upfront.)
     if (booking.payment_status === 'paid') throw new BadRequestException('booking_already_paid');
     // insurance copay intents charge the patient's copay share, not the full price
-    let amount = kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
+    let amount = governedPharmacy
+      ? this.pharmacyDueAmount(booking)
+      : kind === 'insurance' ? (booking.copay_amount || 0) : (booking.total || booking.totals?.total || booking.price || 0);
     // Pharmacy insurance orders: after provider approval the patient pays only the
     // provider-set copay — never the full order total (E1 S1/S2).
     if (kind === 'pharmacy' && booking.payment_method === 'insurance'
@@ -190,7 +289,7 @@ export class PaymentsService {
     // live gateway intent for the same booking during an in-flight request.
     let txn: any;
     try {
-      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
+      txn = await this.txns.create({ booking_kind: kind, booking_id: id, patient_id: booking.patient_id || booking.patient_account_id, amount, gateway: this.adapter.name, method: booking.payment_method || 'card', status: 'initiating', idempotency_key: requestKey });
     } catch (error: any) {
       if (error?.code === 11000) {
         const active: any = await this.txns.findOne({ booking_kind: kind, booking_id: id, status: { $in: ['initiating', 'pending', 'authorized'] } }).lean();
@@ -227,7 +326,9 @@ export class PaymentsService {
     if (result.charge_id) t.gateway_charge_id = result.charge_id;
     if (result.status === 'paid') {
       t.paid_at = new Date();
-      await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+      if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
+        await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+      }
       // For online/home services we emit an event so the workflow engine (provider-jobs / booking-flow)
       // can transition CONFIRMED when payment is required pre-confirmation.
       this.events.emit('payment.completed', {
@@ -326,7 +427,9 @@ export class PaymentsService {
     t.paid_at = new Date();
     t.webhook_payload = j;
     await t.save();
-    await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+    if (!(t.booking_kind === 'pharmacy' && await this.finalizeGovernedPharmacyPaid(t))) {
+      await this.modelFor(t.booking_kind).updateOne({ id: t.booking_id }, { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } });
+    }
     this.events.emit('payment.completed', {
       kind: t.booking_kind, id: t.booking_id, booking_kind: t.booking_kind, booking_id: t.booking_id,
       patient_id: t.patient_id, amount: t.amount, transaction_id: t.id,
@@ -386,6 +489,7 @@ export class PaymentsController {
   retry(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string, @Headers('idempotency-key') key: string) { return this.svc.retryPayment(u, t, id, key); }
   @Post('refund/:txn') refund(@CurrentUser() u: any, @Param('txn') txn: string, @Body() b: { amount?: number; reason?: string }) { return this.svc.refundPayment(u, txn, b.amount, b.reason); }
   @Post('capture/:txn') capture(@CurrentUser() u: any, @Param('txn') txn: string) { return this.svc.capturePayment(u, txn); }
+  @Get('pharmacy/:orderId/capabilities') pharmacyCapabilities(@CurrentUser() u: any, @Param('orderId') orderId: string) { return this.svc.getPharmacyCapabilities(u, orderId); }
   @Get('booking/:type/:id') list(@CurrentUser() u: any, @Param('type') t: string, @Param('id') id: string) { return this.svc.listForBooking(u, t, id); }
 }
 

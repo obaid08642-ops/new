@@ -110,6 +110,17 @@ export class HospitalService {
     return inv;
   }
 
+  /** Provider leaves its linked facility: clears the link and facility-granted permissions. */
+  async leaveFacility(userId: string) {
+    const user: any = await this.userModel.findOne({ id: userId });
+    if (!user) throw new NotFoundException('user_not_found');
+    if (!user.parent_provider_account_id) throw new BadRequestException('not_linked_to_facility');
+    user.parent_provider_account_id = undefined;
+    user.permissions = [];
+    await user.save();
+    return { ok: true };
+  }
+
   async createBranch(hospitalId: string, data: Partial<HospitalBranch>, actor?: any) {
     this.assertFacilityActor(actor, true);
     return this.branchModel.create({ ...data, hospital_id: await this.objectIdForUser(hospitalId) });

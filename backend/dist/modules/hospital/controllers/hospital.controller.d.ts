@@ -102,4 +102,7 @@ export declare class HospitalController {
     } & {
         __v: number;
     }>;
+    leaveFacility(user: any): Promise<{
+        ok: boolean;
+    }>;
 }

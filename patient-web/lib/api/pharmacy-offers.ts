@@ -24,6 +24,8 @@ export type PatientPharmacyOffer = {
   codAllowed?: boolean;
   quoteHash?: string;
   quoteRevision?: number;
+  approxDistanceKm?: number;
+  etaLabel?: string;
   lines: PatientPharmacyOfferLine[];
 };
 
@@ -108,6 +110,11 @@ export function extractPatientPharmacyOffers(payload: unknown): PatientPharmacyO
       codAllowed: booleanValue(source, ["cod_allowed", "codAllowed"]),
       quoteHash: stringValue(source, ["snapshot_hash", "quote_hash", "quoteHash"]),
       quoteRevision: numberValue(source, ["revision", "quote_revision", "quoteRevision"]),
+      approxDistanceKm: numberValue(source, ["approx_distance_km", "approxDistanceKm"]),
+      etaLabel: (() => {
+        const delivery = valueRecord(source.approx_delivery);
+        return stringValue(delivery ?? {}, ["label_ar", "label_en"]);
+      })(),
       lines: rawLines.flatMap((line) => {
         const parsed = parseLine(line);
         return parsed ? [parsed] : [];
