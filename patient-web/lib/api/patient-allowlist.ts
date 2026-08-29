@@ -44,6 +44,13 @@ const patientReadRoutes = [
   new RegExp("^/chat/threads$"),
   new RegExp(`^/chat/threads/${threadId}$`, "i"),
   new RegExp(`^/chat/threads/${threadId}/messages\\?limit=50$`, "i"),
+  new RegExp("^/home/search\\?q=[^&]{1,120}$", "i"),
+  new RegExp("^/support/faqs$", "i"),
+  new RegExp("^/support/requests/mine$", "i"),
+  new RegExp("^/loyalty/account$", "i"),
+  new RegExp("^/loyalty/transactions(\\?page=\\d+)?$", "i"),
+  new RegExp("^/loyalty/rewards$", "i"),
+  new RegExp("^/emergency/my/active$", "i"),
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
@@ -61,6 +68,10 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/accept-substitute/${threadId}$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/reject$`, "i") },
   { method: "POST", route: new RegExp(`^/pharmacy/chat/threads/${threadId}/remove-item$`, "i") },
+  { method: "POST", route: new RegExp("^/support/requests$", "i") },
+  { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
+  { method: "POST", route: new RegExp("^/emergency/trigger$", "i") },
+  { method: "POST", route: new RegExp("^/emergency/[A-Za-z0-9-]{1,64}/cancel$", "i") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {

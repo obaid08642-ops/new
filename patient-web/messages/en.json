@@ -52,7 +52,17 @@
     "otpExchangeInvalid": "The secure session could not be established. No local session was created.",
     "otpUnavailable": "The authentication service is unavailable. No session was created."
   },
-  "NursingCatalog": {"eyebrow":"Verified nursing services","title":"Nursing at home","subtitle":"Browse services published by the nursing catalogue.","price":"From {value}","insurance":"Insurance available","empty":"No nursing services are currently available.","unavailable":"Nursing catalogue unavailable","unavailableBody":"The catalogue could not be loaded from the authorized service.","back":"Back"},
+  "NursingCatalog": {
+    "eyebrow": "Verified nursing services",
+    "title": "Nursing at home",
+    "subtitle": "Browse services published by the nursing catalogue.",
+    "price": "From {value}",
+    "insurance": "Insurance available",
+    "empty": "No nursing services are currently available.",
+    "unavailable": "Nursing catalogue unavailable",
+    "unavailableBody": "The catalogue could not be loaded from the authorized service.",
+    "back": "Back"
+  },
   "Dashboard": {
     "eyebrow": "Private portal",
     "title": "Patient session is protected.",
@@ -71,7 +81,15 @@
     "medicines": "Medicines",
     "profile": "My health profile",
     "settings": "Settings",
-    "articles": "Health articles"
+    "articles": "Health articles",
+    "search": "Search",
+    "reports": "Reports",
+    "loyalty": "Loyalty",
+    "support": "Support",
+    "emergency": "Emergency",
+    "programs": "Programs",
+    "offers": "Offers",
+    "returns": "Returns"
   },
   "Orders": {
     "eyebrow": "Private orders",
@@ -215,7 +233,15 @@
     "notice": "Only service, booking status, and schedule are shown. Location, tracking, clinical information, and pricing are not displayed in this interface.",
     "browseServices": "Browse home-care services"
   },
-  "HomeCareProviders": {"eyebrow":"Verified home-care providers","title":"Nursing providers","subtitle":"View approved nursing providers from the protected catalog.","verified":"Verified provider","empty":"No providers are available right now.","unavailable":"Providers are unavailable","unavailableBody":"The approved provider service could not be loaded."},
+  "HomeCareProviders": {
+    "eyebrow": "Verified home-care providers",
+    "title": "Nursing providers",
+    "subtitle": "View approved nursing providers from the protected catalog.",
+    "verified": "Verified provider",
+    "empty": "No providers are available right now.",
+    "unavailable": "Providers are unavailable",
+    "unavailableBody": "The approved provider service could not be loaded."
+  },
   "Family": {
     "eyebrow": "Private family",
     "title": "Family members",
@@ -824,5 +850,79 @@
     "outOfStock": "Out of stock",
     "unavailableTitle": "Wishlist unavailable",
     "unavailableBody": "No fallback data was shown. Please try again later."
+  },
+  "Search": {
+    "title": "Search",
+    "placeholder": "Search for a doctor, medicine, or service…",
+    "empty": "No matching results",
+    "error": "Search is unavailable right now",
+    "searching": "Searching…"
+  },
+  "Support": {
+    "title": "Support",
+    "faqTitle": "Frequently asked questions",
+    "ticketsTitle": "My support requests",
+    "noTickets": "Nothing here yet",
+    "subjectPlaceholder": "Request subject",
+    "messagePlaceholder": "Describe your issue in detail…",
+    "send": "Send request",
+    "sending": "Sending…",
+    "sent": "Your request was sent",
+    "error": "Could not send the request right now"
+  },
+  "Reports": {
+    "title": "Medical reports",
+    "empty": "No medical reports yet",
+    "error": "Could not load reports right now",
+    "back": "Back to reports",
+    "fields": {
+      "summary": "Summary",
+      "diagnosis": "Diagnosis",
+      "recommendations": "Recommendations",
+      "doctor_name": "Doctor",
+      "facility_name": "Facility",
+      "body": "Report body"
+    }
+  },
+  "Loyalty": {
+    "title": "Loyalty program",
+    "points": "points",
+    "tier": "Tier",
+    "rewards": "Available rewards",
+    "noRewards": "No rewards available right now",
+    "history": "Points history",
+    "noHistory": "No point transactions yet",
+    "claim": "Claim",
+    "claiming": "Claiming…",
+    "claimed": "Claimed",
+    "error": "Could not claim the reward right now"
+  },
+  "Emergency": {
+    "title": "Emergency",
+    "subtitle": "Press the SOS button only in critical situations. The response team is notified immediately.",
+    "trigger": "Send SOS emergency call",
+    "triggering": "Sending…",
+    "activeLabel": "SOS is active — the response team is on the way",
+    "cancel": "Cancel SOS",
+    "cancelling": "Cancelling…",
+    "error": "Could not complete the action right now",
+    "state": "State"
+  },
+  "Programs": {
+    "title": "My health programs",
+    "empty": "No active health programs right now",
+    "error": "Could not load programs right now"
+  },
+  "Offers": {
+    "title": "Offers",
+    "empty": "No offers available right now",
+    "error": "Could not load offers right now",
+    "sar": "SAR"
+  },
+  "Returns": {
+    "title": "Return requests",
+    "empty": "No return requests",
+    "error": "Could not load return requests right now",
+    "sar": "SAR"
   }
 }
