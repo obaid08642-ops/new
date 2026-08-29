@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Activity, Bell, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, FileText, HeartPulse, HousePlus, MessageCircle, Pill, ScanLine, Settings, Stethoscope, UserRound, UsersRound } from "lucide-react";
+import { Activity, Bell, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, FileText, Gift, HeartPulse, HousePlus, LifeBuoy, MessageCircle, Pill, ScanLine, Search, Settings, Siren, Stethoscope, UserRound, UsersRound } from "lucide-react";
 import type { CSSProperties } from "react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { getPatientDashboardProfile, getPatientDashboardUpcomingAppointment } from "@/lib/api/dashboard-server";
@@ -30,6 +30,11 @@ const moreDestinations = [
   { key: "chat", href: "chat", icon: MessageCircle },
   { key: "notifications", href: "notifications", icon: Bell },
   { key: "orders", href: "orders", icon: ClipboardList },
+  { key: "search", href: "search", icon: Search },
+  { key: "reports", href: "reports", icon: FileText },
+  { key: "loyalty", href: "loyalty", icon: Gift },
+  { key: "support", href: "support", icon: LifeBuoy },
+  { key: "emergency", href: "emergency", icon: Siren },
   { key: "profile", href: "profile", icon: UserRound },
   { key: "settings", href: "settings", icon: Settings },
   { key: "articles", href: "articles", icon: BookOpen },

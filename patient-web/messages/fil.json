@@ -70,7 +70,12 @@
     "medicines": "Mga gamot",
     "profile": "Aking health profile",
     "settings": "Mga setting",
-    "articles": "Mga artikulo sa kalusugan"
+    "articles": "Mga artikulo sa kalusugan",
+    "search": "Hanapin",
+    "reports": "Mga Ulat",
+    "loyalty": "Loyalty",
+    "support": "Suporta",
+    "emergency": "Emergency"
   },
   "Metadata": {
     "siteTitle": "Nabd Plus",
@@ -259,8 +264,26 @@
     "notice": "Serbisyo, status ng booking at iskedyul lamang ang ipinapakita. Hindi ipinapakita sa interface na ito ang lokasyon, pagsubaybay, klinikal na impormasyon at mga presyo.",
     "browseServices": "Tingnan ang mga serbisyo sa home care"
   },
-  "NursingCatalog": {"eyebrow":"Mga verified na nursing service","title":"Nursing sa bahay","subtitle":"Tingnan ang mga serbisyong inilathala sa nursing catalogue.","price":"Mula {value}","insurance":"May insurance","empty":"Walang nursing service na available ngayon.","unavailable":"Hindi available ang nursing catalogue","unavailableBody":"Hindi ma-load ang catalogue mula sa awtorisadong serbisyo.","back":"Bumalik"},
-  "HomeCareProviders": {"eyebrow":"Mga verified na home-care provider","title":"Mga nursing provider","subtitle":"Tingnan ang mga aprubadong nursing provider mula sa protected catalog.","verified":"Verified provider","empty":"Walang provider na available ngayon.","unavailable":"Hindi available ang mga provider","unavailableBody":"Hindi ma-load ang aprubadong provider service."},
+  "NursingCatalog": {
+    "eyebrow": "Mga verified na nursing service",
+    "title": "Nursing sa bahay",
+    "subtitle": "Tingnan ang mga serbisyong inilathala sa nursing catalogue.",
+    "price": "Mula {value}",
+    "insurance": "May insurance",
+    "empty": "Walang nursing service na available ngayon.",
+    "unavailable": "Hindi available ang nursing catalogue",
+    "unavailableBody": "Hindi ma-load ang catalogue mula sa awtorisadong serbisyo.",
+    "back": "Bumalik"
+  },
+  "HomeCareProviders": {
+    "eyebrow": "Mga verified na home-care provider",
+    "title": "Mga nursing provider",
+    "subtitle": "Tingnan ang mga aprubadong nursing provider mula sa protected catalog.",
+    "verified": "Verified provider",
+    "empty": "Walang provider na available ngayon.",
+    "unavailable": "Hindi available ang mga provider",
+    "unavailableBody": "Hindi ma-load ang aprubadong provider service."
+  },
   "Family": {
     "eyebrow": "Pribadong pamilya",
     "title": "Mga miyembro ng pamilya",
@@ -824,5 +847,62 @@
     "outOfStock": "Walang stock",
     "unavailableTitle": "Hindi available ang wishlist",
     "unavailableBody": "Walang ipinakitang fallback data. Subukan muli mamaya."
+  },
+  "Search": {
+    "title": "Paghahanap",
+    "placeholder": "Maghanap ng doktor, gamot, o serbisyo…",
+    "empty": "Walang tugmang resulta",
+    "error": "Hindi magamit ang paghahanap ngayon",
+    "searching": "Naghahanap…"
+  },
+  "Support": {
+    "title": "Suporta",
+    "faqTitle": "Mga madalas itanong",
+    "ticketsTitle": "Aking mga kahilingan sa suporta",
+    "noTickets": "Wala pa rito",
+    "subjectPlaceholder": "Paksa ng kahilingan",
+    "messagePlaceholder": "Ilarawan nang detalyado ang iyong problema…",
+    "send": "Ipadala",
+    "sending": "Ipinapadala…",
+    "sent": "Naipadala na ang iyong kahilingan",
+    "error": "Hindi maipadala ang kahilingan ngayon"
+  },
+  "Reports": {
+    "title": "Mga medikal na ulat",
+    "empty": "Wala pang mga ulat",
+    "error": "Hindi ma-load ang mga ulat ngayon",
+    "back": "Bumalik sa mga ulat",
+    "fields": {
+      "summary": "Buod",
+      "diagnosis": "Dyagnosis",
+      "recommendations": "Mga rekomendasyon",
+      "doctor_name": "Doktor",
+      "facility_name": "Pasilidad",
+      "body": "Nilalaman ng ulat"
+    }
+  },
+  "Loyalty": {
+    "title": "Loyalty program",
+    "points": "puntos",
+    "tier": "Antas",
+    "rewards": "Mga available na reward",
+    "noRewards": "Walang available na reward ngayon",
+    "history": "Kasaysayan ng puntos",
+    "noHistory": "Wala pang transaksyon",
+    "claim": "I-claim",
+    "claiming": "Kinu-claim…",
+    "claimed": "Na-claim",
+    "error": "Hindi ma-claim ang reward ngayon"
+  },
+  "Emergency": {
+    "title": "Emergency",
+    "subtitle": "Pindutin lamang ang SOS sa mga kritikal na sitwasyon.",
+    "trigger": "Magpadala ng SOS",
+    "triggering": "Ipinapadala…",
+    "activeLabel": "Aktibo ang SOS — paparating na ang response team",
+    "cancel": "Kanselahin ang SOS",
+    "cancelling": "Kinakansela…",
+    "error": "Hindi makumpleto ang aksyon ngayon",
+    "state": "Estado"
   }
 }
