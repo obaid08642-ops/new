@@ -30,6 +30,11 @@
 .socialButton { display: grid; place-items: center; min-block-size: 3.3rem; border: 1px solid var(--line); border-radius: 1rem; color: var(--ink); background: rgba(255,255,255,.74); font: inherit; font-size: 1.05rem; font-weight: 850; cursor: pointer; transition: transform var(--motion-fast) var(--ease-premium), box-shadow var(--motion-fast) var(--ease-premium), border-color var(--motion-fast) var(--ease-premium); }
 .socialButton:hover { border-color: rgba(8,127,140,.4); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
 .google span { color: #db4437; }.apple span { color: #111; }.snapchat { background: #fffc00; border-color: #ffea00; }.x span { color: #111; }
+.socialArea { display: grid; gap: .7rem; animation: authRise .55s var(--ease-premium) .3s both; }
+.socialArea .socialGrid { animation: none; }
+.guestButton { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-block-size: 3.1rem; border: 1px dashed rgba(8,127,140,.45); border-radius: 1rem; color: var(--brand); background: var(--brand-soft); font: inherit; font-size: .9rem; font-weight: 750; cursor: pointer; transition: transform var(--motion-fast) var(--ease-premium), box-shadow var(--motion-fast) var(--ease-premium); }
+.guestButton:hover:not(:disabled) { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.guestButton:disabled { opacity: .6; cursor: not-allowed; }
 .blocked { margin: -.2rem 0 0; padding: .7rem .8rem; border: 1px solid rgba(8,127,140,.14); border-inline-start: 3px solid var(--brand); border-radius: .8rem; color: var(--muted); background: var(--brand-soft); font-size: .75rem; line-height: 1.5; }
 .registerPrompt { margin: .35rem 0 0; color: var(--muted); text-align: center; font-size: .8rem; font-weight: 650; animation: authRise .55s var(--ease-premium) .36s both; }
 .description { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.6; }

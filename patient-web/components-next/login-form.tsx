@@ -5,18 +5,12 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, LoaderCircle, MailCheck, ShieldCheck } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
+import { SocialLoginButtons } from "./social-login-buttons";
 import styles from "./login-form.module.css";
 
 function NLogo() {
   return <span className={styles.logoMark} aria-hidden="true"><svg viewBox="0 0 100 100" role="presentation"><path d="M18 52H38l5-22 9 44 6-30 5 8H82" /></svg></span>;
 }
-
-const socialProviders = [
-  { id: "google", label: "Google", className: styles.google },
-  { id: "apple", label: "Apple", className: styles.apple },
-  { id: "snapchat", label: "Snapchat", className: styles.snapchat },
-  { id: "x", label: "X", className: styles.x },
-] as const;
 
 export function LoginForm({ locale }: { locale: Locale }) {
   const router = useRouter();
@@ -30,7 +24,6 @@ export function LoginForm({ locale }: { locale: Locale }) {
   const [otpRequested, setOtpRequested] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [socialMessage, setSocialMessage] = useState<string | null>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setMessage(null); setSubmitting(true);
@@ -74,8 +67,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
       {message ? <p className={styles.error} role="alert">{message}</p> : null}
       <button className={styles.submit} disabled={submitting}>{submitting ? <LoaderCircle className={styles.spinner} size={18} aria-hidden="true" /> : (otpMode ? <MailCheck size={18} aria-hidden="true" /> : <ShieldCheck size={18} aria-hidden="true" />)}{submitting ? (otpMode ? t("otpSubmitting") : (twoFactor ? t("twoFactorSubmitting") : t("submitting"))) : (otpMode ? (codeStep ? t("otpVerify") : t("otpRequest")) : (twoFactor ? t("twoFactorSubmit") : t("submit")))}</button>
       <div className={styles.divider}><span>{locale === "ar" ? "أو الدخول بواسطة" : "Or continue with"}</span></div>
-      <div className={styles.socialGrid} aria-label={locale === "ar" ? "طرق الدخول الاجتماعي" : "Social sign in options"}>{socialProviders.map((provider) => <button key={provider.id} type="button" className={`${styles.socialButton} ${provider.className}`} onClick={() => setSocialMessage(locale === "ar" ? `تسجيل الدخول عبر ${provider.label} غير متاح حتى تثبيت إعدادات OAuth الآمنة.` : `${provider.label} sign-in is unavailable until secure OAuth configuration is verified.`)} aria-label={provider.label}><span>{provider.id === "google" ? "G" : provider.id === "apple" ? "●" : provider.id === "snapchat" ? "S" : "𝕏"}</span></button>)}</div>
-      {socialMessage ? <p className={styles.blocked} role="status">{socialMessage}</p> : null}
+      <SocialLoginButtons locale={locale} labels={{ guest: t("guestContinue"), guestLoading: t("guestLoading"), error: t("unavailable") }} />
       <p className={styles.registerPrompt}>{locale === "ar" ? "ليس لديك حساب؟" : "New to Nabd Plus?"} <button type="button" className={styles.textLink} onClick={() => router.push(`/${locale}/register`)}>{locale === "ar" ? "سجل الآن" : "Create an account"}</button></p>
     </form>
   </div>;
