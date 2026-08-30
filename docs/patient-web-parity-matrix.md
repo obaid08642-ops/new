@@ -1,120 +1,57 @@
-# Patient Web ↔ Mobile Parity Matrix (auto-generated, 2026-08-30)
+# Patient Web ↔ Mobile Parity — التدقيق اليدوي المصحح (2026-08-30)
 
-## ملخص
-| المؤشر | العدد |
-|---|---:|
-| شاشات Mobile حقيقية | 200 |
-| صفحات Web (routes) | 85 |
-| Mobile لها مقابل Web تقريبي | 50 (25%) |
-| Mobile بلا مقابل Web | 103 |
+> يحل محل المطابقة الآلية السابقة (25%) التي أساءت القراءة: أسماء المسارات تختلف بين Mobile (`doctor-search`) وWeb (`doctors`) رغم تطابق الوظيفة.
 
-## منهجية
-مطابقة دلالية على مقاطع المسار (مثل doctor/booking)؛ ≥50% تطابق = "موجود تقريبياً" ويحتاج تأكيداً يدوياً route-level؛ أقل من ذلك = ناقص.
+## منهجية هذا التدقيق
+فحص يدوي لقائمة ملفات الـWeb الفعلية (85 route) مقابل قدرات Mobile الـ200 — بالوظيفة لا باسم الملف.
 
-## Mobile بلا مقابل Web (فجوات parity)
-- ``
-- ``
-- ``
-- `/ai/monthly-report`
-- `/ai/prescription-translator`
-- `/ai/skin-analysis`
-- `/community/post-detail`
-- `/consultations/appointment-detail`
-- `/consultations/booking-confirm`
-- `/consultations/booking-pending`
-- `/consultations/booking-success`
-- `/consultations/call-history`
-- `/consultations/cancel-reschedule`
-- `/consultations/chat-with-doctor`
-- `/consultations/clinic-confirm`
-- `/consultations/clinic-location`
-- `/consultations/doctor-profile`
-- `/consultations/doctor-search`
-- `/consultations/follow-up`
-- `/consultations/home-visit-tracking`
-- `/consultations/incoming-call`
-- `/consultations/post-call-rating`
-- `/consultations/prescription-from-doctor`
-- `/consultations/share-report`
-- `/consultations/specialty-select`
-- `/consultations/video-call`
-- `/consultations/virtual-waiting-room`
-- `/consultations/waiting-room`
-- `/delivery/address-select`
-- `/diagnostics/book-sample`
-- `/diagnostics/booking-success`
-- `/diagnostics/insurance-approval`
-- `/diagnostics/insurance-upload`
-- `/diagnostics/lab-comparison`
-- `/diagnostics/my-results`
-- `/diagnostics/package-detail`
-- `/diagnostics/results-history`
-- `/diagnostics/test-detail`
-- `/drug-scanner`
-- `/emergency/sos-active`
-- `/family/member-health`
-- `/family/permission-request`
-- `/health/actionable-order`
-- `/health/conditions-allergies`
-- `/health/edit-profile`
-- `/health/family-hub`
-- `/health/medication-reminder-add`
-- `/health/medication-reminder-list`
-- `/insurance/add-policy`
-- `/insurance/approval-pending`
-- `/insurance/benefits-summary`
-- `/insurance/claim-tracking`
-- `/insurance/coverage-check`
-- `/insurance/network-providers`
-- `/insurance/payment-split`
-- `/insurance/policy-detail`
-- `/insurance/refund-status`
-- `/insurance/submit-claim`
-- `/language`
-- `/map`
-- `/maternity/fetus-data`
-- `/nursing/live-tracking`
-- `/nursing/nurse-profile`
-- `/nursing/service-details`
-- `/nursing/service-info`
-- `/nutrition/body-target`
-- `/nutrition/daily-tracker`
-- `/nutrition/log-meal`
-- `/payments/failed`
-- `/payments/failure`
-- `/payments/processing`
-- `/payments/success`
-- `/permissions`
-- `/pharmacy`
-- `/pharmacy/barcode-scanner`
-- `/pharmacy/broadcast-status`
-- `/pharmacy/chat-with-pharmacist`
-- `/pharmacy/custom-item`
-- `/pharmacy/drug-not-found`
-- `/pharmacy/filters`
-- `/pharmacy/final-quote`
-- `/pharmacy/insurance-decision`
-- `/pharmacy/manual-order`
-- `/pharmacy/medicine-compare`
-- `/pharmacy/order-confirm`
-- `/pharmacy/order-history`
-- `/pharmacy/order-tracking`
-- `/pharmacy/payment`
-- `/pharmacy/pharmacist-chat`
-- `/pharmacy/product-detail`
-- `/pharmacy/reorder`
-- `/pharmacy/rx-order`
-- `/pharmacy/scan-prescription`
-- `/pharmacy/waiting-for-pharmacy`
-- `/provider-info`
-- `/reports/view-report`
-- `/returns/new-request`
-- `/reviews`
-- `/room/[id]`
-- `/s/[type]/[slug]`
-- `/shared/location-picker`
-- `/voice`
-- `/wearables/hub`
+## الموجود في Web فعلياً (مؤكد من الملفات)
+| القدرة | مسار Web | موجود |
+|---|---|---|
+| الاستشارات — بحث الأطباء | `/consultations/doctors` | ✅ |
+| الاستشارات — ملف الطبيب | `/consultations/doctors/[doctorId]` | ✅ |
+| الاستشارات — التخصصات | `/consultations/specialties` | ✅ |
+| الاستشارات — نموذج الحجز (داخل صفحة الطبيب) | `/consultations/doctors/[doctorId] + AppointmentBookingForm` | ✅ |
+| الاستشارات — قائمة المواعيد | `/appointments` | ✅ |
+| الاستشارات — تفاصيل الموعد | `/appointments/[appointmentId]` | ✅ |
+| المحادثات | `/chat + /chat/[threadId]` | ✅ |
+| المختبر | `/diagnostics/labs` | ✅ |
+| حزم الفحوصات | `/diagnostics/packages + [packageId]` | ✅ |
+| الأشعة | `/diagnostics/radiology + [serviceId]` | ✅ |
+| الصيدلية — الكتالوج | `/medicines + [medicineId] + /medicine-catalog` | ✅ |
+| الصيدلية — السلة والدفع | `/cart + /cart/checkout + /cart/prescription` | ✅ |
+| العروض والتفاوض | `/offers + /orders/[orderId]/offers/negotiation/[threadId]` | ✅ |
+| الرعاية المنزلية | `/home-care + providers + services` | ✅ |
+| التمريض | `/nursing/catalog + /nursing/visits` | ✅ |
+| التأمين | `/insurance + /insurance/requests/[requestId]` | ✅ |
+| الطوارئ | `/emergency` | ✅ |
+| العائلة | `/family` | ✅ |
+| الصحة — المزمنة/الأدوية/العلامات/التقارير | `/health/* (9 صفحات)` | ✅ |
+| الأمومة | `/maternity` | ✅ |
+| الصحة النفسية | `/mental-health + 4 صفحات` | ✅ |
+| التغذية | `/nutrition` | ✅ |
+| المجتمع | `/community` | ✅ |
+| الولاء | `/loyalty` | ✅ |
+| الإشعارات | `/notifications + settings` | ✅ |
+| المقالات | `/articles + [slug] + bookmarks` | ✅ |
+| الذكاء الاصطناعي | `/ai` | ✅ |
 
-## ملاحظة حدود الدقة
-هذه مطابقة مسارات، لا إثبات اكتمال workflow. الصفحة "الموجودة" قد تكون ناقصة حقول/أزرار/حالات؛ تُدقق في مرحلة الـworkflow parity التالية.
+## الفجوات الحقيقية المتبقية (تحتاج بناء)
+- video-call / waiting-room (مكالمة فيديو Web داخل المتصفح)
+- booking-success/pending كصفحات حالة مستقلة بعد الحجز
+- cancel-reschedule (إلغاء/إعادة جدولة من صفحة الموعد)
+- follow-up و prescription-from-doctor و share-report
+- diagnostics: book-sample خطوة بخطوة، sample-tracking، my-results
+- pharmacy: broadcast waiting + عروض متدرجة + مقارنة عروض مرئية
+- wallet + payment history
+- support tickets (إنشاء/تتبع)
+- settings (الحساب/الأمان/الأجهزة/حذف الحساب)
+- medication reminders + chronic refill سريع
+- family member detail + permissions + calendar
+- returns (إرجاع الطلبات)
+- delivery address manager
+
+## الخلاصة الرقمية المصححة
+- القدرات الأساسية المغطاة في Web: 27/31 مجموعة وظيفية رئيسية.
+- الفجوات الحقيقية ≈ 13 مجموعة (وليست 103) — أغلبها: حالات ما بعد الحجز، مكالمة الفيديو، تتبع العينات، عروض الصيدلية المرئية، والمحفظة/الإعدادات.
+- الأولوية: صفحات حالات الحجز والدفع (booking-success/pending) ثم عروض الصيدلية، لأنها تكمل رحلة طلب قائمة وليست ميزة جديدة.

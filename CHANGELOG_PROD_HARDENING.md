@@ -61,6 +61,12 @@
 - privacy/terms تُركت: محتوى قانوني افتراضي (ليست بيانات وهمية) وتجلب سياسة الخادم أولاً.
 - التحقق: Patient Mobile typecheck PASS + 37 suites / 84 tests PASS.
 
+
+### (جديد) — docs: corrected manual web-parity audit (replaces 25% auto estimate)
+- اكتُشف أن المطابقة الآلية أساءت القراءة: Web لديه فعلاً doctors/specialties/صفحة الطبيب بنموذج حجز/appointments/chat/diagnostics/medicines/cart/offers/home-care/nursing/insurance/family/health/maternity/mental-health/nutrition/community/loyalty/notifications/articles/ai.
+- التدقيق اليدوي المصحح: الفجوات الحقيقية ≈ 13 مجموعة (video-call، صفحات حالات الحجز، تتبع العينات، عروض الصيدلية المرئية، wallet، support tickets، settings، medication reminders، family detail، returns).
+- الأولوية التالية: صفحات حالات الحجز/الدفع ثم عروض الصيدلية — تكمل رحلات قائمة لا ميزات جديدة.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
