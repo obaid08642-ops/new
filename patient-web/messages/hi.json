@@ -1003,5 +1003,11 @@
     "allCategories": "सभी श्रेणियाँ",
     "loadMore": "और देखें",
     "page": "पृष्ठ {page}"
+  },
+  "Wallet": {
+    "wallet": "वॉलेट",
+    "walletBalance": "वर्तमान शेष राशि",
+    "walletTransactions": "हाल के लेन-देन",
+    "walletEmpty": "अभी कोई लेन-देन नहीं"
   }
 }

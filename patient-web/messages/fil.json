@@ -1003,5 +1003,11 @@
     "allCategories": "Lahat ng kategorya",
     "loadMore": "Mag-load pa",
     "page": "Pahina {page}"
+  },
+  "Wallet": {
+    "wallet": "Wallet",
+    "walletBalance": "Kasalukuyang balanse",
+    "walletTransactions": "Mga kamakailang transaksyon",
+    "walletEmpty": "Wala pang transaksyon"
   }
 }

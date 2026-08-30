@@ -99,6 +99,12 @@
 - `pnpm check` + `pnpm build`: PASS.
 - تم إغلاق جزء "متابعة العروض" من فجوة Pharmacy Web؛ مقارنة العروض الحالية موجودة وتحتاج E2E staging.
 
+
+### (جديد) — fix(patient-web): wallet BFF allowlist + six-locale parity
+- إصلاح خلل أُكتشف أثناء التحقق: `WALLET_GET_PATHS` كان مُصدّراً دون إدخاله فعلياً في `patientReadRoutes`؛ تمت إضافة `/wallet/balance` و`/wallet/transactions` و`/wallet/cards` إلى allowlist الحقيقية.
+- إضافة مفاتيح Wallet كاملة إلى اللغات الست (ar/en/ur/hi/bn/fil).
+- التحقق النهائي: Web typecheck PASS، 154 test files PASS / 325 tests PASS، production build PASS مع route `/[locale]/wallet`.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|

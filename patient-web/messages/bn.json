@@ -1003,5 +1003,11 @@
     "allCategories": "সব বিভাগ",
     "loadMore": "আরও দেখুন",
     "page": "পৃষ্ঠা {page}"
+  },
+  "Wallet": {
+    "wallet": "ওয়ালেট",
+    "walletBalance": "বর্তমান ব্যালেন্স",
+    "walletTransactions": "সাম্প্রতিক লেনদেন",
+    "walletEmpty": "এখনও কোনো লেনদেন নেই"
   }
 }

@@ -1003,5 +1003,11 @@
     "allCategories": "تمام زمرے",
     "loadMore": "مزید دیکھیں",
     "page": "صفحہ {page}"
+  },
+  "Wallet": {
+    "wallet": "والٹ",
+    "walletBalance": "موجودہ بیلنس",
+    "walletTransactions": "حالیہ لین دین",
+    "walletEmpty": "ابھی کوئی لین دین نہیں"
   }
 }

@@ -51,6 +51,9 @@ const patientReadRoutes = [
   new RegExp("^/loyalty/transactions(\\?page=\\d+)?$", "i"),
   new RegExp("^/loyalty/rewards$", "i"),
   new RegExp("^/emergency/my/active$", "i"),
+  new RegExp("^/wallet/balance$", "i"),
+  new RegExp("^/wallet/transactions$", "i"),
+  new RegExp("^/wallet/cards$", "i"),
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
@@ -83,6 +86,3 @@ export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
-
-// Wallet read-only endpoints allowed through patient proxy (2026-08-30)
-export const WALLET_GET_PATHS = ['/wallet/balance', '/wallet/transactions', '/wallet/cards'];
