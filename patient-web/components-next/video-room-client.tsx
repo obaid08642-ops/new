@@ -17,7 +17,7 @@ export function VideoRoomClient({ token, room, labels }: { token: string; room: 
         await r.connect(url, token);
         await r.localParticipant.enableCameraAndMicrophone();
         r.on(RoomEvent.Disconnected, () => !cancelled && setState("ended"));
-        r.remoteParticipants.forEach((p) => p.trackPublications.forEach((t) => t.track && container.current?.appendChild(t.track.attach())));
+        (r.remoteParticipants as Map<string, any>).forEach((p: any) => (p.trackPublications as Map<string, any>).forEach((t: any) => t.track && container.current?.appendChild(t.track.attach())));
         r.on(RoomEvent.TrackSubscribed, (track: any) => container.current?.appendChild(track.attach()));
         if (!cancelled) setState("live");
       } catch { if (!cancelled) setState("ended"); }
