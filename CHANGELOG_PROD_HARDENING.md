@@ -49,6 +49,11 @@
 - حذف FALLBACK_PROGRAMS الوهمية من شاشة `programs/active.tsx` — الحالة الفارغة الآن حقيقية بدل بيانات مصنوعة.
 - التحقق: 3 اختبارات وحدة جديدة PASS + typecheck PASS.
 
+
+### (جديد) — docs: no-API screen classification + Web↔Mobile parity matrix
+- تصنيف 54 شاشة بلا API مباشر: 3 قانونية static، 4 تخزين محلي، 47 تحتاج مراجعة route-level.
+- إضافة docs/patient-web-parity-matrix.md: 85 route ويب مقابل 200 شاشة موبايل؛ تغطية تقريبية 25%؛ 103 فجوة.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|

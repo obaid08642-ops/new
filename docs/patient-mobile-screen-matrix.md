@@ -126,3 +126,10 @@
 
 ## خطر الأنواع: @ts-nocheck
 181 شاشة خارج typecheck — أي خطأ نوع فيها غير مكشوف.
+
+## تصنيف الشاشات بلا API (2026-08-30)
+بعد استبعاد الـ43 redirect alias: 54 شاشة بلا apiFetch/client مباشر.
+- قانونية/ترحيب static مشروعة: 3
+- تستخدم Context/AsyncStorage/SecureStore (تحميل غير مباشر): 4
+- تحتاج مراجعة (param-driven أو خدمات غير مباشرة): 47
+ملاحظة: كثير من شاشات "needs_review" (مثل booking-success وpayments/success) تستقبل البيانات عبر route params لا عبر fetch مباشر — تُدقق حالة بحالة قبل أي تغيير.
