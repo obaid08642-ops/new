@@ -168,7 +168,8 @@ async function main() {
     console.log(`inserted ${Math.min(i + BATCH, docs.length)}/${docs.length}`);
   }
   // Rebuild indexes declared by the schema (sku, per-locale slugs, text search…)
-  const { MedicineSchema } = await import('../src/schemas/medicine.schema');
+  const schemaModulePath = process.env.CATALOG_SCHEMA_MODULE || '../src/schemas/medicine.schema';
+  const { MedicineSchema } = await import(schemaModulePath);
   await mongoose.model('Medicine', MedicineSchema).createIndexes();
   console.log(`done: ${await col.countDocuments({})} documents, indexes rebuilt`);
   await mongoose.disconnect();
