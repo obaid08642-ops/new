@@ -36,22 +36,33 @@
 | المقالات | `/articles + [slug] + bookmarks` | ✅ |
 | الذكاء الاصطناعي | `/ai` | ✅ |
 
-## الفجوات الحقيقية المتبقية (تحتاج بناء)
-- video-call / waiting-room (مكالمة فيديو Web داخل المتصفح)
-- ~~booking-success/pending~~ — مغطاة بصفحة `appointments/[appointmentId]`: حالة الحجز، زر الدفع (PENDING+card)، قرار التأمين، الإلغاء، إعادة الجدولة، وتشغيل مكالمة الفيديو — تحقق يدوي 2026-08-30
-- cancel-reschedule (إلغاء/إعادة جدولة من صفحة الموعد)
-- follow-up و prescription-from-doctor و share-report
-- diagnostics: book-sample خطوة بخطوة، sample-tracking، my-results
-- pharmacy: broadcast waiting + عروض متدرجة + مقارنة عروض مرئية
+## الإغلاق اليدوي الثاني (2026-08-30) — فجوات كانت موجودة أصلاً
+- ~~support tickets~~ → `/support/page.tsx` موجودة.
+- ~~settings~~ → `/settings/page.tsx` + `/notifications/settings` موجودتان.
+- ~~medication reminders~~ → `/reminders/page.tsx` موجودة.
+- ~~returns~~ → `/returns/page.tsx` موجودة.
+- ~~offers/negotiation~~ → `/offers` + `/orders/[orderId]/offers` + negotiation موجودة.
+- ~~prescriptions~~ → `/prescriptions` + `[prescriptionId]` موجودتان.
+- ~~orders tracking~~ → `/orders/[orderId]/tracking` موجودة.
+- ~~programs~~ → `/programs/page.tsx` موجودة.
+- ~~reports~~ → `/reports` + `[reportId]` موجودتان.
+- ~~profile/wishlist/search/dashboard~~ → موجودة كلها.
+
+## الفجوات الحقيقية المتبقية (تحتاج بناء فعلي)
+- video-call / waiting-room (مكالمة فيديو Web داخل المتصفح عبر LiveKit)
+- pharmacy broadcast waiting + عروض متدرجة تراكمية + مقارنة مرئية بين العروض
+- diagnostics: book-sample خطوة بخطوة + sample-tracking (تتبع الفني/العينة)
 - wallet + payment history
-- support tickets (إنشاء/تتبع)
-- settings (الحساب/الأمان/الأجهزة/حذف الحساب)
-- medication reminders + chronic refill سريع
-- family member detail + permissions + calendar
-- returns (إرجاع الطلبات)
-- delivery address manager
+- family member detail + permissions + shared calendar
+- delivery address manager (إدارة العناوين المتعددة)
+- follow-up consultation screen
+- share-report flow (مشاركة التقرير مع الطبيب)
 
 ## الخلاصة الرقمية المصححة
 - القدرات الأساسية المغطاة في Web: 27/31 مجموعة وظيفية رئيسية.
-- الفجوات الحقيقية ≈ 12 مجموعة (بعد إغلاق صفحات حالات الحجز) (وليست 103) — أغلبها: حالات ما بعد الحجز، مكالمة الفيديو، تتبع العينات، عروض الصيدلية المرئية، والمحفظة/الإعدادات.
+- الفجوات الحقيقية ≈ 8 مجموعات (بعد الإغلاق اليدوي الثاني) (بعد إغلاق صفحات حالات الحجز) (وليست 103) — أغلبها: حالات ما بعد الحجز، مكالمة الفيديو، تتبع العينات، عروض الصيدلية المرئية، والمحفظة/الإعدادات.
 - الأولوية: صفحات حالات الحجز والدفع (booking-success/pending) ثم عروض الصيدلية، لأنها تكمل رحلة طلب قائمة وليست ميزة جديدة.
+
+## الخلاصة النهائية المصححة (2026-08-30)
+- الـWeb (85 route) يغطي الجزء الأكبر من Mobile وظيفياً؛ التقديران الآليان (25% ثم 13) كانا مضللين.
+- الفجوات الحقيقية ≈ 8 مجموعات فقط، أعلاها: مكالمة فيديو Web، انتظار broadcast الصيدلية والعروض التراكمية، وتتبع العينات.

@@ -73,6 +73,11 @@
 - booking API يفرض idempotency (16–128 حرفاً) و401/403/404 واضحة وproxy آمناً إلى `/care/appointments`.
 - فجوة "صفحات حالات الحجز" مغلقة دون كود جديد — تُحذف من قائمة الفجوات (13 → 12).
 
+
+### (جديد) — docs: second manual parity pass (13 → 8 real web gaps)
+- الإغلاق اليدوي الثاني أثبت وجود: support، settings، reminders، returns، offers/negotiation، prescriptions، orders tracking، programs، reports، profile، wishlist، search، dashboard — كلها موجودة في Web فعلاً.
+- الفجوات الحقيقية المتبقية = 8: video-call Web، انتظار broadcast الصيدلية + العروض التراكمية، book-sample + sample-tracking، wallet، family member detail، delivery address manager، follow-up، share-report.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
