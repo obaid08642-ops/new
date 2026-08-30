@@ -149,3 +149,44 @@ jobs:
           node scripts/verify-jest-result.mjs /tmp/mobile-jest-result.json "$jest_exit"
       - name: Export web bundle
         run: npm run export:web
+
+  provider-app:
+    name: Provider App typecheck and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: provider-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: provider-app/package-lock.json
+      - name: Install frozen dependencies
+        # Expo 54 + jest-expo 52 has a legacy optional peer in the locked tree.
+        run: npm ci --legacy-peer-deps
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Run tests
+        run: npm test -- --runInBand --forceExit
+
+  admin:
+    name: Admin Dashboard typecheck and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+      - name: Install frozen dependencies
+        run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Production build
+        run: npm run build

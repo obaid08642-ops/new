@@ -1581,7 +1581,7 @@ function ActiveInventoryScreen({ onBack }: any) {
 // PHARMACY CHAT SCREEN (Module 10)
 // ══════════════════════════════════════════════════════════════════════════════
 function PharmacyChatScreen({ onBack }: any) {
-  return <GovernanceUnavailableScreen onBack={onBack} titleAr="المحادثة" titleEn="Chat" bodyAr="المحادثة غير متاحة قبل اعتماد عقد الخصوصية والملكية والتدقيق." bodyEn="Chat is unavailable until its privacy, ownership, and audit contract is approved." />;
+  return <GovernanceUnavailableScreen onBack={onBack} titleAr="المحادثة" titleEn="Chat" bodyAr="المحادثات الصيدلانية ليست مفعلة قبل اعتماد عقد الخصوصية والملكية والتدقيق." bodyEn="Chat is unavailable until its privacy, ownership, and audit contract is approved." />;
 }
 function SettingsScreen({ onBack, onNavigate }: any) {
   const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
