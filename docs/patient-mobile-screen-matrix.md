@@ -11,7 +11,7 @@
 | Guest guard | 8 |
 | مسارات API فريدة في Mobile | 214 |
 | مسارات API تطابق Backend controllers | 204 |
-| مسارات API بلا Backend controller مطابق | 2 (بعد التدقيق الدقيق) |
+| مسارات API بلا Backend controller مطابق | 0 (تم إغلاق الفجوتين) |
 
 ## Redirect-only routes (legacy aliases)
 - `/ai/chat-doctor` → `/ai/triage`
@@ -59,9 +59,9 @@
 - `/maternity/pregnancy-tracker` → `/maternity/hub`
 
 ## API paths بلا controller مطابق — بعد التدقيق الدقيق (2026-08-30)
-**يتيمة فعلاً (تحتاج بناء Backend):**
-- `/medical/programs/active` — مستخدم في `app/programs/active.tsx` — لا يوجد controller باسم medical/programs.
-- `/medical/programs/complete-session` — نفس الشاشة — لا يوجد controller.
+**يتيمة فعلاً — تم الإصلاح (2026-08-30):**
+- ~~`/medical/programs/active`~~ — تم بناء `MedicalProgramsModule` في الـBackend.
+- ~~`/medical/programs/complete-session`~~ — تم بناء المسار مع idempotency.
 
 **إنذارات كاذبة (موجودة في Backend لكن التحليل الآلي الأول أساء قراءتها):**
 - `/articles...` → controller `articles` موجود (كانت query strings).

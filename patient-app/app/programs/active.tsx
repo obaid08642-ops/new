@@ -10,22 +10,6 @@ import { AppText, Card, Badge, Button, IconButton, SectionHeader } from '../../s
 import { apiFetch } from '../../src/utils/api';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 
-const FALLBACK_PROGRAMS = [
-  {
-    id: 'diabetes',
-    title: 'برنامج إدارة السكري المكثف',
-    duration: '6 أشهر',
-    completedSessions: 0,
-    totalSessions: 6,
-    nextSessionDate: 'غير محدد',
-    nextSessionTime: '09:00 ص',
-    nextSessionTitle: 'الاستشارة التأسيسية لغدد الصماء',
-    milestoneReward: '150 نقطة نبض',
-    rewardDesc: 'عند إكمال الجلسة الرابعة بنجاح ورشاقة!',
-    sessionsList: []
-  }
-];
-
 export default function ActiveProgramsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -48,16 +32,16 @@ export default function ActiveProgramsScreen() {
           setActiveTab(res[0].id);
         }
       } else {
-        setPrograms(FALLBACK_PROGRAMS);
+        setPrograms([]);
       }
     } catch (e) {
-      setPrograms(FALLBACK_PROGRAMS);
+      setPrograms([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const selectedProg = programs.find(p => p.id === activeTab) || programs[0] || FALLBACK_PROGRAMS[0];
+  const selectedProg = programs.find(p => p.id === activeTab) || programs[0];
 
   const handleMarkCompleted = (sessionId: number) => {
     showLocalizedAlert(

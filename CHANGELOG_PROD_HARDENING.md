@@ -42,6 +42,13 @@
 - 214 مسار API فريد في Mobile؛ 204 منها لها controller مطابق في Backend؛ 10 بلا مطابق (تحتاج تحقق).
 - مؤشر خطر: 181 شاشة بـ @ts-nocheck (خارج typecheck) و97 شاشة بلا API call — تُراجع في مرحلة parity.
 
+
+### (جديد) — feat(backend): medical programs endpoints + remove fake fallback
+- بناء وحدة `medical-programs` حقيقية: GET /medical/programs/active و POST /medical/programs/complete-session مع JwtAuthGuard + idempotency + تخزين Mongo (collection: medical_program_enrollments).
+- إغلاق الفجوتين المثبتتين في المصفوفة (2/2).
+- حذف FALLBACK_PROGRAMS الوهمية من شاشة `programs/active.tsx` — الحالة الفارغة الآن حقيقية بدل بيانات مصنوعة.
+- التحقق: 3 اختبارات وحدة جديدة PASS + typecheck PASS.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
