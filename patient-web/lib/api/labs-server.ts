@@ -13,6 +13,11 @@ export async function getPublicLabPackage(packageId: string): Promise<Response |
   try { return await fetch(patientApiUrl(`/labs/packages/${packageId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
 }
 
+export async function getPublicLabService(serviceId: string): Promise<Response | null> {
+  if (!parseLabServiceId(serviceId).success) throw new Error("invalid_lab_service_id");
+  try { return await fetch(patientApiUrl(`/labs/services/${serviceId}`), { headers: { Accept: "application/json" }, cache: "no-store" }); } catch { return null; }
+}
+
 export async function getPublicLabServices(params: {
   category?: string; search?: string; homeOnly?: boolean; highestRated?: boolean; nearest?: boolean; lowestPrice?: boolean;
 } = {}): Promise<Response | null> {

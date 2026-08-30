@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const state = vi.hoisted(() => ({ getPublicLabServices: vi.fn() }));
 vi.mock("@/lib/api/labs-server", () => ({ getPublicLabServices: state.getPublicLabServices }));
@@ -20,7 +21,7 @@ describe("Labs Services SSR", () => {
   it("renders live catalog data only", async () => {
     state.getPublicLabServices.mockResolvedValue(new Response(JSON.stringify([{ id: "cbc", name_en: "CBC", price: 20 }]), { status: 200 }));
     const result = await LabsServicesPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) });
-    expect(JSON.stringify((result as { props?: unknown }).props ?? {})).toContain("CBC");
+    expect(renderToStaticMarkup(result as never)).toContain("CBC");
     expect(state.getPublicLabServices).toHaveBeenCalledWith({ search: "", homeOnly: false });
   });
   it("renders an alert state when the live endpoint fails", async () => {

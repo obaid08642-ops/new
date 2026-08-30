@@ -105,6 +105,16 @@
 - إضافة مفاتيح Wallet كاملة إلى اللغات الست (ar/en/ur/hi/bn/fil).
 - التحقق النهائي: Web typecheck PASS، 154 test files PASS / 325 tests PASS، production build PASS مع route `/[locale]/wallet`.
 
+
+### (جديد) — feat(patient-web): real lab booking + diagnostic route allowlist
+- إضافة `/[locale]/diagnostics/labs/book?serviceId=…` مع قراءة الخدمة الحقيقية واختيار مزود متوافق من `/labs/compatible-providers`.
+- نموذج الحجز يدعم الموقع (facility/home)، الموعد، cash/card/insurance، ويفرض مستند توصية عند home+insurance.
+- الإرسال الحقيقي إلى `POST /labs/bookings` عبر BFF مع idempotency؛ ثم ينتقل إلى `/diagnostics/labs/:bookingId` ويقرأ تفاصيل الحجز من الخادم.
+- إضافة المسارات إلى patient BFF allowlist: قراءة booking/tracking، إنشاء booking، documents، reschedule.
+- تحويل بطاقات المختبر إلى روابط حجز فعلية؛ لا يوجد حجز وهمي أو نجاح محلي.
+- التحقق النهائي: 154 test files PASS / 325 tests PASS، `pnpm check` PASS، production build PASS، route `/[locale]/diagnostics/labs/book` مولّدة.
+- إغلاق فجوة lab book-sample جزئياً؛ تتبع العينة التالي يحتاج واجهة timeline مخصصة.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
