@@ -67,6 +67,12 @@
 - التدقيق اليدوي المصحح: الفجوات الحقيقية ≈ 13 مجموعة (video-call، صفحات حالات الحجز، تتبع العينات، عروض الصيدلية المرئية، wallet، support tickets، settings، medication reminders، family detail، returns).
 - الأولوية التالية: صفحات حالات الحجز/الدفع ثم عروض الصيدلية — تكمل رحلات قائمة لا ميزات جديدة.
 
+
+### (جديد) — docs: booking-status web gap closed by existing appointment detail page
+- التحقق اليدوي أثبت أن `appointments/[appointmentId]` تغطي: حالة الحجز، ConsultationPaymentAction (PENDING+card)، قرار التأمين ورابطه، الإلغاء بسبب، إعادة الجدولة، وCallTokenLauncher لمكالمات الفيديو.
+- booking API يفرض idempotency (16–128 حرفاً) و401/403/404 واضحة وproxy آمناً إلى `/care/appointments`.
+- فجوة "صفحات حالات الحجز" مغلقة دون كود جديد — تُحذف من قائمة الفجوات (13 → 12).
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
