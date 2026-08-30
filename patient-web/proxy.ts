@@ -9,6 +9,39 @@ function isPublicLocaleHome(pathname: string) {
   return routing.locales.some((locale) => pathname === `/${locale}` || pathname === `/${locale}/`);
 }
 
+// Indexable public surfaces: locale homes, articles, the v14 product pages
+// /{lang}/p/{slug}, category clusters /{lang}/c…, and the catalogue landing.
+const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
+const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog))?\\/?$`);
+
+function isPublicIndexable(pathname: string) {
+  return isPublicLocaleHome(pathname) || PUBLIC_INDEXABLE.test(pathname);
+}
+
+const LEGACY_MEDICINE = new RegExp(`^\\/(${LOCALE})\\/medicines\\/([A-Za-z0-9_-]{1,64})\\/?$`);
+const API_BASE = (process.env.NABD_API_BASE_URL || "https://api.nabd.plus/api/v1").replace(/\/$/, "");
+
+/** True 308 for legacy catalogue URLs so engines transfer ranking to /{lang}/p/{slug}. */
+async function legacyMedicineRedirect(request: NextRequest): Promise<NextResponse | null> {
+  const match = LEGACY_MEDICINE.exec(request.nextUrl.pathname);
+  if (!match) return null;
+  const [, locale, id] = match;
+  try {
+    const res = await fetch(`${API_BASE}/public/product-by-id/${locale}/${encodeURIComponent(id)}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(() => null);
+    if (typeof data?.slug !== "string" || !data.slug) return null;
+    const target = request.nextUrl.clone();
+    target.pathname = `/${locale}/p/${encodeURIComponent(data.slug)}`;
+    target.search = "";
+    return NextResponse.redirect(target, 308);
+  } catch {
+    return null;
+  }
+}
+
 function isMarkdownEligible(pathname: string) {
   return pathname === "/" || pathname === "/en" || pathname === "/ar" || pathname === "/en/articles" || pathname === "/ar/articles";
 }
@@ -31,9 +64,12 @@ function createContentSecurityPolicy(nonce: string) {
   ].join("; ");
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/api") || pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
+
+  const legacyRedirect = await legacyMedicineRedirect(request);
+  if (legacyRedirect) return legacyRedirect;
 
   if (request.headers.get("accept")?.toLowerCase().includes("text/markdown") && isMarkdownEligible(pathname)) {
     const markdownUrl = request.nextUrl.clone();
@@ -51,7 +87,7 @@ export function proxy(request: NextRequest) {
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });
   const response = handleI18nRouting(requestWithNonce);
   response.headers.set("Content-Security-Policy", contentSecurityPolicy);
-  if (!isPublicLocaleHome(pathname)) response.headers.set("X-Robots-Tag", noIndexHeader);
+  if (!isPublicIndexable(pathname)) response.headers.set("X-Robots-Tag", noIndexHeader);
   return response;
 }
 
