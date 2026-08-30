@@ -11,6 +11,7 @@ import { OfferSelection } from "./offer-selection";
 import { PostSelectionActions } from "./post-selection-actions";
 import { OnlinePaymentActions } from "./online-payment-actions";
 import { InsuranceDecisionActions } from "./insurance-decision-actions";
+import { PharmacyOffersLiveRefresh } from "./live-refresh";
 import styles from "./offers.module.css";
 
 type Props = { params: Promise<{ locale: string; orderId: string }> };
@@ -36,6 +37,7 @@ export default async function PharmacyOffersPage({ params }: Props) {
   return <main className={`main ${styles.page}`}>
     <Link className={styles.back} href={`/${locale}/orders/${orderId}`}>{t.back}</Link>
     <section className={styles.hero}><div><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t.eyebrow}</p><h1>{t.title}</h1><p>{t.notice}</p></div><PackageSearch aria-hidden="true" /></section>
+    <PharmacyOffersLiveRefresh active={offers.length === 0 && !["COMPLETED", "CANCELLED", "DELIVERED"].includes(progress?.governedState ?? "")} label={locale === "ar" ? "تتم متابعة عروض الصيدليات من الخادم" : "Following server-backed pharmacy offers"} refreshLabel={locale === "ar" ? "تحديث الآن" : "Refresh now"} />
     {progress?.governedState === "INSURANCE_PROCESSING" && <p className={styles.notice}>{t.insurancePending}</p>}
     {progress?.governedState === "CONFIRMED" && progress.paymentStatus === "covered_by_insurance" && <p className={styles.notice}>{t.covered}</p>}
     {progress?.governedState === "NEGOTIATION_REQUIRED" && <Link className={styles.negotiationLink} href={`/${locale}/orders/${orderId}/offers/negotiation`}>{locale === "ar" ? "فتح محادثات التفاوض" : "Open negotiation conversations"}</Link>}

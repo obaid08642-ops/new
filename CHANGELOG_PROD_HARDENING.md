@@ -91,6 +91,14 @@
 - إضافة livekit-client إلى dependencies.
 - إغلاق فجوة video-call من قائمة الـ7 — المتبقي 6.
 
+
+### (جديد) — feat(patient-web): live pharmacy offers refresh (broadcast gap)
+- إضافة `live-refresh.tsx`: تحديث server component تلقائياً كل 15 ثانية أثناء انتظار العروض، مع زر تحديث فوري وحالة واضحة للمستخدم.
+- لا توجد عروض أو حالات محلية مصطنعة؛ كل refresh يعيد جلب `/patient/pharmacy/orders/:id/offers` وorder progress من الخادم.
+- التوقف تلقائياً عند `COMPLETED`/`CANCELLED`/`DELIVERED`.
+- `pnpm check` + `pnpm build`: PASS.
+- تم إغلاق جزء "متابعة العروض" من فجوة Pharmacy Web؛ مقارنة العروض الحالية موجودة وتحتاج E2E staging.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
