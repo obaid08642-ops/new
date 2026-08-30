@@ -35,6 +35,13 @@
 - الحفاظ على test:boot وtest:enterprise كما هما.
 - التحقق: 106/106 suites — 561/561 tests — PASS على 5/5 chunks (113 ثانية).
 
+
+### (جديد) — docs: patient mobile screen/API matrix (243 routes)
+- إضافة docs/patient-mobile-screen-matrix.md مولّداً آلياً من الكود.
+- 243 ملف route: 200 شاشة حقيقية + 43 redirect alias تراثي.
+- 214 مسار API فريد في Mobile؛ 204 منها لها controller مطابق في Backend؛ 10 بلا مطابق (تحتاج تحقق).
+- مؤشر خطر: 181 شاشة بـ @ts-nocheck (خارج typecheck) و97 شاشة بلا API call — تُراجع في مرحلة parity.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
