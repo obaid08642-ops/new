@@ -159,6 +159,159 @@ const LOCALIZABLE = ['category', 'sub_category', 'sub_sub_category', 'form', 'st
  * (imported from the source export), then the built-in Arabic→English
  * dictionaries as a last resort so nothing stays Arabic in a non-Arabic UI.
  */
+/** DB key for a product locale (Filipino is stored under `tl`). */
+export function productLocaleToDb(locale: string): DbLang {
+  const l = String(locale || '').toLowerCase();
+  if (l.startsWith('ar')) return 'ar';
+  if (l.startsWith('ur')) return 'ur';
+  if (l.startsWith('hi')) return 'hi';
+  if (l.startsWith('bn')) return 'bn';
+  if (l.startsWith('tl') || l.startsWith('fil')) return 'tl';
+  return 'en';
+}
+
+/** Split a bullet-formatted block ("• a\n• b") into clean list items. */
+function bulletList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map((v) => String(v ?? '').trim()).filter(Boolean);
+  if (typeof value !== 'string' || !value.trim()) return [];
+  return value.split(/\n|•/).map((s) => s.replace(/^[\s\-–—*·]+/, '').trim()).filter(Boolean);
+}
+
+function pick(...values: unknown[]): string | null {
+  for (const v of values) {
+    if (typeof v === 'string' && v.trim()) return v.trim();
+  }
+  return null;
+}
+
+// Long-text field base → key inside translations[lang] (v14 catalog keys).
+const LONG_TEXT_TR_KEYS: Record<string, string> = {
+  name: 'name',
+  official_name: 'official_name',
+  description: 'description',
+  indications: 'indications_uses',
+  dosage_instructions: 'dosage_instructions',
+  side_effects: 'side_effects',
+  warnings: 'warnings_precautions',
+  storage_conditions: 'storage_conditions',
+  how_to_use: 'how_to_use',
+  package_content_details: 'package_content_details',
+  brand_benefits: 'brand_benefits',
+};
+
+// v14 root fact fields are Arabic-only; localized English forms via dictionaries.
+function localizeFactField(base: string, arabicValue: string, trValue: unknown, lang: DbLang): string | null {
+  const fromTr = typeof trValue === 'string' && trValue.trim() ? trValue.trim() : null;
+  if (fromTr) return fromTr;
+  if (lang === 'ar') return arabicValue || null;
+  let translated: string | null = null;
+  if (base === 'form') translated = translateWith(FORM_EN, arabicValue);
+  else if (base === 'strength' || base === 'package_size' || base === 'package_content_details') translated = translateUnits(arabicValue);
+  else if (base === 'category' || base === 'sub_category' || base === 'sub_sub_category') translated = translateWith(CATEGORY_EN, arabicValue);
+  return translated && translated !== arabicValue ? translated : arabicValue || null;
+}
+
+/**
+ * STRICT per-locale public DTO.
+ *
+ * Every display field is resolved for exactly ONE product locale with a
+ * deterministic per-field fallback chain: requested locale → en → ar.
+ * The UI for locale L never receives a mix where one field is Arabic and a
+ * sibling field is English when an L translation exists — the historical bug
+ * this resolver eliminates.
+ */
+export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale: string) {
+  const lang = productLocaleToDb(productLocale);
+  const tr = raw?.translations?.[lang] || {};
+  const trEn = raw?.translations?.en || {};
+  const trAr = raw?.translations?.ar || {};
+
+  // For ar/en the long-text values live in *_ar / *_en columns; the
+  // translations map is a secondary source. For ur/hi/bn/tl only the map exists.
+  const COLUMN_ALIAS: Record<string, string> = { dosage_instructions: 'dosage', how_to_use: 'usage_instructions' };
+  const column = (base: string, l: DbLang) => (raw as any)?.[`${COLUMN_ALIAS[base] || base}_${l}`] ?? (raw as any)?.[`${base}_${l}`];
+  const text = (base: string, trKey: string): string | null => {
+    if (lang === 'ar') return pick(column(base, 'ar'), trAr[trKey], column(base, 'en'), trEn[trKey]);
+    if (lang === 'en') return pick(column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]);
+    return pick(tr[trKey], column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]);
+  };
+  const list = (base: string, trKey: string): string[] => {
+    const order: unknown[] = lang === 'ar'
+      ? [column(base, 'ar'), trAr[trKey], column(base, 'en'), trEn[trKey]]
+      : lang === 'en'
+        ? [column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]]
+        : [tr[trKey], column(base, 'en'), trEn[trKey], column(base, 'ar'), trAr[trKey]];
+    for (const v of order) {
+      const items = bulletList(v);
+      if (items.length) return items;
+    }
+    return [];
+  };
+
+  const fact = (base: string, arabicRoot: string) =>
+    lang === 'ar' ? pick(arabicRoot, trAr[TR_KEY[base] || base])
+      : localizeFactField(base, arabicRoot, tr[TR_KEY[base] || base] ?? trEn[TR_KEY[base] || base], lang);
+
+  const images = [
+    ...(Array.isArray(raw?.images) ? raw.images : []),
+    raw?.image_1, raw?.image_2, raw?.image_3, raw?.image_4, raw?.image_5, raw?.image,
+  ].filter((u: any, i: number, arr: any[]) => typeof u === 'string' && u.length > 4 && arr.indexOf(u) === i);
+
+  const price = Number(raw?.price || 0);
+  const old = Number(raw?.old_price || 0);
+  const discount = old > price && price > 0 ? Math.round((1 - price / old) * 100) : 0;
+
+  // Slugs per locale so the web app can emit true per-language hreflang URLs.
+  const slugs: Record<string, string | null> = {};
+  for (const { product, db } of [
+    { product: 'ar', db: 'ar' }, { product: 'en', db: 'en' }, { product: 'ur', db: 'ur' },
+    { product: 'hi', db: 'hi' }, { product: 'bn', db: 'bn' }, { product: 'fil', db: 'tl' },
+  ] as Array<{ product: string; db: DbLang }>) {
+    slugs[product] = pick(raw?.translations?.[db]?.slug, db === 'ar' ? raw?.slug : null, raw?.slug, raw?.id ? String(raw.id) : null);
+  }
+
+  return {
+    id: raw?.id,
+    sku: raw?.sku ?? null,
+    locale: productLocale,
+    resolved_lang: lang,
+    name: text('name', LONG_TEXT_TR_KEYS.name),
+    official_name: text('official_name', LONG_TEXT_TR_KEYS.official_name),
+    slug: slugs[productLocale] || raw?.slug || raw?.id,
+    slugs,
+    description: text('description', LONG_TEXT_TR_KEYS.description),
+    indications: list('indications', LONG_TEXT_TR_KEYS.indications),
+    dosage_instructions: text('dosage_instructions', LONG_TEXT_TR_KEYS.dosage_instructions),
+    side_effects: bulletList(text('side_effects', LONG_TEXT_TR_KEYS.side_effects)),
+    warnings: list('warnings', LONG_TEXT_TR_KEYS.warnings),
+    storage_conditions: text('storage_conditions', LONG_TEXT_TR_KEYS.storage_conditions),
+    how_to_use: list('usage_instructions', LONG_TEXT_TR_KEYS.how_to_use),
+    package_content_details: text('package_content_details', LONG_TEXT_TR_KEYS.package_content_details)
+      || fact('package_content_details', String(raw?.package_size || '')),
+    brand_benefits: text('brand_benefits', LONG_TEXT_TR_KEYS.brand_benefits),
+    category: fact('category', String(raw?.category || '')),
+    sub_category: fact('sub_category', String(raw?.sub_category || '')),
+    sub_sub_category: fact('sub_sub_category', String((raw as any)?.sub_sub_category || '')),
+    form: fact('form', String(raw?.form || '')),
+    strength: fact('strength', String(raw?.strength || '')),
+    package_size: fact('package_size', String(raw?.package_size || '')),
+    active_ingredient: fact('active_ingredient', String(raw?.active_ingredient || '')),
+    manufacturer: raw?.manufacturer || null,
+    barcode: raw?.barcode || null,
+    price, old_price: old || null,
+    discount_percent: discount, has_discount: discount > 0,
+    currency: 'SAR',
+    is_rx: raw?.requires_prescription === true || raw?.is_rx === true,
+    available_online: raw?.available_online !== false,
+    availability_status: raw?.availability_status || 'none',
+    available: raw?.availability_status === 'none' || !raw?.availability_status,
+    country_of_origin: raw?.country_of_origin || null,
+    images,
+    image: images[0] || null,
+    search_aliases: Array.isArray(tr?.search_aliases) ? tr.search_aliases : (Array.isArray(trEn?.search_aliases) ? trEn.search_aliases : []),
+  };
+}
+
 export function localizeMedicineStructured<T extends Record<string, any>>(raw: T, lang?: DbLang): T {
   if (!raw || !lang || lang === 'ar') return raw;
   const out: Record<string, any> = { ...raw };

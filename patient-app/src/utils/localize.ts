@@ -5,7 +5,7 @@
  * (name_ar / name_en, indications_ar / indications_en, ...) and four more
  * languages inside the `translations` map imported from the source export:
  *   translations.ur / translations.hi / translations.bn / translations.tl
- * with slightly different key names (e.g. indications_uses, more_information).
+ * with v14 key names (e.g. indications_uses, description, how_to_use).
  *
  * Selection rule per the product requirement:
  *   ar → *_ar column
@@ -40,8 +40,8 @@ const TRANSLATION_KEY_MAP: Record<string, string> = {
   active_ingredient: 'active_ingredient',
   form: 'dosage_form',
   strength: 'strength',
-  description: 'more_information',
-  more_info: 'more_information',
+  description: 'description',
+  more_info: 'description',
   indications: 'indications_uses',
   dosage: 'dosage_instructions',
   side_effects: 'side_effects',

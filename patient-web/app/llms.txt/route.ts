@@ -15,6 +15,18 @@ const llmsText = `# Nabd Plus
 - [Arabic articles](/ar/articles): Public article listing, populated only from published backend content.
 - [English articles](/en/articles): Public article listing, populated only from published backend content.
 
+## Public product catalog (v14)
+
+- [Product pages](/{lang}/p/{slug}): Fully localized product pages per locale (ar, en, ur, hi, bn, fil) with price (SAR), availability, dosage form, strength, active ingredient and structured data (Product, MedicalDrug, FAQPage, BreadcrumbList).
+- [Category clusters](/{lang}/c/{main}[/{sub}]): Paginated, indexable category listings with live product counts.
+- Product API: GET https://api.nabd.plus/api/v1/public/products/search?q={term}&locale={ar|en|ur|hi|bn|fil} — localized, buy-ready product search (sku, price, availability, canonical URL).
+- Product by SKU: GET https://api.nabd.plus/api/v1/public/products/by-sku/{sku}?locale={lang}.
+- Product by slug: GET https://api.nabd.plus/api/v1/public/product/{locale}/{slug} — strict single-locale DTO (no mixed-language fields).
+- Categories: GET https://api.nabd.plus/api/v1/public/categories/{locale} — localized category tree with counts.
+- Product sitemaps: [/sitemap.xml](/sitemap.xml) → /sitemaps/products/{locale}/{page}.xml.
+
+Language resolution is strict: for a given locale, every field resolves from that locale's translation, falling back to English then Arabic per field — product content is never mixed between languages.
+
 ## Agent discovery
 
 - [API catalog](https://nabd.plus/.well-known/api-catalog): RFC 9727 Linkset for the limited public catalog subset.

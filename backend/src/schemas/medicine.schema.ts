@@ -67,6 +67,7 @@ export class Medicine {
   @Prop({ default: [], index: true }) alternatives: string[]; // بدائل (medicine ids or names)
   @Prop({ default: [] }) related_product_ids: string[]; // منتجات مرتبطة
   @Prop({ index: true }) sub_category?: string; // فئة فرعية
+  @Prop({ index: true }) sub_sub_category?: string; // فئة فرعية ثانية
   @Prop({ default: [] }) categories: string[]; // multi-category membership
   // ============ CATALOG COMPLETENESS (Phase 3/5 fields) ============
   @Prop() package_size?: string; // حجم العبوة — "30 قرص"، "100 مل"
@@ -94,9 +95,22 @@ export class Medicine {
   @Prop() shortage_notes?: string;
   @Prop({ default: false, index: true }) is_deleted: boolean;
   @Prop({ default: 1 }) version: number;
+  // ============ CATALOG v14 (canonical retail catalog identity) ============
+  @Prop({ unique: true, sparse: true, index: true }) sku?: number; // canonical retail SKU (unique per product)
+  @Prop({ index: true, sparse: true }) source_product_id?: number; // original productId in the source catalog export
+  @Prop({ default: false, index: true }) available_online: boolean; // sold/shipped online
+  @Prop() country_of_origin?: string;
+  @Prop({ default: false }) translation_conflict: boolean; // source flagged a translation inconsistency
+  @Prop() review_reason?: string;
 }
 export type MedicineDocument = Medicine & Document;
 export const MedicineSchema = SchemaFactory.createForClass(Medicine);
+
+// Per-locale public URL slugs — every locale resolves its own slug without
+// mixing languages. Sparse so pre-v14 documents (no localized slugs) are exempt.
+for (const lang of ['ar', 'en', 'ur', 'hi', 'bn', 'tl']) {
+  MedicineSchema.index({ [`translations.${lang}.slug`]: 1 }, { unique: true, sparse: true });
+}
 
 MedicineSchema.pre('save', function (next) {
   if (this.isModified('name_ar') || this.isModified('name_en') || !this.slug) {

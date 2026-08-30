@@ -38,15 +38,14 @@ describe("medicines SSR boundary", () => {
     expect(html).toContain(`/en/medicines/${medicineId}`);
   });
 
-  it("renders published medicine detail through the public allowlist without a patient session or a price", async () => {
-    state.getPublicMedicine.mockResolvedValue(new Response(JSON.stringify({ id: medicineId, name_en: "Catalog medicine", active_ingredient: "Ingredient", price: 99, patient_id: "private-patient" }), { status: 200 }));
+  it("redirects the legacy medicine detail URL to the canonical v14 product page without a patient session", async () => {
+    const { redirect } = await import("next/navigation");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ slug: "catalog-medicine-500-mg" }), { status: 200 })));
 
-    const html = renderToStaticMarkup(await MedicineDetailPage({ params: Promise.resolve({ locale: "en", medicineId }) }));
+    await MedicineDetailPage({ params: Promise.resolve({ locale: "en", medicineId }) });
 
-    expect(state.getPublicMedicine).toHaveBeenCalledWith(medicineId);
+    expect(redirect).toHaveBeenCalledWith("/en/p/catalog-medicine-500-mg");
     expect(state.requirePatientAccess).not.toHaveBeenCalled();
-    expect(html).not.toContain(serverToken);
-    expect(html).not.toContain("99");
-    expect(html).not.toContain("private-patient");
+    vi.unstubAllGlobals();
   });
 });

@@ -1,0 +1,44 @@
+.page { display: grid; gap: 1.25rem; padding: 1.5rem 0 4rem; }
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; color: var(--muted); font-size: .82rem; }
+.crumbs a { color: var(--brand-deep); font-weight: 700; text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs [aria-current="page"] { color: var(--ink); font-weight: 700; max-inline-size: 22rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.hero { position: relative; display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1.25rem; align-items: center; padding: clamp(1.1rem, 3vw, 1.8rem); border: 1px solid rgba(8,127,140,.16); border-radius: var(--radius-xl); background: linear-gradient(135deg, rgba(231,247,247,.92), rgba(255,255,255,.96) 60%); box-shadow: var(--shadow-md); }
+.heroMedia { position: relative; display: grid; place-items: center; inline-size: 100%; aspect-ratio: 1; border: 1px solid rgba(8,127,140,.12); border-radius: var(--radius-lg); background: #fff; overflow: hidden; }
+.heroImg { inline-size: 100%; block-size: 100%; object-fit: contain; }
+.heroIcon { display: grid; place-items: center; inline-size: 100%; block-size: 100%; color: var(--brand-deep); }
+.badge { position: absolute; inset-block-start: .5rem; inset-inline-start: .5rem; padding: .25rem .6rem; border-radius: var(--radius-full, 999px); background: #dc2626; color: #fff; font-size: .75rem; font-weight: 800; }
+.heroText { display: grid; gap: .45rem; min-inline-size: 0; }
+.eyebrow { display: inline-flex; align-items: center; gap: .35rem; margin: 0; color: var(--brand-deep); font-size: .8rem; font-weight: 760; }
+.hero h1 { margin: 0; color: var(--ink); font-size: clamp(1.4rem, 3vw, 2.1rem); letter-spacing: -.03em; line-height: 1.2; overflow-wrap: anywhere; text-wrap: balance; }
+.priceRow { display: flex; align-items: baseline; gap: .6rem; margin: 0; }
+.price { color: var(--brand-deep); font-size: 1.45rem; font-weight: 850; }
+.oldPrice { color: var(--muted); font-size: .95rem; }
+.subline { margin: 0; color: var(--muted); font-size: .92rem; }
+
+.gallery { display: flex; gap: .6rem; overflow-x: auto; padding-block-end: .25rem; }
+.gallery img { inline-size: 5.5rem; block-size: 5.5rem; object-fit: contain; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; }
+
+.detail { display: grid; gap: 1rem; padding: 1.2rem; border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255,255,255,.92); box-shadow: var(--shadow-md); }
+.h2 { margin: 0; color: var(--ink); font-size: 1.12rem; letter-spacing: -.02em; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin: 0; }
+.item { display: grid; gap: .35rem; min-inline-size: 0; padding: .9rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: rgba(255,255,255,.75); }
+.item dt { color: var(--muted); font-size: .78rem; font-weight: 700; }
+.item dd { margin: 0; color: var(--ink); font-size: .93rem; font-weight: 720; line-height: 1.55; overflow-wrap: anywhere; }
+
+.block { display: grid; gap: .6rem; padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255,255,255,.92); box-shadow: var(--shadow-sm, var(--shadow-md)); }
+.prose { margin: 0; color: var(--ink); font-size: .95rem; line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; }
+.list { display: grid; gap: .45rem; margin: 0; padding-inline-start: 1.2rem; color: var(--ink); font-size: .95rem; line-height: 1.75; }
+
+.notice { margin: 0; padding: 1rem 1.1rem; border: 1px solid rgba(8,127,140,.12); border-inline-start: 3px solid var(--brand); border-radius: var(--radius-md); color: var(--muted); background: rgba(231,247,247,.56); font-size: .88rem; line-height: 1.7; }
+.back { display: inline-flex; align-items: center; justify-self: start; gap: .35rem; color: var(--brand-deep); font-size: .88rem; font-weight: 760; }
+.shell[dir="rtl"] .back svg, .shell[dir="rtl"] .crumbs svg { transform: scaleX(-1); }
+
+@media (max-width: 640px) {
+  .page { gap: 1rem; padding-top: 1rem; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .heroMedia { max-inline-size: 14rem; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .crumbs a { transition: none; } }
