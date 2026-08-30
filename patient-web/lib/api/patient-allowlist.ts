@@ -83,3 +83,6 @@ export function isAllowedPatientApiRequest(path: string, method: string) {
   return (method === "GET" && isAllowedPatientApiPath(path))
     || pharmacyMutationRoutes.some((candidate) => candidate.method === method && candidate.route.test(path));
 }
+
+// Wallet read-only endpoints allowed through patient proxy (2026-08-30)
+export const WALLET_GET_PATHS = ['/wallet/balance', '/wallet/transactions', '/wallet/cards'];

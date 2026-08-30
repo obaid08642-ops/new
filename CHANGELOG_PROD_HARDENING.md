@@ -78,6 +78,12 @@
 - الإغلاق اليدوي الثاني أثبت وجود: support، settings، reminders، returns، offers/negotiation، prescriptions، orders tracking، programs، reports، profile، wishlist، search، dashboard — كلها موجودة في Web فعلاً.
 - الفجوات الحقيقية المتبقية = 8: video-call Web، انتظار broadcast الصيدلية + العروض التراكمية، book-sample + sample-tracking، wallet، family member detail، delivery address manager، follow-up، share-report.
 
+
+### (جديد) — feat(patient-web): wallet page (gap 4 of 8)
+- بناء `/[locale]/wallet`: رصيد حقيقي من `/wallet/balance` + حركات من `/wallet/transactions` عبر BFF proxy الآمن (idempotency + 401/refresh).
+- إضافة مفاتيح i18n للمحفظة (ar/en).
+- إغلاق فجوة wallet من قائمة الـ8 — المتبقي 7.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|

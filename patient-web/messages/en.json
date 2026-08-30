@@ -1003,5 +1003,11 @@
     "allCategories": "All categories",
     "loadMore": "Load more",
     "page": "Page {page}"
+  },
+  "Wallet": {
+    "wallet": "Wallet",
+    "walletBalance": "Current balance",
+    "walletTransactions": "Recent transactions",
+    "walletEmpty": "No transactions yet"
   }
 }

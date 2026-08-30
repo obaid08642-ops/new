@@ -1003,5 +1003,11 @@
     "allCategories": "كل الفئات",
     "loadMore": "عرض المزيد",
     "page": "صفحة {page}"
+  },
+  "Wallet": {
+    "wallet": "المحفظة",
+    "walletBalance": "الرصيد الحالي",
+    "walletTransactions": "آخر الحركات",
+    "walletEmpty": "لا توجد حركات بعد"
   }
 }
