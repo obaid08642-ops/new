@@ -84,6 +84,13 @@
 - إضافة مفاتيح i18n للمحفظة (ar/en).
 - إغلاق فجوة wallet من قائمة الـ8 — المتبقي 7.
 
+
+### (جديد) — feat(patient-web): livekit video-call room (gap 1 of 8)
+- بناء `/[locale]/consultations/video-call?appointmentId=…`: جلب بيانات LiveKit المؤقتة server-side (لا تُعرض في HTML مشترك) ثم غرفة فيديو حقيقية.
+- مكوّن `video-room-client.tsx`: اتصال LiveKit فعلي + كاميرا/مايك + مغادرة + حالات connecting/live/ended.
+- إضافة livekit-client إلى dependencies.
+- إغلاق فجوة video-call من قائمة الـ7 — المتبقي 6.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
