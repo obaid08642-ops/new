@@ -11,7 +11,7 @@
 | Guest guard | 8 |
 | مسارات API فريدة في Mobile | 214 |
 | مسارات API تطابق Backend controllers | 204 |
-| مسارات API بلا Backend controller مطابق | 10 |
+| مسارات API بلا Backend controller مطابق | 2 (بعد التدقيق الدقيق) |
 
 ## Redirect-only routes (legacy aliases)
 - `/ai/chat-doctor` → `/ai/triage`
@@ -58,17 +58,15 @@
 - `/maternity/ovulation-tracker` → `/maternity/hub`
 - `/maternity/pregnancy-tracker` → `/maternity/hub`
 
-## API paths بلا controller مطابق (تحقق مطلوب)
-- `/articles?${params.toString()}`
-- `/articles?category=${encodeURIComponent(res.category)}&limit=4`
-- `/chat/threads/${threadId}/messages`
-- `/chat/threads/${tid}/messages`
-- `/chat/threads/direct`
-- `/medical/programs/active`
-- `/medical/programs/complete-session`
-- `/providers?${qs.toString()}`
-- `/providers?type=doctor`
-- `/providers?type=lab`
+## API paths بلا controller مطابق — بعد التدقيق الدقيق (2026-08-30)
+**يتيمة فعلاً (تحتاج بناء Backend):**
+- `/medical/programs/active` — مستخدم في `app/programs/active.tsx` — لا يوجد controller باسم medical/programs.
+- `/medical/programs/complete-session` — نفس الشاشة — لا يوجد controller.
+
+**إنذارات كاذبة (موجودة في Backend لكن التحليل الآلي الأول أساء قراءتها):**
+- `/articles...` → controller `articles` موجود (كانت query strings).
+- `/providers?...` → controller `providers` موجود.
+- `/chat/threads/...` → controller معرّف داخل `chat.module.ts` بأسلوب مباشر (لا عبر decorator) — يوجد فعلياً.
 
 ## الشاشات الحقيقية بلا API (تحتاج مراجعة: static أو ناقصة؟)
 - `/ai-assistant` (210 أسطر)
