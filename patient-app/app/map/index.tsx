@@ -203,7 +203,7 @@ export default function MapScreen() {
         });
         setProviders(normalized);
       }
-      // else keep FALLBACK_PROVIDERS
+      // else keep the empty real state (no fabricated providers)
     } catch { /* keep fallback */ }
   }, [selectedType]);
 

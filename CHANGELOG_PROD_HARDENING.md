@@ -54,6 +54,13 @@
 - تصنيف 54 شاشة بلا API مباشر: 3 قانونية static، 4 تخزين محلي، 47 تحتاج مراجعة route-level.
 - إضافة docs/patient-web-parity-matrix.md: 85 route ويب مقابل 200 شاشة موبايل؛ تغطية تقريبية 25%؛ 103 فجوة.
 
+
+### (جديد) — chore(patient): remove remaining fabricated fallbacks (filters, map)
+- حذف FALLBACK_CATEGORIES/FALLBACK_FORMS من `pharmacy/filters.tsx` — الفلاتر تأتي الآن من `/medicines/filters` فقط؛ عند الفشل تظهر قوائم فارغة لا خيارات مصنوعة.
+- تحييد FALLBACK_PROVIDERS في `map/index.tsx` إلى قائمة فارغة — الخريطة لا تعرض مزودين وهميين قبل استجابة الخادم.
+- privacy/terms تُركت: محتوى قانوني افتراضي (ليست بيانات وهمية) وتجلب سياسة الخادم أولاً.
+- التحقق: Patient Mobile typecheck PASS + 37 suites / 84 tests PASS.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
