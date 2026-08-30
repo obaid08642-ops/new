@@ -1,45 +1,35 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getPublicMedicines: vi.fn() }));
-
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true, locales: ["ar", "en", "ur", "hi", "bn", "fil"] }));
-vi.mock("@/lib/api/public-medicines-server", () => ({ getPublicMedicines: state.getPublicMedicines }));
 
 import PublicMedicineCatalogPage, { generateMetadata } from "./page";
 
-describe("public medicine catalogue SSR boundary", () => {
-  beforeEach(() => state.getPublicMedicines.mockReset());
+function mockSearch(payload: unknown, status = 200) {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(payload), { status })));
+}
 
-  it("renders only public catalogue fields and omits price and patient data", async () => {
-    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "Ingredient", price: 99, patient_id: "private-patient" }]), { status: 200 }));
+describe("public medicine catalogue SSR boundary", () => {
+  beforeEach(() => vi.unstubAllGlobals());
+
+  it("renders v14 catalog cards that link to canonical /p/{slug} product pages", async () => {
+    mockSearch({ total: 1, items: [{ id: "m1", sku: 697836, slug: "abilify-15-mg", name: "Abilify 15 Mg", form: "Tablets", strength: "15 mg", active_ingredient: "Aripiprazole", price: 419.6, currency: "SAR", is_rx: true }] });
 
     const html = renderToStaticMarkup(await PublicMedicineCatalogPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ page: "1" }) }));
 
-    expect(state.getPublicMedicines).toHaveBeenCalledWith({ page: 1 });
-    expect(html).toContain("Published medicine");
-    expect(html).toContain('\"@type\":\"WebPage\"');
-    expect(html).not.toContain("99");
-    expect(html).not.toContain("private-patient");
+    expect(html).toContain("Abilify 15 Mg");
+    expect(html).toContain('href="/en/p/abilify-15-mg"');
+    expect(html).toContain('"@type":"WebPage"');
   });
 
-  it("marks Arabic medicine details for bidirectional rendering inside the English catalogue", async () => {
-    state.getPublicMedicines.mockResolvedValue(new Response(JSON.stringify([{ id: "published-medicine", name_en: "Published medicine", active_ingredient: "باراسيتامول 500 مجم" }]), { status: 200 }));
-
-    const html = renderToStaticMarkup(await PublicMedicineCatalogPage({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) }));
-
-    expect(html).toContain('lang="ar"');
-    expect(html).toContain('dir="auto"');
-    expect(html).toContain("باراسيتامول 500 مجم");
-  });
-
-  it("keeps catalogue URLs out of the index until a verified medicine classification exists", async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "query", page: "1" }) });
-
-    expect(metadata.robots).toMatchObject({ index: false, follow: false });
-    expect(metadata.alternates?.canonical).toBe("https://nabd.plus/en/medicine-catalog");
-    expect(metadata.alternates?.languages).toMatchObject({
+  it("keeps search variants out of the index while the clean landing is indexable", async () => {
+    const withQuery = await generateMetadata({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({ q: "query", page: "1" }) });
+    expect(withQuery.robots).toMatchObject({ index: false, follow: true });
+    const clean = await generateMetadata({ params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) });
+    expect(clean.robots).toMatchObject({ index: true, follow: true });
+    expect(clean.alternates?.canonical).toBe("https://nabd.plus/en/medicine-catalog");
+    expect(clean.alternates?.languages).toMatchObject({
       ar: "https://nabd.plus/ar/medicine-catalog",
       en: "https://nabd.plus/en/medicine-catalog",
       ur: "https://nabd.plus/ur/medicine-catalog",

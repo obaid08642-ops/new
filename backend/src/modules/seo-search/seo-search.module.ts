@@ -3,11 +3,12 @@
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
-import { Module, Injectable, Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Module, Injectable, Controller, Get, NotFoundException, Param, Query, Res } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Response } from 'express';
 import { Public } from '../../common/auth.guard';
+import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
 
 const SITE = process.env.API_PUBLIC_URL?.replace('/api/v1', '') || 'https://api.nabd.plus';
 const SITE_NAME = 'نبض';
@@ -116,6 +117,155 @@ export class SeoSearchService {
       return `  <url><loc>${SITE}/s/medicine/${slug}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
     });
     return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
+  }
+
+  private publicProductFilter() {
+    return { is_deleted: { $ne: true }, public_eligibility: true, indexing_eligibility: true, medical_review_status: 'approved' } as any;
+  }
+
+  /** Strict per-locale public product DTO by slug (v14 catalog URLs /{lang}/p/{slug}). */
+  async publicProductBySlug(locale: string, slug: string) {
+    const db = productLocaleToDb(locale);
+    const decoded = decodeURIComponent(slug || '').trim();
+    if (!decoded) throw new NotFoundException('product_not_found');
+    const med: any = await this.conn.collection('medicines_master').findOne(
+      { ...this.publicProductFilter(), [`translations.${db}.slug`]: decoded },
+      { projection: { _id: 0 } },
+    ) || await this.conn.collection('medicines_master').findOne(
+      { ...this.publicProductFilter(), slug: decoded },
+      { projection: { _id: 0 } },
+    );
+    if (!med) throw new NotFoundException('product_not_found');
+    return resolveMedicinePublicDto(med, locale);
+  }
+
+  /** Strict per-locale public product DTO by internal id (legacy URL migration). */
+  async publicProductById(locale: string, id: string) {
+    const med: any = await this.conn.collection('medicines_master').findOne(
+      { ...this.publicProductFilter(), id },
+      { projection: { _id: 0 } },
+    );
+    if (!med) throw new NotFoundException('product_not_found');
+    return resolveMedicinePublicDto(med, locale);
+  }
+
+  /** Strict per-locale public product DTO by canonical SKU (AI-commerce lookup). */
+  async publicProductBySku(sku: string, locale = 'ar') {
+    const n = Number(sku);
+    if (!Number.isFinite(n)) throw new NotFoundException('product_not_found');
+    const med: any = await this.conn.collection('medicines_master').findOne(
+      { ...this.publicProductFilter(), sku: n },
+      { projection: { _id: 0 } },
+    );
+    if (!med) throw new NotFoundException('product_not_found');
+    return resolveMedicinePublicDto(med, locale);
+  }
+
+  /**
+   * AI-commerce product search: localized, buy-ready results with price,
+   * availability, SKU and canonical URL per locale.
+   */
+  async publicProductSearch(q: string, locale = 'ar', limit = 20, page = 1) {
+    const db = productLocaleToDb(locale);
+    const term = (q || '').trim();
+    const perPage = Math.min(Math.max(limit, 1), 50);
+    const filter: any = { ...this.publicProductFilter() };
+    if (term) {
+      const rx = { $regex: term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
+      filter.$or = [
+        { name_ar: rx }, { name_en: rx }, { active_ingredient: rx },
+        { [`translations.${db}.name`]: rx },
+        { [`translations.${db}.search_aliases`]: rx },
+        ...(Number.isFinite(Number(term)) ? [{ sku: Number(term) }] : []),
+        { barcode: term },
+      ];
+    }
+    const cursor = this.conn.collection('medicines_master')
+      .find(filter, { projection: { _id: 0, interactions: 0, change_requests: 0 } } as any)
+      .sort({ usage_count: -1 })
+      .skip((Math.max(page, 1) - 1) * perPage)
+      .limit(perPage);
+    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
+    return {
+      query: term || null, locale, page: Math.max(page, 1), limit: perPage, total,
+      items: rows.map((m: any) => {
+        const dto = resolveMedicinePublicDto(m, locale);
+        return {
+          sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, official_name: dto.official_name,
+          description: dto.description, category: dto.category, sub_category: dto.sub_category,
+          form: dto.form, strength: dto.strength, package_size: dto.package_size,
+          active_ingredient: dto.active_ingredient, manufacturer: dto.manufacturer,
+          price: dto.price, old_price: dto.old_price, currency: dto.currency,
+          is_rx: dto.is_rx, available: dto.available, image: dto.image,
+          url: `${process.env.WEB_PUBLIC_URL || 'https://nabd.plus'}/${locale}/p/${encodeURIComponent(String(dto.slug))}`,
+        };
+      }),
+    };
+  }
+
+  /** Slug batches for the web sitemap index (paginated XML sitemaps). */
+  async publicProductSitemapPage(locale: string, page: number, perPage = 5000) {
+    const db = productLocaleToDb(locale);
+    const rows = await this.conn.collection('medicines_master')
+      .find(this.publicProductFilter(), { projection: { _id: 0, slug: 1, updatedAt: 1, [`translations.${db}.slug`]: 1 } } as any)
+      .sort({ id: 1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .toArray();
+    return rows.map((m: any) => ({
+      slug: m?.translations?.[db]?.slug || m.slug,
+      lastmod: m.updatedAt ? new Date(m.updatedAt).toISOString().slice(0, 10) : undefined,
+    })).filter((r: any) => r.slug);
+  }
+
+  async publicProductCount(): Promise<number> {
+    return this.conn.collection('medicines_master').countDocuments(this.publicProductFilter());
+  }
+
+  /** Category cluster tree with live counts per locale. */
+  async publicCategories(locale: string) {
+    const db = productLocaleToDb(locale);
+    const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
+    const rows = await this.conn.collection('medicines_master').aggregate([
+      { $match: this.publicProductFilter() },
+      { $group: { _id: { c: `$${key('category')}`, s: `$${key('sub_category')}` }, n: { $sum: 1 } } },
+      { $sort: { n: -1 } },
+    ]).toArray();
+    const tree: Record<string, { name: string; count: number; subs: Record<string, number> }> = {};
+    for (const r of rows as any[]) {
+      const c = r._id?.c; if (!c) continue;
+      tree[c] = tree[c] || { name: c, count: 0, subs: {} };
+      tree[c].count += r.n;
+      if (r._id?.s) tree[c].subs[r._id.s] = (tree[c].subs[r._id.s] || 0) + r.n;
+    }
+    return { locale, categories: Object.values(tree) };
+  }
+
+  /** Paginated products inside a localized category cluster. */
+  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24) {
+    const db = productLocaleToDb(locale);
+    const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
+    const filter: any = { ...this.publicProductFilter(), [key('category')]: decodeURIComponent(category) };
+    if (sub) filter[key('sub_category')] = decodeURIComponent(sub);
+    const perPage = Math.min(Math.max(limit, 1), 48);
+    const cursor = this.conn.collection('medicines_master')
+      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
+      .sort({ usage_count: -1 })
+      .skip((Math.max(page, 1) - 1) * perPage)
+      .limit(perPage);
+    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
+    return {
+      locale, category: decodeURIComponent(category), sub_category: sub ? decodeURIComponent(sub) : null,
+      page: Math.max(page, 1), limit: perPage, total,
+      items: rows.map((m: any) => {
+        const dto = resolveMedicinePublicDto(m, locale);
+        return {
+          sku: dto.sku, id: dto.id, slug: dto.slug, name: dto.name, form: dto.form, strength: dto.strength,
+          package_size: dto.package_size, price: dto.price, old_price: dto.old_price, currency: dto.currency,
+          is_rx: dto.is_rx, available: dto.available, image: dto.image,
+        };
+      }),
+    };
   }
 
   async globalSearch(q: string, limit = 5): Promise<any> {
@@ -340,6 +490,11 @@ export class SeoSearchController {
       `- GET ${SITE}/api/v1/search/global — بحث موحد\n` +
       `- GET ${SITE}/api/v1/medicines/hot — الأكثر رواجاً\n` +
       `- GET ${SITE}/sitemap.xml — خريطة الموقع\n\n` +
+      `## AI-commerce (catalog v14)\n` +
+      `- GET ${SITE}/api/v1/public/products/search?q={term}&locale={ar|en|ur|hi|bn|fil} — بحث منتجات مترجم بالكامل (SKU/سعر/توفر/رابط شراء)\n` +
+      `- GET ${SITE}/api/v1/public/products/by-sku/{sku}?locale={lang} — منتج برقم SKU\n` +
+      `- GET ${SITE}/api/v1/public/product/{locale}/{slug} — DTO عام صارم اللغة (لا خلط بين اللغات)\n` +
+      `- GET ${SITE}/api/v1/public/categories/{locale} — شجرة الفئات مع الأعداد\n\n` +
       `## ملاحظات\n` +
       `- المحتوى ثنائي اللغة (العربية أساسياً والإنجليزية ثانوياً) مع ترجمات ur/hi/bn/tl.\n` +
       `- الأسعار بالريال السعودي (SAR).\n`);
@@ -378,6 +533,78 @@ export class SeoSearchController {
   @Get('doctors/:id/recommendations')
   doctorRecommendations(@Param('id') id: string, @Query('limit') limit?: string) {
     return this.svc.doctorRecommendations(id, parseInt(limit || '10'));
+  }
+
+  // ── Catalog v14 public product surface (SEO/AEO/GEO + AI-commerce) ──
+
+  /** Strict per-locale product DTO by that locale's slug. Powers /{lang}/p/{slug}. */
+  @Public()
+  @Get('public/product/:locale/:slug')
+  publicProduct(@Param('locale') locale: string, @Param('slug') slug: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicProductBySlug(locale, slug);
+  }
+
+  /** AI-commerce: localized product search. */
+  @Public()
+  @Get('public/products/search')
+  publicProductsSearch(
+    @Query('q') q?: string,
+    @Query('locale') locale?: string,
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const loc = (PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale || '') ? locale! : 'ar';
+    return this.svc.publicProductSearch(q || '', loc, parseInt(limit || '20'), parseInt(page || '1'));
+  }
+
+  /** Legacy id-based lookup (redirects legacy /medicines/:id pages to /p/{slug}). */
+  @Public()
+  @Get('public/product-by-id/:locale/:id')
+  publicProductById(@Param('locale') locale: string, @Param('id') id: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicProductById(locale, id);
+  }
+
+  /** AI-commerce: canonical SKU lookup. */
+  @Public()
+  @Get('public/products/by-sku/:sku')
+  publicProductSku(@Param('sku') sku: string, @Query('locale') locale?: string) {
+    const loc = (PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale || '') ? locale! : 'ar';
+    return this.svc.publicProductBySku(sku, loc);
+  }
+
+  /** Category cluster tree (per locale, live counts). */
+  @Public()
+  @Get('public/categories/:locale')
+  publicCategories(@Param('locale') locale: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    return this.svc.publicCategories(locale);
+  }
+
+  /** Category cluster products. */
+  @Public()
+  @Get('public/categories/:locale/items')
+  publicCategoryProducts(
+    @Param('locale') locale: string,
+    @Query('category') category?: string,
+    @Query('sub') sub?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    if (!category) throw new NotFoundException('category_required');
+    return this.svc.publicCategoryProducts(locale, category, sub, parseInt(page || '1'), parseInt(limit || '24'));
+  }
+
+  /** Product sitemap page as JSON (the web app renders same-host XML). */
+  @Public()
+  @Get('public/sitemaps/products/:locale/:page')
+  async publicProductSitemap(@Param('locale') locale: string, @Param('page') page: string) {
+    if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
+    const p = Math.max(parseInt(page || '1'), 1);
+    const [urls, total] = await Promise.all([this.svc.publicProductSitemapPage(locale, p), this.svc.publicProductCount()]);
+    return { locale, page: p, per_page: 5000, total, pages: Math.max(Math.ceil(total / 5000), 1), urls };
   }
 }
 
