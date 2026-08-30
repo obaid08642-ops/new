@@ -28,18 +28,26 @@
 - الحفاظ على جلسات المستخدم المسجل والضيف؛ حدود الجلسة تُفرض عند العمليات الحساسة.
 - التحقق: typecheck PASS، 37 suites / 84 اختباراً ناجحاً.
 
+
+### (جديد) — test(backend): chunked jest runner to fix full-suite OOM
+- إضافة scripts/run-tests-chunked.mjs: تشغيل 106 suites في 5 دفعات منفصلة بذاكرة نظيفة لكل دفعة.
+- تغيير npm test ليستخدم المشغّل المجزّأ بدل تشغيل Jest مباشرة (كان يفشل بـ JavaScript heap OOM).
+- الحفاظ على test:boot وtest:enterprise كما هما.
+- التحقق: 106/106 suites — 561/561 tests — PASS على 5/5 chunks (113 ثانية).
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|
 | Patient Mobile typecheck | PASS |
 | Patient Mobile tests | 37/37 suites — 84/84 tests |
 | Backend typecheck (tsc --noEmit) | PASS |
+| Backend FULL test suite | PASS — 106 suites / 561 tests / 5 chunks |
 | Backend build (nest build) | PASS |
 | Backend focused pharmacy tests | 3/3 suites — 12/12 tests |
 | Provider App typecheck + tests | PASS — 12/12 tests |
 | Admin typecheck + production build | PASS — 48 صفحة |
 
 ## ملاحظات مفتوحة (لم تُغلق)
-- Full Backend Jest suite يفشل بـ heap OOM — بند مستقل في الخطة.
+- ~~Full Backend Jest suite يفشل بـ heap OOM~~ — تم الإصلاح: chunked runner، 561/561 PASS.
 - فروع قديمة (106) غير مدمجة في main — تحتاج integration review.
 - Patient Web parity و Provider onboarding — مراحل قادمة في الخطة.

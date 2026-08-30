@@ -9,7 +9,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "node scripts/run-tests-chunked.mjs",
     "test:boot": "jest --config jest.boot.config.js --runInBand",
     "migration:hospital-staff-parent-account": "ts-node scripts/migrate-hospital-staff-parent-account.ts",
     "test:enterprise": "jest --config jest.enterprise.config.js --runInBand --detectOpenHandles"
