@@ -180,3 +180,9 @@
 - Added styles + BookConsultation i18n (ar/en/ur/hi/bn/fil); docs updated.
 - Unconfirmed: doctor id format (ObjectId vs uuid) may affect /api/appointments/book (uuid constraint) — verify against live upstream before release.
 - Gates: NOT runnable in sandbox (deps install failed 5x). PENDING CI.
+
+## 2026-08-31 — round 8: P0-5 agent/OAuth discovery + P0-8 addresses BFF + P0-3 AI report page
+- .well-known: oauth-authorization-server (RFC 8414), oauth-protected-resource (RFC 9728), openid-configuration (minimal, truthful endpoints), auth.md rewritten with Auth.md heading + registration + agent boundaries.
+- BFF addresses (GET/POST/DELETE /api/bff/users/me/addresses) + AI analyze-report BFF (idempotency) + /[locale]/ai/health-report page + i18n x6.
+- P0-2 evidence recorded (labs/book + booking + sample tracking already on web; remaining gaps P1, no invented endpoints).
+- Gates PENDING (no sandbox build). Next: P0-7 cherry-pick of unreachable commits, then P0-4 provider build, P0-6 search-console/CWV.
