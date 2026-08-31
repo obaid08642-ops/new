@@ -203,3 +203,9 @@
 - Found 23 orphan calls (no backend endpoint): nursing/home-care(4), insurance(7), pharmacy-orders(1, critical), reviews(1), articles(2), chat/family(2), health/wearables(3), ai(1), misc(2).
 - Confirmed healthy: nutrition, maternity (0 orphans); payments screens read params legitimately, processing polls API.
 - Findings committed to docs/DATA_TRUTH_AUDIT_2026-08-31.md; gap-fix plan in docs/UX_AUDIT_FIX_PLAN_2026-08-31.md.
+
+## 2026-08-31 — Phase A2: orphan contract resolution
+- SAFE RENAME applied: /push/register -> /notifications/register-token (verified backend signature).
+- Rejected unsafe renames (wearables -> NotImplemented endpoints; pharmacy-orders is provider-side) to avoid wiring screens to broken endpoints.
+- 22 true backend gaps catalogued (patient pharmacy-orders P0, insurance claims x7 P0, home-care x4 P1, reviews/articles/chat/wearables/ai/misc).
+- Architectural recommendation: build patient-facing backend modules exposing the exact contracts mobile+web expect.

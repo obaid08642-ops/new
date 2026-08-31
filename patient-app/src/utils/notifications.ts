@@ -68,7 +68,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     }
 
     // Register token with backend
-    await apiFetch('/push/register', {
+    await apiFetch('/notifications/register-token', {
       method: 'POST',
       body: JSON.stringify({
         token,
