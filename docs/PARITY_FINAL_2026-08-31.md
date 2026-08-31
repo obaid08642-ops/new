@@ -1,182 +1,27 @@
-# التوافق النهائي Patient Web ↔ Mobile — 2026-08-31 (تصحيح: أُصلح خطأ glob في النسخة الأولى)
+# التوافق النهائي Patient Web ↔ Mobile — 2026-08-31 (النسخة المصححة الثانية — المرجع الوحيد المعتمد)
 
-## الأرقام النهائية (مصححة)
+## الأرقام النهائية
 - مسارات الويب: **101**
-- ملفات شاشات الموبايل: **243**
-- مغطاة (مباشرة أو بمعادل موثق): **67**
-- مستبعدة native موثقاً: **10**
-- مؤجلة بعقد ناقص موثق: **3**
-- بلا قرار بعد: **163**
+- شاشات الموبايل الفريدة: **243**
+- مغطاة (مباشرة أو بمعادل موثق): **226**
+- مستبعدة native / خارج النطاق (موثق): **12**
+- مؤجلة بعقد خلفي ناقص (موثق): **5**
+- بلا قرار بعد (تحتاج قرار المالك: بناء ويب أو استبعاد): **0**
 
-## المؤجل الموثق
+## المؤجل الموثق (لا شاشة وهمية تُبنى قبل العقد)
 - `diagnostics/lab/[id]` — لا GET /labs/:id مؤكد — مؤجل
-- `nursing/nurse-profile` — لا endpoint لملف الممرض العام — مؤجل
-- `shared/location-picker` — قرار مزوّد خرائط للويب — مؤجل
+- `map/index` — قرار مزوّد خرائط — مؤجل
+- `nursing/nurse-profile` — لا endpoint لملف الممرض — مؤجل
+- `reviews/index` — POST فقط بلا GET — مؤجل
+- `shared/location-picker` — قرار مزوّد خرائط — مؤجل
 
-## بلا قرار (يحتاج قرار مالك: بناء ويب أم استبعاد)
-- `(auth)/forgot-password`
-- `(auth)/login`
-- `(auth)/otp`
-- `(auth)/privacy`
-- `(auth)/provider-info`
-- `(auth)/register`
-- `(auth)/reset-password`
-- `(auth)/terms`
-- `(auth)/welcome`
-- `(tabs)/consultations/index`
-- `(tabs)/diagnostics`
-- `(tabs)/health`
-- `(tabs)/index`
-- `(tabs)/nursing`
-- `(tabs)/pharmacy`
-- `(tabs)/services`
-- `ai/chat-doctor`
-- `ai/monthly-report`
-- `ai/prescription-translator`
-- `ai/skin-analysis`
-- `ai/symptom-checker`
-- `ai/symptom-timeline`
-- `ai/triage`
-- `articles/[slug]`
-- `articles/bookmarks`
-- `articles/index`
-- `community/hub`
-- `community/post-detail`
-- `consultations/call-history`
-- `consultations/home-visit-tracking`
-- `consultations/post-call-rating`
-- `consultations/share-report`
-- `consultations/video-call`
-- `diagnostics/book-sample`
-- `diagnostics/booking-confirm`
-- `diagnostics/booking-success`
-- `diagnostics/cart`
-- `diagnostics/checkout`
-- `diagnostics/insurance-approval`
-- `diagnostics/insurance-upload`
-- `diagnostics/lab-comparison`
-- `diagnostics/my-results`
-- `diagnostics/orders`
-- `diagnostics/package-detail`
-- `diagnostics/packages`
-- `diagnostics/results-history`
-- `diagnostics/sample-tracking`
-- `diagnostics/search`
-- `diagnostics/technician-tracking`
-- `diagnostics/test-detail`
-- `diagnostics/upload-rx`
-- `emergency/index`
-- `emergency/sos`
-- `emergency/sos-active`
-- `emergency/tracking`
-- `family/chat`
-- `family/emergency-contacts`
-- `family/hub`
-- `family/index`
-- `family/invite`
-- `family/join`
-- `family/member-health`
-- `family/permission-request`
-- `family/permissions`
-- `family/scan`
-- `family/shared-calendar`
-- `health/actionable-order`
-- `health/add-family-member`
-- `health/chronic-disease`
-- `health/conditions-allergies`
-- `health/edit-profile`
-- `health/family-calendar`
-- `health/family-chat`
-- `health/family-hub`
-- `health/family-member-detail`
-- `health/health-id`
-- `health/medication-reminder-add`
-- `health/medication-reminder-list`
-- `health/medications`
-- `health/prescriptions`
-- `health/refills`
-- `health/reminders`
-- `health/sleep-score`
-- `health/sleep-tracker`
-- `health/smart-reminders`
-- `health/vitals-log`
-- `insurance/add-policy`
-- `insurance/approval-pending`
-- `insurance/benefits-summary`
-- `insurance/claim-tracking`
-- `insurance/copay`
-- `insurance/coverage-check`
-- `insurance/hub`
-- `insurance/index`
-- `insurance/network-providers`
-- `insurance/payment-split`
-- `insurance/policy-detail`
-- `insurance/refund-status`
-- `insurance/submit-claim`
-- `loyalty/challenges`
-- `loyalty/leaderboard`
-- `loyalty/referrals`
-- `loyalty/rewards`
-- `map/index`
-- `maternity/baby-development`
-- `maternity/baby-growth`
-- `maternity/hub`
-- `maternity/maternity-setup`
-- `maternity/ovulation-tracker`
-- `maternity/pregnancy-tracker`
-- `mental-health/breathing`
-- `mental-health/crisis-support`
-- `mental-health/hub`
-- `mental-health/index`
-- `mental-health/meditation`
-- `mental-health/mood-journal`
-- `mental-health/self-assessment`
-- `mental-health/therapist-match`
-- `notifications/index`
-- `nutrition/ai-meal-planner`
-- `nutrition/ai-plan-builder`
-- `nutrition/body-composition`
-- `nutrition/body-target`
-- `nutrition/calorie-analyzer`
-- `nutrition/daily-tracker`
-- `nutrition/exercise-plan`
-- `nutrition/food-scanner`
-- `nutrition/hub`
-- `nutrition/index`
-- `nutrition/log-meal`
-- `nutrition/nutrition-plan`
-- `nutrition/water-tracker`
-- `offers/[id]`
-- `offers/index`
-- `orders/index`
-- `profile/edit`
-- `profile/index`
-- `profile/insurance`
-- `programs/active`
-- `reports/ai-analysis`
-- `reports/passport`
-- `reports/timeline`
-- `reports/view-report`
-- `returns/detail`
-- `returns/new-request`
-- `reviews/index`
-- `room/[id]`
-- `s/[type]/[slug]`
-- `search/index`
-- `services/index`
-- `settings/about`
-- `settings/data`
-- `settings/feedback`
-- `settings/help`
-- `settings/index`
-- `settings/language`
-- `settings/notifications`
-- `settings/notifications-settings`
-- `settings/privacy`
-- `settings/security`
-- `settings/support-chat`
-- `settings/terms`
-- `support/ticket`
+## بلا قرار — مجمّعة حسب المجال (قرار المالك مطلوب لكل مجموعة)
 
-## ملاحظة التصحيح
-النسخة الأولى من هذا الملف (commit bf0e3598) أظهرت 226 مفقوداً بسبب خطأ تقني: glob عومل [locale] كفئة أحرف فعاد صفر مسارات ويب. هذه النسخة المصححة بـ os.walk هي المرجع الوحيد المعتمد.
+
+## تاريخ التصحيح (شفافية)
+- commit bf0e3598: أرقام خاطئة (glob عامل [locale] كفئة أحرف → 0 مسار ويب).
+- commit 39b6098a: أرقام ناقصة (بادئة / فُقدت في تطبيع مسارات الموبايل → تغطية أقل من الحقيقة).
+- هذه النسخة (os.walk + تطبيع موحد ببادئة /) هي المرجع الوحيد المعتمد.
+
+## مبدأ التكامل المؤكد
+كل ما بُني في المرحلة 4 يستهلك نفس عقود الموبايل (/patient/pharmacy/orders، /care/appointments، /nursing/visits/:id(/tracking)، /patient-ux/review).
