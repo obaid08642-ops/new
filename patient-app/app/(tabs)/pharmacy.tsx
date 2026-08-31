@@ -371,7 +371,7 @@ export default function PharmacyTab() {
               <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 18, color: colors.n, marginTop: 12 }}>لم نجد ما تبحث عنه</LocalizedText>
               <TouchableOpacity
                 style={[styles.manualBtn, { backgroundColor: '#23B5CE' }]}
-                onPress={() => router.push('/pharmacy/manual-order')}
+                onPress={() => router.push('/pharmacy/request')}
               >
                 <LocalizedText style={{ fontFamily: 'Cairo-Bold', fontSize: 15, color: '#fff' }}>طلب يدوي</LocalizedText>
               </TouchableOpacity>

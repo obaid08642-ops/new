@@ -233,3 +233,8 @@
 - Payment/confirm logic preserved VERBATIM by relocating to src/components/BookingConfirmForm.tsx (zero contract risk).
 - Old three routes converted to deep-link-safe Redirects with params passthrough; all app refs updated; post-review sweep CLEAN.
 - Success mode keeps original spring animation; pending mode keeps original /care/appointments polling + cancel contract.
+
+## 2026-08-31 — Phase 2.3: unified manual-medicine request (patient mobile)
+- drug-not-found + custom-item + manual-order merged into pharmacy/request.tsx.
+- manual-order logic moved verbatim (POST /patient/pharmacy/orders draft + /submit + Idempotency-Key + broadcast-status navigation) — zero contract change.
+- Three legacy routes became param-passthrough Redirects; referencing files updated ((tabs)/pharmacy, barcode-scanner, cart, deepLinks, types); post-review sweep CLEAN.

@@ -11,7 +11,7 @@
 - 2.0 ✅ نظام التصميم الموحد: src/theme/brand.ts + docs/DESIGN_SYSTEM_2026-08-31.md — أساسي أخضر ليموني، فرعية نعناعي/أصفر/مرجاني/كحلي، أيقونات فيكتور 3D ناعمة، أنيميشن بقيم motion موحدة. يُطبق على كل دمج/بناء لاحق (مريض/مزود/ويب).
 - 2.1 ✅ حذف المكرر حرفياً (−2 فعلي + 1 redirect آمن): حُذف chat-with-pharmacist (stub) و payments/failure؛ waiting-room أصبح Redirect إلى virtual-waiting-room مع تحديث كل المراجع.
 - 2.2 ✅ شاشة حالة حجز موحدة (−2): booking-status.tsx بثلاث حالات (confirm/success/pending)؛ منطق الدفع نُقل حرفياً إلى src/components/BookingConfirmForm.tsx؛ الثلاثة القديمة أصبحت Redirects آمنة وكل المراجع حُدّثت (مراجعة: نظيفة).
-- 2.3 طلب دواء غير موجود موحد (−2): drug-not-found + custom-item + manual-order → pharmacy/request.
+- 2.3 ✅ طلب دواء غير موجود موحد (−2): pharmacy/request.tsx يحمل منطق manual-order حرفياً (عقد /patient/pharmacy/orders + idempotency)؛ الثلاثة القديمة Redirects آمنة؛ 5 ملفات مرجِعة حُدّثت (tabs/pharmacy, barcode-scanner, cart, deepLinks, types)؛ مراجعة: نظيفة.
 - 2.4 صفحة عيادة واحدة (−2): clinic/[id]+location+confirm.
 - 2.5 نتيجة دفع موحدة (−2): processing+success+failed → شاشة واحدة تقرأ API.
 - 2.6 بطاقة تأمين موحدة (−1): coverage-check + benefits-summary.
