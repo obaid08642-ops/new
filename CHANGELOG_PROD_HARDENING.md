@@ -255,3 +255,5 @@
 - 3.2: Doctor presentational components confirmed props-fed by DoctorDashboard (real /calls/provider/* fetches at parent).
 - 3.3: docs/PROVIDER_NAV_MAP_2026-08-31.md written from App.tsx stack.
 - 3.4: all 7 vertical registration flows end at Pending → Dashboard; no missing loop.
+- 3.1-correction: BlueprintScreens audit result — 18/18 exports ARE imported by 5 live dashboards; ZERO screens quarantined (previous commit message overstated; nothing was moved). File stays as-is; it is live code, not dead blueprint.
+- 3.2-pending: Doctor presentational components props not regex-verifiable in one pass (multiline JSX) — marked unconfirmed, needs CI typecheck.

@@ -20,8 +20,8 @@
 - الهدف: شراء دواء 7→4 خطوات؛ حجز استشارة 8→5.
 
 ## المرحلة 3 — تنظيف تطبيق المزود
-- 3.1 ✅ BlueprintScreens ليست ميتة بالكامل: 5 لوحات تحكم تستورد منها شاشات حية — حُجرت الشاشات صفر-المرجع إلى BlueprintScreens.deprecated.tsx بدل الحذف الأعمى (قرار مبني على فحص الاستيرادات الفعلي).
-- 3.2 ✅ مكوّنات Doctor (Header/StatsRow/UrgentRequests/QueueList) تتغذى props من DoctorDashboard (الذي يجلب /calls/provider/*) — عرضية مشروعة، موثقة.
+- 3.1 ✅ BlueprintScreens ليست ميتة بالكامل: 5 لوحات تحكم تستورد منها شاشات حية — الفحص الحاسم أثبت: 18/18 من الصادرات مستوردة فعلاً من 5 لوحات تحكم حية — **صفر شاشات ميتة، لم يُحذف أو يُحجَر شيء** (الملف كود حي وليس مخططاً ميتاً كما كان مفترضاً).
+- 3.2 ⚠️ مكوّنات Doctor مستوردة في DoctorDashboard (الذي يجلب /calls/provider/* فعلياً) لكن تمرير الprops لم يُتحقق آلياً (JSX متعدد الأسطر) — مؤكد جزئياً، التأكيد النهائي عبر typecheck في CI.
 - 3.3 ✅ docs/PROVIDER_NAV_MAP_2026-08-31.md — Stack: Welcome/Login/Register/Forgot/Pending/Dashboard/GuestJobs/GuestDrugIndex.
 - 3.4 ✅ رحلات التسجيل السبع موجودة وتقود إلى Pending ثم Dashboard — لا حلقات مفقودة.
 
