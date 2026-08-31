@@ -1,3 +1,6 @@
+import type { Metadata } from "next";
+import { localizedUrl } from "@/lib/seo";
+import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CircleAlert, Image, ShieldCheck } from "lucide-react";
@@ -8,6 +11,23 @@ import { isLocale } from "@/lib/i18n";
 import styles from "../../labs/labs.module.css";
 
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
+
+export async function generateMetadata({ params }: { params: Promise<{ serviceId: string; locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "RadiologyServices" });
+  const canonical = localizedUrl(locale, `/diagnostics/radiology/${encodeURIComponent(serviceId)}`);
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: {
+      canonical,
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, canonical.replace(`/${locale}`, "") )])), "x-default": localizedUrl("ar", canonical.replace(`/${locale}`, "")) },
+    },
+    openGraph: { type: "website", url: canonical },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default async function RadiologyServiceDetailPage({ params }: Props) {
   const { locale, serviceId } = await params;

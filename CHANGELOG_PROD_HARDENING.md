@@ -166,3 +166,9 @@
   - parity: web 90 routes vs mobile 240 screens by name-normalized diff; semantic equivalents exist for many (doctor-search ~ consultations/doctors, lab/:id ~ diagnostics/labs/:serviceId). Full screen-by-screen parity + build = P1 (not claimed).
 - New P0 pages (real API + auth): /[locale]/profile/addresses, /[locale]/consultations/share-report + lib/api/addresses-server.ts, lib/api/reports-server.ts, components-next/addresses.tsx, share-report.tsx, i18n Addresses+ShareReport in ar/en/ur/hi/bn/fil.
 - Verification of these pages: PENDING (deps unavailable in sandbox) — run check/test/build in CI.
+
+## 2026-08-31 — round 6: public detail metadata + typed JSON-LD builders
+- generateMetadata added: doctors/[doctorId], radiology/[serviceId], packages/[packageId], articles/[slug] (canonical, hreflang, OG, index).
+- lib/seo/structured-data.ts builders (MedicalWebPage, BreadcrumbList, Physician, Service, MedicalClinic) + structured-data.test.ts; no fabricated price/availability.
+- Verified already-present (no new code): catalog eligibility gates in catalog-publication.service.ts; category pagination noindex; robots boundaries.
+- Gates: NOT runnable in sandbox (deps install failed 5x). PENDING CI.

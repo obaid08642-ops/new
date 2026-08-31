@@ -1,3 +1,6 @@
+import type { Metadata } from "next";
+import { localizedUrl } from "@/lib/seo";
+import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -11,6 +14,23 @@ import styles from "../doctors.module.css";
 type Props = { params: Promise<{ locale: string; doctorId: string }>; searchParams: Promise<{ date?: string; service_type?: string }> };
 const serviceTypes = ["video", "clinic", "home"] as const;
 function today() { return new Date().toISOString().slice(0, 10); }
+export async function generateMetadata({ params }: { params: Promise<{ doctorId: string; locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "Doctors" });
+  const canonical = localizedUrl(locale, `/consultations/doctors/${encodeURIComponent(doctorId)}`);
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: {
+      canonical,
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, canonical.replace(`/${locale}`, "") )])), "x-default": localizedUrl("ar", canonical.replace(`/${locale}`, "")) },
+    },
+    openGraph: { type: "website", url: canonical },
+    robots: { index: true, follow: true },
+  };
+}
+
 export default async function DoctorDetailPage({ params, searchParams }: Props) {
   const { locale, doctorId } = await params; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
   const query = await searchParams; const date = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(query.date ?? "") ? query.date! : today(); const serviceType = serviceTypes.includes(query.service_type as typeof serviceTypes[number]) ? query.service_type as typeof serviceTypes[number] : "video";
