@@ -182,7 +182,7 @@ export class SeoSearchService {
    */
   async publicProductSearch(q: string, locale = 'ar', limit = 20, page = 1) {
     const db = productLocaleToDb(locale);
-    const term = (q || '').trim();
+    const term = normalizeSearchText(q || '');
     const perPage = Math.min(Math.max(limit, 1), 50);
     const filter: any = { ...this.publicProductFilter() };
     if (term) {
@@ -284,6 +284,7 @@ export class SeoSearchService {
   }
 
   async globalSearch(q: string, limit = 5): Promise<any> {
+    q = normalizeSearchText(q || '');
     const term = (q || '').trim();
     if (term.length < 2) return { query: q, results: {}, total: 0 };
     const rx = { $regex: term, $options: 'i' };
