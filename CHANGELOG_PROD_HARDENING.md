@@ -149,3 +149,11 @@
 - ~~Full Backend Jest suite يفشل بـ heap OOM~~ — تم الإصلاح: chunked runner، 561/561 PASS.
 - فروع قديمة (106) غير مدمجة في main — تحتاج integration review.
 - Patient Web parity و Provider onboarding — مراحل قادمة في الخطة.
+
+## 2026-08-31 — SEO public metadata batch (sandbox workspace — push pending GitHub auth)
+
+- app/robots.ts: disallow auth-gated trees + private leaves (share-report, video-call, nursing/visits, diagnostics index) while explicitly allowing public labs/radiology/packages and nursing/catalog to stay crawlable.
+- [locale]/consultations/doctors, diagnostics/labs, diagnostics/radiology, nursing/catalog page.tsx: added generateMetadata (title/description/canonical/hreflang x6/x-default/OpenGraph/Twitter/robots index).
+- app/sitemaps/static.xml/route.ts: added doctors/labs/radiology/nursing-catalog per locale.
+- Tests: app/seo.test.ts expanded; app/[locale]/public-pages-metadata.test.ts added.
+- Verification status: PENDING — dependency install failed twice in this sandbox (npm ERESOLVE on @builder.io/vite-plugin-jsx-loc, then npm crash). typecheck/tests/build must run in CI/dev before claiming pass.

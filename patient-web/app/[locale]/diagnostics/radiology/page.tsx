@@ -4,10 +4,31 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, CircleAlert, Image, Search, ShieldCheck } from "lucide-react";
 import { extractRadiologyServices } from "@/lib/api/radiology";
 import { getPublicRadiologyModalities, getPublicRadiologyServices } from "@/lib/api/radiology-server";
-import { isLocale } from "@/lib/i18n";
+import { isLocale, locales } from "@/lib/i18n";
+import { localizedUrl } from "@/lib/seo";
+import type { Metadata } from "next";
 import styles from "../labs/labs.module.css";
 
 type Props = { params: Promise<{ locale: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
+
+export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "RadiologyServices" });
+  const canonical = localizedUrl(locale, "/diagnostics/radiology");
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: {
+      canonical,
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, "/diagnostics/radiology")])), "x-default": localizedUrl("ar", "/diagnostics/radiology") },
+    },
+    openGraph: { type: "website", url: canonical, title: t("title"), description: t("subtitle"), siteName: "Nabd Plus" },
+    twitter: { card: "summary", title: t("title"), description: t("subtitle") },
+    robots: { index: true, follow: true },
+  };
+}
+
 const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
 const on = (value: string | string[] | undefined) => first(value) === "1";
 export default async function RadiologyServicesPage({ params, searchParams }: Props) {

@@ -3,11 +3,39 @@ import { locales } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
-  // /{lang}/medicines/{id} and /{lang}/medicine-catalog stay crawlable: the
-  // legacy URLs 301 to the canonical /{lang}/p/{slug} v14 product pages and
-  // crawlers must be able to follow the redirect to transfer ranking signals.
-  const privateRouteFamilies = ["login", "dashboard", "orders", "appointments", "diagnostics", "home-care", "family", "chat", "notifications", "health", "prescriptions", "reminders", "profile", "wishlist"];
-  const privatePaths = ["/api/", ...locales.flatMap((locale) => privateRouteFamilies.map((route) => `/${locale}/${route}`))];
+  // Auth-gated trees (whole families) — patient areas must never be indexed.
+  const privateTreeFamilies = [
+    "login", "register", "forgot-password", "password-reset", "otp",
+    "dashboard", "orders", "appointments", "chat", "notifications", "health",
+    "prescriptions", "reminders", "profile", "wishlist", "wallet", "reports",
+    "programs", "returns", "support", "family", "community", "offers",
+    "emergency", "cart", "settings", "home-care", "insurance",
+  ];
+  // Private leaf paths under otherwise public trees (a prefix disallow would
+  // also block their public siblings, so they are listed exactly).
+  const privateLeafSuffixes = [
+    "/diagnostics", // index requires auth; labs/radiology/packages below stay crawlable
+    "/nursing/visits", // bookings require auth; /nursing/catalog stays crawlable
+    "/consultations/share-report",
+    "/consultations/video-call",
+  ];
+  // Public children below the auth-gated /diagnostics index must stay crawlable.
+  const publicExplicitAllows = locales.flatMap((locale) =>
+    ["/diagnostics/labs", "/diagnostics/radiology", "/diagnostics/packages"].map((path) => `/${locale}${path}`),
+  );
 
-  return { rules: { userAgent: "*", allow: "/", disallow: privatePaths }, sitemap: `${siteOrigin()}/sitemap.xml` };
+  return {
+    rules: {
+      userAgent: "*",
+      allow: ["/", ...publicExplicitAllows],
+      disallow: [
+        "/api/",
+        ...locales.flatMap((locale) => [
+          ...privateTreeFamilies.map((route) => `/${locale}/${route}`),
+          ...privateLeafSuffixes.map((suffix) => `/${locale}${suffix}`),
+        ]),
+      ],
+    },
+    sitemap: `${siteOrigin()}/sitemap.xml`,
+  };
 }
