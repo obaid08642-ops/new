@@ -56,7 +56,7 @@ export function BookingFlow({ doctorId, locale, doctor }: { doctorId: string; lo
     fetch(`/api/consultations/doctors/${encodeURIComponent(doctorId)}/slots?date=${date}&service_type=${visitType}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("slots_unavailable"))))
       .then((data) => {
-        setSlots(Array.isArray(data.slots) ? data.slots.filter((s) => s.available !== false) : []);
+        setSlots(Array.isArray(data.slots) ? data.slots.filter((s: { available?: boolean }) => s.available !== false) : []);
         setSlotsReason(typeof data.reason === "string" ? data.reason : null);
       })
       .catch((err) => { if (!controller.signal.aborted) { setSlots([]); setSlotsReason("load_failed"); } })

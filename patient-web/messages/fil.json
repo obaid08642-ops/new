@@ -584,7 +584,8 @@
     "search": "Maghanap",
     "categories": "Mga category",
     "noResultsTitle": "Walang katugmang article",
-    "noResults": "Subukan ang ibang search o category."
+    "noResults": "Subukan ang ibang search o category.",
+    "subtitle": "Mga pinagkakatiwalaang artikulo pangkalusugan mula sa Nabd Plus"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",

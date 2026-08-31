@@ -9,7 +9,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Check, ChevronLeft, FlaskConical, Home, ShieldCheck } from "lucide-react";
 import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
 import { getPublicLabPackage } from "@/lib/api/labs-server";
-import { isLocale } from "@/lib/i18n";
 import styles from "../../labs/labs.module.css";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
@@ -38,7 +37,6 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const t = await getTranslations("LabsPackages");
   const response = await getPublicLabPackage(packageId);
   if (!response) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FlaskConical size={28} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/packages/${packageId}`}>{t("retry")}</Link></section></main>;
-      <JsonLd data={[medicalWebPage({ name: t("title"), locale, path: "/diagnostics/packages" }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/packages" }])]} />
   if (response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FlaskConical size={28} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/packages/${packageId}`}>{t("retry")}</Link></section></main>;
   const pkg = extractLabService(await response.json().catch(() => null));
@@ -48,6 +46,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const description = rtl ? pkg.descriptionAr ?? pkg.descriptionEn : pkg.descriptionEn ?? pkg.descriptionAr;
   const preparation = rtl ? pkg.preparationAr ?? pkg.preparationEn : pkg.preparationEn ?? pkg.preparationAr;
   return <main className={`main ${styles.page}`}>
+    <JsonLd data={[medicalWebPage({ title: name ?? t("title"), description: description ?? null, locale, path: `/diagnostics/packages/${packageId}` }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/packages" }, { name: name ?? t("title"), locale, path: `/diagnostics/packages/${packageId}` }])]} />
     <Link className={styles.back} href={`/${locale}/diagnostics/packages`}><Arrow size={17} aria-hidden="true" />{t("back")}</Link>
     <section className={styles.detailHero}><div><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{name}</h1>{description ? <p className={styles.subtitle}>{description}</p> : null}</div><span className={styles.heroIcon}><FlaskConical size={28} aria-hidden="true" /></span></section>
     <section className={styles.facts} aria-label={t("facts")}>

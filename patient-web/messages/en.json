@@ -584,7 +584,8 @@
     "search": "Search",
     "categories": "Categories",
     "noResultsTitle": "No matching articles",
-    "noResults": "Try another search or category."
+    "noResults": "Try another search or category.",
+    "subtitle": "Trusted health articles from Nabd Plus"
   },
   "ChatDetail": {
     "eyebrow": "Private conversation",
