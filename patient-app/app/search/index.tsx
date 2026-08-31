@@ -8,6 +8,9 @@ import { lightColors, darkColors, resolveColor } from '../../src/theme/colors';
 import { apiFetch } from '../../src/utils/api';
 import { router } from 'expo-router';
 import { LocalizedText } from '../../src/components/LocalizedText';
+import { useLocalSearchParams as __useRouteParams } from "expo-router";
+import PharmacyProductSearchView from "../../src/components/views/PharmacyProductSearchView";
+import DoctorSearchView from "../../src/components/views/DoctorSearchView";
 
 const RECENT_KEY = '@nabdah_recent_searches';
 
@@ -17,7 +20,7 @@ const catsEn = ['All', 'Doctors', 'Pharmacy', 'Labs', 'Radiology', 'Articles', '
 const catMap = { 'أطباء': 'دكتور', 'صيدلية': 'دواء', 'تحاليل': 'تحليل', 'أشعة': 'أشعة', 'مقالات': 'مقال', 'أمراض': 'مرض', 'تأمين': 'تأمين', 'مجتمع': 'مجتمع', 'عائلة': 'عائلة' };
 const catMapEn = { 'Doctors': 'Doctor', 'Pharmacy': 'Medicine', 'Labs': 'Lab', 'Radiology': 'Radiology', 'Articles': 'Article', 'Diseases': 'Disease', 'Insurance': 'Insurance', 'Community': 'Community', 'Family': 'Family' };
 
-export default function Search() {
+function SearchInner() {
   const insets = useSafeAreaInsets();
   const { isDark, lang } = useApp() as any;
   const colors = isDark ? darkColors : lightColors;
@@ -233,3 +236,11 @@ const styles = StyleSheet.create({
   iconWrap: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   typeBadge: { paddingVertical: 2, paddingHorizontal: 7, borderRadius: 5 }
 });
+
+// __RouteGuard: Phase 2.8 global search (view=pharmacy|doctors|default)
+export default function SearchInnerRoute() {
+  const __p = __useRouteParams() as any;
+  if (__p?.view === "pharmacy") return <PharmacyProductSearchView />;
+  if (__p?.view === "doctors") return <DoctorSearchView />;
+  return <SearchInner />;
+}

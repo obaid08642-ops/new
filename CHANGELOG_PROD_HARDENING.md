@@ -247,3 +247,5 @@
 - 2.8 /search?view=pharmacy|doctors hosts both search modes; drug-scanner stays native (camera).
 - Design system: surface.light updated to iPhone off-white #F5F5F7 per user direction.
 - NOTE: untested here (npm broken); CI gate (typecheck/tests/build) mandatory before main merge.
+
+- 2.7/2.8-correction: previous commit message listed 2.7+2.8 prematurely (script crashed on wrong crisis-contacts filename); this commit completes them for real (crisis screen resolved by filename scan; global search host in /search).
