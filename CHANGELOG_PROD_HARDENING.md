@@ -157,3 +157,12 @@
 - app/sitemaps/static.xml/route.ts: added doctors/labs/radiology/nursing-catalog per locale.
 - Tests: app/seo.test.ts expanded; app/[locale]/public-pages-metadata.test.ts added.
 - Verification status: PENDING — dependency install failed twice in this sandbox (npm ERESOLVE on @builder.io/vite-plugin-jsx-loc, then npm crash). typecheck/tests/build must run in CI/dev before claiming pass.
+
+## 2026-08-31 — round 4: verified audit + P0 web pages (delivery addresses, report sharing)
+- Verification (evidence from git grep, no build due to sandbox deps failure):
+  - fake/mock/dummy/lorem/placeholder/hardcod/stub/TODO non-test matches per app: patient-web 188, patient-app 369, provider-app 438, admin 224, backend 560. Distilled scan: all hits are input `placeholder=` UI attributes or comments stating fakes were removed ("no more dummy token fallback", "never mock data"); no fabricated API source found. Static-only verification.
+  - dead links/empty handlers (`href="#"`, empty onClick/onPress): 0 matches in patient-web/app, patient-app/app, provider-app/src, admin/src.
+  - provider-app: 66 network references across screens; zero-network files are presentational components only (DoctorHeader, DoctorQueueList, DoctorStatsRow, DoctorUrgentRequests, LiveKitRoomProvider, ProviderHome).
+  - parity: web 90 routes vs mobile 240 screens by name-normalized diff; semantic equivalents exist for many (doctor-search ~ consultations/doctors, lab/:id ~ diagnostics/labs/:serviceId). Full screen-by-screen parity + build = P1 (not claimed).
+- New P0 pages (real API + auth): /[locale]/profile/addresses, /[locale]/consultations/share-report + lib/api/addresses-server.ts, lib/api/reports-server.ts, components-next/addresses.tsx, share-report.tsx, i18n Addresses+ShareReport in ar/en/ur/hi/bn/fil.
+- Verification of these pages: PENDING (deps unavailable in sandbox) — run check/test/build in CI.

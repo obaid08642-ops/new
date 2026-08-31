@@ -1009,5 +1009,40 @@
     "walletBalance": "Kasalukuyang balanse",
     "walletTransactions": "Mga kamakailang transaksyon",
     "walletEmpty": "Wala pang transaksyon"
+  },
+  "Addresses": {
+    "title": "Mga Address ng Delivery",
+    "subtitle": "Pamahalaan ang iyong mga address",
+    "addTitle": "Magdagdag ng bagong address",
+    "label": "Pangalan ng address",
+    "line1": "Address line 1",
+    "line2": "Address line 2",
+    "city": "Lungsod",
+    "district": "Distrito",
+    "notes": "Mga tala",
+    "save": "I-save ang address",
+    "saving": "Sine-save…",
+    "saved": "Na-save",
+    "saveFailed": "Hindi ma-save, subukan muli",
+    "remove": "Alisin",
+    "removing": "Inaalis…",
+    "removeFailed": "Hindi maalis",
+    "empty": "Wala pang address",
+    "listLabel": "Listahan ng mga address",
+    "unnamed": "Walang pangalang address",
+    "default": "Default"
+  },
+  "ShareReport": {
+    "title": "Ibahagi ang mga Ulat",
+    "subtitle": "Pumili ng mga medical report para i-share nang ligtas",
+    "reportsLabel": "Listahan ng mga ulat",
+    "share": "Ibahagi",
+    "sharing": "Ibinabahagi…",
+    "shared": "Naibahagi",
+    "copied": "Nakopya ang teksto",
+    "shareUnavailable": "Hindi available ang pagbabahagi sa browser na ito",
+    "shareCancelled": "Kinansela ang pagbabahagi",
+    "empty": "Walang ulat na ibabahagi",
+    "notice": "Tanging ligtas na in-portal na mga link ang ibinabahagi"
   }
 }

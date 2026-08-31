@@ -1009,5 +1009,40 @@
     "walletBalance": "Current balance",
     "walletTransactions": "Recent transactions",
     "walletEmpty": "No transactions yet"
+  },
+  "Addresses": {
+    "title": "Delivery Addresses",
+    "subtitle": "Manage your delivery addresses",
+    "addTitle": "Add a new address",
+    "label": "Address label",
+    "line1": "Address line 1",
+    "line2": "Address line 2",
+    "city": "City",
+    "district": "District",
+    "notes": "Notes",
+    "save": "Save address",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Could not save, try again",
+    "remove": "Remove",
+    "removing": "Removing…",
+    "removeFailed": "Could not remove",
+    "empty": "No addresses yet",
+    "listLabel": "Address list",
+    "unnamed": "Unnamed address",
+    "default": "Default"
+  },
+  "ShareReport": {
+    "title": "Share Reports",
+    "subtitle": "Select medical reports to share securely",
+    "reportsLabel": "Reports list",
+    "share": "Share",
+    "sharing": "Sharing…",
+    "shared": "Shared",
+    "copied": "Text copied",
+    "shareUnavailable": "Sharing is not available in this browser",
+    "shareCancelled": "Sharing cancelled",
+    "empty": "No reports to share",
+    "notice": "Only secure in-portal links are shared — never send raw medical data in text."
   }
 }
