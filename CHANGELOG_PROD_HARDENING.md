@@ -192,3 +192,8 @@
 - feat(backend): normalizeSearchText in seo-search (Arabic diacritics/tatweel strip, alef/yeh/teh-marbuta unification, NFKD, lowercase) + pure unit tests.
 - verified: backend addresses controller exists (users.addresses.controller.ts); ai analyze-report endpoint exists (ai.controller.ts).
 - blocked: npm install fails in this env (3x, incl. --legacy-peer-deps) => tests/typecheck/build must run in CI or fixed env.
+
+## 2026-08-31 — Full branch audit + main merge simulation (NO merge performed)
+- Merge simulation `git merge-tree main HEAD`: rc=0, ZERO conflicting files, ZERO both-sides-modified files. Branch merges cleanly into main whenever reviewer approves. Diff: 83 files, +3310/-81.
+- Test tooling: npm install failed 4x in this sandbox (incl. --legacy-peer-deps, fresh cache); no node_modules in backend/patient-app/provider-app either => tests/typecheck/build MUST run in CI. All branch code is UNTESTED until that gate passes.
+- Parity audit: web 94 routes vs mobile 246 screens (normalized). Missing-screen list committed to docs/PARITY_MISSING_WEB.md.
