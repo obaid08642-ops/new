@@ -284,3 +284,4 @@
 - docs/PARITY_FINAL_2026-08-31.md: full matrix — web routes after 4.1-4.4 vs mobile after Phase 2 merges; every mobile screen is either covered, native-excluded (documented), or deferred with a named missing backend contract (no fabricated screens).
 - Confirmed integration principle: all Phase-4 web screens consume the SAME backend contracts as mobile (/patient/pharmacy/orders, /care/appointments, /nursing/visits, /patient-ux/review).
 - Phase 4 (web parity) marked COMPLETE. Remaining: Phase 5 (deferred SEO/agent-discovery/security) and Phase 6 (CI gate before any main merge).
+- 4.5-correction: first parity sweep was WRONG (glob treated [locale] as char class → 0 web routes → 226 false "missing"). Corrected with os.walk; docs/PARITY_FINAL_2026-08-31.md regenerated with true numbers. The corrected doc is the only valid reference.

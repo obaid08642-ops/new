@@ -1,17 +1,19 @@
-# التوافق النهائي Patient Web ↔ Mobile — 2026-08-31 (بعد المراحل 2 و4)
+# التوافق النهائي Patient Web ↔ Mobile — 2026-08-31 (تصحيح: أُصلح خطأ glob في النسخة الأولى)
 
-## الأرقام النهائية
-- مسارات الويب: **0** (كانت 94 قبل المرحلة 4)
-- شاشات الموبايل: **243** ملفاً (بعد دمج المرحلة 2)
-- مغطاة على الويب (مباشرة أو بمعادل موثق): **0**
-- مستبعدة native بقرار موثق (كاميرا/ماسح/مكالمة واردة/wearables/onboarding): **17**
-- مؤجلة بعقد ناقصة موثقة (لا شاشات مختلقة): **0**
-- بلا قرار بعد: **226**
+## الأرقام النهائية (مصححة)
+- مسارات الويب: **101**
+- ملفات شاشات الموبايل: **243**
+- مغطاة (مباشرة أو بمعادل موثق): **67**
+- مستبعدة native موثقاً: **10**
+- مؤجلة بعقد ناقص موثق: **3**
+- بلا قرار بعد: **163**
 
-## المؤجل الموثق (عقود خلفية ناقصة — تُبنى بعد تأكيد العقد)
+## المؤجل الموثق
+- `diagnostics/lab/[id]` — لا GET /labs/:id مؤكد — مؤجل
+- `nursing/nurse-profile` — لا endpoint لملف الممرض العام — مؤجل
+- `shared/location-picker` — قرار مزوّد خرائط للويب — مؤجل
 
-
-## بلا قرار (تحتاج مراجعة المالك)
+## بلا قرار (يحتاج قرار مالك: بناء ويب أم استبعاد)
 - `(auth)/forgot-password`
 - `(auth)/login`
 - `(auth)/otp`
@@ -21,7 +23,13 @@
 - `(auth)/reset-password`
 - `(auth)/terms`
 - `(auth)/welcome`
-- `ai-assistant`
+- `(tabs)/consultations/index`
+- `(tabs)/diagnostics`
+- `(tabs)/health`
+- `(tabs)/index`
+- `(tabs)/nursing`
+- `(tabs)/pharmacy`
+- `(tabs)/services`
 - `ai/chat-doctor`
 - `ai/monthly-report`
 - `ai/prescription-translator`
@@ -34,35 +42,11 @@
 - `articles/index`
 - `community/hub`
 - `community/post-detail`
-- `consultations/appointment-detail`
-- `consultations/appointments`
-- `consultations/book/[id]`
-- `consultations/booking-confirm`
-- `consultations/booking-pending`
-- `consultations/booking-status`
-- `consultations/booking-success`
 - `consultations/call-history`
-- `consultations/cancel-reschedule`
-- `consultations/chat-with-doctor`
-- `consultations/clinic-confirm`
-- `consultations/clinic-location`
-- `consultations/clinic/[id]`
-- `consultations/doctor-profile`
-- `consultations/doctor-search`
-- `consultations/doctor/[id]`
-- `consultations/follow-up`
 - `consultations/home-visit-tracking`
-- `consultations/offer/[id]`
 - `consultations/post-call-rating`
-- `consultations/prescription-from-doctor`
 - `consultations/share-report`
-- `consultations/specialty-select`
-- `consultations/summary`
 - `consultations/video-call`
-- `consultations/video/[id]`
-- `consultations/virtual-waiting-room`
-- `consultations/waiting-room`
-- `delivery/address-select`
 - `diagnostics/book-sample`
 - `diagnostics/booking-confirm`
 - `diagnostics/booking-success`
@@ -71,9 +55,7 @@
 - `diagnostics/insurance-approval`
 - `diagnostics/insurance-upload`
 - `diagnostics/lab-comparison`
-- `diagnostics/lab/[id]`
 - `diagnostics/my-results`
-- `diagnostics/order/[id]`
 - `diagnostics/orders`
 - `diagnostics/package-detail`
 - `diagnostics/packages`
@@ -87,7 +69,6 @@
 - `emergency/sos`
 - `emergency/sos-active`
 - `emergency/tracking`
-- `family/calendar`
 - `family/chat`
 - `family/emergency-contacts`
 - `family/hub`
@@ -102,10 +83,8 @@
 - `health/actionable-order`
 - `health/add-family-member`
 - `health/chronic-disease`
-- `health/chronic-medications`
 - `health/conditions-allergies`
 - `health/edit-profile`
-- `health/emergency-contacts`
 - `health/family-calendar`
 - `health/family-chat`
 - `health/family-hub`
@@ -117,14 +96,10 @@
 - `health/prescriptions`
 - `health/refills`
 - `health/reminders`
-- `health/reports`
 - `health/sleep-score`
 - `health/sleep-tracker`
 - `health/smart-reminders`
-- `health/trends`
-- `health/vitals`
 - `health/vitals-log`
-- `index`
 - `insurance/add-policy`
 - `insurance/approval-pending`
 - `insurance/benefits-summary`
@@ -139,7 +114,6 @@
 - `insurance/refund-status`
 - `insurance/submit-claim`
 - `loyalty/challenges`
-- `loyalty/hub`
 - `loyalty/leaderboard`
 - `loyalty/referrals`
 - `loyalty/rewards`
@@ -159,10 +133,6 @@
 - `mental-health/self-assessment`
 - `mental-health/therapist-match`
 - `notifications/index`
-- `nursing/live-tracking`
-- `nursing/nurse-profile`
-- `nursing/service-details`
-- `nursing/service-info`
 - `nutrition/ai-meal-planner`
 - `nutrition/ai-plan-builder`
 - `nutrition/body-composition`
@@ -179,44 +149,15 @@
 - `offers/[id]`
 - `offers/index`
 - `orders/index`
-- `payments/failed`
-- `payments/processing`
-- `payments/result`
-- `payments/success`
-- `pharmacy/broadcast-status`
-- `pharmacy/cart`
-- `pharmacy/checkout`
-- `pharmacy/custom-item`
-- `pharmacy/drug-not-found`
-- `pharmacy/filters`
-- `pharmacy/final-quote`
-- `pharmacy/insurance-decision`
-- `pharmacy/manual-order`
-- `pharmacy/medicine-compare`
-- `pharmacy/order-confirm`
-- `pharmacy/order-history`
-- `pharmacy/order-tracking`
-- `pharmacy/payment`
-- `pharmacy/pharmacist-chat`
-- `pharmacy/product-detail`
-- `pharmacy/product-search`
-- `pharmacy/reorder`
-- `pharmacy/request`
-- `pharmacy/rx-order`
-- `pharmacy/waiting-for-pharmacy`
-- `pharmacy/wishlist`
-- `profile/addresses`
 - `profile/edit`
 - `profile/index`
 - `profile/insurance`
 - `programs/active`
 - `reports/ai-analysis`
-- `reports/hub`
 - `reports/passport`
 - `reports/timeline`
 - `reports/view-report`
 - `returns/detail`
-- `returns/hub`
 - `returns/new-request`
 - `reviews/index`
 - `room/[id]`
@@ -235,12 +176,7 @@
 - `settings/security`
 - `settings/support-chat`
 - `settings/terms`
-- `shared/location-picker`
-- `support/chat`
 - `support/ticket`
 
-## قرارات الاستبعاد native
-الكاميرا/الماسح (barcode/prescription-scanner)، المكالمة الواردة (push native)، wearables، onboarding، غرفة LiveKit الخام — لا تُبنى كصفحات ويب مستقلة؛ بدائلها على الويب مدمجة في التدفقات (رفع صورة للروشتة في /cart/prescription، مكالمة الفيديو في /consultations/video-call).
-
-## مبدأ التكامل المؤكد
-كل شاشة ويب مبنية في المرحلة 4 تستهلك نفس عقود الباكند التي يستهلكها الموبايل (/patient/pharmacy/orders، /care/appointments، /nursing/visits، /patient-ux/review) — حساب واحد، بيانات واحدة، على الجهازين.
+## ملاحظة التصحيح
+النسخة الأولى من هذا الملف (commit bf0e3598) أظهرت 226 مفقوداً بسبب خطأ تقني: glob عومل [locale] كفئة أحرف فعاد صفر مسارات ويب. هذه النسخة المصححة بـ os.walk هي المرجع الوحيد المعتمد.
