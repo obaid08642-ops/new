@@ -286,3 +286,8 @@
 - Phase 4 (web parity) marked COMPLETE. Remaining: Phase 5 (deferred SEO/agent-discovery/security) and Phase 6 (CI gate before any main merge).
 - 4.5-correction: first parity sweep was WRONG (glob treated [locale] as char class → 0 web routes → 226 false "missing"). Corrected with os.walk; docs/PARITY_FINAL_2026-08-31.md regenerated with true numbers. The corrected doc is the only valid reference.
 - 4.5-correction-2: leading-slash normalization bug fixed; final authoritative matrix regenerated (web 101 routes; mobile screens grouped into covered / native-excluded / deferred-by-missing-contract / owner-decision). Prior two versions invalid.
+
+## 2026-08-31 — Phase 5: agentic discovery + security gap-fill (honest scope)
+- 5.2: added truthful discovery-only metadata — /.well-known/mcp/server-card.json, /.well-known/acp.json, /.well-known/ucp, and x-payment-info (MPP) extension on openapi.json. All declare checkout=disabled (no agentic payments without confirmation/idempotency/audit). DNS-AID + x402 documented as requiring real DNS/billing infrastructure — NOT fabricated.
+- 5.3: security audit — rate limiting (velocity.guard + ThrottlerModule) and helmet/CSP/ValidationPipe ALREADY existed (not rebuilt). Real gap found & closed: NoSQL injection — express-mongo-sanitize wired in main.ts. NOTE: requires `npm i express-mongo-sanitize` in CI (sandbox npm is broken) — dependency recorded for the CI gate.
+- Everything on the branch remains untested; CI gate (npm ci --legacy-peer-deps && check && test && build) is mandatory before any main merge.

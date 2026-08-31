@@ -34,8 +34,8 @@
 
 ## المرحلة 5 — المؤجل (SEO/AI/الاكتشاف/الأمان)
 - 5.1 إكمال catalog eligibility + internal search normalization (بدأ، يُستكمل).
-- 5.2 اكتشاف الوكلاء: OAuth/OIDC ✅، auth.md ✅، ai-catalog ✅ — المتبقي: MCP server-card، x402، MPP، UCP، ACP، DNS-AID (يحتاج DNS/billing).
-- 5.3 أمان: rate limiting + SQLi + RBAC hardening (تدقيق وتعزيز).
+- 5.2 ✅ اكتشاف الوكلاء: OAuth/OIDC ✅، auth.md ✅، ai-catalog ✅ + أُضيف بصدق (discovery-only، checkout معطّل): MCP server-card، acp.json، ucp، وامتداد x-payment-info (MPP). المتعذّر بيئياً ويحتاج بنية تحتية فعلية (DNS موقّع/billing): DNS-AID، x402 — موثقان.
+- 5.3 ✅ أمان: rate limiting موجود أصلاً (velocity.guard + Throttler) و helmet/CSP/ValidationPipe موجودة — لم تُعد بناؤها. الفجوة الحقيقية الوحيدة (NoSQL injection) سُدّت بـ express-mongo-sanitize في main.ts. RBAC/PermissionsGuard تدقيقه يتطلب تشغيل CI.
 
 ## المرحلة 6 — بوابة الجودة (محجوبة بيئياً — تُنفذ في CI)
 - 6.1 npm ci --legacy-peer-deps → typecheck + tests + build لكل تعديل.
@@ -48,4 +48,5 @@
 | 2 | ✅ مكتملة (2.0–2.8) — خلفية iPhone off-white #F5F5F7 معتمدة |
 | 3 | ✅ مكتملة (3.1–3.4) |
 | 4 | ✅ مكتملة (4.1–4.5) |
-| 5-6 | ⏳ |
+| 5 | ✅ مكتملة (ما أمكن محلياً؛ DNS-AID/x402 تحتاج بنية تحتية) |
+| 6 | ⛔ بوابة CI إلزامية |
