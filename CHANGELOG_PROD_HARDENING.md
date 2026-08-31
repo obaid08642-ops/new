@@ -217,3 +217,7 @@
   - PatientHomeCareController: GET /home-care/services, /packages (from nursing_catalog), POST/GET /home-care/bookings(/my).
   - PatientRefundsController: GET /refunds/my.
 - NOTE: tests/typecheck blocked in this sandbox (npm broken 4x) — must run in CI before any main merge.
+
+## 2026-08-31 — Phase 1.3: contracts documented + consumers confirmed
+- docs/PATIENT_API_CONTRACTS_2026-08-31.md: 8 new endpoints documented (pharmacy orders, home-care, refunds) with request/response notes.
+- Verified existence in CompatModule (all 8 OK) and confirmed mobile callers reference identical paths (same contract => mobile/web parity principle holds).
