@@ -227,3 +227,9 @@
 - 2.1: deleted pharmacy/chat-with-pharmacist.tsx (stub, 0 refs) and payments/failure.tsx (0 refs); waiting-room.tsx converted to safe Redirect → virtual-waiting-room; all referencing files updated; post-check confirms no dangling refs.
 - NOTE: untested here (npm broken); CI must run typecheck/tests/build before any main merge.
 - 2.1-fix: deepLinks.ts dangling ref corrected (chat-with-pharmacist -> pharmacist-chat); final sweep confirms all deleted-screen refs CLEAN.
+
+## 2026-08-31 — Phase 2.2: unified booking-status screen (patient mobile)
+- booking-confirm + booking-pending + booking-success merged into consultations/booking-status.tsx (3 modes).
+- Payment/confirm logic preserved VERBATIM by relocating to src/components/BookingConfirmForm.tsx (zero contract risk).
+- Old three routes converted to deep-link-safe Redirects with params passthrough; all app refs updated; post-review sweep CLEAN.
+- Success mode keeps original spring animation; pending mode keeps original /care/appointments polling + cancel contract.

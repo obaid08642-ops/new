@@ -528,7 +528,7 @@ export default function DoctorProfile() {
             const price = getPrice(activeVt);
             if (selectedSlot) {
               (router.push as any)({
-                pathname: '/consultations/booking-confirm',
+                pathname: '/consultations/booking-status',
                 params: { doctorId: doc?.id, slot_start: selectedSlot, visitType: activeVt },
               });
             } else {

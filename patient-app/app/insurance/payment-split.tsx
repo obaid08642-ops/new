@@ -45,7 +45,7 @@ export default function InsurancePaymentSplitScreen() {
   const returnToAppointmentStatus = async () => {
     if (!request || request.booking_kind !== 'consultation') throw new Error('لا يمكن فتح حالة الاستشارة لهذا الطلب.');
     const appointment = await apiFetch(`/care/appointments/${encodeURIComponent(request.booking_id)}`);
-    router.replace({ pathname: '/consultations/booking-pending', params: appointmentStatusRouteParams(appointment, request.booking_id) });
+    router.replace({ pathname: '/consultations/booking-status', params: appointmentStatusRouteParams(appointment, request.booking_id) });
   };
 
   const continueFlow = async () => {

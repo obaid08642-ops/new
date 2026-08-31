@@ -156,7 +156,7 @@ export default function BookAppointmentScreen() {
       return;
     }
     router.push({
-      pathname: '/consultations/booking-confirm',
+      pathname: '/consultations/booking-status',
       params: {
         doctorId: doctor.id,
         slot_start: selectedSlot,

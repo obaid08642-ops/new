@@ -70,7 +70,7 @@ export default function ConsultationSummaryScreen() {
 
   const bookFollowUp = () => {
     router.push({
-      pathname: '/consultations/booking-confirm',
+      pathname: '/consultations/booking-status',
       params: {
         doctorId: appt?.doctor_id || summary.doctor_id || '',
         followUp: 'true',

@@ -81,10 +81,10 @@ export default function PaymentSuccessScreen() {
           <TouchableOpacity onPress={() => {
             const vt = params.visitType as string;
             const apptId = (params.bookingId || params.appointmentId || '') as string;
-            if (apptId) router.push({ pathname: '/consultations/booking-pending', params: { appointmentId: apptId, visitType: vt } });
+            if (apptId) router.push({ pathname: '/consultations/booking-status', params: { appointmentId: apptId, visitType: vt } });
             else if (vt === 'clinic') router.push('/consultations/clinic-location');
             else if (vt === 'home') router.push('/consultations/home-visit-tracking');
-            else router.push({ pathname: '/consultations/booking-success', params: { visitType: vt } });
+            else router.push({ pathname: '/consultations/booking-status', params: { visitType: vt } });
           }}
           style={{ borderRadius: 16, overflow: 'hidden' }}>
             <View style={styles.homeBtn}>
