@@ -197,3 +197,9 @@
 - Merge simulation `git merge-tree main HEAD`: rc=0, ZERO conflicting files, ZERO both-sides-modified files. Branch merges cleanly into main whenever reviewer approves. Diff: 83 files, +3310/-81.
 - Test tooling: npm install failed 4x in this sandbox (incl. --legacy-peer-deps, fresh cache); no node_modules in backend/patient-app/provider-app either => tests/typecheck/build MUST run in CI. All branch code is UNTESTED until that gate passes.
 - Parity audit: web 94 routes vs mobile 246 screens (normalized). Missing-screen list committed to docs/PARITY_MISSING_WEB.md.
+
+## 2026-08-31 — Phase A data-truth audit complete
+- Full API contract match: patient-app 121 paths vs backend 719 endpoints (global prefix api).
+- Found 23 orphan calls (no backend endpoint): nursing/home-care(4), insurance(7), pharmacy-orders(1, critical), reviews(1), articles(2), chat/family(2), health/wearables(3), ai(1), misc(2).
+- Confirmed healthy: nutrition, maternity (0 orphans); payments screens read params legitimately, processing polls API.
+- Findings committed to docs/DATA_TRUTH_AUDIT_2026-08-31.md; gap-fix plan in docs/UX_AUDIT_FIX_PLAN_2026-08-31.md.
