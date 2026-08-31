@@ -20,10 +20,10 @@
 - الهدف: شراء دواء 7→4 خطوات؛ حجز استشارة 8→5.
 
 ## المرحلة 3 — تنظيف تطبيق المزود
-- 3.1 حذف BlueprintScreens.tsx الميتة بعد التأكد أن RealScreens بدّلتها.
-- 3.2 ربط/توثيق شاشات بلا شبكة (ProviderHome, Doctor* components).
-- 3.3 خريطة تنقّل موثقة لـ Navigator.
-- 3.4 سد حلقات رحلة التسجيل لكل تخصص → PendingDashboard → تفعيل.
+- 3.1 ✅ BlueprintScreens ليست ميتة بالكامل: 5 لوحات تحكم تستورد منها شاشات حية — حُجرت الشاشات صفر-المرجع إلى BlueprintScreens.deprecated.tsx بدل الحذف الأعمى (قرار مبني على فحص الاستيرادات الفعلي).
+- 3.2 ✅ مكوّنات Doctor (Header/StatsRow/UrgentRequests/QueueList) تتغذى props من DoctorDashboard (الذي يجلب /calls/provider/*) — عرضية مشروعة، موثقة.
+- 3.3 ✅ docs/PROVIDER_NAV_MAP_2026-08-31.md — Stack: Welcome/Login/Register/Forgot/Pending/Dashboard/GuestJobs/GuestDrugIndex.
+- 3.4 ✅ رحلات التسجيل السبع موجودة وتقود إلى Pending ثم Dashboard — لا حلقات مفقودة.
 
 ## المرحلة 4 — بناء شاشات الويب الناقصة (parity مع الموبايل بالرحلات المختصرة)
 - 4.1 payments (3) — بشاشة نتيجة موحدة.
@@ -46,4 +46,5 @@
 |---|---|
 | 1 | 1.1✅ 1.2✅ 1.3⏳ |
 | 2 | ✅ مكتملة (2.0–2.8) — خلفية iPhone off-white #F5F5F7 معتمدة |
-| 3-6 | ⏳ تُنفذ تباعاً بنفس القاعدة |
+| 3 | ✅ مكتملة (3.1–3.4) |
+| 4-6 | ⏳ تُنفذ تباعاً بنفس القاعدة |

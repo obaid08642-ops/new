@@ -249,3 +249,9 @@
 - NOTE: untested here (npm broken); CI gate (typecheck/tests/build) mandatory before main merge.
 
 - 2.7/2.8-correction: previous commit message listed 2.7+2.8 prematurely (script crashed on wrong crisis-contacts filename); this commit completes them for real (crisis screen resolved by filename scan; global search host in /search).
+
+## 2026-08-31 — Phase 3: provider app cleanup (evidence-based, no blind deletion)
+- 3.1: BlueprintScreens proven NOT dead — 5 live dashboards import real screens from it. Zero-reference exported screens quarantined to BlueprintScreens.deprecated.tsx (delete after CI green).
+- 3.2: Doctor presentational components confirmed props-fed by DoctorDashboard (real /calls/provider/* fetches at parent).
+- 3.3: docs/PROVIDER_NAV_MAP_2026-08-31.md written from App.tsx stack.
+- 3.4: all 7 vertical registration flows end at Pending → Dashboard; no missing loop.
