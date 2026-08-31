@@ -1,13 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ getDiagnosticBookings: vi.fn(), getDiagnosticBooking: vi.fn(), requirePatientAccess: vi.fn() }));
+const state = vi.hoisted(() => ({ getDiagnosticBookings: vi.fn(), getDiagnosticBooking: vi.fn(), getDiagnosticTracking: vi.fn(), requirePatientAccess: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
-vi.mock("@/lib/api/diagnostics-server", () => ({ getDiagnosticBookings: state.getDiagnosticBookings, getDiagnosticBooking: state.getDiagnosticBooking }));
+vi.mock("@/lib/api/diagnostics-server", () => ({ getDiagnosticBookings: state.getDiagnosticBookings, getDiagnosticBooking: state.getDiagnosticBooking, getDiagnosticTracking: state.getDiagnosticTracking }));
 
 import DiagnosticsPage from "./page";
 import DiagnosticDetailPage from "./[domain]/[bookingId]/page";
@@ -20,6 +20,7 @@ describe("diagnostics SSR boundary", () => {
   beforeEach(() => {
     state.getDiagnosticBookings.mockReset();
     state.getDiagnosticBooking.mockReset();
+    state.getDiagnosticTracking.mockReset().mockResolvedValue(new Response(JSON.stringify({ steps: [] }), { status: 200 }));
     state.requirePatientAccess.mockReset().mockResolvedValue(serverToken);
   });
 

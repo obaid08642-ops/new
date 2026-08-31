@@ -345,7 +345,7 @@ export default function HealthScreen() {
             <Card
               onPress={() =>
                 router.push({
-                  pathname: "/consultations/waiting-room",
+                  pathname: "/consultations/virtual-waiting-room",
                   params: { appointmentId: upcomingAppt.id || "1" },
                 })
               }

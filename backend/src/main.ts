@@ -13,6 +13,9 @@ import { createNabdahOpenApiDocument } from './config/openapi.config';
 import { ConfiguredIoAdapter } from './config/configured-io.adapter';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
+// Phase 5.3: NoSQL injection guard — strips $-operators/dots from req payloads
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const mongoSanitize = require('express-mongo-sanitize');
 import { SentryExceptionFilter } from './common/sentry.filter';
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
@@ -68,6 +71,7 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().set('trust proxy', 2);
 
   // Apply helmet security headers
+  app.use(mongoSanitize());
   app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
       directives: {

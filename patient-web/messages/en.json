@@ -584,7 +584,8 @@
     "search": "Search",
     "categories": "Categories",
     "noResultsTitle": "No matching articles",
-    "noResults": "Try another search or category."
+    "noResults": "Try another search or category.",
+    "subtitle": "Trusted health articles from Nabd Plus"
   },
   "ChatDetail": {
     "eyebrow": "Private conversation",
@@ -1003,5 +1004,192 @@
     "allCategories": "All categories",
     "loadMore": "Load more",
     "page": "Page {page}"
+  },
+  "Wallet": {
+    "wallet": "Wallet",
+    "walletBalance": "Current balance",
+    "walletTransactions": "Recent transactions",
+    "walletEmpty": "No transactions yet"
+  },
+  "Addresses": {
+    "title": "Delivery Addresses",
+    "subtitle": "Manage your delivery addresses",
+    "addTitle": "Add a new address",
+    "label": "Address label",
+    "line1": "Address line 1",
+    "line2": "Address line 2",
+    "city": "City",
+    "district": "District",
+    "notes": "Notes",
+    "save": "Save address",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Could not save, try again",
+    "remove": "Remove",
+    "removing": "Removing…",
+    "removeFailed": "Could not remove",
+    "empty": "No addresses yet",
+    "listLabel": "Address list",
+    "unnamed": "Unnamed address",
+    "default": "Default"
+  },
+  "ShareReport": {
+    "title": "Share Reports",
+    "subtitle": "Select medical reports to share securely",
+    "reportsLabel": "Reports list",
+    "share": "Share",
+    "sharing": "Sharing…",
+    "shared": "Shared",
+    "copied": "Text copied",
+    "shareUnavailable": "Sharing is not available in this browser",
+    "shareCancelled": "Sharing cancelled",
+    "empty": "No reports to share",
+    "notice": "Only secure in-portal links are shared — never send raw medical data in text."
+  },
+  "BookConsultation": {
+    "title": "Book Consultation",
+    "subtitle": "Pick visit type, day and slot — real server slots",
+    "back": "Back to doctor",
+    "visitType": "Visit type",
+    "types": {
+      "clinic": "Clinic",
+      "video": "Video",
+      "home": "Home visit"
+    },
+    "selectDay": "Select day",
+    "today": "Today",
+    "slotsLabel": "Available slots",
+    "loadingSlots": "Loading slots…",
+    "noSlots": "No slots available on this day",
+    "slotsUnavailable": "Could not load slots",
+    "payment": "Payment method",
+    "pay": {
+      "cash": "Cash",
+      "card": "Card",
+      "insurance": "Insurance"
+    },
+    "notes": "Notes for the doctor",
+    "notesPlaceholder": "Describe symptoms or anything you want the doctor to know",
+    "submit": "Confirm booking",
+    "submitting": "Booking…",
+    "currency": "SAR",
+    "doctorUnavailable": "Doctor unavailable"
+  },
+  "AiHealthReport": {
+    "title": "Your AI Health Report",
+    "selectReports": "Select medical reports to analyze",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing...",
+    "resultTitle": "Analysis result",
+    "error": "Could not complete the analysis. Please try again.",
+    "disclaimer": "This analysis is informational and not a substitute for medical advice.",
+    "empty": "No medical reports available yet."
+  },
+  "Payments": {
+    "successTitle": "Payment successful",
+    "successBody": "Your payment was confirmed and linked to your order.",
+    "failedTitle": "Payment failed",
+    "failedBody": "The payment did not complete. No confirmed amount was charged — you can try again.",
+    "processingTitle": "Processing payment",
+    "processingBody": "We are verifying the payment result with the provider. The final result will appear in your orders.",
+    "reference": "Reference",
+    "retry": "Try again",
+    "myOrders": "My orders",
+    "wallet": "Wallet"
+  },
+  "MedicineCompare": {
+    "title": "Compare medicines",
+    "attribute": "Attribute",
+    "active_ingredient": "Active ingredient",
+    "price": "Price",
+    "dosage_form": "Dosage form",
+    "manufacturer": "Manufacturer",
+    "emptyBody": "Select at least two medicines from the catalog to compare.",
+    "browse": "Browse medicines",
+    "back": "Medicines"
+  },
+  "PharmacyRequest": {
+    "title": "Request an unavailable medicine",
+    "subtitle": "Enter the medicine name and details to broadcast your request to pharmacies — same flow as the mobile app.",
+    "name": "Medicine name",
+    "namePh": "e.g. Congestal tablets",
+    "details": "Details for the pharmacy (optional)",
+    "detailsPh": "Strength, form, or a note",
+    "submit": "Broadcast request",
+    "submitting": "Submitting...",
+    "error": "Could not submit the request. Please try again.",
+    "success": "Request submitted"
+  },
+  "CallHistory": {
+    "title": "Call history",
+    "back": "My appointments",
+    "emptyBody": "No past calls yet.",
+    "findDoctor": "Find a doctor",
+    "unknownDoctor": "Doctor"
+  },
+  "PostCallRating": {
+    "title": "Rate your consultation",
+    "subtitle": "Your feedback helps us improve care quality.",
+    "comment": "Comment",
+    "commentPh": "Share your notes (optional)",
+    "submit": "Submit rating",
+    "submitting": "Submitting...",
+    "thanks": "Thank you! Your rating was received.",
+    "error": "Could not submit the rating. Please try again."
+  },
+  "HomeVisitTracking": {
+    "title": "Home visit tracking",
+    "back": "Appointment details",
+    "unknownStatus": "Unknown status",
+    "step_PENDING": "Request received",
+    "step_CONFIRMED": "Confirmed",
+    "step_PROVIDER_EN_ROUTE": "Provider on the way",
+    "step_PROVIDER_ARRIVED": "Provider arrived",
+    "step_IN_PROGRESS": "Visit in progress",
+    "step_COMPLETED": "Visit completed"
+  },
+  "NursingTracking": {
+    "title": "Nursing visit tracking",
+    "back": "My visits",
+    "nurse": "Nurse",
+    "eta": "Arriving in",
+    "minutes": "min",
+    "unknownStatus": "Unknown status",
+    "step_REQUESTED": "Request received",
+    "step_CONFIRMED": "Confirmed",
+    "step_NURSE_EN_ROUTE": "Nurse on the way",
+    "step_NURSE_ARRIVED": "Nurse arrived",
+    "step_CARE_IN_PROGRESS": "Care in progress",
+    "step_COMPLETED": "Visit completed"
+  },
+  "Reviews": {
+    "title": "Reviews",
+    "back": "My dashboard",
+    "empty": "No reviews yet."
+  },
+  "NutritionPlan": {
+    "title": "My nutrition plan",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "MaternityTracker": {
+    "title": "Pregnancy tracking",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "SecuritySettings": {
+    "title": "Security & sessions",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "SupportTicket": {
+    "title": "Support tickets",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "HealthTimeline": {
+    "title": "Health timeline",
+    "back": "My health",
+    "empty": "No health events recorded yet."
   }
 }

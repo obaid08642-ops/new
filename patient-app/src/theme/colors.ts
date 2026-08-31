@@ -1,4 +1,9 @@
+import { brand } from './brand';
 export const lightColors = {
+  // Phase 8: brand-driven tokens (primary lime; iPhone off-white surface)
+  brandPrimary: brand.primary.lime,
+  brandPrimaryDeep: brand.primary.limeDeep,
+  brandBg: brand.surface.light,
   bg: '#F2F4F7',
   s: '#FFFFFF',
   n: '#141A2A',
@@ -7,10 +12,10 @@ export const lightColors = {
   t2: '#4C5566',
   t3: '#8C93A3',
   bd: '#E5E8EE',
-  p: '#23B5CE',
-  pd: '#1A9FB6',
-  ps: '#DEF5F9',
-  pt: '#0A6575',
+  p: '#7CB518',
+  pd: '#5C8F11',
+  ps: '#F0F9D4',
+  pt: '#3F6212',
   c1: '#8FD4E3',
   c2: '#62C5D7',
   tl: '#2BB89C',
@@ -32,6 +37,8 @@ export const lightColors = {
 };
 
 export const darkColors = {
+  brandPrimary: brand.primary.lime,
+  brandPrimaryDeep: brand.primary.limeDeep,
   bg: '#0E1422',
   s: '#1A2234',
   n: '#F2F4F7',
@@ -40,10 +47,10 @@ export const darkColors = {
   t2: '#B8BEC9',
   t3: '#7C8494',
   bd: '#2A3346',
-  p: '#23B5CE',
-  pd: '#1A9FB6',
-  ps: '#1A2B31', 
-  pt: '#0A6575',
+  p: '#B8E030',
+  pd: '#9FCC28',
+  ps: '#2A3316', 
+  pt: '#3F6212',
   c1: '#8FD4E3',
   c2: '#62C5D7',
   tl: '#2BB89C',
@@ -67,7 +74,7 @@ export const darkColors = {
 /**
  * Resolves a CSS variable string like 'var(--p)' to an actual color hex value.
  * Also handles plain hex/named colors by returning them as-is.
- * @param {string} c - color string, e.g. 'var(--p)' or '#23B5CE'
+ * @param {string} c - color string, e.g. 'var(--p)' or '#7CB518'
  * @param {object} colors - the current theme's color object (lightColors or darkColors)
  * @returns {string} resolved hex color
  */

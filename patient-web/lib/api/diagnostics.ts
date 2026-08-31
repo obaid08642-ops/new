@@ -5,6 +5,9 @@ export type DiagnosticDomain = typeof diagnosticDomains[number];
 
 const bookingIdSchema = z.string().uuid();
 
+export type DiagnosticTrackingStep = { title: string; time?: string; done: boolean; icon?: string };
+export type DiagnosticTracking = { eta?: number; distance?: number; techName?: string; steps: DiagnosticTrackingStep[] };
+
 export type DiagnosticBooking = {
   id: string;
   state?: string;
@@ -69,4 +72,19 @@ export function extractDiagnosticBookings(payload: unknown) {
 export function extractDiagnosticBooking(payload: unknown) {
   const root = asRecord(payload);
   return bookingFrom(asRecord(root?.data) ?? root);
+}
+
+export function extractDiagnosticTracking(payload: unknown): DiagnosticTracking {
+  const root = asRecord(payload);
+  const source = asRecord(root?.data) ?? root;
+  const rawSteps = Array.isArray(source?.steps) ? source.steps : [];
+  return {
+    eta: typeof source?.eta === "number" ? source.eta : undefined,
+    distance: typeof source?.distance === "number" ? source.distance : undefined,
+    techName: text(source ?? {}, ["techName", "technician_name"]),
+    steps: rawSteps.flatMap((step) => {
+      const item = asRecord(step); const title = text(item ?? {}, ["title", "state"]);
+      return title ? [{ title, time: text(item ?? {}, ["time", "at"]), done: item?.done === true, icon: text(item ?? {}, ["icon"]) }] : [];
+    }),
+  };
 }

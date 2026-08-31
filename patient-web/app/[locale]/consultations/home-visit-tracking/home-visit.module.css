@@ -1,0 +1,9 @@
+.page { padding: 24px 16px; max-width: 640px; margin: 0 auto; background: #F5F5F7; min-height: 60vh; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: #16213A; text-decoration: none; margin-bottom: 12px; }
+.title { display: flex; align-items: center; gap: 8px; color: #16213A; }
+.timeline { list-style: none; padding: 0; margin: 20px 0; display: grid; gap: 0; }
+.step { display: flex; align-items: center; gap: 12px; padding: 12px 0; opacity: .45; }
+.step.done { opacity: 1; font-weight: 700; color: #16213A; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(22,33,58,.2); flex: none; }
+.step.done .dot { background: #B8E030; box-shadow: 0 0 0 4px rgba(184,224,48,.25); }
+.note { background: #fff; border-radius: 14px; padding: 14px; color: #FF4D5A; }

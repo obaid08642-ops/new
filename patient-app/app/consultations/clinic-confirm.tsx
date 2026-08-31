@@ -17,8 +17,10 @@ import { ScreenState } from '../../src/components/ScreenStates';
 import { apiFetch } from '../../src/utils/api';
 import { dateLocale } from '@/utils/dates';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { useLocalSearchParams as __useRouteParams } from "expo-router";
+import ClinicLocationView from "../../src/components/views/ClinicLocationView";
 
-export default function ClinicConfirmScreen() {
+function ClinicConfirmScreenInner() {
   const insets = useSafeAreaInsets();
   const { colors, isDark, lang } = useApp();
   const AR = lang !== 'en';
@@ -197,3 +199,10 @@ const st = StyleSheet.create({
   row: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
   actionBtn: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: 12, paddingVertical: 10 },
 });
+
+// __RouteGuard: Phase 2 unified-screen host (view=location)
+export default function ClinicConfirmScreenInnerRoute() {
+  const __p = __useRouteParams() as any;
+  if (__p?.view === "location") return <ClinicLocationView />;
+  return <ClinicConfirmScreenInner />;
+}

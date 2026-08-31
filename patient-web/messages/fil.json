@@ -584,7 +584,8 @@
     "search": "Maghanap",
     "categories": "Mga category",
     "noResultsTitle": "Walang katugmang article",
-    "noResults": "Subukan ang ibang search o category."
+    "noResults": "Subukan ang ibang search o category.",
+    "subtitle": "Mga pinagkakatiwalaang artikulo pangkalusugan mula sa Nabd Plus"
   },
   "ChatDetail": {
     "eyebrow": "Pribadong conversation",
@@ -1003,5 +1004,192 @@
     "allCategories": "Lahat ng kategorya",
     "loadMore": "Mag-load pa",
     "page": "Pahina {page}"
+  },
+  "Wallet": {
+    "wallet": "Wallet",
+    "walletBalance": "Kasalukuyang balanse",
+    "walletTransactions": "Mga kamakailang transaksyon",
+    "walletEmpty": "Wala pang transaksyon"
+  },
+  "Addresses": {
+    "title": "Mga Address ng Delivery",
+    "subtitle": "Pamahalaan ang iyong mga address",
+    "addTitle": "Magdagdag ng bagong address",
+    "label": "Pangalan ng address",
+    "line1": "Address line 1",
+    "line2": "Address line 2",
+    "city": "Lungsod",
+    "district": "Distrito",
+    "notes": "Mga tala",
+    "save": "I-save ang address",
+    "saving": "Sine-save…",
+    "saved": "Na-save",
+    "saveFailed": "Hindi ma-save, subukan muli",
+    "remove": "Alisin",
+    "removing": "Inaalis…",
+    "removeFailed": "Hindi maalis",
+    "empty": "Wala pang address",
+    "listLabel": "Listahan ng mga address",
+    "unnamed": "Walang pangalang address",
+    "default": "Default"
+  },
+  "ShareReport": {
+    "title": "Ibahagi ang mga Ulat",
+    "subtitle": "Pumili ng mga medical report para i-share nang ligtas",
+    "reportsLabel": "Listahan ng mga ulat",
+    "share": "Ibahagi",
+    "sharing": "Ibinabahagi…",
+    "shared": "Naibahagi",
+    "copied": "Nakopya ang teksto",
+    "shareUnavailable": "Hindi available ang pagbabahagi sa browser na ito",
+    "shareCancelled": "Kinansela ang pagbabahagi",
+    "empty": "Walang ulat na ibabahagi",
+    "notice": "Tanging ligtas na in-portal na mga link ang ibinabahagi"
+  },
+  "BookConsultation": {
+    "title": "Mag-book ng Konsultasyon",
+    "subtitle": "Pumili ng uri, araw at slot — totoong server slots",
+    "back": "Bumalik sa doktor",
+    "visitType": "Uri ng pagbisita",
+    "types": {
+      "clinic": "Klinika",
+      "video": "Video",
+      "home": "Home visit"
+    },
+    "selectDay": "Pumili ng araw",
+    "today": "Ngayon",
+    "slotsLabel": "Mga available na slot",
+    "loadingSlots": "Naglo-load ng slots…",
+    "noSlots": "Walang available na slot sa araw na ito",
+    "slotsUnavailable": "Hindi ma-load ang slots",
+    "payment": "Paraan ng pagbabayad",
+    "pay": {
+      "cash": "Cash",
+      "card": "Card",
+      "insurance": "Insurance"
+    },
+    "notes": "Mga tala para sa doktor",
+    "notesPlaceholder": "Isulat ang sintomas o anumang impormasyon",
+    "submit": "Kumpirmahin ang booking",
+    "submitting": "Nagbo-book…",
+    "currency": "SAR",
+    "doctorUnavailable": "Hindi available ang doktor"
+  },
+  "AiHealthReport": {
+    "title": "Ang Iyong AI Health Report",
+    "selectReports": "Piliin ang mga medical report na susuriin",
+    "analyze": "Suriin",
+    "analyzing": "Sinusuri...",
+    "resultTitle": "Resulta ng pagsusuri",
+    "error": "Hindi nakumpleto ang pagsusuri. Subukan muli.",
+    "disclaimer": "Ang pagsusuring ito ay impormasyon lamang at hindi kapalit ng payong medikal.",
+    "empty": "Wala pang available na medical report."
+  },
+  "Payments": {
+    "successTitle": "Matagumpay ang pagbabayad",
+    "successBody": "Nakumpirma ang iyong bayad at naka-link sa iyong order.",
+    "failedTitle": "Nabigo ang pagbabayad",
+    "failedBody": "Hindi nakumpleto ang pagbabayad. Walang confirmed na halagang na-charge — subukan muli.",
+    "processingTitle": "Pinoproseso ang pagbabayad",
+    "processingBody": "Tini-verify namin ang resulta sa provider. Lalabas ang final na resulta sa iyong mga order.",
+    "reference": "Reference",
+    "retry": "Subukan muli",
+    "myOrders": "Mga order ko",
+    "wallet": "Wallet"
+  },
+  "MedicineCompare": {
+    "title": "Paghambingin ang mga gamot",
+    "attribute": "Katangian",
+    "active_ingredient": "Aktibong sangkap",
+    "price": "Presyo",
+    "dosage_form": "Anyo ng dosis",
+    "manufacturer": "Tagagawa",
+    "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
+    "browse": "Mag-browse",
+    "back": "Mga gamot"
+  },
+  "PharmacyRequest": {
+    "title": "Humiling ng gamot na hindi available",
+    "subtitle": "Ilagay ang pangalan at detalye ng gamot para i-broadcast ang request sa mga parmasya — parehong daloy sa mobile app.",
+    "name": "Pangalan ng gamot",
+    "namePh": "hal. Congestal tablets",
+    "details": "Detalye para sa parmasya (opsyonal)",
+    "detailsPh": "Potency, anyo, o tala",
+    "submit": "I-broadcast ang request",
+    "submitting": "Ipinapadala...",
+    "error": "Hindi naipadala ang request. Subukan muli.",
+    "success": "Naipadala ang request"
+  },
+  "CallHistory": {
+    "title": "Kasaysayan ng tawag",
+    "back": "Mga appointment ko",
+    "emptyBody": "Wala pang nakaraang tawag.",
+    "findDoctor": "Maghanap ng doktor",
+    "unknownDoctor": "Doktor"
+  },
+  "PostCallRating": {
+    "title": "I-rate ang konsultasyon",
+    "subtitle": "Nakatutulong ang feedback mo sa kalidad ng pangangalaga.",
+    "comment": "Komento",
+    "commentPh": "Ibahagi ang mga tala (opsyonal)",
+    "submit": "Ipadala ang rating",
+    "submitting": "Ipinapadala...",
+    "thanks": "Salamat! Natanggap ang rating mo.",
+    "error": "Hindi naipadala ang rating. Subukan muli."
+  },
+  "HomeVisitTracking": {
+    "title": "Home visit tracking",
+    "back": "Detalye ng appointment",
+    "unknownStatus": "Hindi kilalang status",
+    "step_PENDING": "Natanggap ang request",
+    "step_CONFIRMED": "Nakumpirma",
+    "step_PROVIDER_EN_ROUTE": "Paparating ang provider",
+    "step_PROVIDER_ARRIVED": "Dumating ang provider",
+    "step_IN_PROGRESS": "Nagpapatuloy ang visit",
+    "step_COMPLETED": "Tapos na ang visit"
+  },
+  "NursingTracking": {
+    "title": "Nursing visit tracking",
+    "back": "Mga visit ko",
+    "nurse": "Nars",
+    "eta": "Darating sa loob ng",
+    "minutes": "min",
+    "unknownStatus": "Hindi kilalang status",
+    "step_REQUESTED": "Natanggap ang request",
+    "step_CONFIRMED": "Nakumpirma",
+    "step_NURSE_EN_ROUTE": "Paparating ang nars",
+    "step_NURSE_ARRIVED": "Dumating ang nars",
+    "step_CARE_IN_PROGRESS": "Nagpapatuloy ang care",
+    "step_COMPLETED": "Tapos na ang visit"
+  },
+  "Reviews": {
+    "title": "Mga review",
+    "back": "Ang dashboard ko",
+    "empty": "Wala pang review."
+  },
+  "NutritionPlan": {
+    "title": "Ang nutrition plan ko",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "MaternityTracker": {
+    "title": "Pregnancy tracking",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "SecuritySettings": {
+    "title": "Security at sessions",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "SupportTicket": {
+    "title": "Support tickets",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "HealthTimeline": {
+    "title": "Health timeline",
+    "back": "Ang kalusugan ko",
+    "empty": "Wala pang naitalang health event."
   }
 }

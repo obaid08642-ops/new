@@ -46,6 +46,7 @@ import { CareModule } from './modules/care/care.module';
 import { LabsModule } from './modules/labs/labs.module';
 import { HomeCareModule } from './modules/home-care/home-care.module';
 import { HealthModule } from './modules/health/health.module';
+import { MedicalProgramsModule } from './modules/medical-programs/medical-programs.module';
 import { SupportModule } from './modules/support/support.module';
 import { CustomServicesModule } from './modules/custom-services/custom-services.module';
 import { MedicalProfileModule } from './modules/medical-profile/medical-profile.module';
@@ -191,6 +192,7 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     DoctorsModule,
     LabsModule,
     HealthModule,
+    MedicalProgramsModule,
     SystemHealthModule,
     SupportModule,
     CustomServicesModule,

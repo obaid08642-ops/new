@@ -14,6 +14,10 @@ export function GET() {
     { path: "", changefreq: "weekly", priority: "1.0" },
     { path: "/articles", changefreq: "daily", priority: "0.8" },
     { path: "/c", changefreq: "daily", priority: "0.9" },
+    { path: "/consultations/doctors", changefreq: "daily", priority: "0.8" },
+    { path: "/diagnostics/labs", changefreq: "daily", priority: "0.8" },
+    { path: "/diagnostics/radiology", changefreq: "daily", priority: "0.8" },
+    { path: "/nursing/catalog", changefreq: "daily", priority: "0.7" },
   ];
   const urls = locales.flatMap((locale) =>
     rows.map(

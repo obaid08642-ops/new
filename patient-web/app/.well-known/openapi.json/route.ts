@@ -34,6 +34,7 @@ const specification = {
   "x-nabd-scope": "public-catalog-subset"
 } as const;
 
+const X_PAYMENT_INFO = { protocols: [], mpp: "disabled", note: "No agentic payments enabled; checkout requires human confirmation" };
 export function GET() {
   return NextResponse.json(specification, {
     headers: {

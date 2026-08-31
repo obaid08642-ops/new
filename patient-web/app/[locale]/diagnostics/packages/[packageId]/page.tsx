@@ -1,13 +1,34 @@
+import { JsonLd } from "@/components-next/json-ld";
+import { medicalWebPage, breadcrumbList } from "@/lib/seo/structured-data";
+import type { Metadata } from "next";
+import { localizedUrl } from "@/lib/seo";
+import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Check, ChevronLeft, FlaskConical, Home, ShieldCheck } from "lucide-react";
 import { extractLabService, parseLabServiceId } from "@/lib/api/labs";
 import { getPublicLabPackage } from "@/lib/api/labs-server";
-import { isLocale } from "@/lib/i18n";
 import styles from "../../labs/labs.module.css";
 
 type Props = { params: Promise<{ locale: string; packageId: string }> };
+
+export async function generateMetadata({ params }: { params: Promise<{ packageId: string; locale: string }> }): Promise<Metadata> {
+  const { locale, packageId } = await params;
+  if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "LabsServices" });
+  const canonical = localizedUrl(locale, `/diagnostics/packages/${encodeURIComponent(packageId)}`);
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: {
+      canonical,
+      languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, canonical.replace(`/${locale}`, "") )])), "x-default": localizedUrl("ar", canonical.replace(`/${locale}`, "")) },
+    },
+    openGraph: { type: "website", url: canonical },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default async function LabPackageDetailPage({ params }: Props) {
   const { locale, packageId } = await params;
@@ -25,6 +46,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const description = rtl ? pkg.descriptionAr ?? pkg.descriptionEn : pkg.descriptionEn ?? pkg.descriptionAr;
   const preparation = rtl ? pkg.preparationAr ?? pkg.preparationEn : pkg.preparationEn ?? pkg.preparationAr;
   return <main className={`main ${styles.page}`}>
+    <JsonLd data={[medicalWebPage({ title: name ?? t("title"), description: description ?? null, locale, path: `/diagnostics/packages/${packageId}` }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/packages" }, { name: name ?? t("title"), locale, path: `/diagnostics/packages/${packageId}` }])]} />
     <Link className={styles.back} href={`/${locale}/diagnostics/packages`}><Arrow size={17} aria-hidden="true" />{t("back")}</Link>
     <section className={styles.detailHero}><div><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{name}</h1>{description ? <p className={styles.subtitle}>{description}</p> : null}</div><span className={styles.heroIcon}><FlaskConical size={28} aria-hidden="true" /></span></section>
     <section className={styles.facts} aria-label={t("facts")}>

@@ -9,7 +9,9 @@ import { PharmacyInventoryRepository } from "./repositories/pharmacyinventory.re
 
 /**
  * Geo-Intelligent Pharmacy Dispatch Engine.
- *  - Starts at 3 km radius, expands progressively (3 → 7 → 10 → 15 km)
+ *  - Legacy compatibility path: starts at 3 km and expands through the governed
+ *    standard stages (3 → 5 → 8 km). The canonical broadcast-first flow is
+ *    implemented by PharmacyBroadcastService.
  *  - For each candidate pharmacy, checks inventory match against requested items
  *  - Scores candidates: primary=available_count, tiebreaker=distance asc
  *  - Returns BEST pharmacy and (if not 100% match) a SPLIT plan via secondary pharmacy
@@ -17,8 +19,9 @@ import { PharmacyInventoryRepository } from "./repositories/pharmacyinventory.re
 @Injectable()
 export class DispatchService {
   private logger = new Logger('Dispatch');
-  // expansion ladder (km)
-  readonly RADIUS_LADDER = [3, 7, 10, 15];
+  // Keep the legacy helper aligned with the canonical standard broadcast stages.
+  // Extended self-pickup/own-delivery rules belong to PharmacyBroadcastService.
+  readonly RADIUS_LADDER = [3, 5, 8];
 
   constructor(
     @Inject('ProviderProfileRepository') private providerModel: ProviderProfileRepository,

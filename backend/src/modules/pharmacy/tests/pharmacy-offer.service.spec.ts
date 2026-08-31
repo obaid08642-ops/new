@@ -63,4 +63,46 @@ describe('PharmacyOfferService', () => {
       .rejects.toBeInstanceOf(BadRequestException);
     expect(connection.startSession).not.toHaveBeenCalled();
   });
+
+  it('keeps unavailable items in the quote with an explicit zero contribution', async () => {
+    const twoItemOrder = {
+      ...order,
+      items: [
+        { id: 'item-1', matched_sku: 'SKU-1', qty: 2, name_ar: 'دواء متاح', generic_name: 'generic-1' },
+        { id: 'item-2', matched_sku: 'SKU-2', qty: 1, name_ar: 'دواء غير متاح', generic_name: 'generic-2' },
+      ],
+    };
+    const inventory = {
+      findOne: jest.fn(({ id }: any) => lean(id === 'inventory-1' ? inventoryItem : null)),
+    };
+    const svc = service({ orders: { findOne: jest.fn(() => lean(twoItemOrder)) }, inventory });
+    const result = await svc.previewQuote(
+      { id: 'pharmacy-1', role: 'provider' }, 'order-1',
+      { items: [
+        { order_item_id: 'item-1', availability: 'available', inventory_item_id: 'inventory-1' },
+        { order_item_id: 'item-2', availability: 'unavailable' },
+      ] },
+    );
+    expect(result.items.map((item: any) => item.action)).toEqual(['available', 'unavailable']);
+    expect(result.totals).toEqual({ subtotal: 35, delivery_fee: 0, total: 35, currency: 'SAR' });
+  });
+
+  it('writes an audit row for an order-level provider price override', async () => {
+    const submittedOffer = {
+      id: 'offer-1', order_id: 'order-1', patient_account_id: 'patient-1', version: 1,
+      items: [{ order_item_id: 'item-1', sku: 'SKU-1', name_ar: 'دواء', unit_price: 20, catalog_price: 17.5, price_source: 'provider_override', price_override_reason: 'تحديث سعر الفرع', currency: 'SAR' }],
+      toObject() { return this; },
+    };
+    const audit = { insertMany: jest.fn().mockResolvedValue({ acknowledged: true }) };
+    const connection = { collection: jest.fn(() => audit) };
+    const offers: any = {
+      findOne: jest.fn(() => lean(null)),
+      findOneAndUpdate: jest.fn(async () => submittedOffer),
+    };
+    const svc = service({ connection, offers });
+    await svc.submitDraft({ id: 'pharmacy-1', role: 'provider' }, 'order-1', 'offer-1');
+    expect(audit.insertMany).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({ order_id: 'order-1', offer_id: 'offer-1', catalog_price: 17.5, override_price: 20, changed_by: 'pharmacy-1' }),
+    ]));
+  });
 });

@@ -1,5 +1,12 @@
-// @ts-nocheck
-import { Redirect } from "expo-router";
-export default function R() {
-  return <Redirect href="/search" />;
+import { Redirect, useLocalSearchParams } from "expo-router";
+
+/** @deprecated unified screen (Phase 2) — deep-link-safe redirect with params passthrough. */
+export default function UnifiedRedirect() {
+  const params = useLocalSearchParams();
+  const q = Object.entries(params as Record<string, unknown>)
+    .filter(([k]) => k !== "view")
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join("&");
+  const sep = "/search?view=pharmacy".includes("?") ? "&" : "?";
+  return <Redirect href={`/search?view=pharmacy${q ? `${sep}${q}` : ""}`} />;
 }

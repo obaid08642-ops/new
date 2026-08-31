@@ -1,5 +1,5 @@
 import type { DiagnosticDomain } from "@/lib/api/diagnostics";
-import { callPatientApi } from "@/lib/api/upstream";
+import { callPatientApi, patientApiUrl } from "@/lib/api/upstream";
 
 /** Server-only BFF boundary for private lab and radiology booking reads. */
 export function getDiagnosticBookings(accessToken: string, domain: DiagnosticDomain) {
@@ -8,4 +8,17 @@ export function getDiagnosticBookings(accessToken: string, domain: DiagnosticDom
 
 export function getDiagnosticBooking(accessToken: string, domain: DiagnosticDomain, bookingId: string) {
   return callPatientApi(`/${domain}/bookings/${bookingId}`, {}, accessToken);
+}
+
+export function getDiagnosticTracking(accessToken: string, domain: DiagnosticDomain, bookingId: string) {
+  return callPatientApi(`/${domain}/bookings/${bookingId}/tracking`, {}, accessToken);
+}
+
+export async function getCompatibleLabProviders(serviceId: string): Promise<any[]> {
+  try {
+    const response = await fetch(patientApiUrl(`/labs/compatible-providers?testIds=${encodeURIComponent(serviceId)}`), { headers: { Accept: "application/json" }, cache: "no-store" });
+    if (!response.ok) return [];
+    const data = await response.json().catch(() => []);
+    return Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+  } catch { return []; }
 }

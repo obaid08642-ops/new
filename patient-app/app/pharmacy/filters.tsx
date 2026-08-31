@@ -14,20 +14,6 @@ import { apiFetch } from '../../src/utils/api';
 import { useEffect } from 'react';
 import { LocalizedText } from '../../src/components/LocalizedText';
 
-const FALLBACK_CATEGORIES = [
-  { id: 'all',     label: 'الكل',                icon: 'apps',        color: '#23B5CE' },
-  { id: 'pain',    label: 'مسكنات',              icon: 'pill',        color: '#F0695C' },
-  { id: 'vitamin', label: 'فيتامينات ومكملات',   icon: 'test-tube',   color: '#2BB89C' },
-  { id: 'anti',    label: 'مضادات حيوية',        icon: 'biotech',     color: '#7A6BEA' },
-];
-
-const FALLBACK_FORMS = [
-  { id: 'tablet',    label: 'أقراص / كبسول', icon: 'pill' },
-  { id: 'syrup',     label: 'شراب',           icon: 'water' },
-  { id: 'injection', label: 'حقن',            icon: 'biotech' },
-  { id: 'cream',     label: 'كريم / مرهم',    icon: 'face-woman' },
-];
-
 const SORT_OPTIONS = [
   { id: 'relevant', label: 'الأكثر صلة',              icon: 'star' },
   { id: 'price_asc',label: 'السعر: من الأقل للأعلى', icon: 'trending_up' },
@@ -54,8 +40,8 @@ export default function PharmacyFiltersScreen() {
   const [minPrice,    setMinPrice]    = useState(params.filter_min_price || '');
   const [maxPrice,    setMaxPrice]    = useState(params.filter_max_price || '');
 
-  const [categoriesData, setCategoriesData] = useState<any[]>(FALLBACK_CATEGORIES);
-  const [formsData, setFormsData] = useState<any[]>(FALLBACK_FORMS);
+  const [categoriesData, setCategoriesData] = useState<any[]>([]);
+  const [formsData, setFormsData] = useState<any[]>([]);
   const [brandsData, setBrandsData] = useState<string[]>([]);
 
   useEffect(() => {

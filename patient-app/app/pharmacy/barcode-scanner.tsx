@@ -157,7 +157,7 @@ export default function BarcodeScannerScreen() {
           )}
 
           {/* Manual entry */}
-          <TouchableOpacity onPress={() => router.push('/pharmacy/drug-not-found')} style={{ marginTop: 16 }}>
+          <TouchableOpacity onPress={() => router.push('/pharmacy/request')} style={{ marginTop: 16 }}>
             <AppText variant="labelMD" color="rgba(255,255,255,0.8)">لم أجد الدواء؟ أضفه يدوياً</AppText>
           </TouchableOpacity>
         </View>
@@ -211,7 +211,7 @@ export default function BarcodeScannerScreen() {
               </View>
               <View style={{ gap: 8 }}>
                 <Button label="التعرف بالذكاء الاصطناعي (تصوير العبوة)" variant="gradient" icon="document_scanner" onPress={() => { setNotFound(null); busyRef.current = false; }} />
-                <Button label="إضافة الدواء يدوياً" variant="outline" icon="add" onPress={() => router.push('/pharmacy/drug-not-found')} />
+                <Button label="إضافة الدواء يدوياً" variant="outline" icon="add" onPress={() => router.push('/pharmacy/request')} />
                 <Button label="مسح باركود آخر" variant="outline" icon="qr_code_scanner" onPress={reset} />
               </View>
             </Card>

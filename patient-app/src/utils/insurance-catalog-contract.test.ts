@@ -6,7 +6,7 @@ describe('Patient unified insurance catalog contract', () => {
   const read = (relativePath: string) => fs.readFileSync(path.join(root, relativePath), 'utf8');
 
   const consultations = read('app/(tabs)/consultations/index.tsx');
-  const bookingConfirmation = read('app/consultations/booking-confirm.tsx');
+  const bookingConfirmation = read('src/components/BookingConfirmForm.tsx');
   const insuranceUpload = read('app/diagnostics/insurance-upload.tsx');
   const profileInsurance = read('app/profile/insurance.tsx');
   const addPolicy = read('app/insurance/add-policy.tsx');

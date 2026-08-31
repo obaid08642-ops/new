@@ -1,3 +1,18 @@
+
+/** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
+export function normalizeSearchText(input: string): string {
+  return (input ?? "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[\u0623\u0625\u0622\u0671]/g, "\u0627")
+    .replace(/\u0649/g, "\u064A")
+    .replace(/\u06CC/g, "\u064A")
+    .replace(/\u0629/g, "\u0647")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 /**
  * SEO + Global Search + Recommendations module.
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
@@ -167,7 +182,7 @@ export class SeoSearchService {
    */
   async publicProductSearch(q: string, locale = 'ar', limit = 20, page = 1) {
     const db = productLocaleToDb(locale);
-    const term = (q || '').trim();
+    const term = normalizeSearchText(q || '');
     const perPage = Math.min(Math.max(limit, 1), 50);
     const filter: any = { ...this.publicProductFilter() };
     if (term) {
@@ -269,6 +284,7 @@ export class SeoSearchService {
   }
 
   async globalSearch(q: string, limit = 5): Promise<any> {
+    q = normalizeSearchText(q || '');
     const term = (q || '').trim();
     if (term.length < 2) return { query: q, results: {}, total: 0 };
     const rx = { $regex: term, $options: 'i' };

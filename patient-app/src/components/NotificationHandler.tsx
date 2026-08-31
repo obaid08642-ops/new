@@ -28,7 +28,7 @@ function trackEngagement(event: 'received' | 'opened' | 'clicked', data: any): v
 const ALLOWED_SCREENS = new Set([
   '/consultations/appointments',
   '/consultations/appointment-detail',
-  '/consultations/booking-pending',
+  '/consultations/booking-status',
   '/consultations/chat-with-doctor',
   '/consultations/virtual-waiting-room',
   '/consultations/summary',
@@ -63,7 +63,7 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
         : { pathname: '/consultations/appointments', params: {} };
     // M6 additions
     case 'booking_accepted':
-      return { pathname: '/consultations/booking-pending', params: { appointmentId: data.appointmentId, visitType: data.visitType } };
+      return { pathname: '/consultations/booking-status', params: { appointmentId: data.appointmentId, visitType: data.visitType } };
     case 'insurance_decision':
     case 'copay_due':
       return { pathname: '/insurance', params: { requestId: data.requestId } };
