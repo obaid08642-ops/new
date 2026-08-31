@@ -75,7 +75,7 @@ export const DEEP_LINK_CONFIG: { screens: DeepLinkScreens } = {
     'pharmacy/reorder': 'pharmacy/reorder/:id',
     'pharmacy/wishlist': 'pharmacy/wishlist',
     'pharmacy/medicine-compare': 'pharmacy/compare',
-    'pharmacy/chat-with-pharmacist': 'chat/pharmacist/:sessionId',
+    'pharmacy/pharmacist-chat': 'chat/pharmacist/:sessionId',
 
     // Diagnostics
     'diagnostics/search': 'labs',

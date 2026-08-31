@@ -226,3 +226,4 @@
 - 2.0: patient-app/src/theme/brand.ts (design tokens: lime primary #B8E030, mint/yellow/coral/navy/sky secondary, soft-3D radii, unified motion) + docs/DESIGN_SYSTEM_2026-08-31.md; wired into theme/index exports.
 - 2.1: deleted pharmacy/chat-with-pharmacist.tsx (stub, 0 refs) and payments/failure.tsx (0 refs); waiting-room.tsx converted to safe Redirect → virtual-waiting-room; all referencing files updated; post-check confirms no dangling refs.
 - NOTE: untested here (npm broken); CI must run typecheck/tests/build before any main merge.
+- 2.1-fix: deepLinks.ts dangling ref corrected (chat-with-pharmacist -> pharmacist-chat); final sweep confirms all deleted-screen refs CLEAN.
