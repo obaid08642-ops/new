@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractDiagnosticBooking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
-import { getDiagnosticBooking } from "@/lib/api/diagnostics-server";
+import { extractDiagnosticBooking, extractDiagnosticTracking, parseDiagnosticBookingId, parseDiagnosticDomain } from "@/lib/api/diagnostics";
+import { getDiagnosticBooking, getDiagnosticTracking } from "@/lib/api/diagnostics-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
@@ -24,6 +24,8 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FlaskConical size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
   const booking = extractDiagnosticBooking(await response.json().catch(() => null));
   if (!booking) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FlaskConical size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
+  const trackingResponse = await getDiagnosticTracking(token, domain, bookingId);
+  const tracking = trackingResponse.ok ? extractDiagnosticTracking(await trackingResponse.json().catch(() => null)) : null;
   const label = domain === "labs" ? t("labs.label") : locale === "ar" ? booking.scanNameAr || t("radiology.label") : booking.scanNameEn || booking.scanNameAr || t("radiology.label");
   const DetailIcon = domain === "labs" ? FlaskConical : ScanLine;
   const status = booking.state || t("statusUnavailable");
@@ -36,5 +38,6 @@ export default async function DiagnosticDetailPage({ params }: Props) {
       {booking.locationType ? <div className={styles.item}><dt>{t("location")}</dt><dd>{booking.locationType}</dd></div> : null}
       {booking.medicalReferralRequired !== undefined ? <div className={styles.item}><dt>{t("referral")}</dt><dd>{booking.medicalReferralRequired ? t("yes") : t("no")}</dd></div> : null}
     </dl><p className={styles.notice}>{t("detailNotice")}</p></section>
+    {domain === "labs" && tracking ? <section className={styles.detail} aria-labelledby="tracking-title"><h2 id="tracking-title">{locale === "ar" ? "تتبع العينة" : "Sample tracking"}</h2>{tracking.techName && tracking.techName !== "Unknown" ? <p className={styles.notice}>{locale === "ar" ? `الفني: ${tracking.techName}` : `Technician: ${tracking.techName}`}</p> : null}{tracking.eta ? <p className={styles.notice}>{locale === "ar" ? `الوقت التقريبي: ${tracking.eta} دقيقة` : `Approximate time: ${tracking.eta} minutes`}</p> : null}{tracking.steps.length ? <ol style={{ display: "grid", gap: 10, margin: 0, paddingInlineStart: "1.4rem" }}>{tracking.steps.map((step, index) => <li key={`${step.title}-${index}`}><strong>{step.title}</strong>{step.time ? <small> · {step.time}</small> : null}</li>)}</ol> : <p className={styles.notice}>{locale === "ar" ? "لا توجد تحديثات تتبع بعد." : "No tracking updates yet."}</p>}</section> : null}
   </main>;
 }

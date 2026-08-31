@@ -115,6 +115,15 @@
 - التحقق النهائي: 154 test files PASS / 325 tests PASS، `pnpm check` PASS، production build PASS، route `/[locale]/diagnostics/labs/book` مولّدة.
 - إغلاق فجوة lab book-sample جزئياً؛ تتبع العينة التالي يحتاج واجهة timeline مخصصة.
 
+
+### (جديد) — feat(patient-web): real lab sample-tracking timeline
+- ربط صفحة تفاصيل الحجز بـ`GET /labs/bookings/:id/tracking` عبر BFF server boundary.
+- عرض حالة الفني والوقت/المسافة التقريبية وسجل انتقالات العينة الحقيقي، دون اختراع خطوات محلية.
+- في حالة فشل tracking تُعرض تفاصيل الحجز فقط ولا تظهر بيانات مزيفة.
+- تحديث عقد SSR test ليعزل tracking response.
+- التحقق النهائي: 154 test files PASS / 325 tests PASS، `pnpm check` PASS، production build PASS.
+- إغلاق فجوة Lab sample-tracking في Web — المتبقي 5 مجموعات parity.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|

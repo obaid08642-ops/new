@@ -10,6 +10,10 @@ export function getDiagnosticBooking(accessToken: string, domain: DiagnosticDoma
   return callPatientApi(`/${domain}/bookings/${bookingId}`, {}, accessToken);
 }
 
+export function getDiagnosticTracking(accessToken: string, domain: DiagnosticDomain, bookingId: string) {
+  return callPatientApi(`/${domain}/bookings/${bookingId}/tracking`, {}, accessToken);
+}
+
 export async function getCompatibleLabProviders(serviceId: string): Promise<any[]> {
   try {
     const response = await fetch(patientApiUrl(`/labs/compatible-providers?testIds=${encodeURIComponent(serviceId)}`), { headers: { Accept: "application/json" }, cache: "no-store" });
