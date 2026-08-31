@@ -1,3 +1,5 @@
+import { JsonLd } from "@/components-next/json-ld";
+import { medicalWebPage, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
@@ -13,7 +15,7 @@ import styles from "../../labs/labs.module.css";
 type Props = { params: Promise<{ locale: string; serviceId: string }> };
 
 export async function generateMetadata({ params }: { params: Promise<{ serviceId: string; locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale, serviceId } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "RadiologyServices" });
   const canonical = localizedUrl(locale, `/diagnostics/radiology/${encodeURIComponent(serviceId)}`);
@@ -40,6 +42,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
   if (response.status === 404) notFound();
   if (!response.ok) {
     return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><CircleAlert size={28} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/radiology`}>{t("backToRadiology")}</Link></section></main>;
+      <JsonLd data={[medicalWebPage({ name: t("title"), locale, path: "/diagnostics/radiology" }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/radiology" }])]} />
   }
   const service = parseRadiologyService(await response.json().catch(() => null));
   if (!service) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><CircleAlert size={28} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("invalidResponse")}</p><Link className={styles.action} href={`/${locale}/diagnostics/radiology`}>{t("backToRadiology")}</Link></section></main>;

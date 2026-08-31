@@ -1,3 +1,5 @@
+import { JsonLd } from "@/components-next/json-ld";
+import { medicalWebPage, breadcrumbList } from "@/lib/seo/structured-data";
 import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
@@ -13,7 +15,7 @@ import styles from "../../labs/labs.module.css";
 type Props = { params: Promise<{ locale: string; packageId: string }> };
 
 export async function generateMetadata({ params }: { params: Promise<{ packageId: string; locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale, packageId } = await params;
   if (!isLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "LabsServices" });
   const canonical = localizedUrl(locale, `/diagnostics/packages/${encodeURIComponent(packageId)}`);
@@ -36,6 +38,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const t = await getTranslations("LabsPackages");
   const response = await getPublicLabPackage(packageId);
   if (!response) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FlaskConical size={28} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/packages/${packageId}`}>{t("retry")}</Link></section></main>;
+      <JsonLd data={[medicalWebPage({ name: t("title"), locale, path: "/diagnostics/packages" }), breadcrumbList([{ name: t("title"), locale, path: "/diagnostics/packages" }])]} />
   if (response.status === 404) notFound();
   if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><FlaskConical size={28} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link className={styles.action} href={`/${locale}/diagnostics/packages/${packageId}`}>{t("retry")}</Link></section></main>;
   const pkg = extractLabService(await response.json().catch(() => null));
