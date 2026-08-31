@@ -1,3 +1,18 @@
+
+/** Arabic/English search normalization: strip Arabic diacritics & tatweel, unify alef/hamza/yeh/teh-marbuta variants, NFKD + lowercase + collapse spaces. Pure, locale-safe. */
+export function normalizeSearchText(input: string): string {
+  return (input ?? "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[\u0623\u0625\u0622\u0671]/g, "\u0627")
+    .replace(/\u0649/g, "\u064A")
+    .replace(/\u06CC/g, "\u064A")
+    .replace(/\u0629/g, "\u0647")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 /**
  * SEO + Global Search + Recommendations module.
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),

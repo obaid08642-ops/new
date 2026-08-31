@@ -186,3 +186,9 @@
 - BFF addresses (GET/POST/DELETE /api/bff/users/me/addresses) + AI analyze-report BFF (idempotency) + /[locale]/ai/health-report page + i18n x6.
 - P0-2 evidence recorded (labs/book + booking + sample tracking already on web; remaining gaps P1, no invented endpoints).
 - Gates PENDING (no sandbox build). Next: P0-7 cherry-pick of unreachable commits, then P0-4 provider build, P0-6 search-console/CWV.
+
+## 2026-08-31 — P0-3 fix + internal search normalization
+- fix(patient-web): ai/report page now passes session token to getMyMedicalReports (was compile-breaking call).
+- feat(backend): normalizeSearchText in seo-search (Arabic diacritics/tatweel strip, alef/yeh/teh-marbuta unification, NFKD, lowercase) + pure unit tests.
+- verified: backend addresses controller exists (users.addresses.controller.ts); ai analyze-report endpoint exists (ai.controller.ts).
+- blocked: npm install fails in this env (3x, incl. --legacy-peer-deps) => tests/typecheck/build must run in CI or fixed env.

@@ -11,10 +11,10 @@ export default async function AiHealthReportPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  await requirePatientAccess(locale);
+  const token = await requirePatientAccess(locale);
   const t = await getTranslations("AiHealthReport");
   let reports: Awaited<ReturnType<typeof getMyMedicalReports>> = [];
-  try { reports = await getMyMedicalReports(); } catch { reports = []; }
+  try { reports = await getMyMedicalReports(token); } catch { reports = []; }
   return (
     <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
       <h1>{t("title")}</h1>
