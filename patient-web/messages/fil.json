@@ -1044,5 +1044,34 @@
     "shareCancelled": "Kinansela ang pagbabahagi",
     "empty": "Walang ulat na ibabahagi",
     "notice": "Tanging ligtas na in-portal na mga link ang ibinabahagi"
+  },
+  "BookConsultation": {
+    "title": "Mag-book ng Konsultasyon",
+    "subtitle": "Pumili ng uri, araw at slot — totoong server slots",
+    "back": "Bumalik sa doktor",
+    "visitType": "Uri ng pagbisita",
+    "types": {
+      "clinic": "Klinika",
+      "video": "Video",
+      "home": "Home visit"
+    },
+    "selectDay": "Pumili ng araw",
+    "today": "Ngayon",
+    "slotsLabel": "Mga available na slot",
+    "loadingSlots": "Naglo-load ng slots…",
+    "noSlots": "Walang available na slot sa araw na ito",
+    "slotsUnavailable": "Hindi ma-load ang slots",
+    "payment": "Paraan ng pagbabayad",
+    "pay": {
+      "cash": "Cash",
+      "card": "Card",
+      "insurance": "Insurance"
+    },
+    "notes": "Mga tala para sa doktor",
+    "notesPlaceholder": "Isulat ang sintomas o anumang impormasyon",
+    "submit": "Kumpirmahin ang booking",
+    "submitting": "Nagbo-book…",
+    "currency": "SAR",
+    "doctorUnavailable": "Hindi available ang doktor"
   }
 }

@@ -1044,5 +1044,34 @@
     "shareCancelled": "Sharing cancelled",
     "empty": "No reports to share",
     "notice": "Only secure in-portal links are shared — never send raw medical data in text."
+  },
+  "BookConsultation": {
+    "title": "Book Consultation",
+    "subtitle": "Pick visit type, day and slot — real server slots",
+    "back": "Back to doctor",
+    "visitType": "Visit type",
+    "types": {
+      "clinic": "Clinic",
+      "video": "Video",
+      "home": "Home visit"
+    },
+    "selectDay": "Select day",
+    "today": "Today",
+    "slotsLabel": "Available slots",
+    "loadingSlots": "Loading slots…",
+    "noSlots": "No slots available on this day",
+    "slotsUnavailable": "Could not load slots",
+    "payment": "Payment method",
+    "pay": {
+      "cash": "Cash",
+      "card": "Card",
+      "insurance": "Insurance"
+    },
+    "notes": "Notes for the doctor",
+    "notesPlaceholder": "Describe symptoms or anything you want the doctor to know",
+    "submit": "Confirm booking",
+    "submitting": "Booking…",
+    "currency": "SAR",
+    "doctorUnavailable": "Doctor unavailable"
   }
 }

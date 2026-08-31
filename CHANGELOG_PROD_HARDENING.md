@@ -172,3 +172,11 @@
 - lib/seo/structured-data.ts builders (MedicalWebPage, BreadcrumbList, Physician, Service, MedicalClinic) + structured-data.test.ts; no fabricated price/availability.
 - Verified already-present (no new code): catalog eligibility gates in catalog-publication.service.ts; category pagination noindex; robots boundaries.
 - Gates: NOT runnable in sandbox (deps install failed 5x). PENDING CI.
+
+## 2026-08-31 — round 7: P0-1 consultation booking flow (web parity of mobile book/[id] → booking-confirm)
+- Added: /[locale]/consultations/book/[doctorId] server page (doctor from public API, physician JSON-LD, auth-gated, noindex).
+- Added: components-next/booking-flow.tsx (visit type clinic|video|home + 7-day real slots + payment method + notes; submits via existing /api/appointments/book with idempotency-key; redirects to /appointments/{id}).
+- Added BFF GET /api/consultations/doctors/[doctorId]/slots (zod-validated date/service_type, cookie auth, upstream /care/doctors/:id/slots) + route.test.ts (invalid input 400, no session 401).
+- Added styles + BookConsultation i18n (ar/en/ur/hi/bn/fil); docs updated.
+- Unconfirmed: doctor id format (ObjectId vs uuid) may affect /api/appointments/book (uuid constraint) — verify against live upstream before release.
+- Gates: NOT runnable in sandbox (deps install failed 5x). PENDING CI.
