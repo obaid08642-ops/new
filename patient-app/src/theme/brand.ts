@@ -18,7 +18,8 @@ export const brand = {
     sky: '#4FA8E0',       // الأزرق السماوي (روابط/معلومات)
   },
   surface: {
-    light: '#F4F8E8',     // خلفية فاتحة دافئة بلمسة ليمونية
+    light: '#F5F5F7',     // خلفية أوف-وايت/رمادي فاتح بأسلوب iPhone
+    lightElevated: '#FFFFFF',
     card: '#FFFFFF',
     dark: '#16213A',
   },

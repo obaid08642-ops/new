@@ -9,6 +9,8 @@ import { Icon } from '../../src/components/Icon';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
 import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
+import { useLocalSearchParams as __useRouteParams } from "expo-router";
+import InsuranceBenefitsView from "../../src/components/views/InsuranceBenefitsView";
 
 const SERVICE_TYPES: any[] = [
   { id:'consultation', icon:'', label:'استشارة طبيب', examples:'قلب، باطنة، أطفال' },
@@ -19,7 +21,7 @@ const SERVICE_TYPES: any[] = [
 
 // Connected to GET /insurance/coverage-check
 
-export default function CoverageCheckScreen() {
+function CoverageCheckScreenInner() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useApp();
   const [step, setStep] = useState<'form' | 'checking' | 'result'>('form');
@@ -261,3 +263,10 @@ const styles = StyleSheet.create({
   proceedBtn: { height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   proceedText: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
+
+// __RouteGuard: Phase 2 unified-screen host (view=benefits)
+export default function CoverageCheckScreenInnerRoute() {
+  const __p = __useRouteParams() as any;
+  if (__p?.view === "benefits") return <InsuranceBenefitsView />;
+  return <CoverageCheckScreenInner />;
+}

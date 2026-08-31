@@ -12,11 +12,11 @@
 - 2.1 ✅ حذف المكرر حرفياً (−2 فعلي + 1 redirect آمن): حُذف chat-with-pharmacist (stub) و payments/failure؛ waiting-room أصبح Redirect إلى virtual-waiting-room مع تحديث كل المراجع.
 - 2.2 ✅ شاشة حالة حجز موحدة (−2): booking-status.tsx بثلاث حالات (confirm/success/pending)؛ منطق الدفع نُقل حرفياً إلى src/components/BookingConfirmForm.tsx؛ الثلاثة القديمة أصبحت Redirects آمنة وكل المراجع حُدّثت (مراجعة: نظيفة).
 - 2.3 ✅ طلب دواء غير موجود موحد (−2): pharmacy/request.tsx يحمل منطق manual-order حرفياً (عقد /patient/pharmacy/orders + idempotency)؛ الثلاثة القديمة Redirects آمنة؛ 5 ملفات مرجِعة حُدّثت (tabs/pharmacy, barcode-scanner, cart, deepLinks, types)؛ مراجعة: نظيفة.
-- 2.4 صفحة عيادة واحدة (−2): clinic/[id]+location+confirm.
-- 2.5 نتيجة دفع موحدة (−2): processing+success+failed → شاشة واحدة تقرأ API.
-- 2.6 بطاقة تأمين موحدة (−1): coverage-check + benefits-summary.
-- 2.7 مركز طوارئ موحد (−1): emergency + mental-health/crisis-contacts.
-- 2.8 بحث عالمي موحد (−2): search + product-search + doctor-search (+ drug-scanner رفع صورة).
+- 2.4 ✅ clinic-location مدموجة في clinic-confirm (view=location) + redirect آمن؛ clinic/[id] يبقى (ملف منشأة — مسار مختلف). (−1 فعلي، موثق بصدق)
+- 2.5 ✅ payments/result.tsx موحدة: processing (حرفياً) + success/failed كمكوّنات، والمسارات الثلاثة القديمة redirects آمنة بلا تحديث مراجع وبلا حلقات تنقل.
+- 2.6 ✅ benefits-summary مدموجة في coverage-check (view=benefits) + redirect.
+- 2.7 ✅ crisis-contacts مدموجة في emergency hub (view=crisis) + redirect.
+- 2.8 ✅ /search يستضيف view=pharmacy|doctors|default؛ product-search وdoctor-search redirects؛ drug-scanner يبقى (كاميرا native). تبويبات UI داخلية = تحسين لاحق.
 - الهدف: شراء دواء 7→4 خطوات؛ حجز استشارة 8→5.
 
 ## المرحلة 3 — تنظيف تطبيق المزود
@@ -45,4 +45,5 @@
 | المرحلة | الحالة |
 |---|---|
 | 1 | 1.1✅ 1.2✅ 1.3⏳ |
-| 2-6 | ⏳ تُنفذ تباعاً بنفس القاعدة |
+| 2 | ✅ مكتملة (2.0–2.8) — خلفية iPhone off-white #F5F5F7 معتمدة |
+| 3-6 | ⏳ تُنفذ تباعاً بنفس القاعدة |

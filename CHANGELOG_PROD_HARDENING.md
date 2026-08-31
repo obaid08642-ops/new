@@ -238,3 +238,12 @@
 - drug-not-found + custom-item + manual-order merged into pharmacy/request.tsx.
 - manual-order logic moved verbatim (POST /patient/pharmacy/orders draft + /submit + Idempotency-Key + broadcast-status navigation) — zero contract change.
 - Three legacy routes became param-passthrough Redirects; referencing files updated ((tabs)/pharmacy, barcode-scanner, cart, deepLinks, types); post-review sweep CLEAN.
+
+## 2026-08-31 — Phase 2.4–2.8: patient consolidation complete (safe host+redirect pattern)
+- Pattern: leaf screens moved verbatim into src/components/views/*; canonical routes host them via URL param (__RouteGuard wrapper); legacy routes become param-passthrough Redirects — zero broken links, zero navigation loops, hooks-safe (wrapper renders inner unconditionally).
+- 2.4 clinic-location→clinic-confirm?view=location (clinic/[id] stays: facility profile).
+- 2.5 payments/result.tsx = processing (verbatim) + PaymentSuccessView + PaymentFailedView; 3 legacy routes redirected.
+- 2.6 benefits-summary→coverage-check?view=benefits. 2.7 crisis-contacts→emergency?view=crisis.
+- 2.8 /search?view=pharmacy|doctors hosts both search modes; drug-scanner stays native (camera).
+- Design system: surface.light updated to iPhone off-white #F5F5F7 per user direction.
+- NOTE: untested here (npm broken); CI gate (typecheck/tests/build) mandatory before main merge.
