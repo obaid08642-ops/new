@@ -124,6 +124,15 @@
 - التحقق النهائي: 154 test files PASS / 325 tests PASS، `pnpm check` PASS، production build PASS.
 - إغلاق فجوة Lab sample-tracking في Web — المتبقي 5 مجموعات parity.
 
+
+### (جديد) — feat(patient-web): privacy-safe family member details + shared calendar
+- إضافة `/[locale]/family/[memberRef]` مع مرجع SHA-256 opaque بدلاً من كشف `user_id` الخام في HTML/URL.
+- جلب member records من `/family/member-records/:userId` مع صلاحيات Backend الدقيقة؛ لا تُعرض meds/vitals/reports/appointments إلا إذا أعادها الخادم.
+- إضافة `/[locale]/family/calendar` مع أحداث تقويم المجموعة الحقيقية من `/family/calendar`.
+- ربط بطاقات الأسرة بصفحة العضو والتقويم؛ إضافة مسارات Family إلى BFF allowlist.
+- التحقق: Web typecheck PASS، 154 test files / 325 tests PASS، production build PASS (`family/[memberRef]` و`family/calendar`).
+- إغلاق family member detail + shared calendar — المتبقي 3 مجموعات parity.
+
 ## نتائج التحقق التراكمية
 | المكوّن | النتيجة |
 |---|---|

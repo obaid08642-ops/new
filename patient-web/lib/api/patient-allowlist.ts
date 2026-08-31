@@ -1,4 +1,5 @@
 const orderId = "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}";
+const memberId = "[A-Za-z0-9_-]{1,128}";
 const threadId = orderId;
 const patientReadRoutes = [
   new RegExp("^/orders/mine$"),
@@ -25,6 +26,9 @@ const patientReadRoutes = [
   new RegExp("^/health/chronic-meds$"),
   new RegExp("^/health/trends$"),
   new RegExp("^/family/my-group$"),
+  new RegExp("^/family/members$"),
+  new RegExp(`^/family/member-records/${memberId}$`, "i"),
+  new RegExp("^/family/calendar$"),
   new RegExp("^/insurance/my-policy$"),
   new RegExp("^/insurance/benefits-summary$"),
   new RegExp("^/insurance/claims$"),
