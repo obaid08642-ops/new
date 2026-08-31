@@ -1185,5 +1185,10 @@
     "title": "Support tickets",
     "back": "Back",
     "empty": "No data yet."
+  },
+  "HealthTimeline": {
+    "title": "Health timeline",
+    "back": "My health",
+    "empty": "No health events recorded yet."
   }
 }

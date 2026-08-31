@@ -1185,5 +1185,10 @@
     "title": "Support tickets",
     "back": "Bumalik",
     "empty": "Wala pang data."
+  },
+  "HealthTimeline": {
+    "title": "Health timeline",
+    "back": "Ang kalusugan ko",
+    "empty": "Wala pang naitalang health event."
   }
 }

@@ -311,3 +311,4 @@
 - 9.1 completed: last old-teal leftovers removed from colors.ts (assertion-verified: zero #23B5CE/#0A6575 remain) — lime identity now fully live app-wide.
 - 10 completed: /health/timeline (contract re-verified: medical-reports.controller.ts @Get('timeline') — earlier skip was a grep-substring false negative) + /reports/ai-analysis (canonical redirect to /ai/report reusing verified /api/ai/analyze-report). i18n ×6.
 - Remaining honest non-goals: custom 3D icon asset set (design work), web maps (provider decision), CI gate (env-blocked).
+- correction: commit 21816bf's script died on an assertion BEFORE applying changes; this commit applies them for real (colors leftovers removed, health/timeline + reports/ai-analysis pages written, i18n added). 21816bf contained docs only.

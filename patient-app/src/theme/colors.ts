@@ -50,7 +50,7 @@ export const darkColors = {
   p: '#B8E030',
   pd: '#9FCC28',
   ps: '#2A3316', 
-  pt: '#0A6575',
+  pt: '#3F6212',
   c1: '#8FD4E3',
   c2: '#62C5D7',
   tl: '#2BB89C',
