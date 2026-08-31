@@ -257,3 +257,8 @@
 - 3.4: all 7 vertical registration flows end at Pending → Dashboard; no missing loop.
 - 3.1-correction: BlueprintScreens audit result — 18/18 exports ARE imported by 5 live dashboards; ZERO screens quarantined (previous commit message overstated; nothing was moved). File stays as-is; it is live code, not dead blueprint.
 - 3.2-pending: Doctor presentational components props not regex-verifiable in one pass (multiline JSX) — marked unconfirmed, needs CI typecheck.
+
+## 2026-08-31 — Phase 4.1: unified payment result on patient-web
+- New SSR route /[locale]/payments/result?status&ref — single screen hosting success/failed/processing (mirrors mobile Phase 2.5).
+- Status verified against backend via new BFF GET /api/payments/status/[ref] (URL param alone never trusted).
+- i18n Payments namespace added to all 6 locales; styling follows brand tokens (iPhone off-white bg, lime primary, coral destructive).

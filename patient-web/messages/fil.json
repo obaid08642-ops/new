@@ -1083,5 +1083,17 @@
     "error": "Hindi nakumpleto ang pagsusuri. Subukan muli.",
     "disclaimer": "Ang pagsusuring ito ay impormasyon lamang at hindi kapalit ng payong medikal.",
     "empty": "Wala pang available na medical report."
+  },
+  "Payments": {
+    "successTitle": "Matagumpay ang pagbabayad",
+    "successBody": "Nakumpirma ang iyong bayad at naka-link sa iyong order.",
+    "failedTitle": "Nabigo ang pagbabayad",
+    "failedBody": "Hindi nakumpleto ang pagbabayad. Walang confirmed na halagang na-charge — subukan muli.",
+    "processingTitle": "Pinoproseso ang pagbabayad",
+    "processingBody": "Tini-verify namin ang resulta sa provider. Lalabas ang final na resulta sa iyong mga order.",
+    "reference": "Reference",
+    "retry": "Subukan muli",
+    "myOrders": "Mga order ko",
+    "wallet": "Wallet"
   }
 }

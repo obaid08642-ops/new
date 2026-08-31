@@ -1083,5 +1083,17 @@
     "error": "Could not complete the analysis. Please try again.",
     "disclaimer": "This analysis is informational and not a substitute for medical advice.",
     "empty": "No medical reports available yet."
+  },
+  "Payments": {
+    "successTitle": "Payment successful",
+    "successBody": "Your payment was confirmed and linked to your order.",
+    "failedTitle": "Payment failed",
+    "failedBody": "The payment did not complete. No confirmed amount was charged — you can try again.",
+    "processingTitle": "Processing payment",
+    "processingBody": "We are verifying the payment result with the provider. The final result will appear in your orders.",
+    "reference": "Reference",
+    "retry": "Try again",
+    "myOrders": "My orders",
+    "wallet": "Wallet"
   }
 }

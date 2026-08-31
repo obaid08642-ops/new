@@ -26,7 +26,7 @@
 - 3.4 ✅ رحلات التسجيل السبع موجودة وتقود إلى Pending ثم Dashboard — لا حلقات مفقودة.
 
 ## المرحلة 4 — بناء شاشات الويب الناقصة (parity مع الموبايل بالرحلات المختصرة)
-- 4.1 payments (3) — بشاشة نتيجة موحدة.
+- 4.1 ✅ payments: /[locale]/payments/result موحدة (success/failed/processing بحالة مُتحقق منها من الباكند عبر ref — لا تثق بـ URL) + BFF /api/payments/status/[ref] + i18n ×6 + CSS بنظام brand (أوف-وايت/ليموني/مرجاني).
 - 4.2 pharmacy (~10) — بالرحلة المختصرة (بحث→منتج→checkout موحد→تتبع).
 - 4.3 consultations (~8) — بشاشة الحالة الموحدة لا الثلاث.
 - 4.4 nursing/diagnostics/متفرقات (~6).

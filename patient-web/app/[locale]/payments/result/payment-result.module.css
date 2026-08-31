@@ -1,0 +1,7 @@
+.page { display: flex; justify-content: center; padding: 48px 16px; background: #F5F5F7; min-height: 60vh; }
+.card { background: #fff; border-radius: 28px; padding: 40px 28px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 8px 24px rgba(22,33,58,.08); display: grid; gap: 14px; justify-items: center; }
+.ok { color: #B8E030; } .fail { color: #FF4D5A; } .pending { color: #4FA8E0; }
+.ref { font-size: 13px; opacity: .6; direction: ltr; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.primary { background: #B8E030; color: #16213A; font-weight: 800; padding: 12px 22px; border-radius: 14px; text-decoration: none; }
+.secondary { border: 1.5px solid rgba(22,33,58,.15); color: #16213A; padding: 12px 22px; border-radius: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
