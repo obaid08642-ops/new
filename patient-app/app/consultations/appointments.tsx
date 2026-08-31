@@ -278,7 +278,7 @@ export default function AppointmentsScreen() {
                     <TouchableOpacity
                       onPress={() =>
                         router.push({
-                          pathname: "/consultations/waiting-room",
+                          pathname: "/consultations/virtual-waiting-room",
                           params: { appointmentId: item.id },
                         })
                       }

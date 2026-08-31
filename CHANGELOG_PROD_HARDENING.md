@@ -221,3 +221,8 @@
 ## 2026-08-31 — Phase 1.3: contracts documented + consumers confirmed
 - docs/PATIENT_API_CONTRACTS_2026-08-31.md: 8 new endpoints documented (pharmacy orders, home-care, refunds) with request/response notes.
 - Verified existence in CompatModule (all 8 OK) and confirmed mobile callers reference identical paths (same contract => mobile/web parity principle holds).
+
+## 2026-08-31 — Phase 2.0 + 2.1: unified design system + patient dedup
+- 2.0: patient-app/src/theme/brand.ts (design tokens: lime primary #B8E030, mint/yellow/coral/navy/sky secondary, soft-3D radii, unified motion) + docs/DESIGN_SYSTEM_2026-08-31.md; wired into theme/index exports.
+- 2.1: deleted pharmacy/chat-with-pharmacist.tsx (stub, 0 refs) and payments/failure.tsx (0 refs); waiting-room.tsx converted to safe Redirect → virtual-waiting-room; all referencing files updated; post-check confirms no dangling refs.
+- NOTE: untested here (npm broken); CI must run typecheck/tests/build before any main merge.
