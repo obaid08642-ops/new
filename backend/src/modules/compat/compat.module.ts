@@ -1108,7 +1108,156 @@ class ProviderDashboardController {
   }
 }
 
+// ─── Patient pharmacy orders (patient-facing; pharmacy_ops is provider-side) ─
+@Controller('patient/pharmacy')
+@UseGuards(JwtAuthGuard)
+export class PatientPharmacyOrdersController {
+  constructor(@InjectConnection() private conn: Connection) {}
+  private get col() { return this.conn.db.collection('pharmacy_orders'); }
+
+  @Post('orders')
+  async create(@CurrentUser() u: any, @Body() body: any) {
+    const userId = uid(u);
+    if (!userId) throw new ForbiddenException('authenticated_user_required');
+    const items = Array.isArray(body?.items) ? body.items : [];
+    if (items.length === 0 && !body?.prescription_id && !body?.manual_request) {
+      throw new BadRequestException('order_requires_items_or_prescription');
+    }
+    const doc: any = {
+      id: uuid(),
+      patient_id: userId,
+      items,
+      prescription_id: body?.prescription_id ?? null,
+      manual_request: body?.manual_request ?? null,
+      delivery_address_id: body?.delivery_address_id ?? null,
+      payment_method: body?.payment_method ?? 'cash',
+      insurance_policy_id: body?.insurance_policy_id ?? null,
+      status: 'pending_broadcast',
+      created_at: now(),
+      updated_at: now(),
+    };
+    await this.col.insertOne(doc);
+    const { _id, ...out } = doc;
+    return { data: out };
+  }
+
+  @Get('orders')
+  async listMine(@CurrentUser() u: any, @Query('limit') limit = '20', @Query('page') page = '1') {
+    const userId = uid(u);
+    if (!userId) throw new ForbiddenException('authenticated_user_required');
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
+    const docs = await this.col
+      .find({ patient_id: userId } as any)
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(lim)
+      .toArray();
+    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
+  }
+
+  @Get('orders/:id')
+  async one(@CurrentUser() u: any, @Param('id') id: string) {
+    const doc = await mustOwnBooking(this.conn, 'pharmacy_orders', id, uid(u));
+    const { _id, ...out } = doc as any;
+    return { data: out };
+  }
+}
+
+// ─── Patient home-care (services/packages catalog + bookings) ────────────────
+@Controller('home-care')
+@UseGuards(JwtAuthGuard)
+export class PatientHomeCareController {
+  constructor(@InjectConnection() private conn: Connection) {}
+
+  @Get('services')
+  async services(@Query('limit') limit = '50') {
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
+    const docs = await this.conn.db
+      .collection('nursing_catalog')
+      .find({ is_active: { $ne: false }, kind: { $ne: 'package' } } as any)
+      .limit(lim)
+      .toArray();
+    return { data: docs.map(({ _id, ...d }: any) => d) };
+  }
+
+  @Get('packages')
+  async packages(@Query('limit') limit = '50') {
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
+    const docs = await this.conn.db
+      .collection('nursing_catalog')
+      .find({ is_active: { $ne: false }, kind: 'package' } as any)
+      .limit(lim)
+      .toArray();
+    return { data: docs.map(({ _id, ...d }: any) => d) };
+  }
+
+  @Post('bookings')
+  async book(@CurrentUser() u: any, @Body() body: any) {
+    const userId = uid(u);
+    if (!userId) throw new ForbiddenException('authenticated_user_required');
+    if (!body?.service_id && !body?.package_id) throw new BadRequestException('service_or_package_required');
+    const doc: any = {
+      id: uuid(),
+      patient_id: userId,
+      service_id: body?.service_id ?? null,
+      package_id: body?.package_id ?? null,
+      scheduled_at: body?.scheduled_at ?? null,
+      address_id: body?.address_id ?? null,
+      notes: body?.notes ?? null,
+      payment_method: body?.payment_method ?? 'cash',
+      insurance_policy_id: body?.insurance_policy_id ?? null,
+      status: 'requested',
+      created_at: now(),
+      updated_at: now(),
+    };
+    await this.conn.db.collection('home_care_bookings').insertOne(doc);
+    const { _id, ...out } = doc;
+    return { data: out };
+  }
+
+  @Get('bookings/my')
+  async myBookings(@CurrentUser() u: any, @Query('limit') limit = '20', @Query('page') page = '1') {
+    const userId = uid(u);
+    if (!userId) throw new ForbiddenException('authenticated_user_required');
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
+    const docs = await this.conn.db
+      .collection('home_care_bookings')
+      .find({ patient_id: userId } as any)
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(lim)
+      .toArray();
+    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
+  }
+}
+
+// ─── Patient refunds ─────────────────────────────────────────────────────────
+@Controller('refunds')
+@UseGuards(JwtAuthGuard)
+export class PatientRefundsController {
+  constructor(@InjectConnection() private conn: Connection) {}
+
+  @Get('my')
+  async my(@CurrentUser() u: any, @Query('limit') limit = '20', @Query('page') page = '1') {
+    const userId = uid(u);
+    if (!userId) throw new ForbiddenException('authenticated_user_required');
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
+    const docs = await this.conn.db
+      .collection('refunds')
+      .find({ $or: [{ patient_id: userId }, { user_id: userId }] } as any)
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(lim)
+      .toArray();
+    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
+  }
+}
+
 /* ── module registration ─────────────────────────────────────────────────── */
+
 @Module({
   controllers: [
     ProviderDrugIndexController,
@@ -1134,6 +1283,9 @@ class ProviderDashboardController {
     ProviderFacilityController,
     B2BVoiceController,
     MentalHealthCompatController,
+    PatientPharmacyOrdersController,
+    PatientHomeCareController,
+    PatientRefundsController,
   ],
 })
 export class CompatModule {}

@@ -209,3 +209,11 @@
 - Rejected unsafe renames (wearables -> NotImplemented endpoints; pharmacy-orders is provider-side) to avoid wiring screens to broken endpoints.
 - 22 true backend gaps catalogued (patient pharmacy-orders P0, insurance claims x7 P0, home-care x4 P1, reviews/articles/chat/wearables/ai/misc).
 - Architectural recommendation: build patient-facing backend modules exposing the exact contracts mobile+web expect.
+
+## 2026-08-31 — Phase A3: patient-facing endpoints built (final true gaps)
+- Verified against BOTH branch and main: only 3 true gaps remained (patient/pharmacy/orders, home-care/*, refunds/my); reviews/wearables/ai-drug-interactions/articles/chat/family-chat/insurance-claims already exist (insurance module + CompatModule).
+- Added to CompatModule (real DB-backed, ownership-checked, same pattern as existing controllers):
+  - PatientPharmacyOrdersController: POST/GET /patient/pharmacy/orders(+:id) — unblocks patient checkout.
+  - PatientHomeCareController: GET /home-care/services, /packages (from nursing_catalog), POST/GET /home-care/bookings(/my).
+  - PatientRefundsController: GET /refunds/my.
+- NOTE: tests/typecheck blocked in this sandbox (npm broken 4x) — must run in CI before any main merge.
