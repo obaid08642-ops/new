@@ -1165,5 +1165,25 @@
     "title": "Reviews",
     "back": "My dashboard",
     "empty": "No reviews yet."
+  },
+  "NutritionPlan": {
+    "title": "My nutrition plan",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "MaternityTracker": {
+    "title": "Pregnancy tracking",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "SecuritySettings": {
+    "title": "Security & sessions",
+    "back": "Back",
+    "empty": "No data yet."
+  },
+  "SupportTicket": {
+    "title": "Support tickets",
+    "back": "Back",
+    "empty": "No data yet."
   }
 }

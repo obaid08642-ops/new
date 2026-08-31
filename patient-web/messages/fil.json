@@ -1165,5 +1165,25 @@
     "title": "Mga review",
     "back": "Ang dashboard ko",
     "empty": "Wala pang review."
+  },
+  "NutritionPlan": {
+    "title": "Ang nutrition plan ko",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "MaternityTracker": {
+    "title": "Pregnancy tracking",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "SecuritySettings": {
+    "title": "Security at sessions",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
+  },
+  "SupportTicket": {
+    "title": "Support tickets",
+    "back": "Bumalik",
+    "empty": "Wala pang data."
   }
 }

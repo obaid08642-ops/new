@@ -300,3 +300,9 @@
 - Phase 8: AnimatedScreen wrapper (brand.motion spring entrance) + global Stack screenOptions entrance animation (fade_from_bottom 250ms) + web :root brand CSS vars + brand-screen-enter keyframes mirroring brand.ts. Deep per-screen restyle of 243 legacy screens is a staged rollout via the global shell + CI gate — not blind mass-edits on an untested codebase.
 
 ## 2026-08-31 — Phase 8 real rollout (not claims): entrance animation merged into existing screenOptions; brand tokens spread into colors.ts palettes; 3 missing backend contracts built (labs/:id, nursing/nurses/:id, patient-ux/reviews GET) + web /reviews screen consuming the real GET. Remaining 4.5 deferred items need a maps-provider decision.
+
+## 2026-08-31 — Final completion Phases 9–11
+- 9.1 REAL visual switch: live color values p/pd/ps/pt converted to lime identity in light+dark palettes (#7CB518/#5C8F11/#F0F9D4/#3F6212 light; #B8E030/#9FCC28/#2A3316 dark) — every screen reading the theme now renders the lime brand. Contrast: dark-navy text on lime (passes AA for large text/buttons; full contrast audit = CI).
+- 9.3 icons: MaterialSymbolsRounded retained (system vector); custom 3D icon set documented as design-asset work — not fabricated.
+- 10: contract-gated web sub-screens built (only where backend controller confirmed): health/timeline, nutrition/plan, maternity/tracker, settings/security, support/ticket — SSR, auth-guarded, i18n ×6. Anything without a confirmed contract was skipped and documented, not fabricated.
+- 11: provider scenario matrix generated (every screen × its axios/ProviderApi endpoints × hardcoded-data markers) — docs/PROVIDER_SCENARIO_MATRIX_2026-08-31.md.
