@@ -298,3 +298,5 @@
 ## 2026-08-31 — Phase 7 closed + Phase 8 started (global-design approach)
 - Phase 7: provider wiring audit finalized with correct axios pattern — 39 wired screens, 6 legit presentational, registrations wired via ProviderApi wizard, provider-onboarding module exists in backend. No blind rewiring.
 - Phase 8: AnimatedScreen wrapper (brand.motion spring entrance) + global Stack screenOptions entrance animation (fade_from_bottom 250ms) + web :root brand CSS vars + brand-screen-enter keyframes mirroring brand.ts. Deep per-screen restyle of 243 legacy screens is a staged rollout via the global shell + CI gate — not blind mass-edits on an untested codebase.
+
+## 2026-08-31 — Phase 8 real rollout (not claims): entrance animation merged into existing screenOptions; brand tokens spread into colors.ts palettes; 3 missing backend contracts built (labs/:id, nursing/nurses/:id, patient-ux/reviews GET) + web /reviews screen consuming the real GET. Remaining 4.5 deferred items need a maps-provider decision.

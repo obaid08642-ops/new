@@ -1160,5 +1160,10 @@
     "step_NURSE_ARRIVED": "وصل الممرض",
     "step_CARE_IN_PROGRESS": "الرعاية جارية",
     "step_COMPLETED": "اكتملت الزيارة"
+  },
+  "Reviews": {
+    "title": "التقييمات",
+    "back": "لوحتي",
+    "empty": "لا توجد تقييمات بعد."
   }
 }

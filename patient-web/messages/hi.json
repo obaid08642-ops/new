@@ -1160,5 +1160,10 @@
     "step_NURSE_ARRIVED": "नर्स पहुँची",
     "step_CARE_IN_PROGRESS": "देखभाल जारी",
     "step_COMPLETED": "विज़िट पूर्ण"
+  },
+  "Reviews": {
+    "title": "समीक्षाएं",
+    "back": "मेरा डैशबोर्ड",
+    "empty": "अभी कोई समीक्षा नहीं।"
   }
 }

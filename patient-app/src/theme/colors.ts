@@ -1,4 +1,9 @@
+import { brand } from './brand';
 export const lightColors = {
+  // Phase 8: brand-driven tokens (primary lime; iPhone off-white surface)
+  brandPrimary: brand.primary.lime,
+  brandPrimaryDeep: brand.primary.limeDeep,
+  brandBg: brand.surface.light,
   bg: '#F2F4F7',
   s: '#FFFFFF',
   n: '#141A2A',
@@ -32,6 +37,8 @@ export const lightColors = {
 };
 
 export const darkColors = {
+  brandPrimary: brand.primary.lime,
+  brandPrimaryDeep: brand.primary.limeDeep,
   bg: '#0E1422',
   s: '#1A2234',
   n: '#F2F4F7',

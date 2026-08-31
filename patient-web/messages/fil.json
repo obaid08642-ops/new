@@ -1160,5 +1160,10 @@
     "step_NURSE_ARRIVED": "Dumating ang nars",
     "step_CARE_IN_PROGRESS": "Nagpapatuloy ang care",
     "step_COMPLETED": "Tapos na ang visit"
+  },
+  "Reviews": {
+    "title": "Mga review",
+    "back": "Ang dashboard ko",
+    "empty": "Wala pang review."
   }
 }

@@ -1256,7 +1256,54 @@ export class PatientRefundsController {
   }
 }
 
+// ─── Patient: lab detail (parity for mobile diagnostics/lab/[id]) ────────────
+@Controller('labs')
+@UseGuards(JwtAuthGuard)
+export class PatientLabsCatalogController {
+  constructor(@InjectConnection() private conn: Connection) {}
+  @Get(':id')
+  async one(@CurrentUser() u: any, @Param('id') id: string) {
+    if (!uid(u)) throw new ForbiddenException('authenticated_user_required');
+    const doc = await this.conn.db.collection('labs_catalog').findOne({ $or: [{ id }, { _id: id as any }] } as any);
+    if (!doc) throw new NotFoundException('lab_not_found');
+    const { _id, ...out } = doc as any;
+    return { data: out };
+  }
+}
+
+// ─── Patient: nurse public profile (parity for mobile nursing/nurse-profile) ──
+@Controller('nursing')
+@UseGuards(JwtAuthGuard)
+export class PatientNurseProfileController {
+  constructor(@InjectConnection() private conn: Connection) {}
+  @Get('nurses/:id')
+  async one(@CurrentUser() u: any, @Param('id') id: string) {
+    if (!uid(u)) throw new ForbiddenException('authenticated_user_required');
+    const doc = await this.conn.db.collection('nurses').findOne({ $or: [{ id }, { _id: id as any }] } as any);
+    if (!doc) throw new NotFoundException('nurse_not_found');
+    const { _id, ...out } = doc as any;
+    return { data: out };
+  }
+}
+
+// ─── Patient: reviews listing (parity for mobile reviews/index) ──────────────
+@Controller('patient-ux')
+@UseGuards(JwtAuthGuard)
+export class PatientReviewsListController {
+  constructor(@InjectConnection() private conn: Connection) {}
+  @Get('reviews')
+  async list(@CurrentUser() u: any, @Query('target_id') targetId?: string, @Query('limit') limit = '20', @Query('page') page = '1') {
+    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+    const skip = Math.max((parseInt(page, 10) || 1) - 1, 0) * lim;
+    const filter: any = {};
+    if (targetId) filter.target_id = targetId;
+    const docs = await this.conn.db.collection('reviews').find(filter).sort({ created_at: -1 }).skip(skip).limit(lim).toArray();
+    return { data: docs.map(({ _id, ...d }: any) => d), page: parseInt(page, 10) || 1, limit: lim };
+  }
+}
+
 /* ── module registration ─────────────────────────────────────────────────── */
+
 
 @Module({
   controllers: [
@@ -1286,6 +1333,9 @@ export class PatientRefundsController {
     PatientPharmacyOrdersController,
     PatientHomeCareController,
     PatientRefundsController,
+    PatientLabsCatalogController,
+    PatientNurseProfileController,
+    PatientReviewsListController,
   ],
 })
 export class CompatModule {}

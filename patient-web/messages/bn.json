@@ -1160,5 +1160,10 @@
     "step_NURSE_ARRIVED": "নার্স পৌঁছেছেন",
     "step_CARE_IN_PROGRESS": "সেবা চলছে",
     "step_COMPLETED": "ভিজিট সম্পন্ন"
+  },
+  "Reviews": {
+    "title": "রিভিউ",
+    "back": "আমার ড্যাশবোর্ড",
+    "empty": "এখনও কোনো রিভিউ নেই।"
   }
 }

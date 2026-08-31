@@ -1160,5 +1160,10 @@
     "step_NURSE_ARRIVED": "Nurse arrived",
     "step_CARE_IN_PROGRESS": "Care in progress",
     "step_COMPLETED": "Visit completed"
+  },
+  "Reviews": {
+    "title": "Reviews",
+    "back": "My dashboard",
+    "empty": "No reviews yet."
   }
 }
