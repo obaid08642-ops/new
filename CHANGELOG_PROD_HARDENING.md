@@ -279,3 +279,8 @@
 ## 2026-08-31 — Phase 4.4: web nursing visit tracking (gap-only, honest deferrals)
 - /[locale]/nursing/visits/[visitId] — SSR live tracking timeline from VERIFIED backend contracts GET /nursing/visits/:id and GET /nursing/visits/:id/tracking (home-care.controller.ts), auth-guarded, i18n ×6, brand styling.
 - Documented honest deferrals (no fabricated screens): lab detail page (no confirmed GET /labs/:id), nurse public profile (no endpoint), reviews listing (POST only, no GET), web map/location-picker (needs maps-provider decision).
+
+## 2026-08-31 — Phase 4.5: final parity sweep (Phase 4 complete)
+- docs/PARITY_FINAL_2026-08-31.md: full matrix — web routes after 4.1-4.4 vs mobile after Phase 2 merges; every mobile screen is either covered, native-excluded (documented), or deferred with a named missing backend contract (no fabricated screens).
+- Confirmed integration principle: all Phase-4 web screens consume the SAME backend contracts as mobile (/patient/pharmacy/orders, /care/appointments, /nursing/visits, /patient-ux/review).
+- Phase 4 (web parity) marked COMPLETE. Remaining: Phase 5 (deferred SEO/agent-discovery/security) and Phase 6 (CI gate before any main merge).

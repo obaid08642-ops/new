@@ -30,7 +30,7 @@
 - 4.2 ✅ pharmacy: الويب كان يملك أغلب الرحلة (medicines/cart/checkout/prescription/orders/offers/negotiation) — بُني الناقص الحقيقي فقط: medicines/compare (قراءة من الكتالوج الحقيقي) + pharmacy/request (نفس عقد الموبايل /patient/pharmacy/orders مع idempotency) + BFF + i18n ×6. الرحلة المختصرة متحققة: medicines→[medicineId]→cart/checkout→orders/tracking.
 - 4.3 ✅ consultations (gap-only، عقود مُتحقق منها): call-history (من /care/appointments) + post-call-rating (إلى /patient-ux/review الموجود) + home-visit-tracking (timeline من /care/appointments/:id) + BFF + i18n ×6. المُغطّى سلفاً على الويب: waiting-room/video-call، clinic-confirm، cancel-reschedule (BFF موجودة)، offer/summary/follow-up (تدفقات داخل appointments/[orderId]).
 - 4.4 ✅ (gap-only بعقود مُتحقق منها): بُني nursing/visits/[visitId] (تتبع حي من /nursing/visits/:id + /tracking — كلاهما موجود فعلاً). قرارات موثقة بصدق للباقي: diagnostics/lab/[id] — لا endpoint GET /labs/:id مؤكد ⇒ مؤجل حتى يُبنى أو يُؤكد؛ nursing/nurse-profile — لا endpoint لملف الممرض العام ⇒ مؤجل؛ reviews — يوجد POST فقط بلا GET ⇒ مؤجل؛ map/location-picker — يحتاج قرار مزوّد خرائط للويب ⇒ مؤجل. المغطى سلفاً: nursing/catalog + visits + diagnostics كاملة (labs/radiology/packages/[bookingId]).
-- 4.5 تحقق تكامل لكل شاشة موجودة مقابل الموبايل (نفس العقد والبيانات).
+- 4.5 ✅ المسح النهائي: docs/PARITY_FINAL_2026-08-31.md — مصفوفة كاملة (مغطى/مستبعد native/مؤجل بعقد ناقص) + تأكيد أن كل مبني في المرحلة 4 يستهلك نفس عقود الموبايل.
 
 ## المرحلة 5 — المؤجل (SEO/AI/الاكتشاف/الأمان)
 - 5.1 إكمال catalog eligibility + internal search normalization (بدأ، يُستكمل).
@@ -47,4 +47,5 @@
 | 1 | 1.1✅ 1.2✅ 1.3⏳ |
 | 2 | ✅ مكتملة (2.0–2.8) — خلفية iPhone off-white #F5F5F7 معتمدة |
 | 3 | ✅ مكتملة (3.1–3.4) |
-| 4-6 | ⏳ تُنفذ تباعاً بنفس القاعدة |
+| 4 | ✅ مكتملة (4.1–4.5) |
+| 5-6 | ⏳ |
