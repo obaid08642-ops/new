@@ -262,3 +262,9 @@
 - New SSR route /[locale]/payments/result?status&ref — single screen hosting success/failed/processing (mirrors mobile Phase 2.5).
 - Status verified against backend via new BFF GET /api/payments/status/[ref] (URL param alone never trusted).
 - i18n Payments namespace added to all 6 locales; styling follows brand tokens (iPhone off-white bg, lime primary, coral destructive).
+
+## 2026-08-31 — Phase 4.2: web pharmacy parity (gap-only build)
+- Audit showed web already covers most of the pharmacy journey; built ONLY the true gaps:
+  - /[locale]/medicines/compare (SSR, real catalog fetch per id, ≤4 items, no fabricated comparisons).
+  - /[locale]/pharmacy/request + PharmacyRequestForm client + BFF POST /api/patient/pharmacy/orders forwarding idempotency-key — identical backend contract to mobile Phase 2.3 (mobile-registered users see the same orders on web).
+- i18n: MedicineCompare + PharmacyRequest namespaces in all 6 locales. Brand styling (off-white bg, lime primary).

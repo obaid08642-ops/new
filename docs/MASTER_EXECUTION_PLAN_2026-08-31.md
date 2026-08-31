@@ -27,7 +27,7 @@
 
 ## المرحلة 4 — بناء شاشات الويب الناقصة (parity مع الموبايل بالرحلات المختصرة)
 - 4.1 ✅ payments: /[locale]/payments/result موحدة (success/failed/processing بحالة مُتحقق منها من الباكند عبر ref — لا تثق بـ URL) + BFF /api/payments/status/[ref] + i18n ×6 + CSS بنظام brand (أوف-وايت/ليموني/مرجاني).
-- 4.2 pharmacy (~10) — بالرحلة المختصرة (بحث→منتج→checkout موحد→تتبع).
+- 4.2 ✅ pharmacy: الويب كان يملك أغلب الرحلة (medicines/cart/checkout/prescription/orders/offers/negotiation) — بُني الناقص الحقيقي فقط: medicines/compare (قراءة من الكتالوج الحقيقي) + pharmacy/request (نفس عقد الموبايل /patient/pharmacy/orders مع idempotency) + BFF + i18n ×6. الرحلة المختصرة متحققة: medicines→[medicineId]→cart/checkout→orders/tracking.
 - 4.3 consultations (~8) — بشاشة الحالة الموحدة لا الثلاث.
 - 4.4 nursing/diagnostics/متفرقات (~6).
 - 4.5 تحقق تكامل لكل شاشة موجودة مقابل الموبايل (نفس العقد والبيانات).

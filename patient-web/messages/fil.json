@@ -1095,5 +1095,28 @@
     "retry": "Subukan muli",
     "myOrders": "Mga order ko",
     "wallet": "Wallet"
+  },
+  "MedicineCompare": {
+    "title": "Paghambingin ang mga gamot",
+    "attribute": "Katangian",
+    "active_ingredient": "Aktibong sangkap",
+    "price": "Presyo",
+    "dosage_form": "Anyo ng dosis",
+    "manufacturer": "Tagagawa",
+    "emptyBody": "Pumili ng dalawa o higit pang gamot mula sa katalogo.",
+    "browse": "Mag-browse",
+    "back": "Mga gamot"
+  },
+  "PharmacyRequest": {
+    "title": "Humiling ng gamot na hindi available",
+    "subtitle": "Ilagay ang pangalan at detalye ng gamot para i-broadcast ang request sa mga parmasya — parehong daloy sa mobile app.",
+    "name": "Pangalan ng gamot",
+    "namePh": "hal. Congestal tablets",
+    "details": "Detalye para sa parmasya (opsyonal)",
+    "detailsPh": "Potency, anyo, o tala",
+    "submit": "I-broadcast ang request",
+    "submitting": "Ipinapadala...",
+    "error": "Hindi naipadala ang request. Subukan muli.",
+    "success": "Naipadala ang request"
   }
 }

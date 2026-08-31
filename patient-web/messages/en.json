@@ -1095,5 +1095,28 @@
     "retry": "Try again",
     "myOrders": "My orders",
     "wallet": "Wallet"
+  },
+  "MedicineCompare": {
+    "title": "Compare medicines",
+    "attribute": "Attribute",
+    "active_ingredient": "Active ingredient",
+    "price": "Price",
+    "dosage_form": "Dosage form",
+    "manufacturer": "Manufacturer",
+    "emptyBody": "Select at least two medicines from the catalog to compare.",
+    "browse": "Browse medicines",
+    "back": "Medicines"
+  },
+  "PharmacyRequest": {
+    "title": "Request an unavailable medicine",
+    "subtitle": "Enter the medicine name and details to broadcast your request to pharmacies — same flow as the mobile app.",
+    "name": "Medicine name",
+    "namePh": "e.g. Congestal tablets",
+    "details": "Details for the pharmacy (optional)",
+    "detailsPh": "Strength, form, or a note",
+    "submit": "Broadcast request",
+    "submitting": "Submitting...",
+    "error": "Could not submit the request. Please try again.",
+    "success": "Request submitted"
   }
 }

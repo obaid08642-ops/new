@@ -1,0 +1,9 @@
+.page { padding: 24px 16px; max-width: 900px; margin: 0 auto; background: #F5F5F7; min-height: 60vh; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: #16213A; text-decoration: none; margin-bottom: 12px; }
+.title { display: flex; align-items: center; gap: 8px; color: #16213A; }
+.empty { background: #fff; border-radius: 22px; padding: 32px; text-align: center; display: grid; gap: 12px; }
+.primary { background: #B8E030; color: #16213A; font-weight: 800; padding: 12px 22px; border-radius: 14px; text-decoration: none; }
+.tableWrap { overflow-x: auto; background: #fff; border-radius: 22px; box-shadow: 0 6px 18px rgba(22,33,58,.07); }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 12px 14px; border-bottom: 1px solid rgba(22,33,58,.08); text-align: start; }
+.table thead th { background: rgba(184,224,48,.14); color: #16213A; }
