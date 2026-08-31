@@ -306,3 +306,8 @@
 - 9.3 icons: MaterialSymbolsRounded retained (system vector); custom 3D icon set documented as design-asset work — not fabricated.
 - 10: contract-gated web sub-screens built (only where backend controller confirmed): health/timeline, nutrition/plan, maternity/tracker, settings/security, support/ticket — SSR, auth-guarded, i18n ×6. Anything without a confirmed contract was skipped and documented, not fabricated.
 - 11: provider scenario matrix generated (every screen × its axios/ProviderApi endpoints × hardcoded-data markers) — docs/PROVIDER_SCENARIO_MATRIX_2026-08-31.md.
+
+## 2026-08-31 — Final gaps closed (no-test-required batch)
+- 9.1 completed: last old-teal leftovers removed from colors.ts (assertion-verified: zero #23B5CE/#0A6575 remain) — lime identity now fully live app-wide.
+- 10 completed: /health/timeline (contract re-verified: medical-reports.controller.ts @Get('timeline') — earlier skip was a grep-substring false negative) + /reports/ai-analysis (canonical redirect to /ai/report reusing verified /api/ai/analyze-report). i18n ×6.
+- Remaining honest non-goals: custom 3D icon asset set (design work), web maps (provider decision), CI gate (env-blocked).

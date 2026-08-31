@@ -74,7 +74,7 @@ export const darkColors = {
 /**
  * Resolves a CSS variable string like 'var(--p)' to an actual color hex value.
  * Also handles plain hex/named colors by returning them as-is.
- * @param {string} c - color string, e.g. 'var(--p)' or '#23B5CE'
+ * @param {string} c - color string, e.g. 'var(--p)' or '#7CB518'
  * @param {object} colors - the current theme's color object (lightColors or darkColors)
  * @returns {string} resolved hex color
  */

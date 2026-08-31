@@ -27,7 +27,7 @@
 ## حالة التنفيذ
 | المرحلة | الحالة |
 |---|---|
-| 9 | ✅ 9.1 تحويل الألوان الحية لليموني (light+dark) + 9.3 قرار الأيقونات موثق |
-| 10 | ✅ شاشات ويب فرعية مبنية بشرط العقد المؤكد (health/timeline، nutrition/plan، maternity/tracker، settings/security، support/ticket) + i18n ×6 |
+| 9 | ✅ مكتملة بالكامل — صفر بقايا من اللون القديم (تحقق بـ assertion) |
+| 10 | ✅ مكتملة — +health/timeline (تصحيح تخطٍّ خاطئ: العقد موجود medical-reports.controller.ts) + reports/ai-analysis (تحويل للشاشة الموحدة /ai/report) |
 | 11 | ✅ مصفوفة المزود سيناريو-بسيناريو (docs/PROVIDER_SCENARIO_MATRIX_2026-08-31.md) |
 | 12 | ⛔ CI — خارج هذه البيئة |
