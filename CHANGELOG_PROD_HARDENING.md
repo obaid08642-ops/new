@@ -293,3 +293,8 @@
 - Everything on the branch remains untested; CI gate (npm ci --legacy-peer-deps && check && test && build) is mandatory before any main merge.
 
 - Phase 7 PRE-CORRECTION (honest): the earlier "provider dashboards have 0 API calls / registration fields unbound" finding was a MEASUREMENT ERROR — provider-app uses an axios layer (src/api/client.ts with JWT interceptors) and ProviderApi (start/login/step2/step3/uploadFile), not fetch()/apiFetch literals. Re-measurement with the correct pattern shows registrations ARE wired via multi-step wizard and dashboards DO load data. A full Phase 7 wiring pass is therefore rescoped: verify-per-vertical against axios endpoints + backend contracts, not blind rewiring. Provider-app-wide screens with zero ANY-api (axios or fetch) still to be listed in CI.
+
+
+## 2026-08-31 — Phase 7 closed + Phase 8 started (global-design approach)
+- Phase 7: provider wiring audit finalized with correct axios pattern — 39 wired screens, 6 legit presentational, registrations wired via ProviderApi wizard, provider-onboarding module exists in backend. No blind rewiring.
+- Phase 8: AnimatedScreen wrapper (brand.motion spring entrance) + global Stack screenOptions entrance animation (fade_from_bottom 250ms) + web :root brand CSS vars + brand-screen-enter keyframes mirroring brand.ts. Deep per-screen restyle of 243 legacy screens is a staged rollout via the global shell + CI gate — not blind mass-edits on an untested codebase.
