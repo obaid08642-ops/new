@@ -1118,5 +1118,33 @@
     "submitting": "جارٍ الإرسال...",
     "error": "تعذر إرسال الطلب. حاول مرة أخرى.",
     "success": "تم إرسال الطلب"
+  },
+  "CallHistory": {
+    "title": "سجل المكالمات",
+    "back": "مواعيدي",
+    "emptyBody": "لا توجد مكالمات سابقة بعد.",
+    "findDoctor": "ابحث عن طبيب",
+    "unknownDoctor": "طبيب"
+  },
+  "PostCallRating": {
+    "title": "قيّم استشارتك",
+    "subtitle": "تقييمك يساعدنا على تحسين جودة الرعاية.",
+    "comment": "تعليق",
+    "commentPh": "شاركنا ملاحظاتك (اختياري)",
+    "submit": "إرسال التقييم",
+    "submitting": "جارٍ الإرسال...",
+    "thanks": "شكراً لك! تم استلام تقييمك.",
+    "error": "تعذر إرسال التقييم. حاول مرة أخرى."
+  },
+  "HomeVisitTracking": {
+    "title": "تتبع الزيارة المنزلية",
+    "back": "تفاصيل الموعد",
+    "unknownStatus": "حالة غير معروفة",
+    "step_PENDING": "تم استلام الطلب",
+    "step_CONFIRMED": "تم التأكيد",
+    "step_PROVIDER_EN_ROUTE": "المزود في الطريق",
+    "step_PROVIDER_ARRIVED": "وصل المزود",
+    "step_IN_PROGRESS": "الزيارة جارية",
+    "step_COMPLETED": "اكتملت الزيارة"
   }
 }

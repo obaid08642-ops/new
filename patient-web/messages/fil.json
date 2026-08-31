@@ -1118,5 +1118,33 @@
     "submitting": "Ipinapadala...",
     "error": "Hindi naipadala ang request. Subukan muli.",
     "success": "Naipadala ang request"
+  },
+  "CallHistory": {
+    "title": "Kasaysayan ng tawag",
+    "back": "Mga appointment ko",
+    "emptyBody": "Wala pang nakaraang tawag.",
+    "findDoctor": "Maghanap ng doktor",
+    "unknownDoctor": "Doktor"
+  },
+  "PostCallRating": {
+    "title": "I-rate ang konsultasyon",
+    "subtitle": "Nakatutulong ang feedback mo sa kalidad ng pangangalaga.",
+    "comment": "Komento",
+    "commentPh": "Ibahagi ang mga tala (opsyonal)",
+    "submit": "Ipadala ang rating",
+    "submitting": "Ipinapadala...",
+    "thanks": "Salamat! Natanggap ang rating mo.",
+    "error": "Hindi naipadala ang rating. Subukan muli."
+  },
+  "HomeVisitTracking": {
+    "title": "Home visit tracking",
+    "back": "Detalye ng appointment",
+    "unknownStatus": "Hindi kilalang status",
+    "step_PENDING": "Natanggap ang request",
+    "step_CONFIRMED": "Nakumpirma",
+    "step_PROVIDER_EN_ROUTE": "Paparating ang provider",
+    "step_PROVIDER_ARRIVED": "Dumating ang provider",
+    "step_IN_PROGRESS": "Nagpapatuloy ang visit",
+    "step_COMPLETED": "Tapos na ang visit"
   }
 }

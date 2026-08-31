@@ -1118,5 +1118,33 @@
     "submitting": "Submitting...",
     "error": "Could not submit the request. Please try again.",
     "success": "Request submitted"
+  },
+  "CallHistory": {
+    "title": "Call history",
+    "back": "My appointments",
+    "emptyBody": "No past calls yet.",
+    "findDoctor": "Find a doctor",
+    "unknownDoctor": "Doctor"
+  },
+  "PostCallRating": {
+    "title": "Rate your consultation",
+    "subtitle": "Your feedback helps us improve care quality.",
+    "comment": "Comment",
+    "commentPh": "Share your notes (optional)",
+    "submit": "Submit rating",
+    "submitting": "Submitting...",
+    "thanks": "Thank you! Your rating was received.",
+    "error": "Could not submit the rating. Please try again."
+  },
+  "HomeVisitTracking": {
+    "title": "Home visit tracking",
+    "back": "Appointment details",
+    "unknownStatus": "Unknown status",
+    "step_PENDING": "Request received",
+    "step_CONFIRMED": "Confirmed",
+    "step_PROVIDER_EN_ROUTE": "Provider on the way",
+    "step_PROVIDER_ARRIVED": "Provider arrived",
+    "step_IN_PROGRESS": "Visit in progress",
+    "step_COMPLETED": "Visit completed"
   }
 }

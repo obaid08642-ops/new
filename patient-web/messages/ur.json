@@ -1118,5 +1118,33 @@
     "submitting": "بھیجا جا رہا ہے...",
     "error": "درخواست بھیجی نہیں جا سکی۔ دوبارہ کوشش کریں۔",
     "success": "درخواست بھیج دی گئی"
+  },
+  "CallHistory": {
+    "title": "کال ہسٹری",
+    "back": "میری ملاقاتیں",
+    "emptyBody": "ابھی کوئی سابقہ کال نہیں۔",
+    "findDoctor": "ڈاکٹر تلاش کریں",
+    "unknownDoctor": "ڈاکٹر"
+  },
+  "PostCallRating": {
+    "title": "اپنے مشورے کی_rating",
+    "subtitle": "آپ کی رائے دیکھ بھال کے معیار کو بہتر بناتی ہے۔",
+    "comment": "تبصرہ",
+    "commentPh": "اپنی رائے لکھیں (اختیاری)",
+    "submit": "درجہ بندی بھیجیں",
+    "submitting": "بھیجا جا رہا ہے...",
+    "thanks": "شکریہ! آپ کی رائے موصول ہو گئی۔",
+    "error": "درجہ بندی نہیں بھیجی جا سکی۔ دوبارہ کوشش کریں۔"
+  },
+  "HomeVisitTracking": {
+    "title": "گھر کی ویزٹ ٹریکنگ",
+    "back": "ملاقات کی تفصیل",
+    "unknownStatus": "نامعلوم حیثیت",
+    "step_PENDING": "درخواست موصول",
+    "step_CONFIRMED": "تصدیق شدہ",
+    "step_PROVIDER_EN_ROUTE": "فراہم کنندہ راستے میں",
+    "step_PROVIDER_ARRIVED": "فراہم کنندہ پہنچ گیا",
+    "step_IN_PROGRESS": "ویزٹ جاری",
+    "step_COMPLETED": "ویزٹ مکمل"
   }
 }

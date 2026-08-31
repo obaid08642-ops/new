@@ -268,3 +268,10 @@
   - /[locale]/medicines/compare (SSR, real catalog fetch per id, ≤4 items, no fabricated comparisons).
   - /[locale]/pharmacy/request + PharmacyRequestForm client + BFF POST /api/patient/pharmacy/orders forwarding idempotency-key — identical backend contract to mobile Phase 2.3 (mobile-registered users see the same orders on web).
 - i18n: MedicineCompare + PharmacyRequest namespaces in all 6 locales. Brand styling (off-white bg, lime primary).
+
+## 2026-08-31 — Phase 4.3: web consultations parity (gap-only, verified contracts)
+- /[locale]/consultations/call-history — SSR list from real /care/appointments (completed/cancelled video calls), auth-guarded.
+- /[locale]/consultations/post-call-rating — 5-star form → new BFF POST /api/patient-ux/review (backend endpoint exists in CompatModule) with idempotency.
+- /[locale]/consultations/home-visit-tracking — SSR status timeline from real /care/appointments/:id.
+- i18n ×6 locales for all three namespaces; brand styling (off-white, lime, coral).
+- Documented already-covered equivalents: video-call (waiting room), appointments/[appointmentId] (summary/follow-up/cancel via existing BFF cancel/reschedule).
