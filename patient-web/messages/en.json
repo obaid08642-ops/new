@@ -1073,5 +1073,15 @@
     "submitting": "Booking…",
     "currency": "SAR",
     "doctorUnavailable": "Doctor unavailable"
+  },
+  "AiHealthReport": {
+    "title": "Your AI Health Report",
+    "selectReports": "Select medical reports to analyze",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing...",
+    "resultTitle": "Analysis result",
+    "error": "Could not complete the analysis. Please try again.",
+    "disclaimer": "This analysis is informational and not a substitute for medical advice.",
+    "empty": "No medical reports available yet."
   }
 }

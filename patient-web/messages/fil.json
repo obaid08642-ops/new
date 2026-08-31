@@ -1073,5 +1073,15 @@
     "submitting": "Nagbo-book…",
     "currency": "SAR",
     "doctorUnavailable": "Hindi available ang doktor"
+  },
+  "AiHealthReport": {
+    "title": "Ang Iyong AI Health Report",
+    "selectReports": "Piliin ang mga medical report na susuriin",
+    "analyze": "Suriin",
+    "analyzing": "Sinusuri...",
+    "resultTitle": "Resulta ng pagsusuri",
+    "error": "Hindi nakumpleto ang pagsusuri. Subukan muli.",
+    "disclaimer": "Ang pagsusuring ito ay impormasyon lamang at hindi kapalit ng payong medikal.",
+    "empty": "Wala pang available na medical report."
   }
 }
