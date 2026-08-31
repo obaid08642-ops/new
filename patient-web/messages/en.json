@@ -1146,5 +1146,19 @@
     "step_PROVIDER_ARRIVED": "Provider arrived",
     "step_IN_PROGRESS": "Visit in progress",
     "step_COMPLETED": "Visit completed"
+  },
+  "NursingTracking": {
+    "title": "Nursing visit tracking",
+    "back": "My visits",
+    "nurse": "Nurse",
+    "eta": "Arriving in",
+    "minutes": "min",
+    "unknownStatus": "Unknown status",
+    "step_REQUESTED": "Request received",
+    "step_CONFIRMED": "Confirmed",
+    "step_NURSE_EN_ROUTE": "Nurse on the way",
+    "step_NURSE_ARRIVED": "Nurse arrived",
+    "step_CARE_IN_PROGRESS": "Care in progress",
+    "step_COMPLETED": "Visit completed"
   }
 }

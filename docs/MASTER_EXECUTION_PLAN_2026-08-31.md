@@ -29,7 +29,7 @@
 - 4.1 ✅ payments: /[locale]/payments/result موحدة (success/failed/processing بحالة مُتحقق منها من الباكند عبر ref — لا تثق بـ URL) + BFF /api/payments/status/[ref] + i18n ×6 + CSS بنظام brand (أوف-وايت/ليموني/مرجاني).
 - 4.2 ✅ pharmacy: الويب كان يملك أغلب الرحلة (medicines/cart/checkout/prescription/orders/offers/negotiation) — بُني الناقص الحقيقي فقط: medicines/compare (قراءة من الكتالوج الحقيقي) + pharmacy/request (نفس عقد الموبايل /patient/pharmacy/orders مع idempotency) + BFF + i18n ×6. الرحلة المختصرة متحققة: medicines→[medicineId]→cart/checkout→orders/tracking.
 - 4.3 ✅ consultations (gap-only، عقود مُتحقق منها): call-history (من /care/appointments) + post-call-rating (إلى /patient-ux/review الموجود) + home-visit-tracking (timeline من /care/appointments/:id) + BFF + i18n ×6. المُغطّى سلفاً على الويب: waiting-room/video-call، clinic-confirm، cancel-reschedule (BFF موجودة)، offer/summary/follow-up (تدفقات داخل appointments/[orderId]).
-- 4.4 nursing/diagnostics/متفرقات (~6).
+- 4.4 ✅ (gap-only بعقود مُتحقق منها): بُني nursing/visits/[visitId] (تتبع حي من /nursing/visits/:id + /tracking — كلاهما موجود فعلاً). قرارات موثقة بصدق للباقي: diagnostics/lab/[id] — لا endpoint GET /labs/:id مؤكد ⇒ مؤجل حتى يُبنى أو يُؤكد؛ nursing/nurse-profile — لا endpoint لملف الممرض العام ⇒ مؤجل؛ reviews — يوجد POST فقط بلا GET ⇒ مؤجل؛ map/location-picker — يحتاج قرار مزوّد خرائط للويب ⇒ مؤجل. المغطى سلفاً: nursing/catalog + visits + diagnostics كاملة (labs/radiology/packages/[bookingId]).
 - 4.5 تحقق تكامل لكل شاشة موجودة مقابل الموبايل (نفس العقد والبيانات).
 
 ## المرحلة 5 — المؤجل (SEO/AI/الاكتشاف/الأمان)

@@ -275,3 +275,7 @@
 - /[locale]/consultations/home-visit-tracking — SSR status timeline from real /care/appointments/:id.
 - i18n ×6 locales for all three namespaces; brand styling (off-white, lime, coral).
 - Documented already-covered equivalents: video-call (waiting room), appointments/[appointmentId] (summary/follow-up/cancel via existing BFF cancel/reschedule).
+
+## 2026-08-31 — Phase 4.4: web nursing visit tracking (gap-only, honest deferrals)
+- /[locale]/nursing/visits/[visitId] — SSR live tracking timeline from VERIFIED backend contracts GET /nursing/visits/:id and GET /nursing/visits/:id/tracking (home-care.controller.ts), auth-guarded, i18n ×6, brand styling.
+- Documented honest deferrals (no fabricated screens): lab detail page (no confirmed GET /labs/:id), nurse public profile (no endpoint), reviews listing (POST only, no GET), web map/location-picker (needs maps-provider decision).

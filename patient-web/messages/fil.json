@@ -1146,5 +1146,19 @@
     "step_PROVIDER_ARRIVED": "Dumating ang provider",
     "step_IN_PROGRESS": "Nagpapatuloy ang visit",
     "step_COMPLETED": "Tapos na ang visit"
+  },
+  "NursingTracking": {
+    "title": "Nursing visit tracking",
+    "back": "Mga visit ko",
+    "nurse": "Nars",
+    "eta": "Darating sa loob ng",
+    "minutes": "min",
+    "unknownStatus": "Hindi kilalang status",
+    "step_REQUESTED": "Natanggap ang request",
+    "step_CONFIRMED": "Nakumpirma",
+    "step_NURSE_EN_ROUTE": "Paparating ang nars",
+    "step_NURSE_ARRIVED": "Dumating ang nars",
+    "step_CARE_IN_PROGRESS": "Nagpapatuloy ang care",
+    "step_COMPLETED": "Tapos na ang visit"
   }
 }

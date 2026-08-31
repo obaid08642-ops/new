@@ -1146,5 +1146,19 @@
     "step_PROVIDER_ARRIVED": "فراہم کنندہ پہنچ گیا",
     "step_IN_PROGRESS": "ویزٹ جاری",
     "step_COMPLETED": "ویزٹ مکمل"
+  },
+  "NursingTracking": {
+    "title": "نرسنگ وزٹ ٹریکنگ",
+    "back": "میری وزٹس",
+    "nurse": "نرس",
+    "eta": "پہنچنے کا وقت",
+    "minutes": "منٹ",
+    "unknownStatus": "نامعلوم حیثیت",
+    "step_REQUESTED": "درخواست موصول",
+    "step_CONFIRMED": "تصدیق شدہ",
+    "step_NURSE_EN_ROUTE": "نرس راستے میں",
+    "step_NURSE_ARRIVED": "نرس پہنچ گئی",
+    "step_CARE_IN_PROGRESS": "نگہداشت جاری",
+    "step_COMPLETED": "وزٹ مکمل"
   }
 }

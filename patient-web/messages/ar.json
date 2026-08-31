@@ -1146,5 +1146,19 @@
     "step_PROVIDER_ARRIVED": "وصل المزود",
     "step_IN_PROGRESS": "الزيارة جارية",
     "step_COMPLETED": "اكتملت الزيارة"
+  },
+  "NursingTracking": {
+    "title": "تتبع زيارة التمريض",
+    "back": "زياراتي",
+    "nurse": "الممرض/ة",
+    "eta": "الوصول المتوقع خلال",
+    "minutes": "دقيقة",
+    "unknownStatus": "حالة غير معروفة",
+    "step_REQUESTED": "تم استلام الطلب",
+    "step_CONFIRMED": "تم التأكيد",
+    "step_NURSE_EN_ROUTE": "الممرض في الطريق",
+    "step_NURSE_ARRIVED": "وصل الممرض",
+    "step_CARE_IN_PROGRESS": "الرعاية جارية",
+    "step_COMPLETED": "اكتملت الزيارة"
   }
 }

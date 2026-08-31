@@ -1146,5 +1146,19 @@
     "step_PROVIDER_ARRIVED": "প্রদানকারী পৌঁছেছেন",
     "step_IN_PROGRESS": "ভিজিট চলছে",
     "step_COMPLETED": "ভিজিট সম্পন্ন"
+  },
+  "NursingTracking": {
+    "title": "নার্সিং ভিজিট ট্র্যাকিং",
+    "back": "আমার ভিজিট",
+    "nurse": "নার্স",
+    "eta": "পৌঁছাতে",
+    "minutes": "মিনিট",
+    "unknownStatus": "অজানা অবস্থা",
+    "step_REQUESTED": "অনুরোধ গৃহীত",
+    "step_CONFIRMED": "নিশ্চিত",
+    "step_NURSE_EN_ROUTE": "নার্স পথে",
+    "step_NURSE_ARRIVED": "নার্স পৌঁছেছেন",
+    "step_CARE_IN_PROGRESS": "সেবা চলছে",
+    "step_COMPLETED": "ভিজিট সম্পন্ন"
   }
 }
