@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicProduct, type PublicProduct } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
+import { ProductCartActions } from "@/components-next/product-cart-actions";
 import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import { ChevronLeft, Pill, ShieldCheck } from "lucide-react";
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
   const description = (product.description || `${name} — ${[product.form, product.strength, product.package_size].filter(Boolean).join(" ")}`)
     .replace(/\s+/g, " ").slice(0, 160);
-  const image = cdnImage(product.image);
+  const image = cdnImage(product.image) || (product.images?.[0] ? cdnImage(product.images[0]) : null);
   return {
     title: name,
     description,
@@ -69,7 +70,8 @@ export default async function PublicProductPage({ params }: Props) {
   if (!product) notFound();
   const name = product.name || product.official_name || t("products");
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
-  const images = product.images.map((u) => cdnImage(u)).filter((u): u is string => Boolean(u));
+  const rawImages = (product.images && product.images.length > 0 ? product.images : [product.image]).filter((u): u is string => Boolean(u));
+  const images = rawImages.map((u) => cdnImage(u) || u).filter(Boolean);
   const categoryPath = product.category
     ? `/${locale}/c/${encodeURIComponent(product.category)}${product.sub_category ? `/${encodeURIComponent(product.sub_category)}` : ""}`
     : null;
@@ -147,13 +149,29 @@ export default async function PublicProductPage({ params }: Props) {
           {product.old_price && product.old_price > product.price ? <s className={styles.oldPrice}>{product.old_price.toFixed(2)} {product.currency}</s> : null}
         </p>
         <p className={styles.subline}>{[product.form, product.strength, product.package_size].filter(Boolean).join(" · ")}</p>
+
+        {/* Add to Cart Actions */}
+        <ProductCartActions
+          locale={locale}
+          product={{
+            id: product.id,
+            name,
+            price: product.price,
+            rx: product.is_rx,
+            image: images[0] || null,
+            slug: product.slug,
+            activeIngredient: product.active_ingredient,
+            form: product.form,
+            strength: product.strength,
+          }}
+        />
       </div>
     </section>
 
     {images.length > 1 ? <section className={styles.gallery} aria-label={name}>
-      {images.slice(1).map((src, i) => (
+      {images.map((src, i) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={src} src={src} alt={`${name} ${i + 2}`} width={96} height={96} loading="lazy" decoding="async" />
+        <img key={src} src={src} alt={`${name} ${i + 1}`} width={96} height={96} loading="lazy" decoding="async" />
       ))}
     </section> : null}
 
