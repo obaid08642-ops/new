@@ -2088,6 +2088,8 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  const [company, setCompany] = useState('');
  const [plan, setPlan] = useState('');
  const [diagCode, setDiagCode] = useState('');
+ const [policyNumber, setPolicyNumber] = useState(apt?.patient?.insurance?.policy_number || '');
+ const [memberId, setMemberId] = useState(apt?.patient?.insurance?.member_id || '');
  const [amount, setAmount] = useState('');
  const [deductible, setDeduct] = useState('');
  const [loading, setLoading] = useState(false);
@@ -2153,6 +2155,17 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  hint={AR ? 'الكود الدولي لتصنيف الأمراض' : 'International Classification of Diseases code'}
  />
 
+ <NInput
+ label={AR ? 'رقم الوثيقة' : 'Policy Number'}
+ placeholder="POL-123456"
+ value={policyNumber} onChange={setPolicyNumber} icon=""
+ />
+ <NInput
+ label={AR ? 'رقم العضوية' : 'Member ID'}
+ placeholder="MEM-987654"
+ value={memberId} onChange={setMemberId} icon=""
+ />
+
  <NPriceInput
  label={AR ? 'إجمالي المبلغ المطلوب' : 'Total Claimed Amount'}
  value={amount} onChange={setAmount} required
@@ -2180,14 +2193,17 @@ export function InsuranceClaimScreen({ apt, onBack }: { apt: any; onBack: () => 
  try {
  if (!apt?.id) throw new Error(AR ? 'لم يتم العثور على موعد الجلسة' : 'Appointment ID not found');
  await client.post(`/provider/jobs/consultation/${apt.id}/insurance`, {
- policyNumber: 'POL-' + Math.floor(Math.random()*100000),
- memberId: 'MEM-' + Math.floor(Math.random()*100000),
+ policyNumber: policyNumber.trim() || undefined,
+ memberId: memberId.trim() || undefined,
+ diagnosisCode: diagCode.trim() || undefined,
+ insuranceCompany: company,
+ planCategory: plan || undefined,
  approvalStatus: 'APPROVED',
- coveragePercentage: 80,
- coveredAmount: parseFloat(amount) * 0.8,
+ coveragePercentage: amount && deductible && parseFloat(amount) > 0 ? Math.round((1 - parseFloat(deductible) / parseFloat(amount)) * 100) : 80,
+ coveredAmount: parseFloat(amount) - (parseFloat(deductible) || 0),
  copayAmount: parseFloat(deductible) || 0,
  patientShare: parseFloat(deductible) || 0,
- insuranceShare: parseFloat(amount) * 0.8,
+ insuranceShare: parseFloat(amount) - (parseFloat(deductible) || 0),
  });
  show(AR ? 'تم إرسال المطالبة بنجاح ' : 'Claim submitted successfully ', 'success');
  onBack();
