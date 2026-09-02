@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
   const description = (product.description || `${name} — ${[product.form, product.strength, product.package_size].filter(Boolean).join(" ")}`)
     .replace(/\s+/g, " ").slice(0, 160);
-  const image = cdnImage(product.image);
+  const image = cdnImage(product.image) || (product.images?.[0] ? cdnImage(product.images[0]) : null);
   return {
     title: name,
     description,
@@ -70,7 +70,8 @@ export default async function PublicProductPage({ params }: Props) {
   if (!product) notFound();
   const name = product.name || product.official_name || t("products");
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
-  const images = product.images.length > 0 ? product.images : [cdnImage(product.image)].filter((u): u is string => Boolean(u));
+  const rawImages = (product.images && product.images.length > 0 ? product.images : [product.image]).filter((u): u is string => Boolean(u));
+  const images = rawImages.map((u) => cdnImage(u) || u).filter(Boolean);
   const categoryPath = product.category
     ? `/${locale}/c/${encodeURIComponent(product.category)}${product.sub_category ? `/${encodeURIComponent(product.sub_category)}` : ""}`
     : null;
