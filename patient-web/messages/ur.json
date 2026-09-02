@@ -1271,5 +1271,17 @@
     "rating": "Rating",
     "distance": "Distance",
     "noProviders": "No medical facilities match your criteria."
+  },
+  "ScanPrescription": {
+    "eyebrow": "سمارٹ فارمیسی سروس",
+    "title": "نسخہ اسکین اور اپ لوڈ کریں",
+    "description": "ادویات نکالنے اور فارمیسی کی پیشکشوں کی درخواست کرنے کے لیے نسخہ اپ لوڈ کریں۔",
+    "uploadLabel": "نسخے کی تصویر منتخب کرنے کے لیے کلک کریں",
+    "scanBtn": "ادویات کا تجزیہ کریں",
+    "submitting": "پروسیسنگ ہو رہی ہے...",
+    "extracting": "AI کے ساتھ نسخے کا تجزیہ ہو رہا ہے...",
+    "saving": "نسخہ محفوظ ہو رہا ہے...",
+    "success": "کامیابی کے ساتھ ادویات نکال لی گئیں!",
+    "error": "نسخے پر کارروائی نہیں ہو سکی۔ دوبارہ کوشش کریں۔"
   }
 }
