@@ -11,7 +11,9 @@ export function VideoRoomClient({ token, room, labels }: { token: string; room: 
     let cancelled = false;
     (async () => {
       try {
-        const { Room, RoomEvent } = await import("livekit-client");
+        const livekitModule: any = await (Function('return import("livekit-client")')() as Promise<any>);
+        const Room = livekitModule.Room;
+        const RoomEvent = livekitModule.RoomEvent;
         const r = new Room(); roomRef.current = r;
         const url = process.env.NEXT_PUBLIC_LIVEKIT_URL || "wss://live.nabd.plus";
         await r.connect(url, token);

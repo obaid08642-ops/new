@@ -70,8 +70,16 @@ async function bootstrap() {
   // across thousands of users) and one bot can ban them all.
   app.getHttpAdapter().getInstance().set('trust proxy', 2);
 
-  // Apply helmet security headers
-  app.use(mongoSanitize());
+  // Phase 5.3: NoSQL injection guard — strips $-operators from req.body and req.params
+  app.use((req: any, _res: any, next: any) => {
+    if (req.body && typeof req.body === 'object') {
+      mongoSanitize.sanitize(req.body, { replaceWith: '_' });
+    }
+    if (req.params && typeof req.params === 'object') {
+      mongoSanitize.sanitize(req.params, { replaceWith: '_' });
+    }
+    next();
+  });
   app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
       directives: {
