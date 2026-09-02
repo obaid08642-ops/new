@@ -26,7 +26,18 @@ interface CartContextType {
   hasRxItems: boolean;
 }
 
-const CartContext = createContext<CartContextType | null>(null);
+const defaultCartContext: CartContextType = {
+  items: [],
+  addItem: () => {},
+  removeItem: () => {},
+  updateQty: () => {},
+  clearCart: () => {},
+  itemCount: 0,
+  subtotal: 0,
+  hasRxItems: false,
+};
+
+const CartContext = createContext<CartContextType>(defaultCartContext);
 
 const STORAGE_KEY = "nabd_patient_cart_v1";
 
@@ -101,6 +112,5 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 export function useCart(): CartContextType {
   const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used inside CartProvider");
-  return context;
+  return context || defaultCartContext;
 }
