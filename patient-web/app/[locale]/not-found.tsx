@@ -1,16 +1,34 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { isLocale } from "@/lib/i18n";
 
-type Props = Readonly<{ params: Promise<{ locale: string }> }>;
+type Props = { params?: Promise<{ locale?: string }> };
 
-export default async function LocaleNotFound({ params }: Props) {
-  const { locale } = await params;
-  if (!isLocale(locale)) notFound();
+export default async function LocaleNotFound(props: Props) {
+  let locale = "ar";
+  if (props?.params) {
+    try {
+      const p = await props.params;
+      if (p?.locale) locale = p.locale;
+    } catch {
+      // ignore
+    }
+  }
 
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "NotFound" });
+  const isAr = locale === "ar";
 
-  return <main className="main auth-wrap"><section className="auth-card" role="status"><div className="eyebrow">404</div><h1>{t("title")}</h1><p>{t("body")}</p><Link className="button button-primary" href={`/${locale}`}>{t("returnHome")}</Link></section></main>;
+  return (
+    <main className="main auth-wrap">
+      <section className="auth-card" role="status">
+        <div className="eyebrow">404</div>
+        <h1>{isAr ? "الصفحة غير موجودة" : "Page Not Found"}</h1>
+        <p>
+          {isAr
+            ? "عذراً، لم نتمكن من العثور على الصفحة أو العنصر المطلوب."
+            : "Sorry, we could not find the requested page or item."}
+        </p>
+        <Link className="button button-primary" href={`/${locale}`}>
+          {isAr ? "العودة للرئيسية" : "Return Home"}
+        </Link>
+      </section>
+    </main>
+  );
 }
