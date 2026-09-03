@@ -13,6 +13,7 @@ import { LocationModule } from './modules/location/location.module';
 import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { EntityGraphModule } from './modules/entity-graph/entity-graph.module';
 import { McpModule } from './modules/mcp/mcp.module';
+import { AiCommerceModule } from './modules/ai-commerce/ai-commerce.module';
 import { LegalModule } from './modules/legal/legal.module';
 import { RatingsModule } from './modules/ratings/ratings.module';
 import { ProviderPayoutsController } from './modules/payouts/provider-payouts.controller';
@@ -157,6 +158,7 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     SearchIntentModule,
     EntityGraphModule,
     McpModule,
+    AiCommerceModule,
     LegalModule,
     RatingsModule,
     PresenceModule,
