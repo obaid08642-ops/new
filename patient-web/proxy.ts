@@ -43,7 +43,7 @@ async function legacyMedicineRedirect(request: NextRequest): Promise<NextRespons
 }
 
 function isMarkdownEligible(pathname: string) {
-  return routing.locales.some((loc) => pathname === `/${loc}` || pathname === `/${loc}/articles` || pathname === `/${loc}/medicine-catalog`) || pathname === "/";
+  return routing.locales.some((loc) => pathname === `/${loc}` || pathname === `/${loc}/articles` || pathname === `/${loc}/medicine-catalog` || pathname.startsWith(`/${loc}/p/`)) || pathname === "/";
 }
 
 function createContentSecurityPolicy(nonce: string) {
