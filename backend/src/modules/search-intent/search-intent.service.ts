@@ -27,7 +27,7 @@ export interface ExtractedSearchIntent {
 const SPECIALTIES: Array<{ code: string; patterns: string[] }> = [
   { code: 'dermatology', patterns: ['جلدية', 'دكتور جلدية', 'طبيب جلدية', 'dermatology', 'dermatologist', 'skin doctor', 'جلدی امراض', 'त्वचा', 'চর্মরোগ', 'dermatolohiya'] },
   { code: 'cardiology', patterns: ['قلب', 'دكتور قلب', 'امراض قلب', 'cardiology', 'cardiologist', 'heart doctor', 'دل کا ڈاکٹر', 'हृदय रोग', 'হৃদরোগ', 'doktor sa puso'] },
-  { code: 'pediatrics', patterns: ['اطفال', 'دكتور اطفال', 'طبيب اطفال', 'pediatrics', 'pediatrician', 'child doctor', 'بچوں کے امراض', 'बाल रोग', 'শিশু রোগ', 'doktor ng bata'] },
+  { code: 'pediatrics', patterns: ['اطفال', 'دكتور اطفال', 'طبيب اطفال', 'pediatrics', 'pediatrician', 'pediatric', 'pediatric doctor', 'child doctor', 'بچوں کے امراض', 'bachon ka doctor', 'bachon ke doctor', 'बाल रोग', 'শিশু রোগ', 'doktor ng bata'] },
   { code: 'gynecology', patterns: ['نساء وتوليد', 'نساء ولادة', 'طبيبة نساء', 'gynecology', 'obstetrics', 'obgyn', 'امراض نسواں', 'प्रसूति रोग', 'স্ত্রীরোগ', 'komadrona'] },
   { code: 'internal_medicine', patterns: ['باطنية', 'دكتور باطنية', 'internal medicine', 'internist', 'اندرونی امراض', 'आंतरिक चिकित्सा', 'মেডিসিন', 'panloob na gamot'] },
   { code: 'orthopedics', patterns: ['عظام', 'دكتور عظام', 'orthopedics', 'orthopedic', 'bone doctor', 'ہڈیوں کے امراض', 'हड्डी रोग', 'অর্থোপেডিক', 'doktor sa buto'] },
