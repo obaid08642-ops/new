@@ -129,6 +129,7 @@ export function expandMultilingualSearchTerms(input: string): string[] {
   return Array.from(expanded);
 }
 
+/**
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
