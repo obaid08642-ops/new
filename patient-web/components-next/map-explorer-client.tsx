@@ -189,9 +189,7 @@ export function MapExplorerClient({
                   </p>
                   <div className={styles.cardActions}>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                        prov.name + " " + (prov.address || "")
-                      )}`}
+                      href={prov.lat && prov.lng ? `https://www.openstreetmap.org/directions?to=${prov.lat}%2C${prov.lng}` : `https://www.openstreetmap.org/search?query=${encodeURIComponent(prov.name + ' ' + (prov.address || ''))}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.dirBtn}
@@ -223,15 +221,25 @@ export function MapExplorerClient({
         </div>
       </aside>
 
-      {/* Visual Map Area */}
+      {/* Visual Map Area - Powered by OpenStreetMap (Free, High Performance & Privacy Preserving) */}
       <section className={styles.mapArea}>
-        <div className={styles.mapCanvas}>
-          <div className={styles.mapOverlayNotice}>
-            <Compass size={24} color="#00876f" />
-            <h3>خريطة المنشآت التفاعلية</h3>
-            <p>تصفح المراكز الطبية والعيادات المعتمدة من القائمة لعرض التفاصيل والاتجاهات المباشرة.</p>
+        {selectedProvider && selectedProvider.lat && selectedProvider.lng ? (
+          <iframe
+            title={selectedProvider.name}
+            style={{ width: "100%", height: "100%", border: 0 }}
+            loading="lazy"
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedProvider.lng - 0.015}%2C${selectedProvider.lat - 0.015}%2C${selectedProvider.lng + 0.015}%2C${selectedProvider.lat + 0.015}&layer=mapnik&marker=${selectedProvider.lat}%2C${selectedProvider.lng}`}
+          />
+        ) : (
+          <div className={styles.mapCanvas}>
+            <div className={styles.mapOverlayNotice}>
+              <Compass size={28} color="#00876f" />
+              <h3>خريطة المنشآت التفاعلية</h3>
+              <p>تصفح المراكز الطبية والعيادات المعتمدة من القائمة لعرض موقعها المباشر على الخريطة والاتجاهات.</p>
+              <small style={{ color: "#94a3b8", display: "block", marginTop: "8px" }}>خرائط مفتوحة المصدر ومحمية الخصوصية</small>
+            </div>
           </div>
-        </div>
+        )}
       </section>
     </div>
   );
