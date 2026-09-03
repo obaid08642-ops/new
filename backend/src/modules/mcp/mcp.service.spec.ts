@@ -122,19 +122,20 @@ describe('McpService', () => {
       expect(res.result.serverInfo.name).toBe('nabdah-mcp-server');
     });
 
-    it('lists all 5 core MCP tools', async () => {
+    it('lists registered MCP tools including discovery and compliance tools', async () => {
       const res = await service.handleRpcRequest({
         jsonrpc: '2.0',
         id: 2,
         method: 'tools/list',
       });
-      expect(res.result.tools).toHaveLength(5);
+      expect(res.result.tools.length).toBeGreaterThanOrEqual(5);
       const toolNames = res.result.tools.map((t: any) => t.name);
       expect(toolNames).toContain('search_entities');
       expect(toolNames).toContain('get_entity_detail');
       expect(toolNames).toContain('find_alternatives');
       expect(toolNames).toContain('check_availability');
       expect(toolNames).toContain('prepare_transaction');
+      expect(toolNames).toContain('check_prescription_required');
     });
   });
 

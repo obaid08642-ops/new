@@ -406,11 +406,11 @@ export class SeoSearchService {
   /** Location paths for sitemaps. */
   async publicLocationSitemap() {
     const rows = await this.conn.collection('locations')
-      .find({ is_active: { $ne: false } }, { projection: { _id: 0, city: 1, district: 1, updatedAt: 1 } })
+      .find({ is_active: { $ne: false }, type: { $in: ['city', 'district', 'region'] } }, { projection: { _id: 0, code: 1, name_en: 1, name_ar: 1, updatedAt: 1 } })
       .limit(5000)
       .toArray();
     return rows.map((l: any) => ({
-      slug: l.district ? `${encodeURIComponent(l.city)}/${encodeURIComponent(l.district)}` : encodeURIComponent(l.city),
+      slug: slugify(l.name_en || l.name_ar || l.code),
       lastmod: l.updatedAt ? new Date(l.updatedAt).toISOString().slice(0, 10) : undefined,
     }));
   }

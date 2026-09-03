@@ -93,6 +93,52 @@ export const MCP_TOOLS: McpToolDefinition[] = [
       required: ['transaction_type', 'entity_id'],
     },
   },
+  {
+    name: 'check_prescription_required',
+    description: 'Verify whether a medicine requires an official prescription under SFDA regulations.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        medicine_slug_or_id: { type: 'string', description: 'Medicine slug, SKU, or ID' },
+      },
+      required: ['medicine_slug_or_id'],
+    },
+  },
+  {
+    name: 'search_medicines',
+    description: 'Search official pharmacy catalog for medicines by name, brand, or active ingredient.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Medicine name or active ingredient' },
+        limit: { type: 'number', default: 10 },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'search_doctors',
+    description: 'Find verified doctors by specialty, city, or accepted insurance network.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        specialty: { type: 'string', description: 'Medical specialty' },
+        city: { type: 'string', description: 'City name (e.g. Riyadh, Jeddah)' },
+        insurance: { type: 'string', description: 'Insurance network' },
+      },
+    },
+  },
+  {
+    name: 'search_facilities',
+    description: 'Find verified hospitals, medical clinics, and pharmacy branches.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Hospital or clinic name' },
+        city: { type: 'string', description: 'City' },
+      },
+    },
+  },
 ];
 
 @Injectable()
@@ -188,9 +234,106 @@ export class McpService {
         return this.toolCheckAvailability(args);
       case 'prepare_transaction':
         return this.toolPrepareTransaction(args);
+      case 'check_prescription_required':
+        return this.toolCheckPrescription(args);
+      case 'search_medicines':
+        return this.toolSearchMedicines(args);
+      case 'search_doctors':
+        return this.toolSearchDoctors(args);
+      case 'search_facilities':
+        return this.toolSearchFacilities(args);
       default:
         throw new BadRequestException(`Unknown tool '${name}'`);
     }
+  }
+
+  private async toolCheckPrescription(args: Record<string, any>) {
+    const { medicine_slug_or_id } = args;
+    const med: any = await this.connection.collection('medicines_master').findOne({
+      $or: [
+        { id: medicine_slug_or_id },
+        { slug: medicine_slug_or_id },
+        { sku: Number(medicine_slug_or_id) || -1 },
+      ],
+      is_deleted: { $ne: true },
+    });
+    if (!med) throw new NotFoundException(`Medicine '${medicine_slug_or_id}' not found`);
+    return {
+      medicine_id: med.id,
+      name: med.name_ar || med.name_en,
+      requires_prescription: !!med.requires_prescription,
+      regulation_notice: med.requires_prescription
+        ? 'SFDA: Requires verified medical prescription before fulfillment'
+        : 'SFDA: Over-The-Counter (OTC) medication, eligible for direct order',
+    };
+  }
+
+  private async toolSearchMedicines(args: Record<string, any>) {
+    const { query, limit = 10 } = args;
+    const regex = new RegExp(String(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const meds = await this.connection.collection('medicines_master').find({
+      $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
+      is_deleted: { $ne: true },
+    }).limit(limit).toArray();
+
+    return {
+      total: meds.length,
+      items: meds.map((m: any) => ({
+        id: m.id,
+        name: m.name_ar || m.name_en,
+        price: m.price,
+        currency: 'SAR',
+        requires_prescription: !!m.requires_prescription,
+        active_ingredient: m.active_ingredient,
+        canonical_url: `https://nabd.plus/ar/p/${m.slug}`,
+        deep_link: `nabdplus://p/${m.slug}`,
+      })),
+    };
+  }
+
+  private async toolSearchDoctors(args: Record<string, any>) {
+    const { specialty, city, insurance } = args;
+    const filter: any = { provider_type: 'doctor', is_active: { $ne: false } };
+    if (specialty) filter.specialty = specialty;
+    if (city) filter.city = city;
+    if (insurance) filter.accepted_insurance = insurance;
+
+    const docs = await this.connection.collection('provider_profiles').find(filter).limit(10).toArray();
+    return {
+      total: docs.length,
+      items: docs.map((d: any) => ({
+        id: d.id,
+        name: d.name_ar || d.name_en || d.name,
+        specialty: d.specialty,
+        city: d.city,
+        rating: d.rating,
+        canonical_url: `https://nabd.plus/ar/doctor/${d.slug || d.id}`,
+        deep_link: `nabdplus://doctor/${d.slug || d.id}`,
+      })),
+    };
+  }
+
+  private async toolSearchFacilities(args: Record<string, any>) {
+    const { query, city } = args;
+    const filter: any = { is_active: { $ne: false } };
+    if (city) filter.city = city;
+    if (query) {
+      const regex = new RegExp(String(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ name_ar: regex }, { name_en: regex }];
+    }
+
+    const facs = await this.connection.collection('facilities').find(filter).limit(10).toArray();
+    return {
+      total: facs.length,
+      items: facs.map((f: any) => ({
+        id: f.id,
+        name: f.name_ar || f.name_en,
+        type: f.type,
+        city: f.city,
+        canonical_url: `https://nabd.plus/ar/facility/${f.slug || f.id}`,
+        deep_link: `nabdplus://facility/${f.slug || f.id}`,
+      })),
+    };
   }
 
   private async toolSearchEntities(args: Record<string, any>) {
@@ -337,6 +480,7 @@ export class McpService {
       // STRICT SAFETY ENFORCEMENT: If prescription is required, AI CANNOT bypass it!
       if (requiresRx) {
         return {
+          status: 'BLOCKED_RX_REQUIRED',
           transaction_type: 'medicine_order',
           entity_id,
           medicine_name: med.name_ar || med.name_en,
