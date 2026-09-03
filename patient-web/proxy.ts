@@ -12,7 +12,7 @@ function isPublicLocaleHome(pathname: string) {
 // Indexable public surfaces: locale homes, articles, the v14 product pages
 // /{lang}/p/{slug}, category clusters /{lang}/c…, and the catalogue landing.
 const LOCALE = "(?:ar|en|ur|hi|bn|fil)";
-const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog))?\\/?$`);
+const PUBLIC_INDEXABLE = new RegExp(`^\\/${LOCALE}(?:\\/(?:articles(?:\\/[^/]+)?|p\\/[^/]+|c(?:\\/.*)?|medicine-catalog|consultations\\/doctors(?:\\/[^/]+)?|diagnostics\\/labs(?:\\/[^/]+)?|diagnostics\\/radiology(?:\\/[^/]+)?|nursing\\/catalog|map))?\\/?$`);
 
 function isPublicIndexable(pathname: string) {
   return isPublicLocaleHome(pathname) || PUBLIC_INDEXABLE.test(pathname);
@@ -43,7 +43,7 @@ async function legacyMedicineRedirect(request: NextRequest): Promise<NextRespons
 }
 
 function isMarkdownEligible(pathname: string) {
-  return pathname === "/" || pathname === "/en" || pathname === "/ar" || pathname === "/en/articles" || pathname === "/ar/articles";
+  return routing.locales.some((loc) => pathname === `/${loc}` || pathname === `/${loc}/articles` || pathname === `/${loc}/medicine-catalog`) || pathname === "/";
 }
 
 function createContentSecurityPolicy(nonce: string) {

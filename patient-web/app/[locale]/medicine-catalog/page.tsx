@@ -44,12 +44,27 @@ async function searchPublicProducts(locale: string, q: string | undefined, page:
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
+  const t = await getTranslations({ locale, namespace: "PublicMedicines" });
   const search = parseMedicineSearch(await searchParams);
   const canonical = localizedUrl(locale, "/medicine-catalog");
+  const title = t("title");
+  const description = t("body");
   return {
-    title: locale === "ar" ? "كتالوج الأدوية والصيدلية" : "Pharmacy & Medicines Catalog",
-    description: locale === "ar" ? "تصفح كتالوج الأدوية والمنتجات الصحية من نبض بلس." : "Browse medicines and healthcare products from Nabd Plus.",
-    alternates: { canonical, languages: { ...Object.fromEntries(locales.map((supportedLocale) => [supportedLocale, localizedUrl(supportedLocale, "/medicine-catalog")])), "x-default": localizedUrl("ar", "/medicine-catalog") } },
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: {
+        ...Object.fromEntries(locales.map((supportedLocale) => [supportedLocale, localizedUrl(supportedLocale, "/medicine-catalog")])),
+        "x-default": localizedUrl("ar", "/medicine-catalog"),
+      },
+    },
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title,
+      description,
+    },
     robots: search.q || search.page > 1 ? { index: false, follow: true } : { index: true, follow: true },
   };
 }

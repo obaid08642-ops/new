@@ -20,7 +20,7 @@ describe("indexing response policy", () => {
   });
 
   it("keeps v14 product pages, category clusters and the catalogue landing indexable", async () => {
-    for (const pathname of ["/en/p/abilify-aripiprazole-15-mg-28-tablets", "/ar/p/%D8%A3%D8%AF%D9%88%D9%84", "/en/c", "/ar/c/%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9", "/en/medicine-catalog", "/ar/articles"]) {
+    for (const pathname of ["/en/p/abilify-aripiprazole-15-mg-28-tablets", "/ar/p/%D8%A3%D8%AF%D9%88%D9%84", "/en/c", "/ar/c/%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9", "/en/medicine-catalog", "/ar/articles", "/en/consultations/doctors", "/ar/diagnostics/labs", "/ur/diagnostics/radiology", "/hi/nursing/catalog", "/bn/map"]) {
       expect((await proxy(request(pathname))).headers.get("x-robots-tag")).toBeNull();
     }
   });

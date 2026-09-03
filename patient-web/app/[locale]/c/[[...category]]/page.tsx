@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicCategories, getPublicCategoryProducts, type PublicProductCard } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
-import { isLocale } from "@/lib/i18n";
+import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { ChevronLeft, Pill } from "lucide-react";
 import styles from "./category-page.module.css";
@@ -27,12 +27,24 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const name = decoded[decoded.length - 1];
   const path = `/c${decoded.length ? `/${decoded.map(encodeURIComponent).join("/")}` : ""}`;
   const canonical = localizedUrl(locale, path);
-  const title = name ? name : undefined;
+  const title = name ? name : "الأقسام والمنتجات";
+  const description = name ? `${name} — نبض بلس` : "تصفح أقسام الأدوية والمنتجات الصحية من نبض بلس";
   return {
     title,
-    description: name ? `${name} — Nabd Plus` : undefined,
-    alternates: { canonical },
-    // Deep paginated pages stay discoverable via links but don't compete in the index.
+    description,
+    alternates: {
+      canonical,
+      languages: {
+        ...Object.fromEntries(locales.map((supportedLocale) => [supportedLocale, localizedUrl(supportedLocale, path)])),
+        "x-default": localizedUrl("ar", path),
+      },
+    },
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title,
+      description,
+    },
     robots: page > 1 ? { index: false, follow: true } : { index: true, follow: true },
   };
 }
