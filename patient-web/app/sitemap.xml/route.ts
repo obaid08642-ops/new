@@ -7,7 +7,13 @@ export const revalidate = 3600;
 
 /** Sitemap index: static pages + paginated product sitemaps per locale. */
 export async function GET() {
-  const entries: string[] = [`${siteOrigin()}/sitemaps/static.xml`];
+  const entries: string[] = [
+    `${siteOrigin()}/sitemaps/static.xml`,
+    `${siteOrigin()}/sitemaps/doctors.xml`,
+    `${siteOrigin()}/sitemaps/facilities.xml`,
+    `${siteOrigin()}/sitemaps/conditions.xml`,
+    `${siteOrigin()}/sitemaps/locations.xml`,
+  ];
   for (const locale of locales) {
     const first = await getProductSitemap(locale, 1);
     const pages = first?.pages || 0;
