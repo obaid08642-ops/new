@@ -9,6 +9,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ApiSecurityModule } from './modules/api-security/api-security.module';
 import { DeviceTrustModule } from './modules/device-trust/device-trust.module';
 import { SeoSearchModule } from './modules/seo-search/seo-search.module';
+import { LocationModule } from './modules/location/location.module';
+import { SearchIntentModule } from './modules/search-intent/search-intent.module';
 import { LegalModule } from './modules/legal/legal.module';
 import { RatingsModule } from './modules/ratings/ratings.module';
 import { ProviderPayoutsController } from './modules/payouts/provider-payouts.controller';
@@ -149,6 +151,8 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     ApiSecurityModule,
     DeviceTrustModule,
     SeoSearchModule,
+    LocationModule,
+    SearchIntentModule,
     LegalModule,
     RatingsModule,
     PresenceModule,
