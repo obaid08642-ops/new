@@ -49,7 +49,6 @@ export default async function LandingPage({ params }: Props) {
   if (!isLocale(locale)) return null;
   setRequestLocale(locale);
 
-  const isAr = locale === "ar";
   const t = await getTranslations("Home");
   const metadata = await getTranslations("Metadata");
   const url = localizedUrl(locale);
@@ -59,64 +58,64 @@ export default async function LandingPage({ params }: Props) {
       icon: Pill,
       color: "#16a34a",
       bg: "rgba(22, 163, 74, 0.1)",
-      title: isAr ? "الصيدلية والأدوية" : "Pharmacy & Medicines",
-      desc: isAr ? "تسوق الأدوية والمستلزمات واطلب توصيلاً فورياً" : "Browse catalog, medicines & instant delivery",
+      title: t("pharmacyTitle"),
+      desc: t("pharmacyDesc"),
       href: `/${locale}/c`,
     },
     {
       icon: Stethoscope,
       color: "#2563eb",
       bg: "rgba(37, 99, 235, 0.1)",
-      title: isAr ? "استشارات الأطباء" : "Doctor Consultations",
-      desc: isAr ? "احجز استشارة مع نخبة الأطباء عبر الفيديو أو العيادة" : "Book video or in-clinic consultations with top doctors",
+      title: t("doctorsTitle"),
+      desc: t("doctorsDesc"),
       href: `/${locale}/consultations/doctors`,
     },
     {
       icon: TestTube2,
       color: "#7c3aed",
       bg: "rgba(124, 58, 237, 0.1)",
-      title: isAr ? "المختبر والتحاليل" : "Labs & Diagnostics",
-      desc: isAr ? "باقات فحص شامل وسحب عينات منزلي معتمد" : "Lab tests, home sampling and checkup packages",
+      title: t("labsTitle"),
+      desc: t("labsDesc"),
       href: `/${locale}/diagnostics/labs`,
     },
     {
       icon: HeartPulse,
       color: "#0891b2",
       bg: "rgba(8, 145, 178, 0.1)",
-      title: isAr ? "التمريض المنزلي" : "Home Nursing Care",
-      desc: isAr ? "أخصائيو تمريض معتمدون للرعاية والعلاج بالمنزل" : "Certified nursing specialists for home visits",
+      title: t("nursingTitle"),
+      desc: t("nursingDesc"),
       href: `/${locale}/nursing/catalog`,
     },
     {
       icon: Activity,
       color: "#4f46e5",
       bg: "rgba(79, 70, 229, 0.1)",
-      title: isAr ? "الأشعة التشخيصية" : "Radiology Services",
-      desc: isAr ? "حجز فحوصات الأشعة في أرقى المراكز المعتمدة" : "Book radiology and imaging in certified centers",
+      title: t("radiologyTitle"),
+      desc: t("radiologyDesc"),
       href: `/${locale}/diagnostics/radiology`,
     },
     {
       icon: Sparkles,
       color: "#0d9488",
       bg: "rgba(13, 148, 136, 0.1)",
-      title: isAr ? "الفرز الطبي الذكي (AI)" : "AI Medical Triage",
-      desc: isAr ? "تقييم أولي فوري للأعراض وتوجيهك للتخصص المناسب" : "Instant AI-powered symptom checker and triage",
+      title: t("aiTitle"),
+      desc: t("aiDesc"),
       href: `/${locale}/ai`,
     },
     {
       icon: Compass,
       color: "#0284c7",
       bg: "rgba(2, 132, 199, 0.1)",
-      title: isAr ? "استكشاف الخريطة" : "Facility Map Explorer",
-      desc: isAr ? "المراكز الطبية والمستشفيات والصيدليات القريبة" : "Discover nearby clinics, hospitals and pharmacies",
+      title: t("mapTitle"),
+      desc: t("mapDesc"),
       href: `/${locale}/map`,
     },
     {
       icon: ShieldAlert,
       color: "#dc2626",
       bg: "rgba(220, 38, 38, 0.1)",
-      title: isAr ? "طوارئ وإسعاف" : "Emergency & SOS",
-      desc: isAr ? "طلب إسعاف فوري وخدمات الطوارئ السريعة" : "Instant emergency assistance and ambulance request",
+      title: t("emergencyTitle"),
+      desc: t("emergencyDesc"),
       href: `/${locale}/emergency`,
       danger: true,
     },
@@ -155,22 +154,18 @@ export default async function LandingPage({ params }: Props) {
         <div className={styles.heroContent}>
           <div className={styles.badge}>
             <Sparkles size={16} aria-hidden="true" />
-            <span>{isAr ? "رعايتك الصحية المتكاملة بين يديك" : "Your Integrated Healthcare Hub"}</span>
+            <span>{t("heroBadge")}</span>
           </div>
-          <h1>{isAr ? "منصة نبض بلس الطبية الشاملة" : "Nabd Plus Medical Portal"}</h1>
-          <p>
-            {isAr
-              ? "تصفح واطلب كافة الخدمات الطبية: صيدلية متكاملة، استشارات فورية، تمريض منزلي، تحاليل، وأشعة بكل يسر وأمان."
-              : "Access all healthcare services: complete pharmacy, instant consultations, home nursing, diagnostics and lab tests."}
-          </p>
+          <h1>{t("heroTitle")}</h1>
+          <p>{t("heroDesc")}</p>
         </div>
       </section>
 
       {/* Quick Services Grid */}
       <section className={styles.servicesSection}>
         <div className={styles.sectionHead}>
-          <h2>{isAr ? "الخدمات الطبية الرئيسية" : "Main Healthcare Services"}</h2>
-          <p>{isAr ? "اختر الخدمة للانتقال المباشر إليها وبدء الطلب فوراً" : "Select a service for instant access"}</p>
+          <h2>{t("servicesTitle")}</h2>
+          <p>{t("servicesSubtitle")}</p>
         </div>
 
         <div className={styles.servicesGrid}>
@@ -206,22 +201,22 @@ export default async function LandingPage({ params }: Props) {
         <div className={styles.trustItem}>
           <ShieldCheck size={24} color="#00876f" />
           <div>
-            <strong>{isAr ? "مرخص ومعتمد" : "Certified & Licensed"}</strong>
-            <span>{isAr ? "منشآت وكوادر طبية معتمدة" : "Verified healthcare practitioners"}</span>
+            <strong>{t("trustLicensed")}</strong>
+            <span>{t("trustLicensedSub")}</span>
           </div>
         </div>
         <div className={styles.trustItem}>
           <Pill size={24} color="#00876f" />
           <div>
-            <strong>{isAr ? "صيدلية أصلية 100%" : "100% Genuine Medicines"}</strong>
-            <span>{isAr ? "أدوية ومستلزمات من مصادر موثوقة" : "Sourced directly from verified pharmacies"}</span>
+            <strong>{t("trustGenuine")}</strong>
+            <span>{t("trustGenuineSub")}</span>
           </div>
         </div>
         <div className={styles.trustItem}>
           <Calendar size={24} color="#00876f" />
           <div>
-            <strong>{isAr ? "متابعة مستمرة 24/7" : "24/7 Continuous Care"}</strong>
-            <span>{isAr ? "خدمة واستجابة على مدار الساعة" : "Round-the-clock patient assistance"}</span>
+            <strong>{t("trustCare")}</strong>
+            <span>{t("trustCareSub")}</span>
           </div>
         </div>
       </section>
