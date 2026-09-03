@@ -13,6 +13,10 @@ export async function GET() {
     `${siteOrigin()}/sitemaps/facilities.xml`,
     `${siteOrigin()}/sitemaps/conditions.xml`,
     `${siteOrigin()}/sitemaps/locations.xml`,
+    `${siteOrigin()}/sitemaps/services.xml`,
+    `${siteOrigin()}/sitemaps/pharmacies.xml`,
+    `${siteOrigin()}/sitemaps/labs.xml`,
+    `${siteOrigin()}/sitemaps/radiology.xml`,
   ];
   for (const locale of locales) {
     const first = await getProductSitemap(locale, 1);

@@ -92,3 +92,43 @@ export function medicalCondition(input: { name: string; path: string; locale: Lo
   };
 }
 
+export function labTest(input: {
+  name: string; path: string; locale: Locale; description?: string | null; sampleType?: string | null; fastHours?: number | null;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org", "@type": "MedicalTest",
+    name: input.name,
+    url: `${siteOrigin()}/${input.locale}${input.path}`,
+    inLanguage: input.locale,
+    ...(input.description ? { description: input.description } : {}),
+    ...(input.sampleType ? { relevantSpecialty: "MedicalPathology" } : {}),
+  };
+}
+
+export function radiologyService(input: {
+  name: string; path: string; locale: Locale; description?: string | null;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org", "@type": "MedicalProcedure",
+    name: input.name,
+    url: `${siteOrigin()}/${input.locale}${input.path}`,
+    inLanguage: input.locale,
+    procedureType: "Diagnostic",
+    ...(input.description ? { description: input.description } : {}),
+  };
+}
+
+export function nursingService(input: {
+  name: string; path: string; locale: Locale; description?: string | null;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org", "@type": "MedicalProcedure",
+    name: input.name,
+    url: `${siteOrigin()}/${input.locale}${input.path}`,
+    inLanguage: input.locale,
+    procedureType: "Nursing",
+    ...(input.description ? { description: input.description } : {}),
+  };
+}
+
+
