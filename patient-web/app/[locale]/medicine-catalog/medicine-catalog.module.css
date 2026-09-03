@@ -37,3 +37,8 @@
 
 @media (max-width: 540px) { .page { gap: 1rem; padding-top: 1rem; } .hero { grid-template-columns: minmax(0, 1fr); padding: 1.2rem; } .heroIcon { display: none; } .search { grid-template-columns: minmax(0, 1fr); } .submit { inline-size: 100%; } .grid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .card, .fieldInput { transition: none; } .card:hover { transform: none; } }
+
+.pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; padding: 1rem; }
+.pageBtn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; border-radius: var(--radius-lg); border: 1px solid var(--line); background: #fff; color: var(--ink); font-weight: 600; text-decoration: none; transition: all 0.2s; }
+.pageBtn:hover { border-color: var(--brand-deep); color: var(--brand-deep); background: var(--brand-soft); }
+.pageInfo { font-size: 0.9rem; color: var(--muted); font-weight: 500; }

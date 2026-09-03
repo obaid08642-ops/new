@@ -104,30 +104,55 @@ export default async function PublicMedicineCatalogPage({ params, searchParams }
         {t("search")}
       </button>
     </form>
-    {medicines.length === 0 ? <section className={styles.state}><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>
-      {medicines.map((medicine) => (
-        <Link className={styles.card} key={medicine.id} href={`/${locale}/p/${encodeURIComponent(medicine.slug)}`}>
-          <span className={styles.cardTop}>
-            <span className={styles.medicineIcon}>
-              {medicine.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={medicine.image} alt={medicine.name || ""} className={styles.cardImg} />
-              ) : (
-                <Pill size={20} aria-hidden="true" />
-              )}
+    {medicines.length === 0 ? <section className={styles.state}><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><p>{t("empty")}</p></section> : <>
+      <section className={styles.grid} aria-label={t("title")}>
+        {medicines.map((medicine) => (
+          <Link className={styles.card} key={medicine.id} href={`/${locale}/p/${encodeURIComponent(medicine.slug)}`}>
+            <span className={styles.cardTop}>
+              <span className={styles.medicineIcon}>
+                {medicine.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={medicine.image} alt={medicine.name || ""} className={styles.cardImg} />
+                ) : (
+                  <Pill size={20} aria-hidden="true" />
+                )}
+              </span>
+              <ArrowUpLeft className={styles.openIcon} size={17} aria-hidden="true" />
             </span>
-            <ArrowUpLeft className={styles.openIcon} size={17} aria-hidden="true" />
+            <strong className={styles.name}>{medicine.name}</strong>
+            {medicine.active_ingredient ? <span className={styles.detail}>{medicine.active_ingredient}</span> : null}
+            {medicine.form || medicine.strength ? <span className={styles.detail}>{[medicine.form, medicine.strength, medicine.package_size].filter(Boolean).join(" · ")}</span> : null}
+            <div className={styles.cardPriceRow}>
+              <strong className={styles.cardPrice}>{medicine.price.toFixed(2)} {medicine.currency}</strong>
+              {medicine.is_rx === true ? <span className={styles.prescription}><ShieldCheck size={13} aria-hidden="true" />{t("prescriptionRequired")}</span> : null}
+            </div>
+            <span className={styles.open}>{t("open")}<ArrowUpLeft size={14} aria-hidden="true" /></span>
+          </Link>
+        ))}
+      </section>
+      {result.total > 24 ? (
+        <nav className={styles.pagination} aria-label="Catalog pagination">
+          {search.page > 1 ? (
+            <Link
+              className={styles.pageBtn}
+              href={`/${locale}/medicine-catalog?${new URLSearchParams({ ...(search.q ? { q: search.q } : {}), page: String(search.page - 1) }).toString()}`}
+            >
+              ←
+            </Link>
+          ) : null}
+          <span className={styles.pageInfo}>
+            {search.page} / {Math.ceil(result.total / 24)} ({result.total})
           </span>
-          <strong className={styles.name}>{medicine.name}</strong>
-          {medicine.active_ingredient ? <span className={styles.detail}>{medicine.active_ingredient}</span> : null}
-          {medicine.form || medicine.strength ? <span className={styles.detail}>{[medicine.form, medicine.strength, medicine.package_size].filter(Boolean).join(" · ")}</span> : null}
-          <div className={styles.cardPriceRow}>
-            <strong className={styles.cardPrice}>{medicine.price.toFixed(2)} {medicine.currency}</strong>
-            {medicine.is_rx === true ? <span className={styles.prescription}><ShieldCheck size={13} aria-hidden="true" />{t("prescriptionRequired")}</span> : null}
-          </div>
-          <span className={styles.open}>{t("open")}<ArrowUpLeft size={14} aria-hidden="true" /></span>
-        </Link>
-      ))}
-    </section>}
+          {search.page < Math.ceil(result.total / 24) ? (
+            <Link
+              className={styles.pageBtn}
+              href={`/${locale}/medicine-catalog?${new URLSearchParams({ ...(search.q ? { q: search.q } : {}), page: String(search.page + 1) }).toString()}`}
+            >
+              →
+            </Link>
+          ) : null}
+        </nav>
+      ) : null}
+    </>}
   </main>;
 }
