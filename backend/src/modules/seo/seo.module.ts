@@ -15,6 +15,8 @@ import { ProviderProfileRepository } from "./repositories/providerprofile.reposi
 import { ArticleRepository } from "./repositories/article.repository";
 import { ArticleSchema } from "../../schemas/article.schema";
 
+import { IndexNowService } from './indexnow.service';
+
 @Module({
   imports: [MongooseModule.forFeature([
     { name: 'Medicine', schema: MedicineSchema },
@@ -25,8 +27,16 @@ import { ArticleSchema } from "../../schemas/article.schema";
     { name: 'Article', schema: ArticleSchema },
   ])],
   controllers: [SeoController],
-  providers: [SeoService, { provide: 'FacilityRepository', useClass: FacilityRepository },
-    { provide: 'ArticleRepository', useClass: ArticleRepository }, { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository }, { provide: 'LabServiceRepository', useClass: LabServiceRepository }, { provide: 'MedicineRepository', useClass: MedicineRepository }, { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository }],
-  exports: [SeoService],
+  providers: [
+    SeoService,
+    IndexNowService,
+    { provide: 'FacilityRepository', useClass: FacilityRepository },
+    { provide: 'ArticleRepository', useClass: ArticleRepository },
+    { provide: 'HomeCareServiceRepository', useClass: HomeCareServiceRepository },
+    { provide: 'LabServiceRepository', useClass: LabServiceRepository },
+    { provide: 'MedicineRepository', useClass: MedicineRepository },
+    { provide: 'ProviderProfileRepository', useClass: ProviderProfileRepository },
+  ],
+  exports: [SeoService, IndexNowService],
 })
 export class SeoModule {}

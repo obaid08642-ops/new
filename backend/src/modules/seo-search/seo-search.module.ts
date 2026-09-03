@@ -367,6 +367,54 @@ export class SeoSearchService {
     return this.conn.collection('medicines_master').countDocuments(this.publicProductFilter());
   }
 
+  /** Doctor slugs for sitemaps. */
+  async publicDoctorSitemap() {
+    const rows = await this.conn.collection('provider_profiles')
+      .find({ provider_type: 'doctor', is_active: { $ne: false } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows.map((d: any) => ({
+      slug: d.slug || d.id,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString().slice(0, 10) : undefined,
+    }));
+  }
+
+  /** Facility slugs for sitemaps. */
+  async publicFacilitySitemap() {
+    const rows = await this.conn.collection('facilities')
+      .find({ is_active: { $ne: false } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows.map((f: any) => ({
+      slug: f.slug || f.id,
+      lastmod: f.updatedAt ? new Date(f.updatedAt).toISOString().slice(0, 10) : undefined,
+    }));
+  }
+
+  /** Condition slugs for sitemaps. */
+  async publicConditionSitemap() {
+    const rows = await this.conn.collection('conditions')
+      .find({ is_deleted: { $ne: true } }, { projection: { _id: 0, slug: 1, id: 1, updatedAt: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows.map((c: any) => ({
+      slug: c.slug || c.id,
+      lastmod: c.updatedAt ? new Date(c.updatedAt).toISOString().slice(0, 10) : undefined,
+    }));
+  }
+
+  /** Location paths for sitemaps. */
+  async publicLocationSitemap() {
+    const rows = await this.conn.collection('locations')
+      .find({ is_active: { $ne: false } }, { projection: { _id: 0, city: 1, district: 1, updatedAt: 1 } })
+      .limit(5000)
+      .toArray();
+    return rows.map((l: any) => ({
+      slug: l.district ? `${encodeURIComponent(l.city)}/${encodeURIComponent(l.district)}` : encodeURIComponent(l.city),
+      lastmod: l.updatedAt ? new Date(l.updatedAt).toISOString().slice(0, 10) : undefined,
+    }));
+  }
+
   /** Category cluster tree with live counts per locale. */
   async publicCategories(locale: string) {
     const db = productLocaleToDb(locale);
@@ -771,6 +819,34 @@ export class SeoSearchController {
     const p = Math.max(parseInt(page || '1'), 1);
     const [urls, total] = await Promise.all([this.svc.publicProductSitemapPage(locale, p), this.svc.publicProductCount()]);
     return { locale, page: p, per_page: 5000, total, pages: Math.max(Math.ceil(total / 5000), 1), urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/doctors/:locale')
+  async publicDoctorSitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicDoctorSitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/facilities/:locale')
+  async publicFacilitySitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicFacilitySitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/conditions/:locale')
+  async publicConditionSitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicConditionSitemap();
+    return { locale, total: urls.length, urls };
+  }
+
+  @Public()
+  @Get('public/sitemaps/locations/:locale')
+  async publicLocationSitemap(@Param('locale') locale: string) {
+    const urls = await this.svc.publicLocationSitemap();
+    return { locale, total: urls.length, urls };
   }
 }
 
