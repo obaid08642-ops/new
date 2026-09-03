@@ -46,5 +46,35 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
       ))}
     </ol>
     {idx < 0 ? <p className={styles.note}>{t("unknownStatus")}: {status}</p> : null}
+
+    {(track?.vitals || track?.notes || visit?.vitals || visit?.notes) ? (
+      <section style={{ background: "#fff", borderRadius: 16, padding: 20, marginTop: 20, border: "1px solid #E2E8F0" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, color: "#1E293B" }}>
+          {locale === "ar" ? "التقرير السريري للزيارة" : "Clinical Visit Report"}
+        </h2>
+        <div style={{ display: "grid", gap: 10, fontSize: 14 }}>
+          {(track?.vitals?.pulse || visit?.vitals?.pulse) && (
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "#64748B" }}>{locale === "ar" ? "النبض (BPM):" : "Pulse:"}</span>
+              <strong>{track?.vitals?.pulse ?? visit?.vitals?.pulse}</strong>
+            </div>
+          )}
+          {(track?.vitals?.bp || visit?.vitals?.bp) && (
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "#64748B" }}>{locale === "ar" ? "ضغط الدم:" : "Blood Pressure:"}</span>
+              <strong>{track?.vitals?.bp ?? visit?.vitals?.bp}</strong>
+            </div>
+          )}
+          {(track?.notes || visit?.notes) && (
+            <div style={{ marginTop: 6 }}>
+              <span style={{ color: "#64748B", display: "block", marginBottom: 4 }}>{locale === "ar" ? "ملاحظات الممرض:" : "Nurse Notes:"}</span>
+              <p style={{ margin: 0, padding: 10, background: "#F8FAFC", borderRadius: 8, color: "#1E293B" }}>
+                {track?.notes ?? visit?.notes}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+    ) : null}
   </main>;
 }
