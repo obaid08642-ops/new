@@ -9,11 +9,15 @@ type DeepLinkScreens = Record<string, string | { screens: DeepLinkScreens }>;
 // ---------------------------------------------------------------------------
 
 const DEEP_LINK_PREFIX = Linking.createURL('/');
-const WEB_PREFIX = 'https://nabdahplus.com';
+const WEB_PREFIX = 'https://nabd.plus';
 
 export const DEEP_LINK_PREFIXES = [
   DEEP_LINK_PREFIX,
   WEB_PREFIX,
+  'https://app.nabd.plus',
+  'https://www.nabd.plus',
+  'https://nabdahplus.com',
+  'nabdplus://',
   'nabdahplus://',
 ];
 
