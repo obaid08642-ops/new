@@ -1,4 +1,4 @@
-import { normalizeSearchText } from "./seo-search.module";
+import { normalizeSearchText, expandMultilingualSearchTerms } from "./seo-search.module";
 
 describe("normalizeSearchText (ar/en search contract)", () => {
   it("strips Arabic diacritics and tatweel", () => {
@@ -22,3 +22,44 @@ describe("normalizeSearchText (ar/en search contract)", () => {
     expect(normalizeSearchText(undefined as unknown as string)).toBe("");
   });
 });
+
+describe("expandMultilingualSearchTerms (multilingual search & active ingredients)", () => {
+  it("expands paracetamol into Arabic, Urdu, Hindi, Bengali, and Filipino synonyms", () => {
+    const terms = expandMultilingualSearchTerms("paracetamol");
+    expect(terms).toContain("paracetamol");
+    expect(terms).toContain("باراسيتامول");
+    expect(terms).toContain("بنادول");
+    expect(terms).toContain("panadol");
+    expect(terms).toContain("پیراسیٹامول");
+    expect(terms).toContain("पैरासिटामोल");
+    expect(terms).toContain("প্যারাসিটামল");
+    expect(terms).toContain("parasetamol");
+  });
+
+  it("expands Arabic brand to active ingredient and cross-locale variants", () => {
+    const terms = expandMultilingualSearchTerms("بنادول");
+    expect(terms).toContain("بنادول");
+    expect(terms).toContain("panadol");
+    expect(terms).toContain("باراسيتامول");
+    expect(terms).toContain("paracetamol");
+  });
+
+  it("expands ibuprofen and brufen synonyms", () => {
+    const terms = expandMultilingualSearchTerms("brufen");
+    expect(terms).toContain("ibuprofen");
+    expect(terms).toContain("ايبوبروفين");
+    expect(terms).toContain("بروفين");
+  });
+
+  it("returns single normalized query when no medical synonym is mapped", () => {
+    const terms = expandMultilingualSearchTerms("  UnknownDrugX  ");
+    expect(terms).toEqual(["unknowndrugx"]);
+  });
+
+  it("handles null, undefined or empty input safely", () => {
+    expect(expandMultilingualSearchTerms("")).toEqual([]);
+    expect(expandMultilingualSearchTerms(null as unknown as string)).toEqual([]);
+    expect(expandMultilingualSearchTerms("a")).toEqual(["a"]);
+  });
+});
+

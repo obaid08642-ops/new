@@ -12,9 +12,123 @@ export function normalizeSearchText(input: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ")
     .trim();
+
+/** Common medical active ingredients and symptoms mapping across Arabic, English, and South Asian / regional languages */
+const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }> = [
+  {
+    canonical: 'paracetamol',
+    variants: [
+      'paracetamol', 'acetaminophen', 'panadol', 'adol', 'fevadol',
+      'باراسيتامول', 'بنادول', 'ففادول', 'ادول', 'باراسيتامول',
+      'پیراسیٹامول', 'پیناڈول', 'پیراسیٹامول', // Urdu
+      'पैरासिटामोल', 'पेनाडोल', // Hindi
+      'প্যারাসিটামল', 'প্যানাডল', // Bengali
+      'parasetamol', // Filipino
+    ]
+  },
+  {
+    canonical: 'ibuprofen',
+    variants: [
+      'ibuprofen', 'brufen', 'advil', 'motrin',
+      'ايبوبروفين', 'بروفين', 'ادFilteredفيل',
+      'آئیبوپروفین', 'بروفین', // Urdu
+      'इबुप्रोफेन', 'ब्रुफेन', // Hindi
+      'আইবুপ্রোফেন', // Bengali
+      'ibupropen', // Filipino
+    ]
+  },
+  {
+    canonical: 'amoxicillin',
+    variants: [
+      'amoxicillin', 'amoxil', 'augmentin', 'amoxicilline',
+      'اموكسيسيلين', 'اموكسيل', 'اوجمنتين', 'اوجمينتين',
+      'اموکسیسیلین', 'اوگمنٹن', // Urdu
+      'एमोक्सिसिलिन', 'ऑगमेंटिन', // Hindi
+      'অ্যামোক্সিসিলিন', 'অগমেন্টিন', // Bengali
+    ]
+  },
+  {
+    canonical: 'omeprazole',
+    variants: [
+      'omeprazole', 'losec', 'prilosec', 'gasec',
+      'اوميبرازول', 'لوسيك', 'جاسيك',
+      'اومیپرازول', // Urdu
+      'ओमेप्राजोल', // Hindi
+      'ওমেপ্রাজল', // Bengali
+    ]
+  },
+  {
+    canonical: 'metformin',
+    variants: [
+      'metformin', 'glucophage',
+      'ميتفورمين', 'جلوكوفاج', 'كلوفاج',
+      'میٹفارمین', 'گلوکوفیج', // Urdu
+      'मेटफॉर्मिन', 'ग्लूकोफेज', // Hindi
+      'মেটফর্মিন', // Bengali
+    ]
+  },
+  {
+    canonical: 'cetirizine',
+    variants: [
+      'cetirizine', 'zyrtec',
+      'سيتريزين', 'زيرتيك', 'زرتيك',
+      'سیٹریزین', 'زرٹیک', // Urdu
+      'सेटिरिज़िन', 'ज़िरटेक', // Hindi
+      'সেটিরিজিন', // Bengali
+    ]
+  },
+  {
+    canonical: 'loratadine',
+    variants: [
+      'loratadine', 'claritin',
+      'لوراتادين', 'كلاريتين',
+      'لوراٹاڈین', 'کلاریٹن', // Urdu
+      'लोराटाडीन', 'क्लैरिटिन', // Hindi
+      'লোরাটাডিন', // Bengali
+    ]
+  },
+  {
+    canonical: 'vitamin c',
+    variants: [
+      'vitamin c', 'ascorbic acid', 'cevitil', 'redoxon',
+      'فيتامين سي', 'فيتامين ج', 'حمض الاسكوربيك',
+      'وٹامن سی', // Urdu
+      'विटामिन सी', // Hindi
+      'ভিটামিন সি', // Bengali
+    ]
+  },
+  {
+    canonical: 'vitamin d',
+    variants: [
+      'vitamin d', 'cholecalciferol', 'vidrop',
+      'فيتامين د', 'كوليكالسيفيرول', 'فيدروب',
+      'وٹامن ڈی', // Urdu
+      'विटामिन डी', // Hindi
+      'ভিটামিন ডি', // Bengali
+    ]
+  }
+];
+
+/** Expands a query term into multilingual aliases for active ingredients and popular synonyms. */
+export function expandMultilingualSearchTerms(input: string): string[] {
+  const norm = normalizeSearchText(input || '');
+  if (!norm || norm.length < 2) return norm ? [norm] : [];
+  const expanded = new Set<string>([norm]);
+  for (const entry of MULTILINGUAL_SYNONYM_MAP) {
+    const matches = entry.variants.some((v) => {
+      const nv = normalizeSearchText(v);
+      return nv === norm || (norm.length >= 3 && (nv.includes(norm) || norm.includes(nv)));
+    });
+    if (matches) {
+      for (const v of entry.variants) {
+        const nv = normalizeSearchText(v);
+        if (nv) expanded.add(nv);
+      }
+    }
+  }
+  return Array.from(expanded);
 }
-/**
- * SEO + Global Search + Recommendations module.
+
  * Auto metadata per entity (slug/canonical/OG/Twitter/JSON-LD/breadcrumbs),
  * sitemap.xml + robots.txt, universal home search, recommendation engine.
  */
@@ -186,14 +300,31 @@ export class SeoSearchService {
     const perPage = Math.min(Math.max(limit, 1), 50);
     const filter: any = { ...this.publicProductFilter() };
     if (term) {
-      const rx = { $regex: term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
-      filter.$or = [
-        { name_ar: rx }, { name_en: rx }, { active_ingredient: rx },
-        { [`translations.${db}.name`]: rx },
-        { [`translations.${db}.search_aliases`]: rx },
-        ...(Number.isFinite(Number(term)) ? [{ sku: Number(term) }] : []),
-        { barcode: term },
-      ];
+      const terms = expandMultilingualSearchTerms(q || '');
+      const orClauses: any[] = [];
+      for (const t of terms) {
+        const rx = { $regex: t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
+        orClauses.push(
+          { name_ar: rx },
+          { name_en: rx },
+          { active_ingredient: rx },
+          { [`translations.${db}.name`]: rx },
+          { [`translations.${db}.search_aliases`]: rx },
+          { 'translations.ur.name': rx },
+          { 'translations.ur.search_aliases': rx },
+          { 'translations.hi.name': rx },
+          { 'translations.hi.search_aliases': rx },
+          { 'translations.bn.name': rx },
+          { 'translations.bn.search_aliases': rx },
+          { 'translations.tl.name': rx },
+          { 'translations.tl.search_aliases': rx },
+          { barcode: t },
+        );
+        if (Number.isFinite(Number(t))) {
+          orClauses.push({ sku: Number(t) });
+        }
+      }
+      filter.$or = orClauses;
     }
     const cursor = this.conn.collection('medicines_master')
       .find(filter, { projection: { _id: 0, interactions: 0, change_requests: 0 } } as any)
@@ -290,8 +421,28 @@ export class SeoSearchService {
     const rx = { $regex: term, $options: 'i' };
     const medProj = { _id: 0, id: 1, name_ar: 1, name_en: 1, price: 1, image: 1, category: 1, manufacturer: 1 };
     const docProj = { _id: 0, id: 1, name: 1, full_name: 1, specialty: 1, photo_url: 1, rating: 1, city: 1 };
+    const terms = expandMultilingualSearchTerms(q || '');
+    const medOrClauses: any[] = [];
+    for (const t of terms) {
+      const trx = { $regex: t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
+      medOrClauses.push(
+        { name_ar: trx },
+        { name_en: trx },
+        { active_ingredient: trx },
+        { search_text: trx },
+        { 'translations.ur.name': trx },
+        { 'translations.ur.search_aliases': trx },
+        { 'translations.hi.name': trx },
+        { 'translations.hi.search_aliases': trx },
+        { 'translations.bn.name': trx },
+        { 'translations.bn.search_aliases': trx },
+        { 'translations.tl.name': trx },
+        { 'translations.tl.search_aliases': trx },
+      );
+    }
+    const medQuery = { is_deleted: { $ne: true }, $or: medOrClauses };
     const [medicines, doctors, pharmacies, hospitals, labs, services] = await Promise.all([
-      this.conn.collection('medicines_master').find({ is_deleted: { $ne: true }, $or: [{ name_ar: rx }, { name_en: rx }, { active_ingredient: rx }, { search_text: rx }] } as any, { projection: medProj } as any).limit(limit).toArray(),
+      this.conn.collection('medicines_master').find(medQuery as any, { projection: medProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'doctor', $or: [{ name: rx }, { full_name: rx }, { specialty: rx }] } as any, { projection: docProj } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: 'pharmacy', $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1, logo_url: 1 } } as any).limit(limit).toArray(),
       this.conn.collection('provider_profiles').find({ provider_type: { $in: ['hospital', 'clinic', 'medical_center'] }, $or: [{ name: rx }, { facility_name: rx }] } as any, { projection: { _id: 0, id: 1, name: 1, facility_name: 1, city: 1 } } as any).limit(limit).toArray(),
