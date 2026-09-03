@@ -47,6 +47,7 @@
     "components-next/**/*.tsx",
     "lib/**/*.ts",
     "proxy.ts",
+    "middleware.ts",
     "tests/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
