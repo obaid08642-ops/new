@@ -302,7 +302,7 @@ export class SeoSearchService {
     const perPage = Math.min(Math.max(limit, 1), 50);
     const filter: any = { ...this.publicProductFilter() };
     if (term) {
-      const terms = expandMultilingualSearchTerms(q || '');
+      const terms = expandMultilingualSearchTerms(q || '').slice(0, 6);
       const orClauses: any[] = [];
       for (const t of terms) {
         const rx = { $regex: t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
@@ -312,16 +312,10 @@ export class SeoSearchService {
           { active_ingredient: rx },
           { [`translations.${db}.name`]: rx },
           { [`translations.${db}.search_aliases`]: rx },
-          { 'translations.ur.name': rx },
-          { 'translations.ur.search_aliases': rx },
-          { 'translations.hi.name': rx },
-          { 'translations.hi.search_aliases': rx },
-          { 'translations.bn.name': rx },
-          { 'translations.bn.search_aliases': rx },
-          { 'translations.tl.name': rx },
-          { 'translations.tl.search_aliases': rx },
           { barcode: t },
         );
+        if (db !== 'ur') orClauses.push({ 'translations.ur.search_aliases': rx });
+        if (db !== 'hi') orClauses.push({ 'translations.hi.search_aliases': rx });
         if (Number.isFinite(Number(t))) {
           orClauses.push({ sku: Number(t) });
         }
