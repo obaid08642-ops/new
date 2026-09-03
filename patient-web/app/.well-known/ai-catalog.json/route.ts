@@ -10,6 +10,36 @@ const catalog = {
   },
   entries: [
     {
+      id: "urn:air:nabd.plus:catalog:products",
+      displayName: "Real-time AI product catalog and availability feed",
+      type: "application/json",
+      url: `${origin}/api/v1/public/ai-catalog/products`,
+      representativeQueries: [
+        "What medicines and OTC products are available?",
+        "Find product prices and active ingredients."
+      ]
+    },
+    {
+      id: "urn:air:nabd.plus:catalog:services",
+      displayName: "Real-time AI healthcare services and doctor feed",
+      type: "application/json",
+      url: `${origin}/api/v1/public/ai-catalog/services`,
+      representativeQueries: [
+        "Find verified doctors, clinics, and hospital networks in Saudi Arabia.",
+        "Check doctor consultation fees and insurance acceptance."
+      ]
+    },
+    {
+      id: "urn:air:nabd.plus:commerce:checkout-session",
+      displayName: "AI Agent Checkout Session Hand-off API",
+      type: "application/json",
+      url: `${origin}/api/v1/public/ai-commerce/checkout-session`,
+      representativeQueries: [
+        "Create a secure checkout session for patient order.",
+        "Hand off prepared medical cart to patient for final payment."
+      ]
+    },
+    {
       id: "urn:air:nabd.plus:catalog:nursing",
       displayName: "Published nursing service catalog",
       type: "application/json",
