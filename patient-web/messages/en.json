@@ -1271,5 +1271,17 @@
     "rating": "Rating",
     "distance": "Distance",
     "noProviders": "No medical facilities match your criteria."
+  },
+  "ScanPrescription": {
+    "eyebrow": "Smart Pharmacy Service",
+    "title": "Scan & Upload Prescription",
+    "description": "Upload an image of your prescription for AI extraction of medicines and request competitive pharmacy offers.",
+    "uploadLabel": "Click to capture or choose prescription image",
+    "scanBtn": "Analyze & Extract Medicines",
+    "submitting": "Processing...",
+    "extracting": "Analyzing prescription with AI...",
+    "saving": "Saving prescription and preparing order...",
+    "success": "Medicines extracted successfully! Redirecting to request offers...",
+    "error": "Unable to process prescription. Please ensure image is clear and try again."
   }
 }

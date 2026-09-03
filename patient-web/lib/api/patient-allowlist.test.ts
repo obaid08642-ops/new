@@ -7,6 +7,9 @@ import {
 describe("patient API allowlist", () => {
   it("allows only the documented order reads needed by the browser BFF", () => {
     expect(isAllowedPatientApiPath("/orders/mine")).toBe(true);
+    expect(isAllowedPatientApiPath("/prescriptions/mine")).toBe(true);
+    expect(isAllowedPatientApiPath("/prescriptions/active")).toBe(true);
+    expect(isAllowedPatientApiPath("/prescriptions/91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
     expect(
       isAllowedPatientApiPath("/orders/91047ef2-ad36-422a-a184-629693e7c729")
     ).toBe(true);
@@ -34,6 +37,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiRequest("/orders/mine", "GET")).toBe(true);
     expect(isAllowedPatientApiRequest("/orders/mine", "POST")).toBe(false);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/prescriptions/upload", "POST")).toBe(true);
+    expect(isAllowedPatientApiRequest("/ai/prescription-ocr", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729", "PATCH")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/submit", "POST")).toBe(true);
     expect(isAllowedPatientApiRequest("/patient/pharmacy/orders/91047ef2-ad36-422a-a184-629693e7c729/offers/91047ef2-ad36-422a-a184-629693e7c729/select", "POST")).toBe(true);

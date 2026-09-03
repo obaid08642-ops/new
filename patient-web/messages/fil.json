@@ -1271,5 +1271,17 @@
     "rating": "Rating",
     "distance": "Distance",
     "noProviders": "No medical facilities match your criteria."
+  },
+  "ScanPrescription": {
+    "eyebrow": "Serbisyo ng Smart Pharmacy",
+    "title": "I-scan at I-upload ang Reseta",
+    "description": "Mag-upload ng larawan ng reseta para sa pagsusuri ng gamot at mag-request ng pharmacy offers.",
+    "uploadLabel": "Pindutin para pumili o kumuha ng larawan ng reseta",
+    "scanBtn": "Suriin ang mga Gamot",
+    "submitting": "Pinoproseso...",
+    "extracting": "Sinusuri ang reseta gamit ang AI...",
+    "saving": "Ini-save ang reseta...",
+    "success": "Matagumpay na nakuha ang mga gamot!",
+    "error": "Hindi maiproseso ang reseta. Subukan muli."
   }
 }
