@@ -43,6 +43,7 @@ export class SeedService implements OnModuleInit {
       await this.seedSystemConfig();
       await this.seedMedicines();
       await this.seedLabs();
+      await this.seedFacilities();
 
       // Demo identities and operational fixtures require a disposable test
       // environment. A feature flag alone is not sufficient protection.
@@ -68,8 +69,8 @@ export class SeedService implements OnModuleInit {
   async seedFacilities() {
     for (const f of SEED_FACILITIES) {
       await this.facilityModel.updateOne(
-        { name_ar: f.name_ar },
-        { $set: { ...f, is_active: true } },
+        { slug: f.slug },
+        { $set: { ...f, id: f.slug, slug: f.slug, is_active: true } },
         { upsert: true },
       );
     }

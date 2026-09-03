@@ -57,3 +57,38 @@ export function medicalClinic(input: { name: string; path: string; locale: Local
     ...(input.city ? { address: { "@type": "PostalAddress", addressLocality: input.city } } : {}),
   };
 }
+
+export function hospital(input: { name: string; path: string; locale: Locale; city?: string | null; district?: string | null }): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org", "@type": "Hospital",
+    name: input.name,
+    url: `${siteOrigin()}/${input.locale}${input.path}`,
+    address: {
+      "@type": "PostalAddress",
+      ...(input.city ? { addressLocality: input.city } : {}),
+      ...(input.district ? { streetAddress: input.district } : {}),
+      addressCountry: "SA",
+    },
+  };
+}
+
+export function pharmacy(input: { name: string; path: string; locale: Locale; city?: string | null }): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org", "@type": "Pharmacy",
+    name: input.name,
+    url: `${siteOrigin()}/${input.locale}${input.path}`,
+    ...(input.city ? { address: { "@type": "PostalAddress", addressLocality: input.city, addressCountry: "SA" } } : {}),
+  };
+}
+
+export function medicalCondition(input: { name: string; path: string; locale: Locale; symptoms?: string[]; overview?: string | null }): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org", "@type": "MedicalCondition",
+    name: input.name,
+    url: `${siteOrigin()}/${input.locale}${input.path}`,
+    inLanguage: input.locale,
+    ...(input.overview ? { description: input.overview } : {}),
+    ...(input.symptoms?.length ? { signOrSymptom: input.symptoms.map(s => ({ "@type": "MedicalSymptom", name: s })) } : {}),
+  };
+}
+
