@@ -1,1 +1,1 @@
-export { default, generateMetadata } from "../p/[slug]/page";
+export { default, generateMetadata } from "../../p/[slug]/page";
