@@ -26,14 +26,14 @@ describe("normalizeSearchText (ar/en search contract)", () => {
 describe("expandMultilingualSearchTerms (multilingual search & active ingredients)", () => {
   it("expands paracetamol into Arabic, Urdu, Hindi, Bengali, and Filipino synonyms", () => {
     const terms = expandMultilingualSearchTerms("paracetamol");
-    expect(terms).toContain("paracetamol");
-    expect(terms).toContain("باراسيتامول");
-    expect(terms).toContain("بنادول");
-    expect(terms).toContain("panadol");
-    expect(terms).toContain("پیراسیٹامول");
-    expect(terms).toContain("पैरासिटामोल");
-    expect(terms).toContain("প্যারাসিটামল");
-    expect(terms).toContain("parasetamol");
+    expect(terms).toContain(normalizeSearchText("paracetamol"));
+    expect(terms).toContain(normalizeSearchText("باراسيتامول"));
+    expect(terms).toContain(normalizeSearchText("بنادول"));
+    expect(terms).toContain(normalizeSearchText("panadol"));
+    expect(terms).toContain(normalizeSearchText("پیراسیٹامول"));
+    expect(terms).toContain(normalizeSearchText("पैरासिटामोल"));
+    expect(terms).toContain(normalizeSearchText("প্যারাসিটামল"));
+    expect(terms).toContain(normalizeSearchText("parasetamol"));
   });
 
   it("expands Arabic brand to active ingredient and cross-locale variants", () => {
