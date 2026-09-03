@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPublicProduct } from "@/lib/api/public-products-server";
-import { locales } from "@/lib/i18n";
+import { isLocale } from "@/lib/i18n";
 
 const origin = (process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus").replace(/\/$/, "");
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   const productMatch = /^\/([a-z]{2,3})\/p\/([^/]+)$/.exec(path);
   if (productMatch) {
     const [, locale, slug] = productMatch;
-    if (locales.includes(locale as any)) {
+    if (isLocale(locale)) {
       try {
         const product = await getPublicProduct(locale, slug);
         if (product) {
