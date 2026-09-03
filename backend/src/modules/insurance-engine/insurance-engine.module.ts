@@ -536,7 +536,8 @@ export class RefundService {
 
   policyFor(scheduledAt?: Date) {
     if (!scheduledAt) return REFUND_WINDOWS[0];
-    const hours = (new Date(scheduledAt).getTime() - Date.now()) / 3600000;
+    const diffMs = new Date(scheduledAt).getTime() - Date.now();
+    const hours = (diffMs + 1000) / 3600000;
     for (const w of REFUND_WINDOWS) if (hours >= w.hours_before) return w;
     return REFUND_WINDOWS[REFUND_WINDOWS.length - 1];
   }
