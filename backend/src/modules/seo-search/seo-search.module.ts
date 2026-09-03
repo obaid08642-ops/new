@@ -12,6 +12,7 @@ export function normalizeSearchText(input: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ")
     .trim();
+}
 
 /** Common medical active ingredients and symptoms mapping across Arabic, English, and South Asian / regional languages */
 const MULTILINGUAL_SYNONYM_MAP: Array<{ canonical: string; variants: string[] }> = [
