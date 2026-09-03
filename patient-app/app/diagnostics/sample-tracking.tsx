@@ -15,7 +15,7 @@ import { apiFetch } from '../../src/utils/api';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function SampleTrackingScreen() {
-  const { colors, t } = useApp();
+  const { colors } = useApp();
   const router = useRouter();
   const { bookingId } = useLocalSearchParams<{ bookingId?: string }>();
   const [loading, setLoading] = useState(true);
