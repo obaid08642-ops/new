@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { extractPrescriptionSummaries } from "@/lib/api/prescriptions";
@@ -30,7 +29,7 @@ export default async function PrescriptionsPage({ params }: Props) {
       </div>
       <span className={styles.introIcon}><FileText size={27} aria-hidden="true" /></span>
     </section>
-    {prescriptions.length === 0 ? <section className={styles.state}><FileText size={25} aria-hidden="true" /><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{prescriptions.map((prescription) => <Link href={`/${locale}/prescriptions/${prescription.id}`} className={styles.card} key={prescription.id} style={{ textDecoration: "none", color: "inherit" }}>
+    {prescriptions.length === 0 ? <section className={styles.state}><FileText size={25} aria-hidden="true" /><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{prescriptions.map((prescription) => <article className={styles.card} key={prescription.id}>
       <span className={styles.cardIcon}><FileText size={19} aria-hidden="true" /></span>
       <div className={styles.cardBody}>
         <strong className={styles.status}>{prescription.state || t("stateUnavailable")}</strong>
@@ -39,7 +38,7 @@ export default async function PrescriptionsPage({ params }: Props) {
         {prescription.medicationNames.length ? <span className={styles.medications}>{prescription.medicationNames.join("، ")}</span> : null}
         {prescription.createdAt ? <span className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(prescription.createdAt))}</span> : null}
       </div>
-    </Link>)}</section>}
+    </article>)}</section>}
     <p className={styles.notice}>{t("notice")}</p>
   </main>;
 }
