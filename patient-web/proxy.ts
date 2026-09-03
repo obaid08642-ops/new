@@ -56,7 +56,7 @@ function createContentSecurityPolicy(nonce: string) {
     "img-src 'self' data: https:",
     `style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ""}`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
-    "connect-src 'self' https://api.nabd.plus",
+    "connect-src 'self' https://api.nabd.plus wss://live.nabd.plus https://cdn.nabd.plus",
     "font-src 'self' data:",
     "media-src 'self' https:",
     "object-src 'none'",
