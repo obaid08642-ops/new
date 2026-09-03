@@ -54,7 +54,7 @@ describe("agent discovery public contracts", () => {
 
   it("returns markdown with explicit negotiation metadata", async () => {
     const request = new NextRequest("https://nabd.plus/api/agent-markdown?path=%2Fen", { headers: { Accept: "text/markdown" } });
-    const response = getMarkdown(request);
+    const response = await getMarkdown(request);
     expect(response.headers.get("content-type")).toContain("text/markdown");
     expect(response.headers.get("vary")).toBe("Accept");
     expect(await response.text()).toContain("Nabd Plus");
