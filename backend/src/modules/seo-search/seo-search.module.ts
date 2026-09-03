@@ -326,10 +326,13 @@ export class SeoSearchService {
       .find(filter, { projection: { _id: 0, interactions: 0, change_requests: 0 } } as any)
       .sort({ usage_count: -1 })
       .skip((Math.max(page, 1) - 1) * perPage)
-      .limit(perPage);
-    const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
+      .limit(perPage + 1);
+    const fetched = await cursor.toArray();
+    const hasMore = fetched.length > perPage;
+    const rows = hasMore ? fetched.slice(0, perPage) : fetched;
+    const total = term ? ((Math.max(page, 1) - 1) * perPage + rows.length + (hasMore ? 1 : 0)) : await this.conn.collection('medicines_master').countDocuments(filter);
     return {
-      query: term || null, locale, page: Math.max(page, 1), limit: perPage, total,
+      query: term || null, locale, page: Math.max(page, 1), limit: perPage, total, has_more: hasMore,
       items: rows.map((m: any) => {
         const dto = resolveMedicinePublicDto(m, locale);
         return {
