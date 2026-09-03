@@ -562,24 +562,39 @@ export class AdminController {
 
   @Post('provider-deltas/:deltaId/approve')
   async approveDelta(@Param('deltaId') deltaId: string) {
-    const delta = await this.deltaModel.findById(deltaId);
+    const delta = (await this.deltaModel.findById(deltaId).catch(() => null))
+      || (await this.deltaModel.findOne({ id: deltaId }).exec());
     if (!delta) throw new BadRequestException('delta_not_found');
 
     delta.status = 'approved';
+    delta.reviewedAt = new Date();
     await delta.save();
 
-    // Here we would apply the requested_changes to the actual ProviderProfile
-    // e.g., await this.profileModel.updateOne({ account_id: delta.provider_id }, { $set: delta.requested_changes })
+    // Apply the changes to the provider_profiles collection
+    const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.providerId;
+    let changes = delta.requested_changes || delta.changes || delta.newData || {};
+    if (changes && typeof changes === 'object' && typeof (changes as any).changes === 'object' && (changes as any).changes) changes = (changes as any).changes;
+    else if (changes && typeof changes === 'object' && typeof (changes as any).newData === 'object' && (changes as any).newData) changes = (changes as any).newData;
+
+    if (accountId && Object.keys(changes).length) {
+      await this.connection.collection('provider_profiles').updateOne(
+        { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+        { $set: { ...changes, updated_at: new Date() } },
+      );
+    }
     
     return { ok: true, message: 'delta_approved' };
   }
 
   @Post('provider-deltas/:deltaId/reject')
-  async rejectDelta(@Param('deltaId') deltaId: string) {
-    const delta = await this.deltaModel.findById(deltaId);
+  async rejectDelta(@Param('deltaId') deltaId: string, @Body() body?: any) {
+    const delta = (await this.deltaModel.findById(deltaId).catch(() => null))
+      || (await this.deltaModel.findOne({ id: deltaId }).exec());
     if (!delta) throw new BadRequestException('delta_not_found');
 
     delta.status = 'rejected';
+    delta.reviewedAt = new Date();
+    if (body?.reason) delta.rejectionReason = String(body.reason);
     await delta.save();
     
     return { ok: true, message: 'delta_rejected' };
