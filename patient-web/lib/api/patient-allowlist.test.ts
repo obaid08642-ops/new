@@ -21,6 +21,8 @@ describe("patient API allowlist", () => {
     expect(isAllowedPatientApiPath("/care/appointments/123e4567-e89b-12d3-a456-426614174000")).toBe(true);
     expect(isAllowedPatientApiPath("/cart/prescription")).toBe(true);
     expect(isAllowedPatientApiPath("/nursing/visits")).toBe(true);
+    expect(isAllowedPatientApiPath("/nursing/visits/91047ef2-ad36-422a-a184-629693e7c729")).toBe(true);
+    expect(isAllowedPatientApiPath("/nursing/visits/91047ef2-ad36-422a-a184-629693e7c729/tracking")).toBe(true);
     expect(isAllowedPatientApiPath("/health/vitals-log")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/profile")).toBe(true);
     expect(isAllowedPatientApiPath("/users/me/notification-settings")).toBe(true);
