@@ -8,6 +8,7 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { ProviderDocumentRepository } from "./repositories/providerdocument.repository";
 import { ProviderBankAccountRepository } from "./repositories/providerbankaccount.repository";
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
+import { AutoEntitySeoPipelineService } from '../../events/auto-entity-seo-pipeline.service';
 
 @Injectable()
 export class ProviderAdminService {
@@ -17,6 +18,7 @@ export class ProviderAdminService {
     @Inject('ProviderDocumentRepository') private docs: ProviderDocumentRepository,
     @Inject('ProviderBankAccountRepository') private banks: ProviderBankAccountRepository,
     @Inject('ProviderAuditLogRepository') private audit: ProviderAuditLogRepository,
+    private seoPipeline: AutoEntitySeoPipelineService,
     private events: EventEmitter2,
   ) {}
 
@@ -138,9 +140,33 @@ export class ProviderAdminService {
     await this.banks.updateMany({ account_id: id, review_status: { $in: [BankReviewStatus.PENDING, BankReviewStatus.UNDER_REVIEW] } }, { $set: { review_status: BankReviewStatus.APPROVED, reviewer_id: user.id } });
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'active', approved_at: new Date(), approved_by: user.id, rejected_reason: null } },
+      {
+        $set: {
+          status: 'active',
+          approved_at: new Date(),
+          approved_by: user.id,
+          rejected_reason: null,
+          public_eligibility: true,
+          indexing_eligibility: true,
+          medical_review_status: 'approved',
+          license_verified: true,
+        },
+      },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_approved', after: { note: body?.note, commission: body?.commission } });
+
+    // Trigger Automatic SEO / Content / Discovery Pipeline
+    const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
+    if (prof) {
+      const pType = (prof.type || (a as any).provider_type || 'doctor') as any;
+      await this.seoPipeline.processEntity({
+        entityType: pType,
+        entityId: prof.id || String(prof._id),
+        actorId: user.id,
+        action: 'create',
+      }).catch(() => {});
+    }
+
     return a.toObject();
   }
 
@@ -152,12 +178,20 @@ export class ProviderAdminService {
     await a.save();
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'rejected', rejected_reason: a.rejection_reason } },
+      { $set: { status: 'rejected', rejected_reason: a.rejection_reason, public_eligibility: false, indexing_eligibility: false } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_rejected', after: { reason: a.rejection_reason } });
     // Free storage: rejected provider's images are physically deleted (Cloudinary/R2)
     const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
     if (prof) {
+      const pType = (prof.type || (a as any).provider_type || 'doctor') as any;
+      await this.seoPipeline.processEntity({
+        entityType: pType,
+        entityId: prof.id || String(prof._id),
+        actorId: user.id,
+        action: 'deactivate',
+      }).catch(() => {});
+
       const docs: any[] = await this.accounts.model.db.collection('providerdocuments').find({ account_id: id }).toArray();
       await this.purgeImages([
         prof.profile_photo, prof.logo, prof.clinic_images, prof.license_documents,
@@ -184,7 +218,23 @@ export class ProviderAdminService {
     const a = await this.accounts.findOne({ id }); if (!a) throw new NotFoundException();
     await this.transition(a, ProviderAccountStatus.SUSPENDED, user, body?.reason);
     await a.save();
+    await this.accounts.model.db.collection('provider_profiles').updateMany(
+      { account_id: id, user_id: { $exists: true } },
+      { $set: { status: 'suspended', public_eligibility: false, indexing_eligibility: false } },
+    );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_suspended', after: { reason: body?.reason } });
+
+    const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({ account_id: id });
+    if (prof) {
+      const pType = (prof.type || (a as any).provider_type || 'doctor') as any;
+      await this.seoPipeline.processEntity({
+        entityType: pType,
+        entityId: prof.id || String(prof._id),
+        actorId: user.id,
+        action: 'deactivate',
+      }).catch(() => {});
+    }
+
     return a.toObject();
   }
 
@@ -231,6 +281,22 @@ export class ProviderAdminService {
       action: 'admin.provider_delta_approved',
       after: { delta_id: id, changes }
     });
+
+    if (accountId) {
+      const prof: any = await this.accounts.model.db.collection('provider_profiles').findOne({
+        $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }],
+      });
+      if (prof) {
+        const pType = (prof.type || 'doctor') as any;
+        await this.seoPipeline.processEntity({
+          entityType: pType,
+          entityId: prof.id || String(prof._id),
+          actorId: user.id,
+          action: 'update',
+        }).catch(() => {});
+      }
+    }
+
     return { success: true, applied };
   }
 

@@ -242,14 +242,20 @@ export class SeoService {
 
   // ====================================================================
   // SITEMAP — auto-generated XML listing every public entity.
-  // Crawled by Google/Bing/Yandex when robots.txt points to it.
-  // ====================================================================
   async sitemap(): Promise<string> {
     const now = new Date().toISOString();
     const urls: string[] = [];
+    const seenUrls = new Set<string>();
+
+    const addUrl = (loc: string, lastmod: string, changefreq = 'weekly', priority = 0.7) => {
+      const cleanLoc = loc.trim();
+      if (!cleanLoc || seenUrls.has(cleanLoc)) return;
+      seenUrls.add(cleanLoc);
+      urls.push(`<url><loc>${cleanLoc}</loc><lastmod>${lastmod}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`);
+    };
 
     // Homepage + static landing
-    urls.push(`<url><loc>${PUBLIC_BASE}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`);
+    addUrl(`${PUBLIC_BASE}/`, now, 'daily', 1.0);
 
     const pushEntities = async (
       type: string,
@@ -258,18 +264,18 @@ export class SeoService {
       priority = 0.7,
       changefreq = 'weekly',
     ) => {
-      const docs = await model
-        .find(query, { id: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
-        .lean()
-        .limit(5000); // safety cap per sitemap
-      for (const d of docs as any[]) {
-        const name = d.name_ar || d.name_en || d.full_name || d.title_ar || d.title_en || 'item';
-        const slug = buildSlug(name, d.id);
-        const lastmod = d.updatedAt ? new Date(d.updatedAt).toISOString() : now;
-        urls.push(
-          `<url><loc>${PUBLIC_BASE}/s/${type}/${slug}</loc><lastmod>${lastmod}</lastmod><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`,
-        );
-      }
+      try {
+        const docs = await model
+          .find(query, { id: 1, name_ar: 1, name_en: 1, full_name: 1, title_ar: 1, title_en: 1, updatedAt: 1 })
+          .lean()
+          .limit(5000); // safety cap per sitemap
+        for (const d of docs as any[]) {
+          const name = d.name_ar || d.name_en || d.full_name || d.title_ar || d.title_en || 'item';
+          const slug = buildSlug(name, d.id);
+          const lastmod = d.updatedAt ? new Date(d.updatedAt).toISOString() : now;
+          addUrl(`${PUBLIC_BASE}/s/${type}/${slug}`, lastmod, changefreq, priority);
+        }
+      } catch { /* best effort */ }
     };
 
     // Only explicitly index-eligible public entities may enter crawler outputs.
@@ -282,8 +288,22 @@ export class SeoService {
     if (isTypeIndexable('facility', controls)) await pushEntities('facility', this.facilityM, this.publicQuery('facility', true), 0.6, 'monthly');
     if (isTypeIndexable('article', controls)) await pushEntities('article', this.articleM, this.publicQuery('article', true), 0.6, 'weekly');
 
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`;
+    // Dynamically include all materialized projections from the AutoEntitySeoPipeline
+    try {
+      const projections = await this.conn.collection('public_catalog_projections')
+        .find({ indexable: true, 'sitemap.included': true })
+        .limit(5000)
+        .toArray();
+
+      for (const p of projections) {
+        const path = p.canonical_path ? (p.canonical_path.startsWith('/') ? p.canonical_path : `/${p.canonical_path}`) : `/s/${p.entity_type}/${p.slug}`;
+        const loc = p.canonical_url || `${PUBLIC_BASE}/ar${path}`;
+        const lastmod = p.updated_at ? new Date(p.updated_at).toISOString() : now;
+        addUrl(loc, lastmod, 'weekly', 0.8);
+      }
+    } catch { /* best effort */ }
+
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`;
   }
 
   // ====================================================================
@@ -346,6 +366,42 @@ export class SeoService {
           const slug = buildSlug(name, d.id);
           const meta = [d.specialty, d.city].filter(Boolean).join(' · ');
           lines.push(`- [${name}](${PUBLIC_BASE}/s/doctor/${slug})${meta ? `: ${meta}` : ''}`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    // ── Pharmacies ───────────────────────────────────────────────
+    try {
+      const pharmacies = await this.conn.collection('provider_profiles')
+        .find({ ...this.publicQuery('doctor', true), type: 'pharmacy' }, { projection: { id: 1, name_ar: 1, name_en: 1, city: 1, slug: 1 } })
+        .limit(20)
+        .toArray();
+      if (pharmacies.length) {
+        lines.push('## Pharmacies (صيدليات)');
+        lines.push('');
+        for (const p of pharmacies) {
+          const name = p.name_ar || p.name_en || 'Pharmacy';
+          const slug = p.slug || buildSlug(name, p.id);
+          lines.push(`- [${name}](${PUBLIC_BASE}/ar/pharmacy/${slug})${p.city ? `: ${p.city}` : ''}`);
+        }
+        lines.push('');
+      }
+    } catch { /* best-effort */ }
+
+    // ── Hospitals & Clinics ──────────────────────────────────────
+    try {
+      const facilities = await this.facilityM
+        .find(this.publicQuery('facility', true), { id: 1, name_ar: 1, name_en: 1, city: 1, type: 1 })
+        .limit(20)
+        .lean();
+      if (facilities.length) {
+        lines.push('## Hospitals & Clinics (مستشفيات وعيادات)');
+        lines.push('');
+        for (const f of facilities as any[]) {
+          const name = f.name_ar || f.name_en || 'Facility';
+          const slug = buildSlug(name, f.id);
+          lines.push(`- [${name}](${PUBLIC_BASE}/s/facility/${slug})${f.city ? `: ${f.city}` : ''}`);
         }
         lines.push('');
       }

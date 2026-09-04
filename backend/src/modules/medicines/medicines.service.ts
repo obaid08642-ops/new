@@ -9,6 +9,7 @@ import { EVENTS } from '../../common/events';
 import { MedicineRepository } from "./repositories/medicine.repository";
 import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
+import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
 
 @Injectable()
@@ -24,6 +25,7 @@ export class MedicinesService {
     private redis: RedisService,
     @InjectConnection() private readonly conn: Connection,
     private readonly publication: CatalogPublicationService,
+    private readonly seoPipeline: AutoEntitySeoPipelineService,
   ) {}
 
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
@@ -32,6 +34,14 @@ export class MedicinesService {
 
   private async refreshPublicProjection(medicine: any, actorId: string, reason: string) {
     const reviewedAt = medicine?.last_reviewed || medicine?.approved_at || medicine?.updatedAt || new Date();
+    await this.seoPipeline.processEntity({
+      entityType: 'medicine',
+      entityId: medicine.id,
+      actorId,
+      reason,
+      action: medicine.is_deleted ? 'delete' : (medicine.active === false ? 'deactivate' : 'update'),
+    }).catch(() => {});
+
     return this.publication.refresh({
       entityType: 'medicine',
       entityId: medicine.id,

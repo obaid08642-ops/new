@@ -274,6 +274,7 @@ export class McpService {
     const meds = await this.connection.collection('medicines_master').find({
       $or: [{ name_ar: regex }, { name_en: regex }, { active_ingredient: regex }],
       is_deleted: { $ne: true },
+      active: { $ne: false },
     }).limit(limit).toArray();
 
     return {
@@ -285,15 +286,20 @@ export class McpService {
         currency: 'SAR',
         requires_prescription: !!m.requires_prescription,
         active_ingredient: m.active_ingredient,
-        canonical_url: `https://nabd.plus/ar/p/${m.slug}`,
-        deep_link: `nabdplus://p/${m.slug}`,
+        canonical_url: `https://nabd.plus/ar/p/${m.slug || m.id}`,
+        deep_link: `nabdplus://p/${m.slug || m.id}`,
       })),
     };
   }
 
   private async toolSearchDoctors(args: Record<string, any>) {
     const { specialty, city, insurance } = args;
-    const filter: any = { provider_type: 'doctor', is_active: { $ne: false } };
+    const filter: any = {
+      $or: [{ type: 'doctor' }, { provider_type: 'doctor' }],
+      status: { $in: ['active', 'verified'] },
+      is_active: { $ne: false },
+      is_deleted: { $ne: true },
+    };
     if (specialty) filter.specialty = specialty;
     if (city) filter.city = city;
     if (insurance) filter.accepted_insurance = insurance;
@@ -306,7 +312,7 @@ export class McpService {
         name: d.name_ar || d.name_en || d.name,
         specialty: d.specialty,
         city: d.city,
-        rating: d.rating,
+        rating: d.rating || d.rating_avg || 0,
         canonical_url: `https://nabd.plus/ar/doctor/${d.slug || d.id}`,
         deep_link: `nabdplus://doctor/${d.slug || d.id}`,
       })),
@@ -315,23 +321,52 @@ export class McpService {
 
   private async toolSearchFacilities(args: Record<string, any>) {
     const { query, city } = args;
-    const filter: any = { is_active: { $ne: false } };
+    const filter: any = {
+      is_active: { $ne: false },
+      is_deleted: { $ne: true },
+      status: { $nin: ['suspended', 'rejected', 'archived'] },
+    };
     if (city) filter.city = city;
     if (query) {
       const regex = new RegExp(String(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      filter.$or = [{ name_ar: regex }, { name_en: regex }];
+      filter.$or = [{ name_ar: regex }, { name_en: regex }, { name: regex }];
     }
 
-    const facs = await this.connection.collection('facilities').find(filter).limit(10).toArray();
+    const [facs, providerFacs] = await Promise.all([
+      this.connection.collection('facilities').find(filter).limit(10).toArray(),
+      this.connection.collection('provider_profiles').find({
+        ...filter,
+        type: { $in: ['pharmacy', 'hospital', 'clinic', 'lab', 'radiology', 'laboratory'] },
+      }).limit(10).toArray(),
+    ]);
+
+    const combined = [...facs];
+    const seenIds = new Set(combined.map(f => f.id || String(f._id)));
+    for (const pf of providerFacs) {
+      const id = pf.id || String(pf._id);
+      if (!seenIds.has(id)) {
+        seenIds.add(id);
+        combined.push({
+          id,
+          name_ar: pf.name_ar,
+          name_en: pf.name_en,
+          type: pf.type,
+          city: pf.city,
+          slug: pf.slug,
+          isProvider: true,
+        });
+      }
+    }
+
     return {
-      total: facs.length,
-      items: facs.map((f: any) => ({
+      total: combined.length,
+      items: combined.map((f: any) => ({
         id: f.id,
         name: f.name_ar || f.name_en,
         type: f.type,
         city: f.city,
-        canonical_url: `https://nabd.plus/ar/facility/${f.slug || f.id}`,
-        deep_link: `nabdplus://facility/${f.slug || f.id}`,
+        canonical_url: f.type === 'pharmacy' ? `https://nabd.plus/ar/pharmacy/${f.slug || f.id}` : `https://nabd.plus/ar/facility/${f.slug || f.id}`,
+        deep_link: `nabdplus://${f.type || 'facility'}/${f.slug || f.id}`,
       })),
     };
   }
