@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, ShoppingCart, ShieldCheck } from "lucide-react";
-import { cookies } from "next/headers";
-import { authCookieNames } from "@/lib/auth/cookies";
 import { callPatientApi } from "@/lib/api/upstream";
 import { extractCartSummary } from "@/lib/api/cart";
+import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { CartView } from "@/components-next/cart-view";
 import styles from "./cart.module.css";
@@ -17,20 +16,11 @@ export default async function CartPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Cart");
-  const cookieStore = await cookies();
-  const token = cookieStore.get(authCookieNames.access)?.value;
-
-  let serverCart = null;
-  if (token) {
-    try {
-      const response = await callPatientApi("/cart", {}, token);
-      if (response.ok) {
-        serverCart = extractCartSummary(await response.json().catch(() => null));
-      }
-    } catch {
-      // Graceful fallback to client cart
-    }
-  }
+  const token = await requirePatientAccess(locale);
+  const response = await callPatientApi("/cart", {}, token);
+  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 403 || response.status === 404) notFound();
+  const serverCart = response.ok ? extractCartSummary(await response.json().catch(() => null)) : null;
 
   const Direction = locale === "ar" || locale === "ur" ? ArrowLeft : ArrowRight;
   const hasServerItems = serverCart && serverCart.groups.some((group) => group.items.length > 0);
@@ -99,6 +89,14 @@ export default async function CartPage({ params }: Props) {
                 ))}
               </article>
             ))}
+          <section className={styles.total}>
+            <span>{t("subtotal")}</span>
+            <strong>{amount(serverCart.subtotal)}</strong>
+            <span>{t("homeVisitFee")}</span>
+            <strong>{amount(serverCart.homeVisitFee)}</strong>
+            <span>{t("total")}</span>
+            <strong>{amount(serverCart.total)}</strong>
+          </section>
         </section>
       )}
     </main>

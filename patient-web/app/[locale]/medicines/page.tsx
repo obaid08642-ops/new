@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { extractMedicineRows, parseMedicineSearch, type MedicineRow } from "@/lib/api/medicines";
+import { extractMedicineRows, parseMedicineSearch } from "@/lib/api/medicines";
 import { getPatientMedicines } from "@/lib/api/medicines-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -17,18 +17,13 @@ export default async function MedicinesPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("Medicines");
   const search = parseMedicineSearch(await searchParams);
-  let medicines: MedicineRow[] = [];
-  try {
-    const { cookies } = await import("next/headers");
-    const { authCookieNames } = await import("@/lib/auth/cookies");
-    const token = (await cookies()).get(authCookieNames.access)?.value;
-    if (token) {
-      const response = await getPatientMedicines(token, search);
-      if (response && response.ok) {
-        medicines = extractMedicineRows(await response.json().catch(() => null));
-      }
-    }
-  } catch {}
+  const token = await requirePatientAccess(locale);
+  const response = await getPatientMedicines(token, search);
+  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 403 || response.status === 404) notFound();
+  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><Pill size={24} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><RetryButton /></section></main>;
+
+  const medicines = extractMedicineRows(await response.json().catch(() => null));
   const nameForLocale = (medicine: typeof medicines[number]) => locale === "ar" ? medicine.nameAr || medicine.nameEn || t("untitled") : medicine.nameEn || medicine.nameAr || t("untitled");
   return <main className={`main ${styles.page}`}>
     <section className={styles.hero}>
