@@ -116,15 +116,20 @@ export default async function LabPackageDetailPage({ params }: Props) {
   };
 
   let pkg = null;
+  let response;
   try {
-    const response = await getPublicLabPackage(packageId);
+    response = await getPublicLabPackage(packageId);
+    if (response && response.status === 404) notFound();
     if (response && response.ok) {
       pkg = extractLabService(await response.json().catch(() => null));
     }
-  } catch {}
+  } catch (err: any) {
+    if (err?.message === "NOT_FOUND") throw err;
+  }
+  if (response?.status === 404) notFound();
 
-  const fallback = fallbackMap[packageId] || fallbackMap["pkg-comprehensive"];
-  if (!pkg) {
+  const fallback = fallbackMap[packageId];
+  if (!pkg && fallback) {
     pkg = {
       id: packageId,
       nameAr: fallback.nameAr,
@@ -142,6 +147,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
       image: fallback.image,
     };
   }
+  if (!pkg) notFound();
 
   const name = rtl ? pkg.nameAr ?? pkg.nameEn : pkg.nameEn ?? pkg.nameAr;
   const description = rtl ? pkg.descriptionAr ?? pkg.descriptionEn : pkg.descriptionEn ?? pkg.descriptionAr;

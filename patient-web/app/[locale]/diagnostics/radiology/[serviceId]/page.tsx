@@ -112,15 +112,21 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
   };
 
   let service = null;
+  let response;
   try {
-    const response = await getPublicRadiologyServiceDetail(serviceId);
+    response = await getPublicRadiologyServiceDetail(serviceId);
+    if (response && response.status === 404) notFound();
     if (response && response.ok) {
       service = parseRadiologyService(await response.json().catch(() => null));
     }
-  } catch {}
+  } catch (err: any) {
+    if (err?.message === "NOT_FOUND") throw err;
+  }
 
-  const fallback = fallbackMap[serviceId] || fallbackMap["rad-mri"];
-  if (!service) {
+  if (response?.status === 404) notFound();
+
+  const fallback = fallbackMap[serviceId];
+  if (!service && fallback) {
     service = {
       id: serviceId,
       nameAr: fallback.nameAr,
@@ -140,6 +146,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
       image: fallback.image,
     };
   }
+  if (!service) notFound();
 
   const name = rtl ? service.nameAr ?? service.nameEn : service.nameEn ?? service.nameAr;
   const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr;
