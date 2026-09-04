@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
 
 export default async function DoctorsPage({ params, searchParams }: Props) {
   const { locale } = await params; const sp = (await searchParams) ?? {}; if (!isLocale(locale)) notFound(); setRequestLocale(locale);
-  const t = await getTranslations("Doctors");  let doctors = [];
+  const t = await getTranslations("Doctors");  let doctors: any[] = [];
   try {
     const response = await getPublicDoctors({ search: sp.q, specialty: sp.specialty, sort: ["rating", "price", "wait"].includes(sp.sort ?? "") ? sp.sort : undefined });
     if (response && response.ok) {

@@ -71,7 +71,7 @@ export default async function CartPage({ params }: Props) {
         }}
       />
 
-      {hasServerItems && (
+      {hasServerItems && serverCart && (
         <section className={styles.groups} style={{ marginTop: "2rem" }}>
           <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.75rem" }}>
             {locale === "ar" ? "العناصر المتزامنة مع حسابك" : "Items Synced with Account"}

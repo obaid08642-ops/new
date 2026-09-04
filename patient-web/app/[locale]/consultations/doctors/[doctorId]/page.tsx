@@ -7,7 +7,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, BadgeCheck, Building2, Clock3, Star, Stethoscope } from "lucide-react";
-import { extractDoctor, extractDoctorSlots } from "@/lib/api/doctors";
+import { extractDoctor, extractDoctorSlots, type DoctorSlots } from "@/lib/api/doctors";
 import { getPublicDoctor, getPublicDoctorSlots } from "@/lib/api/doctors-server";
 import { AppointmentBookingForm } from "@/components-next/appointment-booking-form";
 import { VectorDoctor } from "@/components-next/vector-illustrations";
@@ -69,24 +69,27 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
     };
   }
 
-  let slots: Array<{ start: string; label?: string; available: boolean }> = [];
+  let slots: DoctorSlots | null = null;
   try {
     const slotsResponse = await getPublicDoctorSlots({ id: doctor.id, date, serviceType });
     if (slotsResponse?.ok) {
-      const extracted = extractDoctorSlots(await slotsResponse.json().catch(() => null));
-      if (extracted && extracted.length > 0) slots = extracted;
+      slots = extractDoctorSlots(await slotsResponse.json().catch(() => null));
     }
   } catch {}
 
-  if (slots.length === 0) {
-    slots = [
-      { start: "09:30 AM", label: "09:30 ص", available: true },
-      { start: "11:00 AM", label: "11:00 ص", available: true },
-      { start: "01:30 PM", label: "01:30 م", available: true },
-      { start: "04:30 PM", label: "04:30 م", available: true },
-      { start: "06:00 PM", label: "06:00 م", available: true },
-      { start: "08:30 PM", label: "08:30 م", available: true },
-    ];
+  if (!slots || slots.slots.length === 0) {
+    slots = {
+      date,
+      serviceType,
+      slots: [
+        { start: "09:30 AM", end: "10:00 AM", label: "09:30 ص", available: true },
+        { start: "11:00 AM", end: "11:30 AM", label: "11:00 ص", available: true },
+        { start: "01:30 PM", end: "02:00 PM", label: "01:30 م", available: true },
+        { start: "04:30 PM", end: "05:00 PM", label: "04:30 م", available: true },
+        { start: "06:00 PM", end: "06:30 PM", label: "06:00 م", available: true },
+        { start: "08:30 PM", end: "09:00 PM", label: "08:30 م", available: true },
+      ],
+    };
   }
 
   const doctorPhoto = fallbackDoctorsMap[doctorId]?.image || "/images/doctors/dr-sarah.jpg";
