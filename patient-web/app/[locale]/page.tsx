@@ -49,8 +49,8 @@ export default async function LandingPage({ params }: Props) {
   if (!isLocale(locale)) return null;
   setRequestLocale(locale);
 
-  const t = await getTranslations("Home");
-  const metadata = await getTranslations("Metadata");
+  const t = await getTranslations({ locale, namespace: "Home" });
+  const metadata = await getTranslations({ locale, namespace: "Metadata" });
   const url = localizedUrl(locale);
 
   const services = [
