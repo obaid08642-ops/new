@@ -416,65 +416,88 @@ function NursingOrdersTab({ onNavigate }: any) {
 // ══════════════════════════════════════════════════════════════════
 // ORDER DETAIL
 // ══════════════════════════════════════════════════════════════════
-function NursingOrderDetail({ order, onBack, onNav, onRefresh }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void; onRefresh:()=>void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+ function NursingOrderDetail({ order, onBack, onNav, onRefresh }:{ order:any; onBack:()=>void; onNav:(s:string,p?:any)=>void; onRefresh:()=>void }) {
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
+  const [acting, setActing] = useState(false);
 
- const handleAccept = () => {
-   show(AR ? 'قبول الزيارة غير متاح حتى وصول أمر خادمي يثبت الدفع أو التغطية والسعة.' : 'Visit acceptance is unavailable until a server command proves payment or coverage and capacity.', 'info');
- };
+  const handleAccept = async () => {
+    if (!order?.id) return;
+    setActing(true);
+    try {
+      await client.post(`/provider/requests/${order.id}/accept`, {});
+      show(AR ? 'تم قبول الزيارة بنجاح وإضافتها لجدول العمل' : 'Visit accepted successfully', 'success');
+      onRefresh?.();
+      onBack();
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'فشل قبول الزيارة — تحقق من الاتصال' : 'Failed to accept visit'), 'error');
+    } finally {
+      setActing(false);
+    }
+  };
 
- const handleReject = () => {
-   show(AR ? 'رفض الزيارة غير متاح من هذه الشاشة لأنه يحتاج سبباً وسجلاً خادمياً.' : 'Visit rejection is unavailable from this screen because it requires a server-recorded reason and audit.', 'info');
- };
+  const handleReject = async () => {
+    if (!order?.id) return;
+    setActing(true);
+    try {
+      await client.post(`/provider/requests/${order.id}/reject`, { reason: 'unavailable_capacity' });
+      show(AR ? 'تم الاعتذار عن الزيارة بنجاح' : 'Visit declined with recorded audit', 'info');
+      onRefresh?.();
+      onBack();
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'فشل رفض الزيارة' : 'Failed to decline visit'), 'error');
+    } finally {
+      setActing(false);
+    }
+  };
 
- return (
- <NScroll>
- <NHeader title={AR?'تفاصيل الطلب':'Order Details'} onBack={onBack} />
- {/* Patient Card */}
- <NCard style={{marginBottom:SP.xl}}>
- <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.lg,marginBottom:SP.lg}}>
- <NAvatar name={order?.patient_name || order?.patient || '—'} size={56} />
- <View style={{flex:1}}>
- <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order?.patient_name || order?.patient || '—'}</Text>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.age ?? '—'} {AR?'سنة':'yrs'} | {order?.gender || '—'}</Text>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.address?.address || order?.address || '—'}</Text>
- {order?.chronic && <NBadge label={AR?'مريض مزمن':'Chronic'} variant="danger" size="xs" style={{marginTop:SP.xs}} />}
- </View>
- </View>
- {/* Services */}
- <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'الخدمات المطلوبة':'Requested Services'}</Text>
- {Array.isArray(order?.services) ? (order.services.map((sid:string)=>{
- const svc=NURSING_SVCS.find(x=>x.id===sid);
- return svc?<View key={sid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
- <IBg name="heart" size={12} color="#E91E63" bg="#E91E6312" />
- <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?svc.ar:svc.en}</Text>
- </View>:null;
- })) : (
- <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
- <IBg name="heart" size={12} color="#E91E63" bg="#E91E6312" />
- <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{order?.title_ar || order?.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text>
- </View>
- )}
+  return (
+  <NScroll>
+  <NHeader title={AR?'تفاصيل الطلب':'Order Details'} onBack={onBack} />
+  {/* Patient Card */}
+  <NCard style={{marginBottom:SP.xl}}>
+  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.lg,marginBottom:SP.lg}}>
+  <NAvatar name={order?.patient_name || order?.patient || '—'} size={56} />
+  <View style={{flex:1}}>
+  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order?.patient_name || order?.patient || '—'}</Text>
+  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.age ?? '—'} {AR?'سنة':'yrs'} | {order?.gender || '—'}</Text>
+  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.address?.address || order?.address || '—'}</Text>
+  {order?.chronic && <NBadge label={AR?'مريض مزمن':'Chronic'} variant="danger" size="xs" style={{marginTop:SP.xs}} />}
+  </View>
+  </View>
+  {/* Services */}
+  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,marginBottom:SP.md,textAlign:AR?'right':'left'}}>{AR?'الخدمات المطلوبة':'Requested Services'}</Text>
+  {Array.isArray(order?.services) ? (order.services.map((sid:string)=>{
+  const svc=NURSING_SVCS.find(x=>x.id===sid);
+  return svc?<View key={sid} style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
+  <IBg name="heart" size={12} color="#E91E63" bg="#E91E6312" />
+  <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{AR?svc.ar:svc.en}</Text>
+  </View>:null;
+  })) : (
+  <View style={{flexDirection:AR?'row-reverse':'row',alignItems:'center',gap:SP.md,paddingVertical:SP.sm,borderBottomWidth:StyleSheet.hairlineWidth,borderBottomColor:theme.border}}>
+  <IBg name="heart" size={12} color="#E91E63" bg="#E91E6312" />
+  <Text style={{flex:1,fontSize:FS.md,color:theme.text,textAlign:AR?'right':'left'}}>{order?.title_ar || order?.title_en || (AR ? 'تمريض منزلي' : 'Home Nursing')}</Text>
+  </View>
+  )}
 
- {/* Pricing */}
- <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',alignItems:'center',marginTop:SP.lg,paddingTop:SP.md,borderTopWidth:1,borderTopColor:theme.border}}>
- <Text style={{fontSize:FS.md,color:theme.textSub}}>{AR?'السعر':'Price'}</Text>
- <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#E91E63'}}>{order?.price ?? '—'} {AR?'ريال':'SAR'}</Text>
- </View>
- <Text style={{fontSize:FS.xs,color:theme.textSub,textAlign:AR?'right':'left',marginTop:2}}>
- {AR?'التغطية والدفع يحددان من قرار خادمي موثق؛ لا يمكن اعتمادهما محلياً.':'Coverage and payment are determined by a recorded server decision; this screen cannot approve either locally.'}
- </Text>
- {/* Notes */}
- {order?.notes && <NCard style={{backgroundColor:theme.surface2,marginTop:SP.lg,padding:SP.md}}>
- <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left',lineHeight:20}}>{order.notes}</Text>
- </NCard>}
- </NCard>
+  {/* Pricing */}
+  <View style={{flexDirection:AR?'row-reverse':'row',justifyContent:'space-between',alignItems:'center',marginTop:SP.lg,paddingTop:SP.md,borderTopWidth:1,borderTopColor:theme.border}}>
+  <Text style={{fontSize:FS.md,color:theme.textSub}}>{AR?'السعر':'Price'}</Text>
+  <Text style={{fontSize:FS.xl,fontWeight:FW.xbold,color:'#E91E63'}}>{order?.price ?? '—'} {AR?'ريال':'SAR'}</Text>
+  </View>
+  <Text style={{fontSize:FS.xs,color:theme.textSub,textAlign:AR?'right':'left',marginTop:2}}>
+  {AR?'التغطية والدفع يحددان من قرار خادمي موثق؛ لا يمكن اعتمادهما محلياً.':'Coverage and payment are determined by a recorded server decision; this screen cannot approve either locally.'}
+  </Text>
+  {/* Notes */}
+  {order?.notes && <NCard style={{backgroundColor:theme.surface2,marginTop:SP.lg,padding:SP.md}}>
+  <Text style={{fontSize:FS.sm,color:theme.text,textAlign:AR?'right':'left',lineHeight:20}}>{order.notes}</Text>
+  </NCard>}
+  </NCard>
 
- {/* Actions */}
- {order?.status==='pending' && <View style={{gap:SP.md}}>
- <NBtn label={AR?'قبول غير متاح حتى تحقق الخادم':'Acceptance unavailable pending server validation'} variant="outline" onPress={handleAccept} />
- <NBtn label={AR?'الرفض يحتاج سبباً خادمياً':'Rejection requires a server-recorded reason'} variant="danger" onPress={handleReject} />
- </View>}
+  {/* Actions */}
+  {order?.status==='pending' && <View style={{gap:SP.md}}>
+  <NBtn label={AR?'قبول الزيارة':'Accept Visit'} variant="primary" loading={acting} onPress={handleAccept} />
+  <NBtn label={AR?'اعتذار عن الزيارة':'Decline Visit'} variant="danger" loading={acting} onPress={handleReject} />
+  </View>}
  {order?.status==='active' && <View style={{gap:SP.md}}>
  <NBtn label={AR?'تسجيل الوصول GPS':'GPS Check-in'} onPress={()=>onNav('checkin',order)} />
  <NBtn label={AR?'قائمة مهام الزيارة':'Visit Checklist'} variant="outline" onPress={()=>onNav('checklist',order)} />
