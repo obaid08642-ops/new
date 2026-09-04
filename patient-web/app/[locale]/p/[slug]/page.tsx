@@ -121,8 +121,58 @@ export default async function PublicProductPage({ params }: Props) {
           name: "Nabd Plus",
           url: "https://nabd.plus",
         },
+        shippingDetails: {
+          "@type": "OfferShippingDetails",
+          shippingRate: {
+            "@type": "MonetaryAmount",
+            value: "15.00",
+            currency: "SAR",
+          },
+          shippingDestination: {
+            "@type": "DefinedRegion",
+            addressCountry: "SA",
+          },
+        },
+        hasMerchantReturnPolicy: {
+          "@type": "MerchantReturnPolicy",
+          applicableCountry: "SA",
+          returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+          merchantReturnDays: 7,
+          returnMethod: "https://schema.org/ReturnByMail",
+          returnFees: "https://schema.org/FreeReturn",
+        },
       },
     },
+    {
+      "@context": "https://schema.org",
+      "@type": "MedicalDrug",
+      name,
+      alternateName: product.official_name !== name ? product.official_name : undefined,
+      activeIngredient: product.active_ingredient || undefined,
+      dosageForm: product.form || undefined,
+      strength: product.strength || undefined,
+      prescriptionStatus: product.is_rx ? "https://schema.org/PrescriptionOnly" : "https://schema.org/OTC",
+      url: canonical,
+      image: images[0],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: t("home"), item: localizedUrl(locale) },
+        { "@type": "ListItem", position: 2, name: t("products"), item: localizedUrl(locale, "/c") },
+        ...(product.category ? [{ "@type": "ListItem", position: 3, name: product.category, item: `${siteOrigin()}${categoryPath}` }] : []),
+        { "@type": "ListItem", position: product.category ? 4 : 3, name, item: canonical },
+      ],
+    },
+    ...((product.indications?.length || product.warnings?.length) ? [{
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        ...(product.indications?.length ? [{ "@type": "Question", name: `${t("indications")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.indications.join(" ") } }] : []),
+        ...(product.warnings?.length ? [{ "@type": "Question", name: `${t("warnings")} — ${name}`, acceptedAnswer: { "@type": "Answer", text: product.warnings.join(" ") } }] : []),
+      ],
+    }] : []),
   ];
 
   return (
