@@ -17,10 +17,45 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const product_ranking_event_service_1 = require("./product-ranking-event.service");
 const product_ranking_service_1 = require("./product-ranking.service");
-
+const class_validator_1 = require("class-validator");
 class RecordEventPayload {
 }
 exports.RecordEventPayload = RecordEventPayload;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], RecordEventPayload.prototype, "event_type", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], RecordEventPayload.prototype, "drug_id", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RecordEventPayload.prototype, "pharmacy_id", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RecordEventPayload.prototype, "category", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], RecordEventPayload.prototype, "quantity", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RecordEventPayload.prototype, "session_id", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsObject)(),
+    __metadata("design:type", Object)
+], RecordEventPayload.prototype, "metadata", void 0);
 
 let ProductRankingController = class ProductRankingController {
     constructor(eventService, rankingService) {
@@ -53,8 +88,9 @@ let ProductRankingController = class ProductRankingController {
         return this.rankingService.getTelemetry(drugId, pharmacyId || 'global');
     }
 };
-exports.ProductRankingController = ProductRankingController;
+const auth_guard_1 = require("../../common/auth.guard");
 __decorate([
+    (0, auth_guard_1.Public)(),
     (0, common_1.Post)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Record user interaction event for dynamic continuous re-ranking' }),
@@ -76,6 +112,6 @@ __decorate([
 ], ProductRankingController.prototype, "getTelemetry", null);
 exports.ProductRankingController = ProductRankingController = __decorate([
     (0, swagger_1.ApiTags)('Product Ranking'),
-    (0, common_1.Controller)(['api/v1/medicines/events', 'api/v1/products/ranking']),
+    (0, common_1.Controller)('medicines/events'),
     __metadata("design:paramtypes", [product_ranking_event_service_1.ProductRankingEventService, product_ranking_service_1.ProductRankingService])
 ], ProductRankingController);

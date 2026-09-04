@@ -11,27 +11,50 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsObject } from 'class-validator';
+import { Public } from '../../common/auth.guard';
 import { ProductRankingEventService, RankingEventType } from './product-ranking-event.service';
 import { ProductRankingService } from './product-ranking.service';
 
 export class RecordEventPayload {
+  @IsString()
+  @IsNotEmpty()
   event_type!: RankingEventType;
+
+  @IsString()
+  @IsNotEmpty()
   drug_id!: string;
+
+  @IsOptional()
+  @IsString()
   pharmacy_id?: string;
+
+  @IsOptional()
+  @IsString()
   category?: string;
+
+  @IsOptional()
+  @IsNumber()
   quantity?: number;
+
+  @IsOptional()
+  @IsString()
   session_id?: string;
+
+  @IsOptional()
+  @IsObject()
   metadata?: Record<string, any>;
 }
 
 @ApiTags('Product Ranking')
-@Controller(['api/v1/medicines/events', 'api/v1/products/ranking'])
+@Controller('medicines/events')
 export class ProductRankingController {
   constructor(
     private readonly eventService: ProductRankingEventService,
     private readonly rankingService: ProductRankingService,
   ) {}
 
+  @Public()
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Record user interaction event for dynamic continuous re-ranking' })
