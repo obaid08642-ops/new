@@ -8,6 +8,7 @@ import { LocaleSelector } from "@/components-next/locale-selector";
 import { SessionActions } from "@/components-next/session-actions";
 import { HeaderCartBadge } from "@/components-next/header-cart-badge";
 import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
+import { MobileBottomNav } from "@/components-next/mobile-bottom-nav";
 import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
 import { CartProvider } from "@/lib/context/CartContext";
@@ -71,6 +72,16 @@ export default async function LocaleLayout({ children, params }: Props) {
             </div>
           </header>
           {children}
+          <MobileBottomNav
+            locale={typedLocale}
+            labels={{
+              home: t("navHome"),
+              doctors: t("navDoctors"),
+              pharmacy: t("navPharmacy"),
+              diagnostics: t("navDiagnostics"),
+              account: t("account"),
+            }}
+          />
         </div>
       </CartProvider>
     </NextIntlClientProvider>

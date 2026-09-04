@@ -269,3 +269,26 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+@media (max-width: 480px) {
+  .itemRow {
+    padding: 12px;
+    gap: 12px;
+  }
+  .itemMedia {
+    width: 56px;
+    height: 56px;
+  }
+  .itemName {
+    font-size: 14px;
+  }
+  .summaryCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .checkoutBtn {
+    padding: 13px 20px;
+    font-size: 15px;
+    border-radius: 14px;
+  }
+}

@@ -173,11 +173,88 @@
   color: #64748b;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
+  .homePage {
+    gap: 20px;
+    padding-bottom: 40px;
+  }
   .hero {
-    padding: 24px 20px;
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+  .badge {
+    padding: 4px 10px;
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: clamp(20px, 6vw, 26px);
+    margin-bottom: 8px;
+  }
+  .hero p {
+    font-size: 13.5px;
+    line-height: 1.5;
   }
   .servicesGrid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .serviceCard {
+    padding: 14px 14px;
+    border-radius: 16px;
+    gap: 12px;
+    min-height: 48px;
+  }
+  .serviceIconWrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+  }
+  .serviceBody h3 {
+    font-size: 15px;
+  }
+  .serviceBody p {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .trustBanner {
+    padding: 16px 14px;
+    border-radius: 16px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .trustItem {
+    gap: 10px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .hero {
+    padding: 28px 24px;
+  }
+  .servicesGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .trustBanner {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .servicesGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .trustBanner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .servicesGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 }
