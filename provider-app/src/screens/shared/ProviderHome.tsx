@@ -8,9 +8,10 @@ import client from '../../api/client';
 
 export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
   const { theme } = useTheme();
-  const { user, logout, isOnline, toggleOnline } = useAuth();
+  const { user, logout, toggleOnline } = useAuth();
   const { lang } = useLang();
   const AR = lang === 'ar';
+  const isOnline = Boolean(user?.isOnline);
 
   const [refreshing, setRefreshing] = useState(false);
   const [profile, setProfile] = useState<any>(null);
@@ -56,7 +57,7 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
       <NHeader
         title={AR ? 'بوابة المزود الموحدة' : 'Provider Hub'}
-        rightElement={
+        right={
           <TouchableOpacity onPress={onLogout || logout} style={styles.logoutBtn}>
             <I name="log-out" size={20} color={theme.danger} />
           </TouchableOpacity>
@@ -76,7 +77,7 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
               <View style={[styles.badgeRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
                 <NBadge
                   label={AR ? (isApproved ? 'معتمد رسمياً' : 'قيد المراجعة والتدقيق') : (isApproved ? 'Verified Provider' : 'Pending Verification')}
-                  variant={isApproved ? 'success' : 'warn'}
+                  variant={isApproved ? 'success' : 'warning'}
                   size="sm"
                 />
                 <NBadge
