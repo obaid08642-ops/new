@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Heart, Pill, ShieldCheck } from "lucide-react";
-import { extractWishlist, type WishlistRow } from "@/lib/api/wishlist";
+import { extractWishlist, type WishlistItem } from "@/lib/api/wishlist";
 import { getPatientWishlist } from "@/lib/api/wishlist-server";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
@@ -16,7 +16,7 @@ export default async function WishlistPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Wishlist");
-  let items: WishlistRow[] = [];
+  let items: WishlistItem[] = [];
   try {
     const { cookies } = await import("next/headers");
     const { authCookieNames } = await import("@/lib/auth/cookies");
