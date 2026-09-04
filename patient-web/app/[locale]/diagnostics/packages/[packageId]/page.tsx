@@ -152,7 +152,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
   const name = rtl ? pkg.nameAr ?? pkg.nameEn : pkg.nameEn ?? pkg.nameAr;
   const description = rtl ? pkg.descriptionAr ?? pkg.descriptionEn : pkg.descriptionEn ?? pkg.descriptionAr;
   const preparation = rtl ? pkg.preparationAr ?? pkg.preparationEn : pkg.preparationEn ?? pkg.preparationAr;
-  const packagePhoto = (pkg as any).image || fallback.image || "/images/labs/comprehensive-checkup.jpg";
+  const packagePhoto = (pkg as any)?.image || fallback?.image || "/images/labs/comprehensive-checkup.jpg";
 
   return (
     <main className={`main ${styles.page}`}>

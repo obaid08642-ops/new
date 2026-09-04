@@ -8,7 +8,7 @@
 .intro p { margin: .5rem 0 0; color: var(--muted); font-size: .94rem; line-height: 1.6; }
 .introVector { display: grid; place-items: center; flex: 0 0 auto; inline-size: 4.75rem; block-size: 4.75rem; border: 1px solid rgba(236,72,153,.22); border-radius: var(--radius-lg); background: #FFFFFF; box-shadow: var(--shadow-md); }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1.15rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1.15rem; }
 .card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1rem; min-inline-size: 0; padding: 1.35rem; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #FFFFFF; box-shadow: var(--shadow-sm); text-decoration: none; color: inherit; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
 @media (hover: hover) and (pointer: fine) { .card:hover { border-color: rgba(236,72,153,.4); box-shadow: var(--shadow-md); transform: translateY(-2px); } }
 .cardIcon { display: grid; place-items: center; inline-size: 3rem; block-size: 3rem; border-radius: var(--radius-lg); color: #BE185D; background: rgba(236,72,153,.12); }

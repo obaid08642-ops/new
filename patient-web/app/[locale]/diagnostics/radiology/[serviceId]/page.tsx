@@ -151,7 +151,7 @@ export default async function RadiologyServiceDetailPage({ params }: Props) {
   const name = rtl ? service.nameAr ?? service.nameEn : service.nameEn ?? service.nameAr;
   const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr;
   const preparation = rtl ? service.preparationAr ?? service.preparationEn : service.preparationEn ?? service.preparationAr;
-  const servicePhoto = (service as any).image || fallback.image || "/images/radiology/mri.jpg";
+  const servicePhoto = (service as any)?.image || fallback?.image || "/images/radiology/mri.jpg";
 
   return (
     <main className={`main ${styles.page}`}>
