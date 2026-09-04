@@ -545,13 +545,13 @@ export class AutoEntitySeoPipelineService {
       type: 'entity.pipeline.projected',
       entity_type: input.entityType,
       entity_id: projection.entity_id,
-      slug,
-      canonical_url: canonicalUrl,
-      published,
-      indexable,
       actor_account_id: input.actorId || 'system',
       actor_role: input.actorRole || 'admin',
       reason_code: input.reason || input.action || 'pipeline_refresh',
+      meta: {
+        slug,
+        canonical_url: canonicalUrl,
+      },
       after: {
         published,
         indexable,

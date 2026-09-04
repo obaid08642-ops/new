@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, BadRequestException, Logger, Optional } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -25,7 +25,7 @@ export class MedicinesService {
     private redis: RedisService,
     @InjectConnection() private readonly conn: Connection,
     private readonly publication: CatalogPublicationService,
-    private readonly seoPipeline: AutoEntitySeoPipelineService,
+    @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
   ) {}
 
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
@@ -34,13 +34,15 @@ export class MedicinesService {
 
   private async refreshPublicProjection(medicine: any, actorId: string, reason: string) {
     const reviewedAt = medicine?.last_reviewed || medicine?.approved_at || medicine?.updatedAt || new Date();
-    await this.seoPipeline.processEntity({
-      entityType: 'medicine',
-      entityId: medicine.id,
-      actorId,
-      reason,
-      action: medicine.is_deleted ? 'delete' : (medicine.active === false ? 'deactivate' : 'update'),
-    }).catch(() => {});
+    if (this.seoPipeline) {
+      await this.seoPipeline.processEntity({
+        entityType: 'medicine',
+        entityId: medicine.id,
+        actorId,
+        reason,
+        action: medicine.is_deleted ? 'delete' : (medicine.active === false ? 'deactivate' : 'update'),
+      }).catch(() => {});
+    }
 
     return this.publication.refresh({
       entityType: 'medicine',

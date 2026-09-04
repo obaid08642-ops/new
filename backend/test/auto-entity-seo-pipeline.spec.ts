@@ -483,7 +483,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
     };
     mockCollections.provider_profiles = [doctor];
 
-    const mcpRes = await mcpService.executeTool('search_doctors', { specialty: 'Dermatology', city: 'Jeddah' });
+    const mcpRes: any = await mcpService.executeTool('search_doctors', { specialty: 'Dermatology', city: 'Jeddah' });
 
     expect(mcpRes.total).toBe(1);
     expect(mcpRes.items[0].name).toBe('د. ريان الغامدي');
@@ -504,7 +504,7 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
     };
     mockCollections.medicines_master = [med];
 
-    const searchRes = await mcpService.executeTool('search_medicines', { query: 'Brufen' });
+    const searchRes: any = await mcpService.executeTool('search_medicines', { query: 'Brufen' });
 
     expect(searchRes.total).toBe(1);
     expect(searchRes.items[0].name).toContain('بروفين');

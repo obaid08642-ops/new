@@ -340,7 +340,7 @@ export class McpService {
       }).limit(10).toArray(),
     ]);
 
-    const combined = [...facs];
+    const combined: any[] = [...facs];
     const seenIds = new Set(combined.map(f => f.id || String(f._id)));
     for (const pf of providerFacs) {
       const id = pf.id || String(pf._id);
