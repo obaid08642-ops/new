@@ -58,14 +58,16 @@ const patient_profile_repository_1 = require("./repositories/patient-profile.rep
 const provider_profile_repository_1 = require("./repositories/provider-profile.repository");
 const redis_service_1 = require("../redis/redis.service");
 const crypto_1 = require("crypto");
+const product_ranking_event_service_1 = require("../product-ranking/product-ranking-event.service");
 let UsersService = UsersService_1 = class UsersService {
-    constructor(userRepository, patientRepository, providerRepository, conn, redisService, events) {
+    constructor(userRepository, patientRepository, providerRepository, conn, redisService, events, rankingEvents) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.providerRepository = providerRepository;
         this.conn = conn;
         this.redisService = redisService;
         this.events = events;
+        this.rankingEvents = rankingEvents;
     }
     async getWishlist(userId) {
         const profile = await this.patientRepository.findOne({ user_id: userId });
@@ -83,6 +85,13 @@ let UsersService = UsersService_1 = class UsersService {
             if (!profile.wishlist)
                 profile.wishlist = [];
             profile.wishlist.push({ id: itemId });
+            if (this.rankingEvents) {
+                this.rankingEvents.recordEvent({
+                    eventType: 'wishlist_added',
+                    drugId: itemId,
+                    userId,
+                }).catch(() => {});
+            }
         }
         await this.patientRepository.updateOne({ user_id: userId }, { $set: { wishlist: profile.wishlist } });
         return { ok: true, message: 'Wishlist toggled' };
@@ -422,11 +431,13 @@ exports.UsersService = UsersService = UsersService_1 = __decorate([
     __param(2, (0, common_1.Inject)('ProviderProfileRepository')),
     __param(3, (0, mongoose_1.InjectConnection)()),
     __param(5, (0, common_1.Optional)()),
+    __param(6, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [user_repository_1.UserRepository,
         patient_profile_repository_1.PatientProfileRepository,
         provider_profile_repository_1.ProviderProfileRepository,
         mongoose_2.Connection,
         redis_service_1.RedisService,
-        event_emitter_1.EventEmitter2])
+        event_emitter_1.EventEmitter2,
+        product_ranking_event_service_1.ProductRankingEventService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

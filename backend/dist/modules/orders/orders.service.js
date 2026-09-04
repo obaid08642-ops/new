@@ -27,9 +27,10 @@ const medicine_repository_1 = require("./repositories/medicine.repository");
 const delivery_repository_1 = require("./repositories/delivery.repository");
 const pharmacybid_repository_1 = require("./repositories/pharmacybid.repository");
 const finance_engine_module_1 = require("../finance-engine/finance-engine.module");
+const product_ranking_event_service_1 = require("../product-ranking/product-ranking-event.service");
 const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 let OrdersService = class OrdersService {
-    constructor(orderModel, medModel, delModel, bidModel, events, dispatchSvc, engine, conn, coupons, loyaltyRedeem, refundExec, cancelPolicy) {
+    constructor(orderModel, medModel, delModel, bidModel, events, dispatchSvc, engine, conn, coupons, loyaltyRedeem, refundExec, cancelPolicy, rankingEvents) {
         this.orderModel = orderModel;
         this.medModel = medModel;
         this.delModel = delModel;
@@ -42,6 +43,7 @@ let OrdersService = class OrdersService {
         this.loyaltyRedeem = loyaltyRedeem;
         this.refundExec = refundExec;
         this.cancelPolicy = cancelPolicy;
+        this.rankingEvents = rankingEvents;
     }
     async assertNotCanonicalPharmacyOrder(order) {
         const isPharmacy = Boolean(order?.service_kind === 'pharmacy' ||
@@ -95,6 +97,19 @@ let OrdersService = class OrdersService {
                 if (to === enums_1.OrderState.DELIVERED) {
                     this.events.emit(events_1.EVENTS.ORDER_DELIVERED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
                     await this.conn.collection('medicationreminders').updateOne({ patient_id: order.patient_id, refill_pending_order_id: order.id }, { $set: { order_id: order.id, refill_fulfilled_at: new Date() }, $unset: { refill_pending_order_id: 1 } });
+                    if (Array.isArray(order.items) && this.rankingEvents) {
+                        for (const it of order.items) {
+                            if (it.medicine_id) {
+                                this.rankingEvents.recordEvent({
+                                    eventType: 'purchase_completed',
+                                    drugId: it.medicine_id,
+                                    pharmacyId: order.pharmacy_id || 'global',
+                                    quantity: it.qty || 1,
+                                    userId: order.patient_id,
+                                }).catch(() => {});
+                            }
+                        }
+                    }
                 }
                 if (to === enums_1.OrderState.CANCELLED)
                     this.events.emit(events_1.EVENTS.ORDER_CANCELLED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
@@ -516,6 +531,7 @@ exports.OrdersService = OrdersService = __decorate([
     __param(2, (0, common_1.Inject)('DeliveryRepository')),
     __param(3, (0, common_1.Inject)('PharmacyBidRepository')),
     __param(7, (0, mongoose_1.InjectConnection)()),
+    __param(12, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [order_repository_1.OrderRepository,
         medicine_repository_1.MedicineRepository,
         delivery_repository_1.DeliveryRepository,
@@ -527,6 +543,7 @@ exports.OrdersService = OrdersService = __decorate([
         finance_engine_module_1.CouponService,
         finance_engine_module_1.LoyaltyRedeemService,
         finance_engine_module_1.RefundExecutor,
-        finance_engine_module_1.CancellationPolicy])
+        finance_engine_module_1.CancellationPolicy,
+        product_ranking_event_service_1.ProductRankingEventService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

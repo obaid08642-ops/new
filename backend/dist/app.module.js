@@ -138,6 +138,7 @@ const billing_module_1 = require("./modules/billing/billing.module");
 const articles_module_1 = require("./modules/articles/articles.module");
 const correlation_middleware_1 = require("./common/correlation.middleware");
 const doctors_module_1 = require("./modules/doctors/doctors.module");
+const product_ranking_module_1 = require("./modules/product-ranking/product-ranking.module");
 const roles_guard_1 = require("./modules/admin-web-core/guards/roles.guard");
 let AppModule = class AppModule {
     configure(consumer) {
@@ -215,6 +216,7 @@ exports.AppModule = AppModule = __decorate([
             pharmacy_module_1.PharmacyModule,
             service_catalog_module_1.ServiceCatalogModule,
             cart_module_1.CartModule,
+            product_ranking_module_1.ProductRankingModule,
             admin_authority_module_1.AdminAuthorityModule,
             provider_onboarding_module_1.ProviderOnboardingModule,
             unified_bookings_module_1.UnifiedBookingsModule,

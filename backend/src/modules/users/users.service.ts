@@ -11,6 +11,7 @@ import { ProviderProfileRepository } from './repositories/provider-profile.repos
 import { PatientProfile } from '../../schemas/patient-profile.schema';
 import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
+import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,7 @@ export class UsersService {
     @InjectConnection() private readonly conn: Connection,
     private readonly redisService: RedisService,
     @Optional() private readonly events?: EventEmitter2,
+    @Optional() private readonly rankingEvents?: ProductRankingEventService,
   ) {}
 
   async getWishlist(userId: string) {
@@ -37,6 +39,13 @@ export class UsersService {
     } else {
       if (!profile.wishlist) profile.wishlist = [];
       profile.wishlist.push({ id: itemId }); // Real implementation would query product
+      if (this.rankingEvents) {
+        this.rankingEvents.recordEvent({
+          eventType: 'wishlist_added',
+          drugId: itemId,
+          userId,
+        }).catch(() => {});
+      }
     }
     await this.patientRepository.updateOne({ user_id: userId }, { $set: { wishlist: profile.wishlist } });
     return { ok: true, message: 'Wishlist toggled' };

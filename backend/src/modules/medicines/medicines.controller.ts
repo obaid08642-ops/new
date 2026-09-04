@@ -15,6 +15,8 @@ export class MedicinesController {
     @Query('search') search: string,
     @Query('q') q: string,
     @Query('category') category: string,
+    @Query('sort') sort?: string,
+    @Query('pharmacy_id') pharmacyId?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('cursor') cursor?: string,
@@ -27,9 +29,9 @@ export class MedicinesController {
       return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30'));
     }
     if (page !== undefined) {
-      return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'));
+      return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'), true, sort || 'smart_ranking', pharmacyId);
     }
-    return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId);
+    return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId, sort || 'smart_ranking', pharmacyId);
   }
 
   /** Decode (not verify) JWT for analytics attribution — never a security gate. */

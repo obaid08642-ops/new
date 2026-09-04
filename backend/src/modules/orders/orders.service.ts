@@ -1,7 +1,7 @@
 import axios from 'axios';
 // Use the CommonJS runtime export directly; namespace imports can be non-constructable in production bundles.
 const PDFDocument = require('pdfkit');
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, Inject, ServiceUnavailableException, Optional } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -18,6 +18,7 @@ import { MedicineRepository } from "./repositories/medicine.repository";
 import { DeliveryRepository } from "./repositories/delivery.repository";
 import { PharmacyBidRepository } from "./repositories/pharmacybid.repository";
 import { CouponService, LoyaltyRedeemService, RefundExecutor, CancellationPolicy } from '../finance-engine/finance-engine.module';
+import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
@@ -36,6 +37,7 @@ export class OrdersService {
     private readonly loyaltyRedeem: LoyaltyRedeemService,
     private readonly refundExec: RefundExecutor,
     private readonly cancelPolicy: CancellationPolicy,
+    @Optional() private readonly rankingEvents?: ProductRankingEventService,
   ) {}
 
   /** Legacy /orders mutations must never operate on a pharmacy order. */
@@ -315,6 +317,21 @@ export class OrdersService {
             { patient_id: order.patient_id, refill_pending_order_id: order.id },
             { $set: { order_id: order.id, refill_fulfilled_at: new Date() }, $unset: { refill_pending_order_id: 1 } },
           );
+
+          // Continuous Dynamic Re-Ranking: Ingest completed purchases
+          if (Array.isArray(order.items) && this.rankingEvents) {
+            for (const it of order.items) {
+              if (it.medicine_id) {
+                this.rankingEvents.recordEvent({
+                  eventType: 'purchase_completed',
+                  drugId: it.medicine_id,
+                  pharmacyId: order.pharmacy_id || 'global',
+                  quantity: it.qty || 1,
+                  userId: order.patient_id,
+                }).catch(() => {});
+              }
+            }
+          }
         }
         if (to === OrderState.CANCELLED) this.events.emit(EVENTS.ORDER_CANCELLED, { order_id: order.id, patient_id: order.patient_id, pharmacy_id: order.pharmacy_id });
         if (to === OrderState.ACCEPTED) {

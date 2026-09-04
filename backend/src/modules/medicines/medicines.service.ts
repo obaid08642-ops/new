@@ -11,6 +11,7 @@ import { RedisService } from '../redis/redis.service';
 import { CatalogPublicationService } from '../events/catalog-publication.service';
 import { AutoEntitySeoPipelineService } from '../events/auto-entity-seo-pipeline.service';
 import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, PUBLIC_CATALOG_LOCALES } from './med-i18n';
+import { ProductRankingService } from '../product-ranking/product-ranking.service';
 
 @Injectable()
 export class MedicinesService {
@@ -26,6 +27,7 @@ export class MedicinesService {
     @InjectConnection() private readonly conn: Connection,
     private readonly publication: CatalogPublicationService,
     @Optional() private readonly seoPipeline?: AutoEntitySeoPipelineService,
+    @Optional() private readonly rankingService?: ProductRankingService,
   ) {}
 
   private get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
@@ -333,18 +335,47 @@ export class MedicinesService {
     };
   }
 
-  async list(search?: string, category?: string, includeUnverified = true, maxItems = 500, userId?: string) {
+  async list(
+    search?: string,
+    category?: string,
+    includeUnverified = true,
+    maxItems = 500,
+    userId?: string,
+    sort = 'smart_ranking',
+    pharmacyId?: string,
+  ) {
     const cap = Math.min(Math.max(maxItems || 500, 1), 500);
-    const cacheKey = `med:list:governed-v1:${search || ''}:${category || ''}:${includeUnverified}:${cap}`;
+    const cacheKey = `med:list:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any[]>(cacheKey);
     if (cached) return cached;
     let rows: any[] = [];
 
+    // Continuous Dynamic Ranking Fast-Path when viewing storefront without search query
+    if (!search && this.rankingService) {
+      const { drugIds } = await this.rankingService.getRankedDrugIds({
+        pharmacyId,
+        category: (category && category !== 'all') ? category : undefined,
+        sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+        limit: cap,
+      });
+
+      if (drugIds.length > 0) {
+        const query: any = {
+          id: { $in: drugIds },
+          ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()),
+          ...((category && category !== 'all') ? { category } : {}),
+        };
+        const fetched = await this.model.find(query, MedicinesService.CARD_PROJECTION);
+        const map = new Map(fetched.map((m: any) => [m.id, m]));
+        rows = drugIds.map((id) => map.get(id)).filter(Boolean);
+      }
+    }
+
     // Fast path: full-text index (medicines_fts) — index-backed, ms-fast on 21k docs
-    if (search && search.trim().length >= 2) {
+    if (rows.length === 0 && search && search.trim().length >= 2) {
       try {
         rows = await this.model.find(
-          { $text: { $search: search.trim() }, ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()), ...(category ? { category } : {}) } as any,
+          { $text: { $search: search.trim() }, ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()), ...((category && category !== 'all') ? { category } : {}) } as any,
           { ...MedicinesService.CARD_PROJECTION, score: { $meta: 'textScore' } } as any,
         ).sort({ score: { $meta: 'textScore' } } as any).limit(cap);
       } catch { /* fall through to regex path */ }
@@ -352,7 +383,7 @@ export class MedicinesService {
 
     // Regex path: substring/normalized/synonym matching (used when FTS misses)
     if (rows.length < 3) {
-      rows = await this.model.find(this.buildQuery(search, category, includeUnverified), MedicinesService.CARD_PROJECTION)
+      rows = await this.model.find(this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified), MedicinesService.CARD_PROJECTION)
         .sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
     }
 
@@ -371,6 +402,19 @@ export class MedicinesService {
       ).sort({ usage_count: -1 }).limit(Math.min(cap, 50));
     }
 
+    // Blend text search relevance with continuous dynamic popularity
+    if (search && rows.length > 0 && this.rankingService) {
+      const candidates = rows.map((r: any) => ({
+        drugId: r.id,
+        textScore: r.score || (r.verified ? 2.0 : 1.0),
+      }));
+      const blendedIds = await this.rankingService.blendSearchRelevance(candidates, { pharmacyId, category: (category && category !== 'all') ? category : undefined });
+      if (blendedIds.length > 0) {
+        const map = new Map(rows.map((r: any) => [r.id, r]));
+        rows = blendedIds.map((id) => map.get(id)).filter(Boolean);
+      }
+    }
+
     this.trackSearch(search, rows.length, userId);
     const withBadges = rows.map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     await this.redis.setJson(cacheKey, withBadges, MedicinesService.LIST_CACHE_TTL);
@@ -379,16 +423,56 @@ export class MedicinesService {
 
   /**
    * Paginated catalog listing — { data, total, page, total_pages }.
-   * Results cached per (query,page,limit) tuple so page turns are instant.
+   * Results cached per (query,page,limit,sort,pharmacy) tuple so page turns are instant.
    */
-  async paginate(search?: string, category?: string, page = 1, limit = 30, includeUnverified = true) {
+  async paginate(
+    search?: string,
+    category?: string,
+    page = 1,
+    limit = 30,
+    includeUnverified = true,
+    sort = 'smart_ranking',
+    pharmacyId?: string,
+  ) {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
     const safePage = Math.max(page, 1);
-    const cacheKey = `med:page:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}`;
+    const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
     const cached = await this.redis.getJson<any>(cacheKey);
     if (cached) return cached;
 
-    const q = this.buildQuery(search, category, includeUnverified);
+    // Continuous Dynamic Ranking Fast-Path when not searching text
+    if (!search && this.rankingService) {
+      const offset = (safePage - 1) * safeLimit;
+      const { drugIds, total } = await this.rankingService.getRankedDrugIds({
+        pharmacyId,
+        category: (category && category !== 'all') ? category : undefined,
+        sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+        limit: safeLimit,
+        offset,
+      });
+
+      if (drugIds.length > 0) {
+        const query: any = {
+          id: { $in: drugIds },
+          ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()),
+          ...((category && category !== 'all') ? { category } : {}),
+        };
+        const rows = await this.model.find(query, MedicinesService.CARD_PROJECTION);
+        const map = new Map(rows.map((m: any) => [m.id, m]));
+        const ordered = drugIds.map((id) => map.get(id)).filter(Boolean);
+        const result = {
+          data: ordered.map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m)),
+          total,
+          page: safePage,
+          limit: safeLimit,
+          total_pages: Math.ceil(total / safeLimit),
+        };
+        await this.redis.setJson(cacheKey, result, MedicinesService.LIST_CACHE_TTL);
+        return result;
+      }
+    }
+
+    const q = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
     const [data, total] = await Promise.all([
       this.model.find(q, MedicinesService.CARD_PROJECTION)
         .sort({ verified: -1, usage_count: -1, name_ar: 1 })
@@ -453,7 +537,7 @@ export class MedicinesService {
 
   private get hotCol() { return this.conn.collection('hot_medicines'); }
 
-  @Cron('0 4 * * *') // daily at 04:00 server time
+  // On-demand administrative recalculation trigger (Continuous Dynamic Ranking is the live source of truth)
   async generateHotMedicines() {
     const since = new Date(Date.now() - 90 * 24 * 3600 * 1000);
 
@@ -524,15 +608,39 @@ export class MedicinesService {
     return { generated: scored.length };
   }
 
-  /** GET /medicines/hot — Top 50 hot medicines (smart cache for app startup). */
+  /** GET /medicines/hot — Top 50 hot/trending medicines (continuous dynamic ranking). */
   async hot() {
-    const cached = await this.redis.getJson<any[]>('med:hot:governed-v1:full');
+    const cached = await this.redis.getJson<any[]>('med:hot:governed-v2:live');
     if (cached) return cached;
-    const rows = await this.hotCol.find({}, { projection: { _id: 0 } }).sort({ score: -1 }).limit(50).toArray();
-    const result = rows
-      .filter((r: any) => r.medicine?.public_eligibility === true && r.medicine?.medical_review_status === 'approved')
-      .map((r: any) => ({ ...r.medicine, hot_score: r.score }));
-    await this.redis.setJson('med:hot:governed-v1:full', result, 3600);
+
+    if (this.rankingService) {
+      const { drugIds } = await this.rankingService.getRankedDrugIds({
+        pharmacyId: 'global',
+        sort: 'trending',
+        limit: 50,
+      });
+
+      if (drugIds.length > 0) {
+        const rows = await this.model.find(
+          { id: { $in: drugIds }, ...this.publicCatalogFilter() },
+          MedicinesService.CARD_PROJECTION,
+        );
+        const map = new Map(rows.map((r: any) => [r.id, r]));
+        const ordered = drugIds
+          .map((id) => map.get(id))
+          .filter(Boolean)
+          .map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
+        if (ordered.length > 0) {
+          await this.redis.setJson('med:hot:governed-v2:live', ordered, 180);
+          return ordered;
+        }
+      }
+    }
+
+    const rows = await this.model.find(this.publicCatalogFilter(), MedicinesService.CARD_PROJECTION)
+      .sort({ usage_count: -1, verified: -1 }).limit(50);
+    const result = rows.map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
+    await this.redis.setJson('med:hot:governed-v2:live', result, 180);
     return result;
   }
 

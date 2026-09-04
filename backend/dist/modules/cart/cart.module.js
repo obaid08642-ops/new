@@ -28,6 +28,7 @@ const orders_module_1 = require("../orders/orders.module");
 const orders_service_1 = require("../orders/orders.service");
 const users_module_1 = require("../users/users.module");
 const users_service_1 = require("../users/users.service");
+const product_ranking_event_service_1 = require("../product-ranking/product-ranking-event.service");
 let UnifiedCart = class UnifiedCart extends mongoose_4.Document {
 };
 exports.UnifiedCart = UnifiedCart;
@@ -56,11 +57,12 @@ exports.UnifiedCart = UnifiedCart = __decorate([
 ], UnifiedCart);
 exports.UnifiedCartSchema = mongoose_3.SchemaFactory.createForClass(UnifiedCart);
 let CartService = class CartService {
-    constructor(model, medicines, orders, users) {
+    constructor(model, medicines, orders, users, rankingEvents) {
         this.model = model;
         this.medicines = medicines;
         this.orders = orders;
         this.users = users;
+        this.rankingEvents = rankingEvents;
     }
     async ensureCart(patient_id) {
         let c = await this.model.findOne({ patient_id });
@@ -112,6 +114,14 @@ let CartService = class CartService {
         }
         c.last_action = 'add';
         await c.save();
+        if (line.kind === 'pharmacy' && line.service_id && this.rankingEvents) {
+            this.rankingEvents.recordEvent({
+                eventType: 'product_added_to_cart',
+                drugId: line.service_id,
+                quantity: line.qty || 1,
+                userId: user?.id,
+            }).catch(() => {});
+        }
         return this.summarize(c);
     }
     async addContractItem(user, body) {
@@ -216,10 +226,12 @@ exports.CartService = CartService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)('UnifiedCart')),
     __param(1, (0, mongoose_1.InjectModel)(medicine_schema_1.Medicine.name)),
+    __param(4, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model,
         orders_service_1.OrdersService,
-        users_service_1.UsersService])
+        users_service_1.UsersService,
+        product_ranking_event_service_1.ProductRankingEventService])
 ], CartService);
 let CartController = class CartController {
     constructor(svc, prescriptions) {

@@ -140,6 +140,7 @@ import { ArticlesModule } from './modules/articles/articles.module';
 import { CorrelationMiddleware } from './common/correlation.middleware';
 import { DoctorsModule } from './modules/doctors/doctors.module';
 import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
+import { ProductRankingModule } from './modules/product-ranking/product-ranking.module';
 
 @Module({
   imports: [
@@ -216,6 +217,7 @@ import { RolesGuard } from './modules/admin-web-core/guards/roles.guard';
     PharmacyModule,
     ServiceCatalogModule,
     CartModule,
+    ProductRankingModule,
     AdminAuthorityModule,
     ProviderOnboardingModule,
     UnifiedBookingsModule,

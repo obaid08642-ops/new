@@ -388,7 +388,13 @@ export default function PharmacyTab() {
               <TouchableOpacity
                 key={m.id}
                 style={[styles.gridCard, { backgroundColor: colors.s, borderColor: colors.bd }]}
-                onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: pickDbField(m, 'name') || m.name } })}
+                onPress={() => {
+                  apiFetch('/medicines/events', {
+                    method: 'POST',
+                    body: JSON.stringify({ event_type: 'product_clicked', drug_id: m.id })
+                  }).catch(() => {});
+                  router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: pickDbField(m, 'name') || m.name } });
+                }}
                 activeOpacity={0.85}
               >
                 <View style={[styles.gridImgWrap, { backgroundColor: gallery.length ? '#fff' : (m.iconBg || m.cs || '#DEF5F9'), overflow: 'hidden' }]}>
@@ -445,7 +451,13 @@ export default function PharmacyTab() {
                   <TouchableOpacity
                     key={m.id}
                     style={[styles.cardRow, { backgroundColor: colors.s, borderColor: colors.bd }]}
-                    onPress={() => router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: pickDbField(m, 'name') || m.name } })}
+                    onPress={() => {
+                      apiFetch('/medicines/events', {
+                        method: 'POST',
+                        body: JSON.stringify({ event_type: 'product_clicked', drug_id: m.id })
+                      }).catch(() => {});
+                      router.push({ pathname: '/pharmacy/product-detail', params: { id: m.id, name: pickDbField(m, 'name') || m.name } });
+                    }}
                     activeOpacity={0.85}
                   >
                     {/* Image — LEFT, large */}
