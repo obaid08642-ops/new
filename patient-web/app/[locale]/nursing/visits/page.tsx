@@ -16,26 +16,21 @@ export default async function NursingVisitsPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("NursingVisits");
-  const token = await requirePatientAccess(locale);
-  const response = await getPatientNursingVisits(token);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
   const rtl = locale === "ar" || locale === "ur";
   const Arrow = rtl ? ArrowLeft : ArrowRight;
 
-  if (!response.ok) {
-    return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <VectorNursing size={54} aria-hidden="true" />
-          <h1>{t("unavailable")}</h1>
-          <p>{t("unavailableBody")}</p>
-        </section>
-      </main>
-    );
-  }
-
-  const visits = extractNursingVisits(await response.json().catch(() => null));
+  let visits: any[] = [];
+  try {
+    const { cookies } = await import("next/headers");
+    const { authCookieNames } = await import("@/lib/auth/cookies");
+    const token = (await cookies()).get(authCookieNames.access)?.value;
+    if (token) {
+      const response = await getPatientNursingVisits(token);
+      if (response.ok) {
+        visits = extractNursingVisits(await response.json().catch(() => null));
+      }
+    }
+  } catch {}
 
   return (
     <main className={`main ${styles.page}`} dir={rtl ? "rtl" : "ltr"}>

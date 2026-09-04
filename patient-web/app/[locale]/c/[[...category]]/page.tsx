@@ -52,17 +52,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 }
 
 function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
-  const src = cdnImage(item.image);
+  const src = cdnImage(item.image) || "/images/categories/medications.jpg";
   return (
     <div className={styles.card}>
       <Link href={`/${locale}/p/${encodeURIComponent(item.slug)}`} className={styles.cardMediaWrap}>
         <span className={styles.cardMedia}>
-          {src ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={src} alt={item.name || ""} width={140} height={140} loading="lazy" decoding="async" />
-          ) : (
-            <Pill size={28} aria-hidden="true" color="#00876F" />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt={item.name || ""} width={140} height={140} loading="lazy" decoding="async" style={{ objectFit: "contain" }} />
         </span>
       </Link>
       <div className={styles.cardBody}>
@@ -136,8 +132,20 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           {(tree?.categories || []).map((c) => (
             <div key={c.name} className={styles.categoryTile}>
               <Link href={`/${locale}/c/${encodeURIComponent(c.name)}`} className={styles.tileHeader}>
-                <div className={styles.tileIconWrap}>
-                  <VectorPharmacy size={28} />
+                <div className={styles.tileIconWrap} style={{ width: 52, height: 52, borderRadius: 14, overflow: "hidden", border: "2px solid #5FD9B3", flexShrink: 0 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={
+                      c.name.includes("فيتامين") ? "/images/categories/vitamins.jpg" :
+                      c.name.includes("بشرة") || c.name.includes("تجميل") ? "/images/categories/skincare.jpg" :
+                      c.name.includes("طفل") || c.name.includes("أم") ? "/images/categories/babycare.jpg" :
+                      c.name.includes("جهاز") || c.name.includes("أجهزة") ? "/images/categories/devices.jpg" :
+                      c.name.includes("إسعاف") ? "/images/categories/firstaid.jpg" :
+                      "/images/categories/medications.jpg"
+                    } 
+                    alt={c.name} 
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                  />
                 </div>
                 <div className={styles.tileInfo}>
                   <strong className={styles.tileName}>{c.name}</strong>

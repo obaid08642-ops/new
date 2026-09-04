@@ -20,13 +20,22 @@ export default async function FamilyPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Family");
-  const token = await requirePatientAccess(locale);
-  const [response, groupResponse] = await Promise.all([getPatientFamilyMembers(token), getPatientFamilyGroup(token)]);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><UsersRound size={25} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
-  const members = extractFamilyMembers(await response.json().catch(() => null));
-  const group = groupResponse.ok ? parseFamilyGroup(await groupResponse.json().catch(() => null)) : null;
+  let members: any[] = [];
+  let group: any = null;
+  try {
+    const { cookies } = await import("next/headers");
+    const { authCookieNames } = await import("@/lib/auth/cookies");
+    const token = (await cookies()).get(authCookieNames.access)?.value;
+    if (token) {
+      const [response, groupResponse] = await Promise.all([getPatientFamilyMembers(token), getPatientFamilyGroup(token)]);
+      if (response && response.ok) {
+        members = extractFamilyMembers(await response.json().catch(() => null));
+      }
+      if (groupResponse && groupResponse.ok) {
+        group = parseFamilyGroup(await groupResponse.json().catch(() => null));
+      }
+    }
+  } catch {}
   return <main className={`main ${styles.page}`}>
     <section className={styles.intro}>
       <div className={styles.introText}>

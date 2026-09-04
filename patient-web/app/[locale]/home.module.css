@@ -414,3 +414,335 @@
     gap: 16px;
   }
 }
+
+/* Additional Styles for Category Slider, Doctor Grid, Lab Packages, and Real Media */
+.categorySliderWrap {
+  margin-top: -10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.categorySliderWrap::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryPills {
+  display: flex;
+  gap: 10px;
+  min-width: max-content;
+}
+
+.categoryPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid #E2E8F0;
+  background: #FFFFFF;
+  color: #16213A;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+:global(.dark) .categoryPill {
+  background: #16213A;
+  border-color: #243552;
+  color: #F8FAFC;
+}
+
+.categoryPill:hover {
+  transform: translateY(-2px);
+  border-color: #B8E030;
+}
+
+.categoryPillActive {
+  background: #B8E030;
+  border-color: #B8E030;
+  color: #16213A;
+  box-shadow: 0 4px 14px rgba(184, 224, 48, 0.35);
+}
+
+.pillThumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.serviceImgWrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #5FD9B3;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.serviceImgWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Featured Doctors Section */
+.featuredSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHeadingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.sectionHeadingRow h2 {
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 900;
+  color: #16213A;
+  margin: 0 0 4px;
+}
+
+:global(.dark) .sectionHeadingRow h2 {
+  color: #F8FAFC;
+}
+
+.sectionHeadingRow p {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+
+.seeAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #00876F;
+  text-decoration: none;
+}
+
+.doctorCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.doctorCard {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(22, 33, 58, 0.04);
+  text-decoration: none;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+:global(.dark) .doctorCard {
+  background: #16213A;
+  border-color: #243552;
+}
+
+.doctorCard:hover {
+  transform: translateY(-3px);
+  border-color: #5FD9B3;
+  box-shadow: 0 10px 24px rgba(22, 33, 58, 0.08);
+}
+
+.doctorCardHeader {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.doctorAvatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid #5FD9B3;
+  flex-shrink: 0;
+}
+
+.doctorAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doctorMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doctorMeta strong {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #16213A;
+}
+
+:global(.dark) .doctorMeta strong {
+  color: #F8FAFC;
+}
+
+.doctorMeta span {
+  font-size: 12.5px;
+  color: #64748B;
+}
+
+.doctorFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #F1F5F9;
+}
+
+:global(.dark) .doctorFooter {
+  border-top-color: #243552;
+}
+
+.doctorPrice {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #00876F;
+}
+
+.doctorBookBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #B8E030;
+  color: #16213A;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 10px;
+}
+
+/* Labs and Diagnostics Grid */
+.labsCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.labPromoCard {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(22, 33, 58, 0.04);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+:global(.dark) .labPromoCard {
+  background: #16213A;
+  border-color: #243552;
+}
+
+.labPromoCard:hover {
+  transform: translateY(-3px);
+  border-color: #5FD9B3;
+}
+
+.labImgFrame {
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  position: relative;
+}
+
+.labImgFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.labCardContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.labCardContent h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #16213A;
+  margin: 0;
+}
+
+:global(.dark) .labCardContent h3 {
+  color: #F8FAFC;
+}
+
+.labCardContent p {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.labFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+}
+
+:global(.dark) .labFooter {
+  border-top-color: #243552;
+}
+
+.labPrice {
+  font-size: 15px;
+  font-weight: 900;
+  color: #00876F;
+}
+
+.labBookBtn {
+  background: #16213A;
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 10px;
+}
+
+:global(.dark) .labBookBtn {
+  background: #B8E030;
+  color: #16213A;
+}
+
+.heroPhotoWrap {
+  width: 190px;
+  height: 190px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 3px solid #5FD9B3;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+.heroPhotoWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

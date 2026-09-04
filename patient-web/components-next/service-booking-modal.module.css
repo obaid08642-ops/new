@@ -1,0 +1,375 @@
+.triggerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #B8E030;
+  color: #16213A;
+  font-weight: 800;
+  padding: 12px 24px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(184, 224, 48, 0.35);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.triggerBtn:hover {
+  background: #A3CD24;
+  transform: translateY(-2px);
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 33, 58, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modalCard {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 540px;
+  padding: 32px 28px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(22, 33, 58, 0.25);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+:global(.dark) .modalCard {
+  background: #16213A;
+  border-color: #243552;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 18px;
+  inset-inline-end: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #64748B;
+}
+
+:global(.dark) .closeBtn {
+  background: #1A2942;
+  border-color: #2E4366;
+  color: #E2E8F0;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.serviceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(95, 217, 179, 0.18);
+  color: #00876F;
+  border: 1px solid rgba(95, 217, 179, 0.35);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.header h2 {
+  font-size: 20px;
+  font-weight: 900;
+  color: #16213A;
+  margin: 0 0 6px;
+}
+
+:global(.dark) .header h2 {
+  color: #F8FAFC;
+}
+
+.priceTag {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+
+.priceTag strong {
+  color: #00876F;
+  font-size: 16px;
+}
+
+.visitTypeToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #E2E8F0;
+  background: #F8FAFC;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #16213A;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+:global(.dark) .toggleBtn {
+  background: #1A2942;
+  border-color: #2E4366;
+  color: #F8FAFC;
+}
+
+.toggleActive {
+  border-color: #00876F;
+  background: rgba(95, 217, 179, 0.14);
+  color: #00876F;
+}
+
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 500px) {
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #16213A;
+}
+
+:global(.dark) .field label {
+  color: #E2E8F0;
+}
+
+.field input,
+.field select {
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #CBD5E1;
+  padding: 0 12px;
+  font-size: 13.5px;
+  background: #F8FAFC;
+  outline: none;
+}
+
+:global(.dark) .field input,
+:global(.dark) .field select {
+  background: #1A2942;
+  border-color: #2E4366;
+  color: #F8FAFC;
+}
+
+.paymentSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.paymentLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #16213A;
+}
+
+:global(.dark) .paymentLabel {
+  color: #E2E8F0;
+}
+
+.paymentPills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.paymentPill {
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
+  font-size: 12px;
+  font-weight: 700;
+  color: #16213A;
+  cursor: pointer;
+}
+
+:global(.dark) .paymentPill {
+  background: #1A2942;
+  border-color: #2E4366;
+  color: #F8FAFC;
+}
+
+.paymentPillActive {
+  border-color: #00876F;
+  background: rgba(95, 217, 179, 0.14);
+  color: #00876F;
+}
+
+.confirmBtn {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  background: #B8E030;
+  color: #16213A;
+  font-size: 15px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(184, 224, 48, 0.35);
+}
+
+.errorText {
+  color: #DC2626;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+/* Success State */
+.successState {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.successIcon {
+  display: inline-flex;
+  margin-bottom: 12px;
+}
+
+.confirmedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(95, 217, 179, 0.18);
+  color: #00876F;
+  border: 1px solid rgba(95, 217, 179, 0.35);
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.successState h2 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #16213A;
+  margin: 0 0 8px;
+}
+
+:global(.dark) .successState h2 {
+  color: #F8FAFC;
+}
+
+.confirmSub {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0 0 20px;
+}
+
+.confirmReceipt {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: right;
+  margin-bottom: 24px;
+}
+
+:global(.dark) .confirmReceipt {
+  background: #1A2942;
+  border-color: #2E4366;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #64748B;
+}
+
+.receiptRow strong {
+  color: #16213A;
+}
+
+:global(.dark) .receiptRow strong {
+  color: #F8FAFC;
+}
+
+.receiptRowTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  padding-top: 8px;
+  border-top: 1px dashed #CBD5E1;
+  color: #16213A;
+}
+
+:global(.dark) .receiptRowTotal {
+  color: #F8FAFC;
+  border-top-color: #2E4366;
+}
+
+.receiptRowTotal strong {
+  color: #00876F;
+  font-weight: 900;
+}
+
+.doneBtn {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  background: #16213A;
+  color: #FFFFFF;
+  font-size: 14.5px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+}

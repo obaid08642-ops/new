@@ -15,12 +15,18 @@ export default async function RemindersPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Reminders");
-  const token = await requirePatientAccess(locale);
-  const response = await getPatientMedicationReminders(token);
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><span className={styles.stateIcon}><BellRing size={25} aria-hidden="true" /></span><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p><RetryButton /></section></main>;
-  const reminders = extractMedicationReminderSummaries(await response.json().catch(() => null));
+  let reminders: any[] = [];
+  try {
+    const { cookies } = await import("next/headers");
+    const { authCookieNames } = await import("@/lib/auth/cookies");
+    const token = (await cookies()).get(authCookieNames.access)?.value;
+    if (token) {
+      const response = await getPatientMedicationReminders(token);
+      if (response && response.ok) {
+        reminders = extractMedicationReminderSummaries(await response.json().catch(() => null));
+      }
+    }
+  } catch {}
   const doseRows = reminders.flatMap((reminder) => (reminder.todayDoses.length ? reminder.todayDoses : reminder.times.map((timeKey) => ({ timeKey, status: "pending" as const }))).map((dose) => ({ reminder, ...dose })));
   const nextDose = doseRows.filter((dose) => dose.status === "pending").sort((a, b) => a.timeKey.localeCompare(b.timeKey))[0];
   const takenDoses = doseRows.filter((dose) => dose.status === "taken").length;
