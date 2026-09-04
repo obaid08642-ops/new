@@ -24,7 +24,7 @@ describe("MobileBottomNav", () => {
     expect(html).toContain('href="/ar"');
     expect(html).toContain('href="/ar/consultations/doctors"');
     expect(html).toContain('href="/ar/c"');
-    expect(html).toContain('href="/ar/diagnostics"');
+    expect(html).toContain('href="/ar/diagnostics/labs"');
     expect(html).toContain('href="/ar/dashboard"');
     expect(html).toContain("الرئيسية");
     expect(html).toContain("الأطباء");

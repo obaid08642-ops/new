@@ -4,6 +4,9 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { ClaimButton } from "./claim-button";
+import { VectorLoyalty } from "@/components-next/vector-illustrations";
+import { Award, Coins, Gift, History, Sparkles } from "lucide-react";
+import styles from "./loyalty.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -49,37 +52,97 @@ export default async function LoyaltyPage({ params }: Props) {
     return [{ id: String(r.id ?? `${pts}-${r.createdAt ?? ""}`), points: pts, reason: typeof r.reason === "string" ? r.reason : typeof r.type === "string" ? r.type : undefined, createdAt: typeof r.createdAt === "string" ? r.createdAt : undefined }];
   });
   const labels = { claim: t("claim"), claiming: t("claiming"), claimed: t("claimed"), error: t("error") };
-  return <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
-    <h1>{t("title")}</h1>
-    <section style={{ border: "1px solid var(--border, #e2e7ee)", borderRadius: 14, padding: "18px 20px", marginBottom: 20 }}>
-      <strong style={{ fontSize: 28 }}>{points.toLocaleString(locale)}</strong>
-      <span style={{ marginInlineStart: 8, opacity: 0.7 }}>{t("points")}</span>
-      {tier ? <p style={{ margin: "4px 0 0", opacity: 0.7 }}>{t("tier")}: {tier}</p> : null}
-    </section>
-    <h2>{t("rewards")}</h2>
-    {rewards.length === 0 ? <p style={{ opacity: 0.7 }}>{t("noRewards")}</p> : (
-      <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
-        {rewards.map((reward) => (
-          <li key={reward.id} style={{ border: "1px solid var(--border, #e2e7ee)", borderRadius: 12, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-            <div>
-              <strong>{reward.title}</strong>
-              {reward.cost ? <p style={{ margin: 0, fontSize: 13, opacity: 0.7 }}>{reward.cost.toLocaleString(locale)} {t("points")}</p> : null}
-            </div>
-            <ClaimButton rewardId={reward.id} disabled={reward.cost !== undefined && points < reward.cost} labels={labels} />
-          </li>
-        ))}
-      </ul>
-    )}
-    <h2 style={{ marginTop: 24 }}>{t("history")}</h2>
-    {txns.length === 0 ? <p style={{ opacity: 0.7 }}>{t("noHistory")}</p> : (
-      <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 6 }}>
-        {txns.map((txn) => (
-          <li key={txn.id} style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border, #eef1f5)", padding: "8px 0", fontSize: 14 }}>
-            <span>{txn.reason ?? "—"}</span>
-            <strong style={{ color: txn.points > 0 ? "var(--primary, #0d6e56)" : "#b3261e" }}>{txn.points > 0 ? "+" : ""}{txn.points.toLocaleString(locale)}</strong>
-          </li>
-        ))}
-      </ul>
-    )}
-  </main>;
+
+  return (
+    <main className={`main ${styles.page}`}>
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>
+            <Sparkles size={15} aria-hidden="true" />
+            {isAr ? "برنامج مكافآت نبض بلس" : "Nabd Plus Rewards"}
+          </p>
+          <h1>{t("title")}</h1>
+          <p>
+            {isAr
+              ? "اجمع النقاط مع كل استشارة، فحص، أو طلب دواء واستبدلها بخصومات وجلسات مجانية."
+              : "Earn points with every consultation, test, or prescription and redeem for exclusive perks."}
+          </p>
+        </div>
+        <div className={styles.heroIllustration}>
+          <VectorLoyalty size={80} />
+        </div>
+      </section>
+
+      <section className={styles.pointsCard}>
+        <div className={styles.pointsMeta}>
+          <span className={styles.pointsLabel}>{t("points")}</span>
+          <strong className={styles.pointsValue}>{points.toLocaleString(locale)}</strong>
+        </div>
+        {tier ? (
+          <div className={styles.tierBadge}>
+            <Award size={16} aria-hidden="true" />
+            <span>{t("tier")}: {tier}</span>
+          </div>
+        ) : null}
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2>
+            <Gift size={20} aria-hidden="true" />
+            {t("rewards")}
+          </h2>
+        </div>
+        {rewards.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Gift size={32} aria-hidden="true" />
+            <p>{t("noRewards")}</p>
+          </div>
+        ) : (
+          <div className={styles.rewardsGrid}>
+            {rewards.map((reward) => (
+              <div key={reward.id} className={styles.rewardCard}>
+                <div className={styles.rewardInfo}>
+                  <strong>{reward.title}</strong>
+                  {reward.cost ? (
+                    <p className={styles.rewardCost}>
+                      <Coins size={14} aria-hidden="true" />
+                      {reward.cost.toLocaleString(locale)} {t("points")}
+                    </p>
+                  ) : null}
+                </div>
+                <ClaimButton rewardId={reward.id} disabled={reward.cost !== undefined && points < reward.cost} labels={labels} />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2>
+            <History size={20} aria-hidden="true" />
+            {t("history")}
+          </h2>
+        </div>
+        {txns.length === 0 ? (
+          <div className={styles.emptyState}>
+            <History size={32} aria-hidden="true" />
+            <p>{t("noHistory")}</p>
+          </div>
+        ) : (
+          <div className={styles.txnsList}>
+            {txns.map((txn) => (
+              <div key={txn.id} className={styles.txnItem}>
+                <span className={styles.txnReason}>{txn.reason ?? "—"}</span>
+                <strong className={txn.points > 0 ? styles.txnPositive : styles.txnNegative}>
+                  {txn.points > 0 ? "+" : ""}{txn.points.toLocaleString(locale)}
+                </strong>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }

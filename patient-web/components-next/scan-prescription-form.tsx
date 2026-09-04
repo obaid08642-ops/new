@@ -119,7 +119,7 @@ export function ScanPrescriptionForm({ locale, labels }: Props) {
           gap: "1rem",
           cursor: "pointer",
           background: preview ? "#fff" : "rgba(231,247,247,0.4)",
-          transition: "all 0.2s ease",
+          transition: "border-color 0.2s ease, background-color 0.2s ease",
         }}
       >
         {preview ? (

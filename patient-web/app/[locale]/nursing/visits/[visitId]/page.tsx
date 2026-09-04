@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { HeartPulse, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./visit-tracking.module.css";
 
 type Props = { params: Promise<{ locale: string; visitId: string }> };
@@ -34,7 +35,10 @@ export default async function NursingVisitTrackingPage({ params }: Props) {
 
   return <main className={`main ${styles.page}`}>
     <Link className={styles.back} href={`/${locale}/nursing/visits`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
-    <h1 className={styles.title}><HeartPulse size={22} aria-hidden="true" />{t("title")}</h1>
+    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+      <VectorNursing size={42} aria-hidden="true" />
+      <h1 className={styles.title} style={{ margin: 0 }}>{t("title")}</h1>
+    </div>
     {nurseName ? <p className={styles.nurse}>{t("nurse")}: {String(nurseName)}</p> : null}
     {eta != null && Number.isFinite(Number(eta)) ? <p className={styles.eta}>{t("eta")}: {String(eta)} {t("minutes")}</p> : null}
     <ol className={styles.timeline}>

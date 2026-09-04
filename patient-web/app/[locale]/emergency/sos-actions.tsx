@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Siren } from "lucide-react";
+import styles from "./emergency.module.css";
 
 export type ActiveSos = { id: string; state: string; createdAt?: string };
 
@@ -56,32 +58,109 @@ export function SosActions({ active, labels }: { active: ActiveSos | null; label
   }
 
   if (active) {
-    return <section style={{ border: "2px solid #b3261e", borderRadius: 16, padding: 24, display: "grid", gap: 12 }}>
-      <p role="status" style={{ color: "#b3261e", fontWeight: 700, fontSize: 18, margin: 0 }}>{labels.active}</p>
-      <p style={{ margin: 0, opacity: 0.75 }}>{labels.state}: {active.state}</p>
-      <button type="button" onClick={cancel} disabled={state === "loading"} style={{ padding: 12, borderRadius: 12, border: "1px solid #b3261e", background: "#fff", color: "#b3261e", fontWeight: 700, cursor: "pointer" }}>
-        {state === "loading" ? labels.cancelling : labels.cancel}
-      </button>
-      {state === "error" && <p role="alert">{labels.error}</p>}
-    </section>;
+    return (
+      <section className={styles.activeAlert}>
+        <h2 className={styles.activeTitle}>
+          <Siren size={24} color="#dc2626" aria-hidden="true" />
+          {labels.active}
+        </h2>
+        <p className={styles.activeDesc}>
+          {labels.state}: <strong>{active.state}</strong>
+        </p>
+        <button
+          type="button"
+          onClick={cancel}
+          disabled={state === "loading"}
+          className={styles.cancelBtn}
+        >
+          {state === "loading" ? labels.cancelling : labels.cancel}
+        </button>
+        {state === "error" && <p role="alert" style={{ color: "#b91c1c", fontWeight: 700, margin: 0 }}>{labels.error}</p>}
+      </section>
+    );
   }
 
-  return <section style={{ display: "grid", gap: 12 }}>
-    {!confirming ? (
-      <button type="button" onClick={() => setConfirming(true)} style={{ padding: 24, borderRadius: 16, border: 0, background: "#b3261e", color: "#fff", fontWeight: 800, fontSize: 20, cursor: "pointer" }}>
-        {labels.trigger}
-      </button>
-    ) : (
-      <div style={{ border: "2px solid #b3261e", borderRadius: 16, padding: 24, display: "grid", gap: 12 }}>
-        <p style={{ margin: 0, fontWeight: 700 }}>{labels.trigger}?</p>
-        <button type="button" onClick={trigger} disabled={state === "loading"} style={{ padding: 16, borderRadius: 12, border: 0, background: "#b3261e", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
-          {state === "loading" ? labels.triggering : labels.trigger}
-        </button>
-        <button type="button" onClick={() => setConfirming(false)} disabled={state === "loading"} style={{ padding: 12, borderRadius: 12, border: "1px solid var(--border, #d6dbe3)", background: "transparent", cursor: "pointer" }}>
-          {labels.cancel}
-        </button>
+  return (
+    <section style={{ display: "grid", gap: 16 }}>
+      {!confirming ? (
+        <div className={styles.sosButtonWrap}>
+          <div className={styles.sosPulse} />
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className={styles.sosBtn}
+            aria-label={labels.trigger}
+          >
+            <Siren size={36} aria-hidden="true" />
+            <span className={styles.sosText}>SOS</span>
+            <span className={styles.sosSubtext}>{labels.trigger}</span>
+          </button>
+        </div>
+      ) : (
+        <div className={styles.activeAlert} style={{ background: "#fff" }}>
+          <p style={{ margin: 0, fontWeight: 800, fontSize: 18, color: "#16213a" }}>
+            {labels.trigger}؟
+          </p>
+          <p style={{ margin: 0, fontSize: 14, color: "#526473" }}>
+            سيتم إرسال موقعك الجغرافي فوراً لفرق الطوارئ والاستجابة السريعة
+          </p>
+          <div style={{ display: "flex", gap: 12, width: "100%", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={trigger}
+              disabled={state === "loading"}
+              style={{
+                padding: "12px 28px",
+                borderRadius: 14,
+                border: 0,
+                background: "linear-gradient(135deg, #ef4444, #b91c1c)",
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: 15,
+                cursor: "pointer",
+                boxShadow: "0 6px 20px rgba(185, 28, 28, 0.35)",
+              }}
+            >
+              {state === "loading" ? labels.triggering : "تأكيد طلب الإسعاف"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              disabled={state === "loading"}
+              style={{
+                padding: "12px 20px",
+                borderRadius: 14,
+                border: "1px solid #d9e4ea",
+                background: "#f8fafc",
+                color: "#526473",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {labels.cancel}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {state === "error" && <p role="alert" style={{ color: "#dc2626", fontWeight: 700, margin: 0 }}>{labels.error}</p>}
+
+      <div className={styles.hotlinesGrid}>
+        <a href="tel:997" className={styles.hotlineCard}>
+          <div>
+            <div className={styles.hotlineTitle}>الهلال الأحمر السعودي</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>Red Crescent Ambulance</div>
+          </div>
+          <span className={styles.hotlineNumber}>997</span>
+        </a>
+        <a href="tel:911" className={styles.hotlineCard}>
+          <div>
+            <div className={styles.hotlineTitle}>طوارئ العمليات الموحدة</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>Unified Emergency (911)</div>
+          </div>
+          <span className={styles.hotlineNumber}>911</span>
+        </a>
       </div>
-    )}
-    {state === "error" && <p role="alert">{labels.error}</p>}
-  </section>;
+    </section>
+  );
 }

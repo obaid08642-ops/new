@@ -33,3 +33,6 @@
 
 @media (max-width: 540px) { .page { gap: 1rem; padding-top: 1rem; } .intro { padding: 1.2rem; } .introIcon { inline-size: 3.1rem; block-size: 3.1rem; } .tabs { inline-size: 100%; } .tab, .tabActive { flex: 1; min-inline-size: 0; } .grid { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .card, .tab, .tabActive { transition: none; } .card:hover, .tab:hover { transform: none; } }
+
+.introVector { display: grid; place-items: center; flex: 0 0 auto; inline-size: 4.8rem; block-size: 4.8rem; border: 1px solid rgba(8,127,140,.2); border-radius: var(--radius-xl); background: #FFFFFF; box-shadow: var(--shadow-md); }
+@media (max-width: 540px) { .introVector { display: none; } }

@@ -6,6 +6,7 @@ import { extractOrderDetail, parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
+import { VectorOrders } from "@/components-next/vector-illustrations";
 import { ChevronLeft, Hash, PackageCheck, ShieldCheck } from "lucide-react";
 import styles from "./order-detail.module.css";
 
@@ -32,7 +33,7 @@ export default async function OrderDetailPage({ params }: Props) {
     <Link className={styles.back} href={`/${locale}/orders`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
     <section className={styles.hero}>
       <div className={styles.heroText}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{reference}</h1><span className={styles.status}>{status}</span></div>
-      <span className={styles.heroIcon}><PackageCheck size={28} aria-hidden="true" /></span>
+      <div className={styles.heroVector}><VectorOrders size={75} /></div>
     </section>
     <section className={styles.detail} aria-label={t("title")}>
       <dl className={styles.grid}>

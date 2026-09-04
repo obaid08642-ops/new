@@ -9,6 +9,7 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
 import { VitalGlyph, type VitalGlyphKind } from "@/components-next/vital-glyph";
+import { VectorHealthShield } from "@/components-next/vector-illustrations";
 import styles from "./health.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -46,5 +47,50 @@ export default async function HealthPage({ params }: Props) {
   if (!response.ok) return unavailable;
   const vitals = extractVitalSummary(await response.json().catch(() => null));
   const labels = quickLabels[locale] ?? quickLabels.en;
-  return <main className={`main ${styles.page}`}><section className={styles.hero}><div><p className={styles.eyebrow}><HeartPulse size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1></div><span className={styles.heroIcon}><Activity size={27} aria-hidden="true" /></span></section><nav className={styles.quickGrid} aria-label={t("title")}>{quickActions.map(({ key, href, icon: Icon, color }) => <Link className={styles.quickAction} key={key} href={`/${locale}/${href}`} style={{ "--quick-color": color } as CSSProperties}><span><Icon size={21} aria-hidden="true" /></span><strong>{labels[key]}</strong></Link>)}</nav>{vitals.length === 0 ? <section className={styles.state}><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{vitals.map((vital) => <article className={styles.card} key={vital.key}><div className={styles.cardTop}><span>{t(`vitals.${vital.key}`)}</span><span className={styles.glyph}><VitalGlyph kind={vital.key as VitalGlyphKind} /></span></div><p className={styles.value}>{vital.value}{vital.unit ? ` ${vital.unit}` : ""}</p>{vital.measuredAt ? <p className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(vital.measuredAt))}</p> : null}</article>)}</section>}<p className={styles.notice}>{t("notice")}</p></main>;
+  return (
+    <main className={`main ${styles.page}`}>
+      <section className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}><HeartPulse size={15} aria-hidden="true" />{t("eyebrow")}</p>
+          <h1>{t("title")}</h1>
+        </div>
+        <span className={styles.heroVector}>
+          <VectorHealthShield size={48} aria-hidden="true" />
+        </span>
+      </section>
+      <nav className={styles.quickGrid} aria-label={t("title")}>
+        {quickActions.map(({ key, href, icon: Icon, color }) => (
+          <Link className={styles.quickAction} key={key} href={`/${locale}/${href}`} style={{ "--quick-color": color } as CSSProperties}>
+            <span><Icon size={21} aria-hidden="true" /></span>
+            <strong>{labels[key]}</strong>
+          </Link>
+        ))}
+      </nav>
+      {vitals.length === 0 ? (
+        <section className={styles.state}>
+          <VectorHealthShield size={42} aria-hidden="true" />
+          <p>{t("empty")}</p>
+        </section>
+      ) : (
+        <section className={styles.grid} aria-label={t("title")}>
+          {vitals.map((vital) => (
+            <article className={styles.card} key={vital.key}>
+              <div className={styles.cardTop}>
+                <span>{t(`vitals.${vital.key}`)}</span>
+                <span className={styles.glyph}><VitalGlyph kind={vital.key as VitalGlyphKind} /></span>
+              </div>
+              <p className={styles.value}>{vital.value}{vital.unit ? ` ${vital.unit}` : ""}</p>
+              {vital.measuredAt ? (
+                <p className={styles.date}>
+                  <CalendarDays size={14} aria-hidden="true" />
+                  {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(vital.measuredAt))}
+                </p>
+              ) : null}
+            </article>
+          ))}
+        </section>
+      )}
+      <p className={styles.notice}>{t("notice")}</p>
+    </main>
+  );
 }

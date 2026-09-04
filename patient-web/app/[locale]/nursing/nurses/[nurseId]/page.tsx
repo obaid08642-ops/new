@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, ArrowRight, Award, Clock, HeartPulse, MapPin, ShieldCheck, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, Clock, MapPin, ShieldCheck, Star } from "lucide-react";
 import { getPublicNurse, extractNurse } from "@/lib/api/nursing-server";
+import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./nurse-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; nurseId: string }> };
@@ -43,7 +44,7 @@ export default async function NurseDetailPage({ params }: Props) {
     return (
       <main className={`main ${styles.page}`}>
         <section className={styles.state} role="alert">
-          <HeartPulse size={28} aria-hidden="true" />
+          <VectorNursing size={54} aria-hidden="true" />
           <h1>{t("unavailableTitle")}</h1>
           <p>{t("unavailableBody")}</p>
           <Link href={`/${locale}/nursing/catalog`} className={styles.action}>
@@ -73,7 +74,7 @@ export default async function NurseDetailPage({ params }: Props) {
             {nurse.avatar ? (
               <img src={nurse.avatar} alt={nurse.name} className={styles.avatarImg} />
             ) : (
-              <HeartPulse size={40} aria-hidden="true" />
+              <VectorNursing size={48} aria-hidden="true" />
             )}
           </div>
           <div className={styles.mainInfo}>

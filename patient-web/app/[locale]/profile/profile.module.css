@@ -35,3 +35,6 @@
 @media (max-width: 860px) { .quick { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid { grid-template-columns: minmax(0, 1fr); } .hero { grid-template-columns: minmax(0, 1fr); } .heroIcon { display: none; } }
 @media (max-width: 430px) { .page { gap: 1rem; padding-top: 1rem; } .quick { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .quickCard { transition: none; } .quickCard:hover { transform: none; } }
+
+.heroVector { display: grid; place-items: center; flex: 0 0 auto; inline-size: 4.8rem; block-size: 4.8rem; border: 1px solid rgba(8,127,140,.2); border-radius: var(--radius-xl); background: #FFFFFF; box-shadow: var(--shadow-md); }
+@media (max-width: 860px) { .heroVector { display: none; } }

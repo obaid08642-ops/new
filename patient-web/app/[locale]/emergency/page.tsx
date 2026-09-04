@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ShieldAlert } from "lucide-react";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
+import { VectorEmergency } from "@/components-next/vector-illustrations";
 import { SosActions, type ActiveSos } from "./sos-actions";
+import styles from "./emergency.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -26,15 +29,31 @@ export default async function EmergencyPage({ params }: Props) {
   const t = await getTranslations("Emergency");
   const response = await callPatientApi("/emergency/my/active", {}, token);
   const active = response.ok ? extractActiveSos(await response.json().catch(() => null)) : null;
-  return <main className="main" style={{ padding: "24px 16px", maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
-    <h1>{t("title")}</h1>
-    <p style={{ opacity: 0.75 }}>{t("subtitle")}</p>
-    <SosActions
-      active={active}
-      labels={{
-        trigger: t("trigger"), triggering: t("triggering"), active: t("activeLabel"),
-        cancel: t("cancel"), cancelling: t("cancelling"), error: t("error"), state: t("state"),
-      }}
-    />
-  </main>;
+
+  return (
+    <main className={`main ${styles.page}`}>
+      <section className={styles.hero}>
+        <VectorEmergency size={64} aria-hidden="true" />
+        <span className={styles.eyebrow}>
+          <ShieldAlert size={15} aria-hidden="true" />
+          {locale === "ar" ? "طوارئ نبض الفورية" : "Nabd Instant SOS"}
+        </span>
+        <h1>{t("title")}</h1>
+        <p className={styles.subtitle}>{t("subtitle")}</p>
+      </section>
+
+      <SosActions
+        active={active}
+        labels={{
+          trigger: t("trigger"),
+          triggering: t("triggering"),
+          active: t("activeLabel"),
+          cancel: t("cancel"),
+          cancelling: t("cancelling"),
+          error: t("error"),
+          state: t("state"),
+        }}
+      />
+    </main>
+  );
 }

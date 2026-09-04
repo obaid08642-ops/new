@@ -4,7 +4,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { callPatientApi } from "@/lib/api/upstream";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
-import { LifeBuoy, ChevronLeft } from "lucide-react";
+import { ChevronLeft, LifeBuoy, MessageSquare, Clock } from "lucide-react";
+import { VectorSupport } from "@/components-next/vector-illustrations";
+import styles from "../support.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -18,18 +20,75 @@ export default async function Page({ params }: Props) {
   if (res.status === 401) redirect(`/${locale}/login`);
   const payload = res.ok ? await res.json().catch(() => null) : null;
   const list: any[] = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [];
-  return <main className="main" style={{ padding: "24px 16px", maxWidth: 720, margin: "0 auto", background: "#F5F5F7", minHeight: "60vh" }}>
-    <Link href={`/${locale}/dashboard`} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#16213A", textDecoration: "none", marginBottom: 12 }}><ChevronLeft size={17} />{t("back")}</Link>
-    <h1 style={{ display: "flex", alignItems: "center", gap: 8, color: "#16213A" }}><LifeBuoy size={22} />{t("title")}</h1>
-    {list.length === 0 ? <p style={{ background: "#fff", borderRadius: 22, padding: 32, textAlign: "center" }}>{t("empty")}</p> : (
-      <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 10 }}>
-        {list.map((item: any, i: number) => (
-          <li key={String(item?.id ?? i)} style={{ background: "#fff", borderRadius: 18, padding: "16px 18px", boxShadow: "0 4px 14px rgba(22,33,58,.06)", color: "#16213A" }}>
-            <strong>{String(item?.title ?? item?.name ?? item?.type ?? item?.id ?? "")}</strong>
-            {item?.created_at ? <span style={{ display: "block", fontSize: 13, opacity: .6, marginTop: 4 }}>{String(item.created_at).slice(0, 10)}</span> : null}
-          </li>
-        ))}
-      </ul>
-    )}
-  </main>;
+  const isAr = locale === "ar";
+
+  return (
+    <main className={`main ${styles.page}`}>
+      <Link
+        href={`/${locale}/dashboard`}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          color: "var(--brand-deep)",
+          fontWeight: 750,
+          textDecoration: "none",
+        }}
+      >
+        <ChevronLeft size={17} aria-hidden="true" />
+        {t("back")}
+      </Link>
+
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>
+            <LifeBuoy size={15} aria-hidden="true" />
+            {isAr ? "تذاكر الدعم الفني" : "Technical Support Tickets"}
+          </p>
+          <h1>{t("title")}</h1>
+          <p>
+            {isAr
+              ? "متابعة التذاكر المفتوحة والتحديثات الواردة من فريق الدعم الفني."
+              : "Track active support tickets and updates from our care team."}
+          </p>
+        </div>
+        <div className={styles.heroIllustration}>
+          <VectorSupport size={80} />
+        </div>
+      </section>
+
+      <section className={styles.card}>
+        <h2 className={styles.cardTitle}>
+          <MessageSquare size={20} aria-hidden="true" />
+          {isAr ? "سجل التذاكر" : "Ticket History"}
+        </h2>
+        {list.length === 0 ? (
+          <p style={{ color: "var(--muted)", margin: 0, textAlign: "center", padding: "2rem" }}>
+            {t("empty")}
+          </p>
+        ) : (
+          <div style={{ display: "grid", gap: "0.65rem" }}>
+            {list.map((item: any, i: number) => (
+              <div key={String(item?.id ?? i)} className={styles.ticketItem}>
+                <div>
+                  <strong className={styles.ticketSubject}>
+                    {String(item?.title ?? item?.name ?? item?.type ?? item?.id ?? "")}
+                  </strong>
+                  {item?.created_at ? (
+                    <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "var(--muted)", marginTop: 4 }}>
+                      <Clock size={13} aria-hidden="true" />
+                      {String(item.created_at).slice(0, 10)}
+                    </span>
+                  ) : null}
+                </div>
+                <span className={styles.ticketStatus}>
+                  {item?.status || (isAr ? "مفتوحة" : "Open")}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }

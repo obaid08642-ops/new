@@ -28,3 +28,6 @@
 
 @media (max-width: 540px) { .page { gap: 1rem; padding-top: 1rem; } .grid { grid-template-columns: minmax(0, 1fr); } .heroIcon { display: none; } .detail { padding: 1rem; } }
 @media (prefers-reduced-motion: reduce) { .back { transition: none; } }
+
+.heroVector { display: grid; place-items: center; flex: 0 0 auto; inline-size: 4.8rem; block-size: 4.8rem; border: 1px solid rgba(8,127,140,.2); border-radius: var(--radius-xl); background: #FFFFFF; box-shadow: var(--shadow-md); }
+@media (max-width: 540px) { .heroVector { display: none; } }

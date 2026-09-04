@@ -4,6 +4,9 @@ import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { callPatientApi } from "@/lib/api/upstream";
 import { SupportClient, type SupportFaq, type SupportTicket } from "./support-client";
+import { VectorSupport } from "@/components-next/vector-illustrations";
+import { Headphones, HelpCircle, LifeBuoy } from "lucide-react";
+import styles from "./support.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -47,22 +50,51 @@ export default async function SupportPage({ params }: Props) {
   setRequestLocale(locale);
   const token = await requirePatientAccess(locale);
   const t = await getTranslations("Support");
+  const isAr = locale === "ar";
+
   const [faqsResponse, ticketsResponse] = await Promise.all([
     callPatientApi("/support/faqs", {}, token),
     callPatientApi("/support/requests/mine", {}, token),
   ]);
+
   const faqs = faqsResponse.ok ? extractFaqs(await faqsResponse.json().catch(() => null), locale) : [];
   const tickets = ticketsResponse.ok ? extractTickets(await ticketsResponse.json().catch(() => null)) : [];
-  return <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
-    <h1>{t("title")}</h1>
-    <SupportClient
-      faqs={faqs}
-      tickets={tickets}
-      labels={{
-        faqTitle: t("faqTitle"), ticketsTitle: t("ticketsTitle"), noTickets: t("noTickets"),
-        subjectPlaceholder: t("subjectPlaceholder"), messagePlaceholder: t("messagePlaceholder"),
-        send: t("send"), sending: t("sending"), sent: t("sent"), error: t("error"),
-      }}
-    />
-  </main>;
+
+  return (
+    <main className={`main ${styles.page}`}>
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>
+            <Headphones size={15} aria-hidden="true" />
+            {isAr ? "مركز العناية بالمريض" : "Patient Support Center"}
+          </p>
+          <h1>{t("title")}</h1>
+          <p>
+            {isAr
+              ? "فريق الدعم الفني والرعاية السريرية متاح لخدمتك على مدار الساعة للإجابة على استفساراتك ومساعدتك."
+              : "Our dedicated care and tech team is here 24/7 to answer your questions and assist you."}
+          </p>
+        </div>
+        <div className={styles.heroIllustration}>
+          <VectorSupport size={80} />
+        </div>
+      </section>
+
+      <SupportClient
+        faqs={faqs}
+        tickets={tickets}
+        labels={{
+          faqTitle: t("faqTitle"),
+          ticketsTitle: t("ticketsTitle"),
+          noTickets: t("noTickets"),
+          subjectPlaceholder: t("subjectPlaceholder"),
+          messagePlaceholder: t("messagePlaceholder"),
+          send: t("send"),
+          sending: t("sending"),
+          sent: t("sent"),
+          error: t("error"),
+        }}
+      />
+    </main>
+  );
 }

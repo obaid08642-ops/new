@@ -7,7 +7,6 @@ import { extractCartSummary } from "@/lib/api/cart";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { CartView } from "@/components-next/cart-view";
-import { RetryButton } from "@/components-next/retry-button";
 import styles from "./cart.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -21,34 +20,11 @@ export default async function CartPage({ params }: Props) {
   const response = await callPatientApi("/cart", {}, token);
   if (response.status === 401) redirect(`/${locale}/login`);
   if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) {
-    return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <ShoppingCart size={25} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailableBody")}</p>
-          <RetryButton />
-        </section>
-      </main>
-    );
-  }
-  const cart = extractCartSummary(await response.json().catch(() => null));
-  if (!cart) {
-    return (
-      <main className={`main ${styles.page}`}>
-        <section className={styles.state} role="alert">
-          <ShoppingCart size={25} aria-hidden="true" />
-          <h1>{t("unavailableTitle")}</h1>
-          <p>{t("unavailableBody")}</p>
-          <RetryButton />
-        </section>
-      </main>
-    );
-  }
+  const serverCart = response.ok ? extractCartSummary(await response.json().catch(() => null)) : null;
+
   const Direction = locale === "ar" || locale === "ur" ? ArrowLeft : ArrowRight;
-  const hasItems = cart.groups.some((group) => group.items.length > 0);
-  const currency = cart.currency || t("currency");
+  const hasServerItems = serverCart && serverCart.groups.some((group) => group.items.length > 0);
+  const currency = serverCart?.currency || t("currency");
   const amount = (value?: number) => (value === undefined ? "—" : `${value} ${currency}`);
 
   return (
@@ -60,61 +36,14 @@ export default async function CartPage({ params }: Props) {
             {t("eyebrow")}
           </p>
           <h1>{t("title")}</h1>
-          <p>{hasItems ? t("notice") : t("empty")}</p>
+          <p>{t("notice")}</p>
         </div>
         <span className={styles.heroIcon}>
           <ShoppingCart size={27} aria-hidden="true" />
         </span>
       </section>
 
-      {hasItems ? (
-        <>
-          <section className={styles.groups}>
-            {cart.groups
-              .filter((group) => group.items.length)
-              .map((group) => (
-                <article className={styles.group} key={group.kind}>
-                  <div className={styles.groupHead}>
-                    <h2>{group.kind}</h2>
-                    <span>
-                      {group.count ?? group.items.length} {t("itemCount")}
-                    </span>
-                  </div>
-                  {group.items.map((item) => (
-                    <div className={styles.item} key={item.lineId}>
-                      <div>
-                        <strong>{item.name || item.serviceId}</strong>
-                        <span>
-                          {item.quantity === undefined ? "—" : item.quantity} × {amount(item.price)}
-                        </span>
-                      </div>
-                      <span>{item.paymentMethod || "—"}</span>
-                    </div>
-                  ))}
-                </article>
-              ))}
-          </section>
-          <section className={styles.total}>
-            <span>{t("subtotal")}</span>
-            <strong>{amount(cart.subtotal)}</strong>
-            <span>{t("homeVisitFee")}</span>
-            <strong>{amount(cart.homeVisitFee)}</strong>
-            <span>{t("total")}</span>
-            <strong>{amount(cart.total)}</strong>
-          </section>
-        </>
-      ) : (
-        <section className={styles.state}>
-          <ShoppingCart size={25} aria-hidden="true" />
-          <h2>{t("empty")}</h2>
-          <Link className={styles.back} href={`/${locale}/medicines`}>
-            {t("back")}
-            <Direction size={17} aria-hidden="true" />
-          </Link>
-        </section>
-      )}
-
-      {/* Live Client Cart View */}
+      {/* Live Client Cart View with item adjustments, removal, checkout button */}
       <CartView
         locale={locale}
         labels={{
@@ -131,6 +60,45 @@ export default async function CartPage({ params }: Props) {
               : "Your cart contains prescription items. You will be prompted to attach a prescription during checkout.",
         }}
       />
+
+      {hasServerItems && serverCart && (
+        <section className={styles.groups} style={{ marginTop: "2rem" }}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.75rem" }}>
+            {locale === "ar" ? "العناصر المتزامنة مع حسابك" : "Items Synced with Account"}
+          </h2>
+          {serverCart.groups
+            .filter((group) => group.items.length)
+            .map((group) => (
+              <article className={styles.group} key={group.kind}>
+                <div className={styles.groupHead}>
+                  <h3>{group.kind}</h3>
+                  <span>
+                    {group.count ?? group.items.length} {t("itemCount")}
+                  </span>
+                </div>
+                {group.items.map((item) => (
+                  <div className={styles.item} key={item.lineId}>
+                    <div>
+                      <strong>{item.name || item.serviceId}</strong>
+                      <span>
+                        {item.quantity === undefined ? "—" : item.quantity} × {amount(item.price)}
+                      </span>
+                    </div>
+                    <span>{item.paymentMethod || "—"}</span>
+                  </div>
+                ))}
+              </article>
+            ))}
+          <section className={styles.total}>
+            <span>{t("subtotal")}</span>
+            <strong>{amount(serverCart.subtotal)}</strong>
+            <span>{t("homeVisitFee")}</span>
+            <strong>{amount(serverCart.homeVisitFee)}</strong>
+            <span>{t("total")}</span>
+            <strong>{amount(serverCart.total)}</strong>
+          </section>
+        </section>
+      )}
     </main>
   );
 }
