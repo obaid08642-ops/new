@@ -142,6 +142,15 @@ export class AutoEntitySeoPipelineService {
       if (!collision) return existingSlug;
     }
 
+    // Check if this entity already has a materialized projection with a stable slug
+    const existingProj = await this.conn.collection('public_catalog_projections').findOne({
+      entity_type: entityType,
+      entity_id: id,
+    });
+    if (existingProj && existingProj.slug) {
+      return existingProj.slug;
+    }
+
     // Generate base slug from Arabic or English name
     const rawName = doc.name_ar || doc.name_en || doc.name || doc.full_name || doc.title_ar || doc.title_en || 'entity';
     const baseSlug = buildSlug(rawName, id);

@@ -33,8 +33,17 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
     findOne: jest.fn().mockImplementation(async (filter: any) => {
       const items = mockCollections[name] || [];
       return items.find((item) => {
-        if (filter.id && item.id !== filter.id) return false;
+        if (filter.id && typeof filter.id === 'object' && filter.id.$ne) {
+          if (item.id === filter.id.$ne) return false;
+        } else if (filter.id && item.id !== filter.id) return false;
+
+        if (filter.entity_id && typeof filter.entity_id === 'object' && filter.entity_id.$ne) {
+          if (item.entity_id === filter.entity_id.$ne) return false;
+        } else if (filter.entity_id && item.entity_id !== filter.entity_id) return false;
+
         if (filter.slug && item.slug !== filter.slug) return false;
+        if (filter.entity_type && item.entity_type !== filter.entity_type) return false;
+
         if (filter['$or']) {
           const matched = filter['$or'].some((cond: any) => {
             if (cond.id && item.id === cond.id) return true;
@@ -70,6 +79,9 @@ describe('Fully Automatic Entity / Content / SEO / AEO / GEO Pipeline (20 Test S
         if (filter.id && item.id === filter.id) return true;
         if (filter.entity_id && item.entity_id === filter.entity_id) return true;
         if (filter.entity_type && item.entity_type === filter.entity_type && item.entity_id === filter.entity_id) return true;
+        if (filter['$or']) {
+          return filter['$or'].some((c: any) => (c.id && item.id === c.id) || (c._id && item._id === c._id));
+        }
         return false;
       });
 
