@@ -7,7 +7,7 @@ import { JsonLd } from "@/components-next/json-ld";
 import { QuickAddCartBtn } from "@/components-next/quick-add-cart-btn";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import { ChevronLeft, Sparkles, HeartPulse, ShieldAlert, Stethoscope } from "lucide-react";
+import { ChevronLeft, Sparkles, HeartPulse, ShieldAlert, Stethoscope, Pill } from "lucide-react";
 import { VectorPharmacy } from "@/components-next/vector-illustrations";
 import styles from "./category-page.module.css";
 
@@ -83,7 +83,7 @@ function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
             id: item.id,
             name: item.name,
             price: item.price,
-            image: src,
+            image: src ?? undefined,
             form: item.form,
             strength: item.strength,
             slug: item.slug,

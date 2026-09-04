@@ -33,7 +33,7 @@ export function QuickAddCartBtn({ item, labels }: QuickAddCartBtnProps) {
       id: item.id,
       name: item.name,
       price: item.price,
-      image: item.image,
+      image: item.image ?? undefined,
       form: item.form,
       strength: item.strength,
       slug: item.slug,
