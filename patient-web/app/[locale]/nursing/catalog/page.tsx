@@ -7,6 +7,7 @@ import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import { VectorNursing } from "@/components-next/vector-illustrations";
+import { ServiceBookingModal } from "@/components-next/service-booking-modal";
 import type { Metadata } from "next";
 import styles from "./catalog.module.css";
 
@@ -44,6 +45,7 @@ export default async function NursingCatalogPage({ params }: Props) {
   } catch {}
 
   const isAr = locale === "ar";
+  const rtl = locale === "ar" || locale === "ur";
   if (items.length === 0) {
     items = [
       { id: "nur-home-care", nameAr: "رعاية تمريضية منزلية متكاملة", nameEn: "Comprehensive Home Nursing Care", descriptionAr: "فحص المؤشرات الحيوية، قياس الضغط والسكر، وتناول الأدوية بإشراف ممرض/ممرضة مرخصة.", descriptionEn: "Vital signs monitoring, blood sugar & blood pressure checks by certified nurses.", price: 180, duration: isAr ? "ساعتان" : "2 Hours", insuranceAvailable: true, image: "/images/nursing/home-nurse.jpg" },

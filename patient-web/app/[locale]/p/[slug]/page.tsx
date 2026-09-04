@@ -67,26 +67,24 @@ export default async function PublicProductPage({ params }: Props) {
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("PublicProduct");
-  let product = await getPublicProduct(locale, slug);
-  if (!product) {
-    const decodedSlug = decodeURIComponent(slug);
-    const cleanTitle = decodedSlug.replace(/-/g, " ");
-    product = {
-      id: slug,
-      slug,
-      name: cleanTitle,
-      official_name: cleanTitle,
-      price: 35.0,
-      currency: locale === "ar" ? "ر.س" : "SAR",
-      available: true,
-      category: locale === "ar" ? "أدوية وعلاجات" : "Medicines",
-      form: locale === "ar" ? "أقراص مغلفة" : "Tablets",
-      strength: "500 mg",
-      package_size: locale === "ar" ? "24 قرص" : "24 Tablets",
-      description: locale === "ar" ? "دواء طبي معتمد ومسجل لدى الهيئة العامة للغذاء والدواء بالمملكة العربية السعودية." : "Authorized pharmaceutical product registered with the Saudi FDA.",
-      images: ["/images/categories/medications.jpg"],
-    } as any;
-  }
+  const fetchedProduct = await getPublicProduct(locale, slug);
+  const decodedSlug = decodeURIComponent(slug);
+  const cleanTitle = decodedSlug.replace(/-/g, " ");
+  const product: PublicProduct = fetchedProduct ?? ({
+    id: slug,
+    slug,
+    name: cleanTitle,
+    official_name: cleanTitle,
+    price: 35.0,
+    currency: locale === "ar" ? "ر.س" : "SAR",
+    available: true,
+    category: locale === "ar" ? "أدوية وعلاجات" : "Medicines",
+    form: locale === "ar" ? "أقراص مغلفة" : "Tablets",
+    strength: "500 mg",
+    package_size: locale === "ar" ? "24 قرص" : "24 Tablets",
+    description: locale === "ar" ? "دواء طبي معتمد ومسجل لدى الهيئة العامة للغذاء والدواء بالمملكة العربية السعودية." : "Authorized pharmaceutical product registered with the Saudi FDA.",
+    images: ["/images/categories/medications.jpg"],
+  } as PublicProduct);
   const name = product.name || product.official_name || t("products");
   const canonical = localizedUrl(locale, `/p/${encodeURIComponent(product.slug)}`);
   const rawImages = (product.images && product.images.length > 0 ? product.images : [product.image]).filter((u): u is string => Boolean(u));
