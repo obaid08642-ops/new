@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { cookies } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
+import { ThemeToggle } from "@/components-next/theme-toggle";
 import { SessionActions } from "@/components-next/session-actions";
 import { HeaderCartBadge } from "@/components-next/header-cart-badge";
 import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
@@ -39,8 +40,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   if (!isLocale(locale)) notFound();
   const typedLocale = locale as Locale;
   setRequestLocale(typedLocale);
-  const messages = await getMessages();
-  const t = await getTranslations("Shared");
+  const messages = await getMessages({ locale: typedLocale });
+  const t = await getTranslations({ locale: typedLocale, namespace: "Shared" });
   const hasAccessToken = Boolean((await cookies()).get(authCookieNames.access)?.value);
 
   return (
@@ -60,6 +61,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </Link>
             <div className="nav-actions">
               <LocaleSelector current={typedLocale} label={t("language")} />
+              <ThemeToggle />
               <HeaderCartBadge locale={typedLocale} />
               {hasAccessToken ? (
                 <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
