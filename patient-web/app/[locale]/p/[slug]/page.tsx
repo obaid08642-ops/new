@@ -95,8 +95,39 @@ export default async function PublicProductPage({ params }: Props) {
 
   const availabilityLabel = product.available ? t("available") : t("limited");
 
+  const jsonLd: Array<Record<string, unknown>> = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name,
+      description: product.description || name,
+      image: images,
+      url: canonical,
+      sku: product.sku != null ? String(product.sku) : undefined,
+      gtin13: product.barcode && /^\d{13}$/.test(product.barcode) ? product.barcode : undefined,
+      brand: product.manufacturer ? { "@type": "Brand", name: product.manufacturer } : undefined,
+      category: [product.category, product.sub_category, product.sub_sub_category].filter(Boolean).join(" › ") || undefined,
+      inLanguage: locale,
+      offers: {
+        "@type": "Offer",
+        price: product.price,
+        priceCurrency: "SAR",
+        url: canonical,
+        availability: product.available ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
+        itemCondition: "https://schema.org/NewCondition",
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        seller: {
+          "@type": "Organization",
+          name: "Nabd Plus",
+          url: "https://nabd.plus",
+        },
+      },
+    },
+  ];
+
   return (
     <main className={`main ${styles.page}`}>
+      <JsonLd data={jsonLd} />
       <nav className={styles.crumbs} aria-label="breadcrumb">
         <Link href={`/${locale}`}>{t("home")}</Link>
         <span aria-hidden="true">/</span>
