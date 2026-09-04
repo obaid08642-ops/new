@@ -1006,17 +1006,28 @@ export function SickLeaveScreen({ apt, onBack }:
  </Text>
  </NCard>
 
- <NBtn label={AR ? ' إصدار وإرسال الإجازة' : ' Issue & Send Sick Leave'}
- disabled={!diag.trim()}
- onPress={() => {
-   const patientId = apt?.patient_id || apt?.raw?.patient_id;
-   const appointmentId = apt?.id || apt?.raw?.id;
-   if (!patientId || !appointmentId) {
-     show(AR ? 'معرّف المريض أو الموعد غير متاح؛ لا يمكن طلب الإجازة.' : 'Patient or appointment identifier is unavailable; leave issuance cannot be requested.', 'error');
-     return;
-   }
-   show(AR ? 'إصدار الإجازة غير متاح حتى تتوفر خدمة خادمية للتحقق من الترخيص والتوقيع والسجل القانوني.' : 'Sick leave issuance is unavailable until a server service verifies licence, signature, and legal audit.', 'info');
- }} />
+  <NBtn label={AR ? ' إصدار وإرسال الإجازة' : ' Issue & Send Sick Leave'}
+  disabled={!diag.trim()}
+  onPress={async () => {
+    const patientId = apt?.patient_id || apt?.raw?.patient_id;
+    const appointmentId = apt?.id || apt?.raw?.id || 'new';
+    if (!patientId) {
+      show(AR ? 'معرّف المريض غير متاح؛ لا يمكن طلب الإجازة.' : 'Patient identifier is unavailable; leave issuance cannot be requested.', 'error');
+      return;
+    }
+    try {
+      const res = await client.post(`/provider/requests/${appointmentId}/sick-leave`, {
+        patient_id: patientId,
+        duration_days: parseInt(days, 10) || 1,
+        start_date: from,
+        diagnosis: diag,
+      });
+      show(AR ? `تم إصدار الإجازة الطبية برقم تتبع ${res.data?.tracking_id || '—'}` : `Official sick leave issued: ${res.data?.tracking_id || '—'}`, 'success');
+      setIssued(true);
+    } catch (err: any) {
+      show(err?.response?.data?.message || (AR ? 'فشل إصدار الإجازة' : 'Failed to issue sick leave'), 'error');
+    }
+  }} />
  </NScroll>
  );
 }

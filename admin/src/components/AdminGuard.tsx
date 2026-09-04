@@ -18,6 +18,20 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: 'المزودون والاعتمادات',
+    items: [
+      { href: '/admin/provider-moderation', label: 'تدقيق واعتماد المزودين' },
+      { href: '/admin/provider-audits', label: 'سجلات تدقيق المزودين' },
+      { href: '/admin/insurance-queue', label: 'طابور الموافقات التأمينية' },
+      { href: '/admin/insurance-companies', label: 'شركات التأمين المعتمدة' },
+      { href: '/admin/ambulance-fleet', label: 'أسطول مركبات الإسعاف' },
+      { href: '/admin/pharmacy-procurement', label: 'توريدات ومخازن الأدوية' },
+      { href: '/admin/nursing-portal', label: 'بوابة وإدارة التمريض' },
+      { href: '/admin/support-tickets', label: 'تذاكر الدعم والشكاوى' },
+      { href: '/admin/config-portal', label: 'بوابة الإعدادات العامة' },
+    ],
+  },
+  {
     title: 'الماليات',
     items: [
       { href: '/admin/finance-suite', label: 'المالية والتسويات', permission: 'finance.read' },

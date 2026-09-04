@@ -13,7 +13,11 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
 import { ProviderType, ProviderAccountStatus } from '../../provider/provider.enums';
 
-function assertAdmin(u: any) { if (!u || u.role !== 'admin') throw new ForbiddenException('admin_required'); }
+function assertAdmin(u: any) {
+  if (!u || (u.role !== 'admin' && u.role !== 'super_admin')) {
+    throw new ForbiddenException('admin_required');
+  }
+}
 
 @Injectable()
 export class PharmacySeedService {

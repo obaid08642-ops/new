@@ -54,9 +54,13 @@ function AppNavigator() {
               const t = (user?.providerType ?? pType).toLowerCase();
               const doLogout = async () => { await logout(); };
               if (t === 'pharmacy' || t === 'pharmacist') return <PharmacyDashboardNavigator onLogout={doLogout} />;
-              // Governance gate: non-pharmacy provider surfaces have no reviewed production contract.
-              // They remain visible only as an explicit unavailable state; no legacy dashboard can issue mutations.
-              return <ProviderHome />;
+              if (t === 'doctor' || t === 'physician') return <DoctorDashboardNavigator onLogout={doLogout} />;
+              if (t === 'facility' || t === 'hospital' || t === 'clinic' || t === 'center') return <FacilityDashboardNavigator onLogout={doLogout} />;
+              if (t === 'nursing' || t === 'nurse') return <NursingDashboardNavigator onLogout={doLogout} />;
+              if (t === 'lab' || t === 'laboratory') return <LabDashboardNavigator onLogout={doLogout} />;
+              if (t === 'radiology' || t === 'radiologist' || t === 'scan_center') return <RadiologyDashboardNavigator onLogout={doLogout} />;
+              if (t === 'ambulance' || t === 'paramedic' || t === 'emt') return <AmbulanceDashboardNavigator onLogout={doLogout} />;
+              return <ProviderHome onLogout={doLogout} />;
             }}
           </Stack.Screen>
         ) : (
