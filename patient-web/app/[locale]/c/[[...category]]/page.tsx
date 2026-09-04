@@ -81,7 +81,7 @@ function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
         <QuickAddCartBtn
           item={{
             id: item.id,
-            name: item.name,
+            name: item.name || "",
             price: item.price,
             image: src ?? undefined,
             form: item.form,

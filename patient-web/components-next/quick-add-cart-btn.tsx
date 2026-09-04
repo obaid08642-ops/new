@@ -7,7 +7,7 @@ import { ShoppingBag, Check, Plus, Minus } from "lucide-react";
 interface QuickAddCartBtnProps {
   item: {
     id: string;
-    name: string;
+    name?: string | null;
     price: number;
     image?: string | null;
     form?: string | null;
@@ -31,7 +31,7 @@ export function QuickAddCartBtn({ item, labels }: QuickAddCartBtnProps) {
     e.stopPropagation();
     addItem({
       id: item.id,
-      name: item.name,
+      name: item.name || "",
       price: item.price,
       image: item.image ?? undefined,
       form: item.form,
