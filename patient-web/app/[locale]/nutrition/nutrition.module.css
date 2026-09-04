@@ -1,0 +1,317 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem 0 4rem;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  overflow: hidden;
+  padding: clamp(1.5rem, 3.5vw, 2.4rem);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95), #FFFFFF 60%, rgba(184, 224, 48, 0.1));
+  box-shadow: var(--shadow-md);
+}
+
+.hero::after {
+  position: absolute;
+  inset-inline-end: -3.5rem;
+  inset-block-start: -4.5rem;
+  inline-size: 13rem;
+  block-size: 13rem;
+  border: 1.5rem solid rgba(16, 185, 129, 0.08);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #047857;
+  font-size: 0.82rem;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  margin: 0.4rem 0 0;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.hero p {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  max-inline-size: 38rem;
+  line-height: 1.6;
+}
+
+.heroVector {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  inline-size: 4.75rem;
+  block-size: 4.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-md);
+}
+
+.dateTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #047857;
+  margin: 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.statCard {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.statTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 730;
+}
+
+.statGlyph {
+  display: grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-md);
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.statValue {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.mealsSection {
+  display: grid;
+  gap: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.mealsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.mealCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.15rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mealCard:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.mealInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.mealIcon {
+  display: grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-md);
+  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.mealName {
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: var(--ink);
+}
+
+.mealMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(184, 224, 48, 0.18);
+  color: #3F6212;
+  font-size: 0.82rem;
+  font-weight: 760;
+}
+
+.quickNav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.quickBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 730;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quickBtn:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  color: #047857;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  inline-size: fit-content;
+  color: #047857;
+  font-weight: 760;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background-color 0.18s ease;
+}
+
+.back:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.back:focus-visible {
+  outline: 3px solid #047857;
+  outline-offset: 3px;
+}
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  padding: clamp(2.5rem, 8vw, 4rem) 1.5rem;
+  border: 1px dashed rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, #FFFFFF, rgba(236, 253, 245, 0.65));
+  color: var(--muted);
+  text-align: center;
+}
+
+.state p {
+  margin: 0;
+  line-height: 1.7;
+  max-inline-size: 32rem;
+}
+
+@media (max-width: 760px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .page {
+    gap: 1.15rem;
+    padding-top: 1rem;
+  }
+  .statsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .heroVector {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statCard, .mealCard, .quickBtn, .back {
+    transition: none;
+  }
+  .statCard:hover, .mealCard:hover, .quickBtn:hover {
+    transform: none;
+  }
+}

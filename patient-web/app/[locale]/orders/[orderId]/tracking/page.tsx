@@ -7,6 +7,7 @@ import { extractOrderTracking, parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
+import { VectorOrders } from "@/components-next/vector-illustrations";
 import styles from "../order-detail.module.css";
 
 type Props = { params: Promise<{ locale: string; orderId: string }> };
@@ -28,7 +29,7 @@ export default async function OrderTrackingPage({ params }: Props) {
     <Link className={styles.back} href={`/${locale}/orders/${orderId}`}><ChevronLeft size={17} aria-hidden="true" />{t("back")}</Link>
     <section className={styles.hero}>
       <div className={styles.heroText}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><span className={styles.status}>{status}</span></div>
-      <span className={styles.heroIcon}><MapPinned size={28} aria-hidden="true" /></span>
+      <div className={styles.heroVector}><VectorOrders size={75} /></div>
     </section>
     <section className={styles.detail} aria-label={t("title")}>
       <dl className={styles.grid}>

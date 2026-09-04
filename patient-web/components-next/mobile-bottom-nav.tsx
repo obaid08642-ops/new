@@ -48,7 +48,7 @@ export function MobileBottomNav({
     {
       key: "diagnostics",
       label: labels.diagnostics,
-      href: `/${locale}/diagnostics`,
+      href: `/${locale}/diagnostics/labs`,
       icon: TestTube2,
       isActive: pathname.startsWith(`/${locale}/diagnostics`) || pathname.startsWith(`/${locale}/labs`) || pathname.startsWith(`/${locale}/radiology`),
     },

@@ -3,18 +3,23 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { JsonLd } from "@/components-next/json-ld";
 import {
-  Activity,
   ArrowUpLeft,
   Calendar,
-  Compass,
-  HeartPulse,
   Pill,
-  ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Stethoscope,
-  TestTube2,
+  ChevronLeft,
 } from "lucide-react";
+import {
+  VectorPharmacy,
+  VectorDoctor,
+  VectorLabs,
+  VectorNursing,
+  VectorRadiology,
+  VectorAI,
+  VectorMap,
+  VectorEmergency,
+} from "@/components-next/vector-illustrations";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
 import styles from "./home.module.css";
@@ -55,65 +60,65 @@ export default async function LandingPage({ params }: Props) {
 
   const services = [
     {
-      icon: Pill,
-      color: "#16a34a",
-      bg: "rgba(22, 163, 74, 0.1)",
+      Illustration: VectorPharmacy,
+      color: "#00876F",
+      bg: "rgba(95, 217, 179, 0.14)",
       title: t("pharmacyTitle"),
       desc: t("pharmacyDesc"),
       href: `/${locale}/c`,
     },
     {
-      icon: Stethoscope,
-      color: "#2563eb",
-      bg: "rgba(37, 99, 235, 0.1)",
+      Illustration: VectorDoctor,
+      color: "#1D4ED8",
+      bg: "rgba(79, 168, 224, 0.14)",
       title: t("doctorsTitle"),
       desc: t("doctorsDesc"),
       href: `/${locale}/consultations/doctors`,
     },
     {
-      icon: TestTube2,
-      color: "#7c3aed",
-      bg: "rgba(124, 58, 237, 0.1)",
+      Illustration: VectorLabs,
+      color: "#B45309",
+      bg: "rgba(255, 201, 60, 0.16)",
       title: t("labsTitle"),
       desc: t("labsDesc"),
       href: `/${locale}/diagnostics/labs`,
     },
     {
-      icon: HeartPulse,
-      color: "#0891b2",
-      bg: "rgba(8, 145, 178, 0.1)",
+      Illustration: VectorNursing,
+      color: "#BE123C",
+      bg: "rgba(255, 77, 90, 0.12)",
       title: t("nursingTitle"),
       desc: t("nursingDesc"),
       href: `/${locale}/nursing/catalog`,
     },
     {
-      icon: Activity,
-      color: "#4f46e5",
-      bg: "rgba(79, 70, 229, 0.1)",
+      Illustration: VectorRadiology,
+      color: "#6D28D9",
+      bg: "rgba(139, 92, 246, 0.12)",
       title: t("radiologyTitle"),
       desc: t("radiologyDesc"),
       href: `/${locale}/diagnostics/radiology`,
     },
     {
-      icon: Sparkles,
-      color: "#0d9488",
-      bg: "rgba(13, 148, 136, 0.1)",
+      Illustration: VectorAI,
+      color: "#0F766E",
+      bg: "rgba(184, 224, 48, 0.18)",
       title: t("aiTitle"),
       desc: t("aiDesc"),
       href: `/${locale}/ai`,
     },
     {
-      icon: Compass,
-      color: "#0284c7",
-      bg: "rgba(2, 132, 199, 0.1)",
+      Illustration: VectorMap,
+      color: "#0369A1",
+      bg: "rgba(79, 168, 224, 0.14)",
       title: t("mapTitle"),
       desc: t("mapDesc"),
       href: `/${locale}/map`,
     },
     {
-      icon: ShieldAlert,
-      color: "#dc2626",
-      bg: "rgba(220, 38, 38, 0.1)",
+      Illustration: VectorEmergency,
+      color: "#DC2626",
+      bg: "rgba(220, 38, 38, 0.12)",
       title: t("emergencyTitle"),
       desc: t("emergencyDesc"),
       href: `/${locale}/emergency`,
@@ -149,8 +154,8 @@ export default async function LandingPage({ params }: Props) {
         ]}
       />
 
-      {/* Hero Banner */}
-      <section className={styles.hero}>
+      {/* Hero Banner with Soft 3D Artwork */}
+      <section className={`${styles.hero} ${styles.fadeInUp}`}>
         <div className={styles.heroContent}>
           <div className={styles.badge}>
             <Sparkles size={16} aria-hidden="true" />
@@ -158,11 +163,23 @@ export default async function LandingPage({ params }: Props) {
           </div>
           <h1>{t("heroTitle")}</h1>
           <p>{t("heroDesc")}</p>
+          <div className={styles.heroActionGroup}>
+            <Link href={`/${locale}/c`} className={styles.heroPrimaryBtn}>
+              <span>تسوق الصيدلية</span>
+              <ChevronLeft size={18} aria-hidden="true" />
+            </Link>
+            <Link href={`/${locale}/consultations/doctors`} className={styles.heroSecondaryBtn}>
+              <span>احجز استشارة طبيب</span>
+            </Link>
+          </div>
+        </div>
+        <div className={styles.heroVisual}>
+          <VectorAI size={120} />
         </div>
       </section>
 
-      {/* Quick Services Grid */}
-      <section className={styles.servicesSection}>
+      {/* Quick Services Grid with 3D Vector Icons */}
+      <section className={`${styles.servicesSection} ${styles.fadeInUp}`}>
         <div className={styles.sectionHead}>
           <h2>{t("servicesTitle")}</h2>
           <p>{t("servicesSubtitle")}</p>
@@ -170,7 +187,7 @@ export default async function LandingPage({ params }: Props) {
 
         <div className={styles.servicesGrid}>
           {services.map((s, idx) => {
-            const Icon = s.icon;
+            const Illustration = s.Illustration;
             return (
               <Link
                 key={idx}
@@ -179,9 +196,9 @@ export default async function LandingPage({ params }: Props) {
               >
                 <div
                   className={styles.serviceIconWrap}
-                  style={{ backgroundColor: s.bg, color: s.color }}
+                  style={{ backgroundColor: s.bg }}
                 >
-                  <Icon size={28} />
+                  <Illustration size={36} />
                 </div>
                 <div className={styles.serviceBody}>
                   <h3>{s.title}</h3>
@@ -196,24 +213,24 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Trust & Safety Banner */}
-      <section className={styles.trustBanner}>
+      {/* Trust & Safety Banner with Premium Badges */}
+      <section className={`${styles.trustBanner} ${styles.fadeInUp}`}>
         <div className={styles.trustItem}>
-          <ShieldCheck size={24} color="#00876f" />
+          <ShieldCheck size={26} color="#00876F" />
           <div>
             <strong>{t("trustLicensed")}</strong>
             <span>{t("trustLicensedSub")}</span>
           </div>
         </div>
         <div className={styles.trustItem}>
-          <Pill size={24} color="#00876f" />
+          <Pill size={26} color="#00876F" />
           <div>
             <strong>{t("trustGenuine")}</strong>
             <span>{t("trustGenuineSub")}</span>
           </div>
         </div>
         <div className={styles.trustItem}>
-          <Calendar size={24} color="#00876f" />
+          <Calendar size={26} color="#00876F" />
           <div>
             <strong>{t("trustCare")}</strong>
             <span>{t("trustCareSub")}</span>

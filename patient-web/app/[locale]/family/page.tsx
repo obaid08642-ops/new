@@ -9,6 +9,7 @@ import { familyMemberRef } from "@/lib/api/family-member-ref";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
+import { VectorFamily } from "@/components-next/vector-illustrations";
 import { CalendarDays, ShieldCheck, UsersRound } from "lucide-react";
 import styles from "./family.module.css";
 
@@ -32,7 +33,7 @@ export default async function FamilyPage({ params }: Props) {
         <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
         <h1>{group?.name || t("title")}</h1><p>{t("membersCount", { count: group?.memberCount ?? members.length })}</p>
       </div>
-      <span className={styles.introIcon}><UsersRound size={27} aria-hidden="true" /></span>
+      <div className={styles.introVector}><VectorFamily size={80} /></div>
     </section>
     {members.length === 0 ? <section className={styles.state}><UsersRound size={25} aria-hidden="true" /><p>{t("empty")}</p></section> : <section className={styles.grid} aria-label={t("title")}>{members.map((member) => <Link className={styles.card} key={member.id} href={`/${locale}/family/${familyMemberRef(member.id)}`}>
       <span className={styles.cardIcon}><UsersRound size={19} aria-hidden="true" /></span>

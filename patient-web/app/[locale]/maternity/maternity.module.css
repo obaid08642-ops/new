@@ -1,0 +1,319 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem 0 4rem;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  overflow: hidden;
+  padding: clamp(1.5rem, 3.5vw, 2.4rem);
+  border: 1px solid rgba(236, 72, 153, 0.22);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(253, 242, 248, 0.95), #FFFFFF 60%, rgba(184, 224, 48, 0.08));
+  box-shadow: var(--shadow-md);
+}
+
+.hero::after {
+  position: absolute;
+  inset-inline-end: -3.5rem;
+  inset-block-start: -4.5rem;
+  inline-size: 13rem;
+  block-size: 13rem;
+  border: 1.5rem solid rgba(236, 72, 153, 0.08);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #BE185D;
+  font-size: 0.82rem;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  margin: 0.4rem 0 0;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.hero p {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  max-inline-size: 38rem;
+  line-height: 1.6;
+}
+
+.heroVector {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  inline-size: 4.75rem;
+  block-size: 4.75rem;
+  border: 1px solid rgba(236, 72, 153, 0.22);
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-md);
+}
+
+.progressCard {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.4rem, 2.8vw, 1.85rem);
+  border: 1px solid rgba(236, 72, 153, 0.18);
+  border-radius: var(--radius-xl);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+}
+
+.progressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.weekHighlight {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.weekNum {
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  font-weight: 900;
+  color: #BE185D;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.weekLabel {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.trimesterBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  background: rgba(236, 72, 153, 0.12);
+  color: #BE185D;
+  font-size: 0.85rem;
+  font-weight: 760;
+}
+
+.progressBarBg {
+  inline-size: 100%;
+  block-size: 0.75rem;
+  border-radius: 9999px;
+  background: rgba(22, 33, 58, 0.08);
+  overflow: hidden;
+}
+
+.progressBarFill {
+  block-size: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #F472B6, #EC4899 60%, #B8E030);
+  transition: width 0.4s ease;
+}
+
+.progressMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.metricCard {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.metricCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(236, 72, 153, 0.35);
+}
+
+.metricTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 730;
+}
+
+.metricGlyph {
+  display: grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-md);
+  color: #BE185D;
+  background: rgba(236, 72, 153, 0.12);
+}
+
+.metricValue {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.metricSub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.quickNav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.quickBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 730;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quickBtn:hover {
+  border-color: rgba(236, 72, 153, 0.45);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  color: #BE185D;
+}
+
+.notice {
+  margin: 0;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid rgba(236, 72, 153, 0.25);
+  border-inline-start: 4px solid #BE185D;
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  background: rgba(253, 242, 248, 0.65);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  padding: clamp(2.5rem, 8vw, 4rem) 1.5rem;
+  border: 1px dashed rgba(236, 72, 153, 0.35);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, #FFFFFF, rgba(253, 242, 248, 0.65));
+  color: var(--muted);
+  text-align: center;
+}
+
+.state p {
+  margin: 0;
+  line-height: 1.7;
+  max-inline-size: 32rem;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  inline-size: fit-content;
+  color: #BE185D;
+  font-weight: 760;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background-color 0.18s ease;
+}
+
+.back:hover {
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.back:focus-visible {
+  outline: 3px solid #BE185D;
+  outline-offset: 3px;
+}
+
+@media (max-width: 860px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .page {
+    gap: 1.15rem;
+    padding-top: 1rem;
+  }
+  .metricsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .heroVector {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metricCard, .quickBtn, .back, .progressBarFill {
+    transition: none;
+  }
+  .metricCard:hover, .quickBtn:hover {
+    transform: none;
+  }
+}

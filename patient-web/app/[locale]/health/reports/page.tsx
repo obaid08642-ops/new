@@ -1,10 +1,87 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { FileText, ShieldCheck } from "lucide-react";
+import { ChevronLeft, FileText, ShieldCheck } from "lucide-react";
 import { getPatientReports } from "@/lib/api/vitals-server";
 import { parseReports } from "@/lib/api/reports";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
+import { VectorHealthShield } from "@/components-next/vector-illustrations";
 import styles from "../health.module.css";
+
 type Props = { params: Promise<{ locale: string }> };
-export default async function HealthReportsPage({ params }: Props) { const { locale }=await params; if(!isLocale(locale))notFound(); setRequestLocale(locale); const t=await getTranslations("Health"); const token=await requirePatientAccess(locale); const response=await getPatientReports(token); if(response.status===401)redirect(`/${locale}/login`); if(response.status===403||response.status===404)notFound(); if(!response.ok)return <main className="main"><section className={styles.state} role="alert"><h1>{t("unavailableTitle")}</h1><p>{t("unavailable")}</p></section></main>; const reports=parseReports(await response.json().catch(()=>null)); return <main className="main"><section className={styles.hero}><div><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("reportsTitle")}</h1><p>{t("reportsNotice")}</p></div></section>{reports.length===0?<section className={styles.state}><p>{t("reportsEmpty")}</p></section>:<section className={styles.grid}>{reports.map((report)=><article className={styles.card} key={report.id}><div className={styles.cardTop}><span className={styles.glyph}><FileText size={17} aria-hidden="true" /></span><span>{report.type||t("report")}</span></div><p className={styles.value}>{report.title||t("untitledReport")}</p>{report.doctor?<p className={styles.date}>{t("reportDoctor")}: {report.doctor}</p>:null}{report.facility?<p className={styles.date}>{t("reportFacility")}: {report.facility}</p>:null}{report.date?<p className={styles.date}>{report.date}</p>:null}</article>)}</section>}</main>; }
+
+export default async function HealthReportsPage({ params }: Props) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  setRequestLocale(locale);
+  const t = await getTranslations("Health");
+  const token = await requirePatientAccess(locale);
+  const response = await getPatientReports(token);
+  if (response.status === 401) redirect(`/${locale}/login`);
+  if (response.status === 403 || response.status === 404) notFound();
+  if (!response.ok)
+    return (
+      <main className={`main ${styles.page}`}>
+        <section className={styles.state} role="alert">
+          <h1>{t("unavailableTitle")}</h1>
+          <p>{t("unavailable")}</p>
+        </section>
+      </main>
+    );
+
+  const reports = parseReports(await response.json().catch(() => null));
+
+  return (
+    <main className={`main ${styles.page}`}>
+      <Link className={styles.back} href={`/${locale}/health`}>
+        <ChevronLeft size={17} aria-hidden="true" />
+        {t("back")}
+      </Link>
+      <section className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>
+            <ShieldCheck size={15} aria-hidden="true" />
+            {t("eyebrow")}
+          </p>
+          <h1>{t("reportsTitle")}</h1>
+          <p>{t("reportsNotice")}</p>
+        </div>
+        <span className={styles.heroVector}>
+          <VectorHealthShield size={48} aria-hidden="true" />
+        </span>
+      </section>
+      {reports.length === 0 ? (
+        <section className={styles.state}>
+          <VectorHealthShield size={42} aria-hidden="true" />
+          <p>{t("reportsEmpty")}</p>
+        </section>
+      ) : (
+        <section className={styles.grid}>
+          {reports.map((report) => (
+            <article className={styles.card} key={report.id}>
+              <div className={styles.cardTop}>
+                <span className={styles.glyph}>
+                  <FileText size={17} aria-hidden="true" />
+                </span>
+                <span>{report.type || t("report")}</span>
+              </div>
+              <p className={styles.value}>{report.title || t("untitledReport")}</p>
+              {report.doctor ? (
+                <p className={styles.date}>
+                  {t("reportDoctor")}: {report.doctor}
+                </p>
+              ) : null}
+              {report.facility ? (
+                <p className={styles.date}>
+                  {t("reportFacility")}: {report.facility}
+                </p>
+              ) : null}
+              {report.date ? <p className={styles.date}>{report.date}</p> : null}
+            </article>
+          ))}
+        </section>
+      )}
+    </main>
+  );
+}

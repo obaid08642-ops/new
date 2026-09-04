@@ -1,68 +1,158 @@
 .homePage {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding-bottom: 60px;
+  gap: 36px;
+  padding-bottom: 70px;
 }
 
+/* Staggered entrance animation for all child elements */
+.fadeInUp {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 1. Hero Section with Soft 3D Aesthetics */
 .hero {
-  background: linear-gradient(135deg, #0b3b60 0%, #00876f 100%);
-  border-radius: 24px;
-  padding: 40px 32px;
+  background: linear-gradient(135deg, #16213A 0%, #0d4a44 60%, #00876F 100%);
+  border-radius: 28px;
+  padding: 44px 36px;
   color: #ffffff;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(11, 59, 96, 0.15);
+  box-shadow: 0 16px 40px rgba(22, 33, 58, 0.18);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .heroContent {
-  max-width: 640px;
+  max-width: 620px;
+  z-index: 2;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(184, 224, 48, 0.18);
+  color: #B8E030;
+  border: 1px solid rgba(184, 224, 48, 0.35);
   backdrop-filter: blur(8px);
   padding: 6px 14px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 16px;
 }
 
 .hero h1 {
-  font-size: clamp(24px, 4vw, 36px);
+  font-size: clamp(26px, 4.2vw, 40px);
   font-weight: 900;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   line-height: 1.25;
+  letter-spacing: -0.02em;
 }
 
 .hero p {
   font-size: 16px;
-  opacity: 0.9;
-  line-height: 1.6;
-  margin: 0;
+  opacity: 0.92;
+  line-height: 1.65;
+  margin: 0 0 24px;
+  color: #E2E8F0;
 }
 
+.heroVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  z-index: 1;
+}
+
+.heroActionGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.heroPrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #B8E030;
+  color: #16213A;
+  font-weight: 800;
+  padding: 12px 24px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-size: 15px;
+  box-shadow: 0 6px 20px rgba(184, 224, 48, 0.3);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.heroPrimaryBtn:hover {
+  transform: translateY(-2px);
+  background: #cbf046;
+}
+
+.heroSecondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-size: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.15s ease;
+}
+
+.heroSecondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 2. Services Section */
 .servicesSection {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .sectionHead h2 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 900;
-  color: #0f172a;
-  margin: 0 0 4px;
+  color: #16213A;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+:global(.dark) .sectionHead h2 {
+  color: #F0F6FC;
 }
 
 .sectionHead p {
-  font-size: 14px;
-  color: #64748b;
+  font-size: 14.5px;
+  color: #64748B;
   margin: 0;
+}
+
+:global(.dark) .sectionHead p {
+  color: #94A3B8;
 }
 
 .servicesGrid {
@@ -75,162 +165,228 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 22px;
   padding: 18px 20px;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
   position: relative;
+  box-shadow: 0 4px 14px rgba(22, 33, 58, 0.03);
+}
+
+:global(.dark) .serviceCard {
+  background: #132235;
+  border-color: #22374E;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .serviceCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  border-color: #00876f;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(22, 33, 58, 0.08);
+  border-color: #5FD9B3;
+}
+
+:global(.dark) .serviceCard:hover {
+  border-color: #5FD9B3;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
 }
 
 .dangerCard {
-  border-color: #fecaca;
-  background: #fffafa;
+  border-color: #FECACA;
+  background: #FFFDFD;
+}
+
+:global(.dark) .dangerCard {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: #1a1520;
 }
 
 .dangerCard:hover {
-  border-color: #ef4444;
+  border-color: #EF4444;
 }
 
 .serviceIconWrap {
-  width: 56px;
-  height: 56px;
+  width: 54px;
+  height: 54px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.serviceCard:hover .serviceIconWrap {
+  transform: scale(1.05);
 }
 
 .serviceBody {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   min-width: 0;
 }
 
 .serviceBody h3 {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 800;
-  color: #0f172a;
-  margin: 0;
+  color: #16213A;
+  margin: 0 0 3px;
+}
+
+:global(.dark) .serviceBody h3 {
+  color: #F0F6FC;
 }
 
 .serviceBody p {
-  font-size: 12px;
-  color: #64748b;
+  font-size: 12.5px;
+  color: #64748B;
   margin: 0;
   line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(.dark) .serviceBody p {
+  color: #94A3B8;
 }
 
 .cardArrow {
-  opacity: 0.7;
-  transition: transform 0.2s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #F8FAFC;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+:global(.dark) .cardArrow {
+  background: #1E2D42;
 }
 
 .serviceCard:hover .cardArrow {
-  opacity: 1;
-  transform: translate(-3px, -3px);
+  transform: translateX(-3px);
+  background: rgba(184, 224, 48, 0.2);
 }
 
+/* 3. Trust Banner with Modern Health Badges */
 .trustBanner {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 22px;
+  padding: 24px 28px;
+}
+
+:global(.dark) .trustBanner {
+  background: #132235;
+  border-color: #22374E;
 }
 
 .trustItem {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .trustItem div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .trustItem strong {
-  font-size: 14px;
-  color: #0f172a;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #16213A;
+}
+
+:global(.dark) .trustItem strong {
+  color: #F0F6FC;
 }
 
 .trustItem span {
   font-size: 12px;
-  color: #64748b;
+  color: #64748B;
+}
+
+:global(.dark) .trustItem span {
+  color: #94A3B8;
 }
 
 @media (max-width: 480px) {
   .homePage {
-    gap: 20px;
-    padding-bottom: 40px;
+    gap: 22px;
+    padding-bottom: 44px;
   }
   .hero {
-    padding: 20px 16px;
-    border-radius: 18px;
+    padding: 22px 18px;
+    border-radius: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  .heroVisual {
+    display: none;
+  }
+  .heroActionGroup {
+    justify-content: center;
+    width: 100%;
   }
   .badge {
-    padding: 4px 10px;
-    font-size: 11px;
+    padding: 4px 12px;
+    font-size: 11.5px;
     margin-bottom: 10px;
   }
   .hero h1 {
-    font-size: clamp(20px, 6vw, 26px);
+    font-size: clamp(22px, 6vw, 28px);
     margin-bottom: 8px;
   }
   .hero p {
     font-size: 13.5px;
     line-height: 1.5;
+    margin-bottom: 18px;
   }
   .servicesGrid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
   .serviceCard {
-    padding: 14px 14px;
-    border-radius: 16px;
+    padding: 14px 16px;
+    border-radius: 18px;
     gap: 12px;
-    min-height: 48px;
   }
   .serviceIconWrap {
-    width: 46px;
-    height: 46px;
-    border-radius: 13px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
   }
   .serviceBody h3 {
     font-size: 15px;
   }
   .serviceBody p {
-    font-size: 11px;
+    font-size: 11.5px;
     line-height: 1.4;
   }
   .trustBanner {
-    padding: 16px 14px;
-    border-radius: 16px;
+    padding: 18px 16px;
+    border-radius: 18px;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
   }
   .trustItem {
-    gap: 10px;
+    gap: 12px;
   }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
   .hero {
-    padding: 28px 24px;
+    padding: 30px 24px;
   }
   .servicesGrid {
     grid-template-columns: repeat(2, 1fr);

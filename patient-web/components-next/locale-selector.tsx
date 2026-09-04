@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Globe, ChevronDown } from "lucide-react";
+import { Globe, ChevronDown, Check } from "lucide-react";
 import { localeLabels, locales, type Locale } from "@/lib/i18n";
 import styles from "./locale-selector.module.css";
 
@@ -54,7 +54,7 @@ export function LocaleSelector({ current, label }: { current: Locale; label: str
               onClick={() => setIsOpen(false)}
             >
               <span>{localeLabels[locale]}</span>
-              {isActive && <span className={styles.checkIcon} aria-hidden="true">✓</span>}
+              {isActive && <span className={styles.checkIcon} aria-hidden="true"><Check size={14} /></span>}
             </Link>
           );
         })}

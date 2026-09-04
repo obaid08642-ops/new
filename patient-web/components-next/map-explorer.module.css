@@ -73,7 +73,7 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .activePill {
@@ -97,7 +97,7 @@
   border-radius: 16px;
   padding: 16px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
 }
 
 .card:hover {
