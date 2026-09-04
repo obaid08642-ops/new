@@ -43,8 +43,8 @@
 .meta, .badges { display: flex; flex-wrap: wrap; gap: .45rem .7rem; }
 .badges span { padding: .25rem .55rem; border-radius: 999px; color: var(--brand-deep); background: var(--brand-soft); font-size: .75rem; font-weight: 750; }
 .pricePill { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .6rem; border-radius: .6rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; font-size: .82rem; font-weight: 800; }
-.bookBtn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .55rem .9rem; border-radius: .8rem; background: linear-gradient(135deg, #0b98ae, #087486); color: white; font-size: .8rem; font-weight: 750; margin-top: .4rem; transition: transform 0.16s ease, box-shadow 0.16s ease; }
-.card:hover .bookBtn { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(11,152,174,0.3); }
+.bookBtn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .55rem .9rem; border-radius: .8rem; background: #b8e030; color: #16213a; font-size: .8rem; font-weight: 800; margin-top: .4rem; transition: transform 0.16s ease, box-shadow 0.16s ease; }
+.card:hover .bookBtn { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(184,224,48,0.4); }
 .state { display: grid; justify-items: center; gap: .6rem; padding: 3rem 1.25rem; border: 1px dashed rgba(8,127,140,.25); border-radius: var(--radius-xl); color: var(--muted); text-align: center; background: rgba(231,247,247,.6); }
 .state h1, .state h2, .state p { margin: 0; }
 .state h1, .state h2 { color: var(--ink); }

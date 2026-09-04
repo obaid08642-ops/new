@@ -133,7 +133,7 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
           ) : null}
           {doctor.experienceYears !== undefined ? (
             <span>
-              <Clock3 size={16} color="#087486" aria-hidden="true" />
+              <Clock3 size={16} color="#00876f" aria-hidden="true" />
               <strong>{t("experience", { value: doctor.experienceYears })}</strong>
             </span>
           ) : null}

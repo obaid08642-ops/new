@@ -72,15 +72,15 @@
 }
 
 .navItem.active {
-  color: #0b98ae;
+  color: #16213A;
 }
 
 .navItem.active .iconWrapper {
-  background: rgba(11, 152, 174, 0.12);
-  color: #087486;
+  background: rgba(184, 224, 48, 0.25);
+  color: #16213A;
 }
 
 .navItem.active .label {
   font-weight: 850;
-  color: #087486;
+  color: #16213A;
 }
