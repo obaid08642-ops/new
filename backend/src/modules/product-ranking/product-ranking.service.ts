@@ -307,7 +307,7 @@ export class ProductRankingService {
       query.category = scope.category.trim().toLowerCase();
     }
 
-    const sortField = isTrending ? { trending_score: -1 } : { composite_score: -1 };
+    const sortField: any = isTrending ? { trending_score: -1 } : { composite_score: -1 };
     const docs = await this.metricsModel.find(query).sort(sortField).skip(offset).limit(limit).exec();
     const count = await this.metricsModel.countDocuments(query).exec();
 
