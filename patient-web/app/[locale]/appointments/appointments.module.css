@@ -138,10 +138,12 @@
 
 @media (max-width: 540px) {
   .page { gap: 1.1rem; padding-top: 1rem; }
-  .headerIcon { inline-size: 3.1rem; block-size: 3.1rem; }
+  .header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .headerIcon { inline-size: 2.8rem; block-size: 2.8rem; }
   .tabs { display: flex; inline-size: 100%; }
-  .tab, .tabActive { flex: 1; min-inline-size: 0; }
+  .tab, .tabActive { flex: 1; min-inline-size: 0; min-block-size: 2.45rem; font-size: 0.82rem; }
   .grid { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 1rem; border-radius: var(--radius-lg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

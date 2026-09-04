@@ -6,6 +6,10 @@
     "privateAccess": "Pribadong access",
     "account": "Account",
     "signOut": "Mag-sign out",
+    "navHome": "Tahanan",
+    "navDoctors": "Mga Doktor",
+    "navPharmacy": "Botika",
+    "navDiagnostics": "Pagsusuri",
     "devNotice": "Development preview — nasa construction at testing pa. Walang tunay na serbisyong ibinibigay sa site na ito; ang lahat ng nilalaman ay para sa pagsusuri lamang."
   },
   "Home": {

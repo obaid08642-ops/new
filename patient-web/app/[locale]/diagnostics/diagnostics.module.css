@@ -60,5 +60,12 @@
 .alert p { margin: 0 0 .7rem; }
 
 @media (max-width: 760px) { .domains { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 540px) { .page { gap: 1rem; padding-top: 1rem; } .intro { padding: 1.2rem; } .introIcon { inline-size: 3.1rem; block-size: 3.1rem; } .domain { padding: 1rem; } .open { display: none; } }
+@media (max-width: 540px) {
+  .page { gap: 1rem; padding-top: 1rem; }
+  .intro { padding: 1.2rem 1rem; flex-direction: column; align-items: flex-start; }
+  .introIcon { inline-size: 2.8rem; block-size: 2.8rem; }
+  .domain { padding: 1rem; }
+  .card { grid-template-columns: auto minmax(0, 1fr); }
+  .open { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }

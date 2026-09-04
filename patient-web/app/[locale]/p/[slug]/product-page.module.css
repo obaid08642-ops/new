@@ -37,8 +37,10 @@
 
 @media (max-width: 640px) {
   .page { gap: 1rem; padding-top: 1rem; }
-  .hero { grid-template-columns: minmax(0, 1fr); }
-  .heroMedia { max-inline-size: 14rem; }
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 1.25rem; }
+  .heroMedia { max-inline-size: 14rem; margin: 0 auto; }
   .grid { grid-template-columns: minmax(0, 1fr); }
+  .gallery img { inline-size: 4.5rem; block-size: 4.5rem; }
+  .detail, .block { padding: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) { .crumbs a { transition: none; } }
