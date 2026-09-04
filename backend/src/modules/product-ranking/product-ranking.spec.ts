@@ -73,6 +73,12 @@ describe('Continuous Dynamic Product Ranking Engine (Part 1 & 2)', () => {
     if (update.$set) {
       Object.assign(existing, update.$set);
     }
+    if (existing && !existing.save) {
+      existing.save = async function () {
+        mockDatabase.set(key, this);
+        return this;
+      };
+    }
     mockDatabase.set(key, existing);
     return existing;
   });

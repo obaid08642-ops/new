@@ -130,7 +130,9 @@ let ProductRankingService = class ProductRankingService {
         record.composite_score = compositeScore;
         record.trending_score = trendingScore;
         record.conversion_rate = record.views_count > 0 ? (record.purchases_count / record.views_count) : 0;
-        await record.save();
+        if (typeof (record === null || record === void 0 ? void 0 : record.save) === 'function') {
+            await record.save();
+        }
 
         const keyAllPopular = this.getZSetKey({ pharmacyId: cleanPharm });
         const keyAllTrending = this.getZSetKey({ pharmacyId: cleanPharm, trending: true });
@@ -201,7 +203,9 @@ let ProductRankingService = class ProductRankingService {
         const { compositeScore, trendingScore } = this.calculateCompositeScore(globalRecord);
         globalRecord.composite_score = compositeScore;
         globalRecord.trending_score = trendingScore;
-        await globalRecord.save();
+        if (typeof (globalRecord === null || globalRecord === void 0 ? void 0 : globalRecord.save) === 'function') {
+            await globalRecord.save();
+        }
 
         const gKeyAllPopular = this.getZSetKey({ pharmacyId: 'global' });
         const gKeyAllTrending = this.getZSetKey({ pharmacyId: 'global', trending: true });

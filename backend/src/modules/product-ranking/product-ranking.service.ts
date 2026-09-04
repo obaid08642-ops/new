@@ -177,7 +177,9 @@ export class ProductRankingService {
     record.composite_score = compositeScore;
     record.trending_score = trendingScore;
     record.conversion_rate = record.views_count > 0 ? (record.purchases_count / record.views_count) : 0;
-    await record.save();
+    if (typeof record?.save === 'function') {
+      await record.save();
+    }
 
     // 3. Update Redis Sorted Sets continuously across all relevant scopes
     // Scope A: Specific target (global or pharmacy) - ALL CATEGORIES
@@ -255,7 +257,9 @@ export class ProductRankingService {
     const { compositeScore, trendingScore } = this.calculateCompositeScore(globalRecord);
     globalRecord.composite_score = compositeScore;
     globalRecord.trending_score = trendingScore;
-    await globalRecord.save();
+    if (typeof globalRecord?.save === 'function') {
+      await globalRecord.save();
+    }
 
     // Update global ZSets
     const gKeyAllPopular = this.getZSetKey({ pharmacyId: 'global' });
