@@ -335,6 +335,10 @@ export class ProviderOnboardingService {
     const ptype = typeMap[profile.type] || profile.type;
     const now = new Date();
     const existing = await accounts.findOne({ email });
+    const uAny = fullUser as any;
+    const displayNameAr = (profile as any).name_ar || (profile as any).steps_snapshot?.full_data?.nameAr || uAny?.full_name || uAny?.name || null;
+    const displayNameEn = (profile as any).name_en || (profile as any).steps_snapshot?.full_data?.nameEn || null;
+    const legalName = (profile as any).legal_name || (profile as any).steps_snapshot?.full_data?.legalName || uAny?.full_name || uAny?.name || null;
     const onboardingMeta = {
       source: 'provider_onboarding',
       profile_id: profile.id,
@@ -342,6 +346,7 @@ export class ProviderOnboardingService {
       signer_name: profile.signer_name || null,
       signer_role: profile.signer_role || null,
       submitted_at: now,
+      full_data: (profile as any).steps_snapshot?.full_data || null,
     };
     if (!existing) {
       const accountId = uuidv4();
@@ -351,6 +356,9 @@ export class ProviderOnboardingService {
         phone_e164: fullUser?.phone,
         password_hash: fullUser?.password_hash || 'onboarding',
         provider_type: ptype,
+        display_name_ar: displayNameAr,
+        display_name_en: displayNameEn,
+        legal_name: legalName,
         status: 'pending_admin_approval',
         email_verified: true,
         email_verified_at: now,
@@ -367,6 +375,9 @@ export class ProviderOnboardingService {
         await accounts.updateOne({ id: existing.id }, {
           $set: {
             provider_type: ptype,
+            display_name_ar: displayNameAr || existing.display_name_ar,
+            display_name_en: displayNameEn || existing.display_name_en,
+            legal_name: legalName || existing.legal_name,
             status: 'pending_admin_approval',
             email_verified: true,
             onboarding_progress: onboardingMeta,

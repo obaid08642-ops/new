@@ -42,6 +42,12 @@ export class ProviderModerationController {
   // and edit-review below via provider_deltas.
 
   // --- DELTA AUDIT GUARD ---
+  @Get('provider-deltas')
+  async getProviderDeltasGet(): Promise<any> {
+    const data = await this.connection.collection('provider_deltas').find({ status: 'pending' }).toArray();
+    return data;
+  }
+
   @Post('provider-deltas')
   async getProviderDeltas(): Promise<any> {
     const data = await this.connection.collection('provider_deltas').find({ status: 'pending' }).toArray();

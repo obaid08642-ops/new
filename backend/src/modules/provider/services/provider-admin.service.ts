@@ -41,7 +41,11 @@ export class ProviderAdminService {
     }
   }
 
-  private assertAdmin(user: any) { if (user.role !== 'admin') throw new ForbiddenException('admin only'); }
+  private assertAdmin(user: any) {
+    if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+      throw new ForbiddenException('admin only');
+    }
+  }
 
   async list(user: any, q: { status?: string; provider_type?: string; page?: number; limit?: number; search?: string }): Promise<any> {
     this.assertAdmin(user);
@@ -182,5 +186,71 @@ export class ProviderAdminService {
     await a.save();
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_suspended', after: { reason: body?.reason } });
     return a.toObject();
+  }
+
+  async listDeltas(user: any): Promise<any[]> {
+    this.assertAdmin(user);
+    const data = await this.accounts.model.db.collection('provider_deltas').find({ status: 'pending' }).toArray();
+    return data;
+  }
+
+  async approveDelta(user: any, id: string): Promise<any> {
+    this.assertAdmin(user);
+    const delta: any = await this.accounts.model.db.collection('provider_deltas').findOne({ id });
+    if (!delta) throw new NotFoundException('التغييرات المطلوبة غير موجودة');
+    if (delta.status !== 'pending') throw new BadRequestException(`التغييرات تمت معالجتها مسبقاً (${delta.status})`);
+
+    let changes = delta.requested_changes || delta.changes || {};
+    if (changes && typeof changes === 'object' && typeof changes.changes === 'object' && changes.changes) changes = changes.changes;
+    else if (changes && typeof changes === 'object' && typeof changes.newData === 'object' && changes.newData) changes = changes.newData;
+
+    const accountId = delta.account_id || delta.provider_account_id || delta.user_id || delta.provider_id;
+    let applied = 0;
+    if (accountId && Object.keys(changes).length) {
+      const res = await this.accounts.model.db.collection('provider_profiles').updateOne(
+        { $or: [{ account_id: accountId }, { user_id: accountId }, { id: accountId }] } as any,
+        { $set: { ...changes, updated_at: new Date() } },
+      );
+      applied = res.modifiedCount;
+      const accountUpdates: any = {};
+      if (changes.name_ar) accountUpdates.display_name_ar = changes.name_ar;
+      if (changes.name_en) accountUpdates.display_name_en = changes.name_en;
+      if (changes.legal_name) accountUpdates.legal_name = changes.legal_name;
+      if (Object.keys(accountUpdates).length) {
+        await this.accounts.model.updateOne({ id: accountId }, { $set: accountUpdates });
+      }
+    }
+    await this.accounts.model.db.collection('provider_deltas').updateOne(
+      { id },
+      { $set: { status: 'approved', reviewed_at: new Date(), reviewer_id: user.id, applied_at: new Date() } },
+    );
+    await this.audit.create({
+      provider_account_id: accountId || id,
+      actor_id: user.id,
+      actor_role: 'admin',
+      action: 'admin.provider_delta_approved',
+      after: { delta_id: id, changes }
+    });
+    return { success: true, applied };
+  }
+
+  async rejectDelta(user: any, id: string, body?: any): Promise<any> {
+    this.assertAdmin(user);
+    const delta: any = await this.accounts.model.db.collection('provider_deltas').findOne({ id });
+    if (!delta) throw new NotFoundException('التغييرات المطلوبة غير موجودة');
+    if (delta.status !== 'pending') throw new BadRequestException(`التغييرات تمت معالجتها مسبقاً (${delta.status})`);
+
+    await this.accounts.model.db.collection('provider_deltas').updateOne(
+      { id },
+      { $set: { status: 'rejected', rejection_reason: body?.reason || 'rejected', reviewed_at: new Date(), reviewer_id: user.id } },
+    );
+    await this.audit.create({
+      provider_account_id: delta.account_id || delta.provider_id || id,
+      actor_id: user.id,
+      actor_role: 'admin',
+      action: 'admin.provider_delta_rejected',
+      after: { delta_id: id, reason: body?.reason }
+    });
+    return { success: true };
   }
 }

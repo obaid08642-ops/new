@@ -115,6 +115,9 @@ export class ProviderAdminController {
   // Full provider file by USER id (users-management "عرض الملف" — the admin clicks
   // any provider user and must see every registration detail, same as moderation).
   @Get('by-user/:userId') byUser(@CurrentUser() u: any, @Param('userId') userId: string) { return this.svc.detailByUser(u, userId); }
+  @Get('provider-deltas') getDeltas(@CurrentUser() u: any) { return this.svc.listDeltas(u); }
+  @Post('provider-deltas/:id/approve') approveDelta(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.approveDelta(u, id); }
+  @Post('provider-deltas/:id/reject') rejectDelta(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.rejectDelta(u, id, body); }
   @Get(':id') detail(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.detail(u, id); }
   @Post(':id/approve') approve(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.approve(u, id, body); }
   @Post(':id/reject') reject(@CurrentUser() u: any, @Param('id') id: string, @Body() body: any) { return this.svc.reject(u, id, body); }
