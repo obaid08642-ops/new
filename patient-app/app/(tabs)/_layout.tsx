@@ -20,7 +20,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="diagnostics" />
       <Tabs.Screen name="services" />
       <Tabs.Screen name="health" />
-      <Tabs.Screen name="nursing" options={{ href: null }} />
+      <Tabs.Screen name="nursing" />
     </Tabs>
   );
 }

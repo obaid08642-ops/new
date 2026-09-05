@@ -16,7 +16,7 @@ describe("MobileBottomNav", () => {
           doctors: "الأطباء",
           pharmacy: "الصيدلية",
           diagnostics: "التحاليل",
-          account: "حسابي",
+          nursing: "التمريض المنزلي",
         }}
       />
     );
@@ -25,12 +25,12 @@ describe("MobileBottomNav", () => {
     expect(html).toContain('href="/ar/consultations/doctors"');
     expect(html).toContain('href="/ar/c"');
     expect(html).toContain('href="/ar/diagnostics/labs"');
-    expect(html).toContain('href="/ar/dashboard"');
+    expect(html).toContain('href="/ar/home-care"');
     expect(html).toContain("الرئيسية");
     expect(html).toContain("الأطباء");
     expect(html).toContain("الصيدلية");
     expect(html).toContain("التحاليل");
-    expect(html).toContain("حسابي");
+    expect(html).toContain("التمريض المنزلي");
     expect(html).toContain('aria-current="page"');
   });
 });

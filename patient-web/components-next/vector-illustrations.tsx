@@ -674,3 +674,146 @@ export function VectorSupport({ size = 48, className, ...props }: IllustrationPr
     </svg>
   );
 }
+
+/**
+ * Pharmacy Category Vector Illustrations
+ */
+export function VectorCatMeds({ size = 48, className, ...props }: IllustrationProps) {
+  return <VectorPharmacy size={size} className={className} {...props} />;
+}
+
+export function VectorCatAll({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_all_bg" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#00E599" />
+          <stop offset="1" stopColor="#0B1527" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="url(#cat_all_bg)" />
+      <circle cx="24" cy="24" r="5" fill="#FFFFFF" fillOpacity="0.9" />
+      <circle cx="40" cy="24" r="5" fill="#5FD9B3" />
+      <circle cx="24" cy="40" r="5" fill="#5FD9B3" />
+      <circle cx="40" cy="40" r="5" fill="#FFFFFF" fillOpacity="0.9" />
+      <path d="M24 24L40 40M40 24L24 40" stroke="#FFFFFF" strokeWidth="2" strokeDasharray="2 2" strokeOpacity="0.4" />
+    </svg>
+  );
+}
+
+export function VectorCatHairCare({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_hair_bg" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#EC4899" />
+          <stop offset="1" stopColor="#9333EA" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(236,72,153,0.12)" />
+      <rect x="24" y="24" width="16" height="26" rx="6" fill="url(#cat_hair_bg)" />
+      <rect x="28" y="16" width="8" height="8" rx="2" fill="#9333EA" />
+      <path d="M30 16V12H34V16" stroke="#EC4899" strokeWidth="2" strokeLinecap="round" />
+      <path d="M42 20C47 24 47 34 44 42C48 36 49 28 46 22" stroke="#F472B6" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="20" cy="22" r="2" fill="#F472B6" />
+      <path d="M28 32H36" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function VectorCatCosmetics({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_cosmetic_lip" x1="26" y1="14" x2="38" y2="36" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F43F5E" />
+          <stop offset="1" stopColor="#E11D48" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(244,63,94,0.12)" />
+      <rect x="25" y="32" width="14" height="20" rx="3" fill="#1E293B" />
+      <rect x="27" y="26" width="10" height="6" fill="#E2E8F0" />
+      <path d="M28 26V18C28 18 31 14 34 16C36 17 36 26 36 26H28Z" fill="url(#cat_cosmetic_lip)" />
+      <path d="M42 46L49 39" stroke="#E2E8F0" strokeWidth="3" strokeLinecap="round" />
+      <path d="M49 39C52 36 53 31 51 29C49 27 44 28 41 31" fill="#FDA4AF" />
+      <circle cx="18" cy="28" r="2.5" fill="#FB7185" />
+    </svg>
+  );
+}
+
+export function VectorCatSkinCare({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_skin_jar" x1="16" y1="26" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#06B6D4" />
+          <stop offset="1" stopColor="#0891B2" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(6,182,212,0.12)" />
+      <rect x="18" y="30" width="28" height="20" rx="6" fill="url(#cat_skin_jar)" />
+      <rect x="16" y="24" width="32" height="7" rx="3.5" fill="#38BDF8" />
+      <path d="M32 12C32 12 37 18 37 20C37 22.76 34.76 25 32 25C29.24 25 27 22.76 27 20C27 18 32 12 32 12Z" fill="#38BDF8" />
+      <path d="M42 16C46 16 48 20 46 23C44 23 42 20 42 16Z" fill="#10B981" />
+    </svg>
+  );
+}
+
+export function VectorCatBabyCare({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_baby_bot" x1="22" y1="18" x2="42" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#38BDF8" />
+          <stop offset="1" stopColor="#0284C7" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(56,189,248,0.12)" />
+      <rect x="22" y="24" width="20" height="26" rx="5" fill="url(#cat_baby_bot)" />
+      <rect x="25" y="19" width="14" height="5" rx="2" fill="#FBBF24" />
+      <path d="M30 19V14C30 12.5 34 12.5 34 14V19" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M32 30H38M32 36H38M32 42H36" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+      <path d="M16 26C14 24 14 21 16 19C18 17 21 19 22 21C23 19 26 17 28 19C30 21 30 24 28 26L22 32L16 26Z" fill="#F43F5E" />
+    </svg>
+  );
+}
+
+export function VectorCatVitamins({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_vit_orange" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F59E0B" />
+          <stop offset="1" stopColor="#D97706" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(245,158,11,0.12)" />
+      <circle cx="32" cy="32" r="16" fill="url(#cat_vit_orange)" />
+      <circle cx="32" cy="32" r="13" fill="#FDE68A" fillOpacity="0.3" />
+      <path d="M32 20V44M20 32H44M23 23L41 41M41 23L23 41" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="44" cy="18" r="3" fill="#F59E0B" />
+      <circle cx="18" cy="42" r="2.5" fill="#FBBF24" />
+      <circle cx="32" cy="32" r="3" fill="#FFFFFF" />
+    </svg>
+  );
+}
+
+export function VectorCatPersonalCare({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cat_pers_grad" x1="18" y1="20" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#10B981" />
+          <stop offset="1" stopColor="#047857" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(16,185,129,0.12)" />
+      <rect x="22" y="24" width="20" height="26" rx="6" fill="url(#cat_pers_grad)" />
+      <rect x="28" y="19" width="8" height="5" fill="#A7F3D0" />
+      <path d="M32 19V14H24M24 14L22 17" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="44" cy="20" r="3.5" fill="#A7F3D0" />
+      <circle cx="48" cy="27" r="2" fill="#6EE7B7" />
+      <path d="M28 34C32 32 36 36 36 34" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}

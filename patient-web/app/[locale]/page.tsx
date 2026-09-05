@@ -22,6 +22,8 @@ import {
 } from "@/components-next/vector-illustrations";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
+import { getPublicDoctors } from "@/lib/api/doctors-server";
+import { extractDoctors } from "@/lib/api/doctors";
 import styles from "./home.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -110,27 +112,13 @@ export default async function LandingPage({ params }: Props) {
     },
   ];
 
-  const categoryPills = [
-    { name: isAr ? "الكل" : "All", href: `/${locale}/c`, active: true },
-    { name: isAr ? "أدوية وعلاجات" : "Medicines", image: "/images/categories/medications.jpg", href: `/${locale}/c` },
-    { name: isAr ? "فيتامينات ومكملات" : "Vitamins", image: "/images/categories/vitamins.jpg", href: `/${locale}/c` },
-    { name: isAr ? "العناية بالبشرة" : "Skincare", image: "/images/categories/skincare.jpg", href: `/${locale}/c` },
-    { name: isAr ? "الأم والطفل" : "Baby Care", image: "/images/categories/babycare.jpg", href: `/${locale}/c` },
-    { name: isAr ? "أجهزة طبية" : "Medical Devices", image: "/images/categories/devices.jpg", href: `/${locale}/c` },
-    { name: isAr ? "إسعافات أولية" : "First Aid", image: "/images/categories/firstaid.jpg", href: `/${locale}/c` },
-  ];
-
-  const featuredDoctors = [
-    { id: "dr-sarah", name: isAr ? "د. سارة العتيبي" : "Dr. Sarah Al-Otaibi", degree: isAr ? "استشارية طب أسرة وباطنة" : "Consultant Family Medicine", specialty: isAr ? "طب أسرة وباطنة" : "Family Medicine", image: "/images/doctors/dr-sarah.jpg", rating: 4.9, price: 150 },
-    { id: "dr-ahmed", name: isAr ? "د. أحمد الغامدي" : "Dr. Ahmed Al-Ghamdi", degree: isAr ? "استشاري أمراض القلب" : "Consultant Cardiologist", specialty: isAr ? "أمراض القلب والشرايين" : "Cardiology", image: "/images/doctors/dr-ahmed.jpg", rating: 4.95, price: 220 },
-    { id: "dr-mona", name: isAr ? "د. منى الحربي" : "Dr. Mona Al-Harbi", degree: isAr ? "استشارية طب الأطفال" : "Consultant Pediatrician", specialty: isAr ? "طب الأطفال وحديثي الولادة" : "Pediatrics", image: "/images/doctors/dr-mona.jpg", rating: 4.88, price: 140 },
-  ];
-
-  const featuredLabs = [
-    { id: "pkg-comprehensive", name: isAr ? "باقة الفحص الطبي الشامل" : "Comprehensive Medical Checkup", desc: isAr ? "32 مؤشراً حيوياً تشمل صورة الدم، الكبد، الكلى، السكر، والدهون." : "32 vital biomarkers including CBC, liver, and kidney.", image: "/images/labs/comprehensive-checkup.jpg", price: 390 },
-    { id: "pkg-vitamins", name: isAr ? "باقة الفيتامينات والمعادن" : "Vitamins & Minerals Panel", desc: isAr ? "فيتامين د، ب12، مخزون الحديد، الكالسيوم، والمغنيسيوم." : "Vitamin D, B12, ferritin, and minerals.", image: "/images/labs/vitamin-panel.jpg", price: 280 },
-    { id: "pkg-diabetes", name: isAr ? "باقة متابعة السكري الشاملة" : "Diabetes Control Panel", desc: isAr ? "سكر صائم، تراكمي HbA1c، ووظائف الكلى للوقاية من المضاعفات." : "Fasting blood sugar, HbA1c, and kidney panel.", image: "/images/labs/diabetes-panel.jpg", price: 210 },
-  ];
+  let doctors: any[] = [];
+  try {
+    const res = await getPublicDoctors();
+    if (res && res.ok) {
+      doctors = extractDoctors(await res.json().catch(() => null)).slice(0, 4);
+    }
+  } catch {}
 
   return (
     <main className={`main ${styles.homePage}`}>
@@ -185,26 +173,7 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Category Pills Slider */}
-      <section className={styles.categorySliderWrap}>
-        <div className={styles.categoryPills}>
-          {categoryPills.map((pill, i) => (
-            <Link 
-              key={i} 
-              href={pill.href} 
-              className={`${styles.categoryPill} ${pill.active ? styles.categoryPillActive : ""}`}
-            >
-              {pill.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={pill.image} alt={pill.name} className={styles.pillThumb} />
-              )}
-              <span>{pill.name}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Core Health Services Grid with Real Photography */}
+      {/* Core Health Services Grid */}
       <section className={`${styles.servicesSection} ${styles.fadeInUp}`}>
         <div className={styles.sectionHead}>
           <h2>{t("servicesTitle")}</h2>
@@ -239,76 +208,45 @@ export default async function LandingPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Featured Doctors Section with Real Photography */}
-      <section className={`${styles.featuredSection} ${styles.fadeInUp}`}>
-        <div className={styles.sectionHeadingRow}>
-          <div>
-            <h2>{isAr ? "نخبة الأطباء والاستشاريين" : "Featured Doctors"}</h2>
-            <p>{isAr ? "استشارات طبية فورية وحجز مواعيد عيادات معتمد" : "Instant consultations and verified clinic appointments"}</p>
-          </div>
-          <Link href={`/${locale}/consultations/doctors`} className={styles.seeAllLink}>
-            <span>{isAr ? "عرض جميع الأطباء" : "View All"}</span>
-            <ChevronLeft size={16} />
-          </Link>
-        </div>
-
-        <div className={styles.doctorCardsGrid}>
-          {featuredDoctors.map((doc) => (
-            <Link key={doc.id} href={`/${locale}/consultations/doctors/${doc.id}`} className={styles.doctorCard}>
-              <div className={styles.doctorCardHeader}>
-                <div className={styles.doctorAvatar}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={doc.image} alt={doc.name} />
-                </div>
-                <div className={styles.doctorMeta}>
-                  <strong>{doc.name}</strong>
-                  <span>{doc.degree}</span>
-                </div>
-              </div>
-              <div className={styles.doctorFooter}>
-                <span className={styles.doctorPrice}>{doc.price} {isAr ? "ر.س" : "SAR"}</span>
-                <span className={styles.doctorBookBtn}>
-                  <span>{isAr ? "احجز الآن" : "Book Now"}</span>
-                  <ChevronLeft size={14} />
-                </span>
-              </div>
+      {/* Featured Doctors Section - Rendered only when real doctors are returned from database */}
+      {doctors.length > 0 && (
+        <section className={`${styles.featuredSection} ${styles.fadeInUp}`}>
+          <div className={styles.sectionHeadingRow}>
+            <div>
+              <h2>{isAr ? "نخبة الأطباء والاستشاريين" : "Featured Doctors"}</h2>
+              <p>{isAr ? "استشارات طبية فورية وحجز مواعيد عيادات معتمد" : "Instant consultations and verified clinic appointments"}</p>
+            </div>
+            <Link href={`/${locale}/consultations/doctors`} className={styles.seeAllLink}>
+              <span>{isAr ? "عرض جميع الأطباء" : "View All"}</span>
+              <ChevronLeft size={16} />
             </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Diagnostic Lab Packages with Real Photography */}
-      <section className={`${styles.featuredSection} ${styles.fadeInUp}`}>
-        <div className={styles.sectionHeadingRow}>
-          <div>
-            <h2>{isAr ? "باقات الفحص المخبري المعتمدة" : "Diagnostic Lab Packages"}</h2>
-            <p>{isAr ? "باقات فحص شامل مع خدمة سحب العينة منزلياً مجاناً" : "Comprehensive checkups with free home sample collection"}</p>
           </div>
-          <Link href={`/${locale}/diagnostics/packages`} className={styles.seeAllLink}>
-            <span>{isAr ? "عرض جميع الباقات" : "View All Packages"}</span>
-            <ChevronLeft size={16} />
-          </Link>
-        </div>
 
-        <div className={styles.labsCardsGrid}>
-          {featuredLabs.map((lab) => (
-            <Link key={lab.id} href={`/${locale}/diagnostics/packages/${lab.id}`} className={styles.labPromoCard}>
-              <div className={styles.labImgFrame}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={lab.image} alt={lab.name} />
-              </div>
-              <div className={styles.labCardContent}>
-                <h3>{lab.name}</h3>
-                <p>{lab.desc}</p>
-                <div className={styles.labFooter}>
-                  <span className={styles.labPrice}>{lab.price} {isAr ? "ر.س" : "SAR"}</span>
-                  <span className={styles.labBookBtn}>{isAr ? "تفاصيل الفحص والحجز" : "Book Package"}</span>
+          <div className={styles.doctorCardsGrid}>
+            {doctors.map((doc) => (
+              <Link key={doc.id} href={`/${locale}/consultations/doctors/${doc.id}`} className={styles.doctorCard}>
+                <div className={styles.doctorCardHeader}>
+                  <div className={styles.doctorAvatar}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={doc.image || `/images/doctors/${doc.id}.jpg`} alt={doc.name || ""} />
+                  </div>
+                  <div className={styles.doctorMeta}>
+                    <strong>{doc.name}</strong>
+                    <span>{doc.specialty || doc.degree}</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+                <div className={styles.doctorFooter}>
+                  <span className={styles.doctorPrice}>{doc.price ? `${doc.price} ${isAr ? "ر.س" : "SAR"}` : ""}</span>
+                  <span className={styles.doctorBookBtn}>
+                    <span>{isAr ? "احجز الآن" : "Book Now"}</span>
+                    <ChevronLeft size={14} />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Trust & Safety Banner with Premium Badges */}
       <section className={`${styles.trustBanner} ${styles.fadeInUp}`}>

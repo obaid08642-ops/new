@@ -38,15 +38,6 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
   const query = await searchParams; const date = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(query.date ?? "") ? query.date! : today(); const serviceType = serviceTypes.includes(query.service_type as typeof serviceTypes[number]) ? query.service_type as typeof serviceTypes[number] : "video";
   const t = await getTranslations("Doctors"); 
   
-  const fallbackDoctorsMap: Record<string, { nameAr: string; nameEn: string; degreeAr: string; degreeEn: string; specialtyAr: string; specialtyEn: string; image: string; rating: number; experience: number; facility: string }> = {
-    "dr-sarah": { nameAr: "د. سارة العتيبي", nameEn: "Dr. Sarah Al-Otaibi", degreeAr: "استشارية طب أسرة وباطنة", degreeEn: "Consultant Family Medicine & Internal Medicine", specialtyAr: "طب أسرة وباطنة", specialtyEn: "Family Medicine", image: "/images/doctors/dr-sarah.jpg", rating: 4.9, experience: 14, facility: "مركز نبض الطبي المتقدم - الرياض" },
-    "dr-ahmed": { nameAr: "د. أحمد الغامدي", nameEn: "Dr. Ahmed Al-Ghamdi", degreeAr: "استشاري طب وجراحة القلب", degreeEn: "Consultant Cardiologist", specialtyAr: "أمراض القلب والشرايين", specialtyEn: "Cardiology", image: "/images/doctors/dr-ahmed.jpg", rating: 4.95, experience: 18, facility: "مستشفى نبض التخصصي - جدة" },
-    "dr-mona": { nameAr: "د. منى الحربي", nameEn: "Dr. Mona Al-Harbi", degreeAr: "استشارية طب الأطفال وحديثي الولادة", degreeEn: "Consultant Pediatrician", specialtyAr: "طب الأطفال", specialtyEn: "Pediatrics", image: "/images/doctors/dr-mona.jpg", rating: 4.88, experience: 12, facility: "عيادات نبض للرعاية المتكاملة" },
-    "dr-khalid": { nameAr: "د. خالد الشمري", nameEn: "Dr. Khalid Al-Shammari", degreeAr: "استشاري جراحة وقسطرة الأوعية الدموية", degreeEn: "Consultant Vascular Surgery", specialtyAr: "الأوعية الدموية", specialtyEn: "Vascular", image: "/images/doctors/dr-khalid.jpg", rating: 4.92, experience: 16, facility: "المركز التخصصي للقلب والأوعية" },
-    "dr-layla": { nameAr: "د. ليلى القحطاني", nameEn: "Dr. Layla Al-Qahtani", degreeAr: "استشارية الأمراض الجلدية والليزر", degreeEn: "Consultant Dermatologist", specialtyAr: "الجلدية والتجميل العلاجي", specialtyEn: "Dermatology", image: "/images/doctors/dr-layla.jpg", rating: 4.91, experience: 11, facility: "عيادات نبض ديرما" },
-    "dr-omar": { nameAr: "د. عمر الشهري", nameEn: "Dr. Omar Al-Shehri", degreeAr: "استشاري جراحة العظام والإصابات الرياضية", degreeEn: "Consultant Orthopedic Surgeon", specialtyAr: "جراحة العظام والمفاصل", specialtyEn: "Orthopedics", image: "/images/doctors/dr-omar.jpg", rating: 4.89, experience: 15, facility: "مستشفى نبض لجراحة العظام" },
-  };
-
   let doctor = null;
   try {
     const response = await getPublicDoctor(doctorId);
@@ -55,18 +46,8 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
     }
   } catch {}
 
-  const fallback = fallbackDoctorsMap[doctorId] || fallbackDoctorsMap["dr-sarah"];
-  const isAr = locale === "ar";
   if (!doctor) {
-    doctor = {
-      id: doctorId,
-      name: isAr ? fallback.nameAr : fallback.nameEn,
-      degree: isAr ? fallback.degreeAr : fallback.degreeEn,
-      specialty: isAr ? fallback.specialtyAr : fallback.specialtyEn,
-      rating: fallback.rating,
-      experienceYears: fallback.experience,
-      facility: fallback.facility,
-    };
+    notFound();
   }
 
   let slots: DoctorSlots | null = null;
