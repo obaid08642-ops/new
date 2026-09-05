@@ -13,8 +13,10 @@ import {
   ShieldCheck, 
   CreditCard, 
   X,
-  Sparkles
+  Sparkles,
+  FileCheck2
 } from "lucide-react";
+import { SAUDI_INSURANCE_COMPANIES } from "@/lib/data/insurance-companies";
 import styles from "./service-booking-modal.module.css";
 
 type Props = {
@@ -44,10 +46,20 @@ export function ServiceBookingModal({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"mada" | "apple_pay" | "cash">("mada");
+  const [paymentMethod, setPaymentMethod] = useState<"mada" | "apple_pay" | "cash" | "insurance">("mada");
+  
+  // Insurance state
+  const [insuranceCompany, setInsuranceCompany] = useState("bupa");
+  const [policyNumber, setPolicyNumber] = useState("");
+  const [nationalId, setNationalId] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedData, setConfirmedData] = useState<any | null>(null);
   const [error, setError] = useState("");
+
+  const selectedInsCompany = SAUDI_INSURANCE_COMPANIES.find(c => c.id === insuranceCompany) || SAUDI_INSURANCE_COMPANIES[0];
+  const patientCoPay = Math.min(servicePrice * selectedInsCompany.defaultCoPay, selectedInsCompany.maxCoPaySar);
+  const insuranceCovered = servicePrice - patientCoPay;
 
   const defaultBtnText = buttonLabel || (isAr ? "احجز الخدمة الآن" : "Book Service Now");
 
@@ -66,6 +78,17 @@ export function ServiceBookingModal({
       return;
     }
 
+    if (paymentMethod === "insurance") {
+      if (!policyNumber.trim()) {
+        setError(isAr ? "يرجى إدخال رقم بطاقة التأمين" : "Please enter insurance policy number");
+        return;
+      }
+      if (!nationalId.trim() || nationalId.trim().length < 10) {
+        setError(isAr ? "يرجى إدخال رقم الهوية أو الإقامة (10 أرقام)" : "Please enter 10-digit National ID");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setError("");
 
@@ -81,7 +104,14 @@ export function ServiceBookingModal({
         phone,
         visitType: visitType === "home" ? (isAr ? "زيارة منزلية" : "Home Visit") : (isAr ? "في المركز الطبي" : "Clinic Visit"),
         address: address || (isAr ? "مركز نبض الطبي - الرياض" : "Nabd Medical Center"),
-        price: servicePrice,
+        price: paymentMethod === "insurance" ? patientCoPay : servicePrice,
+        paymentMethod,
+        insuranceDetails: paymentMethod === "insurance" ? {
+          company: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
+          policyNumber,
+          covered: insuranceCovered,
+          copay: patientCoPay
+        } : null
       });
       setIsSubmitting(false);
     }, 900);
@@ -99,53 +129,66 @@ export function ServiceBookingModal({
         onClick={() => setIsOpen(true)}
         className={styles.triggerBtn}
       >
-        <Sparkles size={18} />
         <span>{defaultBtnText}</span>
       </button>
 
       {isOpen && (
-        <div className={styles.modalBackdrop} onClick={close}>
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <button type="button" className={styles.closeBtn} onClick={close} aria-label="Close">
+        <div className={styles.backdrop} onClick={close}>
+          <div 
+            className={styles.modal} 
+            onClick={(e) => e.stopPropagation()}
+            dir={isAr ? "rtl" : "ltr"}
+          >
+            <button type="button" onClick={close} className={styles.closeBtn} aria-label="Close modal">
               <X size={20} />
             </button>
 
             {confirmedData ? (
-              <div className={styles.successState}>
+              <div className={styles.confirmedBox}>
                 <div className={styles.successIcon}>
                   <CheckCircle2 size={54} color="#00876F" />
                 </div>
-                <div className={styles.confirmedBadge}>
-                  <ShieldCheck size={16} />
-                  <span>{isAr ? "تم تأكيد الحجز بنجاح" : "Booking Confirmed"}</span>
-                </div>
-                <h2>{isAr ? "تم استلام طلب حجزك بنجاح" : "Your booking is confirmed"}</h2>
-                <p className={styles.confirmSub}>
-                  {isAr 
-                    ? `رقم الحجز المرجعي الخاص بك هو #${confirmedData.ref}. ستصلك رسالة تأكيد عبر الجوال.`
-                    : `Booking reference #${confirmedData.ref}. You will receive an SMS confirmation.`}
+                <h2>{isAr ? "تم تأكيد موعدك بنجاح!" : "Booking Confirmed!"}</h2>
+                <p className={styles.refCode}>
+                  {isAr ? "رقم مرجع الحجز:" : "Booking Reference:"} <strong>#{confirmedData.ref}</strong>
                 </p>
 
-                <div className={styles.confirmReceipt}>
+                <div className={styles.receipt}>
                   <div className={styles.receiptRow}>
-                    <span>{isAr ? "الخدمة المحجوزة" : "Service"}</span>
+                    <span>{isAr ? "الخدمة المطلوبة:" : "Service:"}</span>
                     <strong>{confirmedData.serviceName}</strong>
                   </div>
                   <div className={styles.receiptRow}>
-                    <span>{isAr ? "نوع الزيارة" : "Visit Type"}</span>
-                    <span>{confirmedData.visitType}</span>
-                  </div>
-                  <div className={styles.receiptRow}>
-                    <span>{isAr ? "الموعد المحدد" : "Scheduled Time"}</span>
-                    <span>{confirmedData.date} ({confirmedData.slot})</span>
-                  </div>
-                  <div className={styles.receiptRow}>
-                    <span>{isAr ? "اسم المريض" : "Patient"}</span>
+                    <span>{isAr ? "المريض:" : "Patient:"}</span>
                     <span>{confirmedData.name} ({confirmedData.phone})</span>
                   </div>
+                  <div className={styles.receiptRow}>
+                    <span>{isAr ? "الموعد:" : "Schedule:"}</span>
+                    <span>{confirmedData.date} | {confirmedData.slot}</span>
+                  </div>
+                  <div className={styles.receiptRow}>
+                    <span>{isAr ? "نوع ومكان الزيارة:" : "Location:"}</span>
+                    <span>{confirmedData.visitType} - {confirmedData.address}</span>
+                  </div>
+
+                  {confirmedData.insuranceDetails && (
+                    <div style={{ background: "rgba(0, 135, 111, 0.06)", padding: "10px", borderRadius: "8px", margin: "8px 0" }}>
+                      <div className={styles.receiptRow} style={{ color: "#00876F", fontWeight: "bold" }}>
+                        <span>{isAr ? "تغطية التأمين:" : "Insurance:"}</span>
+                        <span>{confirmedData.insuranceDetails.company} (معتمدة ✓)</span>
+                      </div>
+                      <div className={styles.receiptRow} style={{ fontSize: "0.85rem" }}>
+                        <span>{isAr ? "تحمل المريض (Co-pay):" : "Patient Co-pay:"}</span>
+                        <strong>{confirmedData.insuranceDetails.copay.toFixed(2)} {isAr ? "ر.س" : "SAR"}</strong>
+                      </div>
+                    </div>
+                  )}
+
                   <div className={styles.receiptRowTotal}>
-                    <span>{isAr ? "المبلغ المستحق" : "Total Amount"}</span>
-                    <strong>{confirmedData.price} {isAr ? "ر.س" : "SAR"}</strong>
+                    <span>{isAr ? "المبلغ المطلوب سداده:" : "Amount to Pay:"}</span>
+                    <strong style={{ color: "#00876F", fontSize: "1.2rem" }}>
+                      {confirmedData.price.toFixed(2)} {isAr ? "ر.س" : "SAR"}
+                    </strong>
                   </div>
                 </div>
 
@@ -258,10 +301,11 @@ export function ServiceBookingModal({
                   )}
                 </div>
 
+                {/* Payment & Insurance Selector */}
                 <div className={styles.paymentSelect}>
                   <label className={styles.paymentLabel}>
                     <CreditCard size={16} />
-                    <span>{isAr ? "طريقة الدفع" : "Payment Method"}</span>
+                    <span>{isAr ? "طريقة الدفع والتغطية" : "Payment & Coverage"}</span>
                   </label>
                   <div className={styles.paymentPills}>
                     <button
@@ -269,7 +313,7 @@ export function ServiceBookingModal({
                       className={`${styles.paymentPill} ${paymentMethod === "mada" ? styles.paymentPillActive : ""}`}
                       onClick={() => setPaymentMethod("mada")}
                     >
-                      <span>{isAr ? "بطاقة مدى / فيزا" : "Mada / Visa"}</span>
+                      <span>{isAr ? "مدى / بطاقة" : "Mada / Card"}</span>
                     </button>
                     <button
                       type="button"
@@ -280,19 +324,91 @@ export function ServiceBookingModal({
                     </button>
                     <button
                       type="button"
+                      className={`${styles.paymentPill} ${paymentMethod === "insurance" ? styles.paymentPillActive : ""}`}
+                      onClick={() => setPaymentMethod("insurance")}
+                    >
+                      <span style={{ fontWeight: "bold" }}>{isAr ? "تأمين طبي" : "Insurance"}</span>
+                    </button>
+                    <button
+                      type="button"
                       className={`${styles.paymentPill} ${paymentMethod === "cash" ? styles.paymentPillActive : ""}`}
                       onClick={() => setPaymentMethod("cash")}
                     >
-                      <span>{isAr ? "الدفع عند الزيارة" : "Pay at Visit"}</span>
+                      <span>{isAr ? "عند الزيارة" : "At Visit"}</span>
                     </button>
                   </div>
                 </div>
+
+                {/* Insurance Details Form inside Modal */}
+                {paymentMethod === "insurance" && (
+                  <div style={{ padding: "12px", background: "rgba(0, 135, 111, 0.05)", borderRadius: "10px", border: "1px solid rgba(0, 135, 111, 0.18)", marginTop: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px", color: "#00876F" }}>
+                      <FileCheck2 size={16} />
+                      <strong style={{ fontSize: "0.9rem" }}>{isAr ? "بيانات وثيقة التأمين" : "Insurance Policy"}</strong>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                      <div>
+                        <label style={{ fontSize: "0.78rem", fontWeight: "bold", color: "#475569" }}>
+                          {isAr ? "شركة التأمين" : "Company"}
+                        </label>
+                        <select 
+                          value={insuranceCompany} 
+                          onChange={(e) => setInsuranceCompany(e.target.value)}
+                          style={{ width: "100%", padding: "8px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                        >
+                          {SAUDI_INSURANCE_COMPANIES.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {isAr ? c.nameAr : c.nameEn}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: "0.78rem", fontWeight: "bold", color: "#475569" }}>
+                          {isAr ? "رقم بطاقة التأمين" : "Policy Number"}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. 1048291"
+                          value={policyNumber}
+                          onChange={(e) => setPolicyNumber(e.target.value)}
+                          style={{ width: "100%", padding: "8px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                        />
+                      </div>
+
+                      <div style={{ gridColumn: "1 / -1" }}>
+                        <label style={{ fontSize: "0.78rem", fontWeight: "bold", color: "#475569" }}>
+                          {isAr ? "رقم الهوية الوطنية / الإقامة" : "National ID / Iqama"}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={10}
+                          placeholder="10XXXXXXXX"
+                          value={nationalId}
+                          onChange={(e) => setNationalId(e.target.value)}
+                          style={{ width: "100%", padding: "8px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "0.85rem" }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: "8px", display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "#00876F", fontWeight: "bold" }}>
+                      <span>{isAr ? `تغطية التأمين: ${insuranceCovered.toFixed(2)} ر.س` : `Covered: ${insuranceCovered.toFixed(2)} SAR`}</span>
+                      <span style={{ color: "#B45309" }}>{isAr ? `مبلغ التحمل: ${patientCoPay.toFixed(2)} ر.س` : `Co-pay: ${patientCoPay.toFixed(2)} SAR`}</span>
+                    </div>
+                  </div>
+                )}
 
                 {error && <p className={styles.errorText}>{error}</p>}
 
                 <button type="submit" disabled={isSubmitting} className={styles.confirmBtn}>
                   {isSubmitting 
                     ? (isAr ? "جارٍ تأكيد الحجز…" : "Confirming…")
+                    : paymentMethod === "insurance"
+                    ? (isAr ? `تأكيد الحجز بموافقة التأمين (${patientCoPay.toFixed(2)} ر.س)` : `Confirm Booking with Insurance (${patientCoPay.toFixed(2)} SAR)`)
                     : (isAr ? `تأكيد حجز الموعد (${servicePrice} ر.س)` : `Confirm Booking (${servicePrice} SAR)`)}
                 </button>
               </form>
