@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
   const privateTreeFamilies = [
     "login", "register", "forgot-password", "password-reset", "otp",
     "dashboard", "orders", "appointments", "chat", "notifications", "health",
-    "prescriptions", "reminders", "profile", "wishlist", "wallet", "reports",
+    "prescriptions", "reminders", "profile", "medicines", "wishlist", "wallet", "reports",
     "programs", "returns", "support", "family", "community", "offers",
     "emergency", "cart", "settings", "home-care", "insurance",
   ];
@@ -19,15 +19,11 @@ export default function robots(): MetadataRoute.Robots {
     "/consultations/share-report",
     "/consultations/video-call",
   ];
-  // Public children below the auth-gated /diagnostics index must stay crawlable.
-  const publicExplicitAllows = locales.flatMap((locale) =>
-    ["/diagnostics/labs", "/diagnostics/radiology", "/diagnostics/packages"].map((path) => `/${locale}${path}`),
-  );
 
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", ...publicExplicitAllows],
+      allow: "/",
       disallow: [
         "/api/",
         ...locales.flatMap((locale) => [

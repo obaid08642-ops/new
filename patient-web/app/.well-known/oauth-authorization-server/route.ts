@@ -15,11 +15,18 @@ const doc = {
   token_endpoint_auth_methods_supported: ["none"],
   service_documentation: `${origin}/auth.md`,
   agent_auth: {
+    skill: `${origin}/auth.md`,
     register_uri: `${origin}/api/auth/register`,
-    supported_identity_types: ["email", "phone"],
-    supported_credential_types: ["session_cookie", "otp"],
+    claim_uri: `${origin}/api/auth/otp/request`,
+    supported_identity_types: ["email", "phone", "anonymous"],
+    supported_credential_types: ["session_cookie", "bearer_token", "otp"],
+    identity_types_supported: ["email", "phone", "anonymous"],
+    anonymous: {
+      credential_types_supported: ["session_cookie", "anonymous_token"],
+      claim_uri: `${origin}/api/auth/guest`
+    }
   },
-  scopes_supported: ["patient"],
+  scopes_supported: ["patient", "public", "catalog:read"],
 } as const;
 
 export function GET() {

@@ -5,15 +5,12 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { cookies } from "next/headers";
 import { LocaleSelector } from "@/components-next/locale-selector";
-import { ThemeToggle } from "@/components-next/theme-toggle";
 import { SessionActions } from "@/components-next/session-actions";
-import { HeaderCartBadge } from "@/components-next/header-cart-badge";
 import { PulseShieldMark } from "@/components-next/pulse-shield-mark";
-import { MobileBottomNav } from "@/components-next/mobile-bottom-nav";
 import { ShieldCheck } from "lucide-react";
 import { authCookieNames } from "@/lib/auth/cookies";
-import { CartProvider } from "@/lib/context/CartContext";
 import { getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
+import { WebMcpProvider } from "@/components-next/web-mcp-provider";
 
 type Props = Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>;
 
@@ -32,6 +29,11 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       },
     },
     robots: { index: false, follow: false },
+    other: {
+      "ai-catalog": "/.well-known/ai-catalog.json",
+      "a2a-agent-card": "/.well-known/agent-card.json",
+      "mcp-server-card": "/.well-known/mcp/server-card.json",
+    },
   };
 }
 
@@ -46,46 +48,33 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <CartProvider>
-        <div className="shell" lang={typedLocale} dir={getDirection(typedLocale)}>
-          <div className="dev-notice" role="alert">
-            <span className="dev-notice-badge">BETA</span>
-            <span>{t("devNotice")}</span>
-          </div>
-          <header className="topbar">
-            <Link className="brand" href={`/${typedLocale}`}>
-              <span className="brand-mark">
-                <PulseShieldMark decorative />
-              </span>
-              <span className="brand-wordmark">{t("brand")}</span>
-            </Link>
-            <div className="nav-actions">
-              <LocaleSelector current={typedLocale} label={t("language")} />
-              <ThemeToggle />
-              <HeaderCartBadge locale={typedLocale} />
-              {hasAccessToken ? (
-                <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
-              ) : (
-                <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
-                  <ShieldCheck size={16} aria-hidden="true" />
-                  <span>{t("patientSignIn")}</span>
-                </Link>
-              )}
-            </div>
-          </header>
-          {children}
-          <MobileBottomNav
-            locale={typedLocale}
-            labels={{
-              home: t("navHome"),
-              doctors: t("navDoctors"),
-              pharmacy: t("navPharmacy"),
-              diagnostics: t("navDiagnostics"),
-              nursing: t("navNursing"),
-            }}
-          />
+      <WebMcpProvider locale={typedLocale} />
+      <div className="shell" lang={typedLocale} dir={getDirection(typedLocale)}>
+        <div className="dev-notice" role="alert">
+          <span className="dev-notice-badge">BETA</span>
+          <span>{t("devNotice")}</span>
         </div>
-      </CartProvider>
+        <header className="topbar">
+          <Link className="brand" href={`/${typedLocale}`}>
+            <span className="brand-mark">
+              <PulseShieldMark decorative />
+            </span>
+            <span className="brand-wordmark">{t("brand")}</span>
+          </Link>
+          <div className="nav-actions">
+            <LocaleSelector current={typedLocale} label={t("language")} />
+            {hasAccessToken ? (
+              <SessionActions locale={typedLocale} accountLabel={t("account")} signOutLabel={t("signOut")} />
+            ) : (
+              <Link className="button button-primary header-login" href={`/${typedLocale}/login`}>
+                <ShieldCheck size={16} aria-hidden="true" />
+                <span>{t("patientSignIn")}</span>
+              </Link>
+            )}
+          </div>
+        </header>
+        {children}
+      </div>
     </NextIntlClientProvider>
   );
 }
