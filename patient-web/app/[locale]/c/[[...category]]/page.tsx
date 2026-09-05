@@ -322,29 +322,35 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           ) : null}
         </div>
 
-        {!data || data.items.length === 0 ? (
-          <div className={styles.empty}>
-            <Pill size={36} color="#64748B" style={{ margin: "0 auto 10px", display: "block" }} />
-            <p>
-              {locale === "ar"
-                ? "لا توجد أدوية متطابقة في هذه الفئة حالياً."
-                : "No medicines found in this category."}
-            </p>
-            <Link
-              href={`/${locale}/c`}
-              className={styles.searchButton}
-              style={{ display: "inline-block", marginTop: 12, textDecoration: "none" }}
-            >
-              {locale === "ar" ? "استعراض جميع الأدوية" : "Browse All Medicines"}
-            </Link>
-          </div>
-        ) : (
-          <div className={styles.gridCards} style={{ marginTop: 16 }}>
-            {data.items.map((it) => (
-              <Card key={it.id} locale={locale} item={it} />
-            ))}
-          </div>
-        )}
+        {(() => {
+          const productsList = data?.items || [];
+          if (productsList.length === 0) {
+            return (
+              <div className={styles.empty}>
+                <Pill size={36} color="#64748B" style={{ margin: "0 auto 10px", display: "block" }} />
+                <p>
+                  {locale === "ar"
+                    ? "لا توجد أدوية متطابقة في هذه الفئة حالياً."
+                    : "No medicines found in this category."}
+                </p>
+                <Link
+                  href={`/${locale}/c`}
+                  className={styles.searchButton}
+                  style={{ display: "inline-block", marginTop: 12, textDecoration: "none" }}
+                >
+                  {locale === "ar" ? "استعراض جميع الأدوية" : "Browse All Medicines"}
+                </Link>
+              </div>
+            );
+          }
+          return (
+            <div className={styles.gridCards} style={{ marginTop: 16 }}>
+              {productsList.map((it) => (
+                <Card key={it.id} locale={locale} item={it} />
+              ))}
+            </div>
+          );
+        })()}
 
         {pages > 1 ? (
           <nav className={styles.pager} aria-label="pagination">
