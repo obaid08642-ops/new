@@ -438,8 +438,12 @@ export class SeoSearchService {
   async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
-    const filter: any = { ...this.publicProductFilter(), [key('category')]: decodeURIComponent(category) };
-    if (sub) filter[key('sub_category')] = decodeURIComponent(sub);
+    const filter: any = { ...this.publicProductFilter() };
+    const decodedCat = category ? decodeURIComponent(category) : 'all';
+    if (decodedCat && decodedCat !== 'all' && decodedCat !== 'الكل') {
+      filter[key('category')] = decodedCat;
+      if (sub) filter[key('sub_category')] = decodeURIComponent(sub);
+    }
     const perPage = Math.min(Math.max(limit, 1), 48);
     const cursor = this.conn.collection('medicines_master')
       .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
@@ -448,7 +452,7 @@ export class SeoSearchService {
       .limit(perPage);
     const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
     return {
-      locale, category: decodeURIComponent(category), sub_category: sub ? decodeURIComponent(sub) : null,
+      locale, category: decodedCat, sub_category: sub ? decodeURIComponent(sub) : null,
       page: Math.max(page, 1), limit: perPage, total,
       items: rows.map((m: any) => {
         const dto = resolveMedicinePublicDto(m, locale);
@@ -807,8 +811,8 @@ export class SeoSearchController {
     @Query('limit') limit?: string,
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
-    if (!category) throw new NotFoundException('category_required');
-    return this.svc.publicCategoryProducts(locale, category, sub, parseInt(page || '1'), parseInt(limit || '24'));
+    const cat = category || 'all';
+    return this.svc.publicCategoryProducts(locale, cat, sub, parseInt(page || '1'), parseInt(limit || '24'));
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */

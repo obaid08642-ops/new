@@ -81,7 +81,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               doctors: t("navDoctors"),
               pharmacy: t("navPharmacy"),
               diagnostics: t("navDiagnostics"),
-              account: t("account"),
+              nursing: t("navNursing"),
             }}
           />
         </div>

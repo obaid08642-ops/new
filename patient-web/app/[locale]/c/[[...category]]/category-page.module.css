@@ -4,41 +4,331 @@
   padding: 1.5rem 0 5rem;
 }
 
-.catHeader {
-  background: linear-gradient(135deg, #16213A 0%, #00876F 100%);
-  border-radius: 24px;
-  padding: 32px 28px;
-  color: #FFFFFF;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 10px 28px rgba(22, 33, 58, 0.12);
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem 0 5rem;
 }
 
-.catBadge {
+/* Search Bar */
+.searchBarWrap {
+  width: 100%;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 16px;
+  padding: 8px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+:global(.dark) .searchBar {
+  background: #132235;
+  border-color: #2D3E56;
+}
+
+.searchBar:focus-within {
+  border-color: #00E599;
+  box-shadow: 0 0 0 3px rgba(0, 229, 153, 0.15);
+}
+
+.searchIcon {
+  color: #64748B;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: #0F172A;
+}
+
+:global(.dark) .searchInput {
+  color: #F8FAFC;
+}
+
+.searchInput::placeholder {
+  color: #94A3B8;
+}
+
+.searchButton {
+  background: #00E599;
+  color: #0B1527;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.searchButton:hover {
+  background: #00c985;
+}
+
+/* Luxury Branded Pharmacy Hero Banner */
+.pharmacyHero {
+  background: linear-gradient(135deg, #0B1527 0%, #11223E 50%, #063931 100%);
+  border: 1px solid rgba(0, 229, 153, 0.25);
+  border-radius: 24px;
+  padding: 28px 24px;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 12px 32px rgba(11, 21, 39, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.pharmacyHero::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 153, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1;
+  max-width: 650px;
+}
+
+.heroBadge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(184, 224, 48, 0.2);
-  color: #B8E030;
-  border: 1px solid rgba(184, 224, 48, 0.3);
-  padding: 5px 12px;
+  background: rgba(0, 229, 153, 0.15);
+  color: #00E599;
+  border: 1px solid rgba(0, 229, 153, 0.35);
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
-  margin-bottom: 12px;
+  width: fit-content;
 }
 
-.catHeroTitle h1 {
+.heroTitle {
   color: #FFFFFF;
-  font-size: clamp(22px, 3.5vw, 32px);
+  font-size: clamp(20px, 3.2vw, 28px);
   font-weight: 900;
-  margin: 0 0 8px;
+  margin: 0;
+  line-height: 1.3;
 }
 
-.catSubtext {
-  color: #E2E8F0;
-  font-size: 14.5px;
+.heroSubtext {
+  color: #CBD5E1;
+  font-size: 14px;
+  line-height: 1.5;
   margin: 0;
-  max-width: 600px;
+}
+
+.heroPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.heroPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #F1F5F9;
+}
+
+.heroVectorWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Category Horizontal Rail */
+.railSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.railHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.railTitle {
+  font-size: 17px;
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0;
+}
+
+:global(.dark) .railTitle {
+  color: #F8FAFC;
+}
+
+.railSubtitle {
+  font-size: 12.5px;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.categoryRail {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 4px 2px 12px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categoryRail::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryCard {
+  flex: 0 0 135px;
+  min-height: 135px;
+  border-radius: 18px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  text-decoration: none;
+  border: 1.5px solid #E2E8F0;
+  background: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+:global(.dark) .categoryCard {
+  background: #132235;
+  border-color: #22374E;
+}
+
+.categoryCard:hover {
+  transform: translateY(-2px);
+  border-color: #00E599;
+  box-shadow: 0 6px 16px rgba(0, 229, 153, 0.12);
+}
+
+.categoryCardActive {
+  border-color: #00E599 !important;
+  background: rgba(0, 229, 153, 0.08) !important;
+  box-shadow: 0 6px 20px rgba(0, 229, 153, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+:global(.dark) .categoryCardActive {
+  background: rgba(0, 229, 153, 0.12) !important;
+}
+
+.catCardIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.catCardTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.3;
+}
+
+:global(.dark) .catCardTitle {
+  color: #F8FAFC;
+}
+
+.categoryCardActive .catCardTitle {
+  color: #00876F;
+}
+
+:global(.dark) .categoryCardActive .catCardTitle {
+  color: #00E599;
+}
+
+.catCardCount {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+/* Products Section */
+.productsSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+:global(.dark) .productsSectionHeader {
+  border-bottom-color: #22374E;
+}
+
+.sectionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 19px;
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0;
+}
+
+:global(.dark) .sectionTitle {
+  color: #F8FAFC;
+}
+
+.sectionBadge {
+  background: #E2E8F0;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+:global(.dark) .sectionBadge {
+  background: #22374E;
+  color: #94A3B8;
 }
 
 .categoryGrid {

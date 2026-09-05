@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Stethoscope, Pill, TestTube2, User } from "lucide-react";
+import { Home, Stethoscope, Pill, TestTube2, HeartHandshake } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import styles from "./mobile-bottom-nav.module.css";
 
@@ -11,7 +11,7 @@ export interface MobileBottomNavLabels {
   doctors: string;
   pharmacy: string;
   diagnostics: string;
-  account: string;
+  nursing: string;
 }
 
 export function MobileBottomNav({
@@ -53,15 +53,13 @@ export function MobileBottomNav({
       isActive: pathname.startsWith(`/${locale}/diagnostics`) || pathname.startsWith(`/${locale}/labs`) || pathname.startsWith(`/${locale}/radiology`),
     },
     {
-      key: "account",
-      label: labels.account,
-      href: `/${locale}/dashboard`,
-      icon: User,
+      key: "nursing",
+      label: labels.nursing,
+      href: `/${locale}/home-care`,
+      icon: HeartHandshake,
       isActive:
-        pathname.startsWith(`/${locale}/dashboard`) ||
-        pathname.startsWith(`/${locale}/profile`) ||
-        pathname.startsWith(`/${locale}/appointments`) ||
-        pathname.startsWith(`/${locale}/orders`),
+        pathname.startsWith(`/${locale}/home-care`) ||
+        pathname.startsWith(`/${locale}/nursing`),
     },
   ];
 

@@ -160,12 +160,13 @@ export type CategoryItems = {
 
 export async function getPublicCategoryProducts(
   locale: Locale,
-  category: string,
+  category: string | undefined,
   sub: string | undefined,
   page: number
 ): Promise<CategoryItems | null> {
-  if (!isLocale(locale) || !category.trim()) return null;
-  const params = new URLSearchParams({ category, page: String(page) });
+  if (!isLocale(locale)) return null;
+  const catParam = category && category.trim() ? category : "all";
+  const params = new URLSearchParams({ category: catParam, page: String(page) });
   if (sub) params.set("sub", sub);
   const data = await getJson<CategoryItems>(`/public/categories/${locale}/items?${params.toString()}`);
   if (!data) return null;

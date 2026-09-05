@@ -5,15 +5,34 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicCategories, getPublicCategoryProducts, type PublicProductCard } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { QuickAddCartBtn } from "@/components-next/quick-add-cart-btn";
-import { isLocale, locales } from "@/lib/i18n";
+import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import { ChevronLeft, Sparkles, HeartPulse, ShieldAlert, Stethoscope, Pill } from "lucide-react";
-import { VectorPharmacy } from "@/components-next/vector-illustrations";
+import {
+  ChevronLeft,
+  Sparkles,
+  Search,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  Pill,
+} from "lucide-react";
+import {
+  VectorPharmacy,
+  VectorCatAll,
+  VectorCatHairCare,
+  VectorCatCosmetics,
+  VectorCatSkinCare,
+  VectorCatBabyCare,
+  VectorCatVitamins,
+  VectorCatPersonalCare,
+  VectorRadiology,
+  VectorEmergency,
+} from "@/components-next/vector-illustrations";
 import styles from "./category-page.module.css";
 
 type Props = {
   params: Promise<{ locale: string; category?: string[] }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 };
 
 function parsePage(raw?: string) {
@@ -51,14 +70,38 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
+function renderProductMedia(item: PublicProductCard) {
+  const cdn = cdnImage(item.image);
+  if (cdn) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={cdn}
+        alt={item.name || ""}
+        width={140}
+        height={140}
+        loading="lazy"
+        decoding="async"
+        style={{ objectFit: "contain" }}
+      />
+    );
+  }
+  const n = ((item.name || "") + " " + (item.slug || "")).toLowerCase();
+  if (n.includes("شعر") || n.includes("hair") || n.includes("شامبو")) return <VectorCatHairCare size={64} />;
+  if (n.includes("مكياج") || n.includes("تجميل") || n.includes("cosmetic") || n.includes("روج")) return <VectorCatCosmetics size={64} />;
+  if (n.includes("بشرة") || n.includes("skin") || n.includes("سيروم") || n.includes("كريم")) return <VectorCatSkinCare size={64} />;
+  if (n.includes("طفل") || n.includes("baby") || n.includes("حليب") || n.includes("حفاض")) return <VectorCatBabyCare size={64} />;
+  if (n.includes("فيتامين") || n.includes("vitamin") || n.includes("أوميغا") || n.includes("زنك")) return <VectorCatVitamins size={64} />;
+  if (n.includes("معجون") || n.includes("نظافة") || n.includes("شخصية") || n.includes("غسول")) return <VectorCatPersonalCare size={64} />;
+  return <VectorPharmacy size={64} />;
+}
+
 function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
-  const src = cdnImage(item.image) || "/images/categories/medications.jpg";
   return (
     <div className={styles.card}>
       <Link href={`/${locale}/p/${encodeURIComponent(item.slug)}`} className={styles.cardMediaWrap}>
         <span className={styles.cardMedia}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={item.name || ""} width={140} height={140} loading="lazy" decoding="async" style={{ objectFit: "contain" }} />
+          {renderProductMedia(item)}
         </span>
       </Link>
       <div className={styles.cardBody}>
@@ -79,7 +122,7 @@ function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
             id: item.id,
             name: item.name || "",
             price: item.price,
-            image: src ?? undefined,
+            image: cdnImage(item.image) ?? undefined,
             form: item.form,
             strength: item.strength,
             slug: item.slug,
@@ -97,158 +140,225 @@ function Card({ locale, item }: { locale: string; item: PublicProductCard }) {
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { locale, category } = await params;
   if (!isLocale(locale)) notFound();
-  setRequestLocale(locale);
+  const typedLocale = locale as Locale;
+  setRequestLocale(typedLocale);
   const t = await getTranslations("PublicProduct");
   const decoded = (category || []).map((c) => decodeURIComponent(c));
   if (decoded.length > 2) notFound();
-  const page = parsePage((await searchParams).page);
+  const sParams = await searchParams;
+  const page = parsePage(sParams.page);
   const [main, sub] = decoded;
 
-  // Category index (/c): tree of clusters with live counts.
-  if (!main) {
-    const tree = await getPublicCategories(locale);
-    const jsonLd = {
-      "@context": "https://schema.org", "@type": "CollectionPage",
-      name: t("products"), url: localizedUrl(locale, "/c"), inLanguage: locale,
+  const [tree, data] = await Promise.all([
+    getPublicCategories(typedLocale),
+    getPublicCategoryProducts(typedLocale, main || "all", sub, page),
+  ]);
+
+  const isAll = !main || main === "all" || main === "الكل";
+  const heading = isAll
+    ? locale === "ar"
+      ? "جميع الأدوية والمنتجات الصحية"
+      : "All Medicines & Health Products"
+    : sub || main;
+  const totalProducts = data?.total ?? 0;
+  const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
+  const basePath = isAll
+    ? `/${locale}/c`
+    : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
+
+  const CANONICAL_CATEGORIES = [
+    { id: "all", name: locale === "ar" ? "الكل" : "All", slug: "all", icon: <VectorCatAll size={44} />, matchKey: "all" },
+    { id: "medications", name: locale === "ar" ? "أدوية وعلاجات" : "Medicines", slug: "أدوية وعلاجات", icon: <VectorPharmacy size={44} />, matchKey: "medications" },
+    { id: "hair-care", name: locale === "ar" ? "عناية بالشعر" : "Hair Care", slug: "عناية بالشعر", icon: <VectorCatHairCare size={44} />, matchKey: "hair" },
+    { id: "cosmetics", name: locale === "ar" ? "مكياج وإكسسوارات" : "Makeup & Beauty", slug: "مكياج وإكسسوارات", icon: <VectorCatCosmetics size={44} />, matchKey: "cosmetic" },
+    { id: "skincare", name: locale === "ar" ? "العناية بالبشرة" : "Skin Care", slug: "العناية بالبشرة", icon: <VectorCatSkinCare size={44} />, matchKey: "skin" },
+    { id: "baby", name: locale === "ar" ? "الأم والطفل" : "Mother & Baby", slug: "الأم والطفل", icon: <VectorCatBabyCare size={44} />, matchKey: "baby" },
+    { id: "vitamins", name: locale === "ar" ? "فيتامينات ومكملات" : "Vitamins", slug: "فيتامينات ومكملات", icon: <VectorCatVitamins size={44} />, matchKey: "vitamin" },
+    { id: "personal-care", name: locale === "ar" ? "عناية شخصية" : "Personal Care", slug: "عناية شخصية", icon: <VectorCatPersonalCare size={44} />, matchKey: "personal" },
+  ];
+
+  const categoriesList = CANONICAL_CATEGORIES.map((c) => {
+    const isCatActive = Boolean(c.id === "all" ? isAll : (main === c.slug || main === c.id || (main && main.toLowerCase().includes(c.matchKey))));
+    const catCount = c.id === "all" ? totalProducts : (tree?.categories.find((tc) => tc.name.includes(c.name) || tc.name.includes(c.matchKey))?.count ?? 0);
+    return {
+      id: c.id,
+      name: c.name,
+      link: c.id === "all" ? `/${locale}/c` : `/${locale}/c/${encodeURIComponent(c.slug)}`,
+      icon: c.icon,
+      isActive: isCatActive,
+      count: catCount,
     };
-    return (
-      <main className={`main ${styles.page}`}>
-        <JsonLd data={jsonLd} />
-        
-        {/* Horizontal Category Hero & Rail */}
-        <header className={styles.catHeader}>
-          <div className={styles.catHeroTitle}>
-            <div className={styles.catBadge}>
-              <Sparkles size={16} />
-              <span>صيدلية نبض المعتمدة</span>
-            </div>
-            <h1 className={styles.h1}>{t("allCategories")}</h1>
-            <p className={styles.catSubtext}>تصفح جميع الأدوية والمستلزمات الطبية المعتمدة بأسعار رسمية وتوصيل فوري</p>
-          </div>
-        </header>
+  });
 
-        {/* Categories Rail Grid */}
-        <div className={styles.categoryGrid}>
-          {(tree?.categories || []).map((c) => (
-            <div key={c.name} className={styles.categoryTile}>
-              <Link href={`/${locale}/c/${encodeURIComponent(c.name)}`} className={styles.tileHeader}>
-                <div className={styles.tileIconWrap} style={{ width: 52, height: 52, borderRadius: 14, overflow: "hidden", border: "2px solid #5FD9B3", flexShrink: 0 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={
-                      c.name.includes("فيتامين") ? "/images/categories/vitamins.jpg" :
-                      c.name.includes("بشرة") || c.name.includes("تجميل") ? "/images/categories/skincare.jpg" :
-                      c.name.includes("طفل") || c.name.includes("أم") ? "/images/categories/babycare.jpg" :
-                      c.name.includes("جهاز") || c.name.includes("أجهزة") ? "/images/categories/devices.jpg" :
-                      c.name.includes("إسعاف") ? "/images/categories/firstaid.jpg" :
-                      "/images/categories/medications.jpg"
-                    } 
-                    alt={c.name} 
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                  />
-                </div>
-                <div className={styles.tileInfo}>
-                  <strong className={styles.tileName}>{c.name}</strong>
-                  <span className={styles.tileCount}>{c.count} منتج</span>
-                </div>
-              </Link>
-              {Object.keys(c.subs).length ? (
-                <div className={styles.subChips}>
-                  {Object.entries(c.subs).slice(0, 8).map(([s, n]) => (
-                    <Link
-                      key={s}
-                      href={`/${locale}/c/${encodeURIComponent(c.name)}/${encodeURIComponent(s)}`}
-                      className={styles.subChip}
-                    >
-                      <span>{s}</span>
-                      <span className={styles.chipCount}>({n})</span>
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </main>
-    );
-  }
-
-  const data = await getPublicCategoryProducts(locale, main, sub, page);
-  if (!data) notFound();
-  const heading = sub || main;
-  const basePath = `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
-  const pages = Math.max(Math.ceil(data.total / data.limit), 1);
-  const jsonLd: Array<Record<string, unknown>> = [
+  const jsonLd = [
     {
-      "@context": "https://schema.org", "@type": "CollectionPage",
-      name: heading, url: localizedUrl(locale, basePath.slice(`/${locale}`.length)), inLanguage: locale,
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: heading,
+      url: localizedUrl(locale, basePath.slice(`/${locale}`.length)),
+      inLanguage: locale,
       mainEntity: {
-        "@type": "ItemList", numberOfItems: data.total,
-        itemListElement: data.items.slice(0, 24).map((it, i) => ({
-          "@type": "ListItem", position: (page - 1) * data.limit + i + 1,
-          url: localizedUrl(locale, `/p/${encodeURIComponent(it.slug)}`), name: it.name || undefined,
+        "@type": "ItemList",
+        numberOfItems: totalProducts,
+        itemListElement: (data?.items || []).slice(0, 24).map((it, i) => ({
+          "@type": "ListItem",
+          position: (page - 1) * (data?.limit || 24) + i + 1,
+          url: localizedUrl(locale, `/p/${encodeURIComponent(it.slug)}`),
+          name: it.name || undefined,
         })),
       },
-    },
-    {
-      "@context": "https://schema.org", "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: t("home"), item: localizedUrl(locale) },
-        { "@type": "ListItem", position: 2, name: t("products"), item: localizedUrl(locale, "/c") },
-        ...(sub
-          ? [
-              { "@type": "ListItem", position: 3, name: main, item: localizedUrl(locale, `/c/${encodeURIComponent(main)}`) },
-              { "@type": "ListItem", position: 4, name: sub },
-            ]
-          : [{ "@type": "ListItem", position: 3, name: main }]),
-      ],
     },
   ];
 
   return (
     <main className={`main ${styles.page}`}>
       <JsonLd data={jsonLd} />
-      <nav className={styles.crumbs} aria-label="breadcrumb">
-        <Link href={`/${locale}/c`}>{t("allCategories")}</Link>
-        {sub ? (
-          <>
-            <span aria-hidden="true">/</span>
-            <Link href={`/${locale}/c/${encodeURIComponent(main)}`}>{main}</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{sub}</span>
-          </>
-        ) : (
-          <>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{main}</span>
-          </>
-        )}
-      </nav>
-      <header className={styles.header}>
-        <h1 className={styles.h1}>{heading}</h1>
-        <p className={styles.subline}>{t("productsInCategory").replace("{count}", String(data.total))}</p>
-      </header>
-      {data.items.length === 0 ? (
-        <p className={styles.empty}>{t("emptyCategory")}</p>
-      ) : (
-        <div className={styles.gridCards}>
-          {data.items.map((it) => (
-            <Card key={it.id} locale={locale} item={it} />
+
+      {/* Top Search Bar */}
+      <section className={styles.searchBarWrap}>
+        <form action={`/${locale}/c`} method="GET" className={styles.searchBar}>
+          <Search size={20} className={styles.searchIcon} aria-hidden="true" />
+          <input
+            type="search"
+            name="q"
+            defaultValue={sParams.q || ""}
+            placeholder={
+              locale === "ar"
+                ? "ابحث عن دواء أو منتج صحي بالاسم أو المادة الفعالة..."
+                : "Search medicines or active ingredients..."
+            }
+            className={styles.searchInput}
+            aria-label="Search medicines"
+          />
+          <button type="submit" className={styles.searchButton}>
+            {locale === "ar" ? "بحث" : "Search"}
+          </button>
+        </form>
+      </section>
+
+      {/* Branded Luxury Pharmacy Hero Banner */}
+      <section className={styles.pharmacyHero}>
+        <div className={styles.heroContent}>
+          <div className={styles.heroBadge}>
+            <Sparkles size={14} aria-hidden="true" />
+            <span>{locale === "ar" ? "صيدلية نبض المعتمدة" : "Nabd Verified Pharmacy"}</span>
+          </div>
+          <h1 className={styles.heroTitle}>
+            {locale === "ar"
+              ? "صيدلية رقمية متكاملة برعاية طبية فائقة"
+              : "Integrated Digital Pharmacy with Clinical Care"}
+          </h1>
+          <p className={styles.heroSubtext}>
+            {locale === "ar"
+              ? "تسوق آلاف الأدوية والمستلزمات الطبية الأصلية 100% بأسعار رسمية معتمدة مع خدمة التوصيل الفوري واستشارات صيدلانية متخصصة على مدار الساعة."
+              : "Order 100% genuine licensed medications with instant delivery and 24/7 pharmacist guidance."}
+          </p>
+          <div className={styles.heroPills}>
+            <span className={styles.heroPill}>
+              <ShieldCheck size={14} color="#00E599" aria-hidden="true" />
+              {locale === "ar" ? "أدوية مرخصة 100%" : "100% Genuine & Licensed"}
+            </span>
+            <span className={styles.heroPill}>
+              <Truck size={14} color="#00E599" aria-hidden="true" />
+              {locale === "ar" ? "توصيل فوري مبرد" : "Cold-Chain Fast Delivery"}
+            </span>
+            <span className={styles.heroPill}>
+              <RotateCcw size={14} color="#00E599" aria-hidden="true" />
+              {locale === "ar" ? "إرجاع واستبدال مرن" : "Flexible Returns"}
+            </span>
+          </div>
+        </div>
+        <div className={styles.heroVectorWrap}>
+          <VectorPharmacy size={80} />
+        </div>
+      </section>
+
+      {/* Category Horizontal Rail (مربعات وسطية تتسحب يمين وشمال) */}
+      <section className={styles.railSection}>
+        <div className={styles.railHeader}>
+          <h2 className={styles.railTitle}>
+            {locale === "ar" ? "تصفح حسب الفئة" : "Browse by Category"}
+          </h2>
+          <span className={styles.railSubtitle}>
+            {locale === "ar" ? "اسحب لاكتشاف كافة الأقسام" : "Swipe to explore categories"}
+          </span>
+        </div>
+        <div className={styles.categoryRail} role="tablist">
+          {categoriesList.map((cat) => (
+            <Link
+              key={cat.id}
+              href={cat.link}
+              className={`${styles.categoryCard} ${cat.isActive ? styles.categoryCardActive : ""}`}
+              role="tab"
+              aria-selected={cat.isActive}
+            >
+              <div className={styles.catCardIcon}>{cat.icon}</div>
+              <strong className={styles.catCardTitle}>{cat.name}</strong>
+              <span className={styles.catCardCount}>
+                {cat.count > 0 ? `${cat.count} ${locale === "ar" ? "منتج" : "items"}` : ""}
+              </span>
+            </Link>
           ))}
         </div>
-      )}
-      {pages > 1 ? (
-        <nav className={styles.pager} aria-label="pagination">
-          {page > 1 ? (
-            <Link href={`${basePath}?page=${page - 1}`}>
-              <ChevronLeft size={15} aria-hidden="true" />
-              {t("backToCatalog")}
-            </Link>
+      </section>
+
+      {/* Products Section DIRECTLY BELOW (مرصوص الأدوية على طول) */}
+      <section className={styles.productsSection}>
+        <div className={styles.productsSectionHeader}>
+          <div className={styles.sectionTitleGroup}>
+            <h2 className={styles.sectionTitle}>{heading}</h2>
+            <span className={styles.sectionBadge}>
+              {totalProducts} {locale === "ar" ? "منتج متاح" : "available"}
+            </span>
+          </div>
+          {sub ? (
+            <div className={styles.crumbs}>
+              <Link href={`/${locale}/c`}>{locale === "ar" ? "الكل" : "All"}</Link>
+              <span>/</span>
+              <Link href={`/${locale}/c/${encodeURIComponent(main)}`}>{main}</Link>
+              <span>/</span>
+              <span>{sub}</span>
+            </div>
           ) : null}
-          <span>{t("page").replace("{page}", `${page} / ${pages}`)}</span>
-          {page < pages ? <Link href={`${basePath}?page=${page + 1}`}>{t("loadMore")}</Link> : null}
-        </nav>
-      ) : null}
+        </div>
+
+        {!data || data.items.length === 0 ? (
+          <div className={styles.empty}>
+            <Pill size={36} color="#64748B" style={{ margin: "0 auto 10px", display: "block" }} />
+            <p>
+              {locale === "ar"
+                ? "لا توجد أدوية متطابقة في هذه الفئة حالياً."
+                : "No medicines found in this category."}
+            </p>
+            <Link
+              href={`/${locale}/c`}
+              className={styles.searchButton}
+              style={{ display: "inline-block", marginTop: 12, textDecoration: "none" }}
+            >
+              {locale === "ar" ? "استعراض جميع الأدوية" : "Browse All Medicines"}
+            </Link>
+          </div>
+        ) : (
+          <div className={styles.gridCards} style={{ marginTop: 16 }}>
+            {data.items.map((it) => (
+              <Card key={it.id} locale={locale} item={it} />
+            ))}
+          </div>
+        )}
+
+        {pages > 1 ? (
+          <nav className={styles.pager} aria-label="pagination">
+            {page > 1 ? (
+              <Link href={`${basePath}?page=${page - 1}`}>
+                <ChevronLeft size={15} aria-hidden="true" />
+                {t("backToCatalog")}
+              </Link>
+            ) : null}
+            <span>{t("page").replace("{page}", `${page} / ${pages}`)}</span>
+            {page < pages ? <Link href={`${basePath}?page=${page + 1}`}>{t("loadMore")}</Link> : null}
+          </nav>
+        ) : null}
+      </section>
     </main>
   );
 }

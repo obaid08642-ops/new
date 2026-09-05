@@ -232,9 +232,12 @@ export default function HealthScreen() {
                     ))}
                   </View>
                   {!!scoreData.recommendations?.[0] && (
-                    <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: "right" }}>
-                      💡 {scoreData.recommendations[0]}
-                    </AppText>
+                    <View style={{ flexDirection: "row-reverse", alignItems: "center", gap: 6, marginTop: 4 }}>
+                      <Icon name="info" size={14} color={colors.primary} />
+                      <AppText variant="caption" color={colors.textSecondary} style={{ textAlign: "right", flex: 1 }}>
+                        {scoreData.recommendations[0]}
+                      </AppText>
+                    </View>
                   )}
                 </>
               ) : (
