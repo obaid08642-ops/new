@@ -34,10 +34,10 @@ const specification = {
   "x-nabd-scope": "public-catalog-subset"
 } as const;
 
-const X_PAYMENT_INFO = { protocols: [], mpp: "disabled", note: "No agentic payments enabled; checkout requires human confirmation" };
 export function GET() {
   return NextResponse.json(specification, {
     headers: {
+      "Access-Control-Allow-Origin": "*",
       "Cache-Control": "public, max-age=900, stale-while-revalidate=3600",
       "Content-Type": "application/vnd.oai.openapi+json; charset=utf-8",
       "X-Content-Type-Options": "nosniff"
