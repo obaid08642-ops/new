@@ -3,8 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Search, ShieldCheck } from "lucide-react";
 import { extractHomeCareServices } from "@/lib/api/home-care-services";
-import { getPatientHomeCareServices } from "@/lib/api/home-care-services-server";
-import { requirePatientAccess } from "@/lib/auth/session";
+import { getPatientHomeCareServices, getPublicHomeCareServices } from "@/lib/api/home-care-services-server";
+import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
+import { getOptionalPatientAccessToken } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./services.module.css";
@@ -15,13 +16,13 @@ export default async function HomeCareServicesPage({ params, searchParams }: Pro
   const { locale } = await params; const { q = "" } = (await searchParams) ?? {};
   if (!isLocale(locale)) notFound(); setRequestLocale(locale);
   const t = await getTranslations("HomeCareServices");
-  const token = await requirePatientAccess(locale);
-  const response = await getPatientHomeCareServices(token);
+  const token = await getOptionalPatientAccessToken();
+  let response = token ? await getPatientHomeCareServices(token) : await getPublicHomeCareServices();
+  if (!response || !response.ok) {
+    response = await getPublicNursingCatalog();
+  }
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
-  if (response.status === 401) redirect(`/${locale}/login`);
-  if (response.status === 403 || response.status === 404) notFound();
-  if (!response.ok) return <main className={`main ${styles.page}`}><section className={styles.state} role="alert"><VectorNursing size={54} aria-hidden="true" /><h1>{t("unavailableTitle")}</h1><p>{t("unavailableBody")}</p><Link href={`/${locale}/home-care/services`} className={styles.action}>{t("retry")}</Link></section></main>;
-  const services = extractHomeCareServices(await response.json().catch(() => null));
+  const services = response && response.ok ? extractHomeCareServices(await response.json().catch(() => null)) : [];
   const query = q.trim().toLocaleLowerCase(locale);
   const filtered = services.filter((service) => [service.nameAr, service.nameEn, service.descriptionAr, service.descriptionEn].filter(Boolean).some((value) => value!.toLocaleLowerCase(locale).includes(query)));
   return (

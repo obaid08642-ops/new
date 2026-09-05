@@ -177,7 +177,10 @@ export default function WearablesScreen() {
                   ) : (
                     <Icon name={d.icon} size={24} color={d.color} />
                   )}
-                  <AppText variant="bodySM">{already ? `${d.name} ✓` : d.name}</AppText>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                    <AppText variant="bodySM">{d.name}</AppText>
+                    {already ? <Icon name="check" size={14} color={colors.success} /> : null}
+                  </View>
                 </TouchableOpacity>
               );
             })}

@@ -6,10 +6,33 @@ import { extractNursingCatalog } from "@/lib/api/nursing-catalog";
 import { getPublicNursingCatalog } from "@/lib/api/nursing-catalog-server";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
-import { VectorNursing } from "@/components-next/vector-illustrations";
+import {
+  VectorNursing,
+  VectorLabs,
+  VectorVitals,
+  VectorHealthShield,
+  VectorFamily,
+} from "@/components-next/vector-illustrations";
 import { ServiceBookingModal } from "@/components-next/service-booking-modal";
 import type { Metadata } from "next";
 import styles from "./catalog.module.css";
+
+function getNursingVector(item: any) {
+  const text = `${item.id} ${item.category || ""} ${item.nameAr || ""} ${item.nameEn || ""}`.toLowerCase();
+  if (text.includes("دم") || text.includes("تحاليل") || text.includes("blood") || text.includes("lab")) {
+    return <VectorLabs size={38} />;
+  }
+  if (text.includes("علامات") || text.includes("ضغط") || text.includes("سكر") || text.includes("vital")) {
+    return <VectorVitals size={38} />;
+  }
+  if (text.includes("جروح") || text.includes("سكري") || text.includes("غيار") || text.includes("قرح") || text.includes("wound")) {
+    return <VectorHealthShield size={38} />;
+  }
+  if (text.includes("مسن") || text.includes("كبار") || text.includes("elderly") || text.includes("companion")) {
+    return <VectorFamily size={38} />;
+  }
+  return <VectorNursing size={38} />;
+}
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -77,9 +100,8 @@ export default async function NursingCatalogPage({ params }: Props) {
           return (
             <div key={item.id} className={styles.card}>
               <div className={styles.cardTop}>
-                <span className={styles.icon} style={{ width: 64, height: 64, borderRadius: "16px", overflow: "hidden", border: "2px solid #5FD9B3", flexShrink: 0 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={itemPhoto} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <span className={styles.icon} style={{ width: 56, height: 56, borderRadius: "16px", background: "rgba(0, 135, 111, 0.06)", border: "1.5px solid rgba(95, 217, 179, 0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {getNursingVector(item)}
                 </span>
                 <div className={styles.copy}>
                   <h2>{name}</h2>
