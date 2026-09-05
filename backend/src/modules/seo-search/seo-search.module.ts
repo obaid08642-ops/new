@@ -435,19 +435,105 @@ export class SeoSearchService {
   }
 
   /** Paginated products inside a localized category cluster. */
-  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24) {
+  async publicCategoryProducts(locale: string, category: string, sub?: string, page = 1, limit = 24, q?: string) {
     const db = productLocaleToDb(locale);
     const key = (f: string) => db === 'ar' ? f : `translations.${db}.${f === 'category' ? 'main_category' : f}`;
     const filter: any = { ...this.publicProductFilter() };
-    const decodedCat = category ? decodeURIComponent(category) : 'all';
-    if (decodedCat && decodedCat !== 'all' && decodedCat !== 'الكل') {
-      filter[key('category')] = decodedCat;
-      if (sub) filter[key('sub_category')] = decodeURIComponent(sub);
+
+    const CANONICAL_CATEGORY_MAP: Record<string, string> = {
+      'all': 'all',
+      'الكل': 'all',
+      'medications': 'الأدوية والعلاج',
+      'medicines': 'الأدوية والعلاج',
+      'أدوية': 'الأدوية والعلاج',
+      'ادوية': 'الأدوية والعلاج',
+      'أدوية وعلاجات': 'الأدوية والعلاج',
+      'ادوية وعلاجات': 'الأدوية والعلاج',
+      'الأدوية والعلاج': 'الأدوية والعلاج',
+      'الادوية والعلاج': 'الأدوية والعلاج',
+      'hair-care': 'العناية بالشعر',
+      'عناية بالشعر': 'العناية بالشعر',
+      'العناية بالشعر': 'العناية بالشعر',
+      'cosmetics': 'المكياج والإكسسوارات',
+      'makeup': 'المكياج والإكسسوارات',
+      'مكياج وإكسسوارات': 'المكياج والإكسسوارات',
+      'مكياج واكسسوارات': 'المكياج والإكسسوارات',
+      'المكياج والإكسسوارات': 'المكياج والإكسسوارات',
+      'المكياج والاكسسوارات': 'المكياج والإكسسوارات',
+      'skincare': 'العناية بالبشرة',
+      'skin-care': 'العناية بالبشرة',
+      'عناية بالبشرة': 'العناية بالبشرة',
+      'العناية بالبشرة': 'العناية بالبشرة',
+      'baby': 'الأم والطفل',
+      'baby-care': 'الأم والطفل',
+      'الأم والطفل': 'الأم والطفل',
+      'الام والطفل': 'الأم والطفل',
+      'ام وطفل': 'الأم والطفل',
+      'vitamins': 'الفيتامينات والتغذية الصحية',
+      'فيتامينات': 'الفيتامينات والتغذية الصحية',
+      'فيتامينات ومكملات': 'الفيتامينات والتغذية الصحية',
+      'الفيتامينات والتغذية الصحية': 'الفيتامينات والتغذية الصحية',
+      'personal-care': 'العناية الشخصية',
+      'عناية شخصية': 'العناية الشخصية',
+      'العناية الشخصية': 'العناية الشخصية',
+      'home-health': 'الرعاية الصحية المنزلية والأجهزة الطبية',
+      'رعاية منزلية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
+      'الرعاية الصحية المنزلية والأجهزة الطبية': 'الرعاية الصحية المنزلية والأجهزة الطبية',
+    };
+
+    const decodedCat = category ? decodeURIComponent(category).trim() : 'all';
+    const resolvedCat = CANONICAL_CATEGORY_MAP[decodedCat.toLowerCase()] || CANONICAL_CATEGORY_MAP[decodedCat] || decodedCat;
+
+    if (resolvedCat && resolvedCat !== 'all' && resolvedCat !== 'الكل') {
+      const cleanTerm = resolvedCat.replace(/^ال/, '').replace(/[\u064B-\u065F\u0670\u0640]/g, '').trim();
+      const escaped = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { [key('category')]: resolvedCat },
+        { [key('category')]: { $regex: escaped, $options: 'i' } },
+        { category: resolvedCat },
+        { category: { $regex: escaped, $options: 'i' } },
+      ];
+      if (sub) {
+        const decodedSub = decodeURIComponent(sub).trim();
+        const subEscaped = decodedSub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        filter[key('sub_category')] = { $regex: subEscaped, $options: 'i' };
+      }
     }
+
+    if (q && q.trim()) {
+      const terms = expandMultilingualSearchTerms(q.trim()).slice(0, 6);
+      const qOrClauses: any[] = [];
+      for (const t of terms) {
+        const trx = { $regex: t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
+        qOrClauses.push(
+          { name_ar: trx },
+          { name_en: trx },
+          { active_ingredient: trx },
+          { barcode: t },
+          { [`translations.${db}.name`]: trx },
+          { [`translations.${db}.search_aliases`]: trx },
+        );
+      }
+      if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, { $or: qOrClauses }];
+        delete filter.$or;
+      } else {
+        filter.$or = qOrClauses;
+      }
+    }
+
     const perPage = Math.min(Math.max(limit, 1), 48);
+    const sortClause: any = {
+      image_1: -1,
+      image: -1,
+      usage_count: -1,
+      rating: -1,
+      _id: 1,
+    };
+
     const cursor = this.conn.collection('medicines_master')
-      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
-      .sort({ usage_count: -1 })
+      .find(filter, { projection: { _id: 0, id: 1, sku: 1, slug: 1, name_ar: 1, name_en: 1, price: 1, old_price: 1, image_1: 1, image: 1, images: 1, form: 1, strength: 1, package_size: 1, category: 1, sub_category: 1, active_ingredient: 1, requires_prescription: 1, availability_status: 1, usage_count: 1, translations: 1 } } as any)
+      .sort(sortClause)
       .skip((Math.max(page, 1) - 1) * perPage)
       .limit(perPage);
     const [rows, total] = await Promise.all([cursor.toArray(), this.conn.collection('medicines_master').countDocuments(filter)]);
@@ -809,10 +895,11 @@ export class SeoSearchController {
     @Query('sub') sub?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('q') q?: string,
   ) {
     if (!(PUBLIC_CATALOG_LOCALES as readonly string[]).includes(locale)) throw new NotFoundException('locale_not_supported');
     const cat = category || 'all';
-    return this.svc.publicCategoryProducts(locale, cat, sub, parseInt(page || '1'), parseInt(limit || '24'));
+    return this.svc.publicCategoryProducts(locale, cat, sub, parseInt(page || '1'), parseInt(limit || '24'), q);
   }
 
   /** Product sitemap page as JSON (the web app renders same-host XML). */
