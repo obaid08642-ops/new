@@ -10,6 +10,7 @@ const catalog = {
   },
   entries: [
     {
+      id: "urn:air:nabd.plus:catalog:products",
       identifier: "urn:air:nabd.plus:catalog:products",
       displayName: "Real-time AI product catalog and availability feed",
       type: "application/json",
@@ -25,6 +26,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:catalog:categories",
       identifier: "urn:air:nabd.plus:catalog:categories",
       displayName: "Multi-lingual category tree across 6 languages",
       type: "application/json",
@@ -39,6 +41,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:consultations:doctors",
       identifier: "urn:air:nabd.plus:consultations:doctors",
       displayName: "Doctor consultations: Video, Clinic visit, and Home visit",
       type: "application/json",
@@ -54,6 +57,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:consultations:booking",
       identifier: "urn:air:nabd.plus:consultations:booking",
       displayName: "Doctor appointment booking API (Cash & Insurance)",
       type: "application/json",
@@ -68,6 +72,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:diagnostics:labs",
       identifier: "urn:air:nabd.plus:diagnostics:labs",
       displayName: "Laboratory diagnostics: Home sample collection & Lab visits",
       type: "application/json",
@@ -82,6 +87,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:diagnostics:radiology",
       identifier: "urn:air:nabd.plus:diagnostics:radiology",
       displayName: "Radiology scans & medical imaging catalog",
       type: "application/json",
@@ -96,6 +102,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:care:nursing",
       identifier: "urn:air:nabd.plus:care:nursing",
       displayName: "Published home nursing and elderly care catalog",
       type: "application/json",
@@ -110,6 +117,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:commerce:checkout-session",
       identifier: "urn:air:nabd.plus:commerce:checkout-session",
       displayName: "AI Agent Checkout Session Hand-off API",
       type: "application/json",
@@ -125,6 +133,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:payments:modalities",
       identifier: "urn:air:nabd.plus:payments:modalities",
       displayName: "Payment modalities: Hosted payment gateway vs Insurance approval",
       type: "application/json",
@@ -139,6 +148,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:lifecycle:management",
       identifier: "urn:air:nabd.plus:lifecycle:management",
       displayName: "Appointment lifecycle: Rescheduling and cancellation APIs",
       type: "application/json",
@@ -153,6 +163,7 @@ const catalog = {
       ]
     },
     {
+      id: "urn:air:nabd.plus:documentation:public-boundaries",
       identifier: "urn:air:nabd.plus:documentation:public-boundaries",
       displayName: "Saudi PDPL privacy boundaries and public AI discovery documentation",
       type: "text/markdown",
