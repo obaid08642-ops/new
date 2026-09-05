@@ -19,6 +19,12 @@ import {
   VectorAI,
   VectorMap,
   VectorEmergency,
+  VectorMaternity,
+  VectorNutrition,
+  VectorMentalHealth,
+  VectorChronicCare,
+  VectorInsurance,
+  VectorHealthShield,
 } from "@/components-next/vector-illustrations";
 import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl, siteOrigin } from "@/lib/seo";
@@ -61,54 +67,92 @@ export default async function LandingPage({ params }: Props) {
   const url = localizedUrl(locale);
 
   const isAr = locale === "ar";
-  const services = [
+
+  // 1. Core 4 Services - Luxury 2-Column Grid on Mobile
+  const coreServices = [
     {
-      image: "/images/categories/medications.jpg",
-      color: "#00876F",
+      id: "pharmacy",
+      icon: <VectorPharmacy size={52} />,
       badge: isAr ? "توصيل 30 دقيقة" : "30-min Delivery",
-      title: t("pharmacyTitle"),
-      desc: isAr ? "صيدلية شاملة وتوصيل فوري لجميع الأدوية والمستلزمات الطبية." : t("pharmacyDesc"),
+      badgeBg: "rgba(0, 135, 111, 0.12)",
+      badgeColor: "#00876F",
+      title: isAr ? "صيدلية نبض بلس" : t("pharmacyTitle"),
+      desc: isAr ? "أدوية ومستلزمات طبية أصلية وتوصيل فوري لباب منزلك" : t("pharmacyDesc"),
       href: `/${locale}/c`,
     },
     {
-      image: "/images/doctors/dr-sarah.jpg",
-      color: "#1D4ED8",
+      id: "doctors",
+      icon: <VectorDoctor size={52} />,
       badge: isAr ? "أطباء معتمدون" : "Verified Doctors",
-      title: t("doctorsTitle"),
-      desc: isAr ? "استشارات فورية ومواعيد عيادات مع نخبة الأطباء والاستشاريين." : t("doctorsDesc"),
+      badgeBg: "rgba(29, 78, 216, 0.12)",
+      badgeColor: "#1D4ED8",
+      title: isAr ? "الاستشارات الطبية" : t("doctorsTitle"),
+      desc: isAr ? "استشارات فورية ومواعيد عيادات مع نخبة الأطباء والاستشاريين" : t("doctorsDesc"),
       href: `/${locale}/consultations/doctors`,
     },
     {
-      image: "/images/labs/comprehensive-checkup.jpg",
-      color: "#B45309",
-      badge: isAr ? "سحب منزلي" : "Home Sample",
-      title: t("labsTitle"),
-      desc: isAr ? "باقات فحص مخبري شاملة ودقيقة مع خدمة سحب الدم منزلياً." : t("labsDesc"),
-      href: `/${locale}/diagnostics/packages`,
+      id: "diagnostics",
+      icon: <VectorLabs size={52} />,
+      badge: isAr ? "سحب منزلي ومراكز" : "Home Sample",
+      badgeBg: "rgba(180, 83, 9, 0.12)",
+      badgeColor: "#B45309",
+      title: isAr ? "المختبر والأشعة" : "Diagnostics & Labs",
+      desc: isAr ? "باقات فحص مخبري شاملة وحجز رنين مغناطيسي وسونار" : "Comprehensive lab packages & medical imaging",
+      href: `/${locale}/diagnostics`,
     },
     {
-      image: "/images/radiology/mri.jpg",
-      color: "#6D28D9",
-      badge: isAr ? "مراكز معتمدة" : "Accredited Centers",
-      title: t("radiologyTitle"),
-      desc: isAr ? "حجز رنين مغناطيسي MRI وأشعة مقطعية CT وسونار في أرقى المراكز." : t("radiologyDesc"),
-      href: `/${locale}/diagnostics/radiology`,
-    },
-    {
-      image: "/images/nursing/home-nurse.jpg",
-      color: "#BE123C",
-      badge: isAr ? "زيارة منزلية" : "Home Visit",
-      title: t("nursingTitle"),
-      desc: isAr ? "رعاية تمريضية منزلية، متابعة كبار السن، ومحاليل وريدية." : t("nursingDesc"),
+      id: "nursing",
+      icon: <VectorNursing size={52} />,
+      badge: isAr ? "زيارة فورية" : "Home Visit",
+      badgeBg: "rgba(190, 18, 60, 0.12)",
+      badgeColor: "#BE123C",
+      title: isAr ? "التمريض المنزلي" : t("nursingTitle"),
+      desc: isAr ? "رعاية تمريضية متقدمة، كبار السن، غيارات ومحاليل وريدية" : t("nursingDesc"),
       href: `/${locale}/nursing/catalog`,
     },
+  ];
+
+  // 2. Specialized Healthcare Verticals Hub
+  const verticals = [
     {
-      image: "/images/categories/babycare.jpg",
-      color: "#0F766E",
-      badge: isAr ? "رعاية خاصة" : "Specialized Care",
-      title: isAr ? "صحة الأم والطفل" : "Maternity & Baby",
-      desc: isAr ? "متابعة مراحل الحمل أسبوعاً بأسبوع واستشارات طب الأطفال التخصصية." : "Pregnancy tracking and pediatric specialized care.",
+      id: "maternity",
+      icon: <VectorMaternity size={42} />,
+      badge: isAr ? "أسبوعاً بأسبوع" : "Weekly Tracker",
+      badgeBg: "rgba(236, 72, 153, 0.12)",
+      badgeColor: "#DB2777",
+      title: isAr ? "متابعة الحمل" : "Maternity Care",
+      desc: isAr ? "تتبع نمو الجنين وجدول الفحوصات ونصائح الأمومة" : "Fetal development tracking and maternal care",
       href: `/${locale}/maternity`,
+    },
+    {
+      id: "nutrition",
+      icon: <VectorNutrition size={42} />,
+      badge: isAr ? "أنظمة مخصصة" : "Diet Plans",
+      badgeBg: "rgba(16, 185, 129, 0.12)",
+      badgeColor: "#059669",
+      title: isAr ? "التغذية والحميات" : "Nutrition & Diets",
+      desc: isAr ? "خطط غذائية ذكية وتتبع السعرات والسوائل يومياً" : "Personalized nutrition plans and meal tracking",
+      href: `/${locale}/nutrition`,
+    },
+    {
+      id: "mental",
+      icon: <VectorMentalHealth size={42} />,
+      badge: isAr ? "راحة وطمأنينة" : "Mindfulness",
+      badgeBg: "rgba(99, 102, 241, 0.12)",
+      badgeColor: "#4F46E5",
+      title: isAr ? "الصحة النفسية" : "Mental Health",
+      desc: isAr ? "جلسات استرخاء، تمارين تنفس وتتبع الحالة المزاجية" : "Breathing exercises, meditation & mood logs",
+      href: `/${locale}/mental-health`,
+    },
+    {
+      id: "chronic",
+      icon: <VectorChronicCare size={42} />,
+      badge: isAr ? "متابعة مستمرة" : "Chronic Care",
+      badgeBg: "rgba(2, 132, 199, 0.12)",
+      badgeColor: "#0284C7",
+      title: isAr ? "الرعاية المزمنة" : "Chronic Care",
+      desc: isAr ? "تتبع السكر والضغط وتذكير مواعيد وجرعات الأدوية" : "Vitals monitoring and medication dose reminders",
+      href: `/${locale}/health/chronic-medications`,
     },
   ];
 
@@ -148,12 +192,12 @@ export default async function LandingPage({ params }: Props) {
         ]}
       />
 
-      {/* Hero Banner with Soft 3D Aesthetics & Real Photography */}
+      {/* Hero Banner with Soft 3D Aesthetics & Modern Clarity */}
       <section className={`${styles.hero} ${styles.fadeInUp}`}>
         <div className={styles.heroContent}>
           <div className={styles.badge}>
             <Sparkles size={16} aria-hidden="true" />
-            <span>{isAr ? "رعايتك الصحية المتكاملة في المملكة" : "Your Integrated Healthcare in Saudi Arabia"}</span>
+            <span>{isAr ? "رعايتك الصحية الذكية المتكاملة في المملكة" : "Your Smart Integrated Healthcare in Saudi Arabia"}</span>
           </div>
           <h1>{t("heroTitle")}</h1>
           <p>{t("heroDesc")}</p>
@@ -165,44 +209,67 @@ export default async function LandingPage({ params }: Props) {
             <Link href={`/${locale}/consultations/doctors`} className={styles.heroSecondaryBtn}>
               <span>{isAr ? "احجز استشارة طبيب" : "Book Doctor"}</span>
             </Link>
+            <Link href={`/${locale}/insurance`} className={styles.heroSecondaryBtn}>
+              <span>{isAr ? "التأمين الطبي" : "Insurance"}</span>
+            </Link>
           </div>
         </div>
-        <div className={styles.heroPhotoWrap}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/hero/hero-pharmacy.jpg" alt="Nabd Healthcare" />
+        <div className={styles.heroVisualWrap}>
+          <VectorHealthShield size={160} className={styles.heroShieldIcon} />
         </div>
       </section>
 
-      {/* Core Health Services Grid */}
+      {/* 1. Core Health Services - Modern Luxury 2-Column Grid */}
       <section className={`${styles.servicesSection} ${styles.fadeInUp}`}>
         <div className={styles.sectionHead}>
-          <h2>{t("servicesTitle")}</h2>
-          <p>{t("servicesSubtitle")}</p>
+          <h2>{isAr ? "الخدمات الطبية الأساسية" : t("servicesTitle")}</h2>
+          <p>{isAr ? "وصول فوري ومباشر لكافة الرعاية الطبية بأعلى معايير الجودة" : t("servicesSubtitle")}</p>
         </div>
 
-        <div className={styles.servicesGrid}>
-          {services.map((s, idx) => (
-            <Link
-              key={idx}
-              href={s.href}
-              className={styles.serviceCard}
-            >
-              <div className={styles.serviceImgWrap}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.image} alt={s.title} />
+        <div className={styles.coreGrid}>
+          {coreServices.map((s) => (
+            <Link key={s.id} href={s.href} className={styles.coreCard}>
+              <div className={styles.coreCardTop}>
+                <div className={styles.coreIconWrap}>{s.icon}</div>
+                <span
+                  className={styles.coreBadge}
+                  style={{ backgroundColor: s.badgeBg, color: s.badgeColor }}
+                >
+                  {s.badge}
+                </span>
               </div>
-              <div className={styles.serviceBody}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                  <h3 style={{ margin: 0 }}>{s.title}</h3>
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 999, background: "rgba(184,224,48,0.2)", color: "#16213A" }}>
-                    {s.badge}
-                  </span>
-                </div>
+              <div className={styles.coreCardBody}>
+                <h3>{s.title}</h3>
                 <p>{s.desc}</p>
               </div>
-              <span className={styles.cardArrow} style={{ color: s.color }}>
-                <ArrowUpLeft size={18} />
-              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 2. Specialized Healthcare Verticals Hub */}
+      <section className={`${styles.verticalsSection} ${styles.fadeInUp}`}>
+        <div className={styles.sectionHead}>
+          <h2>{isAr ? "منظومة الرعاية المتخصصة" : "Specialized Care Hub"}</h2>
+          <p>{isAr ? "حلول وخدمات ذكية تتابع صحتك وصحة أسرتك على مدار الساعة" : "Smart continuous care for you and your family"}</p>
+        </div>
+
+        <div className={styles.verticalsGrid}>
+          {verticals.map((v) => (
+            <Link key={v.id} href={v.href} className={styles.verticalCard}>
+              <div className={styles.verticalIconWrap}>{v.icon}</div>
+              <div className={styles.verticalBody}>
+                <div className={styles.verticalTitleRow}>
+                  <h3>{v.title}</h3>
+                  <span
+                    className={styles.verticalBadge}
+                    style={{ backgroundColor: v.badgeBg, color: v.badgeColor }}
+                  >
+                    {v.badge}
+                  </span>
+                </div>
+                <p>{v.desc}</p>
+              </div>
             </Link>
           ))}
         </div>
