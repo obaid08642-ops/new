@@ -1,4 +1,4 @@
-import { Module, Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Module, Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Injectable, BadRequestException, NotFoundException, Optional } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { RequireIdempotency } from '../../common/idempotency.interceptor';
 import { Model } from 'mongoose';
@@ -13,6 +13,7 @@ import { OrdersModule } from '../orders/orders.module';
 import { OrdersService } from '../orders/orders.service';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
+import { ProductRankingEventService } from '../product-ranking/product-ranking-event.service';
 
 export type CartLineKind = 'lab' | 'radiology' | 'pharmacy' | 'doctor' | 'home_care';
 
@@ -46,6 +47,7 @@ export class CartService {
     @InjectModel(Medicine.name) private medicines: Model<Medicine>,
     private readonly orders: OrdersService,
     private readonly users: UsersService,
+    @Optional() private readonly rankingEvents?: ProductRankingEventService,
   ) {}
 
   private async ensureCart(patient_id: string) {
@@ -98,6 +100,16 @@ export class CartService {
     }
     c.last_action = 'add';
     await c.save();
+
+    if (line.kind === 'pharmacy' && line.service_id && this.rankingEvents) {
+      this.rankingEvents.recordEvent({
+        eventType: 'product_added_to_cart',
+        drugId: line.service_id,
+        quantity: line.qty || 1,
+        userId: user?.id,
+      }).catch(() => {});
+    }
+
     return this.summarize(c);
   }
 

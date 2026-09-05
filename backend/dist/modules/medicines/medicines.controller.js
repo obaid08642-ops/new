@@ -22,16 +22,16 @@ let MedicinesController = class MedicinesController {
     constructor(svc) {
         this.svc = svc;
     }
-    list(search, q, category, page, limit, cursor, auth) {
+    list(search, q, category, sort, pharmacyId, page, limit, cursor, auth) {
         const term = search || q;
         const userId = this.optionalUserId(auth);
         if (cursor !== undefined) {
             return this.svc.cursorPage(term, category, cursor || undefined, parseInt(limit || '30'));
         }
         if (page !== undefined) {
-            return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'));
+            return this.svc.paginate(term, category, parseInt(page || '1'), parseInt(limit || '30'), true, sort || 'smart_ranking', pharmacyId);
         }
-        return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId);
+        return this.svc.list(term, category, false, limit ? parseInt(limit) : undefined, userId, sort || 'smart_ranking', pharmacyId);
     }
     optionalUserId(auth) {
         try {
@@ -195,12 +195,14 @@ __decorate([
     __param(0, (0, common_1.Query)('search')),
     __param(1, (0, common_1.Query)('q')),
     __param(2, (0, common_1.Query)('category')),
-    __param(3, (0, common_1.Query)('page')),
-    __param(4, (0, common_1.Query)('limit')),
-    __param(5, (0, common_1.Query)('cursor')),
-    __param(6, (0, common_1.Headers)('authorization')),
+    __param(3, (0, common_1.Query)('sort')),
+    __param(4, (0, common_1.Query)('pharmacy_id')),
+    __param(5, (0, common_1.Query)('page')),
+    __param(6, (0, common_1.Query)('limit')),
+    __param(7, (0, common_1.Query)('cursor')),
+    __param(8, (0, common_1.Headers)('authorization')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], MedicinesController.prototype, "list", null);
 __decorate([

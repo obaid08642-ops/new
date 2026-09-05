@@ -24,13 +24,15 @@ const medicine_repository_1 = require("./repositories/medicine.repository");
 const redis_service_1 = require("../redis/redis.service");
 const catalog_publication_service_1 = require("../events/catalog-publication.service");
 const med_i18n_1 = require("./med-i18n");
+const product_ranking_service_1 = require("../product-ranking/product-ranking.service");
 let MedicinesService = MedicinesService_1 = class MedicinesService {
-    constructor(model, events, redis, conn, publication) {
+    constructor(model, events, redis, conn, publication, rankingService) {
         this.model = model;
         this.events = events;
         this.redis = redis;
         this.conn = conn;
         this.publication = publication;
+        this.rankingService = rankingService;
         this.logger = new common_1.Logger('MedicinesService');
     }
     get shortageReports() { return this.conn.collection('pharmacy_shortage_reports'); }
@@ -267,21 +269,41 @@ let MedicinesService = MedicinesService_1 = class MedicinesService {
             available: m.availability_status === 'none' || !m.availability_status,
         };
     }
-    async list(search, category, includeUnverified = true, maxItems = 500, userId) {
+    async list(search, category, includeUnverified = true, maxItems = 500, userId, sort = 'smart_ranking', pharmacyId) {
         const cap = Math.min(Math.max(maxItems || 500, 1), 500);
-        const cacheKey = `med:list:governed-v1:${search || ''}:${category || ''}:${includeUnverified}:${cap}`;
+        const cacheKey = `med:list:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${cap}:${sort}:${pharmacyId || 'global'}`;
         const cached = await this.redis.getJson(cacheKey);
         if (cached)
             return cached;
         let rows = [];
-        if (search && search.trim().length >= 2) {
+
+        if (!search && this.rankingService) {
+            const { drugIds } = await this.rankingService.getRankedDrugIds({
+                pharmacyId,
+                category: (category && category !== 'all') ? category : undefined,
+                sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+                limit: cap,
+            });
+            if (drugIds.length > 0) {
+                const query = {
+                    id: { $in: drugIds },
+                    ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()),
+                    ...((category && category !== 'all') ? { category } : {}),
+                };
+                const fetched = await this.model.find(query, MedicinesService_1.CARD_PROJECTION);
+                const map = new Map(fetched.map((m) => [m.id, m]));
+                rows = drugIds.map((id) => map.get(id)).filter(Boolean);
+            }
+        }
+
+        if (rows.length === 0 && search && search.trim().length >= 2) {
             try {
-                rows = await this.model.find({ $text: { $search: search.trim() }, ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()), ...(category ? { category } : {}) }, { ...MedicinesService_1.CARD_PROJECTION, score: { $meta: 'textScore' } }).sort({ score: { $meta: 'textScore' } }).limit(cap);
+                rows = await this.model.find({ $text: { $search: search.trim() }, ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()), ...((category && category !== 'all') ? { category } : {}) }, { ...MedicinesService_1.CARD_PROJECTION, score: { $meta: 'textScore' } }).sort({ score: { $meta: 'textScore' } }).limit(cap);
             }
             catch { }
         }
         if (rows.length < 3) {
-            rows = await this.model.find(this.buildQuery(search, category, includeUnverified), MedicinesService_1.CARD_PROJECTION)
+            rows = await this.model.find(this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified), MedicinesService_1.CARD_PROJECTION)
                 .sort({ verified: -1, usage_count: -1, name_ar: 1 }).limit(cap);
         }
         if (rows.length === 0 && search && search.trim().length >= 3) {
@@ -294,19 +316,63 @@ let MedicinesService = MedicinesService_1 = class MedicinesService {
                     { active_ingredient: { $regex: tolerant, $options: 'i' } },
                 ] }, MedicinesService_1.CARD_PROJECTION).sort({ usage_count: -1 }).limit(Math.min(cap, 50));
         }
+
+        if (search && rows.length > 0 && this.rankingService) {
+            const candidates = rows.map((r) => ({
+                drugId: r.id,
+                textScore: r.score || (r.verified ? 2.0 : 1.0),
+            }));
+            const blendedIds = await this.rankingService.blendSearchRelevance(candidates, { pharmacyId, category: (category && category !== 'all') ? category : undefined });
+            if (blendedIds.length > 0) {
+                const map = new Map(rows.map((r) => [r.id, r]));
+                rows = blendedIds.map((id) => map.get(id)).filter(Boolean);
+            }
+        }
+
         this.trackSearch(search, rows.length, userId);
         const withBadges = rows.map((m) => this.withBadges(m?.toObject ? m.toObject() : m));
         await this.redis.setJson(cacheKey, withBadges, MedicinesService_1.LIST_CACHE_TTL);
         return withBadges;
     }
-    async paginate(search, category, page = 1, limit = 30, includeUnverified = true) {
+    async paginate(search, category, page = 1, limit = 30, includeUnverified = true, sort = 'smart_ranking', pharmacyId) {
         const safeLimit = Math.min(Math.max(limit, 1), 100);
         const safePage = Math.max(page, 1);
-        const cacheKey = `med:page:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}`;
+        const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
         const cached = await this.redis.getJson(cacheKey);
         if (cached)
             return cached;
-        const q = this.buildQuery(search, category, includeUnverified);
+
+        if (!search && this.rankingService) {
+            const offset = (safePage - 1) * safeLimit;
+            const { drugIds, total } = await this.rankingService.getRankedDrugIds({
+                pharmacyId,
+                category: (category && category !== 'all') ? category : undefined,
+                sort: sort === 'trending' ? 'trending' : 'smart_ranking',
+                limit: safeLimit,
+                offset,
+            });
+            if (drugIds.length > 0) {
+                const query = {
+                    id: { $in: drugIds },
+                    ...(includeUnverified ? { is_deleted: { $ne: true } } : this.publicCatalogFilter()),
+                    ...((category && category !== 'all') ? { category } : {}),
+                };
+                const rows = await this.model.find(query, MedicinesService_1.CARD_PROJECTION);
+                const map = new Map(rows.map((m) => [m.id, m]));
+                const ordered = drugIds.map((id) => map.get(id)).filter(Boolean);
+                const result = {
+                    data: ordered.map((m) => this.withBadges(m?.toObject ? m.toObject() : m)),
+                    total,
+                    page: safePage,
+                    limit: safeLimit,
+                    total_pages: Math.ceil(total / safeLimit),
+                };
+                await this.redis.setJson(cacheKey, result, MedicinesService_1.LIST_CACHE_TTL);
+                return result;
+            }
+        }
+
+        const q = this.buildQuery(search, (category && category !== 'all') ? category : undefined, includeUnverified);
         const [data, total] = await Promise.all([
             this.model.find(q, MedicinesService_1.CARD_PROJECTION)
                 .sort({ verified: -1, usage_count: -1, name_ar: 1 })
@@ -414,14 +480,34 @@ let MedicinesService = MedicinesService_1 = class MedicinesService {
         return { generated: scored.length };
     }
     async hot() {
-        const cached = await this.redis.getJson('med:hot:governed-v1:full');
+        const cached = await this.redis.getJson('med:hot:governed-v2:live');
         if (cached)
             return cached;
-        const rows = await this.hotCol.find({}, { projection: { _id: 0 } }).sort({ score: -1 }).limit(50).toArray();
-        const result = rows
-            .filter((r) => r.medicine?.public_eligibility === true && r.medicine?.medical_review_status === 'approved')
-            .map((r) => ({ ...r.medicine, hot_score: r.score }));
-        await this.redis.setJson('med:hot:governed-v1:full', result, 3600);
+
+        if (this.rankingService) {
+            const { drugIds } = await this.rankingService.getRankedDrugIds({
+                pharmacyId: 'global',
+                sort: 'trending',
+                limit: 50,
+            });
+            if (drugIds.length > 0) {
+                const rows = await this.model.find({ id: { $in: drugIds }, ...this.publicCatalogFilter() }, MedicinesService_1.CARD_PROJECTION);
+                const map = new Map(rows.map((r) => [r.id, r]));
+                const ordered = drugIds
+                    .map((id) => map.get(id))
+                    .filter(Boolean)
+                    .map((m) => this.withBadges(m?.toObject ? m.toObject() : m));
+                if (ordered.length > 0) {
+                    await this.redis.setJson('med:hot:governed-v2:live', ordered, 180);
+                    return ordered;
+                }
+            }
+        }
+
+        const rows = await this.model.find(this.publicCatalogFilter(), MedicinesService_1.CARD_PROJECTION)
+            .sort({ usage_count: -1, verified: -1 }).limit(50);
+        const result = rows.map((m) => this.withBadges(m?.toObject ? m.toObject() : m));
+        await this.redis.setJson('med:hot:governed-v2:live', result, 180);
         return result;
     }
     async autocomplete(query) {

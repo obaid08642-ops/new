@@ -124,6 +124,11 @@ export default function ProductDetailScreen() {
         if (data && data.id) {
           setMed(data);
           setImages(resolveGallery(data));
+          // Emit dynamic product ranking event (product_viewed)
+          apiFetch('/medicines/events', {
+            method: 'POST',
+            body: JSON.stringify({ event_type: 'product_viewed', drug_id: id })
+          }).catch(() => {});
           // Predictive: preload alternatives (user's next likely taps) + hot list
           prefetchAlternatives(data.alternatives || []);
           prefetchHotMedicines();

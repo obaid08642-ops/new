@@ -276,6 +276,108 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return z.items.filter((i) => i.score >= min && i.score <= max).sort((a, b) => a.score - b.score).map((i) => i.member);
   }
 
+  async zincrby(key: string, increment: number, member: string): Promise<number> {
+    if (this.ready) {
+      try {
+        const res = await this.client.zincrby(key, increment, member);
+        return parseFloat(res);
+      } catch { /* fall through */ }
+    }
+    let z = this.memZsetOf(key);
+    if (!z) { z = { items: [] }; this.memZset.set(key, z); }
+    const existing = z.items.find((i) => i.member === member);
+    if (existing) {
+      existing.score += increment;
+      return existing.score;
+    } else {
+      z.items.push({ score: increment, member });
+      return increment;
+    }
+  }
+
+  async zrevrange(key: string, start: number, stop: number): Promise<string[]> {
+    if (this.ready) {
+      try {
+        return await this.client.zrevrange(key, start, stop);
+      } catch { /* fall through */ }
+    }
+    const z = this.memZsetOf(key);
+    if (!z) return [];
+    const sorted = [...z.items].sort((a, b) => b.score - a.score).map((i) => i.member);
+    const end = stop === -1 ? undefined : stop + 1;
+    return sorted.slice(start, end);
+  }
+
+  async zrevrangeWithScores(key: string, start: number, stop: number): Promise<{ member: string; score: number }[]> {
+    if (this.ready) {
+      try {
+        const raw = await this.client.zrevrange(key, start, stop, 'WITHSCORES');
+        const out: { member: string; score: number }[] = [];
+        for (let i = 0; i < raw.length; i += 2) {
+          out.push({ member: raw[i], score: parseFloat(raw[i + 1]) });
+        }
+        return out;
+      } catch { /* fall through */ }
+    }
+    const z = this.memZsetOf(key);
+    if (!z) return [];
+    const sorted = [...z.items].sort((a, b) => b.score - a.score);
+    const end = stop === -1 ? undefined : stop + 1;
+    return sorted.slice(start, end).map((i) => ({ member: i.member, score: i.score }));
+  }
+
+  async zscore(key: string, member: string): Promise<number | null> {
+    if (this.ready) {
+      try {
+        const s = await this.client.zscore(key, member);
+        return s !== null ? parseFloat(s) : null;
+      } catch { /* fall through */ }
+    }
+    const z = this.memZsetOf(key);
+    if (!z) return null;
+    const found = z.items.find((i) => i.member === member);
+    return found ? found.score : null;
+  }
+
+  async zrevrank(key: string, member: string): Promise<number | null> {
+    if (this.ready) {
+      try {
+        return await this.client.zrevrank(key, member);
+      } catch { /* fall through */ }
+    }
+    const z = this.memZsetOf(key);
+    if (!z) return null;
+    const sorted = [...z.items].sort((a, b) => b.score - a.score);
+    const idx = sorted.findIndex((i) => i.member === member);
+    return idx >= 0 ? idx : null;
+  }
+
+  async zcard(key: string): Promise<number> {
+    if (this.ready) {
+      try {
+        return await this.client.zcard(key);
+      } catch { /* fall through */ }
+    }
+    const z = this.memZsetOf(key);
+    return z ? z.items.length : 0;
+  }
+
+  async zremrangebyrank(key: string, start: number, stop: number): Promise<number> {
+    if (this.ready) {
+      try {
+        return await this.client.zremrangebyrank(key, start, stop);
+      } catch { /* fall through */ }
+    }
+    const z = this.memZsetOf(key);
+    if (!z) return 0;
+    const sorted = [...z.items].sort((a, b) => a.score - b.score);
+    const end = stop === -1 ? sorted.length : stop + 1;
+    const toRemove = new Set(sorted.slice(start, end).map((i) => i.member));
+    const initialLen = z.items.length;
+    z.items = z.items.filter((i) => !toRemove.has(i.member));
+    return initialLen - z.items.length;
+  }
+
   // ── Pub/Sub ──────────────────────────────────────────────────
   async publish(channel: string, message: string): Promise<void> {
     if (this.ready) { try { await this.publisher.publish(channel, message); } catch { /* fall through */ } }
