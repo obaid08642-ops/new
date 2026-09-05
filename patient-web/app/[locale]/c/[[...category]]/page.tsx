@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { cdnImage, getPublicCategories, getPublicCategoryProducts, type PublicProductCard } from "@/lib/api/public-products-server";
 import { JsonLd } from "@/components-next/json-ld";
 import { QuickAddCartBtn } from "@/components-next/quick-add-cart-btn";
-import { isLocale, locales } from "@/lib/i18n";
+import { isLocale, locales, type Locale } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import {
   ChevronLeft,
@@ -178,14 +178,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   ];
 
   const categoriesList = CANONICAL_CATEGORIES.map((c) => {
-    const isCatActive = c.id === "all" ? isAll : (main === c.slug || main === c.id || (main && main.toLowerCase().includes(c.matchKey)));
+    const isCatActive = Boolean(c.id === "all" ? isAll : (main === c.slug || main === c.id || (main && main.toLowerCase().includes(c.matchKey))));
+    const catCount = c.id === "all" ? totalProducts : (tree?.categories.find((tc) => tc.name.includes(c.name) || tc.name.includes(c.matchKey))?.count ?? 0);
     return {
       id: c.id,
       name: c.name,
       link: c.id === "all" ? `/${locale}/c` : `/${locale}/c/${encodeURIComponent(c.slug)}`,
       icon: c.icon,
       isActive: isCatActive,
-      count: c.id === "all" ? totalProducts : (tree?.categories.find((tc) => tc.name.includes(c.name) || tc.name.includes(c.matchKey))?.count || null),
+      count: catCount,
     };
   });
 

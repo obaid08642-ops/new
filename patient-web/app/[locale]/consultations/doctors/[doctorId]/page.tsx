@@ -73,7 +73,6 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
     };
   }
 
-  const doctorPhoto = fallbackDoctorsMap[doctorId]?.image || "/images/doctors/dr-sarah.jpg";
   const rtl = locale === "ar" || locale === "ur"; const Arrow = rtl ? ArrowLeft : ArrowRight;
   return (
     <main className={`main ${styles.page}`}>
@@ -84,9 +83,8 @@ export default async function DoctorDetailPage({ params, searchParams }: Props) 
       </Link>
       <article className={styles.detail}>
         <div className={styles.detailHeader}>
-          <div className={styles.detailIcon} style={{ width: 84, height: 84, overflow: "hidden", borderRadius: "var(--radius-xl)", border: "2px solid #5FD9B3", flexShrink: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={doctorPhoto} alt={doctor.name ?? ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div className={styles.detailIcon} style={{ width: 84, height: 84, borderRadius: "var(--radius-xl)", border: "2px solid #5FD9B3", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#F0FDF4" }}>
+            <VectorDoctor size={54} />
           </div>
           <div className={styles.detailInfo}>
             <p className={styles.eyebrow}>{t("eyebrow")}</p>
