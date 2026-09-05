@@ -17,8 +17,11 @@ import {
   ArrowRight,
   Banknote,
   Smartphone,
-  ChevronLeft
+  ChevronLeft,
+  FileCheck2,
+  Sparkles
 } from "lucide-react";
+import { SAUDI_INSURANCE_COMPANIES } from "@/lib/data/insurance-companies";
 import styles from "./checkout-flow.module.css";
 
 type Props = {
@@ -35,14 +38,32 @@ export function CheckoutFlow({ locale }: Props) {
   const [city, setCity] = useState(isAr ? "الرياض" : "Riyadh");
   const [district, setDistrict] = useState("");
   const [street, setStreet] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"mada" | "apple_pay" | "visa" | "cod">("mada");
+  
+  // Payment and Insurance State
+  const [paymentMethod, setPaymentMethod] = useState<"mada" | "apple_pay" | "visa" | "cod" | "insurance">("mada");
+  const [insuranceCompany, setInsuranceCompany] = useState("bupa");
+  const [policyNumber, setPolicyNumber] = useState("");
+  const [nationalId, setNationalId] = useState("");
+  const [planTier, setPlanTier] = useState<"vip" | "class_a" | "class_b" | "class_c">("class_a");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState<any | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const selectedInsCompany = SAUDI_INSURANCE_COMPANIES.find(c => c.id === insuranceCompany) || SAUDI_INSURANCE_COMPANIES[0];
+
+  // Pricing & Insurance Deductible Math
   const deliveryFee = subtotal > 100 ? 0 : 15;
-  const vat = (subtotal + deliveryFee) * 0.15;
-  const grandTotal = subtotal + deliveryFee + vat;
+  const originalVat = (subtotal + deliveryFee) * 0.15;
+  const originalGrandTotal = subtotal + deliveryFee + originalVat;
+
+  const coPayRate = planTier === "vip" ? 0 : selectedInsCompany.defaultCoPay;
+  const uncappedCoPay = subtotal * coPayRate;
+  const patientCoPayMedication = Math.min(uncappedCoPay, selectedInsCompany.maxCoPaySar);
+  const insuranceContribution = paymentMethod === "insurance" ? (subtotal - patientCoPayMedication) : 0;
+  const effectiveSubtotal = paymentMethod === "insurance" ? patientCoPayMedication : subtotal;
+  const vat = (effectiveSubtotal + deliveryFee) * 0.15;
+  const grandTotal = effectiveSubtotal + deliveryFee + vat;
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +80,17 @@ export function CheckoutFlow({ locale }: Props) {
       return;
     }
 
+    if (paymentMethod === "insurance") {
+      if (!policyNumber.trim() || policyNumber.trim().length < 5) {
+        setErrorMessage(isAr ? "يرجى إدخال رقم وثيقة التأمين / بطاقة العضوية" : "Please enter valid insurance policy / member number");
+        return;
+      }
+      if (!nationalId.trim() || nationalId.trim().length < 10) {
+        setErrorMessage(isAr ? "يرجى إدخال رقم الهوية الوطنية أو الإقامة (10 أرقام)" : "Please enter 10-digit National ID or Iqama");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setErrorMessage("");
 
@@ -70,8 +102,18 @@ export function CheckoutFlow({ locale }: Props) {
         customerPhone: phone,
         address: `${city} - ${district} ${street ? ` - ${street}` : ""}`,
         paymentMethod,
+        insuranceDetails: paymentMethod === "insurance" ? {
+          companyName: isAr ? selectedInsCompany.nameAr : selectedInsCompany.nameEn,
+          policyNumber,
+          nationalId,
+          planTier: planTier === "vip" ? "VIP" : planTier === "class_a" ? "Class A (فئة أ)" : planTier === "class_b" ? "Class B (فئة ب)" : "Class C (فئة ج)",
+          contribution: insuranceContribution,
+          copay: patientCoPayMedication,
+          approved: true,
+        } : null,
         items: [...items],
         total: grandTotal,
+        originalTotal: originalGrandTotal,
         date: new Date().toLocaleDateString(isAr ? "ar-SA" : "en-US", {
           weekday: "long",
           year: "numeric",
@@ -95,7 +137,7 @@ export function CheckoutFlow({ locale }: Props) {
           <ShieldCheck size={16} />
           <span>{isAr ? "تم تأكيد طلبك بنجاح" : "Order Confirmed Successfully"}</span>
         </div>
-        <h1>{isAr ? "شكراً لك، طلبك قيد التجهيز" : "Thank you, your order is being prepared"}</h1>
+        <h1>{isAr ? "شكراً لك، طلبك قيد التجهيز الفوري" : "Thank you, your order is being prepared"}</h1>
         <p className={styles.orderSubtitle}>
           {isAr 
             ? `رقم الطلب الخاص بك هو #${orderConfirmed.orderId}. سيصلك مندوب التوصيل خلال 30 دقيقة.`
@@ -122,8 +164,27 @@ export function CheckoutFlow({ locale }: Props) {
               {orderConfirmed.paymentMethod === "apple_pay" && "Apple Pay"}
               {orderConfirmed.paymentMethod === "visa" && (isAr ? "بطاقة ائتمانية" : "Credit Card")}
               {orderConfirmed.paymentMethod === "cod" && (isAr ? "الدفع عند الاستلام" : "Cash on Delivery")}
+              {orderConfirmed.paymentMethod === "insurance" && (isAr ? `تأمين طبي (${orderConfirmed.insuranceDetails.companyName})` : `Health Insurance (${orderConfirmed.insuranceDetails.companyName})`)}
             </span>
           </div>
+
+          {orderConfirmed.insuranceDetails && (
+            <div style={{ background: "rgba(0, 135, 111, 0.05)", padding: "12px", borderRadius: "10px", margin: "8px 0", border: "1px solid rgba(0, 135, 111, 0.15)" }}>
+              <div className={styles.orderRow} style={{ color: "#00876F", fontWeight: "bold" }}>
+                <span>{isAr ? "حالة التغطية التأمينية" : "Insurance Status"}</span>
+                <span>{isAr ? "موافقة فورية معتمدة ✓" : "Instant Approval Verified ✓"}</span>
+              </div>
+              <div className={styles.orderRow} style={{ fontSize: "0.85rem", marginTop: "4px" }}>
+                <span>{isAr ? "مساهمة شركة التأمين" : "Insurance Covered"}</span>
+                <span style={{ color: "#00876F", fontWeight: "bold" }}>-{orderConfirmed.insuranceDetails.contribution.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
+              </div>
+              <div className={styles.orderRow} style={{ fontSize: "0.85rem" }}>
+                <span>{isAr ? "رقم الوثيقة / الفئة" : "Policy / Tier"}</span>
+                <span>{orderConfirmed.insuranceDetails.policyNumber} ({orderConfirmed.insuranceDetails.planTier})</span>
+              </div>
+            </div>
+          )}
+
           <div className={styles.orderRowTotal}>
             <span>{isAr ? "المبلغ الإجمالي المدفوع" : "Total Paid"}</span>
             <strong>{orderConfirmed.total.toFixed(2)} {isAr ? "ر.س" : "SAR"}</strong>
@@ -252,13 +313,13 @@ export function CheckoutFlow({ locale }: Props) {
           </div>
         </section>
 
-        {/* Step 2: Payment Method */}
+        {/* Step 2: Payment Method & Insurance Coverage */}
         <section className={styles.cardSection}>
           <div className={styles.sectionHeader}>
             <CreditCard size={22} color="#00876F" />
             <div>
-              <h2>{isAr ? "2. طريقة الدفع الآمن" : "2. Secure Payment Method"}</h2>
-              <p>{isAr ? "جميع المعاملات المالية مشفرة ومتوافقة مع معايير البنك المركزي السعودي (ساما)" : "Encrypted and SAMA-compliant payment options"}</p>
+              <h2>{isAr ? "2. طريقة الدفع وتغطية التأمين" : "2. Payment & Insurance Coverage"}</h2>
+              <p>{isAr ? "اختر الدفع المباشر أو التغطية عبر وثيقة التأمين الصحي المعتمدة" : "Select self-pay or cooperative health insurance coverage"}</p>
             </div>
           </div>
 
@@ -297,6 +358,23 @@ export function CheckoutFlow({ locale }: Props) {
               </div>
             </label>
 
+            <label className={`${styles.paymentOption} ${paymentMethod === "insurance" ? styles.paymentActive : ""}`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="insurance"
+                checked={paymentMethod === "insurance"}
+                onChange={() => setPaymentMethod("insurance")}
+              />
+              <div className={styles.paymentContent}>
+                <div className={styles.paymentTitleRow}>
+                  <ShieldCheck size={20} color="#00876F" />
+                  <strong style={{ color: "#00876F" }}>{isAr ? "التأمين الصحي التعاوني" : "Cooperative Health Insurance"}</strong>
+                </div>
+                <span>{isAr ? "بوبا، التعاونية، ميدغلف والشركات المرخصة" : "Bupa, Tawuniya, MedGulf & licensed insurers"}</span>
+              </div>
+            </label>
+
             <label className={`${styles.paymentOption} ${paymentMethod === "visa" ? styles.paymentActive : ""}`}>
               <input
                 type="radio"
@@ -308,7 +386,7 @@ export function CheckoutFlow({ locale }: Props) {
               <div className={styles.paymentContent}>
                 <div className={styles.paymentTitleRow}>
                   <CreditCard size={20} />
-                  <strong>{isAr ? "فيزا / ماستركارد" : "Visa / Mastercard"}</strong>
+                  <strong>{isAr ? "بطاقة ائتمانية" : "Visa / Mastercard"}</strong>
                 </div>
                 <span>{isAr ? "البطاقات الائتمانية المحلية والدولية" : "Credit cards"}</span>
               </div>
@@ -331,6 +409,100 @@ export function CheckoutFlow({ locale }: Props) {
               </div>
             </label>
           </div>
+
+          {/* Insurance Policy Details Drawer */}
+          {paymentMethod === "insurance" && (
+            <div style={{ marginTop: "1.25rem", padding: "1.25rem", borderRadius: "1rem", background: "linear-gradient(135deg, rgba(0, 135, 111, 0.04) 0%, rgba(254, 243, 199, 0.2) 100%)", border: "1.5px solid rgba(0, 135, 111, 0.2)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem", color: "#00876F" }}>
+                <FileCheck2 size={20} />
+                <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: "800" }}>
+                  {isAr ? "بيانات وثيقة التأمين الطبي" : "Medical Insurance Details"}
+                </h3>
+              </div>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formField}>
+                  <label htmlFor="ins-company">
+                    <span>{isAr ? "شركة التأمين المعتمدة" : "Insurance Company"} *</span>
+                  </label>
+                  <select 
+                    id="ins-company" 
+                    value={insuranceCompany} 
+                    onChange={(e) => setInsuranceCompany(e.target.value)}
+                  >
+                    {SAUDI_INSURANCE_COMPANIES.map((company) => (
+                      <option key={company.id} value={company.id}>
+                        {isAr ? company.nameAr : company.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.formField}>
+                  <label htmlFor="ins-tier">
+                    <span>{isAr ? "فئة الوثيقة / الشبكة" : "Plan Tier / Class"} *</span>
+                  </label>
+                  <select 
+                    id="ins-tier" 
+                    value={planTier} 
+                    onChange={(e: any) => setPlanTier(e.target.value)}
+                  >
+                    <option value="vip">VIP (تغطية شاملة 100% بدون تحمل)</option>
+                    <option value="class_a">{isAr ? "فئة أ (Class A - نسبة تحمل 20% حد أقصى 50 ر.س)" : "Class A (20% co-pay max 50 SAR)"}</option>
+                    <option value="class_b">{isAr ? "فئة ب (Class B - نسبة تحمل 20% حد أقصى 75 ر.س)" : "Class B (20% co-pay max 75 SAR)"}</option>
+                    <option value="class_c">{isAr ? "فئة ج (Class C - نسبة تحمل 20% حد أقصى 100 ر.س)" : "Class C (20% co-pay max 100 SAR)"}</option>
+                  </select>
+                </div>
+
+                <div className={styles.formField}>
+                  <label htmlFor="ins-policy">
+                    <span>{isAr ? "رقم بطاقة التأمين / العضوية" : "Policy / Member Number"} *</span>
+                  </label>
+                  <input
+                    id="ins-policy"
+                    type="text"
+                    required
+                    placeholder={isAr ? "مثال: 902384112" : "e.g. 902384112"}
+                    value={policyNumber}
+                    onChange={(e) => setPolicyNumber(e.target.value)}
+                  />
+                </div>
+
+                <div className={styles.formField}>
+                  <label htmlFor="ins-nid">
+                    <span>{isAr ? "رقم الهوية الوطنية / الإقامة" : "National ID / Iqama"} *</span>
+                  </label>
+                  <input
+                    id="ins-nid"
+                    type="text"
+                    required
+                    maxLength={10}
+                    placeholder="10XXXXXXXX / 2XXXXXXXXX"
+                    value={nationalId}
+                    onChange={(e) => setNationalId(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Instant Approval Preview Box */}
+              <div style={{ marginTop: "1rem", padding: "0.85rem 1rem", borderRadius: "12px", background: "#FFFFFF", border: "1px solid rgba(0, 135, 111, 0.15)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Sparkles size={18} color="#00876F" />
+                  <span style={{ fontSize: "0.88rem", fontWeight: "700", color: "#16213A" }}>
+                    {isAr ? `تغطية ${selectedInsCompany.nameAr}:` : `Coverage by ${selectedInsCompany.nameEn}:`}
+                  </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#00876F", fontWeight: "800" }}>
+                    {isAr ? `يغطي التأمين: ${insuranceContribution.toFixed(2)} ر.س` : `Insurance pays: ${insuranceContribution.toFixed(2)} SAR`}
+                  </span>
+                  <span style={{ color: "#B45309", fontWeight: "800" }}>
+                    {isAr ? `تحملك: ${patientCoPayMedication.toFixed(2)} ر.س` : `Your co-pay: ${patientCoPayMedication.toFixed(2)} SAR`}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
 
         {errorMessage && (
@@ -341,61 +513,64 @@ export function CheckoutFlow({ locale }: Props) {
 
         <button type="submit" disabled={isSubmitting} className={styles.submitOrderBtn}>
           {isSubmitting ? (
-            <span>{isAr ? "جارٍ تأكيد الطلب…" : "Confirming Order…"}</span>
+            <span>{isAr ? "جارٍ تأكيد الطلب والتحقق من التغطية…" : "Confirming Order & Coverage…"}</span>
           ) : (
             <>
-              <span>{isAr ? `تأكيد الطلب والدفع (${grandTotal.toFixed(2)} ر.س)` : `Confirm & Pay (${grandTotal.toFixed(2)} SAR)`}</span>
+              <span>
+                {paymentMethod === "insurance" 
+                  ? (isAr ? `تأكيد الطلب بموافقة التأمين (${grandTotal.toFixed(2)} ر.س)` : `Confirm with Insurance (${grandTotal.toFixed(2)} SAR)`)
+                  : (isAr ? `تأكيد الطلب والدفع (${grandTotal.toFixed(2)} ر.س)` : `Confirm & Pay (${grandTotal.toFixed(2)} SAR)`)}
+              </span>
               <Direction size={18} />
             </>
           )}
         </button>
       </form>
 
-      {/* Order Summary Aside */}
-      <aside className={styles.orderSummaryAside}>
+      {/* Sidebar: Order Summary */}
+      <aside className={styles.summarySidebar}>
         <div className={styles.summaryCard}>
-          <h3>{isAr ? "ملخص طلبك" : "Order Summary"}</h3>
+          <h3>{isAr ? "ملخص السلة والطلب" : "Order Summary"}</h3>
           
           <div className={styles.summaryItemsList}>
             {items.map((item) => (
               <div key={item.id} className={styles.summaryItemRow}>
                 <div className={styles.summaryItemTitle}>
-                  <strong>{item.name}</strong>
-                  <span>{item.qty} × {item.price.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
+                  <strong>{isAr ? item.nameAr || item.name : item.name}</strong>
+                  <span>{item.quantity} × {item.price} {isAr ? "ر.س" : "SAR"}</span>
                 </div>
-                <span className={styles.summaryItemPrice}>
-                  {(item.qty * item.price).toFixed(2)} {isAr ? "ر.س" : "SAR"}
-                </span>
+                <span className={styles.summaryItemPrice}>{(item.price * item.quantity).toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
               </div>
             ))}
           </div>
 
           <div className={styles.summaryTotals}>
             <div className={styles.summaryRow}>
-              <span>{isAr ? "المجموع الفرعي" : "Subtotal"}</span>
+              <span>{isAr ? "إجمالي المنتجات" : "Items Subtotal"}</span>
               <span>{subtotal.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
             </div>
+
+            {paymentMethod === "insurance" && insuranceContribution > 0 && (
+              <div className={styles.summaryRow} style={{ color: "#00876F", fontWeight: "bold" }}>
+                <span>{isAr ? "خصم تغطية التأمين" : "Insurance Coverage"}</span>
+                <span>-{insuranceContribution.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
+              </div>
+            )}
+
             <div className={styles.summaryRow}>
-              <span>{isAr ? "رسوم التوصيل السريع" : "Express Delivery"}</span>
-              <span>
-                {deliveryFee === 0 
-                  ? (isAr ? "مجاني" : "Free")
-                  : `${deliveryFee.toFixed(2)} ${isAr ? "ر.س" : "SAR"}`}
-              </span>
+              <span>{isAr ? "رسوم التوصيل السريع" : "Delivery Fee"}</span>
+              <span>{deliveryFee === 0 ? (isAr ? "مجاني" : "Free") : `${deliveryFee} ${isAr ? "ر.س" : "SAR"}`}</span>
             </div>
+
             <div className={styles.summaryRow}>
               <span>{isAr ? "ضريبة القيمة المضافة (15%)" : "VAT (15%)"}</span>
               <span>{vat.toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
             </div>
+
             <div className={`${styles.summaryRow} ${styles.grandTotalRow}`}>
-              <strong>{isAr ? "الإجمالي النهائي" : "Grand Total"}</strong>
+              <span>{isAr ? "المبلغ المطلوب سداده" : "Total to Pay"}</span>
               <strong>{grandTotal.toFixed(2)} {isAr ? "ر.س" : "SAR"}</strong>
             </div>
-          </div>
-
-          <div className={styles.guaranteeBox}>
-            <ShieldCheck size={18} color="#00876F" />
-            <span>{isAr ? "ضمان أدوية ومنتجات أصلية 100% مرخصة من هيئة الغذاء والدواء" : "100% Genuine products licensed by SFDA"}</span>
           </div>
         </div>
       </aside>

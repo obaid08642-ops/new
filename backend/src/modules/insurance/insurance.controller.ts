@@ -7,7 +7,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard, NoGuestsGuard } from '../../common/auth.guard';
+import { JwtAuthGuard, NoGuestsGuard, Public } from '../../common/auth.guard';
 import { NABDAH_ACCESS_TOKEN_SECURITY_SCHEME } from '../../config/openapi.config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -55,6 +55,7 @@ export class InsuranceController {
    * SINGLE SOURCE OF TRUTH — every app (patient, provider onboarding, provider
    * dashboard, admin) reads companies + their plan tiers from here. Plans are
    * embedded from insurance_networks so clients never hardcode a second list. */
+  @Public()
   @Get('companies')
   @ApiBearerAuth(NABDAH_ACCESS_TOKEN_SECURITY_SCHEME)
   @ApiOperation({
