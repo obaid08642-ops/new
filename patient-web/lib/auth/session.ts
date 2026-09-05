@@ -7,3 +7,7 @@ export async function requirePatientAccess(locale: string) {
   if (!accessToken) redirect(`/${locale}/login`);
   return accessToken;
 }
+
+export async function getOptionalPatientAccessToken(): Promise<string | undefined> {
+  return (await cookies()).get(authCookieNames.access)?.value;
+}

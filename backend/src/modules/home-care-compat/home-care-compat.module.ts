@@ -10,7 +10,7 @@ import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { v4 as uuid } from 'uuid';
-import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
+import { JwtAuthGuard, CurrentUser, Public } from '../../common/auth.guard';
 import { ChatModule } from '../chat/chat.module';
 import { ChatService } from '../chat/chat.service';
 import { HomeCareBookingSchema, HomeCareServiceSchema, CarePlanSchema } from '../../schemas/home-care.schema';
@@ -30,18 +30,26 @@ export class HomeCareCompatController {
   ) {}
 
   // ---- Catalog ----
+  @Public()
   @Get('services') servicesList(@Query() q: any) {
     const filter: any = { active: true };
     if (q?.category) filter.category = q.category;
     return this.services.find(filter, { _id: 0, __v: 0 }).lean();
   }
 
+  @Public()
   @Get('services/:id') async serviceOne(@Param('id') id: string) {
     const svc = await this.services.findOne({ id, active: true }, { _id: 0, __v: 0 }).lean();
     if (!svc) throw new NotFoundException('service not found');
     return svc;
   }
 
+  @Public()
+  @Get('packages') async packagesList() {
+    return this.services.find({ active: true, is_package: true }, { _id: 0, __v: 0 }).lean();
+  }
+
+  @Public()
   @Get('providers') async providers(@Query() q: any) {
     const filter: any = { provider_type: 'nursing', active: true, approval_status: 'approved' };
     if (q?.city) filter['address.city'] = q.city;
@@ -50,6 +58,7 @@ export class HomeCareCompatController {
     }).limit(50).lean();
   }
 
+  @Public()
   @Get('providers/:id') async provider(@Param('id') id: string) {
     const p = await this.profiles.findOne({ id }, { _id: 0, __v: 0 }).lean();
     if (!p) throw new NotFoundException('provider not found');

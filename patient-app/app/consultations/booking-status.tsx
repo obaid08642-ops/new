@@ -15,6 +15,7 @@ import { apiFetch } from "../../src/utils/api";
 import { consultationMutationHeaders } from "../../src/utils/consultation-payment";
 import { showLocalizedAlert } from "../../src/components/LocalizedAlert";
 import { brand } from "../../src/theme/brand";
+import { Icon } from "../../src/components/Icon";
 import BookingConfirmForm from "../../src/components/BookingConfirmForm";
 
 type Mode = "confirm" | "success" | "pending";
@@ -94,7 +95,7 @@ export default function BookingStatusScreen() {
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
       <View style={[styles.content, { paddingTop: insets.top + 64, paddingBottom: insets.bottom + 24 }]}>
         <Animated.View style={[styles.badge, { transform: [{ scale: scaleAnim }] }]}>
-          <AppText style={styles.badgeMark}>✓</AppText>
+          <Icon name="check" size={32} color="#fff" />
         </Animated.View>
         <AppText variant="title" style={styles.title}>{AR ? "تم الحجز بنجاح" : "Booking confirmed"}</AppText>
         <AppText style={styles.sub}>
