@@ -32,14 +32,14 @@ import { showLocalizedAlert } from '../../src/components/LocalizedAlert';
 import { getCategoryVector } from '../../src/components/CategoryVectorIcons';
 
 const PHARMACY_CATEGORIES = [
-  { id: 'all', label: 'الكل' },
-  { id: 'medications', label: 'أدوية وعلاجات' },
-  { id: 'hair-care', label: 'عناية بالشعر' },
-  { id: 'cosmetics', label: 'مكياج وإكسسوارات' },
-  { id: 'skincare', label: 'العناية بالبشرة' },
-  { id: 'baby', label: 'الأم والطفل' },
-  { id: 'vitamins', label: 'فيتامينات ومكملات' },
-  { id: 'personal-care', label: 'عناية شخصية' },
+  { id: 'all', label: 'الكل', dbName: 'all' },
+  { id: 'medications', label: 'أدوية وعلاجات', dbName: 'الأدوية والعلاج' },
+  { id: 'hair-care', label: 'عناية بالشعر', dbName: 'العناية بالشعر' },
+  { id: 'cosmetics', label: 'مكياج وإكسسوارات', dbName: 'المكياج والإكسسوارات' },
+  { id: 'skincare', label: 'العناية بالبشرة', dbName: 'العناية بالبشرة' },
+  { id: 'baby', label: 'الأم والطفل', dbName: 'الأم والطفل' },
+  { id: 'vitamins', label: 'فيتامينات ومكملات', dbName: 'الفيتامينات والتغذية الصحية' },
+  { id: 'personal-care', label: 'عناية شخصية', dbName: 'العناية الشخصية' },
 ];
 
 export default function PharmacyTab() {
@@ -89,7 +89,8 @@ export default function PharmacyTab() {
         const q = new URLSearchParams();
         if (searchQuery) q.append('search', searchQuery);
         const cat = params.filter_category || activeCat;
-        if (cat && cat !== 'all') q.append('category', cat);
+        const targetCat = PHARMACY_CATEGORIES.find(c => c.id === cat)?.dbName || cat;
+        if (targetCat && targetCat !== 'all') q.append('category', targetCat);
         if (params.filter_forms) q.append('forms', params.filter_forms);
         if (params.filter_brands) q.append('brands', params.filter_brands);
         if (params.filter_rx === '1') q.append('rx_only', '1');

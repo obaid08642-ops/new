@@ -147,43 +147,51 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (decoded.length > 2) notFound();
   const sParams = await searchParams;
   const page = parsePage(sParams.page);
+  const q = (sParams.q || "").trim();
   const [main, sub] = decoded;
 
   const [tree, data] = await Promise.all([
     getPublicCategories(typedLocale),
-    getPublicCategoryProducts(typedLocale, main || "all", sub, page),
+    getPublicCategoryProducts(typedLocale, main || "all", sub, page, q),
   ]);
 
   const isAll = !main || main === "all" || main === "الكل";
-  const heading = isAll
-    ? locale === "ar"
-      ? "جميع الأدوية والمنتجات الصحية"
-      : "All Medicines & Health Products"
-    : sub || main;
+  const heading = q
+    ? (locale === "ar" ? `نتائج البحث عن: "${q}"` : `Search results for: "${q}"`)
+    : isAll
+      ? (locale === "ar" ? "جميع الأدوية والمنتجات الصحية" : "All Medicines & Health Products")
+      : (sub || main);
   const totalProducts = data?.total ?? 0;
   const pages = Math.max(Math.ceil(totalProducts / (data?.limit || 24)), 1);
+  const qParam = q ? `&q=${encodeURIComponent(q)}` : "";
   const basePath = isAll
     ? `/${locale}/c`
     : `/${locale}/c/${encodeURIComponent(main)}${sub ? `/${encodeURIComponent(sub)}` : ""}`;
 
   const CANONICAL_CATEGORIES = [
-    { id: "all", name: locale === "ar" ? "الكل" : "All", slug: "all", icon: <VectorCatAll size={44} />, matchKey: "all" },
-    { id: "medications", name: locale === "ar" ? "أدوية وعلاجات" : "Medicines", slug: "أدوية وعلاجات", icon: <VectorPharmacy size={44} />, matchKey: "medications" },
-    { id: "hair-care", name: locale === "ar" ? "عناية بالشعر" : "Hair Care", slug: "عناية بالشعر", icon: <VectorCatHairCare size={44} />, matchKey: "hair" },
-    { id: "cosmetics", name: locale === "ar" ? "مكياج وإكسسوارات" : "Makeup & Beauty", slug: "مكياج وإكسسوارات", icon: <VectorCatCosmetics size={44} />, matchKey: "cosmetic" },
-    { id: "skincare", name: locale === "ar" ? "العناية بالبشرة" : "Skin Care", slug: "العناية بالبشرة", icon: <VectorCatSkinCare size={44} />, matchKey: "skin" },
-    { id: "baby", name: locale === "ar" ? "الأم والطفل" : "Mother & Baby", slug: "الأم والطفل", icon: <VectorCatBabyCare size={44} />, matchKey: "baby" },
-    { id: "vitamins", name: locale === "ar" ? "فيتامينات ومكملات" : "Vitamins", slug: "فيتامينات ومكملات", icon: <VectorCatVitamins size={44} />, matchKey: "vitamin" },
-    { id: "personal-care", name: locale === "ar" ? "عناية شخصية" : "Personal Care", slug: "عناية شخصية", icon: <VectorCatPersonalCare size={44} />, matchKey: "personal" },
+    { id: "all", name: locale === "ar" ? "الكل" : "All", dbName: "all", icon: <VectorCatAll size={44} />, matchKey: "all" },
+    { id: "medications", name: locale === "ar" ? "أدوية وعلاجات" : "Medicines", dbName: "الأدوية والعلاج", icon: <VectorPharmacy size={44} />, matchKey: "أدوية" },
+    { id: "hair-care", name: locale === "ar" ? "عناية بالشعر" : "Hair Care", dbName: "العناية بالشعر", icon: <VectorCatHairCare size={44} />, matchKey: "شعر" },
+    { id: "cosmetics", name: locale === "ar" ? "مكياج وإكسسوارات" : "Makeup & Beauty", dbName: "المكياج والإكسسوارات", icon: <VectorCatCosmetics size={44} />, matchKey: "مكياج" },
+    { id: "skincare", name: locale === "ar" ? "العناية بالبشرة" : "Skin Care", dbName: "العناية بالبشرة", icon: <VectorCatSkinCare size={44} />, matchKey: "بشرة" },
+    { id: "baby", name: locale === "ar" ? "الأم والطفل" : "Mother & Baby", dbName: "الأم والطفل", icon: <VectorCatBabyCare size={44} />, matchKey: "طفل" },
+    { id: "vitamins", name: locale === "ar" ? "فيتامينات ومكملات" : "Vitamins", dbName: "الفيتامينات والتغذية الصحية", icon: <VectorCatVitamins size={44} />, matchKey: "فيتامين" },
+    { id: "personal-care", name: locale === "ar" ? "عناية شخصية" : "Personal Care", dbName: "العناية الشخصية", icon: <VectorCatPersonalCare size={44} />, matchKey: "شخصية" },
   ];
 
   const categoriesList = CANONICAL_CATEGORIES.map((c) => {
-    const isCatActive = Boolean(c.id === "all" ? isAll : (main === c.slug || main === c.id || (main && main.toLowerCase().includes(c.matchKey))));
-    const catCount = c.id === "all" ? totalProducts : (tree?.categories.find((tc) => tc.name.includes(c.name) || tc.name.includes(c.matchKey))?.count ?? 0);
+    const isCatActive = Boolean(
+      c.id === "all"
+        ? isAll
+        : (main === c.dbName || main === c.id || (main && (main.includes(c.matchKey) || c.dbName.includes(main))))
+    );
+    const catCount = c.id === "all"
+      ? (tree?.categories.reduce((acc, tc) => acc + (tc.count || 0), 0) ?? totalProducts)
+      : (tree?.categories.find((tc) => tc.name === c.dbName || tc.name.includes(c.matchKey))?.count ?? 0);
     return {
       id: c.id,
       name: c.name,
-      link: c.id === "all" ? `/${locale}/c` : `/${locale}/c/${encodeURIComponent(c.slug)}`,
+      link: c.id === "all" ? `/${locale}/c` : `/${locale}/c/${encodeURIComponent(c.dbName)}`,
       icon: c.icon,
       isActive: isCatActive,
       count: catCount,
@@ -355,13 +363,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         {pages > 1 ? (
           <nav className={styles.pager} aria-label="pagination">
             {page > 1 ? (
-              <Link href={`${basePath}?page=${page - 1}`}>
+              <Link href={`${basePath}?page=${page - 1}${qParam}`}>
                 <ChevronLeft size={15} aria-hidden="true" />
                 {t("backToCatalog")}
               </Link>
             ) : null}
             <span>{t("page").replace("{page}", `${page} / ${pages}`)}</span>
-            {page < pages ? <Link href={`${basePath}?page=${page + 1}`}>{t("loadMore")}</Link> : null}
+            {page < pages ? <Link href={`${basePath}?page=${page + 1}${qParam}`}>{t("loadMore")}</Link> : null}
           </nav>
         ) : null}
       </section>
