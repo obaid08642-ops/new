@@ -536,10 +536,10 @@ export function CheckoutFlow({ locale }: Props) {
             {items.map((item) => (
               <div key={item.id} className={styles.summaryItemRow}>
                 <div className={styles.summaryItemTitle}>
-                  <strong>{isAr ? item.nameAr || item.name : item.name}</strong>
-                  <span>{item.quantity} × {item.price} {isAr ? "ر.س" : "SAR"}</span>
+                  <strong>{item.name}</strong>
+                  <span>{item.qty} × {item.price} {isAr ? "ر.س" : "SAR"}</span>
                 </div>
-                <span className={styles.summaryItemPrice}>{(item.price * item.quantity).toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
+                <span className={styles.summaryItemPrice}>{(item.price * item.qty).toFixed(2)} {isAr ? "ر.س" : "SAR"}</span>
               </div>
             ))}
           </div>
