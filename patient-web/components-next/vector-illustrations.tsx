@@ -862,3 +862,449 @@ export function VectorChronicCare({ size = 48, className, ...props }: Illustrati
   );
 }
 
+/**
+ * 20. Dedicated Diagnostic Test: Vitamin D (25-OH)
+ */
+export function VectorTestVitaminD({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="vit_d_sun" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FBBF24" />
+          <stop offset="1" stopColor="#D97706" />
+        </linearGradient>
+        <linearGradient id="vit_d_drop" x1="24" y1="20" x2="40" y2="46" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FEF08A" />
+          <stop offset="1" stopColor="#F59E0B" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(245, 158, 11, 0.12)" />
+      {/* Radiant Sunburst Petals */}
+      <circle cx="32" cy="32" r="19" stroke="#FDE68A" strokeWidth="2" strokeDasharray="3 3" />
+      <g stroke="#D97706" strokeWidth="2.5" strokeLinecap="round">
+        <line x1="32" y1="11" x2="32" y2="15" />
+        <line x1="32" y1="49" x2="32" y2="53" />
+        <line x1="11" y1="32" x2="15" y2="32" />
+        <line x1="49" y1="32" x2="53" y2="32" />
+        <line x1="17" y1="17" x2="20" y2="20" />
+        <line x1="44" y1="44" x2="47" y2="47" />
+        <line x1="47" y1="17" x2="44" y2="20" />
+        <line x1="20" y1="44" x2="17" y2="47" />
+      </g>
+      {/* Golden Vitamin Droplet */}
+      <path
+        d="M32 18C32 18 20 31 20 37C20 43.6274 25.3726 49 32 49C38.6274 49 44 43.6274 44 37C44 31 32 18 32 18Z"
+        fill="url(#vit_d_sun)"
+      />
+      {/* Gloss Highlight */}
+      <path
+        d="M27 28C24 33 24 38 27 41"
+        stroke="#FFFBEB"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+      {/* Letter D badge */}
+      <text x="32" y="42" textAnchor="middle" fill="#FFFFFF" fontSize="13" fontWeight="900" fontFamily="sans-serif">D3</text>
+    </svg>
+  );
+}
+
+/**
+ * 21. Dedicated Diagnostic Test: Blood Sugar & HbA1c (سكر الدم التراكمي)
+ */
+export function VectorTestHbA1c({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="hba1c_meter" x1="16" y1="14" x2="48" y2="50" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#EF4444" />
+          <stop offset="1" stopColor="#B91C1C" />
+        </linearGradient>
+        <linearGradient id="hba1c_screen" x1="22" y1="20" x2="42" y2="34" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#1E293B" />
+          <stop offset="1" stopColor="#0F172A" />
+        </linearGradient>
+        <linearGradient id="strip_grad" x1="28" y1="44" x2="36" y2="56" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#5FD9B3" />
+          <stop offset="1" stopColor="#00876F" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(239, 68, 68, 0.12)" />
+      {/* Glucometer Body */}
+      <rect x="18" y="14" width="28" height="34" rx="10" fill="url(#hba1c_meter)" />
+      {/* Digital Screen */}
+      <rect x="22" y="19" width="20" height="15" rx="4" fill="url(#hba1c_screen)" />
+      {/* Display Graph / Value */}
+      <text x="32" y="30" textAnchor="middle" fill="#5FD9B3" fontSize="8.5" fontWeight="bold" fontFamily="monospace">5.4%</text>
+      {/* Button */}
+      <circle cx="32" cy="40" r="3" fill="#FFFFFF" fillOpacity="0.8" />
+      {/* Blood Test Strip Inserting at Bottom */}
+      <rect x="28" y="46" width="8" height="11" rx="2" fill="url(#strip_grad)" />
+      {/* Blood Sample Drop */}
+      <path
+        d="M32 50C32 50 29 53 29 55C29 56.6569 30.3431 58 32 58C33.6569 58 35 56.6569 35 55C35 53 32 50 32 50Z"
+        fill="#DC2626"
+      />
+    </svg>
+  );
+}
+
+/**
+ * 22. Dedicated Diagnostic Test: Thyroid Hormones (TSH, T3, T4 - الغدة الدرقية)
+ */
+export function VectorTestThyroid({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="thyroid_butterfly" x1="14" y1="16" x2="50" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#8B5CF6" />
+          <stop offset="0.5" stopColor="#6366F1" />
+          <stop offset="1" stopColor="#4338CA" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(139, 92, 246, 0.12)" />
+      {/* Trachea Windpipe Line */}
+      <path d="M32 12V52" stroke="#CBD5E1" strokeWidth="3" strokeLinecap="round" strokeDasharray="3 3" />
+      {/* Thyroid Butterfly Gland */}
+      <path
+        d="M32 30C28 26 17 22 15 32C13 41 23 48 30 38L32 35L34 38C41 48 51 41 49 32C47 22 36 26 32 30Z"
+        fill="url(#thyroid_butterfly)"
+      />
+      {/* Isthmus & Hormone Pulses */}
+      <circle cx="23" cy="34" r="3.5" fill="#C4B5FD" />
+      <circle cx="41" cy="34" r="3.5" fill="#C4B5FD" />
+      <circle cx="32" cy="27" r="2.5" fill="#5FD9B3" />
+      {/* Sparkle metabolic indicator */}
+      <path d="M46 16L47.5 20L51.5 21.5L47.5 23L46 27L44.5 23L40.5 21.5L44.5 20L46 16Z" fill="#FBBF24" />
+    </svg>
+  );
+}
+
+/**
+ * 23. Dedicated Diagnostic Test: Lipid Profile & Cholesterol (الدهون والكوليسترول)
+ */
+export function VectorTestLipids({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="lipid_drop1" x1="16" y1="18" x2="34" y2="44" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F59E0B" />
+          <stop offset="1" stopColor="#D97706" />
+        </linearGradient>
+        <linearGradient id="lipid_drop2" x1="32" y1="24" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#10B981" />
+          <stop offset="1" stopColor="#047857" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(245, 158, 11, 0.12)" />
+      {/* Protective Heart-Artery Vessel Ring */}
+      <circle cx="32" cy="32" r="18" stroke="#FDE68A" strokeWidth="2.5" strokeDasharray="4 2" />
+      {/* Yellow/Amber Lipid Drop (LDL / Triglycerides) */}
+      <path
+        d="M26 18C26 18 16 29 16 34C16 39.5228 20.4772 44 26 44C31.5228 44 36 39.5228 36 34C36 29 26 18 26 18Z"
+        fill="url(#lipid_drop1)"
+        fillOpacity="0.9"
+      />
+      {/* Green Healthy Lipid Drop (HDL) */}
+      <path
+        d="M39 23C39 23 30 32 30 37C30 41.9706 34.0294 46 39 46C43.9706 46 48 41.9706 48 37C48 32 39 23 39 23Z"
+        fill="url(#lipid_drop2)"
+        fillOpacity="0.85"
+      />
+      {/* Lipid Chemical Bond Ring Nodes */}
+      <circle cx="23" cy="34" r="2.5" fill="#FFFFFF" />
+      <circle cx="41" cy="37" r="2.5" fill="#FFFFFF" />
+      <line x1="25.5" y1="34.5" x2="38.5" y2="36.5" stroke="#FFFFFF" strokeWidth="1.5" strokeDasharray="2 1" />
+    </svg>
+  );
+}
+
+/**
+ * 24. Dedicated Diagnostic Test: Pregnancy Test (اختبار الحمل)
+ */
+export function VectorTestPregnancy({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="preg_cassette" x1="12" y1="20" x2="52" y2="44" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFFFFF" />
+          <stop offset="1" stopColor="#FDF2F8" />
+        </linearGradient>
+        <linearGradient id="preg_cap" x1="42" y1="22" x2="54" y2="42" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F472B6" />
+          <stop offset="1" stopColor="#EC4899" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(236, 72, 153, 0.12)" />
+      {/* Test Stick Body */}
+      <rect x="12" y="24" width="34" height="16" rx="8" fill="url(#preg_cassette)" stroke="#FBCFE8" strokeWidth="1.5" />
+      {/* Pink Removable Cap */}
+      <rect x="44" y="24" width="10" height="16" rx="5" fill="url(#preg_cap)" />
+      {/* Test Indicator Window */}
+      <rect x="19" y="28" width="18" height="8" rx="3" fill="#FCE7F3" />
+      {/* Double Positive Pregnancy Test Lines */}
+      <line x1="24" y1="30" x2="24" y2="34" stroke="#E11D48" strokeWidth="2" strokeLinecap="round" />
+      <line x1="30" y1="30" x2="30" y2="34" stroke="#E11D48" strokeWidth="2" strokeLinecap="round" />
+      {/* Cute Heart accent on top */}
+      <path
+        d="M28 17C26 14 23 15 23 17.5C23 20 28 23 28 23C28 23 33 20 33 17.5C33 15 30 14 28 17Z"
+        fill="#EC4899"
+      />
+    </svg>
+  );
+}
+
+/**
+ * 25. Dedicated Diagnostic Test: Complete Blood Count CBC (صورة الدم الكاملة)
+ */
+export function VectorTestCBC({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="cbc_tube" x1="24" y1="12" x2="40" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F8FAFC" />
+          <stop offset="1" stopColor="#E2E8F0" />
+        </linearGradient>
+        <linearGradient id="cbc_purple_cap" x1="25" y1="10" x2="39" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#A855F7" />
+          <stop offset="1" stopColor="#7E22CE" />
+        </linearGradient>
+        <linearGradient id="cbc_blood" x1="25" y1="28" x2="39" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#EF4444" />
+          <stop offset="0.6" stopColor="#DC2626" />
+          <stop offset="1" stopColor="#991B1B" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(168, 85, 247, 0.12)" />
+      {/* Vacutainer Glass Tube Body */}
+      <path
+        d="M25 20H39V44C39 47.866 35.866 51 32 51C28.134 51 25 47.866 25 44V20Z"
+        fill="url(#cbc_tube)"
+        stroke="#CBD5E1"
+        strokeWidth="1.5"
+      />
+      {/* Lavender EDTA Tube Cap */}
+      <rect x="23" y="12" width="18" height="8" rx="3" fill="url(#cbc_purple_cap)" />
+      {/* Blood Column */}
+      <path
+        d="M26 28H38V44C38 47.3137 35.3137 50 32 50C28.6863 50 26 47.3137 26 44V28Z"
+        fill="url(#cbc_blood)"
+      />
+      {/* Tube Graduations */}
+      <line x1="28" y1="33" x2="31" y2="33" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="28" y1="38" x2="33" y2="38" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="28" y1="43" x2="31" y2="43" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+      {/* Floating Blood Cells (Erythrocytes & Leukocytes) */}
+      <circle cx="47" cy="24" r="4" fill="#EF4444" />
+      <circle cx="47" cy="24" r="1.5" fill="#B91C1C" />
+      <circle cx="16" cy="38" r="3.5" fill="#EF4444" />
+      <circle cx="48" cy="42" r="3.5" fill="#60A5FA" stroke="#FFFFFF" strokeWidth="1" />
+    </svg>
+  );
+}
+
+/**
+ * 26. Dedicated Diagnostic Test: Liver & Kidney Function (وظائف الكبد والكلى)
+ */
+export function VectorTestLiverKidney({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="liver_grad" x1="14" y1="18" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F59E0B" />
+          <stop offset="1" stopColor="#B45309" />
+        </linearGradient>
+        <linearGradient id="kidney_grad" x1="30" y1="26" x2="50" y2="50" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#06B6D4" />
+          <stop offset="1" stopColor="#0E7490" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(14, 116, 144, 0.12)" />
+      {/* Medical Protective Shield */}
+      <path
+        d="M32 10L48 16V28C48 39 41 49 32 54C23 49 16 39 16 28V16L32 10Z"
+        fill="#FFFFFF"
+        stroke="#E2E8F0"
+        strokeWidth="1.5"
+      />
+      {/* Liver Silhouette (Top Left) */}
+      <path
+        d="M20 22C24 19 32 20 33 24C34 28 30 33 24 33C19 33 18 25 20 22Z"
+        fill="url(#liver_grad)"
+      />
+      {/* Kidney Bean Silhouette (Bottom Right) */}
+      <path
+        d="M36 29C41 27 46 31 46 38C46 44 41 47 37 45C34 43 35 39 37 38C39 37 38 34 36 33C35 32 34 30 36 29Z"
+        fill="url(#kidney_grad)"
+      />
+      {/* Filtration Sparkle */}
+      <circle cx="26" cy="27" r="1.8" fill="#FEF3C7" />
+      <circle cx="41" cy="38" r="1.8" fill="#CFFAFE" />
+    </svg>
+  );
+}
+
+/**
+ * 27. Dedicated Radiology: Chest & Skeletal X-Ray (الأشعة السينية)
+ */
+export function VectorScanChestXray({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="xray_screen" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0F172A" />
+          <stop offset="1" stopColor="#1E293B" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(15, 23, 42, 0.1)" />
+      {/* Radiographic Negative Film Sheet */}
+      <rect x="14" y="14" width="36" height="36" rx="8" fill="url(#xray_screen)" stroke="#334155" strokeWidth="1.5" />
+      {/* Spine / Vertebrae */}
+      <line x1="32" y1="18" x2="32" y2="44" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Rib Cage Bilateral Arcs */}
+      <path d="M25 24C28 26 31 26 32 26C33 26 36 26 39 24" stroke="#E2E8F0" strokeWidth="2" strokeLinecap="round" />
+      <path d="M23 29C27 32 31 32 32 32C33 32 37 32 41 29" stroke="#E2E8F0" strokeWidth="2" strokeLinecap="round" />
+      <path d="M24 35C28 38 31 38 32 38C33 38 36 38 40 35" stroke="#E2E8F0" strokeWidth="2" strokeLinecap="round" />
+      {/* Cyan X-Ray Glow Beam */}
+      <path d="M16 16L22 22" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="44" cy="20" r="2" fill="#38BDF8" />
+    </svg>
+  );
+}
+
+/**
+ * 28. Dedicated Radiology: Ultrasound & Sonar (الأشعة التلفزيونية والسونار)
+ */
+export function VectorScanUltrasound({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="us_probe" x1="16" y1="14" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3B82F6" />
+          <stop offset="1" stopColor="#1D4ED8" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(59, 130, 246, 0.12)" />
+      {/* Transducer Probe Handle */}
+      <rect x="16" y="14" width="14" height="22" rx="4" fill="url(#us_probe)" />
+      <rect x="14" y="34" width="18" height="5" rx="2" fill="#93C5FD" />
+      {/* Cord */}
+      <path d="M23 14C23 10 32 10 34 8" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" />
+      {/* Radiating Acoustic Ultrasound Waves */}
+      <path d="M28 42C33 41 38 43 42 47" stroke="#60A5FA" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M33 46C38 45 44 48 48 52" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M38 50C43 50 49 53 53 57" stroke="#1D4ED8" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * 29. Dedicated Radiology: MRI & CT Scanner (الرنين المغناطيسي والأشعة المقطعية)
+ */
+export function VectorScanMRI({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="mri_gantry" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0284C7" />
+          <stop offset="1" stopColor="#0369A1" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(2, 132, 199, 0.12)" />
+      {/* MRI Gantry Donut */}
+      <rect x="12" y="14" width="40" height="36" rx="14" fill="url(#mri_gantry)" />
+      {/* Bore Opening */}
+      <ellipse cx="32" cy="32" rx="11" ry="12" fill="#0F172A" />
+      <ellipse cx="32" cy="32" rx="9" ry="10" fill="#1E293B" />
+      {/* Patient Examination Table */}
+      <rect x="25" y="32" width="14" height="22" rx="3" fill="#E2E8F0" />
+      <line x1="28" y1="36" x2="36" y2="36" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Magnetic Resonance Ring Beam */}
+      <circle cx="32" cy="32" r="14" stroke="#5FD9B3" strokeWidth="1.5" strokeDasharray="3 3" />
+    </svg>
+  );
+}
+
+/**
+ * 30. Dedicated Radiology: Echocardiogram & Heart Ultrasound (إيكو القلب)
+ */
+export function VectorScanEcho({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id="echo_heart" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#EC4899" />
+          <stop offset="1" stopColor="#BE185D" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(236, 72, 153, 0.12)" />
+      {/* Heart Anatomy */}
+      <path
+        d="M32 49C32 49 16 38 16 26C16 19.5 21 15 26.5 15C29.5 15 32 17 32 17C32 17 34.5 15 37.5 15C43 15 48 19.5 48 26C48 38 32 49 32 49Z"
+        fill="url(#echo_heart)"
+      />
+      {/* Doppler Pulse Wave */}
+      <path
+        d="M20 30H25L28 22L32 38L36 26L39 32H44"
+        stroke="#FFFFFF"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Sonar sweep line */}
+      <path d="M14 18L22 26" stroke="#5FD9B3" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * Universal Diagnostic Vector Illustration Resolver
+ */
+export function getDiagnosticVector(name: string, categoryOrModality?: string, size = 48) {
+  const text = `${name || ""} ${categoryOrModality || ""}`.toLowerCase();
+  
+  // Specific Lab tests
+  if (text.includes("فيتامين د") || text.includes("vitamin d") || text.includes("25-oh") || text.includes("vit d")) {
+    return <VectorTestVitaminD size={size} />;
+  }
+  if (text.includes("تراكمي") || text.includes("hba1c") || text.includes("سكر") || text.includes("glucose") || text.includes("fbs")) {
+    return <VectorTestHbA1c size={size} />;
+  }
+  if (text.includes("غدة") || text.includes("درقية") || text.includes("tsh") || text.includes("thyroid") || text.includes("t3") || text.includes("t4")) {
+    return <VectorTestThyroid size={size} />;
+  }
+  if (text.includes("دهن") || text.includes("كولسترول") || text.includes("lipid") || text.includes("cholesterol") || text.includes("ldl") || text.includes("hdl") || text.includes("triglycerides")) {
+    return <VectorTestLipids size={size} />;
+  }
+  if (text.includes("حمل") || text.includes("pregnancy") || text.includes("hcg")) {
+    return <VectorTestPregnancy size={size} />;
+  }
+  if (text.includes("cbc") || text.includes("شامل") || text.includes("هيموجلوبين") || text.includes("دم كامل") || text.includes("complete blood") || text.includes("blood count")) {
+    return <VectorTestCBC size={size} />;
+  }
+  if (text.includes("كبد") || text.includes("كلى") || text.includes("liver") || text.includes("kidney") || text.includes("renal") || text.includes("creatinine") || text.includes("alt") || text.includes("ast") || text.includes("urea")) {
+    return <VectorTestLiverKidney size={size} />;
+  }
+  
+  // Specific Radiology scans
+  if (text.includes("إيكو") || text.includes("echo") || text.includes("قلب")) {
+    return <VectorScanEcho size={size} />;
+  }
+  if (text.includes("سونار") || text.includes("تلفزيونية") || text.includes("ultrasound") || text.includes("sonar")) {
+    return <VectorScanUltrasound size={size} />;
+  }
+  if (text.includes("رنين") || text.includes("mri") || text.includes("مقطعية") || text.includes("ct")) {
+    return <VectorScanMRI size={size} />;
+  }
+  if (text.includes("سينية") || text.includes("x-ray") || text.includes("xray") || text.includes("صدر") || text.includes("عظام")) {
+    return <VectorScanChestXray size={size} />;
+  }
+
+  // Fallbacks by domain/modality
+  if (categoryOrModality?.includes("rad") || text.includes("أشعة") || text.includes("radiology") || text.includes("scan")) {
+    return <VectorRadiology size={size} />;
+  }
+  return <VectorLabs size={size} />;
+}
+
+

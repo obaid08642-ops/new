@@ -1,0 +1,729 @@
+.hubContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* Top Dual Tab Bar */
+.topTabBar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.tabPillGroup {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 135, 111, 0.06);
+  padding: 0.35rem;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(0, 135, 111, 0.14);
+  gap: 0.35rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tabPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.tabPill:hover {
+  color: #00876F;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tabPillActive {
+  background: #00876F !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(0, 135, 111, 0.28);
+}
+
+.badgeCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* Insurance Golden Banner */
+.insuranceBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.4rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FDE68A 100%);
+  border: 1.5px solid #F59E0B;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+}
+
+.insuranceContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.insuranceIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  color: #D97706;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.15);
+  flex-shrink: 0;
+}
+
+.insuranceContent h3 {
+  margin: 0;
+  color: #92400E;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.insuranceContent p {
+  margin: 0.2rem 0 0;
+  color: #B45309;
+  font-size: 0.85rem;
+}
+
+.insuranceAction {
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  background: #D97706;
+  color: #FFFFFF;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.insuranceAction:hover {
+  background: #B45309;
+}
+
+/* Controls: Search & Visit Switcher */
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  inset-inline-start: 1rem;
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 48px;
+  padding-inline-start: 2.8rem;
+  padding-inline-end: 2.5rem;
+  border-radius: 14px;
+  border: 1.5px solid rgba(0, 135, 111, 0.18);
+  background: #FFFFFF;
+  color: #0F172A;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #00876F;
+  box-shadow: 0 0 0 3px rgba(0, 135, 111, 0.15);
+}
+
+.clearBtn {
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #F1F5F9;
+  border-radius: 50%;
+  color: #64748B;
+  cursor: pointer;
+}
+
+.serviceToggleWrap {
+  display: inline-flex;
+  align-items: center;
+  background: #F1F5F9;
+  padding: 0.25rem;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  gap: 0.25rem;
+}
+
+.serviceToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.serviceToggleActive {
+  background: #FFFFFF;
+  color: #00876F;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* Fast Filter Chips */
+.filterChipsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+}
+
+.filterChipsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.filterChip:hover {
+  border-color: #00876F;
+  color: #00876F;
+}
+
+.filterChipActive {
+  background: rgba(0, 135, 111, 0.1) !important;
+  border-color: #00876F !important;
+  color: #00876F !important;
+  font-weight: 800;
+}
+
+/* Packages Section */
+.packagesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(0, 135, 111, 0.04) 0%, rgba(95, 217, 179, 0.08) 100%);
+  border: 1px solid rgba(0, 135, 111, 0.12);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.packagesSub {
+  font-size: 0.85rem;
+  color: #64748B;
+}
+
+.countBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(0, 135, 111, 0.1);
+  color: #00876F;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.packagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.packageCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #FFFFFF;
+  border: 1.5px solid rgba(0, 135, 111, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.packageBadge {
+  position: absolute;
+  top: 1rem;
+  inset-inline-end: 1rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: #FEF3C7;
+  color: #B45309;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.packageTop {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.packageIconWrap {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(0, 135, 111, 0.08);
+  flex-shrink: 0;
+}
+
+.packageTop h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.packageDesc {
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+  color: #64748B;
+  line-height: 1.5;
+}
+
+.packageFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #F1F5F9;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.priceVal {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #00876F;
+}
+
+.priceCurrency {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748B;
+}
+
+/* Diagnostic Test Cards Grid */
+.servicesGridSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .cardsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.testCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem;
+  border-radius: 1.15rem;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.testCard:hover {
+  border-color: rgba(0, 135, 111, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 135, 111, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.cardVectorWrap {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: rgba(0, 135, 111, 0.04);
+  border: 1px solid rgba(0, 135, 111, 0.12);
+  flex-shrink: 0;
+}
+
+.cardTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.testName {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.testSubName {
+  font-size: 0.78rem;
+  color: #64748B;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.85rem 0;
+}
+
+.categoryTag,
+.fastingTag,
+.homeTag,
+.turnaroundTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.categoryTag {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.fastingTag {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.homeTag {
+  background: rgba(0, 135, 111, 0.08);
+  color: #00876F;
+}
+
+.turnaroundTag {
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #F8FAFC;
+}
+
+.cardPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.priceNum {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #00876F;
+}
+
+.priceCurr {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748B;
+}
+
+/* Empty / No Results State */
+.noResultsBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border-radius: 1.25rem;
+  background: #F8FAFC;
+  border: 1.5px dashed #CBD5E1;
+}
+
+.noResultsIcon {
+  color: #94A3B8;
+  margin-bottom: 0.75rem;
+}
+
+.noResultsBox h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.noResultsBox p {
+  margin: 0.35rem 0 1.25rem;
+  font-size: 0.88rem;
+  color: #64748B;
+}
+
+.resetFilterBtn {
+  padding: 0.6rem 1.3rem;
+  border-radius: 9999px;
+  background: #00876F;
+  color: #FFFFFF;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.resetFilterBtn:hover {
+  background: #006C59;
+}
+
+/* Bookings Section */
+.bookingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookingsSection h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.bookingDomainsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.bookingDomainCard {
+  padding: 1.25rem;
+  border-radius: 1.15rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.domainHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.domainIconWrap {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(0, 135, 111, 0.1);
+  color: #00876F;
+}
+
+.domainHeader h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.emptyBookings {
+  padding: 1rem;
+  border-radius: 10px;
+  background: #F8FAFC;
+  color: #64748B;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+}
+
+.bookingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.bookingCardItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.bookingCardItem:hover {
+  border-color: #00876F;
+  background: #F8FAFC;
+}
+
+.bookingItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bookingItemInfo strong {
+  font-size: 0.92rem;
+  color: #0F172A;
+}
+
+.bookingStateBadge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.bookingDate {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #64748B;
+}
+
+.bookingItemOpen {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #00876F;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .insuranceBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .insuranceAction {
+    align-self: flex-end;
+  }
+
+  .controlsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .serviceToggleWrap {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .serviceToggleBtn {
+    flex: 1;
+    justify-content: center;
+  }
+}
