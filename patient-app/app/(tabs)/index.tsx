@@ -84,14 +84,88 @@ export default function HealthDayScreen() {
       </Animated.View>
       {hasError ? <Card style={[styles.error, { backgroundColor: colors.warningSurface, borderColor: colors.warning + '50' }]}><AppText variant="caption" color={colors.textPrimary} align="right">{t('error')}</AppText><TouchableOpacity accessibilityRole="button" onPress={() => void load(true)}><AppText variant="labelSM" color={colors.primary}>{t('retry')}</AppText></TouchableOpacity></Card> : null}
 
-      <Section title={t('quickAccess')} colors={colors} />
-      <View style={styles.quickGrid}>
-        <Quick icon="consultations" color="#2E86FF" label={t('consultation')} onPress={() => router.push('/(tabs)/consultations')} colors={colors} />
-        <Quick icon="pharmacy" color="#16A34A" label={t('pharmacy')} onPress={() => router.push('/(tabs)/pharmacy')} colors={colors} />
-        <Quick icon="science" color="#7A6BEA" label={t('diagnostics')} onPress={() => router.push('/(tabs)/diagnostics')} colors={colors} />
-        <Quick icon="emergency" color="#DC2626" label={t('emergency')} onPress={() => router.push('/emergency/sos')} colors={colors} />
-        <Quick icon="heart-pulse" color="#23B5CE" label={t('profile')} onPress={() => router.push('/(tabs)/health')} colors={colors} />
-        <Quick icon="brain" color="#7A6BEA" label={t('safeTriage')} onPress={() => router.push('/ai/triage')} colors={colors} />
+      <Section title={lang === 'ar' ? 'الخدمات الطبية الأساسية' : 'Core Health Services'} colors={colors} />
+      <View style={styles.coreGrid}>
+        <CoreCard
+          icon="pharmacy"
+          iconColor="#16A34A"
+          iconBg="rgba(22, 163, 74, 0.12)"
+          badge={lang === 'ar' ? 'توصيل 30 دقيقة' : '30-min Delivery'}
+          badgeColor="#16A34A"
+          title={t('pharmacy')}
+          subtitle={lang === 'ar' ? 'أدوية ومستلزمات فورية' : 'Instant medication delivery'}
+          onPress={() => router.push('/(tabs)/pharmacy')}
+          colors={colors}
+        />
+        <CoreCard
+          icon="consultations"
+          iconColor="#2E86FF"
+          iconBg="rgba(46, 134, 255, 0.12)"
+          badge={lang === 'ar' ? 'أطباء معتمدون' : 'Verified Doctors'}
+          badgeColor="#2E86FF"
+          title={t('consultation')}
+          subtitle={lang === 'ar' ? 'استشارات فورية ومواعيد' : 'Instant visits & clinic booking'}
+          onPress={() => router.push('/(tabs)/consultations')}
+          colors={colors}
+        />
+        <CoreCard
+          icon="science"
+          iconColor="#D97706"
+          iconBg="rgba(217, 119, 6, 0.12)"
+          badge={lang === 'ar' ? 'سحب منزلي' : 'Home Sample'}
+          badgeColor="#D97706"
+          title={t('diagnostics')}
+          subtitle={lang === 'ar' ? 'باقات تحاليل وأشعة' : 'Lab packages & radiology'}
+          onPress={() => router.push('/(tabs)/diagnostics')}
+          colors={colors}
+        />
+        <CoreCard
+          icon="nurse"
+          iconColor="#E11D48"
+          iconBg="rgba(225, 29, 72, 0.12)"
+          badge={lang === 'ar' ? 'زيارة فورية' : 'Home Visit'}
+          badgeColor="#E11D48"
+          title={lang === 'ar' ? 'التمريض المنزلي' : 'Home Nursing'}
+          subtitle={lang === 'ar' ? 'رعاية تمريضية ومحاليل' : 'Nurse visits & IV infusions'}
+          onPress={() => router.push('/(tabs)/nursing')}
+          colors={colors}
+        />
+      </View>
+
+      <Section title={lang === 'ar' ? 'منظومة الرعاية المتخصصة' : 'Specialized Care Hub'} colors={colors} />
+      <View style={styles.verticalsGrid}>
+        <VerticalPill
+          icon="pregnant_woman"
+          color="#EC4899"
+          title={t('maternity')}
+          subtitle={lang === 'ar' ? 'أسبوعاً بأسبوع' : 'Weekly Tracker'}
+          onPress={() => router.push('/maternity/hub')}
+          colors={colors}
+        />
+        <VerticalPill
+          icon="food"
+          color="#10B981"
+          title={t('nutrition')}
+          subtitle={lang === 'ar' ? 'حميات وتتبع' : 'Meal Plans'}
+          onPress={() => router.push('/nutrition/daily-tracker')}
+          colors={colors}
+        />
+        <VerticalPill
+          icon="brain"
+          color="#8B5CF6"
+          title={lang === 'ar' ? 'الصحة النفسية' : 'Mental Wellness'}
+          subtitle={lang === 'ar' ? 'جلسات وتأمل' : 'Mindfulness'}
+          onPress={() => router.push('/mental-health/mood-journal')}
+          colors={colors}
+        />
+        <VerticalPill
+          icon="heart-pulse"
+          color="#0284C7"
+          title={lang === 'ar' ? 'الرعاية المزمنة' : 'Chronic Care'}
+          subtitle={lang === 'ar' ? 'تذكير ومتابعة' : 'Med Reminders'}
+          onPress={() => router.push('/health/medication-reminder-list')}
+          colors={colors}
+        />
       </View>
 
       <Section title={t('medications')} action={t('manageReminders')} onAction={() => router.push('/health/medication-reminder-list')} colors={colors} />
@@ -113,7 +187,67 @@ export default function HealthDayScreen() {
 }
 
 function Section({ title, action, onAction, colors }: { title: string; action?: string; onAction?: () => void; colors: any }) { return <View style={styles.sectionHeader}><View style={{ flex: 1 }} />{action && onAction ? <TouchableOpacity onPress={onAction}><AppText variant="labelSM" color={colors.primary}>{action}</AppText></TouchableOpacity> : null}<AppText variant="h5" color={colors.textPrimary} style={{ marginLeft: action ? 12 : 0 }}>{title}</AppText></View>; }
-function Quick({ icon, color, label, onPress, colors }: { icon: any; color: string; label: string; onPress: () => void; colors: any }) { return <TouchableOpacity accessibilityRole="button" onPress={onPress} style={[styles.quick, { backgroundColor: colors.surface, borderColor: colors.border }]}><View style={[styles.quickIcon, { backgroundColor: color + '18' }]}><Icon name={icon} size={22} color={color} /></View><AppText variant="caption" color={colors.textPrimary} align="center" numberOfLines={2}>{label}</AppText></TouchableOpacity>; }
+
+function CoreCard({ icon, iconColor, iconBg, badge, badgeColor, title, subtitle, onPress, colors }: { icon: any; iconColor: string; iconBg: string; badge: string; badgeColor: string; title: string; subtitle: string; onPress: () => void; colors: any }) {
+  return (
+    <TouchableOpacity accessibilityRole="button" onPress={onPress} activeOpacity={0.88} style={[styles.coreCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={styles.coreTopRow}>
+        <View style={[styles.coreIconWrap, { backgroundColor: iconBg }]}>
+          <Icon name={icon} size={26} color={iconColor} />
+        </View>
+        <View style={[styles.coreBadge, { backgroundColor: iconBg }]}>
+          <AppText variant="caption" style={{ fontSize: 9.5, fontWeight: '700', color: badgeColor }}>{badge}</AppText>
+        </View>
+      </View>
+      <View style={styles.coreBody}>
+        <AppText variant="h6" color={colors.textPrimary} align="right" style={{ fontWeight: '800' }}>{title}</AppText>
+        <AppText variant="caption" color={colors.textTertiary} align="right" numberOfLines={1}>{subtitle}</AppText>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function VerticalPill({ icon, color, title, subtitle, onPress, colors }: { icon: any; color: string; title: string; subtitle: string; onPress: () => void; colors: any }) {
+  return (
+    <TouchableOpacity accessibilityRole="button" onPress={onPress} activeOpacity={0.88} style={[styles.verticalPill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={[styles.verticalIcon, { backgroundColor: color + '18' }]}>
+        <Icon name={icon} size={22} color={color} />
+      </View>
+      <View style={styles.verticalText}>
+        <AppText variant="labelSM" color={colors.textPrimary} align="right" numberOfLines={1} style={{ fontWeight: '700' }}>{title}</AppText>
+        <AppText variant="caption" color={colors.textTertiary} align="right" numberOfLines={1} style={{ fontSize: 10 }}>{subtitle}</AppText>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 function Metric({ icon, color, title, value, onPress, colors }: { icon: any; color: string; title: string; value: string; onPress: () => void; colors: any }) { return <Card onPress={onPress} style={[styles.metric, { borderColor: color + '26' }]}><View style={[styles.metricIcon, { backgroundColor: color + '18' }]}><Icon name={icon} size={20} color={color} /></View><AppText variant="labelSM" color={colors.textSecondary} align="right">{title}</AppText><AppText variant="caption" color={colors.textPrimary} align="right" numberOfLines={2}>{value}</AppText></Card>; }
 
-const styles = StyleSheet.create({ container: { flex: 1 }, center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }, header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }, headerTitle: { alignItems: 'center', gap: 2 }, content: { padding: 16, gap: 14 }, greeting: { borderWidth: 1, borderRadius: 20, padding: 16, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 }, greetingIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, rightText: { flex: 1, alignItems: 'flex-end', gap: 3 }, error: { borderWidth: 1, gap: 8, alignItems: 'flex-end' }, sectionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }, quickGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 10 }, quick: { width: '31.8%', minHeight: 96, padding: 10, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 7 }, quickIcon: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' }, featureCard: { minHeight: 86, flexDirection: 'row-reverse', alignItems: 'center', gap: 12, borderWidth: 1 }, featureIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, doubleGrid: { flexDirection: 'row-reverse', gap: 10 }, metric: { flex: 1, minHeight: 122, gap: 7, borderWidth: 1 }, metricIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-end' } });
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  headerTitle: { alignItems: 'center', gap: 2 },
+  content: { padding: 16, gap: 14 },
+  greeting: { borderWidth: 1, borderRadius: 20, padding: 16, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
+  greetingIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  rightText: { flex: 1, alignItems: 'flex-end', gap: 3 },
+  error: { borderWidth: 1, gap: 8, alignItems: 'flex-end' },
+  sectionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+  coreGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 10 },
+  coreCard: { width: '48.5%', minHeight: 114, padding: 12, borderRadius: 20, borderWidth: 1, justifyContent: 'space-between' },
+  coreTopRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
+  coreIconWrap: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  coreBadge: { paddingHorizontal: 7, paddingVertical: 2.5, borderRadius: 999 },
+  coreBody: { gap: 2, marginTop: 10, alignItems: 'flex-end', width: '100%' },
+  verticalsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 10 },
+  verticalPill: { width: '48.5%', minHeight: 64, padding: 10, borderRadius: 16, borderWidth: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 },
+  verticalIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  verticalText: { flex: 1, alignItems: 'flex-end', gap: 1 },
+  featureCard: { minHeight: 86, flexDirection: 'row-reverse', alignItems: 'center', gap: 12, borderWidth: 1 },
+  featureIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  doubleGrid: { flexDirection: 'row-reverse', gap: 10 },
+  metric: { flex: 1, minHeight: 122, gap: 7, borderWidth: 1 },
+  metricIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-end' }
+});
+

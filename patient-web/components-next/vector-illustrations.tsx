@@ -817,3 +817,48 @@ export function VectorCatPersonalCare({ size = 48, className, ...props }: Illust
     </svg>
   );
 }
+
+/**
+ * 19. Chronic Disease Care & Medication Schedule 3D Vector Illustration
+ */
+export function VectorChronicCare({ size = 48, className, ...props }: IllustrationProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <defs>
+        <linearGradient id="chronic_bg" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0284C7" />
+          <stop offset="0.6" stopColor="#0369A1" />
+          <stop offset="1" stopColor="#075985" />
+        </linearGradient>
+        <linearGradient id="chronic_pill" x1="20" y1="20" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#5FD9B3" />
+          <stop offset="1" stopColor="#B8E030" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="8" width="48" height="48" rx="16" fill="rgba(2,132,199,0.12)" />
+      <rect x="14" y="14" width="36" height="36" rx="10" fill="url(#chronic_bg)" />
+      {/* Biometric pulse */}
+      <path
+        d="M18 32H25L28 24L32 40L36 28L39 34H46"
+        stroke="#5FD9B3"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Clock / Reminder badge in corner */}
+      <circle cx="46" cy="18" r="7" fill="#B8E030" />
+      <path d="M46 15V18L48 20" stroke="#16213A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Dose indicator */}
+      <circle cx="18" cy="46" r="3" fill="#38BDF8" />
+    </svg>
+  );
+}
+

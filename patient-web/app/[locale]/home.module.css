@@ -21,15 +21,16 @@
   }
 }
 
-/* 1. Hero Section with Soft 3D Aesthetics */
+/* 1. Hero Section with Soft 3D Aesthetics & Modern Clarity */
 .hero {
-  background: linear-gradient(135deg, #16213A 0%, #0d4a44 60%, #00876F 100%);
+  background: linear-gradient(135deg, #0A2B24 0%, #064E3B 55%, #00876F 100%);
   border-radius: 28px;
-  padding: 44px 36px;
+  padding: 40px 36px;
   color: #ffffff;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(22, 33, 58, 0.18);
+  box-shadow: 0 16px 40px rgba(6, 78, 59, 0.18);
+  border: 1px solid rgba(95, 217, 179, 0.22);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -71,12 +72,26 @@
   color: #E2E8F0;
 }
 
-.heroVisual {
+.heroVisualWrap {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
   z-index: 1;
+}
+
+.heroShieldIcon {
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.25));
+  animation: floatShield 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatShield {
+  from {
+    transform: translateY(0px) rotate(0deg);
+  }
+  to {
+    transform: translateY(-8px) rotate(1deg);
+  }
 }
 
 .heroActionGroup {
@@ -126,11 +141,12 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* 2. Services Section */
-.servicesSection {
+/* 2. Services Section Head */
+.servicesSection,
+.verticalsSection {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
 }
 
 .sectionHead h2 {
@@ -155,124 +171,196 @@
   color: #94A3B8;
 }
 
-.servicesGrid {
+/* 3. Core 4 Services - Luxury 2-Column Mobile Grid */
+.coreGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
 
-.serviceCard {
+.coreCard {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 16px;
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 22px;
-  padding: 18px 20px;
+  border: 1px solid rgba(0, 135, 111, 0.12);
+  border-radius: 24px;
+  padding: 22px 20px;
   text-decoration: none;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
+  box-shadow: 0 6px 20px rgba(22, 33, 58, 0.04);
   position: relative;
-  box-shadow: 0 4px 14px rgba(22, 33, 58, 0.03);
 }
 
-:global(.dark) .serviceCard {
+:global(.dark) .coreCard {
   background: #132235;
   border-color: #22374E;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
-.serviceCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(22, 33, 58, 0.08);
+.coreCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 135, 111, 0.12);
+  border-color: #00876F;
+}
+
+:global(.dark) .coreCard:hover {
   border-color: #5FD9B3;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
 }
 
-:global(.dark) .serviceCard:hover {
-  border-color: #5FD9B3;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+.coreCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.dangerCard {
-  border-color: #FECACA;
-  background: #FFFDFD;
-}
-
-:global(.dark) .dangerCard {
-  border-color: rgba(239, 68, 68, 0.3);
-  background: #1a1520;
-}
-
-.dangerCard:hover {
-  border-color: #EF4444;
-}
-
-.serviceIconWrap {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
+.coreIconWrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: rgba(0, 135, 111, 0.05);
+  border: 1px solid rgba(0, 135, 111, 0.1);
   transition: transform 0.2s ease;
 }
 
-.serviceCard:hover .serviceIconWrap {
-  transform: scale(1.05);
+.coreCard:hover .coreIconWrap {
+  transform: scale(1.06);
 }
 
-.serviceBody {
-  flex: 1;
-  min-width: 0;
+.coreBadge {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.serviceBody h3 {
-  font-size: 16.5px;
+.coreCardBody h3 {
+  font-size: 17.5px;
   font-weight: 800;
   color: #16213A;
-  margin: 0 0 3px;
+  margin: 0 0 6px;
+  line-height: 1.3;
 }
 
-:global(.dark) .serviceBody h3 {
+:global(.dark) .coreCardBody h3 {
   color: #F0F6FC;
 }
 
-.serviceBody p {
-  font-size: 12.5px;
+.coreCardBody p {
+  font-size: 13px;
   color: #64748B;
   margin: 0;
-  line-height: 1.45;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.5;
 }
 
-:global(.dark) .serviceBody p {
+:global(.dark) .coreCardBody p {
   color: #94A3B8;
 }
 
-.cardArrow {
+/* 4. Specialized Healthcare Verticals Hub */
+.verticalsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.verticalCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 18px 16px;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+  box-shadow: 0 4px 14px rgba(22, 33, 58, 0.02);
+}
+
+:global(.dark) .verticalCard {
+  background: #132235;
+  border-color: #22374E;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.verticalCard:hover {
+  transform: translateY(-3px);
+  border-color: #5FD9B3;
+  box-shadow: 0 10px 24px rgba(22, 33, 58, 0.06);
+}
+
+:global(.dark) .verticalCard:hover {
+  border-color: #5FD9B3;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.verticalIconWrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
   background: #F8FAFC;
-  transition: transform 0.15s ease, background-color 0.15s ease;
-  flex-shrink: 0;
+  border: 1px solid #E2E8F0;
 }
 
-:global(.dark) .cardArrow {
+:global(.dark) .verticalIconWrap {
   background: #1E2D42;
+  border-color: #2D425E;
 }
 
-.serviceCard:hover .cardArrow {
-  transform: translateX(-3px);
-  background: rgba(184, 224, 48, 0.2);
+.verticalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* 3. Trust Banner with Modern Health Badges */
+.verticalTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.verticalTitleRow h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #16213A;
+  margin: 0;
+}
+
+:global(.dark) .verticalTitleRow h3 {
+  color: #F0F6FC;
+}
+
+.verticalBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.verticalBody p {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.45;
+}
+
+:global(.dark) .verticalBody p {
+  color: #94A3B8;
+}
+
+/* 5. Trust Banner with Modern Health Badges */
 .trustBanner {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -319,6 +407,7 @@
   color: #94A3B8;
 }
 
+/* Responsive Overhauls for Mobile Screens */
 @media (max-width: 480px) {
   .homePage {
     gap: 22px;
@@ -331,7 +420,7 @@
     text-align: center;
     gap: 16px;
   }
-  .heroVisual {
+  .heroVisualWrap {
     display: none;
   }
   .heroActionGroup {
@@ -352,26 +441,66 @@
     line-height: 1.5;
     margin-bottom: 18px;
   }
-  .servicesGrid {
-    grid-template-columns: 1fr;
+  /* Strict 2-Column Mobile Grid for Core Services */
+  .coreGrid {
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  .serviceCard {
-    padding: 14px 16px;
+  .coreCard {
+    padding: 14px 12px;
     border-radius: 18px;
-    gap: 12px;
+    gap: 10px;
   }
-  .serviceIconWrap {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+  .coreIconWrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
   }
-  .serviceBody h3 {
-    font-size: 15px;
+  .coreBadge {
+    font-size: 9.5px;
+    padding: 2px 6px;
   }
-  .serviceBody p {
-    font-size: 11.5px;
-    line-height: 1.4;
+  .coreCardBody h3 {
+    font-size: 14px;
+    margin-bottom: 3px;
+  }
+  .coreCardBody p {
+    font-size: 11px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* Strict 2-Column Mobile Grid for Specialized Verticals */
+  .verticalsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .verticalCard {
+    padding: 12px 10px;
+    border-radius: 16px;
+    gap: 8px;
+  }
+  .verticalIconWrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  .verticalTitleRow h3 {
+    font-size: 13px;
+  }
+  .verticalBadge {
+    font-size: 9px;
+    padding: 1px 5px;
+  }
+  .verticalBody p {
+    font-size: 10.5px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .trustBanner {
     padding: 18px 16px;
@@ -384,11 +513,16 @@
   }
 }
 
+
 @media (min-width: 481px) and (max-width: 768px) {
   .hero {
     padding: 30px 24px;
   }
-  .servicesGrid {
+  .coreGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .verticalsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
@@ -399,9 +533,13 @@
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .servicesGrid {
+  .coreGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+  .verticalsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
   }
   .trustBanner {
     grid-template-columns: repeat(3, 1fr);
@@ -409,9 +547,13 @@
 }
 
 @media (min-width: 1025px) {
-  .servicesGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+  .coreGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .verticalsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
   }
 }
 
