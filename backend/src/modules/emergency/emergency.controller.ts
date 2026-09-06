@@ -53,31 +53,31 @@ export class EmergencyController {
   @Get('active')
   @Roles(UserRole.ADMIN)
   active() {
-    throw new ServiceUnavailableException('admin emergency monitoring is unavailable pending approved emergency, location and consent contracts');
+    return this.svc.active();
   }
 
   @Get(':id')
   @Roles(UserRole.ADMIN)
   one(@Param('id') id: string) {
-    throw new ServiceUnavailableException('admin emergency record access is unavailable pending approved emergency, location and consent contracts');
+    return this.svc.getById(id);
   }
 
   @Post(':id/assign')
   @Roles(UserRole.ADMIN)
   assign(@Param('id') id: string, @Body() body: { hospital_id: string }, @CurrentUser() user: any) {
-    throw new ServiceUnavailableException('manual emergency assignment is unavailable pending approved dispatch ownership controls');
+    return this.svc.assign(id, body.hospital_id, user);
   }
 
   /** Admin/dispatcher: (re)run the internal smart-dispatch engine for an open SOS */
   @Post(':id/auto-dispatch')
   @Roles(UserRole.ADMIN)
   autoDispatch(@Param('id') id: string, @CurrentUser() user: any) {
-    throw new ServiceUnavailableException('manual emergency dispatch is unavailable pending approved dispatch ownership controls');
+    return this.svc.autoDispatch(id, user);
   }
 
   @Post(':id/resolve')
   @Roles(UserRole.ADMIN)
   resolve(@Param('id') id: string, @CurrentUser() user: any, @Body() body: any) {
-    throw new ServiceUnavailableException('manual emergency resolution is unavailable pending approved closure protocol');
+    return this.svc.resolve(id, user, body?.notes);
   }
 }

@@ -77,22 +77,30 @@ export default function FraudMonitoring() {
             <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{alerts.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-            {alerts.map(alert => (
-              <div key={alert.id} className="bg-white border-l-4 border-l-red-500 border-y border-r border-gray-200 rounded p-4 shadow-sm">
-                <div className="flex justify-between items-start">
-                  <h3 className="font-bold text-gray-900">{alert.entityName}</h3>
-                  <span className={`text-xs px-2 py-1 rounded uppercase tracking-wider font-bold ${alert.severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {alert.severity} Risk
-                  </span>
+            {(alerts || []).map((alert: any, idx: number) => {
+              const alertId = alert.id || alert._id || `alert-${idx}`;
+              const dateStr = alert.timestamp || alert.createdAt || alert.updatedAt;
+              const formattedDate = dateStr ? new Date(dateStr).toLocaleString('ar-SA-u-ca-gregory') : '—';
+              const severity = alert.severity || 'medium';
+              return (
+                <div key={alertId} className="bg-white border-l-4 border-l-red-500 border-y border-r border-gray-200 rounded p-4 shadow-sm">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-gray-900">{alert.entityName || 'جهة غير محددة'}</h3>
+                    <span className={`text-xs px-2 py-1 rounded uppercase tracking-wider font-bold ${severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {severity} Risk
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 mb-3">{formattedDate}</p>
+                  <div className="bg-red-50 p-2 rounded text-sm text-red-800 border border-red-100 font-medium">
+                    {alert.flagReason || 'تنبيه احتيال محتمل'}
+                  </div>
+                  <div className="mt-3 text-xs text-gray-400 font-mono">
+                    Entity ID: {alert.entityId || alert.entity_id || '—'} ({alert.type || '—'})
+                  </div>
                 </div>
-                <p className="text-xs text-slate-500 mt-1 mb-3">{new Date(alert.timestamp).toLocaleString('ar-SA-u-ca-gregory')}</p>
-                <div className="bg-red-50 p-2 rounded text-sm text-red-800 border border-red-100 font-medium">
-                  {alert.flagReason}
-                </div>
-                <div className="mt-3 text-xs text-gray-400 font-mono">Entity ID: {alert.entityId} ({alert.type})</div>
-              </div>
-            ))}
-            {alerts.length === 0 && <p className="text-center text-gray-500 mt-10">لا توجد مؤشرات احتيال مرصودة</p>}
+              );
+            })}
+            {(!alerts || alerts.length === 0) && <p className="text-center text-gray-500 mt-10">لا توجد مؤشرات احتيال مرصودة</p>}
           </div>
         </div>
 
@@ -114,27 +122,34 @@ export default function FraudMonitoring() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {logs.map(log => (
-                  <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-slate-500 text-xs">{new Date(log.timestamp).toLocaleString('en-US')}</td>
-                    <td className="px-6 py-4 font-bold text-slate-700">{log.actorId}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-xs font-bold tracking-wider ${log.actorRole === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-slate-200 text-slate-700'}`}>
-                        {log.actorRole}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-900 font-medium">{log.action}</div>
-                      <div className="text-slate-400 text-xs font-mono mt-1">{log.endpoint}</div>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-xs text-slate-400 bg-slate-50 border-l border-slate-100">
-                      {log.payloadHash}
-                    </td>
-                  </tr>
-                ))}
+                {(logs || []).map((log: any, idx: number) => {
+                  const logId = log.id || log._id || `log-${idx}`;
+                  const dateStr = log.timestamp || log.createdAt || log.updatedAt;
+                  const formattedDate = dateStr ? new Date(dateStr).toLocaleString('en-US') : '—';
+                  const role = log.actorRole || log.role || 'ADMIN';
+                  const actor = log.actorId || log.user_id || '—';
+                  return (
+                    <tr key={logId} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 text-slate-500 text-xs">{formattedDate}</td>
+                      <td className="px-6 py-4 font-bold text-slate-700">{String(actor)}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded text-xs font-bold tracking-wider ${role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-slate-200 text-slate-700'}`}>
+                          {role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-900 font-medium">{log.action || '—'}</div>
+                        <div className="text-slate-400 text-xs font-mono mt-1">{log.endpoint || log.resource_kind || '—'}</div>
+                      </td>
+                      <td className="px-6 py-4 font-mono text-xs text-slate-400 bg-slate-50 border-l border-slate-100">
+                        {log.payloadHash || log.resource_id || '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-            {logs.length === 0 && <p className="text-center text-gray-500 mt-10">No logs found</p>}
+            {(!logs || logs.length === 0) && <p className="text-center text-gray-500 mt-10">No logs found</p>}
           </div>
         </div>
       </div>
