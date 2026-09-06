@@ -4,8 +4,12 @@ import { callPatientApi } from "@/lib/api/upstream";
 
 const schema = z.object({ identifier: z.string().trim().min(3).max(320) });
 const successSchema = z.object({
-  ok: z.literal(true),
+  ok: z.literal(true).optional(),
+  otp_sent: z.literal(true).optional(),
+  channel: z.string().optional(),
   expires_in: z.number().int().positive().max(600),
+}).refine(data => data.ok === true || data.otp_sent === true, {
+  message: "must have ok or otp_sent true",
 });
 
 export async function POST(request: Request) {
