@@ -47,8 +47,15 @@ function apiPath(req: NextApiRequest) {
   let upstreamPath = `/api/v1/admin/${encoded}`;
   // These legacy module prefixes are still real backend controllers, but their
   // browser transport is now forced through this BFF route.
-  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'users', 'orders', 'providers', 'pharmacy', 'labs', 'radiology', 'nursing']);
-  if (modulePrefixes.has(decoded[0])) upstreamPath = `/api/v1/${encoded}`;
+  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'users', 'providers', 'pharmacy', 'labs', 'radiology', 'nursing']);
+  if (decoded[0] === 'orders') {
+    // Admin orders console lives at /api/v1/admin/orders
+    upstreamPath = `/api/v1/admin/${encoded}`;
+  } else if (modulePrefixes.has(decoded[0])) {
+    upstreamPath = `/api/v1/${encoded}`;
+  }
+  if (decoded[0] === 'ambulance' && decoded[1] === 'fleet') upstreamPath = `/api/v1/admin/ambulance/fleet${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
+  if (decoded[0] === 'provider-onboarding' && decoded[1] === 'admin') upstreamPath = `/api/v1/provider-onboarding/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'system-health') upstreamPath = `/api/v1/system-health/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'nabd-extensions' && decoded[1] === 'admin') upstreamPath = `/api/v1/nabd-extensions/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'providers' && decoded[1] === 'provider-deltas') upstreamPath = `/api/v1/providers/provider-deltas${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
