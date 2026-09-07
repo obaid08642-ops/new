@@ -267,7 +267,7 @@ export default async function PublicProductPage({ params }: Props) {
         </section>
       ) : null}
 
-      {product.indications.length ? (
+      {product.indications?.length ? (
         <section className={`${styles.block} ${styles.indicationsBlock}`}>
           <div className={styles.sectionHeading}>
             <Sparkles size={20} color="#00876F" />
@@ -291,7 +291,7 @@ export default async function PublicProductPage({ params }: Props) {
         </section>
       ) : null}
 
-      {product.warnings.length ? (
+      {product.warnings?.length ? (
         <section className={`${styles.block} ${styles.warningBlock}`}>
           <div className={styles.sectionHeading}>
             <AlertCircle size={20} color="#DC2626" />
