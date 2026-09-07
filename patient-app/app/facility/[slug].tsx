@@ -29,7 +29,7 @@ export default function FacilityLinkCatcher() {
   }, [slug]);
 
   if (err) {
-    router.replace({ pathname: '/consultations/clinics' });
+    router.replace({ pathname: '/consultations/specialty-select' });
     return null;
   }
 

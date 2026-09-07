@@ -10,11 +10,13 @@ const client = axios.create({
 // Request Interceptor: Automatically inject secure headers and JWT token
 client.interceptors.request.use(
  async (config) => {
- try {
- const customIp = await Vault.get(SK.CUSTOM_API_IP);
- if (customIp) {
-   config.baseURL = `http://${customIp}:8002/api/v1`;
- }
+  try {
+  if (__DEV__) {
+    const customIp = await Vault.get(SK.CUSTOM_API_IP);
+    if (customIp) {
+      config.baseURL = `http://${customIp}:8002/api/v1`;
+    }
+  }
  const secureHeaders = await buildHeaders(true);
  config.headers = {
  ...config.headers,

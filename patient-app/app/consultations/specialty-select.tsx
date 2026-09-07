@@ -36,7 +36,9 @@ export default function SpecialtySelectScreen() {
 
   React.useEffect(() => { loadSpecs(); }, [loadSpecs]);
 
-  const filtered = q ? specs.filter((s) => s.name_ar.includes(q)) : specs;
+  const filtered = q
+    ? specs.filter((s) => (s?.name_ar || s?.name_en || s?.specialty || '').includes(q))
+    : specs;
 
   return (
     <View style={[st.c, { backgroundColor: colors.background }]}>

@@ -6,10 +6,12 @@ export class LiveKitWebhookGuard implements CanActivate {
   private receiver: WebhookReceiver;
 
   constructor() {
-    this.receiver = new WebhookReceiver(
-      process.env.LIVEKIT_API_KEY || 'fake_key',
-      process.env.LIVEKIT_API_SECRET || 'fake_secret'
-    );
+    const apiKey = process.env.LIVEKIT_API_KEY;
+    const apiSecret = process.env.LIVEKIT_API_SECRET;
+    if (!apiKey || !apiSecret) {
+      throw new Error('FATAL: LIVEKIT_API_KEY and LIVEKIT_API_SECRET are required — webhook verification must not run against fake defaults');
+    }
+    this.receiver = new WebhookReceiver(apiKey, apiSecret);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

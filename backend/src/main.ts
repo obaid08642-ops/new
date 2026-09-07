@@ -70,13 +70,16 @@ async function bootstrap() {
   // across thousands of users) and one bot can ban them all.
   app.getHttpAdapter().getInstance().set('trust proxy', 2);
 
-  // Phase 5.3: NoSQL injection guard — strips $-operators from req.body and req.params
+  // Phase 5.3: NoSQL injection guard — strips $-operators from req.body, req.params and req.query
   app.use((req: any, _res: any, next: any) => {
     if (req.body && typeof req.body === 'object') {
       mongoSanitize.sanitize(req.body, { replaceWith: '_' });
     }
     if (req.params && typeof req.params === 'object') {
       mongoSanitize.sanitize(req.params, { replaceWith: '_' });
+    }
+    if (req.query && typeof req.query === 'object') {
+      mongoSanitize.sanitize(req.query, { replaceWith: '_' });
     }
     next();
   });
