@@ -83,8 +83,13 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
             const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr;
             return (
               <Link className={styles.card} key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`}>
-                <span className={styles.icon}>
-                  <VectorRadiology size={36} aria-hidden="true" />
+                <span className={styles.icon} style={{ overflow: "hidden", position: "relative" }}>
+                  {service.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                  ) : (
+                    <VectorRadiology size={36} aria-hidden="true" />
+                  )}
                 </span>
                 <div className={styles.copy}>
                   <strong>{name}</strong>

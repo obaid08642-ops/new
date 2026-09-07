@@ -14,6 +14,8 @@ const serviceSchema = z.object({
   duration_value: z.number().positive().optional(),
   duration: z.string().max(40).optional(),
   insurance_availability: z.boolean().optional(),
+  image_url: z.string().url().max(2048).optional(),
+  icon: z.string().max(120).optional(),
 }).strip();
 
 export type HomeCareService = {
@@ -27,6 +29,8 @@ export type HomeCareService = {
   durationValue?: number;
   duration?: string;
   insuranceAvailable?: boolean;
+  imageUrl?: string;
+  icon?: string;
 };
 
 function rowsFrom(payload: unknown): unknown[] {
@@ -45,7 +49,7 @@ function parseService(value: unknown): HomeCareService | null {
   const nameAr = item.name_ar ?? item.name;
   const nameEn = item.name_en ?? item.name;
   if (!nameAr && !nameEn) return null;
-  return { id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability };
+  return { id: item.id, slug: item.slug, nameAr, nameEn, descriptionAr: item.description_ar ?? item.description, descriptionEn: item.description_en ?? item.description, price: item.price, durationValue: item.duration_value, duration: item.duration, insuranceAvailable: item.insurance_availability, imageUrl: item.image_url, icon: item.icon };
 }
 
 export function parseHomeCareServiceId(value: string) { return serviceIdSchema.safeParse(value); }
