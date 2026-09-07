@@ -59,11 +59,11 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
           <span className="sr-only">{t("searchLabel")}</span>
           <input name="search" defaultValue={search} placeholder={t("searchPlaceholder")} />
         </label>
-        <select name="modality" defaultValue={modality} aria-label={t("modalityLabel")}>
+        <select className={styles.filterSelect} name="modality" defaultValue={modality} aria-label={t("modalityLabel")}>
           <option value="">{t("allModalities")}</option>
           {modalityList.map((item) => <option key={item} value={item}>{item.toUpperCase()}</option>)}
         </select>
-        <input name="body_part" defaultValue={bodyPart} placeholder={t("bodyPartPlaceholder")} aria-label={t("bodyPartLabel")} />
+        <input className={styles.filterInput} name="body_part" defaultValue={bodyPart} placeholder={t("bodyPartPlaceholder")} aria-label={t("bodyPartLabel")} />
         <label className={styles.toggle}><input type="checkbox" name="home_visit" value="1" defaultChecked={on(query.home_visit)} />{t("homeVisit")}</label>
         <label className={styles.toggle}><input type="checkbox" name="highest_rated" value="1" defaultChecked={on(query.highest_rated)} />{t("highestRated")}</label>
         <label className={styles.toggle}><input type="checkbox" name="lowest_price" value="1" defaultChecked={on(query.lowest_price)} />{t("lowestPrice")}</label>

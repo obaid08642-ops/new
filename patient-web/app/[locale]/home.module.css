@@ -511,7 +511,18 @@
   .trustItem {
     gap: 12px;
   }
+  .doctorCardsGrid,
+  .labsCardsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .heroPhotoWrap {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+  }
 }
+
 
 
 @media (min-width: 481px) and (max-width: 768px) {
