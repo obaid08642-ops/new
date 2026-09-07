@@ -115,6 +115,11 @@ export default async function DiagnosticsPage({ params }: Props) {
         <div className={styles.introText}>
           <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
           <h1>{t("title")}</h1>
+          <nav aria-label={locale === "ar" ? "خدمات التشخيص" : "Diagnostics"} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+            <Link href={`/${locale}/diagnostics/bookings`}>{locale === "ar" ? "حجوزاتي" : "My bookings"}</Link>
+            <Link href={`/${locale}/diagnostics/results`}>{locale === "ar" ? "نتائجي وتقاريري" : "My results"}</Link>
+            <Link href={`/${locale}/diagnostics/packages`}>{locale === "ar" ? "الباقات" : "Packages"}</Link>
+          </nav>
         </div>
         <span className={styles.introIcon}><VectorLabs size={36} aria-hidden="true" /></span>
       </section>
