@@ -79,8 +79,13 @@ export default async function LabsServicesPage({ params, searchParams }: Props) 
             const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr;
             return (
               <Link className={styles.card} key={service.id} href={`/${locale}/diagnostics/labs/book?serviceId=${encodeURIComponent(service.id)}`}>
-                <span className={styles.icon}>
-                  <VectorLabs size={36} aria-hidden="true" />
+                <span className={styles.icon} style={{ overflow: "hidden", position: "relative" }}>
+                  {service.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                  ) : (
+                    <VectorLabs size={36} aria-hidden="true" />
+                  )}
                 </span>
                 <div className={styles.copy}>
                   <strong>{name}</strong>

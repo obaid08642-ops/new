@@ -55,8 +55,13 @@ export default async function HomeCareServicesPage({ params, searchParams }: Pro
             const description = rtl ? service.descriptionAr ?? service.descriptionEn : service.descriptionEn ?? service.descriptionAr;
             return (
               <Link href={`/${locale}/home-care/services/${service.id}`} className={styles.card} key={service.id}>
-                <span className={styles.icon}>
-                  <VectorNursing size={36} aria-hidden="true" />
+                <span className={styles.icon} style={{ overflow: "hidden", position: "relative" }}>
+                  {service.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                  ) : (
+                    <VectorNursing size={36} aria-hidden="true" />
+                  )}
                 </span>
                 <span className={styles.copy}>
                   <strong>{name}</strong>
