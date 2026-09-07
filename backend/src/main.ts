@@ -64,11 +64,13 @@ async function bootstrap() {
   });
   const logger = new Logger('Bootstrap');
 
-  // Trust TWO proxy hops (Cloudflare → nginx → app) so req.ip is the REAL
+  // Trust proxy hops (default Cloudflare → nginx → app = 2) so req.ip is the REAL
   // client IP, not a shared Cloudflare edge IP. With only 1 hop, every user
   // behind the same CF edge node shares one rate-limit bucket (5 logins/min
   // across thousands of users) and one bot can ban them all.
-  app.getHttpAdapter().getInstance().set('trust proxy', 2);
+  // Override per environment with TRUST_PROXY_HOPS (e.g. 1 for single LB).
+  const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '2', 10);
+  app.getHttpAdapter().getInstance().set('trust proxy', Number.isFinite(trustProxyHops) ? trustProxyHops : 2);
 
   // Phase 5.3: NoSQL injection guard — strips $-operators from req.body, req.params and req.query
   app.use((req: any, _res: any, next: any) => {

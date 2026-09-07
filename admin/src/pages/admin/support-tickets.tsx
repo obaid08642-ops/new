@@ -97,7 +97,7 @@ export default function SupportTicketsPage() {
                           {t.priority === 'high' && <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-600">أولوية عالية</span>}
                         </div>
                         <div className="text-xs text-slate-500 mt-1">
-                          {t.user_name || t.user_phone || t.user_id} · {t.source_role === 'provider' ? 'مزود' : 'مريض'} · {t.category} · {new Date(t.createdAt).toLocaleString('ar-SA-u-ca-gregory')}
+                          {t.user_name || t.user_phone || t.user_id} · {t.source_role === 'provider' ? 'مزود' : 'مريض'} · {t.category} · {t.createdAt ? new Date(t.createdAt).toLocaleString('ar-SA-u-ca-gregory') : '—'}
                         </div>
                       </div>
                       <div className="flex gap-2">

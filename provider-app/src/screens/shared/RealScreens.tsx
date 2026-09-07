@@ -39,9 +39,15 @@ export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
       <NHeader title={AR ? 'تقييمات وآراء العملاء' : 'Reviews & Ratings'} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md, alignItems: 'center', padding: SP.lg }}>
-          <Text style={{ fontSize: 36, fontWeight: FW.bold, color: theme.primary }}>4.9</Text>
+          <Text style={{ fontSize: 36, fontWeight: FW.bold, color: theme.primary }}>
+            {reviews.length > 0
+              ? (reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / reviews.length).toFixed(1)
+              : '—'}
+          </Text>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4 }}>
-             {AR?'بناءً على 142 تقييم':'Based on 142 reviews'}
+             {reviews.length > 0
+               ? (AR ? `بناءً على ${reviews.length} تقييم` : `Based on ${reviews.length} reviews`)
+               : (AR ? 'لا توجد تقييمات بعد' : 'No reviews yet')}
           </Text>
         </NCard>
 
@@ -52,7 +58,7 @@ export function ReviewsAndRatingsScreen({ onBack }: { onBack: () => void }) {
               <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{rev.date}</Text>
             </View>
 
-            <Text style={{ color: theme.warn, marginVertical: 4 }}>{''.repeat(rev.rating)}</Text>
+            <Text style={{ color: theme.warn, marginVertical: 4 }}>{'★'.repeat(Math.max(0, Math.min(5, Number(rev.rating) || 0)))}</Text>
             <Text style={{ fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>{rev.comment}</Text>
 
             {rev.reply ? (
