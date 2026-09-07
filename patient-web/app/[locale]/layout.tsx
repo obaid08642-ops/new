@@ -74,6 +74,15 @@ export default async function LocaleLayout({ children, params }: Props) {
           </div>
         </header>
         {children}
+        <footer style={{ borderTop: "1px solid var(--border, #e2e8f0)", marginTop: 48, padding: "24px 16px" }}>
+          <nav aria-label={t("brand")} style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+            <Link href={`/${typedLocale}/terms`}>{typedLocale === "ar" ? "الشروط" : "Terms"}</Link>
+            <Link href={`/${typedLocale}/privacy`}>{typedLocale === "ar" ? "الخصوصية" : "Privacy"}</Link>
+            <Link href={`/${typedLocale}/support`}>{typedLocale === "ar" ? "الدعم" : "Support"}</Link>
+            <Link href={`/${typedLocale}/articles`}>{typedLocale === "ar" ? "المقالات" : "Articles"}</Link>
+            <Link href={`/${typedLocale}/map`}>{typedLocale === "ar" ? "الخريطة" : "Map"}</Link>
+          </nav>
+        </footer>
       </div>
     </NextIntlClientProvider>
   );

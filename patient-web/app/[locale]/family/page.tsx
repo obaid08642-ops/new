@@ -42,6 +42,10 @@ export default async function FamilyPage({ params }: Props) {
         {member.joinedAt ? <span className={styles.date}><CalendarDays size={14} aria-hidden="true" />{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(member.joinedAt))}</span> : null}
       </div>
     </Link>)}</section>}
-    <Link className={styles.notice} href={`/${locale}/family/calendar`}><CalendarDays size={15} aria-hidden="true" /> {locale === "ar" || locale === "ur" ? "فتح تقويم العائلة" : "Open family calendar"}</Link>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      <Link className={styles.notice} href={`/${locale}/family/invite`}>{locale === "ar" ? "دعوة فرد جديد" : "Invite someone"}</Link>
+      <Link className={styles.notice} href={`/${locale}/family/join`}>{locale === "ar" ? "الانضمام بكود دعوة" : "Join with a code"}</Link>
+      <Link className={styles.notice} href={`/${locale}/family/calendar`}><CalendarDays size={15} aria-hidden="true" /> {locale === "ar" || locale === "ur" ? "فتح تقويم العائلة" : "Open family calendar"}</Link>
+    </div>
   </main>;
 }
