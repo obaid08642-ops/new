@@ -47,10 +47,21 @@ function apiPath(req: NextApiRequest) {
   let upstreamPath = `/api/v1/admin/${encoded}`;
   // These legacy module prefixes are still real backend controllers, but their
   // browser transport is now forced through this BFF route.
-  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'users', 'providers', 'pharmacy', 'labs', 'radiology', 'nursing']);
+  // 'providers' intentionally excluded from modulePrefixes — handled separately below
+  const modulePrefixes = new Set(['support', 'medicines', 'storage', 'insurance', 'emergency', 'legal', 'ai', 'users', 'pharmacy', 'labs', 'radiology', 'nursing']);
   if (decoded[0] === 'orders') {
     // Admin orders console lives at /api/v1/admin/orders
     upstreamPath = `/api/v1/admin/${encoded}`;
+  } else if (decoded[0] === 'providers') {
+    // provider-deltas is a legacy read-only feed on the original providers controller
+    if (decoded[1] === 'provider-deltas') {
+      upstreamPath = `/api/v1/providers/provider-deltas${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
+    } else {
+      // All provider moderation actions (approve, reject, suspend, list, detail…)
+      // must reach ProviderAdminController at /api/v1/admin/providers/*
+      const tail = decoded.slice(1).map(encodeURIComponent).join('/');
+      upstreamPath = `/api/v1/admin/providers${tail ? `/${tail}` : ''}`;
+    }
   } else if (modulePrefixes.has(decoded[0])) {
     upstreamPath = `/api/v1/${encoded}`;
   }
@@ -58,7 +69,6 @@ function apiPath(req: NextApiRequest) {
   if (decoded[0] === 'provider-onboarding' && decoded[1] === 'admin') upstreamPath = `/api/v1/provider-onboarding/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'system-health') upstreamPath = `/api/v1/system-health/${decoded.slice(1).map(encodeURIComponent).join('/')}`;
   if (decoded[0] === 'nabd-extensions' && decoded[1] === 'admin') upstreamPath = `/api/v1/nabd-extensions/admin/${decoded.slice(2).map(encodeURIComponent).join('/')}`;
-  if (decoded[0] === 'providers' && decoded[1] === 'provider-deltas') upstreamPath = `/api/v1/providers/provider-deltas${decoded.slice(2).length ? `/${decoded.slice(2).map(encodeURIComponent).join('/')}` : ''}`;
   return `${upstreamPath}${suffix ? `?${suffix}` : ''}`;
 }
 
