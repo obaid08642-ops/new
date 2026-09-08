@@ -89,6 +89,11 @@ export default async function PublicMedicineCatalogPage({ params, searchParams }
         <p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p>
         <h1>{t("title")}</h1>
         <p>{t("body")}</p>
+        <p>
+          <Link href={`/${locale}/pharmacy/interactions`}>
+            {locale === "ar" ? "فاحص تفاعلات الأدوية" : "Drug interaction checker"}
+          </Link>
+        </p>
       </div>
       <span className={styles.heroIcon}><Pill size={27} aria-hidden="true" /></span>
     </section>

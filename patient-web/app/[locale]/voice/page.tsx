@@ -5,6 +5,7 @@ import { isLocale, locales } from "@/lib/i18n";
 import { localizedUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import { Calendar, HeartHandshake, Mic, Pill, ShieldAlert, Sparkles, Stethoscope, TestTube2 } from "lucide-react";
+import { VoiceCommandButton } from "@/components-next/voice-command-button";
 import styles from "./voice.module.css";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -97,6 +98,7 @@ export default async function VoiceAssistantPage({ params }: Props) {
         <h1>{t("title")}</h1>
         <p className={styles.subtitle}>{t("subtitle")}</p>
         <div className={styles.notice}>{t("voiceNotice")}</div>
+        <VoiceCommandButton locale={locale} />
       </section>
 
       <section className={styles.grid}>
