@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "cdn.nabd.plus", pathname: "/**" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.nabd.plus", pathname: "/**" },
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
+    ],
     formats: ["image/avif", "image/webp"],
   },
   outputFileTracingIncludes: {
