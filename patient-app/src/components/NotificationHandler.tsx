@@ -39,6 +39,7 @@ const ALLOWED_SCREENS = new Set([
   '/pharmacy/cart',
   '/diagnostics/orders',
   '/diagnostics/my-results',
+  '/nursing/insurance-status',
   '/emergency/sos-active',
   '/insurance',
   '/returns/hub',
@@ -66,6 +67,9 @@ function resolveLegacyRoute(data: any): { pathname: string; params: Record<strin
       return { pathname: '/consultations/booking-status', params: { appointmentId: data.appointmentId, visitType: data.visitType } };
     case 'insurance_decision':
     case 'copay_due':
+      if (data.bookingKind === 'nursing' || data.booking_kind === 'nursing' || data.kind === 'home-care') {
+        return { pathname: '/nursing/insurance-status', params: { bookingId: data.bookingId || data.booking_id || '' } };
+      }
       return { pathname: '/insurance', params: { requestId: data.requestId } };
     case 'report_ready':
       return { pathname: '/diagnostics/my-results', params: {} };

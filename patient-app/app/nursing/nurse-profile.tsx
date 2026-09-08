@@ -24,7 +24,8 @@ const Icons = {
 
 export default function NursingMegaProfile() {
   const router = useRouter();
-  const { colors, isDark } = useApp();
+  const { colors, isDark, lang } = useApp() as any;
+  const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
   const { nurseId, flow, serviceId } = useLocalSearchParams();
   
   // Data
@@ -59,24 +60,30 @@ export default function NursingMegaProfile() {
     }, [])
   );
 
-  // Generator: 30 Days array
+  // Generator: 30 Days array — day names localized via Intl (no hardcoded Arabic)
   const generateDays = () => {
     const days = [];
-    const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     let d = new Date();
     for (let i = 0; i < 30; i++) {
       days.push({
         full: d.toISOString().split('T')[0],
         dateNum: d.getDate(),
-        dayName: dayNames[d.getDay()]
+        dayName: new Intl.DateTimeFormat(localeTag, { weekday: 'long' }).format(d),
       });
       d.setDate(d.getDate() + 1);
     }
     return days;
   };
-  
+
   const datesArray = generateDays();
-  const timesArray = ['08:00 ص', '08:30 ص', '09:00 ص', '09:30 ص', '10:00 ص', '10:30 ص', '11:00 ص', '11:30 ص', '12:00 م', '12:30 م', '01:00 م'];
+  // 24h canonical slots; display localized via Intl so no Arabic literals leak to other locales
+  const timesArray = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00'];
+  const formatSlot = (slot: string) => {
+    const [h, m] = slot.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return new Intl.DateTimeFormat(localeTag, { hour: 'numeric', minute: '2-digit' }).format(d);
+  };
   const customDaysArray = Array.from({length: 20}, (_, i) => i + 1);
 
   useEffect(() => {
@@ -134,7 +141,7 @@ export default function NursingMegaProfile() {
       const bookingId = res?.id || res?.booking_id;
 
       if (flow === 'insurance') {
-        setInsuranceSent(true);
+        setInsuranceSent(bookingId ? String(bookingId) : true);
       } else if (bookingId) {
         router.replace({ pathname: '/nursing/live-tracking', params: { type: transportMode, bookingId } });
       } else {
@@ -155,6 +162,14 @@ export default function NursingMegaProfile() {
         <View style={styles.successIconBox}><Svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#23B5CE" strokeWidth="2.5"><Path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><Path d="M22 4L12 14.01l-3-3"/></Svg></View>
         <LocalizedText style={styles.successTitle}>الطلب قيد المراجعة</LocalizedText>
         <LocalizedText style={styles.successDesc}>تم استدعاء بيانات تأمينك وإرسال الطلب لشركة التأمين للحصول على الموافقة الطبية. سنعلمك فور صدور الموافقة.</LocalizedText>
+        {typeof insuranceSent === 'string' && insuranceSent ? (
+          <TouchableOpacity
+            style={styles.successBtn}
+            onPress={() => router.push({ pathname: '/nursing/insurance-status', params: { bookingId: insuranceSent } })}
+          >
+            <LocalizedText style={styles.successBtnText}>متابعة حالة الموافقة</LocalizedText>
+          </TouchableOpacity>
+        ) : null}
         <TouchableOpacity style={styles.successBtn} onPress={() => router.push('/(tabs)')}>
           <LocalizedText style={styles.successBtnText}>العودة للرئيسية</LocalizedText>
         </TouchableOpacity>
@@ -222,7 +237,7 @@ export default function NursingMegaProfile() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={scrollStyle} style={styles.hScroll}>
             {timesArray.map(t => (
               <TouchableOpacity key={t} style={[styles.timeBox, selectedTime === t && styles.activeBox]} onPress={() => setSelectedTime(t)}>
-                <LocalizedText style={[styles.timeText, selectedTime === t && styles.activeText]} >{t}</LocalizedText>
+                <LocalizedText style={[styles.timeText, selectedTime === t && styles.activeText]} >{formatSlot(t)}</LocalizedText>
               </TouchableOpacity>
             ))}
           </ScrollView>

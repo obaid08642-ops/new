@@ -30,7 +30,8 @@ function priceFor(doc: any, vt: string): number | null {
 
 export default function BookAppointmentScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { colors, isDark, lang } = useApp() as any;
+  const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
   const { id, visit_type } = useLocalSearchParams<{ id: string; visit_type?: string }>();
 
   const [doctor, setDoctor] = useState<any>(null);
@@ -49,21 +50,19 @@ export default function BookAppointmentScreen() {
   // Next 7 days (real dates)
   const days = useMemo(() => {
     const arr: { label: string; dateNum: number; month: string; iso: string }[] = [];
-    const arDays = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
-    const arMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
     for (let i = 0; i < 7; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
       const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       arr.push({
-        label: i === 0 ? 'اليوم' : i === 1 ? 'غداً' : arDays[d.getDay()],
+        label: i === 0 ? 'اليوم' : i === 1 ? 'غداً' : new Intl.DateTimeFormat(localeTag, { weekday: 'long' }).format(d),
         dateNum: d.getDate(),
-        month: arMonths[d.getMonth()],
+        month: new Intl.DateTimeFormat(localeTag, { month: 'long' }).format(d),
         iso,
       });
     }
     return arr;
-  }, []);
+  }, [localeTag]);
 
   // ── Load doctor ──────────────────────────────────────────────
   const loadDoctor = useCallback(async () => {

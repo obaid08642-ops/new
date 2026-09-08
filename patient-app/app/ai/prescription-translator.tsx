@@ -95,15 +95,15 @@ export default function PrescriptionTranslatorScreen() {
       if (res && res.ok !== false) {
         const mappedMedications = (res.medications || []).map((med: any) => ({
           originalText: med.originalText || med.name_en || med.name || '',
-          translatedName: med.translatedName || pickLocalized(med.name_ar, med.name) || 'دواء مترجم',
-          dosage: med.dosage || 'قرص عند الحاجة',
-          timing: med.frequency || med.instructions || med.timing || 'حسب إرشاد الطبيب',
-          duration: med.duration || 'حسب الوصفة',
-          notes: med.instructions || med.notes || 'استخدام طبي موصوف',
+          translatedName: med.translatedName || pickLocalized(med.name_ar, med.name) || med.originalText || med.name_en || med.name || '',
+          dosage: med.dosage || '',
+          timing: med.frequency || med.instructions || med.timing || '',
+          duration: med.duration || '',
+          notes: med.instructions || med.notes || '',
           interactions: med.interactions || [],
           sideEffects: med.sideEffects || [],
           price: (typeof med.price === 'number' && med.price > 0) ? med.price : null,
-          alternatives: med.alternatives || ['متوفر بدائل بالصيدلية'],
+          alternatives: Array.isArray(med.alternatives) ? med.alternatives : [],
         }));
 
         setTranslatedResult({
@@ -193,17 +193,23 @@ export default function PrescriptionTranslatorScreen() {
                   <Icon name={expandedMed === i ? 'trendingUp' : 'trendingDown'} size={18} color={colors.textTertiary} />
                 </View>
 
-                {/* Info chips */}
+                {/* Info chips — only verified backend values, never invented defaults */}
                 <View style={st.chipRow}>
-                  <View style={[st.chip, { backgroundColor: isDark ? colors.surfaceSecondary : '#FEF3C7' } ]}>
-                    <IconRow icon="clock" text={med.timing} color={colors.accent} />
-                  </View>
-                  <View style={[st.chip, { backgroundColor: isDark ? colors.surfaceSecondary : '#E0F2FE' } ]}>
-                    <IconRow icon="calendar" text={med.duration} color={colors.primary} />
-                  </View>
-                  <View style={[st.chip, { backgroundColor: isDark ? colors.surfaceSecondary : '#DCFCE7' } ]}>
-                    <IconRow icon="medication" text={med.dosage} color={colors.success} />
-                  </View>
+                  {Boolean(med.timing) && (
+                    <View style={[st.chip, { backgroundColor: isDark ? colors.surfaceSecondary : '#FEF3C7' } ]}>
+                      <IconRow icon="clock" text={med.timing} color={colors.accent} />
+                    </View>
+                  )}
+                  {Boolean(med.duration) && (
+                    <View style={[st.chip, { backgroundColor: isDark ? colors.surfaceSecondary : '#E0F2FE' } ]}>
+                      <IconRow icon="calendar" text={med.duration} color={colors.primary} />
+                    </View>
+                  )}
+                  {Boolean(med.dosage) && (
+                    <View style={[st.chip, { backgroundColor: isDark ? colors.surfaceSecondary : '#DCFCE7' } ]}>
+                      <IconRow icon="medication" text={med.dosage} color={colors.success} />
+                    </View>
+                  )}
                 </View>
 
                 {/* Expanded details */}
@@ -226,18 +232,22 @@ export default function PrescriptionTranslatorScreen() {
                       ))}
                     </View>
 
-                    <AppText variant="labelMD" style={{ marginTop: 8 }}>البدائل المتوفرة:</AppText>
-                    <View style={st.tagsRow}>
-                      {med.alternatives.map((alt, j) => (
-                        <View key={j} style={[st.tag, { backgroundColor: colors.primarySurface } ]}>
-                          <AppText variant="caption" color={colors.primary}>{alt}</AppText>
+                    {med.alternatives.length > 0 && (
+                      <>
+                        <AppText variant="labelMD" style={{ marginTop: 8 }}>البدائل المتوفرة:</AppText>
+                        <View style={st.tagsRow}>
+                          {med.alternatives.map((alt, j) => (
+                            <View key={j} style={[st.tag, { backgroundColor: colors.primarySurface } ]}>
+                              <AppText variant="caption" color={colors.primary}>{alt}</AppText>
+                            </View>
+                          ))}
                         </View>
-                      ))}
-                    </View>
+                      </>
+                    )}
 
                     <View style={st.actionRow}>
                       <Button label={med.price != null ? `اطلب — ${med.price} ر.س` : 'اطلب من الصيدلية'} variant="primary" icon="shopping_cart" size="sm" full={false} onPress={() => router.push('/(tabs)/pharmacy')} style={{ flex: 1 }} />
-                      <Button label="تفاصيل" variant="outline" icon="info" size="sm" full={false} onPress={() => router.push('/pharmacy/product-detail')} style={{ flex: 1 }} />
+                      <Button label="تفاصيل" variant="outline" icon="info" size="sm" full={false} onPress={() => router.push({ pathname: '/search', params: { q: med.originalText || med.translatedName, view: 'pharmacy' } })} style={{ flex: 1 }} />
                     </View>
                   </View>
                 )}
