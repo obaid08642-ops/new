@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -98,7 +99,7 @@ export default async function CommunityPage({ params }: Props) {
             >
               {post.title ? (
                 <strong style={{ display: "block", color: "var(--ink)", fontSize: "1.1rem", marginBottom: 6 }}>
-                  {post.title}
+                  <Link href={`/${locale}/community/${encodeURIComponent(post.id)}`}>{post.title}</Link>
                 </strong>
               ) : null}
               <p style={{ margin: 0, whiteSpace: "pre-wrap", color: "var(--ink)", lineHeight: 1.65, fontSize: "0.95rem" }}>
