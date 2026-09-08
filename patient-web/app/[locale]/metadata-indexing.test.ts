@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
+vi.mock("next/font/google", () => ({ Tajawal: () => ({ variable: "--font-tajawal", className: "tajawal" }) }));
 
 import { generateMetadata as layoutMetadata } from "./layout";
 import { generateMetadata as homeMetadata } from "./page";

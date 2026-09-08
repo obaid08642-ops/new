@@ -4,8 +4,8 @@ const state = vi.hoisted(() => ({ list: vi.fn(), detail: vi.fn(), access: vi.fn(
 vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
-vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.access }));
-vi.mock("@/lib/api/home-care-services-server", () => ({ getPatientHomeCareServices: state.list, getPatientHomeCareService: state.detail }));
+vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.access, getOptionalPatientAccessToken: vi.fn().mockResolvedValue(null) }));
+vi.mock("@/lib/api/home-care-services-server", () => ({ getPatientHomeCareServices: state.list, getPatientHomeCareService: state.detail, getPublicHomeCareServices: vi.fn().mockResolvedValue(null), getPublicHomeCareService: vi.fn().mockResolvedValue(null) }));
 import HomeCareServicesPage from "./page";
 import HomeCareServicePage from "./[serviceId]/page";
 

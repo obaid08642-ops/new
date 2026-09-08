@@ -73,28 +73,24 @@ export default function DoctorProfile() {
     const dm = [];
     const today = new Date();
     
-    const arDays = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
-    const enDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const arMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+    const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
     const isAr = lang === 'ar';
-    
+
     // Arabic Numbers converter
     const toArNum = (n: number) => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
-      
+
       let dayName = '';
       if (i === 0) dayName = isAr ? 'اليوم' : 'Today';
       else if (i === 1) dayName = isAr ? 'غداً' : 'Tomorrow';
-      else dayName = isAr ? arDays[date.getDay()] : enDays[date.getDay()];
-      
+      else dayName = new Intl.DateTimeFormat(localeTag, { weekday: 'long' }).format(date);
+
       d.push(dayName);
       dn.push(isAr ? toArNum(date.getDate()) : date.getDate().toString());
-      dm.push(isAr ? arMonths[date.getMonth()] : enMonths[date.getMonth()]);
+      dm.push(new Intl.DateTimeFormat(localeTag, { month: 'long' }).format(date));
     }
     
     return { daysArr: d, dnumsArr: dn, dmonArr: dm };

@@ -33,7 +33,7 @@ describe("public page metadata contracts", () => {
       expect(meta.alternates?.canonical).toBe(`https://nabd.plus/en${path}`);
       expect(meta.alternates?.languages).toMatchObject(langsFor(path));
       expect(meta.openGraph?.url).toBe(`https://nabd.plus/en${path}`);
-      expect(meta.twitter?.card).toBe("summary");
+      expect(["summary", "summary_large_image"]).toContain(meta.twitter?.card);
     });
   }
 

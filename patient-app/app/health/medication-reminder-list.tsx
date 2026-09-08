@@ -5,6 +5,7 @@ import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
 import { AppText, Card, Badge, Button, IconButton } from '../../src/components/ui';
+import { Icon } from '../../src/components/Icon';
 import { apiFetch } from '../../src/utils/api';
 import { medicationT } from '../../src/i18n/medications';
 import { cancelMedicationNotifications, cancelMedicationSnoozes, getMedicationNotificationPreferences, medicationDisplayName, scheduleMedicationNotifications } from '../../src/utils/medication-notifications';

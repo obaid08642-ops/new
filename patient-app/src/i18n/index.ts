@@ -158,7 +158,7 @@ export const translations: Record<LangCode, TranslationKeys> = {
 // or UI label properties without modifying individual screens.
 // ---------------------------------------------------------------------------
 export const autoTranslations: Record<string, Record<LangCode, string>> = {
-  ...(phase5AutoTranslations.translations as Record<string, Record<LangCode, string>>),
+  ...(phase5AutoTranslations.translations as unknown as Record<string, Record<LangCode, string>>),
   // General & Common UI
   "طبيعي": { ar: "طبيعي", en: "Normal", ur: "نارمل", hi: "सामान्य", bn: "স্বাভাবিক", fil: "Normal" },
   "متوسط": { ar: "متوسط", en: "Moderate", ur: "اعتدال", hi: "मध्यम", bn: "মাঝারি", fil: "Moderate" },
