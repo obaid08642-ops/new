@@ -330,16 +330,19 @@ export function autoTranslate(text: any, lang: LangCode): any {
     const trimmed = text.trim();
     if (!trimmed) return text;
     
-    // 1. Direct match in autoTranslations
+    // 1. Direct match in autoTranslations.
+    // Fallback chain: requested lang → English → Arabic source.
+    // English is complete, so ur/hi/bn/fil users see English instead of
+    // untranslated Arabic until native review fills their dictionaries.
     if (autoTranslations[trimmed]) {
-      return autoTranslations[trimmed][lang] ?? text;
+      return autoTranslations[trimmed][lang] ?? autoTranslations[trimmed]['en'] ?? text;
     }
-    
-    // 2. Exact match in translations.ar values
+
+    // 2. Exact match in translations.ar values (same fallback chain)
     for (const key in translations.ar) {
       const k = key as keyof TranslationKeys;
       if (translations.ar[k] === trimmed) {
-        return translations[lang]?.[k] ?? text;
+        return translations[lang]?.[k] ?? translations.en?.[k] ?? text;
       }
     }
     
