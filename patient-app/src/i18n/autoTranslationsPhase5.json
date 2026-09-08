@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Phase 5 six-language UI localization additions",
-    "source_count": 1841,
+    "source_count": 1842,
     "languages": [
       "ar",
       "en",
@@ -2918,11 +2918,7 @@
     },
     "الشروط والأحكام": {
       "ar": "الشروط والأحكام",
-      "en": "Terms and Conditions",
-      "ur": "شرائط و ضوابط",
-      "hi": "नियम और शर्तें",
-      "bn": "শর্তাবলী ও নিয়মাবলী",
-      "fil": "Mga Tuntunin at Kundisyon"
+      "en": "Terms & Conditions"
     },
     "الشكل الدوائي": {
       "ar": "الشكل الدوائي",
@@ -13155,6 +13151,10 @@
     "← أنت": {
       "ar": "← أنت",
       "en": "← You"
+    },
+    "آخر تحديث: 1 يونيو 2026": {
+      "ar": "آخر تحديث: 1 يونيو 2026",
+      "en": "Last updated: June 1, 2026"
     }
   }
 }

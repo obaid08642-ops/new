@@ -34,6 +34,13 @@ export default function BroadcastStatusScreen() {
     }
   }, [orderId]);
   useEffect(() => { void load(); }, [load]);
+  // Auto-refresh while no offers have arrived yet (pharmacies respond asynchronously).
+  // Polling stops as soon as at least one offer exists to save battery and requests.
+  useEffect(() => {
+    if (!orderId || offers.length > 0) return;
+    const timer = setInterval(() => { void load(); }, 20000);
+    return () => clearInterval(timer);
+  }, [orderId, offers.length, load]);
 
   const selectOffer = async (offerId: string, coverageMode: 'cash' | 'insurance') => {
     if (!orderId) return;
