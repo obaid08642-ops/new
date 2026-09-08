@@ -18,11 +18,10 @@ import { pickLocalized } from '../../src/utils/localize';
 import { dateLocale } from '@/utils/dates';
 import { appointmentStart, parseReportCollection } from '../../src/utils/monthly-health-report-contract';
 
-const AR_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
 export default function MonthlyReportScreen() {
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useApp();
+  const { colors, isDark, lang } = useApp() as any;
+  const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
 
   const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -54,7 +53,7 @@ export default function MonthlyReportScreen() {
   }, []);
 
   const now = new Date();
-  const monthLabel = `${AR_MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  const monthLabel = `${new Intl.DateTimeFormat(localeTag, { month: 'long' }).format(now)} ${now.getFullYear()}`;
 
   const monthAppts = useMemo(() => appointments.filter((a: any) => {
     const d = appointmentStart(a);
