@@ -6,6 +6,9 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Award, Clock, MapPin, ShieldCheck, Star } from "lucide-react";
 import { getPublicNurse, extractNurse } from "@/lib/api/nursing-server";
+import { getPatientAddresses } from "@/lib/api/addresses-server";
+import { requirePatientAccess } from "@/lib/auth/session";
+import { NursingBookingForm } from "@/components-next/nursing-booking-form";
 import { VectorNursing } from "@/components-next/vector-illustrations";
 import styles from "./nurse-detail.module.css";
 
@@ -29,6 +32,50 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: { type: "website", url: canonical },
     robots: { index: true, follow: true },
   };
+}
+
+async function NursingBookingSection({
+  locale,
+  nurse,
+}: {
+  locale: string;
+  nurse: { id: string; services?: Array<{ id: string; name: string; name_ar?: string; name_en?: string; price?: number }> };
+}) {
+  const t = await getTranslations("NurseDetail");
+  const services = (nurse.services || [])
+    .filter((s) => s.id && s.name)
+    .map((s) => ({
+      id: s.id,
+      name: locale === "ar" ? s.name_ar || s.name : s.name_en || s.name,
+      price: s.price,
+    }));
+  if (!services.length) return null;
+  let addresses: Array<{ id: string; label: string }> = [];
+  try {
+    const token = await requirePatientAccess(locale);
+    const res = await getPatientAddresses(token);
+    if (res.ok) {
+      const raw = await res.json().catch(() => null);
+      const list = Array.isArray(raw) ? raw : (raw as { data?: unknown })?.data;
+      addresses = (Array.isArray(list) ? list : []).map((a: unknown) => {
+        const r = a as Record<string, unknown>;
+        const id = String(r.id ?? r._id ?? "");
+        if (!id) return null;
+        return {
+          id,
+          label: String(r.label ?? r.line1 ?? r.city ?? id),
+        };
+      }).filter((a): a is { id: string; label: string } => a !== null);
+    }
+  } catch {
+    addresses = [];
+  }
+  return (
+    <section aria-label={t("requestNurse")}>
+      <h2>{t("requestNurse")}</h2>
+      <NursingBookingForm locale={locale} services={services} addresses={addresses} />
+    </section>
+  );
 }
 
 export default async function NurseDetailPage({ params }: Props) {
@@ -142,10 +189,12 @@ export default async function NurseDetailPage({ params }: Props) {
         ) : null}
 
         <div className={styles.actionRow}>
-          <Link href={`/${locale}/nursing/catalog`} className={styles.bookButton}>
+          <Link href={`/${locale}/nursing/booking`} className={styles.bookButton}>
             {t("requestNurse")}
           </Link>
         </div>
+
+        <NursingBookingSection locale={locale} nurse={nurse} />
       </article>
     </main>
   );
