@@ -163,6 +163,10 @@ export default async function PublicProductPage({ params }: Props) {
   return (
     <main className={`main ${styles.page}`}>
       <JsonLd data={jsonLd} />
+      {images[0] && (
+        // eslint-disable-next-line @next/next/no-head-element
+        <link rel="preload" as="image" href={images[0]} fetchPriority="high" />
+      )}
       <nav className={styles.crumbs} aria-label="breadcrumb">
         <Link href={`/${locale}`}>{t("home")}</Link>
         <span aria-hidden="true">/</span>
