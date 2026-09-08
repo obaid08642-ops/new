@@ -15,6 +15,44 @@ export interface AuditMetadata {
 }
 
 /**
+ * Keys whose values must never land in the audit store in cleartext.
+ * Audit logs are long-lived and broadly readable; credentials, OTP material,
+ * national identifiers and payment instruments would otherwise expand the
+ * breach scope of every audited mutation.
+ */
+const SENSITIVE_KEY_PATTERN =
+  /password|passwd|secret|token|otp|national[_-]?id|iqama|passport|iban|card[_-]?number|cvv|cvc|biometric|private[_-]?key|api[_-]?key/i;
+
+const REDACTED = '[REDACTED]';
+const MAX_AUDIT_BODY_CHARS = 10_000;
+
+export function redactAuditValue(value: any, depth = 0): any {
+  if (depth > 6) return REDACTED;
+  if (Array.isArray(value)) return value.map((v) => redactAuditValue(v, depth + 1));
+  if (value && typeof value === 'object') {
+    const out: Record<string, any> = {};
+    for (const key of Object.keys(value)) {
+      out[key] = SENSITIVE_KEY_PATTERN.test(key)
+        ? REDACTED
+        : redactAuditValue(value[key], depth + 1);
+    }
+    return out;
+  }
+  return value;
+}
+
+export function redactAuditBody(body: any): any {
+  const redacted = redactAuditValue(body);
+  try {
+    const serialized = JSON.stringify(redacted);
+    if (serialized && serialized.length > MAX_AUDIT_BODY_CHARS) return REDACTED;
+  } catch {
+    return REDACTED;
+  }
+  return redacted;
+}
+
+/**
  * Decorator to mark controller routes for automated audit logging and data diffing.
  */
 export const Audited = (metadata: AuditMetadata) => SetMetadata(AUDITED_KEY, metadata);
@@ -59,7 +97,9 @@ export class AuditLogInterceptor implements NestInterceptor {
       tap(async (data) => {
         try {
           const user = request.user;
-          const ip = request.ip || request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+          // req.ip already applies the configured trust-proxy policy; reading
+          // X-Forwarded-For directly would let a client forge audit attribution.
+          const ip = request.ip || request.socket?.remoteAddress;
           const userAgent = request.headers['user-agent'];
           const correlationId = request.correlation_id;
 
@@ -81,8 +121,8 @@ export class AuditLogInterceptor implements NestInterceptor {
             resource_kind: modelName,
             resource_id: reqId || data?.id || docAfter?.id,
             details: {
-              diff,
-              request_body: request.body,
+              diff: redactAuditValue(diff),
+              request_body: redactAuditBody(request.body),
             },
             severity: 'info',
             correlation_id: correlationId,
