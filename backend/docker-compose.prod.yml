@@ -11,6 +11,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - MONGO_URL=mongodb://mongo:27017/nabdah
       - MONGO_URI=mongodb://mongo:27017/nabdah
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}

@@ -48,8 +48,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical,
       languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, "/nursing/catalog")])), "x-default": localizedUrl("ar", "/nursing/catalog") },
     },
-    openGraph: { type: "website", url: canonical, title: t("title"), description: t("subtitle"), siteName: "Nabd Plus" },
-    twitter: { card: "summary", title: t("title"), description: t("subtitle") },
+    openGraph: { type: "website", url: canonical, title: t("title"), description: t("subtitle"), siteName: "Nabd Plus", images: [{ url: `${process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus"}/images/nursing/home-nurse.jpg`, alt: t("title") }] },
+    twitter: { card: "summary_large_image", title: t("title"), description: t("subtitle") },
     robots: { index: true, follow: true },
   };
 }

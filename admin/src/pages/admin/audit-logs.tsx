@@ -18,20 +18,47 @@ export default function AuditLogsPage() {
   const [data, setData] = useState<AuditResponse>({ data: [], total: 0, page: 1, pages: 1 });
   const [page, setPage] = useState(1);
   const [action, setAction] = useState('');
+  const [adminId, setAdminId] = useState('');
+  const [targetType, setTargetType] = useState('');
+  const [targetId, setTargetId] = useState('');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const filters = { page, limit: 25, action, admin_id: adminId, target_type: targetType, target_id: targetId, from, to };
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try {
-      const result = await adminFetch<AuditResponse>(`/audit${toQuery({ page, limit: 25, action })}`);
+      const result = await adminFetch<AuditResponse>(`/audit${toQuery(filters)}`);
       setData(result);
     } catch (reason) {
       setError(apiErrorMessage(reason, 'تعذر تحميل سجل التدقيق.'));
     } finally {
       setLoading(false);
     }
-  }, [action, page]);
+  }, [action, adminId, targetType, targetId, from, to, page]);
+
+  function exportCsv() {
+    const header = ['time', 'actor', 'action', 'target_type', 'target_id', 'reason'];
+    const escape = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const lines = [header.join(',')].concat(data.data.map((row) => [
+      row.createdAt || '',
+      row.actor?.full_name || row.actor?.email || row.actor?.id || '',
+      row.action,
+      row.target_type || '',
+      row.target_id || '',
+      row.reason || '',
+    ].map(escape).join(',')));
+    const blob = new Blob([`\uFEFF${lines.join('\n')}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `audit-log-p${data.page}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
 
   useEffect(() => { void load(); }, [load]);
 
@@ -40,7 +67,16 @@ export default function AuditLogsPage() {
     <section dir="rtl" className="p-6 md:p-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div><h1 className="text-3xl font-bold">سجل التدقيق</h1><p className="mt-1 text-sm text-slate-500">سجل خادمي غير قابل للتلاعب لعمليات الإدارة المؤثرة.</p></div>
-        <div className="flex gap-2"><input className="rounded-lg border px-3 py-2 text-sm" value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }} placeholder="تصفية باسم الإجراء" /><button onClick={() => void load()} className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">تحديث</button></div>
+        <div className="flex flex-wrap gap-2">
+          <input className="rounded-lg border px-3 py-2 text-sm" value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }} placeholder="تصفية باسم الإجراء" />
+          <input className="rounded-lg border px-3 py-2 text-sm" value={adminId} onChange={(e) => { setAdminId(e.target.value); setPage(1); }} placeholder="معرّف المنفّذ" />
+          <input className="rounded-lg border px-3 py-2 text-sm" value={targetType} onChange={(e) => { setTargetType(e.target.value); setPage(1); }} placeholder="نوع المورد" />
+          <input className="rounded-lg border px-3 py-2 text-sm" value={targetId} onChange={(e) => { setTargetId(e.target.value); setPage(1); }} placeholder="معرّف المورد" />
+          <label className="text-xs text-slate-500">من<input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" /></label>
+          <label className="text-xs text-slate-500">إلى<input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" /></label>
+          <button onClick={() => void load()} className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-bold text-white">تحديث</button>
+          <button onClick={exportCsv} disabled={!data.data.length} className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 disabled:opacity-40">تصدير CSV (الصفحة الحالية)</button>
+        </div>
       </div>
       {error ? <p role="alert" className="mb-4 rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
       <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">

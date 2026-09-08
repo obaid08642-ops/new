@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
       canonical,
       languages: { ...Object.fromEntries(locales.map((l) => [l, localizedUrl(l, "/diagnostics/labs")])), "x-default": localizedUrl("ar", "/diagnostics/labs") },
     },
-    openGraph: { type: "website", url: canonical, title: t("title"), description: t("subtitle"), siteName: "Nabd Plus" },
-    twitter: { card: "summary", title: t("title"), description: t("subtitle") },
+    openGraph: { type: "website", url: canonical, title: t("title"), description: t("subtitle"), siteName: "Nabd Plus", images: [{ url: `${process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://nabd.plus"}/images/labs/comprehensive-checkup.jpg`, alt: t("title") }] },
+    twitter: { card: "summary_large_image", title: t("title"), description: t("subtitle") },
     robots: { index: true, follow: true },
   };
 }

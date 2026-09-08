@@ -45,6 +45,24 @@ function AppNavigator() {
     return <SplashScreen onDone={() => {}} />;
   }
 
+  if (appState === 'pending' || appState === 'suspended' || appState === 'rejected' || appState === 'offline') {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>
+          <Stack.Screen name="Pending">
+            {({ navigation }) => <PendingDashboard providerType={pType} onExplore={() => navigation.navigate('GuestJobs' as never)} onLogout={async () => { await logout(); }} />}
+          </Stack.Screen>
+          <Stack.Screen name="GuestJobs">
+            {({ navigation }) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}
+          </Stack.Screen>
+          <Stack.Screen name="GuestDrugIndex">
+            {({ navigation }) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}
+          </Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }}>

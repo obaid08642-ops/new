@@ -326,7 +326,13 @@ export default function InsuranceHubScreen() {
         {/* Deductible Card */}
         <View style={[styles.deductCard, { backgroundColor: isDark ? colors.surface : colors.white } ]}>
           <View style={styles.sectionHeader}>
-            <TouchableOpacity onPress={() => router.push('/insurance/policy-detail' as any)}>
+            <TouchableOpacity onPress={() => {
+              if (defaultPolicy?.id) {
+                router.push({ pathname: '/insurance/policy-detail', params: { policyId: defaultPolicy.id } });
+              } else {
+                router.push('/insurance/add-policy');
+              }
+            }}>
               <AppText variant="caption" color={colors.primary} style={{ fontWeight: '700' }}>تفاصيل</AppText>
             </TouchableOpacity>
             <AppText variant="h6">التحمّل</AppText>

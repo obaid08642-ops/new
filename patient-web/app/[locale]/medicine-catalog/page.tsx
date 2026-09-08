@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NextImage from "next/image";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { parseMedicineSearch } from "@/lib/api/medicines";
@@ -111,8 +112,7 @@ export default async function PublicMedicineCatalogPage({ params, searchParams }
             <span className={styles.cardTop}>
               <span className={styles.medicineIcon}>
                 {medicine.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={medicine.image} alt={medicine.name || ""} className={styles.cardImg} />
+                  <NextImage src={medicine.image} alt={medicine.name || ""} className={styles.cardImg} width={56} height={56} />
                 ) : (
                   <Pill size={20} aria-hidden="true" />
                 )}

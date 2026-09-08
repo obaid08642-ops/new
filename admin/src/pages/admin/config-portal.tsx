@@ -48,9 +48,12 @@ export default function ConfigPortal() {
         return;
       }
 
+            const slaReason = window.prompt('سبب تعديل SLA (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
+            if (slaReason === null) { setIsSubmitting(false); return; }
+            if (slaReason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); setIsSubmitting(false); return; }
             await fetchWithAdminGuard(`/api/admin/config/sla`, {
         method: 'PUT',
-        body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry })
+        body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason.trim() })
       });
       alert('SLA variables globally overridden successfully.');
     } catch (error) {
@@ -72,8 +75,8 @@ export default function ConfigPortal() {
             const res = await fetchWithAdminGuard(`/api/admin/governance/trigger-emergency-maintenance`, {
         method: 'PUT',
         body: JSON.stringify({
-          adminId: 'admin-master-001',
-          forceMaintenanceState
+          forceMaintenanceState,
+          reason: forceMaintenanceState ? 'emergency-maintenance-enabled-by-admin' : 'emergency-maintenance-disabled-by-admin'
         })
       });
       const data = await res.json();

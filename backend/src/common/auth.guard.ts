@@ -86,8 +86,8 @@ export class JwtAuthGuard implements CanActivate {
     let payload: any;
     try {
       const secret = process.env.JWT_SECRET;
-      if (!secret && process.env.NODE_ENV === 'production') throw new UnauthorizedException('JWT secret is not configured');
-      payload = secret ? await this.jwt.verifyAsync(token, { secret }) : await this.jwt.verifyAsync(token);
+      if (!secret) throw new UnauthorizedException('JWT secret is not configured');
+      payload = await this.jwt.verifyAsync(token, { secret });
     } catch (e) {
       if (isPublic) return true;
       throw new UnauthorizedException('Invalid token');

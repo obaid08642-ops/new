@@ -30,9 +30,16 @@ export default function Consultations() {
   const insets = useSafeAreaInsets();
   const go = (screen: string, title?: string, params?: any) => {
     if (screen === 's11' || screen === 's5') {
-      router.push(`/consultations/doctor/${params?.doc?.id || params?.id || 'd1'}`);
+      const doctorId = params?.doc?.id || params?.id;
+      if (doctorId) {
+        router.push(`/consultations/doctor/${doctorId}`);
+      } else {
+        router.push('/consultations/doctor-search');
+      }
     } else if (screen === 's47') {
       router.push('/ai-assistant');
+    } else {
+      router.push('/consultations/doctor-search');
     }
   };
   const isRTL = lang === 'ar' || lang === 'ur';

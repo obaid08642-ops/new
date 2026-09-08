@@ -95,8 +95,11 @@ export default function ProviderModeration() {
   }, []);
 
   const handleApprove = async (id: string) => {
+    const reason = window.prompt('سبب الاعتماد (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
+    if (reason === null) return;
+    if (reason.trim().length < 5) { alert('يرجى إدخال سبب اعتماد لا يقل عن 5 أحرف'); return; }
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({}) });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
         alert('تم اعتماد المزود — أصبح حسابه فعالاً ويظهر الآن في دليل المرضى.');
         setPendingProviders(prev => prev.filter(p => p.id !== id));
@@ -135,8 +138,11 @@ export default function ProviderModeration() {
   };
 
   const handleCommitDelta = async (id: string) => {
+    const reason = window.prompt('سبب اعتماد التعديلات (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
+    if (reason === null) return;
+    if (reason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); return; }
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/approve`, { method: 'POST' });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
         alert('تم اعتماد التعديلات وتطبيقها على ملف المزود — ستظهر الآن لتطبيق المرضى.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));
@@ -152,8 +158,11 @@ export default function ProviderModeration() {
   };
 
   const handleRejectDelta = async (id: string) => {
+    const reason = window.prompt('سبب رفض التعديلات (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
+    if (reason === null) return;
+    if (reason.trim().length < 5) { alert('يرجى إدخال سبب رفض لا يقل عن 5 أحرف'); return; }
     try {
-        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/reject`, { method: 'POST' });
+        const res = await fetchWithAdminGuard(`/api/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
         alert('تم رفض التعديلات — لن تُطبق على ملف المزود.');
         setPendingDeltas(prev => prev.filter(d => d.id !== id));

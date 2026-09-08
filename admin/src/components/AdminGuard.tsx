@@ -71,6 +71,25 @@ function permitted(item: NavItem, permissions: Set<string>) {
   return !item.permission || permissions.has(item.permission);
 }
 
+// Per-page permission enforcement for direct-URL access (nav hiding alone is not enough).
+// Pages without an entry fall back to backend 403 but remain visible to any authenticated admin.
+const ROUTE_PERMISSIONS: Record<string, string> = {
+  '/admin/command-center': 'command_center.view',
+  '/admin/orders': 'order.read',
+  '/admin/analytics-suite': 'analytics.read',
+  '/admin/finance-suite': 'finance.read',
+  '/admin/disputes': 'disputes.resolve',
+  '/admin/crm': 'crm.read',
+  '/admin/segments': 'crm.read',
+  '/admin/gdpr': 'gdpr.manage',
+  '/admin/content-growth': 'cms.edit',
+  '/admin/home-curation': 'cms.edit',
+  '/admin/rbac': 'rbac.manage',
+  '/admin/system-ops': 'ops.queues.manage',
+  '/admin/scheduled-reports': 'scheduled_reports.manage',
+  '/admin/impersonation': 'user.impersonate',
+};
+
 export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<AdminSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,6 +135,19 @@ export const AdminGuard = ({ children }: { children: React.ReactNode }) => {
     return <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">جاري التحقق من جلسة الإدارة…</div>;
   }
   if (!session) return null;
+
+  const requiredPermission = ROUTE_PERMISSIONS[router.pathname];
+  if (requiredPermission && !permissionSet.has(requiredPermission)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50" dir="rtl">
+        <div className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow">
+          <h1 className="text-xl font-bold text-slate-900">غير مصرح لك بعرض هذه الصفحة</h1>
+          <p className="mt-2 text-sm text-slate-500">الصلاحية المطلوبة: {requiredPermission}</p>
+          <Link href="/admin/command-center" className="mt-6 inline-block rounded-lg bg-slate-950 px-5 py-2.5 text-sm text-white">العودة لمركز القيادة</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans" dir="rtl">

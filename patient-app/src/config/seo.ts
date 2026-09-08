@@ -166,7 +166,6 @@ export function generateMedicalOrgSchema(): object {
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+966-XXX-XXXX',
       contactType: 'customer service',
       availableLanguage: ['Arabic', 'English'],
     },

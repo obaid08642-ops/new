@@ -436,9 +436,9 @@ export function LoginScreen({
  </TouchableOpacity>
 
  <View style={{ alignItems: 'center', marginBottom: SP.xxxl }}>
- <TouchableOpacity activeOpacity={1} onLongPress={() => setShowIpModal(true)}>
-  <NLogo size={72} />
- </TouchableOpacity>
+  <TouchableOpacity activeOpacity={1} onLongPress={() => { if (__DEV__) setShowIpModal(true); }}>
+   <NLogo size={72} />
+  </TouchableOpacity>
  <Text style={{ fontSize: FS['3xl'], fontWeight: FW.xbold, color: theme.text, marginTop: SP.xl }}>
  {AR ? 'تسجيل الدخول' : 'Log In'}
  </Text>
@@ -522,13 +522,13 @@ export function LoginScreen({
     </View>
   </Modal>
 
-  <TouchableOpacity onPress={() => setShowIpModal(true)} style={{ marginTop: 40, padding: 10 }}>
+  <TouchableOpacity onPress={() => { if (__DEV__) setShowIpModal(true); }} style={{ marginTop: 40, padding: 10 }}>
    <Text style={{ textAlign: 'center', color: theme.textSub, fontSize: 10 }}>v1.0.0</Text>
   </TouchableOpacity>
   </ScrollView>
 
-  {/* IP OVERRIDE MODAL */}
-  <Modal visible={showIpModal} transparent animationType="fade">
+  {/* IP OVERRIDE MODAL — dev-only debug surface, never in production */}
+  <Modal visible={__DEV__ && showIpModal} transparent animationType="fade">
    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: SP.xl }}>
      <View style={{ backgroundColor: theme.card, borderRadius: R.xl, padding: SP.xl, width: '100%' }}>
        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: 'center' }}>

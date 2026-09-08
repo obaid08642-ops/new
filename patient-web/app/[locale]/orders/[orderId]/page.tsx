@@ -6,6 +6,7 @@ import { extractOrderDetail, parseOrderId } from "@/lib/api/orders";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n";
 import { RetryButton } from "@/components-next/retry-button";
+import { OrderReorderButton } from "@/components-next/order-reorder-button";
 import { VectorOrders } from "@/components-next/vector-illustrations";
 import { ChevronLeft, Hash, PackageCheck, ShieldCheck } from "lucide-react";
 import styles from "./order-detail.module.css";
@@ -44,6 +45,7 @@ export default async function OrderDetailPage({ params }: Props) {
       <nav className={styles.actions} aria-label={t("title")}>
         {canOpenOffers && <Link className={styles.back} href={`/${locale}/orders/${orderId}/offers`}>{offersLabel}</Link>}
         <Link className={styles.back} href={`/${locale}/orders/${orderId}/tracking`}>{t("open")}</Link>
+        <OrderReorderButton orderId={orderId} locale={locale} />
       </nav>
     </section>
   </main>;

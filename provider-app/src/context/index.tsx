@@ -254,9 +254,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const checkAppStatus = (status: string) => {
-    if (status === 'suspended') { setAppState('suspended'); return false; }
-    if (status === 'rejected') { setAppState('rejected'); return false; }
-    // Add pending handling if required, normally just blocked
+    const s = String(status || '').toLowerCase();
+    if (s === 'suspended') { setAppState('suspended'); return false; }
+    if (s === 'rejected') { setAppState('rejected'); return false; }
+    if (s === 'pending' || s === 'under_review' || s === 'submitted') { setAppState('pending'); return false; }
     setAppState('logged_in');
     return true;
   };
