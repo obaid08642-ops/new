@@ -25,6 +25,21 @@ export default function FraudMonitoring() {
   const [alerts, setAlerts] = useState<FraudAlert[]>([]);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [severity, setSeverity] = useState('');
+
+  const q = query.trim().toLowerCase();
+  const visibleAlerts = alerts.filter((alert: any) => {
+    if (severity && (alert.severity || 'medium') !== severity) return false;
+    if (!q) return true;
+    return [alert.entityName, alert.entityId, alert.entity_id, alert.flagReason, alert.type]
+      .filter(Boolean).some((v) => String(v).toLowerCase().includes(q));
+  });
+  const visibleLogs = logs.filter((log: any) => {
+    if (!q) return true;
+    return [log.actorId, log.user_id, log.actorRole, log.role, log.action, log.endpoint, log.resource_kind, log.payloadHash, log.resource_id]
+      .filter(Boolean).some((v) => String(v).toLowerCase().includes(q));
+  });
 
   useEffect(() => {
     const fetchGovernanceData = async () => {
@@ -63,6 +78,15 @@ export default function FraudMonitoring() {
           </h1>
           <p className="text-gray-500 mt-1 font-medium">طبقة السجلات الثابتة (Strictly Immutable Data View Layer)</p>
         </div>
+        <div className="mb-4 flex flex-wrap gap-2">
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="بحث في التنبيهات والسجلات" className="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+            <option value="">كل درجات الخطورة</option>
+            <option value="high">high</option>
+            <option value="medium">medium</option>
+            <option value="low">low</option>
+          </select>
+        </div>
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-sm">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
           IMMUTABLE: No Write Routes
@@ -77,7 +101,7 @@ export default function FraudMonitoring() {
             <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{alerts.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-            {(alerts || []).map((alert: any, idx: number) => {
+            {visibleAlerts.map((alert: any, idx: number) => {
               const alertId = alert.id || alert._id || `alert-${idx}`;
               const dateStr = alert.timestamp || alert.createdAt || alert.updatedAt;
               const formattedDate = dateStr ? new Date(dateStr).toLocaleString('ar-SA-u-ca-gregory') : '—';
@@ -100,7 +124,7 @@ export default function FraudMonitoring() {
                 </div>
               );
             })}
-            {(!alerts || alerts.length === 0) && <p className="text-center text-gray-500 mt-10">لا توجد مؤشرات احتيال مرصودة</p>}
+            {visibleAlerts.length === 0 && <p className="text-center text-gray-500 mt-10">لا توجد مؤشرات مطابقة للبحث الحالي</p>}
           </div>
         </div>
 
@@ -122,7 +146,7 @@ export default function FraudMonitoring() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(logs || []).map((log: any, idx: number) => {
+                {visibleLogs.map((log: any, idx: number) => {
                   const logId = log.id || log._id || `log-${idx}`;
                   const dateStr = log.timestamp || log.createdAt || log.updatedAt;
                   const formattedDate = dateStr ? new Date(dateStr).toLocaleString('en-US') : '—';
@@ -149,7 +173,7 @@ export default function FraudMonitoring() {
                 })}
               </tbody>
             </table>
-            {(!logs || logs.length === 0) && <p className="text-center text-gray-500 mt-10">No logs found</p>}
+            {visibleLogs.length === 0 && <p className="text-center text-gray-500 mt-10">No logs match the current search</p>}
           </div>
         </div>
       </div>
