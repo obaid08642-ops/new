@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { JsonLd } from "@/components-next/json-ld";
@@ -298,9 +299,8 @@ export default async function LandingPage({ params }: Props) {
             {doctors.map((doc) => (
               <Link key={doc.id} href={`/${locale}/consultations/doctors/${doc.id}`} className={styles.doctorCard}>
                 <div className={styles.doctorCardHeader}>
-                  <div className={styles.doctorAvatar}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={doc.image || `/images/doctors/${doc.id}.jpg`} alt={doc.name || ""} />
+                  <div className={styles.doctorAvatar} style={{ position: "relative" }}>
+                    <Image src={doc.image || `/images/doctors/${doc.id}.jpg`} alt={doc.name || ""} fill sizes="58px" style={{ objectFit: "cover" }} />
                   </div>
                   <div className={styles.doctorMeta}>
                     <strong>{doc.name}</strong>

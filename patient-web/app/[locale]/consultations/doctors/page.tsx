@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, BadgeCheck, Calendar, Search, Star, Stethoscope } from "lucide-react";
@@ -84,9 +85,8 @@ export default async function DoctorsPage({ params, searchParams }: Props) {
           {doctors.map((doctor) => (
             <Link key={doctor.id} href={`/${locale}/consultations/doctors/${doctor.id}`} className={styles.card}>
               <div className={styles.cardTop}>
-                <span className={styles.avatar} style={{ width: 54, height: 54, borderRadius: "50%", overflow: "hidden", border: "2px solid #5FD9B3", flexShrink: 0, display: "grid", placeItems: "center" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <span className={styles.avatar} style={{ width: 54, height: 54, borderRadius: "50%", overflow: "hidden", border: "2px solid #5FD9B3", flexShrink: 0, display: "grid", placeItems: "center", position: "relative" }}>
+                  <Image src={(doctor as any).image || `/images/doctors/${doctor.id}.jpg`} alt={doctor.name || ""} fill sizes="54px" style={{ objectFit: "cover" }} />
                 </span>
                 <div className={styles.copy}>
                   <span className={styles.doctorName}>
