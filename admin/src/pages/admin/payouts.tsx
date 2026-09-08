@@ -54,10 +54,14 @@ export default function PayoutApprovalPage() {
   };
 
   const handleReject = async (id: string) => {
+    if (rejectReason.trim().length < 5) {
+      alert('يرجى إدخال سبب رفض لا يقل عن 5 أحرف — يُحفظ في سجل التدقيق.');
+      return;
+    }
     try {
       await apiFetch(`/admin/finance/withdrawals/${id}/reject`, {
         method: 'POST',
-        body: JSON.stringify({ reason: rejectReason || undefined }),
+        body: JSON.stringify({ reason: rejectReason.trim() }),
       });
       setRejectingId(null);
       setRejectReason('');

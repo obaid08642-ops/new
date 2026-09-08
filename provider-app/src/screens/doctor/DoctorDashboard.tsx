@@ -69,7 +69,13 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
    <Stack.Navigator id={undefined as any} screenOptions={{ headerShown: false }}>
      <Stack.Screen name="MainTabs">
        {({ navigation }) => {
-         const navigateTo = (s: string, param?: any) => navigation.navigate(s, { param });
+         const navigateTo = (s: string, param?: any) => {
+           if (['home', 'schedule', 'chat', 'wallet', 'settings', 'drugs', 'jobs'].includes(s)) {
+             setActiveTab(s);
+             return;
+           }
+           navigation.navigate(s, { param });
+         };
          return (
            <View style={{ flex: 1 }}>
              {activeTab === 'home' && <DoctorHomeTab onNavigate={navigateTo} onTriggerAlarm={() => setAlarmVisible(true)} />}
@@ -122,6 +128,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="pre_visit_chat">{({ navigation, route }: any) => <PreVisitChatScreen apt={route.params?.param} onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
      <Stack.Screen name="medical_jobs">{({ navigation }: any) => <MedicalJobsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="drug_index">{({ navigation }: any) => <MedicalDrugIndexScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+     <Stack.Screen name="facility_invitations">{({ navigation }: any) => <FacilityInvitationsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="location_config">{({ navigation }: any) => <DoctorLocationScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="inbound_reports">{({ navigation }: any) => <InboundMedicalReportsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="video_call">{({ navigation, route }: any) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Pill, ZoomIn, X, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./product-gallery-modal.module.css";
 
@@ -20,13 +21,14 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
       {/* Main Image Viewport with Zoom Button */}
       <div className={styles.mainMediaWrap}>
         {currentImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={currentImage}
             alt={`${name} - ${activeIdx + 1}`}
             className={styles.mainImg}
             onClick={() => setIsZoomOpen(true)}
-            fetchPriority="high"
+            fill
+            priority
+            sizes="(max-width: 640px) 100vw, 420px"
           />
         ) : (
           <div className={styles.fallbackIcon}>
@@ -58,8 +60,7 @@ export function ProductGalleryModal({ name, images }: ProductGalleryModalProps) 
               className={`${styles.thumbBtn} ${idx === activeIdx ? styles.thumbActive : ""}`}
               onClick={() => setActiveIdx(idx)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} />
+              <Image src={img} alt={`صورة مصغرة ${idx + 1}`} className={styles.thumbImg} width={56} height={56} />
             </button>
           ))}
         </div>

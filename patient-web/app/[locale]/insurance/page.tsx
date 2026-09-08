@@ -74,6 +74,15 @@ export default async function InsurancePage({ params }: Props) {
         </span>
       </section>
 
+      <nav aria-label={locale === "ar" ? "خدمات التأمين" : "Insurance services"} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+        <Link href={`/${locale}/insurance/add-policy`}>{locale === "ar" ? "إضافة وثيقة" : "Add policy"}</Link>
+        <Link href={`/${locale}/insurance/submit-claim`}>{locale === "ar" ? "تقديم مطالبة" : "Submit claim"}</Link>
+        <Link href={`/${locale}/insurance/claims`}>{locale === "ar" ? "تتبع المطالبات" : "Track claims"}</Link>
+        <Link href={`/${locale}/insurance/coverage-check`}>{locale === "ar" ? "فحص التغطية" : "Coverage check"}</Link>
+        <Link href={`/${locale}/insurance/network-providers`}>{locale === "ar" ? "مزودو الشبكة" : "Network providers"}</Link>
+        <Link href={`/${locale}/insurance/benefits`}>{locale === "ar" ? "المزايا" : "Benefits"}</Link>
+      </nav>
+
       <section className={styles.grid}>
         <div className={styles.card}>
           <span>{t("policyStatus")}</span>

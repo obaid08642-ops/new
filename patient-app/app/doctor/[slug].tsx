@@ -29,7 +29,7 @@ export default function DoctorLinkCatcher() {
   }, [slug]);
 
   if (err) {
-    router.replace({ pathname: '/consultations/doctors' });
+    router.replace({ pathname: '/consultations/doctor-search' });
     return null;
   }
 

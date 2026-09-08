@@ -121,10 +121,14 @@ export default async function NutritionPage({ params }: Props) {
       <section className={styles.mealsSection}>
         <div className={styles.sectionHeader}>
           <h2>{t("meals")}</h2>
-          <Link href={`/${locale}/nutrition/plan`} className={styles.quickBtn}>
-            <Salad size={17} aria-hidden="true" />
-            {locale === "ar" ? "خطة الوجبات الصحية" : "Diet Plan"}
-          </Link>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href={`/${locale}/nutrition/log-meal`} className={styles.quickBtn}>{locale === "ar" ? "تسجيل وجبة" : "Log meal"}</Link>
+            <Link href={`/${locale}/nutrition/daily-tracker`} className={styles.quickBtn}>{locale === "ar" ? "المتتبع اليومي" : "Daily tracker"}</Link>
+            <Link href={`/${locale}/nutrition/plan`} className={styles.quickBtn}>
+              <Salad size={17} aria-hidden="true" />
+              {locale === "ar" ? "خطة الوجبات الصحية" : "Diet Plan"}
+            </Link>
+          </div>
         </div>
 
         {meals.length === 0 ? (
