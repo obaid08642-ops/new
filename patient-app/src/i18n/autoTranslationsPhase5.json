@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Phase 5 six-language UI localization additions",
-    "source_count": 1445,
+    "source_count": 1562,
     "languages": [
       "ar",
       "en",
@@ -11571,6 +11571,474 @@
       "hi": "दैनिक मूड",
       "bn": "দৈনিক মেজাজ",
       "fil": "Araw-araw na mood"
+    },
+    "أخصائي السحب في الطريق": {
+      "ar": "أخصائي السحب في الطريق",
+      "en": "Sample collection specialist is on the way"
+    },
+    "أشعة وتصوير": {
+      "ar": "أشعة وتصوير",
+      "en": "Radiology & imaging"
+    },
+    "إرسال لطلب موافقة التأمين": {
+      "ar": "إرسال لطلب موافقة التأمين",
+      "en": "Send for insurance approval"
+    },
+    "إلغاء الطلب": {
+      "ar": "إلغاء الطلب",
+      "en": "Cancel order"
+    },
+    "احجز الآن": {
+      "ar": "احجز الآن",
+      "en": "Book now"
+    },
+    "اختر المختبر من السلة أولاً": {
+      "ar": "اختر المختبر من السلة أولاً",
+      "en": "Select the lab from the cart first"
+    },
+    "اختر اليوم والوقت": {
+      "ar": "اختر اليوم والوقت",
+      "en": "Select the day and time"
+    },
+    "اختر شركة التأمين والشبكة": {
+      "ar": "اختر شركة التأمين والشبكة",
+      "en": "Select the insurance company and network"
+    },
+    "التأمين": {
+      "ar": "التأمين",
+      "en": "Insurance"
+    },
+    "التقارير والصور": {
+      "ar": "التقارير والصور",
+      "en": "Reports & images"
+    },
+    "التقرير": {
+      "ar": "التقرير",
+      "en": "Report"
+    },
+    "التقرير جاهز": {
+      "ar": "التقرير جاهز",
+      "en": "Report is ready"
+    },
+    "التوجه للمستشفى": {
+      "ar": "التوجه للمستشفى",
+      "en": "Heading to the hospital"
+    },
+    "الزيارة جارية": {
+      "ar": "الزيارة جارية",
+      "en": "Visit in progress"
+    },
+    "العينة قيد الفحص بالمختبر": {
+      "ar": "العينة قيد الفحص بالمختبر",
+      "en": "Sample under examination at the lab"
+    },
+    "الفحص": {
+      "ar": "الفحص",
+      "en": "Examination"
+    },
+    "الفحص المختار": {
+      "ar": "الفحص المختار",
+      "en": "Selected examination"
+    },
+    "الكل": {
+      "ar": "الكل",
+      "en": "All"
+    },
+    "المختبر المختار": {
+      "ar": "المختبر المختار",
+      "en": "Selected lab"
+    },
+    "المستشفى (الوجهة)": {
+      "ar": "المستشفى (الوجهة)",
+      "en": "Hospital (destination)"
+    },
+    "المسعف": {
+      "ar": "المسعف",
+      "en": "Paramedic"
+    },
+    "الممرض": {
+      "ar": "الممرض",
+      "en": "Nurse"
+    },
+    "الممرض في الطريق إليك": {
+      "ar": "الممرض في الطريق إليك",
+      "en": "Nurse is on the way to you"
+    },
+    "الموعد المختار في الماضي — اختر وقتاً لاحقاً": {
+      "ar": "الموعد المختار في الماضي — اختر وقتاً لاحقاً",
+      "en": "Selected time is in the past — choose a later time"
+    },
+    "النتائج جاهزة": {
+      "ar": "النتائج جاهزة",
+      "en": "Results are ready"
+    },
+    "النتائج والتقرير الطبي جاهز": {
+      "ar": "النتائج والتقرير الطبي جاهز",
+      "en": "Results and medical report are ready"
+    },
+    "باقة أسبوعية": {
+      "ar": "باقة أسبوعية",
+      "en": "Weekly package"
+    },
+    "باقة تحاليل شاملة": {
+      "ar": "باقة تحاليل شاملة",
+      "en": "Comprehensive lab package"
+    },
+    "باقة شهرية": {
+      "ar": "باقة شهرية",
+      "en": "Monthly package"
+    },
+    "بانتظار القبول": {
+      "ar": "بانتظار القبول",
+      "en": "Awaiting acceptance"
+    },
+    "بانتظار قبول التحمل": {
+      "ar": "بانتظار قبول التحمل",
+      "en": "Awaiting co-pay acceptance"
+    },
+    "بانتظار قرار التأمين": {
+      "ar": "بانتظار قرار التأمين",
+      "en": "Awaiting insurance decision"
+    },
+    "بطاقة": {
+      "ar": "بطاقة",
+      "en": "Card"
+    },
+    "تأكيد الحجز": {
+      "ar": "تأكيد الحجز",
+      "en": "Confirm booking"
+    },
+    "تأمين": {
+      "ar": "تأمين",
+      "en": "Insurance"
+    },
+    "تتبع الممرض": {
+      "ar": "تتبع الممرض",
+      "en": "Track nurse"
+    },
+    "تحاليل مخبرية": {
+      "ar": "تحاليل مخبرية",
+      "en": "Laboratory tests"
+    },
+    "تحقق من الموعد وطريقة الدفع وحاول مجدداً": {
+      "ar": "تحقق من الموعد وطريقة الدفع وحاول مجدداً",
+      "en": "Check the appointment and payment method, then try again"
+    },
+    "تعذر إنشاء الحجز": {
+      "ar": "تعذر إنشاء الحجز",
+      "en": "Could not create the booking"
+    },
+    "تعذر تحميل حالة التأمين": {
+      "ar": "تعذر تحميل حالة التأمين",
+      "en": "Could not load insurance status"
+    },
+    "تعذّر إرسال طلب الحجز — حاول مرة أخرى": {
+      "ar": "تعذّر إرسال طلب الحجز — حاول مرة أخرى",
+      "en": "Could not send booking request — try again"
+    },
+    "تغيير": {
+      "ar": "تغيير",
+      "en": "Change"
+    },
+    "تفاصيل الأشعة": {
+      "ar": "تفاصيل الأشعة",
+      "en": "Radiology details"
+    },
+    "تفاصيل التحليل": {
+      "ar": "تفاصيل التحليل",
+      "en": "Test details"
+    },
+    "تقدير غير متاح": {
+      "ar": "تقدير غير متاح",
+      "en": "Estimate unavailable"
+    },
+    "تقرير الأشعة": {
+      "ar": "تقرير الأشعة",
+      "en": "Radiology report"
+    },
+    "تم استلام طلب التحليل": {
+      "ar": "تم استلام طلب التحليل",
+      "en": "Test request received"
+    },
+    "تم الإضافة للسلة": {
+      "ar": "تم الإضافة للسلة",
+      "en": "Added to cart"
+    },
+    "تم الحجز": {
+      "ar": "تم الحجز",
+      "en": "Booked"
+    },
+    "تم الرفض": {
+      "ar": "تم الرفض",
+      "en": "Rejected"
+    },
+    "تم الطلب": {
+      "ar": "تم الطلب",
+      "en": "Ordered"
+    },
+    "تم سحب العينة": {
+      "ar": "تم سحب العينة",
+      "en": "Sample collected"
+    },
+    "تم سحب العينة بنجاح": {
+      "ar": "تم سحب العينة بنجاح",
+      "en": "Sample collected successfully"
+    },
+    "تمت الموافقة بنجاح!": {
+      "ar": "تمت الموافقة بنجاح!",
+      "en": "Approved successfully!"
+    },
+    "تمت الموافقة على بعض التحاليل فقط": {
+      "ar": "تمت الموافقة على بعض التحاليل فقط",
+      "en": "Only some tests were approved"
+    },
+    "تمريض منزلي معتمد": {
+      "ar": "تمريض منزلي معتمد",
+      "en": "Accredited home nursing"
+    },
+    "جاري التحليل": {
+      "ar": "جاري التحليل",
+      "en": "Analyzing"
+    },
+    "جاري المعالجة": {
+      "ar": "جاري المعالجة",
+      "en": "Processing"
+    },
+    "جاري تحميل بيانات التتبع...": {
+      "ar": "جاري تحميل بيانات التتبع...",
+      "en": "Loading tracking data..."
+    },
+    "جاري تخصيص أخصائي سحب العينة": {
+      "ar": "جاري تخصيص أخصائي سحب العينة",
+      "en": "Assigning a sample collection specialist"
+    },
+    "جارٍ التصوير": {
+      "ar": "جارٍ التصوير",
+      "en": "Imaging in progress"
+    },
+    "جاهز": {
+      "ar": "جاهز",
+      "en": "Ready"
+    },
+    "حجز أشعة وتصوير": {
+      "ar": "حجز أشعة وتصوير",
+      "en": "Book radiology & imaging"
+    },
+    "حجز تحاليل مخبرية": {
+      "ar": "حجز تحاليل مخبرية",
+      "en": "Book laboratory tests"
+    },
+    "حدث خطأ أثناء الإلغاء": {
+      "ar": "حدث خطأ أثناء الإلغاء",
+      "en": "An error occurred during cancellation"
+    },
+    "حسناً": {
+      "ar": "حسناً",
+      "en": "OK"
+    },
+    "حقن": {
+      "ar": "حقن",
+      "en": "Injections"
+    },
+    "خدمة رعاية": {
+      "ar": "خدمة رعاية",
+      "en": "Care service"
+    },
+    "ر.س (أساسي)": {
+      "ar": "ر.س (أساسي)",
+      "en": "SAR (base)"
+    },
+    "زيارة الفرع": {
+      "ar": "زيارة الفرع",
+      "en": "Branch visit"
+    },
+    "زيارة واحدة فقط": {
+      "ar": "زيارة واحدة فقط",
+      "en": "Single visit only"
+    },
+    "ساعة": {
+      "ar": "ساعة",
+      "en": "hour"
+    },
+    "ستظهر حالة الطلب وتفاصيل الزيارة المنزلية بعد مراجعة التوافر من المزود.": {
+      "ar": "ستظهر حالة الطلب وتفاصيل الزيارة المنزلية بعد مراجعة التوافر من المزود.",
+      "en": "Order status and home visit details will appear after the provider confirms availability."
+    },
+    "ستظهر حالة تأكيد الموعد وتفاصيل المركز في سجل حجوزاتك بعد مراجعة المزود.": {
+      "ar": "ستظهر حالة تأكيد الموعد وتفاصيل المركز في سجل حجوزاتك بعد مراجعة المزود.",
+      "en": "Appointment confirmation and center details will appear in your bookings after provider review."
+    },
+    "سحب من المنزل (تُحسب الرسوم من الخادم)": {
+      "ar": "سحب من المنزل (تُحسب الرسوم من الخادم)",
+      "en": "Home collection (fees computed by server)"
+    },
+    "طاقم التمريض": {
+      "ar": "طاقم التمريض",
+      "en": "Nursing staff"
+    },
+    "عذراً، التغطية التأمينية لا تشمل هذه التحاليل": {
+      "ar": "عذراً، التغطية التأمينية لا تشمل هذه التحاليل",
+      "en": "Sorry, insurance does not cover these tests"
+    },
+    "غير متاحة": {
+      "ar": "غير متاحة",
+      "en": "Unavailable"
+    },
+    "غير معروف": {
+      "ar": "غير معروف",
+      "en": "Unknown"
+    },
+    "في المختبر للتحليل": {
+      "ar": "في المختبر للتحليل",
+      "en": "At the lab for analysis"
+    },
+    "قريب منك": {
+      "ar": "قريب منك",
+      "en": "Near you"
+    },
+    "قيد المتابعة": {
+      "ar": "قيد المتابعة",
+      "en": "Under follow-up"
+    },
+    "قيد المراجعة": {
+      "ar": "قيد المراجعة",
+      "en": "Under review"
+    },
+    "كل المختبرات المعتمدة": {
+      "ar": "كل المختبرات المعتمدة",
+      "en": "All accredited labs"
+    },
+    "لا توجد حجوزات تأمين لعرضها": {
+      "ar": "لا توجد حجوزات تأمين لعرضها",
+      "en": "No insurance bookings to show"
+    },
+    "لا يوجد وصف متاح.": {
+      "ar": "لا يوجد وصف متاح.",
+      "en": "No description available."
+    },
+    "لم تحدد عنواناً بعد": {
+      "ar": "لم تحدد عنواناً بعد",
+      "en": "No address set yet"
+    },
+    "لم يبدأ مشاركة الموقع الحي بعد — سيظهر المسار هنا فور انطلاقه": {
+      "ar": "لم يبدأ مشاركة الموقع الحي بعد — سيظهر المسار هنا فور انطلاقه",
+      "en": "Live location sharing has not started yet — the route will appear here once underway"
+    },
+    "لم يُنشر تقرير آمن قابل للعرض لحسابك حتى الآن.": {
+      "ar": "لم يُنشر تقرير آمن قابل للعرض لحسابك حتى الآن.",
+      "en": "No viewable secure report has been published for your account yet."
+    },
+    "مؤكد": {
+      "ar": "مؤكد",
+      "en": "Confirmed"
+    },
+    "متابعة لرفع التأمين": {
+      "ar": "متابعة لرفع التأمين",
+      "en": "Continue to insurance upload"
+    },
+    "متاحة": {
+      "ar": "متاحة",
+      "en": "Available"
+    },
+    "مرفوض": {
+      "ar": "مرفوض",
+      "en": "Rejected"
+    },
+    "مرفوض من التأمين": {
+      "ar": "مرفوض من التأمين",
+      "en": "Rejected by insurance"
+    },
+    "مركز أشعة معتمد": {
+      "ar": "مركز أشعة معتمد",
+      "en": "Accredited radiology center"
+    },
+    "مغطى": {
+      "ar": "مغطى",
+      "en": "Covered"
+    },
+    "مغطى بالكامل": {
+      "ar": "مغطى بالكامل",
+      "en": "Fully covered"
+    },
+    "مغطى جزئياً": {
+      "ar": "مغطى جزئياً",
+      "en": "Partially covered"
+    },
+    "مكتملة": {
+      "ar": "مكتملة",
+      "en": "Completed"
+    },
+    "ملغى": {
+      "ar": "ملغى",
+      "en": "Cancelled"
+    },
+    "ملغي": {
+      "ar": "ملغي",
+      "en": "Cancelled"
+    },
+    "منزلك (الوجهة)": {
+      "ar": "منزلك (الوجهة)",
+      "en": "Your home (destination)"
+    },
+    "موافقة جزئية": {
+      "ar": "موافقة جزئية",
+      "en": "Partial approval"
+    },
+    "نعم، إلغاء": {
+      "ar": "نعم، إلغاء",
+      "en": "Yes, cancel"
+    },
+    "نقدي": {
+      "ar": "نقدي",
+      "en": "Cash"
+    },
+    "وريد": {
+      "ar": "وريد",
+      "en": "IV"
+    },
+    "يحدده الخادم": {
+      "ar": "يحدده الخادم",
+      "en": "Determined by server"
+    },
+    "يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.": {
+      "ar": "يرجى التوجه إلى نقطة الاستلام الموضحة على الخريطة.",
+      "en": "Please head to the pickup point shown on the map."
+    },
+    "يرجى التوجه لإحضار الممرض": {
+      "ar": "يرجى التوجه لإحضار الممرض",
+      "en": "Please proceed to pick up the nurse"
+    },
+    "١٠ - ١٢ ساعة": {
+      "ar": "١٠ - ١٢ ساعة",
+      "en": "10–12 hours"
+    },
+    "٢٤ ساعة": {
+      "ar": "٢٤ ساعة",
+      "en": "24 hours"
+    },
+    "حالة موافقة التأمين": {
+      "ar": "حالة موافقة التأمين",
+      "en": "Insurance approval status"
+    },
+    "متابعة حالة الموافقة": {
+      "ar": "متابعة حالة الموافقة",
+      "en": "Track approval status"
+    },
+    "تصفح الباقات والتحاليل": {
+      "ar": "تصفح الباقات والتحاليل",
+      "en": "Browse packages & tests"
+    },
+    "التحمل:": {
+      "ar": "التحمل:",
+      "en": "Co-pay:"
+    },
+    "فتح التتبع الحي": {
+      "ar": "فتح التتبع الحي",
+      "en": "Open live tracking"
+    },
+    "الدفع بالتأمين للسحب المنزلي يتطلب طلب طبيب أو موافقة مسبقة — ستنتقل لشاشة رفع التأمين.": {
+      "ar": "الدفع بالتأمين للسحب المنزلي يتطلب طلب طبيب أو موافقة مسبقة — ستنتقل لشاشة رفع التأمين.",
+      "en": "Insurance payment for home collection requires a doctor request or pre-approval — you will move to the insurance upload screen."
     }
   }
 }
