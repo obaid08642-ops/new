@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ callPatientApi: vi.fn(), requirePatientAccess: vi.fn() }));
-vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ notFound: vi.fn(), redirect: vi.fn(), useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock("@/lib/i18n", () => ({ isLocale: () => true }));
 vi.mock("@/lib/auth/session", () => ({ requirePatientAccess: state.requirePatientAccess }));
