@@ -219,6 +219,13 @@ export class PaymentsService {
   private async finalizeGovernedPharmacyPaid(t: any): Promise<boolean> {
     const order = await this.governedPharmacyOrder(t.booking_id);
     if (!order) return false;
+    // Idempotent replay: verify/retry/webhook paths can all report the same
+    // paid transaction. Skip the write AND the evidence event when this exact
+    // transaction already finalized the order — otherwise every retry
+    // re-emits 'moyasar.payment.paid' and replays fulfillment processing.
+    if (order.payment_status === 'paid' && order.transaction_id === t.id) {
+      return true;
+    }
     await this.txns.db.collection('pharmacy_orders').updateOne(
       { id: order.id },
       { $set: { payment_status: 'paid', transaction_id: t.id, paid_at: t.paid_at } },
