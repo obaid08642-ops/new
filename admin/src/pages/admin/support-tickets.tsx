@@ -107,6 +107,9 @@ export default function SupportTicketsPage() {
                         {t.status !== 'RESOLVED' && t.status !== 'CLOSED' && (
                           <button onClick={() => setStatus(t.id, 'RESOLVED')} className="px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-bold">حلّها</button>
                         )}
+                        {t.status === 'RESOLVED' && (
+                          <button onClick={() => { if (window.confirm('إغلاق التذكرة نهائياً؟ لن يتمكن المريض من الرد بعد الإغلاق.')) void setStatus(t.id, 'CLOSED'); }} className="px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold">إغلاق</button>
+                        )}
                         <button onClick={() => setOpenId(isOpen ? null : t.id)} className="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold">
                           {isOpen ? 'إخفاء' : 'المحادثة والرد'}
                         </button>
