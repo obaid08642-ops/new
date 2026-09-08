@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NextImage from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, CircleAlert, Search, ShieldCheck } from "lucide-react";
@@ -85,8 +86,7 @@ export default async function RadiologyServicesPage({ params, searchParams }: Pr
               <Link className={styles.card} key={service.id} href={`/${locale}/diagnostics/radiology/${encodeURIComponent(service.id)}`}>
                 <span className={styles.icon} style={{ overflow: "hidden", position: "relative" }}>
                   {service.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={service.imageUrl} alt={name || ""} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                    <NextImage src={service.imageUrl} alt={name || ""} fill sizes="(max-width: 720px) 50vw, 25vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />
                   ) : (
                     <VectorRadiology size={36} aria-hidden="true" />
                   )}

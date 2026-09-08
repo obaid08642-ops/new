@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { localizedUrl } from "@/lib/seo";
 import { isLocale, locales } from "@/lib/i18n";
 import Link from "next/link";
+import NextImage from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Check, ChevronLeft, FlaskConical, Home, ShieldCheck } from "lucide-react";
@@ -177,8 +178,7 @@ export default async function LabPackageDetailPage({ params }: Props) {
           </div>
         </div>
         <div style={{ width: 140, height: 140, borderRadius: "24px", overflow: "hidden", border: "3px solid #5FD9B3", flexShrink: 0, boxShadow: "0 8px 24px rgba(22, 33, 58, 0.12)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={packagePhoto} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <NextImage src={packagePhoto} alt={name} width={140} height={140} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
       </section>
 

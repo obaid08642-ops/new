@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import { Tajawal } from "next/font/google";
 import Link from "next/link";
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700", "800"],
+  display: "swap",
+  variable: "--font-tajawal",
+});
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -49,7 +57,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <WebMcpProvider locale={typedLocale} />
-      <div className="shell" lang={typedLocale} dir={getDirection(typedLocale)}>
+      <div className={`shell ${tajawal.variable}`} lang={typedLocale} dir={getDirection(typedLocale)}>
         <div className="dev-notice" role="alert">
           <span className="dev-notice-badge">BETA</span>
           <span>{t("devNotice")}</span>
