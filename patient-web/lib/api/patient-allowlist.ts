@@ -9,6 +9,19 @@ const patientReadRoutes = [
   new RegExp(`^/orders/${orderId}$`, "i"),
   new RegExp("^/patient/pharmacy/orders$"),
   new RegExp(`^/patient/pharmacy/orders/${orderId}$`, "i"),
+  new RegExp(`^/patient/pharmacy/orders/${orderId}/offers$`, "i"),
+  new RegExp("^/labs/services$", "i"),
+  new RegExp("^/home-care/bookings/my$", "i"),
+  new RegExp("^/home-care/bookings/[A-Za-z0-9-]{1,64}$", "i"),
+  new RegExp("^/emergency/tracking$", "i"),
+  new RegExp("^/family/chat/messages$", "i"),
+  new RegExp(`^/offers/${orderId}$`, "i"),
+  new RegExp(`^/promotions/offers/${orderId}/providers$`, "i"),
+  new RegExp("^/medicines$", "i"),
+  new RegExp("^/medicines/by-barcode/[^/]{1,64}$", "i"),
+  new RegExp("^/insurance/requests/my$", "i"),
+  new RegExp(`^/insurance/requests/${orderId}$`, "i"),
+  new RegExp("^/users/me/addresses$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),
   new RegExp("^/cart$"),
   new RegExp("^/cart/checkout$"),
@@ -71,6 +84,8 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "POST", route: new RegExp("^/labs/bookings$") },
   { method: "POST", route: new RegExp(`^/labs/bookings/${orderId}/documents$`, "i") },
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/reschedule$`, "i") },
+  { method: "PATCH", route: new RegExp(`^/orders/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
+  { method: "POST", route: new RegExp("^/family/chat/messages$", "i") },
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
