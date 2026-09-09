@@ -205,7 +205,7 @@ export function ProfileWebConfig({ onBack }: { onBack: () => void }) {
      });
      const profile = response.data || {};
      setPublicUrl(profile.slug ? `https://nabdah.plus/provider/${profile.slug}` : null);
-     show(AR ? 'تم حفظ إعدادات الموقع في الخادم' : 'Public site settings saved to the server', 'success');
+     show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
      onBack();
    } catch (error: any) {
      show(error?.response?.data?.message || (AR ? 'تعذر حفظ إعدادات الموقع' : 'Unable to save site settings'), 'error');

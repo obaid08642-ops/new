@@ -2487,6 +2487,18 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
        currentPlans = p.insurance_plans || {};
        currentCopays = p.insurance_copays || {};
      } catch {}
+     try {
+       const m = await client.get('/provider/insurance-matrix').catch(() => null);
+       const md: any = m?.data || {};
+       if (md && typeof md === 'object') {
+         if (Array.isArray(md.supported_companies) && md.supported_companies.length) current = md.supported_companies;
+         if (md.tiers && typeof md.tiers === 'object') {
+           for (const [k, v] of Object.entries(md.tiers)) {
+             if (Array.isArray(v) && (v as string[]).length) currentPlans[k] = v as string[];
+           }
+         }
+       }
+     } catch {}
      setInsurances(catalog.map(c => ({
        id: c.id, ar: c.ar, en: c.en, plans: c.plans,
        active: current.includes(c.id),
@@ -2527,6 +2539,12 @@ export function InsuranceConfigScreen({ onBack }: { onBack: () => void }) {
          insurance_copays: Object.fromEntries(active.map(i => [i.id, i.copay])),
        },
      });
+     // Sync the enforcement matrix (companies + accepted tiers) so uncovered
+     // requests never reach this provider.
+     await client.put('/provider/insurance-matrix', {
+       companies: active.map(i => i.id),
+       tiers: Object.fromEntries(active.filter(i => i.selectedPlans.length).map(i => [i.id, i.selectedPlans])),
+     }).catch(() => null);
      show(AR ? 'تم إرسال التعديلات — تُطبق بعد اعتماد الإدارة' : 'Changes sent — applied after admin approval', 'success');
      onBack();
    } catch (e: any) {

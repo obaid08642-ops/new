@@ -11,11 +11,15 @@ import { DoctorSessionTypeRepository } from "./repositories/doctorsessiontype.re
 import { HomeCareServiceCatalogItemRepository } from "./repositories/homecareservicecatalogitem.repository";
 import { ProviderDeliveryZoneRepository } from "./repositories/providerdeliveryzone.repository";
 import { isProviderRole } from '../../../common/enums';
+import { ProviderProfileService } from './provider-profile.service';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
   return user;
 }
+
+// Fields that may change live without admin review (operational stock counts only).
+const LIVE_STOCK_KEYS = new Set(['stock', 'min_stock_alert', 'last_restocked_at']);
 
 @Injectable()
 export class ServiceCapabilityService {
@@ -26,7 +30,22 @@ export class ServiceCapabilityService {
     @Inject('DoctorSessionTypeRepository') private doc: DoctorSessionTypeRepository,
     @Inject('HomeCareServiceCatalogItemRepository') private hc: HomeCareServiceCatalogItemRepository,
     @Inject('ProviderDeliveryZoneRepository') private zones: ProviderDeliveryZoneRepository,
+    private readonly profileService: ProviderProfileService,
   ) {}
+
+  // Governance: catalog price/availability/coverage/create/delete changes stay
+  // draft until admin approves; only operational stock counts apply immediately.
+  private async gateCapabilityChange(user: any, catalog: string, operation: 'create' | 'update' | 'delete', filter: any, payload: any) {
+    return this.profileService.requestChange(user, 'capability', { catalog, operation, filter, payload });
+  }
+
+  private async maybeLiveStock(user: any, existing: any, body: any): Promise<boolean> {
+    if (!existing) return false;
+    const cur = typeof existing.toObject === 'function' ? existing.toObject() : existing;
+    const changed = Object.keys(body).filter((k) => !['provider_account_id', 'updatedAt', 'createdAt', '__v'].includes(k));
+    const nonStock = changed.filter((k) => !LIVE_STOCK_KEYS.has(k) && JSON.stringify((cur as any)[k]) !== JSON.stringify((body as any)[k]));
+    return nonStock.length === 0;
+  }
 
   // ---------- PHARMACY INVENTORY ----------
   async listPharmacy(user: any) {
@@ -37,15 +56,18 @@ export class ServiceCapabilityService {
     assertProvider(user);
     if (!body?.sku || !body?.name_ar) throw new BadRequestException('sku and name_ar are required');
     const filter = { provider_account_id: user.id, sku: body.sku };
-    const update = { ...body, provider_account_id: user.id };
-    const r = await this.pharma.findOneAndUpdate(filter, update, { upsert: true, new: true, setDefaultsOnInsert: true });
-    return r.toObject();
+    const existing = await this.pharma.findOne(filter).lean();
+    if (existing && await this.maybeLiveStock(user, existing, body)) {
+      const r = await this.pharma.findOneAndUpdate(filter, { stock: body.stock, min_stock_alert: body.min_stock_alert, last_restocked_at: body.last_restocked_at, provider_account_id: user.id }, { new: true });
+      return r ? r.toObject() : null;
+    }
+    return this.gateCapabilityChange(user, 'pharmacy', existing ? 'update' : 'create', filter, { ...body, provider_account_id: user.id });
   }
   async deletePharmacy(user: any, id: string) {
     assertProvider(user);
-    const r = await this.pharma.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.pharma.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.gateCapabilityChange(user, 'pharmacy', 'delete', { id, provider_account_id: user.id }, null);
   }
 
   // ---------- LAB CATALOG ----------
@@ -56,18 +78,15 @@ export class ServiceCapabilityService {
   async upsertLab(user: any, body: any) {
     assertProvider(user);
     if (!body?.code || !body?.name_ar) throw new BadRequestException('code and name_ar are required');
-    const r = await this.lab.findOneAndUpdate(
-      { provider_account_id: user.id, code: body.code },
-      { ...body, provider_account_id: user.id },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-    return r.toObject();
+    const filter = { provider_account_id: user.id, code: body.code };
+    const existing = await this.lab.findOne(filter).lean();
+    return this.gateCapabilityChange(user, 'lab', existing ? 'update' : 'create', filter, { ...body, provider_account_id: user.id });
   }
   async deleteLab(user: any, id: string) {
     assertProvider(user);
-    const r = await this.lab.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.lab.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.gateCapabilityChange(user, 'lab', 'delete', { id, provider_account_id: user.id }, null);
   }
 
   // ---------- RADIOLOGY CATALOG ----------
@@ -78,18 +97,15 @@ export class ServiceCapabilityService {
   async upsertRadiology(user: any, body: any) {
     assertProvider(user);
     if (!body?.scan_type || !body?.body_part) throw new BadRequestException('scan_type and body_part are required');
-    const r = await this.rad.findOneAndUpdate(
-      { provider_account_id: user.id, scan_type: body.scan_type, body_part: body.body_part },
-      { ...body, provider_account_id: user.id },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-    return r.toObject();
+    const filter = { provider_account_id: user.id, scan_type: body.scan_type, body_part: body.body_part };
+    const existing = await this.rad.findOne(filter).lean();
+    return this.gateCapabilityChange(user, 'radiology', existing ? 'update' : 'create', filter, { ...body, provider_account_id: user.id });
   }
   async deleteRadiology(user: any, id: string) {
     assertProvider(user);
-    const r = await this.rad.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.rad.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.gateCapabilityChange(user, 'radiology', 'delete', { id, provider_account_id: user.id }, null);
   }
 
   // ---------- DOCTOR SESSION TYPES ----------
@@ -100,18 +116,15 @@ export class ServiceCapabilityService {
   async upsertDoctorSession(user: any, body: any) {
     assertProvider(user);
     if (!body?.consultation_type || !body?.specialty) throw new BadRequestException('consultation_type and specialty are required');
-    const r = await this.doc.findOneAndUpdate(
-      { provider_account_id: user.id, consultation_type: body.consultation_type, specialty: body.specialty },
-      { ...body, provider_account_id: user.id },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-    return r.toObject();
+    const filter = { provider_account_id: user.id, consultation_type: body.consultation_type, specialty: body.specialty };
+    const existing = await this.doc.findOne(filter).lean();
+    return this.gateCapabilityChange(user, 'doctor_sessions', existing ? 'update' : 'create', filter, { ...body, provider_account_id: user.id });
   }
   async deleteDoctorSession(user: any, id: string) {
     assertProvider(user);
-    const r = await this.doc.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.doc.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.gateCapabilityChange(user, 'doctor_sessions', 'delete', { id, provider_account_id: user.id }, null);
   }
 
   // ---------- HOME CARE CATALOG ----------
@@ -122,18 +135,15 @@ export class ServiceCapabilityService {
   async upsertHomeCare(user: any, body: any) {
     assertProvider(user);
     if (!body?.service_type) throw new BadRequestException('service_type is required');
-    const r = await this.hc.findOneAndUpdate(
-      { provider_account_id: user.id, service_type: body.service_type },
-      { ...body, provider_account_id: user.id },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-    return r.toObject();
+    const filter = { provider_account_id: user.id, service_type: body.service_type };
+    const existing = await this.hc.findOne(filter).lean();
+    return this.gateCapabilityChange(user, 'home_care', existing ? 'update' : 'create', filter, { ...body, provider_account_id: user.id });
   }
   async deleteHomeCare(user: any, id: string) {
     assertProvider(user);
-    const r = await this.hc.findOneAndDelete({ id, provider_account_id: user.id });
+    const r = await this.hc.findOne({ id, provider_account_id: user.id }).lean();
     if (!r) throw new NotFoundException();
-    return { ok: true };
+    return this.gateCapabilityChange(user, 'home_care', 'delete', { id, provider_account_id: user.id }, null);
   }
 
   // ---------- DELIVERY ZONES ----------

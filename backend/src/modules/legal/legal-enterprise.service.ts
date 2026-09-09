@@ -286,23 +286,38 @@ export class LegalEnterpriseService {
   // ── 6) Provider insurance matrix ──────────────────────────────────────────
   async getProviderInsurance(providerId: string): Promise<any> {
     const doc: any = await this.providerInsurance.findOne({ provider_id: providerId });
-    return { provider_id: providerId, supported_companies: doc?.supported_companies || [], updated_at: doc?.updated_at || null };
+    return { provider_id: providerId, supported_companies: doc?.supported_companies || [], networks: doc?.networks || {}, tiers: doc?.tiers || {}, updated_at: doc?.updated_at || null };
   }
 
-  async setProviderInsurance(providerId: string, companies: string[]) {
+  async setProviderInsurance(providerId: string, companies: string[], networks?: Record<string, string[]>, tiers?: Record<string, string[]>) {
+    const clean = (v: unknown) => Array.isArray(v) ? [...new Set(v.filter((x) => typeof x === 'string' && x.trim()))] : [];
+    const cleanMap = (m: unknown) => {
+      if (!m || typeof m !== 'object') return {};
+      const out: Record<string, string[]> = {};
+      for (const [k, v] of Object.entries(m as Record<string, unknown>)) {
+        if (typeof k === 'string' && k) out[k] = clean(v);
+      }
+      return out;
+    };
+    const supported = clean(companies);
     await this.providerInsurance.updateOne(
       { provider_id: providerId },
-      { $set: { provider_id: providerId, supported_companies: companies, updated_at: new Date() } },
+      { $set: { provider_id: providerId, supported_companies: supported, networks: cleanMap(networks), tiers: cleanMap(tiers), updated_at: new Date() } },
       { upsert: true },
     );
-    return { ok: true, provider_id: providerId, supported_companies: companies };
+    return { ok: true, provider_id: providerId, supported_companies: supported };
   }
 
-  /** Used by the insurance workflow: does this provider accept this insurer? */
-  async acceptsInsurance(providerId: string, companyId: string) {
+  /** Used by the insurance workflow: does this provider accept this insurer/network/tier? */
+  async acceptsInsurance(providerId: string, companyId: string, network?: string, tier?: string) {
     const doc: any = await this.providerInsurance.findOne({ provider_id: providerId });
     if (!doc || !doc.supported_companies?.length) return true; // no matrix configured = accept all (backward compatible)
-    return doc.supported_companies.includes(companyId);
+    if (!doc.supported_companies.includes(companyId)) return false;
+    const nets: string[] = doc.networks?.[companyId] || [];
+    if (network && nets.length > 0 && !nets.includes(network)) return false;
+    const tiers: string[] = doc.tiers?.[companyId] || [];
+    if (tier && tiers.length > 0 && !tiers.includes(tier)) return false;
+    return true;
   }
 
   // ── 7) Provider SLA dashboard ─────────────────────────────────────────────

@@ -19,7 +19,6 @@ import {
 import { SP, R, FS, FW } from '../../constants';
 import client from '../../api/client';
 import { FleetScreen } from '../shared/FleetScreen';
-import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -250,12 +249,6 @@ function ActiveMissionScreen({ mission, onBack, onNavigate }: { mission: any; on
           style={{ marginBottom: SP.md }}
         />
         <NBtn
-          label={AR ? 'مكالمة فيديو مع المريض' : 'Video call with patient'}
-          variant="outline"
-          onPress={() => onNavigate('video_call', mission)}
-          style={{ marginBottom: SP.md }}
-        />
-        <NBtn
           label={AR ? 'تسليم للمستشفى' : 'Hospital Handover'}
           onPress={() => onNavigate('handover', mission)}
           style={{ marginBottom: SP.md, backgroundColor: theme.primary }}
@@ -390,11 +383,13 @@ function AmbulanceHistoryScreen({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    client.get('/provider/ops/wallet/ledger?limit=50')
-      .then(() => {})
-      .catch(() => {})
+    client.get('/emergency/driver/missions')
+      .then((res: any) => {
+        const all = [...(res.data?.mine || []), ...(res.data?.pool || [])];
+        setRows(all.filter((m: any) => ['completed', 'handed_over', 'closed'].includes(String(m.state || m.status || '').toLowerCase())));
+      })
+      .catch(() => setRows([]))
       .finally(() => setLoading(false));
-    setRows([]);
   }, []);
 
   return (
@@ -593,12 +588,6 @@ export function AmbulanceDashboardNavigator({ onLogout }: { onLogout: () => void
       <Stack.Screen name="fleet">
         {({ navigation }: any) => <FleetScreen onBack={() => navigation.goBack()} />}
       </Stack.Screen>
-      <Stack.Screen name="video_call">{({ navigation, route }: any) => {
-        const appointment = route.params?.param || {};
-        const appointmentId = String(appointment.id || appointment.appointment_id || '');
-        if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
-        return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
-      }}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="profile">{({ navigation }: any) => <AmbulanceProfileScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="availability">{({ navigation }: any) => <AmbulanceAvailabilityScreen onBack={() => navigation.goBack()} />}</Stack.Screen>

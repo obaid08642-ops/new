@@ -14,6 +14,7 @@
 import { Module, Injectable, Controller, Get, Post, Put, Delete, Body, Param, Query, Res, UseGuards, BadRequestException, ForbiddenException, NotFoundException, StreamableFile } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Schema } from 'mongoose';
+import { randomUUID } from 'crypto';
 import { JwtAuthGuard, CurrentUser } from '../../common/auth.guard';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
@@ -546,6 +547,21 @@ export class ProviderOpsService {
     return { ok: true };
   }
 
+  // Governance: pricing/hours/schedule changes stay draft until admin approves.
+  async requestSettingChange(providerId: string, key: string, value: any) {
+    const delta = {
+      id: randomUUID(),
+      provider_id: providerId,
+      target: 'settings',
+      requested_changes: { settings_key: key, value },
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    await this.conn.collection('provider_deltas').insertOne(delta);
+    return { ok: true, message: 'delta_submitted', pending_review: true, data: { id: delta.id, status: 'pending', target: 'settings' } };
+  }
+
   async endConsultation(user: any, body: any) {
     const appointmentId = body.appointment_id || body.id;
     if (!appointmentId) throw new BadRequestException('appointment_id required');
@@ -715,7 +731,7 @@ export class ProviderCompatController {
     return { pricing: await this.svc.getProviderSetting(u.id, 'pricing', null) };
   }
   @Put('settings/pricing') async putPricing(@CurrentUser() u: any, @Body() b: any) {
-    return this.svc.setProviderSetting(u.id, 'pricing', b?.pricing ?? b);
+    return this.svc.requestSettingChange(u.id, 'pricing', b?.pricing ?? b);
   }
 
   /** Reviews received by this provider */
@@ -732,7 +748,7 @@ export class ProviderCompatController {
     return this.svc.getProviderSetting(u.id, 'working_hours', null);
   }
   @Put('working-hours') async putHours(@CurrentUser() u: any, @Body() b: any) {
-    return this.svc.setProviderSetting(u.id, 'working_hours', b?.hours ?? b);
+    return this.svc.requestSettingChange(u.id, 'working_hours', b?.hours ?? b);
   }
 
   /** Schedule settings (nursing/providers): shifts, maxVisits, emergencyReady */
@@ -740,7 +756,7 @@ export class ProviderCompatController {
     return this.svc.getProviderSetting(u.id, 'schedule_settings', null);
   }
   @Post('schedule/settings') async postSched(@CurrentUser() u: any, @Body() b: any) {
-    return this.svc.setProviderSetting(u.id, 'schedule_settings', b || {});
+    return this.svc.requestSettingChange(u.id, 'schedule_settings', b || {});
   }
 
   /** End a consultation: complete appointment + store notes/prescription */

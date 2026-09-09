@@ -42,7 +42,6 @@ import {
 } from '../../components/ui';
 import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
@@ -166,12 +165,6 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="pharmacy_info">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-    <Stack.Screen name="video_call">{({ navigation, route }: any) => {
-      const appointment = route.params?.param || {};
-      const appointmentId = String(appointment.id || appointment.appointment_id || '');
-      if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
-      return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
-    }}</Stack.Screen>
      <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="pricing_fees">{({ navigation }: any) => <DrugPriceComparisonScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -1023,7 +1016,6 @@ function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
             {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
               <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
             )}
-            <NBtn label={AR ? 'مكالمة المريض' : 'Call patient'} size="sm" variant="outline" onPress={() => onNavigate?.('video_call', { id: a.order_id, patient: d?.patient_contact?.name })} />
             {String(a.status) === 'confirmed' && (
               <NBtn label={AR ? 'بدء التجهيز' : 'Start preparing'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
             )}
@@ -1501,7 +1493,11 @@ function ActiveInventoryScreen({ onBack }: any) {
 
   const persistItem = async (item: any, patch: any) => {
     try {
-      await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+      const res = await client.post('/provider/capabilities/pharmacy', { ...item, ...patch });
+      if ((res?.data as any)?.pending_review) {
+        show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+        fetchInventory();
+      }
     } catch {
       show(AR ? 'تعذر حفظ التحديث على الخادم' : 'Could not save update to server', 'error');
       fetchInventory();
@@ -1519,8 +1515,13 @@ function ActiveInventoryScreen({ onBack }: any) {
     const item = inventory.find(x => x.id === id);
     if (!item) return;
     const available = !(item.available !== false);
-    setInventory(prev => prev.map(x => x.id === id ? { ...x, available } : x));
     persistItem(item, { available });
+  };
+
+  const toggleCoverage = (id: string) => {
+    const item = inventory.find(x => x.id === id);
+    if (!item) return;
+    persistItem(item, { insurance_covered: !(item.insurance_covered === true) });
   };
 
   const itemName = (x: any) => (AR ? (x.name_ar || x.name_en || x.sku) : (x.name_en || x.name_ar || x.sku)) || '';
@@ -1560,6 +1561,10 @@ function ActiveInventoryScreen({ onBack }: any) {
                 <View style={{ alignItems: 'center', gap: 4 }}>
                   <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'متوفر أونلاين' : 'Online'}</Text>
                   <Switch value={item.available !== false} onValueChange={() => toggleOnline(item.id)} trackColor={{ true: theme.success }} />
+                  <TouchableOpacity onPress={() => toggleCoverage(item.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                    <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.insurance_covered === true ? theme.success : theme.border, backgroundColor: item.insurance_covered === true ? theme.success : 'transparent' }} />
+                    <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'تأمين' : 'Ins.'}</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 

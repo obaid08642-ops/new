@@ -110,9 +110,9 @@ export class LegalEnterpriseController {
 
   @Put('provider/insurance-matrix')
   @UseGuards(JwtAuthGuard)
-  setMatrix(@CurrentUser() user: any, @Body() body: { companies: string[] }) {
+  setMatrix(@CurrentUser() user: any, @Body() body: { companies: string[]; networks?: Record<string, string[]>; tiers?: Record<string, string[]> }) {
     if (!Array.isArray(body?.companies)) return { ok: false, error: 'companies array required' };
-    return this.svc.setProviderInsurance(user.id, body.companies);
+    return this.svc.setProviderInsurance(user.id, body.companies, body.networks, body.tiers);
   }
 
   // ── Provider SLA dashboard ─────────────────────────────────────────────

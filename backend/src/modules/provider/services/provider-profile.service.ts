@@ -38,7 +38,7 @@ export class ProviderProfileService {
   }
 
   async updateProfile(user: any, patch: any) {
-    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
+    const allowed = ['display_name_ar', 'display_name_en', 'legal_name', 'description_ar', 'description_en', 'commercial_registration_number', 'tax_number', 'medical_license_number', 'facility_license_number', 'established_year', 'years_of_experience', 'website', 'social', 'address', 'geo', 'has_own_delivery', 'use_platform_delivery', 'delivery_fee', 'estimated_delivery_minutes', 'profile_image_id', 'cover_image_id', 'clinic_images', 'public_eligibility', 'enabled_modules', 'delivery_mode', 'max_delivery_radius_km', 'estimated_delivery_time', 'sub_specialties'];
     const set: any = {};
     for (const k of allowed) if (patch[k] !== undefined) set[k] = patch[k];
     if (set.enabled_modules) {
@@ -46,13 +46,9 @@ export class ProviderProfileService {
       if (p && p.provider_type !== ProviderType.HOSPITAL && p.provider_type !== ProviderType.CLINIC) throw new BadRequestException('enabled_modules only allowed for hospitals/clinics');
       set.enabled_modules = (set.enabled_modules as string[]).filter((m) => (HOSPITAL_SUB_MODULES as readonly string[]).includes(m));
     }
-    // recompute completeness
-    const updated = await this.profiles.findOneAndUpdate({ account_id: user.id }, { $set: set }, { new: true });
-    if (!updated) throw new NotFoundException();
-    updated.profile_completeness = this.computeCompleteness(updated);
-    await updated.save();
-    await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'profile.update', after: set });
-    return updated;
+    if (!Object.keys(set).length) throw new BadRequestException('no profile changes provided');
+    // Governance: profile changes stay draft until admin approves; live values untouched.
+    return this.requestChange(user, 'profile', set);
   }
 
   private computeCompleteness(p: ProviderProfile): number {
@@ -178,6 +174,20 @@ export class ProviderProfileService {
   }
 
   // ===================== DELTA GUARD =====================
+  async requestChange(user: any, target: 'profile' | 'settings' | 'capability', payload: any) {
+    const delta = {
+      id: uuidv4(),
+      provider_id: user.id,
+      target,
+      requested_changes: payload,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    await this.connection.collection('provider_deltas').insertOne(delta);
+    await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'delta.submitted', after: { target } });
+    return { ok: true, message: 'delta_submitted', pending_review: true, data: { id: delta.id, status: 'pending', target } };
+  }
   async submitDelta(user: any, body: any) {
     // Some app screens wrap the payload as { changes: {...} } — unwrap so the
     // stored requested_changes is always the flat change-set.

@@ -24,7 +24,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
-import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -206,12 +205,6 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="chat">{({ navigation, route }: any) => <NursingChatScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
-      <Stack.Screen name="video_call">{({ navigation, route }: any) => {
-        const appointment = route.params?.param || {};
-        const appointmentId = String(appointment.id || appointment.appointment_id || '');
-        if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
-        return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
-      }}</Stack.Screen>
       <Stack.Screen name="working_hours">{({ navigation }: any) => <NursingScheduleScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
 
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -507,7 +500,6 @@ function NursingOrdersTab({ onNavigate }: any) {
   </View>}
  {order?.status==='active' && <View style={{gap:SP.md}}>
  <NBtn label={AR?'تسجيل الوصول GPS':'GPS Check-in'} onPress={()=>onNav('checkin',order)} />
- <NBtn label={AR?'مكالمة فيديو مع المريض':'Video call with patient'} variant="outline" onPress={()=>onNav('video_call',order)} />
  <NBtn label={AR?'قائمة مهام الزيارة':'Visit Checklist'} variant="outline" onPress={()=>onNav('checklist',order)} />
  <NBtn label={AR?'ملاحظات يومية':'Progress Notes'} variant="outline" onPress={()=>onNav('progress',order)} />
  {order?.chronic && <NBtn label={AR?'خطة الرعاية المستمرة':'Care Plan'} variant="outline" onPress={()=>onNav('care_plan',order)} />}
@@ -525,7 +517,18 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang==='ar';
  const [items, setItems] = useState<any[]>([]);
  useEffect(() => { client.get('/provider/nursing/checklist').then(r => setItems(r.data || [])).catch(() => {}); }, []);
- const toggle = (id:string) => setItems(prev=>prev.map(i=>i.id===id?{...i,done:!i.done}:i));
+ const toggle = (id:string) => {
+   const next = items.map(i=>i.id===id?{...i,done:!i.done}:i);
+   setItems(next);
+   const bookingId = order?.id || order?.booking_id;
+   if (bookingId) {
+     const map: Record<string, boolean> = {};
+     next.forEach((i) => { map[String(i.id)] = !!i.done; });
+     client.post(`/provider/ops/nursing/bookings/${encodeURIComponent(String(bookingId))}/checklist/before`, { items: map }).catch(() => {
+       show(AR ? 'تعذر حفظ القائمة' : 'Could not save checklist', 'error');
+     });
+   }
+ };
  const doneCount = items.filter(i=>i.done).length;
  const pct = items.length ? Math.round((doneCount/items.length)*100) : 100;
 
@@ -972,7 +975,6 @@ function MedicalSupplies({ onBack }:{ onBack:()=>void }) {
  try {
  await client.post('/home-care/inventory/request', {
  items: [{ name: newItem, qty: parseInt(newQty, 10), unit: 'pcs' }],
- nurse_id: 'nurse-1'
  });
  setSupplies(prev => [
  ...prev,
@@ -1225,12 +1227,13 @@ function NursingServicesSettings({ onBack }:{ onBack:()=>void }) {
  });
  const [includeKit, setIncludeKit] = useState(true);
  const [kitPrice, setKitPrice] = useState('25');
+ const [covered, setCovered] = useState<Record<string,boolean>>({});
  const [loading, setLoading] = useState(false);
 
  const handleSave = async () => {
  setLoading(true);
  try {
-   await client.post('/provider/settings/delta', { newData: { services, includeKit, kitPrice } });
+   await client.post('/provider/settings/delta', { newData: { services, includeKit, kitPrice, insurance_covered_services: covered } });
    show(AR ? 'بانتظار موافقة الإدارة على التعديلات' : 'Pending admin approval for changes', 'success');
    onBack();
  } catch(e) {
@@ -1263,11 +1266,16 @@ function NursingServicesSettings({ onBack }:{ onBack:()=>void }) {
  { id: 'elderly', ar: 'رعاية كبار السن', en: 'Elderly Care' },
  { id: 'postpart', ar: 'رعاية ما بعد الولادة', en: 'Postpartum Care' },
  ].map(svc => (
- <TouchableOpacity key={svc.id} onPress={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))}
- style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.xs }}>
+ <View key={svc.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.xs }}>
+ <TouchableOpacity style={{ flex: 1 }} onPress={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))}>
  <Text style={{ color: theme.text, fontSize: FS.md }}>{AR ? svc.ar : svc.en}</Text>
- <NCheckbox value={services[svc.id]} onChange={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))} />
  </TouchableOpacity>
+ <TouchableOpacity onPress={() => setCovered(c => ({ ...c, [svc.id]: !c[svc.id] }))} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: SP.sm }}>
+ <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: covered[svc.id] ? theme.success : theme.border, backgroundColor: covered[svc.id] ? theme.success : 'transparent' }} />
+ <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'تأمين' : 'Ins.'}</Text>
+ </TouchableOpacity>
+ <NCheckbox value={services[svc.id]} onChange={() => setServices(s => ({ ...s, [svc.id]: !s[svc.id] }))} />
+ </View>
  ))}
  </NCard>
 
@@ -1552,8 +1560,9 @@ function NursingProfileEditScreen({ onBack }: { onBack: () => void }) {
  description_ar: descAr,
  description_en: descEn,
  website: web,
+ ...(avatarUrl ? { profile_image_id: avatarUrl } : {}),
  });
- show(AR ? 'تم حفظ التعديلات بنجاح' : 'Profile updated successfully', 'success');
+ show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
  onBack();
  } catch (err) {
  show(AR ? 'فشل حفظ الملف الشخصي' : 'Failed to save profile', 'error');

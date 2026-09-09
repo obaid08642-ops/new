@@ -27,6 +27,8 @@ export class PharmacyInventoryItem extends Document {
   @Prop({ required: true, default: 0 }) price: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop({ default: true }) available: boolean;
+  @Prop({ default: false }) insurance_covered: boolean;
+  @Prop() coverage_notes?: string;
   @Prop() expiry_date?: Date;
   @Prop() notes?: string;
 }
@@ -47,6 +49,8 @@ export class LabTestCatalogItem extends Document {
   @Prop({ required: true, default: 0 }) price: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop({ default: true }) available: boolean;
+  @Prop({ default: false }) insurance_covered: boolean;
+  @Prop() coverage_notes?: string;
 }
 export const LabTestCatalogItemSchema = SchemaFactory.createForClass(LabTestCatalogItem);
 LabTestCatalogItemSchema.index({ provider_account_id: 1, code: 1 }, { unique: true });
@@ -63,6 +67,8 @@ export class RadiologyServiceCatalogItem extends Document {
   @Prop({ required: true, default: 0 }) price: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop({ default: true }) available: boolean;
+  @Prop({ default: false }) insurance_covered: boolean;
+  @Prop() coverage_notes?: string;
 }
 export const RadiologyServiceCatalogItemSchema = SchemaFactory.createForClass(RadiologyServiceCatalogItem);
 RadiologyServiceCatalogItemSchema.index({ provider_account_id: 1, scan_type: 1, body_part: 1 }, { unique: true });
@@ -77,6 +83,8 @@ export class DoctorSessionType extends Document {
   @Prop({ required: true, default: 0 }) price: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop({ default: true }) available: boolean;
+  @Prop({ default: false }) insurance_covered: boolean;
+  @Prop() coverage_notes?: string;
 }
 export const DoctorSessionTypeSchema = SchemaFactory.createForClass(DoctorSessionType);
 DoctorSessionTypeSchema.index({ provider_account_id: 1, consultation_type: 1, specialty: 1 }, { unique: true });
@@ -92,6 +100,8 @@ export class HomeCareServiceCatalogItem extends Document {
   @Prop({ required: true, default: 0 }) hourly_price: number;
   @Prop({ default: 'SAR' }) currency: string;
   @Prop({ default: true }) available: boolean;
+  @Prop({ default: false }) insurance_covered: boolean;
+  @Prop() coverage_notes?: string;
 }
 export const HomeCareServiceCatalogItemSchema = SchemaFactory.createForClass(HomeCareServiceCatalogItem);
 HomeCareServiceCatalogItemSchema.index({ provider_account_id: 1, service_type: 1 }, { unique: true });
@@ -126,6 +136,7 @@ export class ProviderScheduleSlot extends Document {
   @Prop({ default: 1 }) capacity_per_slot: number; // parallel bookings allowed
   @Prop({ default: true }) active: boolean;
   @Prop() note?: string;
+  @Prop({ default: 'all' }) service_type: string; // all | clinic | video | voice | home
 }
 export const ProviderScheduleSlotSchema = SchemaFactory.createForClass(ProviderScheduleSlot);
 ProviderScheduleSlotSchema.index({ provider_account_id: 1, day_of_week: 1, start_time: 1 });
