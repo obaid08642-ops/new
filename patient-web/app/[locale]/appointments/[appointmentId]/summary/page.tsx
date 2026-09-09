@@ -62,7 +62,14 @@ export default async function AppointmentSummaryPage({ params }: Props) {
       ) : null}
       {!diagnosis && !notes && !prescription.length ? (
         <p role="status">{ar ? "الملخص غير متاح بعد." : "Summary not available yet."}</p>
-      ) : null}
+      ) : (
+        <nav aria-label={ar ? "أوامر قابلة للتنفيذ" : "Actionable orders"} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {prescription.length > 0 ? (
+            <Link href={`/${locale}/pharmacy`}>{ar ? "اطلب الأدوية من الصيدلية" : "Order medicines from pharmacy"}</Link>
+          ) : null}
+          <Link href={`/${locale}/diagnostics/labs`}>{ar ? "احجز التحاليل" : "Book tests"}</Link>
+        </nav>
+      )}
     </main>
   );
 }
