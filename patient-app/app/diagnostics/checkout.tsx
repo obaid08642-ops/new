@@ -97,6 +97,34 @@ export default function DiagnosticsCheckoutScreen() {
       }
       await clearCart();
       if (bookingId) {
+        if (method === 'card') {
+          const kind = labItems.length ? 'lab' : 'radiology';
+          try {
+            const { paymentIntentHeaders } = await import('../../src/utils/payment-idempotency');
+            const intent: any = await apiFetch(`/payments/intent/${kind}/${bookingId}`, {
+              method: 'POST',
+              headers: paymentIntentHeaders(kind, String(bookingId)),
+              body: JSON.stringify({}),
+            });
+            const txn = intent?.data || intent;
+            if (txn?.id) {
+              router.replace({
+                pathname: '/payments/result',
+                params: {
+                  moyasarId: String(txn.id),
+                  paymentUrl: txn.checkout_url || '',
+                  bookingId: String(bookingId),
+                  bookingKind: kind,
+                  amount: String(txn.amount ?? ''),
+                },
+              });
+              return;
+            }
+          } catch (payErr: any) {
+            setError(payErr?.message || 'تعذر بدء الدفع');
+            showLocalizedAlert('تعذر بدء الدفع', payErr?.message || 'حاول مجدداً من تفاصيل الطلب');
+          }
+        }
         router.replace({ pathname: '/diagnostics/order/[id]', params: { id: String(bookingId) } });
       } else {
         router.replace('/diagnostics/orders');

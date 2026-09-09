@@ -10,7 +10,7 @@ type OrderState = {
   copayAmount: number; items: Item[];
 };
 
-const TERMINAL = new Set(["APPROVED_FULL", "APPROVED_PARTIAL", "REJECTED"]);
+const TERMINAL = new Set(["approved", "partial_approval", "rejected"]);
 
 function parseOrder(payload: unknown): OrderState | null {
   if (!payload || typeof payload !== "object") return null;
@@ -20,24 +20,25 @@ function parseOrder(payload: unknown): OrderState | null {
   const items: Item[] = itemsRaw.flatMap((it) => {
     if (!it || typeof it !== "object") return [];
     const o = it as Record<string, unknown>;
-    const name = typeof o.name === "string" ? o.name : typeof o.test_name === "string" ? o.test_name : null;
-    if (!name) return [];
-    const statusText = typeof o.status === "string" ? o.status : "";
+    const id = typeof o.service_id === "string" ? o.service_id : typeof o.id === "string" ? o.id : null;
+    const name = typeof o.name_ar === "string" ? o.name_ar : typeof o.name_en === "string" ? o.name_en : typeof o.name === "string" ? o.name : null;
+    if (!id || !name) return [];
+    const covered = o.isCovered === true;
     return [{
-      id: String(o.id ?? o.item_id ?? name),
+      id,
       name,
-      price: Number(o.price ?? 0) || 0,
-      covered: statusText !== "مرفوض" && o.covered !== false,
-      rejectReason: typeof o.reject_reason === "string" ? o.reject_reason : undefined,
+      price: Number(o.cashPrice ?? o.price ?? 0) || 0,
+      covered,
+      rejectReason: typeof o.rejectReason === "string" ? o.rejectReason : undefined,
     }];
   });
+  const totalAmount = items.reduce((sum, i) => sum + i.price, 0);
+  const copayAmount = Number(r.insurance_copay ?? 0) || 0;
+  const coveredAmount = Math.max(0, totalAmount - copayAmount);
+  const coveragePercent = totalAmount > 0 ? Math.round((coveredAmount / totalAmount) * 100) : 0;
   return {
-    status: typeof r.status === "string" ? r.status : "PENDING",
-    totalAmount: Number(r.total_amount ?? r.total ?? 0) || 0,
-    coveredAmount: Number(r.covered_amount ?? 0) || 0,
-    coveragePercent: Number(r.coverage_percent ?? 0) || 0,
-    copayAmount: Number(r.copay_amount ?? 0) || 0,
-    items,
+    status: typeof r.insurance_status === "string" ? r.insurance_status : "pending",
+    totalAmount, coveredAmount, coveragePercent, copayAmount, items,
   };
 }
 
@@ -53,7 +54,7 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/patient/orders/${encodeURIComponent(orderId)}`, { cache: "no-store", credentials: "same-origin" });
+      const res = await fetch(`/api/patient/labs/bookings/${encodeURIComponent(orderId)}`, { cache: "no-store", credentials: "same-origin" });
       if (!res.ok) { setError(ar ? "تعذر تحميل حالة الموافقة" : "Could not load approval status"); return; }
       const parsed = parseOrder(await res.json().catch(() => null));
       if (!parsed) { setError(ar ? "تعذر تحميل حالة الموافقة" : "Could not load approval status"); return; }
@@ -75,10 +76,10 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
     const prev = cashOptIn[item.id] ?? false;
     setCashOptIn((s) => ({ ...s, [item.id]: next }));
     try {
-      const res = await fetch(`/api/patient/orders/${encodeURIComponent(orderId)}/items/${encodeURIComponent(item.id)}/opt-in-cash`, {
+      const res = await fetch(`/api/patient/labs/bookings/${encodeURIComponent(orderId)}/items/${encodeURIComponent(item.id)}/opt-in-cash`, {
         method: "PATCH",
         headers: { "content-type": "application/json", "idempotency-key": `web-optin-${orderId}-${item.id}-${Date.now()}` },
-        body: JSON.stringify({ optIn: next }),
+        body: JSON.stringify({ optInCash: next }),
         credentials: "same-origin",
       });
       if (!res.ok) { setCashOptIn((s) => ({ ...s, [item.id]: prev })); setError(ar ? "تعذر تحديث الاختيار" : "Could not update choice"); }
@@ -92,17 +93,17 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
   if (!order) return null;
 
   const resolved = TERMINAL.has(order.status);
-  const header = order.status === "APPROVED_FULL"
+  const header = order.status === "approved"
     ? (ar ? "تمت الموافقة بنجاح!" : "Approved!")
-    : order.status === "APPROVED_PARTIAL"
+    : order.status === "partial_approval"
       ? (ar ? "موافقة جزئية" : "Partial approval")
-      : order.status === "REJECTED"
+      : order.status === "rejected"
         ? (ar ? "تم الرفض" : "Rejected")
         : (ar ? "تم إرسال الطلب إلى" : "Order sent to");
-  const hybridCash = order.items.filter((i) => !i.covered && order.status !== "REJECTED" && (cashOptIn[i.id] ?? false))
+  const hybridCash = order.items.filter((i) => !i.covered && order.status !== "rejected" && (cashOptIn[i.id] ?? false))
     .reduce((s, i) => s + i.price, 0);
-  const finalToPay = order.status === "REJECTED" ? 0 : order.copayAmount + hybridCash + (visitType === "home" ? 50 : 0);
-  const checkoutQuery = order.status === "REJECTED"
+  const finalToPay = order.status === "rejected" ? 0 : order.copayAmount + hybridCash + (visitType === "home" ? 50 : 0);
+  const checkoutQuery = order.status === "rejected"
     ? `visitType=${encodeURIComponent(visitType)}&isInsurance=false&total=${order.totalAmount + (visitType === "home" ? 50 : 0)}`
     : `visitType=${encodeURIComponent(visitType)}&isInsurance=hybrid&copay=${finalToPay}`;
 
@@ -116,7 +117,7 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
             <li key={item.id}>
               <span>{item.name} — {item.price} {ar ? "ر.س" : "SAR"}</span>{" "}
               <span>{item.covered ? (ar ? "مغطى" : "Covered") : (ar ? "مرفوض" : "Rejected")}</span>
-              {!item.covered && order.status !== "REJECTED" ? (
+              {!item.covered && order.status !== "rejected" ? (
                 <>
                   {item.rejectReason ? <p>{ar ? "سبب الرفض:" : "Reject reason:"} {item.rejectReason}</p> : null}
                   <label>
@@ -130,7 +131,7 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
           ))}
         </ul>
       </section>
-      {order.status !== "REJECTED" && resolved ? (
+      {order.status !== "rejected" && resolved ? (
         <section aria-label={ar ? "الملخص المالي" : "Financial summary"}>
           <p>{ar ? "إجمالي التكلفة" : "Total"}: {order.totalAmount}</p>
           <p>{ar ? `يغطيه التأمين (${order.coveragePercent}%)` : `Covered (${order.coveragePercent}%)`}: {order.coveredAmount}</p>
@@ -140,7 +141,7 @@ export function DiagnosticsInsuranceApprovalClient({ orderId, labName, visitType
         </section>
       ) : null}
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {order.status === "REJECTED" ? (
+        {order.status === "rejected" ? (
           <>
             <Link href={`/${locale}/diagnostics/checkout?${checkoutQuery}`}>{ar ? "تنفيذ الطلب على حسابي الخاص" : "Proceed self-pay"}</Link>
             <Link href={`/${locale}/consultations`}>{ar ? "اطلب استشارة طبية" : "Request medical consultation"}</Link>

@@ -362,9 +362,47 @@ export class InsuranceFlowService {
     return req;
   }
 
+    /** Doctor gatekeeper for consultation insurance (provider-app sheet):
+   * finds-or-creates the request for the appointment, then applies the
+   * decision. Body: {status: approved|rejected, copay, coverage, approval_code}. */
+  async gatekeeperDecision(user: any, appointmentId: string, body: any) {
+    const appt: any = await this.appointments.findOne({ id: appointmentId }).lean();
+    if (!appt) throw new NotFoundException('appointment not found');
+    const ownerIds = [appt.doctor_user_id, appt.doctor_id].filter(Boolean).map(String);
+    if (!ownerIds.includes(String(user.id))) throw new ForbiddenException();
+    let req: any = await this.requests.findOne({ booking_kind: 'consultation', booking_id: appointmentId, state: { $in: ['PENDING_PROVIDER_REVIEW', 'COPAY_PENDING', 'APPROVED_FULL', 'COPAY_PAID'] } });
+    if (!req) {
+      const price = Number(appt.total_price ?? appt.price ?? 0);
+      const pat: any = await this.patients.findOne({ user_id: appt.patient_id }).lean();
+      const policy = pat?.insurance || null;
+      if (!policy || !(policy.company_id || policy.provider || policy.policy_number)) throw new BadRequestException('NO_INSURANCE_POLICY');
+      req = await this.requests.create({
+        patient_id: appt.patient_id, provider_id: appt.doctor_user_id || appt.doctor_id,
+        booking_id: appointmentId, booking_kind: 'consultation',
+        service_type: appt.service_type, price, policy,
+        history: [{ state: 'PENDING_PROVIDER_REVIEW', at: new Date(), by: user.id }],
+      });
+    }
+    const status = String(body?.status || '').toLowerCase();
+    const copay = Number(body?.copay ?? 0) || 0;
+    const code = typeof body?.approval_code === 'string' ? body.approval_code.trim() : '';
+    if (status === 'rejected') {
+      const out = await this.decide(user, req.id, { decision: 'reject', reason: code || 'rejected by provider' });
+      return out;
+    }
+    if (status !== 'approved') throw new BadRequestException('status must be approved|rejected');
+    if (code) {
+      await this.requests.updateOne({ id: req.id }, { $set: { insurer_approval_code: code } });
+    }
+    if (copay > 0) {
+      const pct = Math.min(99, Math.max(1, Math.round((copay / Math.max(1, Number(req.price) || 1)) * 100)));
+      return this.decide(user, req.id, { decision: 'approve_partial', copay_percent: pct });
+    }
+    return this.decide(user, req.id, { decision: 'approve_full' });
+  }
+
   /** Provider manual decision (BR-2.4): full | partial(copay_percent) | reject(reason). */
-  async decide(user: any, id: string, body: any) {
-    const req = await this.requests.findOne({ id });
+  async decide(user: any, id: string, body: any) {    const req = await this.requests.findOne({ id });
     if (!req) throw new NotFoundException('request not found');
     if (req.provider_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
     if (req.state !== 'PENDING_PROVIDER_REVIEW') throw new BadRequestException(`request already decided (${req.state})`);
@@ -390,6 +428,53 @@ export class InsuranceFlowService {
     await req.save();
     this.events.emit('insurance.decided', { request_id: req.id, patient_id: req.patient_id, state: req.state, copay_amount: req.copay_amount });
     return req.toObject();
+  }
+
+  /** Patient accepts full self-pay on a rejected/partial request: copay becomes
+   * the full price so the standard intent → verify → COPAY_PAID flow applies. */
+  async acceptSelfPay(user: any, id: string) {
+    const req = await this.requests.findOne({ id });
+    if (!req) throw new NotFoundException('request not found');
+    if (req.patient_id !== user.id) throw new ForbiddenException();
+    if (!['REJECTED', 'APPROVED_PARTIAL'].includes(req.state)) throw new BadRequestException(`self-pay not available in state ${req.state}`);
+    const price = Number(req.price) || 0;
+    if (price <= 0) throw new BadRequestException('invalid request price');
+    this.push(req, 'COPAY_PENDING', user.id, 'patient accepted full self-pay');
+    req.copay_percent = 100; req.copay_amount = Math.round(price * 100) / 100;
+    await req.save();
+    return req.toObject();
+  }
+
+  /** Payment capabilities for an insurance request (methods the gateway supports). */
+  async capabilities(user: any, id: string) {
+    const req = await this.requests.findOne({ id });
+    if (!req) throw new NotFoundException('request not found');
+    if (req.patient_id !== user.id && user.role !== 'admin') throw new ForbiddenException();
+    return { methods: [{ id: 'card' }, { id: 'apple-pay' }, { id: 'google-pay' }] };
+  }
+
+  /** Project COPAY_PAID onto the underlying service booking so each service
+   * confirms without its own listener. Best-effort; never fails payment. */
+  private async confirmServiceBooking(req: any) {
+    try {
+      const { model } = this.bookingModel(req.booking_kind || '');
+      const now = new Date();
+      if (req.booking_kind === 'consultation') {
+        await model.updateOne({ id: req.booking_id }, {
+          $set: { status: 'CONFIRMED' },
+          $push: { state_history: { state: 'CONFIRMED', at: now, by_user_id: 'system', by_role: 'system', note: 'copay paid' } },
+        });
+      } else if (req.booking_kind === 'lab') {
+        await model.updateOne({ id: req.booking_id }, { $set: { insurance_status: 'approved' } });
+      } else if (req.booking_kind === 'radiology') {
+        await model.updateOne(
+          { id: req.booking_id, state: { $in: ['NEW_REQUEST', 'PENDING_INSURANCE', 'WAITING_COPAY'] } },
+          { $set: { state: 'CONFIRMED', insurance_status: 'approved' } },
+        );
+      } else if (req.booking_kind === 'nursing') {
+        await model.updateOne({ id: req.booking_id }, { $set: { insurance_status: 'approved' } });
+      }
+    } catch { /* payment already recorded; projection retries on next event */ }
   }
 
   /** Patient pays only the copay (BR-2.5→2.6). Service starts only after this. */
@@ -418,6 +503,7 @@ export class InsuranceFlowService {
     }
     await req.save();
     this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
+    await this.confirmServiceBooking(req);
     return req.toObject();
   }
 
@@ -440,6 +526,7 @@ export class InsuranceFlowService {
     this.push(req, 'COPAY_PAID', 'system', `verified payment ${payment.id}`);
     await req.save();
     this.events.emit('insurance.copay.paid', { request_id: req.id, provider_id: req.provider_id, patient_id: req.patient_id });
+    await this.confirmServiceBooking(req);
   }
 
   async cancel(user: any, id: string) {
@@ -484,6 +571,9 @@ export class InsuranceFlowController {
   @Get('requests/my') myRequests(@CurrentUser() u: any) { return this.svc.myRequests(u); }
   @Get('requests/:id') one(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.getOne(id, u); }
   @Post('requests/:id/pay-copay') payCopay(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.payCopay(u, id, b); }
+  @Post('requests/:id/accept-self-pay') acceptSelfPay(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.acceptSelfPay(u, id); }
+  @Get('requests/:id/capabilities') capabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
+  @Get('requests/:id/self-pay-capabilities') selfPayCapabilities(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.capabilities(u, id); }
   @Post('requests/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string) { return this.svc.cancel(u, id); }
   @Post('requests/:id/resubmit') resubmit(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.resubmit(u, id, b); }
   @Post('requests/:id/appeal') appeal(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.appeal(u, id, b); }
@@ -491,6 +581,7 @@ export class InsuranceFlowController {
   // ---- provider ----
   @Get('requests/provider/queue') providerQueue(@CurrentUser() u: any, @Query('state') state?: string) { return this.svc.providerQueue(u, state); }
   @Post('requests/:id/decide') decide(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.decide(u, id, b); }
+  @Post('provider/jobs/consultation/:id/insurance') gatekeeper(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.svc.gatekeeperDecision(u, id, b); }
 
   // ---- legacy aliases the patient app already calls ----
   @Post('payment-confirm') paymentConfirm(@CurrentUser() u: any, @Body() b: any) {
@@ -653,5 +744,4 @@ export class FinanceCoreController {
   ],
   providers: [InsuranceFlowService, FinanceCoreService, RefundService],
   exports: [InsuranceFlowService, FinanceCoreService, RefundService],
-})
-export class InsuranceEngineModule {}
+})export class InsuranceEngineModule {}

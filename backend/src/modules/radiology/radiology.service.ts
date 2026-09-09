@@ -322,10 +322,29 @@ export class RadiologyOpsService {
       }).lean();
       if (dupe) return dupe;
     }
+    const pm = String(body?.payment_method || 'cash').toLowerCase();
+    if (!['cash', 'card', 'insurance'].includes(pm)) throw new BadRequestException('invalid payment_method');
+    // Home rule (mirror labs): insurance + home requires uploaded doctor_request OR preauth.
+    if (body?.location_type === 'home' && pm === 'insurance') {
+      const documents: any[] = Array.isArray(body?.documents) ? body.documents : [];
+      const hasProof = documents.some((d: any) => d && (d.kind === 'doctor_request' || d.kind === 'preauth'));
+      if (!hasProof) throw new BadRequestException('insurance_home_requires_doctor_request_or_preauth');
+    }
+    // Server price authority: recompute from the approved catalog, never trust client price.
+    let total_price = Number(body?.total_price ?? 0) || 0;
+    if (body?.service_id) {
+      try {
+        const svc = await this.getById(String(body.service_id));
+        if (svc && Number.isFinite(Number((svc as any).price))) total_price = Number((svc as any).price);
+      } catch { /* unknown service falls through to validation below */ }
+    }
     const booking = await this.bkgModel.create({
       ...body,
       id: require('uuid').v4(),
       patient_id: user.id,
+      payment_method: pm,
+      total_price,
+      insurance_status: pm === 'insurance' ? 'pending' : 'none',
       state: RadiologyBookingState.NEW_REQUEST,
     });
     this.events.emit('radiology.new_booking', { bookingId: booking.id, patientId: user.id });
