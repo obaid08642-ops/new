@@ -27,6 +27,7 @@ import { buildHeaders } from '../../security/Security';
 import client from '../../api/client';
 import { useServicesCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
+import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem } from '../shared/SharedScreens';
 import { DoctorHeader } from './components/DoctorHeader';
 import { DoctorStatsRow } from './components/DoctorStatsRow';
@@ -122,6 +123,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="gps_router">{({ navigation, route }: any) => <GpsRouterScreen patient={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="profile_edit">{({ navigation }: any) => <DoctorProfileEditScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_config">{({ navigation }: any) => <InsuranceConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="certificates_config">{({ navigation }: any) => <CertificatesConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="virtual_waiting_room">{({ navigation }: any) => <VirtualWaitingRoomScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
@@ -569,6 +571,33 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  const { lang } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
+ const [acting, setActing] = useState(false);
+ const [showCancel, setShowCancel] = useState(false);
+ const [cancelReason, setCancelReason] = useState('');
+ const [showResched, setShowResched] = useState(false);
+ const [newDate, setNewDate] = useState('');
+ const [newTime, setNewTime] = useState('');
+ const apptId = String(apt?.id || apt?.appointment_id || '');
+
+ async function doPatch(action: string, body?: any) {
+   if (!apptId) { show(AR ? 'معرف الموعد مفقود' : 'Appointment identifier is missing', 'error'); return; }
+   setActing(true);
+   try {
+     await client.patch(`/care/appointments/${apptId}/${action}`, body || {});
+     show(action === 'confirm' ? (AR ? 'تم تأكيد الموعد' : 'Appointment confirmed') : action === 'cancel' ? (AR ? 'تم إلغاء الموعد' : 'Appointment cancelled') : (AR ? 'تمت إعادة الجدولة' : 'Appointment rescheduled'), 'success');
+     setShowCancel(false); setShowResched(false); setCancelReason('');
+   } catch (err: any) {
+     show(err?.response?.data?.message || (AR ? 'تعذر تنفيذ الإجراء — تحقق من الاتصال' : 'Action failed — check connection'), 'error');
+   } finally {
+     setActing(false);
+   }
+ }
+
+ function submitReschedule() {
+   const iso = Date.parse(`${newDate.trim()}T${newTime.trim()}:00`);
+   if (!Number.isFinite(iso)) { show(AR ? 'أدخل التاريخ (YYYY-MM-DD) والوقت (HH:mm)' : 'Enter date (YYYY-MM-DD) and time (HH:mm)', 'error'); return; }
+   doPatch('reschedule', { slot_start: new Date(iso).toISOString() });
+ }
 
  return (
  <NScroll>
@@ -607,6 +636,24 @@ function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   ))}
   </NCard>
   <NBtn label={AR ? 'بدء الاستشارة يحتاج تأكيد الخادم' : 'Consultation start requires server confirmation'} onPress={() => show(AR ? 'لا يمكن فتح الاستشارة قبل تحقق الخادم من حالة الموعد والدفع وعلاقة الطبيب بالمريض.' : 'The consultation cannot open before the server verifies appointment state, payment, and doctor–patient relation.', 'info')} style={{ marginTop: SP.xl }} />
+ <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
+ <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View>
+ <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
+ <View style={{ flex: 1 }}><NBtn label={AR ? 'جدولة' : 'Reschedule'} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
+ </View>
+ {showCancel && (
+ <NCard style={{ marginTop: SP.md }}>
+ <NInput placeholder={AR ? 'سبب الإلغاء' : 'Cancellation reason'} value={cancelReason} onChange={setCancelReason} />
+ <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} onPress={() => doPatch('cancel', cancelReason.trim() ? { reason: cancelReason.trim() } : {})} style={{ marginTop: SP.md }} />
+ </NCard>
+ )}
+ {showResched && (
+ <NCard style={{ marginTop: SP.md }}>
+ <NInput placeholder="YYYY-MM-DD" value={newDate} onChange={setNewDate} />
+ <NInput placeholder="HH:mm" value={newTime} onChange={setNewTime} />
+ <NBtn label={AR ? 'تأكيد الموعد الجديد' : 'Confirm new slot'} loading={acting} onPress={submitReschedule} style={{ marginTop: SP.md }} />
+ </NCard>
+ )}
   </NScroll>
   );
 }
@@ -643,7 +690,7 @@ function LiveConsultationScreen({ apt, onBack }: { apt: any; onBack: () => void;
  );
 }
 
-function EPrescriptionScreen({ apt, onBack }:
+export function EPrescriptionScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
  const { lang } = useLang();
@@ -2091,6 +2138,7 @@ function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => void, onN
         <NSettingsRow icon="mapPin" label={AR ? 'الموقع ونطاق التغطية' : 'Location & Coverage'} onPress={() => onNavigate('location_config')} />
         <NSettingsRow icon="calendar" label={AR ? 'مواعيد العمل (Scheduler)' : 'Availability Engine'} onPress={() => onNavigate('availability_engine')} />
         <NSettingsRow icon="shield" label={AR ? 'شركات التأمين' : 'Insurance Config'} onPress={() => onNavigate('insurance_config')} />
+       <NSettingsRow icon="shield" label={AR ? 'طلبات التأمين الواردة' : 'Insurance Requests'} onPress={() => onNavigate('insurance_requests')} />
         <GlobalSystemSettings />
         
         <NBtn label={AR ? 'تسجيل الخروج' : 'Logout'} onPress={onLogout} variant="outline" style={{ borderColor: theme.danger, marginTop: SP.lg }} labelStyle={{ color: theme.danger }} />

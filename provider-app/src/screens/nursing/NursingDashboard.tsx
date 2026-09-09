@@ -24,6 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { SignatureCanvasModal } from '../../components/SignatureCanvasModal';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -205,6 +206,12 @@ export function NursingDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
       <Stack.Screen name="wallet">{({ navigation }: any) => <ProviderWalletScreen onBack={() => navigation.goBack()} onNavigate={(s: string, p?: any) => navigation.navigate(s, { param: p })} />}</Stack.Screen>
       <Stack.Screen name="chat">{({ navigation, route }: any) => <NursingChatScreen order={route.params?.param} onBack={() => navigation.goBack()} />}</Stack.Screen>
       <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+      <Stack.Screen name="video_call">{({ navigation, route }: any) => {
+        const appointment = route.params?.param || {};
+        const appointmentId = String(appointment.id || appointment.appointment_id || '');
+        if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
+        return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
+      }}</Stack.Screen>
       <Stack.Screen name="working_hours">{({ navigation }: any) => <NursingScheduleScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
 
       <Stack.Screen name="notifications">{({ navigation }: any) => <NotificationsCenterScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -500,6 +507,7 @@ function NursingOrdersTab({ onNavigate }: any) {
   </View>}
  {order?.status==='active' && <View style={{gap:SP.md}}>
  <NBtn label={AR?'تسجيل الوصول GPS':'GPS Check-in'} onPress={()=>onNav('checkin',order)} />
+ <NBtn label={AR?'مكالمة فيديو مع المريض':'Video call with patient'} variant="outline" onPress={()=>onNav('video_call',order)} />
  <NBtn label={AR?'قائمة مهام الزيارة':'Visit Checklist'} variant="outline" onPress={()=>onNav('checklist',order)} />
  <NBtn label={AR?'ملاحظات يومية':'Progress Notes'} variant="outline" onPress={()=>onNav('progress',order)} />
  {order?.chronic && <NBtn label={AR?'خطة الرعاية المستمرة':'Care Plan'} variant="outline" onPress={()=>onNav('care_plan',order)} />}

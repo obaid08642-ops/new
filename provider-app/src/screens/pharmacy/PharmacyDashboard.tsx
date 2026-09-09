@@ -42,6 +42,7 @@ import {
 } from '../../components/ui';
 import { SP, R, FS, FW, PHARMA_CATS, LIMITS, C, API_BASE } from '../../constants';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { buildHeaders, Biometric, SK, Vault } from '../../security/Security';
 import client from '../../api/client';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, InsuranceConfigScreen, CertificatesConfigScreen, MediaConfigScreen, ProviderWalletScreen, ProviderHomeStats, GlobalSystemSettings } from '../shared/SharedScreens';
@@ -165,6 +166,12 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
      <Stack.Screen name="media_config">{({ navigation }: any) => <MediaConfigScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="pharmacy_info">{({ navigation }: any) => <PharmacyQRMenuScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="video_call">{({ navigation, route }: any) => {
+      const appointment = route.params?.param || {};
+      const appointmentId = String(appointment.id || appointment.appointment_id || '');
+      if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
+      return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
+    }}</Stack.Screen>
      <Stack.Screen name="product_catalog">{({ navigation }: any) => <ActiveInventoryScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="pricing_fees">{({ navigation }: any) => <DrugPriceComparisonScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -863,7 +870,7 @@ function ReturnsRMAScreen({ onBack }: any) {
 // ══════════════════════════════════════════════════════════════════════════════
 // DISPATCH & DELIVERY SCREEN (Screen 3 - Workflows)
 // ══════════════════════════════════════════════════════════════════════════════
-function DispatchWorkflowScreen({ onBack }: any) {
+function DispatchWorkflowScreen({ onBack, onNavigate }: any) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const { show } = useToast();
@@ -1016,6 +1023,7 @@ function DispatchWorkflowScreen({ onBack }: any) {
             {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
               <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
             )}
+            <NBtn label={AR ? 'مكالمة المريض' : 'Call patient'} size="sm" variant="outline" onPress={() => onNavigate?.('video_call', { id: a.order_id, patient: d?.patient_contact?.name })} />
             {String(a.status) === 'confirmed' && (
               <NBtn label={AR ? 'بدء التجهيز' : 'Start preparing'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
             )}

@@ -5,7 +5,7 @@ import { NHeader, NCard, NScroll, NBadge } from '../../components/ui';
 import { SP, FS, FW, R } from '../../constants';
 import client from '../../api/client';
 
-export function FacilityPatientTrackerScreen({ onBack }: { onBack: () => void }) {
+export function FacilityPatientTrackerScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
   const { lang } = useLang();
   const AR = lang === 'ar';
@@ -68,6 +68,9 @@ export function FacilityPatientTrackerScreen({ onBack }: { onBack: () => void })
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'ملخص الخروج' : 'Discharge Summary'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => onNavigate?.('prescription', { patient: patient.name, patient_id: patient.id, mrn: patient.mrn })}>
+                  <Text style={{ fontSize: FS.xs, color: theme.primary, fontWeight: FW.bold }}>{AR ? 'وصفة طبية' : 'Prescription'}</Text>
                 </TouchableOpacity>
               </View>
             </NCard>

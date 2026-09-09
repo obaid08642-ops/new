@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useLang, useAuth, useToast } from '../../context';
 import client from '../../api/client';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { LabQcActions } from './LabQcActions';
 import {
  NBtn, NCard, NInput, NStatCard, NAvatar, NBadge,
@@ -198,6 +199,12 @@ export function LabDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
      
      <Stack.Screen name="home_service">{({ navigation }: any) => <LabHomeServiceScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="insurance_requests">{({ navigation }: any) => <InsuranceRequestsScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
+    <Stack.Screen name="video_call">{({ navigation, route }: any) => {
+      const appointment = route.params?.param || {};
+      const appointmentId = String(appointment.id || appointment.appointment_id || '');
+      if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
+      return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
+    }}</Stack.Screen>
      <Stack.Screen name="working_hours">{({ navigation }: any) => <WorkingHoursEditorScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="password">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
      <Stack.Screen name="2fa">{({ navigation }: any) => <SecurityManagementScreen onBack={() => navigation.goBack()} />}</Stack.Screen>
@@ -525,6 +532,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {order?.status === 'ASSIGNED' && (
         <View style={{gap:SP.md}}>
           <NBtn label={AR ? 'بدء التحرك (تتبع GPS)' : 'Start Trip (GPS)'} onPress={() => onNav('home_collection', order)} />
+          <NBtn label={AR ? 'مكالمة فيديو مع المريض' : 'Video call with patient'} variant="outline" onPress={() => onNav('video_call', order)} />
         </View>
       )}
 
