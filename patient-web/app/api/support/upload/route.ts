@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   }
   if (bytes.length === 0 || bytes.length > 12_000_000) return NextResponse.json({ message: "invalid_upload_payload" }, { status: 400 });
   const form = new FormData();
-  form.append("file", new Blob([bytes], { type: match[1] }), parsed.data.name);
+  form.append("file", new Blob([new Uint8Array(bytes)], { type: match[1] }), parsed.data.name);
   form.append("folder", "support");
   const upstream = await callPatientApi("/media/upload", { method: "POST", body: form }, accessToken);
   const data = await upstream.json().catch(() => null);
