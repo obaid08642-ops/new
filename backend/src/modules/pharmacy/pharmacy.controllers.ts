@@ -83,6 +83,10 @@ export class ProviderPharmacyController {
   @Post('orders/:id/insurance-decision') insuranceDecision(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.insurance.decide(u, id, b); }
   @Post('allocations/:id/cancel') cancel(@CurrentUser() u: any, @Param('id') id: string, @Body() b: any) { return this.allocs.cancel(u, id, b?.reason || ''); }
 
+  // Operational preference (immediate): optional inventory-balance tracking.
+  @Get('inventory-tracking') tracking(@CurrentUser() u: any) { return this.allocs.getInventoryTracking(u); }
+  @Put('inventory-tracking') setTracking(@CurrentUser() u: any, @Body() b: any) { return this.allocs.setInventoryTracking(u, b); }
+
   // =========================================================================
   //  BLUEPRINT V1.2 ENDPOINTS (ORDERS)
   // =========================================================================

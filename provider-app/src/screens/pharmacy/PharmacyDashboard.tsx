@@ -1604,6 +1604,14 @@ function SettingsScreen({ onBack, onNavigate }: any) {
   const [deliveryFee, setDeliveryFee] = useState('15');
   const [acceptsInsurance, setAcceptsInsurance] = useState(true);
   const [acceptsInstallments, setAcceptsInstallments] = useState(false);
+  const [trackInventory, setTrackInventory] = useState(false);
+
+  useEffect(() => {
+    client.get('/provider/pharmacy/inventory-tracking').then((r: any) => {
+      const v = r?.data?.inventory_tracking;
+      if (typeof v === 'boolean') setTrackInventory(v);
+    }).catch(() => {});
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);
@@ -1635,6 +1643,18 @@ function SettingsScreen({ onBack, onNavigate }: any) {
         <NCard style={{ gap: SP.md }}>
           <NToggle label={AR ? 'قبول شركات التأمين' : 'Accept Insurance'} value={acceptsInsurance} onChange={setAcceptsInsurance} />
           <NToggle label={AR ? 'قبول الدفع بالتقسيط (تابي/تمارا)' : 'Accept Installments (Tabby/Tamara)'} value={acceptsInstallments} onChange={setAcceptsInstallments} />
+          <NToggle label={AR ? 'تتبع أرصدة المخزون (اختياري)' : 'Track inventory balances (optional)'} value={trackInventory} onChange={async (v: boolean) => {
+            setTrackInventory(v);
+            try {
+              await client.put('/provider/pharmacy/inventory-tracking', { inventory_tracking: v });
+            } catch {
+              setTrackInventory(!v);
+              show(AR ? 'تعذر حفظ الإعداد' : 'Could not save setting', 'error');
+            }
+          }} />
+          {!trackInventory ? (
+            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'بدون تتبع: تصرف من المتاح لديك وارفض أو اقترح بديلاً عند النفاد' : 'Untracked: dispense from what you have; reject or suggest a substitute when out'}</Text>
+          ) : null}
         </NCard>
 
         <GlobalSystemSettings />

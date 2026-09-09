@@ -287,6 +287,16 @@ export class PharmacyOfferService {
     };
   }
 
+  // Inventory tracking is OPTIONAL per provider (default off — no-balances model).
+  async tracksInventory(pharmacy_account_id: string): Promise<boolean> {
+    try {
+      const doc: any = await this.connection.collection('provider_settings').findOne({ provider_id: pharmacy_account_id });
+      return doc?.inventory_tracking === true;
+    } catch {
+      return false;
+    }
+  }
+
   async selectByPatient(user: any, orderId: string, offerId: string, idempotencyKey: string, coverageMode?: string) {
     if (!user?.id) throw new ForbiddenException('patient_identity_required');
     if (!/^[A-Za-z0-9._:-]{16,128}$/.test(String(idempotencyKey || ''))) {
@@ -317,6 +327,8 @@ export class PharmacyOfferService {
         if (!offer) throw new BadRequestException('offer_not_selectable');
 
         for (const item of offer.items.filter((item: any) => item.action !== 'unavailable')) {
+          const tracking = await this.tracksInventory(offer.pharmacy_account_id);
+          if (!tracking) continue;
           const reserved = await this.inventory.findOneAndUpdate(
             { id: item.inventory_item_id, provider_account_id: offer.pharmacy_account_id, available: true, stock: { $gte: item.qty_offered } },
             { $inc: { stock: -item.qty_offered } }, { new: true, session },
