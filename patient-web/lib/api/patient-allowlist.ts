@@ -22,6 +22,8 @@ const patientReadRoutes = [
   new RegExp("^/insurance/requests/my$", "i"),
   new RegExp(`^/insurance/requests/${orderId}$`, "i"),
   new RegExp("^/users/me/addresses$", "i"),
+  new RegExp("^/nutrition/profile$", "i"),
+  new RegExp("^/support/chat$", "i"),
   new RegExp(`^/orders/${orderId}/tracking$`, "i"),
   new RegExp("^/cart$"),
   new RegExp("^/cart/checkout$"),
@@ -86,6 +88,10 @@ const diagnosticsMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp
   { method: "PATCH", route: new RegExp(`^/labs/bookings/${orderId}/reschedule$`, "i") },
   { method: "PATCH", route: new RegExp(`^/orders/${orderId}/items/[^/]{1,128}/opt-in-cash$`, "i") },
   { method: "POST", route: new RegExp("^/family/chat/messages$", "i") },
+  { method: "POST", route: new RegExp("^/nutrition/profile$", "i") },
+  { method: "POST", route: new RegExp("^/maternity/profile$", "i") },
+  { method: "POST", route: new RegExp("^/support/chat$", "i") },
+  { method: "POST", route: new RegExp("^/medical/programs/complete-session$", "i") },
 ];
 
 const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }> = [
@@ -110,6 +116,9 @@ const pharmacyMutationRoutes: Array<{ method: "POST" | "PATCH"; route: RegExp }>
   { method: "POST", route: new RegExp("^/emergency/trigger$", "i") },
   { method: "POST", route: new RegExp("^/emergency/[A-Za-z0-9-]{1,64}/cancel$", "i") },
   { method: "POST", route: new RegExp("^/ai/triage$", "i") },
+  { method: "POST", route: new RegExp("^/loyalty/challenges/[A-Za-z0-9-]{1,64}/join$", "i") },
+  { method: "POST", route: new RegExp("^/referrals/apply$", "i") },
+  { method: "POST", route: new RegExp("^/loyalty/rewards/[A-Za-z0-9-]{1,64}/claim$", "i") },
 ];
 
 export function isAllowedPatientApiPath(path: string) {
