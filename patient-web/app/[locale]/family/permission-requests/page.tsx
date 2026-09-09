@@ -29,7 +29,7 @@ export default async function FamilyPermissionRequestsPage({ params }: Props) {
       memberName: typeof v.member_name === "string" ? v.member_name : typeof v.requester_name === "string" ? v.requester_name : undefined,
       permissions: perms,
     };
-  }).filter((r): r is { id: string; memberName?: string; permissions: string[] } => r !== null);
+  }).filter((r): r is NonNullable<typeof r> => r !== null);
 
   return (
     <main className="main">
