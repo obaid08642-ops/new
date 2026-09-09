@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requirePatientAccess } from "@/lib/auth/session";
@@ -35,12 +36,13 @@ export default async function ReturnsPage({ params }: Props) {
   const returns = response.ok ? extractReturns(await response.json().catch(() => null)) : [];
   return <main className="main" style={{ padding: "24px 16px", maxWidth: 760, margin: "0 auto" }}>
     <h1>{t("title")}</h1>
+    <p><Link href={`/${locale}/returns/new-request`}>{locale === "ar" ? "طلب إرجاع جديد" : "New return request"}</Link></p>
     {!response.ok ? <p role="alert">{t("error")}</p> : returns.length === 0 ? <p style={{ opacity: 0.7 }}>{t("empty")}</p> : (
       <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
         {returns.map((item) => (
           <li key={item.id} style={{ border: "1px solid var(--border, #e2e7ee)", borderRadius: 12, padding: "12px 16px", display: "flex", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <strong>{item.reason || item.id}</strong>
+              <strong><Link href={`/${locale}/returns/${encodeURIComponent(item.id)}`}>{item.reason || item.id}</Link></strong>
               <div style={{ fontSize: 13, opacity: 0.7, marginTop: 2 }}>
                 {[item.createdAt ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(item.createdAt)) : null,
                   item.amount !== undefined ? `${item.amount.toFixed(2)} ${t("sar")}` : null].filter(Boolean).join(" · ")}

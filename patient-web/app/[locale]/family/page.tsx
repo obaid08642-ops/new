@@ -45,6 +45,7 @@ export default async function FamilyPage({ params }: Props) {
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
       <Link className={styles.notice} href={`/${locale}/family/invite`}>{locale === "ar" ? "دعوة فرد جديد" : "Invite someone"}</Link>
       <Link className={styles.notice} href={`/${locale}/family/join`}>{locale === "ar" ? "الانضمام بكود دعوة" : "Join with a code"}</Link>
+      <Link className={styles.notice} href={`/${locale}/family/permissions`}>{locale === "ar" ? "أذونات الأعضاء" : "Member permissions"}</Link>
       <Link className={styles.notice} href={`/${locale}/family/calendar`}><CalendarDays size={15} aria-hidden="true" /> {locale === "ar" || locale === "ur" ? "فتح تقويم العائلة" : "Open family calendar"}</Link>
     </div>
   </main>;

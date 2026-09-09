@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Sparkles } from "lucide-react";
@@ -43,6 +44,11 @@ export default async function AiTriagePage({ params }: Props) {
           disclaimer: t("disclaimer"),
         }}
       />
+      <nav aria-label={locale === "ar" ? "أدوات الذكاء الاصطناعي" : "AI tools"} style={{ display: "flex", gap: 8, marginTop: 16 }}>
+        <Link href={`/${locale}/ai/skin-analysis`}>{locale === "ar" ? "تحليل البشرة" : "Skin analysis"}</Link>
+        <Link href={`/${locale}/ai/prescription-translator`}>{locale === "ar" ? "مترجم الوصفات" : "Prescription translator"}</Link>
+        <Link href={`/${locale}/ai/report`}>{locale === "ar" ? "تقريري" : "My report"}</Link>
+      </nav>
     </main>
   );
 }
