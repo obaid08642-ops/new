@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, Share, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, Modal } from 'react-native';
 
 import { useApp } from '../../../src/context/AppContext';
+import { dateLocaleFor } from '../../../src/utils/dates';
 import { router, useLocalSearchParams } from 'expo-router';
 import { lightColors, darkColors, resolveColor as rsColor } from '../../../src/theme/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -73,7 +74,7 @@ export default function DoctorProfile() {
     const dm = [];
     const today = new Date();
     
-    const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
+    const localeTag = dateLocaleFor(lang);
     const isAr = lang === 'ar';
 
     // Arabic Numbers converter

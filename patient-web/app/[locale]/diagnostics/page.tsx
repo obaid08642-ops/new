@@ -119,6 +119,7 @@ export default async function DiagnosticsPage({ params }: Props) {
             <Link href={`/${locale}/diagnostics/bookings`}>{locale === "ar" ? "حجوزاتي" : "My bookings"}</Link>
             <Link href={`/${locale}/diagnostics/results`}>{locale === "ar" ? "نتائجي وتقاريري" : "My results"}</Link>
             <Link href={`/${locale}/diagnostics/packages`}>{locale === "ar" ? "الباقات" : "Packages"}</Link>
+            <Link href={`/${locale}/diagnostics/cart`}>{locale === "ar" ? "السلة" : "Cart"}</Link>
           </nav>
         </div>
         <span className={styles.introIcon}><VectorLabs size={36} aria-hidden="true" /></span>

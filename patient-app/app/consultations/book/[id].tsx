@@ -8,6 +8,7 @@ import {
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../../src/context/AppContext';
+import { dateLocaleFor } from '../../../src/utils/dates';
 import { Icon, IconName } from '../../../src/components/Icon';
 import { AppText, Card, Button, IconButton, SectionHeader } from '../../../src/components/ui';
 import { apiFetch } from '../../../src/utils/api';
@@ -31,7 +32,7 @@ function priceFor(doc: any, vt: string): number | null {
 export default function BookAppointmentScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark, lang } = useApp() as any;
-  const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
+  const localeTag = dateLocaleFor(lang);
   const { id, visit_type } = useLocalSearchParams<{ id: string; visit_type?: string }>();
 
   const [doctor, setDoctor] = useState<any>(null);

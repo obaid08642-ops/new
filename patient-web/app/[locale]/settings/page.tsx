@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Database, LockKeyhole, MonitorSmartphone, ShieldCheck } from "lucide-react";
@@ -33,7 +34,15 @@ export default async function SettingsPage({ params }: Props) {
   const visibleSessions = sessions.slice(0, 8);
   const hiddenSessions = Math.max(0, sessions.length - visibleSessions.length);
   return <main className={`main ${styles.page}`}>
-    <section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("notice")}</p></section>
+    <section className={styles.hero}><p className={styles.eyebrow}><ShieldCheck size={15} aria-hidden="true" />{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("notice")}</p>
+      <nav aria-label={t("title")} style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <Link href={`/${locale}/settings/language`}>{locale === "ar" ? "اللغة" : "Language"}</Link>
+        <Link href={`/${locale}/settings/notifications`}>{locale === "ar" ? "الإشعارات" : "Notifications"}</Link>
+        <Link href={`/${locale}/settings/about`}>{locale === "ar" ? "عن التطبيق" : "About"}</Link>
+        <Link href={`/${locale}/settings/help`}>{locale === "ar" ? "المساعدة" : "Help"}</Link>
+        <Link href={`/${locale}/settings/feedback`}>{locale === "ar" ? "رأيك" : "Feedback"}</Link>
+      </nav>
+    </section>
     <section className={styles.grid}>
       <article className={styles.card}><span className={styles.icon}><ShieldCheck size={20} aria-hidden="true" /></span><div><h2>{t("privacyTitle")}</h2><p>{t("profileVisible")}</p><strong>{bool(privacy.profileVisible)}</strong><p>{t("dataSharing")}</p><strong>{bool(privacy.shareData)}</strong></div></article>
       <article className={styles.card}><span className={styles.icon}><LockKeyhole size={20} aria-hidden="true" /></span><div><h2>{t("securityTitle")}</h2><p>{t("biometric")}</p><strong>{bool(security.biometric)}</strong><p>{t("twoFactor")}</p><strong>{bool(security.twoFactor)}</strong></div></article>

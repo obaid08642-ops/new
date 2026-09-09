@@ -48,6 +48,11 @@ export default async function VitalsPage({ params }: Props) {
           </p>
           <h1>{t("vitalsHistoryTitle")}</h1>
           <p>{t("vitalsHistoryNotice")}</p>
+          <p>
+            <Link href={`/${locale}/health/vitals/log`}>
+              {locale === "ar" ? "تسجيل قراءة" : "Log reading"}
+            </Link>
+          </p>
         </div>
         <span className={styles.heroVector}>
           <VectorVitals size={48} aria-hidden="true" />

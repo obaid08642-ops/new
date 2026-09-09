@@ -46,6 +46,11 @@ export default async function HealthReportsPage({ params }: Props) {
           </p>
           <h1>{t("reportsTitle")}</h1>
           <p>{t("reportsNotice")}</p>
+          <p>
+            <Link href={`/${locale}/reports/passport`}>
+              {locale === "ar" ? "جوازي الصحي" : "My health passport"}
+            </Link>
+          </p>
         </div>
         <span className={styles.heroVector}>
           <VectorHealthShield size={48} aria-hidden="true" />

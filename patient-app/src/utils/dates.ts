@@ -61,6 +61,27 @@ export function dateLocale(): string {
   return cal === 'hijri' ? 'ar-SA-u-ca-islamic-umalqura' : 'ar-SA-u-ca-gregory';
 }
 
+const LANG_BASE: Record<string, string> = {
+  ar: 'ar-SA',
+  en: 'en-US',
+  ur: 'ur-PK',
+  hi: 'hi-IN',
+  bn: 'bn-BD',
+  fil: 'fil-PH',
+};
+
+/**
+ * Language-aware locale tag honouring the calendar preference.
+ * Default: Gregorian. The device calendar switches it to Hijri
+ * (islamic-umalqura) automatically when the device uses Hijri.
+ */
+export function dateLocaleFor(lang?: string): string {
+  const base = LANG_BASE[lang || ''] || 'ar-SA';
+  const p = getCalendarPref();
+  const cal = p === 'auto' ? deviceCalendar() : p === 'hijri' ? 'hijri' : 'gregory';
+  return cal === 'hijri' ? `${base}-u-ca-islamic-umalqura` : `${base}-u-ca-gregory`;
+}
+
 export function fmtDate(d: Date | string | number, opts?: Intl.DateTimeFormatOptions): string {
   return new Date(d).toLocaleDateString(dateLocale(), opts);
 }

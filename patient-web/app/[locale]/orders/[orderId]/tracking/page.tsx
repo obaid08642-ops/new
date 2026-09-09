@@ -41,6 +41,14 @@ export default async function OrderTrackingPage({ params }: Props) {
         {tracking.total !== undefined ? <div className={styles.item}><dt>{t("total")}</dt><dd>{tracking.total} {tracking.currency || ""}</dd></div> : null}
       </dl>
       <p className={styles.notice}>{t("detailNotice")}</p>
+      <nav aria-label={t("title")} style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <Link className={styles.back} href={`/${locale}/orders/${orderId}/offers`}>
+          {locale === "ar" ? "عروض الصيدليات" : "Pharmacy offers"}
+        </Link>
+        <Link className={styles.back} href={`/${locale}/chat`}>
+          {locale === "ar" ? "المحادثات" : "Chats"}
+        </Link>
+      </nav>
     </section>
   </main>;
 }
