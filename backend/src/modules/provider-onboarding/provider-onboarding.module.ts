@@ -107,12 +107,14 @@ export class ProviderOnboardingService {
   async step2(user: any, body: any) {
     const profile = await this.providerModel.findOne({ user_id: user.id });
     if (!profile) throw new NotFoundException('profile_not_started');
-    const fields = ['name_ar', 'name_en', 'city', 'district', 'address', 'location', 'license_number', 'license_documents', 'coverage_radius_km', 'accepts_insurance', 'accepted_insurance', 'accepts_cash', 'bio', 'languages', 'iban', 'bank_account_name', 'pharmacy_type', 'cr_number', 'moh_license_number', 'sfda_license_number', 'tax_number',
+    const fields = ['name_ar', 'name_en', 'city', 'district', 'address', 'location', 'license_number', 'license_documents', 'coverage_radius_km', 'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'bio', 'languages', 'iban', 'bank_account_name', 'pharmacy_type', 'cr_number', 'moh_license_number', 'sfda_license_number', 'tax_number',
       // widened: fields the apps already sent but that were silently dropped
       'clinic_images', 'scfhs_license_number', 'national_id', 'gender', 'clinic_name',
       'display_name_ar', 'display_name_en', 'profile_photo', 'logo',
       // official full name (contracts/verification) — patients see display_name_* instead
-      'legal_name'];
+      'legal_name', 'insurance_plans',
+      'pharmacist_name', 'tech_officer_name', 'tech_officer_scfhs',
+      'lab_category', 'lab_accreditation', 'scfhs_expiry', 'profile_photo'];
     for (const f of fields) if (body[f] !== undefined) (profile as any)[f] = body[f];
     this.snapshotStep(profile, 'step2', body);
     profile.onboarding_step = Math.max(profile.onboarding_step || 0, 2);
@@ -129,57 +131,59 @@ export class ProviderOnboardingService {
         'specialty', 'sub_specialties', 'title', 'academic_degree', 'years_experience',
         'consultation_modes', 'price_clinic', 'price_online', 'price_home',
         'consultation_fee', 'online_consultation_fee', 'home_visit_fee',
-        'hospital', 'working_hours', 'accepts_insurance', 'accepted_insurance',
+        'hospital', 'working_hours', 'accepts_insurance', 'accepted_insurance', 'insurance_plans',
         'insurance_clinic', 'insurance_online', 'insurance_home',
         'coverage_radius_km', 'home_visit_supported',
         // widened: previously dropped doctor fields
         'home_visit_radius_km', 'clinic_duration', 'video_duration',
         'home_transport_fee', 'home_transport_price', 'clinic_name', 'vacation_date',
-        'schedule_video', 'schedule_home', 'schedule_clinic', 'national_id', 'gender',
+        'home_duration', 'schedule_video', 'schedule_home', 'schedule_clinic', 'national_id', 'gender',
         'languages', 'display_name_ar', 'display_name_en',
       ],
       [ProviderType.HOSPITAL]: [
-        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'ambulance_roster', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'accepts_cash', 'schedule_home',
+        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'ambulance_roster', 'working_hours',
+        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'schedule_home', 'has_insurance_coordinator',
       ],
       [ProviderType.CLINIC]: [
-        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'ambulance_roster', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'accepts_cash', 'schedule_home',
+        'doctors_roster', 'lab_roster', 'radiology_roster', 'nursing_roster', 'pharmacy_roster', 'ambulance_roster', 'working_hours',
+        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'schedule_home', 'has_insurance_coordinator',
       ],
       [ProviderType.LAB]: [
         'test_categories', 'home_visit_supported', 'home_visit_radius_km',
-        'gender_pref', 'working_hours', 'accepts_insurance', 'accepted_insurance',
+        'gender_pref', 'working_hours', 'accepts_insurance', 'accepted_insurance', 'insurance_plans',
         'accepts_cash', 'nursing_services', 'consultation_modes', 'price_clinic', 'price_home',
-        'schedule_home'
+        'schedule_home', 'vacation_date', 'test_insurance_map', 'test_turnaround_map',
+        'test_home_map', 'home_collector_count', 'home_collector_gender'
       ],
       [ProviderType.RADIOLOGY]: [
         'equipment_list', 'home_visit_supported', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'accepts_cash', 'test_categories', 'consultation_modes', 'price_clinic', 'price_home',
-        'radiation_safety_license', 'available_equipment_text', 'schedule_home'
+        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash', 'test_categories', 'consultation_modes', 'price_clinic', 'price_home',
+        'radiation_safety_license', 'available_equipment_text', 'schedule_home',
+        'scan_insurance_map', 'vacation_date'
       ],
       [ProviderType.PHARMACY]: [
         'pharmacy_chain', 'has_own_drivers', 'delivery_radius_km',
-        'has_own_delivery', 'working_hours', 'accepts_insurance', 'accepted_insurance',
+        'has_own_delivery', 'working_hours', 'accepts_insurance', 'accepted_insurance', 'insurance_plans',
         'accepts_cash', 'coverage_radius_km', 'delivery_fee', 'free_delivery_above',
         'min_order_sar', 'express_delivery', 'express_fee', 'express_minutes',
-        'rx_dispensing', 'otc_selling', 'enabled_categories'
+        'rx_dispensing', 'otc_selling', 'enabled_categories', 'vacation_date'
       ],
       [ProviderType.HOME_CARE]: [
         'nursing_services', 'home_visit_radius_km', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'accepts_cash',
-        'gender', 'pricingModel', 'priceVisit', 'priceHour', 'priceDay', 'priceMonth', 'schedule_home'
+        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash',
+        'gender', 'pricingModel', 'priceVisit', 'priceHour', 'priceDay', 'priceMonth', 'schedule_home', 'vacation_date'
       ],
       [ProviderType.AMBULANCE]: [
         'vehicles_count', 'vehicle_plates', 'equipment_list', 'paramedic_count',
         'coverage_radius_km', 'service_area_cities', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'accepts_cash',
+        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash',
         'emergency_level', 'has_icu_units', 'base_location'
       ],
       [ProviderType.NURSING]: [
         'nursing_services', 'home_visit_radius_km', 'working_hours',
-        'accepts_insurance', 'accepted_insurance', 'accepts_cash',
+        'accepts_insurance', 'accepted_insurance', 'insurance_plans', 'accepts_cash',
         'coverage_radius_km', 'home_visit_supported',
-        'gender', 'pricingModel', 'priceVisit', 'priceHour', 'priceDay', 'priceMonth', 'schedule_home'
+        'gender', 'pricingModel', 'priceVisit', 'priceHour', 'priceDay', 'priceMonth', 'schedule_home', 'vacation_date'
       ],
     };
     const keys = allowed[profile.type] || [];

@@ -43,7 +43,7 @@ interface DoctorRegData {
   bio: string; profilePhotoUri: string; clinicImagesUris: string[];
   // Step 4 - Services & Map
   offersClinic: boolean; clinicPrice: string; clinicDuration: string;
-  offersHome: boolean; homePrice: string; homeRadius: number;
+  offersHome: boolean; homePrice: string; homeDuration: string; homeRadius: number;
   homeTransportFee: boolean; homeTransportPrice: string;
   offersVideo: boolean; videoPrice: string; videoDuration: string;
   lat: number; lng: number;
@@ -67,7 +67,7 @@ const INITIAL: DoctorRegData = {
   scfhsNumber:'', nationalId:'', iban:'', accountHolderName: '', idFrontUri:'', scfhsDocUri:'', extraDocUri:'',
   specialty:'', degree:'', yearsExp:'', bio:'', profilePhotoUri:'', clinicImagesUris: [],
   offersClinic:false, clinicPrice:'', clinicDuration:'',
-  offersHome:false, homePrice:'', homeRadius: 0, homeTransportFee: false, homeTransportPrice: '',
+  offersHome:false, homePrice:'', homeDuration:'', homeRadius: 0, homeTransportFee: false, homeTransportPrice: '',
   offersVideo:false, videoPrice:'', videoDuration:'',
   lat: 0, lng: 0,
   scheduleType:'per_service',
@@ -569,6 +569,7 @@ function Step4PricingAndLocation({ data, update, onNext, onBack, step, total, ba
           {data.offersHome && (
             <View>
               <NInput label={AR ? 'سعر الزيارة المنزلية' : 'Home Visit Price'} value={data.homePrice} onChange={v=>update({homePrice:v})} kbType="numeric" />
+              <NInput label={AR ? 'مدة الزيارة (بالدقائق)' : 'Visit Duration (min)'} value={data.homeDuration} onChange={v=>update({homeDuration:v})} kbType="numeric" />
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
                 <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'احتساب رسوم انتقال إضافية؟' : 'Add Transport Fees?'}</Text>
                 <Switch value={data.homeTransportFee} onValueChange={v=>update({homeTransportFee:v})} />
@@ -1035,6 +1036,14 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         home_visit_radius_km: data.homeRadius,
         clinic_duration: parseInt(data.clinicDuration) || 0,
         video_duration: parseInt(data.videoDuration) || 0,
+        home_duration: parseInt((data as any).homeDuration) || 0,
+        schedule_clinic: ((data.clinicDays as string[]) || []).map((d: string) => ({
+          day: d,
+          open: (data as any).clinicStart || '',
+          close: (data as any).clinicEnd || '',
+          open_evening: (data as any).clinicShift === 'both' ? (data as any).clinicStartEve : undefined,
+          close_evening: (data as any).clinicShift === 'both' ? (data as any).clinicEndEve : undefined
+        })),
         home_transport_fee: !!data.homeTransportFee,
         home_transport_price: parseFloat(data.homeTransportPrice) || 0,
         clinic_name: data.clinicName || undefined,
@@ -1058,6 +1067,7 @@ function Step7Signature({ data, update, onDone, onBack, step, total }: any) {
         working_hours: wh,
         accepts_insurance: !data.cashOnly && (data.acceptedInsurance || []).length > 0,
         accepted_insurance: (data.acceptedInsurance || []).map((i: any) => i.companyId),
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((i: any) => Array.isArray(i.plans) && i.plans.length).map((i: any) => [i.companyId, i.plans])),
         insurance_clinic: data.insuranceClinic,
         insurance_online: data.insuranceVideo,
         insurance_home: data.insuranceHome,

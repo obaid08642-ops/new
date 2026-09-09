@@ -93,7 +93,12 @@ export default function BroadcastStatusScreen() {
                 <AppText variant="bodySM" color={colors.textSecondary}>إجمالي العرض</AppText>
                 <AppText variant="h6" color={colors.primary}>{Number.isFinite(Number(offer?.totals?.total)) ? `${Number(offer.totals.total).toFixed(2)} ${offer?.totals?.currency || 'ر.س'}` : '—'}</AppText>
               </View>
-              {Array.isArray(offer.lines) && offer.lines.map((line: any) => <View key={line.order_item_id || line.id || line.sku} style={styles.line}><AppText variant="caption">{line.name || line.sku || '—'}</AppText><AppText variant="caption" color={line.available ? colors.success : colors.error}>{line.available ? 'متوفر' : 'غير متوفر'}</AppText></View>)}
+              {Array.isArray(offer.lines) && offer.lines.map((line: any) => <View key={line.order_item_id || line.id || line.sku} style={styles.line}>
+                <AppText variant="caption">{line.name || line.sku || '—'}{typeof line.offered_qty === 'number' && line.offered_qty > 0 ? ` × ${line.offered_qty}` : ''}{typeof line.unit_price === 'number' ? ` — ${line.unit_price} ${offer?.totals?.currency || offer?.currency || 'ر.س'}` : ''}</AppText>
+                <AppText variant="caption" color={line.available ? colors.success : colors.error}>{line.available ? 'متوفر' : 'غير متوفر'}</AppText>
+              </View>)}
+              {Array.isArray(offer.lines) && offer.lines.filter((line: any) => line.alternative).map((line: any) => <View key={`alt-${line.order_item_id || line.sku}`} style={styles.line}><AppText variant="caption" color={colors.textSecondary}>بديل {line.name || line.sku}: {line.alternative}</AppText></View>)}
+              {typeof offer.provider_note === 'string' && offer.provider_note ? <AppText variant="caption" color={colors.textSecondary} style={{ marginTop: 8 }}>ملاحظة الصيدلية: {offer.provider_note}</AppText> : null}
               {offer.status === 'open' && <View style={styles.selection}><Button label="اختيار نقدي/إلكتروني" variant="gradient" size="md" loading={acceptingBid === offer.id} disabled={acceptingBid !== null} onPress={() => selectOffer(offer.id, 'cash')} /><Button label="اختيار بالتأمين" variant="secondary" size="md" loading={acceptingBid === offer.id} disabled={acceptingBid !== null || !offer.insurance_ready} onPress={() => selectOffer(offer.id, 'insurance')} /></View>}
               {offer.status !== 'open' && <AppText variant="caption" color={colors.textTertiary} style={{ marginTop: 14 }}>حالة العرض: {offer.status || '—'}</AppText>}
             </Card>

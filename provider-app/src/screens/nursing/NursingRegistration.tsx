@@ -67,7 +67,7 @@ interface NurseRegData {
   priceVisit: string; priceHour: string; priceDay: string; priceMonth: string;
   // Coverage & Map
   city: string; location: {lat: number; lng: number}; district: string; address: string;
-  coverageRadius: number; coverageAreas: string[];
+  coverageRadius: number;
   // Schedule
   workDays: string[]; shiftType: 'morning' | 'evening' | 'both'; openTime: string; closeTime: string; eveningOpenTime: string; eveningCloseTime: string; is24_7: boolean; vacationDate: string;
   // Insurance
@@ -84,7 +84,7 @@ const INIT: NurseRegData = {
   scfhsUri: '', crUri: '', mohUri: '', photoUri: '',
   enabledServices: [],
   pricingModels: [], priceVisit: '', priceHour: '', priceDay: '', priceMonth: '',
-  city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0, coverageAreas: [],
+  city: '', location: { lat: 0, lng: 0 }, district: '', address: '', coverageRadius: 0,
   workDays: [], shiftType: 'morning', openTime: '', closeTime: '', eveningOpenTime: '', eveningCloseTime: '', is24_7: false, vacationDate: '',
   cashOnly: false, acceptedInsurance: [],
   signatureData: '', signerName: '', signerRole: '', termsAgreed: false,
@@ -812,7 +812,7 @@ const body = (
       <NDatePickerSheet
         visible={showVacationCal}
         value={data.vacationDate}
-        onChange={() => {}}
+        onChange={(v: string) => update({ vacationDate: v })}
         onClose={() => setShowVacationCal(false)}
         title={AR ? 'اختر تاريخ إجازتك' : 'Select Vacation Date'}
       />
@@ -1003,6 +1003,8 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
         priceDay: parseFloat(data.priceDay) || 0,
         priceMonth: parseFloat(data.priceMonth) || 0,
         gender: data.mode === 'individual' ? data.gender : undefined,
+        vacation_date: data.vacationDate || undefined,
+        insurance_plans: Object.fromEntries((data.acceptedInsurance || []).filter((ins) => Array.isArray(ins.plans) && ins.plans.length).map((ins) => [ins.companyId, ins.plans])),
       });
 
       await ProviderApi.step2({
@@ -1015,12 +1017,12 @@ function NS8Signature({ data, update, onDone, onBack, step, total }: any) {
         accepts_cash: data.cashOnly,
         accepts_insurance: !data.cashOnly && data.acceptedInsurance.length > 0,
         accepted_insurance: data.acceptedInsurance ? data.acceptedInsurance.map((ins: any) => ins.companyId) : [],
-        bio: data.bio,
         cr_number: data.crNumber,
         moh_license_number: data.mohLicense,
         scfhs_license_number: data.scfhsNumber,
+        scfhs_expiry: data.scfhsExpiry || undefined,
         license_documents: docs,
-        clinic_images: images
+        profile_photo: data.photoUri ? images[0] : undefined,
       });
 
       const sigUrl = await ProviderApi.uploadSignature(signature);

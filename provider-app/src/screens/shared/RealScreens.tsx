@@ -234,7 +234,6 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
   const { show } = useToast();
   const AR = lang === 'ar';
 
-  const [twoFactor, setTwoFactor] = useState(true);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
@@ -257,20 +256,6 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
       <NHeader title={AR ? 'الأمان والحماية 2FA' : 'Security & 2FA'} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md }}>
-          <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <View>
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'التحقق بخطوتين (2FA)' : 'Two-Factor Authentication'}
-              </Text>
-              <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'إرسال رمز تحقق OTP إلى جوالك عند تسجيل الدخول' : 'Send OTP code on login'}
-              </Text>
-            </View>
-            <Switch value={twoFactor} onValueChange={setTwoFactor} trackColor={{ true: theme.primary }} />
-          </View>
-        </NCard>
-
-        <NCard style={{ marginBottom: SP.md }}>
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
             {AR ? 'تغيير كلمة المرور' : 'Change Password'}
           </Text>
@@ -280,15 +265,6 @@ export function SecurityManagementScreen({ onBack }: { onBack: () => void }) {
           <NBtn label={AR ? 'تحديث كلمة المرور' : 'Update Password'} onPress={handleChangePassword} style={{ marginTop: SP.md }} />
         </NCard>
 
-        <NCard>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-             {AR?'الأجهزة المسجلة دخوّلها':'Active Devices'}
-          </Text>
-          <View style={{ paddingVertical: SP.xs }}>
-            <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>iPhone 15 Pro Max (هذا الجهاز)</Text>
-            <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>الرياض · نشط الآن</Text>
-          </View>
-        </NCard>
       </NScroll>
     </View>
   );

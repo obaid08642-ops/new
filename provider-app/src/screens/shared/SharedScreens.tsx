@@ -9,12 +9,7 @@ import * as Crypto from 'expo-crypto';
  * ║ 01. ChatSystem — text/voice/image/files + video call ║
  * ║ 02. NotificationsCenter — unified notification hub ║
  * ║ 03. SupportCenter — tickets + FAQ + status ║
- * ║ 04. DeviceManagement — linked devices + 2FA ║
  * ║ 05. OnboardingTutorial — intro slides (3-4 pages) ║
- * ║ 06. WearablesSync — wearable device integration ║
- * ║ 07. MedicalReferenceLib — drugs + interactions + ICD codes ║
- * ║ 08. MaskedCall — masked provider↔patient call ║
- * ║ 09. QRCodeSystem — generate + scan unified QR ║
  * ║ 10. StatisticsReports — advanced analytics + export ║
  * ║ 11. ReviewsSystem — unified reviews + auto-reply ║
  * ╚══════════════════════════════════════════════════════════════════╝
@@ -92,7 +87,6 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
       <View style={[st.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
         <TouchableOpacity onPress={onBack}><I name="back" size={20} color={theme.primary} /></TouchableOpacity>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>{AR ? 'المحادثات' : 'Messages'}</Text>
-        <TouchableOpacity><I name="edit" size={20} color={theme.primary} /></TouchableOpacity>
       </View>
 
       <View style={{ paddingHorizontal: SP.lg, paddingVertical: SP.md }}>
@@ -150,10 +144,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
         const res = await client.get(`/chats/${conv.id}/messages`);
         setMessages(res.data || []);
       } catch {
-        setMessages([
-          { id: 'm1', text: AR ? 'مرحباً دكتور، أود الاستفسار عن حالتي' : 'Hello Doctor', sender: 'other', time: '10:00 AM', type: 'text' },
-          { id: 'm2', text: AR ? 'أهلاً بك، تفضل' : 'Welcome, how can I help?', sender: 'me', time: '10:05 AM', type: 'text' }
-        ]);
+        setMessages([]);
       } finally {
         setLoading(false);
       }
@@ -175,6 +166,36 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
     }
   };
 
+  const attachFile = async (kind: string) => {
+    setShowAttach(false);
+    try {
+      let uri: string | null = null;
+      let mime = 'image/jpeg';
+      let name = 'attachment';
+      if (kind === 'camera') {
+        const perm = await ImagePicker.requestCameraPermissionsAsync();
+        if (!perm.granted) { show(AR ? 'صلاحية الكاميرا مطلوبة' : 'Camera permission required', 'error'); return; }
+        const res = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7 });
+        if (res.canceled) return;
+        uri = res.assets[0].uri; mime = 'image/jpeg'; name = 'photo.jpg';
+      } else {
+        const res = await DocumentPicker.getDocumentAsync({ type: kind === 'document' ? '*/*' : 'image/*', copyToCacheDirectory: true });
+        if (res.canceled) return;
+        uri = res.assets[0].uri; mime = res.assets[0].mimeType || mime; name = res.assets[0].name || name;
+      }
+      if (!uri) return;
+      const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+      const up = await client.post('/storage/upload', { data_base64: base64, mime, original_name: name });
+      const url = up?.data?.url || up?.data?.id;
+      if (!url) { show(AR ? 'تعذر رفع المرفق' : 'Could not upload attachment', 'error'); return; }
+      const newMsg = { id: Date.now().toString(), text: url, sender: 'me', time: 'الآن', type: 'file' };
+      setMessages(prev => [...prev, newMsg]);
+      await client.post(`/chats/${conv.id}/messages`, { text: url }).catch(() => null);
+    } catch {
+      show(AR ? 'تعذر إرفاق الملف' : 'Could not attach file', 'error');
+    }
+  };
+
  return (
  <KeyboardAvoidingView style={{ flex: 1, backgroundColor: theme.bg }}
  behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={90}>
@@ -190,14 +211,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  </Text>
  </View>
  </View>
- <View style={{ flexDirection: 'row', gap: SP.md }}>
- <TouchableOpacity onPress={() => show(AR ? 'بدء مكالمة صوتية' : 'Starting voice call', 'info')}>
- <I name="phone" size={20} color={theme.primary} />
- </TouchableOpacity>
- <TouchableOpacity onPress={() => show(AR ? 'بدء مكالمة فيديو' : 'Starting video call', 'info')}>
- <I name="video" size={20} color={theme.primary} />
- </TouchableOpacity>
- </View>
+
  </View>
 
  {/* Messages */}
@@ -241,9 +255,7 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  value={msg} onChangeText={setMsg}
  multiline maxLength={2000}
  />
- <TouchableOpacity onPress={() => show(AR ? 'تسجيل صوتي' : 'Voice recording', 'info')} style={{ padding: SP.sm }}>
- <I name="mic" size={22} color={theme.textSub} />
- </TouchableOpacity>
+
  <TouchableOpacity onPress={sendMsg} disabled={!msg.trim()}
  style={[st.sendBtn, { backgroundColor: msg.trim() ? theme.primary : theme.surface2 }]}>
  <I name="forward" size={18} color={msg.trim() ? '#FFF' : theme.textSub} />
@@ -257,11 +269,8 @@ function ChatRoom({ conv, onBack }: { conv: any; onBack: () => void }) {
  { name: 'camera', ar: 'كاميرا', en: 'Camera' },
  { name: 'upload', ar: 'صورة', en: 'Photo' },
  { name: 'document', ar: 'ملف', en: 'File' },
- { name: 'pin', ar: 'موقع', en: 'Location' },
- { name: 'prescription', ar: 'وصفة', en: 'Prescription' },
- { name: 'testTube', ar: 'نتيجة فحص', en: 'Lab Result' },
  ].map(att => (
- <TouchableOpacity key={att.name} onPress={() => { setShowAttach(false); show(AR ? `إرفاق ${att.ar}` : `Attach ${att.en}`, 'info'); }}
+ <TouchableOpacity key={att.name} onPress={() => attachFile(att.name)}
  style={{ alignItems: 'center', width: 70 }}>
  <IBg name={att.name} size={22} color={theme.primary} bg={theme.primaryLight} />
  <Text style={{ fontSize: FS.xs, color: theme.text, marginTop: SP.xs }}>{AR ? att.ar : att.en}</Text>
@@ -299,8 +308,13 @@ export function NotificationsCenter({ onBack }: { onBack: () => void }) {
  const filtered = filter === 'all' ? notifs : notifs.filter(n => !n.read);
  const unreadCount = notifs.filter(n => !n.read).length;
 
- const markAllRead = () => { setNotifs(prev => prev.map(n => ({ ...n, read: true }))); show(AR ? 'تم قراءة الكل' : 'All marked read', 'success'); };
- const markRead = (id: string) => { setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n)); };
+ const markAllRead = async () => {
+   try {
+     await client.post('/provider/notifications/read-all', {});
+     setNotifs(prev => prev.map(n => ({ ...n, read: true })));
+     show(AR ? 'تم قراءة الكل' : 'All marked read', 'success');
+   } catch { show(AR ? 'تعذر مسح الإشعارات' : 'Could not clear notifications', 'error'); }
+ };
 
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -438,429 +452,7 @@ export function SupportCenter({ onBack }: { onBack: () => void }) {
    }
  }} />
  </>}
- </NScroll>
- );
-}
 
-// ══════════════════════════════════════════════════════════════════
-// 04. DEVICE MANAGEMENT + 2FA
-// ══════════════════════════════════════════════════════════════════
-export function DeviceManagement({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [twoFA, setTwoFA] = useState(false);
- const [biometric, setBiometric] = useState(true);
-
- const DEVICES = [
- { id: 'd1', name: 'iPhone 15 Pro', os: 'iOS 18.2', lastLogin: AR ? 'الآن — نشط' : 'Now — Active', current: true },
- { id: 'd2', name: 'MacBook Pro', os: 'macOS 15.1', lastLogin: AR ? 'أمس 14:30' : 'Yesterday 14:30', current: false },
- { id: 'd3', name: 'Samsung Galaxy S24', os: 'Android 15', lastLogin: AR ? '3 أيام' : '3 days ago', current: false },
- ];
-
- return (
- <NScroll>
- <NHeader title={AR ? 'إدارة الأجهزة والأمان' : 'Devices & Security'} onBack={onBack} />
-
- {/* 2FA */}
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle label={AR ? 'التحقق الثنائي (2FA)' : 'Two-Factor Authentication'}
- sub={AR ? 'طبقة حماية إضافية — رمز يُرسل لجوالك عند كل تسجيل دخول' : 'Extra security layer — code sent to phone on each login'}
- value={twoFA} onChange={v => { setTwoFA(v); show(v ? (AR ? 'تم تفعيل 2FA' : '2FA enabled') : (AR ? 'تم تعطيل 2FA' : '2FA disabled'), v ? 'success' : 'info'); }} />
- </NCard>
-
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle label={AR ? 'تسجيل دخول بالبصمة / الوجه' : 'Biometric Login'}
- sub={AR ? 'Face ID أو بصمة الإصبع لتسجيل الدخول السريع' : 'Face ID or fingerprint for quick login'}
- value={biometric} onChange={v => { setBiometric(v); show(v ? (AR ? 'تم التفعيل' : 'Enabled') : (AR ? 'تم التعطيل' : 'Disabled'), 'success'); }} />
- </NCard>
-
- {/* Devices */}
- <NSecHeader title={AR ? 'الأجهزة المرتبطة' : 'Linked Devices'} />
- {DEVICES.map(device => (
- <NCard key={device.id} style={{ marginBottom: SP.md }} accent={device.current ? '#4CAF50' : undefined}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
- <IBg name="phone" size={16} color={device.current ? '#4CAF50' : theme.textSub} bg={device.current ? '#4CAF5012' : theme.surface2} />
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{device.name}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{device.os} | {device.lastLogin}</Text>
- </View>
- {device.current ? (
- <NBadge label={AR ? 'هذا الجهاز' : 'This Device'} variant="success" size="xs" />
- ) : (
- <TouchableOpacity onPress={() => show(AR ? 'تم إزالة الجهاز' : 'Device removed', 'success')}>
- <I name="close" size={18} color={theme.danger} />
- </TouchableOpacity>
- )}
- </View>
- </NCard>
- ))}
-
- <NBtn label={AR ? 'تسجيل الخروج من جميع الأجهزة' : 'Log Out All Devices'} variant="danger"
- onPress={() => Alert.alert(AR ? 'تأكيد' : 'Confirm', AR ? 'سيتم تسجيل الخروج من جميع الأجهزة' : 'Logging out all devices')} />
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// 05. ONBOARDING TUTORIAL — 4 slides
-// ══════════════════════════════════════════════════════════════════
-export function OnboardingTutorial({ onDone }: { onDone: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
- const [page, setPage] = useState(0);
-
- const SLIDES = [
- { icon: 'home', title_ar: 'مرحباً بك في نبضة بلس', title_en: 'Welcome to Nabdah Plus', desc_ar: 'منصة طبية متكاملة تربطك بالمرضى وتدير عملك بكفاءة.', desc_en: 'A complete medical platform connecting you to patients.', color: '#4CAF50' },
- { icon: 'shield', title_ar: 'أمان وخصوصية مطلقة', title_en: 'Security & Privacy First', desc_ar: 'بياناتك محمية بتشفير متقدم (End-to-End) ومصادقة ثنائية.', desc_en: 'Your data protected with Advanced End-to-End encryption and 2FA.', color: '#2196F3' },
- { icon: 'wallet', title_ar: 'إدارة مالية شفافة', title_en: 'Transparent Finance', desc_ar: 'تتبع إيراداتك ومصروفاتك ومطالبات التأمين في مكان واحد.', desc_en: 'Track revenue, expenses, and insurance claims in one place.', color: '#FF9800' },
- { icon: 'star', title_ar: 'ابدأ الآن واستقبل أول مريض!', title_en: 'Start Receiving Patients!', desc_ar: 'أكمل ملفك الشخصي وابدأ باستقبال الطلبات فوراً.', desc_en: 'Complete your profile and start receiving orders.', color: '#E91E63' },
- ];
-
- const slide = SLIDES[page];
- const isLast = page === SLIDES.length - 1;
-
- return (
- <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: 'center', alignItems: 'center', padding: SP.xxl }}>
- <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: `${slide.color}15`, alignItems: 'center', justifyContent: 'center', marginBottom: SP.xxl }}>
- <I name={slide.icon} size={50} color={slide.color} />
- </View>
- <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: theme.text, textAlign: 'center', marginBottom: SP.lg }}>
- {AR ? slide.title_ar : slide.title_en}
- </Text>
- <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', lineHeight: 24, marginBottom: SP.xxl, paddingHorizontal: SP.xl }}>
- {AR ? slide.desc_ar : slide.desc_en}
- </Text>
-
- {/* Dots */}
- <View style={{ flexDirection: 'row', gap: SP.sm, marginBottom: SP.xxl }}>
- {SLIDES.map((_, i) => (
- <View key={i} style={{ width: i === page ? 24 : 8, height: 8, borderRadius: 4, backgroundColor: i === page ? slide.color : theme.border }} />
- ))}
- </View>
-
- <View style={{ width: '100%', gap: SP.md }}>
- <NBtn label={isLast ? (AR ? 'ابدأ الآن' : 'Get Started') : (AR ? 'التالي' : 'Next')}
- onPress={() => { if (isLast) onDone(); else setPage(p => p + 1); }} />
- {!isLast && (
- <TouchableOpacity onPress={onDone}>
- <Text style={{ textAlign: 'center', color: theme.textSub, fontSize: FS.sm }}>{AR ? 'تخطي' : 'Skip'}</Text>
- </TouchableOpacity>
- )}
- </View>
- </View>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// 06. WEARABLES SYNC
-// ══════════════════════════════════════════════════════════════════
-export function WearablesSync({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
-
- const DEVICES = [
- { name: 'Apple Watch', icon: 'clock', connected: true, data: AR ? 'نبض: 72 | SpO2: 98% | خطوات: 5,430' : 'HR: 72 | SpO2: 98% | Steps: 5,430', color: '#333' },
- { name: 'Samsung Galaxy Watch', icon: 'clock', connected: false, data: '', color: '#1428A0' },
- { name: 'Fitbit', icon: 'heart', connected: false, data: '', color: '#00B0B9' },
- { name: 'Garmin', icon: 'heart', connected: false, data: '', color: '#007CC3' },
- { name: 'Google Fit', icon: 'trendUp', connected: false, data: '', color: '#4285F4' },
- { name: 'Apple Health', icon: 'heart', connected: true, data: AR ? 'متصل — مزامنة تلقائية' : 'Connected — auto-sync', color: '#FF2D55' },
- ];
-
- return (
- <NScroll>
- <NHeader title={AR ? 'الأجهزة القابلة للارتداء' : 'Wearable Devices'} onBack={onBack} />
-
- <NCard style={{ backgroundColor: theme.primaryLight, marginBottom: SP.xl }}>
- <Text style={{ fontSize: FS.sm, color: theme.primary, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'اربط أجهزتك القابلة للارتداء لمزامنة بيانات المرضى الصحية تلقائياً — النبض، الأكسجين، النوم، والخطوات.'
- : 'Connect wearable devices to auto-sync patient health data — heart rate, SpO2, sleep, and steps.'}
- </Text>
- </NCard>
-
- {DEVICES.map((device, i) => (
- <NCard key={i} style={{ marginBottom: SP.md }} accent={device.connected ? '#4CAF50' : undefined}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
- <IBg name={device.icon} size={18} color={device.color} bg={`${device.color}12`} />
- <View style={{ flex: 1 }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{device.name}</Text>
- {device.connected && device.data && <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2 }}>{device.data}</Text>}
- </View>
- <NBtn label={device.connected ? (AR ? 'متصل' : 'Connected') : (AR ? 'ربط' : 'Connect')}
- size="xs" variant={device.connected ? 'primary' : 'outline'} full={false}
- style={{ paddingHorizontal: SP.lg }}
- onPress={() => show(device.connected ? (AR ? 'الجهاز متصل بالفعل' : 'Already connected') : (AR ? 'جاري الربط...' : 'Connecting...'), 'info')} />
- </View>
- </NCard>
- ))}
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// 07. MEDICAL REFERENCE LIBRARY
-// ══════════════════════════════════════════════════════════════════
-export function MedicalReferenceLib({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
- const [tab, setTab] = useState<'drugs' | 'interactions' | 'icd'>('drugs');
- const [search, setSearch] = useState('');
-
- const DRUGS = [
- { name: 'Metformin 500mg', class_ar: 'أدوية السكري', class_en: 'Antidiabetics', use_ar: 'سكري النوع 2', use_en: 'Type 2 Diabetes' },
- { name: 'Amoxicillin 500mg', class_ar: 'مضادات حيوية', class_en: 'Antibiotics', use_ar: 'التهابات بكتيرية', use_en: 'Bacterial infections' },
- { name: 'Omeprazole 20mg', class_ar: 'مثبطات البروتون', class_en: 'PPIs', use_ar: 'ارتجاع المريء + القرحة', use_en: 'GERD + Ulcers' },
- { name: 'Amlodipine 5mg', class_ar: 'حاصرات قنوات الكالسيوم', class_en: 'CCBs', use_ar: 'ارتفاع ضغط الدم', use_en: 'Hypertension' },
- { name: 'Lisinopril 10mg', class_ar: 'مثبطات ACE', class_en: 'ACE Inhibitors', use_ar: 'ارتفاع ضغط الدم + قصور القلب', use_en: 'HTN + Heart failure' },
- ];
-
- const INTERACTIONS = [
- { drug1: 'Metformin', drug2: 'Contrast Dye', severity_ar: 'خطير', severity_en: 'Severe', desc_ar: 'يجب إيقاف الميتفورمين 48h قبل الأشعة بالصبغة', desc_en: 'Stop metformin 48h before contrast imaging', color: '#F44336' },
- { drug1: 'Warfarin', drug2: 'Aspirin', severity_ar: 'عالي', severity_en: 'High', desc_ar: 'زيادة خطر النزيف', desc_en: 'Increased bleeding risk', color: '#FF9800' },
- { drug1: 'Lisinopril', drug2: 'Potassium', severity_ar: 'متوسط', severity_en: 'Moderate', desc_ar: 'ارتفاع البوتاسيوم في الدم', desc_en: 'Hyperkalemia risk', color: '#FF9800' },
- ];
-
- const ICD = [
- { code: 'J06.9', desc_ar: 'التهاب الجهاز التنفسي العلوي الحاد', desc_en: 'Acute upper respiratory infection' },
- { code: 'I10', desc_ar: 'ارتفاع ضغط الدم الأساسي', desc_en: 'Essential hypertension' },
- { code: 'E11.9', desc_ar: 'سكري النوع 2 بدون مضاعفات', desc_en: 'Type 2 diabetes without complications' },
- { code: 'K29.7', desc_ar: 'التهاب المعدة غير محدد', desc_en: 'Gastritis, unspecified' },
- { code: 'M54.5', desc_ar: 'ألم أسفل الظهر', desc_en: 'Low back pain' },
- ];
-
- return (
- <NScroll>
- <NHeader title={AR ? 'المرجع الطبي' : 'Medical Reference Library'} onBack={onBack} />
-
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.lg }}>
- {[{ k: 'drugs' as const, ar: 'الأدوية', en: 'Drugs' }, { k: 'interactions' as const, ar: 'التفاعلات', en: 'Interactions' }, { k: 'icd' as const, ar: 'رموز ICD', en: 'ICD Codes' }].map(t => (
- <TouchableOpacity key={t.k} onPress={() => setTab(t.k)}
- style={[{ flex: 1, paddingVertical: SP.md, borderRadius: R.lg, borderWidth: 1.5, alignItems: 'center' }, {
- backgroundColor: tab === t.k ? theme.primary : theme.surface2, borderColor: tab === t.k ? theme.primary : theme.border
- }]}>
- <Text style={{ color: tab === t.k ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>{AR ? t.ar : t.en}</Text>
- </TouchableOpacity>
- ))}
- </View>
-
- <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث...' : 'Search...'} style={{ marginBottom: SP.lg }} />
-
- {tab === 'drugs' && DRUGS.filter(d => d.name.toLowerCase().includes(search.toLowerCase())).map((drug, i) => (
- <NCard key={i} style={{ marginBottom: SP.sm }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{drug.name}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.primary, marginTop: 2 }}>{AR ? drug.class_ar : drug.class_en}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 2 }}>{AR ? drug.use_ar : drug.use_en}</Text>
- </NCard>
- ))}
-
- {tab === 'interactions' && INTERACTIONS.map((inter, i) => (
- <NCard key={i} style={{ marginBottom: SP.md }} accent={inter.color}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{inter.drug1} + {inter.drug2}</Text>
- <NBadge label={AR ? inter.severity_ar : inter.severity_en} variant={inter.color === '#F44336' ? 'danger' : 'warning'} size="xs" />
- </View>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? inter.desc_ar : inter.desc_en}</Text>
- </NCard>
- ))}
-
- {tab === 'icd' && ICD.filter(c => c.code.toLowerCase().includes(search.toLowerCase()) || c.desc_en.toLowerCase().includes(search.toLowerCase())).map((code, i) => (
- <NCard key={i} style={{ marginBottom: SP.sm }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
- <View style={{ backgroundColor: theme.primaryLight, paddingHorizontal: SP.md, paddingVertical: SP.xs, borderRadius: R.sm }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary }}>{code.code}</Text>
- </View>
- <Text style={{ flex: 1, fontSize: FS.sm, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? code.desc_ar : code.desc_en}</Text>
- </View>
- </NCard>
- ))}
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// 08. MASKED CALL
-// ══════════════════════════════════════════════════════════════════
-export function MaskedCall({ onBack, patientName, maskedNumber }: { onBack: () => void; patientName?: string; maskedNumber?: string }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [calling, setCalling] = useState(false);
- const [elapsed, setElapsed] = useState(0);
- const timerRef = useRef<any>(null);
- const pulseAnim = useRef(new Animated.Value(1)).current;
-
- useEffect(() => {
- if (calling) {
- timerRef.current = setInterval(() => setElapsed(p => p + 1), 1000);
- Animated.loop(Animated.sequence([
- Animated.timing(pulseAnim, { toValue: 1.1, duration: 800, useNativeDriver: true }),
- Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
- ])).start();
- }
- return () => { if (timerRef.current) clearInterval(timerRef.current); };
- }, [calling]);
-
- const fmt = (sec: number) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
-
- return (
- <NScroll>
- <NHeader title={AR ? 'اتصال مقنّع' : 'Masked Call'} onBack={onBack} />
-
- <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: SP.md }}>
- <I name="shield" size={16} color={theme.info} />
- <Text style={{ flex: 1, fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'الاتصال المقنّع يخفي رقمك الحقيقي. المريض يرى رقم نبضة بلس بدلاً من رقمك الشخصي.'
- : 'Masked calling hides your real number. Patient sees Nabdah Plus number instead of your personal number.'}
- </Text>
- </View>
- </NCard>
-
- <View style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
- <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
- <View style={{
- width: 140, height: 140, borderRadius: 70,
- backgroundColor: calling ? '#4CAF5015' : '#2196F315',
- borderWidth: 3, borderColor: calling ? '#4CAF50' : '#2196F3',
- alignItems: 'center', justifyContent: 'center',
- }}>
- <I name="phone" size={50} color={calling ? '#4CAF50' : '#2196F3'} />
- </View>
- </Animated.View>
-
- <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, marginTop: SP.xl }}>
- {calling ? (AR ? 'جاري المكالمة...' : 'Call in progress...') : (AR ? 'اتصال مقنّع' : 'Masked Call')}
- </Text>
- {calling && <Text style={{ fontSize: FS['2xl'], fontWeight: FW.xbold, color: '#4CAF50', marginTop: SP.md }}>{fmt(elapsed)}</Text>}
-
- <Text style={{ fontSize: FS.md, color: theme.textSub, marginTop: SP.md }}>
- {patientName ? (AR ? `المريض: ${patientName}` : `Patient: ${patientName}`) : (AR ? 'اختر المريض من الطلب لبدء الاتصال' : 'Select a patient from the order to call')}
- </Text>
- {maskedNumber ? (
- <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
- {AR ? `الرقم المعروض: ${maskedNumber}` : `Displayed: ${maskedNumber}`}
- </Text>
- ) : null}
- </View>
-
- <View style={{ gap: SP.md }}>
- {!calling ? (
- <NBtn label={AR ? 'بدء الاتصال المقنّع' : 'Start Masked Call'}
- onPress={() => { setCalling(true); show(AR ? 'جاري الاتصال...' : 'Calling...', 'info'); }} />
- ) : (
- <NBtn label={AR ? 'إنهاء المكالمة' : 'End Call'} variant="danger"
- onPress={() => { setCalling(false); clearInterval(timerRef.current); show(AR ? `انتهت المكالمة — المدة: ${fmt(elapsed)}` : `Call ended — ${fmt(elapsed)}`, 'success'); setElapsed(0); }} />
- )}
- </View>
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// 09. QR CODE SYSTEM — Generate + Scan
-// ══════════════════════════════════════════════════════════════════
-export function QRCodeSystem({ onBack }: { onBack: () => void; providerType?: string; providerId?: string }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
-
- return (
- <NScroll>
- <NHeader title={AR ? 'نظام QR الموحد' : 'QR Code System'} onBack={onBack} />
-
- <NCard style={{ alignItems: 'center', padding: SP.xxl, marginBottom: SP.xl }}>
- <View style={{ width: 120, height: 120, borderRadius: R.xl, borderWidth: 2, borderColor: theme.border, alignItems: 'center', justifyContent: 'center' }}>
- <I name="shield-alert" size={48} color={theme.textSub} />
- </View>
- <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, marginTop: SP.xl, textAlign: 'center' }}>
- {AR ? 'التحقق عبر QR غير متاح حالياً' : 'QR verification is not currently available'}
- </Text>
- <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: SP.md, textAlign: 'center', lineHeight: 22 }}>
- {AR
-   ? 'لا يمكن إنشاء أو مسح رمز صحي قبل تفعيل عقد تحقق آمن وموافقة المريض وتدقيق الوصول.'
-   : 'Health QR generation and scanning require a secure verification, patient-consent, and access-audit contract before they can be enabled.'}
- </Text>
- </NCard>
- </NScroll>
- );
-}
-
-// ══════════════════════════════════════════════════════════════════
-// 10. STATISTICS & REPORTS
-// ══════════════════════════════════════════════════════════════════
-export function StatisticsReports({ onBack, providerType }: { onBack: () => void; providerType?: string }) {
- const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
-
- const [dataCache, setDataCache] = useState<any>({
-    week: { revenue: 0, orders: 0, rating: 0, growth: 0 },
-    month: { revenue: 0, orders: 0, rating: 0, growth: 0 },
-    year: { revenue: 0, orders: 0, rating: 0, growth: 0 },
-  });
-
-  useEffect(() => {
-    client.get(`/provider/dashboard/stats?period=${period}`)
-      .then(res => {
-        const data = res.data;
-        setDataCache((prev: any) => ({
-          ...prev,
-          [period]: {
-            revenue: data.revenue || 0,
-            orders: data.todayCount || data.orders || 0,
-            rating: data.rating || 4.7,
-            growth: data.growth || 0
-          }
-        }));
-      })
-      .catch(() => setDataCache(prev => ({
-        ...prev,
-        [period]: { revenue: 4200, orders: 28, rating: 4.7, growth: 12 }
-      })));
-  }, [period]);
-
-  const d = dataCache[period];
-
- const BARS = [42, 58, 71, 63, 88, 95, 80, 110, 98, 76, 120, 105];
- const maxB = Math.max(...BARS);
-
- return (
- <NScroll>
-  <NHeader title={AR ? 'الإحصائيات والتقارير' : 'Statistics & Reports'} onBack={onBack} />
-
-  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.xl }}>
-  {[{ k: 'week', ar: 'أسبوع', en: 'Week' }, { k: 'month', ar: 'شهر', en: 'Month' }, { k: 'year', ar: 'سنة', en: 'Year' }].map(p => (
-  <TouchableOpacity key={p.k} onPress={() => setPeriod(p.k as any)}
-  style={[{ flex: 1, paddingVertical: SP.md, borderRadius: R.lg, borderWidth: 1.5, alignItems: 'center' }, {
-  backgroundColor: period === p.k ? theme.primary : theme.surface2, borderColor: period === p.k ? theme.primary : theme.border
-  }]}>
-  <Text style={{ color: period === p.k ? '#FFF' : theme.text, fontWeight: FW.semi }}>{AR ? p.ar : p.en}</Text>
-  </TouchableOpacity>
-  ))}
-  </View>
-
-  {/* KPIs */}
-  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
-  <NStatCard icon="◈" label={AR ? 'الإيرادات' : 'Revenue'} value={d.revenue.toLocaleString()} unit={AR ? 'ر' : 'SAR'} color="#4CAF50" style={{ width: '47%' }} />
-  <NStatCard icon="◔" label={AR ? 'الطلبات' : 'Orders'} value={String(d.orders)} color="#2196F3" style={{ width: '47%' }} />
-  <NStatCard icon="" label={AR ? 'التقييم' : 'Rating'} value={String(d.rating)} color="#FFC107" style={{ width: '47%' }} />
-  <NStatCard icon="↗" label={AR ? 'النمو' : 'Growth'} value={`${d.growth}%`} color="#E91E63" style={{ width: '47%' }} />
-  </View>
-
-  {/* Revenue chart */}
-  <NCard style={{ marginBottom: SP.xl }}>
-  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.lg, textAlign: AR ? 'right' : 'left' }}>
-  {AR ? 'مؤشر الإيرادات الشهرية' : 'Monthly Revenue Trend'}
-  </Text>
-  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-  <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: SP.sm, height: 120 }}>
-  {BARS.map((val, i) => (
-  <View key={i} style={{ alignItems: 'center', width: 36 }}>
-  <View style={{ width: 28, height: Math.max(8, (val / maxB) * 100), backgroundColor: theme.primary, borderRadius: 6, opacity: 0.85 }} />
-  <Text style={{ fontSize: 9, color: theme.textSub, marginTop: 4 }}>
-  {['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}
-  </Text>
-  </View>
-  ))}
-  </View>
-  </ScrollView>
-  </NCard>
-
-  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-  <View style={{ flex: 1 }}><NBtn label={AR ? 'تصدير PDF' : 'Export PDF'} variant="outline" onPress={() => show(AR ? 'جاري إنشاء التقرير' : 'Generating report', 'info')} /></View>
-  <View style={{ flex: 1 }}><NBtn label={AR ? 'تصدير Excel' : 'Export Excel'} variant="secondary" onPress={() => show(AR ? 'جاري التصدير' : 'Exporting', 'info')} /></View>
-  </View>
   </NScroll>
   );
 }
@@ -870,8 +462,6 @@ export function StatisticsReports({ onBack, providerType }: { onBack: () => void
 // ══════════════════════════════════════════════════════════════════
 export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
- const [autoReply, setAutoReply] = useState(false);
- const [replyTemplate, setReplyTemplate] = useState(AR ? 'شكراً لتقييمك الكريم! نسعى دائماً لخدمتك بأفضل صورة.' : 'Thank you for your feedback! We always strive to serve you better.');
  const [reviews, setReviews] = useState<any[]>([]);
  const [loadingReviews, setLoadingReviews] = useState(true);
  const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -885,7 +475,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  }, []);
 
  const handleReply = async (id: string) => {
- const text = (replyText || replyTemplate).trim();
+ const text = replyText.trim();
  if (!text) return;
  try {
  await client.post(`/provider/reviews/${id}/reply`, { reply: text });
@@ -910,16 +500,6 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  <Text style={{ fontSize: 48, fontWeight: FW.xbold, color: theme.primary }}>{avg}</Text>
  <RatingStars rating={parseFloat(avg)} size={22} />
  <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: SP.sm }}>{reviews.length} {AR ? 'تقييم' : 'reviews'}</Text>
- </NCard>
-
- {/* Auto-reply */}
- <NCard style={{ marginBottom: SP.xl }}>
- <NToggle label={AR ? 'ردود تلقائية على التقييمات' : 'Auto-Reply to Reviews'}
- sub={AR ? 'رد تلقائي على كل تقييم جديد' : 'Auto-reply to every new review'}
- value={autoReply} onChange={v => { setAutoReply(v); show(v ? (AR ? 'تم التفعيل' : 'Enabled') : (AR ? 'تم التعطيل' : 'Disabled'), 'success'); }} />
- {autoReply && (
- <NInput label={AR ? 'نص الرد التلقائي' : 'Auto-Reply Template'} value={replyTemplate} onChange={setReplyTemplate} multi lines={3} style={{ marginTop: SP.lg }} />
- )}
  </NCard>
 
  {/* Reviews */}
@@ -1594,7 +1174,6 @@ export function MedicalJobsScreen({ onBack, onOpenChat }: { onBack: () => void, 
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{AR ? 'رقم التواصل' : 'Phone'}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.phone}</Text></View>
           </View>
 
-          <NBtn label={AR ? 'تنزيل السيرة الذاتية (Download CV)' : 'Download CV'} onPress={() => show(AR ? 'جاري تحميل السيرة الذاتية...' : 'Downloading CV...', 'success')} style={{ marginTop: SP.lg }} />
           <NBtn label={AR ? 'تواصل مع المتقدم عبر واتساب' : 'Contact via WhatsApp'} variant="outline" onPress={() => Linking.openURL(`whatsapp://send?phone=${selectedApp.phone}`)} style={{ borderColor: '#4CAF50' }} />
         </ScrollView>
       </View>

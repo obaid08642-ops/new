@@ -23,7 +23,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
  View, Text, TouchableOpacity, ScrollView, StyleSheet,
  Animated, FlatList, Dimensions, Switch, Platform, Alert, Vibration,
- ActivityIndicator, TextInput
+ ActivityIndicator, TextInput, Linking
 } from 'react-native';
 import { useTheme, useLang, useToast } from '../../context';
 import client from '../../api/client';
@@ -233,6 +233,16 @@ export function ProfileWebConfig({ onBack }: { onBack: () => void }) {
  {publicUrl && <NCard style={{ backgroundColor: theme.primaryLight, borderColor: theme.primary }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
  <Text style={{ flex: 1, fontSize: FS.sm, color: theme.primary, fontWeight: FW.bold }}>{publicUrl}</Text>
+ <TouchableOpacity onPress={async () => {
+   try {
+     const { Share } = await import('react-native');
+     await Share.share({ message: publicUrl });
+   } catch {
+     show(AR ? 'تعذر المشاركة' : 'Could not share', 'error');
+   }
+ }} style={{ padding: SP.sm }}>
+ <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'مشاركة' : 'Share'}</Text>
+ </TouchableOpacity>
  </View>
  </NCard>}
  <NBtn label={AR ? ' حفظ التعديلات' : ' Save Settings'} loading={saving} onPress={handleSave} />
@@ -363,7 +373,14 @@ export function AffiliatePortal({ onBack }: { onBack: () => void }) {
  {loadingDash ? '…' : (dash?.code || '—')}
  </Text>
  {!!dash?.code && (
- <NBtn label={AR ? ' نسخ الكود' : ' Copy Code'} variant="outline" onPress={() => show(AR ? 'تم النسخ' : 'Copied', 'success')} />
+ <NBtn label={AR ? ' مشاركة الكود' : ' Share Code'} variant="outline" onPress={async () => {
+   try {
+     const { Share } = await import('react-native');
+     await Share.share({ message: dash.code });
+   } catch {
+     show(AR ? 'تعذر المشاركة' : 'Could not share', 'error');
+   }
+ }} />
  )}
  </NCard>
 
@@ -408,64 +425,39 @@ export function AffiliatePortal({ onBack }: { onBack: () => void }) {
 export function ReputationHub({ onBack }) {
  const { theme } = useTheme();
  const { lang } = useLang();
+ const { show } = useToast();
  const AR = lang === 'ar';
-
+ const [reviews, setReviews] = useState<any[]>([]);
+ const [loading, setLoading] = useState(true);
+ useEffect(() => {
+   client.get('/provider/reviews').then(r => setReviews(Array.isArray(r.data) ? r.data : [])).catch(() => {
+     show(AR ? 'تعذر تحميل التقييمات' : 'Could not load reviews', 'error');
+   }).finally(() => setLoading(false));
+ }, []);
+ const avg = reviews.length ? (reviews.reduce((a: number, r: any) => a + (Number(r.rating) || 0), 0) / reviews.length) : 0;
+ const replied = reviews.filter((r: any) => r.reply).length;
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
  <NHeader title={AR ? 'لوحة السمعة والتقييمات' : 'Reputation & Ratings'} onBack={onBack} />
  <View style={{ padding: SP.xl, gap: SP.xl }}>
- 
- <NCard style={{ alignItems: 'center', backgroundColor: '#EDE9FE', borderColor: '#7C3AED', borderWidth: 2, paddingVertical: SP.xxl }}>
- <I name="lab" size={50} color="#7C3AED" />
- <Text style={{ fontSize: FS['2xl'], fontWeight: FW.bold, color: '#7C3AED', marginTop: SP.md }}>
- {AR ? 'المستوى الذهبي' : 'Gold Tier Level'}
- </Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>
- {AR ? 'أنت ضمن أفضل 5% من مقدمي الخدمة في منطقتك' : 'Top 5% providers in your active zone'}
- </Text>
+ {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : reviews.length === 0 ? (
+ <NEmpty icon="star" title={AR ? 'لا توجد تقييمات بعد' : 'No reviews yet'} sub={AR ? 'ستظهر تقييمات المرضى هنا فور وصولها' : 'Patient reviews will appear here'} />
+ ) : (<>
+ <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
+ <Text style={{ fontSize: FS['2xl'], fontWeight: FW.bold, color: theme.primary }}>{avg.toFixed(1)}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>{reviews.length} {AR ? 'تقييم' : 'reviews'}</Text>
  </NCard>
-
- <NSecHeader title={AR ? 'مؤشرات مستوى الخدمة (SLA)' : 'SLA Performance Indicators'} />
- 
- <NCard style={{ gap: SP.lg }}>
- <View>
+ <NCard>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.xs }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'معدل الاستجابة السريع' : 'Response Compliance Rate'}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.success, fontWeight: FW.bold }}>98%</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'نسبة الرد على التقييمات' : 'Review reply rate'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.success, fontWeight: FW.bold }}>{Math.round((replied / reviews.length) * 100)}%</Text>
  </View>
  <View style={{ height: 8, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
- <View style={{ width: '98%' as any, height: '100%', backgroundColor: theme.success }} />
- </View>
- </View>
-
- <View>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.xs }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'معدل قبول الطلبات' : 'Order Acceptance Rate'}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.success, fontWeight: FW.bold }}>94%</Text>
- </View>
- <View style={{ height: 8, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
- <View style={{ width: '94%' as any, height: '100%', backgroundColor: theme.success }} />
- </View>
- </View>
-
- <View>
- <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.xs }}>
- <Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? 'نسبة استكمال المواعيد' : 'Completion Rate'}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.warn, fontWeight: FW.bold }}>88%</Text>
- </View>
- <View style={{ height: 8, backgroundColor: theme.surface3, borderRadius: R.full, overflow: 'hidden' }}>
- <View style={{ width: '88%' as any, height: '100%', backgroundColor: theme.warn }} />
- </View>
+ <View style={{ width: `${Math.round((replied / reviews.length) * 100)}%` as any, height: '100%', backgroundColor: theme.success }} />
  </View>
  </NCard>
-
- <NCard style={{ backgroundColor: theme.infoBg, borderColor: theme.info }}>
- <Text style={{ fontSize: FS.xs, color: theme.info, lineHeight: 18, textAlign: AR ? 'right' : 'left' }}>
- {AR ? 'تحذير: هبوط نسبة القبول عن 80% قد يؤدي تلقائياً لخفض ترتيبك في محركات بحث المرضى.' 
- : 'Warning: Dropping below 80% acceptance decreases search engine visibility for patients.'}
- </Text>
- </NCard>
+ </>)}
  </View>
  </NScroll>
  </View>
@@ -1215,6 +1207,15 @@ export function GpsRouterScreen({ patient, onBack }: { patient: any; onBack: () 
 
  const confirmArrival = async () => {
    try { watchSub?.remove?.(); } catch {}
+   if (emergencyId) {
+     try {
+       const Location = require('expo-location');
+       const pos = await Location.getCurrentPositionAsync({}).catch(() => null);
+       await client.post(`/emergency/${emergencyId}/track`, {
+         lat: pos?.coords?.latitude, lng: pos?.coords?.longitude, arrived: true,
+       });
+     } catch { /* arrival best-effort; trip positions already streamed */ }
+   }
    show(AR ? 'تم تسجيل الوصول للمريض بنجاح' : 'Arrival logged', 'success');
    onBack();
  };
@@ -1284,10 +1285,26 @@ export function NurseVisitConsole({ onBack, onNavigate }: { onBack: () => void; 
 }
 
 export function NurseChecklistConsole({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme();
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    client.get('/provider/nursing/checklist').then(r => setItems(Array.isArray(r.data) ? r.data : [])).catch(() => {
+      show(AR ? 'تعذر تحميل القائمة' : 'Could not load checklist', 'error');
+    }).finally(() => setLoading(false));
+  }, []);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title="Nurse Checklist Console" onBack={onBack} />
+      <NHeader title={AR ? 'قائمة مهام التمريض' : 'Nurse Checklist Console'} onBack={onBack} />
+      <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
+        {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : items.length === 0 ? (
+          <NEmpty icon="checklist" title={AR ? 'لا توجد مهام' : 'No tasks'} sub={AR ? 'لا توجد عناصر في القائمة' : 'Checklist is empty'} />
+        ) : items.map((it: any, i: number) => (
+          <NCard key={String(it.id || i)} style={{ marginBottom: SP.sm }}>
+            <Text style={{ color: theme.text }}>{it.title || it.name || it.label || String(it.id || '')}</Text>
+          </NCard>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -1302,8 +1319,10 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
   const [quote, setQuote] = useState<any>(null);
   const [loadingCatalog, setLoadingCatalog] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [providerNote, setProviderNote] = useState('');
   const orderId = broadcast?.order_id;
   const items = Array.isArray(broadcast?.items) ? broadcast.items : [];
+  const attachments = Array.isArray((broadcast as any)?.attachments) ? (broadcast as any).attachments : [];
 
   const loadCatalog = useCallback(async () => {
     if (!orderId || !items.length) return;
@@ -1326,12 +1345,14 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
 
   const offerItems = () => items.map((item: any) => {
     const choice = choices[item.order_item_id] || { availability: 'unavailable' };
+    const override = Number(choice.unit_price_override);
     return {
       order_item_id: item.order_item_id,
       availability: choice.availability,
       qty_offered: choice.qty_offered,
       inventory_item_id: choice.availability === 'available' ? choice.inventory_item_id : undefined,
       substitute_inventory_item_id: choice.availability === 'substitute' ? choice.inventory_item_id : undefined,
+      ...(Number.isFinite(override) && override > 0 ? { unit_price_override: override } : {}),
     };
   });
 
@@ -1355,7 +1376,7 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
     }
     setBusy(true);
     try {
-      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems() });
+      const draft = await client.post(`/provider/pharmacy/broadcasts/${orderId}/offers/draft`, { items: offerItems(), ...(providerNote.trim() ? { provider_note: providerNote.trim().slice(0, 500) } : {}) });
       setQuote({ ...quote, draft: draft.data });
       show(AR ? 'حُفظت مسودة العرض؛ السعر والمخزون حددهما الخادم' : 'Offer draft saved; price and stock came from the server.', 'success');
     } catch (error: any) {
@@ -1385,6 +1406,11 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
       <NHeader title={AR ? 'مؤلف عرض صيدلية' : 'Pharmacy offer composer'} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: SP.xxl, gap: SP.md }}>
         <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? `بث #${orderId.slice(-6)}` : `Broadcast #${orderId.slice(-6)}`}</Text><Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? 'اختر فقط عناصر من كتالوج الصيدلية. لا تُدخل الأسعار أو رسوم التوصيل أو وقت الوصول يدوياً.' : 'Bind only pharmacy catalog items. Prices, delivery fees, and ETA are never entered here.'}</Text></NCard>
+        {attachments.length > 0 && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'مرفقات الوصفة' : 'Prescription attachments'}</Text>{attachments.map((a: any, i: number) => (
+          <TouchableOpacity key={i} onPress={() => a?.uri && Linking.openURL(a.uri)}>
+            <Text style={{ color: theme.primary }}>{a?.type === 'pdf' ? '📄' : '🖼️'} {AR ? 'فتح المرفق' : 'Open attachment'} {i + 1}</Text>
+          </TouchableOpacity>
+        ))}</NCard>}
         {loadingCatalog && <ActivityIndicator color={theme.primary} />}
         {items.map((item: any) => {
           const selected = choices[item.order_item_id] || { availability: 'unavailable' };
@@ -1398,10 +1424,12 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
               <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{AR ? 'اختر عنصر الكتالوج الذي سيتحقق منه الخادم:' : 'Choose a catalog item for server validation:'}</Text>
               {options.map((stock: any) => <TouchableOpacity key={stock.id} onPress={() => { setChoices(prev => ({ ...prev, [item.order_item_id]: { availability: selected.availability, inventory_item_id: stock.id, qty_offered: Math.min(Number(item.qty_requested || 1), Number(stock.stock || 0)) } })); setQuote(null); }} style={{ padding: SP.sm, borderWidth: 1, borderRadius: R.md, borderColor: selected.inventory_item_id === stock.id ? theme.primary : theme.border }}><Text style={{ color: theme.text }}>{stock.name_ar || stock.name_en || stock.sku} · {AR ? 'المتاح' : 'Stock'}: {stock.stock}</Text></TouchableOpacity>)}
               {selected.inventory_item_id && <NInput label={AR ? 'الكمية المقدمة' : 'Quantity offered'} value={String(selected.qty_offered || '')} kbType="number-pad" onChange={(value: string) => { const max = Number((options.find((stock: any) => stock.id === selected.inventory_item_id) || {}).stock || 0); const qty = Math.max(1, Math.min(Number(item.qty_requested || 1), max, Number(value || 0))); setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], qty_offered: qty } })); setQuote(null); }} />}
+              {selected.inventory_item_id && <NInput label={AR ? 'سعر مخصص (اختياري)' : 'Custom price (optional)'} value={selected.unit_price_override ? String(selected.unit_price_override) : ''} kbType="number-pad" onChange={(value: string) => { setChoices(prev => ({ ...prev, [item.order_item_id]: { ...prev[item.order_item_id], unit_price_override: value } })); setQuote(null); }} />}
             </>}
           </NCard>;
         })}
         <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'التسليم' : 'Fulfillment'}</Text><Text style={{ color: theme.textSub }}>{AR ? 'لا توجد سياسة تسليم خادمية مفعّلة حالياً؛ لذلك لا يُقبل خيار أو رسوم أو ETA من الواجهة.' : 'No server delivery policy is active; the interface cannot set an option, fee, or ETA.'}</Text></NCard>
+        <NCard><NInput label={AR ? 'ملاحظة للمريض (اختياري)' : 'Note for patient (optional)'} value={providerNote} onChange={(v: string) => setProviderNote(v.slice(0, 500))} multi multiline lines={2} maxLen={500} /></NCard>
         {quote && <NCard><Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? 'معاينة خادمية' : 'Server quote preview'}</Text><Text style={{ color: theme.text }}>{AR ? `الإجمالي: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}` : `Total: ${quote.totals?.total ?? '—'} ${quote.totals?.currency ?? ''}`}</Text><Text style={{ color: theme.textSub }}>{AR ? `صالحة للمسودة لمدة ${quote.quote_ttl_seconds ?? 600} ثانية` : `Draft quote TTL: ${quote.quote_ttl_seconds ?? 600} seconds`}</Text><Text style={{ color: theme.textSub }}>{quote.fulfillment?.policy_status === 'unavailable_read_only' ? (AR ? 'سياسة التسليم غير متاحة للقراءة فقط.' : 'Delivery policy unavailable (read-only).') : ''}</Text></NCard>}
         <NBtn label={busy ? (AR ? 'جارٍ المعالجة…' : 'Working…') : (AR ? 'معاينة خادمية' : 'Server quote preview')} disabled={busy} onPress={preview} />
         <NBtn label={AR ? 'حفظ المسودة' : 'Save draft'} variant="secondary" disabled={busy || !quote} onPress={saveDraft} />
@@ -1412,10 +1440,30 @@ export function PharmacyBroadcastResponse({ onBack, broadcast }: { onBack: () =>
 }
 
 export function InventoryExpiryMonitor({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme();
+  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    client.get('/pharmacy/inventory/expiry').then(r => {
+      const d = r?.data;
+      setItems(Array.isArray(d?.expiringSoon) ? d.expiringSoon : Array.isArray(d) ? d : []);
+    }).catch(() => {
+      show(AR ? 'تعذر تحميل الأصناف' : 'Could not load items', 'error');
+    }).finally(() => setLoading(false));
+  }, []);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title="Inventory Expiry Monitor" onBack={onBack} />
+      <NHeader title={AR ? 'مراقبة الصلاحية' : 'Inventory Expiry Monitor'} onBack={onBack} />
+      <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
+        {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : items.length === 0 ? (
+          <NEmpty icon="calendar" title={AR ? 'لا أصناف قريبة الانتهاء' : 'No expiring items'} />
+        ) : items.map((it: any, i: number) => (
+          <NCard key={String(it.id || it.sku || i)} style={{ marginBottom: SP.sm }}>
+            <Text style={{ color: theme.text, fontWeight: FW.bold }}>{it.name_ar || it.name_en || it.sku || ''}</Text>
+            <Text style={{ color: theme.warn, fontSize: FS.xs }}>{it.expiry_date || it.expiry || ''}</Text>
+          </NCard>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -1496,7 +1544,7 @@ export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => v
                 <NBtn label={AR ? 'بدء التحليل' : 'Start Analysis'} size="sm" disabled={busy} onPress={() => startAnalysis(sam)} style={{ flex: 1 }} />
               )}
               {sam.stage === 'analyzing' && onNavigate && (
-                <NBtn label={AR ? 'إدخال النتائج' : 'Enter Results'} size="sm" disabled={busy} onPress={() => onNavigate('result_entry', sam)} style={{ flex: 1 }} />
+                <NBtn label={AR ? 'إدخال النتائج' : 'Enter Results'} size="sm" disabled={busy} onPress={() => onNavigate('sample_tracking', sam)} style={{ flex: 1 }} />
               )}
             </View>
           </NCard>

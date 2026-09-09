@@ -29,7 +29,6 @@ import { useServicesCatalog } from '../../api/catalogs';
 import { VideoCallRoom } from '../shared/VideoCallRoom';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen, StatisticsReports, GlobalSystemSettings, ChatSystem, MediaConfigScreen } from '../shared/SharedScreens';
-import { DoctorHeader } from './components/DoctorHeader';
 import { DoctorStatsRow } from './components/DoctorStatsRow';
 import { DoctorUrgentRequests } from './components/DoctorUrgentRequests';
 import { DoctorQueueList } from './components/DoctorQueueList';

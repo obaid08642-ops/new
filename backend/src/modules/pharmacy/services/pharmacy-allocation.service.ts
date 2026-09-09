@@ -331,6 +331,13 @@ export class PharmacyAllocationService {
     await this.notif.notifyPatientAllocationProgress(a);
     await this.bus.emit({ type: 'allocation.updated', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: 'transition_to_delivered', before: { status: fromStatus }, after: { status: a.status }, meta: { order_id: a.order_id } });
     await this.settleDeliveredAllocation(a, isCod);
+    // Delivery is payment-gated upstream (assertFulfillmentAuthorized), so a
+    // delivered allocation completes its order: DELIVERED -> COMPLETED.
+    await this.refreshOrderAfterAllocationChange(a.order_id);
+    await this.orders.updateOne({ id: a.order_id, status: PharmacyOrderState.DELIVERED }, {
+      $set: { status: PharmacyOrderState.COMPLETED },
+      $push: { timeline: { ts: new Date(), event: 'order_completed', by: user.id } },
+    }).catch(() => null);
     return a.toObject();
   }
 
