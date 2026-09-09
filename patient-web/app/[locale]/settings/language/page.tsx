@@ -17,7 +17,7 @@ export default async function SettingsLanguagePage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`}>
-      <Link className={styles.back} href={`/${locale}/settings`}>
+      <Link href={`/${locale}/settings`}>
         {ar ? "الإعدادات" : "Settings"}
       </Link>
       <section className={styles.hero}>

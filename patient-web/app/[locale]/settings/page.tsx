@@ -38,6 +38,9 @@ export default async function SettingsPage({ params }: Props) {
       <nav aria-label={t("title")} style={{ display: "flex", gap: 8, marginTop: 12 }}>
         <Link href={`/${locale}/settings/language`}>{locale === "ar" ? "اللغة" : "Language"}</Link>
         <Link href={`/${locale}/settings/notifications`}>{locale === "ar" ? "الإشعارات" : "Notifications"}</Link>
+        <Link href={`/${locale}/settings/about`}>{locale === "ar" ? "عن التطبيق" : "About"}</Link>
+        <Link href={`/${locale}/settings/help`}>{locale === "ar" ? "المساعدة" : "Help"}</Link>
+        <Link href={`/${locale}/settings/feedback`}>{locale === "ar" ? "رأيك" : "Feedback"}</Link>
       </nav>
     </section>
     <section className={styles.grid}>

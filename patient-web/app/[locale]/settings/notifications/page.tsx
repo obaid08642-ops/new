@@ -46,7 +46,7 @@ export default async function SettingsNotificationsPage({ params }: Props) {
 
   return (
     <main className={`main ${styles.page}`}>
-      <Link className={styles.back} href={`/${locale}/settings`}>
+      <Link href={`/${locale}/settings`}>
         {ar ? "الإعدادات" : "Settings"}
       </Link>
       <section className={styles.hero}>
