@@ -81,6 +81,8 @@ export default async function InsurancePage({ params }: Props) {
         <Link href={`/${locale}/insurance/coverage-check`}>{locale === "ar" ? "فحص التغطية" : "Coverage check"}</Link>
         <Link href={`/${locale}/insurance/network-providers`}>{locale === "ar" ? "مزودو الشبكة" : "Network providers"}</Link>
         <Link href={`/${locale}/insurance/benefits`}>{locale === "ar" ? "المزايا" : "Benefits"}</Link>
+        <Link href={`/${locale}/insurance/policy-detail`}>{locale === "ar" ? "تفاصيل الوثيقة" : "Policy details"}</Link>
+        <Link href={`/${locale}/insurance/refunds`}>{locale === "ar" ? "الاسترداد" : "Refunds"}</Link>
       </nav>
 
       <section className={styles.grid}>
