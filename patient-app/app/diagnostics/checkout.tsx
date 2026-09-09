@@ -4,6 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } fro
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
+import { dateLocaleFor } from '../../src/utils/dates';
 import { useDiagnosticsCart } from '../../src/context/DiagnosticsCartContext';
 import { AppText } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
@@ -14,7 +15,7 @@ const TIMES = ['09:00', '10:30', '12:00', '14:00', '15:30', '17:00'];
 
 export default function DiagnosticsCheckoutScreen() {
   const insets = useSafeAreaInsets();
-  const { isDark } = useApp() as any;
+  const { isDark, lang } = useApp() as any;
   const colors = isDark ? darkColors : lightColors;
   const params = useLocalSearchParams<{ serviceType?: string; labId?: string; labName?: string }>();
   const location = params.serviceType === 'clinic' ? 'clinic' : 'home';
@@ -32,7 +33,7 @@ export default function DiagnosticsCheckoutScreen() {
       const d = new Date(now);
       d.setDate(now.getDate() + i);
       out.push({
-        label: new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { weekday: 'long', day: 'numeric', month: 'numeric' }).format(d),
+        label: new Intl.DateTimeFormat(dateLocaleFor(lang), { weekday: 'long', day: 'numeric', month: 'numeric' }).format(d),
         iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
       });
     }

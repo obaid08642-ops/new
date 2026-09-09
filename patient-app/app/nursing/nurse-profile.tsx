@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions, Modal, TouchableWithoutFeedback, I18nManager, Alert } from 'react-native';
 import { useApp } from '../../src/context/AppContext';
+import { dateLocaleFor } from '../../src/utils/dates';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,7 +26,7 @@ const Icons = {
 export default function NursingMegaProfile() {
   const router = useRouter();
   const { colors, isDark, lang } = useApp() as any;
-  const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
+  const localeTag = dateLocaleFor(lang);
   const { nurseId, flow, serviceId } = useLocalSearchParams();
   
   // Data

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useApp } from "../../src/context/AppContext";
+import { dateLocaleFor } from "../../src/utils/dates";
 import { resolveColor, darkColors, lightColors } from "../../src/theme/colors";
 import { apiFetch } from "../../src/utils/api";
 import { pickLocalized } from '../../src/utils/localize';
@@ -19,6 +20,7 @@ import { LocalizedText } from '../../src/components/LocalizedText';
 export default function VirtualWaitingRoomScreen() {
   const { appointmentId } = useLocalSearchParams();
   const { isDark, lang } = useApp() as any;
+  const localeTag = dateLocaleFor(lang);
   const colors = isDark ? darkColors : lightColors;
   const isRTL = lang === "ar" || lang === "ur";
 
@@ -173,7 +175,9 @@ export default function VirtualWaitingRoomScreen() {
           دورك بعد
         </LocalizedText>
         <LocalizedText style={{ fontSize: 40, fontWeight: "900", color: "#fff" }}>
-          {data?.wait_time ? `٠${data.wait_time}:٠٠` : '٠٢:٣٠'}
+          {Number.isFinite(Number(data?.wait_time))
+            ? new Intl.NumberFormat(localeTag, { minimumIntegerDigits: 2, useGrouping: false }).format(Number(data.wait_time))
+            : '—'}
         </LocalizedText>
         <LocalizedText
           style={{ fontSize: 10, color: "rgba(255,255,255,.5)", marginTop: 6 }}

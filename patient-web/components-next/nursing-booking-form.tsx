@@ -6,15 +6,22 @@ import { useRouter } from "next/navigation";
 export type BookingService = { id: string; name: string; price?: number };
 export type BookingAddress = { id: string; label: string };
 
-function nextDays(count: number): Array<{ iso: string; label: string }> {
+function nextDays(count: number, locale: string): Array<{ iso: string; label: string }> {
   const out: Array<{ iso: string; label: string }> = [];
+  // Gregorian by default; Hijri automatically when the device uses it.
+  let calendar = "gregory";
+  try {
+    const deviceCal = Intl.DateTimeFormat().resolvedOptions().calendar || "";
+    if (/islamic|hijri/i.test(deviceCal)) calendar = "islamic-umalqura";
+  } catch {}
+  const tag = `${locale === "ar" ? "ar-SA" : "en-US"}-u-ca-${calendar}`;
   const now = new Date();
   for (let i = 0; i < count; i++) {
     const d = new Date(now);
     d.setDate(now.getDate() + i);
     out.push({
       iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-      label: new Intl.DateTimeFormat(undefined, { weekday: "long", day: "numeric", month: "numeric" }).format(d),
+      label: new Intl.DateTimeFormat(tag, { weekday: "long", day: "numeric", month: "numeric" }).format(d),
     });
   }
   return out;
@@ -32,7 +39,7 @@ export function NursingBookingForm({
   addresses: BookingAddress[];
 }) {
   const router = useRouter();
-  const days = useMemo(() => nextDays(7), []);
+  const days = useMemo(() => nextDays(7, locale), [locale]);
   const [serviceId, setServiceId] = useState(services[0]?.id || "");
   const [day, setDay] = useState(days[0]?.iso || "");
   const [time, setTime] = useState<string | null>(null);

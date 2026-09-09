@@ -19,13 +19,20 @@ export function DiagnosticsCheckoutForm({
   const router = useRouter();
   const days = useMemo(() => {
     const out: Array<{ iso: string; label: string }> = [];
+    // Gregorian by default; Hijri automatically when the device uses it.
+    let calendar = "gregory";
+    try {
+      const deviceCal = Intl.DateTimeFormat().resolvedOptions().calendar || "";
+      if (/islamic|hijri/i.test(deviceCal)) calendar = "islamic-umalqura";
+    } catch {}
+    const tag = `${locale === "ar" ? "ar-SA" : "en-US"}-u-ca-${calendar}`;
     const now = new Date();
     for (let i = 0; i < 7; i++) {
       const d = new Date(now);
       d.setDate(now.getDate() + i);
       out.push({
         iso: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-        label: new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", {
+        label: new Intl.DateTimeFormat(tag, {
           weekday: "long",
           day: "numeric",
           month: "numeric",

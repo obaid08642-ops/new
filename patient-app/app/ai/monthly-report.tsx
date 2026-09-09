@@ -11,6 +11,7 @@ import {
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../../src/context/AppContext';
+import { dateLocaleFor } from '../../src/utils/dates';
 import { Icon } from '../../src/components/Icon';
 import { AppText, IconButton } from '../../src/components/ui';
 import { apiFetch } from '../../src/utils/api';
@@ -21,7 +22,7 @@ import { appointmentStart, parseReportCollection } from '../../src/utils/monthly
 export default function MonthlyReportScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark, lang } = useApp() as any;
-  const localeTag = lang === 'ar' ? 'ar-SA' : lang === 'ur' ? 'ur-PK' : lang === 'hi' ? 'hi-IN' : lang === 'bn' ? 'bn-BD' : lang === 'fil' ? 'fil-PH' : 'en-US';
+  const localeTag = dateLocaleFor(lang);
 
   const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState<any[]>([]);
