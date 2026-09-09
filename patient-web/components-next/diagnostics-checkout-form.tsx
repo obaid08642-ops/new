@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -137,10 +138,18 @@ export function DiagnosticsCheckoutForm({
         </label>
       ) : null}
       {method === "insurance" ? (
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>{ar ? "شركة التأمين" : "Insurance company"}</span>
-          <input value={insuranceProvider} onChange={(e) => setInsuranceProvider(e.target.value)} maxLength={128} required />
-        </label>
+        <>
+          <label style={{ display: "grid", gap: 6 }}>
+            <span>{ar ? "شركة التأمين" : "Insurance company"}</span>
+            <input value={insuranceProvider} onChange={(e) => setInsuranceProvider(e.target.value)} maxLength={128} required />
+          </label>
+          <p>
+            <small>
+              {ar ? "لديك حجز قائم؟ " : "Have an existing booking? "}
+              <Link href={`/${locale}/diagnostics/bookings`}>{ar ? "ارفع مستند التأمين من حجوزاتك" : "Upload insurance documents from your bookings"}</Link>
+            </small>
+          </p>
+        </>
       ) : null}
       {error ? <p role="alert">{error}</p> : null}
       <button type="submit" disabled={saving}>{saving ? (ar ? "جارٍ الحجز..." : "Booking...") : (ar ? "تأكيد الحجز" : "Confirm booking")}</button>

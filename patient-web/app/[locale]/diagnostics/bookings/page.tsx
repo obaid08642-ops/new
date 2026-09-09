@@ -35,7 +35,7 @@ export default async function DiagnosticsBookingsPage({ params }: Props) {
           {list.map((b: unknown, i: number) => {
             const r = b as Record<string, unknown>;
             const id = String(r.id ?? r.bookingId ?? r._id ?? i);
-            return <li key={id}><Link href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`}>{String(r.service_name ?? r.name ?? id)} · {String(r.state ?? r.status ?? "")}</Link></li>;
+            return <li key={id}><Link href={`/${locale}/diagnostics/labs/${encodeURIComponent(id)}`}>{String(r.service_name ?? r.name ?? id)} · {String(r.state ?? r.status ?? "")}</Link>{" "}<Link href={`/${locale}/diagnostics/insurance-upload?bookingId=${encodeURIComponent(id)}`}>{locale === "ar" ? "رفع تأمين" : "Upload insurance"}</Link></li>;
           })}
         </ul>
       ) : <p role="status">{t("unavailable")}</p>}
