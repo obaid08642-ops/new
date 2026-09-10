@@ -7,9 +7,17 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const base = process.env.NEXT_PUBLIC_API_URL || "https://api.nabd.plus";
   try {
-    const res = await fetch(`${base}/api/v1/public/products/search?limit=1000&locale=ar`, { next: { revalidate: 86400 } });
-    const data = await res.json().catch(() => null);
-    const products: any[] = Array.isArray(data) ? data : data?.data || data?.products || data?.items || [];
+    // Paginate through all 20990 (API limit 1000/page = 21 pages)
+    const all: any[] = [];
+    for (let page = 1; page <= 21; page++) {
+      const res = await fetch(`${base}/api/v1/public/products/search?limit=1000&page=${page}&locale=ar`, { next: { revalidate: 86400 } });
+      const data: any = await res.json().catch(() => null);
+      const items: any[] = Array.isArray(data) ? data : data?.data || data?.products || data?.items || [];
+      if (!items.length) break;
+      all.push(...items);
+      if (!data?.has_more) break;
+    }
+    const products = all;
     const lines = products.slice(0, 21000).map((p: any) => {
       const how = Array.isArray(p.how_to_use) ? p.how_to_use.join('; ') : (p.how_to_use || '');
       const warn = Array.isArray(p.warnings) ? p.warnings.join('; ') : (p.warnings || '');
