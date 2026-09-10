@@ -16,9 +16,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --save 60 1000
     volumes:
       - redis_data:/data
+    sysctls:
+      - net.core.somaxconn=65535
 
   coturn:
     image: coturn/coturn:latest
